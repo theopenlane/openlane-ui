@@ -1,0 +1,32 @@
+{
+	"name": "@repo/dally",
+	"version": "0.0.0",
+	"private": true,
+	"sideEffects": [
+		"**/*.js"
+	],
+	"scripts": {
+		"build": "tsc",
+		"lint": "eslint src/",
+		"dev": "tsc --watch",
+		"type-check": "tsc --noEmit"
+	},
+	"exports": {
+		"./auth": "./src/index.ts",
+		"./user": "./src/lib/user.ts"
+	},
+	"peerDependencies": {
+		"react": "latest"
+	},
+	"devDependencies": {
+		"swr": "latest",
+		"dotenv": "latest",
+		"@repo/eslint-config": "workspace:*",
+		"@types/node": "latest",
+		"@types/eslint": "latest",
+		"eslint": "latest",
+		"react": "latest",
+		"tsup": "latest",
+		"typescript": "latest"
+	}
+}

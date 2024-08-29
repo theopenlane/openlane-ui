@@ -1,0 +1,72 @@
+mutation CreateTemplate($input: CreateTemplateInput!) {
+  createTemplate(input: $input) {
+    template {
+      id
+      name
+      templateType
+      description
+      jsonconfig
+      uischema
+      owner {
+        id
+      }
+    }
+  }
+}
+
+mutation UpdateTemplate($updateTemplateId: ID!, $input: UpdateTemplateInput!) {
+  updateTemplate(id: $updateTemplateId, input: $input) {
+    template {
+      id
+      name
+      templateType
+      description
+      jsonconfig
+      uischema
+      owner {
+        id
+      }
+    }
+  }
+}
+
+query GetAllTemplates {
+  templates {
+    edges {
+      node {
+        id
+        name
+        templateType
+        description
+        jsonconfig
+        uischema
+      }
+    }
+  }
+}
+
+query FilterTemplates($where: TemplateWhereInput) {
+  templates(where: $where) {
+    edges {
+      node {
+        id
+        name
+        templateType
+        description
+        jsonconfig
+        uischema
+      }
+    }
+  }
+}
+
+query GetTemplate($getTemplateId: ID!) {
+  template(id: $getTemplateId) {
+    id
+    templateType
+    name
+    description
+    jsonconfig
+    uischema
+  }
+}

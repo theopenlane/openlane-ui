@@ -1,0 +1,135 @@
+query GetAllOrganizations {
+  organizations {
+    edges {
+      node {
+        id
+        name
+        displayName
+        avatarRemoteURL
+        description
+        personalOrg
+        parent {
+          id
+          name
+        }
+        children {
+          edges {
+            node {
+              id
+              name
+              displayName
+              description
+            }
+          }
+        }
+        members {
+          id
+          role
+          user {
+            id
+            firstName
+            lastName
+          }
+        }
+        setting {
+          id
+          createdAt
+          updatedAt
+          createdBy
+          updatedBy
+          domains
+          billingContact
+          billingEmail
+          billingPhone
+          billingAddress
+          taxIdentifier
+          tags
+          geoLocation
+        }
+        createdAt
+        updatedAt
+      }
+    }
+  }
+}
+
+query GetOrganizationNameByID($organizationId: ID!) {
+  organization(id: $organizationId) {
+    name
+    displayName
+  }
+}
+
+query GetOrganizationMembers($organizationId: ID!) {
+  organization(id: $organizationId) {
+    members {
+      id
+      createdAt
+      role
+      user {
+        id
+        firstName
+        lastName
+        authProvider
+        avatarRemoteURL
+        email
+        role
+        createdAt
+      }
+    }
+  }
+}
+
+query GetInvites {
+  invites {
+    edges {
+      node {
+        id
+        recipient
+        status
+        createdAt
+        expires
+        role
+      }
+    }
+  }
+}
+
+mutation CreateOrganization($input: CreateOrganizationInput!) {
+  createOrganization(input: $input) {
+    organization {
+      id
+    }
+  }
+}
+
+mutation UpdateOrganization(
+  $updateOrganizationId: ID!
+  $input: UpdateOrganizationInput!
+) {
+  updateOrganization(id: $updateOrganizationId, input: $input) {
+    organization {
+      id
+    }
+  }
+}
+
+mutation CreateBulkInvite($input: [CreateInviteInput!]) {
+  createBulkInvite(input: $input) {
+    invites {
+      id
+    }
+  }
+}
+
+mutation DeleteOrganizationInvite($deleteInviteId: ID!) {
+  deleteInvite(id: $deleteInviteId) {
+    deletedID
+  }
+}
+
+mutation DeleteOrganization($deleteOrganizationId: ID!) {
+  deleteOrganization(id: $deleteOrganizationId) {
+    deletedID
+  }
+}

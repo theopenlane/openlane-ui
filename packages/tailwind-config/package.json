@@ -1,0 +1,15 @@
+{
+  "name": "@repo/tailwind-config",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    ".": "./tailwind.config.ts"
+  },
+  "devDependencies": {
+    "autoprefixer": "latest",
+    "postcss-import": "latest",
+    "tailwindcss": "latest",
+    "@tailwindcss/forms": "latest",
+    "tailwind-variants": "latest"
+  }
+}

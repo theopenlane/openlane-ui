@@ -1,0 +1,18 @@
+{
+  "extends": "@repo/typescript-config/nextjs.json",
+  "compilerOptions": {
+    "strictNullChecks": true,
+    "declaration": false,
+    "declarationMap": false,
+    "plugins": []
+  },
+  "include": [
+    "src",
+    "**/*.ts",
+    "**/*.tsx",
+    "vite.config.ts",
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

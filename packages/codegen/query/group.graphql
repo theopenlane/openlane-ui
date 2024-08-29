@@ -1,0 +1,20 @@
+query GetAllGroups {
+  groups {
+    edges {
+      node {
+        id
+        name
+        description
+        displayName
+        logoURL
+        setting {
+          visibility
+          joinPolicy
+          syncToSlack
+          syncToGithub
+          tags
+        }
+      }
+    }
+  }
+}

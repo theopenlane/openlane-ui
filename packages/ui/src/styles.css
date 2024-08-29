@@ -1,0 +1,22 @@
+@layer ui_base, ui_components_utils;
+
+@layer ui_base {
+  @import 'tailwindcss/base';
+
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    @apply text-blackberry-800 dark:text-blackberry-100;
+  }
+}
+
+@layer ui_components_utils {
+  @import 'tailwindcss/components';
+  @import 'tailwindcss/utilities';
+}
+
+/* Ensures that icons scale with font size */
+.button-icon svg {
+  width: 1rem;
+  height: 1rem;
+}
