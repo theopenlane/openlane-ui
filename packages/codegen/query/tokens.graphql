@@ -1,0 +1,26 @@
+mutation CreatePersonalAccessToken($input: CreatePersonalAccessTokenInput!) {
+  createPersonalAccessToken(input: $input) {
+    personalAccessToken {
+      token
+    }
+  }
+}
+
+query GetPersonalAccessTokens {
+  personalAccessTokens {
+    edges {
+      node {
+        id
+        name
+        description
+        expiresAt
+      }
+    }
+  }
+}
+
+mutation DeletePersonalAccessToken($deletePersonalAccessTokenId: ID!) {
+  deletePersonalAccessToken(id: $deletePersonalAccessTokenId) {
+    deletedID
+  }
+}

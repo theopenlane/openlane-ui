@@ -1,0 +1,7 @@
+mutation CreateSubscriber($input: CreateSubscriberInput!) {
+  createSubscriber(input: $input) {
+    subscriber {
+      email
+    }
+  }
+}

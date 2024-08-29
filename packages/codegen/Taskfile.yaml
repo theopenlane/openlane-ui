@@ -1,0 +1,12 @@
+version: '3'
+
+tasks:
+  codegen:
+    desc: run generate
+    cmds:
+      - task: generate
+      - task: clean
+
+  generate:
+    desc: run generate
+    cmd: bun run codegen
