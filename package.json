@@ -19,7 +19,7 @@
     "eslint": "latest",
     "prettier": "latest",
     "prettier-plugin-tailwindcss": "latest",
-    "turbo": "1.13"
+    "turbo": "2.2"
   },
   "engines": {
     "node": ">=18"
