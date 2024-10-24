@@ -2,7 +2,7 @@ version: '3'
 
 tasks:
   codegen:
-    desc: run generate
+    desc: run generate + clean
     cmds:
       - task: generate
       - task: clean
@@ -10,3 +10,9 @@ tasks:
   generate:
     desc: run generate
     cmd: bun run codegen
+
+  clean:
+    # See https://github.com/dotansimha/graphql-code-generator-community/issues/501
+    # TODO: find the right combination of deps to fix this
+    desc: clean up badly generated code
+    cmd: sed -i '' "s/'graphql-request\\/dist\\/types';/'graphql-request';/" src/schema.ts

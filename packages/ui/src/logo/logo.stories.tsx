@@ -52,15 +52,15 @@ export const Dark: Story = {
   },
 }
 
-export const Blackberry: Story = {
+export const java: Story = {
   args: {
-    theme: 'blackberry',
+    theme: 'java',
   },
 }
 
-export const Sunglow: Story = {
+export const aquamarine: Story = {
   args: {
-    theme: 'sunglow',
+    theme: 'aquamarine',
   },
 }
 
@@ -96,6 +96,6 @@ export const IconLight: Story = {
   args: {
     width: 80,
     asIcon: true,
-    theme: 'blackberry',
+    theme: 'java',
   },
 }

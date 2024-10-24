@@ -27,7 +27,7 @@ const meta: Meta<typeof Dialog> = {
     return (
       <Dialog>
         <DialogTrigger asChild>
-          <Button variant="blackberry" size="md">
+          <Button variant="aquamarine" size="md">
             Open Dialog
           </Button>
         </DialogTrigger>
@@ -35,14 +35,14 @@ const meta: Meta<typeof Dialog> = {
           <DialogHeader>
             <DialogTitle>Are you absolutely sure?</DialogTitle>
             <DialogDescription>
-              This action cannot be undone. Your workspace and associated records will be deleted.
+              This action cannot be undone. Your organization and associated records will be deleted.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
-            <Button variant="sunglow">Delete</Button>
+            <Button variant="aquamarine">Delete</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -60,7 +60,7 @@ export const ConfirmationDialog: Story = {
     return (
       <Dialog>
         <DialogTrigger asChild>
-          <Button variant="blackberry" size="md">
+          <Button variant="aquamarine" size="md">
             Confirm Action
           </Button>
         </DialogTrigger>
@@ -76,7 +76,7 @@ export const ConfirmationDialog: Story = {
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
-            <Button variant="sunglow">Proceed</Button>
+            <Button variant="aquamarine">Proceed</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

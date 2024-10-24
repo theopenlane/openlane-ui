@@ -10,7 +10,7 @@
     "build": "turbo build",
     "dev": "turbo dev --parallel",
     "type-check": "turbo type-check",
-    "clean": "rm -rf node_modules/** && rm -rf ./apps/operator/.next && rm -rf ./apps/docs/.next && rm -rf ./apps/web/.next && turbo clean",
+    "clean": "rm -rf node_modules/** && rm -rf ./apps/console/.next && rm -rf ./apps/docs/.next && rm -rf ./apps/web/.next && turbo clean",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
@@ -40,6 +40,7 @@
     "react-dom": "18.3.1"
   },
   "dependencies": {
+    "@radix-ui/react-icons": "^1.3.0",
     "@react-pdf/renderer": "^3.4.4"
   }
 }

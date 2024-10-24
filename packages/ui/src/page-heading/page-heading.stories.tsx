@@ -12,7 +12,7 @@ const meta: Meta<typeof PageHeading> = {
     },
     backgrounds: { default: 'white' },
   },
-  render: (args) => {
+  render: (args : any) => {
     return <PageHeading {...args} />
   },
 } satisfies Meta<typeof PageHeading>
@@ -22,7 +22,7 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
-    eyebrow: 'Workspace settings',
+    eyebrow: 'Organization settings',
     heading: 'General',
   },
 }

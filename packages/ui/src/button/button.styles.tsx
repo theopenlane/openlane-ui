@@ -3,7 +3,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 
 export const buttonStyles = tv({
   slots: {
-    base: 'relative group font-sans font-semibold text-white inline-flex items-center gap-2 justify-center whitespace-nowrap rounded-md leading-none text-sm transition-all duration-500 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blackberry-300 disabled:pointer-events-none disabled:opacity-50',
+    base: 'relative group font-sans font-semibold text-oxford-blue-900 inline-flex items-center gap-2 justify-center whitespace-nowrap rounded-md leading-none text-sm transition-all duration-500 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-oxford-blue-300 disabled:pointer-events-none disabled:opacity-50',
     iconOuter: 'relative h-4 w-4 overflow-hidden',
     iconInner: 'absolute transition-all duration-500',
     loadingWrapper:
@@ -14,16 +14,15 @@ export const buttonStyles = tv({
   },
   variants: {
     variant: {
-      sunglow: '!bg-sunglow-900 hover:!opacity-90',
-      blackberry: '!bg-blackberry-900 hover:!opacity-90',
+      aquamarine: '!bg-aquamarine-400 hover:!opacity-90',
       outline:
-        'border-blackberry-800 text-blackberry-800 border hover:!opacity-90',
+        'border-java-800 text-oxford-blue-800 border hover:!opacity-90',
       outlineLight:
-        'border-blackberry-500 text-blackberry-800 border hover:!opacity-90',
+        'border-java-500 text-oxford-blue-800 border hover:!opacity-90',
       redOutline:
         'border-util-red-500 text-util-red-500 border bg-white hover:!opacity-90 dark:border-util-red-500 dark:text-util-red-500',
       white: {},
-      success: 'flex-row-reverse !bg-util-green-500 hover:!opacity-90',
+      success: 'flex-row-reverse !bg-aquamarine-600 hover:!opacity-90',
     },
     iconPosition: {
       left: 'flex-row-reverse',
@@ -51,14 +50,9 @@ export const buttonStyles = tv({
   },
   compoundVariants: [
     {
-      variant: 'sunglow',
+      variant: 'aquamarine',
       size: 'sm',
-      class: 'text-sunglow-900',
-    },
-    {
-      variant: 'blackberry',
-      size: 'sm',
-      class: 'text-blackberry-900',
+      class: 'text-aquamarine-900',
     },
     {
       variant: 'white',
@@ -72,7 +66,7 @@ export const buttonStyles = tv({
     },
   ],
   defaultVariants: {
-    variant: 'sunglow',
+    variant: 'aquamarine',
     size: 'md',
   },
 })

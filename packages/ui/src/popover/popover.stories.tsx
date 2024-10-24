@@ -18,7 +18,7 @@ const meta: Meta<typeof Popover> = {
     return (
       <Popover>
         <PopoverTrigger>
-          <Button variant="blackberry" size="md">
+          <Button variant="aquamarine" size="md">
             Open popover menu
           </Button>
         </PopoverTrigger>
