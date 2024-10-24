@@ -1,0 +1,24 @@
+@import '@repo/ui/styles.css';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  @apply text-firefly-950 dark:text-ziggurat-200 font-sans;
+}
+
+h4 {
+  @apply text-3xl tracking-[-0.038rem] mb-10 w-full font-serif;
+}
+
+h5 {
+  @apply text-[1.313rem] tracking-[-0.033rem];
+}
+p {
+  @apply text-firefly-950/90 dark:text-ziggurat-200;
+}
+
+p.red {
+  @apply text-util-red-500;
+}

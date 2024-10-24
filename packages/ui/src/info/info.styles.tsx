@@ -7,7 +7,7 @@ export const infoStyles = tv({
   variants: {
     style: {
       info: {
-        panel: 'bg-blackberry-100 text-blackberry-600',
+        panel: 'bg-java-100 text-java-600',
       },
     },
   },

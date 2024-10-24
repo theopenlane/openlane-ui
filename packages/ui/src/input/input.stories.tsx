@@ -34,7 +34,7 @@ export const WithPlaceholder: Story = {
 
 export const WithIcon: Story = {
   args: {
-    placeholder: 'Search for a workspace',
+    placeholder: 'Search for a organization',
     icon: <SearchIcon width={17} />,
   },
 }

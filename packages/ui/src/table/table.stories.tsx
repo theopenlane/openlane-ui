@@ -50,7 +50,7 @@ const meta: Meta<typeof Table> = {
 								<TableCell>{user.role}</TableCell>
 								<TableCell>01/01/2024</TableCell>
 								<TableCell>
-									<div className='text-blackberry-500'>
+									<div className='text-java-500'>
 										<EllipsisIcon />
 									</div>
 								</TableCell>

@@ -11,7 +11,7 @@ export const toastStyles = tv({
     toastDestructive:
       'destructive group border-util-red-300 bg-util-red-100 text-util-red-500 dark:border-util-red-300 dark:bg-util-red-100 dark:text-util-red-500',
     toastSuccess:
-      'group border-util-green-300 bg-util-green-100 text-util-green-500 dark:border-util-green-300 dark:bg-util-green-100 dark:text-util-green-500',
+      'group border-aquamarine-600 bg-aquamarine-300 text-aquamarine-800 dark:border-aquamarine-200 dark:bg-aquamarine-100 dark:text-aquamarine-500',
     action:
       'inline-flex h-8 shrink-0 items-center justify-center rounded-md border border-slate-200 bg-transparent px-3 text-sm font-medium ring-offset-white transition-colors hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-slate-100/40 group-[.destructive]:hover:border-red-500/30 group-[.destructive]:hover:bg-red-500 group-[.destructive]:hover:text-slate-50 group-[.destructive]:focus:ring-red-500 dark:border-slate-800 dark:ring-offset-slate-950 dark:hover:bg-slate-800 dark:focus:ring-slate-300 dark:group-[.destructive]:border-slate-800/40 dark:group-[.destructive]:hover:border-red-900/30 dark:group-[.destructive]:hover:bg-red-900 dark:group-[.destructive]:hover:text-slate-50 dark:group-[.destructive]:focus:ring-red-900',
     close:

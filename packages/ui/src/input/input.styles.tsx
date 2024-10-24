@@ -3,12 +3,12 @@ import { tv, type VariantProps } from 'tailwind-variants'
 export const inputStyles = tv({
   slots: {
     input:
-      'flex h-12 w-full rounded-md border font-sans autofill:bg-white autofill:text-blackberry-500 autofill:font-sans text-blackberry-500 border-blackberry-500 bg-transparent px-3 py-none text-base transition-colors file:border-0 file:bg-transparent file:text-base file:font-medium placeholder:text-blackberry-500 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blackberry-300 disabled:cursor-not-allowed disabled:opacity-50',
+      'flex h-12 w-full rounded-md border font-sans autofill:bg-white autofill:text-firefly-950 autofill:font-sans text-firefly-950 border-firefly-950 bg-transparent px-3 py-none text-base transition-colors file:border-0 file:bg-transparent file:text-base file:font-medium placeholder:text-firefly-950 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-firefly-100 disabled:cursor-not-allowed disabled:opacity-50',
     inputWrapper: 'relative flex items-center',
     iconWrapper:
-      'absolute z-20 text-blackberry-500 top-1/2 -translate-y-1/2 right-4',
+      'absolute z-20 text-firefly-500 top-1/2 -translate-y-1/2 right-4',
     prefixWrapper:
-      'absolute z-20 rounded-l-md px-4 border text-blackberry-500 h-full left-0 flex items-center bg-winter-sky-700 border-blackberry-500',
+      'absolute z-20 rounded-l-md px-4 border text-firefly-500 h-full left-0 flex items-center bg-firefly-700 border-firefly-500',
   },
   variants: {
     hasIcon: {

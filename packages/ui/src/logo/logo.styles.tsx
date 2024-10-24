@@ -3,30 +3,30 @@ import { tv, type VariantProps } from 'tailwind-variants'
 export const logoStyles = tv({
   slots: {
     base: 'block max-w-full max-h-full',
-    icon: 'fill-sunglow-900',
-    text: 'fill-blackberry-800 dark:fill-white',
+    icon: 'fill-aquamarine-900',
+    text: 'fill-java-800 dark:fill-white',
   },
   variants: {
     theme: {
       light: {
-        icon: 'fill-sunglow-900',
-        text: 'fill-blackberry-800 dark:fill-blackberry-800',
+        icon: 'fill-aquamarine-900',
+        text: 'fill-java-800 dark:fill-java-800',
       },
       dark: {
-        icon: 'fill-sunglow-900',
+        icon: 'fill-aquamarine-900',
         text: 'fill-white',
       },
-      blackberry: {
-        icon: 'fill-blackberry-800',
-        text: 'fill-blackberry-800',
+      java: {
+        icon: 'fill-java-800',
+        text: 'fill-java-800',
       },
-      blackberryLight: {
-        icon: 'fill-blackberry-700',
-        text: 'fill-blackberry-700',
+      javaLight: {
+        icon: 'fill-java-700',
+        text: 'fill-java-700',
       },
-      sunglow: {
-        icon: 'fill-sunglow-900',
-        text: 'fill-sunglow-900',
+      aquamarine: {
+        icon: 'fill-aquamarine-400',
+        text: 'fill-aquamarine-400',
       },
       white: {
         icon: 'fill-white',

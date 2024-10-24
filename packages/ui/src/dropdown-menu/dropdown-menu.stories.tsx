@@ -32,7 +32,7 @@ const meta: Meta<typeof DropdownMenu> = {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="blackberry" size="md">
+          <Button variant="aquamarine" size="md">
             Open dropdown menu
           </Button>
         </DropdownMenuTrigger>
@@ -101,7 +101,7 @@ export const UserMenu: Story = {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="blackberry" size="md">
+          <Button variant="aquamarine" size="md">
             User menu
           </Button>
         </DropdownMenuTrigger>
@@ -114,7 +114,7 @@ export const UserMenu: Story = {
                 chris_b@lloydsbank.com
               </p>
               <p>
-                <a href="#" className="block text-sunglow-900 mt-2">
+                <a href="#" className="block text-aquamarine-900 mt-2">
                   User Settings
                 </a>
               </p>
