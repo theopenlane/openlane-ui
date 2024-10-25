@@ -24,7 +24,7 @@ export const Alerts = () => {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <div className="absolute right-0 z-10 mt-2.5 w-32 origin-top-right rounded-md bg-white dark:bg-peat-900 py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
+        <div className="absolute right-0 z-10 mt-2.5 w-32 origin-top-right rounded-md bg-white dark:bg-java-900 py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
           <ul className="w-full px-2">
             <li className="w-full">
               <h3 className="w-full text-sm text-center">No new alerts 🎉</h3>

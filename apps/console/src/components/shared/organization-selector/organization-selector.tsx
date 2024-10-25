@@ -80,14 +80,14 @@ export const OrganizationSelector = () => {
   if (nonPersonalOrgs.length <= 1) {
     return (
       <Link href={'/'} className={logoWrapper()}>
-        <Logo width={200} theme="light" />
+      <Logo width={200} />
       </Link>
     )
   }
 
   return (
     <div className={container()}>
-      <Logo width={30} asIcon theme="javaLight" />
+      <Logo width={30} asIcon={true} />
       <div>
         <div className={organizationLabel()}>Organization:</div>
         <Popover>

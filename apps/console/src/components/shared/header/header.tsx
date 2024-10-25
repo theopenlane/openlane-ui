@@ -16,9 +16,8 @@ export default function Header() {
         </div>
 
         <div className={userNav()}>
-          <Link href="#">Feedback</Link>
-          <Link href="#">Changelog</Link>
-          <Link href="#">Docs</Link>
+          <Link href="mailto:support@theopenlane.io">Feedback</Link>
+          <Link href="https://docs.theopenlane.io">Docs</Link>
           <Notifications />
           <UserMenu />
         </div>

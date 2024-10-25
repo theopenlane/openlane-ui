@@ -114,7 +114,7 @@ export const UserMenu: Story = {
                 chris_b@lloydsbank.com
               </p>
               <p>
-                <a href="#" className="block text-aquamarine-900 mt-2">
+                <a href="#" className="block text-aquamarine-900 dark:text-aquamarine-100 mt-2">
                   User Settings
                 </a>
               </p>

@@ -116,7 +116,7 @@ export const LoginPage = () => {
       <div className="flex flex-col mt-8 justify-start">
         <div className={buttons()}>
           <Button
-            variant="outline"
+            variant="outlineLight"
             size="md"
             icon={<GoogleIcon />}
             iconPosition="left"
@@ -128,7 +128,7 @@ export const LoginPage = () => {
           </Button>
 
           <Button
-            variant="outline"
+            variant="outlineLight"
             size="md"
             icon={<GithubIcon />}
             iconPosition="left"
@@ -140,7 +140,7 @@ export const LoginPage = () => {
           </Button>
 
           <Button
-            variant="outline"
+            variant="outlineLight"
             size="md"
             icon={<KeyRoundIcon className={keyIcon()} />}
             iconPosition="left"

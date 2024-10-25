@@ -15,9 +15,6 @@ import { sessionCookieName } from '@repo/dally/auth'
 const isDevelopment = process.env.NODE_ENV === 'development'
 
 export const config = {
-  theme: {
-    logo: '/logos/logo_orange_icon.svg',
-  },
   pages: {
     signIn: '/login',
     newUser: '/signup',

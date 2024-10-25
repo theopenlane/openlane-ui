@@ -56,7 +56,7 @@ export const config: Omit<Config, 'content'> = {
         },
         ziggurat: {
             '50': '#f5f9fa',
-            '100': '#e9f1f5', //  background color in light mode
+            '100': '#e9f1f5', // background color in light mode
             '200': '#bdd9e1', // font color in dark mode
             '300': '#a3cbd6',
             '400': '#72b0be',
@@ -64,7 +64,7 @@ export const config: Omit<Config, 'content'> = {
             '600': '#3d7b8c',
             '700': '#336371',
             '800': '#2d545f',
-            '900': '#2a4750',
+            '900': '#2a4750', // background of panels/tables/etc. in dark mode
             '950': '#1c2e35',
         },
         firefly: { // dark green background
@@ -80,6 +80,32 @@ export const config: Omit<Config, 'content'> = {
             '900': '#1a535f',
             '950': '#082930', // font color in light mode
         },
+        'river-bed': { // icon font color
+          '50': '#f4f6f7',
+          '100': '#e3e8ea',
+          '200': '#c9d2d8',
+          '300': '#a4b2bc',
+          '400': '#778a99',
+          '500': '#5c6f7e',
+          '600': '#4f5e6b',
+          '700': '#46515c',
+          '800': '#3d444d',
+          '900': '#363b43',
+          '950': '#21252b',
+      },
+      'puerto-rico': { // icon green color
+        '50': '#f3faf9',
+        '100': '#d6f1ea',
+        '200': '#ace3d6',
+        '300': '#66c5b3',
+        '400': '#50b1a2',
+        '500': '#369688',
+        '600': '#29786e',
+        '700': '#24615a',
+        '800': '#214e4a',
+        '900': '#1f423e',
+        '950': '#0d2624',
+    },
         'oxford-blue': { 
             '50': '#f2f7f9',
             '100': '#dfeaee',

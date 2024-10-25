@@ -94,7 +94,7 @@ export const Drawer = ({ routes, currentPath }: any) => {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <div className="2xl:hidden fixed inset-0 bg-java-200/70 dark:bg-peat-900/80" />
+            <div className="2xl:hidden fixed inset-0 bg-java-200/70 dark:bg-java-900/80" />
           </Transition.Child>
 
           <div className="fixed inset-0 flex">
@@ -108,7 +108,7 @@ export const Drawer = ({ routes, currentPath }: any) => {
               leaveTo="-translate-x-full"
             >
               <Dialog.Panel>
-                <div className="!w-72 !h-full !top-16 !inset-y-0 !z-30 !flex !flex-col bg-white dark:bg-peat-800 border-0 border-r border-java-200 dark:border-peat-700">
+                <div className="!w-72 !h-full !top-16 !inset-y-0 !z-30 !flex !flex-col bg-white dark:bg-java-800 border-0 border-r border-java-200 dark:border-java-700">
                   <div className="flex grow flex-col gap-y-5 overflow-y-auto">
                     <nav className="flex flex-1 flex-col px-6 py-4 mb-8">
                       <ul className="flex flex-1 flex-col space-y-1 overflow-y-scroll overflow-x-clip">
@@ -120,8 +120,8 @@ export const Drawer = ({ routes, currentPath }: any) => {
                                   key={idx}
                                   className={clsx(
                                     item.current
-                                      ? 'bg-java-50 dark:bg-peat-700'
-                                      : 'hover:bg-java-100 hover:dark:bg-peat-900 hover:dark:text-oxford-blue-100',
+                                      ? 'bg-java-50 dark:bg-java-700'
+                                      : 'hover:bg-java-100 hover:dark:bg-java-900 hover:dark:text-oxford-blue-100',
                                     '!group !flex !items-center !gap-x-3 !rounded-md !p-2 !text-sm !leading-6 !transition-all !ease-in-out',
                                   )}
                                   href={item.href}
@@ -141,8 +141,8 @@ export const Drawer = ({ routes, currentPath }: any) => {
                                       <Disclosure.Button
                                         className={clsx(
                                           item.current
-                                            ? 'bg-java-50 dark:bg-peat-700'
-                                            : 'hover:bg-java-100 hover:dark:bg-peat-900 hover:dark:text-oxford-blue-100',
+                                            ? 'bg-java-50 dark:bg-java-700'
+                                            : 'hover:bg-java-100 hover:dark:bg-java-900 hover:dark:text-oxford-blue-100',
                                           '!group !flex !w-full !items-center !gap-x-3 !rounded-md !p-2 !text-sm !leading-6 !transition-all !ease-in-out',
                                         )}
                                       >
@@ -175,8 +175,8 @@ export const Drawer = ({ routes, currentPath }: any) => {
                                                 href={child.href}
                                                 className={clsx(
                                                   child.current
-                                                    ? 'bg-java-50 dark:bg-peat-700'
-                                                    : 'hover:bg-java-100 hover:dark:bg-peat-900 hover:dark:text-oxford-blue-100',
+                                                    ? 'bg-java-50 dark:bg-java-700'
+                                                    : 'hover:bg-java-100 hover:dark:bg-java-900 hover:dark:text-oxford-blue-100',
                                                   '!group !flex !items-center !gap-x-3 !rounded-md !p-2 !text-sm !leading-6 !transition-all !ease-in-out',
                                                 )}
                                               >
@@ -193,7 +193,7 @@ export const Drawer = ({ routes, currentPath }: any) => {
                             </li>
                           ) : (
                             <li key={`${idx}_divider`}>
-                              <div className="!h-0 !border-t !w-72 !border-java-200 dark:!border-peat-700 -!ml-6 !my-6" />
+                              <div className="!h-0 !border-t !w-72 !border-java-200 dark:!border-java-700 -!ml-6 !my-6" />
                             </li>
                           ),
                         )}
@@ -210,7 +210,7 @@ export const Drawer = ({ routes, currentPath }: any) => {
       <div
         className={clsx(
           tabletMenuOpen ? '!w-72' : 'w-16 2xl:w-72',
-          'hidden z-50 lg:flex fixed top-16 h-[calc(100%-4rem)] flex-col bg-white dark:bg-peat-800 border-0 border-r border-java-200 dark:border-peat-700 transition-all ease-in-out',
+          'hidden z-50 lg:flex fixed top-16 h-[calc(100%-4rem)] flex-col bg-white dark:bg-java-800 border-0 border-r border-java-200 dark:border-java-700 transition-all ease-in-out',
         )}
       >
         <div className="flex grow flex-col gap-y-5 overflow-y-auto">
@@ -229,8 +229,8 @@ export const Drawer = ({ routes, currentPath }: any) => {
                         key={idx}
                         className={clsx(
                           item.current
-                            ? 'bg-java-50 dark:bg-peat-700'
-                            : 'hover:bg-java-100 hover:dark:bg-peat-900 hover:dark:text-oxford-blue-100',
+                            ? 'bg-java-50 dark:bg-java-700'
+                            : 'hover:bg-java-100 hover:dark:bg-java-900 hover:dark:text-oxford-blue-100',
                           tabletMenuOpen ? '!justify-start' : '',
                           'group flex justify-center 2xl:justify-start !items-center !gap-x-3 !rounded-md !p-2 !text-sm !leading-6!transition-all !ease-in-out',
                         )}
@@ -258,8 +258,8 @@ export const Drawer = ({ routes, currentPath }: any) => {
                             <Disclosure.Button
                               className={clsx(
                                 item.current
-                                  ? 'bg-java-50 dark:bg-peat-700'
-                                  : 'hover:bg-java-100 hover:dark:bg-peat-900 hover:dark:text-oxford-blue-100',
+                                  ? 'bg-java-50 dark:bg-java-700'
+                                  : 'hover:bg-java-100 hover:dark:bg-java-900 hover:dark:text-oxford-blue-100',
                                 tabletMenuOpen ? '!flex' : null,
                                 'group hidden 2xl:flex !justify-center !items-center !w-full !gap-x-3 !rounded-md !p-2 !text-sm !leading-6 !transition-all !ease-in-out',
                               )}
@@ -292,8 +292,8 @@ export const Drawer = ({ routes, currentPath }: any) => {
                             <Link
                               className={clsx(
                                 item.current
-                                  ? 'bg-java-50 dark:bg-peat-700'
-                                  : 'hover:!bg-java-100 hover:dark:!bg-peat-900 hover:dark:!text-oxford-blue-100',
+                                  ? 'bg-java-50 dark:bg-java-700'
+                                  : 'hover:!bg-java-100 hover:dark:!bg-java-900 hover:dark:!text-oxford-blue-100',
                                 tabletMenuOpen ? '!hidden' : null,
                                 'group flex 2xl:hidden justify-center !gap-x-3 !rounded-md !p-2 !text-sm !leading-6 !transition-all !ease-in-out',
                               )}
@@ -321,8 +321,8 @@ export const Drawer = ({ routes, currentPath }: any) => {
                                     href={child.href}
                                     className={clsx(
                                       child.current
-                                        ? 'bg-java-50 dark:bg-peat-700'
-                                        : 'hover:bg-java-100 hover:dark:bg-peat-900 hover:dark:text-oxford-blue-100',
+                                        ? 'bg-java-50 dark:bg-java-700'
+                                        : 'hover:bg-java-100 hover:dark:bg-java-900 hover:dark:text-oxford-blue-100',
                                       'group flex items-center !gap-x-3 rounded-md p-2 text-sm leading-6 transition-all ease-in-out',
                                     )}
                                   >
@@ -338,7 +338,7 @@ export const Drawer = ({ routes, currentPath }: any) => {
                   </li>
                 ) : (
                   <li key={`${idx}_divider`}>
-                    <div className="!h-0 !border-t !w-72 !border-java-200 dark:!border-peat-700 -!ml-6 !my-6" />
+                    <div className="!h-0 !border-t !w-72 !border-java-200 dark:!border-java-700 -!ml-6 !my-6" />
                   </li>
                 ),
               )}
@@ -350,7 +350,7 @@ export const Drawer = ({ routes, currentPath }: any) => {
       <button
         className={clsx(
           tabletMenuOpen && !isMobile ? '!left-72' : null,
-          `left-0 lg:left-16 2xl:hidden flex !items-center !px-4 !py-3 !min-w-14 !fixed !bottom-0 !rounded-tr bg-white dark:bg-peat-400 !border-t !border-r border-java-100 dark:border-peat-700 !z-50`,
+          `left-0 lg:left-16 2xl:hidden flex !items-center !px-4 !py-3 !min-w-14 !fixed !bottom-0 !rounded-tr bg-white dark:bg-java-400 !border-t !border-r border-java-800 dark:border-java-100 !z-50`,
         )}
         onClick={() => {
           if (window.innerWidth < 1023) {

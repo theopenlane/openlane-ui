@@ -117,7 +117,7 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
     },
     {
       accessorKey: 'user.firstname',
-      header: '',
+      header: 'Name',
       cell: ({ row }) => {
         const fullName =
           `${row.original.user.firstName} ${row.original.user.lastName}` || ''
@@ -137,7 +137,7 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
     },
     {
       accessorKey: 'user.email',
-      header: '',
+      header: 'Email',
     },
     {
       accessorKey: 'createdAt',

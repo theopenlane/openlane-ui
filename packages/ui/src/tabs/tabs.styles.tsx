@@ -16,9 +16,9 @@ const tabsStyles = tv({
           'flex-1 items-center justify-center whitespace-nowrap px-3 py-2 font-sans border-b border-ziggurat-900 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:border-aquamarine-900 data-[state=active]:border-b-2 data-[state=active]:text-aquamarine-900',
       },
       solid: {
-        tabsList: 'rounded-md bg-aquamarine-400 p-[10px] items-start',
+        tabsList: 'rounded-md bg-white dark:bg-ziggurat-900 p-[10px] items-start',
         tabsTrigger:
-          'py-[15px] px-5 rounded-[5px] border border-transparent data-[state=active]:border-ziggurat-900 data-[state=active]:bg-white',
+          'py-[15px] px-5 rounded-[5px] border border-transparent data-[state=active]:bg-aquamarine-400 data-[state=active]:text-firefly-950',
         tabsContent: 'mt-[26px]',
       },
     },

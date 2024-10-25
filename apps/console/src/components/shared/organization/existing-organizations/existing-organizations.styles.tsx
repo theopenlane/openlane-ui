@@ -6,7 +6,7 @@ const existingOrganizationsStyles = tv({
     orgWrapper:
       'transition-all duration-500 flex gap-3 items-center pb-4 cursor-pointer relative',
     orgInfo: 'flex flex-col gap-1 items-start flex-1',
-    orgTitle: 'font-sans text-oxford-blue-800',
+    orgTitle: 'font-sans',
     orgSelect: 'transition-opacity duration-300',
   },
 })

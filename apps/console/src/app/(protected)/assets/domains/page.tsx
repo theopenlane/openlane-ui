@@ -2,7 +2,7 @@ import React from 'react'
 import PageTitle from '@/components/page-title'
 
 const Page: React.FC = () => {
-  return <PageTitle title="Assets - Servers" description="" />
+  return <PageTitle title="Assets - Domains" description="" />
 }
 
 export default Page

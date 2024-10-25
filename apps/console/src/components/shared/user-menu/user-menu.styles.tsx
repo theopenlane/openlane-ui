@@ -4,7 +4,7 @@ const userMenuStyles = tv({
   slots: {
     trigger: 'flex items-center gap-2 cursor-pointer',
     email: 'text-java-500 ',
-    userSettingsLink: 'flex items-center gap-2 text-aquamarine-900',
+    userSettingsLink: 'flex items-center gap-2',
     themeRow: 'px-2 flex justify-between text-sm items-center',
     themeToggle: 'ml-auto',
     themeDropdown: 'max-w-[110px]',

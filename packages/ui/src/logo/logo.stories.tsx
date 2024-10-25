@@ -52,18 +52,6 @@ export const Dark: Story = {
   },
 }
 
-export const java: Story = {
-  args: {
-    theme: 'java',
-  },
-}
-
-export const aquamarine: Story = {
-  args: {
-    theme: 'aquamarine',
-  },
-}
-
 export const White: Story = {
   parameters: {
     backgrounds: { default: 'dark' },
@@ -85,7 +73,7 @@ export const IconDark: Story = {
     backgrounds: { default: 'dark' },
   },
   args: {
-    theme: 'white',
+    theme: 'dark',
     width: 80,
     asIcon: true,
   },
@@ -96,6 +84,6 @@ export const IconLight: Story = {
   args: {
     width: 80,
     asIcon: true,
-    theme: 'java',
+    theme: 'light',
   },
 }
