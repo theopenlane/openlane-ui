@@ -52,18 +52,6 @@ export const Dark: Story = {
   },
 }
 
-export const Blackberry: Story = {
-  args: {
-    theme: 'blackberry',
-  },
-}
-
-export const Sunglow: Story = {
-  args: {
-    theme: 'sunglow',
-  },
-}
-
 export const White: Story = {
   parameters: {
     backgrounds: { default: 'dark' },
@@ -85,7 +73,7 @@ export const IconDark: Story = {
     backgrounds: { default: 'dark' },
   },
   args: {
-    theme: 'white',
+    theme: 'dark',
     width: 80,
     asIcon: true,
   },
@@ -96,6 +84,6 @@ export const IconLight: Story = {
   args: {
     width: 80,
     asIcon: true,
-    theme: 'blackberry',
+    theme: 'light',
   },
 }

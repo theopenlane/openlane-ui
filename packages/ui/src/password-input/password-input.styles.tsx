@@ -2,7 +2,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 
 export const passwordInputStyles = tv({
   slots: {
-    eye: 'text-blackberry-900 h-4 w-4',
+    eye: 'text-java-900 h-4 w-4',
   },
 })
 

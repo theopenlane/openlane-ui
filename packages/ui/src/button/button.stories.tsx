@@ -55,17 +55,12 @@ meta.args = {
 }
 type Story = StoryObj<typeof meta>
 
-export const Sunglow: Story = {
+export const aquamarine: Story = {
   args: {
-    variant: 'sunglow',
+    variant: 'aquamarine',
   },
 }
 
-export const Blackberry: Story = {
-  args: {
-    variant: 'blackberry',
-  },
-}
 
 export const Outline: Story = {
   args: {
@@ -75,24 +70,16 @@ export const Outline: Story = {
 
 export const Medium: Story = {
   args: {
-    variant: 'blackberry',
+    variant: 'aquamarine',
     size: 'md',
     icon: <ArrowUpRight />,
     iconAnimated: true,
   },
 }
 
-export const SmallSunglow: Story = {
+export const Smallaquamarine: Story = {
   args: {
-    variant: 'sunglow',
-    size: 'sm',
-    icon: <ArrowRight />,
-  },
-}
-
-export const SmallBlackberry: Story = {
-  args: {
-    variant: 'blackberry',
+    variant: 'aquamarine',
     size: 'sm',
     icon: <ArrowRight />,
   },

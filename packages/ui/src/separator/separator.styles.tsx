@@ -3,8 +3,8 @@ import { tv, type VariantProps } from 'tailwind-variants'
 export const separatorStyles = tv({
   slots: {
     base: 'w-full flex items-center uppercase',
-    line: 'flex-1 h-px bg-winter-sky-900 dark:bg-peat-800',
-    text: 'text-blackberry-800 px-2 opacity-50 text-xs',
+    line: 'flex-1 h-px bg-oxford-blue-200',
+    text: 'text-oxford-blue-800 px-2 opacity-50 text-s',
   },
 })
 

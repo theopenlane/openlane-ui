@@ -3,9 +3,10 @@ import sharedConfig from '@repo/tailwind-config'
 
 const config: Pick<
   Config,
-  'darkMode' | 'content' | 'presets' | 'prefix' | 'theme'
+  'darkMode' | 'content' | 'presets' | 'prefix' | 'theme' | 'safelist'
 > = {
   darkMode: 'class',
+  safelist: ["dark"],
   content: ['./src/app/**/*.tsx', './src/components/**/*.tsx'],
   presets: [sharedConfig],
   theme: {

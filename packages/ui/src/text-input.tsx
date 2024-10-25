@@ -8,7 +8,7 @@ export const TextInput = React.forwardRef<HTMLInputElement, any>(
     return (
       <input
         className={clsx(
-          `w-full h-10 rounded-md pl-2 ring-blackberry-800 dark:peat-800 focus:outline-0 dark:text-white text-blackberry-800 dark:bg-peat-900 bg-blackberry-50 border border-blackberry-200 dark:border-peat-700`,
+          `w-full h-10 rounded-md pl-2 ring-java-800 focus:outline-0 bg-java-50 border border-java-200`,
           props.className,
         )}
         ref={ref}
