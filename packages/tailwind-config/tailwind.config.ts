@@ -28,7 +28,7 @@ export const config: Omit<Config, 'content'> = {
         heading: '-0.038rem',
       },
       colors: {
-        aquamarine: { // bright green background
+        aquamarine: { // bright green, button styles
           '50': '#e8fff9',
           '100': '#c8ffef',
           '200': '#96ffe4',
@@ -67,7 +67,7 @@ export const config: Omit<Config, 'content'> = {
             '900': '#2a4750', // background of panels/tables/etc. in dark mode
             '950': '#1c2e35',
         },
-        firefly: { // dark green background
+        firefly: { // dark green background from marketing site
             '50': '#edfefd',
             '100': '#d1fcfb',
             '200': '#a9f8f7',
@@ -93,19 +93,6 @@ export const config: Omit<Config, 'content'> = {
           '900': '#363b43',
           '950': '#21252b',
       },
-      'puerto-rico': { // icon green color
-        '50': '#f3faf9',
-        '100': '#d6f1ea',
-        '200': '#ace3d6',
-        '300': '#66c5b3',
-        '400': '#50b1a2',
-        '500': '#369688',
-        '600': '#29786e',
-        '700': '#24615a',
-        '800': '#214e4a',
-        '900': '#1f423e',
-        '950': '#0d2624',
-    },
         'oxford-blue': { 
             '50': '#f2f7f9',
             '100': '#dfeaee',
