@@ -180,9 +180,27 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
     ],
   },
   {
-    title: 'Alerts & Preferences',
-    href: '/alerts-preferences',
+    type: 'separator',
+  },
+  {
+    title: 'User settings',
+    href: '/organization-settings',
     icon: UserRoundCogIcon,
+    isChildren: true,
+    children: [
+      {
+        title: 'Profile',
+        href: '/user-settings/profile',
+      },
+      {
+        title: 'Developers',
+        href: '/user-settings/developers',
+      },
+      {
+        title: 'Alerts & Preferences',
+        href: '/user-settings/alerts-preferences',
+      },
+    ],
   },
   // {
   //   title: 'Integrations',
@@ -225,17 +243,7 @@ export const PersonalNavItems: (NavItem | Separator | NavHeading)[] = [
   },
   {
     title: 'My profile',
-    href: '/profile',
+    href: '/user-settings/profile',
     icon: Users,
-  },
-  {
-    title: 'Notifications',
-    href: '/notifications',
-    icon: BellIcon,
-  },
-  {
-    title: 'Security',
-    href: '/security',
-    icon: LandmarkIcon,
   },
 ]

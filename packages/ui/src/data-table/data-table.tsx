@@ -20,6 +20,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  TableFooter,
 } from '../table/table'
 import { Button } from '../button/button'
 import { useState } from 'react'
@@ -164,14 +165,16 @@ export function DataTable<TData, TValue>({
             </TableRow>
           )}
         </TableBody>
-        {/* <TableFooter>
+
+        {(table.getCanNextPage() || table.getCanPreviousPage())  &&
+        <TableFooter>
           <TableRow>
             <TableCell
               colSpan={columns.length}
-              className="h-24 text-center flex gap-2"
+              className="h-24 text-right gap-2"
             >
               <Button
-                variant="outline"
+                variant="outlineInputPadding"
                 size="md"
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
@@ -179,7 +182,7 @@ export function DataTable<TData, TValue>({
                 Previous
               </Button>
               <Button
-                variant="outline"
+                variant="outlineInputPadding"
                 size="md"
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
@@ -188,7 +191,8 @@ export function DataTable<TData, TValue>({
               </Button>
             </TableCell>
           </TableRow>
-        </TableFooter> */}
+        </TableFooter>
+      }
       </Table>
     </div>
   )
