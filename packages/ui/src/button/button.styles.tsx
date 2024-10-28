@@ -19,6 +19,10 @@ export const buttonStyles = tv({
         'border-java-800 text-oxford-blue-800 dark:text-oxford-blue-100 dark:border-java-100 border hover:!opacity-90',
       outlineLight:
         'border-java-500 text-oxford-blue-800 border hover:!opacity-90',
+      outlineInput:
+        'border-java-500 text-oxford-blue-800 dark:text-oxford-blue-100 dark:border-java-100 border hover:!opacity-90',
+      outlineInputPadding:
+        'border-java-500 text-oxford-blue-800 mx-1 dark:text-oxford-blue-100 dark:border-java-100 border hover:!opacity-90',
       redOutline:
         'border-util-red-500 text-util-red-500 border bg-white hover:!opacity-90 dark:border-util-red-500 dark:text-util-red-500',
       white: {},

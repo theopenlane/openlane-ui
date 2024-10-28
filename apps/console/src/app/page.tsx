@@ -8,7 +8,7 @@ const Landing = () => {
   const router = useRouter()
 
   useEffect(() => {
-    router.push('/organization')
+    router.push('/dashboard')
   }, [router])
 
   return (

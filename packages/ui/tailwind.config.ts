@@ -4,8 +4,9 @@ import tailwindAnimate from 'tailwindcss-animate'
 
 const config: Pick<
   Config,
-  'prefix' | 'content' | 'presets' | 'extend' | 'plugins' | 'darkMode'
+  'prefix' | 'content' | 'presets' | 'extend' | 'plugins' | 'darkMode' | 'mode'
 > = {
+  mode: 'jit',
   darkMode: 'class',
   content: ['./src/**/*.tsx'],
   presets: [sharedConfig],
