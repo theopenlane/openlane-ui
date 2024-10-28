@@ -1,7 +1,7 @@
 'use client'
 
 import { useSearchParams } from 'next/navigation'
-import { LoaderCircle, WandSparklesIcon } from 'lucide-react'
+import { LoaderCircle, SparklesIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { verificationStyles } from './page.styles'
 import { Logo } from '@repo/ui/logo'
@@ -21,9 +21,6 @@ const VerifySubscriber: React.FC = () => {
       if (token) {
         try {
           const response = await fetch(`/api/subscriber-verify?token=${token}`)
-          const data = await response.json()
-
-          console.log(response)
 
           if (!response.ok) {
             setError('Verification failed. Please try again.')
@@ -70,7 +67,7 @@ const VerifySubscriber: React.FC = () => {
           <Logo theme='dark' />
       </div>
       <div className={success()}>
-        <WandSparklesIcon size={24} className={successIcon()} />
+        <SparklesIcon size={24} className={successIcon()} />
         <span className={successMessage()}>
           Thank you for subscribing. Your email is now verified.
         </span>
