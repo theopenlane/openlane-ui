@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Openlane from './openlane'
 import type { Preview } from '@storybook/react'
 import './style.css'
-import '@repo/ui/styles.css'
+import '@repo/ui/styles.css';
 
 const Background = (Story, context) => {
   const [theme, setTheme] = useState('light')
@@ -20,6 +20,7 @@ const Background = (Story, context) => {
   )
 }
 
+
 const preview: Preview = {
   parameters: {
     actions: { argTypesRegex: '^on[A-Z].*' },
@@ -28,6 +29,16 @@ const preview: Preview = {
         color: /(background|color)$/i,
         date: /Date$/,
       },
+    },
+    tags: [
+      'autodocs',
+    ],
+    fonts: {
+      default: 'outfit',
+      values: [
+        { name: 'outfit', value: 'Outfit' },
+        { name: 'mincho', value: 'Mincho' },
+      ],
     },
     backgrounds: {
       default: 'light',

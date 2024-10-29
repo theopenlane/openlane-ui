@@ -3,7 +3,7 @@ import sharedConfig from "@repo/tailwind-config"
 
 const config = {
   content: [
-    "./src/stories/**/*.{ts,tsx}",
+    "./src/stories/**/*.{ts,tsx,mdx}",
     "../../packages/ui/components/**/*.{ts,tsx}",
   ],
   presets: [sharedConfig],

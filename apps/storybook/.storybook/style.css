@@ -1,8 +1,62 @@
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  @apply text-firefly-950 dark:text-ziggurat-200 font-outfit;
+}
+
+h1 {
+  @apply text-4xl tracking-[-0.05rem] mb-10 w-full font-heading;
+}
+
+h4 {
+  @apply text-3xl tracking-[-0.038rem] mb-10 w-full font-heading;
+}
+
+h5 {
+  @apply text-[1.313rem] tracking-[-0.033rem];
+}
+p {
+  @apply text-firefly-950/90 dark:text-ziggurat-200;
+}
+
+p.red {
+  @apply text-util-red-500;
+}
+
 @font-face {
   font-family: 'Outfit';
-  src: url('/fonts/Outfit-SemiBold.ttf') format('truetype');
-  font-weight: '600';
+  src: url('/fonts/Outfit-Thin.ttf') format('truetype');
+  font-weight: '100';
+  style: 'thin';
+}
+
+@font-face {
+  font-family: 'Outfit';
+  src: url('/fonts/Outfit-Light.ttf') format('truetype');
+  font-weight: '300';
+  style: 'light';
+}
+
+@font-face {
+  font-family: 'Outfit';
+  src: url('/fonts/Outfit-Regular.ttf') format('truetype');
+  font-weight: '400';
   style: 'normal';
+}
+
+@font-face {
+  font-family: 'Outfit';
+  src: url('/fonts/Outfit-Medium.ttf') format('truetype');
+  font-weight: '500';
+  style: 'medium';
+}
+
+@font-face {
+  font-family: 'Outfit';
+  src: url('/fonts/Outfit-Semibold.ttf') format('truetype');
+  font-weight: '700';
+  style: 'bold';
 }
 
 @font-face {
@@ -28,11 +82,8 @@
 
 :root {
   --font-outfit: 'Outfit', sans-serif;
+  --font-sans: 'Outfit', sans-serif;
+  --font-serif: 'BIZ UDPMincho', serif;
   --font-mincho: 'BIZ UDPMincho', serif;
-  --font-heading: 'BIZ UDPMincho-Bold';
-}
-
-body {
-  font-family: var(--font-outfit);
-  -webkit-font-smoothing: antialiased;
+  --font-heading: 'BIZ UDPMincho', serif;
 }
