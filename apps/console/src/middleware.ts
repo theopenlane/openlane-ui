@@ -38,6 +38,8 @@ export default auth((req) => {
 
   if (req.auth?.user && hasSessionCookie) return NextResponse.next()
 
+  console.log('Redirecting to login page', req)
+
   return NextResponse.redirect(new URL('/login', req.url))
 })
 
@@ -56,6 +58,6 @@ export const config = {
      * - verify (verify page)
      * - invite (invite verify page)
      */
-    '\/((?!api|[_next\/static]|[_next\/image]|favicon.ico|backgrounds|backgrounds\/|icons|icons\/|login|verify|invite).*)',
+    '\/((?!api|[_next\/static]|[_next\/image]|favicon.ico|backgrounds|backgrounds\/|icons|icons\/|login|verify|waitlist|invite).*)',
   ],
 }

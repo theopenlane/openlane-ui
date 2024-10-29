@@ -29,7 +29,7 @@ const TEMP_PASSKEY_NAME = 'Temp User'
 export const SignupPage = () => {
   const router = useRouter()
   const [signInError, setSignInError] = useState(false)
-  const [registrationErrorMessage, setregistrationErrorMessage] = useState(
+  const [registrationErrorMessage, setRegistrationErrorMessage] = useState(
     'There was an error. Please try again.',
   )
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -42,7 +42,7 @@ export const SignupPage = () => {
    */
   const github = async () => {
     await signIn('github', {
-      callbackUrl: '/organization',
+      redirect: false,
     })
   }
 
@@ -51,7 +51,7 @@ export const SignupPage = () => {
    */
   const google = async () => {
     await signIn('google', {
-      callbackUrl: '/organization',
+      redirect: false,
     })
   }
 
@@ -72,7 +72,6 @@ export const SignupPage = () => {
 
       if (verificationResult.success) {
         await signIn('passkey', {
-          callbackUrl: '/organization',
           email: TEMP_PASSKEY_EMAIL,
           name: TEMP_PASSKEY_NAME,
           session: verificationResult.session,
@@ -83,7 +82,7 @@ export const SignupPage = () => {
 
       if (!verificationResult.success) {
         setSignInError(true)
-        setregistrationErrorMessage(`Error: ${verificationResult.error}`)
+        setRegistrationErrorMessage(`Error: ${verificationResult.error}`)
       }
 
       return verificationResult
@@ -152,15 +151,15 @@ export const SignupPage = () => {
               if (res?.ok) {
                 router.push('/verify')
               } else if (res?.message) {
-                setregistrationErrorMessage(res.message)
+                setRegistrationErrorMessage(res.message)
               } else {
-                setregistrationErrorMessage('Unknown error. Please try again.')
+                setRegistrationErrorMessage('Unknown error. Please try again.')
               }
             } else {
-              setregistrationErrorMessage('Passwords do not match')
+              setRegistrationErrorMessage('Passwords do not match')
             }
           } catch (error) {
-            setregistrationErrorMessage('Unknown error. Please try again.')
+            setRegistrationErrorMessage('Unknown error. Please try again.')
           } finally {
             setIsLoading(false)
           }

@@ -10,7 +10,7 @@ import { passKeyProvider } from './providers/passkey'
 import { getTokenFromOpenlaneAPI } from './utils/get-openlane-token'
 import { setSessionCookie } from './utils/set-session-cookie'
 import { cookies } from 'next/headers'
-import { sessionCookieName } from '@repo/dally/auth'
+import { sessionCookieName, allowedLoginDomains } from '@repo/dally/auth'
 
 const isDevelopment = process.env.NODE_ENV === 'development'
 
@@ -45,7 +45,30 @@ export const config = {
     },
   },
   callbacks: {
-    async signIn({ user, account }) {
+    async signIn({ user, account, profile }) {
+      // limit access during MVP development to specific domains
+      let email = ""
+      if (account?.provider == "google") {
+         if (profile?.email_verified) {
+          email = profile?.email || ""
+         }
+      } else if (account?.provider == "github") {
+        email = profile?.email || ""
+      } else {
+        email = user?.email || ""
+      }
+
+      let allow = false
+      for (const domain of allowedLoginDomains) {
+        if (email.endsWith(domain)) {
+          allow = true
+          break
+        }
+      }
+      if (!allow) {
+        return '/waitlist'
+      }
+ 
       // register user that signed in via oauth provider
       if (account?.type === 'oauth' || account?.type === 'oidc') {
         const oauthUser = {
@@ -69,7 +92,7 @@ export const config = {
           headers: { Authorization: `Bearer ${user.accessToken}` },
         })
 
-        //Save session to cookie
+        // Save session to cookie
         setSessionCookie(data?.session)
 
         if (uData.ok) {
@@ -132,9 +155,6 @@ export const config = {
       }
 
       return session
-    },
-    async redirect({ baseUrl }) {
-      return baseUrl
     },
   },
 } satisfies NextAuthConfig

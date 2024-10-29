@@ -1,4 +1,4 @@
-import { Meta } from '@storybook/blocks';
+import { Meta, Unstyled } from '@storybook/blocks';
 import Code from './assets/code-brackets.svg';
 import Colors from './assets/colors.svg';
 import Comments from './assets/comments.svg';
@@ -6,11 +6,15 @@ import Direction from './assets/direction.svg';
 import Flow from './assets/flow.svg';
 import Plugin from './assets/plugin.svg';
 import Repo from './assets/repo.svg';
-import StackAlt from './assets/stackalt.svg';
+import { PageHeading } from '@repo/ui/page-heading'
 
 <Meta title="Design System/Introduction" />
 
-# Welcome to Storybook
+<Unstyled>
+<PageHeading eyebrow="Openlane" heading="Storybook" />
+</Unstyled>
+
+## Introduction
 
 In this project, we’re using Storybook.js to create a visual, interactive library of components. 
 Each story showcases a single component’s functionality, state, and potential use cases, making development more efficient and collaborative. 
@@ -28,10 +32,10 @@ We recommend building UIs with a [**component-driven**](https://componentdriven.
 
 The layout of the Storybook is divided into three main sections:
 
-1. Intro - This section contains out styling and theming guide with our color palette and typography.
-1. UI - This section contains all the general components that are available in the design system
-1. Forms - This section contains all the form components that are available in the design system
+1. **Styling & Theming** - This section contains out styling and theming guide with our color palette and typography.
+1. **UI** - This section contains all the general components that are available in the design system
+1. **Forms** - This section contains all the form components that are available in the design system
 
-## Questions? 
+## Questions
 
 Reach out to [@golanglemonade](https://github.com/golanglemonade) on our github repo [openlane-ui](https://github.com/theopenlane/openlane-ui).

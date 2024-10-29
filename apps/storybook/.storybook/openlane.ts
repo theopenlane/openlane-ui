@@ -4,7 +4,7 @@ export default create({
   base: 'light',
   // Typography
   fontBase: '"Outfit", sans-serif',
-  fontCode: 'sans',
+  fontCode: 'monospace',
   
   brandTitle: 'Openlane Brandbook',
   brandUrl: 'https://www.theopenlane.io',
@@ -18,8 +18,8 @@ export default create({
 
   // UI
   appBg: '#e9f1f5',
-  appContentBg: '#ffffff',
-  appPreviewBg: '#ffffff',
+  appContentBg: '#e9f1f5',
+  appPreviewBg: '#e9f1f5',
   appBorderColor: '#2a4750',
   appBorderRadius: 1,
 

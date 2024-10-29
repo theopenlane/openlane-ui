@@ -17,7 +17,8 @@
         "AUTH_GITHUB_SECRET",
         "AUTH_GOOGLE_ID",
         "AUTH_GOOGLE_SECRET",
-        "SESSION_COOKIE_NAME"
+        "SESSION_COOKIE_NAME",
+        "ALLOWED_LOGIN_DOMAINS"
       ],
       "outputs": [
         "dist/**",

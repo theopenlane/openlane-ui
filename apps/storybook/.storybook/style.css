@@ -1,54 +1,54 @@
 @font-face {
-  font-family: 'Outfit';
+  font-family: 'Outfit', sans-serif;
   src: url('/fonts/Outfit-Thin.ttf') format('truetype');
   font-weight: '100';
   style: 'thin';
 }
 
 @font-face {
-  font-family: 'Outfit';
+  font-family: 'Outfit', sans-serif;
   src: url('/fonts/Outfit-Light.ttf') format('truetype');
   font-weight: '300';
   style: 'light';
 }
 
 @font-face {
-  font-family: 'Outfit';
+  font-family: 'Outfit', sans-serif;
   src: url('/fonts/Outfit-Regular.ttf') format('truetype');
   font-weight: '400';
   style: 'normal';
 }
 
 @font-face {
-  font-family: 'Outfit';
+  font-family: 'Outfit', sans-serif;
   src: url('/fonts/Outfit-Medium.ttf') format('truetype');
   font-weight: '500';
   style: 'medium';
 }
 
 @font-face {
-  font-family: 'Outfit';
+  font-family: 'Outfit', sans-serif;
   src: url('/fonts/Outfit-Semibold.ttf') format('truetype');
   font-weight: '700';
   style: 'bold';
 }
 
 @font-face {
-  font-family: 'Outfit';
+  font-family: 'Outfit', sans-serif;
   src: url('/fonts/Outfit-ExtraBold.ttf') format('truetype');
   font-weight: '800';
   style: 'extrabold';
 }
 
 @font-face {
-  font-family: 'BIZ UDPMincho';
+  font-family: 'BIZ UDPMincho', serif;
   src: url('/fonts/BIZUDPMincho-Regular.ttf') format('truetype');
   font-weight: '400';
   style: 'normal';
 }
 
 @font-face {
-  font-family: 'BIZ UDPMincho';
+  font-family: 'BIZ UDPMincho', serif;
   src: url('/fonts/BIZUDPMincho-Bold.ttf') format('truetype');
   font-weight: '700';
   style: 'bold';

@@ -18,6 +18,7 @@ import { Label } from '@repo/ui/label'
 import { getPasskeySignInOptions, verifyAuthentication } from '@/lib/user'
 import { startAuthentication } from '@simplewebauthn/browser'
 import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
+import auth from '../../../../middleware';
 
 const TEMP_PASSKEY_EMAIL = 'tempuser@test.com'
 const TEMP_PASSKEY_NAME = 'Temp User'
@@ -45,7 +46,7 @@ export const LoginPage = () => {
         ...payload,
       })
       if (res.ok && !res.error) {
-        router.push('/dashboard')
+        router.push('/')
       } else {
         setSignInLoading(false)
         setSignInError(true)
@@ -61,7 +62,7 @@ export const LoginPage = () => {
    */
   const github = async () => {
     await signIn('github', {
-      callbackUrl: '/dashboard',
+      redirectTo: '/',
     })
   }
 
@@ -70,7 +71,7 @@ export const LoginPage = () => {
    */
   const google = async () => {
     await signIn('google', {
-      callbackUrl: '/dashboard',
+      redirectTo: '/',
     })
   }
 
