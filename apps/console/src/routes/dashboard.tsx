@@ -1,12 +1,8 @@
 import {
-  AppWindowMacIcon,
-  AtSign,
   BarChart3Icon,
-  BellIcon,
   CircleGaugeIcon,
   FileIcon,
   HandshakeIcon,
-  LandmarkIcon,
   LayersIcon,
   ListChecks,
   ScrollText,

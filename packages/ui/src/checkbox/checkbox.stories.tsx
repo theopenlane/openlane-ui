@@ -1,5 +1,16 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { Checkbox } from './checkbox'
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+} from '@repo/ui/dropdown-menu'
+import { Button } from '@repo/ui/button'
+import {
+  FormItem,
+} from '@repo/ui/form'
+import { useState } from 'react'
 
 const meta: Meta<typeof Checkbox> = {
   title: 'Forms/Checkbox',
@@ -13,7 +24,7 @@ const meta: Meta<typeof Checkbox> = {
     },
     backgrounds: { default: 'white' },
   },
-  render: (args) => <Checkbox {...args} />,
+  render: (args: any) => <Checkbox {...args} />,
 } satisfies Meta<typeof Checkbox>
 
 export default meta
@@ -73,4 +84,69 @@ export const DisabledCheckboxes: Story = {
       </div>
     </div>
   ),
+}
+
+export const DropdownMultiselectCheckbox: Story = {
+  render: () => {
+    const [selectedToppings, setSelectedToppings] = useState<string[]>([]);
+
+    const handleSelect = (topping: string) => {
+      setSelectedToppings((prev) =>
+        prev.includes(topping)
+          ? prev.filter((item) => item !== topping)
+          : [...prev, topping]
+      );
+    };
+
+    return (
+      <FormItem>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            onSelect={(e) => {
+              e.preventDefault();
+            }}
+            asChild
+          >
+            <Button variant="outlineInput">
+              {selectedToppings.length > 0
+                ? `${selectedToppings.length} toppings selected`
+                : "Select Toppings"}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuCheckboxItem
+              key="Pepperoni"
+              onSelect={(e) => {
+                e.preventDefault();
+              }}
+              checked={selectedToppings.includes("Pepperoni")}
+              onClick={() => handleSelect("Pepperoni")}
+            >
+              Pepperoni
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              key="Sausage"
+              onSelect={(e) => {
+                e.preventDefault();
+              }}
+              checked={selectedToppings.includes("Sausage")}
+              onClick={() => handleSelect("Sausage")}
+            >
+              Sausage
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              key="Mushrooms"
+              onSelect={(e) => {
+                e.preventDefault();
+              }}
+              checked={selectedToppings.includes("Mushrooms")}
+              onClick={() => handleSelect("Mushrooms")}
+            >
+              Mushrooms
+            </DropdownMenuCheckboxItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </FormItem>
+    );
+  },
 }

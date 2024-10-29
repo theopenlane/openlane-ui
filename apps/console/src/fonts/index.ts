@@ -12,6 +12,16 @@ export const outfit = localFont({
       weight: '500',
       style: 'medium',
     },
+    {
+      path: '/Outfit-SemiBold.ttf',
+      weight: '700',
+      style: 'bold',
+    },
+    {
+      path: '/Outfit-ExtraBold.ttf',
+      weight: '800',
+      style: 'extrabold',
+    },
   ],
   variable: '--font-outfit',
 })
