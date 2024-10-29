@@ -13,7 +13,7 @@ export const outfit = localFont({
       style: 'medium',
     },
     {
-      path: '/Outfit-Semibold.ttf',
+      path: '/Outfit-SemiBold.ttf',
       weight: '700',
       style: 'bold',
     },
