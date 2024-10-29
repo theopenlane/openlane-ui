@@ -38,8 +38,6 @@ export default auth((req) => {
 
   if (req.auth?.user && hasSessionCookie) return NextResponse.next()
 
-  console.log('Redirecting to login page', req)
-
   return NextResponse.redirect(new URL('/login', req.url))
 })
 

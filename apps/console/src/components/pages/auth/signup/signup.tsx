@@ -22,6 +22,7 @@ import { PasswordInput } from '@repo/ui/password-input'
 import { Label } from '@repo/ui/label'
 import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
 import { startRegistration } from '@simplewebauthn/browser'
+import Link from 'next/link'
 
 const TEMP_PASSKEY_EMAIL = 'tempuser@test.com'
 const TEMP_PASSKEY_NAME = 'Temp User'
@@ -118,7 +119,7 @@ export const SignupPage = () => {
           Sign up with GitHub
         </Button>
 
-        <Button
+        {/* <Button
           variant="outlineLight"
           size="md"
           icon={<KeyRoundIcon className={keyIcon()} />}
@@ -126,7 +127,7 @@ export const SignupPage = () => {
           onClick={registerPassKey}
         >
           Sign up with PassKey
-        </Button>
+        </Button> */}
       </div>
 
       <Separator label="or" className={separator()} />
@@ -201,6 +202,10 @@ export const SignupPage = () => {
           {isLoading ? 'loading' : 'Sign up'}
         </Button>
       </SimpleForm>
+
+      <Link href="https://www.theopenlane.io/legal/privacy" className="text-xs text-gray-500 mt-8 text-center">Privacy Policy</Link>
+      <Link href="https://www.theopenlane.io/legal/terms-of-service" className="text-xs text-gray-500 mt-1 text-center">Terms of Service</Link>
+
       {showLoginError && (
         <MessageBox className={'p-4 ml-1'} message={registrationErrorMessage} />
       )}
