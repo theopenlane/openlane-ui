@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { SimpleForm } from '@repo/ui/simple-form'
 import { MessageBox } from '@repo/ui/message-box'
 import { Button } from '@repo/ui/button'
-import { ArrowUpRight, KeyRoundIcon } from 'lucide-react'
+import { ArrowUpRight } from 'lucide-react'
 import {
   getPasskeyRegOptions,
   registerUser,
@@ -23,6 +23,7 @@ import { Label } from '@repo/ui/label'
 import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
 import { startRegistration } from '@simplewebauthn/browser'
 import Link from 'next/link'
+import { allowedLoginDomains } from '@repo/dally/auth'
 
 const TEMP_PASSKEY_EMAIL = 'tempuser@test.com'
 const TEMP_PASSKEY_NAME = 'Temp User'
@@ -43,7 +44,7 @@ export const SignupPage = () => {
    */
   const github = async () => {
     await signIn('github', {
-      redirect: false,
+      redirectTo: "/",
     })
   }
 
@@ -52,8 +53,23 @@ export const SignupPage = () => {
    */
   const google = async () => {
     await signIn('google', {
-      redirect: false,
+      redirectTo: "/",
     })
+  }
+
+  /**
+   * Validate Email Domain for Sign Up
+   */
+  async function validateEmail(payload: any) {
+    let allow = false
+    for (const domain of allowedLoginDomains) {
+      if (payload.email.endsWith(domain)) {
+        allow = true
+        break
+      }
+    }
+
+    return allow
   }
 
   /**
@@ -143,8 +159,13 @@ export const SignupPage = () => {
         }}
         onSubmit={async (payload: RegisterUser) => {
           setIsLoading(true)
-
-          try {
+          try {    
+            const v: any = await validateEmail(payload)
+            if (!v) {
+              router.push('/waitlist')
+              return
+            }
+          
             if (payload.password === payload.confirmedPassword) {
               delete payload.confirmedPassword
 
@@ -171,6 +192,7 @@ export const SignupPage = () => {
           <Input
             name="email"
             placeholder="email@domain.net"
+            autoComplete='email'
             required
             type="email"
           />
@@ -182,11 +204,13 @@ export const SignupPage = () => {
               <PasswordInput
                 name="password"
                 placeholder="password"
+                autoComplete='new-password'
                 required
               />
             <PasswordInput
               name="confirmedPassword"
               placeholder="confirm password"
+              autoComplete='new-password'
               required
             />
             </div>

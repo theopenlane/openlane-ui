@@ -175,7 +175,7 @@ export const LoginPage = () => {
           {isPasswordActive && (
             <div className={input()}>
               <Label htmlFor="password">Password</Label>
-              <PasswordInput name="password" placeholder="password" />
+              <PasswordInput name="password" placeholder="password"  autoComplete="current-password" />
             </div>
           )}
 

@@ -18,7 +18,7 @@
         "AUTH_GOOGLE_ID",
         "AUTH_GOOGLE_SECRET",
         "SESSION_COOKIE_NAME",
-        "ALLOWED_LOGIN_DOMAINS"
+        "NEXT_PUBLIC_ALLOWED_LOGIN_DOMAINS"
       ],
       "outputs": [
         "dist/**",

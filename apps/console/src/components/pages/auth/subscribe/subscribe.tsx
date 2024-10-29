@@ -14,7 +14,6 @@ import {
 } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { useCreateSubscriberMutation } from '@repo/codegen/src/schema'
-
 import { newsletterStyles } from './subscribe.styles'
 
 const formSchema = z.object({

@@ -65,6 +65,7 @@ export const config = {
           break
         }
       }
+
       if (!allow) {
         return '/waitlist'
       }
