@@ -5,3 +5,24 @@ mutation CreateSubscriber($input: CreateSubscriberInput!) {
     }
   }
 }
+
+query GetAllSubscribers {
+  subscribers {
+    edges {
+      node {
+        active
+        email
+        id
+        verifiedEmail
+      }
+    }
+  }
+}
+
+mutation DeleteSubscriber($deleteSubscriberEmail: String!) {
+  deleteSubscriber(
+    email: $deleteSubscriberEmail
+  ) {
+    email
+  }
+}

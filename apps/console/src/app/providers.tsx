@@ -8,7 +8,6 @@ import { usePathname } from 'next/navigation';
 
 interface ProvidersProps {
   children: any
-
 }
 
 const Providers = ({ children }: ProvidersProps) => {

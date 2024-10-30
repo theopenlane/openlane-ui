@@ -158,6 +158,10 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
         href: '/organization-settings/members',
       },
       {
+        title: 'Subscribers',
+        href: '/organization-settings/subscribers',
+      },
+      {
         title: 'Audit Forwarding',
         href: '/organization-settings/audit-forwarding',
       },
