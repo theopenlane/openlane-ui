@@ -8,12 +8,11 @@ import { useSession } from 'next-auth/react'
 import { pageStyles } from './page.styles'
 import { useState, useEffect } from 'react'
 import { Input } from '@repo/ui/input'
-import { Copy, MoreHorizontal } from 'lucide-react'
+import { Copy } from 'lucide-react'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { useCopyToClipboard } from '@uidotdev/usehooks'
 import { useToast } from '@repo/ui/use-toast'
-import { InviteActions } from '../members/actions/invite-actions'
 import { SubscriberActions } from './actions/subscriber-actions'
 
 type SubscriberEdge = NonNullable<
@@ -58,8 +57,6 @@ export const SubscribersTable = () => {
   }, [data])
 
   if (error || fetching) return null
-
-  console.log("data", data?.subscribers.edges)
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const searchValue = e.target.value.toLowerCase()

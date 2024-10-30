@@ -12485,6 +12485,21 @@ export type GetAllGroupsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetAllGroupsQuery = { __typename?: 'Query', groups: { __typename?: 'GroupConnection', edges?: Array<{ __typename?: 'GroupEdge', node?: { __typename?: 'Group', id: string, name: string, description?: string | null, displayName: string, logoURL?: string | null, setting: { __typename?: 'GroupSetting', visibility: GroupSettingVisibility, joinPolicy: GroupSettingJoinPolicy, syncToSlack?: boolean | null, syncToGithub?: boolean | null, tags?: Array<string> | null } } | null } | null> | null } };
 
+export type UpdateUserRoleInOrgMutationVariables = Exact<{
+  updateOrgMemberId: Scalars['ID']['input'];
+  input: UpdateOrgMembershipInput;
+}>;
+
+
+export type UpdateUserRoleInOrgMutation = { __typename?: 'Mutation', updateOrgMembership: { __typename?: 'OrgMembershipUpdatePayload', orgMembership: { __typename?: 'OrgMembership', id: string, role: OrgMembershipRole, userID: string, organizationID: string } } };
+
+export type RemoveUserFromOrgMutationVariables = Exact<{
+  deleteOrgMembershipId: Scalars['ID']['input'];
+}>;
+
+
+export type RemoveUserFromOrgMutation = { __typename?: 'Mutation', deleteOrgMembership: { __typename?: 'OrgMembershipDeletePayload', deletedID: string } };
+
 export type GetAllOrganizationsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -12754,6 +12769,33 @@ export const GetAllGroupsDocument = gql`
 
 export function useGetAllGroupsQuery(options?: Omit<Urql.UseQueryArgs<GetAllGroupsQueryVariables>, 'query'>) {
   return Urql.useQuery<GetAllGroupsQuery, GetAllGroupsQueryVariables>({ query: GetAllGroupsDocument, ...options });
+};
+export const UpdateUserRoleInOrgDocument = gql`
+    mutation UpdateUserRoleInOrg($updateOrgMemberId: ID!, $input: UpdateOrgMembershipInput!) {
+  updateOrgMembership(id: $updateOrgMemberId, input: $input) {
+    orgMembership {
+      id
+      role
+      userID
+      organizationID
+    }
+  }
+}
+    `;
+
+export function useUpdateUserRoleInOrgMutation() {
+  return Urql.useMutation<UpdateUserRoleInOrgMutation, UpdateUserRoleInOrgMutationVariables>(UpdateUserRoleInOrgDocument);
+};
+export const RemoveUserFromOrgDocument = gql`
+    mutation RemoveUserFromOrg($deleteOrgMembershipId: ID!) {
+  deleteOrgMembership(id: $deleteOrgMembershipId) {
+    deletedID
+  }
+}
+    `;
+
+export function useRemoveUserFromOrgMutation() {
+  return Urql.useMutation<RemoveUserFromOrgMutation, RemoveUserFromOrgMutationVariables>(RemoveUserFromOrgDocument);
 };
 export const GetAllOrganizationsDocument = gql`
     query GetAllOrganizations {

@@ -11,6 +11,7 @@ export const pageStyles = tv({
     membersSearchField: '',
     membersButtons: '',
     nameRow: 'flex gap-2',
+    roleRow: 'flex items-center gap-2',
     copyIcon: 'text-java-400 cursor-pointer',
   },
 })
