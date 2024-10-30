@@ -12571,6 +12571,18 @@ export type CreateSubscriberMutationVariables = Exact<{
 
 export type CreateSubscriberMutation = { __typename?: 'Mutation', createSubscriber: { __typename?: 'SubscriberCreatePayload', subscriber: { __typename?: 'Subscriber', email: string } } };
 
+export type GetAllSubscribersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetAllSubscribersQuery = { __typename?: 'Query', subscribers: { __typename?: 'SubscriberConnection', edges?: Array<{ __typename?: 'SubscriberEdge', node?: { __typename?: 'Subscriber', active: boolean, email: string, id: string, verifiedEmail: boolean } | null } | null> | null } };
+
+export type DeleteSubscriberMutationVariables = Exact<{
+  deleteSubscriberEmail: Scalars['String']['input'];
+}>;
+
+
+export type DeleteSubscriberMutation = { __typename?: 'Mutation', deleteSubscriber: { __typename?: 'SubscriberDeletePayload', email: string } };
+
 export type CreateTemplateMutationVariables = Exact<{
   input: CreateTemplateInput;
 }>;
@@ -12979,6 +12991,35 @@ export const CreateSubscriberDocument = gql`
 
 export function useCreateSubscriberMutation() {
   return Urql.useMutation<CreateSubscriberMutation, CreateSubscriberMutationVariables>(CreateSubscriberDocument);
+};
+export const GetAllSubscribersDocument = gql`
+    query GetAllSubscribers {
+  subscribers {
+    edges {
+      node {
+        active
+        email
+        id
+        verifiedEmail
+      }
+    }
+  }
+}
+    `;
+
+export function useGetAllSubscribersQuery(options?: Omit<Urql.UseQueryArgs<GetAllSubscribersQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetAllSubscribersQuery, GetAllSubscribersQueryVariables>({ query: GetAllSubscribersDocument, ...options });
+};
+export const DeleteSubscriberDocument = gql`
+    mutation DeleteSubscriber($deleteSubscriberEmail: String!) {
+  deleteSubscriber(email: $deleteSubscriberEmail) {
+    email
+  }
+}
+    `;
+
+export function useDeleteSubscriberMutation() {
+  return Urql.useMutation<DeleteSubscriberMutation, DeleteSubscriberMutationVariables>(DeleteSubscriberDocument);
 };
 export const CreateTemplateDocument = gql`
     mutation CreateTemplate($input: CreateTemplateInput!) {
