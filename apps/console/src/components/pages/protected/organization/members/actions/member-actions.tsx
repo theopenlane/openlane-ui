@@ -10,7 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@repo/ui/dropdown-menu'
-import { OrgMembershipRole, InviteRole, useRemoveUserFromOrgMutation, useUpdateUserRoleInOrgMutation } from '@repo/codegen/src/schema'
+import { OrgMembershipRole, useRemoveUserFromOrgMutation, useUpdateUserRoleInOrgMutation } from '@repo/codegen/src/schema'
 import { type UseQueryExecute } from 'urql'
 import {
   AlertDialog,
@@ -29,9 +29,7 @@ import { Form, FormControl, FormField, FormItem } from '@repo/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { useForm, SubmitHandler, Control } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-
-type FormData = zInfer<typeof formSchema>
+import { z, infer as zInfer } from 'zod'
 
 type MemberActionsProps = {
   memberId: string
@@ -70,7 +68,7 @@ export const MemberActions = ({
   }
 
   const [member, updateMember] = useUpdateUserRoleInOrgMutation()
-  const handleChangeRole = async (role: InviteRole) => {
+  const handleChangeRole = async (role: OrgMembershipRole) => {
     const response = await updateMember({ updateOrgMemberId: memberId, input: { role: role } })
 
     if (response.error) {
@@ -93,16 +91,19 @@ export const MemberActions = ({
 
   const formSchema = z.object({
     role: z
-      .nativeEnum(InviteRole, {
+      .nativeEnum(OrgMembershipRole, {
         errorMap: () => ({ message: 'Invalid role' }),
       })
-      .default(InviteRole.MEMBER),
+      .default(OrgMembershipRole.MEMBER),
   })
 
+  type FormData = zInfer<typeof formSchema>
+
+  
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      role: InviteRole.MEMBER,
+      role: OrgMembershipRole.MEMBER,
     },
   })
 
@@ -184,7 +185,7 @@ export const MemberActions = ({
                           <SelectValue placeholder="Select role" />
                         </SelectTrigger>
                         <SelectContent>
-                          {Object.entries(InviteRole)
+                          {Object.entries(OrgMembershipRole)
                           .reverse()
                           .filter(([key]) => !key.includes('USER'))
                           .map(([key, value], i) => (
