@@ -5,7 +5,7 @@ import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { useSession } from 'next-auth/react'
 import { format } from 'date-fns'
-import { TokenAction } from './actions/token-actions'
+import { TokenAction } from './actions/pat-actions'
 
 type TokenNode = {
   __typename?: 'PersonalAccessToken' | undefined

@@ -13,6 +13,7 @@ type TokenNode = {
   name: string
   description?: string
   expiresAt: string
+  scopes: string[]
 }
 
 type TokenEdge = {
@@ -43,6 +44,14 @@ export const APITokenTable = () => {
     {
       accessorKey: 'description',
       header: 'Description',
+    },
+    {
+      accessorKey: 'scopes',
+      header: 'Scopes',
+      cell: ({ cell }) => {
+        const value = cell.getValue() as string[]
+        return value ? value.join(', ') : ''
+      },
     },
     {
       accessorKey: 'expiresAt',

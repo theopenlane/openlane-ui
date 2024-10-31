@@ -12442,7 +12442,7 @@ export type CreateApiTokenMutation = { __typename?: 'Mutation', createAPIToken: 
 export type GetApiTokensQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetApiTokensQuery = { __typename?: 'Query', apiTokens: { __typename?: 'APITokenConnection', edges?: Array<{ __typename?: 'APITokenEdge', node?: { __typename?: 'APIToken', id: string, name: string, description?: string | null, expiresAt?: any | null } | null } | null> | null } };
+export type GetApiTokensQuery = { __typename?: 'Query', apiTokens: { __typename?: 'APITokenConnection', edges?: Array<{ __typename?: 'APITokenEdge', node?: { __typename?: 'APIToken', id: string, name: string, description?: string | null, scopes?: Array<string> | null, expiresAt?: any | null } | null } | null> | null } };
 
 export type DeleteApiTokenMutationVariables = Exact<{
   deleteAPITokenId: Scalars['ID']['input'];
@@ -12669,6 +12669,7 @@ export const GetApiTokensDocument = gql`
         id
         name
         description
+        scopes
         expiresAt
       }
     }

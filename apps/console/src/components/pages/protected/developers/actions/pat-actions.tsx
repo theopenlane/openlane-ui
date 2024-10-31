@@ -10,7 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@repo/ui/dropdown-menu'
-import { useDeleteApiTokenMutation } from '@repo/codegen/src/schema'
+import { useDeletePersonalAccessTokenMutation } from '@repo/codegen/src/schema'
 import { type UseQueryExecute } from 'urql'
 
 type TokenActionProps = {
@@ -23,10 +23,10 @@ const ICON_SIZE = 12
 export const TokenAction = ({ tokenId, refetchTokens }: TokenActionProps) => {
   const { actionIcon } = pageStyles()
   const { toast } = useToast()
-  const [_, deleteToken] = useDeleteApiTokenMutation()
+  const [_, deleteToken] = useDeletePersonalAccessTokenMutation()
 
   const handleDeleteToken = async () => {
-    const response = await deleteToken({ deleteAPITokenId: tokenId })
+    const response = await deleteToken({ deletePersonalAccessTokenId: tokenId })
 
     if (response.error) {
       toast({
