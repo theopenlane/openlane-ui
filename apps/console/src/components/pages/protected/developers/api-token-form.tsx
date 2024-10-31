@@ -43,6 +43,7 @@ const formSchema = z
     name: z.string().min(3, { message: 'Token name is required' }),
     description: z.string().optional(),
     expiryDate: z.date().optional(),
+    scopes: z.array(z.string()),
     noExpire: z.boolean().optional(),
   })
   .refine((data) => data.expiryDate || data.noExpire, {
@@ -82,6 +83,7 @@ const APITokenForm = () => {
       description: '',
       expiryDate: undefined,
       noExpire: false,
+      scopes: [],
     },
   })
 
@@ -98,6 +100,7 @@ const APITokenForm = () => {
       name: data.name,
       description: data.description,
       expiresAt: data.expiryDate,
+      scopes: data.scopes,
       ownerID: sessionData?.user.userId,
     }
 
@@ -250,6 +253,59 @@ const APITokenForm = () => {
                     {errors.expiryDate && (
                       <FormMessage>{errors.expiryDate.message}</FormMessage>
                     )}
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                name="scopes"
+                control={control}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Scopes</FormLabel>
+                    <FormControl>
+                      <div>
+                      <div className={checkboxRow()}>
+                          <Checkbox
+                            id={field.name}
+                            key={"read"}
+                            onCheckedChange={(checked) => {
+                            if (checked) {
+                              field.onChange([...(field.value || []), 'read'])
+                            } else {
+                              field.onChange((field.value || []).filter((scope) => scope !== 'read'))
+                            }
+                            }}
+                          />
+                          <FormLabel
+                            htmlFor="scopes:read"
+                            className="ml-2 cursor-pointer"
+                          >
+                            Read
+                          </FormLabel>
+                        </div>
+                        <div className={checkboxRow()}>
+                          <Checkbox
+                            id={field.name}
+                            key={"write"}
+                            onCheckedChange={(checked) => {
+                            if (checked) {
+                              field.onChange([...(field.value || []), 'write'])
+                            } else {
+                              field.onChange((field.value || []).filter((scope) => scope !== 'write'))
+                            }
+                            }}
+                          />
+                          <FormLabel
+                            htmlFor="scopes:write"
+                            className="ml-2 cursor-pointer"
+                          >
+                            Write
+                          </FormLabel>
+                        </div>
+                        </div>
+                    </FormControl>
+                    <Info>Permissions of the token</Info>
                   </FormItem>
                 )}
               />
