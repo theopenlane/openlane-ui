@@ -12,12 +12,11 @@ import { useState, useEffect } from 'react'
 import { Input } from '@repo/ui/input'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
-import { useCopyToClipboard } from '@uidotdev/usehooks'
-import { useToast } from '@repo/ui/use-toast'
 import { Actions } from './actions/actions'
 import { useRouter } from 'next/navigation'
 import { format } from 'date-fns'
 import { CreateDropdown } from './create'
+import { includeQuestionnaireCreation } from '@repo/dally/auth'
 
 const ICON_SIZE = 14
 
@@ -107,6 +106,14 @@ export const QuestionnairesTable = () => {
     },
   ]
 
+  // optionally add the create dropdown
+  // based on the feature flag
+  const createDropdown = () => {
+    if (includeQuestionnaireCreation == 'true') {
+      return <CreateDropdown />
+    }
+  }
+
   return (
     <div>
       <div className={searchRow()}>
@@ -118,7 +125,7 @@ export const QuestionnairesTable = () => {
           />
         </div>
       
-       < CreateDropdown />
+        {createDropdown()}
 
       </div>
       <DataTable columns={columns} data={filteredTemplates} />
