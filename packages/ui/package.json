@@ -76,7 +76,7 @@
     "@storybook/react": "latest",
     "@tanstack/react-table": "^8.17.3",
     "class-variance-authority": "^0.7.0",
-    "date-fns": "^3.6.0",
+    "date-fns": "^4.0.0",
     "emblor": "^1.4.0",
     "lucide-react": "^0.424.0",
     "react": "18.3.1",
