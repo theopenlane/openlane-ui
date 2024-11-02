@@ -23,7 +23,7 @@
     "@simplewebauthn/server": "^11.0.0",
     "@types/jsonwebtoken": "^9.0.6",
     "@uidotdev/usehooks": "^2.4.1",
-    "graphql-request": "7.1.0",
+    "graphql-request": "7.1.2",
     "graphql-tag": "^2.12.6",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.424.0",
