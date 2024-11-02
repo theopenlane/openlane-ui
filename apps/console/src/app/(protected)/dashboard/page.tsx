@@ -2,10 +2,10 @@
 
 import React from 'react'
 import { useSession } from 'next-auth/react'
-import PageTitle from '../../../components/page-title'
 import { Grid, GridRow, GridCell } from '@repo/ui/grid'
 import { Panel } from '@repo/ui/panel'
 import { Button } from '@repo/ui/button'
+import { PageHeading } from '@repo/ui/page-heading'
 import { ArrowUpRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
@@ -15,7 +15,7 @@ const DashboardLanding: React.FC = () => {
 
   return (
     <section>
-      <PageTitle title={<>Dashboard</>} />
+      <PageHeading heading={<>Dashboard</>} />
       <Grid rows={2}>
         <GridRow columns={2}>
           <GridCell>
