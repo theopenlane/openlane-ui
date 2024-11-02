@@ -80,7 +80,7 @@ export const TemplateList = () => {
   return (<AlertDialog>
     <AlertDialogTrigger asChild>
       <div className={nameRow()}>
-        < LayoutTemplate width={ICON_SIZE} /> From Template
+        < LayoutTemplate width={ICON_SIZE}/> &nbsp;From Template
       </div>
     </AlertDialogTrigger>
     <AlertDialogContent>
