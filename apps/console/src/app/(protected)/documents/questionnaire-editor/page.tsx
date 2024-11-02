@@ -14,9 +14,6 @@ const Page: React.FC = () => {
   const existingId = searchParams.get('id') as string
   const templateId = searchParams.get('template_id') as string
 
-
-  console.log('templateId', templateId)
-
   return (
     <>
       <PageHeading eyebrow="Documents" heading="Questionnaire Editor" />

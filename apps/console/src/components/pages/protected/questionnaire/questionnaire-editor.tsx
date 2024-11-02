@@ -13,8 +13,8 @@ import { Button } from "@repo/ui/button";
 import { TemplateDocumentType, useCreateTemplateMutation, useGetTemplateQuery, useUpdateTemplateMutation } from "@repo/codegen/src/schema";
 import { useToast } from "@repo/ui/use-toast";
 import { Panel } from "@repo/ui/panel";
-import { CreateDropdown } from "./create";
 import { pageStyles } from "./page.styles";
+import { useRouter } from "next/navigation";
 
 const enLocale = editorLocalization.getLocale("en");
 
@@ -22,49 +22,19 @@ const customThemeName = "Openlane";
 
 const creatorOptions = {
   showLogicTab: true,
-  isAutoSave: false, // force users to hit the save button
+  isAutoSave: false,
   showThemeTab: true,
 };
 
 export default function CreateQuestionnaire(input: { templateId: string, existingId: string }) {
+  const router = useRouter()
+  const { toast } = useToast()
   const {
     buttonRow,
   } = pageStyles()
 
-  const { toast } = useToast()
 
   const creator = new SurveyCreator(creatorOptions);
-
-  if (input.existingId) {
-    const variables = { getTemplateId: input.existingId }
-    const [templateResult] = useGetTemplateQuery({ variables });
-    
-    if (templateResult.data) {
-      creator.JSON = templateResult.data.template.jsonconfig;
-    }
-
-    if (templateResult.error) {
-      toast({
-        title: 'There was a problem loading the questionnaire, please try again',
-        variant: 'destructive',
-      })
-    }
-  } else if (input.templateId) {
-    const variables = { getTemplateId: input.templateId }
-    const [templateResult] = useGetTemplateQuery({ variables });
-
-    if (templateResult.data) {
-      creator.JSON = templateResult.data.template.jsonconfig;
-    }
-
-    if (templateResult.error) {
-      toast({
-        title: 'There was a problem loading the questionnaire template, please try again',
-        variant: 'destructive',
-      })
-    }
-  }
-
   const themeTabPlugin = creator.themeEditor;
   
   function addCustomTheme(theme: ITheme, userFriendlyThemeName : string) {
@@ -92,8 +62,17 @@ export default function CreateQuestionnaire(input: { templateId: string, existin
 
   creator.toolbox.forceCompact = true;
 
+  // get the json if if it exists
+  const variables = { getTemplateId: input.existingId || input.templateId }
+
+  const [templateResult] = useGetTemplateQuery({ variables });
+    
+  if (templateResult.data) {
+    creator.JSON = templateResult.data.template.jsonconfig;
+  }
+
   // setup save function
-  const [_, createTemplateData] = useCreateTemplateMutation(); 
+  const [template, createTemplateData] = useCreateTemplateMutation(); 
   const [, updateTemplateData] = useUpdateTemplateMutation()
 
   const saveTemplate = async (data: any, saveNo : string, callback : any) => {
@@ -123,7 +102,13 @@ export default function CreateQuestionnaire(input: { templateId: string, existin
             variant: 'destructive',
           })
         }
-      })
+      }).catch(error => {
+        console.log(error)
+        toast({
+          title: 'There was a problem saving the questionnaire, please try again',
+          variant: 'destructive',
+        })
+      });
     }
 
     // otherwise create a new template
@@ -133,11 +118,27 @@ export default function CreateQuestionnaire(input: { templateId: string, existin
           title: 'Questionnaire saved successfully',
           variant: 'success',
         })
+
+        router.push(`/documents/questionnaire-editor?id=${response.data?.createTemplate.template.id}`)
       } else {
-        toast({
-          title: 'There was a problem saving the questionnaire, please try again',
-          variant: 'destructive',
-        })
+        if (response.error.graphQLErrors[0].message   == 'template already exists') {
+          toast({
+            title: 'A questionnaire with this name already exists, please choose a different name',
+            variant: 'destructive',
+          })
+        } else if (response.error.graphQLErrors[0].message == 'must be defined') { 
+
+          const missingField = response.error.graphQLErrors[0].path?.slice(-1)[0]
+          toast({
+            title: `Please provide a ${missingField} for the questionnaire`,
+            variant: 'destructive',
+          })
+        } else {
+          toast({
+            title: 'There was a problem saving the questionnaire: ' + response.error.graphQLErrors[0].message,
+            variant: 'destructive',
+          })
+        }
       }
     })
     .catch(error => {
