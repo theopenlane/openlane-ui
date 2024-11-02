@@ -1,9 +1,9 @@
 import React from 'react'
-import PageTitle from '@/components/page-title'
+import { PageHeading } from '@repo/ui/page-heading'
 
 const Page: React.FC = () => {
   return (
-    <PageTitle title="Integrations - Authorized Oauth Apps" description="" />
+    <PageHeading heading=" Authorized Oauth Apps" eyebrow="Integrations" />
   )
 }
 

@@ -12,6 +12,7 @@ import {
   Users,
   ShieldCheckIcon,
   TriangleAlertIcon,
+  FileQuestion,
 } from 'lucide-react'
 import { NavHeading, type NavItem, type Separator } from '@/types'
 
@@ -22,7 +23,7 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
     icon: CircleGaugeIcon,
   },
   {
-    title: 'Tasks',
+    title: 'My Tasks',
     href: '/tasks',
     icon: ListChecks,
   },
@@ -31,11 +32,6 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
   //   href: '/mentions',
   //   icon: AtSign,
   // },
-  {
-    title: 'Logs',
-    href: '/logs',
-    icon: ScrollText,
-  },
   {
     type: 'separator',
   },
@@ -58,6 +54,10 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
     isChildren: true,
     children: [
       {
+        title: 'Programs',
+        href: '/programs/programs',
+      },
+      {
         title: 'Controls',
         href: '/programs/controls',
       },
@@ -73,6 +73,18 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
         title: 'Settings',
         href: '/programs/settings',
       }
+    ],
+  },
+  {
+    title: 'Documents',
+    href: '/documents',
+    icon: FileQuestion,
+    isChildren: true,
+    children: [
+      {
+        title: 'Questionnaires',
+        href: '/documents/questionnaires',
+      },
     ],
   },
   {
@@ -162,20 +174,16 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
         href: '/organization-settings/subscribers',
       },
       {
-        title: 'Audit Forwarding',
-        href: '/organization-settings/audit-forwarding',
-      },
-      {
-        title: 'Authentication',
-        href: '/organization-settings/authentication',
-      },
-      {
         title: 'Billing & Usage',
         href: '/organization-settings/billing-usage',
       },
       {
         title: 'Developers',
         href: '/organization-settings/developers',
+      },
+      {
+        title: 'Audit Logs',
+        href: '/organization-settings/logs',
       },
     ],
   },
