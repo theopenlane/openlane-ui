@@ -1,6 +1,6 @@
 'use client'
 
-import { Edit, MoreHorizontal, Trash2 } from 'lucide-react'
+import { Edit, MoreHorizontal, Trash2, View } from 'lucide-react'
 import { useToast } from '@repo/ui/use-toast'
 import { pageStyles } from '../page.styles'
 import {
@@ -46,6 +46,10 @@ export const Actions = ({
   const handleEditTemplate = () => {
     router.push(`/documents/questionnaire-editor?id=${templateId}`)
   }
+
+  const handleViewTemplate = () => {
+    router.push(`/documents/questionnaire-viewer?id=${templateId}`)
+  }
     
   const handleDeleteTemplate = async () => {
     const response = await deleteTemplate({ deleteTemplateId: templateId })
@@ -77,6 +81,9 @@ export const Actions = ({
         <DropdownMenuGroup>
           <DropdownMenuItem onSelect={handleEditTemplate}>
             <Edit width={ICON_SIZE} /> Edit Questionnaire
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={handleViewTemplate}>
+            <View width={ICON_SIZE} /> View Questionnaire
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={(e) => {
               e.preventDefault();

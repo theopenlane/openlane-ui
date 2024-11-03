@@ -44,7 +44,7 @@ export default function CreateQuestionnaire(input: { templateId: string, existin
     }
     // Add the theme to the theme list as the default theme
     themeTabPlugin.addTheme(theme, true);
-}
+  }
     
   // Register a custom theme with Dark and Light variations
   addCustomTheme(lightTheme, customThemeName);
@@ -156,7 +156,7 @@ export default function CreateQuestionnaire(input: { templateId: string, existin
 
   return (
     <>
-      <Panel className='bg-ziggurat-100 dark:bg-oxford-blue-900 border-ziggurat-100 dark:border-oxford-blue-900 p-0'>
+      <Panel className='flex h-5/6 bg-ziggurat-100 dark:bg-oxford-blue-900 border-ziggurat-100 dark:border-oxford-blue-900 p-0'>
         <SurveyCreatorComponent creator={creator} />
       </Panel>
       <div className={buttonRow()}>
