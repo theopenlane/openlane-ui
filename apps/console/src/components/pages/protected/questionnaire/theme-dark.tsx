@@ -47,7 +47,6 @@ export const darkTheme : ITheme = {
             "--ctr-property-grid-form-background-color": "#303e4a",
             "--sjs-general-dim-forecolor": "#bdd9e1",
             "--ctr-survey-page-header-title-color-placeholder": "#bdd9e1",
-            "--foreground": "#303e4a",
             "--primary-foreground": "#303e4a",
             "--ctr-property-grid-search-text-color": "#bdd9e1",
             "--sjs-secondary-backcolor": "#09f1c7",

@@ -40,8 +40,8 @@ export const CreateDropdown = () => {
               < FilePlus width={ICON_SIZE} />From Scratch
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => {
-							setTemplateDialogOpen(true);
-						}} >
+              setTemplateDialogOpen(true);
+            }} >
               < LayoutTemplate width={ICON_SIZE}/>From Template
             </DropdownMenuItem>
           </DropdownMenuContent>
