@@ -6,6 +6,8 @@ export const darkTheme : ITheme = {
     "backgroundOpacity": 1,
     "cssVariables": {
             "--background": "#2a4750",
+            "--foreground": "#bdd9e1",
+            "--ctr-button-group-item-text-color": "#bdd9e1",
             "--sjs-general-forecolor": "#bdd9e1",
             "--ctr-editor-background-color": "#2a4750",
             "--ctr-property-grid-chapter-caption-background-color-selected": "#2a4750",
@@ -24,6 +26,7 @@ export const darkTheme : ITheme = {
             "--ctr-menu-toolbar-button-background-color-pressed": "#09f1c7",
             "--ctr-menu-toolbar-button-text-color": "#bdd9e1",
             "--ctr-menu-toolbar-button-text-color-selected": "#bdd9e1",
+            "--ctr-checkbox-text-color": "#bdd9e1",
             "--sjs-corner-radius": "4px",
             "--sjs-base-unit": "8px",
             "--sjs-font-pagetitle-color": "#bdd9e1",
