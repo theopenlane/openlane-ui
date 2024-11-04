@@ -11,7 +11,8 @@ import { Panel } from "@repo/ui/panel";
 import { pageStyles } from "./page.styles";
 import { useRouter } from "next/navigation";
 import { useTheme } from 'next-themes';
-import { darkTheme, lightTheme } from './themes';
+import { lightTheme } from "./theme-light";
+import { darkTheme } from "./theme-dark";
 
 export default function ViewQuestionnaire(input: {existingId: string }) {
   const router = useRouter()
@@ -36,12 +37,9 @@ export default function ViewQuestionnaire(input: {existingId: string }) {
   }
 
   survey.showCompleteButton = false;
+  survey.mode = "display";
 
   return (
-    <>
-      <Panel className='flex h-5/6 bg-ziggurat-100 dark:bg-oxford-blue-900 border-ziggurat-100 dark:border-oxford-blue-900 p-0'>
-        <Survey model={survey} />
-      </Panel>
-    </>
+    <Survey  model={survey} />
   )
 }

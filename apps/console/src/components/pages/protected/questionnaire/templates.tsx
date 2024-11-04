@@ -9,7 +9,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { pageStyles } from './page.styles'
 import {
-  AlertDialog,
   AlertDialogTrigger,
   AlertDialogContent,
   AlertDialogHeader,
@@ -22,7 +21,7 @@ import {
 import { Button } from '@repo/ui/button'
 import { LayoutTemplate } from 'lucide-react'
 
-const ICON_SIZE = 14
+const ICON_SIZE = 12
 
 export const TemplateList = () => {
   const router = useRouter()
@@ -77,12 +76,8 @@ export const TemplateList = () => {
 
   const templates = allTemplates?.data?.templates?.edges || []
 
-  return (<AlertDialog>
-    <AlertDialogTrigger asChild>
-      <div className={nameRow()}>
-        < LayoutTemplate width={ICON_SIZE}/> &nbsp;From Template
-      </div>
-    </AlertDialogTrigger>
+  return (
+    <>
     <AlertDialogContent>
     <AlertDialogHeader>
       <AlertDialogTitle>Create Questionnaire From Template</AlertDialogTitle>
@@ -131,6 +126,6 @@ export const TemplateList = () => {
       </AlertDialogAction>
     </AlertDialogFooter>
   </AlertDialogContent>
-  </AlertDialog>
+  </>
   )
 }

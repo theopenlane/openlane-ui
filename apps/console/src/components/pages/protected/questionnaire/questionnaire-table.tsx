@@ -18,7 +18,7 @@ import { format } from 'date-fns'
 import { CreateDropdown } from './create'
 import { includeQuestionnaireCreation } from '@repo/dally/auth'
 
-const ICON_SIZE = 14
+const ICON_SIZE = 12
 
 type TemplateEdge = NonNullable<
   NonNullable<GetAllTemplatesQuery['templates']>['edges']

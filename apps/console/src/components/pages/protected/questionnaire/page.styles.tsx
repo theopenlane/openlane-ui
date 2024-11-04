@@ -12,6 +12,7 @@ export const pageStyles = tv({
     dropDownButton: 'flex justify-center items-center gap-2',
     buttonRow: 'mt-[26px] flex justify-end item-end',
     selectTemplate: 'flex items-center gap-2',
+    emailRow: 'flex items-center gap-2',
   },
 })
 
