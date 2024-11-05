@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { outfit, mincho} from '../fonts'
+import { outfit, mincho, jetBrainsMono} from '../fonts'
 import { SessionProvider } from 'next-auth/react'
 import { Toaster } from '@repo/ui/toaster'
 import Providers from './providers'
@@ -21,7 +21,7 @@ export default function RootLayout({
   return (
     <html className="h-full relative" lang="en" suppressHydrationWarning>
       <body
-        className={`${outfit.variable} ${mincho.variable} font-sans w-full h-full bg-ziggurat-100 overscroll-none dark:bg-oxford-blue-900`}
+        className={`${outfit.variable} ${mincho.variable} ${jetBrainsMono.variable} font-sans w-full h-full bg-ziggurat-100 overscroll-none dark:bg-oxford-blue-900`}
       >
         <SessionProvider>
           <Providers>{children}</Providers>

@@ -54,10 +54,25 @@
   style: 'bold';
 }
 
+@font-face {
+  font-family: 'JetBrains Mono', monospace;
+  src: url('/fonts/JetBrainsMono-Regular.ttf') format('truetype');
+  font-weight: '400';
+  style: 'normal';
+}
+
+@font-face {
+  font-family: 'JetBrains Mono', monospace;
+  src: url('/fonts/JetBrainsMono-Bold.ttf') format('truetype');
+  font-weight: '700';
+  style: 'bold';
+}
+
 :root {
   --font-outfit: 'Outfit', sans-serif;
   --font-sans: 'Outfit', sans-serif;
   --font-serif: 'BIZ UDPMincho', serif;
   --font-mincho: 'BIZ UDPMincho', serif;
   --font-heading: 'BIZ UDPMincho', serif;
+  --font-mono: 'JetBrains Mono', monospace;
 }

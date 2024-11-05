@@ -5,7 +5,8 @@ export const SampleText = 'Lorem ipsum dolor sit amet, consectetur adipiscing el
 export const typography = {
   type: {
     primary: '"Outfit", Helvetica, Arial, sans-serif',
-    secondary: 'BIZ UDPMincho'
+    secondary: 'BIZ UDPMincho, serif',
+    mono: 'Jetbrains Mono, monospace',
   },
   weight: {
     regular: '400',
@@ -75,4 +76,26 @@ export const typography = {
   fontWeight={typography.weight.regular}
   sampleText={SampleText}
   fontFamily={typography.type.secondary}
+/>
+
+## Jetbrains Mono (Monospace)
+
+### Weights
+400(regular), 500(medium), 700(bold)
+
+<Typeset
+  fontSizes={[
+    Number(typography.size.s1),
+    Number(typography.size.s2),
+    Number(typography.size.s3),
+    Number(typography.size.m1),
+    Number(typography.size.m2),
+    Number(typography.size.m3),
+    Number(typography.size.l1),
+    Number(typography.size.l2),
+    Number(typography.size.l3),
+  ]}
+  fontWeight={typography.weight.regular}
+  sampleText={SampleText}
+  fontFamily={typography.type.mono}
 />
