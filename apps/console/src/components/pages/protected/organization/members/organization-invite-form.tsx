@@ -201,7 +201,7 @@ const OrganizationInviteForm = ({ inviteAdmins }: { inviteAdmins: boolean }) => 
               />
             </div>
             <Button type="submit" disabled={emails.length === 0}>
-              Send invitation{emails.length > 1 && 's'}
+              Send Invitation{emails.length > 1 && 's'}
             </Button>
           </div>
         </form>

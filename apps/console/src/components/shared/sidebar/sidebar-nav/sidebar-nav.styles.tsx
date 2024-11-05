@@ -12,7 +12,7 @@ const sidebarNavStyles = tv({
     accordionItem: 'border-none ',
     separator: '!my-4',
     heading:
-      'text-firefly-950 font-mono px-4 py-2 uppercase font-bold tracking-[0.42px] text-sm',
+      'text-firefly-950 font-sans px-4 py-2 uppercase font-bold tracking-[0.42px] text-sm',
   },
   variants: {
     isCurrent: {

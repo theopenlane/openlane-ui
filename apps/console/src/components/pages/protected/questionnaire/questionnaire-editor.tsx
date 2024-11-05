@@ -8,13 +8,16 @@ import { useTheme } from 'next-themes'
 import "survey-core/defaultV2.min.css";
 import "survey-creator-core/survey-creator-core.min.css";
 
-import { lightTheme, darkTheme } from "./themes";
+import { lightTheme } from "./theme-light";
+import { darkTheme } from "./theme-dark";
 import { Button } from "@repo/ui/button";
 import { TemplateDocumentType, useCreateTemplateMutation, useGetTemplateQuery, useUpdateTemplateMutation } from "@repo/codegen/src/schema";
 import { useToast } from "@repo/ui/use-toast";
 import { Panel } from "@repo/ui/panel";
 import { pageStyles } from "./page.styles";
 import { useRouter } from "next/navigation";
+
+import "./custom.css";
 
 const enLocale = editorLocalization.getLocale("en");
 
@@ -44,7 +47,7 @@ export default function CreateQuestionnaire(input: { templateId: string, existin
     }
     // Add the theme to the theme list as the default theme
     themeTabPlugin.addTheme(theme, true);
-}
+  }
     
   // Register a custom theme with Dark and Light variations
   addCustomTheme(lightTheme, customThemeName);
@@ -60,7 +63,7 @@ export default function CreateQuestionnaire(input: { templateId: string, existin
     creator.applyTheme(lightTheme);
   }
 
-  creator.toolbox.forceCompact = true;
+  // creator.toolbox.forceCompact = true;
 
   // get the json if if it exists
   const variables = { getTemplateId: input.existingId || input.templateId }
@@ -155,13 +158,8 @@ export default function CreateQuestionnaire(input: { templateId: string, existin
   }
 
   return (
-    <>
-      <Panel className='bg-ziggurat-100 dark:bg-oxford-blue-900 border-ziggurat-100 dark:border-oxford-blue-900 p-0'>
-        <SurveyCreatorComponent creator={creator} />
-      </Panel>
-      <div className={buttonRow()}>
-        <Button onClick={() => creator.saveSurvey()}>Save</Button>
-      </div>
-    </>
+    <Panel className='flex h-full bg-ziggurat-100 dark:bg-oxford-blue-900 border-ziggurat-100 dark:border-oxford-blue-900 p-0'>
+      <SurveyCreatorComponent creator={creator} />
+    </Panel>
   )
 }
