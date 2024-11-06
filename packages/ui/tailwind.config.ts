@@ -1,16 +1,49 @@
 import type { Config } from 'tailwindcss'
 import sharedConfig from '@repo/tailwind-config'
 import tailwindAnimate from 'tailwindcss-animate'
+import plugin from 'tailwindcss/plugin';
+import typography from '@tailwindcss/typography';
 
 const config: Pick<
   Config,
-  'prefix' | 'content' | 'presets' | 'extend' | 'plugins' | 'darkMode' | 'mode'
+  'prefix' | 'content' | 'presets' | 'extend' | 'plugins' | 'darkMode' | 'mode' | 'theme'
 > = {
   mode: 'jit',
-  darkMode: 'class',
+  darkMode: ['class'],
   content: ['./src/**/*.tsx'],
   presets: [sharedConfig],
-  plugins: [tailwindAnimate],
+  theme: {
+  	extend: {
+  		borderRadius: {
+  			lg: 'var(--radius)',
+  			md: 'calc(var(--radius) - 2px)',
+  			sm: 'calc(var(--radius) - 4px)'
+  		},
+  		colors: {
+  			brand: {
+  				DEFAULT: 'hsl(var(--brand))',
+  				foreground: 'hsl(var(--brand-foreground))'
+  			},
+  			highlight: {
+  				DEFAULT: 'hsl(var(--highlight))',
+  				foreground: 'hsl(var(--highlight-foreground))'
+  			}
+      },
+    }
+  },
+  plugins: [
+    tailwindAnimate,
+    typography,
+    plugin(function ({ addUtilities }) {
+      addUtilities({
+        '.transition-bg-ease': {
+          'transition-duration': '20ms',
+          'transition-property': 'background-color',
+          'transition-timing-function': 'ease-in',
+        },
+      });
+    }),
+  ],
   extend: {
     keyframes: {
       'accordion-down': {
