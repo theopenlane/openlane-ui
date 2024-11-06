@@ -1,0 +1,101 @@
+import { Meta, Typeset } from '@storybook/blocks'
+import themeConfig from '../../tailwind.config.ts'
+
+export const SampleText = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
+export const typography = {
+  type: {
+    primary: '"Outfit", Helvetica, Arial, sans-serif',
+    secondary: 'BIZ UDPMincho, serif',
+    mono: 'Jetbrains Mono, monospace',
+  },
+  weight: {
+    regular: '400',
+    medium: '500',
+    bold: '700',
+    extrabold: '800',
+  },
+  size: {
+    s1: 12,
+    s2: 14,
+    s3: 16,
+    m1: 20,
+    m2: 24,
+    m3: 28,
+    l1: 32,
+    l2: 40,
+    l3: 48,
+  },
+};
+
+# Typography
+
+<Meta title="Styling & Theming/Typography" />
+
+## Outfit (Sans-Serif)
+
+### Weights
+100(thin) 300(light) 400(regular), 500(medium), 700(bold), 800(extrabold)
+
+### Examples
+<Typeset
+  fontSizes={[
+    Number(typography.size.s1),
+    Number(typography.size.s2),
+    Number(typography.size.s3),
+    Number(typography.size.m1),
+    Number(typography.size.m2),
+    Number(typography.size.m3),
+    Number(typography.size.l1),
+    Number(typography.size.l2),
+    Number(typography.size.l3),
+  ]}
+  fontWeight={
+    typography.weight.regular
+  }
+  sampleText={SampleText}
+  fontFamily={typography.type.primary}
+/>
+
+## BIZU DPMincho (Serif)
+
+### Weights
+400(regular), 700(bold)
+
+<Typeset
+  fontSizes={[
+    Number(typography.size.s1),
+    Number(typography.size.s2),
+    Number(typography.size.s3),
+    Number(typography.size.m1),
+    Number(typography.size.m2),
+    Number(typography.size.m3),
+    Number(typography.size.l1),
+    Number(typography.size.l2),
+    Number(typography.size.l3),
+  ]}
+  fontWeight={typography.weight.regular}
+  sampleText={SampleText}
+  fontFamily={typography.type.secondary}
+/>
+
+## Jetbrains Mono (Monospace)
+
+### Weights
+400(regular), 500(medium), 700(bold)
+
+<Typeset
+  fontSizes={[
+    Number(typography.size.s1),
+    Number(typography.size.s2),
+    Number(typography.size.s3),
+    Number(typography.size.m1),
+    Number(typography.size.m2),
+    Number(typography.size.m3),
+    Number(typography.size.l1),
+    Number(typography.size.l2),
+    Number(typography.size.l3),
+  ]}
+  fontWeight={typography.weight.regular}
+  sampleText={SampleText}
+  fontFamily={typography.type.mono}
+/>

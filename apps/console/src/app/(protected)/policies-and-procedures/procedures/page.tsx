@@ -1,8 +1,16 @@
 import React from 'react'
-import PageTitle from '@/components/page-title'
+import { PageHeading } from '@repo/ui/page-heading'
+import { ProceduresTable } from '@/components/pages/protected/procedures/procedures-table';
 
 const Page: React.FC = () => {
-  return <PageTitle title="Organization Procedures" description="" />
+  return (
+    <>
+    <PageHeading eyebrow="Policies & Procedures" heading="Organization Procedures" />
+
+    <ProceduresTable />
+
+    </>
+  )
 }
 
 export default Page

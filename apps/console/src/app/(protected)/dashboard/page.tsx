@@ -2,10 +2,10 @@
 
 import React from 'react'
 import { useSession } from 'next-auth/react'
-import PageTitle from '../../../components/page-title'
 import { Grid, GridRow, GridCell } from '@repo/ui/grid'
 import { Panel } from '@repo/ui/panel'
 import { Button } from '@repo/ui/button'
+import { PageHeading } from '@repo/ui/page-heading'
 import { ArrowUpRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
@@ -15,7 +15,7 @@ const DashboardLanding: React.FC = () => {
 
   return (
     <section>
-      <PageTitle title={<>Dashboard</>} />
+      <PageHeading heading={<>Dashboard</>} />
       <Grid rows={2}>
         <GridRow columns={2}>
           <GridCell>
@@ -25,7 +25,7 @@ const DashboardLanding: React.FC = () => {
               textAlign="center"
               className="min-h-[400px]"
             >
-              <h5 className="text-xl font-mono">Create a new Program</h5>
+              <h5 className="text-xl font-sans">Create a new program</h5>
               <p className="max-w-[340px]">
                 Start your compliance journey by creating a new program.
               </p>
@@ -48,7 +48,7 @@ const DashboardLanding: React.FC = () => {
               textAlign="center"
               className="min-h-[400px]"
             >
-              <h5 className="text-xl font-mono">Configure your organization</h5>
+              <h5 className="text-xl font-sans">Configure your organization</h5>
               <p className="max-w-[340px]">
                 Define everything from your organization slug to advanced
                 authentication settings.
@@ -74,7 +74,7 @@ const DashboardLanding: React.FC = () => {
               textAlign="center"
               className="min-h-[400px]"
             >
-              <h5 className="text-xl font-mono">Add team members</h5>
+              <h5 className="text-xl font-sans">Add team members</h5>
               <p className="max-w-[340px]">
                 Get your team rocking and rolling by inviting your colleagues to
                 join the party.

@@ -5,7 +5,7 @@ const organizationSelectorStyles = tv({
     logoWrapper: 'hidden items-center justify-between gap-2 md:flex',
     container: 'flex content-center gap-4',
     organizationLabel:
-      'uppercase font-mono text-sm font-semibold tracking-wide',
+      'uppercase font-sans text-sm font-semibold tracking-wide',
     organizationDropdown: 'flex items-center gap-[6px] text-lg cursor-pointer',
     dropdownContent: 'p-0',
     allOrganizationsLink:

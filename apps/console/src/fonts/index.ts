@@ -12,6 +12,16 @@ export const outfit = localFont({
       weight: '500',
       style: 'medium',
     },
+    {
+      path: '/Outfit-SemiBold.ttf',
+      weight: '700',
+      style: 'bold',
+    },
+    {
+      path: '/Outfit-ExtraBold.ttf',
+      weight: '800',
+      style: 'extrabold',
+    },
   ],
   variable: '--font-outfit',
 })
@@ -30,4 +40,25 @@ export const mincho = localFont({
     },
   ],
   variable: '--font-mincho',
+})
+
+export const jetBrainsMono = localFont({
+  src: [
+    {
+      path: './JetBrainsMono-Regular.ttf',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: './JetBrainsMono-Medium.ttf',
+      weight: '500',
+      style: 'medium',
+    },
+    {
+      path: './JetBrainsMono-Bold.ttf',
+      weight: '700',
+      style: 'bold',
+    },
+  ],
+  variable: '--font-mono',
 })

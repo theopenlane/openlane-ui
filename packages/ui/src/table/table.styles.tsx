@@ -7,9 +7,9 @@ export const tableStyles = tv({
     tableHeader: '[&_tr]:border-b text-left',
     tableBody: '[&_tr:last-child]:border-0',
     tableFooter:
-      'flex border-t p-4 border-oxford-blue-200 font-medium [&>tr]:last:border-b-0 ',
+      'p-1 border-oxford-blue-200 font-medium [&>tr]:last:border-b-0 ',
     tableRow:
-      'border-b border-oxford-blue-200 transition-colors hover:bg-java-50 data-[state=selected]:bg-java-50',
+      'border-b border-oxford-blue-200 transition-colors data-[state=selected]:bg-java-500',
     tableHead:
       'h-12 px-4 text-left align-middle font-medium text-java-500 [&:has([role=checkbox])]:pr-0 dark:text-ziggurat-400',
     tableCell:

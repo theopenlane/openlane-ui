@@ -40,6 +40,8 @@ query GetAllTemplates {
         description
         jsonconfig
         uischema
+        createdAt
+        updatedAt
       }
     }
   }
@@ -55,6 +57,8 @@ query FilterTemplates($where: TemplateWhereInput) {
         description
         jsonconfig
         uischema
+        createdAt
+        updatedAt
       }
     }
   }
@@ -68,5 +72,11 @@ query GetTemplate($getTemplateId: ID!) {
     description
     jsonconfig
     uischema
+  }
+}
+
+mutation DeleteTemplate($deleteTemplateId: ID!) {
+  deleteTemplate(id: $deleteTemplateId) {
+    deletedID
   }
 }

@@ -62,7 +62,7 @@ export const UserMenu = () => {
                 <div className={email()}>{sessionData?.user.email}</div>
               </div>
               <div>
-                <Link href="/profile" className={userSettingsLink()}>
+                <Link href="/user-settings/profile" className={userSettingsLink()}>
                   User Settings
                 </Link>
               </div>

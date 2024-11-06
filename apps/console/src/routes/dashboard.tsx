@@ -1,12 +1,8 @@
 import {
-  AppWindowMacIcon,
-  AtSign,
   BarChart3Icon,
-  BellIcon,
   CircleGaugeIcon,
   FileIcon,
   HandshakeIcon,
-  LandmarkIcon,
   LayersIcon,
   ListChecks,
   ScrollText,
@@ -16,6 +12,7 @@ import {
   Users,
   ShieldCheckIcon,
   TriangleAlertIcon,
+  FileQuestion,
 } from 'lucide-react'
 import { NavHeading, type NavItem, type Separator } from '@/types'
 
@@ -26,7 +23,7 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
     icon: CircleGaugeIcon,
   },
   {
-    title: 'Tasks',
+    title: 'My Tasks',
     href: '/tasks',
     icon: ListChecks,
   },
@@ -35,11 +32,6 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
   //   href: '/mentions',
   //   icon: AtSign,
   // },
-  {
-    title: 'Logs',
-    href: '/logs',
-    icon: ScrollText,
-  },
   {
     type: 'separator',
   },
@@ -62,6 +54,10 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
     isChildren: true,
     children: [
       {
+        title: 'Programs',
+        href: '/programs/programs',
+      },
+      {
         title: 'Controls',
         href: '/programs/controls',
       },
@@ -77,6 +73,18 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
         title: 'Settings',
         href: '/programs/settings',
       }
+    ],
+  },
+  {
+    title: 'Documents',
+    href: '/documents',
+    icon: FileQuestion,
+    isChildren: true,
+    children: [
+      {
+        title: 'Questionnaires',
+        href: '/documents/questionnaires',
+      },
     ],
   },
   {
@@ -162,12 +170,8 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
         href: '/organization-settings/members',
       },
       {
-        title: 'Audit Forwarding',
-        href: '/organization-settings/audit-forwarding',
-      },
-      {
-        title: 'Authentication',
-        href: '/organization-settings/authentication',
+        title: 'Subscribers',
+        href: '/organization-settings/subscribers',
       },
       {
         title: 'Billing & Usage',
@@ -177,12 +181,34 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
         title: 'Developers',
         href: '/organization-settings/developers',
       },
+      {
+        title: 'Audit Logs',
+        href: '/organization-settings/logs',
+      },
     ],
   },
   {
-    title: 'Alerts & Preferences',
-    href: '/alerts-preferences',
+    type: 'separator',
+  },
+  {
+    title: 'User settings',
+    href: '/organization-settings',
     icon: UserRoundCogIcon,
+    isChildren: true,
+    children: [
+      {
+        title: 'Profile',
+        href: '/user-settings/profile',
+      },
+      {
+        title: 'Developers',
+        href: '/user-settings/developers',
+      },
+      {
+        title: 'Alerts & Preferences',
+        href: '/user-settings/alerts-preferences',
+      },
+    ],
   },
   // {
   //   title: 'Integrations',
@@ -225,17 +251,7 @@ export const PersonalNavItems: (NavItem | Separator | NavHeading)[] = [
   },
   {
     title: 'My profile',
-    href: '/profile',
+    href: '/user-settings/profile',
     icon: Users,
-  },
-  {
-    title: 'Notifications',
-    href: '/notifications',
-    icon: BellIcon,
-  },
-  {
-    title: 'Security',
-    href: '/security',
-    icon: LandmarkIcon,
   },
 ]

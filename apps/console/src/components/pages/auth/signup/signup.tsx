@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { SimpleForm } from '@repo/ui/simple-form'
 import { MessageBox } from '@repo/ui/message-box'
 import { Button } from '@repo/ui/button'
-import { ArrowUpRight, KeyRoundIcon } from 'lucide-react'
+import { ArrowUpRight } from 'lucide-react'
 import {
   getPasskeyRegOptions,
   registerUser,
@@ -22,6 +22,8 @@ import { PasswordInput } from '@repo/ui/password-input'
 import { Label } from '@repo/ui/label'
 import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
 import { startRegistration } from '@simplewebauthn/browser'
+import Link from 'next/link'
+import { allowedLoginDomains } from '@repo/dally/auth'
 
 const TEMP_PASSKEY_EMAIL = 'tempuser@test.com'
 const TEMP_PASSKEY_NAME = 'Temp User'
@@ -29,7 +31,7 @@ const TEMP_PASSKEY_NAME = 'Temp User'
 export const SignupPage = () => {
   const router = useRouter()
   const [signInError, setSignInError] = useState(false)
-  const [registrationErrorMessage, setregistrationErrorMessage] = useState(
+  const [registrationErrorMessage, setRegistrationErrorMessage] = useState(
     'There was an error. Please try again.',
   )
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -42,7 +44,7 @@ export const SignupPage = () => {
    */
   const github = async () => {
     await signIn('github', {
-      callbackUrl: '/organization',
+      redirectTo: "/",
     })
   }
 
@@ -51,8 +53,23 @@ export const SignupPage = () => {
    */
   const google = async () => {
     await signIn('google', {
-      callbackUrl: '/organization',
+      redirectTo: "/",
     })
+  }
+
+  /**
+   * Validate Email Domain for Sign Up
+   */
+  async function validateEmail(payload: any) {
+    let allow = false
+    for (const domain of allowedLoginDomains) {
+      if (payload.email.endsWith(domain)) {
+        allow = true
+        break
+      }
+    }
+
+    return allow
   }
 
   /**
@@ -72,7 +89,6 @@ export const SignupPage = () => {
 
       if (verificationResult.success) {
         await signIn('passkey', {
-          callbackUrl: '/organization',
           email: TEMP_PASSKEY_EMAIL,
           name: TEMP_PASSKEY_NAME,
           session: verificationResult.session,
@@ -83,7 +99,7 @@ export const SignupPage = () => {
 
       if (!verificationResult.success) {
         setSignInError(true)
-        setregistrationErrorMessage(`Error: ${verificationResult.error}`)
+        setRegistrationErrorMessage(`Error: ${verificationResult.error}`)
       }
 
       return verificationResult
@@ -119,7 +135,7 @@ export const SignupPage = () => {
           Sign up with GitHub
         </Button>
 
-        <Button
+        {/* <Button
           variant="outlineLight"
           size="md"
           icon={<KeyRoundIcon className={keyIcon()} />}
@@ -127,7 +143,7 @@ export const SignupPage = () => {
           onClick={registerPassKey}
         >
           Sign up with PassKey
-        </Button>
+        </Button> */}
       </div>
 
       <Separator label="or" className={separator()} />
@@ -143,8 +159,13 @@ export const SignupPage = () => {
         }}
         onSubmit={async (payload: RegisterUser) => {
           setIsLoading(true)
-
-          try {
+          try {    
+            const v: any = await validateEmail(payload)
+            if (!v) {
+              router.push('/waitlist')
+              return
+            }
+          
             if (payload.password === payload.confirmedPassword) {
               delete payload.confirmedPassword
 
@@ -152,15 +173,15 @@ export const SignupPage = () => {
               if (res?.ok) {
                 router.push('/verify')
               } else if (res?.message) {
-                setregistrationErrorMessage(res.message)
+                setRegistrationErrorMessage(res.message)
               } else {
-                setregistrationErrorMessage('Unknown error. Please try again.')
+                setRegistrationErrorMessage('Unknown error. Please try again.')
               }
             } else {
-              setregistrationErrorMessage('Passwords do not match')
+              setRegistrationErrorMessage('Passwords do not match')
             }
           } catch (error) {
-            setregistrationErrorMessage('Unknown error. Please try again.')
+            setRegistrationErrorMessage('Unknown error. Please try again.')
           } finally {
             setIsLoading(false)
           }
@@ -171,6 +192,7 @@ export const SignupPage = () => {
           <Input
             name="email"
             placeholder="email@domain.net"
+            autoComplete='email'
             required
             type="email"
           />
@@ -182,11 +204,13 @@ export const SignupPage = () => {
               <PasswordInput
                 name="password"
                 placeholder="password"
+                autoComplete='new-password'
                 required
               />
             <PasswordInput
               name="confirmedPassword"
               placeholder="confirm password"
+              autoComplete='new-password'
               required
             />
             </div>
@@ -202,6 +226,10 @@ export const SignupPage = () => {
           {isLoading ? 'loading' : 'Sign up'}
         </Button>
       </SimpleForm>
+
+      <Link href="https://www.theopenlane.io/legal/privacy" className="text-xs text-gray-500 mt-8 text-center">Privacy Policy</Link>
+      <Link href="https://www.theopenlane.io/legal/terms-of-service" className="text-xs text-gray-500 mt-1 text-center">Terms of Service</Link>
+
       {showLoginError && (
         <MessageBox className={'p-4 ml-1'} message={registrationErrorMessage} />
       )}

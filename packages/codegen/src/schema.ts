@@ -12432,6 +12432,25 @@ export interface WebhookWhereInput {
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>;
 }
 
+export type CreateApiTokenMutationVariables = Exact<{
+  input: CreateApiTokenInput;
+}>;
+
+
+export type CreateApiTokenMutation = { __typename?: 'Mutation', createAPIToken: { __typename?: 'APITokenCreatePayload', apiToken: { __typename?: 'APIToken', token: string } } };
+
+export type GetApiTokensQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetApiTokensQuery = { __typename?: 'Query', apiTokens: { __typename?: 'APITokenConnection', edges?: Array<{ __typename?: 'APITokenEdge', node?: { __typename?: 'APIToken', id: string, name: string, description?: string | null, scopes?: Array<string> | null, expiresAt?: any | null } | null } | null> | null } };
+
+export type DeleteApiTokenMutationVariables = Exact<{
+  deleteAPITokenId: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteApiTokenMutation = { __typename?: 'Mutation', deleteAPIToken: { __typename?: 'APITokenDeletePayload', deletedID: string } };
+
 export type GetDocumentDataQueryVariables = Exact<{
   documentDataId: Scalars['ID']['input'];
 }>;
@@ -12465,6 +12484,21 @@ export type GetAllGroupsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type GetAllGroupsQuery = { __typename?: 'Query', groups: { __typename?: 'GroupConnection', edges?: Array<{ __typename?: 'GroupEdge', node?: { __typename?: 'Group', id: string, name: string, description?: string | null, displayName: string, logoURL?: string | null, setting: { __typename?: 'GroupSetting', visibility: GroupSettingVisibility, joinPolicy: GroupSettingJoinPolicy, syncToSlack?: boolean | null, syncToGithub?: boolean | null, tags?: Array<string> | null } } | null } | null> | null } };
+
+export type UpdateUserRoleInOrgMutationVariables = Exact<{
+  updateOrgMemberId: Scalars['ID']['input'];
+  input: UpdateOrgMembershipInput;
+}>;
+
+
+export type UpdateUserRoleInOrgMutation = { __typename?: 'Mutation', updateOrgMembership: { __typename?: 'OrgMembershipUpdatePayload', orgMembership: { __typename?: 'OrgMembership', id: string, role: OrgMembershipRole, userID: string, organizationID: string } } };
+
+export type RemoveUserFromOrgMutationVariables = Exact<{
+  deleteOrgMembershipId: Scalars['ID']['input'];
+}>;
+
+
+export type RemoveUserFromOrgMutation = { __typename?: 'Mutation', deleteOrgMembership: { __typename?: 'OrgMembershipDeletePayload', deletedID: string } };
 
 export type GetAllOrganizationsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -12526,12 +12560,43 @@ export type DeleteOrganizationMutationVariables = Exact<{
 
 export type DeleteOrganizationMutation = { __typename?: 'Mutation', deleteOrganization: { __typename?: 'OrganizationDeletePayload', deletedID: string } };
 
+export type CreatePersonalAccessTokenMutationVariables = Exact<{
+  input: CreatePersonalAccessTokenInput;
+}>;
+
+
+export type CreatePersonalAccessTokenMutation = { __typename?: 'Mutation', createPersonalAccessToken: { __typename?: 'PersonalAccessTokenCreatePayload', personalAccessToken: { __typename?: 'PersonalAccessToken', token: string } } };
+
+export type GetPersonalAccessTokensQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetPersonalAccessTokensQuery = { __typename?: 'Query', personalAccessTokens: { __typename?: 'PersonalAccessTokenConnection', edges?: Array<{ __typename?: 'PersonalAccessTokenEdge', node?: { __typename?: 'PersonalAccessToken', id: string, name: string, description?: string | null, expiresAt?: any | null, organizations?: Array<{ __typename?: 'Organization', id: string, name: string }> | null } | null } | null> | null } };
+
+export type DeletePersonalAccessTokenMutationVariables = Exact<{
+  deletePersonalAccessTokenId: Scalars['ID']['input'];
+}>;
+
+
+export type DeletePersonalAccessTokenMutation = { __typename?: 'Mutation', deletePersonalAccessToken: { __typename?: 'PersonalAccessTokenDeletePayload', deletedID: string } };
+
 export type CreateSubscriberMutationVariables = Exact<{
   input: CreateSubscriberInput;
 }>;
 
 
 export type CreateSubscriberMutation = { __typename?: 'Mutation', createSubscriber: { __typename?: 'SubscriberCreatePayload', subscriber: { __typename?: 'Subscriber', email: string } } };
+
+export type GetAllSubscribersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetAllSubscribersQuery = { __typename?: 'Query', subscribers: { __typename?: 'SubscriberConnection', edges?: Array<{ __typename?: 'SubscriberEdge', node?: { __typename?: 'Subscriber', active: boolean, email: string, id: string, verifiedEmail: boolean } | null } | null> | null } };
+
+export type DeleteSubscriberMutationVariables = Exact<{
+  deleteSubscriberEmail: Scalars['String']['input'];
+}>;
+
+
+export type DeleteSubscriberMutation = { __typename?: 'Mutation', deleteSubscriber: { __typename?: 'SubscriberDeletePayload', email: string } };
 
 export type CreateTemplateMutationVariables = Exact<{
   input: CreateTemplateInput;
@@ -12551,40 +12616,28 @@ export type UpdateTemplateMutation = { __typename?: 'Mutation', updateTemplate: 
 export type GetAllTemplatesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetAllTemplatesQuery = { __typename?: 'Query', templates: { __typename?: 'TemplateConnection', edges?: Array<{ __typename?: 'TemplateEdge', node?: { __typename?: 'Template', id: string, name: string, templateType: TemplateDocumentType, description?: string | null, jsonconfig: any, uischema?: any | null } | null } | null> | null } };
+export type GetAllTemplatesQuery = { __typename?: 'Query', templates: { __typename?: 'TemplateConnection', edges?: Array<{ __typename?: 'TemplateEdge', node?: { __typename?: 'Template', id: string, name: string, templateType: TemplateDocumentType, description?: string | null, jsonconfig: any, uischema?: any | null, createdAt?: any | null, updatedAt?: any | null } | null } | null> | null } };
 
 export type FilterTemplatesQueryVariables = Exact<{
   where?: InputMaybe<TemplateWhereInput>;
 }>;
 
 
-export type FilterTemplatesQuery = { __typename?: 'Query', templates: { __typename?: 'TemplateConnection', edges?: Array<{ __typename?: 'TemplateEdge', node?: { __typename?: 'Template', id: string, name: string, templateType: TemplateDocumentType, description?: string | null, jsonconfig: any, uischema?: any | null } | null } | null> | null } };
+export type FilterTemplatesQuery = { __typename?: 'Query', templates: { __typename?: 'TemplateConnection', edges?: Array<{ __typename?: 'TemplateEdge', node?: { __typename?: 'Template', id: string, name: string, templateType: TemplateDocumentType, description?: string | null, jsonconfig: any, uischema?: any | null, createdAt?: any | null, updatedAt?: any | null } | null } | null> | null } };
 
 export type GetTemplateQueryVariables = Exact<{
   getTemplateId: Scalars['ID']['input'];
 }>;
 
 
-export type GetTemplateQuery = { __typename?: 'Query', template: { __typename?: 'Template', id: string, name: string, templateType: TemplateDocumentType, description?: string | null, jsonconfig: any, uischema?: any | null } };
+export type GetTemplateQuery = { __typename?: 'Query', template: { __typename?: 'Template', id: string, templateType: TemplateDocumentType, name: string, description?: string | null, jsonconfig: any, uischema?: any | null } };
 
-export type CreatePersonalAccessTokenMutationVariables = Exact<{
-  input: CreatePersonalAccessTokenInput;
+export type DeleteTemplateMutationVariables = Exact<{
+  deleteTemplateId: Scalars['ID']['input'];
 }>;
 
 
-export type CreatePersonalAccessTokenMutation = { __typename?: 'Mutation', createPersonalAccessToken: { __typename?: 'PersonalAccessTokenCreatePayload', personalAccessToken: { __typename?: 'PersonalAccessToken', token: string } } };
-
-export type GetPersonalAccessTokensQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetPersonalAccessTokensQuery = { __typename?: 'Query', personalAccessTokens: { __typename?: 'PersonalAccessTokenConnection', edges?: Array<{ __typename?: 'PersonalAccessTokenEdge', node?: { __typename?: 'PersonalAccessToken', id: string, name: string, description?: string | null, expiresAt?: any | null } | null } | null> | null } };
-
-export type DeletePersonalAccessTokenMutationVariables = Exact<{
-  deletePersonalAccessTokenId: Scalars['ID']['input'];
-}>;
-
-
-export type DeletePersonalAccessTokenMutation = { __typename?: 'Mutation', deletePersonalAccessToken: { __typename?: 'PersonalAccessTokenDeletePayload', deletedID: string } };
+export type DeleteTemplateMutation = { __typename?: 'Mutation', deleteTemplate: { __typename?: 'TemplateDeletePayload', deletedID: string } };
 
 export type GetUserProfileQueryVariables = Exact<{
   userId: Scalars['ID']['input'];
@@ -12602,6 +12655,49 @@ export type UpdateUserNameMutationVariables = Exact<{
 export type UpdateUserNameMutation = { __typename?: 'Mutation', updateUser: { __typename?: 'UserUpdatePayload', user: { __typename?: 'User', id: string } } };
 
 
+export const CreateApiTokenDocument = gql`
+    mutation CreateAPIToken($input: CreateAPITokenInput!) {
+  createAPIToken(input: $input) {
+    apiToken {
+      token
+    }
+  }
+}
+    `;
+
+export function useCreateApiTokenMutation() {
+  return Urql.useMutation<CreateApiTokenMutation, CreateApiTokenMutationVariables>(CreateApiTokenDocument);
+};
+export const GetApiTokensDocument = gql`
+    query GetAPITokens {
+  apiTokens {
+    edges {
+      node {
+        id
+        name
+        description
+        scopes
+        expiresAt
+      }
+    }
+  }
+}
+    `;
+
+export function useGetApiTokensQuery(options?: Omit<Urql.UseQueryArgs<GetApiTokensQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetApiTokensQuery, GetApiTokensQueryVariables>({ query: GetApiTokensDocument, ...options });
+};
+export const DeleteApiTokenDocument = gql`
+    mutation DeleteAPIToken($deleteAPITokenId: ID!) {
+  deleteAPIToken(id: $deleteAPITokenId) {
+    deletedID
+  }
+}
+    `;
+
+export function useDeleteApiTokenMutation() {
+  return Urql.useMutation<DeleteApiTokenMutation, DeleteApiTokenMutationVariables>(DeleteApiTokenDocument);
+};
 export const GetDocumentDataDocument = gql`
     query GetDocumentData($documentDataId: ID!) {
   documentData(id: $documentDataId) {
@@ -12681,6 +12777,33 @@ export const GetAllGroupsDocument = gql`
 
 export function useGetAllGroupsQuery(options?: Omit<Urql.UseQueryArgs<GetAllGroupsQueryVariables>, 'query'>) {
   return Urql.useQuery<GetAllGroupsQuery, GetAllGroupsQueryVariables>({ query: GetAllGroupsDocument, ...options });
+};
+export const UpdateUserRoleInOrgDocument = gql`
+    mutation UpdateUserRoleInOrg($updateOrgMemberId: ID!, $input: UpdateOrgMembershipInput!) {
+  updateOrgMembership(id: $updateOrgMemberId, input: $input) {
+    orgMembership {
+      id
+      role
+      userID
+      organizationID
+    }
+  }
+}
+    `;
+
+export function useUpdateUserRoleInOrgMutation() {
+  return Urql.useMutation<UpdateUserRoleInOrgMutation, UpdateUserRoleInOrgMutationVariables>(UpdateUserRoleInOrgDocument);
+};
+export const RemoveUserFromOrgDocument = gql`
+    mutation RemoveUserFromOrg($deleteOrgMembershipId: ID!) {
+  deleteOrgMembership(id: $deleteOrgMembershipId) {
+    deletedID
+  }
+}
+    `;
+
+export function useRemoveUserFromOrgMutation() {
+  return Urql.useMutation<RemoveUserFromOrgMutation, RemoveUserFromOrgMutationVariables>(RemoveUserFromOrgDocument);
 };
 export const GetAllOrganizationsDocument = gql`
     query GetAllOrganizations {
@@ -12860,6 +12983,52 @@ export const DeleteOrganizationDocument = gql`
 export function useDeleteOrganizationMutation() {
   return Urql.useMutation<DeleteOrganizationMutation, DeleteOrganizationMutationVariables>(DeleteOrganizationDocument);
 };
+export const CreatePersonalAccessTokenDocument = gql`
+    mutation CreatePersonalAccessToken($input: CreatePersonalAccessTokenInput!) {
+  createPersonalAccessToken(input: $input) {
+    personalAccessToken {
+      token
+    }
+  }
+}
+    `;
+
+export function useCreatePersonalAccessTokenMutation() {
+  return Urql.useMutation<CreatePersonalAccessTokenMutation, CreatePersonalAccessTokenMutationVariables>(CreatePersonalAccessTokenDocument);
+};
+export const GetPersonalAccessTokensDocument = gql`
+    query GetPersonalAccessTokens {
+  personalAccessTokens {
+    edges {
+      node {
+        id
+        name
+        description
+        expiresAt
+        organizations {
+          id
+          name
+        }
+      }
+    }
+  }
+}
+    `;
+
+export function useGetPersonalAccessTokensQuery(options?: Omit<Urql.UseQueryArgs<GetPersonalAccessTokensQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetPersonalAccessTokensQuery, GetPersonalAccessTokensQueryVariables>({ query: GetPersonalAccessTokensDocument, ...options });
+};
+export const DeletePersonalAccessTokenDocument = gql`
+    mutation DeletePersonalAccessToken($deletePersonalAccessTokenId: ID!) {
+  deletePersonalAccessToken(id: $deletePersonalAccessTokenId) {
+    deletedID
+  }
+}
+    `;
+
+export function useDeletePersonalAccessTokenMutation() {
+  return Urql.useMutation<DeletePersonalAccessTokenMutation, DeletePersonalAccessTokenMutationVariables>(DeletePersonalAccessTokenDocument);
+};
 export const CreateSubscriberDocument = gql`
     mutation CreateSubscriber($input: CreateSubscriberInput!) {
   createSubscriber(input: $input) {
@@ -12872,6 +13041,35 @@ export const CreateSubscriberDocument = gql`
 
 export function useCreateSubscriberMutation() {
   return Urql.useMutation<CreateSubscriberMutation, CreateSubscriberMutationVariables>(CreateSubscriberDocument);
+};
+export const GetAllSubscribersDocument = gql`
+    query GetAllSubscribers {
+  subscribers {
+    edges {
+      node {
+        active
+        email
+        id
+        verifiedEmail
+      }
+    }
+  }
+}
+    `;
+
+export function useGetAllSubscribersQuery(options?: Omit<Urql.UseQueryArgs<GetAllSubscribersQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetAllSubscribersQuery, GetAllSubscribersQueryVariables>({ query: GetAllSubscribersDocument, ...options });
+};
+export const DeleteSubscriberDocument = gql`
+    mutation DeleteSubscriber($deleteSubscriberEmail: String!) {
+  deleteSubscriber(email: $deleteSubscriberEmail) {
+    email
+  }
+}
+    `;
+
+export function useDeleteSubscriberMutation() {
+  return Urql.useMutation<DeleteSubscriberMutation, DeleteSubscriberMutationVariables>(DeleteSubscriberDocument);
 };
 export const CreateTemplateDocument = gql`
     mutation CreateTemplate($input: CreateTemplateInput!) {
@@ -12926,6 +13124,8 @@ export const GetAllTemplatesDocument = gql`
         description
         jsonconfig
         uischema
+        createdAt
+        updatedAt
       }
     }
   }
@@ -12946,6 +13146,8 @@ export const FilterTemplatesDocument = gql`
         description
         jsonconfig
         uischema
+        createdAt
+        updatedAt
       }
     }
   }
@@ -12971,47 +13173,16 @@ export const GetTemplateDocument = gql`
 export function useGetTemplateQuery(options: Omit<Urql.UseQueryArgs<GetTemplateQueryVariables>, 'query'>) {
   return Urql.useQuery<GetTemplateQuery, GetTemplateQueryVariables>({ query: GetTemplateDocument, ...options });
 };
-export const CreatePersonalAccessTokenDocument = gql`
-    mutation CreatePersonalAccessToken($input: CreatePersonalAccessTokenInput!) {
-  createPersonalAccessToken(input: $input) {
-    personalAccessToken {
-      token
-    }
-  }
-}
-    `;
-
-export function useCreatePersonalAccessTokenMutation() {
-  return Urql.useMutation<CreatePersonalAccessTokenMutation, CreatePersonalAccessTokenMutationVariables>(CreatePersonalAccessTokenDocument);
-};
-export const GetPersonalAccessTokensDocument = gql`
-    query GetPersonalAccessTokens {
-  personalAccessTokens {
-    edges {
-      node {
-        id
-        name
-        description
-        expiresAt
-      }
-    }
-  }
-}
-    `;
-
-export function useGetPersonalAccessTokensQuery(options?: Omit<Urql.UseQueryArgs<GetPersonalAccessTokensQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetPersonalAccessTokensQuery, GetPersonalAccessTokensQueryVariables>({ query: GetPersonalAccessTokensDocument, ...options });
-};
-export const DeletePersonalAccessTokenDocument = gql`
-    mutation DeletePersonalAccessToken($deletePersonalAccessTokenId: ID!) {
-  deletePersonalAccessToken(id: $deletePersonalAccessTokenId) {
+export const DeleteTemplateDocument = gql`
+    mutation DeleteTemplate($deleteTemplateId: ID!) {
+  deleteTemplate(id: $deleteTemplateId) {
     deletedID
   }
 }
     `;
 
-export function useDeletePersonalAccessTokenMutation() {
-  return Urql.useMutation<DeletePersonalAccessTokenMutation, DeletePersonalAccessTokenMutationVariables>(DeletePersonalAccessTokenDocument);
+export function useDeleteTemplateMutation() {
+  return Urql.useMutation<DeleteTemplateMutation, DeleteTemplateMutationVariables>(DeleteTemplateDocument);
 };
 export const GetUserProfileDocument = gql`
     query GetUserProfile($userId: ID!) {

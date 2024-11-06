@@ -19,6 +19,7 @@ import Image from 'next/image'
 import { format } from 'date-fns'
 import { useCopyToClipboard } from '@uidotdev/usehooks'
 import { useToast } from '@repo/ui/use-toast'
+import { MemberActions } from './actions/member-actions'
 
 type MembersTableProps = {
   setActiveTab: Dispatch<SetStateAction<string>>
@@ -47,7 +48,7 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
     organizationId: session?.user.organization ?? '',
   }
 
-  const [{ data, fetching, error }] = useGetOrganizationMembersQuery({
+  const [{ data, fetching, error }, refetch] = useGetOrganizationMembersQuery({
     variables,
     pause: !session,
   })
@@ -158,10 +159,13 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
       cell: ({ cell }) => <>{cell.getValue()}</>,
     },
     {
-      accessorKey: 'user',
+      accessorKey: 'id',
       header: '',
-      cell: () => (
-        <MoreHorizontal className={actionIcon()} onClick={() => alert('TBC')} />
+      cell: ({ cell }) => (
+         <MemberActions
+          memberId={cell.getValue() as string}
+          refetchMembers={refetch}
+        />
       ),
       size: 40,
     },

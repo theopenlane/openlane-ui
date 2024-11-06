@@ -1,8 +1,8 @@
 import React from 'react'
-import PageTitle from '@/components/page-title'
+import { PageHeading } from '@repo/ui/page-heading'
 
 const Page: React.FC = () => {
-  return <PageTitle title="Vendors" description="" />
+  return <PageHeading heading="Vendors" eyebrow="Entities" />
 }
 
 export default Page

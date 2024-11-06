@@ -1,0 +1,27 @@
+mutation CreateAPIToken($input: CreateAPITokenInput!) {
+  createAPIToken(input: $input) {
+    apiToken {
+      token
+    }
+  }
+}
+
+query GetAPITokens {
+  apiTokens {
+    edges {
+      node {
+        id
+        name
+        description
+        scopes
+        expiresAt
+      }
+    }
+  }
+}
+
+mutation DeleteAPIToken($deleteAPITokenId: ID!) {
+  deleteAPIToken(id: $deleteAPITokenId) {
+    deletedID
+  }
+}

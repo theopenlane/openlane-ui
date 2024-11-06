@@ -109,9 +109,9 @@ export const UserMenu: Story = {
           <DropdownMenuItem>
             <div>
               <p>
-                <strong>Chris Berridge</strong>
+                <strong>Mickey Haller</strong>
                 <br />
-                chris_b@lloydsbank.com
+                mickey_h@ll.com
               </p>
               <p>
                 <a href="#" className="block text-aquamarine-900 dark:text-aquamarine-100 mt-2">
@@ -136,3 +136,5 @@ export const UserMenu: Story = {
     )
   },
 }
+
+

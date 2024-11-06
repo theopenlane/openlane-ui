@@ -56,6 +56,6 @@ export const config = {
      * - verify (verify page)
      * - invite (invite verify page)
      */
-    '\/((?!api|[_next\/static]|[_next\/image]|favicon.ico|backgrounds|backgrounds\/|icons|icons\/|login|verify|invite).*)',
+    '\/((?!api|[_next\/static]|[_next\/image]|favicon.ico|backgrounds|backgrounds\/|icons|icons\/|login|verify|waitlist|invite).*)',
   ],
 }

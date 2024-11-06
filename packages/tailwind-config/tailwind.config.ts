@@ -121,7 +121,7 @@ export const config: Omit<Config, 'content'> = {
       },
       fontFamily: {
         sans: ['var(--font-outfit)'],
-        mono: ['var(--font-outfit)'],
+        mono: ['var(--font-mono)'],
         serif: ['var(--font-mincho)'],
       },
     },
