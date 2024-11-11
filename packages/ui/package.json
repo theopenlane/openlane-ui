@@ -86,7 +86,7 @@
     "@types/prismjs": "^1.26.5",
     "@udecode/cn": "^39.0.0",
     "@udecode/plate-ai": "^39.3.0",
-    "@udecode/plate-alignment": "^39.0.0",
+    "@udecode/plate-alignment": "^40.0.0",
     "@udecode/plate-autoformat": "^39.0.0",
     "@udecode/plate-basic-elements": "^39.0.0",
     "@udecode/plate-basic-marks": "^39.0.0",
