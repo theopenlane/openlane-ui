@@ -1,7 +1,7 @@
 'use client'
 
 import { SurveyCreatorComponent, SurveyCreator } from "survey-creator-react";
-import { ITheme } from "survey-core";
+import { ITheme, slk } from "survey-core";
 import { editorLocalization } from "survey-creator-core";
 import { useTheme } from 'next-themes'
 
@@ -18,6 +18,7 @@ import { pageStyles } from "./page.styles";
 import { useRouter } from "next/navigation";
 
 import "./custom.css";
+import { surveyLicenseKey } from "@repo/dally/auth";
 
 const enLocale = editorLocalization.getLocale("en");
 
@@ -28,6 +29,11 @@ const creatorOptions = {
   isAutoSave: false,
   showThemeTab: true,
 };
+
+// Register the SurveyJS license key
+slk( 
+  surveyLicenseKey as string,
+)
 
 export default function CreateQuestionnaire(input: { templateId: string, existingId: string }) {
   const router = useRouter()
