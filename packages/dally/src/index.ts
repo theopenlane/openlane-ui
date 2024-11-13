@@ -6,3 +6,5 @@ export const sessionCookieExpiration = process.env.SESSION_COOKIE_EXPIRATION_MIN
 export const allowedLoginDomains = process.env.NEXT_PUBLIC_ALLOWED_LOGIN_DOMAINS?.split(',') || []
 export const includeQuestionnaireCreation = process.env.NEXT_PUBLIC_INCLUDE_QUESTIONNAIRE_CREATION 
 export const surveyLicenseKey = process.env.NEXT_PUBLIC_SURVEYJS_KEY
+export const stripePricingTableId = process.env.NEXT_PUBLIC_STRIPE_PRICING_TABLE_ID
+export const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
