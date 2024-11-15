@@ -25,7 +25,7 @@ export default function RootLayout({
           async
           src="https://js.stripe.com/v3/pricing-table.js">
         </script>
-      </head> 
+      </head>
       <body
         className={`${outfit.variable} ${mincho.variable} ${jetBrainsMono.variable} font-sans w-full h-full bg-ziggurat-100 overscroll-none dark:bg-oxford-blue-900`}
       >

@@ -15,7 +15,7 @@ export const TokenVerifier = () => {
 
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
-  
+
 
   useEffect(() => {
     const verifyToken = async () => {
@@ -42,7 +42,7 @@ export const TokenVerifier = () => {
       <>
         <div className="mx-auto animate-pulse w-96">
         <Logo theme='dark' />
-        </div>  
+        </div>
         <div className={errorMessage()}>
           No token provided, please check your email for a verification link.
         </div>
@@ -51,11 +51,11 @@ export const TokenVerifier = () => {
   }
 
   if (error) {
-    return ( 
+    return (
     <>
     <div className="mx-auto animate-pulse w-96">
     <Logo theme='dark' />
-    </div>  
+    </div>
     <div className={errorMessage()}>{error}</div>
     </>
     )
@@ -81,7 +81,7 @@ export const TokenVerifier = () => {
     <>
     <div className="mx-auto animate-pulse w-96">
     <Logo theme='dark' />
-    </div>    
+    </div>
     <div className={loading()}>
       <LoaderCircle className="animate-spin" size={20} />
       <span className={successMessage()}>Verifying</span>

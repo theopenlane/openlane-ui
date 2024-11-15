@@ -24,7 +24,7 @@ export const dropdownMenuStyles = tv({
     menuLabel: 'px-2 py-1.5 text-sm font-semibold',
     menuShortcut: 'ml-auto text-sm tracking-widest opacity-60',
   },
-  variants: { 
+  variants: {
     inset: {
       true: {
         subTrigger: 'pl-8',

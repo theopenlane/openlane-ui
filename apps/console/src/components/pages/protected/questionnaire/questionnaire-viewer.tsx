@@ -24,7 +24,7 @@ export default function ViewQuestionnaire(input: {existingId: string }) {
   // apply theme to the creator
   const themeContext = useTheme()
   const theme = themeContext.resolvedTheme as  "light" | "dark" | "white" | undefined
-  
+
   const variables = { getTemplateId: input.existingId}
   const [templateResult] = useGetTemplateQuery({ variables });
   const surveyJson   = templateResult?.data?.template?.jsonconfig;

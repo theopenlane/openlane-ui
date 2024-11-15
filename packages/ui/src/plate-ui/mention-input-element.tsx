@@ -100,7 +100,7 @@ export const MENTIONABLES = [
     key: '12',
     text: 'Aiolin and Morit Astarte',
   },
-  { key: '13', text: 'Aks Moe' },
+  { key: '13', text: 'Ask Moe' },
   { key: '14', text: 'Almec' },
   { key: '15', text: 'Alton Kastle' },
   { key: '16', text: 'Amee' },

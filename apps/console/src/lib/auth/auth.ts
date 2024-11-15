@@ -69,7 +69,7 @@ export const config = {
       if (!allow) {
         return '/waitlist'
       }
- 
+
       // register user that signed in via oauth provider
       if (account?.type === 'oauth' || account?.type === 'oidc') {
         const oauthUser = {
@@ -108,7 +108,7 @@ export const config = {
       return true
     },
     jwt({ token, user, account, profile, trigger, session }) {
-      /* 
+      /*
       set tokens on user
       */
       if (typeof user !== 'undefined') {
