@@ -47,7 +47,7 @@ This monorepo is run on [Bun](https://bun.sh/) and built using
    task local-setup
    ```
 
-The above should work on macOS/Linux environments. If you are using Windows you
+The above should work on macOS environments. If you are using Linux/Windows you
 may need to look at the [Taskfile](Taskfile.yaml) and find the equivalent
 commands.
 
