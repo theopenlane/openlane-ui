@@ -42,15 +42,14 @@ This monorepo is run on [Bun](https://bun.sh/) and built using
 
 ## Prerequisites
 
-1. Install Bun:
+1. Install Bun and other dependencies:
    ```bash
-   curl -fsSL https://bun.sh/install | bash
+   task local-setup
    ```
 
-1. Install pre-commit hooks:
-   ```bash
-   pre-commit install
-   ```
+The above should work on macOS/Linux environments. If you are using Windows you
+may need to look at the [Taskfile](Taskfile.yaml) and find the equivalent
+commands.
 
 ## Build
 
