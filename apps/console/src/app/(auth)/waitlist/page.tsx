@@ -23,7 +23,7 @@ const Waitlist: React.FC = () => {
         <Subscribe />
 
         <div className="flex flex-col text-center text-sm text-oxford-blue-100 mt-20">
-          <Link href="/login">Back to login</Link> 
+          <Link href="/login">Back to login</Link>
         </div>
       </div>
     </main>

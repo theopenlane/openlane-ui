@@ -78,7 +78,7 @@ export const PoliciesTable = () => {
             // onChange={handleSearch}
           />
         </div>
-        <Button            
+        <Button
             icon={<PlusIcon />}
             iconPosition="left"
             onClick={handleCreateNew}

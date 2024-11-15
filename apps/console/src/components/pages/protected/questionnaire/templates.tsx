@@ -50,7 +50,7 @@ export const TemplateList = () => {
   const formSchema = z.object({
     templateId: z.string(),
   })
-    
+
   type FormData = zInfer<typeof formSchema>
 
   const form = useForm<FormData>({

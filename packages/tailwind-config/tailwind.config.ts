@@ -33,7 +33,7 @@ export const config: Omit<Config, 'content'> = {
           '100': '#c8ffef',
           '200': '#96ffe4',
           '300': '#53ffdd',
-          '400': '#09f1c7', // button color 
+          '400': '#09f1c7', // button color
           '500': '#00deb7',
           '600': '#00b696',
           '700': '#00927d',
@@ -93,7 +93,7 @@ export const config: Omit<Config, 'content'> = {
           '900': '#363b43',
           '950': '#21252b',
       },
-        'oxford-blue': { 
+        'oxford-blue': {
             '50': '#f2f7f9',
             '100': '#dfeaee',
             '200': '#c2d7df',

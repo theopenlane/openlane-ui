@@ -71,7 +71,7 @@ export function FixedToolbarButtons() {
               <Redo />
             </MarkToolbarButton>
           </ToolbarGroup>
-          
+
           <ToolbarGroup>
             <InsertDropdownMenu />
             <TurnIntoDropdownMenu />
