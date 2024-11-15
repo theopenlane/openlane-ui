@@ -1,4 +1,4 @@
-# openlane-ui
+# Openlane UI
 
 Openlane UI monorepo which holds all the frontend assets for Openlane
 
