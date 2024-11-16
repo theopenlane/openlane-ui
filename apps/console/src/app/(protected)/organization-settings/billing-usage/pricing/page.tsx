@@ -1,6 +1,6 @@
 import React from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
-import PricingPage from '@/components/pages/protected/organization/billing/pricing-table'
+import { PricingPage } from '@/components/pages/protected/organization/billing/pricing-table'
 
 const Page: React.FC = () => {
   return (
