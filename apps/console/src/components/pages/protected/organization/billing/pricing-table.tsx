@@ -1,8 +1,7 @@
 'use client';
 
 import { stripePricingTableId, stripePublishableKey } from '@repo/dally/auth';
-import React, { useEffect, useState } from "react";
-import { useSession } from 'next-auth/react'
+import React, { useEffect, useRef, useState } from "react";
 
 declare global {
     namespace JSX {
@@ -12,37 +11,62 @@ declare global {
     }
   }
 
-const PricingPage = () => {
-  const { data: session } = useSession()
-  const currentOrgId = session?.user.organization
-  const [customerSessionClientSecret, setCustomerSessionClientSecret] = useState<string | null>(null)
+interface StripePricingTableProps {
+  pricingTableId: string;
+  publishableKey: string;
+}
 
+const StripePricingTable: React.FC<StripePricingTableProps> = ({
+  pricingTableId,
+  publishableKey,
+}) => {
+  const scriptRef = useRef<HTMLScriptElement | null>(null);
+  const [customerSessionClientSecret, setCustomerSessionClientSecret] =
+    useState<string | null>(null);
 
-  useEffect(() => {
     const getCustomerSessionClientSecret = async () => {
-          try {
-            const response = await fetch(`/api/stripe/customerSession`)
-            if (!response.ok) {
-              throw new Error("Failed to fetch customer session");
-            }
-            const stripedata = await response.json();
-            setCustomerSessionClientSecret(stripedata.clientSecret);
-          } catch (error) { 
-            console.error("Error fetching customer session:", error);
-          }
+      try {
+        const response = await fetch("/api/stripe/customerSession");
+        if (!response.ok) {
+          throw new Error("Failed to fetch customer session");
+        }
+        const data = await response.json();
+        setCustomerSessionClientSecret(data.clientSecret);
+      } catch (error) {
+        console.error("Error fetching customer session:", error);
       }
-      getCustomerSessionClientSecret()
+    };
+  
+    useEffect(() => {
+      getCustomerSessionClientSecret();
+    }, []);
+  
+    useEffect(() => {
+      if (!scriptRef.current) {
+        const script = document.createElement("script");
+        script.src = "https://js.stripe.com/v3/pricing-table.js";
+        script.async = true;
+        document.body.appendChild(script);
+        scriptRef.current = script;
+      }
+  
+      return () => {
+        if (scriptRef.current) {
+          document.body.removeChild(scriptRef.current);
+          scriptRef.current = null;
+        }
+      };
     }, []);
 
     return (
-      <stripe-pricing-table
-        pricing-table-id={stripePricingTableId}
-        publishable-key={stripePublishableKey}
-        client-reference-id={currentOrgId}
-        customer-session-client-secret={customerSessionClientSecret}
-      >
-      </stripe-pricing-table>
+      <div className="w-full">
+        <stripe-pricing-table
+          pricing-table-id={stripePricingTableId}
+          publishable-key={stripePublishableKey}
+          customer-session-client-secret={customerSessionClientSecret}
+        />
+       </div>
     );
-  }
+  };
 
-export { PricingPage }
+export default StripePricingTable;

@@ -20,13 +20,13 @@ export async function GET(request: Request) {
     credentials: 'include',
   })
 
-  const fetchedData = await fData.json()
+  const customerSession = await fData.json()
 
   if (fData.ok) {
-    return NextResponse.json(fetchedData, { status: 200 })
+    return NextResponse.json({ clientSecret: customerSession.client_secret }, { status: 200 })
   }
 
   if (fData.status !== 201) {
-    return NextResponse.json(fetchedData, { status: fData.status })
+    return NextResponse.json(customerSession, { status: fData.status })
   }
 }

@@ -3,7 +3,7 @@ import { DashboardLayout } from '@/components/layouts/dashboard/dashboard'
 
 export const metadata: Metadata = {
   title: 'Dashboard',
-  description: 'The open source foundation of a sustainable digital world',
+  description: 'The open source foundation for your Security and Compliance needs',
 }
 
 export default function RootLayout({
