@@ -159,13 +159,13 @@ export const SignupPage = () => {
         }}
         onSubmit={async (payload: RegisterUser) => {
           setIsLoading(true)
-          try {    
+          try {
             const v: any = await validateEmail(payload)
             if (!v) {
               router.push('/waitlist')
               return
             }
-          
+
             if (payload.password === payload.confirmedPassword) {
               delete payload.confirmedPassword
 

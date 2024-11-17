@@ -215,9 +215,9 @@ const PersonalAccessTokenForm = () => {
                         {Object.entries(orgs)
                             .reverse()
                             .map(([key, value], i) => (
-                              <DropdownMenuCheckboxItem 
+                              <DropdownMenuCheckboxItem
                                 className={checkboxRow()}
-                                key={value?.node?.name} 
+                                key={value?.node?.name}
                                 checked={value?.node?.id ? field.value?.includes(value.node.id) ?? false : false}
                                 onCheckedChange={(checked) => {
                                   const newValue = checked
@@ -235,7 +235,7 @@ const PersonalAccessTokenForm = () => {
                                   <AvatarFallback>
                                     {value?.node?.name?.substring(0, 2)}
                                   </AvatarFallback>
-                                </Avatar>    
+                                </Avatar>
                                 {value?.node?.name}
                               </DropdownMenuCheckboxItem>
                             ))

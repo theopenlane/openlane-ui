@@ -11,6 +11,23 @@ includes:
     dir: ./packages/codegen
 
 tasks:
+  local-setup:
+    desc: Setup the project dependencies
+    cmds:
+      - task: install-bun
+      - task: install-precommit
+      - pre-commit install && pre-commit install-hooks
+      - pre-commit autoupdate
+      - pre-commit run --show-diff-on-failure --color=always --all-files
+
+  install-bun:
+    desc: install bun package manager
+    cmd: curl -fsSL https://bun.sh/install | bash
+
+  install-precommit:
+    desc: install pre-commit
+    cmd: brew install pre-commit
+
   build:
     desc: build all apps and package
     cmd: bun run build

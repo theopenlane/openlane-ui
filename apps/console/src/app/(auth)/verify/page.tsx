@@ -2,7 +2,7 @@
 
 import { Suspense } from 'react'
 import { LoaderCircle } from 'lucide-react'
-import { TokenVerifier } from '@/components/pages/auth/subscriber-verify/verifier' 
+import { TokenVerifier } from '@/components/pages/auth/subscriber-verify/verifier'
 
 export const dynamic = 'force-dynamic'
 

@@ -13,21 +13,21 @@ export const CreateDropdown = () => {
     const router = useRouter()
 
     const [isTemplateDialogOpen, setTemplateDialogOpen] = useState(false);
-  
+
     const handleCreateNew = () => {
       router.push('/documents/questionnaire-editor')
     }
-  
+
     const {
       buttons,
     } = pageStyles()
-  
+
 
     return (
       <div className={buttons()} >
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button            
+            <Button
                 icon={<PlusIcon />}
                 iconPosition="left"
                 onClick={handleCreateNew}
@@ -53,4 +53,3 @@ export const CreateDropdown = () => {
     </div>
     )
   }
-  

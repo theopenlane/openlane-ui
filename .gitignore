@@ -24,6 +24,11 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
+./config/.env
+./config/.env.local
+./config/.env.development.local
+./config/.env.test.local
+./config/.env.production.local
 .env
 .env.local
 .env.development.local

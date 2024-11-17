@@ -95,7 +95,7 @@ export const Actions = ({
     })
   }
 
-    
+
   const handleDeleteTemplate = async () => {
     const response = await deleteTemplate({ deleteTemplateId: templateId })
 
@@ -144,7 +144,7 @@ export const Actions = ({
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
-    
+
     <AlertDialog open={isSendDialogOpen} onOpenChange={setIsSendDialogOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>

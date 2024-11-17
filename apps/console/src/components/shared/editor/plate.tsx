@@ -87,7 +87,7 @@ const resetBlockTypesCommonRule = {
   types: [BlockquotePlugin.key, TodoListPlugin.key],
   defaultType: ParagraphPlugin.key,
 };
- 
+
 const resetBlockTypesCodeBlockRule = {
   types: [CodeBlockPlugin.key],
   defaultType: ParagraphPlugin.key,
@@ -279,7 +279,7 @@ export default function PlateEditor() {
   const handleChange = ({ value }: { value: typeof initialValue }) => {
       setEditorContent(value);
   };
-  
+
   return (
     <>
     <DndProvider backend={HTML5Backend}>
@@ -287,9 +287,9 @@ export default function PlateEditor() {
         <FixedToolbar>
           <FixedToolbarButtons />
         </FixedToolbar>
-        
+
           <Editor variant="fullWidth" />
-          
+
           <FloatingToolbar>
             <FloatingToolbarButtons />
           </FloatingToolbar>

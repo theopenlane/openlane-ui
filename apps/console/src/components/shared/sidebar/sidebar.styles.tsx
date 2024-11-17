@@ -18,7 +18,7 @@ const sidebarStyles = tv({
     },
     isOpen: {
       true: {
-        nav: 'w-72',
+        nav: 'w-60',
         expandNavIcon: 'rotate-0',
       },
     },

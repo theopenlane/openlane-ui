@@ -38,7 +38,7 @@ export const Actions = ({
   const router = useRouter()
   const { actionIcon } = pageStyles()
   const { toast } = useToast()
-  
+
   // const [ _, deleteTemplate] = useDeleteProcedureMutation()
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -87,8 +87,8 @@ export const Actions = ({
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
-    
-    
+
+
     <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>

@@ -31,7 +31,7 @@ const creatorOptions = {
 };
 
 // Register the SurveyJS license key
-slk( 
+slk(
   surveyLicenseKey as string,
 )
 
@@ -45,7 +45,7 @@ export default function CreateQuestionnaire(input: { templateId: string, existin
 
   const creator = new SurveyCreator(creatorOptions);
   const themeTabPlugin = creator.themeEditor;
-  
+
   function addCustomTheme(theme: ITheme, userFriendlyThemeName : string) {
     // Add a localized user-friendly theme name
     if (theme.themeName) {
@@ -54,7 +54,7 @@ export default function CreateQuestionnaire(input: { templateId: string, existin
     // Add the theme to the theme list as the default theme
     themeTabPlugin.addTheme(theme, true);
   }
-    
+
   // Register a custom theme with Dark and Light variations
   addCustomTheme(lightTheme, customThemeName);
   addCustomTheme(darkTheme, customThemeName);
@@ -75,13 +75,13 @@ export default function CreateQuestionnaire(input: { templateId: string, existin
   const variables = { getTemplateId: input.existingId || input.templateId }
 
   const [templateResult] = useGetTemplateQuery({ variables });
-    
+
   if (templateResult.data) {
     creator.JSON = templateResult.data.template.jsonconfig;
   }
 
   // setup save function
-  const [template, createTemplateData] = useCreateTemplateMutation(); 
+  const [template, createTemplateData] = useCreateTemplateMutation();
   const [, updateTemplateData] = useUpdateTemplateMutation()
 
   const saveTemplate = async (data: any, saveNo : string, callback : any) => {
@@ -135,7 +135,7 @@ export default function CreateQuestionnaire(input: { templateId: string, existin
             title: 'A questionnaire with this name already exists, please choose a different name',
             variant: 'destructive',
           })
-        } else if (response.error.graphQLErrors[0].message == 'must be defined') { 
+        } else if (response.error.graphQLErrors[0].message == 'must be defined') {
 
           const missingField = response.error.graphQLErrors[0].path?.slice(-1)[0]
           toast({

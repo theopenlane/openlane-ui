@@ -26,7 +26,7 @@ export const featureObject = "feature";
 *
 * @objectId: the id of the object being checked, usually the organization id
 * @objectType: the type of the object being checked, usually organization
-* @relation: the relation being checked 
+* @relation: the relation being checked
 */
 export type CheckTuple = {
   objectId: string,
@@ -34,11 +34,11 @@ export type CheckTuple = {
   relation: string
 }
 
-/* 
+/*
 * Returns if the current user has access to the specified relation
 * @param session: the current user's session
 * @param relation: the relation to check
-* 
+*
 */
 export const checkPermissions = async (session: Session | null, relation: string) => {
   // get the current user's organization and access token for authorization

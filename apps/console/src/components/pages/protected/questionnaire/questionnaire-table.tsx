@@ -124,7 +124,7 @@ export const QuestionnairesTable = () => {
             onChange={handleSearch}
           />
         </div>
-      
+
         {createDropdown()}
 
       </div>
