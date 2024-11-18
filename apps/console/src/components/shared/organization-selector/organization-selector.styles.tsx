@@ -10,7 +10,7 @@ const organizationSelectorStyles = tv({
     dropdownContent: 'p-0',
     allOrganizationsLink:
       'flex items-center gap-2 py-5 px-6 border-t border-oxford-blue-200',
-    popoverContent: 'p-0 w-[400px]',
+    popoverContent: 'p-0 w-[400px] dark:bg-ziggurat-900',
     searchWrapper: 'py-5 px-6',
     orgWrapper:
       'transition-all duration-500 flex gap-3 items-center py-4 px-6 border-t border-oxford-blue-200 hover:bg-firefly-700 cursor-pointer relative',
