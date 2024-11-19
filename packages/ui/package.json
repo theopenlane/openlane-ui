@@ -89,7 +89,7 @@
     "@udecode/plate-alignment": "^39.0.0",
     "@udecode/plate-autoformat": "^39.0.0",
     "@udecode/plate-basic-elements": "^39.0.0",
-    "@udecode/plate-basic-marks": "^39.0.0",
+    "@udecode/plate-basic-marks": "^40.0.0",
     "@udecode/plate-block-quote": "^39.0.0",
     "@udecode/plate-break": "^39.0.0",
     "@udecode/plate-callout": "^39.2.18",
