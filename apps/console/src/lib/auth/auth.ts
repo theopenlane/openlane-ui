@@ -59,10 +59,17 @@ export const config = {
       }
 
       let allow = false
-      for (const domain of allowedLoginDomains) {
-        if (email.endsWith(domain)) {
-          allow = true
-          break
+
+      // if no domains are set, allow all
+      // otherwise, check if the email domain is in the list
+      if (allowedLoginDomains.length === 0) {
+        allow = true
+      } else {
+        for (const domain of allowedLoginDomains) {
+          if (email.endsWith(domain)) {
+            allow = true
+            break
+          }
         }
       }
 

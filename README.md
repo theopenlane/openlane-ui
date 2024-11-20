@@ -66,7 +66,7 @@ task build
    accidentally committing it. This hold example of environment configurations
    which you should review and potentially override depending on your needs.
    ```bash
-   cp ./config/.env-example ./config/.env
+   cp ./config/.env.example ./config/.env
    ```
 
 1. To develop all apps and packages, run the following command:
@@ -88,6 +88,15 @@ The backend used by the console UI is located in the Open
 [core repo](https://github.com/theopenlane/core). Please refer to the
 [README](https://github.com/theopenlane/core?tab=readme-ov-file#development) in
 that repository for details on standing up the api locally.
+
+## FAQs
+
+1. I cannot login with the test user created by the setup in the
+   [openlane/core](https://github.com/theopenlane/core/blob/main/cmd/cli/Taskfile.yaml#L68)
+   repo?\
+   You must have the environment variable `NEXT_PUBLIC_ALLOWED_LOGIN_DOMAINS`
+   configured with the proper allowed email domains, or it must be empty to
+   allow all domains to login.
 
 ## Contributing
 
