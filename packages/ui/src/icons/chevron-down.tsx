@@ -10,7 +10,7 @@ export const ChevronDown = () => (
   >
     <path
       d="M1.175 0L0 1.175L5 6.175L10 1.175L8.82502 0L5 3.8167L1.175 0Z"
-      fill="white"
+      fill="currentcolor"
     />
   </svg>
 )
