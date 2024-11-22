@@ -14,7 +14,7 @@ export const buttonStyles = tv({
   },
   variants: {
     variant: {
-      aquamarine: '!bg-aquamarine-400 hover:!opacity-90',
+      aquamarine: 'bg-firefly-300 dark:bg-firefly-300 hover:!opacity-90',
       outline:
         'border-java-800 text-oxford-blue-800 dark:text-oxford-blue-100 dark:border-java-100 border hover:!opacity-90',
       outlineLight:

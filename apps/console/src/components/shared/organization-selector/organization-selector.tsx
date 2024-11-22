@@ -102,7 +102,7 @@ export const OrganizationSelector = () => {
     <div className={container()}>
       <Logo width={30} asIcon={true} />
       <div>
-        <div className={organizationLabel()}>Organization:</div>
+        <div className={organizationLabel()}>Organization</div>
         <Popover>
           <PopoverTrigger>
             <div className={organizationDropdown()}>
