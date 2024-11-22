@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation'
 import { Dialog, Transition, Disclosure } from '@headlessui/react'
 import { clsx } from 'clsx'
 import chevronRight from './assets/chevron-right.svg'
-import bars from './assets/horizonal-bars.svg'
+import bars from './assets/horizontal-bars.svg'
 import arrowRight from './assets/arrow-right.svg'
 
 export const Drawer = ({ routes, currentPath }: any) => {

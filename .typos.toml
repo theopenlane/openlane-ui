@@ -1,5 +1,5 @@
 [files]
-extend-exclude = ["go.mod","go.sum"]
+extend-exclude = []
 ignore-hidden = true
 ignore-files = true
 ignore-dot = true
@@ -16,5 +16,5 @@ ignore-hex = true
 identifier-leading-digits = false
 locale = "en"
 extend-ignore-identifiers-re = []
-extend-ignore-words-re = ["(?i)requestor","(?i)indentity","(?i)encrypter","(?i)seeked","(?i)generater"]
-extend-ignore-re = ["#\\s*spellchecker:off\\s*\\n.*\\n\\s*#\\s*spellchecker:on"]
+extend-ignore-words-re = ["(?i)requestor","(?i)indentity","(?i)encrypter","(?i)seeked","(?i)generater","(?i)policys"]
+extend-ignore-re = ["(?Rm)^.*//\\s*spellchecker:disable-line$"]
