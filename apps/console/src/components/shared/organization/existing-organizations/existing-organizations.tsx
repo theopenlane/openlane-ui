@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation'
 
 export const ExistingOrganizations = () => {
   const { data: sessionData, update: updateSession } = useSession()
-  const currentOrg = sessionData?.user.organization
+  const currentOrg = sessionData?.user.activeOrganizationId
   const { container, orgWrapper, orgInfo, orgSelect, orgTitle } =
     existingOrganizationsStyles()
   const [{ data, fetching, error }] = useGetAllOrganizationsQuery({

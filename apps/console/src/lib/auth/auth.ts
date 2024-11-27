@@ -11,6 +11,7 @@ import { getTokenFromOpenlaneAPI } from './utils/get-openlane-token'
 import { setSessionCookie } from './utils/set-session-cookie'
 import { cookies } from 'next/headers'
 import { sessionCookieName, allowedLoginDomains } from '@repo/dally/auth'
+import { useGetAllOrganizationsQuery } from '@repo/codegen/src/schema'
 
 const isDevelopment = process.env.NODE_ENV === 'development'
 
@@ -158,7 +159,7 @@ export const config = {
         session.user.email = token.email
         session.user.accessToken = token.accessToken
         session.user.refreshToken = token.refreshToken
-        session.user.organization = decodedToken?.org
+        session.user.activeOrganizationId = decodedToken?.org
         session.user.userId = decodedToken?.user_id
       }
 
