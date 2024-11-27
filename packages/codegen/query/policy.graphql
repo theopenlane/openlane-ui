@@ -1,0 +1,62 @@
+mutation CreateInternalPolicy($input: CreateInternalPolicyInput!) {
+  createInternalPolicy(input: $input) {
+    internalPolicy {
+      id
+      name
+    }
+  }
+}
+
+mutation UpdateInternalPolicy($updateInternalPolicyId: ID!, $input: UpdateInternalPolicyInput!) {
+  updateInternalPolicy(id: $updateInternalPolicyId, input: $input) {
+    internalPolicy {
+      id
+      name
+    }
+  }
+}
+
+query GetAllInternalPolicies {
+  internalPolicies {
+    edges {
+      node {
+        id
+        name
+        background
+        description
+        policyType
+        purposeAndScope
+        status
+        version
+        updatedAt
+        updatedBy
+        createdAt
+        createdBy
+        tags
+      }
+    }
+  }
+}
+
+query GetInternalPolicyDetailsById($internalPolicyId: ID!) {
+  internalPolicy(id: $internalPolicyId) {
+    id
+    name
+    description
+    details
+    background
+    createdAt
+    createdBy
+    updatedAt
+    updatedBy
+    tags
+    version
+    status
+    purposeAndScope
+    policyType
+    procedures {
+      id
+      name
+    }
+  }
+}

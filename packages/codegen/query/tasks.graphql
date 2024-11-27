@@ -1,0 +1,15 @@
+query TasksWithFilter($where: TaskWhereInput) {
+  tasks(where: $where) {
+    edges {
+      node {
+        id
+        title
+        description
+        status
+        tags
+        details
+        due
+      }
+    }
+  }
+}

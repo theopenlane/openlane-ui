@@ -43,7 +43,7 @@ export type CheckTuple = {
 export const checkPermissions = async (session: Session | null, relation: string) => {
   // get the current user's organization and access token for authorization
   const accessToken = session?.user?.accessToken
-  const currentOrgId = session?.user.organization
+  const currentOrgId = session?.user.activeOrganizationId
 
   const headers: HeadersInit = {
     'content-type': 'application/json',

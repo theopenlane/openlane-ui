@@ -25,7 +25,7 @@ const OrganizationNameForm = () => {
   const [{ fetching: isSubmitting }, updateOrg] =
     useUpdateOrganizationMutation()
   const { data: sessionData } = useSession()
-  const currentOrgId = sessionData?.user.organization
+  const currentOrgId = sessionData?.user.activeOrganizationId
   const [allOrgs] = useGetAllOrganizationsQuery({ pause: !sessionData })
   const currentOrganization = allOrgs.data?.organizations.edges?.filter(
     (org) => org?.node?.id === currentOrgId,

@@ -13,11 +13,15 @@ const sidebarNavStyles = tv({
     separator: '!my-4',
     heading:
       'text-firefly-950 font-sans px-4 py-2 uppercase font-bold tracking-[0.42px] text-sm',
+    badgeCount:
+      'flex relative ml-40 pt-px justify-center bg-aquamarine-400 text-[14px] font-semibold rounded-[6px] w-[22px] h-[22px] text-white',
   },
   variants: {
     isCurrent: {
       true: {
         link: 'rounded-md bg-aquamarine-400 font-bold hover:bg-muted dark:bg-aquamarine-400 dark:text-firefly-950',
+        badgeCount:
+          'flex relative ml-40 pt-px justify-center bg-ziggurat-100 dark:bg-oxford-blue-900 text-[14px] font-semibold rounded-[6px] w-[22px] h-[22px] text-firefly-950 dark:text-white',
       },
     },
   },

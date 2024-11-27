@@ -28,7 +28,7 @@ const OrganizationDelete = async () => {
   const [{ fetching: isSubmitting }, deleteOrganization] =
     useDeleteOrganizationMutation()
   const { data: sessionData, update } = useSession()
-  const currentOrgId = sessionData?.user.organization
+  const currentOrgId = sessionData?.user.activeOrganizationId
 
   const variables = { organizationId: currentOrgId || '' }
   const [org] = useGetOrganizationNameByIdQuery({ variables })

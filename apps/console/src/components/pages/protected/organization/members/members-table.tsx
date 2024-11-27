@@ -45,7 +45,7 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
   const { toast } = useToast()
 
   const variables: GetOrganizationMembersQueryVariables = {
-    organizationId: session?.user.organization ?? '',
+    organizationId: session?.user.activeOrganizationId ?? '',
   }
 
   const [{ data, fetching, error }, refetch] = useGetOrganizationMembersQuery({

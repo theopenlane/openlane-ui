@@ -31,7 +31,7 @@ interface AvatarUploadProps extends AvatarUploadVariants {
 const AvatarUpload = ({ className }: AvatarUploadProps) => {
   const { toast } = useToast()
   const { data: sessionData } = useSession()
-  const currentOrgId = sessionData?.user.organization
+  const currentOrgId = sessionData?.user.activeOrganizationId
   const [allOrgs] = useGetAllOrganizationsQuery({ pause: !sessionData })
   const currentOrganization = allOrgs.data?.organizations.edges?.filter(
     (org) => org?.node?.id === currentOrgId,

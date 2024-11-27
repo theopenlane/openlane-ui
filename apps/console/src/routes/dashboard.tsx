@@ -5,7 +5,6 @@ import {
   HandshakeIcon,
   LayersIcon,
   ListChecks,
-  ScrollText,
   SettingsIcon,
   ShapesIcon,
   UserRoundCogIcon,
@@ -25,28 +24,12 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
   {
     title: 'My Tasks',
     href: '/tasks',
+    addCount: true,
     icon: ListChecks,
   },
-  // {
-  //   title: 'Mentions',
-  //   href: '/mentions',
-  //   icon: AtSign,
-  // },
   {
     type: 'separator',
   },
-  // {
-  //   title: 'Documents',
-  //   href: '/documents',
-  //   icon: FileIcon,
-  //   isChildren: true,
-  //   children: [
-  //     { title: 'Templates', href: '/documents/templates' },
-  //     { title: 'Documents', href: '/documents/documents' },
-  //     { title: 'Editor', href: '/documents/editor' },
-  //     { title: 'Form', href: '/documents/form' },
-  //   ],
-  // },
   {
     title: 'Programs',
     href: '/programs',
@@ -210,26 +193,6 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
       },
     ],
   },
-  // {
-  //   title: 'Integrations',
-  //   href: '/integrations',
-  //   icon: LayersIcon,
-  //   isChildren: true,
-  //   children: [
-  //     {
-  //       title: 'Installed Openlane Apps',
-  //       href: '/integrations/installed-apps',
-  //     },
-  //     {
-  //       title: 'Authorized Openlane Apps',
-  //       href: '/integrations/authorized-apps',
-  //     },
-  //     {
-  //       title: 'Authorized OAuth Apps',
-  //       href: '/integrations/authorized-oauth-apps',
-  //     },
-  //   ],
-  // },
 ]
 
 export const PersonalNavItems: (NavItem | Separator | NavHeading)[] = [

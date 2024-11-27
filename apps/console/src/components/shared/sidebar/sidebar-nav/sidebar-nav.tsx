@@ -18,11 +18,12 @@ import { sidebarNavStyles } from './sidebar-nav.styles'
 
 interface SideNavProps {
   items: (NavItem | Separator | NavHeading)[]
+  userTaskCount: number
   setOpen?: (open: boolean) => void
   className?: string
 }
 
-export function SideNav({ items, setOpen, className }: SideNavProps) {
+export function SideNav({ items, userTaskCount, setOpen, className }: SideNavProps) {
   const path = usePathname()
   const { isOpen: isSidebarOpen, toggle: toggleOpen } = useSidebar()
   const [openItems, setOpenItems] = useState<string[]>([])
@@ -37,6 +38,7 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
     accordionItem,
     separator,
     heading,
+    badgeCount,
   } = sidebarNavStyles()
 
   const isSeparator = (
@@ -135,9 +137,13 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
             {item.icon && (
               <item.icon className={icon({ isCurrent: path === item.href })} />
             )}
-            <span className={cn(linkLabel(), !isSidebarOpen && className)}>
+            <div className={cn(linkLabel(), !isSidebarOpen && className)}>
               {item.title}
-            </span>
+            </div>
+            {
+              item.addCount && (
+                <div className={badgeCount({ isCurrent: path === item.href })}>{userTaskCount}</div>
+              )}
           </Link>
         ),
       )}

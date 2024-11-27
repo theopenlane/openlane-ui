@@ -1,0 +1,64 @@
+mutation CreateProcedure($input: CreateProcedureInput!) {
+  createProcedure(input: $input) {
+    procedure {
+      id
+      name
+    }
+  }
+}
+
+mutation UpdateProcedure($updateProcedureId: ID!, $input: UpdateProcedureInput!) {
+  updateProcedure(id: $updateProcedureId, input: $input) {
+    procedure {
+      id
+      name
+    }
+  }
+}
+
+query GetAllProcedures {
+  procedures {
+    edges {
+      node {
+        id
+        name
+        background
+        description
+        procedureType
+        purposeAndScope
+        satisfies
+        status
+        version
+        updatedAt
+        updatedBy
+        createdAt
+        createdBy
+        tags
+      }
+    }
+  }
+}
+
+query GetProcedureDetailsById($procedureId: ID!) {
+  procedure(id: $procedureId) {
+    id
+    name
+    description
+    details
+    background
+    createdAt
+    createdBy
+    updatedAt
+    updatedBy
+    tags
+    version
+    status
+    satisfies
+    purposeAndScope
+    procedureType
+    internalpolicy {
+      id
+      name
+    }
+  }
+}
