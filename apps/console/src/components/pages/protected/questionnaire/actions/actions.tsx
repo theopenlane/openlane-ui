@@ -25,7 +25,7 @@ import {
 import { Button } from '@repo/ui/button'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Input, InputRow } from '@repo/ui/input'
+import { Input } from '@repo/ui/input'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -51,9 +51,9 @@ export const Actions = ({
   const router = useRouter()
   const { actionIcon, dropDownButton, emailRow } = pageStyles()
   const { toast } = useToast()
-  const [ _, deleteTemplate] = useDeleteTemplateMutation()
+  const [_, deleteTemplate] = useDeleteTemplateMutation()
   const [isSendDialogOpen, setIsSendDialogOpen] = useState(false);
-	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const handleEditTemplate = () => {
     router.push(`/documents/questionnaire-editor?id=${templateId}`)
@@ -119,95 +119,95 @@ export const Actions = ({
 
   return (
     <>
-    <DropdownMenu modal={false}>
-      <DropdownMenuTrigger asChild>
-        <MoreHorizontal className={actionIcon()} />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-10">
-        <DropdownMenuGroup>
-          <DropdownMenuItem onSelect={handleEditTemplate}>
-            <Edit width={ICON_SIZE} /> Edit
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={handleViewTemplate}>
-            <View width={ICON_SIZE} /> View
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => {
-							setIsSendDialogOpen(true);
-						}} >
-            <Send width={ICON_SIZE} /> Send to Recipient
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => {
-							setIsDeleteDialogOpen(true);
-						}} >
+      <DropdownMenu modal={false}>
+        <DropdownMenuTrigger asChild>
+          <MoreHorizontal className={actionIcon()} />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-10">
+          <DropdownMenuGroup>
+            <DropdownMenuItem onSelect={handleEditTemplate}>
+              <Edit width={ICON_SIZE} /> Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={handleViewTemplate}>
+              <View width={ICON_SIZE} /> View
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => {
+              setIsSendDialogOpen(true);
+            }} >
+              <Send width={ICON_SIZE} /> Send to Recipient
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => {
+              setIsDeleteDialogOpen(true);
+            }} >
               <Trash2 width={ICON_SIZE} /> Delete
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
-    <AlertDialog open={isSendDialogOpen} onOpenChange={setIsSendDialogOpen}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Send Questionnaire</AlertDialogTitle>
-          <AlertDialogDescription>
-            Send the questionnaire to recipient
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <div className={emailRow()}>
-          Email: {' '}
-          <Form {...form}>
-            <FormField
-              control={control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input variant="medium" autoComplete='email' type="email" {...field} />
-                  </FormControl>
-                  {errors.email && (
-                  <FormMessage>{errors.email.message}</FormMessage>
-                  )}
-                </FormItem>
-              )}
-            />
-          </Form>
-        </div>
-        <AlertDialogFooter>
-          <AlertDialogCancel asChild>
-            <Button variant="outline" type="submit">Cancel</Button>
-          </AlertDialogCancel>
-          <AlertDialogAction asChild>
-            <Button variant="aquamarine" type="submit" onClick={handleSubmit((data) => handleSendForm(data))}>
-              Send
-            </Button>
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-    <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This action cannot be undone, this will permanently remove the questionnaire from the organization.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel asChild>
-            <Button variant="outline">Cancel</Button>
-          </AlertDialogCancel>
-          <AlertDialogAction asChild>
-            <Button variant="aquamarine" onClick={handleDeleteTemplate} onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              handleDeleteTemplate();
-            }
-            }}>
-            Delete Questionnaire
-            </Button>
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+      <AlertDialog open={isSendDialogOpen} onOpenChange={setIsSendDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Send Questionnaire</AlertDialogTitle>
+            <AlertDialogDescription>
+              Send the questionnaire to recipient
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className={emailRow()}>
+            Email: {' '}
+            <Form {...form}>
+              <FormField
+                control={control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input variant="medium" autoComplete='email' type="email" {...field} />
+                    </FormControl>
+                    {errors.email && (
+                      <FormMessage>{errors.email.message}</FormMessage>
+                    )}
+                  </FormItem>
+                )}
+              />
+            </Form>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel asChild>
+              <Button variant="outline" type="submit">Cancel</Button>
+            </AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <Button variant="aquamarine" type="submit" onClick={handleSubmit((data) => handleSendForm(data))}>
+                Send
+              </Button>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone, this will permanently remove the questionnaire from the organization.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel asChild>
+              <Button variant="outline">Cancel</Button>
+            </AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <Button variant="aquamarine" onClick={handleDeleteTemplate} onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleDeleteTemplate();
+                }
+              }}>
+                Delete Questionnaire
+              </Button>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   )
 }

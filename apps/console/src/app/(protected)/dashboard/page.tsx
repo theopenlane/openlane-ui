@@ -8,6 +8,7 @@ import { Button } from '@repo/ui/button'
 import { PageHeading } from '@repo/ui/page-heading'
 import { ArrowUpRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { ProgramCreate } from '@/components/pages/protected/program/program-create'
 
 const DashboardLanding: React.FC = () => {
   const session = useSession()
@@ -19,27 +20,7 @@ const DashboardLanding: React.FC = () => {
       <Grid rows={2}>
         <GridRow columns={2}>
           <GridCell>
-            <Panel
-              align="center"
-              justify="center"
-              textAlign="center"
-              className="min-h-[400px]"
-            >
-              <h5 className="text-xl font-sans">Create a new program</h5>
-              <p className="max-w-[340px]">
-                Start your compliance journey by creating a new program.
-              </p>
-              <Button
-                onClick={() => {
-                  alert('Coming soon')
-                }}
-                icon={<ArrowUpRight />}
-                size="md"
-                iconAnimated
-              >
-                Programs
-              </Button>
-            </Panel>
+            <ProgramCreate />
           </GridCell>
           <GridCell>
             <Panel
