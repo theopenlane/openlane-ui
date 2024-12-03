@@ -6,7 +6,7 @@
   body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    @apply text-[#ff0000];
+    @apply text-oxford-blue-800 dark:text-oxford-blue-100;
   }
 }
 
