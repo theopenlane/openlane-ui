@@ -20,5 +20,5 @@ p {
 }
 
 p.red {
-  @apply text-util-red-500;
+  @apply text-red-500;
 }

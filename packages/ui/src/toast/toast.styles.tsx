@@ -9,7 +9,7 @@ export const toastStyles = tv({
     toastDefault:
       'border bg-white text-firefly-950 dark:bg-glaucous-900 dark:text-ziggurat-200',
     toastDestructive:
-      'destructive group border-util-red-300 bg-util-red-100 text-util-red-500 dark:border-util-red-300 dark:bg-util-red-100 dark:text-util-red-500',
+      'destructive group border-red-300 bg-red-100 text-red-500 dark:border-red-300 dark:bg-red-100 dark:text-red-500',
     toastSuccess:
       'group border-aquamarine-600 bg-aquamarine-300 text-aquamarine-800 dark:border-aquamarine-200 dark:bg-aquamarine-100 dark:text-aquamarine-500',
     action:
