@@ -2,7 +2,7 @@
 
 import { Logo } from '@repo/ui/logo'
 import { Panel } from '@repo/ui/panel'
-import {Subscribe} from '@/components/pages/auth/subscribe/subscribe'
+import { Subscribe } from '@/components/pages/auth/subscribe/subscribe'
 import Link from 'next/link'
 
 const Waitlist: React.FC = () => {
@@ -18,7 +18,7 @@ const Waitlist: React.FC = () => {
           <div className="flex flex-col text-center text-oxford-blue-100">
             We are currently in a private beta, please subscribe to our newsletter to get notified when we launch.
           </div>
-       </Panel>
+        </Panel>
 
         <Subscribe />
 

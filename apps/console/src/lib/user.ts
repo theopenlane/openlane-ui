@@ -11,6 +11,10 @@ export interface RegisterUser {
   confirmedPassword?: string
 }
 
+export interface ResendVerificationEmail {
+  email: string
+}
+
 export interface PasskeyRegOptionsInput {
   email: string
   name: string
@@ -37,6 +41,23 @@ export interface SwitchOrganization {
 
 export async function registerUser<T>(arg: RegisterUser) {
   const fData: HttpResponse<T> = await fetch('/api/auth/register', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(arg),
+  })
+  try {
+    const fDataMessage = await fData.json()
+    fData.message = fDataMessage.error
+    return fData
+  } catch (error) {
+    return { message: 'error' }
+  }
+}
+
+export async function resendVerification<T>(arg: ResendVerificationEmail) {
+  const fData: HttpResponse<T> = await fetch('/api/auth/resend', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

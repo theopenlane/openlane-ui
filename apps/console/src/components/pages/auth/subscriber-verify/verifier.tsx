@@ -7,8 +7,8 @@ import { verificationStyles } from './page.styles'
 import { Logo } from '@repo/ui/logo'
 
 export const TokenVerifier = () => {
-    const { errorMessage, successMessage, successIcon, success, loading } =
-  verificationStyles()
+  const { errorMessage, successMessage, successIcon, success, loading } =
+    verificationStyles()
 
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
@@ -41,7 +41,7 @@ export const TokenVerifier = () => {
     return (
       <>
         <div className="mx-auto animate-pulse w-96">
-        <Logo theme='dark' />
+          <Logo theme='dark' />
         </div>
         <div className={errorMessage()}>
           No token provided, please check your email for a verification link.
@@ -52,40 +52,40 @@ export const TokenVerifier = () => {
 
   if (error) {
     return (
-    <>
-    <div className="mx-auto animate-pulse w-96">
-    <Logo theme='dark' />
-    </div>
-    <div className={errorMessage()}>{error}</div>
-    </>
+      <>
+        <div className="mx-auto animate-pulse w-96">
+          <Logo theme='dark' />
+        </div>
+        <div className={errorMessage()}>{error}</div>
+      </>
     )
   }
 
   if (message) {
     return (
       <>
-      <div className="mx-auto animate-pulse w-96">
+        <div className="mx-auto animate-pulse w-96">
           <Logo theme='dark' />
-      </div>
-      <div className={success()}>
-        <SparklesIcon size={24} className={successIcon()} />
-        <span className={successMessage()}>
-          Thank you for subscribing. Your email is now verified.
-        </span>
-      </div>
+        </div>
+        <div className={success()}>
+          <SparklesIcon size={24} className={successIcon()} />
+          <span className={successMessage()}>
+            Thank you for subscribing. Your email is now verified.
+          </span>
+        </div>
       </>
     )
   }
 
   return (
     <>
-    <div className="mx-auto animate-pulse w-96">
-    <Logo theme='dark' />
-    </div>
-    <div className={loading()}>
-      <LoaderCircle className="animate-spin" size={20} />
-      <span className={successMessage()}>Verifying</span>
-    </div>
+      <div className="mx-auto animate-pulse w-96">
+        <Logo theme='dark' />
+      </div>
+      <div className={loading()}>
+        <LoaderCircle className="animate-spin" size={20} />
+        <span className={successMessage()}>Verifying</span>
+      </div>
     </>
   )
 }

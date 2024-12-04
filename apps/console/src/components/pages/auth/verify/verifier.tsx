@@ -2,12 +2,18 @@
 
 import { useEffect } from 'react'
 import { Button } from '@repo/ui/button'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 import { Logo } from '@repo/ui/logo'
 import { useVerifyUser } from '@/lib/user'
+import { MailCheck } from 'lucide-react'
+import { verificationStyles } from './page.styles'
 
 export const TokenVerifier = () => {
+  const { successMessage, successIcon, success } =
+    verificationStyles()
+
+  const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams?.get('token')
 
@@ -38,17 +44,19 @@ export const TokenVerifier = () => {
           </h1>
         ) : null}
         {!isLoading && (
-          <div>
-            <h1 className="text-3xl text-center mt-4 text-oxford-blue-100" >
-              Please check your email to verify your account.
-            </h1>
+          <div className={success()}>
+            <MailCheck size={24} className={successIcon()} />
+            <span className={successMessage()}>
+              Thank you for signing up for Openlane! <br />
+              Check your email and give that awesome verification link a click to get started.
+            </span>
           </div>
         )}
         <div className="mt-12">
           <Button
             className="mr-auto mt-2 w-full"
             onClick={() => {
-              // TODO: Call resend email endpoint
+              router.push('/resend-verify')
             }}
             type="button"
           >
