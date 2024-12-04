@@ -14,7 +14,7 @@ export const buttonStyles = tv({
   },
   variants: {
     variant: {
-      aquamarine: '!bg-aquamarine-400 hover:!opacity-90',
+      aquamarine: 'bg-firefly-300 dark:bg-firefly-300 hover:!opacity-90',
       outline:
         'border-java-800 text-oxford-blue-800 dark:text-oxford-blue-100 dark:border-java-100 border hover:!opacity-90',
       outlineLight:
@@ -24,7 +24,7 @@ export const buttonStyles = tv({
       outlineInputPadding:
         'border-java-500 text-oxford-blue-800 mx-1 dark:text-oxford-blue-100 dark:border-java-100 border hover:!opacity-90',
       redOutline:
-        'border-util-red-500 text-util-red-500 border bg-white hover:!opacity-90 dark:border-util-red-500 dark:text-util-red-500',
+        'border-red-500 text-red-500 border bg-white hover:!opacity-90 dark:border-red-500 dark:text-red-500',
       white: {},
       success: 'flex-row-reverse !bg-aquamarine-600 hover:!opacity-90',
     },

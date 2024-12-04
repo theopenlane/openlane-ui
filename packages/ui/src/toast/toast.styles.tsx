@@ -7,9 +7,9 @@ export const toastStyles = tv({
     toast:
       'group pointer-events-auto relative flex w-full items-center justify-between space-x-4 overflow-hidden rounded-md border border-ziggurat-200 p-6 pr-8 shadow-lg transition-all data-[swipe=cancel]:tranziggurat-x-0 data-[swipe=end]:tranziggurat-x-[var(--radix-toast-swipe-end-x)] data-[swipe=move]:tranziggurat-x-[var(--radix-toast-swipe-move-x)] data-[swipe=move]:transition-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[swipe=end]:animate-out data-[state=closed]:fade-out-80 data-[state=closed]:slide-out-to-right-full data-[state=open]:slide-in-from-top-full data-[state=open]:sm:slide-in-from-bottom-full dark:border-ziggurat-800',
     toastDefault:
-      'border bg-white text-firefly-950 dark:bg-ziggurat-900 dark:text-ziggurat-200',
+      'border bg-white text-firefly-950 dark:bg-glaucous-900 dark:text-ziggurat-200',
     toastDestructive:
-      'destructive group border-util-red-300 bg-util-red-100 text-util-red-500 dark:border-util-red-300 dark:bg-util-red-100 dark:text-util-red-500',
+      'destructive group border-red-300 bg-red-100 text-red-500 dark:border-red-300 dark:bg-red-100 dark:text-red-500',
     toastSuccess:
       'group border-aquamarine-600 bg-aquamarine-300 text-aquamarine-800 dark:border-aquamarine-200 dark:bg-aquamarine-100 dark:text-aquamarine-500',
     action:

@@ -164,7 +164,7 @@ export default function CreateQuestionnaire(input: { templateId: string, existin
   }
 
   return (
-    <Panel className='flex h-full bg-ziggurat-100 dark:bg-oxford-blue-900 border-ziggurat-100 dark:border-oxford-blue-900 p-0'>
+    <Panel className='flex h-full bg-ziggurat-100 dark:bg-glaucous-950 border-ziggurat-100 dark:border-oxford-blue-900 p-0'>
       <SurveyCreatorComponent creator={creator} />
     </Panel>
   )
