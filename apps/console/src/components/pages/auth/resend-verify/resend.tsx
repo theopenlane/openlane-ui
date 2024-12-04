@@ -11,13 +11,12 @@ import {
   FormControl,
   FormMessage,
   FormLabel,
-  FormItem,
 } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { resendStyles } from './resend.styles'
 import { resendVerification } from '@/lib/user'
 import { useRouter } from 'next/navigation'
-import { Panel, PanelHeader } from '@repo/ui/panel'
+import { Panel } from '@repo/ui/panel'
 import { Logo } from '@repo/ui/logo'
 
 const formSchema = z.object({
@@ -32,6 +31,7 @@ export const Resend = () => {
     input,
     button,
     text,
+    header,
     logo,
   } = resendStyles()
 
@@ -54,8 +54,9 @@ export const Resend = () => {
         <div className={logo()}>
           <Logo width={300} />
         </div>
-        <p className={text()}> Can't find that email? <br /> <br />
-          No problem, just enter your email to have our robots <br />
+        <h2 className={header()}>Can't find that email?</h2>
+        <p className={text()}>
+          We got you, enter your email to have our robots <br />
           resend that verification email right over to you. </p>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className={wrapper()}>

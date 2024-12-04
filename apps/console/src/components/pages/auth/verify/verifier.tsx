@@ -6,11 +6,11 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 import { Logo } from '@repo/ui/logo'
 import { useVerifyUser } from '@/lib/user'
-import { MailCheck } from 'lucide-react'
 import { verificationStyles } from './page.styles'
+import { buttonVariants } from '@repo/ui/plate-ui/button'
 
 export const TokenVerifier = () => {
-  const { successMessage, successIcon, success } =
+  const { successMessage, button, success, content, logo, wrapper, verifying } =
     verificationStyles()
 
   const router = useRouter()
@@ -33,28 +33,27 @@ export const TokenVerifier = () => {
   }, [verified, error])
 
   return (
-    <main className="flex flex-col min-h-screen w-full items-center space-between dark:bg-dk-surface-0 bg-surface-0">
-      <div className="flex flex-col justify-center mx-auto my-auto w-full p-6 sm:w-1/3 h-full relative ease-in-out">
-        <div className="mx-auto mb-3">
+    <main className={content()}>
+      <div className={wrapper()}>
+        <div className={logo()}>
           <Logo width={200} />
         </div>
         {isLoading ? (
-          <h1 className="text-3xl text-center mt-4 animate-pulse">
+          <h1 className={verifying()}>
             Verifying your account...
           </h1>
         ) : null}
         {!isLoading && (
           <div className={success()}>
-            <MailCheck size={24} className={successIcon()} />
             <span className={successMessage()}>
               Thank you for signing up for Openlane! <br />
               Check your email and give that awesome verification link a click to get started.
             </span>
           </div>
         )}
-        <div className="mt-12">
+        <div className={button()}>
           <Button
-            className="mr-auto mt-2 w-full"
+            className={buttonVariants({ size: 'lg', variant: 'ghost' })}
             onClick={() => {
               router.push('/resend-verify')
             }}

@@ -3,7 +3,8 @@ import { tv, type VariantProps } from 'tailwind-variants'
 const resendStyles = tv({
   slots: {
     logo: 'flex justify-center mb-10',
-    text: "text-center justify-center items-center",
+    text: "text-center text-sm",
+    header: "text-xl text-center",
     wrapper: 'relative mt-1 flex flex-col gap-2 md:flex-row',
     input: 'w-full h-12 md:h-auto text-ziggurat-900',
     button:

@@ -1,11 +1,13 @@
 'use client'
 
 import { Resend } from '@/components/pages/auth/resend-verify/resend'
+import { pageStyles } from './page.styles'
 
 const ResendVerification: React.FC = () => {
+  const { content, form } = pageStyles()
   return (
-    <main className="flex items-center justify-center h-screen relative">
-      <div className="w-full relative z-3 px-4">
+    <main className={content()}>
+      <div className={form()}>
         <Resend />
       </div>
     </main>
