@@ -79,7 +79,7 @@ const SJS_THEME = {
 };
 
 // this theme is from the suveyjs creator colors
-// the ddefault theme variables are here: https://github.com/surveyjs/survey-creator/blob/master/packages/survey-creator-core/src/themes/default.ts
+// the default theme variables are here: https://github.com/surveyjs/survey-creator/blob/master/packages/survey-creator-core/src/themes/default.ts
 export const darkTheme: ITheme = {
   backgroundImageFit: 'cover',
   backgroundImageAttachment: 'scroll',
