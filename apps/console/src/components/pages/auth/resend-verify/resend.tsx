@@ -1,7 +1,6 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { LoaderCircle, MailCheck } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -11,25 +10,30 @@ import {
   FormField,
   FormControl,
   FormMessage,
+  FormLabel,
 } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
-import { useCreateSubscriberMutation } from '@repo/codegen/src/schema'
-import { newsletterStyles } from './subscribe.styles'
+import { resendStyles } from './resend.styles'
+import { resendVerification } from '@/lib/user'
+import { useRouter } from 'next/navigation'
+import { Panel } from '@repo/ui/panel'
+import { Logo } from '@repo/ui/logo'
 
 const formSchema = z.object({
   email: z.string().email(),
 })
 
-export const Subscribe = () => {
+export const Resend = () => {
+  const router = useRouter()
+
   const {
     wrapper,
     input,
     button,
-    errorMessage,
-    success,
-    successMessage,
-    successIcon,
-  } = newsletterStyles()
+    text,
+    header,
+    logo,
+  } = resendStyles()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -38,38 +42,22 @@ export const Subscribe = () => {
     },
   })
 
-  // use the mutation to add a subscriber
-  const subscribeToNewsletter = async (email: string) => {
-    addSubscriber({
-      input: {
-        email: email,
-      },
-    }).then((result) => {
-      return result
-    })
-  }
-
   const onSubmit = ({ email }: z.infer<typeof formSchema>) => {
-    subscribeToNewsletter(email)
+    const result = resendVerification({ email })
+    router.push('/verify')
   }
 
-  // get the result and error from the mutation
-  const [result, addSubscriber] = useCreateSubscriberMutation()
-  const { data, error } = result
-
-  const isLoading = result.fetching
 
   return (
     <>
-      {data ? (
-        <div className={success()}>
-          <MailCheck size={24} className={successIcon()} />
-          <span className={successMessage()}>
-            Thank you for subscribing. Please check your email and click on the
-            verification link to receive updates.
-          </span>
+      <Panel>
+        <div className={logo()}>
+          <Logo width={300} />
         </div>
-      ) : (
+        <h2 className={header()}>Can't find that email?</h2>
+        <p className={text()}>
+          We got you, enter your email to have our robots <br />
+          resend that verification email right over to you. </p>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className={wrapper()}>
             <FormField
@@ -77,10 +65,11 @@ export const Subscribe = () => {
               name="email"
               render={({ field }) => (
                 <>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input
                       type="email"
-                      placeholder="Your email"
+                      placeholder="jane.doe@example.com"
                       className={input()}
                       {...field}
                     />
@@ -90,13 +79,11 @@ export const Subscribe = () => {
               )}
             />
             <Button type="submit" className={button()}>
-              {isLoading && <LoaderCircle className="animate-spin" size={20} />}
-              {isLoading ? 'Loading' : 'Subscribe for updates'}
+              Resend Verification
             </Button>
           </form>
-          {error && <div className={errorMessage()}>{error.message}</div>}
         </Form>
-      )}
+      </Panel >
     </>
   )
 }
