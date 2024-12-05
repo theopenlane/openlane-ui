@@ -23,7 +23,12 @@ interface SideNavProps {
   className?: string
 }
 
-export function SideNav({ items, userTaskCount, setOpen, className }: SideNavProps) {
+export function SideNav({
+  items,
+  userTaskCount,
+  setOpen,
+  className,
+}: SideNavProps) {
   const path = usePathname()
   const { isOpen: isSidebarOpen, toggle: toggleOpen } = useSidebar()
   const [openItems, setOpenItems] = useState<string[]>([])
@@ -140,10 +145,11 @@ export function SideNav({ items, userTaskCount, setOpen, className }: SideNavPro
             <div className={cn(linkLabel(), !isSidebarOpen && className)}>
               {item.title}
             </div>
-            {
-              item.addCount && (
-                <div className={badgeCount({ isCurrent: path === item.href })}>{userTaskCount}</div>
-              )}
+            {item.addCount && isSidebarOpen && (
+              <div className={badgeCount({ isCurrent: path === item.href })}>
+                {userTaskCount}
+              </div>
+            )}
           </Link>
         ),
       )}
