@@ -21,6 +21,8 @@ import { PopoverContent, PopoverTrigger } from "@radix-ui/react-popover"
 import { format } from 'date-fns'
 import { Calendar } from '@repo/ui/calendar'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "@repo/ui/dropdown-menu"
+import { ProgramWizard } from "./wizard"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@repo/ui/dialog"
 
 
 const ProgramCreate = () => {
@@ -84,189 +86,26 @@ const ProgramCreate = () => {
                 textAlign="center"
                 className="min-h-[400px]"
             >
-                <PanelHeader heading="Create a new program" noBorder />
-                <p className="max-w-[340px]">
-                    Start your compliance journey by creating a new program.
-                </p>
-                <AlertDialog>
-                    <AlertDialogTrigger>
+                <PanelHeader heading="Create a new program" subheading="Start your compliance journey by creating a new program." />
+                <Dialog>
+                    <DialogTrigger>
                         <Button size="md"
                             iconAnimated
                             loading={isSubmitting}
                             icon={<ArrowUpRight />}>
                             Create Program
                         </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                            <AlertDialogTitle>Create a New Program</AlertDialogTitle>
-                            <AlertDialogDescription>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Create a New Program</DialogTitle>
+                            <DialogDescription>
                                 Create a new program to manage your compliance activities.
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <div>
-                            <FormProvider {...form}>
-                                <FormField
-                                    control={control}
-                                    name="name"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Name</FormLabel>
-                                            <FormControl>
-                                                <Input variant="medium" type="string" {...field} />
-                                            </FormControl>
-                                            {errors.name && (
-                                                <FormMessage>{errors.name.message}</FormMessage>
-                                            )}
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={control}
-                                    name="description"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Description</FormLabel>
-                                            <FormControl>
-                                                <Input variant="medium" {...field} />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={control}
-                                    name="startDate"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Start Date</FormLabel>
-                                            <FormControl>
-                                                <Popover
-                                                    open={isCalendarOpen}
-                                                    onOpenChange={setIsCalendarOpen}
-                                                >
-                                                    <PopoverTrigger asChild>
-                                                        <FormControl>
-                                                            <Button
-                                                                variant="outlineInput"
-                                                                childFull
-                                                                onClick={() => setIsCalendarOpen(!isCalendarOpen)}
-                                                            >
-                                                                <div >
-                                                                    {field.value ? (
-                                                                        format(field.value, 'PPP')
-                                                                    ) : (
-                                                                        <span>Select a date:</span>
-                                                                    )}
-                                                                    <CalendarIcon />
-                                                                </div>
-                                                            </Button>
-                                                        </FormControl>
-                                                    </PopoverTrigger>
-                                                    <PopoverContent
-
-                                                        align="start"
-                                                    >
-                                                        <Calendar
-                                                            mode="single"
-                                                            selected={field.value}
-                                                            onSelect={(date) => {
-                                                                field.onChange(date)
-                                                                setIsCalendarOpen(false)
-                                                            }}
-                                                            initialFocus
-                                                        />
-                                                    </PopoverContent>
-                                                </Popover>
-                                            </FormControl>
-                                            {errors.startDate && (
-                                                <FormMessage>{errors.startDate.message}</FormMessage>
-                                            )}
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={control}
-                                    name="endDate"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>End Date</FormLabel>
-                                            <FormControl>
-                                                <Popover
-                                                    open={isCalendarOpen}
-                                                    onOpenChange={setIsCalendarOpen}
-                                                >
-                                                    <PopoverTrigger asChild>
-                                                        <FormControl>
-                                                            <Button
-                                                                variant="outlineInput"
-                                                                childFull
-                                                                onClick={() => setIsCalendarOpen(!isCalendarOpen)}
-                                                            >
-                                                                <div >
-                                                                    {field.value ? (
-                                                                        format(field.value, 'PPP')
-                                                                    ) : (
-                                                                        <span>Select a date:</span>
-                                                                    )}
-                                                                    <CalendarIcon />
-                                                                </div>
-                                                            </Button>
-                                                        </FormControl>
-                                                    </PopoverTrigger>
-                                                    <PopoverContent
-
-                                                        align="start"
-                                                    >
-                                                        <Calendar
-                                                            mode="single"
-                                                            selected={field.value}
-                                                            onSelect={(date) => {
-                                                                field.onChange(date)
-                                                                setIsCalendarOpen(false)
-                                                            }}
-                                                            initialFocus
-                                                        />
-                                                    </PopoverContent>
-                                                </Popover>
-                                            </FormControl>
-                                            {errors.startDate && (
-                                                <FormMessage>{errors.startDate.message}</FormMessage>
-                                            )}
-                                        </FormItem>
-                                    )}
-                                />
-                            </FormProvider>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="outline" size="md">
-                                        Framework
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent className="w-10">
-                                    <DropdownMenuGroup>
-                                        <DropdownMenuItem>
-                                            SOC2
-                                        </DropdownMenuItem>
-                                        <DropdownMenuItem>
-                                            IS0 27001
-                                        </DropdownMenuItem>
-                                    </DropdownMenuGroup>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </div>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel asChild>
-                                <Button variant="outline">Cancel</Button>
-                            </AlertDialogCancel>
-                            <AlertDialogAction asChild>
-                                <Button variant="aquamarine" onClick={clickHandler}>
-                                    Create program
-                                </Button>
-                            </AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
+                            </DialogDescription>
+                        </DialogHeader>
+                        <ProgramWizard />
+                    </DialogContent>
+                </Dialog>
             </Panel > {' '}
         </>
     )
