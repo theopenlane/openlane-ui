@@ -1,5 +1,5 @@
 'use server'
-import { sessionCookieName, sessionCookieExpiration } from '@repo/dally/auth'
+import { sessionCookieName, sessionCookieExpiration, isDevelopment, isVercelDev } from '@repo/dally/auth'
 import { cookies } from 'next/headers'
 
 export const setSessionCookie = (session: string): void => {
@@ -8,16 +8,24 @@ export const setSessionCookie = (session: string): void => {
   const expires = new Date()
   expires.setTime(expires.getTime() + 1000 * 60 * expirationTime)
 
-  if (process.env.NODE_ENV === 'production') {
+  // if in development, don't set domain
+  if (isDevelopment) {
+    cookies().set(`${sessionCookieName}`, session, {
+      expires,
+    })
+  } else if (isVercelDev) {
+    cookies().set(`${sessionCookieName}`, session, {
+      path: '/',
+      httpOnly: true,
+      secure: true,
+      expires,
+    })
+  } else {
     cookies().set(`${sessionCookieName}`, session, {
       domain: '.theopenlane.io',
       httpOnly: true,
       secure: true,
       path: '/',
-      expires,
-    })
-  } else {
-    cookies().set(`${sessionCookieName}`, session, {
       expires,
     })
   }

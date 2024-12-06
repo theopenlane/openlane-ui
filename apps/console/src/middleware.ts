@@ -54,6 +54,8 @@ export const config = {
      * and the following unprotected pages:
      * - login (login page)
      * - verify (verify page)
+     * - resend-verify (resend verify page)
+     * - waitlist (waitlist page)
      * - invite (invite verify page)
      */
     '\/((?!api|[_next\/static]|[_next\/image]|favicon.ico|backgrounds|backgrounds\/|icons|icons\/|login|verify|resend-verify|waitlist|invite).*)',

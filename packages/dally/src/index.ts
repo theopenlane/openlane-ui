@@ -8,3 +8,5 @@ export const includeQuestionnaireCreation = process.env.NEXT_PUBLIC_INCLUDE_QUES
 export const surveyLicenseKey = process.env.NEXT_PUBLIC_SURVEYJS_KEY
 export const stripePricingTableId = process.env.NEXT_PUBLIC_STRIPE_PRICING_TABLE_ID
 export const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+export const isDevelopment = process.env.NODE_ENV === 'development'
+export const isVercelDev = process.env.VERCEL_ENV === 'development' || process.env.VERCEL_ENV === 'preview'
