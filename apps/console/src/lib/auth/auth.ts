@@ -2,7 +2,7 @@ import type { NextAuthConfig } from 'next-auth'
 import NextAuth from 'next-auth'
 import GithubProvider from 'next-auth/providers/github'
 import GoogleProvider from 'next-auth/providers/google'
-import { restUrl } from '@repo/dally/auth'
+import { isDevelopment, restUrl } from '@repo/dally/auth'
 import { jwtDecode } from 'jwt-decode'
 import { JwtPayload } from 'jsonwebtoken'
 import { credentialsProvider } from './providers/credentials'
@@ -11,9 +11,6 @@ import { getTokenFromOpenlaneAPI } from './utils/get-openlane-token'
 import { setSessionCookie } from './utils/set-session-cookie'
 import { cookies } from 'next/headers'
 import { sessionCookieName, allowedLoginDomains } from '@repo/dally/auth'
-import { useGetAllOrganizationsQuery } from '@repo/codegen/src/schema'
-
-const isDevelopment = process.env.NODE_ENV === 'development'
 
 export const config = {
   pages: {
@@ -50,9 +47,9 @@ export const config = {
       // limit access during MVP development to specific domains
       let email = ""
       if (account?.provider == "google") {
-         if (profile?.email_verified) {
+        if (profile?.email_verified) {
           email = profile?.email || ""
-         }
+        }
       } else if (account?.provider == "github") {
         email = profile?.email || ""
       } else {
