@@ -80,6 +80,21 @@ query GetOrganizationMembers($organizationId: ID!) {
   }
 }
 
+query GetAllOrganizationMembers {
+  orgMemberships {
+    edges {
+      node {
+        user{
+          id
+          firstName
+          lastName
+          role
+        }
+      }
+    }
+  }
+}
+
 query GetInvites {
   invites {
     edges {

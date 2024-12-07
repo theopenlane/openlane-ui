@@ -1,5 +1,5 @@
 import { ProgramProgramStatus } from '@repo/codegen/src/schema';
-import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form';
 import { Input } from '@repo/ui/input';
 import { Textarea } from '@repo/ui/textarea';
 import { Panel, PanelHeader } from '@repo/ui/panel';
@@ -14,7 +14,7 @@ import { Grid, GridRow, GridCell } from '@repo/ui/grid';
 export const initProgramSchema = z.object({
     name: z.string().min(1, { message: 'Name is required' }),
     description: z.string().optional(),
-    framework: z.array(z.string()).min(1, { message: 'Framework is required' }),
+    framework: z.string(),
     status: z
         .nativeEnum(ProgramProgramStatus, {
             errorMap: () => ({ message: 'Invalid status' }),
@@ -22,7 +22,7 @@ export const initProgramSchema = z.object({
         .default(ProgramProgramStatus.NOT_STARTED),
 })
 
-type InitProgramValues = z.infer<typeof initProgramSchema>;
+type InitProgramValues = zInfer<typeof initProgramSchema>;
 
 export function ProgramInitComponent() {
     const {
@@ -59,8 +59,7 @@ export function ProgramInitComponent() {
 }
 
 const NameField = () => {
-    const { register, control } = useFormContext<InitProgramValues>();
-
+    const { register, control, formState: { errors }, } = useFormContext<InitProgramValues>();
     const { inputRow } = wizardStyles();
 
     return (
@@ -69,14 +68,14 @@ const NameField = () => {
             name={register('name').name}
             render={({ field }) => (
                 <FormItem>
-                    <FormLabel>Name
+                    <FormLabel>Name<span className="text-red-500"> *</span>
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger>
                                     <InfoIcon size={14} className='mx-1' />
                                 </TooltipTrigger>
                                 <TooltipContent side='right'>
-                                    <p>Provide a name to identify the program</p>
+                                    <p>Provide a name to identify the program (required)</p>
                                 </TooltipContent>
                             </Tooltip>
                         </TooltipProvider>
@@ -84,6 +83,9 @@ const NameField = () => {
                     <FormControl>
                         <Input className={inputRow()} variant="medium" type="string" {...field} required value={field.value || ''} />
                     </FormControl>
+                    {errors.name && (
+                        <FormMessage>{errors.name.message}</FormMessage>
+                    )}
                 </FormItem>
             )}
         />
@@ -91,7 +93,7 @@ const NameField = () => {
 }
 
 const FrameworkSelect = () => {
-    const { register, control } = useFormContext<InitProgramValues>();
+    const { register, control, formState: { errors }, } = useFormContext<InitProgramValues>();
     const { inputRow } = wizardStyles();
 
     return (
@@ -100,10 +102,23 @@ const FrameworkSelect = () => {
             name={register('framework').name}
             render={({ field }) => (
                 <FormItem>
-                    <FormLabel>Framework</FormLabel>
+                    <FormLabel>Framework<span className="text-red-500"> *</span>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger>
+                                    <InfoIcon size={14} className='mx-1' />
+                                </TooltipTrigger>
+                                <TooltipContent side='right'>
+                                    <p>The audit framework to use for the program (required)</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    </FormLabel>
                     <FormControl>
                         <Select
+                            value={field.value}
                             onValueChange={field.onChange}
+                            required
                         >
                             <SelectTrigger className={inputRow()}>
                                 <SelectValue />
@@ -112,9 +127,13 @@ const FrameworkSelect = () => {
                                 <SelectItem value="SOC2">SOC2</SelectItem>
                                 <SelectItem value="IS027001">IS027001</SelectItem>
                                 <SelectItem value="FedRAMP">FedRAMP</SelectItem>
+                                <SelectItem value="Custom">Custom Framework</SelectItem>
                             </SelectContent>
                         </Select>
                     </FormControl>
+                    {errors.framework && (
+                        <FormMessage>{errors.framework.message}</FormMessage>
+                    )}
                 </FormItem>
             )}
         />
@@ -122,7 +141,7 @@ const FrameworkSelect = () => {
 }
 
 const DescriptionField = () => {
-    const { register, control } = useFormContext<InitProgramValues>();
+    const { register, control, formState: { errors }, } = useFormContext<InitProgramValues>();
     const { longTextRow } = wizardStyles();
 
     return (
@@ -138,7 +157,7 @@ const DescriptionField = () => {
                                     <InfoIcon size={14} className='mx-1' />
                                 </TooltipTrigger>
                                 <TooltipContent side='right'>
-                                    <p>Provide a name to identify the program</p>
+                                    <p>Provide a description of the program</p>
                                 </TooltipContent>
                             </Tooltip>
                         </TooltipProvider>
@@ -148,6 +167,9 @@ const DescriptionField = () => {
                             <Textarea className={longTextRow()} {...field} value={field.value || ''} />
                         </div>
                     </FormControl>
+                    {errors.description && (
+                        <FormMessage>{errors.description.message}</FormMessage>
+                    )}
                 </FormItem>
             )}
         />
@@ -155,7 +177,7 @@ const DescriptionField = () => {
 }
 
 const StatusSelect = () => {
-    const { register, control } = useFormContext<InitProgramValues>();
+    const { register, control, formState: { errors }, } = useFormContext<InitProgramValues>();
     const { inputRow } = wizardStyles();
 
     return (
@@ -196,6 +218,9 @@ const StatusSelect = () => {
                             </SelectContent>
                         </Select>
                     </FormControl>
+                    {errors.status && (
+                        <FormMessage>{errors.status.message}</FormMessage>
+                    )}
                 </FormItem>
             )}
         />

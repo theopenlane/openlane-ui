@@ -4,9 +4,14 @@ import { z, infer as zInfer } from 'zod'
 import { Panel, PanelHeader } from '@repo/ui/panel';
 import { wizardStyles } from './wizard.styles';
 import { Grid, GridRow, GridCell } from '@repo/ui/grid';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip';
+import { InfoIcon } from 'lucide-react';
+import { Card } from '@repo/ui/cardpanel';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form';
+import { Input } from '@repo/ui/input';
 
 export const programObjectAssociationSchema = z.object({
-    framework: z.string().min(1, { message: 'Framework is required' }),
+    links: z.string(),
 })
 
 type ProgramObjectAssociationValues = z.infer<typeof programObjectAssociationSchema>;
@@ -39,12 +44,37 @@ export const ObjectAssociationComponent = () => {
 
     const {
         register,
+        control,
         formState: { errors },
     } = useFormContext<ProgramObjectAssociationValues>();
 
 
     return (
         <>
+            <Card className='px-5 py-5'>
+                <FormField
+                    control={control}
+                    name={register('links').name}
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel htmlFor={field.name}>Links
+                                <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger>
+                                            <InfoIcon size={14} className='mx-1' />
+                                        </TooltipTrigger>
+                                        <TooltipContent side='right' className='bg-white dark:bg-glaucous-900'>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider></FormLabel>
+                            <FormControl>
+                                <Input {...field} />
+                            </FormControl>
+                        </FormItem>
+                    )
+                    }
+                />
+            </Card >
         </>
     )
 }

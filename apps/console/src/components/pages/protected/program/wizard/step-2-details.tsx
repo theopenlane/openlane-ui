@@ -24,10 +24,10 @@ export const programDetailSchema = z.object({
     auditorWriteComments: z.boolean().optional(),
     auditorReady: z.boolean().optional(),
     auditPartnerName: z.string().optional(),
-    auditPartnerEmail: z.string().email().optional(),
+    auditPartnerEmail: z.string().email({ message: 'Invalid email address' }).optional(),
 })
 
-type ProgramDetailValues = z.infer<typeof programDetailSchema>;
+type ProgramDetailValues = zInfer<typeof programDetailSchema>;
 
 export function ProgramDetailsComponent() {
     return (
@@ -66,6 +66,7 @@ export const AuditorPermissionsComponent = () => {
 
     const {
         register,
+        control,
         formState: { errors },
     } = useFormContext<ProgramDetailValues>();
 
@@ -88,6 +89,7 @@ export const AuditorPermissionsComponent = () => {
             <Card className='px-5 py-5'>
 
                 <FormField
+                    control={control}
                     name={register('auditorReadComments').name}
                     render={({ field }) => (
                         <FormItem>
@@ -121,6 +123,7 @@ export const AuditorPermissionsComponent = () => {
                     }
                 />
                 < FormField
+                    control={control}
                     name={register('auditorWriteComments').name}
                     render={({ field }) => (
                         <FormItem>
@@ -153,6 +156,7 @@ export const AuditorPermissionsComponent = () => {
                     )}
                 />
                 < FormField
+                    control={control}
                     name={register('auditorReady').name}
                     render={({ field }) => (
                         <FormItem>
@@ -202,6 +206,7 @@ const PeriodComponent = () => {
 
     const {
         register,
+        control,
         formState: { errors },
     } = useFormContext<ProgramDetailValues>();
 
@@ -218,6 +223,7 @@ const PeriodComponent = () => {
         <>
             <div className={formRow()}>
                 <FormField
+                    control={control}
                     name={register('startDate').name}
                     render={({ field }) => (
                         <FormItem className={dateInput()}>
@@ -297,6 +303,7 @@ const PeriodComponent = () => {
             </div>
             <div className={formRow()}>
                 <FormField
+                    control={control}
                     name={register('endDate').name}
                     render={({ field }) => (
                         <FormItem className={dateInput()}>
@@ -379,7 +386,7 @@ const PeriodComponent = () => {
 }
 
 const AuditPartner = () => {
-    const { register, control } = useFormContext<ProgramDetailValues>();
+    const { register, control, formState: { errors }, } = useFormContext<ProgramDetailValues>();
     const { inputRow, formRow } = wizardStyles();
 
     return (
@@ -430,7 +437,7 @@ const AuditPartner = () => {
                                 </TooltipProvider>
                             </FormLabel>
                             <FormControl>
-                                <Input className={inputRow()} variant="medium" type="string" {...field} value={field.value || ''} />
+                                <Input className={inputRow()} variant="medium" type="email" {...field} value={field.value || ''} />
                             </FormControl>
                         </FormItem>
                     )}
