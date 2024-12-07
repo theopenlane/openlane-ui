@@ -9,7 +9,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { pageStyles } from './page.styles'
 import {
-  AlertDialogTrigger,
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogTitle,
@@ -28,7 +27,6 @@ export const TemplateList = () => {
 
   const {
     selectTemplate,
-    nameRow,
   } = pageStyles()
 
   const handleFromTemplate = (
@@ -71,61 +69,61 @@ export const TemplateList = () => {
 
   // Wait for the session and template data
   if (allTemplates.fetching) {
-      return <div>loading...</div>
+    return <div>loading...</div>
   }
 
   const templates = allTemplates?.data?.templates?.edges || []
 
   return (
     <>
-    <AlertDialogContent>
-    <AlertDialogHeader>
-      <AlertDialogTitle>Create Questionnaire From Template</AlertDialogTitle>
-      <AlertDialogDescription>
-        Choose a template to create a new questionnaire
-      </AlertDialogDescription>
-    </AlertDialogHeader>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Create Questionnaire From Template</AlertDialogTitle>
+          <AlertDialogDescription>
+            Choose a template to create a new questionnaire
+          </AlertDialogDescription>
+        </AlertDialogHeader>
 
-    <div className={selectTemplate()}>
-    <Form {...form}>
-      <FormField
-          name="templateId"
-          control={control}
-          render={({ field }) => (
-          <FormItem>
-          <FormControl>
-      <Select
-        onValueChange={field.onChange}
-        >
-      <SelectTrigger>
-          <SelectValue placeholder="Select template" />
-      </SelectTrigger>
-      <SelectContent>
-      {templates?.map((template) => (
-          <SelectItem key={template?.node?.id} value={template?.node?.id || ""}>
-              {template?.node?.name}
-          </SelectItem>
-      ))}
-      </SelectContent>
-      </Select>
-      </FormControl>
-      </FormItem>
-      )}
-      />
-    </Form>
-  </div>
+        <div className={selectTemplate()}>
+          <Form {...form}>
+            <FormField
+              name="templateId"
+              control={control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select template" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {templates?.map((template) => (
+                          <SelectItem key={template?.node?.id} value={template?.node?.id || ""}>
+                            {template?.node?.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </Form>
+        </div>
 
-  <AlertDialogFooter>
-      <AlertDialogCancel asChild>
-        <Button variant="outline">Cancel</Button>
-      </AlertDialogCancel>
-      <AlertDialogAction asChild>
-        <Button variant="aquamarine" onClick={handleSubmit((data) => handleFromTemplate({ target: { value: data.templateId } } as React.ChangeEvent<HTMLSelectElement>))}>
-          Create Questionnaire
-        </Button>
-      </AlertDialogAction>
-    </AlertDialogFooter>
-  </AlertDialogContent>
-  </>
+        <AlertDialogFooter>
+          <AlertDialogCancel asChild>
+            <Button variant="outline">Cancel</Button>
+          </AlertDialogCancel>
+          <AlertDialogAction asChild>
+            <Button variant="filled" onClick={handleSubmit((data) => handleFromTemplate({ target: { value: data.templateId } } as React.ChangeEvent<HTMLSelectElement>))}>
+              Create Questionnaire
+            </Button>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </>
   )
 }

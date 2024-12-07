@@ -177,7 +177,7 @@ export const Actions = ({
               <Button variant="outline" type="submit">Cancel</Button>
             </AlertDialogCancel>
             <AlertDialogAction asChild>
-              <Button variant="aquamarine" type="submit" onClick={handleSubmit((data) => handleSendForm(data))}>
+              <Button variant="filled" type="submit" onClick={handleSubmit((data) => handleSendForm(data))}>
                 Send
               </Button>
             </AlertDialogAction>
@@ -197,7 +197,7 @@ export const Actions = ({
               <Button variant="outline">Cancel</Button>
             </AlertDialogCancel>
             <AlertDialogAction asChild>
-              <Button variant="aquamarine" onClick={handleDeleteTemplate} onKeyDown={(e) => {
+              <Button variant="filled" onClick={handleDeleteTemplate} onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   handleDeleteTemplate();
                 }

@@ -3,12 +3,15 @@
 import React from 'react'
 import { useSession } from 'next-auth/react'
 import { Grid, GridRow, GridCell } from '@repo/ui/grid'
-import { Panel } from '@repo/ui/panel'
+import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Button } from '@repo/ui/button'
 import { PageHeading } from '@repo/ui/page-heading'
 import { ArrowUpRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { ProgramCreate } from '@/components/pages/protected/program/program-create'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@repo/ui/dialog"
+import Link from 'next/link'
+
 
 const DashboardLanding: React.FC = () => {
   const session = useSession()
@@ -20,7 +23,17 @@ const DashboardLanding: React.FC = () => {
       <Grid rows={2}>
         <GridRow columns={2}>
           <GridCell>
-            <ProgramCreate />
+            <Panel
+              align="center"
+              justify="center"
+              textAlign="center"
+              className="min-h-[400px]"
+            >
+              <PanelHeader heading="Create a new program"
+                subheading="Start your compliance journey by creating a new program."
+              />
+              <ProgramCreate />
+            </Panel>
           </GridCell>
           <GridCell>
             <Panel
@@ -29,11 +42,10 @@ const DashboardLanding: React.FC = () => {
               textAlign="center"
               className="min-h-[400px]"
             >
-              <h5 className="text-xl font-sans">Configure your organization</h5>
-              <p className="max-w-[340px]">
-                Define everything from your organization slug to advanced
-                authentication settings.
-              </p>
+              <PanelHeader heading="Configure your organization"
+                subheading="Define everything from your organization slug to advanced
+                authentication settings."
+              />
               <Button
                 onClick={() => {
                   push('/organization-settings/general-settings')
@@ -55,11 +67,10 @@ const DashboardLanding: React.FC = () => {
               textAlign="center"
               className="min-h-[400px]"
             >
-              <h5 className="text-xl font-sans">Add team members</h5>
-              <p className="max-w-[340px]">
-                Get your team rocking and rolling by inviting your colleagues to
-                join the party.
-              </p>
+              <PanelHeader heading="Add team members"
+                subheading="Get your team rocking and rolling by inviting your colleagues to
+                join the party."
+              />
               <Button
                 onClick={() => {
                   push('/organization-settings/members')

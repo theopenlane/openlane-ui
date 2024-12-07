@@ -2,7 +2,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 
 const sidebarNavStyles = tv({
   slots: {
-    nav: 'space-y-1 bg-ziggurat-100 dark:bg-glaucous-950 h-screen relative pt-24 pb-8 tracking-tighter',
+    nav: 'space-y-1 bg-ziggurat-100 dark:bg-glaucous-950 h-screen relative overflow-y-auto overflow-x-visible pt-24 pb-8 tracking-tighter',
     icon: 'h-5 w-5 text-glaucous-400',
     linkLabel:
       'font-normal absolute left-12 text-base text-nowrap duration-200',
@@ -14,12 +14,12 @@ const sidebarNavStyles = tv({
     heading:
       'text-glaucous-950 font-sans px-4 py-2 uppercase font-bold tracking-[0.42px] text-sm',
     badgeCount:
-      'flex relative ml-40 pt-px justify-center bg-firefly-400 dark:bg-firefly-700 text-[14px] font-semibold rounded-[6px] w-[22px] h-[22px] text-white',
+      'flex relative ml-40 pt-px justify-center bg-ziggurat-900 dark:bg-ziggurat-400 text-[14px] font-semibold rounded-[6px] w-[22px] h-[22px] text-white',
   },
   variants: {
     isCurrent: {
       true: {
-        link: 'rounded-md bg-firefly-400 font-bold hover:bg-muted dark:bg-firefly-400 dark:text-glaucous-950',
+        link: 'rounded-md bg-ziggurat-200 dark:bg-glaucous-700 font-bold hover:bg-muted',
         badgeCount:
           'flex relative ml-40 pt-px justify-center bg-ziggurat-100 dark:bg-oxford-blue-900 text-[14px] font-semibold rounded-[6px] w-[22px] h-[22px] text-firefly-950 dark:text-white',
       },

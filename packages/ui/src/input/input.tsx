@@ -11,7 +11,7 @@ import {
 
 export interface InputProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'prefix'>,
-    InputVariants {
+  InputVariants {
   icon?: ReactNode
   prefix?: ReactNode
   onIconClick?: () => void
@@ -56,7 +56,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <div
             className={iconWrapper()}
             onClick={onIconClick}
-            style={{ cursor: onIconClick ? 'pointer' : 'default' }}
+            style={{ cursor: onIconClick ? 'pointer' : 'filled' }}
           >
             {icon}
           </div>

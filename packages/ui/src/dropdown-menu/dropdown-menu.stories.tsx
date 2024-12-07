@@ -32,7 +32,7 @@ const meta: Meta<typeof DropdownMenu> = {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="aquamarine" size="md">
+          <Button variant="filled" size="md">
             Open dropdown menu
           </Button>
         </DropdownMenuTrigger>
@@ -101,7 +101,7 @@ export const UserMenu: Story = {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="aquamarine" size="md">
+          <Button variant="filled" size="md">
             User menu
           </Button>
         </DropdownMenuTrigger>

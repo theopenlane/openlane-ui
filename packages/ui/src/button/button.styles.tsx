@@ -14,7 +14,7 @@ export const buttonStyles = tv({
   },
   variants: {
     variant: {
-      aquamarine: 'bg-firefly-300 dark:bg-firefly-300 hover:!opacity-90',
+      filled: 'bg-java-400 dark:bg-java-400 hover:!opacity-90 text-oxford-blue-100 dark:text-oxford-blue-900',
       outline:
         'border-java-800 text-oxford-blue-800 dark:text-oxford-blue-100 dark:border-java-100 border hover:!opacity-90',
       outlineLight:
@@ -54,9 +54,9 @@ export const buttonStyles = tv({
   },
   compoundVariants: [
     {
-      variant: 'aquamarine',
+      variant: 'filled',
       size: 'sm',
-      class: 'text-aquamarine-900',
+      class: 'text-default-900',
     },
     {
       variant: 'white',
@@ -70,7 +70,7 @@ export const buttonStyles = tv({
     },
   ],
   defaultVariants: {
-    variant: 'aquamarine',
+    variant: 'filled',
     size: 'md',
   },
 })
@@ -81,7 +81,7 @@ export type ButtonVariants = VariantProps<typeof buttonStyles>
 
 export interface ButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement>,
-    ButtonVariants {
+  ButtonVariants {
   asChild?: boolean
   icon?: ReactNode
   loading?: boolean

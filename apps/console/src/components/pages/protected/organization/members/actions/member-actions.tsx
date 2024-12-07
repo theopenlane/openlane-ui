@@ -142,7 +142,7 @@ export const MemberActions = ({
                     <Button variant="outline">Cancel</Button>
                   </AlertDialogCancel>
                   <AlertDialogAction asChild>
-                    <Button variant="aquamarine" onClick={handleDeleteMember}>
+                    <Button variant="filled" onClick={handleDeleteMember}>
                       Remove Member
                     </Button>
                   </AlertDialogAction>
@@ -208,7 +208,7 @@ export const MemberActions = ({
                     <Button variant="outline">Cancel</Button>
                   </AlertDialogCancel>
                   <AlertDialogAction asChild>
-                    <Button variant="aquamarine" onClick={handleSubmit((data) => handleChangeRole(data.role))}>
+                    <Button variant="filled" onClick={handleSubmit((data) => handleChangeRole(data.role))}>
                       Change Role
                     </Button>
                   </AlertDialogAction>
