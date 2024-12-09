@@ -263,7 +263,7 @@ const ProgramWizard = () => {
                                         </Button>
                                     </div>
                                 ) : (
-                                    <Button onClick={handleFormSubmit}>Complete</Button>
+                                    <Button onClick={handleFormSubmit}>Create Program</Button>
                                 )}
                             </div>
                         </form>
