@@ -9,8 +9,6 @@ import { PageHeading } from '@repo/ui/page-heading'
 import { ArrowUpRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { ProgramCreate } from '@/components/pages/protected/program/program-create'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@repo/ui/dialog"
-import Link from 'next/link'
 
 
 const DashboardLanding: React.FC = () => {

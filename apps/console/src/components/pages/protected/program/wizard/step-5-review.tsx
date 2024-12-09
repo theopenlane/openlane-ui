@@ -1,34 +1,29 @@
 
 import { useFormContext } from 'react-hook-form'
-import { z, infer as zInfer } from 'zod'
 import { Panel, PanelHeader } from '@repo/ui/panel';
 import { wizardStyles } from './wizard.styles';
 import { Grid, GridRow, GridCell } from '@repo/ui/grid';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip';
-import { InfoIcon } from 'lucide-react';
-import { Card } from '@repo/ui/cardpanel';
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form';
-import { Input } from '@repo/ui/input';
+import { format } from 'date-fns'
+import { DataTable } from '@repo/ui/data-table';
 
-export const programReviewSchema = z.object({
-    links: z.string(),
-})
+import { ColumnDef } from '@tanstack/react-table'
+import { Node } from '../wizard';
 
-type ProgramReviewValues = z.infer<typeof programReviewSchema>;
 
-export function ProgramReviewComponent() {
+type ReviewComponentProps = { users: Node[], groups: Node[] }
+
+export const ProgramReviewComponent: React.FC<ReviewComponentProps> = ({ users, groups }) => {
     return (
         <Panel className='border-none p-2'>
             <PanelHeader
                 heading="Review Program"
-                subheading="Review the final details of the program"
                 noBorder
             />
-            <div className='max-h-80 overflow-y-auto'>
+            <div className='max-h-100 overflow-y-auto'>
                 <Grid>
                     <GridRow columns={1}>
                         <GridCell >
-                            <ReviewComponent />
+                            <ReviewComponent users={users} groups={groups} />
                         </GridCell>
                     </GridRow>
                 </Grid>
@@ -37,44 +32,144 @@ export function ProgramReviewComponent() {
     );
 }
 
+
+const columnsInit: ColumnDef<any>[] = [
+    {
+        accessorKey: 'framework',
+        header: 'Framework',
+    },
+    {
+        accessorKey: 'status',
+        header: 'Status',
+        cell: ({ cell }) => {
+            const value = cell.getValue() as string | null
+            return value ? value.replaceAll("_", " ").toLowerCase() : value
+        },
+    },
+    {
+        accessorKey: 'startDate',
+        header: 'Start Date',
+        cell: ({ cell }) => {
+            const value = cell.getValue() as string | null
+            return value ? format(new Date(value), 'd MMM yyyy') : 'Invalid'
+        },
+    },
+    {
+        accessorKey: 'endDate',
+        header: 'End Date',
+        cell: ({ cell }) => {
+            const value = cell.getValue() as string | null
+            return value ? format(new Date(value), 'd MMM yyyy') : 'Invalid'
+        },
+    },
+]
+
+const columnsAuditor: ColumnDef<any>[] = [
+    {
+        accessorKey: 'auditPartnerName',
+        header: 'Audit Partner',
+    },
+    {
+        accessorKey: 'auditPartnerEmail',
+        header: 'Audit Partner Email',
+    },
+    {
+        accessorKey: 'auditorReadComments',
+        header: 'Auditor Read Comments',
+    },
+    {
+        accessorKey: 'auditorWriteComments',
+        header: 'Auditor Write Comments',
+    },
+    {
+        accessorKey: 'auditorReady',
+        header: 'Auditor Ready',
+    }
+]
+
+const columnsPermissions: (users: Node[], groups: Node[]) => ColumnDef<any>[] = (users, groups) => [
+    {
+        accessorKey: 'programAdmins',
+        header: 'Users with Admin Access',
+        cell: ({ cell }) => {
+            const value = cell.getValue() as string[] || []
+            return value.map(val => {
+                const user = users?.find(user => user.node.id === val)
+                return user ? user.node.name : 'unknown'
+            }).join(', ')
+        },
+    },
+    {
+        accessorKey: 'programMembers',
+        header: 'Users with Read Access',
+        cell: ({ cell }) => {
+            const value = cell.getValue() as string[] || []
+            return value.map(val => {
+                const user = users?.find(user => user.node.id === val)
+                return user ? user.node.name : 'unknown'
+            }).join(', ')
+        },
+    },
+    {
+        accessorKey: "groupEditors",
+        header: "Groups With Edit Access",
+        cell: ({ cell }) => {
+            const value = cell.getValue() as string[] || []
+            return value.map(val => {
+                const group = groups?.find(group => group.node.id === val)
+                return group ? group.node.name : 'unknown'
+            }).join(', ')
+        },
+    },
+    {
+        accessorKey: "groupViewers",
+        header: "Groups With Read Access",
+        cell: ({ cell }) => {
+            const value = cell.getValue() as string[] || []
+            return value.map(val => {
+                const group = groups?.find(group => group.node.id === val)
+                return group ? group.node.name : 'unknown'
+            }).join(', ')
+        },
+    },
+]
+
+
+
 // ReviewComponent contains the review form
-export const ReviewComponent = () => {
+export const ReviewComponent: React.FC<ReviewComponentProps> = ({ users, groups }) => {
     const {
     } = wizardStyles()
 
+
     const {
-        register,
-        control,
-        formState: { errors },
-    } = useFormContext<ProgramReviewValues>();
+        getValues,
+    } = useFormContext();
 
 
     return (
         <>
-            <Card className='px-5 py-5'>
-                <FormField
-                    control={control}
-                    name={register('links').name}
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel htmlFor={field.name}>Links
-                                <TooltipProvider>
-                                    <Tooltip>
-                                        <TooltipTrigger>
-                                            <InfoIcon size={14} className='mx-1' />
-                                        </TooltipTrigger>
-                                        <TooltipContent side='right' className='bg-white dark:bg-glaucous-900'>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                </TooltipProvider></FormLabel>
-                            <FormControl>
-                                <Input {...field} />
-                            </FormControl>
-                        </FormItem>
-                    )
-                    }
+            <Panel className='gap-2 px-6 py-6'>
+                <PanelHeader heading={getValues().name}
+                    subheading={getValues().description}
+                    noBorder />
+
+                Details:
+                <DataTable
+                    columns={columnsInit}
+                    data={[getValues()]}
                 />
-            </Card >
+                <br />
+                <DataTable
+                    columns={columnsAuditor}
+                    data={[getValues()]}
+                />
+                <br />
+                <DataTable
+                    columns={columnsPermissions(users, groups)}
+                    data={[getValues()]}
+                />
+            </Panel >
         </>
     )
 }

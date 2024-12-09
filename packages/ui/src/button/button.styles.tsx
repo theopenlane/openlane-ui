@@ -14,7 +14,7 @@ export const buttonStyles = tv({
   },
   variants: {
     variant: {
-      filled: 'bg-java-400 dark:bg-java-400 hover:!opacity-90 text-oxford-blue-100 dark:text-oxford-blue-900',
+      filled: 'bg-java-400 dark:bg-java-400 hover:!opacity-90 text-oxford-blue-100 text-oxford-blue-900 ',
       outline:
         'border-java-800 text-oxford-blue-800 dark:text-oxford-blue-100 dark:border-java-100 border hover:!opacity-90',
       outlineLight:

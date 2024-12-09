@@ -11,7 +11,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/
 import { Input } from '@repo/ui/input';
 
 export const programObjectAssociationSchema = z.object({
-    links: z.string(),
+    links: z.string().optional(),
 })
 
 type ProgramObjectAssociationValues = z.infer<typeof programObjectAssociationSchema>;

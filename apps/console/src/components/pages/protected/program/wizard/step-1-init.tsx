@@ -70,7 +70,7 @@ const NameField = () => {
                 <FormItem>
                     <FormLabel>Name<span className="text-red-500"> *</span>
                         <TooltipProvider>
-                            <Tooltip>
+                            <Tooltip disableHoverableContent={true}>
                                 <TooltipTrigger>
                                     <InfoIcon size={14} className='mx-1' />
                                 </TooltipTrigger>

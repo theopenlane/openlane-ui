@@ -14,7 +14,7 @@ const sidebarNavStyles = tv({
     heading:
       'text-glaucous-950 font-sans px-4 py-2 uppercase font-bold tracking-[0.42px] text-sm',
     badgeCount:
-      'flex relative ml-40 pt-px justify-center bg-ziggurat-900 dark:bg-ziggurat-400 text-[14px] font-semibold rounded-[6px] w-[22px] h-[22px] text-white',
+      'flex relative ml-40 pt-px justify-center bg-java-400 dark:bg-java-400 text-[14px] font-semibold rounded-[6px] w-[22px] h-[22px] text-neutral-800 dark:test-neutral-300',
   },
   variants: {
     isCurrent: {

@@ -17,12 +17,16 @@ import { Card } from '@repo/ui/cardpanel';
 import { Grid, GridRow, GridCell } from '@repo/ui/grid';
 import { Input } from '@repo/ui/input';
 
+const today = new Date()
+const oneYearFromToday = addDays(new Date(), 365)
+
+
 export const programDetailSchema = z.object({
-    startDate: z.date().min(new Date(), { message: 'Start date must be in the future' }),
-    endDate: z.date().min(new Date(), { message: 'End date must be after start date' }),
-    auditorReadComments: z.boolean().optional(),
-    auditorWriteComments: z.boolean().optional(),
-    auditorReady: z.boolean().optional(),
+    startDate: z.date().min(new Date(), { message: 'Start date must be in the future' }).default(today),
+    endDate: z.date().min(new Date(), { message: 'End date must be after start date' }).default(oneYearFromToday),
+    auditorReadComments: z.boolean().optional().default(false),
+    auditorWriteComments: z.boolean().optional().default(false),
+    auditorReady: z.boolean().optional().default(false),
     auditPartnerName: z.string().optional(),
     auditPartnerEmail: z.string().email({ message: 'Invalid email address' }).optional(),
 })
@@ -195,9 +199,6 @@ export const AuditorPermissionsComponent = () => {
 
 // PeriodComponent contains the start and end date of the program
 const PeriodComponent = () => {
-    const today = new Date()
-    const oneYearFromToday = addDays(new Date(), 365)
-
     const [startDate, setStartDate] = useState<Date>(today)
     const [endDate, setEndDate] = useState<Date>(oneYearFromToday)
 

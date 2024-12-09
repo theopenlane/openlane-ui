@@ -6,7 +6,7 @@ import { Card } from "@repo/ui/cardpanel";
 import { Separator } from "@repo/ui/separator"
 import { Accordion, AccordionItem } from "@radix-ui/react-accordion"
 
-import { BookTextIcon, EyeIcon, LinkIcon, ShieldPlusIcon, SquarePlusIcon, UserRoundPlusIcon } from "lucide-react"
+import { BookTextIcon, EyeIcon, LinkIcon, ShieldPlusIcon, UserRoundPlusIcon } from "lucide-react"
 
 import { defineStepper, Step } from '@stepperize/react';
 
@@ -18,7 +18,9 @@ import { initProgramSchema, ProgramInitComponent } from "./wizard/step-1-init"
 import { programDetailSchema, ProgramDetailsComponent } from "./wizard/step-2-details"
 import { ProgramInviteComponent, programInviteSchema } from "./wizard/step-3-team"
 import { ProgramObjectAssociationComponent, programObjectAssociationSchema } from "./wizard/step-4-associate"
-import { ProgramReviewComponent, programReviewSchema } from "./wizard/step-5-review"
+import { ProgramReviewComponent } from "./wizard/step-5-review"
+import { useGetAllGroupsQuery, useGetAllOrganizationMembersQuery } from "@repo/codegen/src/schema";
+import { useSession } from "next-auth/react";
 
 
 interface StepperProps extends Step {
@@ -28,7 +30,7 @@ interface StepperProps extends Step {
 }
 
 const stepDetails: StepperProps[] = [
-    { id: 'init', description: "Get started by choosing one the the support audit frameworks or build your own custom program", icon: <SquarePlusIcon /> },
+    { id: 'init', description: "Get started by choosing one the the support audit frameworks or build your own custom program", icon: <ShieldPlusIcon /> },
     { id: 'details', description: "Customize your program by configuring your audit period and partners", icon: <BookTextIcon /> },
     { id: 'invite', description: "Invite your team to the program with customizable roles", icon: <UserRoundPlusIcon /> },
     { id: 'link', description: "Associate existing objects with the program (e.g. policies, procedures, etc.)", icon: <LinkIcon /> },
@@ -40,39 +42,97 @@ const { useStepper, steps } = defineStepper(
     { id: 'details', label: 'Program Details', schema: programDetailSchema },
     { id: 'invite', label: 'Add Your Team', schema: programInviteSchema },
     { id: 'link', label: 'Associate Existing Objects', schema: programObjectAssociationSchema },
-    { id: 'review', label: 'Review', schema: programReviewSchema }
+    { id: 'review', label: 'Review', schema: z.object({}) }
 )
 
+export interface Node {
+    node: {
+        id: string;
+        name: string;
+    };
+}
+
 const ProgramWizard = () => {
+    const { data: sessionData, update: updateSession } = useSession()
     const stepper = useStepper();
 
     const form = useForm({
-        mode: "all",
+        mode: "onTouched",
         resolver: zodResolver(stepper.current.schema),
     });
 
     const {
         handleSubmit,
-        reset,
         getValues,
-        formState: { isValid, isDirty },
+        setValue
     } = form;
 
-    const handleNext = () => {
+    const [allGroups] = useGetAllGroupsQuery({ pause: !sessionData })
+    const [allUsers] = useGetAllOrganizationMembersQuery({ pause: !sessionData })
+
+    const groupRes = allGroups?.data?.groups.edges || []
+    const userRes = allUsers?.data?.orgMemberships.edges || []
+
+
+    const groups = groupRes
+        .map((group) => {
+            if (!group || !group.node) return null
+
+            var res: Node = {
+                node: {
+                    id: group.node.id,
+                    name: group.node.name
+                }
+            }
+
+            return res
+        })
+        .filter((group): group is Node => group !== null)
+
+
+    const users = userRes
+        .map((user) => {
+            if (!user || !user.node) return null
+
+            var res: Node = {
+                node: {
+                    id: user.node.user.id,
+                    name: user.node.user.firstName + ' ' + user.node.user.lastName
+                }
+            }
+
+            return res
+        })
+        .filter((group): group is Node => group !== null)
+
+
+    const onClick = (id: typeof steps[number]['id'], data: zInfer<typeof stepper.current.schema>) => {
+        console.log("meow", id)
+        console.log(getValues())
+        Object.entries(data).forEach(([key, value]) => {
+            setValue(`${key}`, value);
+        });
+        stepper.goTo(id);
+    }
+
+    const onSubmit = (data: zInfer<typeof stepper.current.schema>) => {
+        if (stepper.isLast) {
+            console.log('submitting')
+            return;
+        }
+
+        Object.entries(data).forEach(([key, value]) => {
+            setValue(`${key}`, value);
+        });
+
         stepper.next();
-    };
+    }
 
-    const handleBack = () => {
-        stepper.prev();
-    };
 
-    const onSubmit = () => {
-        console.log(JSON.stringify(getValues()));
-        alert(JSON.stringify(getValues()));
-        handleNext();
-    };
-
-    console.log({ isValid, isDirty });
+    const handleFormSubmit = () => {
+        console.log(getValues());
+        console.log('submitting')
+    }
 
     return (
         <>
@@ -94,7 +154,7 @@ const ProgramWizard = () => {
                                                 aria-selected={stepper.current.id === step.id}
                                                 className="flex"
                                                 href={`#${step.id}`}
-                                                onClick={() => stepper.goTo(step.id)}
+                                                onClick={(data) => onClick(step.id, data)}
                                             >
                                                 <span className="flex items-center" >
                                                     <span className="mx-2">
@@ -128,31 +188,32 @@ const ProgramWizard = () => {
                             onSubmit={handleSubmit(onSubmit)}
                             className="p-6 rounded-lg items-start w-full h-[93%]"
                         >
-
                             <div className="h-full space-y-1">
                                 {stepper.switch({
                                     init: () => <ProgramInitComponent />,
                                     details: () => <ProgramDetailsComponent />,
-                                    invite: () => <ProgramInviteComponent />,
+                                    invite: () => <ProgramInviteComponent users={users} groups={groups} />,
                                     link: () => <ProgramObjectAssociationComponent />,
-                                    review: () => <ProgramReviewComponent />,
+                                    review: () => <ProgramReviewComponent users={users} groups={groups} />,
                                 })}
                             </div>
                             <div className="flex content-end justify-end gap-2 items-end">
-                                <div className="flex justify-end gap-2 items-end">
-                                    <Button
-                                        onClick={handleBack}
-                                        disabled={stepper.isFirst}
-                                    >
-                                        Back
-                                    </Button>
-                                    <Button
-                                        onClick={handleNext}
-                                        disabled={!isValid}
-                                    >
-                                        {stepper.isLast ? 'Complete' : 'Next'}
-                                    </Button>
-                                </div>
+                                {!stepper.isLast ? (
+                                    <div className="flex justify-end gap-2 items-end">
+
+                                        <Button
+                                            onClick={stepper.prev}
+                                            disabled={stepper.isFirst}
+                                        >
+                                            Back
+                                        </Button>
+                                        <Button type="submit">
+                                            Next
+                                        </Button>
+                                    </div>
+                                ) : (
+                                    <Button onClick={handleFormSubmit}>Complete</Button>
+                                )}
                             </div>
                         </form>
                     </Card>
