@@ -11,8 +11,8 @@ import { BookTextIcon, EyeIcon, LinkIcon, ShieldPlusIcon, UserRoundPlusIcon } fr
 import { defineStepper, Step } from '@stepperize/react';
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z, infer as zInfer } from 'zod'
-import { FormProvider, useForm } from 'react-hook-form'
+import { isValid, z, infer as zInfer } from 'zod'
+import { FormProvider, useForm, useFormState } from 'react-hook-form'
 
 import { initProgramSchema, ProgramInitComponent } from "./wizard/step-1-init"
 import { programDetailSchema, ProgramDetailsComponent } from "./wizard/step-2-details"
@@ -30,7 +30,7 @@ interface StepperProps extends Step {
 }
 
 const stepDetails: StepperProps[] = [
-    { id: 'init', description: "Get started by choosing one the the support audit frameworks or build your own custom program", icon: <ShieldPlusIcon /> },
+    { id: 'init', description: "Get started by choosing one of the supported audit frameworks or build your own custom program", icon: <ShieldPlusIcon /> },
     { id: 'details', description: "Customize your program by configuring your audit period and partners", icon: <BookTextIcon /> },
     { id: 'invite', description: "Invite your team to the program with customizable roles", icon: <UserRoundPlusIcon /> },
     { id: 'link', description: "Associate existing objects with the program (e.g. policies, procedures, etc.)", icon: <LinkIcon /> },
@@ -64,8 +64,10 @@ const ProgramWizard = () => {
     const {
         handleSubmit,
         getValues,
-        setValue
+        setValue,
     } = form;
+
+    const { isValid } = useFormState({ control: form.control });
 
     const [allGroups] = useGetAllGroupsQuery({ pause: !sessionData })
     const [allUsers] = useGetAllOrganizationMembersQuery({ pause: !sessionData })
@@ -156,33 +158,38 @@ const ProgramWizard = () => {
         }
         ).filter((risk): risk is Node => risk !== null)
 
-
-    const onClick = (id: typeof steps[number]['id'], data: zInfer<typeof stepper.current.schema>) => {
-        console.log("meow", id)
-        console.log(getValues())
+    const handleChange = (data: zInfer<typeof stepper.current.schema>) => {
         Object.entries(data).forEach(([key, value]) => {
             setValue(`${key}`, value);
         });
+    }
+
+    const onClick = (id: typeof steps[number]['id'], data: zInfer<typeof stepper.current.schema>) => {
+        handleChange(data);
+
         stepper.goTo(id);
     }
 
     const onSubmit = (data: zInfer<typeof stepper.current.schema>) => {
         if (stepper.isLast) {
-            console.log('submitting')
-            return;
+            handleFormSubmit()
         }
 
-        Object.entries(data).forEach(([key, value]) => {
-            setValue(`${key}`, value);
-        });
+        handleChange(data);
 
         stepper.next();
     }
 
 
     const handleFormSubmit = () => {
-        console.log(getValues());
-        console.log('submitting')
+        if (!isValid) {
+            alert('Please fill out all required fields')
+
+            return;
+        }
+
+        alert('Form submitted')
+        console.log(getValues())
     }
 
     return (
@@ -258,7 +265,10 @@ const ProgramWizard = () => {
                                         >
                                             Back
                                         </Button>
-                                        <Button type="submit">
+                                        <Button
+                                            type="submit"
+                                            disabled={!isValid}
+                                        >
                                             Next
                                         </Button>
                                     </div>
