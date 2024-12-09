@@ -19,7 +19,7 @@ import { programDetailSchema, ProgramDetailsComponent } from "./wizard/step-2-de
 import { ProgramInviteComponent, programInviteSchema } from "./wizard/step-3-team"
 import { ProgramObjectAssociationComponent, programObjectAssociationSchema } from "./wizard/step-4-associate"
 import { ProgramReviewComponent } from "./wizard/step-5-review"
-import { useGetAllGroupsQuery, useGetAllOrganizationMembersQuery } from "@repo/codegen/src/schema";
+import { useGetAllGroupsQuery, useGetAllInternalPoliciesQuery, useGetAllOrganizationMembersQuery, useGetAllProceduresQuery, useGetAllRisksQuery } from "@repo/codegen/src/schema";
 import { useSession } from "next-auth/react";
 
 
@@ -69,10 +69,15 @@ const ProgramWizard = () => {
 
     const [allGroups] = useGetAllGroupsQuery({ pause: !sessionData })
     const [allUsers] = useGetAllOrganizationMembersQuery({ pause: !sessionData })
+    const [allPolicies] = useGetAllInternalPoliciesQuery({ pause: !sessionData })
+    const [allProcedures] = useGetAllProceduresQuery({ pause: !sessionData })
+    const [allRisks] = useGetAllRisksQuery({ pause: !sessionData })
 
     const groupRes = allGroups?.data?.groups.edges || []
     const userRes = allUsers?.data?.orgMemberships.edges || []
-
+    const policyRes = allPolicies?.data?.internalPolicies.edges || []
+    const procedureRes = allProcedures?.data?.procedures.edges || []
+    const riskRes = allRisks?.data?.risks.edges || []
 
     const groups = groupRes
         .map((group) => {
@@ -104,6 +109,52 @@ const ProgramWizard = () => {
             return res
         })
         .filter((group): group is Node => group !== null)
+
+    const policies = policyRes
+        .map((policy) => {
+            if (!policy || !policy.node) return null
+
+            var res: Node = {
+                node: {
+                    id: policy.node.id,
+                    name: policy.node.name
+                }
+            }
+
+            return res
+        }
+        ).filter((policy): policy is Node => policy !== null)
+
+
+    const procedures = procedureRes
+        .map((procedure) => {
+            if (!procedure || !procedure.node) return null
+
+            var res: Node = {
+                node: {
+                    id: procedure.node.id,
+                    name: procedure.node.name
+                }
+            }
+
+            return res
+        }
+        ).filter((procedure): procedure is Node => procedure !== null)
+
+    const risks = riskRes
+        .map((risk) => {
+            if (!risk || !risk.node) return null
+
+            var res: Node = {
+                node: {
+                    id: risk.node.id,
+                    name: risk.node.name
+                }
+            }
+
+            return res
+        }
+        ).filter((risk): risk is Node => risk !== null)
 
 
     const onClick = (id: typeof steps[number]['id'], data: zInfer<typeof stepper.current.schema>) => {
@@ -193,8 +244,8 @@ const ProgramWizard = () => {
                                     init: () => <ProgramInitComponent />,
                                     details: () => <ProgramDetailsComponent />,
                                     invite: () => <ProgramInviteComponent users={users} groups={groups} />,
-                                    link: () => <ProgramObjectAssociationComponent />,
-                                    review: () => <ProgramReviewComponent users={users} groups={groups} />,
+                                    link: () => <ProgramObjectAssociationComponent risks={risks} policies={policies} procedures={procedures} />,
+                                    review: () => <ProgramReviewComponent users={users} groups={groups} risks={risks} policies={policies} procedures={procedures} />,
                                 })}
                             </div>
                             <div className="flex content-end justify-end gap-2 items-end">

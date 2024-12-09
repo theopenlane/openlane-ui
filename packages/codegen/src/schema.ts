@@ -20615,10 +20615,15 @@ export type UpdateProcedureMutationVariables = Exact<{
 
 export type UpdateProcedureMutation = { __typename?: 'Mutation', updateProcedure: { __typename?: 'ProcedureUpdatePayload', procedure: { __typename?: 'Procedure', id: string, name: string } } };
 
+export type GetAllProceduresWithDetailsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetAllProceduresWithDetailsQuery = { __typename?: 'Query', procedures: { __typename?: 'ProcedureConnection', edges?: Array<{ __typename?: 'ProcedureEdge', node?: { __typename?: 'Procedure', id: string, name: string, background?: string | null, description?: string | null, procedureType?: string | null, purposeAndScope?: string | null, satisfies?: string | null, status?: string | null, version?: string | null, updatedAt?: any | null, updatedBy?: string | null, createdAt?: any | null, createdBy?: string | null, tags?: Array<string> | null } | null } | null> | null } };
+
 export type GetAllProceduresQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetAllProceduresQuery = { __typename?: 'Query', procedures: { __typename?: 'ProcedureConnection', edges?: Array<{ __typename?: 'ProcedureEdge', node?: { __typename?: 'Procedure', id: string, name: string, background?: string | null, description?: string | null, procedureType?: string | null, purposeAndScope?: string | null, satisfies?: string | null, status?: string | null, version?: string | null, updatedAt?: any | null, updatedBy?: string | null, createdAt?: any | null, createdBy?: string | null, tags?: Array<string> | null } | null } | null> | null } };
+export type GetAllProceduresQuery = { __typename?: 'Query', procedures: { __typename?: 'ProcedureConnection', edges?: Array<{ __typename?: 'ProcedureEdge', node?: { __typename?: 'Procedure', id: string, name: string } | null } | null> | null } };
 
 export type GetProcedureDetailsByIdQueryVariables = Exact<{
   procedureId: Scalars['ID']['input'];
@@ -20653,6 +20658,11 @@ export type GetProgramDetailsByIdQueryVariables = Exact<{
 
 
 export type GetProgramDetailsByIdQuery = { __typename?: 'Query', program: { __typename?: 'Program', id: string, name: string, description?: string | null, tags?: Array<string> | null, status: ProgramProgramStatus, startDate?: any | null, endDate?: any | null, auditorReady: boolean, auditorWriteComments: boolean, auditorReadComments: boolean, standards?: Array<{ __typename?: 'Standard', id: string, name: string }> | null, tasks?: Array<{ __typename?: 'Task', id: string, title: string, status: TaskTaskStatus, due?: any | null, details?: any | null, assignee?: { __typename?: 'User', id: string, firstName?: string | null, lastName?: string | null, email: string } | null, assigner: { __typename?: 'User', id: string, firstName?: string | null, lastName?: string | null, email: string } }> | null, controlobjectives?: Array<{ __typename?: 'ControlObjective', id: string, name: string }> | null, controls?: Array<{ __typename?: 'Control', id: string, name: string, class?: string | null }> | null, subcontrols?: Array<{ __typename?: 'Subcontrol', id: string, name: string, class?: string | null }> | null, narratives?: Array<{ __typename?: 'Narrative', id: string, name: string }> | null, policies?: Array<{ __typename?: 'InternalPolicy', id: string, name: string }> | null, procedures?: Array<{ __typename?: 'Procedure', id: string, name: string }> | null } };
+
+export type GetAllRisksQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetAllRisksQuery = { __typename?: 'Query', risks: { __typename?: 'RiskConnection', edges?: Array<{ __typename?: 'RiskEdge', node?: { __typename?: 'Risk', id: string, name: string } | null } | null> | null } };
 
 export type CreateSubscriberMutationVariables = Exact<{
   input: CreateSubscriberInput;
@@ -21242,8 +21252,8 @@ export const UpdateProcedureDocument = gql`
 export function useUpdateProcedureMutation() {
   return Urql.useMutation<UpdateProcedureMutation, UpdateProcedureMutationVariables>(UpdateProcedureDocument);
 };
-export const GetAllProceduresDocument = gql`
-    query GetAllProcedures {
+export const GetAllProceduresWithDetailsDocument = gql`
+    query GetAllProceduresWithDetails {
   procedures {
     edges {
       node {
@@ -21261,6 +21271,22 @@ export const GetAllProceduresDocument = gql`
         createdAt
         createdBy
         tags
+      }
+    }
+  }
+}
+    `;
+
+export function useGetAllProceduresWithDetailsQuery(options?: Omit<Urql.UseQueryArgs<GetAllProceduresWithDetailsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetAllProceduresWithDetailsQuery, GetAllProceduresWithDetailsQueryVariables>({ query: GetAllProceduresWithDetailsDocument, ...options });
+};
+export const GetAllProceduresDocument = gql`
+    query GetAllProcedures {
+  procedures {
+    edges {
+      node {
+        id
+        name
       }
     }
   }
@@ -21417,6 +21443,22 @@ export const GetProgramDetailsByIdDocument = gql`
 
 export function useGetProgramDetailsByIdQuery(options: Omit<Urql.UseQueryArgs<GetProgramDetailsByIdQueryVariables>, 'query'>) {
   return Urql.useQuery<GetProgramDetailsByIdQuery, GetProgramDetailsByIdQueryVariables>({ query: GetProgramDetailsByIdDocument, ...options });
+};
+export const GetAllRisksDocument = gql`
+    query GetAllRisks {
+  risks {
+    edges {
+      node {
+        id
+        name
+      }
+    }
+  }
+}
+    `;
+
+export function useGetAllRisksQuery(options?: Omit<Urql.UseQueryArgs<GetAllRisksQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetAllRisksQuery, GetAllRisksQueryVariables>({ query: GetAllRisksDocument, ...options });
 };
 export const CreateSubscriberDocument = gql`
     mutation CreateSubscriber($input: CreateSubscriberInput!) {

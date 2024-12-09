@@ -138,7 +138,7 @@ const AddMemberDropdown: React.FC<{ values: Node[], fieldName: keyof ProgramInvi
                                     <Command>
                                         <CommandInput placeholder={placeholder} />
                                         <CommandList>
-                                            <CommandEmpty>No ${fieldType} found.</CommandEmpty>
+                                            <CommandEmpty>No {fieldType} found.</CommandEmpty>
                                             <CommandGroup>
                                                 {values.map((value) => (
                                                     <CommandItem
