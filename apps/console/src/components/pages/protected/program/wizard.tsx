@@ -19,8 +19,10 @@ import { programDetailSchema, ProgramDetailsComponent } from "./wizard/step-2-de
 import { ProgramInviteComponent, programInviteSchema } from "./wizard/step-3-team"
 import { ProgramObjectAssociationComponent, programObjectAssociationSchema } from "./wizard/step-4-associate"
 import { ProgramReviewComponent } from "./wizard/step-5-review"
-import { useGetAllGroupsQuery, useGetAllInternalPoliciesQuery, useGetAllOrganizationMembersQuery, useGetAllProceduresQuery, useGetAllRisksQuery } from "@repo/codegen/src/schema";
+import { CreateProgramInput, CreateProgramWithMembersInput, ProgramMembershipRole, useCreateProgramWithMembersMutation, useGetAllGroupsQuery, useGetAllInternalPoliciesQuery, useGetAllOrganizationMembersQuery, useGetAllProceduresQuery, useGetAllRisksQuery } from "@repo/codegen/src/schema";
 import { useSession } from "next-auth/react";
+import { toast } from "@repo/ui/use-toast";
+import { useRouter } from "next/navigation";
 
 
 interface StepperProps extends Step {
@@ -53,6 +55,8 @@ export interface Node {
 }
 
 const ProgramWizard = () => {
+    const router = useRouter()
+
     const { data: sessionData, update: updateSession } = useSession()
     const stepper = useStepper();
 
@@ -180,6 +184,19 @@ const ProgramWizard = () => {
         stepper.next();
     }
 
+    // use the mutation to add a subscriber
+    const createProgram = async (input: CreateProgramWithMembersInput) => {
+        createNewProgram({
+            input: input
+        }).then((result) => {
+            return result
+        })
+    }
+
+    // get the result and error from the mutation
+    const [result, createNewProgram] = useCreateProgramWithMembersMutation()
+    const { data, error } = result
+
 
     const handleFormSubmit = () => {
         if (!isValid) {
@@ -188,12 +205,62 @@ const ProgramWizard = () => {
             return;
         }
 
-        alert('Form submitted')
-        console.log(getValues())
+        let programMembers = []
+        for (let i = 0; i < getValues().programMembers?.length; i++) {
+            programMembers.push({
+                userID: getValues().editors[i],
+                role: ProgramMembershipRole.MEMBER
+            })
+        }
+
+        let programAdmins = []
+        for (let i = 0; i < getValues().programAdmins?.length; i++) {
+            programAdmins.push({
+                userID: getValues().editors[i],
+                role: ProgramMembershipRole.ADMIN
+            })
+        }
+
+        const input: CreateProgramWithMembersInput = {
+            program: {
+                name: getValues().name,
+                description: getValues().description,
+                status: getValues().status,
+                startDate: getValues().startDate,
+                endDate: getValues().endDate,
+                policyIDs: getValues().policies,
+                procedureIDs: getValues().procedures,
+                riskIDs: getValues().risks,
+                auditorReadComments: getValues().auditorReadComments,
+                auditorWriteComments: getValues().auditorWriteComments,
+                auditorReady: getValues().auditorReady,
+                viewerIDs: getValues().viewers,
+                editorIDs: getValues().editors,
+            },
+            members: [...programMembers, ...programAdmins]
+        }
+
+        createProgram(input)
+    }
+
+    if (data) {
+        toast({
+            title: 'Program Created',
+            description: `Your program, ${data.createProgramWithMembers?.program?.name}, has been successfully created`,
+            variant: 'success',
+            duration: 5000,
+        })
+        router.push(`/programs/programs?id=${data.createProgramWithMembers.program.id}`)
     }
 
     return (
-        <>
+        <>{data ? (
+            <div >
+                <span>
+                    Program Created!
+                </span>
+            </div>
+        ) : (
             <div className="flex flex-row">
 
                 <FormProvider  {...form}>
@@ -278,8 +345,10 @@ const ProgramWizard = () => {
                             </div>
                         </form>
                     </Card>
+                    {error && <div >{error.message}</div>}
                 </FormProvider>
             </div >
+        )}
         </>
     )
 }
