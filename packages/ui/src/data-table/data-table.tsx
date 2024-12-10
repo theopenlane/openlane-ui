@@ -35,6 +35,7 @@ import { EyeIcon } from 'lucide-react'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
+  loading?: boolean
   data: TData[]
   showFilter?: boolean
   showVisibility?: boolean
@@ -43,6 +44,7 @@ interface DataTableProps<TData, TValue> {
 
 export function DataTable<TData, TValue>({
   columns,
+  loading = false,
   data,
   showFilter = false,
   showVisibility = false,
@@ -160,7 +162,7 @@ export function DataTable<TData, TValue>({
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                {noResultsText}
+                {loading ? 'Loading' : noResultsText}
               </TableCell>
             </TableRow>
           )}
