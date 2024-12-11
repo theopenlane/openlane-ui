@@ -3,7 +3,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 export const inputStyles = tv({
   slots: {
     input:
-      'flex h-12 w-full rounded-md border font-sans autofill:bg-white autofill:text-firefly-950 autofill:font-sans border-oxford-blue-200 bg-transparent px-3 py-none text-base transition-colors file:border-0 file:bg-transparent file:text-base file:font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-firefly-100 disabled:cursor-not-allowed disabled:opacity-50 dark:placeholder-ziggurat-400',
+      'flex h-12 w-full rounded-md border font-sans autofill:bg-white autofill:text-firefly-950 autofill:font-sans border-oxford-blue-200 dark:border-oxford-blue-700 bg-white dark:bg-oxford-blue-950 px-3 py-none text-base transition-colors file:border-0 file:bg-transparent file:text-base file:font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-firefly-100 focus-visible:dark:ring-firefly-700 disabled:cursor-not-allowed disabled:opacity-50 dark:placeholder-ziggurat-400',
     inputWrapper: 'relative flex items-center',
     iconWrapper:
       'absolute z-20 text-firefly-500 top-1/2 -translate-y-1/2 right-4',
