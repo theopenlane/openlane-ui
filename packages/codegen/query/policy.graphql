@@ -3,11 +3,18 @@ mutation CreateInternalPolicy($input: CreateInternalPolicyInput!) {
     internalPolicy {
       id
       name
+      background
+      description
+      policyType
+      purposeAndScope
     }
   }
 }
 
-mutation UpdateInternalPolicy($updateInternalPolicyId: ID!, $input: UpdateInternalPolicyInput!) {
+mutation UpdateInternalPolicy(
+  $updateInternalPolicyId: ID!
+  $input: UpdateInternalPolicyInput!
+) {
   updateInternalPolicy(id: $updateInternalPolicyId, input: $input) {
     internalPolicy {
       id

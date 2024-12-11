@@ -11,6 +11,7 @@ import { Input } from '@repo/ui/input'
 import { pageStyles } from './page.styles'
 import { Actions } from './actions/actions'
 import { useGetAllInternalPoliciesQuery } from '@repo/codegen/src/schema'
+import Link from 'next/link'
 
 type PoliciesEdge = any
 type Policies = NonNullable<PoliciesEdge>['node']
@@ -41,7 +42,11 @@ export const PoliciesTable = () => {
   const [searchTerm, setSearchTerm] = useState('')
 
   const handleCreateNew = () => {
-    router.push('/policies-and-procedures/editor?type=policy')
+    router.push('/policies-and-procedures/policies/create')
+  }
+
+  const editPolicy = (policyId: string) => {
+    router.push(`/policies-and-procedures/editor?id=${policyId}`)
   }
 
   // TODO: add table once backend is ready
@@ -49,6 +54,16 @@ export const PoliciesTable = () => {
     {
       accessorKey: 'name',
       header: 'Name',
+      cell: ({ cell, row }) => {
+        return (
+          <Link
+            href={'/policies-and-procedures/policies/' + row.original.id}
+            className="underline"
+          >
+            {cell.getValue() as string}
+          </Link>
+        )
+      },
     },
     {
       accessorKey: 'description',
