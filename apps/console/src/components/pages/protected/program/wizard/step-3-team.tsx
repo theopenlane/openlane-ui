@@ -10,7 +10,7 @@ import { Button } from '@repo/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command';
 import { cn } from '@repo/ui/lib/utils';
-import { Node } from '../wizard';
+import { Node } from '../nodes';
 
 export const programInviteSchema = z.object({
     programAdmins: z.array(z.string()).optional(),
@@ -134,7 +134,7 @@ const AddMemberDropdown: React.FC<{ values: Node[], fieldName: keyof ProgramInvi
                                         </Button>
                                     </FormControl>
                                 </PopoverTrigger>
-                                <PopoverContent className="bg-glaucous-950 w-[300px]">
+                                <PopoverContent className="dark:bg-glaucous-950 w-[300px]">
                                     <Command>
                                         <CommandInput placeholder={placeholder} />
                                         <CommandList>

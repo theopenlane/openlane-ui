@@ -3,7 +3,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 export const wizardStyles = tv({
   slots: {
     formRow: 'fmt-[12px] grow justify-between py-2',
-    inputRow: 'grow justify-between',
+    inputRow: 'grow justify-between h-10',
     longTextRow: 'grow',
     switchRow: 'py-1',
     calendarIcon: 'ml-10 h-4 w-4 opacity-50',

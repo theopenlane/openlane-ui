@@ -11,7 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover';
 import { Button } from '@repo/ui/button';
 import { cn } from '@repo/ui/lib/utils';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command';
-import { Node } from '../wizard';
+import { Node } from '../nodes';
 import { CheckboxIcon } from '@radix-ui/react-icons';
 import { Checkbox } from '@repo/ui/checkbox';
 
@@ -118,7 +118,8 @@ const AddObjectDropdown: React.FC<{ values: Node[], fieldName: keyof Omit<Progra
                                             <p>Associate existing {fieldName} with the program</p>
                                         </TooltipContent>
                                     </Tooltip>
-                                </TooltipProvider></FormLabel>
+                                </TooltipProvider>
+                            </FormLabel>
                             <FormControl>
                                 <Popover>
                                     <PopoverTrigger asChild>

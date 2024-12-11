@@ -11,7 +11,7 @@ import { BookTextIcon, EyeIcon, LinkIcon, ShieldPlusIcon, UserRoundPlusIcon } fr
 import { defineStepper, Step } from '@stepperize/react';
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { isValid, z, infer as zInfer } from 'zod'
+import { z, infer as zInfer } from 'zod'
 import { FormProvider, useForm, useFormState } from 'react-hook-form'
 
 import { initProgramSchema, ProgramInitComponent } from "./wizard/step-1-init"
@@ -19,10 +19,12 @@ import { programDetailSchema, ProgramDetailsComponent } from "./wizard/step-2-de
 import { ProgramInviteComponent, programInviteSchema } from "./wizard/step-3-team"
 import { ProgramObjectAssociationComponent, programObjectAssociationSchema } from "./wizard/step-4-associate"
 import { ProgramReviewComponent } from "./wizard/step-5-review"
-import { CreateProgramInput, CreateProgramWithMembersInput, ProgramMembershipRole, useCreateProgramWithMembersMutation, useGetAllGroupsQuery, useGetAllInternalPoliciesQuery, useGetAllOrganizationMembersQuery, useGetAllProceduresQuery, useGetAllRisksQuery } from "@repo/codegen/src/schema";
+import { CreateProgramWithMembersInput, ProgramMembershipRole, useCreateProgramWithMembersMutation, useGetAllGroupsQuery, useGetAllInternalPoliciesQuery, useGetAllOrganizationMembersQuery, useGetAllProceduresQuery, useGetAllRisksQuery } from "@repo/codegen/src/schema";
 import { useSession } from "next-auth/react";
 import { toast } from "@repo/ui/use-toast";
 import { useRouter } from "next/navigation";
+import { dialogStyles } from "./dialog.styles";
+import { mapToNode } from "./nodes";
 
 
 interface StepperProps extends Step {
@@ -47,17 +49,19 @@ const { useStepper, steps } = defineStepper(
     { id: 'review', label: 'Review', schema: z.object({}) }
 )
 
-export interface Node {
-    node: {
-        id: string;
-        name: string;
-    };
-}
+
 
 const ProgramWizard = () => {
+    // styles
+    const { navCard, linkItem, formInput, formCard, buttonRow } = dialogStyles()
+
+    // router for navigation
     const router = useRouter()
 
-    const { data: sessionData, update: updateSession } = useSession()
+    // session data
+    const { data: sessionData } = useSession()
+
+    // form and stepper
     const stepper = useStepper();
 
     const form = useForm({
@@ -73,6 +77,7 @@ const ProgramWizard = () => {
 
     const { isValid } = useFormState({ control: form.control });
 
+    // grab all the data from the API to populate the dropdowns
     const [allGroups] = useGetAllGroupsQuery({ pause: !sessionData })
     const [allUsers] = useGetAllOrganizationMembersQuery({ pause: !sessionData })
     const [allPolicies] = useGetAllInternalPoliciesQuery({ pause: !sessionData })
@@ -85,95 +90,28 @@ const ProgramWizard = () => {
     const procedureRes = allProcedures?.data?.procedures.edges || []
     const riskRes = allRisks?.data?.risks.edges || []
 
-    const groups = groupRes
-        .map((group) => {
-            if (!group || !group.node) return null
+    // map to a common format
+    const groups = mapToNode(groupRes)
+    const users = mapToNode(userRes)
+    const policies = mapToNode(policyRes)
+    const procedures = mapToNode(procedureRes)
+    const risks = mapToNode(riskRes)
 
-            var res: Node = {
-                node: {
-                    id: group.node.id,
-                    name: group.node.name
-                }
-            }
-
-            return res
-        })
-        .filter((group): group is Node => group !== null)
-
-
-    const users = userRes
-        .map((user) => {
-            if (!user || !user.node) return null
-
-            var res: Node = {
-                node: {
-                    id: user.node.user.id,
-                    name: user.node.user.firstName + ' ' + user.node.user.lastName
-                }
-            }
-
-            return res
-        })
-        .filter((group): group is Node => group !== null)
-
-    const policies = policyRes
-        .map((policy) => {
-            if (!policy || !policy.node) return null
-
-            var res: Node = {
-                node: {
-                    id: policy.node.id,
-                    name: policy.node.name
-                }
-            }
-
-            return res
-        }
-        ).filter((policy): policy is Node => policy !== null)
-
-
-    const procedures = procedureRes
-        .map((procedure) => {
-            if (!procedure || !procedure.node) return null
-
-            var res: Node = {
-                node: {
-                    id: procedure.node.id,
-                    name: procedure.node.name
-                }
-            }
-
-            return res
-        }
-        ).filter((procedure): procedure is Node => procedure !== null)
-
-    const risks = riskRes
-        .map((risk) => {
-            if (!risk || !risk.node) return null
-
-            var res: Node = {
-                node: {
-                    id: risk.node.id,
-                    name: risk.node.name
-                }
-            }
-
-            return res
-        }
-        ).filter((risk): risk is Node => risk !== null)
-
+    // set values from the form when page in stepper is changed
     const handleChange = (data: zInfer<typeof stepper.current.schema>) => {
         Object.entries(data).forEach(([key, value]) => {
             setValue(`${key}`, value);
         });
     }
 
+    // handle the click event for the stepper
     const onClick = (id: typeof steps[number]['id'], data: zInfer<typeof stepper.current.schema>) => {
         handleChange(data);
 
         stepper.goTo(id);
     }
 
+    // handle the form submission for each page in the stepper
     const onSubmit = (data: zInfer<typeof stepper.current.schema>) => {
         if (stepper.isLast) {
             handleFormSubmit()
@@ -184,7 +122,7 @@ const ProgramWizard = () => {
         stepper.next();
     }
 
-    // use the mutation to add a subscriber
+    // use the mutation to create a new program
     const createProgram = async (input: CreateProgramWithMembersInput) => {
         createNewProgram({
             input: input
@@ -198,9 +136,15 @@ const ProgramWizard = () => {
     const { data, error } = result
 
 
+    // handle the final form submission
     const handleFormSubmit = () => {
         if (!isValid) {
-            alert('Please fill out all required fields')
+            toast({
+                title: 'Form Invalid',
+                description: 'Please fill out all required fields',
+                variant: 'destructive',
+                duration: 5000,
+            })
 
             return;
         }
@@ -253,103 +197,101 @@ const ProgramWizard = () => {
         router.push(`/programs/programs?id=${data.createProgramWithMembers.program.id}`)
     }
 
-    return (
-        <>{data ? (
-            <div >
-                <span>
-                    Program Created!
-                </span>
-            </div>
-        ) : (
-            <div className="flex flex-row">
+    if (error) {
+        toast({
+            title: 'Error',
+            description: 'There was an error creating the program. Please try again.',
+            variant: 'destructive',
+            duration: 5000,
+        })
+    }
 
-                <FormProvider  {...form}>
-                    <Card className="flex items-center mr-5 w-1/4 h-full">
-                        <nav aria-label="Program Creation" className="group">
-                            <Accordion type="multiple">
-                                {stepper.all.map((step, index, array) => (
-                                    <AccordionItem key={step.id} value={step.id} className={`${index - 1 < stepper.current.index ? 'rounded-md font-bold hover:bg-muted bg-java-400 h-1/3 text-oxford-blue-900' : 'bg-muted'}`}>
-                                        <li key={step.id} className="flex items-center w-full mx-3 h-[144px]">
-                                            <Link
-                                                aria-current={
-                                                    stepper.current.id === step.id ? 'step' : undefined
-                                                }
-                                                aria-posinset={index + 1}
-                                                aria-setsize={steps.length}
-                                                aria-selected={stepper.current.id === step.id}
-                                                className="flex"
-                                                href={`#${step.id}`}
-                                                onClick={(data) => onClick(step.id, data)}
-                                            >
-                                                <span className="flex items-center" >
-                                                    <span className="mx-2">
-                                                        {stepDetails[index].icon}
-                                                    </span>
-                                                    <span className="mx-6">
-                                                        <span>{step.label}</span>
-                                                        <br />
-                                                        <span className="text-xs">
-                                                            {stepDetails[index].description}
-                                                        </span>
+    return (
+        <div className="flex flex-row">
+            <FormProvider  {...form}>
+                <Card className={navCard()}>
+                    <nav aria-label="Program Creation" className="group">
+                        <Accordion type="multiple">
+                            {stepper.all.map((step, index, array) => (
+                                <AccordionItem key={step.id} value={step.id} className={`${index - 1 < stepper.current.index ? 'rounded-md font-bold hover:bg-muted bg-java-400 h-1/3 text-oxford-blue-900' : 'bg-muted'}`}>
+                                    <li key={step.id} className={linkItem()}>
+                                        <Link
+                                            aria-current={
+                                                stepper.current.id === step.id ? 'step' : undefined
+                                            }
+                                            aria-posinset={index + 1}
+                                            aria-setsize={steps.length}
+                                            aria-selected={stepper.current.id === step.id}
+                                            className="flex"
+                                            href={`#${step.id}`}
+                                            onClick={(data) => onClick(step.id, data)}
+                                        >
+                                            <span className="flex items-center" >
+                                                <span className="mx-2">
+                                                    {stepDetails[index].icon}
+                                                </span>
+                                                <span className="mx-6">
+                                                    <span>{step.label}</span>
+                                                    <br />
+                                                    <span className="text-xs">
+                                                        {stepDetails[index].description}
                                                     </span>
                                                 </span>
-                                            </Link>
-                                        </li>
-                                        {
-                                            index < array.length - 1 && (
-                                                <Separator
-                                                    className={`flex-1 ${index < stepper.current.index ? 'bg-primary' : 'bg-muted'
-                                                        }`}
-                                                />
-                                            )
-                                        }
-                                    </AccordionItem>
-                                ))}
-                            </Accordion>
-                        </nav>
-                    </Card>
-                    <Card className="flex items-start w-3/4 h-full">
-                        <form
-                            onSubmit={handleSubmit(onSubmit)}
-                            className="p-6 rounded-lg items-start w-full h-[93%]"
-                        >
-                            <div className="h-full space-y-1">
-                                {stepper.switch({
-                                    init: () => <ProgramInitComponent />,
-                                    details: () => <ProgramDetailsComponent />,
-                                    invite: () => <ProgramInviteComponent users={users} groups={groups} />,
-                                    link: () => <ProgramObjectAssociationComponent risks={risks} policies={policies} procedures={procedures} />,
-                                    review: () => <ProgramReviewComponent users={users} groups={groups} risks={risks} policies={policies} procedures={procedures} />,
-                                })}
-                            </div>
-                            <div className="flex content-end justify-end gap-2 items-end">
-                                {!stepper.isLast ? (
-                                    <div className="flex justify-end gap-2 items-end">
-
-                                        <Button
-                                            onClick={stepper.prev}
-                                            disabled={stepper.isFirst}
-                                        >
-                                            Back
-                                        </Button>
-                                        <Button
-                                            type="submit"
-                                            disabled={!isValid}
-                                        >
-                                            Next
-                                        </Button>
-                                    </div>
-                                ) : (
-                                    <Button onClick={handleFormSubmit}>Create Program</Button>
-                                )}
-                            </div>
-                        </form>
-                    </Card>
-                    {error && <div >{error.message}</div>}
-                </FormProvider>
-            </div >
-        )}
-        </>
+                                            </span>
+                                        </Link>
+                                    </li>
+                                    {
+                                        index < array.length - 1 && (
+                                            <Separator
+                                                className={`flex-1 ${index < stepper.current.index ? 'bg-primary' : 'bg-muted'
+                                                    }`}
+                                            />
+                                        )
+                                    }
+                                </AccordionItem>
+                            ))}
+                        </Accordion>
+                    </nav>
+                </Card>
+                <Card className={formCard()}>
+                    <form
+                        onSubmit={handleSubmit(onSubmit)}
+                        className={formInput()}
+                    >
+                        <div className="h-full space-y-1">
+                            {stepper.switch({
+                                init: () => <ProgramInitComponent />,
+                                details: () => <ProgramDetailsComponent />,
+                                invite: () => <ProgramInviteComponent users={users} groups={groups} />,
+                                link: () => <ProgramObjectAssociationComponent risks={risks} policies={policies} procedures={procedures} />,
+                                review: () => <ProgramReviewComponent users={users} groups={groups} risks={risks} policies={policies} procedures={procedures} />,
+                            })}
+                        </div>
+                        <div className={buttonRow()}>
+                            {!stepper.isLast ? (
+                                <>
+                                    <Button
+                                        onClick={stepper.prev}
+                                        disabled={stepper.isFirst}
+                                    >
+                                        Back
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        disabled={!isValid}
+                                    >
+                                        Next
+                                    </Button>
+                                </>
+                            ) : (
+                                <Button onClick={handleFormSubmit}>Create Program</Button>
+                            )}
+                        </div>
+                    </form>
+                </Card>
+                {error && <div >{error.message}</div>}
+            </FormProvider>
+        </div >
     )
 }
 

@@ -16,7 +16,7 @@ mutation UpdateInternalPolicy($updateInternalPolicyId: ID!, $input: UpdateIntern
   }
 }
 
-query GetAllInternalPolicies {
+query GetAllInternalPoliciesWithDetails {
   internalPolicies {
     edges {
       node {
@@ -33,6 +33,17 @@ query GetAllInternalPolicies {
         createdAt
         createdBy
         tags
+      }
+    }
+  }
+}
+
+query GetAllInternalPolicies {
+  internalPolicies {
+    edges {
+      node {
+        id
+        name
       }
     }
   }

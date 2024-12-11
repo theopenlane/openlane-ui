@@ -2,21 +2,33 @@
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@repo/ui/dialog"
 import { ProgramWizard } from "./wizard"
-import { ArrowUpRightIcon } from "lucide-react"
+import { ArrowUpRightIcon, InfoIcon } from "lucide-react"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@repo/ui/tooltip"
+import { dialogStyles } from "./dialog.styles"
 
 const ProgramCreate = () => {
+    const { dialogContent, dialogTrigger, title } = dialogStyles()
     return (
         <>
-            <Dialog >
-                <DialogTrigger className="flex h-12 rounded-md text-base px-5 bg-java-400 dark:bg-java-400 hover:!opacity-90 text-oxford-blue-100 dark:text-oxford-blue-900 relative group font-sans font-semibold text-oxford-blue-900 inline-flex items-center gap-2 justify-center whitespace-nowrap rounded-md leading-none transition-all duration-500 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-oxford-blue-300 disabled:pointer-events-none disabled:opacity-50">
+            <Dialog>
+                <DialogTrigger className={dialogTrigger()}>
                     Create Program <ArrowUpRightIcon className="h-4 w-4" />
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className={dialogContent()}>
                     <DialogHeader>
-                        <DialogTitle className="text-2xl">Create a New Program</DialogTitle>
-                        <DialogDescription>
-                            Create a new program to manage your compliance activities.
-                        </DialogDescription>
+                        <DialogTitle className={title()}>Create a New Program
+                            <TooltipProvider disableHoverableContent={true}>
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <InfoIcon size={14} className='mx-1' />
+                                    </TooltipTrigger>
+                                    <TooltipContent side='right'>
+                                        <p>Programs are used to manage an audit for a specific framework over a specified period.
+                                            This wizard will guide you through the process of creating a new program.</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        </DialogTitle>
                     </DialogHeader>
                     <ProgramWizard />
                 </DialogContent>

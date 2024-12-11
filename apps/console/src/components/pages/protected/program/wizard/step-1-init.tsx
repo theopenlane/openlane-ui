@@ -10,6 +10,7 @@ import { z, infer as zInfer } from 'zod'
 import { InfoIcon } from 'lucide-react';
 import { wizardStyles } from './wizard.styles';
 import { Grid, GridRow, GridCell } from '@repo/ui/grid';
+import { supportedFrameworks } from '../frameworks';
 
 export const initProgramSchema = z.object({
     name: z.string().min(1, { message: 'Name is required' }),
@@ -39,10 +40,10 @@ export function ProgramInitComponent() {
             <Grid className='grow'>
                 <GridRow columns={2}>
                     <GridCell className={formRow()}>
-                        <NameField />
+                        <FrameworkSelect />
                     </GridCell>
                     <GridCell className={formRow()}>
-                        <FrameworkSelect />
+                        <NameField />
                     </GridCell>
                 </GridRow>
                 <GridRow columns={2}>
@@ -59,7 +60,7 @@ export function ProgramInitComponent() {
 }
 
 const NameField = () => {
-    const { register, control, formState: { errors }, } = useFormContext<InitProgramValues>();
+    const { register, control, formState: { errors }, getValues } = useFormContext<InitProgramValues>();
     const { inputRow } = wizardStyles();
 
     return (
@@ -70,7 +71,7 @@ const NameField = () => {
                 <FormItem>
                     <FormLabel>Name<span className="text-red-500"> *</span>
                         <TooltipProvider>
-                            <Tooltip disableHoverableContent={true}>
+                            <Tooltip>
                                 <TooltipTrigger>
                                     <InfoIcon size={14} className='mx-1' />
                                 </TooltipTrigger>
@@ -81,7 +82,7 @@ const NameField = () => {
                         </TooltipProvider>
                     </FormLabel>
                     <FormControl>
-                        <Input className={inputRow()} variant="medium" type="string" {...field} required value={field.value || ''} />
+                        <Input className={inputRow()} variant="medium" type="string" {...field} required value={field.value || getValues().framework} />
                     </FormControl>
                     {errors.name && (
                         <FormMessage>{errors.name.message}</FormMessage>
@@ -93,7 +94,7 @@ const NameField = () => {
 }
 
 const FrameworkSelect = () => {
-    const { register, control, formState: { errors }, } = useFormContext<InitProgramValues>();
+    const { register, control, formState: { errors }, setValue, trigger } = useFormContext<InitProgramValues>();
     const { inputRow } = wizardStyles();
 
     return (
@@ -117,17 +118,32 @@ const FrameworkSelect = () => {
                     <FormControl>
                         <Select
                             value={field.value}
-                            onValueChange={field.onChange}
+                            onValueChange={(value) => {
+                                field.onChange(value);
+                                setValue('name', value);
+                                trigger('name');
+                            }}
                             required
                         >
                             <SelectTrigger className={inputRow()}>
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="SOC2">SOC2</SelectItem>
-                                <SelectItem value="IS027001">IS027001</SelectItem>
-                                <SelectItem value="FedRAMP">FedRAMP</SelectItem>
-                                <SelectItem value="Custom">Custom Framework</SelectItem>
+                                {supportedFrameworks.map((framework) => (
+                                    <SelectItem key={framework.shortname} value={framework.shortname}>
+                                        {framework.shortname} {(framework.version) ? `  (${framework.version})` : ''}
+                                        <TooltipProvider>
+                                            <Tooltip>
+                                                <TooltipTrigger>
+                                                    <InfoIcon size={14} className='mx-1' />
+                                                </TooltipTrigger>
+                                                <TooltipContent side='bottom'>
+                                                    <p>{framework.name} - {framework.description}</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        </TooltipProvider>
+                                    </SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                     </FormControl>
@@ -141,7 +157,7 @@ const FrameworkSelect = () => {
 }
 
 const DescriptionField = () => {
-    const { register, control, formState: { errors }, } = useFormContext<InitProgramValues>();
+    const { register, control, formState: { errors } } = useFormContext<InitProgramValues>();
     const { longTextRow } = wizardStyles();
 
     return (

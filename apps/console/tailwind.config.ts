@@ -11,14 +11,23 @@ const config: Pick<
   content: ['./src/app/**/*.tsx', './src/components/**/*.tsx'],
   presets: [sharedConfig],
   theme: {
-    keyframes: {
-      'accordion-down': {
-        from: { height: '0' },
-        to: { height: 'var(--radix-accordion-content-height)' },
+    extend: {
+      colors: {
+        'regal-blue': '#0D1117',
       },
-      'accordion-up': {
-        from: { height: 'var(--radix-accordion-content-height)' },
-        to: { height: '0' },
+      'ringColor': {
+        '0%': { stroke: 'var(--java-400)' },
+        '100%': { stroke: 'var(--java-400)' },
+      },
+      keyframes: {
+        'accordion-down': {
+          from: { height: '0' },
+          to: { height: 'var(--radix-accordion-content-height)' },
+        },
+        'accordion-up': {
+          from: { height: 'var(--radix-accordion-content-height)' },
+          to: { height: '0' },
+        },
       },
     },
     animation: {
