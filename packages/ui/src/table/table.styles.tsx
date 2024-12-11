@@ -11,7 +11,7 @@ export const tableStyles = tv({
     tableRow:
       'border-b border-oxford-blue-200 dark:border-oxford-blue-700 transition-colors data-[state=selected]:bg-java-500',
     tableHead:
-      'h-12 px-4 text-left align-middle font-medium text-java-500 [&:has([role=checkbox])]:pr-0 dark:text-ziggurat-400',
+      'h-12 px-4 text-left align-middle font-medium text-neutral-800 [&:has([role=checkbox])]:pr-0 dark:text-neutral-300',
     tableCell:
       'p-4 text-firefly-950 dark:text-ziggurat-200 align-middle [&:has([role=checkbox])]:pr-0',
     tableCaption: 'mt-4 text-sm text-ziggurat-500 dark:text-ziggurat-400',

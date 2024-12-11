@@ -89,7 +89,7 @@ const OrganizationDelete = async () => {
                   <Button variant="outline">Cancel</Button>
                 </AlertDialogCancel>
                 <AlertDialogAction asChild>
-                  <Button variant="aquamarine" onClick={clickHandler}>
+                  <Button variant="filled" onClick={clickHandler}>
                     Delete organization
                   </Button>
                 </AlertDialogAction>

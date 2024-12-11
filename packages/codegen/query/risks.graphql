@@ -1,0 +1,10 @@
+query GetAllRisks {
+  risks {
+    edges {
+      node {
+        id
+        name
+      }
+    }
+  }
+}

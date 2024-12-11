@@ -27,7 +27,7 @@ const meta: Meta<typeof Dialog> = {
     return (
       <Dialog>
         <DialogTrigger asChild>
-          <Button variant="aquamarine" size="md">
+          <Button variant="filled" size="md">
             Open Dialog
           </Button>
         </DialogTrigger>
@@ -42,7 +42,7 @@ const meta: Meta<typeof Dialog> = {
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
-            <Button variant="aquamarine">Delete</Button>
+            <Button variant="filled">Delete</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -60,7 +60,7 @@ export const ConfirmationDialog: Story = {
     return (
       <Dialog>
         <DialogTrigger asChild>
-          <Button variant="aquamarine" size="md">
+          <Button variant="filled" size="md">
             Confirm Action
           </Button>
         </DialogTrigger>
@@ -76,7 +76,7 @@ export const ConfirmationDialog: Story = {
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
-            <Button variant="aquamarine">Proceed</Button>
+            <Button variant="filled">Proceed</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

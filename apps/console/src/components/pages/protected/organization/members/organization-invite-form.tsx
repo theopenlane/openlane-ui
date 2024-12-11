@@ -31,8 +31,6 @@ import {
   useCreateBulkInviteMutation,
 } from '@repo/codegen/src/schema'
 import { useGqlError } from '@/hooks/useGqlError'
-import { userCanInviteAdmins } from '@/lib/authz/utils'
-import { useSession } from 'next-auth/react'
 
 const formSchema = z.object({
   emails: z.array(z.string().email({ message: 'Invalid email address' })),

@@ -28,7 +28,7 @@ const meta: Meta<typeof AlertDialog> = {
     return (
       <AlertDialog>
         <AlertDialogTrigger asChild>
-          <Button variant="aquamarine" size="md">
+          <Button variant="filled" size="md">
             Open AlertDialog
           </Button>
         </AlertDialogTrigger>
@@ -45,7 +45,7 @@ const meta: Meta<typeof AlertDialog> = {
               <Button variant="outline">Cancel</Button>
             </AlertDialogCancel>
             <AlertDialogAction asChild>
-              <Button variant="aquamarine">Continue</Button>
+              <Button variant="filled">Continue</Button>
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -64,7 +64,7 @@ export const ConfirmationAlertDialog: Story = {
     return (
       <AlertDialog>
         <AlertDialogTrigger asChild>
-          <Button variant="aquamarine" size="md">
+          <Button variant="filled" size="md">
             Confirm Action
           </Button>
         </AlertDialogTrigger>
@@ -81,7 +81,7 @@ export const ConfirmationAlertDialog: Story = {
               <Button variant="outline">Cancel</Button>
             </AlertDialogCancel>
             <AlertDialogAction asChild>
-              <Button variant="aquamarine">Proceed</Button>
+              <Button variant="filled">Proceed</Button>
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -191,7 +191,7 @@ export const SignupPage = () => {
           <Label htmlFor="username">Email</Label>
           <Input
             name="email"
-            placeholder="email@domain.net"
+            placeholder="email@domain.com"
             autoComplete='email'
             required
             type="email"
@@ -207,12 +207,12 @@ export const SignupPage = () => {
                 autoComplete='new-password'
                 required
               />
-            <PasswordInput
-              name="confirmedPassword"
-              placeholder="confirm password"
-              autoComplete='new-password'
-              required
-            />
+              <PasswordInput
+                name="confirmedPassword"
+                placeholder="confirm password"
+                autoComplete='new-password'
+                required
+              />
             </div>
           </>
         )}

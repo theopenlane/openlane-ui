@@ -16,7 +16,7 @@ mutation UpdateProcedure($updateProcedureId: ID!, $input: UpdateProcedureInput!)
   }
 }
 
-query GetAllProcedures {
+query GetAllProceduresWithDetails {
   procedures {
     edges {
       node {
@@ -34,6 +34,17 @@ query GetAllProcedures {
         createdAt
         createdBy
         tags
+      }
+    }
+  }
+}
+
+query GetAllProcedures {
+  procedures {
+    edges {
+      node {
+        id
+        name
       }
     }
   }

@@ -15,7 +15,7 @@ const AuthLogin: React.FC = () => {
     <>
       <div className={content()}>
         <div className={logo()}>
-          <Logo width={300} theme='light'/>
+          <Logo width={300} theme='light' />
         </div>
         <Tabs
           variant="underline"

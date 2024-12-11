@@ -28,6 +28,14 @@ export const config: Omit<Config, 'content'> = {
         heading: '-0.038rem',
       },
       colors: {
+        foreground: {
+          DEFAULT: '#082930',
+          dark: '#aabec5',
+        },
+        background: {
+          DEFAULT: '#e9f1f5',
+          dark: '#0D1117',
+        },
         aquamarine: {
           '50': '#e8fff9',
           '100': '#c8ffef',
@@ -91,7 +99,7 @@ export const config: Omit<Config, 'content'> = {
           '600': '#416379',
           '700': '#395365',
           '800': '#354755',
-          '900': '#303e4a', // dark: background color
+          '900': '#303e4a',
           '950': '#1c2630',
         },
         glaucous: {

@@ -6,7 +6,7 @@ export const avatarStyles = tv({
       'relative flex h-8 w-8 shrink-0 overflow-hidden border-none rounded-md p-0',
     avatarImage: 'aspect-square h-full w-full',
     avatarFallBack:
-      'uppercase flex h-full w-full items-center justify-center rounded-md bg-aquamarine-400 text-white',
+      'uppercase flex h-full w-full items-center justify-center rounded-md bg-java-400 text-white',
   },
   variants: {
     size: {

@@ -11,7 +11,7 @@ export const toastStyles = tv({
     toastDestructive:
       'destructive group border-red-300 bg-red-100 text-red-500 dark:border-red-300 dark:bg-red-100 dark:text-red-500',
     toastSuccess:
-      'group border-aquamarine-600 bg-aquamarine-300 text-aquamarine-800 dark:border-aquamarine-200 dark:bg-aquamarine-100 dark:text-aquamarine-500',
+      'group border-aquamarine-600 bg-java-300 text-java-900 dark:border-aquamarine-200 dark:bg-java-100',
     action:
       'inline-flex h-8 shrink-0 items-center justify-center rounded-md border border-ziggurat-200 bg-transparent px-3 text-sm font-medium ring-offset-white transition-colors hover:bg-ziggurat-100 focus:outline-none focus:ring-2 focus:ring-ziggurat-950 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-ziggurat-100/40 group-[.destructive]:hover:border-red-500/30 group-[.destructive]:hover:bg-red-500 group-[.destructive]:hover:text-ziggurat-50 group-[.destructive]:focus:ring-red-500 dark:border-ziggurat-800 dark:ring-offset-ziggurat-950 dark:hover:bg-ziggurat-800 dark:focus:ring-ziggurat-300 dark:group-[.destructive]:border-ziggurat-800/40 dark:group-[.destructive]:hover:border-red-900/30 dark:group-[.destructive]:hover:bg-red-900 dark:group-[.destructive]:hover:text-ziggurat-50 dark:group-[.destructive]:focus:ring-red-900',
     close:

@@ -6,7 +6,7 @@ export const pageStyles = tv({
     actionIcon: 'text-java-400',
     inviteRow: 'flex items-center justify-center gap-[10px]',
     inviteCount:
-      'flex items-center justify-center bg-aquamarine-400 text-[11px] font-semibold rounded-[5px] w-[19px] h-[19px] text-white',
+      'flex items-center justify-center bg-java-400 text-[11px] font-semibold rounded-[5px] w-[19px] h-[19px] text-white',
     membersSearchRow: 'flex justify-between mb-[26px]',
     membersSearchField: '',
     membersButtons: '',

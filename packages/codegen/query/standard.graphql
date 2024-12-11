@@ -1,0 +1,7 @@
+mutation CreateStandard($input: CreateStandardInput!) {
+  createStandard(input: $input) {
+    standard {
+      id
+    }
+  }
+}

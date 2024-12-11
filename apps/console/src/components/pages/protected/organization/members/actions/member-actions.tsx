@@ -40,11 +40,11 @@ const ICON_SIZE = 12
 
 export const MemberActions = ({
   memberId: memberId,
-  refetchMembers: refetechMembers,
+  refetchMembers: refetchMembers,
 }: MemberActionsProps) => {
   const { actionIcon, roleRow, buttonRow } = pageStyles()
   const { toast } = useToast()
-  const [ _, deleteMember] = useRemoveUserFromOrgMutation()
+  const [_, deleteMember] = useRemoveUserFromOrgMutation()
 
   const handleDeleteMember = async () => {
     const response = await deleteMember({ deleteOrgMembershipId: memberId })
@@ -61,7 +61,7 @@ export const MemberActions = ({
         title: 'Member deleted successfully',
         variant: 'success',
       })
-      refetechMembers({
+      refetchMembers({
         requestPolicy: 'network-only',
       })
     }
@@ -83,7 +83,7 @@ export const MemberActions = ({
         title: 'Role changed successfully',
         variant: 'success',
       })
-      refetechMembers({
+      refetchMembers({
         requestPolicy: 'network-only',
       })
     }
@@ -122,12 +122,12 @@ export const MemberActions = ({
       <DropdownMenuContent className="w-10">
         <DropdownMenuGroup>
           <DropdownMenuItem onSelect={(e) => {
-              e.preventDefault();
-            }} >
+            e.preventDefault();
+          }} >
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <div style={{ display: 'flex' }}>
-                <Trash2 width={ICON_SIZE} />  &nbsp; Remove Member
+                  <Trash2 width={ICON_SIZE} />  &nbsp; Remove Member
                 </div>
               </AlertDialogTrigger>
               <AlertDialogContent>
@@ -142,7 +142,7 @@ export const MemberActions = ({
                     <Button variant="outline">Cancel</Button>
                   </AlertDialogCancel>
                   <AlertDialogAction asChild>
-                    <Button variant="aquamarine" onClick={handleDeleteMember}>
+                    <Button variant="filled" onClick={handleDeleteMember}>
                       Remove Member
                     </Button>
                   </AlertDialogAction>
@@ -153,19 +153,19 @@ export const MemberActions = ({
         </DropdownMenuGroup>
         <DropdownMenuGroup>
           <DropdownMenuItem onSelect={(e) => {
-              e.preventDefault();
-            }} >
+            e.preventDefault();
+          }} >
             <AlertDialog>
               <AlertDialogTrigger asChild>
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <UserRoundPen width={ICON_SIZE} /> &nbsp; Change Role
-              </div>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <UserRoundPen width={ICON_SIZE} /> &nbsp; Change Role
+                </div>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>Change Role</AlertDialogTitle>
                   <AlertDialogDescription>
-                      Change the role of the member in the organization.
+                    Change the role of the member in the organization.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <div className={roleRow()}>
@@ -175,43 +175,43 @@ export const MemberActions = ({
                       name="role"
                       control={control}
                       render={({ field }) => (
-                      <FormItem>
-                      <FormControl>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select role" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.entries(OrgMembershipRole)
-                          .reverse()
-                          .filter(([key]) => !key.includes('USER'))
-                          .map(([key, value], i) => (
-                            <SelectItem key={i} value={value}>
-                            {key[0].toUpperCase() +
-                              key.slice(1).toLowerCase()}
-                            </SelectItem>
-                          ))
-                          }
-                        </SelectContent>
-                        </Select>
-                      </FormControl>
-                      </FormItem>
+                        <FormItem>
+                          <FormControl>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select role" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {Object.entries(OrgMembershipRole)
+                                  .reverse()
+                                  .filter(([key]) => !key.includes('USER'))
+                                  .map(([key, value], i) => (
+                                    <SelectItem key={i} value={value}>
+                                      {key[0].toUpperCase() +
+                                        key.slice(1).toLowerCase()}
+                                    </SelectItem>
+                                  ))
+                                }
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                        </FormItem>
                       )}
-                      />
-                    </Form>
-                  </div>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel asChild>
-                      <Button variant="outline">Cancel</Button>
-                    </AlertDialogCancel>
-                    <AlertDialogAction asChild>
-                      <Button variant="aquamarine" onClick={handleSubmit((data) => handleChangeRole(data.role))}>
-                        Change Role
-                      </Button>
-                    </AlertDialogAction>
+                    />
+                  </Form>
+                </div>
+                <AlertDialogFooter>
+                  <AlertDialogCancel asChild>
+                    <Button variant="outline">Cancel</Button>
+                  </AlertDialogCancel>
+                  <AlertDialogAction asChild>
+                    <Button variant="filled" onClick={handleSubmit((data) => handleChangeRole(data.role))}>
+                      Change Role
+                    </Button>
+                  </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>

@@ -1,6 +1,6 @@
 'use client'
 
-import { Edit, MoreHorizontal, Trash2} from 'lucide-react'
+import { Edit, MoreHorizontal, Trash2 } from 'lucide-react'
 import { useToast } from '@repo/ui/use-toast'
 import { pageStyles } from '../page.styles'
 import {
@@ -58,61 +58,61 @@ export const Actions = ({
     // }
 
     // if (response.data) {
-      toast({
-        title: 'Questionnaire deleted successfully',
-        variant: 'success',
-      })
-      // refetchProcedures({
-      //   requestProcedure: 'network-only',
-      // })
+    toast({
+      title: 'Questionnaire deleted successfully',
+      variant: 'success',
+    })
+    // refetchProcedures({
+    //   requestProcedure: 'network-only',
+    // })
     // }
   }
 
   return (
     <>
-    <DropdownMenu modal={false}>
-      <DropdownMenuTrigger asChild>
-        <MoreHorizontal className={actionIcon()} />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-10">
-        <DropdownMenuGroup>
-          <DropdownMenuItem onSelect={handleEditProcedure}>
-            <Edit width={ICON_SIZE} /> Edit
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => {
+      <DropdownMenu modal={false}>
+        <DropdownMenuTrigger asChild>
+          <MoreHorizontal className={actionIcon()} />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-10">
+          <DropdownMenuGroup>
+            <DropdownMenuItem onSelect={handleEditProcedure}>
+              <Edit width={ICON_SIZE} /> Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => {
               setIsDeleteDialogOpen(true);
             }} >
               <Trash2 width={ICON_SIZE} /> Delete
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
 
-    <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This action cannot be undone, this will permanently remove the procedure from the organization.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel asChild>
-            <Button variant="outline">Cancel</Button>
-          </AlertDialogCancel>
-          <AlertDialogAction asChild>
-            <Button variant="aquamarine" onClick={handleDeleteProcedure} onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              handleDeleteProcedure();
-            }
-            }}>
-            Delete Procedure
-            </Button>
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone, this will permanently remove the procedure from the organization.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel asChild>
+              <Button variant="outline">Cancel</Button>
+            </AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <Button variant="filled" onClick={handleDeleteProcedure} onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleDeleteProcedure();
+                }
+              }}>
+                Delete Procedure
+              </Button>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   )
 }
