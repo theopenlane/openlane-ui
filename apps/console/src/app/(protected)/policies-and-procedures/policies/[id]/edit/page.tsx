@@ -55,6 +55,7 @@ const Page: NextPage<PageProps> = ({ params }) => {
         background: policy.background,
         policyType: policy.policyType,
         purposeAndScope: policy.purposeAndScope,
+        details: policy.details,
       },
     })
 

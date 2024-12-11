@@ -37,6 +37,7 @@ const Page: NextPage<PageProps> = () => {
         background: policy.background,
         policyType: policy.policyType,
         purposeAndScope: policy.purposeAndScope,
+        details: policy.details,
       },
     })
     if (error) {

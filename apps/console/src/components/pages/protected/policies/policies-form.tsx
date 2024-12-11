@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -27,6 +27,9 @@ const PolicyFormSchema = z.object({
   purposeAndScope: z.string().optional(),
   policyType: z.string().optional(),
   background: z.string().optional(),
+  details: z.object({
+    content: z.any(),
+  }),
 })
 
 export type PolicyFormSchema = z.infer<typeof PolicyFormSchema>
@@ -41,26 +44,38 @@ export const PoliciesForm: React.FC<Props> = ({ onSubmit, policy }) => {
     resolver: zodResolver(PolicyFormSchema),
     defaultValues: {
       name: policy?.name || '',
-      description: policy?.description,
-      purposeAndScope: policy?.purposeAndScope,
-      policyType: policy?.policyType,
-      background: policy?.background,
-      details: policy?.details,
+      description: policy?.description || '',
+      purposeAndScope: policy?.purposeAndScope || '',
+      policyType: policy?.policyType || '',
+      background: policy?.background || '',
+      details: policy?.details || {},
     },
   })
 
+  const [content, setContent] = useState(policy?.details?.content || {})
+
   useEffect(() => {
     form.setValue('name', policy?.name || '')
-    form.setValue('description', policy?.description)
-    form.setValue('purposeAndScope', policy?.purposeAndScope)
-    form.setValue('policyType', policy?.policyType)
-    form.setValue('background', policy?.background)
-    form.setValue('details', policy?.details)
+    form.setValue('description', policy?.description || '')
+    form.setValue('purposeAndScope', policy?.purposeAndScope || '')
+    form.setValue('policyType', policy?.policyType || '')
+    form.setValue('background', policy?.background || '')
+    form.setValue('details', policy?.details || {})
+    setContent(policy?.details?.content || {})
   }, [policy])
+
+  const onContentChange = (e) => {
+    const details = { content: e }
+    console.log('setting details', details)
+    form.setValue('details', details)
+  }
 
   return (
     <>
-      <pre>{JSON.stringify(policy, null, 2)}</pre>
+      <div className="flex">
+        <pre>{JSON.stringify(policy, null, 2)}</pre>
+        <pre>{JSON.stringify(form.control._formValues, null, 2)}</pre>
+      </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <InputRow>
@@ -143,7 +158,7 @@ export const PoliciesForm: React.FC<Props> = ({ onSubmit, policy }) => {
       </Form>
 
       <div className="h-[90%]">
-        <PlateEditor />
+        <PlateEditor onChange={onContentChange} content={content} />
       </div>
     </>
   )
