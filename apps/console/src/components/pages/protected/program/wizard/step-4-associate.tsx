@@ -2,17 +2,16 @@
 import { Controller, useFormContext } from 'react-hook-form'
 import { z, infer as zInfer } from 'zod'
 import { Panel, PanelHeader } from '@repo/ui/panel';
-import { Grid, GridRow, GridCell } from '@repo/ui/grid';
+import { Grid } from '@repo/ui/grid';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip';
 import { CheckIcon, ChevronsUpDownIcon, InfoIcon } from 'lucide-react';
-import { Card, CardHeader } from '@repo/ui/cardpanel';
+import { Card } from '@repo/ui/cardpanel';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form';
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover';
 import { Button } from '@repo/ui/button';
 import { cn } from '@repo/ui/lib/utils';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command';
 import { Node } from '../nodes';
-import { CheckboxIcon } from '@radix-ui/react-icons';
 import { Checkbox } from '@repo/ui/checkbox';
 
 type ObjectAssociationProps = { risks: Node[], policies: Node[], procedures: Node[] }
@@ -24,7 +23,7 @@ export const programObjectAssociationSchema = z.object({
     useTemplate: z.boolean().optional().default(false)
 })
 
-type ProgramObjectAssociationValues = z.infer<typeof programObjectAssociationSchema>;
+type ProgramObjectAssociationValues = zInfer<typeof programObjectAssociationSchema>;
 
 export const ProgramObjectAssociationComponent: React.FC<ObjectAssociationProps> = ({ risks, policies, procedures }) => {
     return (

@@ -5,7 +5,7 @@ import { wizardStyles } from './wizard.styles';
 import { Grid, GridRow, GridCell } from '@repo/ui/grid';
 import { format } from 'date-fns'
 
-import { Node, nodeMapper } from '../nodes';
+import { Node } from '../nodes';
 import { Card } from '@repo/ui/cardpanel';
 import { CheckIcon, InfoIcon, TriangleAlertIcon, XIcon } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip';
