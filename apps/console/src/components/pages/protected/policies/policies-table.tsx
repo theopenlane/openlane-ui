@@ -10,7 +10,7 @@ import { useState, useEffect } from 'react'
 import { Input } from '@repo/ui/input'
 import { pageStyles } from './page.styles'
 import { Actions } from './actions/actions'
-import { useGetAllInternalPoliciesQuery } from '@repo/codegen/src/schema'
+import { useGetInternalPoliciesListQuery } from '@repo/codegen/src/schema'
 import Link from 'next/link'
 
 type PoliciesEdge = any
@@ -23,7 +23,7 @@ export const PoliciesTable = () => {
 
   const [filteredPolicies, setFilteredPolicies] = useState<Policies[]>([])
 
-  const [result] = useGetAllInternalPoliciesQuery()
+  const [result] = useGetInternalPoliciesListQuery()
   const { data, fetching, error } = result
 
   useEffect(() => {
