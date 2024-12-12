@@ -19,8 +19,8 @@ import PlateConfig from './plate-config'
 const editor = createPlateEditor(Object.assign({}, PlateConfig, { value: '' }))
 
 type Props = {
-  content: Value
-  onChange: (content: Value[]) => void
+  content?: Value
+  onChange?: (content: Value) => void
 }
 
 export default function PlateEditor({ content, onChange }: Props) {
@@ -30,8 +30,8 @@ export default function PlateEditor({ content, onChange }: Props) {
     }
   }, [content])
 
-  const handleChange = ({ value }: { value: Value[] }) => {
-    onChange(value)
+  const handleChange = ({ value }: { value: Value }) => {
+    if (onChange) onChange(value)
   }
 
   return (
