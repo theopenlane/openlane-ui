@@ -2,15 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
-import {
-  PoliciesForm,
-  PolicyFormSchema,
-} from '@/components/pages/protected/policies/policies-form'
+import { PoliciesForm, PolicyFormSchema } from '@/components/pages/protected/policies/policies-form'
 import { NextPage, NextPageContext } from 'next'
-import {
-  useGetInternalPolicyDetailsByIdQuery,
-  useUpdateInternalPolicyMutation,
-} from '@repo/codegen/src/schema'
+import { useGetInternalPolicyDetailsByIdQuery, useUpdateInternalPolicyMutation } from '@repo/codegen/src/schema'
 import { useRouter } from 'next/navigation'
 
 type PageProps = {
@@ -20,9 +14,7 @@ type PageProps = {
 const Page: NextPage<PageProps> = ({ params }) => {
   const router = useRouter()
 
-  const [result] = useGetInternalPolicyDetailsByIdQuery({
-    variables: { internalPolicyId: params.id },
-  })
+  const [result] = useGetInternalPolicyDetailsByIdQuery({ variables: { internalPolicyId: params.id } })
   const { data, fetching, error } = result
   const [policyModel, setPolicyModel] = useState({ name: '' })
 
@@ -32,21 +24,9 @@ const Page: NextPage<PageProps> = ({ params }) => {
     }
   }, [data])
 
-  const [{ fetching: isSubmitting }, updatePolicy] =
-    useUpdateInternalPolicyMutation()
-
-  // const onSubmit = (data: z.infer<typeof PolicyFormSchema>) => {
-  //   updatePolicy({
-  //     name: data.name,
-  //     description: data.description,
-  //     purposeAndScope: data.purposeAndScope,
-  //     policyType: data.policyType,
-  //     background: data.background,
-  //   })
-  // }
+  const [{ fetching: isSubmitting }, updatePolicy] = useUpdateInternalPolicyMutation()
 
   const onSubmit = async (policy: PolicyFormSchema) => {
-    console.log('onSubmit: updating policy', policy)
     const { data, error } = await updatePolicy({
       updateInternalPolicyId: params.id,
       input: {
@@ -70,18 +50,13 @@ const Page: NextPage<PageProps> = ({ params }) => {
     }
 
     // load the policy page
-    router.push(
-      '/policies-and-procedures/policies/' +
-        data?.updateInternalPolicy.internalPolicy.id,
-    )
+    router.push('/policies-and-procedures/policies/' + data?.updateInternalPolicy.internalPolicy.id)
   }
 
   return (
     <>
       <PageHeading eyebrow="Policies & Procedures" heading="Edit Policy" />
-      {data?.internalPolicy.id && (
-        <PoliciesForm onSubmit={onSubmit} policy={policyModel} />
-      )}
+      {data?.internalPolicy.id && <PoliciesForm onSubmit={onSubmit} policy={policyModel} />}
     </>
   )
 }
