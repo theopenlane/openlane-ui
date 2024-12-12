@@ -49,7 +49,6 @@ export const PoliciesTable = () => {
     router.push(`/policies-and-procedures/editor?id=${policyId}`)
   }
 
-  // TODO: add table once backend is ready
   const columns: ColumnDef<Policies>[] = [
     {
       accessorKey: 'name',
