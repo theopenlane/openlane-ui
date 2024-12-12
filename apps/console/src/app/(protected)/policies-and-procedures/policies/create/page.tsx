@@ -29,7 +29,6 @@ const Page: NextPage<PageProps> = () => {
   // }
 
   const onSubmit = async (policy: PolicyFormSchema) => {
-    console.log('onSubmit: creating policy', policy)
     const { data, error } = await createPolicy({
       input: {
         name: policy.name,
