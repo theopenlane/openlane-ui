@@ -50,7 +50,7 @@ const OrganizationNameForm = () => {
         displayName: currentOrganization.displayName,
       })
     }
-  }, [currentOrganization, form])
+  }, [currentOrganization])
 
   const updateOrganization = async ({ displayName }: { displayName: string }) => {
     await updateOrg({
@@ -62,8 +62,8 @@ const OrganizationNameForm = () => {
     setIsSuccess(true)
   }
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    updateOrganization({ displayName: data.displayName })
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    await updateOrganization({ displayName: data.displayName })
   }
 
   useEffect(() => {

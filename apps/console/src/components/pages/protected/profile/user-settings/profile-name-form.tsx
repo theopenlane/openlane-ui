@@ -62,7 +62,7 @@ const ProfileNameForm = () => {
         lastName: userData.user.lastName ?? '',
       })
     }
-  }, [userData, form])
+  }, [userData])
 
   const updateName = async ({
     firstName,
@@ -81,8 +81,8 @@ const ProfileNameForm = () => {
     setIsSuccess(true)
   }
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    updateName({ firstName: data.firstName, lastName: data.lastName })
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    await updateName({ firstName: data.firstName, lastName: data.lastName })
   }
 
   useEffect(() => {
