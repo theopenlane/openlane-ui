@@ -1,25 +1,18 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import { Input, InputRow } from '@repo/ui/input'
 import dynamic from 'next/dynamic'
+
+import { z } from 'zod'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Input, InputRow } from '@repo/ui/input'
+import { Value } from '@udecode/plate-common'
+
 import { Button } from '@repo/ui/button'
+import { Form, FormItem, FormField, FormControl, FormMessage, FormLabel } from '@repo/ui/form'
 
-import {
-  Form,
-  FormItem,
-  FormField,
-  FormControl,
-  FormMessage,
-  FormLabel,
-} from '@repo/ui/form'
-
-const PlateEditor = dynamic(() => import('@/components/shared/editor/plate'), {
-  ssr: false,
-})
+const PlateEditor = dynamic(() => import('@/components/shared/editor/plate'), { ssr: false })
 
 const PolicyFormSchema = z.object({
   name: z.string().min(3, { message: 'Name must be at least 5 chars' }),
@@ -27,9 +20,11 @@ const PolicyFormSchema = z.object({
   purposeAndScope: z.string().optional(),
   policyType: z.string().optional(),
   background: z.string().optional(),
-  details: z.object({
-    content: z.any(),
-  }),
+  details: z
+    .object({
+      content: z.array(z.any()),
+    })
+    .optional(),
 })
 
 export type PolicyFormSchema = z.infer<typeof PolicyFormSchema>
@@ -48,11 +43,11 @@ export const PoliciesForm: React.FC<Props> = ({ onSubmit, policy }) => {
       purposeAndScope: policy?.purposeAndScope || '',
       policyType: policy?.policyType || '',
       background: policy?.background || '',
-      details: policy?.details || {},
+      details: policy?.details || { content: [] },
     },
   })
 
-  const [content, setContent] = useState(policy?.details?.content || {})
+  const [content, setContent] = useState(policy?.details?.content || [])
 
   useEffect(() => {
     form.setValue('name', policy?.name || '')
@@ -60,22 +55,23 @@ export const PoliciesForm: React.FC<Props> = ({ onSubmit, policy }) => {
     form.setValue('purposeAndScope', policy?.purposeAndScope || '')
     form.setValue('policyType', policy?.policyType || '')
     form.setValue('background', policy?.background || '')
-    form.setValue('details', policy?.details || {})
-    setContent(policy?.details?.content || {})
+    form.setValue('details', policy?.details || { content: [] })
+    setContent(policy?.details?.content || [])
   }, [policy])
 
-  const onContentChange = (e) => {
+  const onContentChange = (e: Value) => {
     const details = { content: e }
-    console.log('setting details', details)
     form.setValue('details', details)
   }
 
   return (
     <>
-      <div className="flex">
-        <pre>{JSON.stringify(policy, null, 2)}</pre>
-        <pre>{JSON.stringify(form.control._formValues, null, 2)}</pre>
-      </div>
+      {false && (
+        <div className="flex">
+          <pre>{JSON.stringify(policy, null, 2)}</pre>
+          <pre>{JSON.stringify(form.control._formValues, null, 2)}</pre>
+        </div>
+      )}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <InputRow>
