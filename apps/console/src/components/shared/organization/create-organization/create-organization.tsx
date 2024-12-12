@@ -4,7 +4,7 @@ import { createOrganizationStyles } from './create-organization.styles'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { useToast } from '@repo/ui/use-toast'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, useFormContext } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { useSession } from 'next-auth/react'
 import {
   Form,

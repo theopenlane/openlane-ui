@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useSession } from 'next-auth/react'
-import { TaskWhereInput, useGetAllOrganizationsQuery, useGetAllProgramsQuery, useGetDashboardDataQuery, UserWhereInput, useTasksWithFilterQuery } from '@repo/codegen/src/schema'
+import { TaskWhereInput, useGetDashboardDataQuery, UserWhereInput } from '@repo/codegen/src/schema'
 import { Loading } from '@/components/shared/loading/loading'
 import { defaultLanding, newUserLanding } from '@/components/pages/protected/dashboard/dashboard'
 import { CreateOrganizationForm } from '@/components/shared/organization/create-organization/create-organization'

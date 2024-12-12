@@ -2,7 +2,7 @@ import Link from "next/link"
 import React from "react"
 
 import { Button } from "@repo/ui/button"
-import { Card, CardFooter } from "@repo/ui/cardpanel";
+import { Card } from "@repo/ui/cardpanel";
 import { Separator } from "@repo/ui/separator"
 import { Accordion, AccordionItem } from "@radix-ui/react-accordion"
 
