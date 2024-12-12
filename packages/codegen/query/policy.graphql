@@ -51,6 +51,25 @@ query GetAllInternalPoliciesWithDetails {
   }
 }
 
+query GetInternalPoliciesList {
+  internalPolicies {
+    edges {
+      node {
+        id
+        name
+        description
+        policyType
+        tags
+        version
+        updatedAt
+        updatedBy
+        createdAt
+        createdBy
+      }
+    }
+  }
+}
+
 query GetAllInternalPolicies {
   internalPolicies {
     edges {

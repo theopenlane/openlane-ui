@@ -17820,6 +17820,11 @@ export type GetAllInternalPoliciesWithDetailsQueryVariables = Exact<{ [key: stri
 
 export type GetAllInternalPoliciesWithDetailsQuery = { __typename?: 'Query', internalPolicies: { __typename?: 'InternalPolicyConnection', edges?: Array<{ __typename?: 'InternalPolicyEdge', node?: { __typename?: 'InternalPolicy', id: string, name: string, background?: string | null, description?: string | null, policyType?: string | null, purposeAndScope?: string | null, status?: string | null, version?: string | null, updatedAt?: any | null, updatedBy?: string | null, createdAt?: any | null, createdBy?: string | null, tags?: Array<string> | null } | null } | null> | null } };
 
+export type GetInternalPoliciesListQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetInternalPoliciesListQuery = { __typename?: 'Query', internalPolicies: { __typename?: 'InternalPolicyConnection', edges?: Array<{ __typename?: 'InternalPolicyEdge', node?: { __typename?: 'InternalPolicy', id: string, name: string, description?: string | null, policyType?: string | null, tags?: Array<string> | null, version?: string | null, updatedAt?: any | null, updatedBy?: string | null, createdAt?: any | null, createdBy?: string | null } | null } | null> | null } };
+
 export type GetAllInternalPoliciesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -18495,6 +18500,30 @@ export const GetAllInternalPoliciesWithDetailsDocument = gql`
 
 export function useGetAllInternalPoliciesWithDetailsQuery(options?: Omit<Urql.UseQueryArgs<GetAllInternalPoliciesWithDetailsQueryVariables>, 'query'>) {
   return Urql.useQuery<GetAllInternalPoliciesWithDetailsQuery, GetAllInternalPoliciesWithDetailsQueryVariables>({ query: GetAllInternalPoliciesWithDetailsDocument, ...options });
+};
+export const GetInternalPoliciesListDocument = gql`
+    query GetInternalPoliciesList {
+  internalPolicies {
+    edges {
+      node {
+        id
+        name
+        description
+        policyType
+        tags
+        version
+        updatedAt
+        updatedBy
+        createdAt
+        createdBy
+      }
+    }
+  }
+}
+    `;
+
+export function useGetInternalPoliciesListQuery(options?: Omit<Urql.UseQueryArgs<GetInternalPoliciesListQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetInternalPoliciesListQuery, GetInternalPoliciesListQueryVariables>({ query: GetInternalPoliciesListDocument, ...options });
 };
 export const GetAllInternalPoliciesDocument = gql`
     query GetAllInternalPolicies {
