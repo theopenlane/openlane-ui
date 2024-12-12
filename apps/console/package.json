@@ -21,6 +21,7 @@
     "@repo/ui": "workspace:*",
     "@simplewebauthn/browser": "^11.0.0",
     "@simplewebauthn/server": "^11.0.0",
+    "@stepperize/react": "^4.0.1",
     "@types/jsonwebtoken": "^9.0.6",
     "@uidotdev/usehooks": "^2.4.1",
     "graphql-request": "7.1.2",

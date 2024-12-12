@@ -31,7 +31,7 @@ export const gridStyles = tv({
   defaultVariants: {
     rows: 1,
     columns: 1,
-    gap: 9,
+    gap: 4,
   },
 })
 

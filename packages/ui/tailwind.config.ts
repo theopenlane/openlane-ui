@@ -13,21 +13,21 @@ const config: Pick<
   content: ['./src/**/*.tsx'],
   presets: [sharedConfig],
   theme: {
-  	extend: {
-  		borderRadius: {
-  			lg: 'var(--radius)',
-  			md: 'calc(var(--radius) - 2px)',
-  			sm: 'calc(var(--radius) - 4px)'
-  		},
-  		colors: {
-  			brand: {
-  				DEFAULT: 'hsl(var(--brand))',
-  				foreground: 'hsl(var(--brand-foreground))'
-  			},
-  			highlight: {
-  				DEFAULT: 'hsl(var(--highlight))',
-  				foreground: 'hsl(var(--highlight-foreground))'
-  			}
+    extend: {
+      borderRadius: {
+        lg: 'var(--radius)',
+        md: 'calc(var(--radius) - 2px)',
+        sm: 'calc(var(--radius) - 4px)'
+      },
+      colors: {
+        brand: {
+          DEFAULT: 'hsl(var(--brand))',
+          foreground: 'hsl(var(--brand-foreground))'
+        },
+        highlight: {
+          DEFAULT: 'hsl(var(--highlight))',
+          foreground: 'hsl(var(--highlight-foreground))'
+        }
       },
     }
   },

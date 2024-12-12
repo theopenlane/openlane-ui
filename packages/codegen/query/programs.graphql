@@ -1,5 +1,5 @@
-mutation CreateProgram($input: CreateProgramInput!) {
-  createProgram(input: $input) {
+mutation CreateProgramWithMembers($input: CreateProgramWithMembersInput!) {
+  createProgramWithMembers(input: $input) {
     program {
       id
       name
@@ -28,6 +28,54 @@ query GetAllPrograms {
         startDate
         endDate
         auditorReady
+      }
+    }
+  }
+}
+
+query GetProgramEdgesForWizard {
+  risks {
+    edges {
+      node {
+        id
+        name
+      }
+    }
+  }
+  procedures {
+    edges {
+      node {
+        id
+        name
+      }
+    }
+  }
+  internalPolicies {
+    edges {
+      node {
+        id
+        name
+      }
+    }
+  }
+  groups {
+    edges {
+      node {
+        id
+        name
+        displayName
+      }
+    }
+  }
+  orgMemberships {
+    edges {
+      node {
+        user{
+          id
+          firstName
+          lastName
+          role
+        }
       }
     }
   }

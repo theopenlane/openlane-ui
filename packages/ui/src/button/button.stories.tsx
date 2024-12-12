@@ -57,7 +57,7 @@ type Story = StoryObj<typeof meta>
 
 export const aquamarine: Story = {
   args: {
-    variant: 'aquamarine',
+    variant: 'filled',
   },
 }
 
@@ -70,7 +70,7 @@ export const Outline: Story = {
 
 export const Medium: Story = {
   args: {
-    variant: 'aquamarine',
+    variant: 'filled',
     size: 'md',
     icon: <ArrowUpRight />,
     iconAnimated: true,
@@ -79,7 +79,7 @@ export const Medium: Story = {
 
 export const Smallaquamarine: Story = {
   args: {
-    variant: 'aquamarine',
+    variant: 'filled',
     size: 'sm',
     icon: <ArrowRight />,
   },

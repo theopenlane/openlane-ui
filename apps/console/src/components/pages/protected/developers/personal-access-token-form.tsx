@@ -201,18 +201,18 @@ const PersonalAccessTokenForm = () => {
                   <FormItem>
                     <FormLabel>Authorized organization(s)</FormLabel>
                     <FormControl>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger onSelect={(e) => {
-                       e.preventDefault()
-                      }} asChild>
-                        <Button variant='outlineInput' full>
-                          {field.value && field.value.length > 0
-                          ? `${field.value.length} organization(s) selected`
-                          : 'Select organization(s)'}
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        {Object.entries(orgs)
+                      <DropdownMenu>
+                        <DropdownMenuTrigger onSelect={(e) => {
+                          e.preventDefault()
+                        }} asChild>
+                          <Button variant='outlineInput' full>
+                            {field.value && field.value.length > 0
+                              ? `${field.value.length} organization(s) selected`
+                              : 'Select organization(s)'}
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          {Object.entries(orgs)
                             .reverse()
                             .map(([key, value], i) => (
                               <DropdownMenuCheckboxItem
@@ -228,8 +228,8 @@ const PersonalAccessTokenForm = () => {
                                 }}
                                 onSelect={(e) => {
                                   e.preventDefault()
-                                 }}
-                                >
+                                }}
+                              >
                                 <Avatar variant="medium">
                                   {value?.node?.avatarRemoteURL && <AvatarImage src={value?.node?.avatarRemoteURL} />}
                                   <AvatarFallback>
@@ -240,11 +240,11 @@ const PersonalAccessTokenForm = () => {
                               </DropdownMenuCheckboxItem>
                             ))
                           }
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                </FormControl>
-                <Info>What organization(s) can this token be used to to act on behalf of?</Info>
-                </FormItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </FormControl>
+                    <Info>What organization(s) can this token be used to to act on behalf of?</Info>
+                  </FormItem>
                 )}
               />
               <FormField
