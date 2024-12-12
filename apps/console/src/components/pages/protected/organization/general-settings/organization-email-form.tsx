@@ -48,7 +48,7 @@ const OrganizationEmailForm = () => {
         email: currentOrg.setting?.billingEmail ?? undefined,
       })
     }
-  }, [currentOrg, form])
+  }, [currentOrg])
 
   const updateOrganization = async ({ email }: { email: string }) => {
     await updateOrg({
@@ -62,8 +62,8 @@ const OrganizationEmailForm = () => {
     setIsSuccess(true)
   }
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    updateOrganization({ email: data.email })
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    await updateOrganization({ email: data.email })
   }
 
   useEffect(() => {
