@@ -170,16 +170,16 @@ export const LoginPage = () => {
         >
           <div className={input()}>
             <Label htmlFor="username">Email</Label>
-            <Input name="username" placeholder="email@domain.net" />
+            <Input name="username" placeholder="email@domain.com" />
           </div>
           {isPasswordActive && (
             <div className={input()}>
               <Label htmlFor="password">Password</Label>
-              <PasswordInput name="password" placeholder="password"  autoComplete="current-password" />
+              <PasswordInput name="password" placeholder="password" autoComplete="current-password" />
             </div>
           )}
 
-          <Button variant="aquamarine"
+          <Button variant="filled"
             className="mr-auto mt-2 w-full"
             icon={<ArrowUpRight />}
             size="md"

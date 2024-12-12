@@ -2,7 +2,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 
 export const calendarStyles = tv({
   slots: {
-    root: 'p-3',
+    root: 'p-3 bg-background dark:bg-glaucous-950 rounded-md shadow-md',
     months: 'flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0',
     month: 'space-y-4',
     caption: 'flex justify-center pt-1 relative items-center',
@@ -22,7 +22,7 @@ export const calendarStyles = tv({
     day_selected:
       'rounded-sm bg-java-600 hover:bg-java-600',
     day_today:
-      'rounded-sm bg-oxford-blue-900 dark:bg-ziggurat-800',
+      'rounded-sm bg-java-100 dark:bg-java-200 dark:text-foreground',
     day_outside:
       'day-outside opacity-50 aria-selected:bg-ziggurat-100/50 aria-selected:opacity-30',
     day_disabled: 'opacity-50',

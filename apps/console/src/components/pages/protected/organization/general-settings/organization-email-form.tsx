@@ -94,7 +94,7 @@ const OrganizationEmailForm = () => {
               )}
             />
             <Button
-              variant={isSuccess ? 'success' : 'aquamarine'}
+              variant={isSuccess ? 'success' : 'filled'}
               type="submit"
               loading={isSubmitting}
             >
@@ -107,4 +107,4 @@ const OrganizationEmailForm = () => {
   )
 }
 
-export { OrganizationEmailForm  }
+export { OrganizationEmailForm }

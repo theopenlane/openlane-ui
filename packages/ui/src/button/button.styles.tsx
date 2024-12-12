@@ -14,15 +14,15 @@ export const buttonStyles = tv({
   },
   variants: {
     variant: {
-      aquamarine: 'bg-firefly-300 dark:bg-firefly-300 hover:!opacity-90',
+      filled: 'bg-java-400 dark:bg-java-400 hover:!opacity-90 text-oxford-blue-100 text-oxford-blue-900 ',
       outline:
-        'border-java-800 text-oxford-blue-800 dark:text-oxford-blue-100 dark:border-java-100 border hover:!opacity-90',
+        'border-oxford-blue-200 text-oxford-blue-800 dark:text-oxford-blue-100 border hover:!opacity-90',
       outlineLight:
-        'border-java-500 text-oxford-blue-800 border hover:!opacity-90',
+        'border-oxford-blue-200 text-oxford-blue-800 border hover:!opacity-90',
       outlineInput:
-        'border-java-500 text-oxford-blue-800 dark:text-oxford-blue-100 dark:border-java-100 border hover:!opacity-90',
+        'border-oxford-blue-200 text-oxford-blue-800 dark:text-oxford-blue-100 border hover:!opacity-90',
       outlineInputPadding:
-        'border-java-500 text-oxford-blue-800 mx-1 dark:text-oxford-blue-100 dark:border-java-100 border hover:!opacity-90',
+        'border-oxford-blue-200 text-oxford-blue-800 mx-1 dark:text-oxford-blue-100 border hover:!opacity-90',
       redOutline:
         'border-red-500 text-red-500 border bg-white hover:!opacity-90 dark:border-red-500 dark:text-red-500',
       white: {},
@@ -54,9 +54,9 @@ export const buttonStyles = tv({
   },
   compoundVariants: [
     {
-      variant: 'aquamarine',
+      variant: 'filled',
       size: 'sm',
-      class: 'text-aquamarine-900',
+      class: 'text-default-900',
     },
     {
       variant: 'white',
@@ -70,7 +70,7 @@ export const buttonStyles = tv({
     },
   ],
   defaultVariants: {
-    variant: 'aquamarine',
+    variant: 'filled',
     size: 'md',
   },
 })
@@ -81,7 +81,7 @@ export type ButtonVariants = VariantProps<typeof buttonStyles>
 
 export interface ButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement>,
-    ButtonVariants {
+  ButtonVariants {
   asChild?: boolean
   icon?: ReactNode
   loading?: boolean

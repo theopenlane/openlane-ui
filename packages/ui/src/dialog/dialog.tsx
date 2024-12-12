@@ -80,6 +80,7 @@ const DialogTitle = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
+    onFocusCapture={(e) => {e.stopPropagation();}}
     ref={ref}
     className={cn(title(), className)}
     {...props}

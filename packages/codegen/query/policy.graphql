@@ -29,7 +29,7 @@ mutation UpdateInternalPolicy(
   }
 }
 
-query GetAllInternalPolicies {
+query GetAllInternalPoliciesWithDetails {
   internalPolicies {
     edges {
       node {
@@ -46,6 +46,17 @@ query GetAllInternalPolicies {
         createdAt
         createdBy
         tags
+      }
+    }
+  }
+}
+
+query GetAllInternalPolicies {
+  internalPolicies {
+    edges {
+      node {
+        id
+        name
       }
     }
   }

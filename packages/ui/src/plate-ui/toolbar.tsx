@@ -66,7 +66,7 @@ const ToolbarButton = withTooltip(
       React.ComponentPropsWithoutRef<typeof ToolbarToggleItem>,
       'asChild' | 'value'
     > &
-      VariantProps<typeof toolbarButtonVariants>
+    VariantProps<typeof toolbarButtonVariants>
   >(
     (
       { children, className, isDropdown, pressed, size, variant, ...props },

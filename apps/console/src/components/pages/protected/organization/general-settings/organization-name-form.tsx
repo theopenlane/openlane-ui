@@ -98,7 +98,7 @@ const OrganizationNameForm = () => {
               )}
             />
             <Button
-              variant={isSuccess ? 'success' : 'aquamarine'}
+              variant={isSuccess ? 'success' : 'filled'}
               type="submit"
               loading={isSubmitting}
             >

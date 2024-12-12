@@ -144,7 +144,7 @@ export const OrganizationSelector = () => {
                   </div>
                   <div className={orgSelect()}>
                     <Button
-                      variant="aquamarine"
+                      variant="filled"
                       size="md"
                       onClick={() => handleOrganizationSwitch(org?.node?.id)}
                     >

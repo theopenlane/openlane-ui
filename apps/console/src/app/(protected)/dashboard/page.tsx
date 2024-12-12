@@ -2,99 +2,50 @@
 
 import React from 'react'
 import { useSession } from 'next-auth/react'
-import { Grid, GridRow, GridCell } from '@repo/ui/grid'
-import { Panel } from '@repo/ui/panel'
-import { Button } from '@repo/ui/button'
-import { PageHeading } from '@repo/ui/page-heading'
-import { ArrowUpRight } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { TaskWhereInput, useGetDashboardDataQuery, UserWhereInput } from '@repo/codegen/src/schema'
+import { Loading } from '@/components/shared/loading/loading'
+import { defaultLanding, newUserLanding } from '@/components/pages/protected/dashboard/dashboard'
+import { CreateOrganizationForm } from '@/components/shared/organization/create-organization/create-organization'
 
 const DashboardLanding: React.FC = () => {
-  const session = useSession()
-  const { push } = useRouter()
+  const { data: session } = useSession()
 
-  return (
-    <section>
-      <PageHeading heading={<>Dashboard</>} />
-      <Grid rows={2}>
-        <GridRow columns={2}>
-          <GridCell>
-            <Panel
-              align="center"
-              justify="center"
-              textAlign="center"
-              className="min-h-[400px]"
-            >
-              <h5 className="text-xl font-sans">Create a new program</h5>
-              <p className="max-w-[340px]">
-                Start your compliance journey by creating a new program.
-              </p>
-              <Button
-                onClick={() => {
-                  alert('Coming soon')
-                }}
-                icon={<ArrowUpRight />}
-                size="md"
-                iconAnimated
-              >
-                Programs
-              </Button>
-            </Panel>
-          </GridCell>
-          <GridCell>
-            <Panel
-              align="center"
-              justify="center"
-              textAlign="center"
-              className="min-h-[400px]"
-            >
-              <h5 className="text-xl font-sans">Configure your organization</h5>
-              <p className="max-w-[340px]">
-                Define everything from your organization slug to advanced
-                authentication settings.
-              </p>
-              <Button
-                onClick={() => {
-                  push('/organization-settings/general-settings')
-                }}
-                icon={<ArrowUpRight />}
-                size="md"
-                iconAnimated
-              >
-                Organization Settings
-              </Button>
-            </Panel>
-          </GridCell>
-        </GridRow>
-        <GridRow columns={1}>
-          <GridCell>
-            <Panel
-              align="center"
-              justify="center"
-              textAlign="center"
-              className="min-h-[400px]"
-            >
-              <h5 className="text-xl font-sans">Add team members</h5>
-              <p className="max-w-[340px]">
-                Get your team rocking and rolling by inviting your colleagues to
-                join the party.
-              </p>
-              <Button
-                onClick={() => {
-                  push('/organization-settings/members')
-                }}
-                icon={<ArrowUpRight />}
-                size="md"
-                iconAnimated
-              >
-                Team Management
-              </Button>
-            </Panel>
-          </GridCell>
-        </GridRow>
-      </Grid>
-    </section>
-  )
+  const assigneeId = session?.user.userId
+
+  const userWhere: UserWhereInput = {
+    id: assigneeId,
+  }
+  const whereFilter: TaskWhereInput = {
+    hasAssigneeWith: [userWhere]
+  }
+
+  const [{ data: dashboardData, fetching }] = useGetDashboardDataQuery({ variables: { where: whereFilter }, pause: !session })
+
+
+  const programsRes = { edges: dashboardData?.programs?.edges ?? [] }
+  const taskRes = { edges: dashboardData?.tasks?.edges || [] }
+
+  // if fetching data show loading
+  if (fetching) {
+    return <Loading />
+  } else {
+    // if no organizations other than their personal org, show create organization form,
+    if (dashboardData?.organizations?.edges?.length == 1) {
+      return (
+        <section>
+          <CreateOrganizationForm />
+        </section>
+      )
+    }
+
+    // if no programs redirect to new user landing
+    if (programsRes && programsRes?.edges?.length == 0) {
+      return (newUserLanding())
+    }
+
+    //  default landing page with programs and tasks
+    return defaultLanding({ programs: programsRes, tasks: taskRes })
+  }
 }
 
 export default DashboardLanding

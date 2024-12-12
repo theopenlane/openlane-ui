@@ -108,7 +108,7 @@ export const Actions = ({
             </AlertDialogCancel>
             <AlertDialogAction asChild>
               <Button
-                variant="aquamarine"
+                variant="filled"
                 onClick={handleDeletePolicy}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {

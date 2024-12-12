@@ -9,7 +9,8 @@ const AlertDialogTrigger = AlertDialogPrimitive.Trigger
 const AlertDialogPortal = AlertDialogPrimitive.Portal
 
 const { overlay, content, header, footer, title, description } =
-  alertDialogStyles()
+  alertDialogStyles({
+  })
 
 const AlertDialogOverlay = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Overlay>,
