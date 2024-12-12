@@ -209,7 +209,7 @@ const ProgramWizard = () => {
                     <nav aria-label="Program Creation" className="group">
                         <Accordion type="multiple">
                             {stepper.all.map((step, index, array) => (
-                                <AccordionItem key={step.id} value={step.id} className={`${index - 1 < stepper.current.index ? 'rounded-md font-bold hover:bg-muted bg-java-400 h-1/3 text-glaucous-950' : 'bg-muted'}`}>
+                                <AccordionItem key={step.id} value={step.id} className={`${index - 1 < stepper.current.index ? 'rounded-md font-bold hover:bg-muted bg-java-400 h-1/3 dark:text-glaucous-950' : 'bg-muted'}`}>
                                     <li key={step.id} className={linkItem()}>
                                         <Link
                                             aria-current={
@@ -229,7 +229,7 @@ const ProgramWizard = () => {
                                                 <span className="mx-6">
                                                     <span>{step.label}</span>
                                                     <br />
-                                                    <span className="text-xs text-glaucous-950">
+                                                    <span className="text-xs">
                                                         {stepDetails[index].description}
                                                     </span>
                                                 </span>
