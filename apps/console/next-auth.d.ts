@@ -10,6 +10,7 @@ declare module 'next-auth' {
       accessToken: string;
       refreshToken: string;
       activeOrganizationId: string;
+      personalOrgOnly: boolean;
     };
   }
   interface User extends DefaultUser {

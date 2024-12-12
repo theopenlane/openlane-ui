@@ -33,6 +33,54 @@ query GetAllPrograms {
   }
 }
 
+query GetProgramEdgesForWizard {
+  risks {
+    edges {
+      node {
+        id
+        name
+      }
+    }
+  }
+  procedures {
+    edges {
+      node {
+        id
+        name
+      }
+    }
+  }
+  internalPolicies {
+    edges {
+      node {
+        id
+        name
+      }
+    }
+  }
+  groups {
+    edges {
+      node {
+        id
+        name
+        displayName
+      }
+    }
+  }
+  orgMemberships {
+    edges {
+      node {
+        user{
+          id
+          firstName
+          lastName
+          role
+        }
+      }
+    }
+  }
+}
+
 query GetProgramDetailsById($programId: ID!) {
   program(id: $programId) {
     id

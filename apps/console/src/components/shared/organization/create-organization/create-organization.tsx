@@ -4,7 +4,7 @@ import { createOrganizationStyles } from './create-organization.styles'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { useToast } from '@repo/ui/use-toast'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { useForm, useFormContext } from 'react-hook-form'
 import { useSession } from 'next-auth/react'
 import {
   Form,
@@ -14,7 +14,7 @@ import {
   FormControl,
   FormMessage,
 } from '@repo/ui/form'
-import { Info } from '@repo/ui/info'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@repo/ui/tooltip"
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { useRouter } from 'next/navigation'
@@ -25,6 +25,7 @@ import {
 } from '@repo/codegen/src/schema'
 import { useGqlError } from '@/hooks/useGqlError'
 import { useEffect } from 'react'
+import { InfoIcon } from 'lucide-react'
 
 const formSchema = z.object({
   name: z
@@ -60,6 +61,8 @@ export const CreateOrganizationForm = () => {
       displayName: '',
     },
   })
+
+  const { setValue } = form;
 
   const createOrganization = async ({
     name,
@@ -116,10 +119,10 @@ export const CreateOrganizationForm = () => {
       <Panel>
         <PanelHeader
           heading={
-            numOrgs === 0 ? 'Create your first organization' : 'Create a organization'
+            numOrgs === 1 ? 'Create your first organization' : 'Create another organization'
           }
           subheading={
-            numOrgs === 0
+            numOrgs === 1
               ? 'To get started create a organization for your business or department.'
               : null
           }
@@ -131,11 +134,24 @@ export const CreateOrganizationForm = () => {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>
+                    Name
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <InfoIcon size={14} className='mx-1' />
+                        </TooltipTrigger>
+                        <TooltipContent side='right'>
+                          Name must be unique, with a maximum length of 32 characters
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field}
+                      onChangeCapture={(e) => setValue('displayName', (e.target as HTMLInputElement).value)}
+                    />
                   </FormControl>
-                  <Info>Please use 32 characters at maximum.</Info>
                   <FormMessage />
                 </FormItem>
               )}
@@ -145,7 +161,19 @@ export const CreateOrganizationForm = () => {
               name="displayName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Display name</FormLabel>
+                  <FormLabel>
+                    Display name
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <InfoIcon size={14} className='mx-1' />
+                        </TooltipTrigger>
+                        <TooltipContent side='right'>
+                          Non-unique user-friendly name for the organization; usually the same as the name
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>

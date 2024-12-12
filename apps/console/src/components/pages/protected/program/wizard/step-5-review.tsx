@@ -163,7 +163,7 @@ export const ReviewComponent: React.FC<ReviewComponentProps> = ({ users, groups,
                     </GridRow>
                     <GridRow columns={2} className='mx-2'>
                         <GridCell>
-                            <Card className='px-5 py-5'>
+                            <Card className='px-5 py-5 h-full'>
                                 <div className={reviewCardContent()}>
                                     {getValues().programAdmins || getValues().programMembers || getValues().groupEditors || getValues().groupViewers
                                         ? <CheckIcon className={checkIcon()} size={20} />
@@ -207,7 +207,7 @@ export const ReviewComponent: React.FC<ReviewComponentProps> = ({ users, groups,
                             </Card>
                         </GridCell>
                         <GridCell>
-                            <Card className='px-5 py-5'>
+                            <Card className='px-5 py-5 h-full'>
                                 <div className={reviewCardContent()}>
                                     {getValues().risks || getValues().policies || getValues().procedures || getValues().useTemplate
                                         ? <CheckIcon className={checkIcon()} size={20} />

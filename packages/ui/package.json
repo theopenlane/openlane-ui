@@ -29,6 +29,8 @@
     "./input": "./src/input/input.tsx",
     "./info": "./src/info/info.tsx",
     "./label": "./src/label/label.tsx",
+    "./line-chart": "./src/chart/chart.tsx",
+    "./line-chart-example": "./src/chart/chart-example.tsx",
     "./page-heading": "./src/page-heading/page-heading.tsx",
     "./paragraph": "./src/paragraph/paragraph.tsx",
     "./panel": "./src/panel/panel.tsx",
@@ -36,6 +38,7 @@
     "./plate-ui/*": "./src/plate-ui/*.tsx",
     "./popover": "./src/popover/popover.tsx",
     "./progress": "./src/progress.tsx",
+    "./progress-circle": "./src/progress-circle/progress-circle.tsx",
     "./text-input": "./src/text-input.tsx",
     "./tag-input": "./src/tag-input/tag-input.tsx",
     "./toaster": "./src/toast/toaster.tsx",
@@ -54,7 +57,9 @@
     "./icons/google": "./src/icons/google.tsx",
     "./icons/github": "./src/icons/github.tsx",
     "./icons/chevron-down": "./src/icons/chevron-down.tsx",
-    "./lib/utils": "./lib/utils.ts"
+    "./lib/utils": "./lib/utils.ts",
+    "./lib/windowResize": "./lib/windowResize.tsx",
+    "./lib/chartUtils": "./lib/chartUtils.tsx"
   },
   "scripts": {
     "build": "tailwindcss -i ./src/styles.css -o dist/index.css",
@@ -86,6 +91,7 @@
     "@radix-ui/react-toast": "^1.2.1",
     "@radix-ui/react-toolbar": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.4",
+    "@remixicon/react": "^4.5.0",
     "@stepperize/react": "^4.0.1",
     "@storybook/react": "latest",
     "@tailwindcss/typography": "^0.5.15",
@@ -152,6 +158,7 @@
     "react-lite-youtube-embed": "^2.4.0",
     "react-resizable-panels": "^2.1.6",
     "react-tweet": "^3.2.1",
+    "recharts": "^2.14.1",
     "slate": "^0.110.2",
     "slate-history": "^0.110.3",
     "slate-hyperscript": "^0.100.0",
@@ -177,7 +184,7 @@
     "postcss": "latest",
     "react": "latest",
     "tailwindcss": "latest",
-    "tailwind-variants": "latest",
+    "tailwind-variants": "^0.3.0",
     "tsup": "latest",
     "typescript": "5.6.3"
   }

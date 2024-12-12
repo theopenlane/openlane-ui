@@ -2,7 +2,7 @@ import Link from "next/link"
 import React from "react"
 
 import { Button } from "@repo/ui/button"
-import { Card } from "@repo/ui/cardpanel";
+import { Card, CardFooter } from "@repo/ui/cardpanel";
 import { Separator } from "@repo/ui/separator"
 import { Accordion, AccordionItem } from "@radix-ui/react-accordion"
 
@@ -19,7 +19,7 @@ import { programDetailSchema, ProgramDetailsComponent } from "./wizard/step-2-de
 import { ProgramInviteComponent, programInviteSchema } from "./wizard/step-3-team"
 import { ProgramObjectAssociationComponent, programObjectAssociationSchema } from "./wizard/step-4-associate"
 import { ProgramReviewComponent } from "./wizard/step-5-review"
-import { CreateProgramWithMembersInput, ProgramMembershipRole, useCreateProgramWithMembersMutation, useGetAllGroupsQuery, useGetAllInternalPoliciesQuery, useGetAllOrganizationMembersQuery, useGetAllProceduresQuery, useGetAllRisksQuery } from "@repo/codegen/src/schema";
+import { CreateProgramWithMembersInput, ProgramMembershipRole, useCreateProgramWithMembersMutation, useGetAllGroupsQuery, useGetAllInternalPoliciesQuery, useGetAllOrganizationMembersQuery, useGetAllProceduresQuery, useGetAllRisksQuery, useGetProgramEdgesForWizardQuery } from "@repo/codegen/src/schema";
 import { useSession } from "next-auth/react";
 import { toast } from "@repo/ui/use-toast";
 import { useRouter } from "next/navigation";
@@ -78,17 +78,13 @@ const ProgramWizard = () => {
     const { isValid } = useFormState({ control: form.control });
 
     // grab all the data from the API to populate the dropdowns
-    const [allGroups] = useGetAllGroupsQuery({ pause: !sessionData })
-    const [allUsers] = useGetAllOrganizationMembersQuery({ pause: !sessionData })
-    const [allPolicies] = useGetAllInternalPoliciesQuery({ pause: !sessionData })
-    const [allProcedures] = useGetAllProceduresQuery({ pause: !sessionData })
-    const [allRisks] = useGetAllRisksQuery({ pause: !sessionData })
+    const [edgeData] = useGetProgramEdgesForWizardQuery({ pause: !sessionData })
 
-    const groupRes = allGroups?.data?.groups.edges || []
-    const userRes = allUsers?.data?.orgMemberships.edges || []
-    const policyRes = allPolicies?.data?.internalPolicies.edges || []
-    const procedureRes = allProcedures?.data?.procedures.edges || []
-    const riskRes = allRisks?.data?.risks.edges || []
+    const groupRes = edgeData.data?.groups?.edges || []
+    const userRes = edgeData.data?.orgMemberships.edges || []
+    const policyRes = edgeData.data?.internalPolicies.edges || []
+    const procedureRes = edgeData.data?.procedures.edges || []
+    const riskRes = edgeData.data?.risks.edges || []
 
     // map to a common format
     const groups = mapToNode(groupRes)
@@ -114,7 +110,7 @@ const ProgramWizard = () => {
     // handle the form submission for each page in the stepper
     const onSubmit = (data: zInfer<typeof stepper.current.schema>) => {
         if (stepper.isLast) {
-            handleFormSubmit()
+            return
         }
 
         handleChange(data);
@@ -213,7 +209,7 @@ const ProgramWizard = () => {
                     <nav aria-label="Program Creation" className="group">
                         <Accordion type="multiple">
                             {stepper.all.map((step, index, array) => (
-                                <AccordionItem key={step.id} value={step.id} className={`${index - 1 < stepper.current.index ? 'rounded-md font-bold hover:bg-muted bg-java-400 h-1/3 text-oxford-blue-900' : 'bg-muted'}`}>
+                                <AccordionItem key={step.id} value={step.id} className={`${index - 1 < stepper.current.index ? 'rounded-md font-bold hover:bg-muted bg-java-400 h-1/3 text-glaucous-950' : 'bg-muted'}`}>
                                     <li key={step.id} className={linkItem()}>
                                         <Link
                                             aria-current={
@@ -233,7 +229,7 @@ const ProgramWizard = () => {
                                                 <span className="mx-6">
                                                     <span>{step.label}</span>
                                                     <br />
-                                                    <span className="text-xs">
+                                                    <span className="text-xs text-glaucous-950">
                                                         {stepDetails[index].description}
                                                     </span>
                                                 </span>
@@ -289,7 +285,6 @@ const ProgramWizard = () => {
                         </div>
                     </form>
                 </Card>
-                {error && <div >{error.message}</div>}
             </FormProvider>
         </div >
     )
