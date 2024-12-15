@@ -116,7 +116,7 @@ query GetProgramDetailsById($programId: ID!) {
         email
       }
     }
-    controlobjectives {
+    controlObjectives {
       id
       name
     }
@@ -134,7 +134,7 @@ query GetProgramDetailsById($programId: ID!) {
       id
       name
     }
-    policies {
+    internalPolicies {
       id
       name
     }
