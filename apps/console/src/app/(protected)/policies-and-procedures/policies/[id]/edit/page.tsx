@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import { PoliciesForm, PolicyFormSchema } from '@/components/pages/protected/policies/policies-form'
-import { NextPage, NextPageContext } from 'next'
+import { NextPage } from 'next'
 import { useGetInternalPolicyDetailsByIdQuery, useUpdateInternalPolicyMutation } from '@repo/codegen/src/schema'
 import { useRouter } from 'next/navigation'
+import { useGqlError } from '@/hooks/useGqlError'
+import { useToast } from '@repo/ui/use-toast'
 
 type PageProps = {
   params: { id: string }
@@ -13,9 +15,9 @@ type PageProps = {
 
 const Page: NextPage<PageProps> = ({ params }) => {
   const router = useRouter()
+  const { toast } = useToast()
 
-  const [result] = useGetInternalPolicyDetailsByIdQuery({ variables: { internalPolicyId: params.id } })
-  const { data, fetching, error } = result
+  const [{ data }] = useGetInternalPolicyDetailsByIdQuery({ variables: { internalPolicyId: params.id } })
   const [policyModel, setPolicyModel] = useState({ name: '' })
 
   useEffect(() => {
@@ -24,10 +26,20 @@ const Page: NextPage<PageProps> = ({ params }) => {
     }
   }, [data])
 
-  const [{ fetching: isSubmitting }, updatePolicy] = useUpdateInternalPolicyMutation()
+  const [{ error: submitError }, updatePolicy] = useUpdateInternalPolicyMutation()
+  const { errorMessages } = useGqlError(submitError)
+
+  useEffect(() => {
+    if (!errorMessages?.length) return
+    toast({
+      title: `Error`,
+      description: 'We couldnt save the policy: ' + errorMessages.join('\n'),
+      variant: 'destructive',
+    })
+  }, [errorMessages])
 
   const onSubmit = async (policy: PolicyFormSchema) => {
-    const { data, error } = await updatePolicy({
+    const { data } = await updatePolicy({
       updateInternalPolicyId: params.id,
       input: {
         name: policy.name,
@@ -39,18 +51,9 @@ const Page: NextPage<PageProps> = ({ params }) => {
       },
     })
 
-    if (error) {
-      console.error('failed to update policy:', error)
-      return
+    if (data?.updateInternalPolicy?.internalPolicy?.id) {
+      router.push('/policies-and-procedures/policies/' + data?.updateInternalPolicy.internalPolicy?.id || '')
     }
-
-    if (!data?.updateInternalPolicy) {
-      console.error('no internal policy returned:')
-      return
-    }
-
-    // load the policy page
-    router.push('/policies-and-procedures/policies/' + data?.updateInternalPolicy.internalPolicy.id)
   }
 
   return (
