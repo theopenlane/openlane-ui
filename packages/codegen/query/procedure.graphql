@@ -67,7 +67,7 @@ query GetProcedureDetailsById($procedureId: ID!) {
     satisfies
     purposeAndScope
     procedureType
-    internalpolicy {
+    internalPolicies {
       id
       name
     }

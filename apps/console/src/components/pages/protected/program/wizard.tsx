@@ -168,7 +168,7 @@ const ProgramWizard = () => {
                 status: getValues().status,
                 startDate: getValues().startDate,
                 endDate: getValues().endDate,
-                policyIDs: getValues().policies,
+                internalPolicyIDs: getValues().policies,
                 procedureIDs: getValues().procedures,
                 riskIDs: getValues().risks,
                 auditorReadComments: getValues().auditorReadComments,
