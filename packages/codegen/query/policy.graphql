@@ -3,15 +3,28 @@ mutation CreateInternalPolicy($input: CreateInternalPolicyInput!) {
     internalPolicy {
       id
       name
+      background
+      description
+      policyType
+      purposeAndScope
+      details
     }
   }
 }
 
-mutation UpdateInternalPolicy($updateInternalPolicyId: ID!, $input: UpdateInternalPolicyInput!) {
+mutation UpdateInternalPolicy(
+  $updateInternalPolicyId: ID!
+  $input: UpdateInternalPolicyInput!
+) {
   updateInternalPolicy(id: $updateInternalPolicyId, input: $input) {
     internalPolicy {
       id
       name
+      background
+      description
+      policyType
+      purposeAndScope
+      details
     }
   }
 }
@@ -33,6 +46,25 @@ query GetAllInternalPoliciesWithDetails {
         createdAt
         createdBy
         tags
+      }
+    }
+  }
+}
+
+query GetInternalPoliciesList {
+  internalPolicies {
+    edges {
+      node {
+        id
+        name
+        description
+        policyType
+        tags
+        version
+        updatedAt
+        updatedBy
+        createdAt
+        createdBy
       }
     }
   }

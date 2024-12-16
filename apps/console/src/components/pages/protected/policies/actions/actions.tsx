@@ -41,10 +41,10 @@ export const Actions = ({
 
   // const [ _, deleteTemplate] = useDeletePolicyMutation()
 
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   const handleEditPolicy = () => {
-    router.push(`/policies-and-procedures/editor?id=${policyId}`)
+    router.push(`/policies-and-procedures/policies/${policyId}/edit`)
   }
 
   const handleDeletePolicy = async () => {
@@ -79,22 +79,27 @@ export const Actions = ({
             <DropdownMenuItem onSelect={handleEditPolicy}>
               <Edit width={ICON_SIZE} /> Edit
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => {
-              setIsDeleteDialogOpen(true);
-            }} >
+            <DropdownMenuItem
+              onClick={() => {
+                setIsDeleteDialogOpen(true)
+              }}
+            >
               <Trash2 width={ICON_SIZE} /> Delete
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
 
-
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone, this will permanently remove the policy from the organization.
+              This action cannot be undone, this will permanently remove the
+              policy from the organization.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -102,11 +107,15 @@ export const Actions = ({
               <Button variant="outline">Cancel</Button>
             </AlertDialogCancel>
             <AlertDialogAction asChild>
-              <Button variant="filled" onClick={handleDeletePolicy} onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  handleDeletePolicy();
-                }
-              }}>
+              <Button
+                variant="filled"
+                onClick={handleDeletePolicy}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleDeletePolicy()
+                  }
+                }}
+              >
                 Delete Policy
               </Button>
             </AlertDialogAction>

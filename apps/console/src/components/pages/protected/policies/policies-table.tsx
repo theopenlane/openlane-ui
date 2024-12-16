@@ -1,43 +1,68 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { Button } from "@repo/ui/button"
+import { Button } from '@repo/ui/button'
 import { PlusIcon } from 'lucide-react'
 import { DataTable } from '@repo/ui/data-table'
-import { ColumnDef } from '@tanstack/react-table';
+import { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Input } from '@repo/ui/input'
 import { pageStyles } from './page.styles'
 import { Actions } from './actions/actions'
-
-const ICON_SIZE = 12
+import { useGetInternalPoliciesListQuery } from '@repo/codegen/src/schema'
+import Link from 'next/link'
 
 type PoliciesEdge = any
-
 type Policies = NonNullable<PoliciesEdge>['node']
 
 export const PoliciesTable = () => {
   const router = useRouter()
 
-  const {
-    searchRow,
-    searchField,
-  } = pageStyles()
+  const { searchRow, searchField } = pageStyles()
 
   const [filteredPolicies, setFilteredPolicies] = useState<Policies[]>([])
+
+  const [result] = useGetInternalPoliciesListQuery()
+  const { data, fetching, error } = result
+
+  useEffect(() => {
+    if (data) {
+      const policies = data?.internalPolicies?.edges?.map((e) => e?.node)
+      if (policies) {
+        setFilteredPolicies(policies)
+      }
+    }
+  }, [data])
+
+  const handleSearch = (e: React.FormEvent<HTMLInputElement>) => {
+    setSearchTerm(e.currentTarget.value)
+  }
 
   const [searchTerm, setSearchTerm] = useState('')
 
   const handleCreateNew = () => {
-    router.push('/policies-and-procedures/editor?type=policy')
+    router.push('/policies-and-procedures/policies/create')
   }
 
-  // TODO: add table once backend is ready
+  const editPolicy = (policyId: string) => {
+    router.push(`/policies-and-procedures/editor?id=${policyId}`)
+  }
+
   const columns: ColumnDef<Policies>[] = [
     {
       accessorKey: 'name',
       header: 'Name',
+      cell: ({ cell, row }) => {
+        return (
+          <Link
+            href={'/policies-and-procedures/policies/' + row.original.id}
+            className="underline"
+          >
+            {cell.getValue() as string}
+          </Link>
+        )
+      },
     },
     {
       accessorKey: 'description',
@@ -60,10 +85,10 @@ export const PoliciesTable = () => {
       header: '',
       cell: ({ cell }) => (
         <Actions
-         policyId={cell.getValue() as string}
-        //  refetchPolicies={refetch}
-       />
-     ),
+          policyId={cell.getValue() as string}
+          //  refetchPolicies={refetch}
+        />
+      ),
       size: 40,
     },
   ]
@@ -74,20 +99,21 @@ export const PoliciesTable = () => {
         <div className={searchField()}>
           <Input
             placeholder="search"
+            disabled
             value={searchTerm}
-            // onChange={handleSearch}
+            onChange={handleSearch}
           />
         </div>
         <Button
-            icon={<PlusIcon />}
-            iconPosition="left"
-            onClick={handleCreateNew}
-            >
-            Create New
+          icon={<PlusIcon />}
+          iconPosition="left"
+          onClick={handleCreateNew}
+        >
+          Create New
         </Button>
       </div>
 
-      <DataTable  columns={columns} data={filteredPolicies} />
+      <DataTable columns={columns} data={filteredPolicies} loading={fetching} />
     </>
   )
 }
