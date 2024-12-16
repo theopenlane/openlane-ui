@@ -13,8 +13,7 @@ const Page: NextPage = () => {
   const router = useRouter()
   const { toast } = useToast()
 
-  const [result, createPolicy] = useCreateInternalPolicyMutation()
-  const { error } = result
+  const [{ error }, createPolicy] = useCreateInternalPolicyMutation()
   const { errorMessages } = useGqlError(error)
 
   useEffect(() => {
