@@ -8,7 +8,7 @@ const sidebarStyles = tv({
       'absolute bottom-0 bg-background z-50 gap-1 flex items-center justify-center -right-[58px] w-[58px] h-[42px] cursor-pointer rounded-tr-lg border border-border border-b-0 text-3xl',
     expandNavIcon: 'rotate-180',
     sideNav:
-      'text-sm left-8 opacity-0 transition-all duration-300 group-hover:z-50 group-hover:ml-4 group-hover:rounded group-hover:bg-foreground group-hover:p-2 group-hover:opacity-100 group-hover:shadow-sm group-hover:border',
+      'text-sm left-8 opacity-0 transition-all duration-300 group-hover:z-50 group-hover:ml-4 group-hover:p-3 group-hover:opacity-100 group-hover:shadow-sm group-hover:border group-hover:border-border group-hover:rounded-xl group-hover:bg-background-secondary',
   },
   variants: {
     status: {
