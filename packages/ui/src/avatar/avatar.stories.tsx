@@ -12,7 +12,7 @@ const meta: Meta = {
     },
     backgrounds: { default: 'white' },
   },
-  render: ({ children, ...args }) => {
+  render: ({ children, ...args }: { children: React.ReactNode }) => {
     return (
       <Avatar {...args}>
         <AvatarImage src="https://github.com/theopenlane.png" />

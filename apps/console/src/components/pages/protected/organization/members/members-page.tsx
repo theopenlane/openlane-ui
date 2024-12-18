@@ -41,7 +41,7 @@ const MembersPage: React.FC = async () => {
             <div className={inviteRow()}>
               <span>Invitations</span>
               {numInvites > 0 && (
-                <div className={inviteCount()}>{numInvites}</div>
+                <div className={inviteCount({ activeBg: activeTab === 'invites' })}>{numInvites}</div>
               )}
             </div>
           </TabsTrigger>

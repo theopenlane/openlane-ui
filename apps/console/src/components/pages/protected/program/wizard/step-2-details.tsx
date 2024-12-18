@@ -84,13 +84,13 @@ export const AuditorPermissionsComponent = () => {
                         <TooltipTrigger>
                             <InfoIcon size={14} className='mx-1' />
                         </TooltipTrigger>
-                        <TooltipContent side='right' className='bg-white dark:bg-glaucous-900'>
+                        <TooltipContent side='right' className='bg-background'>
                             <p>Permissions for auditor roles, these can be changed at a later date</p>
                         </TooltipContent>
                     </Tooltip>
                 </TooltipProvider>
             </h2>
-            <Card className='px-5 py-5'>
+            <Card className='px-5 py-5 bg-background-secondary'>
 
                 <FormField
                     control={control}
@@ -100,7 +100,7 @@ export const AuditorPermissionsComponent = () => {
                             <FormControl>
                                 <Grid className={switchRow()}>
                                     <GridRow columns={2}>
-                                        <GridCell>
+                                        <GridCell className='text-sm'>
                                             Read Comments
                                             <TooltipProvider>
                                                 <Tooltip>
@@ -115,6 +115,7 @@ export const AuditorPermissionsComponent = () => {
                                         </GridCell>
                                         <GridCell>
                                             <Switch
+                                                className='bg-button-muted'
                                                 checked={field.value}
                                                 onCheckedChange={field.onChange}
                                             />
@@ -134,7 +135,7 @@ export const AuditorPermissionsComponent = () => {
                             <FormControl>
                                 <Grid className={switchRow()}>
                                     <GridRow columns={2}>
-                                        <GridCell>
+                                        <GridCell className='text-sm'>
                                             Write Comments
                                             <TooltipProvider>
                                                 <Tooltip>
@@ -149,6 +150,7 @@ export const AuditorPermissionsComponent = () => {
                                         </GridCell>
                                         <GridCell>
                                             <Switch
+                                                className='bg-button-muted'
                                                 checked={field.value}
                                                 onCheckedChange={field.onChange}
                                             />
@@ -167,7 +169,7 @@ export const AuditorPermissionsComponent = () => {
                             <FormControl>
                                 <Grid className={switchRow()}>
                                     <GridRow columns={2}>
-                                        <GridCell>
+                                        <GridCell className='text-sm'>
                                             Auditor Ready
                                             <TooltipProvider>
                                                 <Tooltip>
@@ -182,6 +184,7 @@ export const AuditorPermissionsComponent = () => {
                                         </GridCell>
                                         <GridCell>
                                             <Switch
+                                                className='bg-button-muted'
                                                 checked={field.value}
                                                 onCheckedChange={field.onChange}
                                             />
@@ -228,7 +231,7 @@ const PeriodComponent = () => {
                     name={register('startDate').name}
                     render={({ field }) => (
                         <FormItem className={dateInput()}>
-                            <FormLabel>
+                            <FormLabel className='mb-2'>
                                 Start Date
                                 <TooltipProvider>
                                     <Tooltip>
@@ -308,7 +311,7 @@ const PeriodComponent = () => {
                     name={register('endDate').name}
                     render={({ field }) => (
                         <FormItem className={dateInput()}>
-                            <FormLabel>
+                            <FormLabel className='mb-2'>
                                 End Date
                                 <TooltipProvider>
                                     <Tooltip>

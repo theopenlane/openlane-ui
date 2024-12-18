@@ -196,8 +196,8 @@ const valueFormatter = (number: number) => {
 }
 
 const status = {
-    completed: "bg-aquamarine-500 dark:bg-aquamarine-500",
-    "in progress": "bg-firefly-500 dark:bg-firefly-500",
+    completed: "bg-jade-500 dark:bg-jade-500",
+    "in progress": "bg-mauve-400 dark:bg-mauve-400",
     "on hold": "bg-saffron-500 dark:bg-saffron-500",
 }
 
@@ -264,7 +264,7 @@ export function LineChartExample() {
                 data={formattedArray}
                 index="date"
                 categories={["completed", "in progress", "on hold"]}
-                colors={["aquamarine", "firefly", "saffron"]}
+                colors={["jade", "mauve", "saffron"]}
                 valueFormatter={valueFormatter}
                 yAxisWidth={35}
                 showLegend={true}

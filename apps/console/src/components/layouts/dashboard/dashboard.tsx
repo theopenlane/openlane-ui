@@ -9,15 +9,15 @@ export interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
-  const { base, main } = dashboardStyles()
+  const { base, main } = dashboardStyles();
 
   return (
-    <>
+    <div className="flex flex-col">
       <Header />
       <div className={base()}>
         <Sidebar />
         <main className={main()}>{children}</main>
       </div>
-    </>
-  )
+    </div>
+  );
 }

@@ -17,8 +17,9 @@
     "react": "18.3.12",
     "react-dom": "18.3.1",
     "react-hook-form": "^7.51.2",
-    "survey-react-ui": "^1.12.12",
-    "survey-creator-react": "^1.12.8"
+    "storybook-dark-mode": "^4.0.2",
+    "survey-creator-react": "^1.12.8",
+    "survey-react-ui": "^1.12.12"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

@@ -11,6 +11,7 @@
     "./alert-dialog": "./src/alert-dialog/alert-dialog.tsx",
     "./avatar": "./src/avatar/avatar.tsx",
     "./button": "./src/button/button.tsx",
+    "./breadcrumb": "./src/breadcrumb/breadcrumb.tsx",
     "./calendar": "./src/calendar/calendar.tsx",
     "./card": "./src/card.tsx",
     "./cardpanel": "./src/cardpanel/card.tsx",

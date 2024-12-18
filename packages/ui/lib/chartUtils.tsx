@@ -1,11 +1,11 @@
 export type ColorUtility = "bg" | "stroke" | "fill" | "text"
 
 export const chartColors = {
-    aquamarine: {
-        bg: "bg-aquamarine-500",
-        stroke: "stroke-aquamarine-500",
-        fill: "fill-aquamarine-500",
-        text: "text-aquamarine-500",
+    mauve: {
+        bg: "bg-mauve-400",
+        stroke: "stroke-mauve-400",
+        fill: "fill-mauve-400",
+        text: "text-mauve-400",
     },
     saffron: {
         bg: "bg-saffron-500",
@@ -13,11 +13,11 @@ export const chartColors = {
         fill: "fill-saffron-500",
         text: "text-saffron-500",
     },
-    firefly: {
-        bg: "bg-firefly-500",
-        stroke: "stroke-firefly-500",
-        fill: "fill-firefly-500",
-        text: "text-firefly-500",
+    jade: {
+        bg: "bg-jade-500",
+        stroke: "stroke-jade-500",
+        fill: "fill-jade-500",
+        text: "text-jade-500",
     },
 } as const satisfies {
     [color: string]: {

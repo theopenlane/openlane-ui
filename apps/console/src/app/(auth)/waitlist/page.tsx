@@ -13,16 +13,16 @@ const Waitlist: React.FC = () => {
           <Logo theme="dark" />
         </div>
 
-        <Panel className='bg-ziggurat-900 border-oxford-blue-900 mt-10'>
-          <h2 className="text-2xl text-center text-oxford-blue-100">Thank you for your interest in Openlane!</h2>
-          <div className="flex flex-col text-center text-oxford-blue-100">
+        <Panel className='mt-10 bg-oxford-blue-950 border-none text-neutral-300'>
+          <h2 className="text-2xl text-center">Thank you for your interest in Openlane!</h2>
+          <div className="flex flex-col text-center">
             We are currently in a private beta, please subscribe to our newsletter to get notified when we launch.
           </div>
         </Panel>
 
         <Subscribe />
 
-        <div className="flex flex-col text-center text-sm text-oxford-blue-100 mt-20">
+        <div className="flex flex-col text-center text-sm mt-20">
           <Link href="/login">Back to login</Link>
         </div>
       </div>
