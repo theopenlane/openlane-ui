@@ -144,7 +144,7 @@
     "@udecode/plate-toggle": "^39.0.0",
     "@udecode/plate-trailing-block": "^39.0.0",
     "class-variance-authority": "^0.7.1",
-    "cmdk": "1.0.0",
+    "cmdk": "1.0.4",
     "date-fns": "^4.1.0",
     "emblor": "^1.4.0",
     "lucide-react": "^0.468.0",
