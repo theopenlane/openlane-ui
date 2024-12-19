@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import type { Preview } from '@storybook/react'
 import './style.css'
-import '@repo/ui/styles.css';
+import '../../../packages/ui/src/styles.css';
 import { themes } from '@storybook/theming';
 
 const Background = (Story, context) => {
@@ -22,6 +22,7 @@ const Background = (Story, context) => {
 
 export const parameters = {
   darkMode: {
+    current: 'light',
     stylePreview: true,
     // Override the default dark theme
     dark: {
@@ -96,7 +97,14 @@ const preview: Preview = {
       disable: true,
     },
     darkMode: parameters.darkMode,
-    decorators: [Background]
+    decorators: [Background],
+    docs: {
+      theme: parameters.darkMode.current === 'dark' ? themes.dark : themes.light,
+      themes: {
+        dark: parameters.darkMode.dark,
+        light: parameters.darkMode.light,
+      },
+    }
   },
 }
 
