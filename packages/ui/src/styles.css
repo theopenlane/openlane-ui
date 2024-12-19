@@ -9,6 +9,7 @@
   }
 
   [type='text']:focus,
+  [type='password']:focus,
   input:focus,
   textarea:focus,
   select:focus {

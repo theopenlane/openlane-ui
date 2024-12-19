@@ -175,7 +175,7 @@ export const LoginPage = () => {
           {isPasswordActive && (
             <div className={input()}>
               <Label className='text-text-dark' htmlFor="password">Password</Label>
-              <PasswordInput className='bg-white' name="password" placeholder="password" autoComplete="current-password" />
+              <PasswordInput variant='light' name="password" placeholder="password" autoComplete="current-password" />
             </div>
           )}
 

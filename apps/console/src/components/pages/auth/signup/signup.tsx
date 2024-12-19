@@ -203,14 +203,14 @@ export const SignupPage = () => {
             <div className={input()}>
               <Label className='text-text-dark' htmlFor="password">Password</Label>
               <PasswordInput
-                className='bg-white'
+                variant='light'
                 name="password"
                 placeholder="password"
                 autoComplete='new-password'
                 required
               />
               <PasswordInput
-                className='bg-white'
+                variant='light'
                 name="confirmedPassword"
                 placeholder="confirm password"
                 autoComplete='new-password'
