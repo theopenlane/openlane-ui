@@ -37,6 +37,16 @@ tasks:
     cmds:
       - bun install
 
+  reinstall:
+    desc: reinstall the dependencies listed in package.json
+    cmds:
+      - task: clean
+      - task: install
+
+  clean:
+    desc: clean all apps and package
+    cmd: bun run clean
+
   dev:
     desc: develop all apps
     cmds:
@@ -53,7 +63,7 @@ tasks:
     desc: develop storybook
     cmds:
       - task: install
-      - bun dev --filter={apps/storybook}
+      - bun dev --filter={apps/sb}
 
   precommit-full:
     desc: Lint the project against all files
