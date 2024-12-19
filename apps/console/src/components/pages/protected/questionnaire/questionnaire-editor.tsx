@@ -46,7 +46,7 @@ export default function CreateQuestionnaire(input: { templateId: string, existin
   const creator = new SurveyCreator(creatorOptions);
   const themeTabPlugin = creator.themeEditor;
 
-  function addCustomTheme(theme: ITheme, userFriendlyThemeName : string) {
+  function addCustomTheme(theme: ITheme, userFriendlyThemeName: string) {
     // Add a localized user-friendly theme name
     if (theme.themeName) {
       enLocale.theme.names[theme.themeName] = userFriendlyThemeName;
@@ -61,7 +61,7 @@ export default function CreateQuestionnaire(input: { templateId: string, existin
 
   // apply theme to the creator
   const themeContext = useTheme()
-  const theme = themeContext.resolvedTheme as  "light" | "dark" | "white" | undefined
+  const theme = themeContext.resolvedTheme as "light" | "dark" | "white" | undefined
 
   if (theme === "dark") {
     creator.applyTheme(darkTheme);
@@ -84,7 +84,7 @@ export default function CreateQuestionnaire(input: { templateId: string, existin
   const [template, createTemplateData] = useCreateTemplateMutation();
   const [, updateTemplateData] = useUpdateTemplateMutation()
 
-  const saveTemplate = async (data: any, saveNo : string, callback : any) => {
+  const saveTemplate = async (data: any, saveNo: string, callback: any) => {
     const variables = {
       input: {
         name: data.title,
@@ -130,7 +130,7 @@ export default function CreateQuestionnaire(input: { templateId: string, existin
 
         router.push(`/documents/questionnaire-editor?id=${response.data?.createTemplate.template.id}`)
       } else {
-        if (response.error.graphQLErrors[0].message   == 'template already exists') {
+        if (response.error.graphQLErrors[0].message == 'template already exists') {
           toast({
             title: 'A questionnaire with this name already exists, please choose a different name',
             variant: 'destructive',
@@ -150,21 +150,21 @@ export default function CreateQuestionnaire(input: { templateId: string, existin
         }
       }
     })
-    .catch(error => {
-      console.log(error)
-      toast({
-        title: 'There was a problem saving the questionnaire, please try again',
-        variant: 'destructive',
-      })
-    });
+      .catch(error => {
+        console.log(error)
+        toast({
+          title: 'There was a problem saving the questionnaire, please try again',
+          variant: 'destructive',
+        })
+      });
   }
 
-  creator.saveSurveyFunc = (saveNo :string, callback:any) => {
+  creator.saveSurveyFunc = (saveNo: string, callback: any) => {
     saveTemplate(creator.JSON, saveNo, callback);
   }
 
   return (
-    <Panel className='flex h-full bg-ziggurat-100 dark:bg-glaucous-950 border-ziggurat-100 dark:border-oxford-blue-900 p-0'>
+    <Panel className='flex h-full bg-panel-bg border-oxford-blue-100 dark:border-oxford-blue-900 p-0'>
       <SurveyCreatorComponent creator={creator} />
     </Panel>
   )

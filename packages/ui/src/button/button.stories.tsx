@@ -44,7 +44,7 @@ const meta: Meta<typeof Button> = {
       defaultValue: 'Button',
     },
   },
-  render: ({ children, ...args }) => {
+  render: ({ children, ...args }: { children: React.ReactNode }) => {
     return <Button {...args}>{children}</Button>
   },
 } satisfies Meta<typeof Button>
@@ -55,7 +55,7 @@ meta.args = {
 }
 type Story = StoryObj<typeof meta>
 
-export const aquamarine: Story = {
+export const filled: Story = {
   args: {
     variant: 'filled',
   },
@@ -77,7 +77,7 @@ export const Medium: Story = {
   },
 }
 
-export const Smallaquamarine: Story = {
+export const Smallfilled: Story = {
   args: {
     variant: 'filled',
     size: 'sm',

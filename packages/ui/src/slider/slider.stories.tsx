@@ -11,7 +11,6 @@ const meta: Meta<typeof Slider> = {
           'A slider component for selecting a value from a range. https://ui.shadcn.com/docs/components/slider',
       },
     },
-    backgrounds: { default: 'white' },
   },
   render: (args) => <Slider {...args} />,
 } satisfies Meta<typeof Slider>

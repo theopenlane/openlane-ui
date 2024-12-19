@@ -3,12 +3,12 @@ import { tv, type VariantProps } from 'tailwind-variants'
 export const inputStyles = tv({
   slots: {
     input:
-      'flex h-12 px-3 py-none w-full font-sans text-base bg-white dark:bg-oxford-blue-950 border rounded-md border-oxford-blue-200 dark:border-oxford-blue-700 autofill:bg-white autofill:text-firefly-950 autofill:font-sans transition-colors file:border-0 file:bg-transparent file:text-base file:font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-firefly-100 focus-visible:dark:ring-firefly-700 disabled:cursor-not-allowed disabled:opacity-50 dark:placeholder-ziggurat-400',
+      'flex h-12 px-3 py-none w-full font-sans bg-background-secondary border rounded-md autofill:bg-white autofill:font-sans transition-colors file:border-0 file:bg-transparent file:text-base file:font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring disabled:cursor-not-allowed disabled:opacity-50',
     inputWrapper: 'relative flex items-center',
     iconWrapper:
-      'absolute z-20 text-firefly-500 top-1/2 -translate-y-1/2 right-4',
+      'absolute z-20 top-1/2 -translate-y-1/2 right-4',
     prefixWrapper:
-      'absolute z-20 rounded-l-md px-4 border text-firefly-500 h-full left-0 flex items-center bg-firefly-700 border-oxford-blue-200',
+      'absolute z-20 rounded-l-md px-4 border h-full left-0 flex items-center',
   },
   variants: {
     hasIcon: {
@@ -24,6 +24,9 @@ export const inputStyles = tv({
     variant: {
       medium: {
         input: 'w-[280px] max-w-full',
+      },
+      light: {
+        input: 'bg-white text-text-dark',
       },
     },
   },

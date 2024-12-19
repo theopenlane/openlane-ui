@@ -3,7 +3,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 
 export const buttonStyles = tv({
   slots: {
-    base: 'relative group font-sans font-semibold text-oxford-blue-900 inline-flex items-center gap-2 justify-center whitespace-nowrap rounded-md leading-none text-sm transition-all duration-500 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-oxford-blue-300 disabled:pointer-events-none disabled:opacity-50',
+    base: 'relative group font-sans font-semibold inline-flex items-center gap-2 justify-center whitespace-nowrap rounded-md leading-none text-sm transition-all duration-500 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50',
     iconOuter: 'relative h-4 w-4 overflow-hidden',
     iconInner: 'absolute transition-all duration-500',
     loadingWrapper:
@@ -14,19 +14,20 @@ export const buttonStyles = tv({
   },
   variants: {
     variant: {
-      filled: 'bg-java-400 dark:bg-java-400 hover:!opacity-90 text-oxford-blue-100 text-oxford-blue-900 ',
+      filled: 'bg-button text-button-text hover:!opacity-90',
+      light: 'bg-button-light text-text-dark hover:!opacity-90',
       outline:
-        'border-oxford-blue-200 text-oxford-blue-800 dark:text-oxford-blue-100 border hover:!opacity-90',
+        'border-border text-text-paragraph border',
       outlineLight:
-        'border-oxford-blue-200 text-oxford-blue-800 border hover:!opacity-90',
+        'border-border-dark text-text-dark border hover:!bg-teal-400 hover:!bg-opacity-20',
       outlineInput:
-        'border-oxford-blue-200 text-oxford-blue-800 dark:text-oxford-blue-100 border hover:!opacity-90',
+        'border-border text-text-paragraph border hover:!opacity-90',
       outlineInputPadding:
-        'border-oxford-blue-200 text-oxford-blue-800 mx-1 dark:text-oxford-blue-100 border hover:!opacity-90',
+        'border-border text-paragraph mx-1 border hover:!opacity-90',
       redOutline:
-        'border-red-500 text-red-500 border bg-white hover:!opacity-90 dark:border-red-500 dark:text-red-500',
+        'border-error text-error border hover:!opacity-90 dark:border-red-500 dark:text-red-500',
       white: {},
-      success: 'flex-row-reverse !bg-aquamarine-600 hover:!opacity-90',
+      success: 'flex-row-reverse !bg-teal-600 text-button-text hover:!opacity-90',
     },
     iconPosition: {
       left: 'flex-row-reverse',
@@ -37,9 +38,9 @@ export const buttonStyles = tv({
       },
     },
     size: {
-      sm: 'h-auto rounded-none p-0 !bg-transparent font-sans text-lg',
-      md: 'h-12 rounded-md text-base px-5',
-      lg: 'h-16 px-8 text-lg',
+      sm: 'h-auto rounded-md p-0 !bg-transparent font-sans text-sm',
+      md: 'h-10 rounded-md px-5 text-sm',
+      lg: 'h-16 rounded-lg px-8 text-lg',
     },
     full: {
       true: {

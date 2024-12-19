@@ -84,7 +84,7 @@ export const UserMenu = () => {
             <SelectTrigger className={themeDropdown()}>
               <SelectValue placeholder="Select theme" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className='bg-panel'>
               <SelectGroup>
                 <SelectItem value="system">Default</SelectItem>
                 <SelectItem value="dark">Dark</SelectItem>

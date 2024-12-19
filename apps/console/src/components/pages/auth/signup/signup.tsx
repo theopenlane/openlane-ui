@@ -120,7 +120,7 @@ export const SignupPage = () => {
             google()
           }}
         >
-          Sign up with Google
+          Google
         </Button>
 
         <Button
@@ -132,7 +132,7 @@ export const SignupPage = () => {
             github()
           }}
         >
-          Sign up with GitHub
+          GitHub
         </Button>
 
         {/* <Button
@@ -142,7 +142,7 @@ export const SignupPage = () => {
           iconPosition="left"
           onClick={registerPassKey}
         >
-          Sign up with PassKey
+          PassKey
         </Button> */}
       </div>
 
@@ -188,8 +188,9 @@ export const SignupPage = () => {
         }}
       >
         <div className={input()}>
-          <Label htmlFor="username">Email</Label>
+          <Label className='text-text-dark' htmlFor="username">Email</Label>
           <Input
+            variant='light'
             name="email"
             placeholder="email@domain.com"
             autoComplete='email'
@@ -200,14 +201,16 @@ export const SignupPage = () => {
         {isPasswordActive && (
           <>
             <div className={input()}>
-              <Label htmlFor="password">Password</Label>
+              <Label className='text-text-dark' htmlFor="password">Password</Label>
               <PasswordInput
+                variant='light'
                 name="password"
                 placeholder="password"
                 autoComplete='new-password'
                 required
               />
               <PasswordInput
+                variant='light'
                 name="confirmedPassword"
                 placeholder="confirm password"
                 autoComplete='new-password'

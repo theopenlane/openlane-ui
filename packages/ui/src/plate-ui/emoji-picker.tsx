@@ -36,7 +36,7 @@ export function EmojiPicker({
     <div
       className={cn(
         'flex flex-col rounded-xl bg-white text-oxford-blue-950 dark:bg-oxford-blue-950 dark:text-oxford-blue-50',
-        'h-[23rem] w-80 border border-oxford-blue-200 shadow-md dark:border-oxford-blue-800'
+        'h-[23rem] w-80 border border-border shadow-md'
       )}
     >
       <EmojiPickerNavigation

@@ -196,9 +196,9 @@ const valueFormatter = (number: number) => {
 }
 
 const status = {
-    completed: "bg-aquamarine-500 dark:bg-aquamarine-500",
-    "in progress": "bg-firefly-500 dark:bg-firefly-500",
-    "on hold": "bg-saffron-500 dark:bg-saffron-500",
+    completed: "bg-jade-500 dark:bg-jade-500",
+    "in progress": "bg-saffron-500 dark:bg-saffron-500",
+    "on hold": "bg-red-500 dark:bg-red-500",
 }
 
 const Tooltip = ({ payload, active, label }: TooltipProps) => {
@@ -264,7 +264,7 @@ export function LineChartExample() {
                 data={formattedArray}
                 index="date"
                 categories={["completed", "in progress", "on hold"]}
-                colors={["aquamarine", "firefly", "saffron"]}
+                colors={["jade", "saffron", "red"]}
                 valueFormatter={valueFormatter}
                 yAxisWidth={35}
                 showLegend={true}

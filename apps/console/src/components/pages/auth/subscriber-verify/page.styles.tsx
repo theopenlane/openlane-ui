@@ -2,7 +2,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 
 const verificationStyles = tv({
   slots: {
-    errorMessage: 'text-ziggurat-200 mt-14',
+    errorMessage: 'text-oxford-blue-200 mt-14',
     success:
       'mt-14 bg-white bg-opacity-20 p-5 rounded-md text-white flex gap-3',
     successMessage: 'flex-1',

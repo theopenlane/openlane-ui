@@ -16,8 +16,8 @@ export const wizardStyles = tv({
     checkIconReview: 'text-green-500 ml-2',
     xIcon: 'text-red-500 mr-5',
     warnIcon: 'text-saffron-500 mr-5',
-    tooltip: 'bg-white dark:bg-glaucous-900 max-w-72',
-    inlineReviewValue: 'text-gray-500 text-sm pl-4',
+    tooltip: 'bg-background max-w-72',
+    inlineReviewValue: 'text-sm pl-4',
     reviewValue: 'flex items-center content-center text-gray-500 text-sm pl-10 pt-2'
   },
 })

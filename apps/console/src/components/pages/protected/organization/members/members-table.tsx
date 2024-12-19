@@ -34,7 +34,6 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
     membersSearchRow,
     membersSearchField,
     membersButtons,
-    actionIcon,
     nameRow,
     copyIcon,
   } = pageStyles()
@@ -105,7 +104,7 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
       accessorKey: 'user.id',
       header: '',
       cell: ({ row }) => (
-        <Avatar variant="medium">
+        <Avatar variant="small">
           {row.original.user.avatarRemoteURL && (
             <AvatarImage src={row.original.user.avatarRemoteURL} />
           )}
@@ -156,13 +155,13 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
     {
       accessorKey: 'role',
       header: 'Role',
-      cell: ({ cell }) => <>{cell.getValue()}</>,
+      cell: ({ cell }) => <>{cell.getValue() as React.ReactNode}</>,
     },
     {
       accessorKey: 'id',
       header: '',
       cell: ({ cell }) => (
-         <MemberActions
+        <MemberActions
           memberId={cell.getValue() as string}
           refetchMembers={refetch}
         />
@@ -183,6 +182,7 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
         </div>
         <div className={membersButtons()}>
           <Button
+            size='md'
             icon={<PlusIcon />}
             iconPosition="left"
             onClick={() => setActiveTab('invites')}

@@ -1,7 +1,9 @@
 import Link from 'next/link'
 import { headerStyles } from './header.styles'
 import { UserMenu } from '@/components/shared/user-menu/user-menu'
-import { OrganizationSelector } from '../organization-selector/organization-selector'
+import { OrganizationSelector } from '@/components/shared/organization-selector/organization-selector'
+import { BreadcrumbNavigation } from '@/components/shared/breadcrumb-nav/breadcrumb'
+import { SlashIcon } from 'lucide-react'
 // import { Notifications } from '../notifications/notifications'
 
 export default function Header() {
@@ -9,10 +11,16 @@ export default function Header() {
   return (
     <div className={header()}>
       <nav className={nav()}>
-        <OrganizationSelector />
+        <div className='flex justify-start items-center'>
+          <OrganizationSelector />
 
-        <div className={mobileSidebar()}>
-          <>MobileSidebar</>
+          <div className={mobileSidebar()}>
+            <>MobileSidebar</>
+          </div>
+
+          <div className='pl-10'>
+            <BreadcrumbNavigation />
+          </div>
         </div>
 
         <div className={userNav()}>
@@ -21,7 +29,7 @@ export default function Header() {
           {/* <Notifications /> */}
           <UserMenu />
         </div>
-      </nav>
-    </div>
+      </nav >
+    </div >
   )
 }

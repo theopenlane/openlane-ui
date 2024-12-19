@@ -125,7 +125,7 @@ export const LoginPage = () => {
               google()
             }}
           >
-            Log in with Google
+            Google
           </Button>
 
           <Button
@@ -137,7 +137,7 @@ export const LoginPage = () => {
               github()
             }}
           >
-            Log in with GitHub
+            GitHub
           </Button>
 
           {/* <Button
@@ -149,7 +149,7 @@ export const LoginPage = () => {
               passKeySignIn()
             }}
           >
-            Log in with PassKey
+            PassKey
           </Button> */}
         </div>
 
@@ -169,13 +169,13 @@ export const LoginPage = () => {
           }}
         >
           <div className={input()}>
-            <Label htmlFor="username">Email</Label>
-            <Input name="username" placeholder="email@domain.com" />
+            <Label className="text-text-dark" htmlFor="username">Email</Label>
+            <Input variant="light" name="username" placeholder="email@domain.com" />
           </div>
           {isPasswordActive && (
             <div className={input()}>
-              <Label htmlFor="password">Password</Label>
-              <PasswordInput name="password" placeholder="password" autoComplete="current-password" />
+              <Label className='text-text-dark' htmlFor="password">Password</Label>
+              <PasswordInput variant='light' name="password" placeholder="password" autoComplete="current-password" />
             </div>
           )}
 

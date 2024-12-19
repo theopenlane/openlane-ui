@@ -5,18 +5,19 @@
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  @apply text-neutral-950 dark:text-neutral-200 font-sans;
+  @apply text-text-paragraph font-sans bg-[var(--color-bg)];
 }
 
 h4 {
-  @apply text-3xl tracking-[-0.038rem] mb-10 w-full font-serif;
+  @apply text-3xl text-text-header tracking-[-0.038rem] mb-10 w-full font-serif;
 }
 
 h5 {
   @apply text-[1.313rem] tracking-[-0.033rem];
 }
+
 p {
-  @apply text-neutral-800 dark:text-neutral-300;
+  @apply text-text-paragraph;
 }
 
 p.red {

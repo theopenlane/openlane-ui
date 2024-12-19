@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { Avatar, AvatarFallback, AvatarImage } from './avatar'
+import avatar from '../assets/kwaters.png'
+
 const meta: Meta = {
   title: 'UI/Avatar',
   component: Avatar,
@@ -10,32 +12,33 @@ const meta: Meta = {
           'An image element with a fallback for representing the user: https://ui.shadcn.com/docs/components/avatar',
       },
     },
-    backgrounds: { default: 'white' },
-  },
-  render: ({ children, ...args }) => {
-    return (
-      <Avatar {...args}>
-        <AvatarImage src="https://github.com/theopenlane.png" />
-        <AvatarFallback>DT</AvatarFallback>
-      </Avatar>
-    )
   },
 } satisfies Meta
 
 export default meta
 meta.args = {
-  src: 'Email',
-  type: 'email',
+  variant: 'large',
 }
+
 type Story = StoryObj<typeof meta>
 
-export const AvatarWithImage: Story = {}
+export const AvatarWithImage: Story = {
+  render: ({ children, ...args }: { children?: React.ReactNode }) => {
+    return (
+      <Avatar {...args}>
+        <AvatarImage src={avatar} />
+        <AvatarFallback>KW</AvatarFallback>
+      </Avatar>
+    )
+  },
+}
+
 
 export const AvatarNoImage: Story = {
-  render: () => {
+  render: ({ children, ...args }: { children?: React.ReactNode }) => {
     return (
-      <Avatar>
-        <AvatarFallback>DT</AvatarFallback>
+      <Avatar {...args}>
+        <AvatarFallback>KW</AvatarFallback>
       </Avatar>
     )
   },

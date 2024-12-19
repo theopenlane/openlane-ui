@@ -27,11 +27,11 @@ export const buttonVariants = cva(
         default: 'bg-oxford-blue-900 text-oxford-blue-50 hover:bg-oxford-blue-900/90 dark:bg-oxford-blue-50 dark:text-oxford-blue-900 dark:hover:bg-oxford-blue-50/90',
         destructive:
           'bg-red-500 text-oxford-blue-50 hover:bg-red-500/90 dark:bg-red-900 dark:text-oxford-blue-50 dark:hover:bg-red-900/90',
-        ghost: 'hover:bg-oxford-blue-100 hover:text-oxford-blue-900 dark:hover:bg-oxford-blue-800 dark:hover:text-oxford-blue-50',
+        ghost: 'hover:bg-button-muted',
         inlineLink: 'text-base text-oxford-blue-900 underline underline-offset-4 dark:text-oxford-blue-50',
         link: 'text-oxford-blue-900 underline-offset-4 hover:underline dark:text-oxford-blue-50',
         outline:
-          'border border-oxford-blue-200 bg-white hover:bg-oxford-blue-100 hover:text-oxford-blue-900 dark:border-oxford-blue-800 dark:bg-oxford-blue-950 dark:hover:bg-oxford-blue-800 dark:hover:text-oxford-blue-50',
+          'border border-border bg-white hover:bg-oxford-blue-100 hover:text-oxford-blue-900 dark:bg-oxford-blue-950 dark:hover:bg-oxford-blue-800 dark:hover:text-oxford-blue-50',
         secondary:
           'bg-oxford-blue-100 text-oxford-blue-900 hover:bg-oxford-blue-100/80 dark:bg-oxford-blue-800 dark:text-oxford-blue-50 dark:hover:bg-oxford-blue-800/80',
       },

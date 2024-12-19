@@ -36,7 +36,7 @@ export const TokenVerifier = () => {
     <main className={content()}>
       <div className={wrapper()}>
         <div className={logo()}>
-          <Logo width={200} />
+          <Logo width={300} theme='dark' />
         </div>
         {isLoading ? (
           <h1 className={verifying()}>
@@ -46,7 +46,7 @@ export const TokenVerifier = () => {
         {!isLoading && (
           <div className={success()}>
             <span className={successMessage()}>
-              Thank you for signing up for Openlane! <br />
+              Thank you for signing up for Openlane! <br /><br />
               Check your email and give that awesome verification link a click to get started.
             </span>
           </div>

@@ -37,7 +37,10 @@
     "react-easy-crop": "^5.0.7",
     "swr": "latest",
     "urql": "^4.0.7",
-    "zustand": "^5.0.0"
+    "zustand": "^5.0.0",
+    "survey-creator-react": "1.12.8",
+    "survey-react-ui": "1.12.8",
+    "survey-creator-core": "1.12.8"
   },
   "devDependencies": {
     "@headlessui/react": "latest",

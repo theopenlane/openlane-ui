@@ -10,7 +10,7 @@
     "build": "turbo build",
     "dev": "turbo dev --parallel",
     "type-check": "turbo type-check",
-    "clean": "rm -rf node_modules/** && rm -rf ./apps/console/.next && rm -rf ./apps/docs/.next && rm -rf ./apps/web/.next && turbo clean",
+    "clean": "rm -rf node_modules/** && rm -rf ./apps/console/.next && rm -rf ./apps/storybook/.next && turbo clean",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },

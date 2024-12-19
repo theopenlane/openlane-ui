@@ -34,11 +34,11 @@ interface StepperProps extends Step {
 }
 
 const stepDetails: StepperProps[] = [
-    { id: 'init', description: "Get started by choosing one of the supported audit frameworks or build your own custom program", icon: <ShieldPlusIcon /> },
-    { id: 'details', description: "Customize your program by configuring your audit period and partners", icon: <BookTextIcon /> },
-    { id: 'invite', description: "Invite your team to the program with customizable roles", icon: <UserRoundPlusIcon /> },
-    { id: 'link', description: "Associate existing objects with the program (e.g. policies, procedures, etc.)", icon: <LinkIcon /> },
-    { id: 'review', description: "Review the final details before creation", icon: <EyeIcon /> }
+    { id: 'init', description: "Get started by choosing one of the supported audit frameworks or build your own custom program", icon: <ShieldPlusIcon size={20} /> },
+    { id: 'details', description: "Customize your program by configuring your audit period and partners", icon: <BookTextIcon size={20} /> },
+    { id: 'invite', description: "Invite your team to the program with customizable roles", icon: <UserRoundPlusIcon size={20} /> },
+    { id: 'link', description: "Associate existing objects with the program (e.g. policies, procedures, etc.)", icon: <LinkIcon size={20} /> },
+    { id: 'review', description: "Review the final details before creation", icon: <EyeIcon size={20} /> }
 ];
 
 const { useStepper, steps } = defineStepper(
@@ -69,6 +69,20 @@ const ProgramWizard = () => {
         resolver: zodResolver(stepper.current.schema),
     });
 
+    const fullForm = useForm({
+        mode: "all",
+        resolver: zodResolver(
+            z.union(
+                [
+                    initProgramSchema,
+                    programDetailSchema,
+                    programInviteSchema,
+                    programObjectAssociationSchema,
+                ],
+            ),
+        ),
+    });
+
     const {
         handleSubmit,
         getValues,
@@ -76,6 +90,7 @@ const ProgramWizard = () => {
     } = form;
 
     const { isValid } = useFormState({ control: form.control });
+    const { isValid: isFullFormValid } = useFormState({ control: fullForm.control });
 
     // grab all the data from the API to populate the dropdowns
     const [edgeData] = useGetProgramEdgesForWizardQuery({ pause: !sessionData })
@@ -134,7 +149,7 @@ const ProgramWizard = () => {
 
     // handle the final form submission
     const handleFormSubmit = () => {
-        if (!isValid) {
+        if (!isFullFormValid) {
             toast({
                 title: 'Form Invalid',
                 description: 'Please fill out all required fields',
@@ -148,7 +163,7 @@ const ProgramWizard = () => {
         let programMembers = []
         for (let i = 0; i < getValues().programMembers?.length; i++) {
             programMembers.push({
-                userID: getValues().editors[i],
+                userID: getValues().programMembers[i],
                 role: ProgramMembershipRole.MEMBER
             })
         }
@@ -156,7 +171,7 @@ const ProgramWizard = () => {
         let programAdmins = []
         for (let i = 0; i < getValues().programAdmins?.length; i++) {
             programAdmins.push({
-                userID: getValues().editors[i],
+                userID: getValues().programAdmins[i],
                 role: ProgramMembershipRole.ADMIN
             })
         }
@@ -190,7 +205,7 @@ const ProgramWizard = () => {
             variant: 'success',
             duration: 5000,
         })
-        router.push(`/programs/programs?id=${data.createProgramWithMembers.program.id}`)
+        router.push(`/programs?id=${data.createProgramWithMembers.program.id}`)
     }
 
     if (error) {
@@ -209,7 +224,7 @@ const ProgramWizard = () => {
                     <nav aria-label="Program Creation" className="group">
                         <Accordion type="multiple">
                             {stepper.all.map((step, index, array) => (
-                                <AccordionItem key={step.id} value={step.id} className={`${index - 1 < stepper.current.index ? 'rounded-md font-bold hover:bg-muted bg-java-400 h-1/3 dark:text-glaucous-950' : 'bg-muted'}`}>
+                                <AccordionItem key={step.id} value={step.id} className={`${index - 1 < stepper.current.index ? 'rounded-md font-bold hover:bg-teal-200 bg-button-muted h-1/3' : 'bg-background-secondary text-text'}`}>
                                     <li key={step.id} className={linkItem()}>
                                         <Link
                                             aria-current={
@@ -223,15 +238,17 @@ const ProgramWizard = () => {
                                             onClick={(data) => onClick(step.id, data)}
                                         >
                                             <span className="flex items-center" >
-                                                <span className="mx-2">
+                                                <span className="mx-2 py-2">
                                                     {stepDetails[index].icon}
                                                 </span>
-                                                <span className="mx-6">
+                                                <span className="ml-2 mr-10">
                                                     <span>{step.label}</span>
                                                     <br />
-                                                    <span className="text-xs">
-                                                        {stepDetails[index].description}
-                                                    </span>
+                                                    <div className="">
+                                                        <span className="text-xs">
+                                                            {stepDetails[index].description}
+                                                        </span>
+                                                    </div>
                                                 </span>
                                             </span>
                                         </Link>
@@ -239,7 +256,8 @@ const ProgramWizard = () => {
                                     {
                                         index < array.length - 1 && (
                                             <Separator
-                                                className={`flex-1 ${index < stepper.current.index ? 'bg-primary' : 'bg-muted'
+                                                full
+                                                className={`flex-1 mx-0 ${index < stepper.current.index ? 'bg-primary' : 'bg-muted mx-0'
                                                     }`}
                                             />
                                         )

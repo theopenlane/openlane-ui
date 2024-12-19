@@ -11,19 +11,19 @@ export const fullConfig = resolveConfig(tailwindConfig) as {
 }
 
 const colors = {
-    primary: fullConfig.theme.colors.java['400'],
-    secondary: fullConfig.theme.colors.firefly['400'],
-    yellow: fullConfig.theme.colors.saffron['400'],
+  primary: fullConfig.theme.colors.jade['400'],
+  secondary: fullConfig.theme.colors.jade['500'],
+  yellow: fullConfig.theme.colors.saffron['400'],
 
-    surface: fullConfig.theme.colors.glaucous['950'],
-    background: fullConfig.theme.colors.glaucous['900'],
-    backgroundDim: fullConfig.theme.colors.glaucous['800'],
-    borderColor: fullConfig.theme.colors['oxford-blue']['700'],
-    backgroundLight: fullConfig.theme.colors.java['700'],
-    textColor: fullConfig.theme.colors.ziggurat['200'],
-    textColorDim: fullConfig.theme.colors.ziggurat['400'],
-    inputPlaceholderColor: fullConfig.theme.colors.ziggurat['400'],
-    iconColor: fullConfig.theme.colors.java['400']
+  surface: fullConfig.theme.colors.background['dark'],
+  background: fullConfig.theme.colors.background['dark'],
+  backgroundDim: fullConfig.theme.colors.background['secondary'],
+  borderColor: fullConfig.theme.colors.border['dark'],
+  backgroundLight: fullConfig.theme.colors.jade['700'],
+  textColor: fullConfig.theme.colors.text['light'],
+  textColorDim: fullConfig.theme.colors.text['light'],
+  inputPlaceholderColor: fullConfig.theme.colors.text['light'],
+  iconColor: fullConfig.theme.colors.button['muted'],
 }
 
 // https://github.com/surveyjs/survey-creator/blob/master/packages/survey-creator-core/src/themes/predefined-themes/default/dark.css
@@ -348,6 +348,10 @@ export const darkTheme: ITheme = {
     // "--ctr-font-small-size": "var(--sjs-font-size-x150)",
     // "--ctr-font-unit": "8px",
     // "--ctr-image-gallery-item-corner-radius": "var(--sjs-corner-radius-x075)"
+    "--ctr-font-family-code": "var(--font-outfit)",
+    "--ctr-font-family": "var(--font-outfit)",
+    "--sjs-default-font-family": "var(--font-outfit)",
+    "--sjs-font-family": "var(--font-outfit)",
     "--ctr-image-gallery-item-title-color": colors.textColor,
     // "--ctr-label-padding-bottom": "var(--sjs-spacing-x1)",
     // "--ctr-label-padding-left": "0px",

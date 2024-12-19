@@ -37,12 +37,12 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
     isChildren: true,
     children: [
       {
-        title: 'Programs',
-        href: '/programs/programs',
-      },
-      {
         title: 'Controls',
         href: '/programs/controls',
+      },
+      {
+        title: 'Control Objectives',
+        href: '/programs/control-objectives',
       },
       {
         title: 'Tasks',

@@ -11,7 +11,7 @@ export function mapToNode(input: any): Node[] {
 
         var res: Node = {
             node: {
-                id: obj.node.id,
+                id: obj.node.id || obj.node.user.id,
                 name: (obj.node.name || obj.node.user.firstName + ' ' + obj.node.user.lastName),
             }
         }
