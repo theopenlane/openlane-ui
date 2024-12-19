@@ -63,7 +63,7 @@ tasks:
     desc: develop storybook
     cmds:
       - task: install
-      - bun dev --filter={apps/sb}
+      - bun dev --filter={apps/storybook}
 
   precommit-full:
     desc: Lint the project against all files
