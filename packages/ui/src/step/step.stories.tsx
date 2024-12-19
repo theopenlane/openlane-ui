@@ -11,7 +11,6 @@ const meta: Meta<typeof Wizard> = {
           'A step-by-step wizard that guides the user through a process',
       },
     },
-    backgrounds: { default: 'light' },
   },
   render: ({ ...args }) => {
     return <Wizard numSteps={0} {...args} />

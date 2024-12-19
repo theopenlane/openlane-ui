@@ -38,9 +38,9 @@ export const buttonStyles = tv({
       },
     },
     size: {
-      sm: 'h-auto rounded-none p-0 !bg-transparent font-sans text-sm',
+      sm: 'h-auto rounded-md p-0 !bg-transparent font-sans text-sm',
       md: 'h-10 rounded-md px-5 text-sm',
-      lg: 'h-16 px-8 text-lg',
+      lg: 'h-16 rounded-lg px-8 text-lg',
     },
     full: {
       true: {

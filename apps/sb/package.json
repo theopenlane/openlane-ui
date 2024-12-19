@@ -1,0 +1,60 @@
+{
+  "name": "storybook",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "storybook dev -p 6006 --no-open",
+    "build": "storybook build",
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
+  },
+  "dependencies": {
+    "@storybook/addon-themes": "^8.4.7",
+    "react": "18.3.12",
+    "react-dom": "18.3.1",
+    "storybook-dark-mode": "^4.0.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react-swc": "^3.6.0",
+    "@repo/eslint-config": "workspace:*",
+    "@repo/tailwind-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@chromatic-com/storybook": "^3.2.2",
+    "@eslint/js": "^9.15.0",
+    "@storybook/addon-a11y": "8.4.7",
+    "@storybook/addon-essentials": "8.4.7",
+    "@storybook/addon-interactions": "8.4.7",
+    "@storybook/preset-scss": "1.0.3",
+    "@storybook/addon-links": "8.4.7",
+    "@storybook/builder-vite": "8.4.7",
+    "@storybook/cli": "8.4.7",
+    "@storybook/manager-api": "8.4.7",
+    "@storybook/testing-library": "0.2.2",
+    "@storybook/theming": "8.4.7",
+    "@storybook/blocks": "^8.4.7",
+    "@storybook/react": "^8.4.7",
+    "@storybook/react-vite": "^8.4.7",
+    "@storybook/test": "^8.4.7",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.15.0",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.14",
+    "eslint-plugin-storybook": "^0.11.1",
+    "globals": "^15.12.0",
+    "storybook": "8.4.7",
+    "typescript": "5.6.3",
+    "typescript-eslint": "^8.15.0",
+    "tailwindcss": "^3.4.3",
+    "vite": "^6.0.1"
+  },
+  "eslintConfig": {
+    "extends": [
+      "plugin:storybook/recommended"
+    ]
+  }
+}

@@ -94,7 +94,7 @@
     "@radix-ui/react-tooltip": "^1.1.4",
     "@remixicon/react": "^4.5.0",
     "@stepperize/react": "^4.0.1",
-    "@storybook/react": "latest",
+    "@storybook/react": "8.4.7",
     "@tailwindcss/typography": "^0.5.15",
     "@tanstack/react-table": "^8.17.3",
     "@types/prismjs": "^1.26.5",

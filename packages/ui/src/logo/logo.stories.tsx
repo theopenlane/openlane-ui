@@ -36,7 +36,6 @@ type Story = StoryObj<typeof meta>
 
 export const Light: Story = {
   parameters: {
-    backgrounds: { default: 'light' },
   },
   args: {
     theme: 'light',
@@ -45,7 +44,6 @@ export const Light: Story = {
 
 export const Dark: Story = {
   parameters: {
-    backgrounds: { default: 'dark' },
   },
   args: {
     theme: 'dark',
@@ -54,7 +52,6 @@ export const Dark: Story = {
 
 export const White: Story = {
   parameters: {
-    backgrounds: { default: 'dark' },
   },
   args: {
     theme: 'white',

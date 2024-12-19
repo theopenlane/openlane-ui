@@ -13,7 +13,7 @@ const organizationSelectorStyles = tv({
     popoverContent: 'p-0 w-[400px] dark:bg-glaucous-900',
     searchWrapper: 'py-5 px-6',
     orgWrapper:
-      'transition-all duration-500 flex gap-3 items-center py-4 px-6 border-t border-oxford-blue-200 hover:bg-firefly-700 cursor-pointer relative',
+      'transition-all duration-500 flex gap-3 items-center py-4 px-6 border-t border-oxford-blue-200 hover:bg-jade-700 cursor-pointer relative',
     orgInfo: 'flex flex-col gap-1 items-start flex-1',
     orgTitle: 'text-sm',
     orgSelect:

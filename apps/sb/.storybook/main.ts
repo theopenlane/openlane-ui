@@ -14,17 +14,22 @@ const config: StorybookConfig = {
     '@storybook/addon-essentials',
     '@storybook/addon-interactions',
     '@storybook/addon-a11y',
-    '@storybook/theming',
+    '@storybook/addon-themes',
     '@storybook/preset-scss',
     'storybook-dark-mode',
   ],
   framework: {
     name: '@storybook/react-vite',
-    options: {},
+    options: {
+      builder: {
+        viteConfigPath: 'vite.config.ts',
+      },
+    },
   },
   docs: {
     autodocs: true,
     defaultName: 'Documentation',
   },
+
 }
 export default config

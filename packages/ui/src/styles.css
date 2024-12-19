@@ -89,6 +89,7 @@
   /* Table */
   --color-table-bg: #FFFFFF;
   --color-table-text: #303E4A;
+  --color-table-row-bg-hover: #e9f1f5;
   --color-table-row-bg-odd: #EAF0F3;
   --color-table-row-bg-even: #FFFFFF;
   --color-table-border-muted: #e9f1f5;
