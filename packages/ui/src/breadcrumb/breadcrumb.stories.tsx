@@ -14,18 +14,10 @@ const meta: Meta = {
         },
         backgrounds: { default: 'white' },
     },
-    render: ({ children, ...args }: { children: React.ReactNode }) => {
-        return (
-            <BreadcrumbExample />
-        )
-    },
 } satisfies Meta
 
 export default meta
-meta.args = {
-    src: 'Email',
-    type: 'email',
-}
+
 type Story = StoryObj<typeof meta>
 
 export const BreadcrumbExample: Story = {
@@ -39,7 +31,13 @@ export const BreadcrumbExample: Story = {
                     <Slash />
                 </BreadcrumbSeparator>
                 <BreadcrumbItem>
-                    <BreadcrumbLink href="/components">Components</BreadcrumbLink>
+                    <BreadcrumbLink href="/programs">Programs</BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator>
+                    <Slash />
+                </BreadcrumbSeparator>
+                <BreadcrumbItem>
+                    <BreadcrumbLink href="/components">Programs</BreadcrumbLink>
                 </BreadcrumbItem>
             </BreadcrumbList>
         </Breadcrumb>

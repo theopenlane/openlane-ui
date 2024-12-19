@@ -145,7 +145,7 @@ export const config: Omit<Config, 'content'> = {
           text: 'var(--color-table-text)', // Table text
           'row-bg-odd': 'var(--color-table-row-bg-odd)', // Odd row background
           'row-bg-even': 'var(--color-table-row-bg-even)', // Even row background
-          'row-bg-hover': 'var(--color-table-row-bg-even)',
+          'row-bg-hover': 'var(--color-table-row-bg-hover)',
           border: 'var(--color-table-border)', // Table border
           'border-muted': 'var(--color-table-border-muted)', // Muted table border
           'header-bg': 'var(--color-table-header-bg)', // Table header background

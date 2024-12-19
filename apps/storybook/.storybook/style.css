@@ -1,3 +1,29 @@
+@import '@repo/ui/styles.css';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  @apply text-text-paragraph font-sans bg-[var(--color-bg)];
+}
+
+h4 {
+  @apply text-3xl text-text-header tracking-[-0.038rem] mb-10 w-full font-serif;
+}
+
+h5 {
+  @apply text-[1.313rem] tracking-[-0.033rem];
+}
+
+p {
+  @apply text-text-paragraph;
+}
+
+p.red {
+  @apply text-red-500;
+}
+
 @font-face {
   font-family: 'Outfit', sans-serif;
   src: url('/fonts/Outfit-Thin.ttf') format('truetype');

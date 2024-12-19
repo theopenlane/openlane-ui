@@ -2,13 +2,13 @@ import { tv, type VariantProps } from 'tailwind-variants'
 
 const sidebarNavStyles = tv({
   slots: {
-    nav: 'space-y-[1px] overflow-x-visible h-[calc(100vh-3.5rem)] pt-4 pb-10 tracking-tighter bg-background-secondary',
+    nav: 'space-y-[1px] overflow-x-visible h-[calc(100vh-4rem)] pt-4 pb-10 tracking-tighter bg-background-secondary',
     icon: 'h-5 w-5 text-mauve-400',
     linkLabel:
       'text-base absolute left-12 nowrap duration-200',
     accordionTrigger:
-      'group relative flex h-[1.8rem] justify-between px-4 py-2 duration-200 hover:bg-muted hover:rounded hover:no-underline',
-    link: 'font-sans px-4 py-1 group relative flex h-[1.8rem] justify-start items-center hover:bg-muted hover:rounded hover:no-underline',
+      'group relative flex h-[2.2rem] justify-between px-4 py-2 duration-200 hover:bg-muted hover:rounded hover:no-underline',
+    link: 'font-sans px-4 py-1 group relative flex h-[2.2rem] justify-start items-center hover:bg-muted hover:rounded hover:no-underline',
     accordionItem: 'border-none',
     separator: '!my-4',
     heading:
