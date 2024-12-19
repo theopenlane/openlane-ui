@@ -11,7 +11,7 @@ const SelectValue = SelectPrimitive.Value
 const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> &
-    SelectVariants
+  SelectVariants
 >(({ className, children, ...props }, ref) => {
   const styles = selectStyles(props)
   return (
@@ -67,7 +67,7 @@ SelectScrollDownButton.displayName =
 const SelectContent = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content> &
-    SelectVariants
+  SelectVariants
 >(({ className, children, position = 'popper', ...props }, ref) => {
   const styles = selectStyles({ position })
   return (

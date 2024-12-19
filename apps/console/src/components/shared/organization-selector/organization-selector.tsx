@@ -14,6 +14,7 @@ import { Tag } from '@repo/ui/tag'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { switchOrganization } from '@/lib/user'
+import { Loading } from '../loading/loading'
 
 export const OrganizationSelector = () => {
   const { data: sessionData, update: updateSession } = useSession()
@@ -89,18 +90,22 @@ export const OrganizationSelector = () => {
     }
   }
 
+  if (!allOrgs) return (
+    <Loading />
+  )
+
   // if there is only one non-personal organization, show the logo instead of the dropdown
   if (orgData.numberOfOrgs <= 1) {
     return (
       <Link href={'/'} className={logoWrapper()}>
-        <Logo width={200} />
+        <Logo width={160} />
       </Link>
     )
   }
 
   return (
     <div className={container()}>
-      <Logo width={30} asIcon={true} />
+      <Logo width={32} asIcon={true} />
       <div>
         <div className={organizationLabel()}>Organization</div>
         <Popover>

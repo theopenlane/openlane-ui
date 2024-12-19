@@ -50,7 +50,7 @@ export const ObjectAssociationComponent: React.FC<ObjectAssociationProps> = ({ r
 
     return (
         <>
-            <Card className='px-5 pb-6'>
+            <Card className='px-5 pb-6 bg-background-secondary'>
                 <Grid className='gap-0 mb-8'>
                     <AddObjectDropdown values={risks} fieldName='risks' formLabel='Associate Existing Risks' />
                     <AddObjectDropdown values={policies} fieldName='policies' formLabel='Associate Existing Policies' />

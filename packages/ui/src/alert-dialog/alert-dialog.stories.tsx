@@ -22,7 +22,6 @@ const meta: Meta<typeof AlertDialog> = {
           'An alert dialog that interrupts the user with important information and requires a response. https://ui.shadcn.com/docs/components/alert-dialog',
       },
     },
-    backgrounds: { default: 'white' },
   },
   render: () => {
     return (

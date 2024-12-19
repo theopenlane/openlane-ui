@@ -18,6 +18,7 @@ import { resendVerification } from '@/lib/user'
 import { useRouter } from 'next/navigation'
 import { Panel } from '@repo/ui/panel'
 import { Logo } from '@repo/ui/logo'
+import { buttonVariants } from '@repo/ui/plate-ui/button'
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -50,11 +51,11 @@ export const Resend = () => {
 
   return (
     <>
-      <Panel>
+      <Panel className='bg-background-dark border-none p-8 shadow-lg'>
         <div className={logo()}>
-          <Logo width={300} />
+          <Logo width={300} theme='dark' />
         </div>
-        <h2 className={header()}>Can't find that email?</h2>
+        <h2 className={header()}>Can't find that email?</h2 >
         <p className={text()}>
           We got you, enter your email to have our robots <br />
           resend that verification email right over to you. </p>
@@ -65,7 +66,7 @@ export const Resend = () => {
               name="email"
               render={({ field }) => (
                 <>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel className='text-text-light'>Email</FormLabel>
                   <FormControl>
                     <Input
                       type="email"
@@ -78,7 +79,7 @@ export const Resend = () => {
                 </>
               )}
             />
-            <Button type="submit" className={button()}>
+            <Button type="submit" className={buttonVariants({ size: 'lg', variant: 'ghost' })}>
               Resend Verification
             </Button>
           </form>

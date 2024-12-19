@@ -1,11 +1,11 @@
 export type ColorUtility = "bg" | "stroke" | "fill" | "text"
 
 export const chartColors = {
-    aquamarine: {
-        bg: "bg-aquamarine-500",
-        stroke: "stroke-aquamarine-500",
-        fill: "fill-aquamarine-500",
-        text: "text-aquamarine-500",
+    blue: {
+        bg: "bg-blue-400",
+        stroke: "stroke-blue-400",
+        fill: "fill-blue-400",
+        text: "text-blue-400",
     },
     saffron: {
         bg: "bg-saffron-500",
@@ -13,11 +13,35 @@ export const chartColors = {
         fill: "fill-saffron-500",
         text: "text-saffron-500",
     },
-    firefly: {
-        bg: "bg-firefly-500",
-        stroke: "stroke-firefly-500",
-        fill: "fill-firefly-500",
-        text: "text-firefly-500",
+    jade: {
+        bg: "bg-jade-500",
+        stroke: "stroke-jade-500",
+        fill: "fill-jade-500",
+        text: "text-jade-500",
+    },
+    pink: {
+        bg: "bg-pink-500",
+        stroke: "stroke-pink-500",
+        fill: "fill-pink-500",
+        text: "text-pink-500",
+    },
+    purple: {
+        bg: "bg-purple-500",
+        stroke: "stroke-purple-500",
+        fill: "fill-purple-500",
+        text: "text-purple-500",
+    },
+    red: {
+        bg: "bg-red-500",
+        stroke: "stroke-red-500",
+        fill: "fill-red-500",
+        text: "text-red-500",
+    },
+    grey: {
+        bg: "bg-gray-500",
+        stroke: "stroke-gray-500",
+        fill: "fill-gray-500",
+        text: "text-gray-500",
     },
 } as const satisfies {
     [color: string]: {
@@ -47,10 +71,10 @@ export const getColorClassName = (
     type: ColorUtility,
 ): string => {
     const fallbackColor = {
-        bg: "bg-gray-500",
-        stroke: "stroke-gray-500",
-        fill: "fill-gray-500",
-        text: "text-gray-500",
+        bg: "bg-blue-500",
+        stroke: "stroke-blue-500",
+        fill: "fill-blue-500",
+        text: "text-blue-500",
     }
     return chartColors[color]?.[type] ?? fallbackColor[type]
 }

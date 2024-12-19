@@ -4,7 +4,7 @@ import { cn } from '../../lib/utils'
 
 export interface SeparatorProps
   extends SeparatorVariants,
-    HTMLAttributes<HTMLDivElement> {
+  HTMLAttributes<HTMLDivElement> {
   label?: string
 }
 

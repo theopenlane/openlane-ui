@@ -5,9 +5,9 @@ export const formStyles = tv({
     formItem: 'space-y-2',
     formLabelError: '',
     formDescription: 'text-sm',
-    formMessageIcon: 'text-red-400',
+    formMessageIcon: 'text-error',
     formMessage:
-      'text-red-500 text-sm rounded p-[10px] bg-red-100 flex items-center gap-2 !mt-2',
+      'text-sm rounded p-[8px] text-error bg-error-muted bg-opacity-[50%] flex items-center gap-2 !mt-2',
   },
 })
 

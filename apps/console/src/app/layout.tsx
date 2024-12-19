@@ -20,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode
 }): JSX.Element {
   return (
-    <html className="h-full relative" lang="en" suppressHydrationWarning>
+    <html className="h-screen relative" lang="en" suppressHydrationWarning>
       <head>
         <script
           async
@@ -33,7 +33,7 @@ export default function RootLayout({
         )}
       </head>
       <body
-        className={`${outfit.variable} ${mincho.variable} ${jetBrainsMono.variable} font-sans w-full h-full bg-ziggurat-100 overscroll-none dark:bg-glaucous-950`}
+        className={`${outfit.variable} ${mincho.variable} ${jetBrainsMono.variable} font-sans w-full h-screen overscroll-none`}
       >
         <SessionProvider>
           <Providers>{children}</Providers>

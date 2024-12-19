@@ -11,7 +11,6 @@ const meta: Meta<typeof Switch> = {
           'A control that allows the user to toggle between checked and not checked. https://ui.shadcn.com/docs/components/switch',
       },
     },
-    backgrounds: { default: 'light' },
   },
   render: ({ ...args }) => {
     return <Switch {...args} />

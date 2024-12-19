@@ -70,32 +70,34 @@ export const Subscribe = () => {
           </span>
         </div>
       ) : (
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className={wrapper()}>
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <>
-                  <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="Your email"
-                      className={input()}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </>
-              )}
-            />
-            <Button type="submit" className={button()}>
-              {isLoading && <LoaderCircle className="animate-spin" size={20} />}
-              {isLoading ? 'Loading' : 'Subscribe for updates'}
-            </Button>
-          </form>
-          {error && <div className={errorMessage()}>{error.message}</div>}
-        </Form>
+        <div className='flex justify-center'>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className={wrapper()}>
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="Your email"
+                        className={input()}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </>
+                )}
+              />
+              <Button type="submit" className={button()}>
+                {isLoading && <LoaderCircle className="animate-spin" size={20} />}
+                {isLoading ? 'Loading' : 'Subscribe for updates'}
+              </Button>
+            </form>
+            {error && <div className={errorMessage()}>{error.message}</div>}
+          </Form>
+        </div>
       )}
     </>
   )

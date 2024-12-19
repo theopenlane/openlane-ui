@@ -22,7 +22,6 @@ const meta: Meta<typeof Select> = {
           'A customizable select component built with Radix UI. https://www.radix-ui.com/docs/primitives/components/select',
       },
     },
-    backgrounds: { default: 'light' },
   },
   render: ({ ...args }) => {
     return (

@@ -6,7 +6,6 @@ import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Button } from '@repo/ui/button'
 import { PageHeading } from '@repo/ui/page-heading'
 import { ArrowUpRight, CalendarClock } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 import { ProgramCreate } from '@/components/pages/protected/program/program-create'
 import { ProgressCircle } from '@repo/ui/progress-circle'
 import { Separator } from '@repo/ui/separator'
@@ -14,11 +13,13 @@ import { LineChartExample } from '@repo/ui/line-chart-example'
 import Link from 'next/link'
 import { toTitleCase } from '@/components/shared/lib/strings'
 import { pageStyles } from './page.style'
+import { NavigateOptions } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 
 
 type DashboardProps = {
-    programs: { edges: any[] }
-    tasks: { edges: any[] }
+    programs?: { edges: any[] }
+    tasks?: { edges: any[] }
+    push: (href: string, options?: NavigateOptions) => void
 }
 
 export const defaultLanding: React.FC<DashboardProps> = ({ programs, tasks }) => {
@@ -46,7 +47,7 @@ export const defaultLanding: React.FC<DashboardProps> = ({ programs, tasks }) =>
                                 noBorder
                             />
                             {
-                                programs.edges?.length > 0 ? programs.edges.slice(0, 2).map((program, i) => (
+                                programs && programs.edges?.length > 0 ? programs.edges.slice(0, 2).map((program, i) => (
                                     <>
                                         <Link
                                             href={`/programs//programs/${program.node.id}`}
@@ -105,7 +106,7 @@ export const defaultLanding: React.FC<DashboardProps> = ({ programs, tasks }) =>
                                 noBorder
                             />
                             {
-                                tasks.edges?.length > 0 ? tasks.edges?.map((task) => (
+                                tasks && tasks.edges?.length > 0 ? tasks.edges?.map((task) => (
                                     <div className='flex'><CalendarClock className='text-red-500 mr-5' />{task?.node?.title}</div>
                                 )) : <div className={emptyRowInfo()}>No tasks Assigned</div>
                             }
@@ -148,9 +149,7 @@ export const defaultLanding: React.FC<DashboardProps> = ({ programs, tasks }) =>
     )
 }
 
-export const newUserLanding = () => {
-    const { push } = useRouter()
-
+export const newUserLanding: React.FC<DashboardProps> = ({ push }) => {
     return (
         <section >
             <PageHeading heading={<>Dashboard</>} />
@@ -161,7 +160,7 @@ export const newUserLanding = () => {
                             align="center"
                             justify="center"
                             textAlign="center"
-                            className="min-h-[400px]"
+                            className="min-h-[300px]"
                         >
                             <PanelHeader heading="Create a new program"
                                 subheading="Start your compliance journey by creating a new program."
@@ -174,7 +173,7 @@ export const newUserLanding = () => {
                             align="center"
                             justify="center"
                             textAlign="center"
-                            className="min-h-[400px]"
+                            className="min-h-[300px]"
                         >
                             <PanelHeader heading="Configure your organization"
                                 subheading="Define everything from your organization slug to advanced
@@ -199,7 +198,7 @@ export const newUserLanding = () => {
                             align="center"
                             justify="center"
                             textAlign="center"
-                            className="min-h-[400px]"
+                            className="min-h-[300px]"
                         >
                             <PanelHeader heading="Add team members"
                                 subheading="Get your team rocking and rolling by inviting your colleagues to

@@ -5,9 +5,9 @@ import { ProceduresTable } from '@/components/pages/protected/procedures/procedu
 const Page: React.FC = () => {
   return (
     <>
-    <PageHeading eyebrow="Policies & Procedures" heading="Organization Procedures" />
+      <PageHeading eyebrow="Policies & Procedures" heading="Procedures" />
 
-    <ProceduresTable />
+      <ProceduresTable />
 
     </>
   )

@@ -15,10 +15,7 @@ const config: Pick<
       colors: {
         'regal-blue': '#0D1117',
       },
-      'ringColor': {
-        '0%': { stroke: 'var(--java-400)' },
-        '100%': { stroke: 'var(--java-400)' },
-      },
+
       keyframes: {
         'accordion-down': {
           from: { height: '0' },

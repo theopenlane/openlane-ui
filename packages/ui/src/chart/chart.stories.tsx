@@ -23,7 +23,7 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
     render: () => (
-        <div className='p-8 bg-white rounded-lg'>
+        <div className='p-8 rounded-lg'>
             <LineChartExample />
         </div>
     ),

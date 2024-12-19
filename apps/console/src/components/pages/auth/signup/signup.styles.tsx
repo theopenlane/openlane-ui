@@ -4,9 +4,9 @@ const signupStyles = tv({
   slots: {
     separator: 'my-10',
     buttons: 'flex flex-col gap-8',
-    keyIcon: 'text-aquamarine-900',
+    keyIcon: '',
     form: 'flex flex-col gap-4 space-y-2',
-    input: 'flex flex-col gap-2 text-firefly-950',
+    input: 'flex flex-col gap-2',
   },
 })
 

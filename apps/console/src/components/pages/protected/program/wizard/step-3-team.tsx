@@ -48,7 +48,7 @@ export const ProgramInviteComponent: React.FC<ProgramInviteProps> = ({ users, gr
 export const InviteComponent: React.FC<ProgramInviteProps> = ({ users, groups }) => {
     return (
         <>
-            <Card className='px-5 py-5'>
+            <Card className='px-5 py-5 bg-background-secondary'>
                 <CardTitle className='pb-2'>Program Members</CardTitle>
                 <CardDescription className='pb-6'>
                     Add users in your organization to the program directly. Admins will have read and write access, Members will only have read access
@@ -64,7 +64,7 @@ export const InviteComponent: React.FC<ProgramInviteProps> = ({ users, groups })
                     </GridRow>
                 </Grid>
             </Card>
-            <Card className='px-5 py-5 my-6'>
+            <Card className='px-5 py-5 my-6  bg-background-secondary'>
                 <CardTitle className='pb-2'>Group Permissions</CardTitle>
                 <CardDescription className='pb-6'>
                     Assign permissions to the program based on groups. Groups with editor access can read and write, groups with viewer access can only read objects in the program.
@@ -107,7 +107,7 @@ const AddMemberDropdown: React.FC<{ values: Node[], fieldName: keyof ProgramInvi
                                 <TooltipTrigger>
                                     <InfoIcon size={14} className='mx-1' />
                                 </TooltipTrigger>
-                                <TooltipContent side='right' className='bg-white dark:bg-glaucous-900'>
+                                <TooltipContent side='right' className='bg-background'>
                                     <p></p>
                                 </TooltipContent>
                             </Tooltip>
@@ -134,7 +134,7 @@ const AddMemberDropdown: React.FC<{ values: Node[], fieldName: keyof ProgramInvi
                                         </Button>
                                     </FormControl>
                                 </PopoverTrigger>
-                                <PopoverContent className="dark:bg-glaucous-950 w-[300px]">
+                                <PopoverContent className="w-[300px]">
                                     <Command>
                                         <CommandInput placeholder={placeholder} />
                                         <CommandList>

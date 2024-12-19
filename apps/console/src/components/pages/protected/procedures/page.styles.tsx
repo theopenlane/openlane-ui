@@ -4,7 +4,7 @@ export const pageStyles = tv({
   slots: {
     searchRow: 'flex justify-between mb-[26px]',
     searchField: '',
-    actionIcon: 'text-java-400',
+    actionIcon: 'text-teal-400',
   },
 })
 

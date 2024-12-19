@@ -7,7 +7,7 @@ import { sidebarStyles } from './sidebar.styles'
 import { SideNav } from './sidebar-nav/sidebar-nav'
 import { NavItems, PersonalNavItems } from '@/routes/dashboard'
 import { useSession } from 'next-auth/react'
-import { useGetAllOrganizationsQuery,  TaskWhereInput, UserWhereInput, useTasksWithFilterQuery  } from '@repo/codegen/src/schema'
+import { useGetAllOrganizationsQuery, TaskWhereInput, UserWhereInput, useTasksWithFilterQuery } from '@repo/codegen/src/schema'
 
 interface SidebarProps {
   className?: string
@@ -31,7 +31,7 @@ export default function Sidebar({ className }: SidebarProps) {
     hasAssigneeWith: [userWhere]
   }
 
-  const [tasks] = useTasksWithFilterQuery({ variables: {where: whereFilter}})
+  const [tasks] = useTasksWithFilterQuery({ variables: { where: whereFilter } })
   const userTaskCount = tasks?.data?.tasks?.edges?.length || 0
 
   const activeOrg = orgs
@@ -62,6 +62,6 @@ export default function Sidebar({ className }: SidebarProps) {
         items={isOrganizationSelected ? NavItems : PersonalNavItems}
         userTaskCount={userTaskCount}
       />
-    </div>
+    </div >
   )
 }

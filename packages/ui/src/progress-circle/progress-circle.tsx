@@ -13,16 +13,16 @@ const progressCircleVariants = tv({
     variants: {
         variant: {
             default: {
-                background: "stroke-java-200 dark:stroke-java-500/30",
-                circle: "stroke-java-500 dark:stroke-java-500",
+                background: "stroke-jade-200 dark:stroke-jade-500/30",
+                circle: "stroke-jade-500 dark:stroke-jade-500",
             },
             neutral: {
                 background: "stroke-gray-200 dark:stroke-gray-500/40",
                 circle: "stroke-gray-500 dark:stroke-gray-500",
             },
             blue: {
-                background: "stroke-firefly-500 dark:stroke-firefly-500/40",
-                circle: "stroke-firefly-500 dark:stroke-firefly-500",
+                background: "stroke-info dark:stroke-info/40",
+                circle: "stroke-info dark:stroke-info-500",
             },
             warning: {
                 background: "stroke-saffron-200 dark:stroke-saffron-500/30",
@@ -33,8 +33,8 @@ const progressCircleVariants = tv({
                 circle: "stroke-red-500 dark:stroke-red-500",
             },
             success: {
-                background: "stroke-aquamarine-200 dark:stroke-aquamarine-500/30",
-                circle: "stroke-aquamarine-500 dark:stroke-aquamarine-500",
+                background: "stroke-jade-200 dark:stroke-jade-500/30",
+                circle: "stroke-jade-500 dark:stroke-jade-500",
             },
         },
     },

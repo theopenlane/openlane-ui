@@ -11,19 +11,19 @@ export const fullConfig = resolveConfig(tailwindConfig) as {
 }
 
 const colors = {
-    primary: fullConfig.theme.colors.java['400'],
-    secondary: fullConfig.theme.colors.firefly['400'],
-    yellow: fullConfig.theme.colors.saffron['400'],
+  primary: fullConfig.theme.colors.jade['400'],
+  secondary: fullConfig.theme.colors.jade['500'],
+  yellow: fullConfig.theme.colors.saffron['400'],
 
-    surface: fullConfig.theme.colors.glaucous['950'],
-    background: fullConfig.theme.colors.glaucous['900'],
-    backgroundDim: fullConfig.theme.colors.glaucous['800'],
-    borderColor: fullConfig.theme.colors['oxford-blue']['700'],
-    backgroundLight: fullConfig.theme.colors.java['700'],
-    textColor: fullConfig.theme.colors.ziggurat['200'],
-    textColorDim: fullConfig.theme.colors.ziggurat['400'],
-    inputPlaceholderColor: fullConfig.theme.colors.ziggurat['400'],
-    iconColor: fullConfig.theme.colors.java['400']
+  surface: fullConfig.theme.colors.background,
+  background: fullConfig.theme.colors.background['dark'],
+  backgroundDim: fullConfig.theme.colors.background['secondary'],
+  borderColor: fullConfig.theme.colors['oxford-blue']['700'],
+  backgroundLight: fullConfig.theme.colors.jade['700'],
+  textColor: fullConfig.theme.colors.text,
+  textColorDim: fullConfig.theme.colors.text['light'],
+  inputPlaceholderColor: fullConfig.theme.colors.text['light'],
+  iconColor: fullConfig.theme.colors.button,
 }
 
 // https://github.com/surveyjs/survey-creator/blob/master/packages/survey-creator-core/src/themes/predefined-themes/default/dark.css
