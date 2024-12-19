@@ -2,12 +2,9 @@
 
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@repo/ui/breadcrumb'
 import { SlashIcon } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import React, { ReactNode } from 'react'
+import React from 'react'
 import { toTitleCase } from '@/components/shared/lib/strings'
-
 import { usePathname } from 'next/navigation'
-import Link from 'next/link'
 
 type TBreadCrumbProps = {
     homeElement?: string,
@@ -31,9 +28,9 @@ export const BreadcrumbNavigation = ({ homeElement }: TBreadCrumbProps) => {
                 </BreadcrumbItem>
                 {pathNames.length > 0 && separator}
                 {
-                    pathNames.map((link, index) => {
+                    pathNames.map((link: string, index: number) => {
                         let href = `/${pathNames.slice(0, index + 1).join('/')}`
-                        let itemLink = toTitleCase(link).replaceAll("-", " ")
+                        let itemLink = toTitleCase(link.replaceAll("-", " "))
                         return (
                             <React.Fragment key={index}>
                                 <BreadcrumbItem>

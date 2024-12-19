@@ -3,7 +3,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 const personalAccessTokenFormStyles = tv({
   slots: {
     grid: 'grid grid-cols-2 gap-[34px] mb-[34px] grid-rows-[auto,auto]',
-    copyIcon: 'text-teal-400 cursor-pointer',
+    copyIcon: 'text-accent-secondary-muted cursor-pointer',
     tokenField: 'mt-[23px]',
     calendarIcon: 'ml-auto h-4 w-4 opacity-50',
     calendarInput:

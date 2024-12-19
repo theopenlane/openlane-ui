@@ -103,6 +103,13 @@ export const config: Omit<Config, 'content'> = {
           primary: 'var(--color-brand)', // Primary brand color
           secondary: 'var(--color-brand-secondary)', // Secondary brand color
         },
+        logo: {
+          background: 'var(--color-logo-bg)', // Logo background
+          foreground: 'var(--color-logo-fg)', // Logo foreground
+          text: 'var(--color-logo-text)', // Logo text
+          dark: 'var(--color-logo-dark)', // Dark logo color
+          light: 'var(--color-logo-light)', // Light logo color
+        },
         login: {
           bg: 'var(--color-login-bg)', // Login background
           text: 'var(--color-login-text)', // Login text
@@ -117,9 +124,11 @@ export const config: Omit<Config, 'content'> = {
         },
         accent: {
           DEFAULT: 'var(--color-accent)', // Accent color, used for highlighting
+          muted: 'var(--color-accent-muted)', // Muted accent color
         },
         'accent-secondary': {
           DEFAULT: 'var(--color-accent-secondary)', // Secondary accent color
+          muted: 'var(--color-accent-secondary-muted)', // Muted secondary accent color
         },
         ring: {
           DEFAULT: 'var(--color-ring)', // Ring color

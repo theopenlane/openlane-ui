@@ -113,7 +113,7 @@ const AddObjectDropdown: React.FC<{ values: Node[], fieldName: keyof Omit<Progra
                                         <TooltipTrigger>
                                             <InfoIcon size={14} className='mx-1' />
                                         </TooltipTrigger>
-                                        <TooltipContent side='right' className='bg-white dark:bg-glaucous-900'>
+                                        <TooltipContent side='right' className='bg-background'>
                                             <p>Associate existing {fieldName} with the program</p>
                                         </TooltipContent>
                                     </Tooltip>
@@ -140,7 +140,7 @@ const AddObjectDropdown: React.FC<{ values: Node[], fieldName: keyof Omit<Progra
                                             </Button>
                                         </FormControl>
                                     </PopoverTrigger>
-                                    <PopoverContent className="bg-glaucous-950 w-[300px]">
+                                    <PopoverContent className="bg-background w-[300px]">
                                         <Command>
                                             <CommandInput placeholder={placeholder} />
                                             <CommandList>

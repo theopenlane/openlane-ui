@@ -49,7 +49,9 @@
 
   /* Accent */
   --color-accent: #D9AE40;
+  --color-accent-muted: #FBD079;
   --color-accent-secondary: #2CCBAB;
+  --color-accent-secondary-muted: #75D2BF;
 
   /* Border */
   --color-border: #d2e2e9;
@@ -105,6 +107,14 @@
   --color-brand: #2CCBAB;
   --color-brand-secondary: #59C1BB;
 
+  /* Logo */
+  --color-logo-bg: #303e4a;
+  --color-logo-text: #303e4a;
+  --color-logo-fg: #4DC6AD;
+  --color-logo-dark: #303e4a;
+  --color-logo-light: #B4C1D5;
+
+  /* Login */
   --color-login-bg: #ffffff;
   --color-login-text: #303E4A;
 
@@ -135,7 +145,9 @@
 
   /* Accent */
   --color-accent: #B48F31;
+  --color-accent-muted: #FBD079;
   --color-accent-secondary: #2CCBAB;
+  --color-accent-secondary-muted: #75D2BF;
 
   /* Border */
   --color-border: #303E4A;
@@ -163,7 +175,7 @@
   --color-tags-border: #0D1117;
 
   /* Popover */
-  --color-popover: #0D1117;
+  --color-popover: #1C2630;
 
   /* Ring */
   --color-ring: #2CCBAB;
@@ -186,6 +198,13 @@
   /* Brand */
   --color-brand: #2CCBAB;
   --color-brand-secondary: #59C1BB;
+
+  /* Logo */
+  --color-logo-bg: #303e4a;
+  --color-logo-text: #B4C1D5;
+  --color-logo-fg: #4DC6AD;
+  --color-logo-dark: #303e4a;
+  --color-logo-light: #B4C1D5;
 
   /* Status */
   --color-status-success: #2CCBAB;

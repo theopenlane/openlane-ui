@@ -49,7 +49,7 @@ const toolbarButtonVariants = cva(
         default:
           'bg-transparent hover:bg-oxford-blue-100 hover:text-oxford-blue-500 aria-checked:bg-oxford-blue-100 aria-checked:text-oxford-blue-900 dark:hover:bg-oxford-blue-800 dark:hover:text-oxford-blue-400 dark:aria-checked:bg-oxford-blue-800 dark:aria-checked:text-oxford-blue-50',
         outline:
-          'border border-oxford-blue-200 bg-transparent hover:bg-oxford-blue-100 hover:text-oxford-blue-900 dark:border-oxford-blue-800 dark:hover:bg-oxford-blue-800 dark:hover:text-oxford-blue-50',
+          'border border-border bg-transparent hover:bg-oxford-blue-100 hover:text-oxford-blue-900 dark:hover:bg-oxford-blue-800 dark:hover:text-oxford-blue-50',
       },
     },
   }

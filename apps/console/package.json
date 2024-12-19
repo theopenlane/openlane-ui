@@ -35,8 +35,11 @@
     "react-dom": "18.3.1",
     "react-dropzone": "^14.2.3",
     "react-easy-crop": "^5.0.7",
-    "survey-core": "^1.12.15",
-    "survey-creator-react": "^1.12.15",
+    "survey-core": "1.12.8",
+    "react-hook-form": "^7.51.2",
+    "survey-react-ui": "1.12.12",
+    "survey-creator-react": "1.12.8",
+    "survey-creator-core": "1.12.8",
     "swr": "latest",
     "urql": "^4.0.7",
     "zustand": "^5.0.0"
