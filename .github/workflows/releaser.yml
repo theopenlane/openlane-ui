@@ -45,7 +45,7 @@ jobs:
           go-version-file: 'go.mod'
           cache: true
       - name: Install Syft
-        uses: anchore/sbom-action/download-syft@fc46e51fd3cb168ffb36c6d1915723c47db58abb # v0.17.7
+        uses: anchore/sbom-action/download-syft@df80a981bc6edbc4e220a492d3cbe9f5547a6e75 # v0.17.9
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.7.0
       - name: Run GoReleaser
