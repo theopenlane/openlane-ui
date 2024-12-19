@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import type { Preview } from '@storybook/react'
 import './style.css'
-import '../src/index.css';
+import '@repo/ui/styles.css';
 import { themes } from '@storybook/theming';
 
 const Background = (Story, context) => {
