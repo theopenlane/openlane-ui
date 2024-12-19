@@ -128,6 +128,11 @@
   --color-status-warning-muted: #FDE0AE;
   --color-status-error-muted: #f5b8b8;
   --color-status-info-muted: #5A9BD5;
+
+  /* JSON Editor */
+  .svc-json-editor-tab__content-area {
+    background-color: var(--color-bg);
+  }
 }
 
 /* Dark Mode Colors */
@@ -216,4 +221,9 @@
   --color-status-warning-muted: #FBD079;
   --color-status-error-muted: #f5b8b8;
   --color-status-info-muted: #5A9BD5;
+
+  /* JSON Editor */
+  .svc-json-editor-tab__content-area {
+    background-color: var(--color-bg);
+  }
 }
