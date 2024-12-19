@@ -69,6 +69,20 @@ const ProgramWizard = () => {
         resolver: zodResolver(stepper.current.schema),
     });
 
+    const fullForm = useForm({
+        mode: "all",
+        resolver: zodResolver(
+            z.union(
+                [
+                    initProgramSchema,
+                    programDetailSchema,
+                    programInviteSchema,
+                    programObjectAssociationSchema,
+                ],
+            ),
+        ),
+    });
+
     const {
         handleSubmit,
         getValues,
@@ -76,6 +90,7 @@ const ProgramWizard = () => {
     } = form;
 
     const { isValid } = useFormState({ control: form.control });
+    const { isValid: isFullFormValid } = useFormState({ control: fullForm.control });
 
     // grab all the data from the API to populate the dropdowns
     const [edgeData] = useGetProgramEdgesForWizardQuery({ pause: !sessionData })
@@ -134,7 +149,7 @@ const ProgramWizard = () => {
 
     // handle the final form submission
     const handleFormSubmit = () => {
-        if (!isValid) {
+        if (!isFullFormValid) {
             toast({
                 title: 'Form Invalid',
                 description: 'Please fill out all required fields',
@@ -148,7 +163,7 @@ const ProgramWizard = () => {
         let programMembers = []
         for (let i = 0; i < getValues().programMembers?.length; i++) {
             programMembers.push({
-                userID: getValues().editors[i],
+                userID: getValues().programMembers[i],
                 role: ProgramMembershipRole.MEMBER
             })
         }
@@ -156,7 +171,7 @@ const ProgramWizard = () => {
         let programAdmins = []
         for (let i = 0; i < getValues().programAdmins?.length; i++) {
             programAdmins.push({
-                userID: getValues().editors[i],
+                userID: getValues().programAdmins[i],
                 role: ProgramMembershipRole.ADMIN
             })
         }
@@ -209,7 +224,7 @@ const ProgramWizard = () => {
                     <nav aria-label="Program Creation" className="group">
                         <Accordion type="multiple">
                             {stepper.all.map((step, index, array) => (
-                                <AccordionItem key={step.id} value={step.id} className={`${index - 1 < stepper.current.index ? 'rounded-tp font-bold hover:bg-teal-200 bg-button-muted h-1/3' : 'bg-background-secondary text-text'}`}>
+                                <AccordionItem key={step.id} value={step.id} className={`${index - 1 < stepper.current.index ? 'rounded-md font-bold hover:bg-teal-200 bg-button-muted h-1/3' : 'bg-background-secondary text-text'}`}>
                                     <li key={step.id} className={linkItem()}>
                                         <Link
                                             aria-current={

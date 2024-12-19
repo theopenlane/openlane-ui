@@ -4,7 +4,7 @@ import { Panel, PanelHeader } from '@repo/ui/panel';
 import { Grid, GridRow, GridCell } from '@repo/ui/grid';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip';
 import { CheckIcon, ChevronsUpDownIcon, InfoIcon } from 'lucide-react';
-import { Card, CardDescription, CardTitle } from '@repo/ui/cardpanel';
+import { Card, CardContent, CardDescription, CardTitle } from '@repo/ui/cardpanel';
 import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form';
 import { Button } from '@repo/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover';
@@ -48,37 +48,41 @@ export const ProgramInviteComponent: React.FC<ProgramInviteProps> = ({ users, gr
 export const InviteComponent: React.FC<ProgramInviteProps> = ({ users, groups }) => {
     return (
         <>
-            <Card className='px-5 py-5 bg-background-secondary'>
-                <CardTitle className='pb-2'>Program Members</CardTitle>
-                <CardDescription className='pb-6'>
+            <Card className='bg-background-secondary'>
+                <CardTitle>Program Members</CardTitle>
+                <CardDescription>
                     Add users in your organization to the program directly. Admins will have read and write access, Members will only have read access
                 </CardDescription>
-                <Grid>
-                    <GridRow columns={2}>
-                        <GridCell>
-                            <AddMemberDropdown values={users} fieldName='programAdmins' fieldType='user' formLabel='Assign Program Admins' />
-                        </GridCell>
-                        <GridCell>
-                            <AddMemberDropdown values={users} fieldName='programMembers' fieldType='user' formLabel='Assign Program Members' />
-                        </GridCell>
-                    </GridRow>
-                </Grid>
+                <CardContent>
+                    <Grid>
+                        <GridRow columns={2}>
+                            <GridCell>
+                                <AddMemberDropdown values={users} fieldName='programAdmins' fieldType='user' formLabel='Assign Program Admins' />
+                            </GridCell>
+                            <GridCell>
+                                <AddMemberDropdown values={users} fieldName='programMembers' fieldType='user' formLabel='Assign Program Members' />
+                            </GridCell>
+                        </GridRow>
+                    </Grid>
+                </CardContent>
             </Card>
-            <Card className='px-5 py-5 my-6  bg-background-secondary'>
-                <CardTitle className='pb-2'>Group Permissions</CardTitle>
-                <CardDescription className='pb-6'>
+            <Card className='bg-background-secondary'>
+                <CardTitle>Group Permissions</CardTitle>
+                <CardDescription>
                     Assign permissions to the program based on groups. Groups with editor access can read and write, groups with viewer access can only read objects in the program.
                 </CardDescription>
-                <Grid>
-                    <GridRow columns={2}>
-                        <GridCell>
-                            <AddMemberDropdown values={groups} fieldName='groupEditors' fieldType='group' formLabel='Assign Groups with Edit Access' />
-                        </GridCell>
-                        <GridCell>
-                            <AddMemberDropdown values={groups} fieldName='groupViewers' fieldType='group' formLabel='Assign Groups with Read Only Access' />
-                        </GridCell>
-                    </GridRow>
-                </Grid >
+                <CardContent>
+                    <Grid>
+                        <GridRow columns={2}>
+                            <GridCell>
+                                <AddMemberDropdown values={groups} fieldName='groupEditors' fieldType='group' formLabel='Assign Groups with Edit Access' />
+                            </GridCell>
+                            <GridCell>
+                                <AddMemberDropdown values={groups} fieldName='groupViewers' fieldType='group' formLabel='Assign Groups with Read Only Access' />
+                            </GridCell>
+                        </GridRow>
+                    </Grid >
+                </CardContent>
             </Card >
         </>
     )
@@ -107,7 +111,7 @@ const AddMemberDropdown: React.FC<{ values: Node[], fieldName: keyof ProgramInvi
                                 <TooltipTrigger>
                                     <InfoIcon size={14} className='mx-1' />
                                 </TooltipTrigger>
-                                <TooltipContent side='right' className='bg-background'>
+                                <TooltipContent side='right'>
                                     <p></p>
                                 </TooltipContent>
                             </Tooltip>
@@ -142,7 +146,7 @@ const AddMemberDropdown: React.FC<{ values: Node[], fieldName: keyof ProgramInvi
                                             <CommandGroup>
                                                 {values.map((value) => (
                                                     <CommandItem
-                                                        className='flex items-center text-white'
+                                                        className='flex items-center'
                                                         value={value.node.name}
                                                         key={value.node.name}
                                                         onSelect={() => {
@@ -150,6 +154,9 @@ const AddMemberDropdown: React.FC<{ values: Node[], fieldName: keyof ProgramInvi
                                                                 ? field.value.filter((id) => id !== value.node.id)
                                                                 : [...(field.value || []), value.node.id]
                                                             field.onChange(newValue)
+                                                            console.log(newValue)
+                                                            console.log(value.node.id)
+
                                                         }}
                                                     >
                                                         {value.node.name}
