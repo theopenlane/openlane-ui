@@ -72,7 +72,6 @@ export const PolicySidebar: React.FC = function () {
           </div>
         </div>
       </Panel>
-      <pre>{JSON.stringify(policy, null, 2)}</pre>
     </div>
   )
 }
