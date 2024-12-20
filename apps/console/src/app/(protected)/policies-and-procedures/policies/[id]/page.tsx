@@ -1,10 +1,11 @@
 'use client'
-
-import React from 'react'
-import { PageHeading } from '@repo/ui/page-heading'
-import { useGetInternalPolicyDetailsByIdQuery } from '@repo/codegen/src/schema'
+import React, { createContext, useState, useEffect } from 'react'
+import { useGetInternalPolicyDetailsByIdQuery, useUpdateInternalPolicyMutation } from '@repo/codegen/src/schema'
 import { NextPage } from 'next'
-import Link from 'next/link'
+import { UpdateableFields } from '@/components/pages/protected/policies/policy-sidebar'
+import { PolicyPage } from '@/components/pages/protected/policies/policy-page'
+import { PolicyContext } from '@/components/pages/protected/policies/context'
+import { Policy } from '@/components/pages/protected/policies/context'
 
 type PageProps = {
   params: { id: string }
@@ -13,15 +14,31 @@ type PageProps = {
 const Page: NextPage<PageProps> = ({ params }) => {
   const [result] = useGetInternalPolicyDetailsByIdQuery({ variables: { internalPolicyId: params.id } })
   const { data, fetching, error } = result
+  const [{ error: saveError }, updatePolicy] = useUpdateInternalPolicyMutation()
+
+  const [policy, setPolicy] = useState<Policy>({ id: '', name: '' })
+
+  useEffect(() => {
+    if (data?.internalPolicy) {
+      setPolicy(data.internalPolicy)
+    }
+  }, [data])
+
+  const onFieldChange = (field: UpdateableFields, value: string) => {
+    setPolicy((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const saveField = (field: UpdateableFields, value: string) => {
+    updatePolicy({
+      updateInternalPolicyId: params.id,
+      input: { [field]: value },
+    })
+  }
 
   return (
-    <>
-      <Link href={`/policies-and-procedures/policies/${params.id}/edit`} className="underline">
-        edit
-      </Link>
-      <PageHeading eyebrow="Policies & Procedures" heading="View Policy" />
-      <pre>{JSON.stringify({ fetching, error, data }, null, 2)}</pre>
-    </>
+    <PolicyContext.Provider value={{ policy, saveField, onFieldChange }}>
+      <PolicyPage />
+    </PolicyContext.Provider>
   )
 }
 
