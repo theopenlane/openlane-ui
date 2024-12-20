@@ -42,6 +42,7 @@
     "./simple-form": "./src/simple-form.tsx",
     "./select": "./src/select/select.tsx",
     "./separator": "./src/separator/separator.tsx",
+    "./sheet": "./src/sheet.tsx",
     "./slider": "./src/slider/slider.tsx",
     "./switch": "./src/switch/switch.tsx",
     "./tabs": "./src/tabs/tabs.tsx",
@@ -161,6 +162,7 @@
     "tailwind-merge": "^2.5.5",
     "tailwind-scrollbar-hide": "^1.1.7",
     "tailwindcss-animate": "^1.0.7",
+    "vaul": "^1.1.2",
     "zod": "^3.23.8"
   },
   "devDependencies": {
