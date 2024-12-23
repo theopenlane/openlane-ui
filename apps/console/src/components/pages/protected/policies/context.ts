@@ -15,10 +15,19 @@ export type Policy = {
 }
 
 type PolicyContext = {
-  saveField?: (field: UpdateableFields, value: string) => void
+  policyId?: string
+  saveField: (field: UpdateableFields, value: string) => void
   onFieldChange?: (field: UpdateableFields, value: string) => void
   create?: () => void
   policy?: Policy
 }
 
-export const PolicyContext = createContext<PolicyContext>({})
+export const PolicyContext = createContext<PolicyContext>({
+  policy: {},
+  // fetchPolicy: () => {
+  //   // go get the policy
+  // },
+  saveField(field, value) {},
+  save() {},
+  create() {},
+})
