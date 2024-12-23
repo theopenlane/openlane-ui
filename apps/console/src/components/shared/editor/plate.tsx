@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 
 import { createPlateEditor, Plate } from '@udecode/plate-common/react'
-import { Value } from '@udecode/plate-common'
+import { TElement, Value } from '@udecode/plate-common'
 
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
@@ -19,7 +19,7 @@ import PlateConfig from './plate-config'
 const editor = createPlateEditor(Object.assign({}, PlateConfig, { value: '' }))
 
 type Props = {
-  content?: Value
+  content?: TElement[]
   onChange?: (content: Value) => void
 }
 

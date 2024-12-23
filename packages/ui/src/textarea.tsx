@@ -42,7 +42,7 @@ const EditableTextarea = React.forwardRef<HTMLTextAreaElement, React.ComponentPr
       onClick={(e) => {
         setEditing(true)
       }}
-      className={`hover:bg-neutral-50 hover:cursor-pointer whitespace-pre-line ${!props.value && '!text-neutral-400'}`}
+      className={`hover:background hover:cursor-pointer whitespace-pre-line ${!props.value && '!text-neutral-400'}`}
     >
       {props.value || props.placeholder}
     </p>
