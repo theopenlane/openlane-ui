@@ -10,6 +10,7 @@
     "postcss-import": "latest",
     "tailwindcss": "latest",
     "@tailwindcss/forms": "latest",
+    "@tailwindcss/container-queries": "^0.1.1",
     "tailwind-variants": "latest"
   }
 }

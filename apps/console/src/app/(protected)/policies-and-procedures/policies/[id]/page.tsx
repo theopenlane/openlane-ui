@@ -1,28 +1,28 @@
 'use client'
-
-import React from 'react'
-import { PageHeading } from '@repo/ui/page-heading'
-import { useGetInternalPolicyDetailsByIdQuery } from '@repo/codegen/src/schema'
+import React, { Suspense, useEffect } from 'react'
+import { useGetInternalPolicyDetailsByIdQuery, useUpdateInternalPolicyMutation } from '@repo/codegen/src/schema'
 import { NextPage } from 'next'
-import Link from 'next/link'
+import { PolicyPage } from '@/components/pages/protected/policies/policy-page'
+import { usePolicyPageActions } from '@/hooks/usePolicyPage'
 
 type PageProps = {
   params: { id: string }
 }
 
 const Page: NextPage<PageProps> = ({ params }) => {
+  const { setPolicy } = usePolicyPageActions()
+
   const [result] = useGetInternalPolicyDetailsByIdQuery({ variables: { internalPolicyId: params.id } })
   const { data, fetching, error } = result
+  const [{ error: saveError }, updatePolicy] = useUpdateInternalPolicyMutation()
 
-  return (
-    <>
-      <Link href={`/policies-and-procedures/policies/${params.id}/edit`} className="underline">
-        edit
-      </Link>
-      <PageHeading eyebrow="Policies & Procedures" heading="View Policy" />
-      <pre>{JSON.stringify({ fetching, error, data }, null, 2)}</pre>
-    </>
-  )
+  useEffect(() => {
+    if (data?.internalPolicy) {
+      setPolicy(data.internalPolicy)
+    }
+  }, [data])
+
+  return <PolicyPage />
 }
 
 export default Page
