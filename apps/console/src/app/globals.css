@@ -23,3 +23,23 @@ p {
 p.red {
   @apply text-red-500;
 }
+
+.aui-thread-root {
+  @apply bg-background;
+}
+
+.aui-thread-welcome-suggestion {
+  @apply flex-col hover:bg-accent-secondary-muted;
+}
+
+.aui-thread-welcome-suggestion-container {
+  @apply flex-col
+}
+
+.aui-modal-button {
+  @apply bg-accent-secondary-muted text-text-dark;
+}
+
+.aui-avatar-image {
+  @apply bg-accent-secondary-muted;
+}

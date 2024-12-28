@@ -17906,6 +17906,13 @@ export type GetAllRisksQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetAllRisksQuery = { __typename?: 'Query', risks: { __typename?: 'RiskConnection', edges?: Array<{ __typename?: 'RiskEdge', node?: { __typename?: 'Risk', id: string, name: string } | null } | null> | null } };
 
+export type SearchQueryVariables = Exact<{
+  query: Scalars['String']['input'];
+}>;
+
+
+export type SearchQuery = { __typename?: 'Query', search?: { __typename?: 'SearchResultConnection', totalCount: number, nodes: Array<{ __typename?: 'APITokenSearchResult' } | { __typename?: 'ActionPlanSearchResult' } | { __typename?: 'ContactSearchResult' } | { __typename?: 'ControlObjectiveSearchResult', controlObjectives?: Array<{ __typename?: 'ControlObjective', id: string, name: string }> | null } | { __typename?: 'ControlSearchResult', controls?: Array<{ __typename?: 'Control', id: string, name: string }> | null } | { __typename?: 'DocumentDataSearchResult' } | { __typename?: 'EntitySearchResult' } | { __typename?: 'EntityTypeSearchResult' } | { __typename?: 'EventSearchResult' } | { __typename?: 'FileSearchResult' } | { __typename?: 'GroupSearchResult', groups?: Array<{ __typename?: 'Group', id: string, name: string }> | null } | { __typename?: 'GroupSettingSearchResult' } | { __typename?: 'IntegrationSearchResult' } | { __typename?: 'InternalPolicySearchResult' } | { __typename?: 'NarrativeSearchResult' } | { __typename?: 'OrgSubscriptionSearchResult' } | { __typename?: 'OrganizationSearchResult', organizations?: Array<{ __typename?: 'Organization', id: string, name: string, avatarRemoteURL?: string | null }> | null } | { __typename?: 'OrganizationSettingSearchResult' } | { __typename?: 'PersonalAccessTokenSearchResult' } | { __typename?: 'ProcedureSearchResult' } | { __typename?: 'ProgramSearchResult', programs?: Array<{ __typename?: 'Program', id: string, name: string }> | null } | { __typename?: 'RiskSearchResult', risks?: Array<{ __typename?: 'Risk', id: string, name: string }> | null } | { __typename?: 'StandardSearchResult' } | { __typename?: 'SubcontrolSearchResult', subcontrols?: Array<{ __typename?: 'Subcontrol', id: string, name: string }> | null } | { __typename?: 'SubscriberSearchResult' } | { __typename?: 'TFASettingSearchResult' } | { __typename?: 'TaskSearchResult', tasks?: Array<{ __typename?: 'Task', id: string, title: string }> | null } | { __typename?: 'TemplateSearchResult' } | { __typename?: 'UserSearchResult' } | { __typename?: 'UserSettingSearchResult' }> } | null };
+
 export type CreateStandardMutationVariables = Exact<{
   input: CreateStandardInput;
 }>;
@@ -18857,6 +18864,68 @@ export const GetAllRisksDocument = gql`
 
 export function useGetAllRisksQuery(options?: Omit<Urql.UseQueryArgs<GetAllRisksQueryVariables>, 'query'>) {
   return Urql.useQuery<GetAllRisksQuery, GetAllRisksQueryVariables>({ query: GetAllRisksDocument, ...options });
+};
+export const SearchDocument = gql`
+    query Search($query: String!) {
+  search(query: $query) {
+    totalCount
+    nodes {
+      ... on ProgramSearchResult {
+        programs {
+          id
+          name
+        }
+      }
+      ... on OrganizationSearchResult {
+        organizations {
+          id
+          name
+          avatarRemoteURL
+        }
+      }
+      ... on ControlObjectiveSearchResult {
+        controlObjectives {
+          id
+          name
+        }
+      }
+      ... on ControlSearchResult {
+        controls {
+          id
+          name
+        }
+      }
+      ... on SubcontrolSearchResult {
+        subcontrols {
+          id
+          name
+        }
+      }
+      ... on RiskSearchResult {
+        risks {
+          id
+          name
+        }
+      }
+      ... on GroupSearchResult {
+        groups {
+          id
+          name
+        }
+      }
+      ... on TaskSearchResult {
+        tasks {
+          id
+          title
+        }
+      }
+    }
+  }
+}
+    `;
+
+export function useSearchQuery(options: Omit<Urql.UseQueryArgs<SearchQueryVariables>, 'query'>) {
+  return Urql.useQuery<SearchQuery, SearchQueryVariables>({ query: SearchDocument, ...options });
 };
 export const CreateStandardDocument = gql`
     mutation CreateStandard($input: CreateStandardInput!) {

@@ -13,7 +13,8 @@
 	},
 	"exports": {
 		"./auth": "./src/index.ts",
-		"./user": "./src/lib/user.ts"
+		"./user": "./src/lib/user.ts",
+		"./chat": "./src/lib/chat.ts"
 	},
 	"peerDependencies": {
 		"react": "latest"

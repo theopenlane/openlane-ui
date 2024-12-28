@@ -8,6 +8,10 @@ export const config: Omit<Config, 'content'> = {
     function ({ addVariant }: { addVariant: (name: string, value: string[]) => void }) {
       addVariant('dark-hover', ['@media (prefers-color-scheme: dark)', '&:hover']); // Custom dark-hover variant
     },
+    require("@assistant-ui/react/tailwindcss")({
+      components: ["assistant-modal"],
+      shadcn: true
+    }),
   ],
   theme: {
     extend: {
