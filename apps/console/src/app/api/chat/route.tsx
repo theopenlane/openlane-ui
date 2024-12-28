@@ -4,6 +4,12 @@ import { bedrockModelArn } from '@repo/dally/chat'
 
 const modelID = bedrockModelArn || "";
 
-export const { POST } = createEdgeRuntimeAPI({
-    model: bedrock(modelID),
-});
+let POST;
+
+if (process.env.AWS_REGION) {
+    POST = createEdgeRuntimeAPI({
+        model: bedrock(modelID),
+    }).POST;
+}
+
+export { POST };
