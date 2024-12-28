@@ -19,6 +19,7 @@ export const GlobalSearch = () => {
     const [query, setQuery] = useState(""); // Tracks user input
     const [hasResults, setHasResults] = useState(false);
     const cmdInputRef = useRef<HTMLInputElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     const { data: sessionData, update: updateSession } = useSession()
     const { push } = useRouter()
@@ -49,6 +50,19 @@ export const GlobalSearch = () => {
             push('/dashboard')
         }
     }
+
+    useEffect(() => {
+        const down = (e: KeyboardEvent) => {
+            if (e.key === "/" && (e.metaKey || e.ctrlKey)) {
+                e.preventDefault()
+                setOpen((open) => !open)
+                inputRef.current?.focus()
+
+            }
+        }
+        document.addEventListener("keydown", down)
+        return () => document.removeEventListener("keydown", down)
+    }, [])
 
     useEffect(() => {
         // when query changes, reset the data
@@ -93,6 +107,7 @@ export const GlobalSearch = () => {
             <Popover key={"search-results"} open={open} onOpenChange={setOpen}>
                 <PopoverAnchor>
                     <Input
+                        ref={inputRef}
                         placeholder="Search..."
                         icon={<SearchIcon size={17} />}
                         value={query}
@@ -139,29 +154,38 @@ interface SearchProps {
 
 const renderSearchResults = ({ data, handleOrganizationSwitch, setQuery }: SearchProps) => {
     return (
-        <CommandList key="search-results" className='w-full'>
+        <CommandList key="search-results" className='max-h-[600px]'>
             {data?.search?.nodes?.map((node) => {
+                // render the organization search results differently, and first
                 switch (node?.__typename) {
                     case "OrganizationSearchResult":
                         return renderOrgGroupResults({ searchType: "Organization", node: node.organizations, handleOrganizationSwitch, setQuery });
-                    case "ProgramSearchResult":
-                        return renderGroupResults({ searchType: "Program", node: node.programs });
-                    case "GroupSearchResult":
-                        return renderGroupResults({ searchType: "Group", node: node.groups });
-                    case "TaskSearchResult":
-                        return renderGroupResults({ searchType: "Task", node: node.tasks });
-                    case "ControlObjectiveSearchResult":
-                        return renderGroupResults({ searchType: "ControlObjective", node: node.controlObjectives });
-                    case "ControlSearchResult":
-                        return renderGroupResults({ searchType: "Control", node: node.controls });
-                    case "SubcontrolSearchResult":
-                        return renderGroupResults({ searchType: "Subcontrol", node: node.subcontrols });
-                    case "RiskSearchResult":
-                        return renderGroupResults({ searchType: "Risk", node: node.risks });
                     default:
                         return null;
                 }
             })}
+            {
+                data?.search?.nodes?.map((node) => {
+                    switch (node?.__typename) {
+                        case "ProgramSearchResult":
+                            return renderGroupResults({ searchType: "Program", node: node.programs });
+                        case "GroupSearchResult":
+                            return renderGroupResults({ searchType: "Group", node: node.groups });
+                        case "TaskSearchResult":
+                            return renderGroupResults({ searchType: "Task", node: node.tasks });
+                        case "ControlObjectiveSearchResult":
+                            return renderGroupResults({ searchType: "ControlObjective", node: node.controlObjectives });
+                        case "ControlSearchResult":
+                            return renderGroupResults({ searchType: "Control", node: node.controls });
+                        case "SubcontrolSearchResult":
+                            return renderGroupResults({ searchType: "Subcontrol", node: node.subcontrols });
+                        case "RiskSearchResult":
+                            return renderGroupResults({ searchType: "Risk", node: node.risks });
+                        default:
+                            return null;
+                    }
+                })
+            }
         </CommandList>
     );
 };
@@ -213,7 +237,7 @@ const renderOrgSearchResultField = ({ node, handleOrganizationSwitch, setQuery }
         return
     }
 
-    const { item, idResult } = searchStyles()
+    const { item, avatarRow } = searchStyles()
 
     return (
         <CommandItem className={item()} key={node.id}
@@ -223,7 +247,7 @@ const renderOrgSearchResultField = ({ node, handleOrganizationSwitch, setQuery }
             }
             }>
             <div>
-                <div className='flex items-center'>
+                <div className={avatarRow()}>
                     <Avatar variant="medium" className='mr-2'>
                         {node.avatarRemoteURL && <AvatarImage src={node.avatarRemoteURL} />}
                         <AvatarFallback>

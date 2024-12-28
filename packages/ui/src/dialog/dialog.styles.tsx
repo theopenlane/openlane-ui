@@ -14,6 +14,11 @@ export const dialogStyles = tv({
     title: 'text-lg font-semibold leading-none tracking-tight',
     description: 'text-oxford-blue-800 dark:text-oxford-blue-100',
   },
+  variants: {
+    small: {
+      content: 'w-[50%]',
+    },
+  },
 })
 
 export type DialogVariants = VariantProps<typeof dialogStyles>

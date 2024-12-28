@@ -52,7 +52,7 @@ export const UserMenu = () => {
           <ChevronDown />
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent>
+      <DropdownMenuContent className="min-w-64">
         <DropdownMenuItem asChild>
           <div>
             <div>
@@ -75,6 +75,13 @@ export const UserMenu = () => {
           <div className={commands()}>
             <Kbd text="⌘" size="small" />
             <Kbd text="K" size="small" />
+          </div>
+        </div>
+        <div className={commandRow()}>
+          <p>Search menu</p>
+          <div className={commands()}>
+            <Kbd text="⌘" size="small" />
+            <Kbd text="/" size="small" />
           </div>
         </div>
         <DropdownMenuSeparator spacing="md" />

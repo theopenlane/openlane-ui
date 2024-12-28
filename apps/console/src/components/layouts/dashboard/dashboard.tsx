@@ -5,6 +5,7 @@ import { dashboardStyles } from './dashboard.styles'
 import Sidebar from '@/components/shared/sidebar/sidebar'
 import ChatBot from '@/components/shared/chat/chat'
 import { CommandMenu } from '@/components/shared/search/command'
+import { NavItems } from '@/routes/dashboard'
 
 export interface DashboardLayoutProps {
   children: React.ReactNode
@@ -22,7 +23,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <Sidebar />
         <main className={main()}>{children}</main>
         <ChatBot />
-        <CommandMenu />
+        <CommandMenu
+          items={NavItems} />
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import Link from "next/link"
-import React from "react"
+import React, { useState } from "react"
 
 import { Button } from "@repo/ui/button"
 import { Card } from "@repo/ui/cardpanel";
@@ -91,6 +91,7 @@ const ProgramWizard = () => {
 
     const { isValid } = useFormState({ control: form.control });
     const { isValid: isFullFormValid } = useFormState({ control: fullForm.control });
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // grab all the data from the API to populate the dropdowns
     const [edgeData] = useGetProgramEdgesForWizardQuery({ pause: !sessionData })
@@ -149,6 +150,8 @@ const ProgramWizard = () => {
 
     // handle the final form submission
     const handleFormSubmit = () => {
+        setIsSubmitting(true)
+
         if (!isFullFormValid) {
             toast({
                 title: 'Form Invalid',
@@ -156,6 +159,8 @@ const ProgramWizard = () => {
                 variant: 'destructive',
                 duration: 5000,
             })
+
+            setIsSubmitting(false)
 
             return;
         }
@@ -298,7 +303,7 @@ const ProgramWizard = () => {
                                     </Button>
                                 </>
                             ) : (
-                                <Button onClick={handleFormSubmit}>Create Program</Button>
+                                <Button disabled={isSubmitting} onClick={handleFormSubmit}>Create Program</Button>
                             )}
                         </div>
                     </form>
