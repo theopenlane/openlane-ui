@@ -11,5 +11,9 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }): JSX.Element {
-  return <DashboardLayout>{children}</DashboardLayout>
+
+  return (<DashboardLayout>
+    {children}
+  </DashboardLayout>
+  )
 }

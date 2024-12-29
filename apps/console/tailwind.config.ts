@@ -3,7 +3,7 @@ import sharedConfig from '@repo/tailwind-config'
 
 const config: Pick<
   Config,
-  'darkMode' | 'content' | 'presets' | 'prefix' | 'theme' | 'safelist' | 'mode'
+  'darkMode' | 'content' | 'presets' | 'prefix' | 'theme' | 'safelist' | 'mode' | 'plugins'
 > = {
   mode: 'jit',
   darkMode: 'class',

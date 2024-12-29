@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ai-sdk/amazon-bedrock": "^1.0.5",
+    "@assistant-ui/react": "^0.7.17",
     "@jsonforms/react": "^3.2.1",
     "@jsonforms/vanilla-renderers": "^3.2.1",
     "@nextui-org/react": "^2.2.10",
@@ -35,12 +37,12 @@
     "react-dom": "18.3.1",
     "react-dropzone": "^14.2.3",
     "react-easy-crop": "^5.0.7",
-    "swr": "latest",
-    "urql": "^4.0.7",
-    "zustand": "^5.0.0",
+    "survey-creator-core": "1.12.8",
     "survey-creator-react": "1.12.8",
     "survey-react-ui": "1.12.8",
-    "survey-creator-core": "1.12.8"
+    "swr": "latest",
+    "urql": "^4.0.7",
+    "zustand": "^5.0.0"
   },
   "devDependencies": {
     "@headlessui/react": "latest",
