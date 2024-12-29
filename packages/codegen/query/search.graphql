@@ -12,6 +12,7 @@ query Search($query: String!) {
         organizations {
           id
           name
+          displayName
           avatarRemoteURL
         }
       }

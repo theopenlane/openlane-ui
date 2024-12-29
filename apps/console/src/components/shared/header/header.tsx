@@ -3,12 +3,8 @@ import { headerStyles } from './header.styles'
 import { UserMenu } from '@/components/shared/user-menu/user-menu'
 import { OrganizationSelector } from '@/components/shared/organization-selector/organization-selector'
 import { BreadcrumbNavigation } from '@/components/shared/breadcrumb-nav/breadcrumb'
-import { GlobalSearch } from '../search/search'
+import { GlobalSearch } from '@/components/shared/search/search'
 // import { Notifications } from '../notifications/notifications'
-
-const commands = [
-  { value: "search", label: "Search" },
-];
 
 export default function Header() {
   const { header, nav, mobileSidebar, userNav } = headerStyles()

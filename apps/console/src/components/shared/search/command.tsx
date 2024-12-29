@@ -1,4 +1,3 @@
-
 'use client'
 
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@repo/ui/command"
@@ -55,7 +54,6 @@ export function CommandMenu({ items }: CommandNavProps) {
                             </CommandItem>
                         </div>
                     ))}
-
                 </CommandGroup>
             </CommandList>
         </CommandDialog >

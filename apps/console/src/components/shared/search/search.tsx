@@ -26,9 +26,10 @@ export const GlobalSearch = () => {
 
     let [{ data, fetching }] = useSearchQuery({
         variables: { query: query },
-        pause: query.length < 3,
+        pause: query.length < 3, // do not fetch until the query is at least 3 characters long because it is rejected by the server
     });
 
+    // when the organization is selected, switch the organization and redirect to the dashboard
     const handleOrganizationSwitch = async (orgId?: string) => {
         if (orgId) {
             const response = await switchOrganization({
@@ -51,6 +52,7 @@ export const GlobalSearch = () => {
         }
     }
 
+    // add command to open the search bar
     useEffect(() => {
         const down = (e: KeyboardEvent) => {
             if (e.key === "/" && (e.metaKey || e.ctrlKey)) {
@@ -64,8 +66,8 @@ export const GlobalSearch = () => {
         return () => document.removeEventListener("keydown", down)
     }, [])
 
+    // reset the data when the query is empty or too short
     useEffect(() => {
-        // when query changes, reset the data
         if (query.length < 2) {
             data = undefined;
 
@@ -75,6 +77,7 @@ export const GlobalSearch = () => {
     }, [query]);
 
 
+    // open the popover when the data is fetched
     useEffect(() => {
         if (fetching) {
             setOpen(false);
@@ -87,7 +90,6 @@ export const GlobalSearch = () => {
             setHasResults(false);
             setOpen(false);
         }
-
     }, [data, fetching]);
 
     /**
@@ -137,7 +139,7 @@ export const GlobalSearch = () => {
     );
 }
 
-
+// renderNoResults is a generic function to render no results found message if there are no search results
 const renderNoResults = () => {
     return (
         <CommandList>
@@ -254,7 +256,7 @@ const renderOrgSearchResultField = ({ node, handleOrganizationSwitch, setQuery }
                             {node?.name?.substring(0, 2)}
                         </AvatarFallback>
                     </Avatar>
-                    {node.name}
+                    {node.displayName}
                 </div>
             </div>
         </CommandItem >

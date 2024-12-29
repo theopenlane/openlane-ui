@@ -29,7 +29,7 @@ export default function ChatBot() {
 
     const avatar = {
         src: '/icons/robot-svgrepo-com.svg',
-        fallback: 'MITB',
+        fallback: 'Openlane Assistant',
     }
 
 

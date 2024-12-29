@@ -10,8 +10,6 @@
   },
   "dependencies": {
     "@ai-sdk/amazon-bedrock": "^1.0.5",
-    "@apollo/client": "^3.12.4",
-    "@apollo/explorer": "3.7.0",
     "@assistant-ui/react": "^0.7.17",
     "@jsonforms/react": "^3.2.1",
     "@jsonforms/vanilla-renderers": "^3.2.1",
