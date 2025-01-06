@@ -56,11 +56,11 @@ export const Actions = ({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const handleEditTemplate = () => {
-    router.push(`/documents/questionnaire-editor?id=${templateId}`)
+    router.push(`/questionnaires/questionnaire-editor?id=${templateId}`)
   }
 
   const handleViewTemplate = () => {
-    router.push(`/documents/questionnaire-viewer?id=${templateId}`)
+    router.push(`/questionnaires/questionnaire-viewer?id=${templateId}`)
   }
 
   const formSchema = z.object({

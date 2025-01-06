@@ -11,7 +11,6 @@ import { ProgressCircle } from '@repo/ui/progress-circle'
 import { Separator } from '@repo/ui/separator'
 import { LineChartExample } from '@repo/ui/line-chart-example'
 import Link from 'next/link'
-import { toTitleCase } from '@/components/shared/lib/strings'
 import { pageStyles } from './page.style'
 import { NavigateOptions } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 
@@ -54,7 +53,7 @@ export const defaultLanding: React.FC<DashboardProps> = ({ programs, tasks }) =>
                                             key={program.node.id}
                                             className='text-lg font-medium text-gray-900 dark:text-gray-50'
                                         >
-                                            {toTitleCase(program.node.name)}
+                                            {program.node.name}
                                         </Link>
                                         {/* TODO (sfunk): This are just stubbed progress bars; Update them with data */}
                                         <div className={dataRow()}>

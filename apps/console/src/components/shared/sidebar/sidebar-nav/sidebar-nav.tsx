@@ -104,6 +104,11 @@ export function SideNav({
                 <div className={cn(linkLabel(), !isSidebarOpen && className)}>
                   {item.title}
                 </div>
+                {item.addCount && isSidebarOpen && (
+                  <div className={badgeCount({ isCurrent: path === item.href })}>
+                    {userTaskCount}
+                  </div>
+                )}
               </AccordionTrigger>
               <AccordionContent>
                 {item.children?.map((child) => (
@@ -145,11 +150,6 @@ export function SideNav({
             <div className={cn(linkLabel(), !isSidebarOpen && className)}>
               {item.title}
             </div>
-            {item.addCount && isSidebarOpen && (
-              <div className={badgeCount({ isCurrent: path === item.href })}>
-                {userTaskCount}
-              </div>
-            )}
           </Link>
         ),
       )}
