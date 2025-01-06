@@ -39,7 +39,7 @@
     "react-easy-crop": "^5.0.7",
     "survey-creator-core": "1.12.8",
     "survey-creator-react": "1.12.8",
-    "survey-react-ui": "1.12.8",
+    "survey-react-ui": "1.12.17",
     "swr": "latest",
     "urql": "^4.0.7",
     "zustand": "^5.0.0"
