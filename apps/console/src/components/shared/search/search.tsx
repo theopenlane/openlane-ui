@@ -265,7 +265,7 @@ const renderOrgSearchResultField = ({ node, handleOrganizationSwitch, setQuery }
 
 // renderSearchResultField is a generic function to render search result for any type of entity
 const renderSearchResultField = ({ node }: SearchGroupProps) => {
-    const { item, idResult } = searchStyles()
+    const { item } = searchStyles()
 
     const nodeType = node.__typename.toLowerCase();
 
@@ -273,7 +273,6 @@ const renderSearchResultField = ({ node }: SearchGroupProps) => {
         <CommandItem className={item()} key={node.id} onSelect={() => window.location.href = `/${nodeType}/${node.id}`}>
             <Link href={`/${nodeType}/${node.id}`}>
                 <div>{node.name}</div>
-                <span className={idResult()}>({node.id})</span>
             </Link>
         </CommandItem>
     )

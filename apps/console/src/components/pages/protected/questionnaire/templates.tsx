@@ -33,7 +33,7 @@ export const TemplateList = () => {
     event: React.ChangeEvent<HTMLSelectElement>,
   ) => {
     const templateId = event.target.value
-    router.push(`/documents/questionnaire-editor?template_id=${templateId}`)
+    router.push(`/questionnaires/questionnaire-editor?template_id=${templateId}`)
   }
 
   const whereFilter: TemplateWhereInput = {

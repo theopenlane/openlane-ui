@@ -1,5 +1,6 @@
 import type { Config } from 'tailwindcss'
 import forms from '@tailwindcss/forms'
+import assistantUI from "@assistant-ui/react/tailwindcss"
 
 export const config: Omit<Config, 'content'> = {
   darkMode: 'class', // Enable dark mode via class
@@ -8,7 +9,7 @@ export const config: Omit<Config, 'content'> = {
     function ({ addVariant }: { addVariant: (name: string, value: string[]) => void }) {
       addVariant('dark-hover', ['@media (prefers-color-scheme: dark)', '&:hover']); // Custom dark-hover variant
     },
-    require("@assistant-ui/react/tailwindcss")({
+    assistantUI({
       components: ["assistant-modal"],
       shadcn: true
     }),

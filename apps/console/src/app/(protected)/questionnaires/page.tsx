@@ -6,9 +6,9 @@ import { QuestionnairesTable } from '@/components/pages/protected/questionnaire/
 const Page: React.FC = () => {
   return (
     <>
-    <PageHeading eyebrow="Documents" heading="Questionnaires" />
+      <PageHeading eyebrow="Questionnaires" heading="View All" />
 
-    <QuestionnairesTable />
+      <QuestionnairesTable />
     </>
   )
 }

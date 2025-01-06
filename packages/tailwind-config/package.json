@@ -9,6 +9,7 @@
     "autoprefixer": "latest",
     "postcss-import": "latest",
     "tailwindcss": "latest",
+    "@assistant-ui/react": "latest",
     "@tailwindcss/forms": "latest",
     "tailwind-variants": "latest"
   }

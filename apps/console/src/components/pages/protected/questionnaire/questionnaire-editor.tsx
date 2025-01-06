@@ -10,7 +10,6 @@ import "survey-creator-core/survey-creator-core.min.css";
 
 import { lightTheme } from "./theme-light";
 import { darkTheme } from "./theme-dark";
-import { Button } from "@repo/ui/button";
 import { TemplateDocumentType, useCreateTemplateMutation, useGetTemplateQuery, useUpdateTemplateMutation } from "@repo/codegen/src/schema";
 import { useToast } from "@repo/ui/use-toast";
 import { Panel } from "@repo/ui/panel";
@@ -128,7 +127,7 @@ export default function CreateQuestionnaire(input: { templateId: string, existin
           variant: 'success',
         })
 
-        router.push(`/documents/questionnaire-editor?id=${response.data?.createTemplate.template.id}`)
+        router.push(`/questionnaires/questionnaire-editor?id=${response.data?.createTemplate.template.id}`)
       } else {
         if (response.error.graphQLErrors[0].message == 'template already exists') {
           toast({

@@ -6,7 +6,7 @@ import {
   LayersIcon,
   ListChecks,
   SettingsIcon,
-  ShapesIcon,
+  UsersRoundIcon,
   UserRoundCogIcon,
   Users,
   ShieldCheckIcon,
@@ -22,10 +22,21 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
     icon: CircleGaugeIcon,
   },
   {
-    title: 'My Tasks',
+    title: 'Tasks',
     href: '/tasks',
     addCount: true,
     icon: ListChecks,
+    isChildren: true,
+    children: [
+      {
+        title: 'Assigned Tasks',
+        href: '/tasks/assigned-tasks',
+      },
+      {
+        title: 'All Tasks',
+        href: '/tasks/all-tasks',
+      },
+    ],
   },
   {
     type: 'separator',
@@ -59,16 +70,10 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
     ],
   },
   {
-    title: 'Documents',
-    href: '/documents',
+    title: 'Questionnaires',
+    href: '/questionnaires',
     icon: FileQuestion,
-    isChildren: true,
-    children: [
-      {
-        title: 'Questionnaires',
-        href: '/documents/questionnaires',
-      },
-    ],
+    isChildren: false,
   },
   {
     title: 'Policies & Procedures',
@@ -91,38 +96,26 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
     href: '/risks',
     icon: TriangleAlertIcon,
   },
-  {
-    title: 'Entities',
-    href: '/entities',
-    icon: HandshakeIcon,
-    isChildren: true,
-    children: [
-      {
-        title: 'Vendors',
-        href: '/entities/vendors',
-      },
-    ],
-  },
-  {
-    title: 'Assets',
-    href: '/assets',
-    icon: ShapesIcon,
-    isChildren: true,
-    children: [
-      {
-        title: 'IP Addresses',
-        href: '/assets/ip-addresses',
-      },
-      {
-        title: 'Domains',
-        href: '/assets/domains',
-      },
-      {
-        title: 'Servers',
-        href: '/assets/servers',
-      },
-    ],
-  },
+  // {
+  //   title: 'Assets',
+  //   href: '/assets',
+  //   icon: ShapesIcon,
+  //   isChildren: true,
+  //   children: [
+  //     {
+  //       title: 'IP Addresses',
+  //       href: '/assets/ip-addresses',
+  //     },
+  //     {
+  //       title: 'Domains',
+  //       href: '/assets/domains',
+  //     },
+  //     {
+  //       title: 'Servers',
+  //       href: '/assets/servers',
+  //     },
+  //   ],
+  // },
   {
     title: 'Reporting',
     href: '/reporting',
@@ -132,6 +125,37 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
       {
         title: 'Compliance',
         href: '/reporting/compliance',
+      },
+    ],
+  },
+  {
+    type: 'separator',
+  },
+  {
+    title: 'Groups',
+    href: '/groups',
+    icon: UsersRoundIcon,
+    isChildren: true,
+    children: [
+      {
+        title: 'My Groups',
+        href: '/groups/my-groups',
+      },
+      {
+        title: 'All Groups',
+        href: '/groups/all-groups',
+      },
+    ],
+  },
+  {
+    title: 'Entities',
+    href: '/entities',
+    icon: HandshakeIcon,
+    isChildren: true,
+    children: [
+      {
+        title: 'Vendors',
+        href: '/entities/vendors',
       },
     ],
   },
