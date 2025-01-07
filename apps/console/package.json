@@ -21,7 +21,7 @@
     "@repo/codegen": "workspace:*",
     "@repo/dally": "workspace:*",
     "@repo/ui": "workspace:*",
-    "@simplewebauthn/browser": "^11.0.0",
+    "@simplewebauthn/browser": "^13.0.0",
     "@simplewebauthn/server": "^11.0.0",
     "@stepperize/react": "^4.0.1",
     "@types/jsonwebtoken": "^9.0.6",
