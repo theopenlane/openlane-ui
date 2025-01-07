@@ -157,7 +157,7 @@
     "slate": "^0.110.2",
     "slate-history": "^0.110.3",
     "slate-hyperscript": "^0.100.0",
-    "slate-react": "^0.111.0",
+    "slate-react": "^0.112.0",
     "tailwind-merge": "^2.5.5",
     "tailwind-scrollbar-hide": "^1.1.7",
     "tailwindcss-animate": "^1.0.7",
