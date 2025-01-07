@@ -28,15 +28,13 @@ export default function Sidebar({ className }: SidebarProps) {
     id: assigneeId,
   }
   const whereFilter: TaskWhereInput = {
-    hasAssigneeWith: [userWhere]
+    hasAssigneeWith: [userWhere],
   }
 
   const [tasks] = useTasksWithFilterQuery({ variables: { where: whereFilter } })
   const userTaskCount = tasks?.data?.tasks?.edges?.length || 0
 
-  const activeOrg = orgs
-    .filter((org) => org?.node?.id === currentOrgId)
-    .map((org) => org?.node)[0]
+  const activeOrg = orgs.filter((org) => org?.node?.id === currentOrgId).map((org) => org?.node)[0]
 
   const isOrganizationSelected = !activeOrg?.personalOrg
 
@@ -57,11 +55,7 @@ export default function Sidebar({ className }: SidebarProps) {
         <MenuIcon strokeWidth={3} width={18} />
         <ArrowLeft className={expandNavIcon()} strokeWidth={3} width={18} />
       </div>
-      <SideNav
-        className={sideNav()}
-        items={isOrganizationSelected ? NavItems : PersonalNavItems}
-        userTaskCount={userTaskCount}
-      />
-    </div >
+      <SideNav className={sideNav()} items={isOrganizationSelected ? NavItems : PersonalNavItems} userTaskCount={userTaskCount} />
+    </div>
   )
 }
