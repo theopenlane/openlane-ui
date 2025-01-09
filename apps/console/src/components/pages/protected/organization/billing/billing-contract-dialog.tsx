@@ -14,7 +14,6 @@ const BillingContactDialog = () => {
     libraries,
   })
 
-  const [query, setQuery] = useState('')
   const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([])
   const [placeService, setPlaceService] = useState<google.maps.places.AutocompleteService | null>(null)
   const [address, setAddress] = useState({
@@ -43,7 +42,6 @@ const BillingContactDialog = () => {
   }
 
   const handleSelectPrediction = (placeId: string, description: string) => {
-    setQuery(description)
     setPredictions([])
 
     const placesService = new google.maps.places.PlacesService(document.createElement('div'))
