@@ -5,20 +5,26 @@ import { Button } from '@repo/ui/button'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
+import { useUpdateOrganizationMutation } from '@repo/codegen/src/schema'
+import { useOrganization } from '@/hooks/useOrganization'
 
 const libraries: any = ['places']
 
 const BillingContactDialog = () => {
+  const { currentOrgId, currentOrg } = useOrganization()
+  const [{ fetching: isSubmitting }, updateOrg] = useUpdateOrganizationMutation()
+
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
     libraries,
   })
 
+  const [fullName, setFullName] = useState('')
   const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([])
   const [placeService, setPlaceService] = useState<google.maps.places.AutocompleteService | null>(null)
   const [address, setAddress] = useState({
-    address1: '',
-    address2: '',
+    line1: '',
+    line2: '',
     city: '',
     state: '',
     postalCode: '',
@@ -34,9 +40,10 @@ const BillingContactDialog = () => {
   }, [isLoaded])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
     if (!placeService) return
 
-    placeService.getPlacePredictions({ input: e.target.value, types: ['geocode'] }, (results) => {
+    placeService.getPlacePredictions({ input: value, types: ['geocode'] }, (results) => {
       setPredictions(results || [])
     })
   }
@@ -48,8 +55,8 @@ const BillingContactDialog = () => {
     placesService.getDetails({ placeId }, (place) => {
       if (!place || !place.address_components) return
 
-      let address1 = description.split(',')[0]
-      let address2 = ''
+      let line1 = description.split(',')[0]
+      let line2 = ''
       let city = ''
       let state = ''
       let postalCode = ''
@@ -70,7 +77,7 @@ const BillingContactDialog = () => {
         }
       })
 
-      setAddress({ address1, address2, city, state, postalCode, country })
+      setAddress({ line1, line2, city, state, postalCode, country })
     })
   }
 
@@ -78,6 +85,29 @@ const BillingContactDialog = () => {
     const { id, value } = e.target
     setAddress((prev) => ({ ...prev, [id]: value }))
   }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    await updateOrg({
+      updateOrganizationId: currentOrgId,
+      input: {
+        updateOrgSettings: {
+          billingAddress: address,
+          billingContact: fullName,
+        },
+      },
+    })
+  }
+
+  useEffect(() => {
+    if (!currentOrg) {
+      return
+    }
+    setAddress(currentOrg?.setting?.billingAddress)
+    setFullName(currentOrg?.setting?.billingContact || '')
+    return () => {}
+  }, [currentOrg])
 
   return (
     <Dialog aria-describedby={undefined}>
@@ -90,17 +120,17 @@ const BillingContactDialog = () => {
           <DialogTitle className="text-2xl font-semibold">Billing Contact</DialogTitle>
         </DialogHeader>
 
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
             <Label htmlFor="full-name">Full name</Label>
-            <Input id="full-name" placeholder="Full name" />
+            <Input id="full-name" placeholder="Full name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
           </div>
           <div className="relative">
-            <Label htmlFor="address1">Address Line 1</Label>
+            <Label htmlFor="line1">Address Line 1</Label>
             <Input
               ref={inputRef}
-              id="address1"
-              value={address.address1}
+              id="line1"
+              value={address.line1}
               onChange={(e) => {
                 handleAddressChange(e)
                 handleInputChange(e)
@@ -110,7 +140,7 @@ const BillingContactDialog = () => {
             {predictions.length > 0 && (
               <div className="absolute z-10 bg-panel border rounded shadow-md w-full">
                 {predictions.map((prediction) => (
-                  <p key={prediction.place_id} onClick={() => handleSelectPrediction(prediction.place_id, prediction.description)} className="p-2  cursor-pointer">
+                  <p key={prediction.place_id} onClick={() => handleSelectPrediction(prediction.place_id, prediction.description)} className="p-2 cursor-pointer">
                     {prediction.description}
                   </p>
                 ))}
@@ -119,8 +149,8 @@ const BillingContactDialog = () => {
           </div>
 
           <div>
-            <Label htmlFor="address2">Address Line 2</Label>
-            <Input id="address2" value={address.address2} onChange={handleAddressChange} placeholder="Apt., suite, unit number, etc." />
+            <Label htmlFor="line2">Address Line 2</Label>
+            <Input id="line2" value={address.line2} onChange={handleAddressChange} placeholder="Apt., suite, unit number, etc." />
           </div>
 
           <div>
@@ -142,15 +172,15 @@ const BillingContactDialog = () => {
             <Label htmlFor="postalCode">Postal Code</Label>
             <Input id="postalCode" value={address.postalCode} onChange={handleAddressChange} className="max-w-[150px]" />
           </div>
-        </form>
 
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button className="w-full mt-4" variant="filled">
-              Save
-            </Button>
-          </DialogClose>
-        </DialogFooter>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button className="w-full mt-4" type="submit" variant="filled" disabled={isSubmitting}>
+                {isSubmitting ? 'Saving...' : 'Save'}
+              </Button>
+            </DialogClose>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   )

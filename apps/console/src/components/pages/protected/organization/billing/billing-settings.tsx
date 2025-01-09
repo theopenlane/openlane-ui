@@ -4,8 +4,12 @@ import { Panel } from '@repo/ui/panel'
 import { Switch } from '@repo/ui/switch'
 import BillingEmailDialog from './billing-email-dialog'
 import BillingContactDialog from './billing-contract-dialog'
+import { useOrganization } from '@/hooks/useOrganization'
 
 const BillingSettings: React.FC = () => {
+  const { currentOrg } = useOrganization()
+  const billingAddress = currentOrg?.setting?.billingAddress || {}
+  const formattedAddress = [billingAddress.line1, billingAddress.city, billingAddress.postalCode].filter(Boolean).join(', ')
   return (
     <Panel className="p-6">
       <h2 className="text-2xl font-semibold text-text-header">Billing Settings</h2>
@@ -18,8 +22,9 @@ const BillingSettings: React.FC = () => {
             <div>
               <p className="text-sm mt-1">This address appears on your monthly invoice and should be the legal address of your home or business.</p>
               <p className="text-text-paragraph text-sm">
-                150 N Main St, Utah 84720 <br />
-                United States
+                {formattedAddress}
+                <br />
+                {`${currentOrg?.setting?.billingAddress.country}`}
               </p>
             </div>
             <BillingContactDialog />
