@@ -10,7 +10,7 @@ const libraries: any = ['places']
 
 const BillingContactDialog = () => {
   const { isLoaded } = useLoadScript({
-    googleMapsApiKey: 'AIzaSyDINrXyQzJvFUbJbok_tByEmOm4WrafdAw', // Replace with your actual Google API key
+    googleMapsApiKey: 'api key', // Replace with your actual Google API key
     libraries,
   })
 
