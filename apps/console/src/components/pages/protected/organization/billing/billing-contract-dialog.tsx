@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useLoadScript } from '@react-google-maps/api'
 import { Button } from '@repo/ui/button'
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 
@@ -10,7 +10,7 @@ const libraries: any = ['places']
 
 const BillingContactDialog = () => {
   const { isLoaded } = useLoadScript({
-    googleMapsApiKey: 'api key', // Replace with your actual Google API key
+    googleMapsApiKey: 'AIzaSyBlw0lwwh3ap9BWQczBLeHbr7y2rpA1R7A', // Replace with your actual Google API key
     libraries,
   })
 
@@ -80,7 +80,8 @@ const BillingContactDialog = () => {
   }
 
   return (
-    <Dialog>
+    <Dialog aria-describedby={undefined}>
+      <DialogDescription />
       <DialogTrigger asChild>
         <h1 className="text-brand text-lg font-medium cursor-pointer">Edit</h1>
       </DialogTrigger>
@@ -92,7 +93,7 @@ const BillingContactDialog = () => {
         <form className="space-y-4">
           <div>
             <Label htmlFor="full-name">Full name</Label>
-            <Input id="full-name" placeholder="Enter full name" />
+            <Input id="full-name" placeholder="Full name" />
           </div>
           <div className="relative">
             <Label htmlFor="address1">Address Line 1</Label>
@@ -124,17 +125,17 @@ const BillingContactDialog = () => {
 
           <div>
             <Label htmlFor="country">Country</Label>
-            <Input id="country" value={address.country} onChange={handleAddressChange} />
+            <Input id="country" value={address.country} onChange={handleAddressChange} placeholder="Country" />
           </div>
 
           <div>
             <Label htmlFor="city">City</Label>
-            <Input id="city" value={address.city} onChange={handleAddressChange} />
+            <Input id="city" value={address.city} onChange={handleAddressChange} placeholder="City" />
           </div>
 
           <div>
             <Label htmlFor="state">State</Label>
-            <Input id="state" value={address.state} onChange={handleAddressChange} />
+            <Input id="state" value={address.state} onChange={handleAddressChange} placeholder="State" />
           </div>
 
           <div>

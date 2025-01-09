@@ -8,6 +8,7 @@ import React from 'react'
 const BillingEmailDialog = () => {
   return (
     <Dialog>
+      <DialogDescription />
       <DialogTrigger asChild>
         <h1 className="text-brand text-lg font-medium cursor-pointer">Edit</h1>
       </DialogTrigger>
