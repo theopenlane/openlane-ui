@@ -10,7 +10,7 @@ const libraries: any = ['places']
 
 const BillingContactDialog = () => {
   const { isLoaded } = useLoadScript({
-    googleMapsApiKey: 'AIzaSyBlw0lwwh3ap9BWQczBLeHbr7y2rpA1R7A', // Replace with your actual Google API key
+    googleMapsApiKey: 'api_key', // Replace with your actual Google API key
     libraries,
   })
 
@@ -108,11 +108,11 @@ const BillingContactDialog = () => {
               placeholder="Start typing an address..."
             />
             {predictions.length > 0 && (
-              <div className="absolute z-50 bg-white border rounded shadow-md w-full">
+              <div className="absolute z-10 bg-panel border rounded shadow-md w-full">
                 {predictions.map((prediction) => (
-                  <div key={prediction.place_id} onClick={() => handleSelectPrediction(prediction.place_id, prediction.description)} className="p-2 hover:bg-gray-200 cursor-pointer">
+                  <p key={prediction.place_id} onClick={() => handleSelectPrediction(prediction.place_id, prediction.description)} className="p-2  cursor-pointer">
                     {prediction.description}
-                  </div>
+                  </p>
                 ))}
               </div>
             )}
