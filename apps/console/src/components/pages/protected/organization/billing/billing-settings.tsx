@@ -5,24 +5,28 @@ import { Switch } from '@repo/ui/switch'
 import BillingEmailDialog from './billing-email-dialog'
 import BillingContactDialog from './billing-contract-dialog'
 import { useOrganization } from '@/hooks/useOrganization'
+import { billingSettingsStyles } from './billing-settings.styles'
+import { cn } from '@repo/ui/lib/utils'
 
 const BillingSettings: React.FC = () => {
+  const { panel, section, sectionContent, sectionTitle, emailText, paragraph, switchContainer, text } = billingSettingsStyles()
   const { currentOrg } = useOrganization()
   const billingAddress = currentOrg?.setting?.billingAddress || {}
   const formattedAddress = [billingAddress.line1, billingAddress.city, billingAddress.postalCode].filter(Boolean).join(', ')
   const email = currentOrg?.setting?.billingEmail || ''
+
   return (
-    <Panel className="p-6">
+    <Panel className={cn(panel())}>
       <h2 className="text-2xl font-semibold text-text-header">Billing Settings</h2>
 
       {/* Billing Contact Section */}
-      <div className="flex justify-between items-start py-6 border-b border-gray-300">
+      <div className={cn(section())}>
         <div className="flex gap-10 w-full">
-          <h3 className="text-xl font-medium text-text-header w-1/5">Billing Contact</h3>
-          <div className="flex justify-between w-full gap-4">
+          <h3 className={cn(sectionTitle())}>Billing Contact</h3>
+          <div className={cn(sectionContent())}>
             <div>
-              <p className="text-sm mt-1">This address appears on your monthly invoice and should be the legal address of your home or business.</p>
-              <p className="text-text-paragraph text-sm">
+              <p className={cn(text())}>This address appears on your monthly invoice and should be the legal address of your home or business.</p>
+              <p className={cn(paragraph())}>
                 {formattedAddress}
                 <br />
                 {`${currentOrg?.setting?.billingAddress.country || ''}`}
@@ -34,13 +38,13 @@ const BillingSettings: React.FC = () => {
       </div>
 
       {/* Billing Email Section */}
-      <div className="flex justify-between items-start py-6 border-b border-gray-300">
+      <div className={cn(section())}>
         <div className="flex gap-10 w-full">
-          <h3 className="text-xl font-medium text-text-header w-1/5">Billing Email</h3>
-          <div className="flex justify-between w-full gap-4">
+          <h3 className={cn(sectionTitle())}>Billing Email</h3>
+          <div className={cn(sectionContent())}>
             <div>
-              <p className="text-sm mt-1">Lorem ipsum is the text</p>
-              <p className="mt-2 text-text-paragraph font-medium">{email}</p>
+              <p className={cn(text())}>Lorem ipsum is the text</p>
+              <p className={cn(emailText())}>{email}</p>
             </div>
             <BillingEmailDialog />
           </div>
@@ -48,11 +52,11 @@ const BillingSettings: React.FC = () => {
       </div>
 
       {/* Billing Alert Section */}
-      <div className="flex justify-between items-start py-6">
+      <div className={cn(section())}>
         <div className="flex gap-10 w-full">
-          <h3 className="text-xl font-medium text-text-header w-1/5">Billing Alert</h3>
-          <div className="flex justify-between w-full gap-4">
-            <p className="text-sm mt-1">Set up automated billing alerts to receive emails when a specified usage amount is reached for spend across your entire team.</p>
+          <h3 className={cn(sectionTitle())}>Billing Alert</h3>
+          <div className={cn(switchContainer())}>
+            <p className={cn(text())}>Set up automated billing alerts to receive emails when a specified usage amount is reached for spend across your entire team.</p>
             <Switch />
           </div>
         </div>
