@@ -9,7 +9,6 @@ import { useOrganization } from '@/hooks/useOrganization'
 
 const PricingPlan = () => {
   const { currentOrg } = useOrganization()
-  console.log('currentOrg', currentOrg)
 
   const subscription = currentOrg?.orgSubscriptions?.[0] ?? {}
   // @ts-ignore TODO: MISSING TYPES FROM CODEGEN
