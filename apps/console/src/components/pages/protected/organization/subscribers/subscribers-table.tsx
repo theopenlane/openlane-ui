@@ -1,9 +1,6 @@
 'use client'
 
-import {
-  GetAllSubscribersQuery,
-  useGetAllSubscribersQuery,
-} from '@repo/codegen/src/schema'
+import { GetAllSubscribersQuery, useGetAllSubscribersQuery } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import { pageStyles } from './page.styles'
 import { useState, useEffect } from 'react'
@@ -15,21 +12,12 @@ import { useCopyToClipboard } from '@uidotdev/usehooks'
 import { useToast } from '@repo/ui/use-toast'
 import { SubscriberActions } from './actions/subscriber-actions'
 
-type SubscriberEdge = NonNullable<
-  NonNullable<GetAllSubscribersQuery['subscribers']>['edges']
->[number]
+type SubscriberEdge = NonNullable<NonNullable<GetAllSubscribersQuery['subscribers']>['edges']>[number]
 
 type Subscriber = NonNullable<SubscriberEdge>['node']
 
 export const SubscribersTable = () => {
-  const {
-    subscribersSearchRow,
-    subscribersSearchField,
-    subscribersButtons,
-    actionIcon,
-    nameRow,
-    copyIcon,
-  } = pageStyles()
+  const { subscribersSearchRow, subscribersSearchField, subscribersButtons, actionIcon, nameRow, copyIcon } = pageStyles()
   const { data: session } = useSession()
   const [filteredSubscribers, setFilteredSubscribers] = useState<Subscriber[]>([])
   const [searchTerm, setSearchTerm] = useState('')
@@ -51,7 +39,7 @@ export const SubscribersTable = () => {
 
   useEffect(() => {
     if (data?.subscribers?.edges) {
-      const subscribers = data.subscribers.edges.map(edge => edge?.node).filter(node => node !== null) as Subscriber[]
+      const subscribers = data.subscribers.edges.map((edge) => edge?.node).filter((node) => node !== null) as Subscriber[]
       setFilteredSubscribers(subscribers)
     }
   }, [data])
@@ -63,13 +51,11 @@ export const SubscribersTable = () => {
     setSearchTerm(searchValue)
 
     if (data?.subscribers?.edges) {
-      const filtered = data.subscribers.edges.filter(
-        (edge) => {
-          const email = edge?.node?.email.toLowerCase() || ''
-          return email.includes(searchValue)
-        },
-      )
-      const filteredSubscribers = filtered.map(edge => edge?.node).filter(node => node !== null) as Subscriber[]
+      const filtered = data.subscribers.edges.filter((edge) => {
+        const email = edge?.node?.email.toLowerCase() || ''
+        return email.includes(searchValue)
+      })
+      const filteredSubscribers = filtered.map((edge) => edge?.node).filter((node) => node !== null) as Subscriber[]
       setFilteredSubscribers(filteredSubscribers)
     }
   }
@@ -83,12 +69,7 @@ export const SubscribersTable = () => {
         return (
           <div className={nameRow()}>
             {email}
-            <Copy
-              width={16}
-              height={16}
-              className={copyIcon()}
-              onClick={() => copyToClipboard(email)}
-            />
+            <Copy width={16} height={16} className={copyIcon()} onClick={() => copyToClipboard(email)} />
           </div>
         )
       },
@@ -104,12 +85,7 @@ export const SubscribersTable = () => {
     {
       accessorKey: 'email',
       header: '',
-      cell: ({ cell }) => (
-         <SubscriberActions
-          subscriberEmail={cell.getValue() as string}
-          refetchSubscribers={refetch}
-        />
-      ),
+      cell: ({ cell }) => <SubscriberActions subscriberEmail={cell.getValue() as string} refetchSubscribers={refetch} />,
       size: 40,
     },
   ]
@@ -118,11 +94,7 @@ export const SubscribersTable = () => {
     <div>
       <div className={subscribersSearchRow()}>
         <div className={subscribersSearchField()}>
-          <Input
-            placeholder="Search for user"
-            value={searchTerm}
-            onChange={handleSearch}
-          />
+          <Input placeholder="Search for user" value={searchTerm} onChange={handleSearch} />
         </div>
       </div>
       <DataTable columns={columns} data={filteredSubscribers} />

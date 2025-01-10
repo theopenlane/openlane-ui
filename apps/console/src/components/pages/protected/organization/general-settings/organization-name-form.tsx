@@ -1,20 +1,11 @@
 'use client'
-import {
-  useGetAllOrganizationsQuery,
-  useUpdateOrganizationMutation,
-} from '@repo/codegen/src/schema'
+import { useGetAllOrganizationsQuery, useUpdateOrganizationMutation } from '@repo/codegen/src/schema'
 import { Input, InputRow } from '@repo/ui/input'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { useSession } from 'next-auth/react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  Form,
-  FormItem,
-  FormField,
-  FormControl,
-  FormMessage,
-} from '@repo/ui/form'
+import { Form, FormItem, FormField, FormControl, FormMessage } from '@repo/ui/form'
 import { z } from 'zod'
 import { Button } from '@repo/ui/button'
 import { useEffect, useState } from 'react'
@@ -22,14 +13,11 @@ import { RESET_SUCCESS_STATE_MS } from '@/constants'
 
 const OrganizationNameForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
-  const [{ fetching: isSubmitting }, updateOrg] =
-    useUpdateOrganizationMutation()
+  const [{ fetching: isSubmitting }, updateOrg] = useUpdateOrganizationMutation()
   const { data: sessionData } = useSession()
   const currentOrgId = sessionData?.user.activeOrganizationId
   const [allOrgs] = useGetAllOrganizationsQuery({ pause: !sessionData })
-  const currentOrganization = allOrgs.data?.organizations.edges?.filter(
-    (org) => org?.node?.id === currentOrgId,
-  )[0]?.node
+  const currentOrganization = allOrgs.data?.organizations.edges?.filter((org) => org?.node?.id === currentOrgId)[0]?.node
 
   const formSchema = z.object({
     displayName: z.string().min(2, {
@@ -97,11 +85,7 @@ const OrganizationNameForm = () => {
                 </FormItem>
               )}
             />
-            <Button
-              variant={isSuccess ? 'success' : 'filled'}
-              type="submit"
-              loading={isSubmitting}
-            >
+            <Button variant={isSuccess ? 'success' : 'filled'} type="submit" loading={isSubmitting}>
               {isSubmitting ? 'Saving' : isSuccess ? 'Saved' : 'Save'}
             </Button>
           </InputRow>
