@@ -1,3 +1,4 @@
+'use client'
 import React from 'react'
 import { Panel } from '@repo/ui/panel'
 import { Button } from '@repo/ui/button'
@@ -9,10 +10,18 @@ import { useOrganization } from '@/hooks/useOrganization'
 
 const PricingPlan = () => {
   const { currentOrg } = useOrganization()
-  console.log('currentOrg', currentOrg)
-  const expiresDate: string | null = currentOrg?.orgSubscriptions?.[0]?.expiresAt
 
+  const expiresDate: string | null = currentOrg?.orgSubscriptions?.[0]?.expiresAt
   const formattedExpiresDate = expiresDate ? format(new Date(expiresDate), 'MMMM d, yyyy hh:mm a') : 'N/A'
+  const subscriptionURL = currentOrg?.orgSubscriptions?.[0]?.subscriptionURL
+
+  const handleSubscriptionChange = () => {
+    if (subscriptionURL) {
+      window.open(subscriptionURL, '_blank', 'noopener,noreferrer')
+    } else {
+      console.warn('No subscription URL available')
+    }
+  }
 
   return (
     <Panel className="p-6">
@@ -31,7 +40,7 @@ const PricingPlan = () => {
                 </div>
                 <p className="text-sm">$250 / month</p>
               </div>
-              <Button className="flex items-center gap-2" icon={<ExternalLink />}>
+              <Button className="flex items-center gap-2" icon={<ExternalLink />} onClick={handleSubscriptionChange}>
                 Change Subscription
               </Button>
             </div>
