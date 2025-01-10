@@ -30,13 +30,19 @@ const BillingEmailDialog = () => {
       },
     })
 
-    if (!resp.error) {
+    if (resp.error) {
       toast({
-        title: `${emailInput} was successfully added as Billing Alert`,
-        variant: 'success',
+        title: `Something went wrong with saving your address!`,
+        variant: 'destructive',
       })
-      setIsOpen(false) // Close dialog on success
+      return
     }
+
+    toast({
+      title: `${emailInput} was successfully added as Billing Alert`,
+      variant: 'success',
+    })
+    setIsOpen(false)
   }
 
   return (

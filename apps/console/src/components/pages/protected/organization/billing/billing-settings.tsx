@@ -8,7 +8,6 @@ import { useOrganization } from '@/hooks/useOrganization'
 
 const BillingSettings: React.FC = () => {
   const { currentOrg } = useOrganization()
-  console.log('currentOrg', currentOrg)
   const billingAddress = currentOrg?.setting?.billingAddress || {}
   const formattedAddress = [billingAddress.line1, billingAddress.city, billingAddress.postalCode].filter(Boolean).join(', ')
   const email = currentOrg?.setting?.billingEmail || ''
