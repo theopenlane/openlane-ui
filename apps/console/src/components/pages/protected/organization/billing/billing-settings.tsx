@@ -11,6 +11,7 @@ const BillingSettings: React.FC = () => {
   console.log('currentOrg', currentOrg)
   const billingAddress = currentOrg?.setting?.billingAddress || {}
   const formattedAddress = [billingAddress.line1, billingAddress.city, billingAddress.postalCode].filter(Boolean).join(', ')
+  const email = currentOrg?.setting?.billingEmail || ''
   return (
     <Panel className="p-6">
       <h2 className="text-2xl font-semibold text-text-header">Billing Settings</h2>
@@ -40,7 +41,7 @@ const BillingSettings: React.FC = () => {
           <div className="flex justify-between w-full gap-4">
             <div>
               <p className="text-sm mt-1">Lorem ipsum is the text</p>
-              <p className="mt-2 text-text-paragraph font-medium">sfunk@theopenlane.io</p>
+              <p className="mt-2 text-text-paragraph font-medium">{email}</p>
             </div>
             <BillingEmailDialog />
           </div>
