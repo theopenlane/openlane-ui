@@ -10,7 +10,7 @@ import { useGetInvitesQuery } from '@repo/codegen/src/schema'
 import { MembersTable } from './members-table'
 import { useUserCanInviteAdmins } from '@/lib/authz/utils'
 
-const MembersPage: React.FC = async () => {
+const MembersPage: React.FC = () => {
   const { wrapper, inviteCount, inviteRow } = pageStyles()
   const defaultTab = 'members'
   const [activeTab, setActiveTab] = useState(defaultTab)
@@ -20,7 +20,7 @@ const MembersPage: React.FC = async () => {
   })
 
   // Check if the user can invite admins or only members
-  const { data: inviteAdminPermissions, error } = await useUserCanInviteAdmins(session)
+  const { data: inviteAdminPermissions, error } = useUserCanInviteAdmins(session)
 
   const numInvites = Array.isArray(data?.invites.edges) ? data?.invites.edges.length : 0
 
