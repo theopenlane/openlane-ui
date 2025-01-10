@@ -3,19 +3,33 @@ import React, { useMemo } from 'react'
 import { Panel } from '@repo/ui/panel'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
-import { format } from 'date-fns'
+import { formatDistanceToNowStrict, parseISO, isBefore } from 'date-fns'
 import { CircleCheck, ExternalLink } from 'lucide-react'
 import { useOrganization } from '@/hooks/useOrganization'
 
 const PricingPlan = () => {
   const { currentOrg } = useOrganization()
   console.log('currentOrg', currentOrg)
+
   const subscription = currentOrg?.orgSubscriptions?.[0] ?? {}
   // @ts-ignore TODO: MISSING TYPES FROM CODEGEN
-  const { expiresAt, subscriptionURL, productTier, productPrice = {}, features = [] } = subscription
+  const { expiresAt, subscriptionURL, active, productTier, productPrice = {}, features = [] } = subscription
   const { amount: price, interval: priceInterval } = productPrice
 
-  const formattedExpiresDate = useMemo(() => (expiresAt ? format(new Date(expiresAt), 'MMMM d, yyyy hh:mm a') : 'N/A'), [expiresAt])
+  const formattedExpiresDate = useMemo(() => {
+    if (!expiresAt || !active) return 'Expired'
+
+    try {
+      const expirationDate = parseISO(expiresAt)
+      if (isBefore(expirationDate, new Date())) {
+        return 'Expired'
+      }
+      return `Expires in ${formatDistanceToNowStrict(expirationDate, { addSuffix: false })}`
+    } catch (error) {
+      console.error('Error parsing expiration date:', error)
+      return 'N/A'
+    }
+  }, [expiresAt, active])
 
   const handleSubscriptionChange = () => {
     if (subscriptionURL) {
@@ -37,7 +51,7 @@ const PricingPlan = () => {
                 <div className="flex gap-3 items-center">
                   <p className="text-lg font-medium">{productTier ?? 'N/A'}</p>
                   <Badge className="text-xs font-medium" variant="outline">
-                    {`Expires in ${formattedExpiresDate}`}
+                    {formattedExpiresDate}
                   </Badge>
                 </div>
                 {price && <p className="text-sm">{`$${price} / ${priceInterval}`}</p>}
