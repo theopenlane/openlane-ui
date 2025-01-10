@@ -9,6 +9,7 @@
     "./styles.css": "./dist/index.css",
     "./alert-dialog": "./src/alert-dialog/alert-dialog.tsx",
     "./avatar": "./src/avatar/avatar.tsx",
+    "./badge": "./src/badge/badge.tsx",
     "./button": "./src/button/button.tsx",
     "./breadcrumb": "./src/breadcrumb/breadcrumb.tsx",
     "./calendar": "./src/calendar/calendar.tsx",

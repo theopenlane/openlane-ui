@@ -14,7 +14,6 @@ const BillingSettings: React.FC = () => {
   const billingAddress = currentOrg?.setting?.billingAddress || {}
   const formattedAddress = [billingAddress.line1, billingAddress.city, billingAddress.postalCode].filter(Boolean).join(', ')
   const email = currentOrg?.setting?.billingEmail || ''
-
   return (
     <Panel className={cn(panel())}>
       <h2 className="text-2xl font-semibold text-text-header">Billing Settings</h2>
