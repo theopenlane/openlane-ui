@@ -1,19 +1,21 @@
 'use client'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Panel } from '@repo/ui/panel'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { format } from 'date-fns'
-
 import { CircleCheck, ExternalLink } from 'lucide-react'
 import { useOrganization } from '@/hooks/useOrganization'
 
 const PricingPlan = () => {
   const { currentOrg } = useOrganization()
+  console.log('currentOrg', currentOrg)
+  const subscription = currentOrg?.orgSubscriptions?.[0] ?? {}
+  // @ts-ignore TODO: MISSING TYPES FROM CODEGEN
+  const { expiresAt, subscriptionURL, productTier, productPrice = {}, features = [] } = subscription
+  const { amount: price, interval: priceInterval } = productPrice
 
-  const expiresDate: string | null = currentOrg?.orgSubscriptions?.[0]?.expiresAt
-  const formattedExpiresDate = expiresDate ? format(new Date(expiresDate), 'MMMM d, yyyy hh:mm a') : 'N/A'
-  const subscriptionURL = currentOrg?.orgSubscriptions?.[0]?.subscriptionURL
+  const formattedExpiresDate = useMemo(() => (expiresAt ? format(new Date(expiresAt), 'MMMM d, yyyy hh:mm a') : 'N/A'), [expiresAt])
 
   const handleSubscriptionChange = () => {
     if (subscriptionURL) {
@@ -25,7 +27,7 @@ const PricingPlan = () => {
 
   return (
     <Panel className="p-6">
-      <h2 className="text-2xl ">Pricing Plan</h2>
+      <h2 className="text-2xl">Pricing Plan</h2>
       <div className="mt-4 flex items-center justify-between">
         <div className="flex gap-10 w-full">
           <h3 className="text-xl font-medium w-1/5">Current Plan</h3>
@@ -33,39 +35,25 @@ const PricingPlan = () => {
             <div className="flex justify-between items-center">
               <div>
                 <div className="flex gap-3 items-center">
-                  <p className="text-lg font-medium">Business Tier</p>
+                  <p className="text-lg font-medium">{productTier ?? 'N/A'}</p>
                   <Badge className="text-xs font-medium" variant="outline">
                     {`Expires in ${formattedExpiresDate}`}
                   </Badge>
                 </div>
-                <p className="text-sm">$250 / month</p>
+                {price && <p className="text-sm">{`$${price} / ${priceInterval}`}</p>}
               </div>
               <Button className="flex items-center gap-2" icon={<ExternalLink />} onClick={handleSubscriptionChange}>
                 Change Subscription
               </Button>
             </div>
+
             {/* Divider */}
             <div className="my-7 border-t border-gray-300"></div>
 
             {/* Features List */}
             <h4 className="text-lg font-medium text-text-header mb-5">Features in this plan</h4>
             <ul className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2 text-gray-700">
-              {[
-                'Compliance Standards and Templates',
-                'Program Management',
-                'Evidence Storage',
-                'Centralized Audit Documentation',
-                'Compliance Program Management',
-                'SSO',
-                'Questionnaire Automation',
-                'Policy and Procedure Management',
-                'Vendor Management',
-              ].map((feature, index) => (
-                <li key={index} className="flex items-center gap-2">
-                  <CircleCheck className="w-5 h-5 text-brand" />
-                  <p>{feature}</p>
-                </li>
-              ))}
+              {features.length > 0 ? features.map((feature: string, index: number) => <FeatureItem key={index} feature={feature} />) : <p className="text-gray-500">No features listed.</p>}
             </ul>
           </div>
         </div>
@@ -73,5 +61,13 @@ const PricingPlan = () => {
     </Panel>
   )
 }
+
+// Extracted Feature Item Component
+const FeatureItem = ({ feature }: { feature: string }) => (
+  <li className="flex items-center gap-2">
+    <CircleCheck className="w-5 h-5 text-brand" />
+    <p>{feature}</p>
+  </li>
+)
 
 export default PricingPlan

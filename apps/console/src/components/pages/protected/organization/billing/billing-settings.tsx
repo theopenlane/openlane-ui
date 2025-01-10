@@ -18,13 +18,12 @@ const BillingSettings: React.FC = () => {
     <Panel className={cn(panel())}>
       <h2 className="text-2xl font-semibold text-text-header">Billing Settings</h2>
 
-      {/* Billing Contact Section */}
       <div className={cn(section())}>
         <div className="flex gap-10 w-full">
-          <h3 className={cn(sectionTitle())}>Billing Contact</h3>
+          <h3 className={cn(sectionTitle())}>Billing Address</h3>
           <div className={cn(sectionContent())}>
             <div>
-              <p className={cn(text())}>This address appears on your monthly invoice and should be the legal address of your home or business.</p>
+              <p className={cn(text())}>The address associated with the payment information on file which will be used to process your subscription fees and displayed on your invoices.</p>
               <p className={cn(paragraph())}>
                 {formattedAddress}
                 <br />
@@ -42,7 +41,7 @@ const BillingSettings: React.FC = () => {
           <h3 className={cn(sectionTitle())}>Billing Email</h3>
           <div className={cn(sectionContent())}>
             <div>
-              <p className={cn(text())}>Lorem ipsum is the text</p>
+              <p className={cn(text())}>The email we will use to send billing account updates and subscription information</p>
               <p className={cn(emailText())}>{email}</p>
             </div>
             <BillingEmailDialog />

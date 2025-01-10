@@ -121,7 +121,7 @@ const BillingContactDialog = () => {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[455px]">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-semibold">Billing Contact</DialogTitle>
+          <DialogTitle className="text-2xl font-semibold">Billing Address</DialogTitle>
         </DialogHeader>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
