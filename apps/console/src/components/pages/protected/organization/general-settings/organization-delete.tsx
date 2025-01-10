@@ -20,13 +20,12 @@ import { useToast } from '@repo/ui/use-toast'
 import { userHasOrganizationDeletePermissions } from '@/lib/authz/utils'
 import { useGetOrganizationNameByIdQuery } from '@repo/codegen/src/schema'
 
-
+//TODO: THIS COMPONENT CANT BE ASYNC. NEEDS TO BE REFACTORED
 const OrganizationDelete = async () => {
   const { toast } = useToast()
   const { push } = useRouter()
 
-  const [{ fetching: isSubmitting }, deleteOrganization] =
-    useDeleteOrganizationMutation()
+  const [{ fetching: isSubmitting }, deleteOrganization] = useDeleteOrganizationMutation()
   const { data: sessionData, update } = useSession()
   const currentOrgId = sessionData?.user.activeOrganizationId
 
@@ -80,8 +79,7 @@ const OrganizationDelete = async () => {
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete
-                  your organization <b>({org.data?.organization?.displayName})</b> and remove your data from our servers.
+                  This action cannot be undone. This will permanently delete your organization <b>({org.data?.organization?.displayName})</b> and remove your data from our servers.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

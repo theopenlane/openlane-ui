@@ -8,6 +8,7 @@ import { useOrganization } from '@/hooks/useOrganization'
 
 const BillingSettings: React.FC = () => {
   const { currentOrg } = useOrganization()
+  console.log('currentOrg', currentOrg)
   const billingAddress = currentOrg?.setting?.billingAddress || {}
   const formattedAddress = [billingAddress.line1, billingAddress.city, billingAddress.postalCode].filter(Boolean).join(', ')
   return (
@@ -24,7 +25,7 @@ const BillingSettings: React.FC = () => {
               <p className="text-text-paragraph text-sm">
                 {formattedAddress}
                 <br />
-                {`${currentOrg?.setting?.billingAddress.country}`}
+                {`${currentOrg?.setting?.billingAddress.country || ''}`}
               </p>
             </div>
             <BillingContactDialog />

@@ -39,14 +39,14 @@ export const OrganizationSelector = () => {
   const nonPersonalOrgs = orgs.filter((org) => !org?.node?.personalOrg)
 
   useEffect(() => {
-    if (orgs) {
+    if (currentOrg) {
       setOrgData({
         organizationSearch: '',
         numberOfOrgs: nonPersonalOrgs.length,
         currentOrgName: currentOrg?.displayName ?? '',
       })
     }
-  }, [orgs])
+  }, [currentOrg])
 
   const handleOrganizationSwitch = async (orgId?: string) => {
     if (orgId) {
