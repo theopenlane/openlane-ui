@@ -4,19 +4,25 @@ import React from 'react'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Button } from '@repo/ui/button'
 import { EditableTextarea } from '@repo/ui/textarea'
-import { usePolicyPageActions, usePolicyPageStore } from '@/hooks/usePolicyPage'
-import { useShallow } from 'zustand/react/shallow'
+import { Policy } from './context'
+import { EditableField } from './policy-page'
 
-export type UpdateableFields = 'description' | 'background' | 'purposeAndScope' | 'name'
+type PolicySidebarProps = {
+  policy: Policy
+  onFieldChange: (field: EditableField, value: string) => void
+  saveField: (field: EditableField, value: string) => void
+  onSave: () => void
+  onDelete: () => void
+}
 
-export const PolicySidebar: React.FC = function () {
-  const { saveField, setField, delete: deletePolicy, save } = usePolicyPageActions()
-  const { id, description, background, purposeAndScope } = usePolicyPageStore(
-    useShallow((state) => {
-      const { id, description, background, purposeAndScope } = state.policy
-      return { id, description, background, purposeAndScope }
-    }),
-  )
+export const PolicySidebar: React.FC<PolicySidebarProps> = function ({
+  policy,
+  onFieldChange,
+  onSave,
+  onDelete,
+  saveField,
+}) {
+  console.log('PolicySidebar: render')
 
   return (
     <div className="flex flex-col gap-5 w-full">
@@ -28,9 +34,9 @@ export const PolicySidebar: React.FC = function () {
             <h3 className="text-oxford-blue-500 text-sm mb-1">Description</h3>
             <EditableTextarea
               rows={7}
-              onBlur={(e) => saveField('description', e.target.value)}
-              onChange={(e) => setField('description', e.target.value)}
-              value={description ?? ''}
+              onSave={(v: string) => saveField('description', v)}
+              onChange={(e) => onFieldChange('description', e.target.value)}
+              value={policy.description ?? ''}
               placeholder="provide a description"
             />
           </div>
@@ -38,9 +44,9 @@ export const PolicySidebar: React.FC = function () {
             <h3 className="text-oxford-blue-500 text-sm mb-1">Background</h3>
             <EditableTextarea
               rows={7}
-              onBlur={(e) => saveField('background', e.target.value)}
-              onChange={(e) => setField('background', e.target.value)}
-              value={background ?? ''}
+              onChange={(e) => onFieldChange('background', e.target.value)}
+              value={policy.background ?? ''}
+              onSave={(v: string) => saveField('background', v)}
               placeholder="provide a background"
             />
           </div>
@@ -48,9 +54,9 @@ export const PolicySidebar: React.FC = function () {
             <h3 className="text-oxford-blue-500 text-sm mb-1">Purpose and Scope</h3>
             <EditableTextarea
               rows={7}
-              onBlur={(e) => saveField('purposeAndScope', e.target.value)}
-              onChange={(e) => setField('purposeAndScope', e.target.value)}
-              value={purposeAndScope ?? ''}
+              onChange={(e) => onFieldChange('purposeAndScope', e.target.value)}
+              value={policy.purposeAndScope ?? ''}
+              onSave={(v: string) => saveField('purposeAndScope', v)}
               placeholder="provide a purpose and scope"
             />
           </div>
@@ -61,13 +67,13 @@ export const PolicySidebar: React.FC = function () {
         <PanelHeader heading="Actions" className="p-4 text-base" noBorder />
         <div className="divide-y divide-oxford-blue-100 dark:divide-oxford-blue-900 *:px-4 *:py-2">
           <div className="mb-4">
-            {id ? (
-              <Button variant="redOutline" size="sm" onClick={deletePolicy} full>
+            {policy.id ? (
+              <Button variant="redOutline" size="sm" onClick={onDelete} full>
                 Delete
               </Button>
             ) : (
-              <Button variant="filled" onClick={save} size="sm" full>
-                Create
+              <Button variant="filled" onClick={onSave} size="sm" full>
+                Save
               </Button>
             )}
           </div>

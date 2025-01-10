@@ -13,7 +13,7 @@ import { FixedToolbar } from '@repo/ui/plate-ui/fixed-toolbar'
 import { FixedToolbarButtons } from '@repo/ui/plate-ui/fixed-toolbar-buttons'
 import { FloatingToolbar } from '@repo/ui/plate-ui/floating-toolbar'
 import { FloatingToolbarButtons } from '@repo/ui/plate-ui/floating-toolbar-buttons'
-
+import { memo } from 'react'
 import PlateConfig from './plate-config'
 
 const editor = createPlateEditor(Object.assign({}, PlateConfig, { value: '' }))
@@ -23,7 +23,8 @@ type Props = {
   onChange?: (content: Value) => void
 }
 
-export default function PlateEditor({ content, onChange }: Props) {
+export default memo(function PlateEditor({ content, onChange }: Props) {
+  console.log('PlateEditor: render', { content })
   useEffect(() => {
     if (content) {
       editor.tf.setValue(content)
@@ -31,13 +32,14 @@ export default function PlateEditor({ content, onChange }: Props) {
   }, [content])
 
   const handleChange = ({ value }: { value: Value }) => {
+    console.log('PlateEditor: handleChange', value)
     if (onChange) onChange(value)
   }
 
   return (
     <>
       <DndProvider backend={HTML5Backend}>
-        <Plate editor={editor} onChange={handleChange}>
+        <Plate editor={editor}>
           <FixedToolbar>
             <FixedToolbarButtons />
           </FixedToolbar>
@@ -51,4 +53,4 @@ export default function PlateEditor({ content, onChange }: Props) {
       </DndProvider>
     </>
   )
-}
+})

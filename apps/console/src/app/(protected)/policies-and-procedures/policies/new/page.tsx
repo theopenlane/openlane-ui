@@ -1,35 +1,48 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
-import { useCreateInternalPolicyMutation } from '@repo/codegen/src/schema'
+import React from 'react'
 import { NextPage } from 'next'
-import { PolicyPage } from '@/components/pages/protected/policies/policy-page'
+import { Policy, PolicyPage } from '@/components/pages/protected/policies/policy-page'
+import { useCreateInternalPolicyMutation } from '@repo/codegen/src/schema'
 import { useRouter } from 'next/navigation'
-import { usePolicyPageActions } from '@/hooks/usePolicyPage'
-
-const usePolicyPageHook = () => {
-  const router = useRouter()
-  const [{ error, fetching: saving }, createPolicy] = useCreateInternalPolicyMutation()
-  const { setPolicy } = usePolicyPageActions()
-
-  useEffect(() => {
-    setPolicy({})
-  }, [])
-
-  // const create = async () => {
-  //   const { data } = await createPolicy({ input: policy })
-  //   if (data?.createInternalPolicy?.internalPolicy?.id) {
-  //     router.push('/policies-and-procedures/policies/' + data?.createInternalPolicy.internalPolicy?.id || '')
-  //   }
-  // }
-
-  return
-}
-
 const Page: NextPage = async () => {
-  usePolicyPageHook()
+  const router = useRouter()
+  const [{ error: createError }, createPolicy] = useCreateInternalPolicyMutation()
 
-  return <PolicyPage />
+  const save = async (policy: Policy) => {
+    console.log('Page: save')
+
+    const { name, status, version, policyType, description, background, purposeAndScope } = policy
+    const input = { name, status, version, policyType, description, background, purposeAndScope }
+
+    const response = await createPolicy({ input })
+    if (response.error) {
+      console.error(response.error)
+      return
+    }
+
+    if (response?.data?.createInternalPolicy?.internalPolicy?.id) {
+      console.log('Policy created:', response.data.createInternalPolicy)
+      router.push('/policies-and-procedures/policies/' + response.data.createInternalPolicy.internalPolicy.id)
+    }
+  }
+
+  const policy = {
+    name: 'New Policy',
+    status: 'new',
+    version: '0',
+    policyType: null,
+    updatedAt: null,
+    updatedBy: null,
+    description: null,
+    background: null,
+    purposeAndScope: null,
+    details: {
+      content: [],
+    },
+  }
+
+  return <PolicyPage internalPolicy={policy} save={save} />
 }
 
 export default Page
