@@ -4,8 +4,7 @@ import React from 'react'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Button } from '@repo/ui/button'
 import { EditableTextarea } from '@repo/ui/textarea'
-import { Policy } from './context'
-import { EditableField } from './policy-page'
+import { EditableField, Policy } from './policy-page'
 
 type PolicySidebarProps = {
   policy: Policy

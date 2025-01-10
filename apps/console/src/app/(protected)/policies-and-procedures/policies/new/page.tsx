@@ -27,6 +27,8 @@ const Page: NextPage = async () => {
     }
   }
 
+  const noop = () => {}
+
   const policy = {
     name: 'New Policy',
     status: 'new',
@@ -42,7 +44,7 @@ const Page: NextPage = async () => {
     },
   }
 
-  return <PolicyPage internalPolicy={policy} save={save} />
+  return <PolicyPage internalPolicy={policy} save={save} delete={noop} />
 }
 
 export default Page
