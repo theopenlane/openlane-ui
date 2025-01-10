@@ -7,13 +7,14 @@ import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import { useUpdateOrganizationMutation } from '@repo/codegen/src/schema'
 import { useOrganization } from '@/hooks/useOrganization'
+import useClickOutside from '@/hooks/useClickOutside'
 
 const libraries: any = ['places']
 
 const BillingContactDialog = () => {
   const { currentOrgId, currentOrg } = useOrganization()
   const [{ fetching: isSubmitting }, updateOrg] = useUpdateOrganizationMutation()
-
+  const wrapperRef = useClickOutside(() => setShowPredictions(false))
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
     libraries,
@@ -22,6 +23,7 @@ const BillingContactDialog = () => {
   const [fullName, setFullName] = useState('')
   const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([])
   const [placeService, setPlaceService] = useState<google.maps.places.AutocompleteService | null>(null)
+  const [showPredictions, setShowPredictions] = useState<boolean>(false)
   const [address, setAddress] = useState({
     line1: '',
     line2: '',
@@ -41,6 +43,7 @@ const BillingContactDialog = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
+    setShowPredictions(true)
     if (!placeService) return
 
     placeService.getPlacePredictions({ input: value, types: ['geocode'] }, (results) => {
@@ -78,6 +81,7 @@ const BillingContactDialog = () => {
       })
 
       setAddress({ line1, line2, city, state, postalCode, country })
+      setShowPredictions(false)
     })
   }
 
@@ -127,25 +131,27 @@ const BillingContactDialog = () => {
           </div>
           <div className="relative">
             <Label htmlFor="line1">Address Line 1</Label>
-            <Input
-              ref={inputRef}
-              id="line1"
-              value={address.line1}
-              onChange={(e) => {
-                handleAddressChange(e)
-                handleInputChange(e)
-              }}
-              placeholder="Start typing an address..."
-            />
-            {predictions.length > 0 && (
-              <div className="absolute z-10 bg-panel border rounded shadow-md w-full">
-                {predictions.map((prediction) => (
-                  <p key={prediction.place_id} onClick={() => handleSelectPrediction(prediction.place_id, prediction.description)} className="p-2 cursor-pointer">
-                    {prediction.description}
-                  </p>
-                ))}
-              </div>
-            )}
+            <div ref={wrapperRef} className="relative w-full">
+              <Input
+                ref={inputRef}
+                id="line1"
+                value={address.line1}
+                onChange={(e) => {
+                  handleAddressChange(e)
+                  handleInputChange(e)
+                }}
+                placeholder="Start typing an address..."
+              />
+              {showPredictions && predictions.length > 0 && (
+                <div className="absolute z-10 bg-panel border rounded shadow-md w-full">
+                  {predictions.map((prediction) => (
+                    <p key={prediction.place_id} onClick={() => handleSelectPrediction(prediction.place_id, prediction.description)} className="p-2 cursor-pointer">
+                      {prediction.description}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <div>
