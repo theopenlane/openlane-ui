@@ -11,8 +11,10 @@ interface ProvidersProps {
 }
 
 const Providers = ({ children }: ProvidersProps) => {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const pathname = usePathname()
+  if (status === 'loading') return null
+  console.log('first', session)
   var client = createClient(session)
 
   // override client for waitlist page
