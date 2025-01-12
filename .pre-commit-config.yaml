@@ -8,10 +8,10 @@ repos:
         exclude: jsonschema/api-docs.md
       - id: detect-private-key
   - repo: https://github.com/google/yamlfmt
-    rev: v0.14.0
+    rev: v0.15.0
     hooks:
       - id: yamlfmt
   - repo: https://github.com/crate-ci/typos
-    rev: v1.24.1
+    rev: v1.29.4
     hooks:
       - id: typos
