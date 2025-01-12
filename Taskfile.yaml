@@ -11,6 +11,11 @@ includes:
     dir: ./packages/codegen
 
 tasks:
+  default:
+    silent: true
+    cmds:
+      - task --list
+
   local-setup:
     desc: Setup the project dependencies
     cmds:
