@@ -1,9 +1,9 @@
-import { Client, cacheExchange, fetchExchange } from 'urql'
+import { Client, cacheExchange, fetchExchange, DebugEvent, DebugEventTypes, DebugEventArg } from 'urql'
 import { openlaneGQLUrl } from '@repo/dally/auth'
 import { Session } from 'next-auth'
 
-export const createClient = (session: Session | null) =>
-  new Client({
+export const createClient = (session: Session | null) => {
+  return new Client({
     url: openlaneGQLUrl,
     // - cacheExchange: implements the default "document caching" behavior
     // - fetchExchange: send our requests to the GraphQL API
@@ -16,17 +16,18 @@ export const createClient = (session: Session | null) =>
       }
     },
   })
+}
 
-  export const createSubscriberClient = () =>
-    new Client({
-      url: '/api/graphql',
-      // - cacheExchange: implements the default "document caching" behavior
-      // - fetchExchange: send our requests to the GraphQL API
-      exchanges: [cacheExchange, fetchExchange],
-      fetchOptions: {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+export const createSubscriberClient = () =>
+  new Client({
+    url: '/api/graphql',
+    // - cacheExchange: implements the default "document caching" behavior
+    // - fetchExchange: send our requests to the GraphQL API
+    exchanges: [cacheExchange, fetchExchange],
+    fetchOptions: {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
-    })
+    },
+  })

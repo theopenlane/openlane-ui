@@ -5,6 +5,7 @@ import { createClient, createSubscriberClient } from '@/lib/urql'
 import { useSession } from 'next-auth/react'
 import { ThemeProvider } from '@/providers/theme'
 import { usePathname } from 'next/navigation'
+import { useMemo, useState, useEffect } from 'react'
 
 interface ProvidersProps {
   children: any
@@ -13,15 +14,20 @@ interface ProvidersProps {
 const Providers = ({ children }: ProvidersProps) => {
   const { data: session, status } = useSession()
   const pathname = usePathname()
-  if (status === 'loading') return null
-  console.log('first', session)
-  var client = createClient(session)
+  const [client, setClient] = useState<any>(null)
 
-  // override client for waitlist page
-  // this uses an API token instead of the user's credentials
-  if (pathname.endsWith('waitlist')) {
-    client = createSubscriberClient()
-  }
+  useEffect(() => {
+    if (status === 'authenticated' && !client) {
+      setClient(createClient(session))
+    } else if (status === 'unauthenticated' && pathname.endsWith('waitlist')) {
+      setClient(createSubscriberClient())
+    }
+  }, [session, status, pathname])
+
+  console.log('status', status)
+  if (status === 'loading') return null
+  if (status === 'authenticated' && !client) return null
+  console.log('client', client)
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
