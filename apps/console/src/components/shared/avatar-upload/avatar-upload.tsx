@@ -1,20 +1,9 @@
 'use client'
 
-import { useGetAllOrganizationsQuery } from '@repo/codegen/src/schema'
-import {
-  avatarUploadStyles,
-  AvatarUploadVariants,
-} from './avatar-upload.styles'
+import { avatarUploadStyles, AvatarUploadVariants } from './avatar-upload.styles'
 import { cn } from '@repo/ui/lib/utils'
 import { Panel, PanelHeader } from '@repo/ui/panel'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@repo/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { useCallback, useEffect, useState } from 'react'
 import { FileWithPath, useDropzone } from 'react-dropzone'
 import { useSession } from 'next-auth/react'
@@ -23,6 +12,7 @@ import Cropper, { Area, Point } from 'react-easy-crop'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import getCroppedImg from './utils/getCroppedImage'
 import { useToast } from '@repo/ui/use-toast'
+import { useOrganization } from '@/hooks/useOrganization'
 
 interface AvatarUploadProps extends AvatarUploadVariants {
   className?: string
@@ -30,12 +20,7 @@ interface AvatarUploadProps extends AvatarUploadVariants {
 
 const AvatarUpload = ({ className }: AvatarUploadProps) => {
   const { toast } = useToast()
-  const { data: sessionData } = useSession()
-  const currentOrgId = sessionData?.user.activeOrganizationId
-  const [allOrgs] = useGetAllOrganizationsQuery({ pause: !sessionData })
-  const currentOrganization = allOrgs.data?.organizations.edges?.filter(
-    (org) => org?.node?.id === currentOrgId,
-  )[0]?.node
+  const { currentOrg } = useOrganization()
 
   const [isCroppingModalOpen, setIsCroppingModalOpen] = useState(false)
   const [crop, setCrop] = useState({ x: 0, y: 0 })
@@ -52,10 +37,10 @@ const AvatarUpload = ({ className }: AvatarUploadProps) => {
   )
 
   useEffect(() => {
-    if (currentOrganization?.avatarRemoteURL) {
-      setAvatarUrl(currentOrganization?.avatarRemoteURL)
+    if (currentOrg?.avatarRemoteURL) {
+      setAvatarUrl(currentOrg?.avatarRemoteURL)
     }
-  }, [currentOrganization])
+  }, [currentOrg])
 
   const onDrop = useCallback((acceptedFiles: FileWithPath[]) => {
     const file = acceptedFiles[0]
@@ -93,10 +78,7 @@ const AvatarUpload = ({ className }: AvatarUploadProps) => {
 
   const saveCroppedImage = async () => {
     if (uploadedImage && croppedAreaPixels) {
-      const croppedImageUrl = await getCroppedImg(
-        uploadedImage,
-        croppedAreaPixels,
-      )
+      const croppedImageUrl = await getCroppedImg(uploadedImage, croppedAreaPixels)
       setAvatarUrl(croppedImageUrl)
       closeModal()
       toast({
@@ -115,9 +97,7 @@ const AvatarUpload = ({ className }: AvatarUploadProps) => {
         <div className={avatarPreview()}>
           <Avatar variant="extra-large">
             {avatarUrl && <AvatarImage src={avatarUrl} />}
-            <AvatarFallback>
-              {currentOrganization?.name?.substring(0, 2)}
-            </AvatarFallback>
+            <AvatarFallback>{currentOrg?.name?.substring(0, 2)}</AvatarFallback>
           </Avatar>
         </div>
       </div>
@@ -126,23 +106,10 @@ const AvatarUpload = ({ className }: AvatarUploadProps) => {
         <DialogContent className="w-[600px] max-w-[100%]">
           <DialogHeader>
             <DialogTitle>Edit your avatar</DialogTitle>
-            <DialogDescription>
-              Please crop, resize and click 'Save avatar'
-            </DialogDescription>
+            <DialogDescription>Please crop, resize and click 'Save avatar'</DialogDescription>
           </DialogHeader>
           <div className={cropContainer()}>
-            {uploadedImage && (
-              <Cropper
-                image={uploadedImage}
-                crop={crop}
-                zoom={zoom}
-                aspect={1}
-                cropShape="rect"
-                showGrid={false}
-                onCropChange={onCropChange}
-                onCropComplete={onCropComplete}
-              />
-            )}
+            {uploadedImage && <Cropper image={uploadedImage} crop={crop} zoom={zoom} aspect={1} cropShape="rect" showGrid={false} onCropChange={onCropChange} onCropComplete={onCropComplete} />}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={closeModal}>

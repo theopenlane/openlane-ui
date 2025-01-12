@@ -66,7 +66,7 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
       {
         title: 'Settings',
         href: '/programs/settings',
-      }
+      },
     ],
   },
   {
@@ -181,8 +181,8 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
         href: '/organization-settings/subscribers',
       },
       {
-        title: 'Billing & Usage',
-        href: '/organization-settings/billing-usage',
+        title: 'Billing',
+        href: '/organization-settings/billing',
       },
       {
         title: 'Developers',

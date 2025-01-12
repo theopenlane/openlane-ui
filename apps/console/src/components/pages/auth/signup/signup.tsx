@@ -6,12 +6,7 @@ import { SimpleForm } from '@repo/ui/simple-form'
 import { MessageBox } from '@repo/ui/message-box'
 import { Button } from '@repo/ui/button'
 import { ArrowUpRight } from 'lucide-react'
-import {
-  getPasskeyRegOptions,
-  registerUser,
-  verifyRegistration,
-  type RegisterUser,
-} from '@/lib/user'
+import { getPasskeyRegOptions, registerUser, verifyRegistration, type RegisterUser } from '@/lib/user'
 import { GoogleIcon } from '@repo/ui/icons/google'
 import { GithubIcon } from '@repo/ui/icons/github'
 import { signIn } from 'next-auth/react'
@@ -31,9 +26,7 @@ const TEMP_PASSKEY_NAME = 'Temp User'
 export const SignupPage = () => {
   const router = useRouter()
   const [signInError, setSignInError] = useState(false)
-  const [registrationErrorMessage, setRegistrationErrorMessage] = useState(
-    'There was an error. Please try again.',
-  )
+  const [registrationErrorMessage, setRegistrationErrorMessage] = useState('There was an error. Please try again.')
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const showLoginError = !isLoading && signInError
   const [isPasswordActive, setIsPasswordActive] = useState(false)
@@ -44,7 +37,7 @@ export const SignupPage = () => {
    */
   const github = async () => {
     await signIn('github', {
-      redirectTo: "/",
+      redirectTo: '/',
     })
   }
 
@@ -53,7 +46,7 @@ export const SignupPage = () => {
    */
   const google = async () => {
     await signIn('google', {
-      redirectTo: "/",
+      redirectTo: '/',
     })
   }
 
@@ -61,15 +54,7 @@ export const SignupPage = () => {
    * Validate Email Domain for Sign Up
    */
   async function validateEmail(payload: any) {
-    let allow = false
-    for (const domain of allowedLoginDomains) {
-      if (payload.email.endsWith(domain)) {
-        allow = true
-        break
-      }
-    }
-
-    return allow
+    return allowedLoginDomains.some((domain) => payload.email.endsWith(domain))
   }
 
   /**
@@ -188,54 +173,35 @@ export const SignupPage = () => {
         }}
       >
         <div className={input()}>
-          <Label className='text-text-dark' htmlFor="username">Email</Label>
-          <Input
-            variant='light'
-            name="email"
-            placeholder="email@domain.com"
-            autoComplete='email'
-            required
-            type="email"
-          />
+          <Label className="text-text-dark" htmlFor="username">
+            Email
+          </Label>
+          <Input variant="light" name="email" placeholder="email@domain.com" autoComplete="email" required type="email" />
         </div>
         {isPasswordActive && (
           <>
             <div className={input()}>
-              <Label className='text-text-dark' htmlFor="password">Password</Label>
-              <PasswordInput
-                variant='light'
-                name="password"
-                placeholder="password"
-                autoComplete='new-password'
-                required
-              />
-              <PasswordInput
-                variant='light'
-                name="confirmedPassword"
-                placeholder="confirm password"
-                autoComplete='new-password'
-                required
-              />
+              <Label className="text-text-dark" htmlFor="password">
+                Password
+              </Label>
+              <PasswordInput variant="light" name="password" placeholder="password" autoComplete="new-password" required />
+              <PasswordInput variant="light" name="confirmedPassword" placeholder="confirm password" autoComplete="new-password" required />
             </div>
           </>
         )}
-        <Button
-          className="mr-auto mt-2 w-full"
-          icon={<ArrowUpRight />}
-          size="md"
-          type="submit"
-          iconAnimated
-        >
+        <Button className="mr-auto mt-2 w-full" icon={<ArrowUpRight />} size="md" type="submit" iconAnimated>
           {isLoading ? 'loading' : 'Sign up'}
         </Button>
       </SimpleForm>
 
-      <Link href="https://www.theopenlane.io/legal/privacy" className="text-xs text-gray-500 mt-8 text-center">Privacy Policy</Link>
-      <Link href="https://www.theopenlane.io/legal/terms-of-service" className="text-xs text-gray-500 mt-1 text-center">Terms of Service</Link>
+      <Link href="https://www.theopenlane.io/legal/privacy" className="text-xs text-gray-500 mt-8 text-center">
+        Privacy Policy
+      </Link>
+      <Link href="https://www.theopenlane.io/legal/terms-of-service" className="text-xs text-gray-500 mt-1 text-center">
+        Terms of Service
+      </Link>
 
-      {showLoginError && (
-        <MessageBox className={'p-4 ml-1'} message={registrationErrorMessage} />
-      )}
+      {showLoginError && <MessageBox className={'p-4 ml-1'} message={registrationErrorMessage} />}
     </div>
   )
 }
