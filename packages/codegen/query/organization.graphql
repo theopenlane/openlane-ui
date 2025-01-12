@@ -45,6 +45,7 @@ query GetAllOrganizations {
           taxIdentifier
           tags
           geoLocation
+          billingNotificationsEnabled
         }
         orgSubscriptions {
           active
