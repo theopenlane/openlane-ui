@@ -14,27 +14,14 @@ export const metadata: Metadata = {
   description: 'Accelerate your security and compliance programs with Openlane.',
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}): JSX.Element {
+export default function RootLayout({ children }: { children: React.ReactNode }): JSX.Element {
   return (
     <html className="h-screen relative" lang="en" suppressHydrationWarning>
       <head>
-        <script
-          async
-          src="https://js.stripe.com/v3/pricing-table.js">
-        </script>
-        {pirschAnalyticsKey && (
-          <script defer src="https://api.pirsch.io/pa.js"
-            id="pianjs"
-            data-code={pirschAnalyticsKey}></script>
-        )}
+        <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+        {pirschAnalyticsKey && <script defer src="https://api.pirsch.io/pa.js" id="pianjs" data-code={pirschAnalyticsKey}></script>}
       </head>
-      <body
-        className={`${outfit.variable} ${mincho.variable} ${jetBrainsMono.variable} font-sans w-full h-screen overscroll-none`}
-      >
+      <body className={`${outfit.variable} ${mincho.variable} ${jetBrainsMono.variable} font-sans w-full h-screen overscroll-none`}>
         <SessionProvider>
           <Providers>{children}</Providers>
           <Toaster />

@@ -45,6 +45,17 @@ query GetAllOrganizations {
           taxIdentifier
           tags
           geoLocation
+          billingNotificationsEnabled
+        }
+        orgSubscriptions {
+          active
+          expiresAt
+          subscriptionURL
+          stripeSubscriptionStatus
+          productTier
+          productPrice
+          features
+          productTier
         }
         createdAt
         updatedAt
@@ -84,7 +95,7 @@ query GetAllOrganizationMembers {
   orgMemberships {
     edges {
       node {
-        user{
+        user {
           id
           firstName
           lastName
@@ -118,10 +129,7 @@ mutation CreateOrganization($input: CreateOrganizationInput!) {
   }
 }
 
-mutation UpdateOrganization(
-  $updateOrganizationId: ID!
-  $input: UpdateOrganizationInput!
-) {
+mutation UpdateOrganization($updateOrganizationId: ID!, $input: UpdateOrganizationInput!) {
   updateOrganization(id: $updateOrganizationId, input: $input) {
     organization {
       id
