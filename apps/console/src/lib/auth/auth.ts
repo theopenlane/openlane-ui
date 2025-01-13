@@ -11,6 +11,7 @@ import { getTokenFromOpenlaneAPI } from './utils/get-openlane-token'
 import { setSessionCookie } from './utils/set-session-cookie'
 import { cookies } from 'next/headers'
 import { sessionCookieName, allowedLoginDomains } from '@repo/dally/auth'
+import { fetchNewAccessToken } from './utils/refresh-token'
 
 export const config = {
   pages: {
@@ -98,19 +99,50 @@ export const config = {
 
       return true
     },
-    jwt({ token, user, account, profile, trigger, session }) {
+    async jwt({ token, user, account, profile, trigger, session }) {
+      // Store user tokens on initial login
       if (user) {
         Object.assign(token, {
           accessToken: user.accessToken,
           refreshToken: user.refreshToken,
+          expiresAt: Date.now() + 1000 * 60 * 15,
         })
       } else if (account) {
         Object.assign(token, {
-          accessToken: account.accessToken,
-          refreshToken: account.refreshToken,
+          accessToken: account.access_token,
+          refreshToken: account.refresh_token,
+          expiresAt: Date.now() + 1000 * 60 * 15,
         })
       }
 
+      if (typeof token.accessToken === 'string') {
+        try {
+          const decoded = jwtDecode<JwtPayload>(token.accessToken)
+          if (decoded.exp) {
+            const expirationTime = decoded.exp * 1000 // Convert exp to milliseconds
+            const refreshTime = expirationTime - 45 * 60 * 1000 // Refresh 45 minutes before expiration
+            if (Date.now() >= refreshTime) {
+              const newToken = await fetchNewAccessToken(token.refreshToken as string)
+
+              if (!newToken) {
+                console.log('❌ Refresh token expired or invalid, logging out user')
+                return null
+              }
+
+              Object.assign(token, {
+                accessToken: newToken.accessToken,
+                refreshToken: newToken.refreshToken ?? token.refreshToken,
+                expiresAt: Date.now() + 60 * 60 * 1000, // Set new expiration for 1 hour
+              })
+            }
+          }
+        } catch (error) {
+          console.error('❌ Error decoding JWT:', error)
+          return null
+        }
+      }
+
+      // Store profile data
       if (profile) {
         Object.assign(token, {
           name: profile.name ?? token.name,
@@ -118,6 +150,7 @@ export const config = {
         })
       }
 
+      // Handle session updates
       if (trigger === 'update') {
         return { ...token, ...session.user }
       }
@@ -141,7 +174,6 @@ export const config = {
       } catch (error) {
         console.error('JWT decoding error:', error)
       }
-
       return session
     },
   },

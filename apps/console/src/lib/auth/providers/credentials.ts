@@ -58,7 +58,6 @@ export const credentialsProvider = Credentials({
 
       if (uData.ok) {
         const data = await uData.json()
-
         return {
           accessToken,
           refreshToken,
