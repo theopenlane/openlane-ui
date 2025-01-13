@@ -66,7 +66,7 @@ const PricingPlan = () => {
             {/* Features List */}
             <h4 className="text-lg font-medium text-text-header mb-5">Features in this plan</h4>
             <ul className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2 text-gray-700">
-              {features.length > 0 ? features.map((feature: string, index: number) => <FeatureItem key={index} feature={feature} />) : <p className="text-gray-500">No features listed.</p>}
+              {features?.length > 0 ? features.map((feature: string, index: number) => <FeatureItem key={index} feature={feature} />) : <p className="text-gray-500">No features listed.</p>}
             </ul>
           </div>
         </div>

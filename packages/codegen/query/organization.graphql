@@ -45,6 +45,17 @@ query GetAllOrganizations {
           taxIdentifier
           tags
           geoLocation
+          billingNotificationsEnabled
+        }
+        orgSubscriptions {
+          active
+          expiresAt
+          subscriptionURL
+          stripeSubscriptionStatus
+          productTier
+          productPrice
+          features
+          productTier
         }
         orgSubscriptions {
           active
