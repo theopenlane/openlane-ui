@@ -120,7 +120,7 @@ export const config = {
           const decoded = jwtDecode<JwtPayload>(token.accessToken)
           if (decoded.exp) {
             const expirationTime = decoded.exp * 1000 // Convert exp to milliseconds
-            const refreshTime = expirationTime - 45 * 60 * 1000 // Refresh 45 minutes before expiration
+            const refreshTime = expirationTime - 15 * 60 * 1000 // Refresh 45 minutes before expiration
             if (Date.now() >= refreshTime) {
               const newToken = await fetchNewAccessToken(token.refreshToken as string)
 
