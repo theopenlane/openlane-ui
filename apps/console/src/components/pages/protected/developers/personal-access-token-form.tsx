@@ -6,45 +6,24 @@ import { z, infer as zInfer } from 'zod'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { useToast } from '@repo/ui/use-toast'
 import { Input } from '@repo/ui/input'
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuCheckboxItem,
-} from '@repo/ui/dropdown-menu'
-import {
-  Form,
-  FormItem,
-  FormField,
-  FormControl,
-  FormMessage,
-  FormLabel,
-} from '@repo/ui/form'
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem } from '@repo/ui/dropdown-menu'
+import { Form, FormItem, FormField, FormControl, FormMessage, FormLabel } from '@repo/ui/form'
 import { Button } from '@repo/ui/button'
 import { personalAccessTokenFormStyles } from './personal-access-token-form-styles'
-import {
-  CreatePersonalAccessTokenInput,
-  useCreatePersonalAccessTokenMutation,
-} from '@repo/codegen/src/schema'
+import { CreatePersonalAccessTokenInput, useCreatePersonalAccessTokenMutation } from '@repo/codegen/src/schema'
 import { useGqlError } from '@/hooks/useGqlError'
 import { useSession } from 'next-auth/react'
 import { Info } from '@repo/ui/info'
 import { Checkbox } from '@repo/ui/checkbox'
 import { format } from 'date-fns'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@repo/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@repo/ui/dialog'
 import { useCopyToClipboard } from '@uidotdev/usehooks'
 import { Copy } from 'lucide-react'
 import { CalendarIcon } from '@radix-ui/react-icons'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Calendar } from '@repo/ui/calendar'
-import { useGetAllOrganizationsQuery } from '@repo/codegen/src/schema'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
+import { useOrganization } from '@/hooks/useOrganization'
 
 const formSchema = z
   .object({
@@ -55,24 +34,14 @@ const formSchema = z
     noExpire: z.boolean().optional(),
   })
   .refine((data) => data.expiryDate || data.noExpire, {
-    message:
-      'Please specify an expiry date or select the Never expires checkbox',
+    message: 'Please specify an expiry date or select the Never expires checkbox',
     path: ['expiryDate'],
   })
 
 type FormData = zInfer<typeof formSchema>
 
 const PersonalAccessTokenForm = () => {
-  const {
-    grid,
-    copyIcon,
-    tokenField,
-    calendarIcon,
-    calendarInput,
-    expiryColumn,
-    calendarPopover,
-    checkboxRow,
-  } = personalAccessTokenFormStyles()
+  const { grid, copyIcon, tokenField, calendarIcon, calendarInput, expiryColumn, calendarPopover, checkboxRow } = personalAccessTokenFormStyles()
   const { toast } = useToast()
   const { data: sessionData, update: updateSession } = useSession()
   const [copiedText, copyToClipboard] = useCopyToClipboard()
@@ -83,11 +52,9 @@ const PersonalAccessTokenForm = () => {
 
   const [generatedToken, setGeneratedToken] = useState<string | null>(null)
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
-  const [selectedItems, setSelectedItems] = useState<string | undefined>(undefined);
+  const [selectedItems, setSelectedItems] = useState<string | undefined>(undefined)
 
-  const [allOrgs] = useGetAllOrganizationsQuery({ pause: !sessionData })
-
-  const orgs = allOrgs?.data?.organizations.edges || []
+  const { allOrgs: orgs } = useOrganization()
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -121,8 +88,7 @@ const PersonalAccessTokenForm = () => {
       input: personalAccessTokenInput,
     })
 
-    const createdToken =
-      response.data?.createPersonalAccessToken.personalAccessToken.token
+    const createdToken = response.data?.createPersonalAccessToken.personalAccessToken.token
 
     if (response.data) {
       setGeneratedToken(createdToken || '')
@@ -170,12 +136,8 @@ const PersonalAccessTokenForm = () => {
                     <FormControl>
                       <Input {...field} value={field.value || ''} />
                     </FormControl>
-                    <Info>
-                      A name for this token. May be visible to token owners.
-                    </Info>
-                    {errors.name && (
-                      <FormMessage>{errors.name.message}</FormMessage>
-                    )}
+                    <Info>A name for this token. May be visible to token owners.</Info>
+                    {errors.name && <FormMessage>{errors.name.message}</FormMessage>}
                   </FormItem>
                 )}
               />
@@ -202,13 +164,14 @@ const PersonalAccessTokenForm = () => {
                     <FormLabel>Authorized organization(s)</FormLabel>
                     <FormControl>
                       <DropdownMenu>
-                        <DropdownMenuTrigger onSelect={(e) => {
-                          e.preventDefault()
-                        }} asChild>
-                          <Button variant='outlineInput' full>
-                            {field.value && field.value.length > 0
-                              ? `${field.value.length} organization(s) selected`
-                              : 'Select organization(s)'}
+                        <DropdownMenuTrigger
+                          onSelect={(e) => {
+                            e.preventDefault()
+                          }}
+                          asChild
+                        >
+                          <Button variant="outlineInput" full>
+                            {field.value && field.value.length > 0 ? `${field.value.length} organization(s) selected` : 'Select organization(s)'}
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
@@ -218,13 +181,10 @@ const PersonalAccessTokenForm = () => {
                               <DropdownMenuCheckboxItem
                                 className={checkboxRow()}
                                 key={value?.node?.name}
-                                checked={value?.node?.id ? field.value?.includes(value.node.id) ?? false : false}
+                                checked={value?.node?.id ? (field.value?.includes(value.node.id) ?? false) : false}
                                 onCheckedChange={(checked) => {
-                                  const newValue = checked
-                                    ? [...(field.value || []), value?.node?.id]
-                                    : (field.value || []).filter((id) => id !== value?.node?.id)
+                                  const newValue = checked ? [...(field.value || []), value?.node?.id] : (field.value || []).filter((id) => id !== value?.node?.id)
                                   field.onChange(newValue)
-
                                 }}
                                 onSelect={(e) => {
                                   e.preventDefault()
@@ -232,14 +192,11 @@ const PersonalAccessTokenForm = () => {
                               >
                                 <Avatar variant="medium">
                                   {value?.node?.avatarRemoteURL && <AvatarImage src={value?.node?.avatarRemoteURL} />}
-                                  <AvatarFallback>
-                                    {value?.node?.name?.substring(0, 2)}
-                                  </AvatarFallback>
+                                  <AvatarFallback>{value?.node?.name?.substring(0, 2)}</AvatarFallback>
                                 </Avatar>
                                 {value?.node?.name}
                               </DropdownMenuCheckboxItem>
-                            ))
-                          }
+                            ))}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </FormControl>
@@ -254,32 +211,18 @@ const PersonalAccessTokenForm = () => {
                   <FormItem className={expiryColumn()}>
                     <FormLabel>Expiration</FormLabel>
                     {!noExpire && (
-                      <Popover
-                        open={isCalendarOpen}
-                        onOpenChange={setIsCalendarOpen}
-                      >
+                      <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                         <PopoverTrigger asChild>
                           <FormControl>
-                            <Button
-                              variant="outlineInput"
-                              childFull
-                              onClick={() => setIsCalendarOpen(!isCalendarOpen)}
-                            >
+                            <Button variant="outlineInput" childFull onClick={() => setIsCalendarOpen(!isCalendarOpen)}>
                               <div className={calendarInput()}>
-                                {field.value ? (
-                                  format(field.value, 'PPP')
-                                ) : (
-                                  <span>Select a date:</span>
-                                )}
+                                {field.value ? format(field.value, 'PPP') : <span>Select a date:</span>}
                                 <CalendarIcon className={calendarIcon()} />
                               </div>
                             </Button>
                           </FormControl>
                         </PopoverTrigger>
-                        <PopoverContent
-                          className={calendarPopover()}
-                          align="start"
-                        >
+                        <PopoverContent className={calendarPopover()} align="start">
                           <Calendar
                             mode="single"
                             selected={field.value}
@@ -307,18 +250,13 @@ const PersonalAccessTokenForm = () => {
                               }
                             }}
                           />
-                          <FormLabel
-                            htmlFor="no-expire"
-                            className="ml-2 cursor-pointer"
-                          >
+                          <FormLabel htmlFor="no-expire" className="ml-2 cursor-pointer">
                             Never expires
                           </FormLabel>
                         </div>
                       )}
                     />
-                    {errors.expiryDate && (
-                      <FormMessage>{errors.expiryDate.message}</FormMessage>
-                    )}
+                    {errors.expiryDate && <FormMessage>{errors.expiryDate.message}</FormMessage>}
                   </FormItem>
                 )}
               />
@@ -328,17 +266,11 @@ const PersonalAccessTokenForm = () => {
         </Form>
       </Panel>
 
-      <Dialog
-        open={!!generatedToken}
-        onOpenChange={() => setGeneratedToken(null)}
-      >
+      <Dialog open={!!generatedToken} onOpenChange={() => setGeneratedToken(null)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Token Created</DialogTitle>
-            <DialogDescription>
-              Copy your access token now, as you will not be able to see this
-              again.
-            </DialogDescription>
+            <DialogDescription>Copy your access token now, as you will not be able to see this again.</DialogDescription>
             <div className={tokenField()}>
               <Input
                 value={generatedToken || ''}

@@ -1,8 +1,7 @@
 'use client'
-import { useGetAllOrganizationsQuery, useUpdateOrganizationMutation } from '@repo/codegen/src/schema'
+import { useUpdateOrganizationMutation } from '@repo/codegen/src/schema'
 import { Input, InputRow } from '@repo/ui/input'
 import { Panel, PanelHeader } from '@repo/ui/panel'
-import { useSession } from 'next-auth/react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormItem, FormField, FormControl, FormMessage } from '@repo/ui/form'
@@ -10,14 +9,12 @@ import { z } from 'zod'
 import { Button } from '@repo/ui/button'
 import { useEffect, useState } from 'react'
 import { RESET_SUCCESS_STATE_MS } from '@/constants'
+import { useOrganization } from '@/hooks/useOrganization'
 
 const OrganizationEmailForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
   const [{ fetching: isSubmitting }, updateOrg] = useUpdateOrganizationMutation()
-  const { data: sessionData } = useSession()
-  const currentOrgId = sessionData?.user.activeOrganizationId
-  const [allOrgs] = useGetAllOrganizationsQuery({ pause: !sessionData })
-  const currentOrg = allOrgs.data?.organizations.edges?.filter((org) => org?.node?.id === currentOrgId)[0]?.node
+  const { currentOrg, currentOrgId } = useOrganization()
 
   const formSchema = z.object({
     email: z.string().email({ message: 'Invalid email address' }),
