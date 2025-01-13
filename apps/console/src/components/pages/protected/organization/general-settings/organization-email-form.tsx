@@ -1,5 +1,5 @@
 'use client'
-import { useUpdateOrganizationMutation } from '@repo/codegen/src/schema'
+import { useGetBillingEmailQuery, useUpdateOrganizationMutation } from '@repo/codegen/src/schema'
 import { Input, InputRow } from '@repo/ui/input'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { useForm } from 'react-hook-form'
@@ -14,8 +14,10 @@ import { useOrganization } from '@/hooks/useOrganization'
 const OrganizationEmailForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
   const [{ fetching: isSubmitting }, updateOrg] = useUpdateOrganizationMutation()
-  const { currentOrg, currentOrgId } = useOrganization()
+  const { currentOrgId } = useOrganization()
 
+  const [setting] = useGetBillingEmailQuery({ pause: !currentOrgId, variables: { organizationId: currentOrgId } })
+  const billingEmail = setting.data?.organization.setting?.billingEmail
   const formSchema = z.object({
     email: z.string().email({ message: 'Invalid email address' }),
   })
@@ -28,12 +30,12 @@ const OrganizationEmailForm = () => {
   })
 
   useEffect(() => {
-    if (currentOrg) {
+    if (billingEmail) {
       form.reset({
-        email: currentOrg.setting?.billingEmail ?? undefined,
+        email: billingEmail ?? undefined,
       })
     }
-  }, [currentOrg])
+  }, [billingEmail])
 
   const updateOrganization = async ({ email }: { email: string }) => {
     await updateOrg({

@@ -20,7 +20,7 @@ interface AvatarUploadProps extends AvatarUploadVariants {
 
 const AvatarUpload = ({ className }: AvatarUploadProps) => {
   const { toast } = useToast()
-  const { currentOrg } = useOrganization()
+  const { allOrgs, currentOrgId } = useOrganization()
 
   const [isCroppingModalOpen, setIsCroppingModalOpen] = useState(false)
   const [crop, setCrop] = useState({ x: 0, y: 0 })
@@ -36,11 +36,12 @@ const AvatarUpload = ({ className }: AvatarUploadProps) => {
     </>
   )
 
+  const selectedOrg = allOrgs.filter((org) => org?.node?.id === currentOrgId).map((org) => org?.node)[0] || null
+
   useEffect(() => {
-    if (currentOrg?.avatarRemoteURL) {
-      setAvatarUrl(currentOrg?.avatarRemoteURL)
-    }
-  }, [currentOrg])
+    const avatarRemoteURL = selectedOrg?.avatarRemoteURL
+    setAvatarUrl(avatarRemoteURL || null)
+  }, [selectedOrg])
 
   const onDrop = useCallback((acceptedFiles: FileWithPath[]) => {
     const file = acceptedFiles[0]
@@ -97,7 +98,7 @@ const AvatarUpload = ({ className }: AvatarUploadProps) => {
         <div className={avatarPreview()}>
           <Avatar variant="extra-large">
             {avatarUrl && <AvatarImage src={avatarUrl} />}
-            <AvatarFallback>{currentOrg?.name?.substring(0, 2)}</AvatarFallback>
+            <AvatarFallback>{selectedOrg?.name?.substring(0, 2)}</AvatarFallback>
           </Avatar>
         </div>
       </div>

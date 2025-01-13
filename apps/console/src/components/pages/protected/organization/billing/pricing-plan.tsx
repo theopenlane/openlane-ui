@@ -6,17 +6,21 @@ import { Badge } from '@repo/ui/badge'
 import { formatDistanceToNowStrict, parseISO, isBefore } from 'date-fns'
 import { CircleCheck, ExternalLink } from 'lucide-react'
 import { useOrganization } from '@/hooks/useOrganization'
+import { useGetOrganizationBillingQuery } from '@repo/codegen/src/schema'
 
 const PricingPlan = () => {
-  const { currentOrg } = useOrganization()
+  const { currentOrgId } = useOrganization()
 
-  const subscription = currentOrg?.orgSubscriptions?.[0] ?? {}
+  const [data] = useGetOrganizationBillingQuery({ pause: !currentOrgId, variables: { organizationId: currentOrgId } })
+
+  const subscription = data.data?.organization.orgSubscriptions?.[0] ?? {}
+
   // @ts-ignore TODO: MISSING TYPES FROM CODEGEN
   const { expiresAt, subscriptionURL, active, productTier, productPrice = {}, features = [] } = subscription
   const { amount: price, interval: priceInterval } = productPrice
 
   const formattedExpiresDate = useMemo(() => {
-    if (!expiresAt || !active) return 'Expired'
+    if (!expiresAt && !active) return 'Expired'
 
     try {
       const expirationDate = parseISO(expiresAt)
