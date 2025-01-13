@@ -1,4 +1,4 @@
-import { restUrl } from '@repo/dally/auth'
+import { openlaneAPIUrl } from '@repo/dally/auth'
 
 interface Tokens {
   accessToken: string
@@ -8,8 +8,7 @@ interface Tokens {
 export const fetchNewAccessToken = async (refreshToken: string): Promise<Tokens | null> => {
   try {
     // Determine API URL: Absolute URL on server, relative on client
-    const apiUrl = typeof window === 'undefined' ? `${restUrl}/v1/refresh` : `/api/auth/refresh`
-
+    const apiUrl = `${openlaneAPIUrl}/v1/refresh`
     const response = await fetch(apiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

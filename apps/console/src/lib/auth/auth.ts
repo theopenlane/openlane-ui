@@ -2,7 +2,7 @@ import type { NextAuthConfig } from 'next-auth'
 import NextAuth from 'next-auth'
 import GithubProvider from 'next-auth/providers/github'
 import GoogleProvider from 'next-auth/providers/google'
-import { isDevelopment, restUrl } from '@repo/dally/auth'
+import { isDevelopment, openlaneAPIUrl } from '@repo/dally/auth'
 import { jwtDecode } from 'jwt-decode'
 import { JwtPayload } from 'jsonwebtoken'
 import { credentialsProvider } from './providers/credentials'
@@ -78,7 +78,7 @@ export const config = {
           // Store session in a cookie
           setSessionCookie(data.session)
 
-          const uData = await fetch(`${restUrl}/oauth/userinfo`, {
+          const uData = await fetch(`${openlaneAPIUrl}/oauth/userinfo`, {
             method: 'GET',
             headers: { Authorization: `Bearer ${user.accessToken}` },
           })
@@ -125,7 +125,7 @@ export const config = {
               const newToken = await fetchNewAccessToken(token.refreshToken as string)
 
               if (!newToken) {
-                console.log('❌ Refresh token expired or invalid, logging out user')
+                console.error('❌ Refresh token expired or invalid, logging out user')
                 return null
               }
 
