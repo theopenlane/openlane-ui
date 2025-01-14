@@ -18,7 +18,7 @@ const Providers = ({ children }: ProvidersProps) => {
   const [client, setClient] = useState<Client | null>(null)
 
   useEffect(() => {
-    if (status === 'authenticated' && !client) {
+    if (status === 'authenticated') {
       setClient(createClient(session))
     } else if (status === 'unauthenticated' && pathname.endsWith('waitlist')) {
       setClient(createSubscriberClient())
