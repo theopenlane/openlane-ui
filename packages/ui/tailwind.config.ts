@@ -1,13 +1,10 @@
 import type { Config } from 'tailwindcss'
 import sharedConfig from '@repo/tailwind-config'
 import tailwindAnimate from 'tailwindcss-animate'
-import plugin from 'tailwindcss/plugin';
-import typography from '@tailwindcss/typography';
+import plugin from 'tailwindcss/plugin'
+import typography from '@tailwindcss/typography'
 
-const config: Pick<
-  Config,
-  'prefix' | 'content' | 'presets' | 'extend' | 'plugins' | 'darkMode' | 'mode' | 'theme'
-> = {
+const config: Pick<Config, 'prefix' | 'content' | 'presets' | 'extend' | 'plugins' | 'darkMode' | 'mode' | 'theme'> = {
   mode: 'jit',
   darkMode: ['class'],
   content: ['./src/**/*.tsx'],
@@ -17,19 +14,19 @@ const config: Pick<
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)'
+        sm: 'calc(var(--radius) - 4px)',
       },
       colors: {
         brand: {
           DEFAULT: 'hsl(var(--brand))',
-          foreground: 'hsl(var(--brand-foreground))'
+          foreground: 'hsl(var(--brand-foreground))',
         },
         highlight: {
           DEFAULT: 'hsl(var(--highlight))',
-          foreground: 'hsl(var(--highlight-foreground))'
-        }
+          foreground: 'hsl(var(--highlight-foreground))',
+        },
       },
-    }
+    },
   },
   plugins: [
     tailwindAnimate,
@@ -41,7 +38,7 @@ const config: Pick<
           'transition-property': 'background-color',
           'transition-timing-function': 'ease-in',
         },
-      });
+      })
     }),
   ],
   extend: {

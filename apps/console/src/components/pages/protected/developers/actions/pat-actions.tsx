@@ -3,13 +3,7 @@
 import { MoreHorizontal, Trash2 } from 'lucide-react'
 import { useToast } from '@repo/ui/use-toast'
 import { pageStyles } from '../page.styles'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@repo/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { useDeletePersonalAccessTokenMutation } from '@repo/codegen/src/schema'
 import { type UseQueryExecute } from 'urql'
 

@@ -6,8 +6,7 @@ export const formStyles = tv({
     formLabelError: '',
     formDescription: 'text-sm',
     formMessageIcon: 'text-error',
-    formMessage:
-      'text-sm rounded p-[8px] text-error bg-error-muted bg-opacity-[50%] flex items-center gap-2 !mt-2',
+    formMessage: 'text-sm rounded p-[8px] text-error bg-error-muted bg-opacity-[50%] flex items-center gap-2 !mt-2',
   },
 })
 

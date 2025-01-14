@@ -11,14 +11,14 @@ export default function Header() {
   return (
     <div className={header()}>
       <nav className={nav()}>
-        <div className='flex justify-start items-center'>
+        <div className="flex justify-start items-center">
           <OrganizationSelector />
 
           <div className={mobileSidebar()}>
             <>MobileSidebar</>
           </div>
 
-          <div className='pl-10'>
+          <div className="pl-10">
             <BreadcrumbNavigation />
           </div>
         </div>
@@ -30,7 +30,7 @@ export default function Header() {
           {/* <Notifications /> */}
           <UserMenu />
         </div>
-      </nav >
-    </div >
+      </nav>
+    </div>
   )
 }

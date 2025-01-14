@@ -70,7 +70,7 @@ query GetProgramEdgesForWizard {
   orgMemberships {
     edges {
       node {
-        user{
+        user {
           id
           firstName
           lastName

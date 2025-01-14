@@ -1,5 +1,5 @@
-import { DefaultUser } from 'next-auth';
-import { JwtPayload } from 'jsonwebtoken';
+import { DefaultUser } from 'next-auth'
+import { JwtPayload } from 'jsonwebtoken'
 
 /**
  * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
@@ -7,34 +7,34 @@ import { JwtPayload } from 'jsonwebtoken';
 declare module 'next-auth' {
   interface Session {
     user: DefaultUser & {
-      accessToken: string;
-      refreshToken: string;
-      activeOrganizationId: string;
-    };
+      accessToken: string
+      refreshToken: string
+      activeOrganizationId: string
+    }
   }
   interface User extends DefaultUser {
-    accessToken: string;
-    refreshToken: string;
-    session: string;
+    accessToken: string
+    refreshToken: string
+    session: string
   }
   interface Profile extends DefaultProfile {
-    display_name: string;
-    first_name: string;
-    last_name: string;
+    display_name: string
+    first_name: string
+    last_name: string
   }
 }
 
-declare module "@auth/core/jwt" {
+declare module '@auth/core/jwt' {
   interface JWT {
     user: {
-      accessToken: string;
-      refreshToken: string;
+      accessToken: string
+      refreshToken: string
     }
   }
 }
 
-declare module "@jsonwebtoken" {
+declare module '@jsonwebtoken' {
   interface JwtPayload extends DefaultJwtPayload {
-    org?: string;
+    org?: string
   }
 }

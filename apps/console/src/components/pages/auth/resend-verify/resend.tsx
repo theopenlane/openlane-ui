@@ -5,13 +5,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 import { Button } from '@repo/ui/button'
-import {
-  Form,
-  FormField,
-  FormControl,
-  FormMessage,
-  FormLabel,
-} from '@repo/ui/form'
+import { Form, FormField, FormControl, FormMessage, FormLabel } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { resendStyles } from './resend.styles'
 import { resendVerification } from '@/lib/user'
@@ -27,14 +21,7 @@ const formSchema = z.object({
 export const Resend = () => {
   const router = useRouter()
 
-  const {
-    wrapper,
-    input,
-    button,
-    text,
-    header,
-    logo,
-  } = resendStyles()
+  const { wrapper, input, button, text, header, logo } = resendStyles()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -48,17 +35,17 @@ export const Resend = () => {
     router.push('/verify')
   }
 
-
   return (
     <>
-      <Panel className='bg-background-dark border-none p-8 shadow-lg'>
+      <Panel className="bg-background-dark border-none p-8 shadow-lg">
         <div className={logo()}>
-          <Logo width={300} theme='dark' />
+          <Logo width={300} theme="dark" />
         </div>
-        <h2 className={header()}>Can't find that email?</h2 >
+        <h2 className={header()}>Can't find that email?</h2>
         <p className={text()}>
           We got you, enter your email to have our robots <br />
-          resend that verification email right over to you. </p>
+          resend that verification email right over to you.{' '}
+        </p>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className={wrapper()}>
             <FormField
@@ -66,14 +53,9 @@ export const Resend = () => {
               name="email"
               render={({ field }) => (
                 <>
-                  <FormLabel className='text-text-light'>Email</FormLabel>
+                  <FormLabel className="text-text-light">Email</FormLabel>
                   <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="jane.doe@example.com"
-                      className={input()}
-                      {...field}
-                    />
+                    <Input type="email" placeholder="jane.doe@example.com" className={input()} {...field} />
                   </FormControl>
                   <FormMessage />
                 </>
@@ -84,7 +66,7 @@ export const Resend = () => {
             </Button>
           </form>
         </Form>
-      </Panel >
+      </Panel>
     </>
   )
 }

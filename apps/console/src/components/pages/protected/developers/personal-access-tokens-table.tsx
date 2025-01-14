@@ -14,10 +14,10 @@ type TokenNode = {
   description?: string
   expiresAt: string
   organization: [
-      {
+    {
       id: string
       name: string
-    }
+    },
   ]
 }
 
@@ -36,10 +36,7 @@ export const PersonalAccessTokenTable = () => {
   if (fetching) return <p>Loading...</p>
   if (error || !data) return null
 
-  const tokens: TokenNode[] =
-    data.personalAccessTokens.edges
-      ?.filter((edge): edge is TokenEdge => edge !== null && edge.node !== null)
-      .map((edge) => edge.node as TokenNode) || []
+  const tokens: TokenNode[] = data.personalAccessTokens.edges?.filter((edge): edge is TokenEdge => edge !== null && edge.node !== null).map((edge) => edge.node as TokenNode) || []
 
   const columns: ColumnDef<TokenNode>[] = [
     {
@@ -69,21 +66,10 @@ export const PersonalAccessTokenTable = () => {
     {
       accessorKey: 'id',
       header: '',
-      cell: ({ cell }) => (
-        <TokenAction
-          tokenId={cell.getValue() as string}
-          refetchTokens={refetch}
-        />
-      ),
+      cell: ({ cell }) => <TokenAction tokenId={cell.getValue() as string} refetchTokens={refetch} />,
     },
   ]
 
-  return (
-    <DataTable
-      columns={columns}
-      data={tokens}
-      noResultsText="No tokens found"
-    />
-  )
+  return <DataTable columns={columns} data={tokens} noResultsText="No tokens found" />
 }
 //

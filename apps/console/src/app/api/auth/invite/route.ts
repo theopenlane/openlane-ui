@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server'
-import { auth } from "@/lib/auth/auth"
+import { auth } from '@/lib/auth/auth'
 import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
 
 export async function GET(request: NextRequest) {
@@ -18,13 +18,10 @@ export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const token = searchParams.get('token')
 
-  const fData = await fetch(
-    `${process.env.API_REST_URL}/v1/invite?token=${token}`,
-    {
-      method: 'GET',
-      headers,
-    },
-  )
+  const fData = await fetch(`${process.env.API_REST_URL}/v1/invite?token=${token}`, {
+    method: 'GET',
+    headers,
+  })
 
   const fetchedData = await fData.json()
 

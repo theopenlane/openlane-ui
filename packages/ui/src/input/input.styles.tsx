@@ -5,10 +5,8 @@ export const inputStyles = tv({
     input:
       'flex h-12 px-3 py-none w-full font-sans bg-background-secondary border rounded-md autofill:bg-white autofill:font-sans transition-colors file:border-0 file:bg-transparent file:text-base file:font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring disabled:cursor-not-allowed disabled:opacity-50',
     inputWrapper: 'relative flex items-center',
-    iconWrapper:
-      'absolute z-20 top-1/2 -translate-y-1/2 right-4',
-    prefixWrapper:
-      'absolute z-20 rounded-l-md px-4 border h-full left-0 flex items-center',
+    iconWrapper: 'absolute z-20 top-1/2 -translate-y-1/2 right-4',
+    prefixWrapper: 'absolute z-20 rounded-l-md px-4 border h-full left-0 flex items-center',
   },
   variants: {
     hasIcon: {

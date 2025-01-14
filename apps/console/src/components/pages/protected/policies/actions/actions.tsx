@@ -3,23 +3,8 @@
 import { Edit, MoreHorizontal, Trash2 } from 'lucide-react'
 import { useToast } from '@repo/ui/use-toast'
 import { pageStyles } from '../page.styles'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@repo/ui/dropdown-menu'
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogAction,
-  AlertDialogCancel,
-} from '@repo/ui/alert-dialog'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from '@repo/ui/alert-dialog'
 import { Button } from '@repo/ui/button'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -90,17 +75,11 @@ export const Actions = ({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AlertDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-      >
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone, this will permanently remove the
-              policy from the organization.
-            </AlertDialogDescription>
+            <AlertDialogDescription>This action cannot be undone, this will permanently remove the policy from the organization.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel asChild>

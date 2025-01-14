@@ -1,22 +1,14 @@
-import type { EmojiCategoryList } from '@udecode/plate-emoji';
-import type { UseEmojiPickerType } from '@udecode/plate-emoji/react';
+import type { EmojiCategoryList } from '@udecode/plate-emoji'
+import type { UseEmojiPickerType } from '@udecode/plate-emoji/react'
 
-import { cn } from '@udecode/cn';
+import { cn } from '@udecode/cn'
 
-import { Button } from './button';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from './tooltip';
+import { Button } from './button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './tooltip'
 
 export type EmojiPickerNavigationProps = {
-  onClick: (id: EmojiCategoryList) => void;
-} & Pick<
-  UseEmojiPickerType,
-  'emojiLibrary' | 'focusedCategory' | 'i18n' | 'icons'
->;
+  onClick: (id: EmojiCategoryList) => void
+} & Pick<UseEmojiPickerType, 'emojiLibrary' | 'focusedCategory' | 'i18n' | 'icons'>
 
 // KEEP: This is for the animated idicator bar under the icon - Opt in if needed
 // const getBarProperty = (
@@ -36,13 +28,7 @@ export type EmojiPickerNavigationProps = {
 //   return { position, width };
 // };
 
-export function EmojiPickerNavigation({
-  emojiLibrary,
-  focusedCategory,
-  i18n,
-  icons,
-  onClick,
-}: EmojiPickerNavigationProps) {
+export function EmojiPickerNavigation({ emojiLibrary, focusedCategory, i18n, icons, onClick }: EmojiPickerNavigationProps) {
   // KEEP: This is for the animated idicator bar under the icon - Opt in if needed
   // const { position, width } = useMemo(
   //   () => getBarProperty(emojiLibrary, focusedCategory),
@@ -51,11 +37,8 @@ export function EmojiPickerNavigation({
 
   return (
     <TooltipProvider delayDuration={500}>
-      <nav
-        id='emoji-nav'
-        className='mb-2.5 border-0 border-b border-solid border-b-border p-1.5'
-      >
-        <div className='relative flex items-center justify-evenly'>
+      <nav id="emoji-nav" className="mb-2.5 border-0 border-b border-solid border-b-border p-1.5">
+        <div className="relative flex items-center justify-evenly">
           {emojiLibrary
             .getGrid()
             .sections()
@@ -63,27 +46,22 @@ export function EmojiPickerNavigation({
               <Tooltip key={id}>
                 <TooltipTrigger asChild>
                   <Button
-                    size='sm'
-                    variant='ghost'
+                    size="sm"
+                    variant="ghost"
                     className={cn(
                       'h-fit rounded-full fill-current p-1.5 text-oxford-blue-500 hover:bg-oxford-blue-100 hover:text-oxford-blue-500 dark:text-oxford-blue-400 dark:hover:bg-oxford-blue-800 dark:hover:text-oxford-blue-400',
-                      id === focusedCategory &&
-                        'pointer-events-none bg-oxford-blue-100 fill-current text-oxford-blue-900 dark:bg-oxford-blue-800 dark:text-oxford-blue-50'
+                      id === focusedCategory && 'pointer-events-none bg-oxford-blue-100 fill-current text-oxford-blue-900 dark:bg-oxford-blue-800 dark:text-oxford-blue-50',
                     )}
                     onClick={() => {
-                      onClick(id);
+                      onClick(id)
                     }}
                     aria-label={i18n.categories[id]}
-                    type='button'
+                    type="button"
                   >
-                    <span className='inline-flex size-5 items-center justify-center'>
-                      {icons.categories[id].outline}
-                    </span>
+                    <span className="inline-flex size-5 items-center justify-center">{icons.categories[id].outline}</span>
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side='bottom'>
-                  {i18n.categories[id]}
-                </TooltipContent>
+                <TooltipContent side="bottom">{i18n.categories[id]}</TooltipContent>
               </Tooltip>
             ))}
 
@@ -101,5 +79,5 @@ export function EmojiPickerNavigation({
         </div>
       </nav>
     </TooltipProvider>
-  );
+  )
 }

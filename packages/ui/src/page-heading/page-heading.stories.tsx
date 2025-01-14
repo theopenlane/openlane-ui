@@ -12,7 +12,7 @@ const meta: Meta<typeof PageHeading> = {
     },
     backgrounds: { default: 'white' },
   },
-  render: (args : any) => {
+  render: (args: any) => {
     return <PageHeading {...args} />
   },
 } satisfies Meta<typeof PageHeading>

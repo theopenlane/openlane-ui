@@ -139,20 +139,15 @@ export async function getPasskeyRegOptions<T>(arg: PasskeyRegOptionsInput) {
   }
 }
 
-export async function verifyRegistration<T>(
-  arg: RegistrationVerificationInput,
-) {
-  const fData: HttpResponse<T> = await fetch(
-    '/api/auth/registration-verification',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(arg),
-      credentials: 'include',
+export async function verifyRegistration<T>(arg: RegistrationVerificationInput) {
+  const fData: HttpResponse<T> = await fetch('/api/auth/registration-verification', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
     },
-  )
+    body: JSON.stringify(arg),
+    credentials: 'include',
+  })
   try {
     return await fData.json()
   } catch (error) {
@@ -160,9 +155,7 @@ export async function verifyRegistration<T>(
   }
 }
 
-export async function getPasskeySignInOptions<T>(
-  arg: PasskeySignInOptionsInput,
-) {
+export async function getPasskeySignInOptions<T>(arg: PasskeySignInOptionsInput) {
   const fData: HttpResponse<T> = await fetch('/api/auth/signin-options', {
     method: 'POST',
     headers: {
@@ -181,17 +174,14 @@ export async function getPasskeySignInOptions<T>(
 }
 
 export async function verifyAuthentication<T>(arg: AuthVerificationInput) {
-  const fData: HttpResponse<T> = await fetch(
-    '/api/auth/authentication-verification',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(arg.assertionResponse),
-      credentials: 'include',
+  const fData: HttpResponse<T> = await fetch('/api/auth/authentication-verification', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
     },
-  )
+    body: JSON.stringify(arg.assertionResponse),
+    credentials: 'include',
+  })
   try {
     return await fData.json()
   } catch (error) {
