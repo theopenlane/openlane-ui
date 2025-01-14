@@ -1,12 +1,12 @@
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { existingOrganizationsStyles } from './existing-organizations.styles'
-import { useGetAllOrganizationMembersQuery, useGetOrganizationMembersQuery } from '@repo/codegen/src/schema'
 import { Avatar, AvatarFallback } from '@repo/ui/avatar'
 import { Button } from '@repo/ui/button'
 import { Tag } from '@repo/ui/tag'
 import { switchOrganization } from '@/lib/user'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { useGetAllOrganizationsWithMembersQuery } from '@repo/codegen/src/schema'
 
 export const ExistingOrganizations = () => {
   const { data: sessionData, update: updateSession } = useSession()
@@ -14,7 +14,7 @@ export const ExistingOrganizations = () => {
 
   const { container, orgWrapper, orgInfo, orgSelect, orgTitle } = existingOrganizationsStyles()
 
-  const [{ data: organizations, fetching, error }] = useGetAllOrganizationMembersQuery()
+  const [{ data: organizations, fetching, error }] = useGetAllOrganizationsWithMembersQuery()
 
   const { push } = useRouter()
 

@@ -19,17 +19,7 @@ import { programDetailSchema, ProgramDetailsComponent } from './wizard/step-2-de
 import { ProgramInviteComponent, programInviteSchema } from './wizard/step-3-team'
 import { ProgramObjectAssociationComponent, programObjectAssociationSchema } from './wizard/step-4-associate'
 import { ProgramReviewComponent } from './wizard/step-5-review'
-import {
-  CreateProgramWithMembersInput,
-  ProgramMembershipRole,
-  useCreateProgramWithMembersMutation,
-  useGetAllGroupsQuery,
-  useGetAllInternalPoliciesQuery,
-  useGetAllOrganizationMembersQuery,
-  useGetAllProceduresQuery,
-  useGetAllRisksQuery,
-  useGetProgramEdgesForWizardQuery,
-} from '@repo/codegen/src/schema'
+import { CreateProgramWithMembersInput, ProgramMembershipRole, useCreateProgramWithMembersMutation, useGetProgramEdgesForWizardQuery } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import { toast } from '@repo/ui/use-toast'
 import { useRouter } from 'next/navigation'

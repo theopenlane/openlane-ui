@@ -15,7 +15,7 @@ import { useSession } from 'next-auth/react'
 import { switchOrganization } from '@/lib/user'
 import { Loading } from '../loading/loading'
 import { useOrganization } from '@/hooks/useOrganization'
-import { useGetAllOrganizationMembersQuery } from '@repo/codegen/src/schema'
+import { useGetAllOrganizationsWithMembersQuery } from '@repo/codegen/src/schema'
 
 export const OrganizationSelector = () => {
   const { data: sessionData, update: updateSession } = useSession()
@@ -28,7 +28,7 @@ export const OrganizationSelector = () => {
 
   const { currentOrgId } = useOrganization()
 
-  const [{ data: organizationsData, fetching, error }] = useGetAllOrganizationMembersQuery()
+  const [{ data: organizationsData, fetching, error }] = useGetAllOrganizationsWithMembersQuery()
   const orgs = organizationsData?.organizations?.edges ?? []
   const currentOrg = orgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
   const { container, logoWrapper, organizationLabel, organizationDropdown, allOrganizationsLink, popoverContent, searchWrapper, orgWrapper, orgInfo, orgTitle, orgSelect } =

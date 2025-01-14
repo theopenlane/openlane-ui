@@ -19,7 +19,7 @@ query GetOrganizationNameByID($organizationId: ID!) {
   }
 }
 
-query GetOrganizationMembers($organizationId: ID!) {
+query GetSingleOrganizationMembers($organizationId: ID!) {
   organization(id: $organizationId) {
     members {
       id
@@ -39,7 +39,7 @@ query GetOrganizationMembers($organizationId: ID!) {
   }
 }
 
-query GetAllOrganizationMembers {
+query GetAllOrganizationsWithMembers {
   organizations {
     edges {
       node {
