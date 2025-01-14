@@ -3,13 +3,7 @@
 import { MoreHorizontal, RotateCw, Trash2 } from 'lucide-react'
 import { useToast } from '@repo/ui/use-toast'
 import { pageStyles } from '../page.styles'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@repo/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { useDeleteSubscriberMutation } from '@repo/codegen/src/schema'
 import { type UseQueryExecute } from 'urql'
 
@@ -20,10 +14,7 @@ type SubscriberActionsProps = {
 
 const ICON_SIZE = 12
 
-export const SubscriberActions = ({
-  subscriberEmail: subscriberEmail,
-  refetchSubscribers: refetechSubscribers,
-}: SubscriberActionsProps) => {
+export const SubscriberActions = ({ subscriberEmail: subscriberEmail, refetchSubscribers: refetechSubscribers }: SubscriberActionsProps) => {
   const { actionIcon } = pageStyles()
   const { toast } = useToast()
   const [_, deleteSubscriber] = useDeleteSubscriberMutation()

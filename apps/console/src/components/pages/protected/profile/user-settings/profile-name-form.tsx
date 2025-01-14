@@ -1,22 +1,11 @@
 'use client'
-import {
-  GetUserProfileQueryVariables,
-  useGetUserProfileQuery,
-  useUpdateUserNameMutation,
-} from '@repo/codegen/src/schema'
+import { GetUserProfileQueryVariables, useGetUserProfileQuery, useUpdateUserNameMutation } from '@repo/codegen/src/schema'
 import { Input, InputRow } from '@repo/ui/input'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { useSession } from 'next-auth/react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  Form,
-  FormItem,
-  FormField,
-  FormControl,
-  FormMessage,
-  FormLabel,
-} from '@repo/ui/form'
+import { Form, FormItem, FormField, FormControl, FormMessage, FormLabel } from '@repo/ui/form'
 import { z } from 'zod'
 import { Button } from '@repo/ui/button'
 import { useEffect, useState } from 'react'
@@ -24,8 +13,7 @@ import { RESET_SUCCESS_STATE_MS } from '@/constants'
 
 const ProfileNameForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
-  const [{ fetching: isSubmitting }, updateUserName] =
-    useUpdateUserNameMutation()
+  const [{ fetching: isSubmitting }, updateUserName] = useUpdateUserNameMutation()
   const { data: sessionData } = useSession()
   const userId = sessionData?.user.userId
 
@@ -64,13 +52,7 @@ const ProfileNameForm = () => {
     }
   }, [userData])
 
-  const updateName = async ({
-    firstName,
-    lastName,
-  }: {
-    firstName: string
-    lastName: string
-  }) => {
+  const updateName = async ({ firstName, lastName }: { firstName: string; lastName: string }) => {
     await updateUserName({
       updateUserId: userId,
       input: {
@@ -126,11 +108,7 @@ const ProfileNameForm = () => {
                 </FormItem>
               )}
             />
-            <Button
-              variant={isSuccess ? 'success' : 'filled'}
-              type="submit"
-              loading={isSubmitting}
-            >
+            <Button variant={isSuccess ? 'success' : 'filled'} type="submit" loading={isSubmitting}>
               {isSubmitting ? 'Saving' : isSuccess ? 'Saved' : 'Save'}
             </Button>
           </InputRow>

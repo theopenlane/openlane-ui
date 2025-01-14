@@ -6,8 +6,7 @@ export const buttonStyles = tv({
     base: 'relative group font-sans font-semibold inline-flex items-center gap-2 justify-center whitespace-nowrap rounded-md leading-none text-sm transition-all duration-500 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50',
     iconOuter: 'relative h-4 w-4 overflow-hidden',
     iconInner: 'absolute transition-all duration-500',
-    loadingWrapper:
-      'absolute top-1/2 left-1/2  transform -translate-x-1/2 -translate-y-1/2',
+    loadingWrapper: 'absolute top-1/2 left-1/2  transform -translate-x-1/2 -translate-y-1/2',
     loadingIcon: 'animate-spin !h-6 !w-6',
     loadingText: 'opacity-0',
     childWrapper: '',
@@ -16,16 +15,11 @@ export const buttonStyles = tv({
     variant: {
       filled: 'bg-button text-button-text hover:!opacity-90',
       light: 'bg-button-light text-text-dark hover:!opacity-90',
-      outline:
-        'border-border text-text-paragraph border',
-      outlineLight:
-        'border-border-dark text-text-dark border hover:!bg-teal-400 hover:!bg-opacity-20',
-      outlineInput:
-        'border-border text-text-paragraph border hover:!opacity-90',
-      outlineInputPadding:
-        'border-border text-paragraph mx-1 border hover:!opacity-90',
-      redOutline:
-        'border-error text-error border hover:!opacity-90 dark:border-red-500 dark:text-red-500',
+      outline: 'border-border text-text-paragraph border',
+      outlineLight: 'border-border-dark text-text-dark border hover:!bg-teal-400 hover:!bg-opacity-20',
+      outlineInput: 'border-border text-text-paragraph border hover:!opacity-90',
+      outlineInputPadding: 'border-border text-paragraph mx-1 border hover:!opacity-90',
+      redOutline: 'border-error text-error border hover:!opacity-90 dark:border-red-500 dark:text-red-500',
       white: {},
       success: 'flex-row-reverse !bg-teal-600 text-button-text hover:!opacity-90',
     },
@@ -80,9 +74,7 @@ export const buttonStyles = tv({
 
 export type ButtonVariants = VariantProps<typeof buttonStyles>
 
-export interface ButtonProps
-  extends ButtonHTMLAttributes<HTMLButtonElement>,
-  ButtonVariants {
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, ButtonVariants {
   asChild?: boolean
   icon?: ReactNode
   loading?: boolean

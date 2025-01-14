@@ -1,18 +1,15 @@
-'use client';
+'use client'
 
-import React from 'react';
+import React from 'react'
 
-import { cn, withRef, withVariants } from '@udecode/cn';
-import {
-  Resizable as ResizablePrimitive,
-  ResizeHandle as ResizeHandlePrimitive,
-} from '@udecode/plate-resizable';
-import { cva } from 'class-variance-authority';
+import { cn, withRef, withVariants } from '@udecode/cn'
+import { Resizable as ResizablePrimitive, ResizeHandle as ResizeHandlePrimitive } from '@udecode/plate-resizable'
+import { cva } from 'class-variance-authority'
 
 export const mediaResizeHandleVariants = cva(
   cn(
     'top-0 flex w-6 select-none flex-col justify-center',
-    'after:flex after:h-16 after:w-[3px] after:rounded-[6px] after:bg-oxford-blue-950 after:opacity-0 after:content-[_] group-hover:after:opacity-100 dark:after:bg-oxford-blue-300'
+    'after:flex after:h-16 after:w-[3px] after:rounded-[6px] after:bg-oxford-blue-950 after:opacity-0 after:content-[_] group-hover:after:opacity-100 dark:after:bg-oxford-blue-300',
   ),
   {
     variants: {
@@ -21,8 +18,8 @@ export const mediaResizeHandleVariants = cva(
         right: '-right-3 -mr-3 items-end pr-3',
       },
     },
-  }
-);
+  },
+)
 
 const resizeHandleVariants = cva(cn('absolute z-40'), {
   variants: {
@@ -33,23 +30,11 @@ const resizeHandleVariants = cva(cn('absolute z-40'), {
       top: 'w-full cursor-row-resize',
     },
   },
-});
+})
 
-const ResizeHandleVariants = withVariants(
-  ResizeHandlePrimitive,
-  resizeHandleVariants,
-  ['direction']
-);
+const ResizeHandleVariants = withVariants(ResizeHandlePrimitive, resizeHandleVariants, ['direction'])
 
-export const ResizeHandle = withRef<typeof ResizeHandlePrimitive>(
-  (props, ref) => (
-    <ResizeHandleVariants
-      ref={ref}
-      direction={props.options?.direction}
-      {...props}
-    />
-  )
-);
+export const ResizeHandle = withRef<typeof ResizeHandlePrimitive>((props, ref) => <ResizeHandleVariants ref={ref} direction={props.options?.direction} {...props} />)
 
 const resizableVariants = cva('', {
   variants: {
@@ -59,8 +44,6 @@ const resizableVariants = cva('', {
       right: 'ml-auto',
     },
   },
-});
+})
 
-export const Resizable = withVariants(ResizablePrimitive, resizableVariants, [
-  'align',
-]);
+export const Resizable = withVariants(ResizablePrimitive, resizableVariants, ['align'])

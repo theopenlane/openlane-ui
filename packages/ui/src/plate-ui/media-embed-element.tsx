@@ -1,23 +1,19 @@
-'use client';
+'use client'
 
-import React from 'react';
-import LiteYouTubeEmbed from 'react-lite-youtube-embed';
-import { Tweet } from 'react-tweet';
+import React from 'react'
+import LiteYouTubeEmbed from 'react-lite-youtube-embed'
+import { Tweet } from 'react-tweet'
 
-import { cn, withRef } from '@udecode/cn';
-import { withHOC } from '@udecode/plate-common/react';
-import { parseTwitterUrl, parseVideoUrl } from '@udecode/plate-media';
-import { MediaEmbedPlugin, useMediaState } from '@udecode/plate-media/react';
-import { ResizableProvider, useResizableStore } from '@udecode/plate-resizable';
+import { cn, withRef } from '@udecode/cn'
+import { withHOC } from '@udecode/plate-common/react'
+import { parseTwitterUrl, parseVideoUrl } from '@udecode/plate-media'
+import { MediaEmbedPlugin, useMediaState } from '@udecode/plate-media/react'
+import { ResizableProvider, useResizableStore } from '@udecode/plate-resizable'
 
-import { Caption, CaptionTextarea } from './caption';
-import { MediaPopover } from './media-popover';
-import { PlateElement } from './plate-element';
-import {
-  Resizable,
-  ResizeHandle,
-  mediaResizeHandleVariants,
-} from './resizable';
+import { Caption, CaptionTextarea } from './caption'
+import { MediaPopover } from './media-popover'
+import { PlateElement } from './plate-element'
+import { Resizable, ResizeHandle, mediaResizeHandleVariants } from './resizable'
 
 export const MediaEmbedElement = withHOC(
   ResizableProvider,
@@ -33,18 +29,14 @@ export const MediaEmbedElement = withHOC(
       selected,
     } = useMediaState({
       urlParsers: [parseTwitterUrl, parseVideoUrl],
-    });
-    const width = useResizableStore().get.width();
-    const provider = embed?.provider;
+    })
+    const width = useResizableStore().get.width()
+    const provider = embed?.provider
 
     return (
       <MediaPopover plugin={MediaEmbedPlugin}>
-        <PlateElement
-          ref={ref}
-          className={cn('relative py-2.5', className)}
-          {...props}
-        >
-          <figure className='group relative m-0 w-full' contentEditable={false}>
+        <PlateElement ref={ref} className={cn('relative py-2.5', className)} {...props}>
+          <figure className="group relative m-0 w-full" contentEditable={false}>
             <Resizable
               align={align}
               options={{
@@ -53,16 +45,13 @@ export const MediaEmbedElement = withHOC(
                 minWidth: isTweet ? 300 : 100,
               }}
             >
-              <ResizeHandle
-                className={mediaResizeHandleVariants({ direction: 'left' })}
-                options={{ direction: 'left' }}
-              />
+              <ResizeHandle className={mediaResizeHandleVariants({ direction: 'left' })} options={{ direction: 'left' }} />
 
               {isVideo ? (
                 isYoutube ? (
                   <LiteYouTubeEmbed
                     id={embed!.id!}
-                    title='youtube'
+                    title="youtube"
                     wrapperClass={cn(
                       'rounded-sm',
                       focused && selected && 'ring-2 ring-oxford-blue-950 ring-offset-2 dark:ring-oxford-blue-300',
@@ -78,25 +67,14 @@ export const MediaEmbedElement = withHOC(
                       '[&_>_.lty-playbtn]:before:absolute [&_>_.lty-playbtn]:before:left-1/2 [&_>_.lty-playbtn]:before:top-1/2 [&_>_.lty-playbtn]:before:[transform:translate3d(-50%,-50%,0)]',
                       '[&.lyt-activated]:cursor-[unset]',
                       '[&.lyt-activated]:before:pointer-events-none [&.lyt-activated]:before:opacity-0',
-                      '[&.lyt-activated_>_.lty-playbtn]:pointer-events-none [&.lyt-activated_>_.lty-playbtn]:!opacity-0'
+                      '[&.lyt-activated_>_.lty-playbtn]:pointer-events-none [&.lyt-activated_>_.lty-playbtn]:!opacity-0',
                     )}
                   />
                 ) : (
-                  <div
-                    className={cn(
-                      provider === 'vimeo' && 'pb-[75%]',
-                      provider === 'youku' && 'pb-[56.25%]',
-                      provider === 'dailymotion' && 'pb-[56.0417%]',
-                      provider === 'coub' && 'pb-[51.25%]'
-                    )}
-                  >
+                  <div className={cn(provider === 'vimeo' && 'pb-[75%]', provider === 'youku' && 'pb-[56.25%]', provider === 'dailymotion' && 'pb-[56.0417%]', provider === 'coub' && 'pb-[51.25%]')}>
                     <iframe
-                      className={cn(
-                        'absolute left-0 top-0 size-full rounded-sm',
-                        isVideo && 'border-0',
-                        focused && selected && 'ring-2 ring-oxford-blue-950 ring-offset-2 dark:ring-oxford-blue-300'
-                      )}
-                      title='embed'
+                      className={cn('absolute left-0 top-0 size-full rounded-sm', isVideo && 'border-0', focused && selected && 'ring-2 ring-oxford-blue-950 ring-offset-2 dark:ring-oxford-blue-300')}
+                      title="embed"
                       src={embed!.url}
                       allowFullScreen
                     />
@@ -110,27 +88,24 @@ export const MediaEmbedElement = withHOC(
                     '[&_.react-tweet-theme]:my-0',
                     !readOnly &&
                       selected &&
-                      '[&_.react-tweet-theme]:ring-2 [&_.react-tweet-theme]:ring-oxford-blue-950 [&_.react-tweet-theme]:ring-offset-2 dark:[&_.react-tweet-theme]:ring-oxford-blue-300'
+                      '[&_.react-tweet-theme]:ring-2 [&_.react-tweet-theme]:ring-oxford-blue-950 [&_.react-tweet-theme]:ring-offset-2 dark:[&_.react-tweet-theme]:ring-oxford-blue-300',
                   )}
                 >
                   <Tweet id={embed!.id!} />
                 </div>
               )}
 
-              <ResizeHandle
-                className={mediaResizeHandleVariants({ direction: 'right' })}
-                options={{ direction: 'right' }}
-              />
+              <ResizeHandle className={mediaResizeHandleVariants({ direction: 'right' })} options={{ direction: 'right' }} />
             </Resizable>
 
             <Caption style={{ width }} align={align}>
-              <CaptionTextarea placeholder='Write a caption...' />
+              <CaptionTextarea placeholder="Write a caption..." />
             </Caption>
           </figure>
 
           {children}
         </PlateElement>
       </MediaPopover>
-    );
-  })
-);
+    )
+  }),
+)

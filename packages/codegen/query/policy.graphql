@@ -12,10 +12,7 @@ mutation CreateInternalPolicy($input: CreateInternalPolicyInput!) {
   }
 }
 
-mutation UpdateInternalPolicy(
-  $updateInternalPolicyId: ID!
-  $input: UpdateInternalPolicyInput!
-) {
+mutation UpdateInternalPolicy($updateInternalPolicyId: ID!, $input: UpdateInternalPolicyInput!) {
   updateInternalPolicy(id: $updateInternalPolicyId, input: $input) {
     internalPolicy {
       id

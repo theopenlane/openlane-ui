@@ -5,10 +5,7 @@ import { sliderStyles } from './slider.styles'
 
 const { root, track, range, thumb } = sliderStyles()
 
-const Slider = React.forwardRef<
-  React.ElementRef<typeof SliderPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>
->(({ className, ...props }, ref) => (
+const Slider = React.forwardRef<React.ElementRef<typeof SliderPrimitive.Root>, React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>>(({ className, ...props }, ref) => (
   <SliderPrimitive.Root ref={ref} className={cn(root(), className)} {...props}>
     <SliderPrimitive.Track className={cn(track(), className)}>
       <SliderPrimitive.Range className={cn(range(), className)} />

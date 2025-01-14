@@ -16,12 +16,7 @@ const components = {
   IconRight: () => <ChevronRight className="h-4 w-4" />,
 }
 
-function Calendar({
-  className,
-  classNames: customClassNames,
-  showOutsideDays = true,
-  ...props
-}: CalendarProps) {
+function Calendar({ className, classNames: customClassNames, showOutsideDays = true, ...props }: CalendarProps) {
   const styles = calendarStyles()
 
   return (
@@ -34,11 +29,7 @@ function Calendar({
         caption: styles.caption(),
         caption_label: styles.caption_label(),
         nav: styles.nav(),
-        nav_button: cn(
-          buttonStyles({ variant: 'outline' }),
-          styles.nav_button(),
-          customClassNames?.nav_button,
-        ),
+        nav_button: cn(buttonStyles({ variant: 'outline' }), styles.nav_button(), customClassNames?.nav_button),
         nav_button_previous: styles.nav_button_previous(),
         nav_button_next: styles.nav_button_next(),
         table: styles.table(),
@@ -46,11 +37,7 @@ function Calendar({
         head_cell: styles.head_cell(),
         row: styles.row(),
         cell: styles.cell(),
-        day: cn(
-          buttonStyles({ variant: 'outline' }),
-          styles.day(),
-          customClassNames?.day,
-        ),
+        day: cn(buttonStyles({ variant: 'outline' }), styles.day(), customClassNames?.day),
         day_range_end: styles.day_range_end(),
         day_selected: cn(styles.day_selected(), customClassNames?.day_selected),
         day_today: styles.day_today(),

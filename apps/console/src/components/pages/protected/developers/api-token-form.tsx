@@ -6,32 +6,16 @@ import { z, infer as zInfer } from 'zod'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { useToast } from '@repo/ui/use-toast'
 import { Input } from '@repo/ui/input'
-import {
-  Form,
-  FormItem,
-  FormField,
-  FormControl,
-  FormMessage,
-  FormLabel,
-} from '@repo/ui/form'
+import { Form, FormItem, FormField, FormControl, FormMessage, FormLabel } from '@repo/ui/form'
 import { Button } from '@repo/ui/button'
 import { apiTokenFormStyles } from './api-token-form-styles'
-import {
-  CreateApiTokenInput,
-  useCreateApiTokenMutation,
-} from '@repo/codegen/src/schema'
+import { CreateApiTokenInput, useCreateApiTokenMutation } from '@repo/codegen/src/schema'
 import { useGqlError } from '@/hooks/useGqlError'
 import { useSession } from 'next-auth/react'
 import { Info } from '@repo/ui/info'
 import { Checkbox } from '@repo/ui/checkbox'
 import { format } from 'date-fns'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@repo/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@repo/ui/dialog'
 import { useCopyToClipboard } from '@uidotdev/usehooks'
 import { Copy } from 'lucide-react'
 import { CalendarIcon } from '@radix-ui/react-icons'
@@ -47,24 +31,14 @@ const formSchema = z
     noExpire: z.boolean().optional(),
   })
   .refine((data) => data.expiryDate || data.noExpire, {
-    message:
-      'Please specify an expiry date or select the Never expires checkbox',
+    message: 'Please specify an expiry date or select the Never expires checkbox',
     path: ['expiryDate'],
   })
 
 type FormData = zInfer<typeof formSchema>
 
 const APITokenForm = () => {
-  const {
-    grid,
-    copyIcon,
-    tokenField,
-    calendarIcon,
-    calendarInput,
-    expiryColumn,
-    calendarPopover,
-    checkboxRow,
-  } = apiTokenFormStyles()
+  const { grid, copyIcon, tokenField, calendarIcon, calendarInput, expiryColumn, calendarPopover, checkboxRow } = apiTokenFormStyles()
   const { toast } = useToast()
   const { data: sessionData } = useSession()
   const [copiedText, copyToClipboard] = useCopyToClipboard()
@@ -108,8 +82,7 @@ const APITokenForm = () => {
       input: apiTokenInput,
     })
 
-    const createdToken =
-      response.data?.createAPIToken.apiToken.token
+    const createdToken = response.data?.createAPIToken.apiToken.token
 
     if (response.data) {
       setGeneratedToken(createdToken || '')
@@ -157,12 +130,8 @@ const APITokenForm = () => {
                     <FormControl>
                       <Input {...field} value={field.value || ''} />
                     </FormControl>
-                    <Info>
-                      A name for this token. May be visible to token owners.
-                    </Info>
-                    {errors.name && (
-                      <FormMessage>{errors.name.message}</FormMessage>
-                    )}
+                    <Info>A name for this token. May be visible to token owners.</Info>
+                    {errors.name && <FormMessage>{errors.name.message}</FormMessage>}
                   </FormItem>
                 )}
               />
@@ -188,32 +157,18 @@ const APITokenForm = () => {
                   <FormItem className={expiryColumn()}>
                     <FormLabel>Expiration</FormLabel>
                     {!noExpire && (
-                      <Popover
-                        open={isCalendarOpen}
-                        onOpenChange={setIsCalendarOpen}
-                      >
+                      <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                         <PopoverTrigger asChild>
                           <FormControl>
-                            <Button
-                              variant="outlineInput"
-                              childFull
-                              onClick={() => setIsCalendarOpen(!isCalendarOpen)}
-                            >
+                            <Button variant="outlineInput" childFull onClick={() => setIsCalendarOpen(!isCalendarOpen)}>
                               <div className={calendarInput()}>
-                                {field.value ? (
-                                  format(field.value, 'PPP')
-                                ) : (
-                                  <span>Select a date:</span>
-                                )}
+                                {field.value ? format(field.value, 'PPP') : <span>Select a date:</span>}
                                 <CalendarIcon className={calendarIcon()} />
                               </div>
                             </Button>
                           </FormControl>
                         </PopoverTrigger>
-                        <PopoverContent
-                          className={calendarPopover()}
-                          align="start"
-                        >
+                        <PopoverContent className={calendarPopover()} align="start">
                           <Calendar
                             mode="single"
                             selected={field.value}
@@ -241,18 +196,13 @@ const APITokenForm = () => {
                               }
                             }}
                           />
-                          <FormLabel
-                            htmlFor="no-expire"
-                            className="ml-2 cursor-pointer"
-                          >
+                          <FormLabel htmlFor="no-expire" className="ml-2 cursor-pointer">
                             Never expires
                           </FormLabel>
                         </div>
                       )}
                     />
-                    {errors.expiryDate && (
-                      <FormMessage>{errors.expiryDate.message}</FormMessage>
-                    )}
+                    {errors.expiryDate && <FormMessage>{errors.expiryDate.message}</FormMessage>}
                   </FormItem>
                 )}
               />
@@ -265,45 +215,39 @@ const APITokenForm = () => {
                     <FormLabel>Scopes</FormLabel>
                     <FormControl>
                       <div>
-                      <div className={checkboxRow()}>
+                        <div className={checkboxRow()}>
                           <Checkbox
                             id={field.name}
-                            key={"read"}
+                            key={'read'}
                             onCheckedChange={(checked) => {
-                            if (checked) {
-                              field.onChange([...(field.value || []), 'read'])
-                            } else {
-                              field.onChange((field.value || []).filter((scope) => scope !== 'read'))
-                            }
+                              if (checked) {
+                                field.onChange([...(field.value || []), 'read'])
+                              } else {
+                                field.onChange((field.value || []).filter((scope) => scope !== 'read'))
+                              }
                             }}
                           />
-                          <FormLabel
-                            htmlFor="scopes:read"
-                            className="ml-2 cursor-pointer"
-                          >
+                          <FormLabel htmlFor="scopes:read" className="ml-2 cursor-pointer">
                             Read
                           </FormLabel>
                         </div>
                         <div className={checkboxRow()}>
                           <Checkbox
                             id={field.name}
-                            key={"write"}
+                            key={'write'}
                             onCheckedChange={(checked) => {
-                            if (checked) {
-                              field.onChange([...(field.value || []), 'write'])
-                            } else {
-                              field.onChange((field.value || []).filter((scope) => scope !== 'write'))
-                            }
+                              if (checked) {
+                                field.onChange([...(field.value || []), 'write'])
+                              } else {
+                                field.onChange((field.value || []).filter((scope) => scope !== 'write'))
+                              }
                             }}
                           />
-                          <FormLabel
-                            htmlFor="scopes:write"
-                            className="ml-2 cursor-pointer"
-                          >
+                          <FormLabel htmlFor="scopes:write" className="ml-2 cursor-pointer">
                             Write
                           </FormLabel>
                         </div>
-                        </div>
+                      </div>
                     </FormControl>
                     <Info>Permissions of the token</Info>
                   </FormItem>
@@ -315,17 +259,11 @@ const APITokenForm = () => {
         </Form>
       </Panel>
 
-      <Dialog
-        open={!!generatedToken}
-        onOpenChange={() => setGeneratedToken(null)}
-      >
+      <Dialog open={!!generatedToken} onOpenChange={() => setGeneratedToken(null)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Token Created</DialogTitle>
-            <DialogDescription>
-              Copy your api token now, as you will not be able to see this
-              again.
-            </DialogDescription>
+            <DialogDescription>Copy your api token now, as you will not be able to see this again.</DialogDescription>
             <div className={tokenField()}>
               <Input
                 value={generatedToken || ''}

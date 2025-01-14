@@ -4,21 +4,8 @@ import { signOut, useSession } from 'next-auth/react'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { userMenuStyles } from './user-menu.styles'
 import { Button } from '@repo/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-} from '@repo/ui/dropdown-menu'
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@repo/ui/select'
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@repo/ui/dropdown-menu'
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import Link from 'next/link'
 import { ChevronDown } from '@repo/ui/icons/chevron-down'
 import { Kbd } from '@repo/ui/kbd'
@@ -27,27 +14,15 @@ import { useTheme } from 'next-themes'
 export const UserMenu = () => {
   const { setTheme, theme } = useTheme()
   const { data: sessionData } = useSession()
-  const {
-    trigger,
-    email,
-    userSettingsLink,
-    themeRow,
-    themeDropdown,
-    commandRow,
-    commands,
-  } = userMenuStyles()
+  const { trigger, email, userSettingsLink, themeRow, themeDropdown, commandRow, commands } = userMenuStyles()
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <div className={trigger()}>
           <Avatar>
-            {sessionData?.user?.image && (
-              <AvatarImage src={sessionData?.user?.image} />
-            )}
-            <AvatarFallback>
-              {sessionData?.user?.name?.substring(0, 2)}
-            </AvatarFallback>
+            {sessionData?.user?.image && <AvatarImage src={sessionData?.user?.image} />}
+            <AvatarFallback>{sessionData?.user?.name?.substring(0, 2)}</AvatarFallback>
           </Avatar>
           <ChevronDown />
         </div>
@@ -91,7 +66,7 @@ export const UserMenu = () => {
             <SelectTrigger className={themeDropdown()}>
               <SelectValue placeholder="Select theme" />
             </SelectTrigger>
-            <SelectContent className='bg-panel'>
+            <SelectContent className="bg-panel">
               <SelectGroup>
                 <SelectItem value="system">Default</SelectItem>
                 <SelectItem value="dark">Dark</SelectItem>

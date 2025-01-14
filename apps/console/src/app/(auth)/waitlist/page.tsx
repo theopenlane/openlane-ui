@@ -13,11 +13,9 @@ const Waitlist: React.FC = () => {
           <Logo theme="dark" />
         </div>
 
-        <Panel className='mt-10 bg-oxford-blue-950 border-none text-neutral-300'>
+        <Panel className="mt-10 bg-oxford-blue-950 border-none text-neutral-300">
           <h2 className="text-2xl text-center">Thank you for your interest in Openlane!</h2>
-          <div className="flex flex-col text-center">
-            We are currently in a private beta, please subscribe to our newsletter to get notified when we launch.
-          </div>
+          <div className="flex flex-col text-center">We are currently in a private beta, please subscribe to our newsletter to get notified when we launch.</div>
         </Panel>
 
         <Subscribe />

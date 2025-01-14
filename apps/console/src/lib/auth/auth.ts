@@ -45,15 +45,15 @@ export const config = {
   callbacks: {
     async signIn({ user, account, profile }) {
       // limit access during MVP development to specific domains
-      let email = ""
-      if (account?.provider == "google") {
+      let email = ''
+      if (account?.provider == 'google') {
         if (profile?.email_verified) {
-          email = profile?.email || ""
+          email = profile?.email || ''
         }
-      } else if (account?.provider == "github") {
-        email = profile?.email || ""
+      } else if (account?.provider == 'github') {
+        email = profile?.email || ''
       } else {
-        email = user?.email || ""
+        email = user?.email || ''
       }
 
       let allow = false
@@ -148,9 +148,7 @@ export const config = {
        */
       if (session.user) {
         // parse jwt
-        const decodedToken = jwtDecode(
-          token.accessToken as string,
-        ) as JwtPayload
+        const decodedToken = jwtDecode(token.accessToken as string) as JwtPayload
 
         session.user.name = token.name
         session.user.email = token.email

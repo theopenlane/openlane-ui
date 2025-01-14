@@ -5,12 +5,7 @@ import { NavHeading, type NavItem, type Separator } from '@/types'
 import { usePathname } from 'next/navigation'
 import { useSidebar } from '@/hooks/useSidebar'
 
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/components/shared/sidebar/sidebar-accordion/sidebar-accordion'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/shared/sidebar/sidebar-accordion/sidebar-accordion'
 import { useEffect, useState } from 'react'
 import { cn } from '@repo/ui/lib/utils'
 import { Separator as Hr } from '@repo/ui/separator'
@@ -23,38 +18,19 @@ interface SideNavProps {
   className?: string
 }
 
-export function SideNav({
-  items,
-  userTaskCount,
-  setOpen,
-  className,
-}: SideNavProps) {
+export function SideNav({ items, userTaskCount, setOpen, className }: SideNavProps) {
   const path = usePathname()
   const { isOpen: isSidebarOpen, toggle: toggleOpen } = useSidebar()
   const [openItems, setOpenItems] = useState<string[]>([])
   const [lastOpenItems, setLastOpenItems] = useState<string[]>([])
 
-  const {
-    nav,
-    icon,
-    accordionTrigger,
-    link,
-    linkLabel,
-    accordionItem,
-    separator,
-    heading,
-    badgeCount,
-  } = sidebarNavStyles()
+  const { nav, icon, accordionTrigger, link, linkLabel, accordionItem, separator, heading, badgeCount } = sidebarNavStyles()
 
-  const isSeparator = (
-    item: NavItem | Separator | NavHeading,
-  ): item is Separator => {
+  const isSeparator = (item: NavItem | Separator | NavHeading): item is Separator => {
     return (item as Separator).type === 'separator'
   }
 
-  const isNavHeading = (
-    item: NavItem | Separator | NavHeading,
-  ): item is NavHeading => {
+  const isNavHeading = (item: NavItem | Separator | NavHeading): item is NavHeading => {
     return (item as NavHeading).type === 'heading'
   }
 
@@ -92,23 +68,12 @@ export function SideNav({
             {item.heading}
           </div>
         ) : item.isChildren ? (
-          <Accordion
-            type="multiple"
-            key={item.title}
-            value={openItems}
-            onValueChange={handleValueChange}
-          >
+          <Accordion type="multiple" key={item.title} value={openItems} onValueChange={handleValueChange}>
             <AccordionItem value={item.title} className={accordionItem()}>
               <AccordionTrigger className={accordionTrigger()}>
                 <div>{item.icon && <item.icon className={icon()} />}</div>
-                <div className={cn(linkLabel(), !isSidebarOpen && className)}>
-                  {item.title}
-                </div>
-                {item.addCount && isSidebarOpen && (
-                  <div className={badgeCount({ isCurrent: path === item.href })}>
-                    {userTaskCount}
-                  </div>
-                )}
+                <div className={cn(linkLabel(), !isSidebarOpen && className)}>{item.title}</div>
+                {item.addCount && isSidebarOpen && <div className={badgeCount({ isCurrent: path === item.href })}>{userTaskCount}</div>}
               </AccordionTrigger>
               <AccordionContent>
                 {item.children?.map((child) => (
@@ -120,16 +85,8 @@ export function SideNav({
                     }}
                     className={link({ isCurrent: path === child.href })}
                   >
-                    {child.icon && (
-                      <child.icon
-                        className={icon({ isCurrent: path === child.href })}
-                      />
-                    )}
-                    <div
-                      className={cn(linkLabel(), !isSidebarOpen && className)}
-                    >
-                      {child.title}
-                    </div>
+                    {child.icon && <child.icon className={icon({ isCurrent: path === child.href })} />}
+                    <div className={cn(linkLabel(), !isSidebarOpen && className)}>{child.title}</div>
                   </Link>
                 ))}
               </AccordionContent>
@@ -144,12 +101,8 @@ export function SideNav({
             }}
             className={link({ isCurrent: path === item.href })}
           >
-            {item.icon && (
-              <item.icon className={icon({ isCurrent: path === item.href })} />
-            )}
-            <div className={cn(linkLabel(), !isSidebarOpen && className)}>
-              {item.title}
-            </div>
+            {item.icon && <item.icon className={icon({ isCurrent: path === item.href })} />}
+            <div className={cn(linkLabel(), !isSidebarOpen && className)}>{item.title}</div>
           </Link>
         ),
       )}

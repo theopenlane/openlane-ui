@@ -8,15 +8,7 @@ import { z, infer as zInfer } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { pageStyles } from './page.styles'
-import {
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogAction,
-  AlertDialogCancel,
-} from '@repo/ui/alert-dialog'
+import { AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from '@repo/ui/alert-dialog'
 import { Button } from '@repo/ui/button'
 import { LayoutTemplate } from 'lucide-react'
 
@@ -25,13 +17,9 @@ const ICON_SIZE = 12
 export const TemplateList = () => {
   const router = useRouter()
 
-  const {
-    selectTemplate,
-  } = pageStyles()
+  const { selectTemplate } = pageStyles()
 
-  const handleFromTemplate = (
-    event: React.ChangeEvent<HTMLSelectElement>,
-  ) => {
+  const handleFromTemplate = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const templateId = event.target.value
     router.push(`/questionnaires/questionnaire-editor?template_id=${templateId}`)
   }
@@ -44,7 +32,6 @@ export const TemplateList = () => {
     variables: { where: whereFilter },
   })
 
-
   const formSchema = z.object({
     templateId: z.string(),
   })
@@ -53,14 +40,10 @@ export const TemplateList = () => {
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-    },
+    defaultValues: {},
   })
 
-  const {
-    control,
-    handleSubmit,
-  } = form
+  const { control, handleSubmit } = form
 
   if (allTemplates.error) {
     console.log(allTemplates.error)
@@ -79,9 +62,7 @@ export const TemplateList = () => {
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Create Questionnaire From Template</AlertDialogTitle>
-          <AlertDialogDescription>
-            Choose a template to create a new questionnaire
-          </AlertDialogDescription>
+          <AlertDialogDescription>Choose a template to create a new questionnaire</AlertDialogDescription>
         </AlertDialogHeader>
 
         <div className={selectTemplate()}>
@@ -92,15 +73,13 @@ export const TemplateList = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                    >
+                    <Select onValueChange={field.onChange}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select template" />
                       </SelectTrigger>
                       <SelectContent>
                         {templates?.map((template) => (
-                          <SelectItem key={template?.node?.id} value={template?.node?.id || ""}>
+                          <SelectItem key={template?.node?.id} value={template?.node?.id || ''}>
                             {template?.node?.name}
                           </SelectItem>
                         ))}

@@ -29,105 +29,103 @@
   height: 1rem;
 }
 
-
-
 /* Light Mode Colors */
 :root {
   /* Button */
-  --color-button: #2CCBAB;
-  --color-button-muted: #75D2BF;
-  --color-button-light: #E8F9F5;
+  --color-button: #2ccbab;
+  --color-button-muted: #75d2bf;
+  --color-button-light: #e8f9f5;
   --color-button-text: #082930;
-  --color-button-secondary: #D9AE40;
+  --color-button-secondary: #d9ae40;
 
   /* Background */
   --color-bg: #e9f1f5;
-  --color-bg-dark: #1C2630;
+  --color-bg-dark: #1c2630;
   --color-bg-light: #e9f1f5;
-  --color-bg-primary: #2CCBAB;
+  --color-bg-primary: #2ccbab;
   --color-bg-secondary: #ffffff;
   --color-bg-muted: #f5f9fa;
 
   /* Accent */
-  --color-accent: #D9AE40;
-  --color-accent-muted: #FBD079;
-  --color-accent-secondary: #2CCBAB;
-  --color-accent-secondary-muted: #75D2BF;
+  --color-accent: #d9ae40;
+  --color-accent-muted: #fbd079;
+  --color-accent-secondary: #2ccbab;
+  --color-accent-secondary-muted: #75d2bf;
 
   /* Border */
   --color-border: #d2e2e9;
   --color-border-light: #aabec5;
-  --color-border-dark: #303E4A;
-  --color-separator: #B4C1D5;
-  --color-separator-light: #B4C1D5;
+  --color-border-dark: #303e4a;
+  --color-separator: #b4c1d5;
+  --color-separator-light: #b4c1d5;
   --color-separator-dark: #273344;
 
   /* Text */
-  --color-text-header: #303E4A;
-  --color-text-paragraph: #505F6F;
+  --color-text-header: #303e4a;
+  --color-text-paragraph: #505f6f;
   --color-text-dark: #1c2630;
   --color-text-light: #aabec5;
-  --color-text-nav-link: #303E4A;
+  --color-text-nav-link: #303e4a;
 
   /* Panel */
-  --color-panel-bg: #FFFFFF;
-  --color-panel-text: #303E4A;
-  --color-panel-border: #E9C1BB;
+  --color-panel-bg: #ffffff;
+  --color-panel-text: #303e4a;
+  --color-panel-border: #e9c1bb;
 
   /* Card */
-  --color-card-bg: #FFFFFF;
-  --color-card-text: #303E4A;
+  --color-card-bg: #ffffff;
+  --color-card-text: #303e4a;
 
   /* Tags */
-  --color-tags-bg: #D9AE40;
+  --color-tags-bg: #d9ae40;
   --color-tags-text: #082930;
   --color-tags-border: #082930;
 
   /* Popover */
-  --color-popover: #FFFFFF;
+  --color-popover: #ffffff;
 
   /* Ring */
-  --color-ring: #2CCBAB;
+  --color-ring: #2ccbab;
 
   /* Table */
-  --color-table-bg: #FFFFFF;
-  --color-table-text: #303E4A;
+  --color-table-bg: #ffffff;
+  --color-table-text: #303e4a;
   --color-table-row-bg-hover: #f5f9fa;
-  --color-table-row-bg-odd: #EAF0F3;
-  --color-table-row-bg-even: #FFFFFF;
+  --color-table-row-bg-odd: #eaf0f3;
+  --color-table-row-bg-even: #ffffff;
   --color-table-border-muted: #e9f1f5;
-  --color-table-border: #B3C8D1;
-  --color-table-header-bg: #F5F5F5;
-  --color-table-header-text: #303E4A;
+  --color-table-border: #b3c8d1;
+  --color-table-header-bg: #f5f5f5;
+  --color-table-header-text: #303e4a;
 
   /* Gradient */
-  --color-gradient-light: linear-gradient(90deg, #2CCBAB 0%, #59C1BB 100%);
-  --color-gradient-dark: linear-gradient(90deg, #2CCBAB 0%, #998DA0 100%);
+  --color-gradient-light: linear-gradient(90deg, #2ccbab 0%, #59c1bb 100%);
+  --color-gradient-dark: linear-gradient(90deg, #2ccbab 0%, #998da0 100%);
 
   /* Brand */
-  --color-brand: #2CCBAB;
-  --color-brand-secondary: #59C1BB;
+  --color-brand: #2ccbab;
+  --color-brand-secondary: #59c1bb;
 
   /* Logo */
   --color-logo-bg: #303e4a;
   --color-logo-text: #303e4a;
-  --color-logo-fg: #4DC6AD;
+  --color-logo-fg: #4dc6ad;
   --color-logo-dark: #303e4a;
-  --color-logo-light: #B4C1D5;
+  --color-logo-light: #b4c1d5;
 
   /* Login */
   --color-login-bg: #ffffff;
-  --color-login-text: #303E4A;
+  --color-login-text: #303e4a;
 
   /* Status */
-  --color-status-success: #2CCBAB;
-  --color-status-warning: #F5CB5C;
-  --color-status-error: #E05252;
-  --color-status-info: #3498DB;
-  --color-status-success-muted: #A3E3D4;
-  --color-status-warning-muted: #FDE0AE;
+  --color-status-success: #2ccbab;
+  --color-status-warning: #f5cb5c;
+  --color-status-error: #e05252;
+  --color-status-info: #3498db;
+  --color-status-success-muted: #a3e3d4;
+  --color-status-warning-muted: #fde0ae;
   --color-status-error-muted: #f5b8b8;
-  --color-status-info-muted: #5A9BD5;
+  --color-status-info-muted: #5a9bd5;
 
   /* JSON Editor */
   .svc-json-editor-tab__content-area {
@@ -138,27 +136,27 @@
 /* Dark Mode Colors */
 .dark {
   /* Button */
-  --color-button: #2CCBAB;
-  --color-button-muted: #75D2BF;
+  --color-button: #2ccbab;
+  --color-button-muted: #75d2bf;
   --color-button-text: #082930;
-  --color-button-secondary: #B48F31;
+  --color-button-secondary: #b48f31;
 
   /* Background */
-  --color-bg: #0D1117;
-  --color-bg-dark: #0D1117;
-  --color-bg-muted: #161D27;
-  --color-bg-secondary: #1C2630;
+  --color-bg: #0d1117;
+  --color-bg-dark: #0d1117;
+  --color-bg-muted: #161d27;
+  --color-bg-secondary: #1c2630;
 
   /* Accent */
-  --color-accent: #B48F31;
-  --color-accent-muted: #FBD079;
-  --color-accent-secondary: #2CCBAB;
-  --color-accent-secondary-muted: #75D2BF;
+  --color-accent: #b48f31;
+  --color-accent-muted: #fbd079;
+  --color-accent-secondary: #2ccbab;
+  --color-accent-secondary-muted: #75d2bf;
 
   /* Border */
-  --color-border: #303E4A;
-  --color-separator: #B4C1D5;
-  --color-separator-light: #B4C1D5;
+  --color-border: #303e4a;
+  --color-separator: #b4c1d5;
+  --color-separator-light: #b4c1d5;
   --color-separator-dark: #273344;
 
   /* Text */
@@ -167,60 +165,60 @@
   --color-text-nav-link: #bdd9e1;
 
   /* Panel */
-  --color-panel-bg: #1C2630;
+  --color-panel-bg: #1c2630;
   --color-panel-text: #aabec5;
   --color-panel-border: #395365;
 
   /* Card */
-  --color-card-bg: #161D27;
+  --color-card-bg: #161d27;
   --color-card-text: #aabec5;
 
   /* Tags */
-  --color-tags-bg: #B48F31;
-  --color-tags-text: #0D1117;
-  --color-tags-border: #0D1117;
+  --color-tags-bg: #b48f31;
+  --color-tags-text: #0d1117;
+  --color-tags-border: #0d1117;
 
   /* Popover */
-  --color-popover: #1C2630;
+  --color-popover: #1c2630;
 
   /* Ring */
-  --color-ring: #2CCBAB;
+  --color-ring: #2ccbab;
 
   /* Table */
-  --color-table-bg: #1C2630;
+  --color-table-bg: #1c2630;
   --color-table-text: #aabec5;
   --color-table-row-bg-hover: #354755;
-  --color-table-row-bg-odd: #1C2630;
+  --color-table-row-bg-odd: #1c2630;
   --color-table-row-bg-even: #354755;
-  --color-table-border: #998DA0;
+  --color-table-border: #998da0;
   --color-table-border-muted: #395365;
-  --color-table-header-bg: #303E4A;
-  --color-table-header-text: #D0F3EA;
+  --color-table-header-bg: #303e4a;
+  --color-table-header-text: #d0f3ea;
 
   /* Gradient */
-  --color-gradient-light: linear-gradient(90deg, #2CCBAB 0%, #59C1BB 100%);
-  --color-gradient-dark: linear-gradient(90deg, #2CCBAB 0%, #998DA0 100%);
+  --color-gradient-light: linear-gradient(90deg, #2ccbab 0%, #59c1bb 100%);
+  --color-gradient-dark: linear-gradient(90deg, #2ccbab 0%, #998da0 100%);
 
   /* Brand */
-  --color-brand: #2CCBAB;
-  --color-brand-secondary: #59C1BB;
+  --color-brand: #2ccbab;
+  --color-brand-secondary: #59c1bb;
 
   /* Logo */
   --color-logo-bg: #303e4a;
-  --color-logo-text: #B4C1D5;
-  --color-logo-fg: #4DC6AD;
+  --color-logo-text: #b4c1d5;
+  --color-logo-fg: #4dc6ad;
   --color-logo-dark: #303e4a;
-  --color-logo-light: #B4C1D5;
+  --color-logo-light: #b4c1d5;
 
   /* Status */
-  --color-status-success: #2CCBAB;
-  --color-status-warning: #D9AE40;
-  --color-status-error: #B04141;
-  --color-status-info: #007BFF;
-  --color-status-success-muted: #75D2BF;
-  --color-status-warning-muted: #FBD079;
+  --color-status-success: #2ccbab;
+  --color-status-warning: #d9ae40;
+  --color-status-error: #b04141;
+  --color-status-info: #007bff;
+  --color-status-success-muted: #75d2bf;
+  --color-status-warning-muted: #fbd079;
   --color-status-error-muted: #f5b8b8;
-  --color-status-info-muted: #5A9BD5;
+  --color-status-info-muted: #5a9bd5;
 
   /* JSON Editor */
   .svc-json-editor-tab__content-area {

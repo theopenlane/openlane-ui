@@ -7,8 +7,7 @@ const meta: Meta<typeof Separator> = {
   parameters: {
     docs: {
       description: {
-        component:
-          'Separator component that can comprise of a line only or a line with text content',
+        component: 'Separator component that can comprise of a line only or a line with text content',
       },
     },
   },

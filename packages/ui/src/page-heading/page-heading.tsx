@@ -1,9 +1,6 @@
 import React from 'react'
 import { cn } from '../../lib/utils'
-import {
-  pageHeadingStyles,
-  type PageHeadingVariants,
-} from './page-heading.styles'
+import { pageHeadingStyles, type PageHeadingVariants } from './page-heading.styles'
 
 interface PageHeadingProps extends PageHeadingVariants {
   className?: string
@@ -11,11 +8,7 @@ interface PageHeadingProps extends PageHeadingVariants {
   eyebrow?: React.ReactNode | string
 }
 
-const PageHeading: React.FC<PageHeadingProps> = ({
-  heading,
-  eyebrow,
-  className,
-}) => {
+const PageHeading: React.FC<PageHeadingProps> = ({ heading, eyebrow, className }) => {
   const styles = pageHeadingStyles()
   return (
     <div className={cn(styles.wrapper(), className)}>
