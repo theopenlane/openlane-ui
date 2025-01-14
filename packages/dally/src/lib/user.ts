@@ -1,4 +1,4 @@
-import { restUrl } from '../index.ts'
+import { openlaneAPIUrl } from '../index.ts'
 
 export interface LoginUser {
   username: string
@@ -12,7 +12,7 @@ export interface RegisterUser {
 }
 
 export async function registerUser(arg: RegisterUser) {
-  const fData = await fetch(`${restUrl}/v1/register`, {
+  const fData = await fetch(`${openlaneAPIUrl}/v1/register`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -32,7 +32,7 @@ export async function registerUser(arg: RegisterUser) {
 }
 
 export async function verifyUser(token: string) {
-  const fData = await fetch(`${restUrl}/v1/verify?${token}`)
+  const fData = await fetch(`${openlaneAPIUrl}/v1/verify?${token}`)
 
   if (fData.ok) {
     return await fData.json()

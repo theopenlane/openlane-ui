@@ -1,29 +1,35 @@
 'use client'
 
 import { Provider as GraphqlProvider } from 'urql'
+import { Client } from '@urql/core'
 import { createClient, createSubscriberClient } from '@/lib/urql'
 import { useSession } from 'next-auth/react'
 import { ThemeProvider } from '@/providers/theme'
 import { usePathname } from 'next/navigation'
+import { ReactNode, useEffect, useState } from 'react'
 
 interface ProvidersProps {
-  children: any
+  children: ReactNode
 }
 
 const Providers = ({ children }: ProvidersProps) => {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const pathname = usePathname()
-  var client = createClient(session)
+  const [client, setClient] = useState<Client | null>(null)
 
-  // override client for waitlist page
-  // this uses an API token instead of the user's credentials
-  if (pathname.endsWith('waitlist')) {
-    client = createSubscriberClient()
-  }
+  useEffect(() => {
+    if (status === 'authenticated' && !client) {
+      setClient(createClient(session))
+    } else if (status === 'unauthenticated' && pathname.endsWith('waitlist')) {
+      setClient(createSubscriberClient())
+    }
+  }, [session, status, pathname])
+
+  if (status === 'loading' || (status === 'authenticated' && !client)) return null
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-      <GraphqlProvider value={client}>{children}</GraphqlProvider>
+      {client ? <GraphqlProvider value={client}>{children}</GraphqlProvider> : children}
     </ThemeProvider>
   )
 }
