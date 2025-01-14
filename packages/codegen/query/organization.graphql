@@ -6,69 +6,7 @@ query GetAllOrganizations {
         name
         displayName
         avatarRemoteURL
-        description
         personalOrg
-        parent {
-          id
-          name
-        }
-        children {
-          edges {
-            node {
-              id
-              name
-              displayName
-              description
-            }
-          }
-        }
-        members {
-          id
-          role
-          user {
-            id
-            firstName
-            lastName
-          }
-        }
-        setting {
-          id
-          createdAt
-          updatedAt
-          createdBy
-          updatedBy
-          domains
-          billingContact
-          billingEmail
-          billingPhone
-          billingAddress
-          taxIdentifier
-          tags
-          geoLocation
-          billingNotificationsEnabled
-        }
-        orgSubscriptions {
-          active
-          expiresAt
-          subscriptionURL
-          stripeSubscriptionStatus
-          productTier
-          productPrice
-          features
-          productTier
-        }
-        orgSubscriptions {
-          active
-          expiresAt
-          subscriptionURL
-          stripeSubscriptionStatus
-          productTier
-          productPrice
-          features
-          productTier
-        }
-        createdAt
-        updatedAt
       }
     }
   }
@@ -81,7 +19,7 @@ query GetOrganizationNameByID($organizationId: ID!) {
   }
 }
 
-query GetOrganizationMembers($organizationId: ID!) {
+query GetSingleOrganizationMembers($organizationId: ID!) {
   organization(id: $organizationId) {
     members {
       id
@@ -101,14 +39,15 @@ query GetOrganizationMembers($organizationId: ID!) {
   }
 }
 
-query GetAllOrganizationMembers {
-  orgMemberships {
+query GetAllOrganizationsWithMembers {
+  organizations {
     edges {
       node {
-        user {
-          id
-          firstName
-          lastName
+        id
+        personalOrg
+        displayName
+        name
+        members {
           role
         }
       }
@@ -127,6 +66,50 @@ query GetInvites {
         expires
         role
       }
+    }
+  }
+}
+
+query GetOrganizationBilling($organizationId: ID!) {
+  organization(id: $organizationId) {
+    personalOrg
+    orgSubscriptions {
+      active
+      expiresAt
+      subscriptionURL
+      stripeSubscriptionStatus
+      productTier
+      productPrice
+      features
+      productTier
+    }
+  }
+}
+
+query getOrganizationSetting($organizationId: ID!) {
+  organization(id: $organizationId) {
+    setting {
+      createdAt
+      updatedAt
+      createdBy
+      updatedBy
+      domains
+      billingContact
+      billingEmail
+      billingPhone
+      billingAddress
+      taxIdentifier
+      tags
+      geoLocation
+      billingNotificationsEnabled
+    }
+  }
+}
+
+query getBillingEmail($organizationId: ID!) {
+  organization(id: $organizationId) {
+    setting {
+      billingEmail
     }
   }
 }

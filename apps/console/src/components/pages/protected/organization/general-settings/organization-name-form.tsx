@@ -10,14 +10,13 @@ import { z } from 'zod'
 import { Button } from '@repo/ui/button'
 import { useEffect, useState } from 'react'
 import { RESET_SUCCESS_STATE_MS } from '@/constants'
+import { useOrganization } from '@/hooks/useOrganization'
 
 const OrganizationNameForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
   const [{ fetching: isSubmitting }, updateOrg] = useUpdateOrganizationMutation()
-  const { data: sessionData } = useSession()
-  const currentOrgId = sessionData?.user.activeOrganizationId
-  const [allOrgs] = useGetAllOrganizationsQuery({ pause: !sessionData })
-  const currentOrganization = allOrgs.data?.organizations.edges?.filter((org) => org?.node?.id === currentOrgId)[0]?.node
+  const { currentOrgId, allOrgs } = useOrganization()
+  const currentOrganization = allOrgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
 
   const formSchema = z.object({
     displayName: z.string().min(2, {

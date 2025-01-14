@@ -7,18 +7,18 @@ import BillingContactDialog from './billing-contract-dialog'
 import { useOrganization } from '@/hooks/useOrganization'
 import { billingSettingsStyles } from './billing-settings.styles'
 import { cn } from '@repo/ui/lib/utils'
-import { useUpdateOrganizationMutation } from '@repo/codegen/src/schema'
+import { useGetOrganizationSettingQuery, useUpdateOrganizationMutation } from '@repo/codegen/src/schema'
 
 const BillingSettings: React.FC = () => {
   const { panel, section, sectionContent, sectionTitle, emailText, paragraph, switchContainer, text } = billingSettingsStyles()
-  const { currentOrg, currentOrgId } = useOrganization()
+  const { currentOrgId } = useOrganization()
+  const [settingData] = useGetOrganizationSettingQuery({ pause: !currentOrgId, variables: { organizationId: currentOrgId } })
   const [{ fetching: isSubmitting }, updateOrg] = useUpdateOrganizationMutation()
+  const billingAddress = settingData.data?.organization.setting?.billingAddress
+  const formattedAddress = [billingAddress?.line1, billingAddress?.city, billingAddress?.postalCode].filter(Boolean).join(', ')
+  const email = settingData.data?.organization.setting?.billingEmail || ''
 
-  const billingAddress = currentOrg?.setting?.billingAddress || {}
-  const formattedAddress = [billingAddress.line1, billingAddress.city, billingAddress.postalCode].filter(Boolean).join(', ')
-  const email = currentOrg?.setting?.billingEmail || ''
-
-  const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(currentOrg?.setting?.billingNotificationsEnabled || false)
+  const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(settingData.data?.organization.setting?.billingNotificationsEnabled || false)
 
   const onToggleNotifications = async (checked: boolean) => {
     setNotificationsEnabled(checked)
@@ -50,7 +50,7 @@ const BillingSettings: React.FC = () => {
               <p className={cn(paragraph())}>
                 {formattedAddress}
                 <br />
-                {`${currentOrg?.setting?.billingAddress.country || ''}`}
+                {`${settingData.data?.organization.setting?.billingAddress?.country || ''}`}
               </p>
             </div>
             <BillingContactDialog />

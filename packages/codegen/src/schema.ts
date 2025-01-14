@@ -17656,50 +17656,7 @@ export type GetAllOrganizationsQuery = {
     __typename?: 'OrganizationConnection'
     edges?: Array<{
       __typename?: 'OrganizationEdge'
-      node?: {
-        __typename?: 'Organization'
-        id: string
-        name: string
-        displayName: string
-        avatarRemoteURL?: string | null
-        description?: string | null
-        personalOrg?: boolean | null
-        createdAt?: any | null
-        updatedAt?: any | null
-        parent?: { __typename?: 'Organization'; id: string; name: string } | null
-        children: {
-          __typename?: 'OrganizationConnection'
-          edges?: Array<{ __typename?: 'OrganizationEdge'; node?: { __typename?: 'Organization'; id: string; name: string; displayName: string; description?: string | null } | null } | null> | null
-        }
-        members?: Array<{ __typename?: 'OrgMembership'; id: string; role: OrgMembershipRole; user: { __typename?: 'User'; id: string; firstName?: string | null; lastName?: string | null } }> | null
-        setting?: {
-          __typename?: 'OrganizationSetting'
-          id: string
-          createdAt?: any | null
-          updatedAt?: any | null
-          createdBy?: string | null
-          updatedBy?: string | null
-          domains?: Array<string> | null
-          billingContact?: string | null
-          billingEmail?: string | null
-          billingPhone?: string | null
-          billingAddress?: any | null
-          taxIdentifier?: string | null
-          tags?: Array<string> | null
-          geoLocation?: OrganizationSettingRegion | null
-          billingNotificationsEnabled: boolean
-        } | null
-        orgSubscriptions?: Array<{
-          __typename?: 'OrgSubscription'
-          active: boolean
-          expiresAt?: any | null
-          subscriptionURL?: string | null
-          stripeSubscriptionStatus?: string | null
-          productTier?: string | null
-          productPrice?: any | null
-          features?: Array<string> | null
-        }> | null
-      } | null
+      node?: { __typename?: 'Organization'; id: string; name: string; displayName: string; avatarRemoteURL?: string | null; personalOrg?: boolean | null } | null
     } | null> | null
   }
 }
@@ -17710,11 +17667,11 @@ export type GetOrganizationNameByIdQueryVariables = Exact<{
 
 export type GetOrganizationNameByIdQuery = { __typename?: 'Query'; organization: { __typename?: 'Organization'; name: string; displayName: string } }
 
-export type GetOrganizationMembersQueryVariables = Exact<{
+export type GetSingleOrganizationMembersQueryVariables = Exact<{
   organizationId: Scalars['ID']['input']
 }>
 
-export type GetOrganizationMembersQuery = {
+export type GetSingleOrganizationMembersQuery = {
   __typename?: 'Query'
   organization: {
     __typename?: 'Organization'
@@ -17738,15 +17695,22 @@ export type GetOrganizationMembersQuery = {
   }
 }
 
-export type GetAllOrganizationMembersQueryVariables = Exact<{ [key: string]: never }>
+export type GetAllOrganizationsWithMembersQueryVariables = Exact<{ [key: string]: never }>
 
-export type GetAllOrganizationMembersQuery = {
+export type GetAllOrganizationsWithMembersQuery = {
   __typename?: 'Query'
-  orgMemberships: {
-    __typename?: 'OrgMembershipConnection'
+  organizations: {
+    __typename?: 'OrganizationConnection'
     edges?: Array<{
-      __typename?: 'OrgMembershipEdge'
-      node?: { __typename?: 'OrgMembership'; user: { __typename?: 'User'; id: string; firstName?: string | null; lastName?: string | null; role?: UserRole | null } } | null
+      __typename?: 'OrganizationEdge'
+      node?: {
+        __typename?: 'Organization'
+        id: string
+        personalOrg?: boolean | null
+        displayName: string
+        name: string
+        members?: Array<{ __typename?: 'OrgMembership'; role: OrgMembershipRole }> | null
+      } | null
     } | null> | null
   }
 }
@@ -17763,6 +17727,61 @@ export type GetInvitesQuery = {
     } | null> | null
   }
 }
+
+export type GetOrganizationBillingQueryVariables = Exact<{
+  organizationId: Scalars['ID']['input']
+}>
+
+export type GetOrganizationBillingQuery = {
+  __typename?: 'Query'
+  organization: {
+    __typename?: 'Organization'
+    personalOrg?: boolean | null
+    orgSubscriptions?: Array<{
+      __typename?: 'OrgSubscription'
+      active: boolean
+      expiresAt?: any | null
+      subscriptionURL?: string | null
+      stripeSubscriptionStatus?: string | null
+      productTier?: string | null
+      productPrice?: any | null
+      features?: Array<string> | null
+    }> | null
+  }
+}
+
+export type GetOrganizationSettingQueryVariables = Exact<{
+  organizationId: Scalars['ID']['input']
+}>
+
+export type GetOrganizationSettingQuery = {
+  __typename?: 'Query'
+  organization: {
+    __typename?: 'Organization'
+    setting?: {
+      __typename?: 'OrganizationSetting'
+      createdAt?: any | null
+      updatedAt?: any | null
+      createdBy?: string | null
+      updatedBy?: string | null
+      domains?: Array<string> | null
+      billingContact?: string | null
+      billingEmail?: string | null
+      billingPhone?: string | null
+      billingAddress?: any | null
+      taxIdentifier?: string | null
+      tags?: Array<string> | null
+      geoLocation?: OrganizationSettingRegion | null
+      billingNotificationsEnabled: boolean
+    } | null
+  }
+}
+
+export type GetBillingEmailQueryVariables = Exact<{
+  organizationId: Scalars['ID']['input']
+}>
+
+export type GetBillingEmailQuery = { __typename?: 'Query'; organization: { __typename?: 'Organization'; setting?: { __typename?: 'OrganizationSetting'; billingEmail?: string | null } | null } }
 
 export type CreateOrganizationMutationVariables = Exact<{
   input: CreateOrganizationInput
@@ -18565,69 +18584,7 @@ export const GetAllOrganizationsDocument = gql`
           name
           displayName
           avatarRemoteURL
-          description
           personalOrg
-          parent {
-            id
-            name
-          }
-          children {
-            edges {
-              node {
-                id
-                name
-                displayName
-                description
-              }
-            }
-          }
-          members {
-            id
-            role
-            user {
-              id
-              firstName
-              lastName
-            }
-          }
-          setting {
-            id
-            createdAt
-            updatedAt
-            createdBy
-            updatedBy
-            domains
-            billingContact
-            billingEmail
-            billingPhone
-            billingAddress
-            taxIdentifier
-            tags
-            geoLocation
-            billingNotificationsEnabled
-          }
-          orgSubscriptions {
-            active
-            expiresAt
-            subscriptionURL
-            stripeSubscriptionStatus
-            productTier
-            productPrice
-            features
-            productTier
-          }
-          orgSubscriptions {
-            active
-            expiresAt
-            subscriptionURL
-            stripeSubscriptionStatus
-            productTier
-            productPrice
-            features
-            productTier
-          }
-          createdAt
-          updatedAt
         }
       }
     }
@@ -18649,8 +18606,8 @@ export const GetOrganizationNameByIdDocument = gql`
 export function useGetOrganizationNameByIdQuery(options: Omit<Urql.UseQueryArgs<GetOrganizationNameByIdQueryVariables>, 'query'>) {
   return Urql.useQuery<GetOrganizationNameByIdQuery, GetOrganizationNameByIdQueryVariables>({ query: GetOrganizationNameByIdDocument, ...options })
 }
-export const GetOrganizationMembersDocument = gql`
-  query GetOrganizationMembers($organizationId: ID!) {
+export const GetSingleOrganizationMembersDocument = gql`
+  query GetSingleOrganizationMembers($organizationId: ID!) {
     organization(id: $organizationId) {
       members {
         id
@@ -18671,18 +18628,19 @@ export const GetOrganizationMembersDocument = gql`
   }
 `
 
-export function useGetOrganizationMembersQuery(options: Omit<Urql.UseQueryArgs<GetOrganizationMembersQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetOrganizationMembersQuery, GetOrganizationMembersQueryVariables>({ query: GetOrganizationMembersDocument, ...options })
+export function useGetSingleOrganizationMembersQuery(options: Omit<Urql.UseQueryArgs<GetSingleOrganizationMembersQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetSingleOrganizationMembersQuery, GetSingleOrganizationMembersQueryVariables>({ query: GetSingleOrganizationMembersDocument, ...options })
 }
-export const GetAllOrganizationMembersDocument = gql`
-  query GetAllOrganizationMembers {
-    orgMemberships {
+export const GetAllOrganizationsWithMembersDocument = gql`
+  query GetAllOrganizationsWithMembers {
+    organizations {
       edges {
         node {
-          user {
-            id
-            firstName
-            lastName
+          id
+          personalOrg
+          displayName
+          name
+          members {
             role
           }
         }
@@ -18691,8 +18649,8 @@ export const GetAllOrganizationMembersDocument = gql`
   }
 `
 
-export function useGetAllOrganizationMembersQuery(options?: Omit<Urql.UseQueryArgs<GetAllOrganizationMembersQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllOrganizationMembersQuery, GetAllOrganizationMembersQueryVariables>({ query: GetAllOrganizationMembersDocument, ...options })
+export function useGetAllOrganizationsWithMembersQuery(options?: Omit<Urql.UseQueryArgs<GetAllOrganizationsWithMembersQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetAllOrganizationsWithMembersQuery, GetAllOrganizationsWithMembersQueryVariables>({ query: GetAllOrganizationsWithMembersDocument, ...options })
 }
 export const GetInvitesDocument = gql`
   query GetInvites {
@@ -18713,6 +18671,65 @@ export const GetInvitesDocument = gql`
 
 export function useGetInvitesQuery(options?: Omit<Urql.UseQueryArgs<GetInvitesQueryVariables>, 'query'>) {
   return Urql.useQuery<GetInvitesQuery, GetInvitesQueryVariables>({ query: GetInvitesDocument, ...options })
+}
+export const GetOrganizationBillingDocument = gql`
+  query GetOrganizationBilling($organizationId: ID!) {
+    organization(id: $organizationId) {
+      personalOrg
+      orgSubscriptions {
+        active
+        expiresAt
+        subscriptionURL
+        stripeSubscriptionStatus
+        productTier
+        productPrice
+        features
+        productTier
+      }
+    }
+  }
+`
+
+export function useGetOrganizationBillingQuery(options: Omit<Urql.UseQueryArgs<GetOrganizationBillingQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetOrganizationBillingQuery, GetOrganizationBillingQueryVariables>({ query: GetOrganizationBillingDocument, ...options })
+}
+export const GetOrganizationSettingDocument = gql`
+  query getOrganizationSetting($organizationId: ID!) {
+    organization(id: $organizationId) {
+      setting {
+        createdAt
+        updatedAt
+        createdBy
+        updatedBy
+        domains
+        billingContact
+        billingEmail
+        billingPhone
+        billingAddress
+        taxIdentifier
+        tags
+        geoLocation
+        billingNotificationsEnabled
+      }
+    }
+  }
+`
+
+export function useGetOrganizationSettingQuery(options: Omit<Urql.UseQueryArgs<GetOrganizationSettingQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetOrganizationSettingQuery, GetOrganizationSettingQueryVariables>({ query: GetOrganizationSettingDocument, ...options })
+}
+export const GetBillingEmailDocument = gql`
+  query getBillingEmail($organizationId: ID!) {
+    organization(id: $organizationId) {
+      setting {
+        billingEmail
+      }
+    }
+  }
+`
+
+export function useGetBillingEmailQuery(options: Omit<Urql.UseQueryArgs<GetBillingEmailQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetBillingEmailQuery, GetBillingEmailQueryVariables>({ query: GetBillingEmailDocument, ...options })
 }
 export const CreateOrganizationDocument = gql`
   mutation CreateOrganization($input: CreateOrganizationInput!) {

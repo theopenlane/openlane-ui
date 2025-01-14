@@ -1,18 +1,19 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react'
-import { useLoadScript } from '@react-google-maps/api'
+import { Data, useLoadScript } from '@react-google-maps/api'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
-import { useUpdateOrganizationMutation } from '@repo/codegen/src/schema'
+import { useGetOrganizationSettingQuery, useUpdateOrganizationMutation } from '@repo/codegen/src/schema'
 import { useOrganization } from '@/hooks/useOrganization'
 import useClickOutside from '@/hooks/useClickOutside'
 
 const libraries: any = ['places']
 
 const BillingContactDialog = () => {
-  const { currentOrgId, currentOrg } = useOrganization()
+  const { currentOrgId } = useOrganization()
+  const [setting] = useGetOrganizationSettingQuery({ pause: !currentOrgId, variables: { organizationId: currentOrgId } })
   const [{ fetching: isSubmitting }, updateOrg] = useUpdateOrganizationMutation()
   const wrapperRef = useClickOutside(() => setShowPredictions(false))
   const { isLoaded } = useLoadScript({
@@ -105,13 +106,14 @@ const BillingContactDialog = () => {
   }
 
   useEffect(() => {
-    if (!currentOrg) {
+    if (!setting.data) {
       return
     }
-    setAddress(currentOrg?.setting?.billingAddress)
-    setFullName(currentOrg?.setting?.billingContact || '')
+    setAddress(setting.data.organization.setting?.billingAddress)
+
+    setFullName(setting.data.organization.setting?.billingContact || '')
     return () => {}
-  }, [currentOrg])
+  }, [setting])
 
   return (
     <Dialog aria-describedby={undefined}>

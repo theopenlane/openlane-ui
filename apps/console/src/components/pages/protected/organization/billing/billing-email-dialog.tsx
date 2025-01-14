@@ -4,21 +4,23 @@ import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import React, { useEffect, useState } from 'react'
 import { useOrganization } from '@/hooks/useOrganization'
-import { useUpdateOrganizationMutation } from '@repo/codegen/src/schema'
+import { useGetOrganizationSettingQuery, useUpdateOrganizationMutation } from '@repo/codegen/src/schema'
 import { useToast } from '@repo/ui/use-toast'
 
 const BillingEmailDialog = () => {
-  const { currentOrg, currentOrgId } = useOrganization()
+  const { currentOrgId } = useOrganization()
   const [emailInput, setEmailInput] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const [{ fetching: isSubmitting }, updateOrg] = useUpdateOrganizationMutation()
   const { toast } = useToast()
 
+  const [settingData] = useGetOrganizationSettingQuery({ pause: !currentOrgId, variables: { organizationId: currentOrgId } })
+
   useEffect(() => {
     if (isOpen) {
-      setEmailInput(currentOrg?.setting?.billingEmail || '')
+      setEmailInput(settingData.data?.organization.setting?.billingEmail || '')
     }
-  }, [currentOrg, isOpen])
+  }, [settingData, isOpen])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
