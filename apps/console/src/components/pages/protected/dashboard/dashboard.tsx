@@ -20,7 +20,7 @@ type DashboardProps = {
   push: (href: string, options?: NavigateOptions) => void
 }
 
-export const defaultLanding: React.FC<DashboardProps> = ({ programs, tasks }) => {
+export const DefaultLanding: React.FC<DashboardProps> = ({ programs, tasks }) => {
   const { dataRow, progressPercent, progressLabel, emptyRowInfo } = pageStyles()
 
   return (
@@ -104,7 +104,7 @@ export const defaultLanding: React.FC<DashboardProps> = ({ programs, tasks }) =>
   )
 }
 
-export const newUserLanding: React.FC<DashboardProps> = ({ push }) => {
+export const NewUserLanding: React.FC<DashboardProps> = ({ push }) => {
   return (
     <section>
       <PageHeading heading={<>Dashboard</>} />

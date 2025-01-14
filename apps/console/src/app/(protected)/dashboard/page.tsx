@@ -1,10 +1,10 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { TaskWhereInput, useGetDashboardDataQuery, UserWhereInput } from '@repo/codegen/src/schema'
 import { Loading } from '@/components/shared/loading/loading'
-import { defaultLanding, newUserLanding } from '@/components/pages/protected/dashboard/dashboard'
+import { DefaultLanding, NewUserLanding } from '@/components/pages/protected/dashboard/dashboard'
 import { CreateOrganizationForm } from '@/components/shared/organization/create-organization/create-organization'
 import { useRouter } from 'next/navigation'
 
@@ -21,8 +21,9 @@ const DashboardLanding: React.FC = () => {
     hasAssigneeWith: [userWhere],
   }
 
-  const [{ data: dashboardData, fetching }] = useGetDashboardDataQuery({ variables: { where: whereFilter }, pause: !session })
-
+  const [{ data: dashboardData, fetching }] = useGetDashboardDataQuery({
+    variables: { where: whereFilter },
+  })
   const programsRes = { edges: dashboardData?.programs?.edges ?? [] }
   const taskRes = { edges: dashboardData?.tasks?.edges || [] }
 
@@ -41,11 +42,11 @@ const DashboardLanding: React.FC = () => {
 
     // if no programs redirect to new user landing
     if (programsRes && programsRes?.edges?.length == 0) {
-      return newUserLanding({ push: push })
+      return <NewUserLanding push={push} />
     }
 
     //  default landing page with programs and tasks
-    return defaultLanding({ programs: programsRes, tasks: taskRes, push: push })
+    return <DefaultLanding programs={programsRes} tasks={taskRes} push={push} />
   }
 }
 
