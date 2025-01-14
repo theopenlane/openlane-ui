@@ -18,11 +18,10 @@ const DashboardLanding: React.FC = () => {
     id: assigneeId,
   }
   const whereFilter: TaskWhereInput = {
-    hasAssigneeWith: [userWhere]
+    hasAssigneeWith: [userWhere],
   }
 
   const [{ data: dashboardData, fetching }] = useGetDashboardDataQuery({ variables: { where: whereFilter }, pause: !session })
-
 
   const programsRes = { edges: dashboardData?.programs?.edges ?? [] }
   const taskRes = { edges: dashboardData?.tasks?.edges || [] }

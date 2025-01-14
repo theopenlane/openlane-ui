@@ -18,8 +18,7 @@ const meta: Meta<typeof AlertDialog> = {
   parameters: {
     docs: {
       description: {
-        component:
-          'An alert dialog that interrupts the user with important information and requires a response. https://ui.shadcn.com/docs/components/alert-dialog',
+        component: 'An alert dialog that interrupts the user with important information and requires a response. https://ui.shadcn.com/docs/components/alert-dialog',
       },
     },
   },
@@ -34,10 +33,7 @@ const meta: Meta<typeof AlertDialog> = {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your
-              account and remove your data from our servers.
-            </AlertDialogDescription>
+            <AlertDialogDescription>This action cannot be undone. This will permanently delete your account and remove your data from our servers.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel asChild>
@@ -70,10 +66,7 @@ export const ConfirmationAlertDialog: Story = {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Confirm Your Action</AlertDialogTitle>
-            <AlertDialogDescription>
-              Please confirm that you want to proceed with this action. This
-              action is irreversible.
-            </AlertDialogDescription>
+            <AlertDialogDescription>Please confirm that you want to proceed with this action. This action is irreversible.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel asChild>

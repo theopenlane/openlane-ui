@@ -1,11 +1,6 @@
 'use client'
 
-import {
-  GetOrganizationMembersQuery,
-  GetOrganizationMembersQueryVariables,
-  useGetOrganizationMembersQuery,
-  UserAuthProvider,
-} from '@repo/codegen/src/schema'
+import { GetOrganizationMembersQuery, GetOrganizationMembersQueryVariables, useGetOrganizationMembersQuery, UserAuthProvider } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import { pageStyles } from './page.styles'
 import { useState, useEffect, Dispatch, SetStateAction } from 'react'
@@ -25,18 +20,10 @@ type MembersTableProps = {
   setActiveTab: Dispatch<SetStateAction<string>>
 }
 
-type Member = NonNullable<
-  NonNullable<GetOrganizationMembersQuery['organization']>['members']
->[number]
+type Member = NonNullable<NonNullable<GetOrganizationMembersQuery['organization']>['members']>[number]
 
 export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
-  const {
-    membersSearchRow,
-    membersSearchField,
-    membersButtons,
-    nameRow,
-    copyIcon,
-  } = pageStyles()
+  const { membersSearchRow, membersSearchField, membersButtons, nameRow, copyIcon } = pageStyles()
   const { data: session } = useSession()
   const [filteredMembers, setFilteredMembers] = useState<Member[]>([])
   const [searchTerm, setSearchTerm] = useState('')
@@ -74,12 +61,10 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
     setSearchTerm(searchValue)
 
     if (data?.organization?.members) {
-      const filtered = data.organization.members.filter(
-        ({ user: { firstName, lastName } }) => {
-          const fullName = `${firstName?.toLowerCase() ?? ''} ${lastName?.toLowerCase() ?? ''}`
-          return fullName.includes(searchValue)
-        },
-      )
+      const filtered = data.organization.members.filter(({ user: { firstName, lastName } }) => {
+        const fullName = `${firstName?.toLowerCase() ?? ''} ${lastName?.toLowerCase() ?? ''}`
+        return fullName.includes(searchValue)
+      })
       setFilteredMembers(filtered)
     }
   }
@@ -87,13 +72,9 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
   const providerIcon = (provider: UserAuthProvider) => {
     switch (provider) {
       case UserAuthProvider.GOOGLE:
-        return (
-          <Image src="/icons/brand/google.svg" width={18} height={18} alt="" />
-        )
+        return <Image src="/icons/brand/google.svg" width={18} height={18} alt="" />
       case UserAuthProvider.GITHUB:
-        return (
-          <Image src="/icons/brand/github.svg" width={18} height={18} alt="" />
-        )
+        return <Image src="/icons/brand/github.svg" width={18} height={18} alt="" />
       default:
         return <KeyRoundIcon width={18} />
     }
@@ -105,12 +86,8 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
       header: '',
       cell: ({ row }) => (
         <Avatar variant="small">
-          {row.original.user.avatarRemoteURL && (
-            <AvatarImage src={row.original.user.avatarRemoteURL} />
-          )}
-          <AvatarFallback>
-            {row.original.user.firstName?.substring(0, 2)}
-          </AvatarFallback>
+          {row.original.user.avatarRemoteURL && <AvatarImage src={row.original.user.avatarRemoteURL} />}
+          <AvatarFallback>{row.original.user.firstName?.substring(0, 2)}</AvatarFallback>
         </Avatar>
       ),
       size: 40,
@@ -119,18 +96,12 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
       accessorKey: 'user.firstname',
       header: 'Name',
       cell: ({ row }) => {
-        const fullName =
-          `${row.original.user.firstName} ${row.original.user.lastName}` || ''
+        const fullName = `${row.original.user.firstName} ${row.original.user.lastName}` || ''
 
         return (
           <div className={nameRow()}>
             {`${row.original.user.firstName} ${row.original.user.lastName}`}
-            <Copy
-              width={16}
-              height={16}
-              className={copyIcon()}
-              onClick={() => copyToClipboard(fullName)}
-            />
+            <Copy width={16} height={16} className={copyIcon()} onClick={() => copyToClipboard(fullName)} />
           </div>
         )
       },
@@ -142,15 +113,12 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
     {
       accessorKey: 'createdAt',
       header: 'Joined',
-      cell: ({ cell }) =>
-        format(new Date(cell.getValue() as string), 'd MMM yyyy'),
+      cell: ({ cell }) => format(new Date(cell.getValue() as string), 'd MMM yyyy'),
     },
     {
       accessorKey: 'user.authProvider',
       header: 'Provider',
-      cell: ({ cell }) => (
-        <>{providerIcon(cell.getValue() as UserAuthProvider)}</>
-      ),
+      cell: ({ cell }) => <>{providerIcon(cell.getValue() as UserAuthProvider)}</>,
     },
     {
       accessorKey: 'role',
@@ -160,12 +128,7 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
     {
       accessorKey: 'id',
       header: '',
-      cell: ({ cell }) => (
-        <MemberActions
-          memberId={cell.getValue() as string}
-          refetchMembers={refetch}
-        />
-      ),
+      cell: ({ cell }) => <MemberActions memberId={cell.getValue() as string} refetchMembers={refetch} />,
       size: 40,
     },
   ]
@@ -174,19 +137,10 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
     <div>
       <div className={membersSearchRow()}>
         <div className={membersSearchField()}>
-          <Input
-            placeholder="Search for user"
-            value={searchTerm}
-            onChange={handleSearch}
-          />
+          <Input placeholder="Search for user" value={searchTerm} onChange={handleSearch} />
         </div>
         <div className={membersButtons()}>
-          <Button
-            size='md'
-            icon={<PlusIcon />}
-            iconPosition="left"
-            onClick={() => setActiveTab('invites')}
-          >
+          <Button size="md" icon={<PlusIcon />} iconPosition="left" onClick={() => setActiveTab('invites')}>
             Send an invite
           </Button>
         </div>

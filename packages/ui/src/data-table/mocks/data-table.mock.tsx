@@ -1,21 +1,8 @@
 'use client'
 
 import { ColumnDef } from '@tanstack/react-table'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '../../dropdown-menu/dropdown-menu'
-import {
-  ArrowUpDown,
-  ClipboardCopyIcon,
-  CreditCardIcon,
-  MoreHorizontal,
-  User,
-} from 'lucide-react'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '../../dropdown-menu/dropdown-menu'
+import { ArrowUpDown, ClipboardCopyIcon, CreditCardIcon, MoreHorizontal, User } from 'lucide-react'
 import { Tag } from '../../tag/tag'
 import { Checkbox } from '../../checkbox/checkbox'
 import { Avatar, AvatarFallback, AvatarImage } from '../../avatar/avatar'
@@ -37,21 +24,12 @@ export const columns: ColumnDef<Payment>[] = [
     size: 100,
     header: ({ table }) => (
       <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && 'indeterminate')
-        }
+        checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
       />
     ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
+    cell: ({ row }) => <Checkbox checked={row.getIsSelected()} onCheckedChange={(value) => row.toggleSelected(!!value)} aria-label="Select row" />,
     enableSorting: false,
     enableHiding: false,
   },
@@ -76,10 +54,7 @@ export const columns: ColumnDef<Payment>[] = [
     },
     header: ({ column }) => {
       return (
-        <div
-          className="flex items-center cursor-pointer"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
+        <div className="flex items-center cursor-pointer" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
           Name
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </div>
@@ -114,9 +89,7 @@ export const columns: ColumnDef<Payment>[] = [
             <MoreHorizontal className="h-4 w-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="center">
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.id)}
-            >
+            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(payment.id)}>
               <ClipboardCopyIcon className="h-3 w-3" /> Copy payment ID
             </DropdownMenuItem>
             <DropdownMenuItem>

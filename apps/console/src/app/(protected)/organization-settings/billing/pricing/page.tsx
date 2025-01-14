@@ -5,8 +5,8 @@ import PricingPage from '@/components/pages/protected/organization/billing/prici
 const Page: React.FC = () => {
   return (
     <>
-    <PageHeading heading="Pricing Plans" eyebrow="Billing" />
-    <PricingPage />
+      <PageHeading heading="Pricing Plans" eyebrow="Billing" />
+      <PricingPage />
     </>
   )
 }

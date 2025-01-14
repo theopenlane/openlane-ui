@@ -55,10 +55,7 @@ export const PoliciesTable = () => {
       header: 'Name',
       cell: ({ cell, row }) => {
         return (
-          <Link
-            href={'/policies-and-procedures/policies/' + row.original.id}
-            className="underline"
-          >
+          <Link href={'/policies-and-procedures/policies/' + row.original.id} className="underline">
             {cell.getValue() as string}
           </Link>
         )
@@ -71,14 +68,12 @@ export const PoliciesTable = () => {
     {
       accessorKey: 'updatedAt',
       header: 'Updated At',
-      cell: ({ cell }) =>
-        format(new Date(cell.getValue() as string), 'dd MMM yyyy'),
+      cell: ({ cell }) => format(new Date(cell.getValue() as string), 'dd MMM yyyy'),
     },
     {
       accessorKey: 'createdAt',
       header: 'Created At',
-      cell: ({ cell }) =>
-        format(new Date(cell.getValue() as string), 'dd MMM yyyy'),
+      cell: ({ cell }) => format(new Date(cell.getValue() as string), 'dd MMM yyyy'),
     },
     {
       accessorKey: 'id',
@@ -97,18 +92,9 @@ export const PoliciesTable = () => {
     <>
       <div className={searchRow()}>
         <div className={searchField()}>
-          <Input
-            placeholder="search"
-            disabled
-            value={searchTerm}
-            onChange={handleSearch}
-          />
+          <Input placeholder="search" disabled value={searchTerm} onChange={handleSearch} />
         </div>
-        <Button
-          icon={<PlusIcon />}
-          iconPosition="left"
-          onClick={handleCreateNew}
-        >
+        <Button icon={<PlusIcon />} iconPosition="left" onClick={handleCreateNew}>
           Create New
         </Button>
       </div>

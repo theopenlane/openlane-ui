@@ -11,8 +11,8 @@ export const separatorStyles = tv({
       true: {
         line: 'flex-1 h-px bg-separator bg-opacity-60 mx-0',
       },
-    }
-  }
+    },
+  },
 })
 
 export type SeparatorVariants = VariantProps<typeof separatorStyles>

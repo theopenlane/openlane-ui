@@ -11,8 +11,7 @@ import { useRouter } from 'next/navigation'
 export const ExistingOrganizations = () => {
   const { data: sessionData, update: updateSession } = useSession()
   const currentOrg = sessionData?.user.activeOrganizationId
-  const { container, orgWrapper, orgInfo, orgSelect, orgTitle } =
-    existingOrganizationsStyles()
+  const { container, orgWrapper, orgInfo, orgSelect, orgTitle } = existingOrganizationsStyles()
   const [{ data, fetching, error }] = useGetAllOrganizationsQuery({
     pause: !sessionData,
   })
@@ -22,8 +21,7 @@ export const ExistingOrganizations = () => {
     return null
   }
 
-  const orgs =
-    data.organizations.edges?.filter((org) => !org?.node?.personalOrg) || []
+  const orgs = data.organizations.edges?.filter((org) => !org?.node?.personalOrg) || []
 
   if (orgs.length === 0) {
     return null
@@ -62,9 +60,7 @@ export const ExistingOrganizations = () => {
             <div key={org?.node?.id} className={`${orgWrapper()} group`}>
               <div>
                 <Avatar variant="large">
-                  <AvatarFallback>
-                    {org?.node?.displayName.substring(0, 2)}
-                  </AvatarFallback>
+                  <AvatarFallback>{org?.node?.displayName.substring(0, 2)}</AvatarFallback>
                 </Avatar>
               </div>
               <div className={orgInfo()}>
@@ -73,11 +69,7 @@ export const ExistingOrganizations = () => {
               </div>
               {currentOrg !== org?.node?.id && (
                 <div className={orgSelect()}>
-                  <Button
-                    variant="filled"
-                    size="md"
-                    onClick={() => handleOrganizationSwitch(org?.node?.id)}
-                  >
+                  <Button variant="filled" size="md" onClick={() => handleOrganizationSwitch(org?.node?.id)}>
                     Select
                   </Button>
                 </div>

@@ -27,9 +27,7 @@ export const LoginPage = () => {
   const { separator, buttons, keyIcon, form, input } = loginStyles()
   const router = useRouter()
   const [signInError, setSignInError] = useState(false)
-  const [signInErrorMessage, setSignInErrorMessage] = useState(
-    'There was an error. Please try again.',
-  )
+  const [signInErrorMessage, setSignInErrorMessage] = useState('There was an error. Please try again.')
   const [signInLoading, setSignInLoading] = useState(false)
   const showLoginError = !signInLoading && signInError
   const [isPasswordActive, setIsPasswordActive] = useState(false)
@@ -169,33 +167,33 @@ export const LoginPage = () => {
           }}
         >
           <div className={input()}>
-            <Label className="text-text-dark" htmlFor="username">Email</Label>
+            <Label className="text-text-dark" htmlFor="username">
+              Email
+            </Label>
             <Input variant="light" name="username" placeholder="email@domain.com" />
           </div>
           {isPasswordActive && (
             <div className={input()}>
-              <Label className='text-text-dark' htmlFor="password">Password</Label>
-              <PasswordInput variant='light' name="password" placeholder="password" autoComplete="current-password" />
+              <Label className="text-text-dark" htmlFor="password">
+                Password
+              </Label>
+              <PasswordInput variant="light" name="password" placeholder="password" autoComplete="current-password" />
             </div>
           )}
 
-          <Button variant="filled"
-            className="mr-auto mt-2 w-full"
-            icon={<ArrowUpRight />}
-            size="md"
-            type="submit"
-            iconAnimated
-          >
+          <Button variant="filled" className="mr-auto mt-2 w-full" icon={<ArrowUpRight />} size="md" type="submit" iconAnimated>
             Login
           </Button>
         </SimpleForm>
 
-        <Link href="https://www.theopenlane.io/legal/privacy" className="text-xs text-gray-500 mt-8 text-center">Privacy Policy</Link>
-        <Link href="https://www.theopenlane.io/legal/terms-of-service" className="text-xs text-gray-500 mt-1 text-center">Terms of Service</Link>
+        <Link href="https://www.theopenlane.io/legal/privacy" className="text-xs text-gray-500 mt-8 text-center">
+          Privacy Policy
+        </Link>
+        <Link href="https://www.theopenlane.io/legal/terms-of-service" className="text-xs text-gray-500 mt-1 text-center">
+          Terms of Service
+        </Link>
 
-        {showLoginError && (
-          <MessageBox className={'p-4 ml-1'} message={signInErrorMessage} />
-        )}
+        {showLoginError && <MessageBox className={'p-4 ml-1'} message={signInErrorMessage} />}
       </div>
     </>
   )

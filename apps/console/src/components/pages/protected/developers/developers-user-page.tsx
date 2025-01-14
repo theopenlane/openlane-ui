@@ -13,10 +13,10 @@ const DevelopersPage: React.FC = () => {
 
   return (
     <>
-          <div className={wrapper()}>
-            <PersonalAccessTokenForm />
-            <PersonalAccessTokenTable />
-          </div>
+      <div className={wrapper()}>
+        <PersonalAccessTokenForm />
+        <PersonalAccessTokenTable />
+      </div>
     </>
   )
 }
