@@ -18616,6 +18616,16 @@ export const GetAllOrganizationsDocument = gql`
             features
             productTier
           }
+          orgSubscriptions {
+            active
+            expiresAt
+            subscriptionURL
+            stripeSubscriptionStatus
+            productTier
+            productPrice
+            features
+            productTier
+          }
           createdAt
           updatedAt
         }

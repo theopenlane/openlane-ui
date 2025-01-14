@@ -22,7 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
         {pirschAnalyticsKey && <script defer src="https://api.pirsch.io/pa.js" id="pianjs" data-code={pirschAnalyticsKey}></script>}
       </head>
       <body className={`${outfit.variable} ${mincho.variable} ${jetBrainsMono.variable} font-sans w-full h-screen overscroll-none`}>
-        <SessionProvider>
+        <SessionProvider refetchOnWindowFocus={false}>
           <Providers>{children}</Providers>
           <Toaster />
         </SessionProvider>

@@ -54,15 +54,7 @@ export const SignupPage = () => {
    * Validate Email Domain for Sign Up
    */
   async function validateEmail(payload: any) {
-    let allow = false
-    for (const domain of allowedLoginDomains) {
-      if (payload.email.endsWith(domain)) {
-        allow = true
-        break
-      }
-    }
-
-    return allow
+    return allowedLoginDomains.some((domain) => payload.email.endsWith(domain))
   }
 
   /**
