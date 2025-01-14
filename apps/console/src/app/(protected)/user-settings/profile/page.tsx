@@ -15,7 +15,6 @@ const Page: React.FC = () => {
       <PageHeading eyebrow="User settings" heading="My profile" />
       <div className={wrapper()}>
         <ProfileNameForm />
-        <AvatarUpload />
       </div>
     </>
   )

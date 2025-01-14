@@ -17,7 +17,6 @@ const Page: React.FC = () => {
       <PageHeading eyebrow="Organization settings" heading="General" />
       <div className={wrapper()}>
         <OrganizationNameForm />
-        <AvatarUpload />
         <OrganizationEmailForm />
         <OrganizationDelete />
       </div>

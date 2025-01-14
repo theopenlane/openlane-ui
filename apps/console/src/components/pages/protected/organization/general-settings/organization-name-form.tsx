@@ -11,10 +11,12 @@ import { Button } from '@repo/ui/button'
 import { useEffect, useState } from 'react'
 import { RESET_SUCCESS_STATE_MS } from '@/constants'
 import { useOrganization } from '@/hooks/useOrganization'
+import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
 
 const OrganizationNameForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
   const [{ fetching: isSubmitting }, updateOrg] = useUpdateOrganizationMutation()
+
   const { currentOrgId, allOrgs } = useOrganization()
   const currentOrganization = allOrgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
 
@@ -53,6 +55,18 @@ const OrganizationNameForm = () => {
     await updateOrganization({ displayName: data.displayName })
   }
 
+  const handleUploadAvatar = async (file: File) => {
+    if (!currentOrgId) return
+    // try {
+    //   await updateOrg({
+    //     updateOrganizationId: currentOrgId,
+    //     input: {},
+    //   })
+    //   setIsSuccess(true)
+    // } catch (error) {
+    //   console.error('file upload error')
+  }
+
   useEffect(() => {
     if (isSuccess) {
       const timer = setTimeout(() => {
@@ -63,34 +77,37 @@ const OrganizationNameForm = () => {
   }, [isSuccess])
 
   return (
-    <Panel>
-      <PanelHeader
-        heading="Organization name"
-        subheading="This is the name of your organization, which will hold your data and other configuration. This would typically be the name of the company you work for or represent."
-        noBorder
-      />
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <InputRow>
-            <FormField
-              control={form.control}
-              name="displayName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input variant="medium" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button variant={isSuccess ? 'success' : 'filled'} type="submit" loading={isSubmitting}>
-              {isSubmitting ? 'Saving' : isSuccess ? 'Saved' : 'Save'}
-            </Button>
-          </InputRow>
-        </form>
-      </Form>
-    </Panel>
+    <>
+      <Panel>
+        <PanelHeader
+          heading="Organization name"
+          subheading="This is the name of your organization, which will hold your data and other configuration. This would typically be the name of the company you work for or represent."
+          noBorder
+        />
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <InputRow>
+              <FormField
+                control={form.control}
+                name="displayName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input variant="medium" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button variant={isSuccess ? 'success' : 'filled'} type="submit" loading={isSubmitting}>
+                {isSubmitting ? 'Saving' : isSuccess ? 'Saved' : 'Save'}
+              </Button>
+            </InputRow>
+          </form>
+        </Form>
+      </Panel>
+      <AvatarUpload uploadCallback={handleUploadAvatar} placeholderImage={currentOrganization?.avatarRemoteURL || ''} />
+    </>
   )
 }
 

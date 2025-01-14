@@ -1,31 +1,20 @@
 'use client'
-import {
-  GetUserProfileQueryVariables,
-  useGetUserProfileQuery,
-  useUpdateUserNameMutation,
-} from '@repo/codegen/src/schema'
+import { GetUserProfileQueryVariables, useGetUserProfileQuery, useUpdateUserMutation } from '@repo/codegen/src/schema'
 import { Input, InputRow } from '@repo/ui/input'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { useSession } from 'next-auth/react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  Form,
-  FormItem,
-  FormField,
-  FormControl,
-  FormMessage,
-  FormLabel,
-} from '@repo/ui/form'
+import { Form, FormItem, FormField, FormControl, FormMessage, FormLabel } from '@repo/ui/form'
 import { z } from 'zod'
 import { Button } from '@repo/ui/button'
 import { useEffect, useState } from 'react'
 import { RESET_SUCCESS_STATE_MS } from '@/constants'
+import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
 
 const ProfileNameForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
-  const [{ fetching: isSubmitting }, updateUserName] =
-    useUpdateUserNameMutation()
+  const [{ fetching: isSubmitting }, updateUserName] = useUpdateUserMutation()
   const { data: sessionData } = useSession()
   const userId = sessionData?.user.userId
 
@@ -55,22 +44,7 @@ const ProfileNameForm = () => {
     },
   })
 
-  useEffect(() => {
-    if (userData) {
-      form.reset({
-        firstName: userData.user.firstName ?? '',
-        lastName: userData.user.lastName ?? '',
-      })
-    }
-  }, [userData])
-
-  const updateName = async ({
-    firstName,
-    lastName,
-  }: {
-    firstName: string
-    lastName: string
-  }) => {
+  const updateName = async ({ firstName, lastName }: { firstName: string; lastName: string }) => {
     await updateUserName({
       updateUserId: userId,
       input: {
@@ -85,6 +59,31 @@ const ProfileNameForm = () => {
     await updateName({ firstName: data.firstName, lastName: data.lastName })
   }
 
+  const handleUploadAvatar = async (file: File) => {
+    if (!userId) return
+
+    try {
+      await updateUserName({
+        updateUserId: userId,
+        input: {},
+        avatarFile: file,
+      })
+
+      setIsSuccess(true)
+    } catch (error) {
+      console.error('file upload error')
+    }
+  }
+
+  useEffect(() => {
+    if (userData) {
+      form.reset({
+        firstName: userData.user.firstName ?? '',
+        lastName: userData.user.lastName ?? '',
+      })
+    }
+  }, [userData])
+
   useEffect(() => {
     if (isSuccess) {
       const timer = setTimeout(() => {
@@ -95,48 +94,47 @@ const ProfileNameForm = () => {
   }, [isSuccess])
 
   return (
-    <Panel>
-      <PanelHeader heading="Your name" noBorder />
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <InputRow>
-            <FormField
-              control={form.control}
-              name="firstName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>First name</FormLabel>
-                  <FormControl>
-                    <Input variant="medium" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="lastName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Last name</FormLabel>
-                  <FormControl>
-                    <Input variant="medium" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button
-              variant={isSuccess ? 'success' : 'filled'}
-              type="submit"
-              loading={isSubmitting}
-            >
-              {isSubmitting ? 'Saving' : isSuccess ? 'Saved' : 'Save'}
-            </Button>
-          </InputRow>
-        </form>
-      </Form>
-    </Panel>
+    <>
+      <Panel>
+        <PanelHeader heading="Your name" noBorder />
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <InputRow>
+              <FormField
+                control={form.control}
+                name="firstName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>First name</FormLabel>
+                    <FormControl>
+                      <Input variant="medium" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Last name</FormLabel>
+                    <FormControl>
+                      <Input variant="medium" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button variant={isSuccess ? 'success' : 'filled'} type="submit" loading={isSubmitting}>
+                {isSubmitting ? 'Saving' : isSuccess ? 'Saved' : 'Save'}
+              </Button>
+            </InputRow>
+          </form>
+        </Form>
+      </Panel>
+      <AvatarUpload uploadCallback={handleUploadAvatar} placeholderImage={sessionData?.user?.image} />
+    </>
   )
 }
 
