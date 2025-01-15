@@ -183,7 +183,7 @@ const PersonalAccessTokenForm = () => {
                                 <DropdownMenuCheckboxItem
                                   className={checkboxRow()}
                                   key={value?.node?.id || i}
-                                  checked={value?.node?.id ? (field.value?.includes(value.node.id) ?? false) : false}
+                                  checked={value?.node?.id ? field.value?.includes(value.node.id) ?? false : false}
                                   onCheckedChange={(checked) => {
                                     const newValue = checked ? [...(field.value || []), value?.node?.id] : (field.value || []).filter((id) => id !== value?.node?.id)
                                     field.onChange(newValue)

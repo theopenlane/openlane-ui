@@ -17,8 +17,7 @@ type PolicyActionsProps = {
 const ICON_SIZE = 12
 
 export const Actions = ({
-  policyId: policyId,
-  // refetchPolicies: refetchPolicies,
+  policyId: policyId, // refetchPolicies: refetchPolicies,
 }: PolicyActionsProps) => {
   const router = useRouter()
   const { actionIcon } = pageStyles()
