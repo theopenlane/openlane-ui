@@ -24,7 +24,6 @@ const ProfileNameForm = () => {
 
   const [{ data: userData }] = useGetUserProfileQuery({
     variables,
-    pause: !sessionData,
   })
 
   const formSchema = z.object({
@@ -133,7 +132,7 @@ const ProfileNameForm = () => {
           </form>
         </Form>
       </Panel>
-      <AvatarUpload uploadCallback={handleUploadAvatar} placeholderImage={sessionData?.user?.image} />
+      <AvatarUpload uploadCallback={handleUploadAvatar} placeholderImage={userData?.user.avatarFile?.presignedURL || sessionData?.user?.image} />
     </>
   )
 }

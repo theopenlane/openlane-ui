@@ -6,7 +6,9 @@ query GetUserProfile($userId: ID!) {
     displayName
     email
     avatarRemoteURL
-    avatarLocalFile
+    avatarFile {
+      presignedURL
+    }
     setting {
       status
       tags
@@ -18,6 +20,9 @@ mutation UpdateUser($updateUserId: ID!, $input: UpdateUserInput!, $avatarFile: U
   updateUser(id: $updateUserId, input: $input, avatarFile: $avatarFile) {
     user {
       id
+      avatarFile {
+        presignedURL
+      }
     }
   }
 }
