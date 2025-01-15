@@ -17627,7 +17627,7 @@ export type RemoveUserFromOrgMutation = { __typename?: 'Mutation', deleteOrgMemb
 export type GetAllOrganizationsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetAllOrganizationsQuery = { __typename?: 'Query', organizations: { __typename?: 'OrganizationConnection', edges?: Array<{ __typename?: 'OrganizationEdge', node?: { __typename?: 'Organization', id: string, name: string, displayName: string, avatarRemoteURL?: string | null, personalOrg?: boolean | null } | null } | null> | null } };
+export type GetAllOrganizationsQuery = { __typename?: 'Query', organizations: { __typename?: 'OrganizationConnection', edges?: Array<{ __typename?: 'OrganizationEdge', node?: { __typename?: 'Organization', id: string, name: string, displayName: string, avatarRemoteURL?: string | null, personalOrg?: boolean | null, avatarFile?: { __typename?: 'File', id: string, presignedURL?: string | null } | null } | null } | null> | null } };
 
 export type GetOrganizationNameByIdQueryVariables = Exact<{
   organizationId: Scalars['ID']['input'];
@@ -17641,12 +17641,12 @@ export type GetSingleOrganizationMembersQueryVariables = Exact<{
 }>;
 
 
-export type GetSingleOrganizationMembersQuery = { __typename?: 'Query', organization: { __typename?: 'Organization', members?: Array<{ __typename?: 'OrgMembership', id: string, createdAt?: any | null, role: OrgMembershipRole, user: { __typename?: 'User', id: string, firstName?: string | null, lastName?: string | null, authProvider: UserAuthProvider, avatarRemoteURL?: string | null, email: string, role?: UserRole | null, createdAt?: any | null } }> | null } };
+export type GetSingleOrganizationMembersQuery = { __typename?: 'Query', organization: { __typename?: 'Organization', members?: Array<{ __typename?: 'OrgMembership', id: string, createdAt?: any | null, role: OrgMembershipRole, user: { __typename?: 'User', id: string, firstName?: string | null, lastName?: string | null, authProvider: UserAuthProvider, avatarRemoteURL?: string | null, email: string, role?: UserRole | null, createdAt?: any | null, avatarFile?: { __typename?: 'File', id: string, presignedURL?: string | null } | null } }> | null } };
 
 export type GetAllOrganizationsWithMembersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetAllOrganizationsWithMembersQuery = { __typename?: 'Query', organizations: { __typename?: 'OrganizationConnection', edges?: Array<{ __typename?: 'OrganizationEdge', node?: { __typename?: 'Organization', id: string, personalOrg?: boolean | null, displayName: string, name: string, members?: Array<{ __typename?: 'OrgMembership', role: OrgMembershipRole }> | null } | null } | null> | null } };
+export type GetAllOrganizationsWithMembersQuery = { __typename?: 'Query', organizations: { __typename?: 'OrganizationConnection', edges?: Array<{ __typename?: 'OrganizationEdge', node?: { __typename?: 'Organization', id: string, personalOrg?: boolean | null, displayName: string, name: string, avatarRemoteURL?: string | null, avatarFile?: { __typename?: 'File', id: string, presignedURL?: string | null } | null, members?: Array<{ __typename?: 'OrgMembership', role: OrgMembershipRole }> | null } | null } | null> | null } };
 
 export type GetInvitesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -17684,6 +17684,7 @@ export type CreateOrganizationMutation = { __typename?: 'Mutation', createOrgani
 export type UpdateOrganizationMutationVariables = Exact<{
   updateOrganizationId: Scalars['ID']['input'];
   input: UpdateOrganizationInput;
+  avatarFile?: InputMaybe<Scalars['Upload']['input']>;
 }>;
 
 
@@ -18139,6 +18140,10 @@ export const GetAllOrganizationsDocument = gql`
         displayName
         avatarRemoteURL
         personalOrg
+        avatarFile {
+          id
+          presignedURL
+        }
       }
     }
   }
@@ -18176,6 +18181,10 @@ export const GetSingleOrganizationMembersDocument = gql`
         email
         role
         createdAt
+        avatarFile {
+          id
+          presignedURL
+        }
       }
     }
   }
@@ -18194,6 +18203,11 @@ export const GetAllOrganizationsWithMembersDocument = gql`
         personalOrg
         displayName
         name
+        avatarRemoteURL
+        avatarFile {
+          id
+          presignedURL
+        }
         members {
           role
         }
@@ -18299,8 +18313,12 @@ export function useCreateOrganizationMutation() {
   return Urql.useMutation<CreateOrganizationMutation, CreateOrganizationMutationVariables>(CreateOrganizationDocument);
 };
 export const UpdateOrganizationDocument = gql`
-    mutation UpdateOrganization($updateOrganizationId: ID!, $input: UpdateOrganizationInput!) {
-  updateOrganization(id: $updateOrganizationId, input: $input) {
+    mutation UpdateOrganization($updateOrganizationId: ID!, $input: UpdateOrganizationInput!, $avatarFile: Upload) {
+  updateOrganization(
+    id: $updateOrganizationId
+    input: $input
+    avatarFile: $avatarFile
+  ) {
     organization {
       id
     }

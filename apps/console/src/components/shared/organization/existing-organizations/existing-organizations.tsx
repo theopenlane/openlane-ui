@@ -1,6 +1,6 @@
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { existingOrganizationsStyles } from './existing-organizations.styles'
-import { Avatar, AvatarFallback } from '@repo/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { Button } from '@repo/ui/button'
 import { Tag } from '@repo/ui/tag'
 import { switchOrganization } from '@/lib/user'
@@ -56,11 +56,14 @@ export const ExistingOrganizations = () => {
         <PanelHeader heading="Existing organizations" />
         {orgs.map((org) => {
           const role = org?.node?.members?.[0]?.role ?? 'Owner'
+          const image = org?.node?.avatarFile?.presignedURL || org?.node?.avatarRemoteURL
 
           return (
             <div key={org?.node?.id} className={`${orgWrapper()} group`}>
               <div>
                 <Avatar variant="large">
+                  {image && <AvatarImage src={image} />}
+
                   <AvatarFallback>{org?.node?.displayName.substring(0, 2)}</AvatarFallback>
                 </Avatar>
               </div>

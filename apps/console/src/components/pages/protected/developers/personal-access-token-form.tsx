@@ -177,26 +177,29 @@ const PersonalAccessTokenForm = () => {
                         <DropdownMenuContent>
                           {Object.entries(orgs)
                             .reverse()
-                            .map(([key, value], i) => (
-                              <DropdownMenuCheckboxItem
-                                className={checkboxRow()}
-                                key={value?.node?.name}
-                                checked={value?.node?.id ? (field.value?.includes(value.node.id) ?? false) : false}
-                                onCheckedChange={(checked) => {
-                                  const newValue = checked ? [...(field.value || []), value?.node?.id] : (field.value || []).filter((id) => id !== value?.node?.id)
-                                  field.onChange(newValue)
-                                }}
-                                onSelect={(e) => {
-                                  e.preventDefault()
-                                }}
-                              >
-                                <Avatar variant="medium">
-                                  {value?.node?.avatarRemoteURL && <AvatarImage src={value?.node?.avatarRemoteURL} />}
-                                  <AvatarFallback>{value?.node?.name?.substring(0, 2)}</AvatarFallback>
-                                </Avatar>
-                                {value?.node?.name}
-                              </DropdownMenuCheckboxItem>
-                            ))}
+                            .map(([key, value], i) => {
+                              const image = value?.node?.avatarFile?.presignedURL || value?.node?.avatarRemoteURL
+                              return (
+                                <DropdownMenuCheckboxItem
+                                  className={checkboxRow()}
+                                  key={value?.node?.id || i}
+                                  checked={value?.node?.id ? (field.value?.includes(value.node.id) ?? false) : false}
+                                  onCheckedChange={(checked) => {
+                                    const newValue = checked ? [...(field.value || []), value?.node?.id] : (field.value || []).filter((id) => id !== value?.node?.id)
+                                    field.onChange(newValue)
+                                  }}
+                                  onSelect={(e) => {
+                                    e.preventDefault()
+                                  }}
+                                >
+                                  <Avatar variant="medium">
+                                    {image && <AvatarImage src={image} />}
+                                    <AvatarFallback>{value?.node?.name?.substring(0, 2)}</AvatarFallback>
+                                  </Avatar>
+                                  {value?.node?.name}
+                                </DropdownMenuCheckboxItem>
+                              )
+                            })}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </FormControl>

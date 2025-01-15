@@ -20,6 +20,7 @@ const OrganizationNameForm = () => {
   const { currentOrgId, allOrgs } = useOrganization()
   const currentOrganization = allOrgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
 
+  const image = currentOrganization?.avatarFile?.presignedURL || currentOrganization?.avatarRemoteURL || ''
   const formSchema = z.object({
     displayName: z.string().min(2, {
       message: 'Display name must be at least 2 characters',
@@ -57,14 +58,16 @@ const OrganizationNameForm = () => {
 
   const handleUploadAvatar = async (file: File) => {
     if (!currentOrgId) return
-    // try {
-    //   await updateOrg({
-    //     updateOrganizationId: currentOrgId,
-    //     input: {},
-    //   })
-    //   setIsSuccess(true)
-    // } catch (error) {
-    //   console.error('file upload error')
+    try {
+      await updateOrg({
+        updateOrganizationId: currentOrgId,
+        input: {},
+        avatarFile: file,
+      })
+      setIsSuccess(true)
+    } catch (error) {
+      console.error('file upload error')
+    }
   }
 
   useEffect(() => {
@@ -106,7 +109,7 @@ const OrganizationNameForm = () => {
           </form>
         </Form>
       </Panel>
-      <AvatarUpload fallbackString={currentOrganization?.name?.substring(0, 2) || 'N/A'} uploadCallback={handleUploadAvatar} placeholderImage={currentOrganization?.avatarRemoteURL || ''} />
+      <AvatarUpload fallbackString={currentOrganization?.name?.substring(0, 2) || 'N/A'} uploadCallback={handleUploadAvatar} placeholderImage={image} />
     </>
   )
 }

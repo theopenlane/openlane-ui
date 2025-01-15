@@ -6,7 +6,7 @@ import { pageStyles } from './page.styles'
 import { useState, useEffect, Dispatch, SetStateAction } from 'react'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
-import { Copy, KeyRoundIcon, MoreHorizontal, PlusIcon } from 'lucide-react'
+import { Copy, KeyRoundIcon, PlusIcon } from 'lucide-react'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
@@ -84,12 +84,15 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
     {
       accessorKey: 'user.id',
       header: '',
-      cell: ({ row }) => (
-        <Avatar variant="small">
-          {row.original.user.avatarRemoteURL && <AvatarImage src={row.original.user.avatarRemoteURL} />}
-          <AvatarFallback>{row.original.user.firstName?.substring(0, 2)}</AvatarFallback>
-        </Avatar>
-      ),
+      cell: ({ row }) => {
+        const image = row.original.user.avatarFile?.presignedURL || row.original.user.avatarRemoteURL
+        return (
+          <Avatar variant="small">
+            {image && <AvatarImage src={image} />}
+            <AvatarFallback>{row.original.user.firstName?.substring(0, 2)}</AvatarFallback>
+          </Avatar>
+        )
+      },
       size: 40,
     },
     {
