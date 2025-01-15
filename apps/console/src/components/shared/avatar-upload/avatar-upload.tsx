@@ -4,23 +4,23 @@ import { avatarUploadStyles, AvatarUploadVariants } from './avatar-upload.styles
 import { cn } from '@repo/ui/lib/utils'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { FileWithPath, useDropzone } from 'react-dropzone'
-import { useSession } from 'next-auth/react'
 import { Button } from '@repo/ui/button'
 import Cropper, { Area, Point } from 'react-easy-crop'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import getCroppedImg from './utils/getCroppedImage'
 import { useToast } from '@repo/ui/use-toast'
-import { useOrganization } from '@/hooks/useOrganization'
 
 interface AvatarUploadProps extends AvatarUploadVariants {
   className?: string
+  placeholderImage?: string
+  fallbackString?: string
+  uploadCallback: (arg: File) => void
 }
 
-const AvatarUpload = ({ className }: AvatarUploadProps) => {
+const AvatarUpload = ({ className, placeholderImage, uploadCallback, fallbackString }: AvatarUploadProps) => {
   const { toast } = useToast()
-  const { allOrgs, currentOrgId } = useOrganization()
 
   const [isCroppingModalOpen, setIsCroppingModalOpen] = useState(false)
   const [crop, setCrop] = useState({ x: 0, y: 0 })
@@ -35,13 +35,6 @@ const AvatarUpload = ({ className }: AvatarUploadProps) => {
       Drag your image in here, or <u>select it manually</u>.
     </>
   )
-
-  const selectedOrg = allOrgs.filter((org) => org?.node?.id === currentOrgId).map((org) => org?.node)[0] || null
-
-  useEffect(() => {
-    const avatarRemoteURL = selectedOrg?.avatarRemoteURL
-    setAvatarUrl(avatarRemoteURL || null)
-  }, [selectedOrg])
 
   const onDrop = useCallback((acceptedFiles: FileWithPath[]) => {
     const file = acceptedFiles[0]
@@ -79,13 +72,21 @@ const AvatarUpload = ({ className }: AvatarUploadProps) => {
 
   const saveCroppedImage = async () => {
     if (uploadedImage && croppedAreaPixels) {
-      const croppedImageUrl = await getCroppedImg(uploadedImage, croppedAreaPixels)
-      setAvatarUrl(croppedImageUrl)
-      closeModal()
-      toast({
-        title: 'Avatar updated successfully',
-        variant: 'success',
-      })
+      try {
+        const croppedImageUrl = await getCroppedImg(uploadedImage, croppedAreaPixels)
+
+        const response = await fetch(croppedImageUrl)
+        const blob = await response.blob()
+
+        const file = new File([blob], 'avatar.jpg', { type: blob.type })
+
+        uploadCallback(file)
+
+        setAvatarUrl(croppedImageUrl)
+        closeModal()
+      } catch (error) {
+        console.error('Error saving cropped image:', error)
+      }
     }
   }
 
@@ -97,8 +98,8 @@ const AvatarUpload = ({ className }: AvatarUploadProps) => {
         <p>{isDragActive ? dropMessage : defaultMessage}</p>
         <div className={avatarPreview()}>
           <Avatar variant="extra-large">
-            {avatarUrl && <AvatarImage src={avatarUrl} />}
-            <AvatarFallback>{selectedOrg?.name?.substring(0, 2)}</AvatarFallback>
+            {(avatarUrl || placeholderImage) && <AvatarImage src={avatarUrl || placeholderImage} />}
+            <AvatarFallback>{fallbackString}</AvatarFallback>
           </Avatar>
         </div>
       </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useSession } from 'next-auth/react'
 import { TaskWhereInput, useGetDashboardDataQuery, UserWhereInput } from '@repo/codegen/src/schema'
 import { Loading } from '@/components/shared/loading/loading'
@@ -21,9 +21,8 @@ const DashboardLanding: React.FC = () => {
     hasAssigneeWith: [userWhere],
   }
 
-  const [{ data: dashboardData, fetching }] = useGetDashboardDataQuery({
-    variables: { where: whereFilter },
-  })
+  const [{ data: dashboardData, fetching }] = useGetDashboardDataQuery({ variables: { where: whereFilter }, pause: !session })
+
   const programsRes = { edges: dashboardData?.programs?.edges ?? [] }
   const taskRes = { edges: dashboardData?.tasks?.edges || [] }
 

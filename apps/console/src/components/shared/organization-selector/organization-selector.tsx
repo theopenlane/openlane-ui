@@ -7,7 +7,7 @@ import { Button } from '@repo/ui/button'
 import { ArrowRight, SearchIcon } from 'lucide-react'
 import { ChevronDown } from '@repo/ui/icons/chevron-down'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
-import { Avatar, AvatarFallback } from '@repo/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { Input } from '@repo/ui/input'
 import { Tag } from '@repo/ui/tag'
 import Link from 'next/link'
@@ -113,11 +113,13 @@ export const OrganizationSelector = () => {
             </div>
             {filteredOrgs.map((org) => {
               const role = org?.node?.members?.[0]?.role ?? 'Owner'
+              const image = org?.node?.avatarFile?.presignedURL || org?.node?.avatarRemoteURL
 
               return (
                 <div key={org?.node?.id} className={`${orgWrapper()} group`}>
                   <div>
                     <Avatar>
+                      {image && <AvatarImage src={image} />}
                       <AvatarFallback>{org?.node?.displayName.substring(0, 2)}</AvatarFallback>
                     </Avatar>
                   </div>

@@ -10,18 +10,30 @@ import Link from 'next/link'
 import { ChevronDown } from '@repo/ui/icons/chevron-down'
 import { Kbd } from '@repo/ui/kbd'
 import { useTheme } from 'next-themes'
+import { GetUserProfileQueryVariables, useGetUserProfileQuery } from '@repo/codegen/src/schema'
 
 export const UserMenu = () => {
   const { setTheme, theme } = useTheme()
   const { data: sessionData } = useSession()
   const { trigger, email, userSettingsLink, themeRow, themeDropdown, commandRow, commands } = userMenuStyles()
 
+  const userId = sessionData?.user.userId
+
+  const variables: GetUserProfileQueryVariables = {
+    userId: userId ?? '',
+  }
+
+  const [{ data: userData }] = useGetUserProfileQuery({
+    variables,
+  })
+
+  const image = userData?.user.avatarFile?.presignedURL || sessionData?.user?.image
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <div className={trigger()}>
           <Avatar>
-            {sessionData?.user?.image && <AvatarImage src={sessionData?.user?.image} />}
+            {image && <AvatarImage src={image} />}
             <AvatarFallback>{sessionData?.user?.name?.substring(0, 2)}</AvatarFallback>
           </Avatar>
           <ChevronDown />

@@ -42,7 +42,7 @@ export const GlobalSearch = () => {
           user: {
             ...sessionData.user,
             accessToken: response.access_token,
-            organization: orgId,
+            activeOrganizationId: orgId,
             refreshToken: response.refresh_token,
           },
         })
@@ -229,6 +229,7 @@ const renderOrgSearchResultField = ({ node, handleOrganizationSwitch, setQuery }
   }
 
   const { item, avatarRow } = searchStyles()
+  const image = node?.avatarFile?.presignedURL || node?.avatarRemoteURL
 
   return (
     <CommandItem
@@ -242,7 +243,7 @@ const renderOrgSearchResultField = ({ node, handleOrganizationSwitch, setQuery }
       <div>
         <div className={avatarRow()}>
           <Avatar variant="medium" className="mr-2">
-            {node.avatarRemoteURL && <AvatarImage src={node.avatarRemoteURL} />}
+            {image && <AvatarImage src={image} />}
             <AvatarFallback>{node?.name?.substring(0, 2)}</AvatarFallback>
           </Avatar>
           {node.displayName}

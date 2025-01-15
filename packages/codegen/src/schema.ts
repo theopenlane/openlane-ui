@@ -2946,8 +2946,11 @@ export interface CreateOrgMembershipInput {
  */
 export interface CreateOrganizationInput {
   apiTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  avatarFileID?: InputMaybe<Scalars['ID']['input']>
   /** URL of the user's remote avatar */
   avatarRemoteURL?: InputMaybe<Scalars['String']['input']>
+  /** The time the user's (local) avatar was last updated */
+  avatarUpdatedAt?: InputMaybe<Scalars['Time']['input']>
   contactIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -3347,8 +3350,7 @@ export interface CreateUserInput {
   assignerTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** auth provider used to register the account */
   authProvider?: InputMaybe<UserAuthProvider>
-  /** The user's local avatar file */
-  avatarLocalFile?: InputMaybe<Scalars['String']['input']>
+  avatarFileID?: InputMaybe<Scalars['ID']['input']>
   /** URL of the user's remote avatar */
   avatarRemoteURL?: InputMaybe<Scalars['String']['input']>
   /** The time the user's (local) avatar was last updated */
@@ -3358,7 +3360,6 @@ export interface CreateUserInput {
   email: Scalars['String']['input']
   emailVerificationTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   eventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  fileID?: InputMaybe<Scalars['ID']['input']>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   firstName?: InputMaybe<Scalars['String']['input']>
   groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -9527,6 +9528,22 @@ export enum OrganizationHistoryOrderField {
  */
 export interface OrganizationHistoryWhereInput {
   and?: InputMaybe<Array<OrganizationHistoryWhereInput>>
+  /** avatar_local_file_id field predicates */
+  avatarLocalFileID?: InputMaybe<Scalars['String']['input']>
+  avatarLocalFileIDContains?: InputMaybe<Scalars['String']['input']>
+  avatarLocalFileIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  avatarLocalFileIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  avatarLocalFileIDGT?: InputMaybe<Scalars['String']['input']>
+  avatarLocalFileIDGTE?: InputMaybe<Scalars['String']['input']>
+  avatarLocalFileIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  avatarLocalFileIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  avatarLocalFileIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  avatarLocalFileIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  avatarLocalFileIDLT?: InputMaybe<Scalars['String']['input']>
+  avatarLocalFileIDLTE?: InputMaybe<Scalars['String']['input']>
+  avatarLocalFileIDNEQ?: InputMaybe<Scalars['String']['input']>
+  avatarLocalFileIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  avatarLocalFileIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** avatar_remote_url field predicates */
   avatarRemoteURL?: InputMaybe<Scalars['String']['input']>
   avatarRemoteURLContains?: InputMaybe<Scalars['String']['input']>
@@ -9543,6 +9560,17 @@ export interface OrganizationHistoryWhereInput {
   avatarRemoteURLNEQ?: InputMaybe<Scalars['String']['input']>
   avatarRemoteURLNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   avatarRemoteURLNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** avatar_updated_at field predicates */
+  avatarUpdatedAt?: InputMaybe<Scalars['Time']['input']>
+  avatarUpdatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  avatarUpdatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  avatarUpdatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  avatarUpdatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  avatarUpdatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  avatarUpdatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  avatarUpdatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  avatarUpdatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  avatarUpdatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -10165,6 +10193,22 @@ export interface OrganizationSettingWhereInput {
  */
 export interface OrganizationWhereInput {
   and?: InputMaybe<Array<OrganizationWhereInput>>
+  /** avatar_local_file_id field predicates */
+  avatarLocalFileID?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDContains?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDGT?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDGTE?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  avatarLocalFileIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  avatarLocalFileIDLT?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDLTE?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  avatarLocalFileIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** avatar_remote_url field predicates */
   avatarRemoteURL?: InputMaybe<Scalars['String']['input']>
   avatarRemoteURLContains?: InputMaybe<Scalars['String']['input']>
@@ -10181,6 +10225,17 @@ export interface OrganizationWhereInput {
   avatarRemoteURLNEQ?: InputMaybe<Scalars['String']['input']>
   avatarRemoteURLNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   avatarRemoteURLNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** avatar_updated_at field predicates */
+  avatarUpdatedAt?: InputMaybe<Scalars['Time']['input']>
+  avatarUpdatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  avatarUpdatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  avatarUpdatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  avatarUpdatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  avatarUpdatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  avatarUpdatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  avatarUpdatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  avatarUpdatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  avatarUpdatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -10252,6 +10307,9 @@ export interface OrganizationWhereInput {
   /** api_tokens edge predicates */
   hasAPITokens?: InputMaybe<Scalars['Boolean']['input']>
   hasAPITokensWith?: InputMaybe<Array<ApiTokenWhereInput>>
+  /** avatar_file edge predicates */
+  hasAvatarFile?: InputMaybe<Scalars['Boolean']['input']>
+  hasAvatarFileWith?: InputMaybe<Array<FileWhereInput>>
   /** children edge predicates */
   hasChildren?: InputMaybe<Scalars['Boolean']['input']>
   hasChildrenWith?: InputMaybe<Array<OrganizationWhereInput>>
@@ -15728,10 +15786,15 @@ export interface UpdateOrganizationInput {
   addTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addUserIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  avatarFileID?: InputMaybe<Scalars['ID']['input']>
   /** URL of the user's remote avatar */
   avatarRemoteURL?: InputMaybe<Scalars['String']['input']>
+  /** The time the user's (local) avatar was last updated */
+  avatarUpdatedAt?: InputMaybe<Scalars['Time']['input']>
   clearAPITokens?: InputMaybe<Scalars['Boolean']['input']>
+  clearAvatarFile?: InputMaybe<Scalars['Boolean']['input']>
   clearAvatarRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
+  clearAvatarUpdatedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearContacts?: InputMaybe<Scalars['Boolean']['input']>
   clearControlCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearControlObjectiveCreators?: InputMaybe<Scalars['Boolean']['input']>
@@ -16370,8 +16433,7 @@ export interface UpdateUserInput {
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   /** auth provider used to register the account */
   authProvider?: InputMaybe<UserAuthProvider>
-  /** The user's local avatar file */
-  avatarLocalFile?: InputMaybe<Scalars['String']['input']>
+  avatarFileID?: InputMaybe<Scalars['ID']['input']>
   /** URL of the user's remote avatar */
   avatarRemoteURL?: InputMaybe<Scalars['String']['input']>
   /** The time the user's (local) avatar was last updated */
@@ -16379,12 +16441,11 @@ export interface UpdateUserInput {
   clearActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   clearAssigneeTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearAssignerTasks?: InputMaybe<Scalars['Boolean']['input']>
-  clearAvatarLocalFile?: InputMaybe<Scalars['Boolean']['input']>
+  clearAvatarFile?: InputMaybe<Scalars['Boolean']['input']>
   clearAvatarRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
   clearAvatarUpdatedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearEmailVerificationTokens?: InputMaybe<Scalars['Boolean']['input']>
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
-  clearFile?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearFirstName?: InputMaybe<Scalars['Boolean']['input']>
   clearGroups?: InputMaybe<Scalars['Boolean']['input']>
@@ -16404,7 +16465,6 @@ export interface UpdateUserInput {
   /** The user's displayed 'friendly' name */
   displayName?: InputMaybe<Scalars['String']['input']>
   email?: InputMaybe<Scalars['String']['input']>
-  fileID?: InputMaybe<Scalars['ID']['input']>
   firstName?: InputMaybe<Scalars['String']['input']>
   lastName?: InputMaybe<Scalars['String']['input']>
   /** the time the user was last seen */
@@ -16526,15 +16586,6 @@ export interface UserHistoryWhereInput {
   authProviderIn?: InputMaybe<Array<UserHistoryAuthProvider>>
   authProviderNEQ?: InputMaybe<UserHistoryAuthProvider>
   authProviderNotIn?: InputMaybe<Array<UserHistoryAuthProvider>>
-  /** avatar_local_file field predicates */
-  avatarLocalFile?: InputMaybe<Scalars['String']['input']>
-  avatarLocalFileContains?: InputMaybe<Scalars['String']['input']>
-  avatarLocalFileContainsFold?: InputMaybe<Scalars['String']['input']>
-  avatarLocalFileEqualFold?: InputMaybe<Scalars['String']['input']>
-  avatarLocalFileGT?: InputMaybe<Scalars['String']['input']>
-  avatarLocalFileGTE?: InputMaybe<Scalars['String']['input']>
-  avatarLocalFileHasPrefix?: InputMaybe<Scalars['String']['input']>
-  avatarLocalFileHasSuffix?: InputMaybe<Scalars['String']['input']>
   /** avatar_local_file_id field predicates */
   avatarLocalFileID?: InputMaybe<Scalars['String']['input']>
   avatarLocalFileIDContains?: InputMaybe<Scalars['String']['input']>
@@ -16551,13 +16602,6 @@ export interface UserHistoryWhereInput {
   avatarLocalFileIDNEQ?: InputMaybe<Scalars['String']['input']>
   avatarLocalFileIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   avatarLocalFileIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  avatarLocalFileIn?: InputMaybe<Array<Scalars['String']['input']>>
-  avatarLocalFileIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  avatarLocalFileLT?: InputMaybe<Scalars['String']['input']>
-  avatarLocalFileLTE?: InputMaybe<Scalars['String']['input']>
-  avatarLocalFileNEQ?: InputMaybe<Scalars['String']['input']>
-  avatarLocalFileNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  avatarLocalFileNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** avatar_remote_url field predicates */
   avatarRemoteURL?: InputMaybe<Scalars['String']['input']>
   avatarRemoteURLContains?: InputMaybe<Scalars['String']['input']>
@@ -17224,15 +17268,6 @@ export interface UserWhereInput {
   authProviderIn?: InputMaybe<Array<UserAuthProvider>>
   authProviderNEQ?: InputMaybe<UserAuthProvider>
   authProviderNotIn?: InputMaybe<Array<UserAuthProvider>>
-  /** avatar_local_file field predicates */
-  avatarLocalFile?: InputMaybe<Scalars['String']['input']>
-  avatarLocalFileContains?: InputMaybe<Scalars['String']['input']>
-  avatarLocalFileContainsFold?: InputMaybe<Scalars['String']['input']>
-  avatarLocalFileEqualFold?: InputMaybe<Scalars['String']['input']>
-  avatarLocalFileGT?: InputMaybe<Scalars['String']['input']>
-  avatarLocalFileGTE?: InputMaybe<Scalars['String']['input']>
-  avatarLocalFileHasPrefix?: InputMaybe<Scalars['String']['input']>
-  avatarLocalFileHasSuffix?: InputMaybe<Scalars['String']['input']>
   /** avatar_local_file_id field predicates */
   avatarLocalFileID?: InputMaybe<Scalars['ID']['input']>
   avatarLocalFileIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -17249,13 +17284,6 @@ export interface UserWhereInput {
   avatarLocalFileIDNEQ?: InputMaybe<Scalars['ID']['input']>
   avatarLocalFileIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   avatarLocalFileIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  avatarLocalFileIn?: InputMaybe<Array<Scalars['String']['input']>>
-  avatarLocalFileIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  avatarLocalFileLT?: InputMaybe<Scalars['String']['input']>
-  avatarLocalFileLTE?: InputMaybe<Scalars['String']['input']>
-  avatarLocalFileNEQ?: InputMaybe<Scalars['String']['input']>
-  avatarLocalFileNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  avatarLocalFileNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** avatar_remote_url field predicates */
   avatarRemoteURL?: InputMaybe<Scalars['String']['input']>
   avatarRemoteURLContains?: InputMaybe<Scalars['String']['input']>
@@ -17390,12 +17418,12 @@ export interface UserWhereInput {
   /** assigner_tasks edge predicates */
   hasAssignerTasks?: InputMaybe<Scalars['Boolean']['input']>
   hasAssignerTasksWith?: InputMaybe<Array<TaskWhereInput>>
+  /** avatar_file edge predicates */
+  hasAvatarFile?: InputMaybe<Scalars['Boolean']['input']>
+  hasAvatarFileWith?: InputMaybe<Array<FileWhereInput>>
   /** events edge predicates */
   hasEvents?: InputMaybe<Scalars['Boolean']['input']>
   hasEventsWith?: InputMaybe<Array<EventWhereInput>>
-  /** file edge predicates */
-  hasFile?: InputMaybe<Scalars['Boolean']['input']>
-  hasFileWith?: InputMaybe<Array<FileWhereInput>>
   /** files edge predicates */
   hasFiles?: InputMaybe<Scalars['Boolean']['input']>
   hasFilesWith?: InputMaybe<Array<FileWhereInput>>
@@ -17656,7 +17684,15 @@ export type GetAllOrganizationsQuery = {
     __typename?: 'OrganizationConnection'
     edges?: Array<{
       __typename?: 'OrganizationEdge'
-      node?: { __typename?: 'Organization'; id: string; name: string; displayName: string; avatarRemoteURL?: string | null; personalOrg?: boolean | null } | null
+      node?: {
+        __typename?: 'Organization'
+        id: string
+        name: string
+        displayName: string
+        avatarRemoteURL?: string | null
+        personalOrg?: boolean | null
+        avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+      } | null
     } | null> | null
   }
 }
@@ -17690,6 +17726,7 @@ export type GetSingleOrganizationMembersQuery = {
         email: string
         role?: UserRole | null
         createdAt?: any | null
+        avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
       }
     }> | null
   }
@@ -17709,6 +17746,8 @@ export type GetAllOrganizationsWithMembersQuery = {
         personalOrg?: boolean | null
         displayName: string
         name: string
+        avatarRemoteURL?: string | null
+        avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
         members?: Array<{ __typename?: 'OrgMembership'; role: OrgMembershipRole }> | null
       } | null
     } | null> | null
@@ -17792,6 +17831,7 @@ export type CreateOrganizationMutation = { __typename?: 'Mutation'; createOrgani
 export type UpdateOrganizationMutationVariables = Exact<{
   updateOrganizationId: Scalars['ID']['input']
   input: UpdateOrganizationInput
+  avatarFile?: InputMaybe<Scalars['Upload']['input']>
 }>
 
 export type UpdateOrganizationMutation = { __typename?: 'Mutation'; updateOrganization: { __typename?: 'OrganizationUpdatePayload'; organization: { __typename?: 'Organization'; id: string } } }
@@ -18368,16 +18408,21 @@ export type GetUserProfileQuery = {
     displayName: string
     email: string
     avatarRemoteURL?: string | null
+    avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
     setting: { __typename?: 'UserSetting'; status: UserSettingUserStatus; tags?: Array<string> | null }
   }
 }
 
-export type UpdateUserNameMutationVariables = Exact<{
+export type UpdateUserMutationVariables = Exact<{
   updateUserId: Scalars['ID']['input']
   input: UpdateUserInput
+  avatarFile?: InputMaybe<Scalars['Upload']['input']>
 }>
 
-export type UpdateUserNameMutation = { __typename?: 'Mutation'; updateUser: { __typename?: 'UserUpdatePayload'; user: { __typename?: 'User'; id: string } } }
+export type UpdateUserMutation = {
+  __typename?: 'Mutation'
+  updateUser: { __typename?: 'UserUpdatePayload'; user: { __typename?: 'User'; id: string; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } }
+}
 
 export const CreateApiTokenDocument = gql`
   mutation CreateAPIToken($input: CreateAPITokenInput!) {
@@ -18585,6 +18630,10 @@ export const GetAllOrganizationsDocument = gql`
           displayName
           avatarRemoteURL
           personalOrg
+          avatarFile {
+            id
+            presignedURL
+          }
         }
       }
     }
@@ -18622,6 +18671,10 @@ export const GetSingleOrganizationMembersDocument = gql`
           email
           role
           createdAt
+          avatarFile {
+            id
+            presignedURL
+          }
         }
       }
     }
@@ -18640,6 +18693,11 @@ export const GetAllOrganizationsWithMembersDocument = gql`
           personalOrg
           displayName
           name
+          avatarRemoteURL
+          avatarFile {
+            id
+            presignedURL
+          }
           members {
             role
           }
@@ -18745,8 +18803,8 @@ export function useCreateOrganizationMutation() {
   return Urql.useMutation<CreateOrganizationMutation, CreateOrganizationMutationVariables>(CreateOrganizationDocument)
 }
 export const UpdateOrganizationDocument = gql`
-  mutation UpdateOrganization($updateOrganizationId: ID!, $input: UpdateOrganizationInput!) {
-    updateOrganization(id: $updateOrganizationId, input: $input) {
+  mutation UpdateOrganization($updateOrganizationId: ID!, $input: UpdateOrganizationInput!, $avatarFile: Upload) {
+    updateOrganization(id: $updateOrganizationId, input: $input, avatarFile: $avatarFile) {
       organization {
         id
       }
@@ -19521,6 +19579,9 @@ export const GetUserProfileDocument = gql`
       displayName
       email
       avatarRemoteURL
+      avatarFile {
+        presignedURL
+      }
       setting {
         status
         tags
@@ -19532,16 +19593,19 @@ export const GetUserProfileDocument = gql`
 export function useGetUserProfileQuery(options: Omit<Urql.UseQueryArgs<GetUserProfileQueryVariables>, 'query'>) {
   return Urql.useQuery<GetUserProfileQuery, GetUserProfileQueryVariables>({ query: GetUserProfileDocument, ...options })
 }
-export const UpdateUserNameDocument = gql`
-  mutation updateUserName($updateUserId: ID!, $input: UpdateUserInput!) {
-    updateUser(id: $updateUserId, input: $input) {
+export const UpdateUserDocument = gql`
+  mutation UpdateUser($updateUserId: ID!, $input: UpdateUserInput!, $avatarFile: Upload) {
+    updateUser(id: $updateUserId, input: $input, avatarFile: $avatarFile) {
       user {
         id
+        avatarFile {
+          presignedURL
+        }
       }
     }
   }
 `
 
-export function useUpdateUserNameMutation() {
-  return Urql.useMutation<UpdateUserNameMutation, UpdateUserNameMutationVariables>(UpdateUserNameDocument)
+export function useUpdateUserMutation() {
+  return Urql.useMutation<UpdateUserMutation, UpdateUserMutationVariables>(UpdateUserDocument)
 }

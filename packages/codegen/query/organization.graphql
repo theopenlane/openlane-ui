@@ -7,6 +7,10 @@ query GetAllOrganizations {
         displayName
         avatarRemoteURL
         personalOrg
+        avatarFile {
+          id
+          presignedURL
+        }
       }
     }
   }
@@ -34,6 +38,10 @@ query GetSingleOrganizationMembers($organizationId: ID!) {
         email
         role
         createdAt
+        avatarFile {
+          id
+          presignedURL
+        }
       }
     }
   }
@@ -47,6 +55,11 @@ query GetAllOrganizationsWithMembers {
         personalOrg
         displayName
         name
+        avatarRemoteURL
+        avatarFile {
+          id
+          presignedURL
+        }
         members {
           role
         }
@@ -122,8 +135,8 @@ mutation CreateOrganization($input: CreateOrganizationInput!) {
   }
 }
 
-mutation UpdateOrganization($updateOrganizationId: ID!, $input: UpdateOrganizationInput!) {
-  updateOrganization(id: $updateOrganizationId, input: $input) {
+mutation UpdateOrganization($updateOrganizationId: ID!, $input: UpdateOrganizationInput!, $avatarFile: Upload) {
+  updateOrganization(id: $updateOrganizationId, input: $input, avatarFile: $avatarFile) {
     organization {
       id
     }
