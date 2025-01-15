@@ -1,6 +1,6 @@
 'use client'
 
-import { GetOrganizationMembersQuery, GetOrganizationMembersQueryVariables, useGetOrganizationMembersQuery, UserAuthProvider } from '@repo/codegen/src/schema'
+import { GetSingleOrganizationMembersQuery, GetSingleOrganizationMembersQueryVariables, useGetSingleOrganizationMembersQuery, UserAuthProvider } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import { pageStyles } from './page.styles'
 import { useState, useEffect, Dispatch, SetStateAction } from 'react'
@@ -20,7 +20,7 @@ type MembersTableProps = {
   setActiveTab: Dispatch<SetStateAction<string>>
 }
 
-type Member = NonNullable<NonNullable<GetOrganizationMembersQuery['organization']>['members']>[number]
+type Member = NonNullable<NonNullable<GetSingleOrganizationMembersQuery['organization']>['members']>[number]
 
 export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
   const { membersSearchRow, membersSearchField, membersButtons, nameRow, copyIcon } = pageStyles()
@@ -30,11 +30,11 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
   const [copiedText, copyToClipboard] = useCopyToClipboard()
   const { toast } = useToast()
 
-  const variables: GetOrganizationMembersQueryVariables = {
+  const variables: GetSingleOrganizationMembersQueryVariables = {
     organizationId: session?.user.activeOrganizationId ?? '',
   }
 
-  const [{ data, fetching, error }, refetch] = useGetOrganizationMembersQuery({
+  const [{ data, fetching, error }, refetch] = useGetSingleOrganizationMembersQuery({
     variables,
     pause: !session,
   })

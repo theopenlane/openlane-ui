@@ -34,7 +34,7 @@ const BillingEmailDialog = () => {
 
     if (resp.error) {
       toast({
-        title: `Something went wrong with saving your address!`,
+        title: `Something went wrong with saving your email!`,
         variant: 'destructive',
       })
       return

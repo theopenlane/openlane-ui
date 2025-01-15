@@ -8,6 +8,7 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { billingSettingsStyles } from './billing-settings.styles'
 import { cn } from '@repo/ui/lib/utils'
 import { useGetOrganizationSettingQuery, useUpdateOrganizationMutation } from '@repo/codegen/src/schema'
+import { toast } from '@repo/ui/use-toast'
 
 const BillingSettings: React.FC = () => {
   const { panel, section, sectionContent, sectionTitle, emailText, paragraph, switchContainer, text } = billingSettingsStyles()
@@ -30,9 +31,17 @@ const BillingSettings: React.FC = () => {
           updateOrgSettings: { billingNotificationsEnabled: checked },
         },
       })
+      toast({
+        title: `Billing alerts successfully turned ${checked ? 'on' : 'off'}`,
+        variant: 'success',
+      })
     } catch (error) {
       console.error('Error updating billing notifications:', error)
       setNotificationsEnabled(!checked)
+      toast({
+        title: `Something went wrong with turning ${checked ? 'on' : 'off'} the billing alerts!`,
+        variant: 'destructive',
+      })
     }
   }
 
@@ -47,11 +56,15 @@ const BillingSettings: React.FC = () => {
           <div className={cn(sectionContent())}>
             <div>
               <p className={cn(text())}>The address associated with the payment information on file which will be used to process your subscription fees and displayed on your invoices.</p>
-              <p className={cn(paragraph())}>
-                {formattedAddress}
-                <br />
-                {`${settingData.data?.organization.setting?.billingAddress?.country || ''}`}
-              </p>
+              {formattedAddress ? (
+                <p className={cn(paragraph())}>
+                  {formattedAddress}
+                  <br />
+                  {`${settingData.data?.organization.setting?.billingAddress?.country || ''}`}
+                </p>
+              ) : (
+                <p className="italic">No billing address provided, please update to continue your subscription</p>
+              )}
             </div>
             <BillingContactDialog />
           </div>
@@ -64,8 +77,8 @@ const BillingSettings: React.FC = () => {
           <h3 className={cn(sectionTitle())}>Billing Email</h3>
           <div className={cn(sectionContent())}>
             <div>
-              <p className={cn(text())}>The email we will use to send billing account updates and subscription information</p>
-              <p className={cn(emailText())}>{email}</p>
+              <p className={cn(text())}>The email we will use to send billing account updates and subscription information.</p>
+              {email ? <p className={cn(emailText())}>{email}</p> : <p className="italic">No billing email provided, please update to continue your subscription</p>}
             </div>
             <BillingEmailDialog />
           </div>
