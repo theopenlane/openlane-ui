@@ -20,4 +20,4 @@ repos:
     hooks:
       - id: prettier
         args: [--write]
-        files: \.(js|jsx|ts|tsx|css|scss|json|yaml|yml|md)$
+        files: \.(js|jsx|ts|tsx|css|scss|json|yaml|yml|md|graphql|gql|schema\.json)$
