@@ -106,7 +106,7 @@ const OrganizationNameForm = () => {
           </form>
         </Form>
       </Panel>
-      <AvatarUpload uploadCallback={handleUploadAvatar} placeholderImage={currentOrganization?.avatarRemoteURL || ''} />
+      <AvatarUpload fallbackString={currentOrganization?.name?.substring(0, 2) || 'N/A'} uploadCallback={handleUploadAvatar} placeholderImage={currentOrganization?.avatarRemoteURL || ''} />
     </>
   )
 }

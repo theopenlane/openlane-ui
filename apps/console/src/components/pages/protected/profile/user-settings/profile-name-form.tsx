@@ -132,7 +132,11 @@ const ProfileNameForm = () => {
           </form>
         </Form>
       </Panel>
-      <AvatarUpload uploadCallback={handleUploadAvatar} placeholderImage={userData?.user.avatarFile?.presignedURL || sessionData?.user?.image} />
+      <AvatarUpload
+        fallbackString={sessionData?.user?.name?.substring(0, 2)}
+        uploadCallback={handleUploadAvatar || 'N/A'}
+        placeholderImage={userData?.user.avatarFile?.presignedURL || sessionData?.user?.image}
+      />
     </>
   )
 }

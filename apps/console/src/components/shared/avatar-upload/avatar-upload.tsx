@@ -8,17 +8,18 @@ import { useCallback, useState } from 'react'
 import { FileWithPath, useDropzone } from 'react-dropzone'
 import { Button } from '@repo/ui/button'
 import Cropper, { Area, Point } from 'react-easy-crop'
-import { Avatar, AvatarImage } from '@repo/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import getCroppedImg from './utils/getCroppedImage'
 import { useToast } from '@repo/ui/use-toast'
 
 interface AvatarUploadProps extends AvatarUploadVariants {
   className?: string
   placeholderImage?: string
+  fallbackString?: string
   uploadCallback: (arg: File) => void
 }
 
-const AvatarUpload = ({ className, placeholderImage, uploadCallback }: AvatarUploadProps) => {
+const AvatarUpload = ({ className, placeholderImage, uploadCallback, fallbackString }: AvatarUploadProps) => {
   const { toast } = useToast()
 
   const [isCroppingModalOpen, setIsCroppingModalOpen] = useState(false)
@@ -106,7 +107,7 @@ const AvatarUpload = ({ className, placeholderImage, uploadCallback }: AvatarUpl
         <div className={avatarPreview()}>
           <Avatar variant="extra-large">
             {(avatarUrl || placeholderImage) && <AvatarImage src={avatarUrl || placeholderImage} />}
-            {/* <AvatarFallback>{}</AvatarFallback> TODO: WE NEED TO FIND ONE DEFAULT IMAGE. THIS COMPONENT CANT HAVE ORGANIZATION OR USER LOGIC INSIDE. PROP FALLBACK IS POSSIBLE  BEST SOLUTION WOULD BE LOCAL ASSET*/}
+            <AvatarFallback>{fallbackString}</AvatarFallback>
           </Avatar>
         </div>
       </div>
