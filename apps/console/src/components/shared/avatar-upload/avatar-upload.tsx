@@ -75,17 +75,13 @@ const AvatarUpload = ({ className, placeholderImage, uploadCallback, fallbackStr
       try {
         const croppedImageUrl = await getCroppedImg(uploadedImage, croppedAreaPixels)
 
-        // Convert Data URL to Blob
         const response = await fetch(croppedImageUrl)
         const blob = await response.blob()
 
-        // Create a File object (MIME type is inferred)
         const file = new File([blob], 'avatar.jpg', { type: blob.type })
 
-        // Send file to the upload callback
         uploadCallback(file)
 
-        // Update the UI
         setAvatarUrl(croppedImageUrl)
         closeModal()
         toast({

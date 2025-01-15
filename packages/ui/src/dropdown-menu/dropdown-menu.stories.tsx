@@ -113,7 +113,7 @@ export const UserMenu: Story = {
                 mickey_h@ll.com
               </p>
               <p>
-                <a href="/" className="block text-teal-900 dark:text-teal-100 mt-2">
+                <a href="#" className="block text-teal-900 dark:text-teal-100 mt-2">
                   User Settings
                 </a>
               </p>
