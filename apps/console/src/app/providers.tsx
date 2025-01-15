@@ -16,14 +16,17 @@ const Providers = ({ children }: ProvidersProps) => {
   const { data: session, status } = useSession()
   const pathname = usePathname()
   const [client, setClient] = useState<Client | null>(null)
+  const [accessToken, setAccessToken] = useState<string | null>(null)
 
   useEffect(() => {
-    if (status === 'authenticated') {
+    const tokenChanged = session?.user.accessToken && session?.user.accessToken !== accessToken
+    if (status === 'authenticated' && tokenChanged) {
+      setAccessToken(session?.user.accessToken)
       setClient(createClient(session))
     } else if (status === 'unauthenticated' && pathname.endsWith('waitlist')) {
       setClient(createSubscriberClient())
     }
-  }, [session, status, pathname])
+  }, [session?.user.accessToken, status, pathname, accessToken])
 
   if (status === 'loading' || (status === 'authenticated' && !client)) return null
 
