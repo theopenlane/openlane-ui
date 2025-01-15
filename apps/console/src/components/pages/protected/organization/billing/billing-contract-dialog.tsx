@@ -8,6 +8,7 @@ import { Label } from '@repo/ui/label'
 import { useGetOrganizationSettingQuery, useUpdateOrganizationMutation } from '@repo/codegen/src/schema'
 import { useOrganization } from '@/hooks/useOrganization'
 import useClickOutside from '@/hooks/useClickOutside'
+import { toast } from '@repo/ui/use-toast'
 
 const libraries: any = ['places']
 
@@ -94,15 +95,26 @@ const BillingContactDialog = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    await updateOrg({
-      updateOrganizationId: currentOrgId,
-      input: {
-        updateOrgSettings: {
-          billingAddress: address,
-          billingContact: fullName,
+    try {
+      await updateOrg({
+        updateOrganizationId: currentOrgId,
+        input: {
+          updateOrgSettings: {
+            billingAddress: address,
+            billingContact: fullName,
+          },
         },
-      },
-    })
+      })
+      toast({
+        title: `Successfully saved your billing address!`,
+        variant: 'success',
+      })
+    } catch (error) {
+      toast({
+        title: `Something went wrong with saving your billing address!`,
+        variant: 'destructive',
+      })
+    }
   }
 
   useEffect(() => {
