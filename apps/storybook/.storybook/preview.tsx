@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import type { Preview } from '@storybook/react'
 import './style.css'
-import { themes } from '@storybook/theming';
+import { themes } from '@storybook/theming'
 
 const Background = (Story, context) => {
   const [theme, setTheme] = useState('light')
@@ -83,15 +83,13 @@ export const parameters = {
       inputTextColor: '#505F6F',
       inputBorderRadius: 2,
     },
-  }
+  },
 }
 
 const preview: Preview = {
   parameters: {
     actions: { argTypesRegex: '^on[A-Z].*' },
-    tags: [
-      'autodocs',
-    ],
+    tags: ['autodocs'],
     backgrounds: {
       disable: true,
     },
@@ -103,7 +101,7 @@ const preview: Preview = {
         dark: parameters.darkMode.dark,
         light: parameters.darkMode.light,
       },
-    }
+    },
   },
 }
 

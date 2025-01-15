@@ -1,30 +1,30 @@
-'use client';
+'use client'
 
-import React from 'react';
+import React from 'react'
 
-import type { TMentionElement } from '@udecode/plate-mention';
+import type { TMentionElement } from '@udecode/plate-mention'
 
-import { cn, withRef } from '@udecode/cn';
-import { IS_APPLE, getHandler } from '@udecode/plate-common';
-import { useElement } from '@udecode/plate-common/react';
-import { useFocused, useSelected } from 'slate-react';
+import { cn, withRef } from '@udecode/cn'
+import { IS_APPLE, getHandler } from '@udecode/plate-common'
+import { useElement } from '@udecode/plate-common/react'
+import { useFocused, useSelected } from 'slate-react'
 
-import { useMounted } from '../hooks/use-mounted';
+import { useMounted } from '../hooks/use-mounted'
 
-import { PlateElement } from './plate-element';
+import { PlateElement } from './plate-element'
 
 export const MentionElement = withRef<
   typeof PlateElement,
   {
-    prefix?: string;
-    renderLabel?: (mentionable: TMentionElement) => string;
-    onClick?: (mentionNode: any) => void;
+    prefix?: string
+    renderLabel?: (mentionable: TMentionElement) => string
+    onClick?: (mentionNode: any) => void
   }
 >(({ children, className, prefix, renderLabel, onClick, ...props }, ref) => {
-  const element = useElement<TMentionElement>();
-  const selected = useSelected();
-  const focused = useFocused();
-  const mounted = useMounted();
+  const element = useElement<TMentionElement>()
+  const selected = useSelected()
+  const focused = useFocused()
+  const mounted = useMounted()
 
   return (
     <PlateElement
@@ -35,7 +35,7 @@ export const MentionElement = withRef<
         element.children[0].bold === true && 'font-bold',
         element.children[0].italic === true && 'italic',
         element.children[0].underline === true && 'underline',
-        className
+        className,
       )}
       onClick={getHandler(onClick, element)}
       data-slate-value={element.value}
@@ -58,5 +58,5 @@ export const MentionElement = withRef<
         </React.Fragment>
       )}
     </PlateElement>
-  );
-});
+  )
+})

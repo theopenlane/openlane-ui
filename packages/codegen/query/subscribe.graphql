@@ -20,9 +20,7 @@ query GetAllSubscribers {
 }
 
 mutation DeleteSubscriber($deleteSubscriberEmail: String!) {
-  deleteSubscriber(
-    email: $deleteSubscriberEmail
-  ) {
+  deleteSubscriber(email: $deleteSubscriberEmail) {
     email
   }
 }

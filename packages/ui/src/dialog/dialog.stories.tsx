@@ -1,14 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogClose,
-} from './dialog'
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from './dialog'
 import { Button } from '../button/button'
 
 const meta: Meta<typeof Dialog> = {
@@ -17,8 +8,7 @@ const meta: Meta<typeof Dialog> = {
   parameters: {
     docs: {
       description: {
-        component:
-          'A modal dialog that focuses the user’s attention and blocks interaction with the rest of the application. https://ui.shadcn.com/docs/components/dialog',
+        component: 'A modal dialog that focuses the user’s attention and blocks interaction with the rest of the application. https://ui.shadcn.com/docs/components/dialog',
       },
     },
     backgrounds: { default: 'white' },
@@ -34,9 +24,7 @@ const meta: Meta<typeof Dialog> = {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Are you absolutely sure?</DialogTitle>
-            <DialogDescription>
-              This action cannot be undone. Your organization and associated records will be deleted.
-            </DialogDescription>
+            <DialogDescription>This action cannot be undone. Your organization and associated records will be deleted.</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <DialogClose asChild>
@@ -67,10 +55,7 @@ export const ConfirmationDialog: Story = {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Confirm Your Action</DialogTitle>
-            <DialogDescription>
-              Please confirm that you want to proceed with this action. This
-              action is irreversible.
-            </DialogDescription>
+            <DialogDescription>Please confirm that you want to proceed with this action. This action is irreversible.</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <DialogClose asChild>

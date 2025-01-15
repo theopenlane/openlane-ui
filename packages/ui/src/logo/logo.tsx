@@ -10,19 +10,14 @@ export const Logo = ({ theme, width = 385, asIcon = false }: LogoProps) => {
   if (theme === undefined) {
     const { resolvedTheme } = useTheme()
 
-    theme = resolvedTheme as "light" | "dark" | "white"
+    theme = resolvedTheme as 'light' | 'dark' | 'white'
   }
-
 
   const { base, icon, text, iconBackground } = logoStyles({ theme })
 
   if (asIcon) {
     return (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 81.2 72.82"
-        width={width}
-      >
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 81.2 72.82" width={width}>
         <path
           className={iconBackground()}
           d="M32.44 6.57 2.76 57.64c-4.53 7.8-.82 14.18 8.24 14.18h59.35c7.77 0 12.31-6.44 8.45-13.43-1.74-3.15-3.6-6.24-5.4-9.36-5.91-10.24-11.82-20.47-17.73-30.71-2.37-4.1-4.73-8.2-7.1-12.3-4.56-7.24-11.72-7.07-16.14.54h.01Z"
@@ -36,13 +31,7 @@ export const Logo = ({ theme, width = 385, asIcon = false }: LogoProps) => {
   }
 
   return (
-    <svg
-      id="Openlane_Logo"
-      width={width}
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 388.66 73.61"
-      className={base()}
-    >
+    <svg id="Openlane_Logo" width={width} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 388.66 73.61" className={base()}>
       <path
         className={iconBackground()}
         d="M33.02,7.16L3.35,58.22c-4.53,7.8-.82,14.18,8.24,14.18h59.35c7.77,0,12.31-6.44,8.45-13.43-1.74-3.15-3.6-6.24-5.4-9.36-5.91-10.24-11.82-20.47-17.73-30.71-2.37-4.1-4.73-8.2-7.1-12.3-4.56-7.24-11.72-7.07-16.14.54v.02Z"

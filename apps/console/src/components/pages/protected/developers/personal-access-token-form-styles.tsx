@@ -6,16 +6,13 @@ const personalAccessTokenFormStyles = tv({
     copyIcon: 'text-accent-secondary-muted cursor-pointer',
     tokenField: 'mt-[23px]',
     calendarIcon: 'ml-auto h-4 w-4 opacity-50',
-    calendarInput:
-      'flex justify-between w-full items-center font-normal tracking-[-0.16px]',
+    calendarInput: 'flex justify-between w-full items-center font-normal tracking-[-0.16px]',
     expiryColumn: 'flex flex-col',
     calendarPopover: 'w-auto p-0',
     checkboxRow: 'flex items-center !mt-[10px]',
   },
 })
 
-export type PersonalAccessTokenFormVariants = VariantProps<
-  typeof personalAccessTokenFormStyles
->
+export type PersonalAccessTokenFormVariants = VariantProps<typeof personalAccessTokenFormStyles>
 
 export { personalAccessTokenFormStyles }

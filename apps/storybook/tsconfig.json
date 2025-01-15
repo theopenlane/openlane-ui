@@ -1,19 +1,10 @@
 {
   "extends": "@repo/typescript-config/nextjs.json",
-  "include": [
-    "src",
-    "**/*.ts",
-    "**/*.tsx",
-    "vite.config.ts",
-  ],
-  "exclude": [
-    "node_modules"
-  ],
+  "include": ["src", "**/*.ts", "**/*.tsx", "vite.config.ts"],
+  "exclude": ["node_modules"],
   "compilerOptions": {
     "target": "ES2022",
-    "lib": [
-      "ES2023"
-    ],
+    "lib": ["ES2023"],
     "module": "ESNext",
     "skipLibCheck": true,
     /* Bundler mode */
@@ -27,6 +18,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true,
-  },
+    "noUncheckedSideEffectImports": true
+  }
 }

@@ -8,8 +8,7 @@ const meta: Meta = {
   parameters: {
     docs: {
       description: {
-        component:
-          'An image element with a fallback for representing the user: https://ui.shadcn.com/docs/components/avatar',
+        component: 'An image element with a fallback for representing the user: https://ui.shadcn.com/docs/components/avatar',
       },
     },
   },
@@ -32,7 +31,6 @@ export const AvatarWithImage: Story = {
     )
   },
 }
-
 
 export const AvatarNoImage: Story = {
   render: ({ children, ...args }: { children?: React.ReactNode }) => {

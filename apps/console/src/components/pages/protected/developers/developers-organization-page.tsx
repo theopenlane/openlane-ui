@@ -11,10 +11,10 @@ const DevelopersPage: React.FC = () => {
 
   return (
     <>
-          <div className={wrapper()}>
-            <APITokenForm />
-            <APITokenTable />
-          </div>
+      <div className={wrapper()}>
+        <APITokenForm />
+        <APITokenTable />
+      </div>
     </>
   )
 }

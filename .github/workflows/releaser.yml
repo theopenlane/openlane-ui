@@ -65,7 +65,7 @@ jobs:
       - name: Generate subject
         id: hash
         env:
-          ARTIFACTS: "${{ steps.run-goreleaser.outputs.artifacts }}"
+          ARTIFACTS: '${{ steps.run-goreleaser.outputs.artifacts }}'
         run: |
           set -euo pipefail
           hashes=$(echo $ARTIFACTS | jq --raw-output '.[] | {name, "digest": (.extra.Digest // .extra.Checksum)} | select(.digest) | {digest} + {name} | join("  ") | sub("^sha256:";"")' | base64 -w0)
@@ -84,7 +84,7 @@ jobs:
       contents: write # To add assets to a release.
     uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.0.0
     with:
-      base64-subjects: "${{ needs.release.outputs.hashes }}"
+      base64-subjects: '${{ needs.release.outputs.hashes }}'
       upload-assets: true # upload to a new release
   verification:
     name: Verify provenance of assets (SLSA3)
@@ -98,9 +98,9 @@ jobs:
         uses: slsa-framework/slsa-verifier/actions/installer@v2.6.0
       - name: Download assets
         env:
-          GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          CHECKSUMS: "${{ needs.release.outputs.hashes }}"
-          ATT_FILE_NAME: "${{ needs.provenance.outputs.provenance-name }}"
+          GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+          CHECKSUMS: '${{ needs.release.outputs.hashes }}'
+          ATT_FILE_NAME: '${{ needs.provenance.outputs.provenance-name }}'
         run: |
           set -euo pipefail
           checksums=$(echo "$CHECKSUMS" | base64 -d)
@@ -112,8 +112,8 @@ jobs:
           gh -R "$GITHUB_REPOSITORY" release download "$GITHUB_REF_NAME" -p "$ATT_FILE_NAME"
       - name: Verify assets
         env:
-          CHECKSUMS: "${{ needs.release.outputs.hashes }}"
-          PROVENANCE: "${{ needs.provenance.outputs.provenance-name }}"
+          CHECKSUMS: '${{ needs.release.outputs.hashes }}'
+          PROVENANCE: '${{ needs.provenance.outputs.provenance-name }}'
         run: |-
           set -euo pipefail
           checksums=$(echo "$CHECKSUMS" | base64 -d)

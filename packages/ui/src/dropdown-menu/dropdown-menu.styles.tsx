@@ -15,12 +15,10 @@ export const dropdownMenuStyles = tv({
       'relative flex cursor-default select-none items-center gap-3 rounded-sm mx-2 my-1.5 text-sm outline-none transition-colors focus:bg-muted focus:rounded found:rounded-sm focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
     menuCheckboxItem:
       'relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors focus:bg-muted focus:rounded focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-    menuCheckboxItemSpan:
-      'absolute left-2 flex h-5 w-5 items-left justify-left border border-bg-accent-secondary ring-offset-white',
+    menuCheckboxItemSpan: 'absolute left-2 flex h-5 w-5 items-left justify-left border border-bg-accent-secondary ring-offset-white',
     menuRadioItem:
       'relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors focus:bg-muted focus:rounded focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-    menuRadioItemSpan:
-      'absolute left-2 flex h-3.5 w-3.5 items-center justify-center',
+    menuRadioItemSpan: 'absolute left-2 flex h-3.5 w-3.5 items-center justify-center',
     menuLabel: 'px-2 py-1.5 text-sm font-semibold',
     menuShortcut: 'ml-auto text-sm tracking-widest opacity-60',
   },
