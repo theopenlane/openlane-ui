@@ -84,10 +84,6 @@ const AvatarUpload = ({ className, placeholderImage, uploadCallback, fallbackStr
 
         setAvatarUrl(croppedImageUrl)
         closeModal()
-        toast({
-          title: 'Avatar updated successfully',
-          variant: 'success',
-        })
       } catch (error) {
         console.error('Error saving cropped image:', error)
       }

@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react'
 import { RESET_SUCCESS_STATE_MS } from '@/constants'
 import { useOrganization } from '@/hooks/useOrganization'
 import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
+import { toast } from '@repo/ui/use-toast'
 
 const OrganizationNameForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
@@ -65,8 +66,16 @@ const OrganizationNameForm = () => {
         avatarFile: file,
       })
       setIsSuccess(true)
+      toast({
+        title: 'Avatar updated successfully',
+        variant: 'success',
+      })
     } catch (error) {
       console.error('file upload error')
+      toast({
+        title: 'Failed to update avatar',
+        variant: 'destructive',
+      })
     }
   }
 
