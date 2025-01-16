@@ -58,9 +58,6 @@ export const config = {
       if (account?.type === 'oauth' || account?.type === 'oidc') {
         const oauthUser = {
           externalUserID: account.providerAccountId,
-          name: user.name,
-          email: user.email,
-          image: user.image,
           authProvider: account.provider,
           accessToken: account.access_token,
         }
@@ -77,20 +74,6 @@ export const config = {
 
           // Store session in a cookie
           setSessionCookie(data.session)
-
-          const uData = await fetch(`${openlaneAPIUrl}/oauth/userinfo`, {
-            method: 'GET',
-            headers: { Authorization: `Bearer ${user.accessToken}` },
-          })
-
-          if (uData.ok) {
-            const userJson = await uData.json()
-            Object.assign(user, {
-              email: userJson.email,
-              name: `${userJson.first_name} ${userJson.last_name}`,
-              image: userJson.avatar_remote_url,
-            })
-          }
         } catch (error) {
           console.error('OAuth sign-in error:', error)
           return false
@@ -163,8 +146,6 @@ export const config = {
           const decodedToken = jwtDecode<JwtPayload>(token.accessToken)
 
           Object.assign(session.user, {
-            name: token.name,
-            email: token.email,
             accessToken: token.accessToken,
             refreshToken: token.refreshToken,
             activeOrganizationId: decodedToken?.org,

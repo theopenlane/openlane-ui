@@ -184,7 +184,7 @@ const ProfileNameForm = () => {
                         <InfoIcon size={14} className="mx-1 mt-1" />
                       </TooltipTrigger>
                       <TooltipContent side="right">
-                        <p>Your email address for communication and account-related updates.</p>
+                        <p>Your email address used for login as well as for communication and account-related updates.</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
