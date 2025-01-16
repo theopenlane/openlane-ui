@@ -18409,7 +18409,13 @@ export type GetUserProfileQuery = {
     email: string
     avatarRemoteURL?: string | null
     avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
-    setting: { __typename?: 'UserSetting'; status: UserSettingUserStatus; tags?: Array<string> | null }
+    setting: {
+      __typename?: 'UserSetting'
+      id: string
+      status: UserSettingUserStatus
+      tags?: Array<string> | null
+      defaultOrg?: { __typename?: 'Organization'; id: string; displayName: string } | null
+    }
   }
 }
 
@@ -18423,6 +18429,13 @@ export type UpdateUserMutation = {
   __typename?: 'Mutation'
   updateUser: { __typename?: 'UserUpdatePayload'; user: { __typename?: 'User'; id: string; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } }
 }
+
+export type UpdateUserSettingMutationVariables = Exact<{
+  updateUserSettingId: Scalars['ID']['input']
+  input: UpdateUserSettingInput
+}>
+
+export type UpdateUserSettingMutation = { __typename?: 'Mutation'; updateUserSetting: { __typename?: 'UserSettingUpdatePayload'; userSetting: { __typename?: 'UserSetting'; id: string } } }
 
 export const CreateApiTokenDocument = gql`
   mutation CreateAPIToken($input: CreateAPITokenInput!) {
@@ -19579,12 +19592,18 @@ export const GetUserProfileDocument = gql`
       displayName
       email
       avatarRemoteURL
+      displayName
       avatarFile {
         presignedURL
       }
       setting {
+        id
         status
         tags
+        defaultOrg {
+          id
+          displayName
+        }
       }
     }
   }
@@ -19608,4 +19627,17 @@ export const UpdateUserDocument = gql`
 
 export function useUpdateUserMutation() {
   return Urql.useMutation<UpdateUserMutation, UpdateUserMutationVariables>(UpdateUserDocument)
+}
+export const UpdateUserSettingDocument = gql`
+  mutation UpdateUserSetting($updateUserSettingId: ID!, $input: UpdateUserSettingInput!) {
+    updateUserSetting(id: $updateUserSettingId, input: $input) {
+      userSetting {
+        id
+      }
+    }
+  }
+`
+
+export function useUpdateUserSettingMutation() {
+  return Urql.useMutation<UpdateUserSettingMutation, UpdateUserSettingMutationVariables>(UpdateUserSettingDocument)
 }

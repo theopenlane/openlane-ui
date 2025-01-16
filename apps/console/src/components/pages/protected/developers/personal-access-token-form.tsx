@@ -43,7 +43,7 @@ type FormData = zInfer<typeof formSchema>
 const PersonalAccessTokenForm = () => {
   const { grid, copyIcon, tokenField, calendarIcon, calendarInput, expiryColumn, calendarPopover, checkboxRow } = personalAccessTokenFormStyles()
   const { toast } = useToast()
-  const { data: sessionData, update: updateSession } = useSession()
+  const { data: sessionData } = useSession()
   const [copiedText, copyToClipboard] = useCopyToClipboard()
 
   const [result, createToken] = useCreatePersonalAccessTokenMutation()
@@ -52,7 +52,6 @@ const PersonalAccessTokenForm = () => {
 
   const [generatedToken, setGeneratedToken] = useState<string | null>(null)
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
-  const [selectedItems, setSelectedItems] = useState<string | undefined>(undefined)
 
   const { allOrgs: orgs } = useOrganization()
 
@@ -183,7 +182,7 @@ const PersonalAccessTokenForm = () => {
                                 <DropdownMenuCheckboxItem
                                   className={checkboxRow()}
                                   key={value?.node?.id || i}
-                                  checked={value?.node?.id ? (field.value?.includes(value.node.id) ?? false) : false}
+                                  checked={value?.node?.id ? field.value?.includes(value.node.id) ?? false : false}
                                   onCheckedChange={(checked) => {
                                     const newValue = checked ? [...(field.value || []), value?.node?.id] : (field.value || []).filter((id) => id !== value?.node?.id)
                                     field.onChange(newValue)

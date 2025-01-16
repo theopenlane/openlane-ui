@@ -61,9 +61,6 @@ export const credentialsProvider = Credentials({
         return {
           accessToken,
           refreshToken,
-          email: data?.email,
-          name: `${data?.first_name} ${data?.last_name}`,
-          image: data?.avatar_remote_url,
           ...data,
         }
       } else {

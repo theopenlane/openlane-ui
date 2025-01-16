@@ -17,8 +17,7 @@ type ProcedureActionsProps = {
 const ICON_SIZE = 12
 
 export const Actions = ({
-  procedureId: procedureId,
-  // refetchProcedures: refetchProcedures,
+  procedureId: procedureId, // refetchProcedures: refetchProcedures,
 }: ProcedureActionsProps) => {
   const router = useRouter()
   const { actionIcon } = pageStyles()
