@@ -1,6 +1,6 @@
 'use client'
 
-import { GetUserProfileQueryVariables, useGetUserProfileQuery, useUpdateUserMutation, useUpdateUserSettingMutation } from '@repo/codegen/src/schema'
+import { GetUserProfileQueryVariables, useGetUserProfileQuery, useUpdateUserMutation } from '@repo/codegen/src/schema'
 import { Input, InputRow } from '@repo/ui/input'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { useSession } from 'next-auth/react'
@@ -38,6 +38,9 @@ const ProfileNameForm = () => {
     displayName: z.string().min(2, {
       message: 'Display name must be at least 2 characters',
     }),
+    email: z.string().email({
+      message: 'Invalid email address',
+    }),
   })
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -46,6 +49,7 @@ const ProfileNameForm = () => {
       firstName: userData?.user.firstName || '',
       lastName: userData?.user.lastName || '',
       displayName: userData?.user.displayName || '',
+      email: userData?.user.email || '',
     },
   })
 
@@ -57,6 +61,7 @@ const ProfileNameForm = () => {
           firstName: data.firstName,
           lastName: data.lastName,
           displayName: data.displayName,
+          email: data.email,
         },
       })
       setIsSuccess(true)
@@ -76,6 +81,7 @@ const ProfileNameForm = () => {
         firstName: userData.user.firstName ?? '',
         lastName: userData.user.lastName ?? '',
         displayName: userData?.user.displayName ?? '',
+        email: userData?.user.email ?? '',
       })
     }
   }, [userData])
@@ -94,23 +100,25 @@ const ProfileNameForm = () => {
       <PanelHeader heading="Your Profile" noBorder />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <InputRow>
+          <InputRow className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="firstName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>First name</FormLabel>
-                  <TooltipProvider disableHoverableContent={true}>
-                    <Tooltip>
-                      <TooltipTrigger type="button">
-                        <InfoIcon size={14} className="mx-1" />
-                      </TooltipTrigger>
-                      <TooltipContent side="right">
-                        <p>Your official name as recognized on legal documents like IDs, tax forms, or contracts.</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <div className="flex items-center">
+                    <FormLabel>First name</FormLabel>
+                    <TooltipProvider disableHoverableContent={true}>
+                      <Tooltip>
+                        <TooltipTrigger type="button">
+                          <InfoIcon size={14} className="mx-1 mt-1" />
+                        </TooltipTrigger>
+                        <TooltipContent side="right">
+                          <p>Your official name as recognized on legal documents like IDs, tax forms, or contracts.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
                   <FormControl>
                     <Input variant="medium" {...field} />
                   </FormControl>
@@ -127,7 +135,7 @@ const ProfileNameForm = () => {
                   <TooltipProvider disableHoverableContent={true}>
                     <Tooltip>
                       <TooltipTrigger type="button">
-                        <InfoIcon size={14} className="mx-1" />
+                        <InfoIcon size={14} className="mx-1 mt-1" />
                       </TooltipTrigger>
                       <TooltipContent side="right">
                         <p>Your official last name as recognized on legal documents like IDs, tax forms, or contracts.</p>
@@ -150,10 +158,10 @@ const ProfileNameForm = () => {
                   <TooltipProvider disableHoverableContent={true}>
                     <Tooltip>
                       <TooltipTrigger type="button">
-                        <InfoIcon size={14} className="mx-1" />
+                        <InfoIcon size={14} className="mx-1 mt-1" />
                       </TooltipTrigger>
                       <TooltipContent side="right">
-                        <p>Your official name as recognized on legal documents like IDs, tax forms, or contracts.</p>
+                        <p>Your display name is what other users will see.</p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -164,10 +172,33 @@ const ProfileNameForm = () => {
                 </FormItem>
               )}
             />
-            <Button variant={isSuccess ? 'success' : 'filled'} type="submit" loading={isSubmitting}>
-              {isSubmitting ? 'Saving' : isSuccess ? 'Saved' : 'Save'}
-            </Button>
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <TooltipProvider disableHoverableContent={true}>
+                    <Tooltip>
+                      <TooltipTrigger type="button">
+                        <InfoIcon size={14} className="mx-1 mt-1" />
+                      </TooltipTrigger>
+                      <TooltipContent side="right">
+                        <p>Your email address for communication and account-related updates.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                  <FormControl>
+                    <Input variant="medium" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </InputRow>
+          <Button variant={isSuccess ? 'success' : 'filled'} type="submit" loading={isSubmitting} className="mt-6">
+            {isSubmitting ? 'Saving' : isSuccess ? 'Saved' : 'Save'}
+          </Button>
         </form>
       </Form>
     </Panel>

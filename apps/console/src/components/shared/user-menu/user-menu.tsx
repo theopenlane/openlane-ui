@@ -27,7 +27,7 @@ export const UserMenu = () => {
     variables,
   })
 
-  const image = userData?.user.avatarFile?.presignedURL || sessionData?.user?.image
+  const image = userData?.user.avatarFile?.presignedURL || userData?.user?.avatarRemoteURL
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -44,9 +44,9 @@ export const UserMenu = () => {
           <div>
             <div>
               <div>
-                {sessionData?.user.name}
+                {`${userData?.user.firstName} ${userData?.user.lastName}`}
                 <br />
-                <div className={email()}>{sessionData?.user.email}</div>
+                <div className={email()}>{userData?.user.email}</div>
               </div>
               <div>
                 <Link href="/user-settings/profile" className={userSettingsLink()}>
