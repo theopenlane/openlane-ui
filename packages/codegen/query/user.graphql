@@ -7,7 +7,6 @@ query GetUserProfile($userId: ID!) {
     email
     avatarRemoteURL
     displayName
-    role
     avatarFile {
       presignedURL
     }
