@@ -61,11 +61,11 @@ const PricingPlan = () => {
       <h2 className="text-2xl">Pricing Plan</h2>
       <div className="mt-4 flex items-center justify-between">
         <div className="flex gap-10 w-full">
-          <h3 className="text-xl font-medium w-1/5">Current Plan</h3>
+          <div className="w-1/5"></div>
           <div className="w-full">
-            <div className="flex justify-between items-center">
-              <Card className="shadow-md">
-                <div className="flex flex-col py-3 pl-3 pr-20">
+            <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-10 text-gray-700">
+              <Card className="shadow-md max-w-96">
+                <div className="flex flex-col py-3 pl-3  ">
                   <div className="flex gap-3 items-center">
                     <p className="text-lg font-medium">{productTier ?? 'N/A'}</p>
                     <Badge variant={badge.variant} className="text-xs font-normal text-white">
@@ -78,14 +78,14 @@ const PricingPlan = () => {
 
                 <p className=" p-3 text-sm ">{formattedExpiresDate}</p>
               </Card>
-              <Button className="flex items-center gap-2" icon={<ExternalLink />} onClick={handleSubscriptionChange}>
+              <Button className="flex items-center gap-10 max-w-60" icon={<ExternalLink />} onClick={handleSubscriptionChange}>
                 Change Subscription
               </Button>
             </div>
 
             {/* Features List */}
             <h4 className="mt-7 text-lg font-medium text-text-header mb-5">Features in this plan</h4>
-            <ul className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2 text-gray-700">
+            <ul className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-2 text-gray-700">
               {features?.length > 0 ? features.map((feature: string, index: number) => <FeatureItem key={index} feature={feature} />) : <p className="text-gray-500">No features listed.</p>}
             </ul>
           </div>
