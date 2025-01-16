@@ -131,7 +131,9 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
     {
       accessorKey: 'id',
       header: '',
-      cell: ({ cell }) => <MemberActions memberId={cell.getValue() as string} refetchMembers={refetch} />,
+      cell: ({ cell }) => {
+        return <MemberActions memberId={cell.getValue() as string} refetchMembers={refetch} memberRole={cell.row.original.role} />
+      },
       size: 40,
     },
   ]
