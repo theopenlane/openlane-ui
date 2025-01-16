@@ -18408,6 +18408,7 @@ export type GetUserProfileQuery = {
     displayName: string
     email: string
     avatarRemoteURL?: string | null
+    role?: UserRole | null
     avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
     setting: {
       __typename?: 'UserSetting'
@@ -19593,6 +19594,7 @@ export const GetUserProfileDocument = gql`
       email
       avatarRemoteURL
       displayName
+      role
       avatarFile {
         presignedURL
       }
