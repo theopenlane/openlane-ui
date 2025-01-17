@@ -13,13 +13,14 @@ interface ProvidersProps {
   children: ReactNode
 }
 
+//IF YOU ADD PUBLIC PAGE, ITS REQUIRED TO CHANGE IT IN middleware.tsx
+const publicPages = ['/login', '/verify', '/resend-verify', '/waitlist', '/invite']
+
 const Providers = ({ children }: ProvidersProps) => {
   const { data: session, status } = useSession()
   const pathname = usePathname()
   const [client, setClient] = useState<Client | null>(null)
   const [accessToken, setAccessToken] = useState<string | null>(null)
-
-  const publicPages = ['/', '/login', '/verify', '/resend-verify', '/waitlist', '/invite']
 
   const isPublicPage = publicPages.includes(pathname)
 
