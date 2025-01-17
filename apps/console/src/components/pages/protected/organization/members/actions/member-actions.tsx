@@ -4,7 +4,7 @@ import { MoreHorizontal, Trash2, UserRoundPen } from 'lucide-react'
 import { useToast } from '@repo/ui/use-toast'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { OrgMembershipRole, useRemoveUserFromOrgMutation, useUpdateUserRoleInOrgMutation } from '@repo/codegen/src/schema'
+import { OrgMembershipRole, useGetUserProfileQuery, useRemoveUserFromOrgMutation, useUpdateUserRoleInOrgMutation } from '@repo/codegen/src/schema'
 import { type UseQueryExecute } from 'urql'
 import {
   AlertDialog,
@@ -24,18 +24,28 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z, infer as zInfer } from 'zod'
+import { useSession } from 'next-auth/react'
+import { useUserHasOrganizationEditPermissions } from '@/lib/authz/utils'
 
 type MemberActionsProps = {
   memberId: string
   refetchMembers: UseQueryExecute
+  memberRole: OrgMembershipRole
 }
 
 const ICON_SIZE = 12
 
-export const MemberActions = ({ memberId: memberId, refetchMembers: refetchMembers }: MemberActionsProps) => {
+export const MemberActions = ({ memberId, refetchMembers, memberRole }: MemberActionsProps) => {
   const { actionIcon, roleRow, buttonRow } = pageStyles()
   const { toast } = useToast()
   const [_, deleteMember] = useRemoveUserFromOrgMutation()
+  const { data: sessionData } = useSession()
+  const userId = sessionData?.user.userId
+
+  const variables = { userId: userId ?? '' }
+  const [{ data: userData }] = useGetUserProfileQuery({ variables })
+
+  const { data, isLoading, error } = useUserHasOrganizationEditPermissions(sessionData)
 
   const handleDeleteMember = async () => {
     const response = await deleteMember({ deleteOrgMembershipId: memberId })
@@ -103,6 +113,20 @@ export const MemberActions = ({ memberId: memberId, refetchMembers: refetchMembe
     setValue,
     formState: { errors },
   } = form
+
+  if (memberRole === OrgMembershipRole.OWNER) {
+    //CANT EDIT OWNER
+    return null
+  }
+  if (memberId === userData?.user.id) {
+    //CANT EDIT YOURSELF
+    return null
+  }
+
+  if (!data.allowed) {
+    //MEMBERS CANT EDIT ANYONE
+    return null
+  }
 
   return (
     <DropdownMenu modal={false}>
