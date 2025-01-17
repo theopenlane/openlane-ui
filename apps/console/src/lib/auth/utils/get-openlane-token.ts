@@ -16,11 +16,14 @@ export const getTokenFromOpenlaneAPI = async (reqBody: any) => {
         clientToken: reqBody.accessToken as string,
       }),
     })
-      .then((res) => res.json())
-      .then((data) => data)
 
-    return response
+    if (!response.ok) {
+      console.error('❌Error response from API', response)
+      throw new Error(`Error response from API`)
+    }
+
+    return await response.json()
   } catch (error) {
-    throw new Error() //TODO: Sentry logging
+    console.error('❌Error response from API:', error)
   }
 }
