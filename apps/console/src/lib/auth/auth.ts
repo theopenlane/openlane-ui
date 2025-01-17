@@ -45,10 +45,6 @@ export const config = {
   },
   callbacks: {
     async signIn({ user, account, profile }) {
-      console.log('user', user)
-      console.log('account', account)
-      console.log('profile', profile)
-
       let email = profile?.email || user?.email || ''
 
       // Allow only specific domains if configured
