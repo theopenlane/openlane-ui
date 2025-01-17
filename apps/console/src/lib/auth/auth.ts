@@ -45,6 +45,10 @@ export const config = {
   },
   callbacks: {
     async signIn({ user, account, profile }) {
+      console.log('user', user)
+      console.log('account', account)
+      console.log('profile', profile)
+
       let email = profile?.email || user?.email || ''
 
       // Allow only specific domains if configured
@@ -57,6 +61,7 @@ export const config = {
       // If OAuth authentication
       if (account?.type === 'oauth' || account?.type === 'oidc') {
         const oauthUser = {
+          ...user,
           externalUserID: account.providerAccountId,
           authProvider: account.provider,
           accessToken: account.access_token,
@@ -64,8 +69,7 @@ export const config = {
 
         try {
           const data = await getTokenFromOpenlaneAPI(oauthUser)
-          if (!data) throw new Error('Failed to fetch Openlane token')
-
+          if (!data) throw new Error(' ❌ Failed to fetch Openlane token')
           Object.assign(user, {
             accessToken: data.access_token,
             refreshToken: data.refresh_token,
@@ -75,7 +79,7 @@ export const config = {
           // Store session in a cookie
           setSessionCookie(data.session)
         } catch (error) {
-          console.error('OAuth sign-in error:', error)
+          console.error('❌ OAuth sign-in error:', error)
           return false
         }
       }
