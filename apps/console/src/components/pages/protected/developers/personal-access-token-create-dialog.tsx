@@ -8,7 +8,7 @@ import { Button } from '@repo/ui/button'
 import { Checkbox } from '@repo/ui/checkbox'
 import { CirclePlusIcon } from 'lucide-react'
 import { toast } from '@repo/ui/use-toast'
-import { useCreatePersonalAccessTokenMutation } from '@repo/codegen/src/schema'
+import { useCreatePersonalAccessTokenMutation, useGetPersonalAccessTokensQuery } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import { useOrganization } from '@/hooks/useOrganization'
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
@@ -17,6 +17,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { useForm } from 'react-hook-form'
 import { z, infer as zInfer } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { UseQueryExecute } from 'urql'
 
 const formSchema = z
   .object({
@@ -33,11 +34,17 @@ const formSchema = z
 
 type FormData = zInfer<typeof formSchema>
 
-const PersonalApiKeyDialog: React.FC = () => {
+type PersonalApiKeyDialogProps = {
+  triggerText?: boolean
+}
+
+const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
   const { data: sessionData } = useSession()
   const { allOrgs: orgs } = useOrganization()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [result, createToken] = useCreatePersonalAccessTokenMutation()
+
+  const [{ data, fetching, error }, refetch] = useGetPersonalAccessTokensQuery({ requestPolicy: 'network-only' })
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -71,6 +78,7 @@ const PersonalApiKeyDialog: React.FC = () => {
           description: 'Copy your access token now, as you will not be able to see it again.',
           variant: 'success',
         })
+        refetch()
         console.log('Generated Token:', createdToken) // Show this in a modal/dialog if needed
       } else {
         throw new Error('Failed to create token')
@@ -93,9 +101,16 @@ const PersonalApiKeyDialog: React.FC = () => {
       }}
     >
       <DialogTrigger asChild>
-        <Button iconPosition="left" icon={<CirclePlusIcon />}>
-          Create Token
-        </Button>
+        {triggerText ? (
+          <div className="flex cursor-pointer">
+            <p className="text-brand ">Create token</p>
+            <p>?</p>
+          </div>
+        ) : (
+          <Button iconPosition="left" icon={<CirclePlusIcon />}>
+            Create Token
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[455px]">
         <DialogHeader>
@@ -183,15 +198,19 @@ const PersonalApiKeyDialog: React.FC = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Expiration*</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="date"
-                      disabled={form.watch('noExpire')}
-                      value={field.value ? field.value.toISOString().split('T')[0] : ''}
-                      onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
-                    />
-                  </FormControl>
-                  <FormMessage />
+                  {!form.watch('noExpire') && (
+                    <>
+                      <FormControl>
+                        <Input
+                          type="date"
+                          disabled={form.watch('noExpire')}
+                          value={field.value ? field.value.toISOString().split('T')[0] : ''}
+                          onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </>
+                  )}
                 </FormItem>
               )}
             />
