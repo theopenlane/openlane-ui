@@ -46,7 +46,7 @@ const BillingSettings: React.FC = () => {
   }
 
   return (
-    <Panel className={cn(panel())}>
+    <div className={cn(panel())}>
       <h2 className="text-2xl font-semibold text-text-header">Billing Settings</h2>
 
       {/* Billing Address Section */}
@@ -95,7 +95,7 @@ const BillingSettings: React.FC = () => {
           </div>
         </div>
       </div>
-    </Panel>
+    </div>
   )
 }
 
