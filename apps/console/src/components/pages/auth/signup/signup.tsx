@@ -220,7 +220,7 @@ export const SignupPage = () => {
       </Link>
 
       {showLoginError && <MessageBox className={'p-4 ml-1'} message={registrationErrorMessage} />}
-      <div className="text-xs text-gray-500 mt-2 text-center">
+      <div className="text-[10px] text-gray-500 mt-3 text-center">
         This site is protected by reCAPTCHA and the Google{' '}
         <a className="text-blue-500 underline" href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
           Privacy Policy
