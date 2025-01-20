@@ -48,7 +48,6 @@ export const LoginPage = () => {
       })
 
       const validationResponse = await recaptchaValidation.json()
-      console.log('validationResponse', validationResponse)
 
       if (!validationResponse.success) {
         setSignInError(true)
