@@ -166,9 +166,7 @@ export const LoginPage = () => {
             PassKey
           </Button> */}
         </div>
-
         <Separator label="or" className={separator()} />
-
         <SimpleForm
           classNames={form()}
           onSubmit={(e: any) => {
@@ -201,14 +199,23 @@ export const LoginPage = () => {
             Login
           </Button>
         </SimpleForm>
-
         <Link href="https://www.theopenlane.io/legal/privacy" className="text-xs text-gray-500 mt-8 text-center">
           Privacy Policy
         </Link>
         <Link href="https://www.theopenlane.io/legal/terms-of-service" className="text-xs text-gray-500 mt-1 text-center">
           Terms of Service
         </Link>
-
+        <div className="text-xs text-gray-500 mt-2 text-center">
+          This site is protected by reCAPTCHA and the Google{' '}
+          <a className="text-blue-500 underline" href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
+            Privacy Policy
+          </a>{' '}
+          and{' '}
+          <a className="text-blue-500 underline" href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">
+            Terms of Service
+          </a>{' '}
+          apply.
+        </div>
         {showLoginError && <MessageBox className={'p-4 ml-1'} message={signInErrorMessage} />}
       </div>
     </>
