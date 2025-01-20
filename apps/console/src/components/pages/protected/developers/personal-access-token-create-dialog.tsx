@@ -113,12 +113,19 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
     }
   }
 
+  const resetDataToDefault = () => {
+    setStep(STEP.CREATE)
+    setConfirmationChecked(false)
+    setToken('')
+    form.reset()
+  }
+
   return (
     <Dialog
       onOpenChange={(open) => {
         if (open === false) {
           setTimeout(() => {
-            setStep(STEP.CREATE)
+            resetDataToDefault()
           }, 300)
         }
       }}
@@ -263,7 +270,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
           </Form>
         </DialogContent>
       ) : (
-        <DialogContent className="sm:max-w-[455px]">
+        <DialogContent isClosable={confirmationChecked} className="sm:max-w-[455px]">
           <DialogHeader>
             <DialogTitle className="text-2xl font-semibold">Token created</DialogTitle>
             <p className="mt-2">Copy your access token now, as you will not be able to see this again</p>

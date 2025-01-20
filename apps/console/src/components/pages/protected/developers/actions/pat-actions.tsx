@@ -39,8 +39,8 @@ export const TokenAction = ({ tokenId, refetchTokens }: TokenActionProps) => {
         title: 'Token deleted successfully',
         variant: 'success',
       })
-      setDialogOpen(false) // Close the modal after successful deletion
-      setMenuOpen(false) // Close the dropdown menu
+      setDialogOpen(false)
+      setMenuOpen(false)
       refetchTokens({
         requestPolicy: 'network-only',
       })
@@ -58,8 +58,8 @@ export const TokenAction = ({ tokenId, refetchTokens }: TokenActionProps) => {
             <DropdownMenuItem
               asChild
               onClick={() => {
-                setMenuOpen(false) // Close the dropdown menu
-                setDialogOpen(true) // Open the delete modal
+                setMenuOpen(false)
+                setDialogOpen(true)
               }}
             >
               <div className="flex items-center cursor-pointer">
