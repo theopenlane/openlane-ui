@@ -7,8 +7,9 @@ import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
-import { useDeletePersonalAccessTokenMutation } from '@repo/codegen/src/schema'
+import { useDeleteApiTokenMutation, useDeletePersonalAccessTokenMutation } from '@repo/codegen/src/schema'
 import { type UseQueryExecute } from 'urql'
+import { usePathname } from 'next/navigation'
 
 type TokenActionProps = {
   tokenId: string
@@ -20,21 +21,25 @@ const ICON_SIZE = 12
 export const TokenAction = ({ tokenId, refetchTokens }: TokenActionProps) => {
   const { actionIcon } = pageStyles()
   const { toast } = useToast()
-  const [_, deleteToken] = useDeletePersonalAccessTokenMutation()
+  const [_, deletePersonalToken] = useDeletePersonalAccessTokenMutation()
+  const [__, deleteApiToken] = useDeleteApiTokenMutation()
+  const path = usePathname()
+  const isOrg = path.includes('/organization-settings')
+
   const [menuOpen, setMenuOpen] = useState(false) // Track dropdown menu state
   const [dialogOpen, setDialogOpen] = useState(false) // Track dialog state
 
   const handleDeleteToken = async () => {
-    const response = await deleteToken({ deletePersonalAccessTokenId: tokenId })
+    const response = isOrg
+      ? await deleteApiToken({ deleteAPITokenId: tokenId }) // Use deleteApiToken for organization
+      : await deletePersonalToken({ deletePersonalAccessTokenId: tokenId }) // Use deletePersonalToken otherwise
 
     if (response.error) {
       toast({
         title: 'There was a problem deleting this token, please try again',
         variant: 'destructive',
       })
-    }
-
-    if (response.data) {
+    } else if (response.data) {
       toast({
         title: 'Token deleted successfully',
         variant: 'success',

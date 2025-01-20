@@ -1,6 +1,6 @@
 'use client'
 
-import { useGetPersonalAccessTokensQuery } from '@repo/codegen/src/schema'
+import { useGetApiTokensQuery, useGetPersonalAccessTokensQuery, GetApiTokensQuery, GetPersonalAccessTokensQuery } from '@repo/codegen/src/schema'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
@@ -9,36 +9,50 @@ import { TableCell, TableRow } from '../../../../../../../packages/ui/src/table/
 import { KeyRound } from 'lucide-react'
 import { personalAccessTokenTableStyles } from './personal-access-tokens-table-styles'
 import PersonalApiKeyDialog from './personal-access-token-create-dialog'
+import { usePathname } from 'next/navigation'
 
 type TokenNode = {
-  __typename?: 'PersonalAccessToken' | undefined
   id: string
   name: string
   description?: string
   expiresAt: string
-  organization: [
-    {
-      id: string
-      name: string
-    },
-  ]
-}
-
-type TokenEdge = {
-  __typename?: 'PersonalAccessTokenEdge' | undefined
-  node?: TokenNode | null
+  organizations?: { id: string; name: string }[]
+  scopes?: string
 }
 
 export const PersonalAccessTokenTable = () => {
+  const path = usePathname()
+  const isOrg = path.includes('/organization-settings')
+
   const { tableRow, keyIcon, message } = personalAccessTokenTableStyles()
 
-  const [{ data, fetching, error }, refetch] = useGetPersonalAccessTokensQuery({ requestPolicy: 'network-only' })
+  // Use the appropriate query based on `isOrg`
+  const [{ data, fetching, error }, refetch] = isOrg ? useGetApiTokensQuery({ requestPolicy: 'network-only' }) : useGetPersonalAccessTokensQuery({ requestPolicy: 'network-only' })
 
   if (fetching) return <p>Loading...</p>
   if (error || !data) return null
 
-  const tokens: TokenNode[] = data.personalAccessTokens.edges?.filter((edge): edge is TokenEdge => edge !== null && edge.node !== null).map((edge) => edge.node as TokenNode) || []
+  const tokens: TokenNode[] = isOrg
+    ? (data as GetApiTokensQuery).apiTokens?.edges
+        ?.filter((edge): edge is NonNullable<typeof edge> => !!edge?.node && !!edge.node.id)
+        .map((edge) => ({
+          id: edge.node!.id,
+          name: edge.node!.name || 'Unnamed Token',
+          description: edge.node!.description || '',
+          expiresAt: edge.node!.expiresAt || '',
+          scopes: edge.node!.scopes?.join(', ') || '-',
+        })) || []
+    : (data as GetPersonalAccessTokensQuery).personalAccessTokens?.edges
+        ?.filter((edge): edge is NonNullable<typeof edge> => !!edge?.node && !!edge.node.id)
+        .map((edge) => ({
+          id: edge.node!.id,
+          name: edge.node!.name || 'Unnamed Token',
+          description: edge.node!.description || '',
+          expiresAt: edge.node!.expiresAt || '',
+          organizations: edge.node!.organizations || [],
+        })) || []
 
+  // Define columns conditionally based on `isOrg`
   const columns: ColumnDef<TokenNode>[] = [
     {
       accessorKey: 'name',
@@ -48,14 +62,23 @@ export const PersonalAccessTokenTable = () => {
       accessorKey: 'description',
       header: 'Description',
     },
-    {
-      accessorKey: 'organizations',
-      header: 'Organization(s)',
-      cell: ({ cell }) => {
-        const value = cell.getValue() as { id: string; name: string }[]
-        return value.map((org) => org.name).join(', ')
-      },
-    },
+    isOrg
+      ? {
+          accessorKey: 'scopes',
+          header: 'Scopes',
+          cell: ({ cell }) => {
+            const value = cell.getValue() as string
+            return value || '-'
+          },
+        }
+      : {
+          accessorKey: 'organizations',
+          header: 'Organization(s)',
+          cell: ({ cell }) => {
+            const value = cell.getValue() as { id: string; name: string }[]
+            return value?.length ? value.map((org) => org.name).join(', ') : '-'
+          },
+        },
     {
       accessorKey: 'expiresAt',
       header: 'Expires',
@@ -81,7 +104,7 @@ export const PersonalAccessTokenTable = () => {
           <TableCell colSpan={columns.length}>
             <div className="flex flex-col justify-center items-center">
               <KeyRound height={89} width={89} className={keyIcon()} />
-              <p className={message()}>No personal access tokens found.</p>
+              <p className={message()}> No tokens found</p>
               <PersonalApiKeyDialog triggerText />
             </div>
           </TableCell>

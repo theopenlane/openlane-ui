@@ -8,7 +8,7 @@ import { Button } from '@repo/ui/button'
 import { Checkbox } from '@repo/ui/checkbox'
 import { AlertTriangleIcon, CirclePlusIcon, CopyIcon } from 'lucide-react'
 import { toast } from '@repo/ui/use-toast'
-import { useCreatePersonalAccessTokenMutation, useGetPersonalAccessTokensQuery } from '@repo/codegen/src/schema'
+import { CreateApiTokenInput, useCreateApiTokenMutation, useCreatePersonalAccessTokenMutation, useGetApiTokensQuery, useGetPersonalAccessTokensQuery } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import { useOrganization } from '@/hooks/useOrganization'
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
@@ -17,21 +17,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { useForm } from 'react-hook-form'
 import { z, infer as zInfer } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-
-const formSchema = z
-  .object({
-    name: z.string().min(3, { message: 'Token name is required' }),
-    description: z.string().optional(),
-    organizationIDs: z.array(z.string()).nonempty({ message: 'At least one organization must be selected' }),
-    expiryDate: z.date().optional(),
-    noExpire: z.boolean().optional(),
-  })
-  .refine((data) => data.expiryDate || data.noExpire, {
-    message: 'Please specify an expiry date or select the Never expires checkbox',
-    path: ['expiryDate'],
-  })
-
-type FormData = zInfer<typeof formSchema>
+import { usePathname } from 'next/navigation'
 
 type PersonalApiKeyDialogProps = {
   triggerText?: boolean
@@ -43,16 +29,52 @@ enum STEP {
 }
 
 const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
+  const path = usePathname()
+  const isOrg = path.includes('/organization-settings')
   const { data: sessionData } = useSession()
   const { allOrgs: orgs } = useOrganization()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [result, createToken] = useCreatePersonalAccessTokenMutation()
+  const [_, createApiToken] = useCreateApiTokenMutation()
+
   const [step, setStep] = useState<STEP>(STEP.CREATE)
 
   const [confirmationChecked, setConfirmationChecked] = useState<boolean>(false)
   const [token, setToken] = useState<string>('')
 
-  const [{ data, fetching, error }, refetch] = useGetPersonalAccessTokensQuery({ requestPolicy: 'network-only' })
+  const [{ data, fetching, error }, refetchPersonalAccessTokens] = useGetPersonalAccessTokensQuery({
+    requestPolicy: 'network-only',
+    pause: isOrg,
+  })
+  const [{ data: dataApi, fetching: fetchingApi, error: errorApi }, refetchApiTokens] = useGetApiTokensQuery({
+    requestPolicy: 'network-only',
+    pause: !isOrg,
+  })
+
+  const formSchema = z
+    .object({
+      name: z.string().min(3, { message: 'Token name is required' }),
+      description: z.string().optional(),
+      organizationIDs: z.array(z.string()).optional(),
+      expiryDate: z.date().optional(),
+      noExpire: z.boolean().optional(),
+      scopes: z.array(z.string()).optional(),
+    })
+    .refine(
+      (data) => {
+        if (!isOrg && (!data.organizationIDs || data.organizationIDs.length === 0)) {
+          return false
+        }
+        return true
+      },
+      { message: 'At least one organization must be selected', path: ['organizationIDs'] },
+    )
+    .refine((data) => data.expiryDate || data.noExpire, {
+      message: 'Please specify an expiry date or select the Never expires checkbox',
+      path: ['expiryDate'],
+    })
+
+  type FormData = zInfer<typeof formSchema>
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -74,36 +96,57 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
   }
 
   const handleSubmit = async (values: FormData) => {
+    console.log('handleSubmit')
     try {
       setIsSubmitting(true)
-      const response = await createToken({
-        input: {
+
+      let createdToken: string | undefined = undefined
+
+      if (isOrg) {
+        // Call createApiToken when isOrg is true
+        const apiTokenInput: CreateApiTokenInput = {
           name: values.name,
           description: values.description,
           expiresAt: values.noExpire ? null : values.expiryDate,
+          scopes: values.scopes,
           ownerID: sessionData?.user.userId,
-          organizationIDs: values.organizationIDs || [],
-        },
-      })
+        }
 
-      const createdToken = response.data?.createPersonalAccessToken.personalAccessToken.token
+        const response = await createApiToken({
+          input: apiTokenInput,
+        })
 
-      if (response.data && createdToken) {
+        createdToken = response.data?.createAPIToken?.apiToken.token
+      } else {
+        // Call createToken when isOrg is false
+        const response = await createToken({
+          input: {
+            name: values.name,
+            description: values.description,
+            expiresAt: values.noExpire ? null : values.expiryDate,
+            ownerID: sessionData?.user.userId,
+            organizationIDs: values.organizationIDs || [],
+          },
+        })
+
+        createdToken = response.data?.createPersonalAccessToken?.personalAccessToken?.token
+      }
+
+      if (createdToken) {
         setToken(createdToken)
         toast({
           title: 'Token created successfully!',
-          description: 'Copy your access token now, as you will not be able to see it again.',
+          description: 'Copy your token now, as you will not be able to see it again.',
           variant: 'success',
         })
-
         setStep(STEP.CREATED)
-        refetch()
+        isOrg ? refetchApiTokens() : refetchPersonalAccessTokens()
       } else {
         throw new Error('Failed to create token')
       }
     } catch (error) {
       toast({
-        title: 'Error creating API Key!',
+        title: 'Error creating Token!',
         description: 'Something went wrong. Please try again.',
         variant: 'destructive',
       })
@@ -178,51 +221,53 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
                 )}
               />
 
-              <FormField
-                name="organizationIDs"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Authorized organization(s)</FormLabel>
-                    <FormControl>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="outlineInput" full>
-                            {field.value && field.value.length > 0
-                              ? Object.entries(orgs)
-                                  .filter(([key, value]) => field?.value?.includes(value?.node?.id ?? ''))
-                                  .map(([key, value]) => value?.node?.name)
-                                  .join(', ')
-                              : 'Select organization(s)'}
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                          {Object.entries(orgs).map(([key, value]) => {
-                            const image = value?.node?.avatarFile?.presignedURL ?? value?.node?.avatarRemoteURL
-                            return (
-                              <DropdownMenuCheckboxItem
-                                key={value?.node?.id}
-                                checked={field?.value?.includes(value?.node?.id ?? '')}
-                                onCheckedChange={(checked) => {
-                                  const newValue = checked ? [...(field?.value ?? []), value?.node?.id!] : field?.value?.filter((id) => id !== value?.node?.id)
-                                  field.onChange(newValue)
-                                }}
-                              >
-                                <Avatar variant="medium">
-                                  {image && <AvatarImage src={image} />}
-                                  <AvatarFallback>{value?.node?.name?.substring(0, 2)}</AvatarFallback>
-                                </Avatar>
-                                {value?.node?.name}
-                              </DropdownMenuCheckboxItem>
-                            )
-                          })}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {!isOrg && (
+                <FormField
+                  name="organizationIDs"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Authorized organization(s)</FormLabel>
+                      <FormControl>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outlineInput" full>
+                              {field.value && field.value.length > 0
+                                ? Object.entries(orgs)
+                                    .filter(([key, value]) => field?.value?.includes(value?.node?.id ?? ''))
+                                    .map(([key, value]) => value?.node?.name)
+                                    .join(', ')
+                                : 'Select organization(s)'}
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent>
+                            {Object.entries(orgs).map(([key, value]) => {
+                              const image = value?.node?.avatarFile?.presignedURL ?? value?.node?.avatarRemoteURL
+                              return (
+                                <DropdownMenuCheckboxItem
+                                  key={value?.node?.id}
+                                  checked={field?.value?.includes(value?.node?.id ?? '')}
+                                  onCheckedChange={(checked) => {
+                                    const newValue = checked ? [...(field?.value ?? []), value?.node?.id!] : field?.value?.filter((id) => id !== value?.node?.id)
+                                    field.onChange(newValue)
+                                  }}
+                                >
+                                  <Avatar variant="medium">
+                                    {image && <AvatarImage src={image} />}
+                                    <AvatarFallback>{value?.node?.name?.substring(0, 2)}</AvatarFallback>
+                                  </Avatar>
+                                  {value?.node?.name}
+                                </DropdownMenuCheckboxItem>
+                              )
+                            })}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
 
               <FormField
                 name="expiryDate"
@@ -261,6 +306,54 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
                   </FormItem>
                 )}
               />
+
+              {isOrg && (
+                <FormField
+                  name="scopes"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Scopes</FormLabel>
+                      <FormControl>
+                        <div className="flex flex-col justify-center gap-2">
+                          <div className={'flex'}>
+                            <Checkbox
+                              id={field.name}
+                              key={'read'}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  field.onChange([...(field.value || []), 'read'])
+                                } else {
+                                  field.onChange((field.value || []).filter((scope) => scope !== 'read'))
+                                }
+                              }}
+                            />
+                            <FormLabel htmlFor="scopes:read" className="ml-2 cursor-pointer">
+                              Read
+                            </FormLabel>
+                          </div>
+                          <div className={'flex'}>
+                            <Checkbox
+                              id={field.name}
+                              key={'write'}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  field.onChange([...(field.value || []), 'write'])
+                                } else {
+                                  field.onChange((field.value || []).filter((scope) => scope !== 'write'))
+                                }
+                              }}
+                            />
+                            <FormLabel htmlFor="scopes:write" className="ml-2 cursor-pointer">
+                              Write
+                            </FormLabel>
+                          </div>
+                        </div>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              )}
 
               <DialogFooter>
                 <Button className="w-full mt-4" type="submit" variant="filled" disabled={isSubmitting}>
