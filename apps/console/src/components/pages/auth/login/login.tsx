@@ -19,6 +19,7 @@ import { getPasskeySignInOptions, verifyAuthentication } from '@/lib/user'
 import { startAuthentication } from '@simplewebauthn/browser'
 import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
 import Link from 'next/link'
+import { recaptchaSiteKey } from '@repo/dally/auth'
 
 const TEMP_PASSKEY_EMAIL = 'tempuser@test.com'
 const TEMP_PASSKEY_NAME = 'Temp User'
@@ -32,17 +33,32 @@ export const LoginPage = () => {
   const showLoginError = !signInLoading && signInError
   const [isPasswordActive, setIsPasswordActive] = useState(false)
 
-  /**
-   * Submit client-side sign-in function using username and password
-   */
   const submit = async (payload: LoginUser) => {
     setSignInLoading(true)
     setSignInError(false)
+
     try {
-      const res: any = await signIn('credentials', {
-        redirect: false,
-        ...payload,
+      // @ts-ignore
+      const recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'login' })
+
+      const recaptchaValidation = await fetch('/api/recaptchaVerify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: recaptchaToken }),
       })
+
+      const validationResponse = await recaptchaValidation.json()
+      console.log('validationResponse', validationResponse)
+
+      if (!validationResponse.success) {
+        setSignInError(true)
+        setSignInLoading(false)
+        setSignInErrorMessage('reCAPTCHA validation failed.')
+        return
+      }
+
+      const res: any = await signIn('credentials', { redirect: false, ...payload })
+
       if (res.ok && !res.error) {
         router.push('/')
       } else {
@@ -50,6 +66,7 @@ export const LoginPage = () => {
         setSignInError(true)
       }
     } catch (error) {
+      console.error('Login error:', error)
       setSignInLoading(false)
       setSignInError(true)
     }
