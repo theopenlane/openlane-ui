@@ -205,7 +205,7 @@ export const LoginPage = () => {
         <Link href="https://www.theopenlane.io/legal/terms-of-service" className="text-xs text-gray-500 mt-1 text-center">
           Terms of Service
         </Link>
-        <div className="text-[10px] text-gray-500 mt-3 text-center">
+        <div className="text-[10px] text-gray-500 mt-5 text-center">
           This site is protected by reCAPTCHA and the Google{' '}
           <a className="text-blue-500 underline" href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
             Privacy Policy
