@@ -15,7 +15,7 @@ import {
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from '../table/table'
 import { Button } from '../button/button'
-import { useState } from 'react'
+import { ReactElement, useState } from 'react'
 import { Input } from '../input/input'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '../dropdown-menu/dropdown-menu'
 import { EyeIcon } from 'lucide-react'
@@ -27,9 +27,10 @@ interface DataTableProps<TData, TValue> {
   showFilter?: boolean
   showVisibility?: boolean
   noResultsText?: string
+  noDataMarkup?: ReactElement
 }
 
-export function DataTable<TData, TValue>({ columns, loading = false, data, showFilter = false, showVisibility = false, noResultsText = 'No results' }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({ columns, loading = false, data, showFilter = false, showVisibility = false, noResultsText = 'No results', noDataMarkup }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
@@ -118,11 +119,7 @@ export function DataTable<TData, TValue>({ columns, loading = false, data, showF
               </TableRow>
             ))
           ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                {loading ? 'Loading' : noResultsText}
-              </TableCell>
-            </TableRow>
+            <NoData loading={loading} colLength={columns.length} noDataMarkup={noDataMarkup} noResultsText={noResultsText} />
           )}
         </TableBody>
 
@@ -142,5 +139,26 @@ export function DataTable<TData, TValue>({ columns, loading = false, data, showF
         )}
       </Table>
     </div>
+  )
+}
+
+interface NoDataProps {
+  loading: boolean
+  colLength: number
+  noDataMarkup?: ReactElement
+  noResultsText: string
+}
+
+const NoData = ({ loading, colLength, noDataMarkup, noResultsText }: NoDataProps) => {
+  if (!loading && noDataMarkup) {
+    return noDataMarkup
+  }
+
+  return (
+    <TableRow>
+      <TableCell colSpan={colLength} className="h-24 text-center">
+        {loading ? 'Loading' : noResultsText}
+      </TableCell>
+    </TableRow>
   )
 }

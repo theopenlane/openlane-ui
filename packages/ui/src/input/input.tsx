@@ -8,6 +8,7 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
   icon?: ReactNode
   prefix?: ReactNode
   onIconClick?: () => void
+  maxWidth?: boolean
 }
 
 interface InputRowProps extends InputRowVariants {
@@ -15,7 +16,7 @@ interface InputRowProps extends InputRowVariants {
   children: ReactNode
 }
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type, icon, prefix, variant, onIconClick, ...props }, ref) => {
+const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type, icon, prefix, variant, onIconClick, maxWidth, ...props }, ref) => {
   const { input, inputWrapper, iconWrapper, prefixWrapper } = inputStyles({
     variant,
   })
@@ -31,7 +32,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type,
   }, [prefix])
 
   return (
-    <div className={inputWrapper({ hasIcon, hasPrefix })}>
+    <div className={`${inputWrapper({ hasIcon, hasPrefix })} ${maxWidth ? 'w-full' : ''}`}>
       {prefix && (
         <div ref={prefixRef} className={prefixWrapper()}>
           {prefix}

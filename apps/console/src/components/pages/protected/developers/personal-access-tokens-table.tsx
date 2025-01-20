@@ -3,9 +3,12 @@
 import { useGetPersonalAccessTokensQuery } from '@repo/codegen/src/schema'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
-import { useSession } from 'next-auth/react'
 import { format } from 'date-fns'
 import { TokenAction } from './actions/pat-actions'
+import { TableCell, TableRow } from '../../../../../../../packages/ui/src/table/table'
+import { KeyRound } from 'lucide-react'
+import { personalAccessTokenTableStyles } from './personal-access-tokens-table-styles'
+import PersonalApiKeyDialog from './personal-access-token-create-dialog'
 
 type TokenNode = {
   __typename?: 'PersonalAccessToken' | undefined
@@ -27,11 +30,9 @@ type TokenEdge = {
 }
 
 export const PersonalAccessTokenTable = () => {
-  const { data: session } = useSession()
+  const { tableRow, keyIcon, message } = personalAccessTokenTableStyles()
 
-  const [{ data, fetching, error }, refetch] = useGetPersonalAccessTokensQuery({
-    pause: !session,
-  })
+  const [{ data, fetching, error }, refetch] = useGetPersonalAccessTokensQuery({ requestPolicy: 'network-only' })
 
   if (fetching) return <p>Loading...</p>
   if (error || !data) return null
@@ -70,6 +71,22 @@ export const PersonalAccessTokenTable = () => {
     },
   ]
 
-  return <DataTable columns={columns} data={tokens} noResultsText="No tokens found" />
+  return (
+    <DataTable
+      columns={columns}
+      data={tokens}
+      noResultsText="No tokens found"
+      noDataMarkup={
+        <TableRow className={tableRow()}>
+          <TableCell colSpan={columns.length}>
+            <div className="flex flex-col justify-center items-center">
+              <KeyRound height={89} width={89} className={keyIcon()} />
+              <p className={message()}>No personal access tokens found.</p>
+              <PersonalApiKeyDialog triggerText />
+            </div>
+          </TableCell>
+        </TableRow>
+      }
+    />
+  )
 }
-//

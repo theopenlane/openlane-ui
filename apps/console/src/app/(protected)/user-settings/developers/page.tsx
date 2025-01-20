@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 const Page: React.FC = () => {
   return (
     <>
-      <PageHeading heading="Developers" eyebrow="User Settings" />
+      <PageHeading heading="Developers" />
       <DevelopersPage />
     </>
   )

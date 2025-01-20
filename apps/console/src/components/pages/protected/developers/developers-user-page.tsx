@@ -1,23 +1,24 @@
 'use client'
 
+import React from 'react'
 import { pageStyles } from './page.styles'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
-import { useState } from 'react'
-import { PersonalAccessTokenForm } from './personal-access-token-form'
+import { Panel, PanelHeader } from '@repo/ui/panel'
+import PersonalApiKeyDialog from './personal-access-token-create-dialog'
 import { PersonalAccessTokenTable } from './personal-access-tokens-table'
 
 const DevelopersPage: React.FC = () => {
   const { wrapper } = pageStyles()
-  const defaultTab = 'pat'
-  const [activeTab, setActiveTab] = useState(defaultTab)
 
   return (
-    <>
-      <div className={wrapper()}>
-        <PersonalAccessTokenForm />
+    <div className={wrapper()}>
+      <Panel>
+        <div className="flex justify-between items-center mb-4">
+          <PanelHeader heading="Personal Access Tokens" noBorder />
+          <PersonalApiKeyDialog />
+        </div>
         <PersonalAccessTokenTable />
-      </div>
-    </>
+      </Panel>
+    </div>
   )
 }
 
