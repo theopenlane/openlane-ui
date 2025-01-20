@@ -12,6 +12,7 @@ import { Input } from '@repo/ui/input'
 
 import { SearchIcon } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
+import { useDebounce } from '@uidotdev/usehooks'
 
 export const GlobalSearch = () => {
   const { popover } = searchStyles()
@@ -24,9 +25,11 @@ export const GlobalSearch = () => {
   const { data: sessionData, update: updateSession } = useSession()
   const { push } = useRouter()
 
+  const debouncedQuery = useDebounce(query, 300)
+
   let [{ data, fetching }] = useSearchQuery({
-    variables: { query: query },
-    pause: query.length < 3, // do not fetch until the query is at least 3 characters long because it is rejected by the server
+    variables: { query: debouncedQuery },
+    pause: debouncedQuery.length < 3, // do not fetch until the query is at least 3 characters long because it is rejected by the server
   })
 
   // when the organization is selected, switch the organization and redirect to the dashboard
