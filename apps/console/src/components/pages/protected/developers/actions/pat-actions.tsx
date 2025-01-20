@@ -1,10 +1,11 @@
 'use client'
 
+import { useState } from 'react'
 import { MoreHorizontal, Trash2 } from 'lucide-react'
 import { useToast } from '@repo/ui/use-toast'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@repo/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { useDeletePersonalAccessTokenMutation } from '@repo/codegen/src/schema'
 import { type UseQueryExecute } from 'urql'
@@ -20,6 +21,8 @@ export const TokenAction = ({ tokenId, refetchTokens }: TokenActionProps) => {
   const { actionIcon } = pageStyles()
   const { toast } = useToast()
   const [_, deleteToken] = useDeletePersonalAccessTokenMutation()
+  const [menuOpen, setMenuOpen] = useState(false) // Track dropdown menu state
+  const [dialogOpen, setDialogOpen] = useState(false) // Track dialog state
 
   const handleDeleteToken = async () => {
     const response = await deleteToken({ deletePersonalAccessTokenId: tokenId })
@@ -36,6 +39,8 @@ export const TokenAction = ({ tokenId, refetchTokens }: TokenActionProps) => {
         title: 'Token deleted successfully',
         variant: 'success',
       })
+      setDialogOpen(false) // Close the modal after successful deletion
+      setMenuOpen(false) // Close the dropdown menu
       refetchTokens({
         requestPolicy: 'network-only',
       })
@@ -43,38 +48,45 @@ export const TokenAction = ({ tokenId, refetchTokens }: TokenActionProps) => {
   }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <MoreHorizontal className={actionIcon()} />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-10">
-        <DropdownMenuGroup>
-          <DropdownMenuItem asChild>
-            <Dialog>
-              <DialogTrigger asChild>
-                <div className="flex items-center cursor-pointer">
-                  <Trash2 width={ICON_SIZE} className="mr-2" />
-                  Delete token
-                </div>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Confirm Deletion</DialogTitle>
-                  <DialogDescription>Are you sure you want to delete this token? This action cannot be undone.</DialogDescription>
-                </DialogHeader>
-                <DialogFooter>
-                  <DialogClose asChild>
-                    <Button variant="outline">Cancel</Button>
-                  </DialogClose>
-                  <Button variant="filled" onClick={handleDeleteToken}>
-                    Confirm
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+        <DropdownMenuTrigger asChild>
+          <MoreHorizontal className={actionIcon()} />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-10">
+          <DropdownMenuGroup>
+            <DropdownMenuItem
+              asChild
+              onClick={() => {
+                setMenuOpen(false) // Close the dropdown menu
+                setDialogOpen(true) // Open the delete modal
+              }}
+            >
+              <div className="flex items-center cursor-pointer">
+                <Trash2 width={ICON_SIZE} className="mr-2" />
+                Delete token
+              </div>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogDescription>Are you sure you want to delete this token? This action cannot be undone.</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button variant="filled" onClick={handleDeleteToken}>
+              Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
