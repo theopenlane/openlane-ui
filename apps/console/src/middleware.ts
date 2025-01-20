@@ -58,6 +58,8 @@ export const config = {
      * - waitlist (waitlist page)
      * - invite (invite verify page)
      */
+
+    //IF YOU ADD PUBLIC PAGE, ITS REQUIRED TO CHANGE IT IN Providers.tsx
     '/((?!api|[_next/static]|[_next/image]|favicon.ico|backgrounds|backgrounds/|icons|icons/|login|verify|resend-verify|waitlist|invite).*)',
   ],
 }
