@@ -4,7 +4,8 @@ import { SessionProvider } from 'next-auth/react'
 import { Toaster } from '@repo/ui/toaster'
 import Providers from './providers'
 import './globals.css'
-import { pirschAnalyticsKey } from '@repo/dally/auth'
+import { pirschAnalyticsKey, recaptchaSiteKey } from '@repo/dally/auth'
+import Script from 'next/script'
 
 export const metadata: Metadata = {
   title: {
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
   return (
     <html className="h-screen relative" lang="en" suppressHydrationWarning>
       <head>
+        <Script src={`https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`} strategy="lazyOnload" />
         <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
         {pirschAnalyticsKey && <script defer src="https://api.pirsch.io/pa.js" id="pianjs" data-code={pirschAnalyticsKey}></script>}
       </head>

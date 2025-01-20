@@ -18,7 +18,7 @@ import { Label } from '@repo/ui/label'
 import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
 import { startRegistration } from '@simplewebauthn/browser'
 import Link from 'next/link'
-import { allowedLoginDomains } from '@repo/dally/auth'
+import { allowedLoginDomains, recaptchaSiteKey } from '@repo/dally/auth'
 
 const TEMP_PASSKEY_EMAIL = 'tempuser@test.com'
 const TEMP_PASSKEY_NAME = 'Temp User'
@@ -145,8 +145,25 @@ export const SignupPage = () => {
         onSubmit={async (payload: RegisterUser) => {
           setIsLoading(true)
           try {
-            const v: any = await validateEmail(payload)
-            if (!v) {
+            // @ts-ignore
+            const recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'signup' })
+
+            const recaptchaValidation = await fetch('/api/recaptchaVerify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ token: recaptchaToken }),
+            })
+
+            const validationResponse = await recaptchaValidation.json()
+
+            if (!validationResponse.success) {
+              setRegistrationErrorMessage('reCAPTCHA validation failed.')
+              setIsLoading(false)
+              return
+            }
+
+            const isEmailValid = await validateEmail(payload)
+            if (!isEmailValid) {
               router.push('/waitlist')
               return
             }
@@ -166,6 +183,7 @@ export const SignupPage = () => {
               setRegistrationErrorMessage('Passwords do not match')
             }
           } catch (error) {
+            console.error('Signup error:', error)
             setRegistrationErrorMessage('Unknown error. Please try again.')
           } finally {
             setIsLoading(false)
@@ -202,6 +220,17 @@ export const SignupPage = () => {
       </Link>
 
       {showLoginError && <MessageBox className={'p-4 ml-1'} message={registrationErrorMessage} />}
+      <div className="text-[10px] text-gray-500 mt-5 text-center">
+        This site is protected by reCAPTCHA and the Google{' '}
+        <a className="text-blue-500 underline" href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
+          Privacy Policy
+        </a>{' '}
+        and{' '}
+        <a className="text-blue-500 underline" href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">
+          Terms of Service
+        </a>{' '}
+        apply.
+      </div>
     </div>
   )
 }

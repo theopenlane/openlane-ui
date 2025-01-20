@@ -53,3 +53,7 @@ p.red {
     scrollbar-width: none;
   }
 }
+
+.grecaptcha-badge {
+  visibility: hidden;
+}

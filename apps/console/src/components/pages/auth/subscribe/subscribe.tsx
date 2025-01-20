@@ -10,6 +10,7 @@ import { Form, FormField, FormControl, FormMessage } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { useCreateSubscriberMutation } from '@repo/codegen/src/schema'
 import { newsletterStyles } from './subscribe.styles'
+import { recaptchaSiteKey } from '@repo/dally/auth'
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -25,15 +26,41 @@ export const Subscribe = () => {
     },
   })
 
-  // use the mutation to add a subscriber
   const subscribeToNewsletter = async (email: string) => {
-    addSubscriber({
-      input: {
-        email: email,
-      },
-    }).then((result) => {
+    try {
+      // @ts-ignore
+      const recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'subscribe' })
+
+      const recaptchaValidation = await fetch('/api/recaptchaVerify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: recaptchaToken }),
+      })
+
+      const validationResponse = await recaptchaValidation.json()
+
+      if (!validationResponse.success) {
+        console.error('reCAPTCHA validation failed.')
+        return {
+          success: false,
+          message: 'reCAPTCHA validation failed.',
+        }
+      }
+
+      const result = await addSubscriber({
+        input: {
+          email: email,
+        },
+      })
+
       return result
-    })
+    } catch (error) {
+      console.error('Error subscribing to newsletter:', error)
+      return {
+        success: false,
+        message: 'An error occurred while subscribing.',
+      }
+    }
   }
 
   const onSubmit = ({ email }: z.infer<typeof formSchema>) => {
