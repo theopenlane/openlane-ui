@@ -1,12 +1,12 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import { Button } from '@repo/ui/button'
 import { Checkbox } from '@repo/ui/checkbox'
-import { CirclePlusIcon, CopyIcon } from 'lucide-react'
+import { AlertTriangleIcon, CirclePlusIcon, CopyIcon } from 'lucide-react'
 import { toast } from '@repo/ui/use-toast'
 import { useCreatePersonalAccessTokenMutation, useGetPersonalAccessTokensQuery } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
@@ -145,7 +145,9 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
         <DialogContent className="sm:max-w-[455px]">
           <DialogHeader>
             <DialogTitle className="text-2xl font-semibold">Create new token</DialogTitle>
+            <DialogDescription />
           </DialogHeader>
+
           <Form {...form}>
             <form className="space-y-4" onSubmit={form.handleSubmit(handleSubmit)}>
               <FormField
@@ -272,10 +274,16 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
         <DialogContent isClosable={confirmationChecked} className="sm:max-w-[455px]">
           <DialogHeader>
             <DialogTitle className="text-2xl font-semibold">Token created</DialogTitle>
-            <p className="mt-2">Copy your access token now, as you will not be able to see this again</p>
+            <div className="flex gap-3 p-4 border rounded-md">
+              <AlertTriangleIcon />
+              <div>
+                <p className="text-base">Heads up!</p>
+                <p className="text-sm mt-0">Copy your access token now, as you will not be able to see this again</p>
+              </div>
+            </div>
           </DialogHeader>
           <div onClick={handleCopyToken} className=" flex items-center justify-between w-full cursor-pointer">
-            <Input className="bg-background" icon={<CopyIcon />} readOnly value={token} maxWidth />
+            <Input className=" truncate text-sm border-brand bg-background py-0 h-9 " icon={<CopyIcon className="h-4 w-4" />} readOnly value={token} maxWidth />
           </div>
           <div className="flex items-center mt-4">
             <Checkbox id="confirmation" onCheckedChange={(checked: boolean) => setConfirmationChecked(checked)} />
@@ -283,6 +291,13 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
               I have copied the access token and put it in a safe place
             </Label>
           </div>
+          <DialogClose disabled={!confirmationChecked}>
+            <div className="flex">
+              <Button disabled={!confirmationChecked} variant="filled">
+                Close
+              </Button>
+            </div>
+          </DialogClose>
         </DialogContent>
       )}
     </Dialog>

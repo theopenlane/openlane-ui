@@ -50,7 +50,7 @@ export const TokenAction = ({ tokenId, refetchTokens }: TokenActionProps) => {
   return (
     <>
       <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
-        <DropdownMenuTrigger asChild>
+        <DropdownMenuTrigger className="cursor-pointer" asChild>
           <MoreHorizontal className={actionIcon()} />
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-10">
