@@ -2,7 +2,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 
 const billingSettingsStyles = tv({
   slots: {
-    panel: 'p-6',
+    panel: 'p-6 w-2/3',
     section: 'flex justify-between items-start py-6 border-b border-gray-300 last:border-b-0',
     sectionTitle: 'text-xl font-medium text-text-header w-1/5',
     sectionContent: 'flex justify-between w-full gap-4',
