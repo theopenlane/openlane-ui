@@ -57,41 +57,44 @@ const PricingPlan = () => {
   }
 
   return (
-    <Panel className="p-6">
+    <div className="p-6 w-1/3">
       <h2 className="text-2xl">Pricing Plan</h2>
       <div className="mt-4 flex items-center justify-between">
         <div className="flex gap-10 w-full">
-          <div className="w-1/5"></div>
           <div className="w-full">
-            <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-10 text-gray-700">
+            <div className="flex flex-col text-gray-700">
               <Card className="shadow-md max-w-96">
-                <div className="flex flex-col py-3 pl-3  ">
-                  <div className="flex gap-3 items-center">
-                    <p className="text-lg font-medium">{productTier ?? 'N/A'}</p>
-                    <Badge variant={badge.variant} className="text-xs font-normal text-white">
-                      {badge.text}
-                    </Badge>
+                <div className="flex flex-col   ">
+                  <div className="p-4">
+                    <div className="flex gap-3 items-center ">
+                      <p className="text-lg font-medium">{productTier ?? 'N/A'}</p>
+                      <Badge variant={badge.variant} className="text-xs font-normal text-white">
+                        {badge.text}
+                      </Badge>
+                    </div>
+                    {price && <p className="text-sm">{`$${price} / ${priceInterval}`}</p>}
+                    <p className=" text-sm  ">{formattedExpiresDate}</p>
                   </div>
-                  {price && <p className="text-sm">{`$${price} / ${priceInterval}`}</p>}
                 </div>
                 <div className=" border-t"></div>
-
-                <p className=" p-3 text-sm ">{formattedExpiresDate}</p>
+                <div className="p-4 flex justify-center">
+                  {' '}
+                  <Button className=" flex  items-center gap-10 max-w-60" icon={<ExternalLink />} onClick={handleSubscriptionChange}>
+                    Change Subscription
+                  </Button>
+                </div>
               </Card>
-              <Button className="flex items-center gap-10 max-w-60" icon={<ExternalLink />} onClick={handleSubscriptionChange}>
-                Change Subscription
-              </Button>
             </div>
 
             {/* Features List */}
             <h4 className="mt-7 text-lg font-medium text-text-header mb-5">Features in this plan</h4>
-            <ul className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-2 text-gray-700">
+            <ul className="mt-2 flex flex-col gap-y-2 text-gray-700">
               {features?.length > 0 ? features.map((feature: string, index: number) => <FeatureItem key={index} feature={feature} />) : <p className="text-gray-500">No features listed.</p>}
             </ul>
           </div>
         </div>
       </div>
-    </Panel>
+    </div>
   )
 }
 
