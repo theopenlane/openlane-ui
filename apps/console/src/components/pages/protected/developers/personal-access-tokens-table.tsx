@@ -103,7 +103,7 @@ export const PersonalAccessTokenTable = () => {
         <TableRow className={tableRow()}>
           <TableCell colSpan={columns.length}>
             <div className="flex flex-col justify-center items-center">
-              <KeyRound height={89} width={89} className={keyIcon()} />
+              <KeyRound height={89} width={89} className={keyIcon()} strokeWidth={1} color="#DAE3E7" />
               <p className={message()}> No tokens found</p>
               <PersonalApiKeyDialog triggerText />
             </div>
