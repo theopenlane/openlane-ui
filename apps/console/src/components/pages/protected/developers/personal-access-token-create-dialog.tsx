@@ -98,7 +98,6 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
 
         setStep(STEP.CREATED)
         refetch()
-        console.log('Generated Token:', createdToken) // Show this in a modal/dialog if needed
       } else {
         throw new Error('Failed to create token')
       }
