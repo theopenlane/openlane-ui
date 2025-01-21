@@ -1,18 +1,41 @@
+'use client'
 import Link from 'next/link'
 import { headerStyles } from './header.styles'
 import { UserMenu } from '@/components/shared/user-menu/user-menu'
 import { OrganizationSelector } from '@/components/shared/organization-selector/organization-selector'
 import { BreadcrumbNavigation } from '@/components/shared/breadcrumb-nav/breadcrumb'
 import { GlobalSearch } from '@/components/shared/search/search'
+import { sidebarStyles } from '../sidebar/sidebar.styles'
+import { useSidebar } from '@/hooks/useSidebar'
+import { useState } from 'react'
+import { ArrowLeft, MenuIcon, PanelLeft } from 'lucide-react'
 // import { Notifications } from '../notifications/notifications'
 
 export default function Header() {
+  const { isOpen, toggle } = useSidebar()
+  const [status, setStatus] = useState(false)
+
   const { header, nav, mobileSidebar, userNav } = headerStyles()
+  const { expandNav } = sidebarStyles({
+    status,
+    isOpen,
+  })
+
+  const handleToggle = () => {
+    setStatus(true)
+    toggle()
+    setTimeout(() => setStatus(false), 500)
+  }
+
   return (
     <div className={header()}>
       <nav className={nav()}>
         <div className="flex justify-start items-center">
           <OrganizationSelector />
+
+          <div className={expandNav({ isOpen: !isOpen })} onClick={handleToggle}>
+            <PanelLeft height={16} width={16} />
+          </div>
 
           <div className={mobileSidebar()}>
             <>MobileSidebar</>

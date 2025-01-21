@@ -37,7 +37,7 @@ export default function Sidebar({ className }: SidebarProps) {
 
   const isOrganizationSelected = !activeOrg?.personalOrg
 
-  const { nav, sideNav, expandNav, expandNavIcon } = sidebarStyles({
+  const { nav, sideNav } = sidebarStyles({
     status,
     isOpen,
   })
@@ -50,10 +50,6 @@ export default function Sidebar({ className }: SidebarProps) {
 
   return (
     <div className={cn(nav(), className)}>
-      <div className={expandNav({ isOpen: !isOpen })} onClick={handleToggle}>
-        <MenuIcon strokeWidth={3} width={18} />
-        <ArrowLeft className={expandNavIcon()} strokeWidth={3} width={18} />
-      </div>
       <SideNav className={sideNav()} items={isOrganizationSelected ? NavItems : PersonalNavItems} userTaskCount={userTaskCount} />
     </div>
   )
