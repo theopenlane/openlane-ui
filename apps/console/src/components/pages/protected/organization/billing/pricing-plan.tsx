@@ -57,7 +57,7 @@ const PricingPlan = () => {
   }
 
   return (
-    <div className="p-6 w-1/3">
+    <div className="p-6 w-1/3 2xl:w-1/4">
       <h2 className="text-2xl">Pricing Plan</h2>
       <div className="mt-4 flex items-center justify-between">
         <div className="flex gap-10 w-full">
