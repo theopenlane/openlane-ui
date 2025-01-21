@@ -3,13 +3,11 @@ import React, { Suspense } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import PricingPlan from '@/components/pages/protected/organization/billing/pricing-plan'
 import BillingSettings from '@/components/pages/protected/organization/billing/billing-settings'
-import { pageStyles } from '../general-settings/page.styles'
 import { useOrganization } from '@/hooks/useOrganization'
 import { LoaderCircle } from 'lucide-react'
 import { useGetOrganizationBillingQuery } from '@repo/codegen/src/schema'
 
 const OrganizationContent = () => {
-  const { wrapper } = pageStyles()
   const { currentOrgId } = useOrganization()
   const [data] = useGetOrganizationBillingQuery({ pause: !currentOrgId, variables: { organizationId: currentOrgId } })
 
@@ -31,7 +29,7 @@ const OrganizationContent = () => {
           </h2>
         </div>
       ) : (
-        <div className={`${wrapper()} w-full`}>
+        <div className={` flex w-full`}>
           <PricingPlan />
           <BillingSettings />
         </div>
