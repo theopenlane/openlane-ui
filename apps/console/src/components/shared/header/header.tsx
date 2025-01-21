@@ -8,8 +8,7 @@ import { GlobalSearch } from '@/components/shared/search/search'
 import { sidebarStyles } from '../sidebar/sidebar.styles'
 import { useSidebar } from '@/hooks/useSidebar'
 import { useState } from 'react'
-import { ArrowLeft, MenuIcon, PanelLeft } from 'lucide-react'
-// import { Notifications } from '../notifications/notifications'
+import { PanelLeft } from 'lucide-react'
 
 export default function Header() {
   const { isOpen, toggle } = useSidebar()
@@ -50,7 +49,6 @@ export default function Header() {
           <GlobalSearch />
           <Link href="mailto:support@theopenlane.io">Feedback</Link>
           <Link href="https://docs.theopenlane.io">Docs</Link>
-          {/* <Notifications /> */}
           <UserMenu />
         </div>
       </nav>

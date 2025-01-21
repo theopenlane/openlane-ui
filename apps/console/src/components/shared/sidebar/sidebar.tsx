@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 
 import { useSidebar } from '@/hooks/useSidebar'
-import { ArrowLeft, MenuIcon } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
 import { sidebarStyles } from './sidebar.styles'
 import { SideNav } from './sidebar-nav/sidebar-nav'
@@ -16,8 +15,7 @@ interface SidebarProps {
 
 export default function Sidebar({ className }: SidebarProps) {
   const { data: session } = useSession()
-  const { isOpen, toggle } = useSidebar()
-  const [status, setStatus] = useState(false)
+  const { isOpen } = useSidebar()
   const { currentOrgId, allOrgs } = useOrganization()
 
   // get user task count
@@ -38,15 +36,8 @@ export default function Sidebar({ className }: SidebarProps) {
   const isOrganizationSelected = !activeOrg?.personalOrg
 
   const { nav, sideNav } = sidebarStyles({
-    status,
     isOpen,
   })
-
-  const handleToggle = () => {
-    setStatus(true)
-    toggle()
-    setTimeout(() => setStatus(false), 500)
-  }
 
   return (
     <div className={cn(nav(), className)}>
