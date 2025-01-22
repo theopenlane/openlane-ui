@@ -1,0 +1,38 @@
+query GetTFASettings {
+  tfaSettings {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}
+
+query GetUserTFASettings($userId: ID!) {
+  user(id: $userId) {
+    tfaSettings {
+      createdAt
+      createdBy
+      deletedAt
+      deletedBy
+      id
+      totpAllowed
+      updatedAt
+      updatedBy
+      verified
+      owner {
+        displayName
+        firstName
+        lastName
+      }
+    }
+  }
+}
+
+mutation UpdateTFASetting($input: UpdateTFASettingInput!) {
+  updateTFASetting(input: $input) {
+    tfaSetting {
+      id
+    }
+  }
+}
