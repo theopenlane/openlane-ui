@@ -20,6 +20,7 @@ import { startAuthentication } from '@simplewebauthn/browser'
 import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
 import Link from 'next/link'
 import { recaptchaSiteKey } from '@repo/dally/auth'
+import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@repo/ui/input-otp'
 
 const TEMP_PASSKEY_EMAIL = 'tempuser@test.com'
 const TEMP_PASSKEY_NAME = 'Temp User'
@@ -217,6 +218,19 @@ export const LoginPage = () => {
           apply.
         </div>
         {showLoginError && <MessageBox className={'p-4 ml-1'} message={signInErrorMessage} />}
+        <InputOTP maxLength={6}>
+          <InputOTPGroup>
+            <InputOTPSlot index={0} />
+            <InputOTPSlot index={1} />
+            <InputOTPSlot index={2} />
+          </InputOTPGroup>
+          <InputOTPSeparator />
+          <InputOTPGroup>
+            <InputOTPSlot index={3} />
+            <InputOTPSlot index={4} />
+            <InputOTPSlot index={5} />
+          </InputOTPGroup>
+        </InputOTP>
       </div>
     </>
   )

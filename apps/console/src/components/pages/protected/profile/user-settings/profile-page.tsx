@@ -80,7 +80,7 @@ const ProfilePage = () => {
         placeholderImage={userData?.user.avatarFile?.presignedURL || sessionData?.user?.image}
       />
       <div className="tfa-settings">
-        <Checkbox checked={tfaData?.user?.tfaSettings?.totpAllowed ?? false} disabled={isTfaSubmitting} onCheckedChange={handleTfaChange}></Checkbox>
+        {/* <Checkbox checked={tfaData?.user?.tfaSettings?.totpAllowed ?? false} disabled={isTfaSubmitting} onCheckedChange={handleTfaChange}></Checkbox> */}
         <Label>Enable Two-Factor Authentication</Label>
       </div>
       <Suspense fallback={<Loader />}>
