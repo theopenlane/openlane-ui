@@ -28,9 +28,19 @@ interface DataTableProps<TData, TValue> {
   showVisibility?: boolean
   noResultsText?: string
   noDataMarkup?: ReactElement
+  onRowClick?: (rowData: TData) => void
 }
 
-export function DataTable<TData, TValue>({ columns, loading = false, data, showFilter = false, showVisibility = false, noResultsText = 'No results', noDataMarkup }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({
+  columns,
+  loading = false,
+  data,
+  showFilter = false,
+  showVisibility = false,
+  noResultsText = 'No results',
+  noDataMarkup,
+  onRowClick,
+}: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
@@ -112,7 +122,7 @@ export function DataTable<TData, TValue>({ columns, loading = false, data, showF
         <TableBody>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+              <TableRow onClick={() => onRowClick?.(row.original)} key={row.id} data-state={row.getIsSelected() && 'selected'}>
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                 ))}
