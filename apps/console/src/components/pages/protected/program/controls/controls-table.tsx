@@ -132,7 +132,7 @@ const ControlsTable: React.FC = () => {
               <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-2">
                   <h1 className="text-2xl font-semibold text-oxford-blue-900">{currentRow.name}</h1>
-                  <Button variant="outline" className="ml-2" icon={<PencilIcon />} iconPosition="left">
+                  <Button variant="outline" icon={<PencilIcon />} iconPosition="left" className="ml-2 py-2 px-2" size="sm">
                     Edit
                   </Button>
                 </div>
@@ -140,34 +140,36 @@ const ControlsTable: React.FC = () => {
               <div className="flex justify-between items-center border p-4 rounded-md mb-4">
                 {/* Updated Info */}
                 <div className="flex items-center gap-2">
-                  <span className="text-gray-500">Updated:</span>
-                  <span className="font-medium">{currentRow.updatedAt}</span>
-                  <Avatar>
+                  <span className="text-sm font-medium">Updated:</span>
+                  <span className="text-sm">{currentRow.updatedAt}</span>
+                  <Avatar variant="small">
                     <AvatarImage src="/path/to/updated-by-avatar.png" alt="Updated By" />
                     <AvatarFallback>{currentRow.updatedBy[0]}</AvatarFallback>
                   </Avatar>
-                  <span className="font-medium">{currentRow.updatedBy}</span>
+                  <span className="text-sm">{currentRow.updatedBy}</span>
                 </div>
+
+                <div className="border h-6" />
 
                 {/* Created Info */}
                 <div className="flex items-center gap-2">
-                  <span className="text-gray-500">Created:</span>
-                  <span className="font-medium">{currentRow.createdAt}</span>
-                  <Avatar>
+                  <span className="text-sm font-medium">Created:</span>
+                  <span className="text-sm">{currentRow.createdAt}</span>
+                  <Avatar variant="small">
                     <AvatarImage src="/path/to/created-by-avatar.png" alt="Created By" />
                     <AvatarFallback>{currentRow.createdBy[0]}</AvatarFallback>
                   </Avatar>
-                  <span className="font-medium">{currentRow.createdBy}</span>
+                  <span className="text-sm">{currentRow.createdBy}</span>
                 </div>
               </div>
 
               {/* Description Section */}
-              <h2 className="mt-4 font-bold">Point of Focus</h2>
-              <p>{currentRow.description}</p>
+              <h2 className="text-xl mt-4 font-medium">Point of Focus</h2>
+              <p className="text-sm ">{currentRow.description}</p>
 
               {/* Tags Section */}
               <div className="mt-4">
-                <h3 className="font-bold">Tags</h3>
+                <h3 className="text-xl font-medium font-bold">Tags</h3>
                 <div className="flex gap-2 mt-2">
                   {currentRow.tags.map((tag: string, index: number) => (
                     <Badge key={index} variant="outline">
