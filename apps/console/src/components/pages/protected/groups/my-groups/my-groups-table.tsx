@@ -6,8 +6,11 @@ import { Button } from '@repo/ui/button'
 import { DataTable } from '@repo/ui/data-table'
 // import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { ColumnDef } from '@tanstack/table-core'
-import { DownloadIcon, GlobeIcon, LockIcon, PencilIcon } from 'lucide-react'
+import { GlobeIcon, LockIcon, Users2Icon } from 'lucide-react'
 import React, { useState } from 'react'
+import { TableCell, TableRow } from '../../../../../../../../packages/ui/src/table/table'
+import { myGroupsTableStyles } from './my-groups-table-styles'
+import CreateGroupDialog from '@/app/(protected)/groups/my-groups/create-group-dialog'
 
 // Sample data
 const data = [
@@ -21,7 +24,7 @@ const data = [
     updatedAt: 'less than a day',
     createdBy: 'Kelsey Waters',
     createdAt: 'January 7, 2024 1:22 PM',
-    owners: [{ avatar: '/path/to/avatar1.png', fallback: 'K' }],
+    members: [{ avatar: '/path/to/avatar1.png', fallback: 'K' }],
   },
   {
     name: 'CC1.3',
@@ -33,7 +36,7 @@ const data = [
     updatedAt: '2 days ago',
     createdBy: 'Kelsey Waters',
     createdAt: 'January 5, 2024 10:15 AM',
-    owners: [{ avatar: '/path/to/avatar2.png', fallback: 'S' }],
+    members: [{ avatar: '/path/to/avatar2.png', fallback: 'S' }],
   },
 ]
 
@@ -45,17 +48,12 @@ const columns: ColumnDef<any>[] = [
     cell: ({ row }) => <div>{row.getValue('name')}</div>,
   },
   {
-    header: 'Ref',
-    accessorKey: 'ref',
-    cell: ({ row }) => <div>{row.getValue('ref')}</div>,
-  },
-  {
     header: 'Description',
     accessorKey: 'description',
     cell: ({ row }) => (
       <div>
         <p>{row.getValue('description')}</p>
-        <div className="mt-2 border-t border-dotted pt-2 flex flex-wrap gap-2">
+        <div className="mt-2 border-t border-dashed pt-2 flex flex-wrap gap-2">
           {row.original.tags.map((tag: string, index: number) => (
             <Badge key={index} variant="outline">
               {tag}
@@ -79,11 +77,11 @@ const columns: ColumnDef<any>[] = [
     },
   },
   {
-    header: 'Owners',
-    accessorKey: 'owners',
+    header: 'Members',
+    accessorKey: 'members',
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
-        {row.getValue('owners').map((owner: any, index: number) => (
+        {row.getValue('members').map((owner: any, index: number) => (
           <Avatar key={index}>
             <AvatarImage src={owner.avatar} alt={owner.fallback} />
             <AvatarFallback>{owner.fallback}</AvatarFallback>
@@ -94,27 +92,9 @@ const columns: ColumnDef<any>[] = [
   },
 ]
 
-// CSV export utility
-const exportToCSV = (data: any[], fileName: string) => {
-  const csvRows = []
+const MyGroupsTable: React.FC = () => {
+  const { tableRow, keyIcon, message } = myGroupsTableStyles()
 
-  csvRows.push(['Name', 'Ref', 'Description', 'Tags', 'Status', 'Owners'].join(','))
-
-  data.forEach((row) => {
-    const owners = row.owners.map((o: any) => o.fallback).join(' | ')
-    csvRows.push([row.name, row.ref, row.description, row.tags.join('; '), row.status, owners].join(','))
-  })
-
-  const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `${fileName}.csv`
-  a.click()
-  URL.revokeObjectURL(url)
-}
-
-const AllGroupsTable: React.FC = () => {
   const [isSheetOpen, setSheetOpen] = useState(false)
   const [currentRow, setCurrentRow] = useState<any>(null)
 
@@ -124,16 +104,23 @@ const AllGroupsTable: React.FC = () => {
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-bold">Controls Table</h1>
-        <Button onClick={() => exportToCSV(data, 'control_list')} icon={<DownloadIcon />} iconPosition="left">
-          Export
-        </Button>
-      </div>
-      <DataTable columns={columns} data={data} onRowClick={(row: any) => handleRowClick(row)} />
-    </div>
+    <DataTable
+      columns={columns}
+      data={data}
+      onRowClick={(row: any) => handleRowClick(row)}
+      noDataMarkup={
+        <TableRow className={tableRow()}>
+          <TableCell colSpan={columns.length}>
+            <div className="flex flex-col justify-center items-center">
+              <Users2Icon height={89} width={89} className={keyIcon()} strokeWidth={1} color="#DAE3E7" />
+              <p className={message()}> You're not part of any group.</p>
+              <CreateGroupDialog triggerText />
+            </div>
+          </TableCell>
+        </TableRow>
+      }
+    />
   )
 }
 
-export default AllGroupsTable
+export default MyGroupsTable
