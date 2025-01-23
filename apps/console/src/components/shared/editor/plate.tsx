@@ -19,7 +19,7 @@ import PlateConfig from './plate-config'
 const editor = createPlateEditor(Object.assign({}, PlateConfig, { value: '' }))
 
 type Props = {
-  content?: TElement[]
+  content?: TElement[] | null
   onChange?: (content: Value) => void
 }
 

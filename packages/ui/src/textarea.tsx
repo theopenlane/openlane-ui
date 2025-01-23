@@ -19,12 +19,10 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, React.ComponentProps<'tex
 )
 Textarea.displayName = 'Textarea'
 
-type EditableTextareaProps = React.ComponentProps<'textarea'> & {
-  onSave: (v: string) => void
-}
+type EditableTextareaProps = React.ComponentProps<'textarea'>
 
 const EditableTextarea = React.forwardRef<HTMLTextAreaElement, EditableTextareaProps>(
-  ({ onSave, className, ...props }, ref) => {
+  ({ className, ...props }, ref) => {
     const textarea = React.useRef()
     const [editing, setEditing] = React.useState<boolean>(false)
 
@@ -32,7 +30,6 @@ const EditableTextarea = React.forwardRef<HTMLTextAreaElement, EditableTextareaP
       return (
         <textarea
           onBlur={(e) => {
-            if (onSave) onSave(e.target.value)
             setEditing(false)
           }}
           className={cn(
