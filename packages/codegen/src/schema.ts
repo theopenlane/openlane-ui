@@ -18842,6 +18842,12 @@ export type UpdateTfaSettingMutationVariables = Exact<{
 
 export type UpdateTfaSettingMutation = { __typename?: 'Mutation'; updateTFASetting: { __typename?: 'TFASettingUpdatePayload'; tfaSetting: { __typename?: 'TFASetting'; id: string } } }
 
+export type CreateTfaSettingMutationVariables = Exact<{
+  input: CreateTfaSettingInput
+}>
+
+export type CreateTfaSettingMutation = { __typename?: 'Mutation'; createTFASetting: { __typename?: 'TFASettingCreatePayload'; qrCode?: string | null } }
+
 export type GetUserProfileQueryVariables = Exact<{
   userId: Scalars['ID']['input']
 }>
@@ -20084,6 +20090,17 @@ export const UpdateTfaSettingDocument = gql`
 
 export function useUpdateTfaSettingMutation() {
   return Urql.useMutation<UpdateTfaSettingMutation, UpdateTfaSettingMutationVariables>(UpdateTfaSettingDocument)
+}
+export const CreateTfaSettingDocument = gql`
+  mutation CreateTFASetting($input: CreateTFASettingInput!) {
+    createTFASetting(input: $input) {
+      qrCode
+    }
+  }
+`
+
+export function useCreateTfaSettingMutation() {
+  return Urql.useMutation<CreateTfaSettingMutation, CreateTfaSettingMutationVariables>(CreateTfaSettingDocument)
 }
 export const GetUserProfileDocument = gql`
   query GetUserProfile($userId: ID!) {

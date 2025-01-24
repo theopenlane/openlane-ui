@@ -3,7 +3,14 @@ import React, { Suspense, useState } from 'react'
 import { ProfileNameForm } from './profile-name-form'
 import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
 import { useSession } from 'next-auth/react'
-import { GetUserProfileQueryVariables, useGetUserProfileQuery, useGetUserTfaSettingsQuery, useUpdateTfaSettingMutation, useUpdateUserMutation } from '@repo/codegen/src/schema'
+import {
+  GetUserProfileQueryVariables,
+  useCreateTfaSettingMutation,
+  useGetUserProfileQuery,
+  useGetUserTfaSettingsQuery,
+  useUpdateTfaSettingMutation,
+  useUpdateUserMutation,
+} from '@repo/codegen/src/schema'
 import { toast } from '@repo/ui/use-toast'
 import DefaultOrgForm from './default-org-form'
 import { Loader } from 'lucide-react'
@@ -25,7 +32,10 @@ const ProfilePage = () => {
   const [{ fetching: isSubmitting }, updateUser] = useUpdateUserMutation()
 
   const [{ data: tfaData }] = useGetUserTfaSettingsQuery({ variables })
+
   const [{ fetching: isTfaSubmitting }, updateTfaSetting] = useUpdateTfaSettingMutation()
+  const [{ fetching: isTfaCreating }, createTfaSetting] = useCreateTfaSettingMutation()
+
   console.log('tfaData', tfaData)
   const handleUploadAvatar = async (file: File) => {
     if (!userId) return
@@ -52,7 +62,7 @@ const ProfilePage = () => {
 
   const handleTfaChange = async (checked: boolean) => {
     try {
-      await updateTfaSetting({
+      await createTfaSetting({
         input: {
           totpAllowed: checked,
         },
@@ -80,7 +90,7 @@ const ProfilePage = () => {
         placeholderImage={userData?.user.avatarFile?.presignedURL || sessionData?.user?.image}
       />
       <div className="tfa-settings">
-        {/* <Checkbox checked={tfaData?.user?.tfaSettings?.totpAllowed ?? false} disabled={isTfaSubmitting} onCheckedChange={handleTfaChange}></Checkbox> */}
+        <Checkbox checked={tfaData?.user?.tfaSettings?.totpAllowed ?? false} disabled={isTfaSubmitting} onCheckedChange={handleTfaChange}></Checkbox>
         <Label>Enable Two-Factor Authentication</Label>
       </div>
       <Suspense fallback={<Loader />}>

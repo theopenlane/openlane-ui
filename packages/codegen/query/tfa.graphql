@@ -36,3 +36,9 @@ mutation UpdateTFASetting($input: UpdateTFASettingInput!) {
     }
   }
 }
+
+mutation CreateTFASetting($input: CreateTFASettingInput!) {
+  createTFASetting(input: $input) {
+    qrCode
+  }
+}
