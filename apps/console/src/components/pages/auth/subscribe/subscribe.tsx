@@ -28,22 +28,24 @@ export const Subscribe = () => {
 
   const subscribeToNewsletter = async (email: string) => {
     try {
-      // @ts-ignore
-      const recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'subscribe' })
+      if (recaptchaSiteKey) {
+        // @ts-ignore
+        const recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'subscribe' })
 
-      const recaptchaValidation = await fetch('/api/recaptchaVerify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: recaptchaToken }),
-      })
+        const recaptchaValidation = await fetch('/api/recaptchaVerify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: recaptchaToken }),
+        })
 
-      const validationResponse = await recaptchaValidation.json()
+        const validationResponse = await recaptchaValidation.json()
 
-      if (!validationResponse.success) {
-        console.error('reCAPTCHA validation failed.')
-        return {
-          success: false,
-          message: 'reCAPTCHA validation failed.',
+        if (!validationResponse.success) {
+          console.error('reCAPTCHA validation failed.')
+          return {
+            success: false,
+            message: 'reCAPTCHA validation failed.',
+          }
         }
       }
 
