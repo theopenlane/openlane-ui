@@ -1,5 +1,5 @@
 'use client'
-import React, { Suspense, useState } from 'react'
+import React, { Suspense } from 'react'
 import { ProfileNameForm } from './profile-name-form'
 import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
 import { useSession } from 'next-auth/react'
@@ -16,6 +16,7 @@ import DefaultOrgForm from './default-org-form'
 import { Loader } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
 import { Label } from '@repo/ui/label'
+import QRCodeDialog from './qrcode-dialog'
 
 const ProfilePage = () => {
   const { data: sessionData } = useSession()
@@ -36,7 +37,6 @@ const ProfilePage = () => {
   const [{ fetching: isTfaSubmitting }, updateTfaSetting] = useUpdateTfaSettingMutation()
   const [{ fetching: isTfaCreating }, createTfaSetting] = useCreateTfaSettingMutation()
 
-  console.log('tfaData', tfaData)
   const handleUploadAvatar = async (file: File) => {
     if (!userId) return
 
@@ -93,6 +93,8 @@ const ProfilePage = () => {
         <Checkbox checked={tfaData?.user?.tfaSettings?.totpAllowed ?? false} disabled={isTfaSubmitting} onCheckedChange={handleTfaChange}></Checkbox>
         <Label>Enable Two-Factor Authentication</Label>
       </div>
+      <QRCodeDialog />
+
       <Suspense fallback={<Loader />}>
         <DefaultOrgForm />
       </Suspense>
