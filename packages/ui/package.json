@@ -179,7 +179,7 @@
     "eslint": "latest",
     "postcss": "latest",
     "react": "latest",
-    "tailwindcss": "latest",
+    "tailwindcss": "3.4.17",
     "tailwind-variants": "^0.3.0",
     "tsup": "latest",
     "typescript": "5.6.3"
