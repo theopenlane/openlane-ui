@@ -1,0 +1,10 @@
+query useGetVendor($where: EntityWhereInput) {
+  entities(where: $where) {
+    edges {
+      node {
+        id
+        name
+      }
+    }
+  }
+}
