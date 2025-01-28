@@ -10,7 +10,9 @@ interface InfoPanelProps {
 export const InfoPanel: React.FC<InfoPanelProps> = ({ className = '', children, ...props }) => {
   return (
     <Panel className={`@container p-0 ${className}`} {...props}>
-      <div className="flex flex-col divide-y @md:flex-row @md:divide-x @md:divide-y-0 divide-oxford-blue-100 dark:divide-oxford-blue-900 *:px-4 *:py-2">{children}</div>
+      <div className="flex flex-col divide-y @md:flex-row @md:divide-x @md:divide-y-0 @md:items-center divide-oxford-blue-100 dark:divide-oxford-blue-900 *:px-4 *:py-2">
+        {children}
+      </div>
     </Panel>
   )
 }

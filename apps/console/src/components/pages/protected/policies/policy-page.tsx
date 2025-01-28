@@ -11,7 +11,7 @@ import { z } from 'zod'
 
 export type EditableField = 'name' | 'description' | 'background' | 'purposeAndScope'
 
-const UpdateInternalPolicyValidator = z.object({
+export const UpdateInternalPolicyValidator = z.object({
   name: z.string(),
   background: z.string(),
   description: z.string(),
@@ -29,10 +29,9 @@ type PolicyPageProps = {
 export function PolicyPage({ policyId }: PolicyPageProps) {
   console.log('PolicyPage: render')
 
-  const [policy, setPolicy] = useState({} as InternalPolicyByIdFragment)
-
-  const [{ data }] = useGetInternalPolicyDetailsByIdQuery({ variables: { internalPolicyId: policyId } })
   const [{ error: updateError }, updatePolicy] = useUpdateInternalPolicyMutation()
+  const [{ data }] = useGetInternalPolicyDetailsByIdQuery({ variables: { internalPolicyId: policyId } })
+  const [policy, setPolicy] = useState({} as InternalPolicyUpdateFieldsFragment)
 
   useEffect(() => {
     console.log('PolicyPage: useEffect: setPolicy(data?.internalPolicy)', data)
@@ -40,13 +39,11 @@ export function PolicyPage({ policyId }: PolicyPageProps) {
     setPolicy(data.internalPolicy)
   }, [data])
 
-  const setField = (field: EditableField, value: string) => {
-    setPolicy({ ...policy, [field]: value })
-  }
+  const policyValidity = UpdateInternalPolicyValidator.safeParse(data?.internalPolicy)
 
-  const onFieldChange = (field: EditableField, value: string) => {
-    console.log('onFieldChange', field, value)
-    setField(field, value)
+  const setField = (field: EditableField, value: string) => {
+    console.log('setField', field, value)
+    setPolicy({ ...policy, [field]: value })
   }
 
   const saveCurrentPolicy = () => {
@@ -61,9 +58,11 @@ export function PolicyPage({ policyId }: PolicyPageProps) {
       details,
     }
 
+    // check that we're valid
     UpdateInternalPolicyValidator.parse(input)
 
     console.log('PolicyPage: saveCurrentPolicy', { updateInternalPolicyId, input })
+
     updatePolicy({ updateInternalPolicyId, input })
   }
 
@@ -92,16 +91,10 @@ export function PolicyPage({ policyId }: PolicyPageProps) {
         onChange={onNameChange}
       />
 
-      <PolicyInfoBar
-        status={data.internalPolicy.status}
-        version={data.internalPolicy.version}
-        policyType={data.internalPolicy.policyType}
-        updatedAt={data.internalPolicy.updatedAt}
-        handleSave={() => saveCurrentPolicy()}
-      />
+      <PolicyInfoBar policy={policy} handleSave={saveCurrentPolicy} />
 
       <div className="flex flex-col md:flex-row-reverse gap-5 w-full">
-        <PolicySidebar policy={data.internalPolicy} onFieldChange={onFieldChange} />
+        <PolicySidebar policy={policy} onFieldChange={setField} />
 
         <div className="w-full">
           <div>
