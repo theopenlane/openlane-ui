@@ -10,8 +10,10 @@ import { ColumnDef } from '@tanstack/react-table'
 import { useCopyToClipboard } from '@uidotdev/usehooks'
 import { useToast } from '@repo/ui/use-toast'
 import { Button } from '@repo/ui/button'
+import { Badge } from '@repo/ui/badge'
 import { PlusIcon } from 'lucide-react'
 import { formatDate } from '@/lib/format-date'
+import { Actions } from './actions/actions'
 
 type VendorEdge = NonNullable<NonNullable<GetVendorQuery['entities']>['edges']>[number]
 
@@ -101,7 +103,7 @@ export const VendorsTable = () => {
       accessorKey: 'tags',
       header: 'Tags',
       cell: ({ row }) => {
-        const tags = `${row?.original?.tags?.join(', ')}`
+        const tags = `${row?.original?.tags}`
         return <div className={nameRow()}>{tags}</div>
       },
     },
@@ -136,6 +138,12 @@ export const VendorsTable = () => {
         const updatedAt = `${row?.original?.updatedAt}`
         return <div className={nameRow()}>{formatDate(updatedAt)}</div>
       },
+    },
+    {
+      accessorKey: 'id',
+      header: '',
+      cell: ({ cell }) => <Actions vendorId={cell.getValue() as string} />,
+      size: 40,
     },
   ]
 
