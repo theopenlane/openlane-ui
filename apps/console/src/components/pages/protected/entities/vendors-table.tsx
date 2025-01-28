@@ -10,6 +10,8 @@ import { ColumnDef } from '@tanstack/react-table'
 import { useCopyToClipboard } from '@uidotdev/usehooks'
 import { useToast } from '@repo/ui/use-toast'
 
+import { formatDate } from '@/lib/format-date'
+
 type VendorEdge = NonNullable<NonNullable<GetVendorQuery['entities']>['edges']>[number]
 
 type Vendor = NonNullable<VendorEdge>['node']
@@ -104,7 +106,7 @@ export const VendorsTable = () => {
       header: 'Created At',
       cell: ({ row }) => {
         const createdAt = `${row?.original?.createdAt}`
-        return <div className={nameRow()}>{createdAt}</div>
+        return <div className={nameRow()}>{formatDate(createdAt)}</div>
       },
     },
     {
@@ -120,7 +122,7 @@ export const VendorsTable = () => {
       header: 'Updated At',
       cell: ({ row }) => {
         const updatedAt = `${row?.original?.updatedAt}`
-        return <div className={nameRow()}>{updatedAt}</div>
+        return <div className={nameRow()}>{formatDate(updatedAt)}</div>
       },
     },
   ]
@@ -129,7 +131,7 @@ export const VendorsTable = () => {
     <div>
       <div className={vendorSearchRow()}>
         <div className={vendorSearchField()}>
-          <Input placeholder="Search for vendor" value={searchTerm} onChange={handleSearch} />
+          <Input placeholder="Search for Vendor" value={searchTerm} onChange={handleSearch} />
         </div>
       </div>
       <DataTable columns={columns} data={vendors} />
