@@ -17,21 +17,8 @@ import { DatePlugin } from '@udecode/plate-date/react'
 import { CaptionPlugin } from '@udecode/plate-caption/react'
 import { isCodeBlockEmpty, isSelectionAtCodeBlockStart, unwrapCodeBlock } from '@udecode/plate-code-block'
 
-import {
-  BoldPlugin,
-  ItalicPlugin,
-  UnderlinePlugin,
-  StrikethroughPlugin,
-  CodePlugin,
-  SubscriptPlugin,
-  SuperscriptPlugin,
-} from '@udecode/plate-basic-marks/react'
-import {
-  BaseFontColorPlugin,
-  BaseFontFamilyPlugin,
-  BaseFontBackgroundColorPlugin,
-  BaseFontSizePlugin,
-} from '@udecode/plate-font'
+import { BoldPlugin, ItalicPlugin, UnderlinePlugin, StrikethroughPlugin, CodePlugin, SubscriptPlugin, SuperscriptPlugin } from '@udecode/plate-basic-marks/react'
+import { BaseFontColorPlugin, BaseFontFamilyPlugin, BaseFontBackgroundColorPlugin, BaseFontSizePlugin } from '@udecode/plate-font'
 import { HistoryPlugin, isBlockAboveEmpty, isSelectionAtBlockStart } from '@udecode/plate-common'
 import { HighlightPlugin } from '@udecode/plate-highlight/react'
 import { KbdPlugin } from '@udecode/plate-kbd/react'

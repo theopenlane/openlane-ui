@@ -1,26 +1,21 @@
-'use client';
+'use client'
 
-import React from 'react';
+import React from 'react'
 
-import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
+import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu'
 
-import { BlockquotePlugin } from '@udecode/plate-block-quote/react';
-import { CodeBlockPlugin } from '@udecode/plate-code-block/react';
-import {
-  type PlateEditor,
-  ParagraphPlugin,
-  focusEditor,
-  useEditorRef,
-} from '@udecode/plate-common/react';
-import { DatePlugin } from '@udecode/plate-date/react';
-import { HEADING_KEYS } from '@udecode/plate-heading';
-import { TocPlugin } from '@udecode/plate-heading/react';
-import { HorizontalRulePlugin } from '@udecode/plate-horizontal-rule/react';
-import { INDENT_LIST_KEYS, ListStyleType } from '@udecode/plate-indent-list';
-import { LinkPlugin } from '@udecode/plate-link/react';
-import { ImagePlugin, MediaEmbedPlugin } from '@udecode/plate-media/react';
-import { TablePlugin } from '@udecode/plate-table/react';
-import { TogglePlugin } from '@udecode/plate-toggle/react';
+import { BlockquotePlugin } from '@udecode/plate-block-quote/react'
+import { CodeBlockPlugin } from '@udecode/plate-code-block/react'
+import { type PlateEditor, ParagraphPlugin, focusEditor, useEditorRef } from '@udecode/plate-common/react'
+import { DatePlugin } from '@udecode/plate-date/react'
+import { HEADING_KEYS } from '@udecode/plate-heading'
+import { TocPlugin } from '@udecode/plate-heading/react'
+import { HorizontalRulePlugin } from '@udecode/plate-horizontal-rule/react'
+import { INDENT_LIST_KEYS, ListStyleType } from '@udecode/plate-indent-list'
+import { LinkPlugin } from '@udecode/plate-link/react'
+import { ImagePlugin, MediaEmbedPlugin } from '@udecode/plate-media/react'
+import { TablePlugin } from '@udecode/plate-table/react'
+import { TogglePlugin } from '@udecode/plate-toggle/react'
 import {
   CalendarIcon,
   ChevronRightIcon,
@@ -42,34 +37,24 @@ import {
   SquareIcon,
   TableIcon,
   TableOfContentsIcon,
-} from 'lucide-react';
+} from 'lucide-react'
 
-import {
-  insertBlock,
-  insertInlineElement,
-} from '../editor/transforms';
+import { insertBlock, insertInlineElement } from '../editor/transforms'
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  useOpenState,
-} from './dropdown-menu';
-import { ToolbarButton } from './toolbar';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger, useOpenState } from './dropdown-menu'
+import { ToolbarButton } from './toolbar'
 
 type Group = {
-  group: string;
-  items: Item[];
-};
+  group: string
+  items: Item[]
+}
 
 interface Item {
-  icon: React.ReactNode;
-  onSelect: (editor: PlateEditor, value: string) => void;
-  value: string;
-  focusEditor?: boolean;
-  label?: string;
+  icon: React.ReactNode
+  onSelect: (editor: PlateEditor, value: string) => void
+  value: string
+  focusEditor?: boolean
+  label?: string
 }
 
 const groups: Group[] = [
@@ -119,7 +104,7 @@ const groups: Group[] = [
     ].map((item) => ({
       ...item,
       onSelect: (editor, value) => {
-        insertBlock(editor, value);
+        insertBlock(editor, value)
       },
     })),
   },
@@ -149,7 +134,7 @@ const groups: Group[] = [
     ].map((item) => ({
       ...item,
       onSelect: (editor, value) => {
-        insertBlock(editor, value);
+        insertBlock(editor, value)
       },
     })),
   },
@@ -169,7 +154,7 @@ const groups: Group[] = [
     ].map((item) => ({
       ...item,
       onSelect: (editor, value) => {
-        insertBlock(editor, value);
+        insertBlock(editor, value)
       },
     })),
   },
@@ -190,37 +175,34 @@ const groups: Group[] = [
     ].map((item) => ({
       ...item,
       onSelect: (editor, value) => {
-        insertInlineElement(editor, value);
+        insertInlineElement(editor, value)
       },
     })),
   },
-];
+]
 
 export function InsertDropdownMenu(props: DropdownMenuProps) {
-  const editor = useEditorRef();
-  const openState = useOpenState();
+  const editor = useEditorRef()
+  const openState = useOpenState()
 
   return (
     <DropdownMenu modal={false} {...openState} {...props}>
       <DropdownMenuTrigger asChild>
-        <ToolbarButton pressed={openState.open} tooltip='Insert' isDropdown>
+        <ToolbarButton pressed={openState.open} tooltip="Insert" isDropdown>
           <PlusIcon />
         </ToolbarButton>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent
-        className='flex max-h-[500px] min-w-0 flex-col overflow-y-auto'
-        align='start'
-      >
+      <DropdownMenuContent className="flex max-h-[500px] min-w-0 flex-col overflow-y-auto" align="start">
         {groups.map(({ group, items: nestedItems }) => (
           <DropdownMenuGroup key={group} label={group}>
             {nestedItems.map(({ icon, label, value, onSelect }) => (
               <DropdownMenuItem
                 key={value}
-                className='min-w-[180px]'
+                className="min-w-[180px]"
                 onSelect={() => {
-                  onSelect(editor, value);
-                  focusEditor(editor);
+                  onSelect(editor, value)
+                  focusEditor(editor)
                 }}
               >
                 {icon}
@@ -231,5 +213,5 @@ export function InsertDropdownMenu(props: DropdownMenuProps) {
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

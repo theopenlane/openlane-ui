@@ -32,16 +32,10 @@ export const TokenVerifier = () => {
         <div className="mx-auto mb-3">
           <Logo width={200} />
         </div>
-        {isLoading ? (
-          <h1 className="text-3xl text-center mt-4 animate-pulse">
-            Verifying your account...
-          </h1>
-        ) : null}
+        {isLoading ? <h1 className="text-3xl text-center mt-4 animate-pulse">Verifying your account...</h1> : null}
         {!isLoading && (
           <div>
-            <h1 className="text-3xl text-center mt-4 text-oxford-blue-100" >
-              Please check your email to verify your account.
-            </h1>
+            <h1 className="text-3xl text-center mt-4 text-oxford-blue-100">Please check your email to verify your account.</h1>
           </div>
         )}
         <div className="mt-12">

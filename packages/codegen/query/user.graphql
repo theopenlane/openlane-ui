@@ -6,16 +6,36 @@ query GetUserProfile($userId: ID!) {
     displayName
     email
     avatarRemoteURL
+    displayName
+    avatarFile {
+      presignedURL
+    }
     setting {
+      id
       status
       tags
+      defaultOrg {
+        id
+        displayName
+      }
     }
   }
 }
 
-mutation updateUserName($updateUserId: ID!, $input: UpdateUserInput!) {
-  updateUser(id: $updateUserId, input: $input) {
+mutation UpdateUser($updateUserId: ID!, $input: UpdateUserInput!, $avatarFile: Upload) {
+  updateUser(id: $updateUserId, input: $input, avatarFile: $avatarFile) {
     user {
+      id
+      avatarFile {
+        presignedURL
+      }
+    }
+  }
+}
+
+mutation UpdateUserSetting($updateUserSettingId: ID!, $input: UpdateUserSettingInput!) {
+  updateUserSetting(id: $updateUserSettingId, input: $input) {
+    userSetting {
       id
     }
   }

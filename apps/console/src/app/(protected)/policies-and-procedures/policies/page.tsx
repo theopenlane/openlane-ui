@@ -8,7 +8,6 @@ const Page: React.FC = () => {
       <PageHeading eyebrow="Policies & Procedures" heading="Internal Policies" />
 
       <PoliciesTable />
-
     </>
   )
 }

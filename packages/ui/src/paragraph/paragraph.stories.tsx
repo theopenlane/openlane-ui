@@ -12,7 +12,7 @@ const meta: Meta<typeof Paragraph> = {
     },
     backgrounds: { default: 'white' },
   },
-  render: (args : any) => {
+  render: (args: any) => {
     return <Paragraph {...args} />
   },
 } satisfies Meta<typeof Paragraph>
@@ -22,6 +22,6 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
-    paragraph: "The quick brown fox jumps over the lazy dog",
+    paragraph: 'The quick brown fox jumps over the lazy dog',
   },
 }

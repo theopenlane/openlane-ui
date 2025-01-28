@@ -1,4 +1,4 @@
-import { restUrl } from '@repo/dally/auth'
+import { openlaneAPIUrl } from '@repo/dally/auth'
 import Credentials from 'next-auth/providers/credentials'
 import { setSessionCookie } from '../utils/set-session-cookie'
 
@@ -22,7 +22,7 @@ export const credentialsProvider = Credentials({
          * route in an env var that way we don't expose
          * your API login routes to our end users
          */
-        const fData = await fetch(`${restUrl}/v1/login`, {
+        const fData = await fetch(`${openlaneAPIUrl}/v1/login`, {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({
@@ -51,20 +51,16 @@ export const credentialsProvider = Credentials({
 
       setSessionCookie(session)
 
-      const uData = await fetch(`${restUrl}/oauth/userinfo`, {
+      const uData = await fetch(`${openlaneAPIUrl}/oauth/userinfo`, {
         method: 'GET',
         headers: { Authorization: `Bearer ${accessToken}` },
       })
 
       if (uData.ok) {
         const data = await uData.json()
-
         return {
           accessToken,
           refreshToken,
-          email: data?.email,
-          name: `${data?.first_name} ${data?.last_name}`,
-          image: data?.avatar_remote_url,
           ...data,
         }
       } else {

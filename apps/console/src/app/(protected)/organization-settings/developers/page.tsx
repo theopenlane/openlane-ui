@@ -1,6 +1,6 @@
+import DevelopersPage from '@/components/pages/protected/developers/developers-user-page'
 import { PageHeading } from '@repo/ui/page-heading'
 import type { Metadata } from 'next/types'
-import DevelopersPage from '@/components/pages/protected/developers/developers-organization-page'
 
 export const metadata: Metadata = {
   title: 'Organization settings',
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 const Page: React.FC = () => {
   return (
     <>
-      <PageHeading heading="Developers" eyebrow="Organization Settings" />
+      <PageHeading heading="Developers" />
       <DevelopersPage />
     </>
   )

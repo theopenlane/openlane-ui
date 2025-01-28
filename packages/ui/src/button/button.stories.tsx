@@ -14,8 +14,7 @@ const meta: Meta<typeof Button> = {
   parameters: {
     docs: {
       description: {
-        component:
-          'Displays a button or a component that looks like a button: https://ui.shadcn.com/docs/components/button',
+        component: 'Displays a button or a component that looks like a button: https://ui.shadcn.com/docs/components/button',
       },
     },
   },
@@ -60,7 +59,6 @@ export const filled: Story = {
     variant: 'filled',
   },
 }
-
 
 export const Outline: Story = {
   args: {

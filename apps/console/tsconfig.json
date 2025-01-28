@@ -11,14 +11,6 @@
     },
     "strictNullChecks": true
   },
-  "include": [
-    "next-env.d.ts",
-    "next-auth.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts",
-    "postcss.config.js",
-    "../../packages/config-typescript/typings.d.ts"
-  ],
+  "include": ["next-env.d.ts", "next-auth.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "postcss.config.js", "../../packages/config-typescript/typings.d.ts"],
   "exclude": ["node_modules", "dist", "build", "coverage", ".next", ".turbo"]
 }

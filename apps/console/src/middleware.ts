@@ -31,7 +31,7 @@ export default auth((req) => {
     const sessionData = cookies().get(sessionCookieName)
 
     // if the session cookie is not present, redirect to sign in
-    if (sessionData == null || sessionData.value == "") {
+    if (sessionData == null || sessionData.value == '') {
       hasSessionCookie = false
     }
   }
@@ -58,6 +58,8 @@ export const config = {
      * - waitlist (waitlist page)
      * - invite (invite verify page)
      */
-    '\/((?!api|[_next\/static]|[_next\/image]|favicon.ico|backgrounds|backgrounds\/|icons|icons\/|login|verify|resend-verify|waitlist|invite).*)',
+
+    //IF YOU ADD PUBLIC PAGE, ITS REQUIRED TO CHANGE IT IN Providers.tsx
+    '/((?!api|[_next/static]|[_next/image]|favicon.ico|backgrounds|backgrounds/|icons|icons/|login|verify|resend-verify|waitlist|subscriber-verify|invite).*)',
   ],
 }

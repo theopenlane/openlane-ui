@@ -405,7 +405,7 @@ export const DEFAULT_COLORS = [
     name: 'dark magenta 3',
     value: '#4C1130',
   },
-];
+]
 
 export const DEFAULT_CUSTOM_COLORS = [
   {
@@ -433,4 +433,4 @@ export const DEFAULT_CUSTOM_COLORS = [
     name: 'dark magenta 3',
     value: '#4C1130',
   },
-];
+]

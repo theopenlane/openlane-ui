@@ -2,9 +2,7 @@ import { HTMLAttributes } from 'react'
 import { separatorStyles, type SeparatorVariants } from './separator.styles'
 import { cn } from '../../lib/utils'
 
-export interface SeparatorProps
-  extends SeparatorVariants,
-  HTMLAttributes<HTMLDivElement> {
+export interface SeparatorProps extends SeparatorVariants, HTMLAttributes<HTMLDivElement> {
   label?: string
 }
 

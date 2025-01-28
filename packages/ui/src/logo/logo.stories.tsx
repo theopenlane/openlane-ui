@@ -10,8 +10,7 @@ const meta: Meta<typeof Logo> = {
   parameters: {
     docs: {
       description: {
-        component:
-          'Reusable logo component with full and icon-only variants. Please always use this component rather than importing an SVG',
+        component: 'Reusable logo component with full and icon-only variants. Please always use this component rather than importing an SVG',
       },
     },
   },
@@ -35,24 +34,21 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Light: Story = {
-  parameters: {
-  },
+  parameters: {},
   args: {
     theme: 'light',
   },
 }
 
 export const Dark: Story = {
-  parameters: {
-  },
+  parameters: {},
   args: {
     theme: 'dark',
   },
 }
 
 export const White: Story = {
-  parameters: {
-  },
+  parameters: {},
   args: {
     theme: 'white',
   },

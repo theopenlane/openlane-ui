@@ -2,73 +2,55 @@
 
 import { useEffect, useState } from 'react'
 import { organizationSelectorStyles } from './organization-selector.styles'
-import { useGetAllOrganizationsQuery } from '@repo/codegen/src/schema'
 import { Logo } from '@repo/ui/logo'
 import { Button } from '@repo/ui/button'
 import { ArrowRight, SearchIcon } from 'lucide-react'
 import { ChevronDown } from '@repo/ui/icons/chevron-down'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
-import { Avatar, AvatarFallback } from '@repo/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { Input } from '@repo/ui/input'
 import { Tag } from '@repo/ui/tag'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { switchOrganization } from '@/lib/user'
 import { Loading } from '../loading/loading'
+import { useOrganization } from '@/hooks/useOrganization'
+import { useGetAllOrganizationsWithMembersQuery } from '@repo/codegen/src/schema'
 
 export const OrganizationSelector = () => {
   const { data: sessionData, update: updateSession } = useSession()
-  const currentOrgId = sessionData?.user.activeOrganizationId
 
   const [orgData, setOrgData] = useState({
     organizationSearch: '',
     numberOfOrgs: 0,
-    currentOrgName: ''
-  });
+    currentOrgName: '',
+  })
 
-  const [allOrgs] = useGetAllOrganizationsQuery({ pause: !sessionData })
+  const { currentOrgId } = useOrganization()
 
-  const {
-    container,
-    logoWrapper,
-    organizationLabel,
-    organizationDropdown,
-    allOrganizationsLink,
-    popoverContent,
-    searchWrapper,
-    orgWrapper,
-    orgInfo,
-    orgTitle,
-    orgSelect,
-  } = organizationSelectorStyles()
+  const [{ data: organizationsData, fetching, error }] = useGetAllOrganizationsWithMembersQuery()
+  const orgs = organizationsData?.organizations?.edges ?? []
+  const currentOrg = orgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
+  const { container, logoWrapper, organizationLabel, organizationDropdown, allOrganizationsLink, popoverContent, searchWrapper, orgWrapper, orgInfo, orgTitle, orgSelect } =
+    organizationSelectorStyles()
 
-  const orgs = allOrgs?.data?.organizations.edges || []
   const filteredOrgs = orgs
     .filter((org) => {
-      return (
-        org?.node?.name.toLowerCase().includes(orgData.organizationSearch.toLowerCase()) &&
-        org?.node?.id !== currentOrgId &&
-        !org?.node?.personalOrg
-      )
+      return org?.node?.name.toLowerCase().includes(orgData.organizationSearch.toLowerCase()) && org?.node?.id !== currentOrgId && !org?.node?.personalOrg
     })
     .slice(0, 4)
 
   const nonPersonalOrgs = orgs.filter((org) => !org?.node?.personalOrg)
 
-  const activeOrg = orgs
-    .filter((org) => org?.node?.id === currentOrgId)
-    .map((org) => org?.node)[0]
-
   useEffect(() => {
-    if (allOrgs) {
+    if (currentOrg) {
       setOrgData({
         organizationSearch: '',
         numberOfOrgs: nonPersonalOrgs.length,
-        currentOrgName: activeOrg?.displayName ?? '',
+        currentOrgName: currentOrg?.displayName ?? '',
       })
     }
-
-  }, [allOrgs])
+  }, [currentOrg])
 
   const handleOrganizationSwitch = async (orgId?: string) => {
     if (orgId) {
@@ -90,9 +72,7 @@ export const OrganizationSelector = () => {
     }
   }
 
-  if (!allOrgs) return (
-    <Loading />
-  )
+  if (!orgs) return <Loading />
 
   // if there is only one non-personal organization, show the logo instead of the dropdown
   if (orgData.numberOfOrgs <= 1) {
@@ -111,7 +91,7 @@ export const OrganizationSelector = () => {
         <Popover>
           <PopoverTrigger>
             <div className={organizationDropdown()}>
-              <span>{activeOrg?.displayName}</span>
+              <span>{currentOrg?.displayName}</span>
               <ChevronDown />
             </div>
           </PopoverTrigger>
@@ -125,7 +105,7 @@ export const OrganizationSelector = () => {
                   setOrgData({
                     organizationSearch: e.currentTarget.value,
                     numberOfOrgs: nonPersonalOrgs.length,
-                    currentOrgName: activeOrg?.displayName ?? ''
+                    currentOrgName: currentOrg?.displayName ?? '',
                   })
                 }}
                 icon={<SearchIcon width={17} />}
@@ -133,14 +113,14 @@ export const OrganizationSelector = () => {
             </div>
             {filteredOrgs.map((org) => {
               const role = org?.node?.members?.[0]?.role ?? 'Owner'
+              const image = org?.node?.avatarFile?.presignedURL || org?.node?.avatarRemoteURL
 
               return (
                 <div key={org?.node?.id} className={`${orgWrapper()} group`}>
                   <div>
                     <Avatar>
-                      <AvatarFallback>
-                        {org?.node?.displayName.substring(0, 2)}
-                      </AvatarFallback>
+                      {image && <AvatarImage src={image} />}
+                      <AvatarFallback>{org?.node?.displayName.substring(0, 2)}</AvatarFallback>
                     </Avatar>
                   </div>
                   <div className={orgInfo()}>
@@ -148,11 +128,7 @@ export const OrganizationSelector = () => {
                     <Tag>{role}</Tag>
                   </div>
                   <div className={orgSelect()}>
-                    <Button
-                      variant="filled"
-                      size="md"
-                      onClick={() => handleOrganizationSwitch(org?.node?.id)}
-                    >
+                    <Button variant="filled" size="md" onClick={() => handleOrganizationSwitch(org?.node?.id)}>
                       Select
                     </Button>
                   </div>

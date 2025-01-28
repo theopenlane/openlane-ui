@@ -6,48 +6,11 @@ query GetAllOrganizations {
         name
         displayName
         avatarRemoteURL
-        description
         personalOrg
-        parent {
+        avatarFile {
           id
-          name
+          presignedURL
         }
-        children {
-          edges {
-            node {
-              id
-              name
-              displayName
-              description
-            }
-          }
-        }
-        members {
-          id
-          role
-          user {
-            id
-            firstName
-            lastName
-          }
-        }
-        setting {
-          id
-          createdAt
-          updatedAt
-          createdBy
-          updatedBy
-          domains
-          billingContact
-          billingEmail
-          billingPhone
-          billingAddress
-          taxIdentifier
-          tags
-          geoLocation
-        }
-        createdAt
-        updatedAt
       }
     }
   }
@@ -60,7 +23,7 @@ query GetOrganizationNameByID($organizationId: ID!) {
   }
 }
 
-query GetOrganizationMembers($organizationId: ID!) {
+query GetSingleOrganizationMembers($organizationId: ID!) {
   organization(id: $organizationId) {
     members {
       id
@@ -75,19 +38,29 @@ query GetOrganizationMembers($organizationId: ID!) {
         email
         role
         createdAt
+        avatarFile {
+          id
+          presignedURL
+        }
       }
     }
   }
 }
 
-query GetAllOrganizationMembers {
-  orgMemberships {
+query GetAllOrganizationsWithMembers {
+  organizations {
     edges {
       node {
-        user{
+        id
+        personalOrg
+        displayName
+        name
+        avatarRemoteURL
+        avatarFile {
           id
-          firstName
-          lastName
+          presignedURL
+        }
+        members {
           role
         }
       }
@@ -110,6 +83,50 @@ query GetInvites {
   }
 }
 
+query GetOrganizationBilling($organizationId: ID!) {
+  organization(id: $organizationId) {
+    personalOrg
+    orgSubscriptions {
+      active
+      expiresAt
+      subscriptionURL
+      stripeSubscriptionStatus
+      productTier
+      productPrice
+      features
+      productTier
+    }
+  }
+}
+
+query getOrganizationSetting($organizationId: ID!) {
+  organization(id: $organizationId) {
+    setting {
+      createdAt
+      updatedAt
+      createdBy
+      updatedBy
+      domains
+      billingContact
+      billingEmail
+      billingPhone
+      billingAddress
+      taxIdentifier
+      tags
+      geoLocation
+      billingNotificationsEnabled
+    }
+  }
+}
+
+query getBillingEmail($organizationId: ID!) {
+  organization(id: $organizationId) {
+    setting {
+      billingEmail
+    }
+  }
+}
+
 mutation CreateOrganization($input: CreateOrganizationInput!) {
   createOrganization(input: $input) {
     organization {
@@ -118,11 +135,8 @@ mutation CreateOrganization($input: CreateOrganizationInput!) {
   }
 }
 
-mutation UpdateOrganization(
-  $updateOrganizationId: ID!
-  $input: UpdateOrganizationInput!
-) {
-  updateOrganization(id: $updateOrganizationId, input: $input) {
+mutation UpdateOrganization($updateOrganizationId: ID!, $input: UpdateOrganizationInput!, $avatarFile: Upload) {
+  updateOrganization(id: $updateOrganizationId, input: $input, avatarFile: $avatarFile) {
     organization {
       id
     }

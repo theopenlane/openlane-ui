@@ -5,7 +5,7 @@ export const logoStyles = tv({
     base: 'block max-w-full max-h-full',
     icon: 'fill-logo-foreground',
     iconBackground: 'fill-logo-background',
-    text: 'fill-logo-text'
+    text: 'fill-logo-text',
   },
   variants: {
     theme: {

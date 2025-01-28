@@ -1,10 +1,10 @@
-import { restUrl } from '@repo/dally/auth'
+import { openlaneAPIUrl } from '@repo/dally/auth'
 
 // getTokenFromOpenlaneAPI is a function that takes an oauth user and registers them
 // with the openlane API to get an access token and refresh token
 export const getTokenFromOpenlaneAPI = async (reqBody: any) => {
   try {
-    const response = await fetch(`${restUrl}/oauth/register`, {
+    const response = await fetch(`${openlaneAPIUrl}/oauth/register`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
@@ -16,11 +16,14 @@ export const getTokenFromOpenlaneAPI = async (reqBody: any) => {
         clientToken: reqBody.accessToken as string,
       }),
     })
-      .then((res) => res.json())
-      .then((data) => data)
 
-    return response
+    if (!response.ok) {
+      console.error('❌Error response from API', response)
+      throw new Error(`Error response from API`)
+    }
+
+    return await response.json()
   } catch (error) {
-    throw new Error() //TODO: Sentry logging
+    console.error('❌Error response from API:', error)
   }
 }

@@ -26,32 +26,26 @@ used within the components.
 
 1. Include import:
    ```tsx
-   import { useUpdateUserNameMutation } from "@repo/codegen/src/schema";
+   import { useUpdateUserNameMutation } from '@repo/codegen/src/schema'
    ```
 1. Call function from generated file, using the `useUpdateUserNameMutation` for
    this example:
+
    ```tsx
    // setup mutation function
-   const [{ fetching: isSubmitting }, updateUserName] =
-       useUpdateUserNameMutation();
+   const [{ fetching: isSubmitting }, updateUserName] = useUpdateUserNameMutation()
 
    // add form to collect input
 
    // call update with data from form
-   const updateName = async ({
-       firstName,
-       lastName,
-   }: {
-       firstName: string;
-       lastName: string;
-   }) => {
-       await updateUserName({
-           updateUserId: userId,
-           input: {
-               firstName: firstName,
-               lastName: lastName,
-           },
-       });
-       setIsSuccess(true);
-   };
+   const updateName = async ({ firstName, lastName }: { firstName: string; lastName: string }) => {
+     await updateUserName({
+       updateUserId: userId,
+       input: {
+         firstName: firstName,
+         lastName: lastName,
+       },
+     })
+     setIsSuccess(true)
+   }
    ```

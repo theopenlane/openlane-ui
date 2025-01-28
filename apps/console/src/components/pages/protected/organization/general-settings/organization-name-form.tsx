@@ -1,36 +1,27 @@
 'use client'
-import {
-  useGetAllOrganizationsQuery,
-  useUpdateOrganizationMutation,
-} from '@repo/codegen/src/schema'
+import { useGetAllOrganizationsQuery, useUpdateOrganizationMutation } from '@repo/codegen/src/schema'
 import { Input, InputRow } from '@repo/ui/input'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { useSession } from 'next-auth/react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  Form,
-  FormItem,
-  FormField,
-  FormControl,
-  FormMessage,
-} from '@repo/ui/form'
+import { Form, FormItem, FormField, FormControl, FormMessage } from '@repo/ui/form'
 import { z } from 'zod'
 import { Button } from '@repo/ui/button'
 import { useEffect, useState } from 'react'
 import { RESET_SUCCESS_STATE_MS } from '@/constants'
+import { useOrganization } from '@/hooks/useOrganization'
+import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
+import { toast } from '@repo/ui/use-toast'
 
 const OrganizationNameForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
-  const [{ fetching: isSubmitting }, updateOrg] =
-    useUpdateOrganizationMutation()
-  const { data: sessionData } = useSession()
-  const currentOrgId = sessionData?.user.activeOrganizationId
-  const [allOrgs] = useGetAllOrganizationsQuery({ pause: !sessionData })
-  const currentOrganization = allOrgs.data?.organizations.edges?.filter(
-    (org) => org?.node?.id === currentOrgId,
-  )[0]?.node
+  const [{ fetching: isSubmitting }, updateOrg] = useUpdateOrganizationMutation()
 
+  const { currentOrgId, allOrgs } = useOrganization()
+  const currentOrganization = allOrgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
+
+  const image = currentOrganization?.avatarFile?.presignedURL || currentOrganization?.avatarRemoteURL || ''
   const formSchema = z.object({
     displayName: z.string().min(2, {
       message: 'Display name must be at least 2 characters',
@@ -66,6 +57,28 @@ const OrganizationNameForm = () => {
     await updateOrganization({ displayName: data.displayName })
   }
 
+  const handleUploadAvatar = async (file: File) => {
+    if (!currentOrgId) return
+    try {
+      await updateOrg({
+        updateOrganizationId: currentOrgId,
+        input: {},
+        avatarFile: file,
+      })
+      setIsSuccess(true)
+      toast({
+        title: 'Avatar updated successfully',
+        variant: 'success',
+      })
+    } catch (error) {
+      console.error('file upload error')
+      toast({
+        title: 'Failed to update avatar',
+        variant: 'destructive',
+      })
+    }
+  }
+
   useEffect(() => {
     if (isSuccess) {
       const timer = setTimeout(() => {
@@ -76,38 +89,37 @@ const OrganizationNameForm = () => {
   }, [isSuccess])
 
   return (
-    <Panel>
-      <PanelHeader
-        heading="Organization name"
-        subheading="This is the name of your organization, which will hold your data and other configuration. This would typically be the name of the company you work for or represent."
-        noBorder
-      />
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <InputRow>
-            <FormField
-              control={form.control}
-              name="displayName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input variant="medium" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button
-              variant={isSuccess ? 'success' : 'filled'}
-              type="submit"
-              loading={isSubmitting}
-            >
-              {isSubmitting ? 'Saving' : isSuccess ? 'Saved' : 'Save'}
-            </Button>
-          </InputRow>
-        </form>
-      </Form>
-    </Panel>
+    <>
+      <Panel>
+        <PanelHeader
+          heading="Organization name"
+          subheading="This is the name of your organization, which will hold your data and other configuration. This would typically be the name of the company you work for or represent."
+          noBorder
+        />
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <InputRow>
+              <FormField
+                control={form.control}
+                name="displayName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <Input variant="medium" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button variant={isSuccess ? 'success' : 'filled'} type="submit" loading={isSubmitting}>
+                {isSubmitting ? 'Saving' : isSuccess ? 'Saved' : 'Save'}
+              </Button>
+            </InputRow>
+          </form>
+        </Form>
+      </Panel>
+      <AvatarUpload fallbackString={currentOrganization?.name?.substring(0, 2) || 'N/A'} uploadCallback={handleUploadAvatar} placeholderImage={image} />
+    </>
   )
 }
 

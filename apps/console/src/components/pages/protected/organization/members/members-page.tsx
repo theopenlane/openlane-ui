@@ -8,9 +8,9 @@ import { useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useGetInvitesQuery } from '@repo/codegen/src/schema'
 import { MembersTable } from './members-table'
-import { userCanInviteAdmins } from '@/lib/authz/utils'
+import { useUserCanInviteAdmins } from '@/lib/authz/utils'
 
-const MembersPage: React.FC = async () => {
+const MembersPage: React.FC = () => {
   const { wrapper, inviteCount, inviteRow } = pageStyles()
   const defaultTab = 'members'
   const [activeTab, setActiveTab] = useState(defaultTab)
@@ -20,11 +20,9 @@ const MembersPage: React.FC = async () => {
   })
 
   // Check if the user can invite admins or only members
-  const { data: inviteAdminPermissions, error } = await userCanInviteAdmins(session)
+  const { data: inviteAdminPermissions, error } = useUserCanInviteAdmins(session)
 
-  const numInvites = Array.isArray(data?.invites.edges)
-    ? data?.invites.edges.length
-    : 0
+  const numInvites = Array.isArray(data?.invites.edges) ? data?.invites.edges.length : 0
 
   return (
     <>
@@ -40,9 +38,7 @@ const MembersPage: React.FC = async () => {
           <TabsTrigger value="invites">
             <div className={inviteRow()}>
               <span>Invitations</span>
-              {numInvites > 0 && (
-                <div className={inviteCount({ activeBg: activeTab === 'invites' })}>{numInvites}</div>
-              )}
+              {numInvites > 0 && <div className={inviteCount({ activeBg: activeTab === 'invites' })}>{numInvites}</div>}
             </div>
           </TabsTrigger>
         </TabsList>

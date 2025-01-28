@@ -12,13 +12,7 @@ export const passKeyProvider = Credentials({
     name: {},
     session: {},
   },
-  async authorize({
-    accessToken,
-    refreshToken,
-    email,
-    name,
-    session,
-  }): Promise<User | null> {
+  async authorize({ accessToken, refreshToken, email, name, session }): Promise<User | null> {
     return {
       id: email as string,
       name: name as string,

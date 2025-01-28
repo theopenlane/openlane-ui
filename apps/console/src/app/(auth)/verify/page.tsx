@@ -8,9 +8,7 @@ export const dynamic = 'force-dynamic'
 
 const VerifyUser: React.FC = () => {
   return (
-    <Suspense
-      fallback={<LoaderCircle className="animate-spin" size={20} />}
-    >
+    <Suspense fallback={<LoaderCircle className="animate-spin" size={20} />}>
       <TokenVerifier />
     </Suspense>
   )

@@ -8,8 +8,7 @@ const meta: Meta<typeof Popover> = {
   parameters: {
     docs: {
       description: {
-        component:
-          'Displays rich content in a portal, triggered by a button. https://ui.shadcn.com/docs/components/popover',
+        component: 'Displays rich content in a portal, triggered by a button. https://ui.shadcn.com/docs/components/popover',
       },
     },
     backgrounds: { default: 'white' },

@@ -6,30 +6,13 @@ import { z, infer as zInfer } from 'zod'
 import { TagInput } from '@repo/ui/tag-input'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { useToast } from '@repo/ui/use-toast'
-import {
-  Form,
-  FormItem,
-  FormField,
-  FormControl,
-  FormMessage,
-} from '@repo/ui/form'
+import { Form, FormItem, FormField, FormControl, FormMessage } from '@repo/ui/form'
 import { Button } from '@repo/ui/button'
 import { Tag } from 'emblor'
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-  SelectValue,
-} from '@repo/ui/select'
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@repo/ui/select'
 import { organizationInviteStyles } from './organization-invite-form.styles'
 
-import {
-  CreateInviteInput,
-  InputMaybe,
-  InviteRole,
-  useCreateBulkInviteMutation,
-} from '@repo/codegen/src/schema'
+import { CreateInviteInput, InputMaybe, InviteRole, useCreateBulkInviteMutation } from '@repo/codegen/src/schema'
 import { useGqlError } from '@/hooks/useGqlError'
 
 const formSchema = z.object({
@@ -69,11 +52,8 @@ const OrganizationInviteForm = ({ inviteAdmins }: { inviteAdmins: boolean }) => 
   const [activeTagIndex, setActiveTagIndex] = useState<number | null>(null)
   const [currentValue, setCurrentValue] = useState('')
 
-
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-    const inviteInput: InputMaybe<
-      Array<CreateInviteInput> | CreateInviteInput
-    > = data.emails.map((email) => ({
+    const inviteInput: InputMaybe<Array<CreateInviteInput> | CreateInviteInput> = data.emails.map((email) => ({
       recipient: email,
       role: data.role,
     }))
@@ -90,10 +70,7 @@ const OrganizationInviteForm = ({ inviteAdmins }: { inviteAdmins: boolean }) => 
     setEmails([])
   }
 
-  const errorMessage =
-    errors.emails && Array.isArray(errors.emails) && errors.emails.length > 0
-      ? errors.emails[0]?.message
-      : null
+  const errorMessage = errors.emails && Array.isArray(errors.emails) && errors.emails.length > 0 ? errors.emails[0]?.message : null
 
   useEffect(() => {
     if (errorMessages.length > 0) {
@@ -119,11 +96,7 @@ const OrganizationInviteForm = ({ inviteAdmins }: { inviteAdmins: boolean }) => 
 
   return (
     <Panel>
-      <PanelHeader
-        heading="Invite new members"
-        subheading="Enter or paste one or more email addresses, separated by commas."
-        noBorder
-      />
+      <PanelHeader heading="Invite new members" subheading="Enter or paste one or more email addresses, separated by commas." noBorder />
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <FormField
@@ -143,9 +116,7 @@ const OrganizationInviteForm = ({ inviteAdmins }: { inviteAdmins: boolean }) => 
                     activeTagIndex={activeTagIndex}
                     setActiveTagIndex={setActiveTagIndex}
                     inputProps={{ value: currentValue }}
-                    onInputChange={(newValue: string) =>
-                      setCurrentValue(newValue)
-                    }
+                    onInputChange={(newValue: string) => setCurrentValue(newValue)}
                     onBlur={handleBlur}
                   />
                 </FormControl>
@@ -163,10 +134,7 @@ const OrganizationInviteForm = ({ inviteAdmins }: { inviteAdmins: boolean }) => 
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select role" />
                         </SelectTrigger>
@@ -176,24 +144,20 @@ const OrganizationInviteForm = ({ inviteAdmins }: { inviteAdmins: boolean }) => 
                             .filter(([key]) => !key.includes('USER'))
                             .filter(([key]) => {
                               if (!inviteAdmins) {
-                                return !key.includes('ADMIN');
+                                return !key.includes('ADMIN')
                               }
 
-                              return true;
+                              return true
                             })
                             .map(([key, value], i) => (
                               <SelectItem key={i} value={value}>
-                                {key[0].toUpperCase() +
-                                  key.slice(1).toLowerCase()}
+                                {key[0].toUpperCase() + key.slice(1).toLowerCase()}
                               </SelectItem>
-                            ))
-                          }
+                            ))}
                         </SelectContent>
                       </Select>
                     </FormControl>
-                    {errors.role && (
-                      <FormMessage>{errors.role.message}</FormMessage>
-                    )}
+                    {errors.role && <FormMessage>{errors.role.message}</FormMessage>}
                   </FormItem>
                 )}
               />

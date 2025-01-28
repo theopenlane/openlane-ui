@@ -3,23 +3,8 @@
 import { Edit, MoreHorizontal, Trash2 } from 'lucide-react'
 import { useToast } from '@repo/ui/use-toast'
 import { pageStyles } from '../page.styles'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@repo/ui/dropdown-menu'
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogAction,
-  AlertDialogCancel,
-} from '@repo/ui/alert-dialog'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from '@repo/ui/alert-dialog'
 import { Button } from '@repo/ui/button'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -32,8 +17,7 @@ type ProcedureActionsProps = {
 const ICON_SIZE = 12
 
 export const Actions = ({
-  procedureId: procedureId,
-  // refetchProcedures: refetchProcedures,
+  procedureId: procedureId, // refetchProcedures: refetchProcedures,
 }: ProcedureActionsProps) => {
   const router = useRouter()
   const { actionIcon } = pageStyles()
@@ -41,7 +25,7 @@ export const Actions = ({
 
   // const [ _, deleteTemplate] = useDeleteProcedureMutation()
 
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   const handleEditProcedure = () => {
     router.push(`/policies-and-procedures/editor?id=${procedureId}`)
@@ -79,34 +63,37 @@ export const Actions = ({
             <DropdownMenuItem onSelect={handleEditProcedure}>
               <Edit width={ICON_SIZE} /> Edit
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => {
-              setIsDeleteDialogOpen(true);
-            }} >
+            <DropdownMenuItem
+              onClick={() => {
+                setIsDeleteDialogOpen(true)
+              }}
+            >
               <Trash2 width={ICON_SIZE} /> Delete
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
 
-
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone, this will permanently remove the procedure from the organization.
-            </AlertDialogDescription>
+            <AlertDialogDescription>This action cannot be undone, this will permanently remove the procedure from the organization.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel asChild>
               <Button variant="outline">Cancel</Button>
             </AlertDialogCancel>
             <AlertDialogAction asChild>
-              <Button variant="filled" onClick={handleDeleteProcedure} onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  handleDeleteProcedure();
-                }
-              }}>
+              <Button
+                variant="filled"
+                onClick={handleDeleteProcedure}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleDeleteProcedure()
+                  }
+                }}
+              >
                 Delete Procedure
               </Button>
             </AlertDialogAction>

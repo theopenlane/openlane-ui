@@ -17,6 +17,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, React.ComponentProps<'tex
     )
   },
 )
+
 Textarea.displayName = 'Textarea'
 
 type EditableTextareaProps = React.ComponentProps<'textarea'>

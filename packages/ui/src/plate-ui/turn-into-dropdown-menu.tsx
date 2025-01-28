@@ -1,48 +1,21 @@
-'use client';
+'use client'
 
-import React from 'react';
+import React from 'react'
 
-import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
+import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu'
 
-import { BlockquotePlugin } from '@udecode/plate-block-quote/react';
-import { CodeBlockPlugin } from '@udecode/plate-code-block/react';
-import {
-  ParagraphPlugin,
-  focusEditor,
-  useEditorRef,
-  useSelectionFragmentProp,
-} from '@udecode/plate-common/react';
-import { HEADING_KEYS } from '@udecode/plate-heading';
-import { INDENT_LIST_KEYS, ListStyleType } from '@udecode/plate-indent-list';
-import { TogglePlugin } from '@udecode/plate-toggle/react';
-import {
-  ChevronRightIcon,
-  Columns3Icon,
-  FileCodeIcon,
-  Heading1Icon,
-  Heading2Icon,
-  Heading3Icon,
-  ListIcon,
-  ListOrderedIcon,
-  PilcrowIcon,
-  QuoteIcon,
-  SquareIcon,
-} from 'lucide-react';
+import { BlockquotePlugin } from '@udecode/plate-block-quote/react'
+import { CodeBlockPlugin } from '@udecode/plate-code-block/react'
+import { ParagraphPlugin, focusEditor, useEditorRef, useSelectionFragmentProp } from '@udecode/plate-common/react'
+import { HEADING_KEYS } from '@udecode/plate-heading'
+import { INDENT_LIST_KEYS, ListStyleType } from '@udecode/plate-indent-list'
+import { TogglePlugin } from '@udecode/plate-toggle/react'
+import { ChevronRightIcon, Columns3Icon, FileCodeIcon, Heading1Icon, Heading2Icon, Heading3Icon, ListIcon, ListOrderedIcon, PilcrowIcon, QuoteIcon, SquareIcon } from 'lucide-react'
 
-import {
-  getBlockType,
-  setBlockType,
-} from '../editor/transforms';
+import { getBlockType, setBlockType } from '../editor/transforms'
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-  useOpenState,
-} from './dropdown-menu';
-import { ToolbarButton } from './toolbar';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger, useOpenState } from './dropdown-menu'
+import { ToolbarButton } from './toolbar'
 
 const turnIntoItems = [
   {
@@ -104,50 +77,37 @@ const turnIntoItems = [
     label: '3 columns',
     value: 'action_three_columns',
   },
-];
+]
 
 export function TurnIntoDropdownMenu(props: DropdownMenuProps) {
-  const editor = useEditorRef();
-  const openState = useOpenState();
+  const editor = useEditorRef()
+  const openState = useOpenState()
 
   const value = useSelectionFragmentProp({
     defaultValue: ParagraphPlugin.key,
     getProp: (node) => getBlockType(node as any),
-  });
-  const selectedItem = React.useMemo(
-    () =>
-      turnIntoItems.find(
-        (item) => item.value === (value ?? ParagraphPlugin.key)
-      ) ?? turnIntoItems[0],
-    [value]
-  );
+  })
+  const selectedItem = React.useMemo(() => turnIntoItems.find((item) => item.value === (value ?? ParagraphPlugin.key)) ?? turnIntoItems[0], [value])
 
   return (
     <DropdownMenu modal={false} {...openState} {...props}>
       <DropdownMenuTrigger asChild>
-        <ToolbarButton pressed={openState.open} tooltip='Turn into' isDropdown>
+        <ToolbarButton pressed={openState.open} tooltip="Turn into" isDropdown>
           {selectedItem.label}
         </ToolbarButton>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent
-        className='ignore-click-outside/toolbar min-w-0'
-        align='start'
-      >
+      <DropdownMenuContent className="ignore-click-outside/toolbar min-w-0" align="start">
         <DropdownMenuRadioGroup
           value={value}
           onValueChange={(type) => {
-            setBlockType(editor, type);
-            focusEditor(editor);
+            setBlockType(editor, type)
+            focusEditor(editor)
           }}
-          label='Turn into'
+          label="Turn into"
         >
           {turnIntoItems.map(({ icon, label, value: itemValue }) => (
-            <DropdownMenuRadioItem
-              key={itemValue}
-              className='min-w-[180px]'
-              value={itemValue}
-            >
+            <DropdownMenuRadioItem key={itemValue} className="min-w-[180px]" value={itemValue}>
               {icon}
               {label}
             </DropdownMenuRadioItem>
@@ -155,5 +115,5 @@ export function TurnIntoDropdownMenu(props: DropdownMenuProps) {
         </DropdownMenuRadioGroup>
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

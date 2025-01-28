@@ -11,10 +11,8 @@ export interface DashboardLayoutProps {
   children: React.ReactNode
 }
 
-
 export function DashboardLayout({ children }: DashboardLayoutProps) {
-  const { base, main } = dashboardStyles();
-
+  const { base, main } = dashboardStyles()
 
   return (
     <div className="flex flex-col">
@@ -23,9 +21,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <Sidebar />
         <main className={main()}>{children}</main>
         <ChatBot />
-        <CommandMenu
-          items={NavItems} />
+        <CommandMenu items={NavItems} />
       </div>
     </div>
-  );
+  )
 }

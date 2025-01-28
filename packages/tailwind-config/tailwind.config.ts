@@ -1,13 +1,11 @@
 import type { Config } from 'tailwindcss'
 import forms from '@tailwindcss/forms'
 import assistantUI from '@assistant-ui/react/tailwindcss'
-import containerQueries from '@tailwindcss/container-queries'
 
 export const config: Omit<Config, 'content'> = {
   darkMode: 'class', // Enable dark mode via class
   plugins: [
     forms,
-    containerQueries,
     function ({ addVariant }: { addVariant: (name: string, value: string[]) => void }) {
       addVariant('dark-hover', ['@media (prefers-color-scheme: dark)', '&:hover']) // Custom dark-hover variant
     },

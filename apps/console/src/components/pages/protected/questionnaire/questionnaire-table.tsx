@@ -1,11 +1,6 @@
 'use client'
 
-import {
-  GetAllTemplatesQuery,
-  useFilterTemplatesQuery,
-  TemplateDocumentType,
-  TemplateWhereInput,
-} from '@repo/codegen/src/schema'
+import { GetAllTemplatesQuery, useFilterTemplatesQuery, TemplateDocumentType, TemplateWhereInput } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import { pageStyles } from './page.styles'
 import { useState, useEffect } from 'react'
@@ -20,19 +15,14 @@ import { includeQuestionnaireCreation } from '@repo/dally/auth'
 
 const ICON_SIZE = 12
 
-type TemplateEdge = NonNullable<
-  NonNullable<GetAllTemplatesQuery['templates']>['edges']
->[number]
+type TemplateEdge = NonNullable<NonNullable<GetAllTemplatesQuery['templates']>['edges']>[number]
 
 type Template = NonNullable<TemplateEdge>['node']
 
 export const QuestionnairesTable = () => {
   const router = useRouter()
 
-  const {
-    searchRow,
-    searchField,
-  } = pageStyles()
+  const { searchRow, searchField } = pageStyles()
 
   const { data: session } = useSession()
   const [filteredTemplates, setFilteredTemplates] = useState<Template[]>([])
@@ -49,7 +39,7 @@ export const QuestionnairesTable = () => {
 
   useEffect(() => {
     if (data?.templates?.edges) {
-      const templates = data.templates.edges.map(edge => edge?.node).filter(node => node !== null) as Template[]
+      const templates = data.templates.edges.map((edge) => edge?.node).filter((node) => node !== null) as Template[]
       setFilteredTemplates(templates)
     }
   }, [data])
@@ -61,13 +51,11 @@ export const QuestionnairesTable = () => {
     setSearchTerm(searchValue)
 
     if (data?.templates?.edges) {
-      const filtered = data.templates.edges.filter(
-        (edge) => {
-          const email = edge?.node?.name.toLowerCase() || ''
-          return email.includes(searchValue)
-        },
-      )
-      const filteredSubscribers = filtered.map(edge => edge?.node).filter(node => node !== null) as Template[]
+      const filtered = data.templates.edges.filter((edge) => {
+        const email = edge?.node?.name.toLowerCase() || ''
+        return email.includes(searchValue)
+      })
+      const filteredSubscribers = filtered.map((edge) => edge?.node).filter((node) => node !== null) as Template[]
       setFilteredTemplates(filteredSubscribers)
     }
   }
@@ -84,24 +72,17 @@ export const QuestionnairesTable = () => {
     {
       accessorKey: 'updatedAt',
       header: 'Updated At',
-      cell: ({ cell }) =>
-        format(new Date(cell.getValue() as string), 'dd MMM yyyy'),
+      cell: ({ cell }) => format(new Date(cell.getValue() as string), 'dd MMM yyyy'),
     },
     {
       accessorKey: 'createdAt',
       header: 'Created At',
-      cell: ({ cell }) =>
-        format(new Date(cell.getValue() as string), 'dd MMM yyyy'),
+      cell: ({ cell }) => format(new Date(cell.getValue() as string), 'dd MMM yyyy'),
     },
     {
       accessorKey: 'id',
       header: '',
-      cell: ({ cell }) => (
-         <Actions
-          templateId={cell.getValue() as string}
-          refetchTemplates={refetch}
-        />
-      ),
+      cell: ({ cell }) => <Actions templateId={cell.getValue() as string} refetchTemplates={refetch} />,
       size: 40,
     },
   ]
@@ -118,15 +99,10 @@ export const QuestionnairesTable = () => {
     <div>
       <div className={searchRow()}>
         <div className={searchField()}>
-          <Input
-            placeholder="search"
-            value={searchTerm}
-            onChange={handleSearch}
-          />
+          <Input placeholder="search" value={searchTerm} onChange={handleSearch} />
         </div>
 
         {createDropdown()}
-
       </div>
       <DataTable columns={columns} data={filteredTemplates} />
     </div>
