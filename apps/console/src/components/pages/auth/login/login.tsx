@@ -38,22 +38,24 @@ export const LoginPage = () => {
     setSignInError(false)
 
     try {
-      // @ts-ignore
-      const recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'login' })
+      if (recaptchaSiteKey) {
+        // @ts-ignore
+        const recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'login' })
 
-      const recaptchaValidation = await fetch('/api/recaptchaVerify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: recaptchaToken }),
-      })
+        const recaptchaValidation = await fetch('/api/recaptchaVerify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: recaptchaToken }),
+        })
 
-      const validationResponse = await recaptchaValidation.json()
+        const validationResponse = await recaptchaValidation.json()
 
-      if (!validationResponse.success) {
-        setSignInError(true)
-        setSignInLoading(false)
-        setSignInErrorMessage('reCAPTCHA validation failed.')
-        return
+        if (!validationResponse.success) {
+          setSignInError(true)
+          setSignInLoading(false)
+          setSignInErrorMessage('reCAPTCHA validation failed.')
+          return
+        }
       }
 
       const res: any = await signIn('credentials', { redirect: false, ...payload })
