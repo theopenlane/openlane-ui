@@ -1,9 +1,15 @@
-query useGetVendor($where: EntityWhereInput) {
+query GetVendor($where: EntityWhereInput) {
   entities(where: $where) {
     edges {
       node {
-        id
-        name
+        displayName
+        domains
+        tags
+        description
+        updatedAt
+        updatedBy
+        createdAt
+        createdBy
       }
     }
   }
