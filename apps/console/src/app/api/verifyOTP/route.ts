@@ -4,7 +4,7 @@ import { auth } from '@/lib/auth/auth'
 export async function POST(request: NextRequest) {
   try {
     // Parse the OTP from the request body
-    const { otp } = await request.json()
+    const otp = await request.json()
 
     // Ensure the OTP is provided
     if (!otp) {
@@ -24,18 +24,13 @@ export async function POST(request: NextRequest) {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     }
-    console.log('token', token)
-    console.log('OTP:', otp)
-    console.log('Request body:', JSON.stringify({ totp_code: otp }))
 
     // Make the request to the external API
     const response = await fetch(`${process.env.API_REST_URL}/v1/2fa/validate`, {
       method: 'POST',
       headers,
-      body: JSON.stringify({ totp_code: otp }),
+      body: JSON.stringify(otp),
     })
-
-    console.log('response', response)
 
     const data = await response.json()
 

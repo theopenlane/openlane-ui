@@ -14,7 +14,7 @@ interface ProvidersProps {
 }
 
 //IF YOU ADD PUBLIC PAGE, ITS REQUIRED TO CHANGE IT IN middleware.tsx waitlists page needs provider
-const publicPages = ['/login', '/verify', '/resend-verify', '/invite']
+const publicPages = ['/login', '/verify', '/resend-verify', '/invite', '/tfa']
 
 const Providers = ({ children }: ProvidersProps) => {
   const { data: session, status } = useSession()
@@ -34,10 +34,6 @@ const Providers = ({ children }: ProvidersProps) => {
       setClient(createSubscriberClient())
     }
   }, [session?.user.accessToken, status, pathname, accessToken])
-
-  if (status === 'loading') {
-    return <Loading />
-  }
 
   if (isPublicPage) {
     return (

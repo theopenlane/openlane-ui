@@ -11,26 +11,18 @@ query GetTFASettings {
 query GetUserTFASettings($userId: ID!) {
   user(id: $userId) {
     tfaSettings {
-      createdAt
-      createdBy
-      deletedAt
-      deletedBy
       id
       totpAllowed
-      updatedAt
-      updatedBy
       verified
-      owner {
-        displayName
-        firstName
-        lastName
-      }
     }
   }
 }
 
 mutation UpdateTFASetting($input: UpdateTFASettingInput!) {
   updateTFASetting(input: $input) {
+    qrCode
+    recoveryCodes
+    tfaSecret
     tfaSetting {
       id
     }
@@ -40,5 +32,9 @@ mutation UpdateTFASetting($input: UpdateTFASettingInput!) {
 mutation CreateTFASetting($input: CreateTFASettingInput!) {
   createTFASetting(input: $input) {
     qrCode
+    tfaSecret
+    tfaSetting {
+      id
+    }
   }
 }

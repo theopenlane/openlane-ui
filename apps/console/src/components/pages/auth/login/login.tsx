@@ -4,8 +4,8 @@ import { LoginUser } from '@repo/dally/user'
 import { Button } from '@repo/ui/button'
 import MessageBox from '@repo/ui/message-box'
 import SimpleForm from '@repo/ui/simple-form'
-import { ArrowUpRight, KeyRoundIcon } from 'lucide-react'
-import { signIn } from 'next-auth/react'
+import { ArrowUpRight } from 'lucide-react'
+import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Separator } from '@repo/ui/separator'
@@ -20,7 +20,6 @@ import { startAuthentication } from '@simplewebauthn/browser'
 import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
 import Link from 'next/link'
 import { recaptchaSiteKey } from '@repo/dally/auth'
-import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@repo/ui/input-otp'
 
 const TEMP_PASSKEY_EMAIL = 'tempuser@test.com'
 const TEMP_PASSKEY_NAME = 'Temp User'
@@ -218,19 +217,6 @@ export const LoginPage = () => {
           apply.
         </div>
         {showLoginError && <MessageBox className={'p-4 ml-1'} message={signInErrorMessage} />}
-        <InputOTP maxLength={6}>
-          <InputOTPGroup>
-            <InputOTPSlot index={0} />
-            <InputOTPSlot index={1} />
-            <InputOTPSlot index={2} />
-          </InputOTPGroup>
-          <InputOTPSeparator />
-          <InputOTPGroup>
-            <InputOTPSlot index={3} />
-            <InputOTPSlot index={4} />
-            <InputOTPSlot index={5} />
-          </InputOTPGroup>
-        </InputOTP>
       </div>
     </>
   )
