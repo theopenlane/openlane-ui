@@ -65,6 +65,14 @@ export const VendorsTable = () => {
       },
     },
     {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => {
+        const status = `${row?.original?.status}`
+        return <div className={nameRow()}>{status}</div>
+      },
+    },
+    {
       accessorKey: 'description',
       header: 'Description',
       cell: ({ row }) => {
