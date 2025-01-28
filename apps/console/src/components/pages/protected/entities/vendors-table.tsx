@@ -104,7 +104,7 @@ export const VendorsTable = () => {
       header: 'Tags',
       cell: ({ row }) => {
         const tags = `${row?.original?.tags}`
-        return <div className={nameRow()}>{tags}</div>
+        return <div className={nameRow()}>{tags && tags.length ? <Badge>{tags}</Badge> : tags}</div>
       },
     },
     {
