@@ -9,7 +9,8 @@ import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { useCopyToClipboard } from '@uidotdev/usehooks'
 import { useToast } from '@repo/ui/use-toast'
-
+import { Button } from '@repo/ui/button'
+import { PlusIcon } from 'lucide-react'
 import { formatDate } from '@/lib/format-date'
 
 type VendorEdge = NonNullable<NonNullable<GetVendorQuery['entities']>['edges']>[number]
@@ -49,6 +50,9 @@ export const VendorsTable = () => {
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const searchValue = e.target.value.toLowerCase()
     setSearchTerm(searchValue)
+  }
+  const handleCreateNew = () => {
+    console.log('create new vendor')
   }
   const columns: ColumnDef<Vendor>[] = [
     {
@@ -141,6 +145,9 @@ export const VendorsTable = () => {
         <div className={vendorSearchField()}>
           <Input placeholder="Search for Vendor" value={searchTerm} onChange={handleSearch} />
         </div>
+        <Button icon={<PlusIcon />} iconPosition="left" onClick={handleCreateNew}>
+          Create New
+        </Button>
       </div>
       <DataTable columns={columns} data={vendors} />
     </div>
