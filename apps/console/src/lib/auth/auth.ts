@@ -6,7 +6,7 @@ import { isDevelopment, openlaneAPIUrl } from '@repo/dally/auth'
 import { jwtDecode } from 'jwt-decode'
 import { JwtPayload } from 'jsonwebtoken'
 import { credentialsProvider } from './providers/credentials'
-import { passKeyProvider } from './providers/passkey'
+// import { passKeyProvider } from './providers/passkey'
 import { getTokenFromOpenlaneAPI } from './utils/get-openlane-token'
 import { setSessionCookie } from './utils/set-session-cookie'
 import { cookies } from 'next/headers'
@@ -34,7 +34,7 @@ export const config = {
       checks: isDevelopment ? ['none'] : undefined,
     }),
     credentialsProvider,
-    passKeyProvider,
+    // passKeyProvider,
   ],
   events: {
     async signOut() {

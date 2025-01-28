@@ -16,7 +16,7 @@ export default auth(async (req) => {
       hasSessionCookie = false
     }
   }
-  // const session = await auth()
+  // const session = await auth() for reference if someone needs session
 
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
 

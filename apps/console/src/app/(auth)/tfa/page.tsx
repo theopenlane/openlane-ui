@@ -16,7 +16,6 @@ const TfaPage = () => {
 
   const otpLength = isSecret ? 8 : 6
 
-  // Dynamic configuration for title and bottom text
   const config = useMemo(() => {
     return isSecret
       ? {
@@ -27,7 +26,7 @@ const TfaPage = () => {
               <p
                 onClick={() => {
                   setIsSecret(false)
-                  setOtpValue('') // Clear OTP value when switching back
+                  setOtpValue('')
                 }}
                 className="text-sm underline cursor-pointer text-accent-secondary"
               >
@@ -45,7 +44,7 @@ const TfaPage = () => {
               <p
                 onClick={() => {
                   setIsSecret(true)
-                  setOtpValue('') // Clear OTP value when switching modes
+                  setOtpValue('')
                 }}
                 className="text-sm underline cursor-pointer text-accent-secondary"
               >
