@@ -8,8 +8,8 @@ config:
   maybeValue: T | null
   declarationKind: interface
   preResolveTypes: true
-  onlyOperationTypes: true
-  flattenGeneratedTypes: true
+  onlyOperationTypes: false
+  flattenGeneratedTypes: false
   namingConvention:
     enumValues: keep
   scalars:
