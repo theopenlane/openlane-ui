@@ -18878,14 +18878,15 @@ export type GetVendorQuery = {
       __typename?: 'EntityEdge'
       node?: {
         __typename?: 'Entity'
-        displayName?: string | null
-        domains?: Array<string> | null
-        tags?: Array<string> | null
-        description?: string | null
-        updatedAt?: any | null
-        updatedBy?: string | null
         createdAt?: any | null
         createdBy?: string | null
+        description?: string | null
+        displayName?: string | null
+        domains?: Array<string> | null
+        status?: string | null
+        tags?: Array<string> | null
+        updatedAt?: any | null
+        updatedBy?: string | null
       } | null
     } | null> | null
   }
@@ -19885,14 +19886,15 @@ export const GetVendorDocument = gql`
     entities(where: $where) {
       edges {
         node {
-          displayName
-          domains
-          tags
-          description
-          updatedAt
-          updatedBy
           createdAt
           createdBy
+          description
+          displayName
+          domains
+          status
+          tags
+          updatedAt
+          updatedBy
         }
       }
     }
