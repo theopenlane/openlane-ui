@@ -6,7 +6,8 @@ import { useState, useEffect } from 'react'
 import { Input } from '@repo/ui/input'
 import { Copy } from 'lucide-react'
 import { DataTable } from '@repo/ui/data-table'
-import { ColumnDef } from '@tanstack/react-table'
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@repo/ui/dropdown-menu'
+import { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import { useCopyToClipboard } from '@uidotdev/usehooks'
 import { useToast } from '@repo/ui/use-toast'
 import { Button } from '@repo/ui/button'
@@ -30,6 +31,8 @@ export const VendorsTable = () => {
   const [{ data, fetching, error }, refetch] = useGetVendorQuery({
     pause: !session,
   })
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+  const [rowSelection, setRowSelection] = useState({})
 
   useEffect(() => {
     if (copiedText) {
@@ -157,6 +160,18 @@ export const VendorsTable = () => {
           Create New
         </Button>
       </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button>
+            <span>Open menu</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          {columns.map((column) => (
+            <DropdownMenuItem key={column.id}>{column.header}</DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
       <DataTable columns={columns} data={vendors} />
     </div>
   )
