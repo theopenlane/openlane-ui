@@ -16,11 +16,14 @@ export default auth(async (req) => {
       hasSessionCookie = false
     }
   }
-  // const session = await auth() for reference if someone needs session
+  const session = await auth()
+  console.log('session', session)
 
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
 
-  const isTfaEnabled = !!token?.isTfaEnabled
+  console.log('token', token)
+
+  const isTfaEnabled = session?.user.isTfaEnabled
 
   if (req.auth?.user && hasSessionCookie) {
     if (isTfaEnabled) {
