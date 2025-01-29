@@ -19,9 +19,18 @@ export default auth(async (req) => {
   const session = await auth()
   console.log('session', session)
 
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET || '', secureCookie: process.env.NODE_ENV === 'production' ? true : false })
-  console.log('token', token)
-  
+  let token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET || '', cookieName: '__Secure-authjs.session-token' })
+  console.log('token1', token)
+
+  token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET || '', cookieName: sessionCookieName })
+  console.log('token2', token)
+
+  token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET || '', cookieName: sessionCookieName, secureCookie: true })
+  console.log('token3', token)
+
+  token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET || '', cookieName: sessionCookieName, secureCookie: false })
+  console.log('token4', token)
+
   const isTfaEnabled = session?.user.isTfaEnabled
 
   if (req.auth?.user && hasSessionCookie) {
