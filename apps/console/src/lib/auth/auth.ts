@@ -6,7 +6,7 @@ import { isDevelopment, openlaneAPIUrl } from '@repo/dally/auth'
 import { jwtDecode } from 'jwt-decode'
 import { JwtPayload } from 'jsonwebtoken'
 import { credentialsProvider } from './providers/credentials'
-import { passKeyProvider } from './providers/passkey'
+// import { passKeyProvider } from './providers/passkey'
 import { getTokenFromOpenlaneAPI } from './utils/get-openlane-token'
 import { setSessionCookie } from './utils/set-session-cookie'
 import { cookies } from 'next/headers'
@@ -34,7 +34,7 @@ export const config = {
       checks: isDevelopment ? ['none'] : undefined,
     }),
     credentialsProvider,
-    passKeyProvider,
+    // passKeyProvider,
   ],
   events: {
     async signOut() {
@@ -70,6 +70,7 @@ export const config = {
             accessToken: data.access_token,
             refreshToken: data.refresh_token,
             session: data.session,
+            isTfaEnabled: data.tfa_enabled,
           })
 
           // Store session in a cookie
@@ -89,6 +90,7 @@ export const config = {
           accessToken: user.accessToken,
           refreshToken: user.refreshToken,
           expiresAt: Date.now() + 1000 * 60 * 15,
+          isTfaEnabled: user.isTfaEnabled,
         })
       } else if (account) {
         Object.assign(token, {
@@ -150,6 +152,7 @@ export const config = {
             refreshToken: token.refreshToken,
             activeOrganizationId: decodedToken?.org,
             userId: decodedToken?.user_id,
+            isTfaEnabled: token.isTfaEnabled,
           })
         }
       } catch (error) {

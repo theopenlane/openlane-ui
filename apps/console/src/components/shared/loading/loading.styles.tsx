@@ -2,7 +2,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 
 const loadingStyles = tv({
   slots: {
-    loader: 'h-full w0full rounded animate-pulse',
+    loader: 'h-full w-full rounded animate-pulse',
   },
 })
 
