@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { QRCodeSVG } from 'qrcode.react'
 import { Button } from '@repo/ui/button'
@@ -54,6 +54,7 @@ const QRCodeDialog = ({ qrcode, secret, refetch, onClose }: QRCodeProps) => {
           },
         })
         setRecoveryCodes(data?.updateTFASetting.recoveryCodes || null)
+        refetch()
       } else {
         toast({ title: 'OTP validation failed', description: data.message, variant: 'destructive' })
       }
@@ -88,7 +89,6 @@ const QRCodeDialog = ({ qrcode, secret, refetch, onClose }: QRCodeProps) => {
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
       handleOpenChange(false)
-      refetch()
     }
   }
 
@@ -100,50 +100,31 @@ const QRCodeDialog = ({ qrcode, secret, refetch, onClose }: QRCodeProps) => {
     }
   }
 
+  useEffect(() => {
+    if (copiedText) {
+      toast({
+        title: 'Copied to clipboard',
+        variant: 'success',
+      })
+    }
+  }, [copiedText])
+
   const config = useMemo(() => {
     if (recoveryCodes) {
       return {
         title: 'Use recovery codes for login if you lose access to your authenticator',
         body: (
           <>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-4 gap-2">
               {recoveryCodes.map((rc) => (
                 <p key={rc}>{rc}</p>
               ))}
             </div>
-            <Button onClick={handleDownloadRecoveryCodes}>Download Recovery Codes</Button>
-          </>
-        ),
-      }
-    } else if (isSecretKeySetup) {
-      return {
-        title: 'Authenticate manually with the secret key',
-        body: (
-          <div className="flex flex-col items-center">
-            <p>Account name: Openlane</p>
-            <div className="flex items-center gap-2">
-              <p>Secret key: {secret}</p>
-              <Copy width={16} height={16} className={'text-accent-secondary-muted cursor-pointer'} onClick={() => copyToClipboard(secret)} />
+            <div className="flex gap-2">
+              <Button onClick={() => copyToClipboard(recoveryCodes.join(' '))}>Copy Recovery Codes</Button>
+              <Button onClick={handleDownloadRecoveryCodes}>Download Recovery Codes</Button>
             </div>
-
-            <InputOTP maxLength={6} onChange={handleOtpChange} containerClassName="gap-2 mt-4">
-              <InputOTPGroup>
-                {Array.from({ length: 6 }).map((_, index) => (
-                  <InputOTPSlot key={index} index={index} />
-                ))}
-              </InputOTPGroup>
-              <InputOTPSeparator />
-            </InputOTP>
-            <Button
-              className="mt-4"
-              onClick={() => {
-                handleOpenChange(false)
-              }}
-              disabled={isSubmitting}
-            >
-              Close
-            </Button>
-          </div>
+          </>
         ),
       }
     } else {
@@ -153,13 +134,25 @@ const QRCodeDialog = ({ qrcode, secret, refetch, onClose }: QRCodeProps) => {
           <>
             <p className="text-sm ">Use your authenticator app to scan this QR code.</p>
             <QRCodeSVG value={qrcode} size={180} className="shadow-lg" />
-            <div className="flex">
-              <p className="text-sm ">Unable to scan? You can use the &nbsp; </p>
-              <p onClick={() => setIsSecretKeySetup(true)} className="text-sm underline text-accent-secondary cursor-pointer ">
-                setup key
-              </p>
-              <p className="text-sm "> &nbsp;to manually configure your authenticator app.</p>
-            </div>
+
+            {isSecretKeySetup ? (
+              <div className="flex flex-col gap-1 items-center">
+                <p>Configure your authenticator app manually using this code:</p>
+                <div className="flex items-center gap-1">
+                  <p>{secret}</p>
+                  <Copy width={16} height={16} className={'text-accent-secondary-muted cursor-pointer'} onClick={() => copyToClipboard(secret)} />
+                </div>
+              </div>
+            ) : (
+              <div className="flex">
+                <p className="text-sm ">Unable to scan? You can use the &nbsp; </p>
+                <p onClick={() => setIsSecretKeySetup(true)} className="text-sm underline text-accent-secondary cursor-pointer ">
+                  setup key
+                </p>
+                <p className="text-sm "> &nbsp;to manually configure your authenticator app.</p>
+              </div>
+            )}
+
             <InputOTP maxLength={6} onChange={handleOtpChange} containerClassName="gap-2">
               <InputOTPGroup>
                 {Array.from({ length: 6 }).map((_, index) => (
@@ -179,7 +172,7 @@ const QRCodeDialog = ({ qrcode, secret, refetch, onClose }: QRCodeProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent isClosable={!recoveryCodes}>
+      <DialogContent className="sm:max-w-[650px]" isClosable={!recoveryCodes}>
         <DialogHeader>
           <DialogTitle className="text-center">{config.title}</DialogTitle>
         </DialogHeader>

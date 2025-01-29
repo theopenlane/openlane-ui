@@ -5,21 +5,22 @@ import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@repo/
 import { toast } from '@repo/ui/use-toast'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { Loading } from '@/components/shared/loading/loading'
 
 const TfaPage = () => {
   const [otpValue, setOtpValue] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { data: sessionData, update: updateSession } = useSession()
   const router = useRouter()
-  const [isTfaVerified, setIsTfaVerified] = useState(false)
   const [isSecret, setIsSecret] = useState(false)
+  const [error, setError] = useState<string>('')
 
   const otpLength = isSecret ? 8 : 6
 
   const config = useMemo(() => {
     return isSecret
       ? {
-          title: 'Enter the secret key provided during setup.',
+          title: 'Enter a recovery code. Please note recovery codes can only be used once. ',
           bottomText: (
             <>
               <p className="text-sm">Want to go back to authenticator? Click&nbsp;</p>
@@ -27,17 +28,18 @@ const TfaPage = () => {
                 onClick={() => {
                   setIsSecret(false)
                   setOtpValue('')
+                  setError('')
                 }}
                 className="text-sm underline cursor-pointer text-accent-secondary"
               >
                 here
               </p>
-              <p className="text-sm">&nbsp;to enter the OTP instead.</p>
+              <p className="text-sm">&nbsp;to enter the app code instead.</p>
             </>
           ),
         }
       : {
-          title: `Please enter the ${otpLength}-digit OTP sent to your authenticator app.`,
+          title: `Enter an authenticator app code: `,
           bottomText: (
             <>
               <p className="text-sm">Don't have access to your app? Click&nbsp;</p>
@@ -45,12 +47,13 @@ const TfaPage = () => {
                 onClick={() => {
                   setIsSecret(true)
                   setOtpValue('')
+                  setError('')
                 }}
                 className="text-sm underline cursor-pointer text-accent-secondary"
               >
                 here
               </p>
-              <p className="text-sm">&nbsp;to enter the secret key.</p>
+              <p className="text-sm">&nbsp;to enter the recovery code.</p>
             </>
           ),
         }
@@ -72,9 +75,7 @@ const TfaPage = () => {
 
     setTimeout(() => {
       router.push('/dashboard')
-    }, 2000)
-
-    setIsTfaVerified(true)
+    }, 1000)
   }
 
   const verifyOTP = async (otp: string) => {
@@ -88,13 +89,10 @@ const TfaPage = () => {
         body: JSON.stringify(payload),
       })
 
-      const data = await response.json()
-
       if (response.ok) {
-        toast({ title: 'OTP validated successfully', variant: 'success' })
         onVerified()
       } else {
-        toast({ title: 'OTP validation failed', description: data.message, variant: 'destructive' })
+        setError('Invalid authentication token entered! Please use the token provided by your authentication app')
       }
     } catch (error) {
       console.error('Error during OTP validation:', error)
@@ -104,6 +102,7 @@ const TfaPage = () => {
 
   const handleOtpChange = async (value: string) => {
     setOtpValue(value)
+    setError('')
 
     if (value.length === otpLength) {
       setIsSubmitting(true)
@@ -115,28 +114,24 @@ const TfaPage = () => {
     }
   }
 
-  if (isTfaVerified) {
-    return (
-      <div className="flex flex-col items-center gap-4">
-        <h3>Verified! Redirecting...</h3>
-      </div>
-    )
-  }
-
   return (
-    <div className="flex flex-col items-center gap-4">
-      <p className="text-sm">{config.title}</p>
-      <InputOTP value={otpValue} maxLength={otpLength} onChange={handleOtpChange} containerClassName="gap-2">
-        <InputOTPGroup>
-          {Array.from({ length: otpLength }).map((_, index) => (
-            <InputOTPSlot key={index} index={index} />
-          ))}
-        </InputOTPGroup>
-        <InputOTPSeparator />
-      </InputOTP>
-      <div className="flex">{config.bottomText}</div>
-      {isSubmitting && <p className="text-sm text-gray-500">Validating OTP...</p>}
-    </div>
+    <>
+      <h1 className="text-3xl mb-20">Two-Factor Authentication</h1>
+      <div className="flex flex-col items-center gap-4">
+        <p className="text-sm">{config.title}</p>
+        <InputOTP value={otpValue} maxLength={otpLength} onChange={handleOtpChange} containerClassName="gap-2">
+          <InputOTPGroup>
+            {Array.from({ length: otpLength }).map((_, index) => (
+              <InputOTPSlot key={index} index={index} />
+            ))}
+          </InputOTPGroup>
+          <InputOTPSeparator />
+        </InputOTP>
+        {error && <p className="text-error">{error}</p>}
+        <div className="flex">{config.bottomText}</div>
+        {isSubmitting && <p className="text-sm text-gray-500">Validating OTP...</p>}
+      </div>
+    </>
   )
 }
 
