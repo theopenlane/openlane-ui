@@ -157,6 +157,14 @@ export const VendorsTable = () => {
     {
       accessorKey: 'id',
       header: 'Id',
+      cell: ({ row }) => {
+        const id = `${row?.original?.id}`
+        return <div className={nameRow()}>{id}</div>
+      },
+    },
+    {
+      accessorKey: 'actions',
+      header: '',
       cell: ({ cell }) => <Actions vendorId={cell.getValue() as string} />,
       size: 40,
     },
