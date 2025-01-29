@@ -28,12 +28,23 @@ interface DataTableProps<TData, TValue> {
   showVisibility?: boolean
   noResultsText?: string
   noDataMarkup?: ReactElement
+  columnVisibility?: VisibilityState
+  setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
 }
 
-export function DataTable<TData, TValue>({ columns, loading = false, data, showFilter = false, showVisibility = false, noResultsText = 'No results', noDataMarkup }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({
+  columns,
+  loading = false,
+  data,
+  showFilter = false,
+  showVisibility = false,
+  noResultsText = 'No results',
+  noDataMarkup,
+  columnVisibility,
+  setColumnVisibility,
+}: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = useState({})
 
   const table = useReactTable({
@@ -45,12 +56,14 @@ export function DataTable<TData, TValue>({ columns, loading = false, data, showF
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
+    onColumnVisibilityChange: (updater) => {
+      setColumnVisibility?.((prev) => (typeof updater === 'function' ? updater(prev) : updater))
+    },
     onRowSelectionChange: setRowSelection,
     state: {
       sorting,
       columnFilters,
-      columnVisibility,
+      columnVisibility: columnVisibility ?? {},
       rowSelection,
     },
     defaultColumn: {
