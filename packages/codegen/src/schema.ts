@@ -26094,6 +26094,7 @@ export type GetVendorQuery = {
         description?: string | null
         displayName?: string | null
         domains?: Array<string> | null
+        id: string
         status?: string | null
         tags?: Array<string> | null
         updatedAt?: any | null
@@ -27102,6 +27103,7 @@ export const GetVendorDocument = gql`
           description
           displayName
           domains
+          id
           status
           tags
           updatedAt
