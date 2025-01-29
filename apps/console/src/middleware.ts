@@ -25,6 +25,12 @@ export default auth(async (req) => {
   token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET || '', cookieName: sessionCookieName })
   console.log('token2', token)
 
+  token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET || '', cookieName: sessionCookieName, secureCookie: true })
+  console.log('token3', token)
+
+  token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET || '', cookieName: sessionCookieName, secureCookie: false })
+  console.log('token4', token)
+
   const isTfaEnabled = session?.user.isTfaEnabled
 
   if (req.auth?.user && hasSessionCookie) {
