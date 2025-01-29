@@ -23,6 +23,7 @@ const QRCodeDialog = ({ qrcode, secret, refetch, onClose }: QRCodeProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [recoveryCodes, setRecoveryCodes] = useState<string[] | null>(null)
   const [isSecretKeySetup, setIsSecretKeySetup] = useState<boolean>(false)
+  const [modalClosable, setModalClosable] = useState(true)
 
   const [{ fetching: isTfaSubmitting }, updateTfaSetting] = useUpdateTfaSettingMutation()
 
@@ -54,6 +55,7 @@ const QRCodeDialog = ({ qrcode, secret, refetch, onClose }: QRCodeProps) => {
           },
         })
         setRecoveryCodes(data?.updateTFASetting.recoveryCodes || null)
+        setModalClosable(false)
         refetch()
       } else {
         toast({ title: 'OTP validation failed', description: data.message, variant: 'destructive' })
@@ -88,7 +90,7 @@ const QRCodeDialog = ({ qrcode, secret, refetch, onClose }: QRCodeProps) => {
       link.click()
       document.body.removeChild(link)
       URL.revokeObjectURL(url)
-      handleOpenChange(false)
+      setModalClosable(true)
     }
   }
 
@@ -106,6 +108,7 @@ const QRCodeDialog = ({ qrcode, secret, refetch, onClose }: QRCodeProps) => {
         title: 'Copied to clipboard',
         variant: 'success',
       })
+      setModalClosable(true)
     }
   }, [copiedText])
 
@@ -172,7 +175,7 @@ const QRCodeDialog = ({ qrcode, secret, refetch, onClose }: QRCodeProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[650px]" isClosable={!recoveryCodes}>
+      <DialogContent className="sm:max-w-[650px]" isClosable={modalClosable}>
         <DialogHeader>
           <DialogTitle className="text-center">{config.title}</DialogTitle>
         </DialogHeader>

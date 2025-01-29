@@ -23,7 +23,7 @@ const TfaPage = () => {
           title: 'Enter a recovery code. Please note recovery codes can only be used once. ',
           bottomText: (
             <>
-              <p className="text-sm">Want to go back to authenticator? Click&nbsp;</p>
+              <p className="text-sm text-text-light">Want to go back to authenticator? Click&nbsp;</p>
               <p
                 onClick={() => {
                   setIsSecret(false)
@@ -42,7 +42,7 @@ const TfaPage = () => {
           title: `Enter an authenticator app code: `,
           bottomText: (
             <>
-              <p className="text-sm">Don't have access to your app? Click&nbsp;</p>
+              <p className="text-sm text-text-light">Don't have access to your app? Click&nbsp;</p>
               <p
                 onClick={() => {
                   setIsSecret(true)
@@ -53,7 +53,7 @@ const TfaPage = () => {
               >
                 here
               </p>
-              <p className="text-sm">&nbsp;to enter the recovery code.</p>
+              <p className="text-sm text-text-light">&nbsp;to enter the recovery code.</p>
             </>
           ),
         }
@@ -116,11 +116,11 @@ const TfaPage = () => {
 
   return (
     <>
-      <h1 className="text-3xl mb-20">Two-Factor Authentication</h1>
+      <h1 className="text-3xl mb-20 text-text-light">Two-Factor Authentication</h1>
       <div className="flex flex-col items-center gap-4">
-        <p className="text-sm">{config.title}</p>
+        <p className="text-sm text-text-light">{config.title}</p>
         <InputOTP value={otpValue} maxLength={otpLength} onChange={handleOtpChange} containerClassName="gap-2">
-          <InputOTPGroup>
+          <InputOTPGroup className="text-text-light">
             {Array.from({ length: otpLength }).map((_, index) => (
               <InputOTPSlot key={index} index={index} />
             ))}
@@ -128,8 +128,8 @@ const TfaPage = () => {
           <InputOTPSeparator />
         </InputOTP>
         {error && <p className="text-error">{error}</p>}
-        <div className="flex">{config.bottomText}</div>
-        {isSubmitting && <p className="text-sm text-gray-500">Validating OTP...</p>}
+        <div className="flex ">{config.bottomText}</div>
+        {isSubmitting && <p className="text-sm text-text-light">Validating OTP...</p>}
       </div>
     </>
   )
