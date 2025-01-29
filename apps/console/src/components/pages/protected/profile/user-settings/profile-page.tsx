@@ -82,14 +82,6 @@ const ProfilePage = () => {
             isTfaEnabled: checked,
           },
         })
-      } else if (!isVerified) {
-        const { data } = await updateTfaSetting({
-          input: {
-            totpAllowed: true,
-          },
-        })
-        qrcode = data?.updateTFASetting.qrCode
-        secret = data?.updateTFASetting.tfaSecret
       } else if (!tfaSettings) {
         const { data } = await createTfaSetting({
           input: {
@@ -98,6 +90,14 @@ const ProfilePage = () => {
         })
         qrcode = data?.createTFASetting.qrCode
         secret = data?.createTFASetting.tfaSecret
+      } else if (!isVerified) {
+        const { data } = await updateTfaSetting({
+          input: {
+            totpAllowed: true,
+          },
+        })
+        qrcode = data?.updateTFASetting.qrCode
+        secret = data?.updateTFASetting.tfaSecret
       }
 
       setQrcode(qrcode || null)
