@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react'
 import { Input } from '@repo/ui/input'
 import { Copy } from 'lucide-react'
 import { DataTable } from '@repo/ui/data-table'
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@repo/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@repo/ui/dropdown-menu'
 import { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import { useCopyToClipboard } from '@uidotdev/usehooks'
 import { useToast } from '@repo/ui/use-toast'
@@ -31,6 +31,7 @@ export const VendorsTable = () => {
   const [{ data, fetching, error }, refetch] = useGetVendorQuery({
     pause: !session,
   })
+
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     displayName: true,
     status: true,
@@ -43,7 +44,6 @@ export const VendorsTable = () => {
     createdAt: false,
     id: false,
   })
-  // const [rowSelection, setRowSelection] = useState({})
 
   useEffect(() => {
     if (copiedText) {
@@ -70,6 +70,7 @@ export const VendorsTable = () => {
   const handleCreateNew = () => {
     console.log('create new vendor')
   }
+
   const columns: ColumnDef<Vendor>[] = [
     {
       accessorKey: 'displayName',
@@ -118,7 +119,7 @@ export const VendorsTable = () => {
       header: 'Tags',
       cell: ({ row }) => {
         const tags = `${row?.original?.tags}`
-        return <div className={nameRow()}>{tags && tags.length ? <Badge>{tags}</Badge> : tags}</div>
+        return <div className={nameRow()}>{tags && tags.length ? tags.map((t) => <Badge>{t}</Badge>) : []}</div>
       },
     },
     {
@@ -155,21 +156,12 @@ export const VendorsTable = () => {
     },
     {
       accessorKey: 'id',
-      header: '',
+      header: 'Id',
       cell: ({ cell }) => <Actions vendorId={cell.getValue() as string} />,
       size: 40,
     },
   ]
-
-  const handleToggleColumnVisibility = (e: React.FormEvent<HTMLInputElement>, columnId: string) => {
-    setColumnVisibility((prevState) => {
-      e.preventDefault()
-      return {
-        ...prevState,
-        [columnId]: !prevState[columnId],
-      }
-    })
-  }
+  console.log('column', columns[0])
 
   return (
     <div>
@@ -181,21 +173,7 @@ export const VendorsTable = () => {
           Create New
         </Button>
       </div>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button>
-            <span>Open menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          {columns.map((column) => (
-            <DropdownMenuItem key={column.id} checked={columnVisibility[column.accessorKey]} onClick={() => handleToggleColumnVisibility(e, column.accessorKey)}>
-              {column.header}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-      <DataTable columns={columns} data={vendors} />
+      <DataTable columns={columns} data={vendors} showVisibility={true} />
     </div>
   )
 }
