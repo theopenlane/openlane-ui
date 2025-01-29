@@ -31,8 +31,19 @@ export const VendorsTable = () => {
   const [{ data, fetching, error }, refetch] = useGetVendorQuery({
     pause: !session,
   })
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
-  const [rowSelection, setRowSelection] = useState({})
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    displayName: true,
+    status: true,
+    description: true,
+    domains: true,
+    tags: true,
+    updatedBy: false,
+    updatedAt: false,
+    createdBy: false,
+    createdAt: false,
+    id: false,
+  })
+  // const [rowSelection, setRowSelection] = useState({})
 
   useEffect(() => {
     if (copiedText) {
@@ -150,6 +161,16 @@ export const VendorsTable = () => {
     },
   ]
 
+  const handleToggleColumnVisibility = (e: React.FormEvent<HTMLInputElement>, columnId: string) => {
+    setColumnVisibility((prevState) => {
+      e.preventDefault()
+      return {
+        ...prevState,
+        [columnId]: !prevState[columnId],
+      }
+    })
+  }
+
   return (
     <div>
       <div className={vendorSearchRow()}>
@@ -166,9 +187,11 @@ export const VendorsTable = () => {
             <span>Open menu</span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
+        <DropdownMenuContent align="end">
           {columns.map((column) => (
-            <DropdownMenuItem key={column.id}>{column.header}</DropdownMenuItem>
+            <DropdownMenuItem key={column.id} checked={columnVisibility[column.accessorKey]} onClick={() => handleToggleColumnVisibility(e, column.accessorKey)}>
+              {column.header}
+            </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
