@@ -2,7 +2,7 @@ import type { Config } from 'tailwindcss'
 import forms from '@tailwindcss/forms'
 import assistantUI from '@assistant-ui/react/tailwindcss'
 
-export const config: Omit<Config, 'content'> = {
+export const config: Partial<Config> = {
   darkMode: 'class', // Enable dark mode via class
   plugins: [
     forms,

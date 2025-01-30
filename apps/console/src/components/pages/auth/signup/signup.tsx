@@ -145,21 +145,23 @@ export const SignupPage = () => {
         onSubmit={async (payload: RegisterUser) => {
           setIsLoading(true)
           try {
-            // @ts-ignore
-            const recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'signup' })
+            if (recaptchaSiteKey) {
+              // @ts-ignore
+              const recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'signup' })
 
-            const recaptchaValidation = await fetch('/api/recaptchaVerify', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ token: recaptchaToken }),
-            })
+              const recaptchaValidation = await fetch('/api/recaptchaVerify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: recaptchaToken }),
+              })
 
-            const validationResponse = await recaptchaValidation.json()
+              const validationResponse = await recaptchaValidation.json()
 
-            if (!validationResponse.success) {
-              setRegistrationErrorMessage('reCAPTCHA validation failed.')
-              setIsLoading(false)
-              return
+              if (!validationResponse.success) {
+                setRegistrationErrorMessage('reCAPTCHA validation failed.')
+                setIsLoading(false)
+                return
+              }
             }
 
             const isEmailValid = await validateEmail(payload)

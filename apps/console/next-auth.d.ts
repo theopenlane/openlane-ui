@@ -11,12 +11,14 @@ declare module 'next-auth' {
       refreshToken: string
       activeOrganizationId: string
       image: string
+      isTfaEnabled: boolean
     }
   }
   interface User extends DefaultUser {
     accessToken: string
     refreshToken: string
     session: string
+    isTfaEnabled: boolean
   }
   interface Profile extends DefaultProfile {
     display_name: string
