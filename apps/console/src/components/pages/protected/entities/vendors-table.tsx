@@ -167,6 +167,7 @@ export const VendorsTable = () => {
       header: '',
       cell: ({ cell }) => <Actions vendorId={cell.getValue() as string} />,
       size: 40,
+      enableHiding: false,
     },
   ]
   console.log('column', columns[0])
