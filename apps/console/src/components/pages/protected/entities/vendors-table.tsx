@@ -105,7 +105,7 @@ export const VendorsTable = () => {
       accessorKey: 'domains',
       header: 'Domains',
       cell: ({ row }) => {
-        const domains = `${row?.original?.domains?.join(', ')}`
+        const domains = row?.original?.domains as string[]
         return (
           <div className={nameRow()}>
             {domains}
@@ -118,8 +118,9 @@ export const VendorsTable = () => {
       accessorKey: 'tags',
       header: 'Tags',
       cell: ({ row }) => {
-        const tags = `${row?.original?.tags}`
-        return <div className={nameRow()}>{tags && tags.length ? tags.split(',').map((t) => <Badge>{t}</Badge>) : []}</div>
+        const tags = row?.original?.tags
+        console.log(tags, typeof tags)
+        return <div className={nameRow()}>{tags?.map((tag) => <Badge>{tag}</Badge>)}</div>
       },
     },
     {
