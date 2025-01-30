@@ -4,6 +4,7 @@ import { ProfileNameForm } from './profile-name-form'
 import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
 import { useSession } from 'next-auth/react'
 import {
+  File,
   GetUserProfileQueryVariables,
   useCreateTfaSettingMutation,
   useGetUserProfileQuery,
