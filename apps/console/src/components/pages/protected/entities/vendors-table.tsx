@@ -119,7 +119,7 @@ export const VendorsTable = () => {
       header: 'Tags',
       cell: ({ row }) => {
         const tags = `${row?.original?.tags}`
-        return <div className={nameRow()}>{tags && tags.length ? tags.map((t) => <Badge>{t}</Badge>) : []}</div>
+        return <div className={nameRow()}>{tags && tags.length ? tags.split(',').map((t) => <Badge>{t}</Badge>) : []}</div>
       },
     },
     {
