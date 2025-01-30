@@ -1,42 +1,31 @@
-/**
- * check into why this default export isn't working
- * export { auth as default } from './lib/auth'
- */
-
 import { NextResponse } from 'next/server'
 import { auth } from './lib/auth/auth'
 import { cookies } from 'next/headers'
 import { sessionCookieName } from '@repo/dally/auth'
+import { getToken } from 'next-auth/jwt'
 
-export default auth((req) => {
-  /**
-   * Set this header so we can read it and set the current route
-   * and metadata on the client side without invoking the
-   * navigation hooks in React
-   */
+export default auth(async (req) => {
+  // Attach `next-url` header for client-side route metadata
   req.headers.append('next-url', req.nextUrl.toString())
-
-  /**
-   * Here we are running middleware on each matched route
-   * in the config below.
-   *
-   * For this example we are just checking that the request
-   * has a valid user attached and session cookie and if so let the user
-   * continue on, otherwise redirect them to the login page
-   */
 
   let hasSessionCookie = true
 
   if (sessionCookieName) {
     const sessionData = cookies().get(sessionCookieName)
-
-    // if the session cookie is not present, redirect to sign in
-    if (sessionData == null || sessionData.value == '') {
+    if (!sessionData || !sessionData.value) {
       hasSessionCookie = false
     }
   }
+  const session = await auth()
+  
+  const isTfaEnabled = session?.user.isTfaEnabled
 
-  if (req.auth?.user && hasSessionCookie) return NextResponse.next()
+  if (req.auth?.user && hasSessionCookie) {
+    if (isTfaEnabled) {
+      return NextResponse.redirect(new URL('/tfa', req.url))
+    }
+    return NextResponse.next()
+  }
 
   return NextResponse.redirect(new URL('/login', req.url))
 })
@@ -60,6 +49,6 @@ export const config = {
      */
 
     //IF YOU ADD PUBLIC PAGE, ITS REQUIRED TO CHANGE IT IN Providers.tsx
-    '/((?!api|[_next/static]|[_next/image]|favicon.ico|backgrounds|backgrounds/|icons|icons/|login|verify|resend-verify|waitlist|subscriber-verify|invite).*)',
+    '/((?!api|[_next/static]|[_next/image]|favicon.ico|backgrounds|backgrounds/|icons|icons/|login|verify|resend-verify|waitlist|subscriber-verify|invite|tfa).*)',
   ],
 }

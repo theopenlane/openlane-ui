@@ -96,7 +96,6 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
   }
 
   const handleSubmit = async (values: FormData) => {
-    console.log('handleSubmit')
     try {
       setIsSubmitting(true)
 

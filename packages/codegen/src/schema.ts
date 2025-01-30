@@ -27098,6 +27098,65 @@ export type DeleteTemplateMutation = {
   deleteTemplate: { __typename?: 'TemplateDeletePayload'; deletedID: string }
 }
 
+export type GetTfaSettingsQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetTfaSettingsQuery = {
+  __typename?: 'Query'
+  tfaSettings: {
+    __typename?: 'TFASettingConnection'
+    edges?: Array<{
+      __typename?: 'TFASettingEdge'
+      node?: { __typename?: 'TFASetting'; id: string } | null
+    } | null> | null
+  }
+}
+
+export type GetUserTfaSettingsQueryVariables = Exact<{
+  userId: Scalars['ID']['input']
+}>
+
+export type GetUserTfaSettingsQuery = {
+  __typename?: 'Query'
+  user: {
+    __typename?: 'User'
+    tfaSettings?: Array<{
+      __typename?: 'TFASetting'
+      id: string
+      totpAllowed?: boolean | null
+      verified: boolean
+    }> | null
+  }
+}
+
+export type UpdateTfaSettingMutationVariables = Exact<{
+  input: UpdateTfaSettingInput
+}>
+
+export type UpdateTfaSettingMutation = {
+  __typename?: 'Mutation'
+  updateTFASetting: {
+    __typename?: 'TFASettingUpdatePayload'
+    qrCode?: string | null
+    recoveryCodes?: Array<string> | null
+    tfaSecret?: string | null
+    tfaSetting: { __typename?: 'TFASetting'; id: string }
+  }
+}
+
+export type CreateTfaSettingMutationVariables = Exact<{
+  input: CreateTfaSettingInput
+}>
+
+export type CreateTfaSettingMutation = {
+  __typename?: 'Mutation'
+  createTFASetting: {
+    __typename?: 'TFASettingCreatePayload'
+    qrCode?: string | null
+    tfaSecret?: string | null
+    tfaSetting: { __typename?: 'TFASetting'; id: string }
+  }
+}
+
 export type GetUserProfileQueryVariables = Exact<{
   userId: Scalars['ID']['input']
 }>
@@ -27118,6 +27177,7 @@ export type GetUserProfileQuery = {
       id: string
       status: UserSettingUserStatus
       tags?: Array<string> | null
+      isTfaEnabled?: boolean | null
       defaultOrg?: { __typename?: 'Organization'; id: string; displayName: string } | null
     }
   }
@@ -28425,6 +28485,72 @@ export const DeleteTemplateDocument = gql`
 export function useDeleteTemplateMutation() {
   return Urql.useMutation<DeleteTemplateMutation, DeleteTemplateMutationVariables>(DeleteTemplateDocument)
 }
+export const GetTfaSettingsDocument = gql`
+  query GetTFASettings {
+    tfaSettings {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+`
+
+export function useGetTfaSettingsQuery(options?: Omit<Urql.UseQueryArgs<GetTfaSettingsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetTfaSettingsQuery, GetTfaSettingsQueryVariables>({ query: GetTfaSettingsDocument, ...options })
+}
+export const GetUserTfaSettingsDocument = gql`
+  query GetUserTFASettings($userId: ID!) {
+    user(id: $userId) {
+      tfaSettings {
+        id
+        totpAllowed
+        verified
+      }
+    }
+  }
+`
+
+export function useGetUserTfaSettingsQuery(
+  options: Omit<Urql.UseQueryArgs<GetUserTfaSettingsQueryVariables>, 'query'>,
+) {
+  return Urql.useQuery<GetUserTfaSettingsQuery, GetUserTfaSettingsQueryVariables>({
+    query: GetUserTfaSettingsDocument,
+    ...options,
+  })
+}
+export const UpdateTfaSettingDocument = gql`
+  mutation UpdateTFASetting($input: UpdateTFASettingInput!) {
+    updateTFASetting(input: $input) {
+      qrCode
+      recoveryCodes
+      tfaSecret
+      tfaSetting {
+        id
+      }
+    }
+  }
+`
+
+export function useUpdateTfaSettingMutation() {
+  return Urql.useMutation<UpdateTfaSettingMutation, UpdateTfaSettingMutationVariables>(UpdateTfaSettingDocument)
+}
+export const CreateTfaSettingDocument = gql`
+  mutation CreateTFASetting($input: CreateTFASettingInput!) {
+    createTFASetting(input: $input) {
+      qrCode
+      tfaSecret
+      tfaSetting {
+        id
+      }
+    }
+  }
+`
+
+export function useCreateTfaSettingMutation() {
+  return Urql.useMutation<CreateTfaSettingMutation, CreateTfaSettingMutationVariables>(CreateTfaSettingDocument)
+}
 export const GetUserProfileDocument = gql`
   query GetUserProfile($userId: ID!) {
     user(id: $userId) {
@@ -28442,6 +28568,7 @@ export const GetUserProfileDocument = gql`
         id
         status
         tags
+        isTfaEnabled
         defaultOrg {
           id
           displayName
