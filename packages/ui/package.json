@@ -50,6 +50,7 @@
     "./tag": "./src/tag/tag.tsx",
     "./textarea": "./src/textarea.tsx",
     "./tooltip": "./src/tooltip.tsx",
+    "./sheet": "./src/sheet/sheet.tsx",
     "./message-box": "./src/message-box.tsx",
     "./icons/google": "./src/icons/google.tsx",
     "./icons/github": "./src/icons/github.tsx",
