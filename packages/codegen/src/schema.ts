@@ -26105,6 +26105,12 @@ export type GetAllGroupsQuery = {
   }
 }
 
+export type CreateGroupMutationVariables = Exact<{
+  input: CreateGroupInput
+}>
+
+export type CreateGroupMutation = { __typename?: 'Mutation'; createGroup: { __typename?: 'GroupCreatePayload'; group: { __typename?: 'Group'; id: string } } }
+
 export type UpdateUserRoleInOrgMutationVariables = Exact<{
   updateOrgMemberId: Scalars['ID']['input']
   input: UpdateOrgMembershipInput
@@ -27091,6 +27097,19 @@ export const GetAllGroupsDocument = gql`
 
 export function useGetAllGroupsQuery(options?: Omit<Urql.UseQueryArgs<GetAllGroupsQueryVariables>, 'query'>) {
   return Urql.useQuery<GetAllGroupsQuery, GetAllGroupsQueryVariables>({ query: GetAllGroupsDocument, ...options })
+}
+export const CreateGroupDocument = gql`
+  mutation CreateGroup($input: CreateGroupInput!) {
+    createGroup(input: $input) {
+      group {
+        id
+      }
+    }
+  }
+`
+
+export function useCreateGroupMutation() {
+  return Urql.useMutation<CreateGroupMutation, CreateGroupMutationVariables>(CreateGroupDocument)
 }
 export const UpdateUserRoleInOrgDocument = gql`
   mutation UpdateUserRoleInOrg($updateOrgMemberId: ID!, $input: UpdateOrgMembershipInput!) {
