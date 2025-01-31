@@ -119,7 +119,6 @@ export const VendorsTable = () => {
       header: 'Tags',
       cell: ({ row }) => {
         const tags = row?.original?.tags
-        console.log(tags, typeof tags)
         return <div className={nameRow()}>{tags?.map((tag) => <Badge>{tag}</Badge>)}</div>
       },
     },
@@ -171,7 +170,6 @@ export const VendorsTable = () => {
       enableHiding: false,
     },
   ]
-  console.log('column', columns[0])
 
   return (
     <div>
@@ -183,7 +181,7 @@ export const VendorsTable = () => {
           Create New
         </Button>
       </div>
-      <DataTable columns={columns} data={vendors} showVisibility={true} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} />
+      <DataTable columns={columns} data={vendors} showVisibility={true} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} loading={fetching} />
     </div>
   )
 }
