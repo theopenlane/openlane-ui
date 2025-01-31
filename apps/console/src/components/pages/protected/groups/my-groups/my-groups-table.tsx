@@ -81,12 +81,12 @@ const columns: ColumnDef<any>[] = [
     accessorKey: 'members',
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
-        {row.getValue('members').map((owner: any, index: number) => (
+        {/* {row.getValue('members').map((owner: any, index: number) => (
           <Avatar key={index}>
             <AvatarImage src={owner.avatar} alt={owner.fallback} />
             <AvatarFallback>{owner.fallback}</AvatarFallback>
           </Avatar>
-        ))}
+        ))} */}
       </div>
     ),
   },
@@ -104,22 +104,24 @@ const MyGroupsTable: React.FC = () => {
   }
 
   return (
-    <DataTable
-      columns={columns}
-      data={data}
-      onRowClick={(row: any) => handleRowClick(row)}
-      noDataMarkup={
-        <TableRow className={tableRow()}>
-          <TableCell colSpan={columns.length}>
-            <div className="flex flex-col justify-center items-center">
-              <Users2Icon height={89} width={89} className={keyIcon()} strokeWidth={1} color="#DAE3E7" />
-              <p className={message()}> You're not part of any group.</p>
-              <CreateGroupDialog triggerText />
-            </div>
-          </TableCell>
-        </TableRow>
-      }
-    />
+    <div className="mt-5">
+      <DataTable
+        columns={columns}
+        data={data}
+        // onRowClick={(row: any) => handleRowClick(row)}
+        noDataMarkup={
+          <TableRow className={tableRow()}>
+            <TableCell colSpan={columns.length}>
+              <div className="flex flex-col justify-center items-center">
+                <Users2Icon height={89} width={89} className={keyIcon()} strokeWidth={1} color="#DAE3E7" />
+                <p className={message()}> You're not part of any group.</p>
+                <CreateGroupDialog triggerText />
+              </div>
+            </TableCell>
+          </TableRow>
+        }
+      />
+    </div>
   )
 }
 

@@ -18,3 +18,11 @@ query GetAllGroups {
     }
   }
 }
+
+mutation CreateGroup($input: CreateGroupInput!) {
+  createGroup(input: $input) {
+    group {
+      id
+    }
+  }
+}

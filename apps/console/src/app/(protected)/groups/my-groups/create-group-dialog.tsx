@@ -11,6 +11,10 @@ import { Textarea } from '@repo/ui/textarea'
 import { useToast } from '@repo/ui/use-toast'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusCircle } from 'lucide-react'
+import { GetSingleOrganizationMembersQueryVariables, useCreateGroupMutation, useGetInvitesQuery, useGetSingleOrganizationMembersQuery } from '@repo/codegen/src/schema'
+import { useSession } from 'next-auth/react'
+import MultipleSelector from '@repo/ui/multiple-selector'
+import { mutate } from 'swr'
 
 const CreateGroupSchema = z.object({
   groupName: z.string().min(1, 'Group name is required'),
@@ -27,9 +31,25 @@ type MyGroupsDialogProps = {
 }
 
 const CreateGroupDialog = ({ triggerText }: MyGroupsDialogProps) => {
+  const { data: session } = useSession()
   const [isOpen, setIsOpen] = useState(false)
-  const [visibility, setVisibility] = useState<'Public' | 'Private'>('Private') // Local state for visibility
+  const [visibility, setVisibility] = useState<'Public' | 'Private'>('Private')
   const { toast } = useToast()
+
+  const [{}, createGroup] = useCreateGroupMutation()
+
+  const variables: GetSingleOrganizationMembersQueryVariables = {
+    organizationId: session?.user.activeOrganizationId ?? '',
+  }
+
+  const [{ data: membersData }] = useGetSingleOrganizationMembersQuery({
+    variables,
+  })
+
+  const membersOptions = membersData?.organization?.members?.map((member) => ({
+    value: member.user.id,
+    label: `${member.user.firstName} ${member.user.lastName}`,
+  }))
 
   const {
     register,
@@ -44,11 +64,22 @@ const CreateGroupDialog = ({ triggerText }: MyGroupsDialogProps) => {
     },
   })
 
-  const onSubmit = (data: CreateGroupFormData) => {
+  const onSubmit = async (data: CreateGroupFormData) => {
     console.log(data)
     toast({ title: 'Group created successfully!', variant: 'success' })
     setIsOpen(false)
     reset()
+    try {
+      await createGroup({
+        input: {
+          name: data.groupName,
+          userIDs: data.members,
+          description: data.description,
+          tags: data.tags,
+        },
+      })
+      toast({ title: 'Group created successfully!', variant: 'success' })
+    } catch (error) {}
   }
 
   const handleVisibilityChange = (value: 'Public' | 'Private') => {
@@ -86,8 +117,7 @@ const CreateGroupDialog = ({ triggerText }: MyGroupsDialogProps) => {
             <Label className="text-sm font-medium" htmlFor="members">
               Assign member(s) to the group:
             </Label>
-            <Input id="members" placeholder="Enter members..." {...register('members')} />
-            {errors.members && <p className="text-red-500 text-sm">{errors.members.message}</p>}
+            {membersOptions && <MultipleSelector defaultOptions={membersOptions} />}
           </div>
           <div className="space-y-2">
             <Label className="text-sm font-medium" htmlFor="description">
