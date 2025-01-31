@@ -70,14 +70,14 @@ const CreateGroupDialog = ({ triggerText }: MyGroupsDialogProps) => {
     setIsOpen(false)
     reset()
     try {
-      await createGroup({
-        input: {
-          name: data.groupName,
-          userIDs: data.members,
-          description: data.description,
-          tags: data.tags,
-        },
-      })
+      // await createGroup({
+      //   input: {
+      //     name: data.groupName,
+      //     userIDs: data.members,
+      //     description: data.description,
+      //     tags: data.tags,
+      //   },
+      // })
       toast({ title: 'Group created successfully!', variant: 'success' })
     } catch (error) {}
   }

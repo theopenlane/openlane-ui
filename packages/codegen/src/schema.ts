@@ -26077,7 +26077,9 @@ export type DeleteDocumentDataMutationVariables = Exact<{
 
 export type DeleteDocumentDataMutation = { __typename?: 'Mutation'; deleteDocumentData: { __typename?: 'DocumentDataDeletePayload'; deletedID: string } }
 
-export type GetAllGroupsQueryVariables = Exact<{ [key: string]: never }>
+export type GetAllGroupsQueryVariables = Exact<{
+  where?: InputMaybe<GroupWhereInput>
+}>
 
 export type GetAllGroupsQuery = {
   __typename?: 'Query'
@@ -26092,6 +26094,19 @@ export type GetAllGroupsQuery = {
         description?: string | null
         displayName: string
         logoURL?: string | null
+        isManaged?: boolean | null
+        tags?: Array<string> | null
+        members?: Array<{
+          __typename?: 'GroupMembership'
+          user: {
+            __typename?: 'User'
+            firstName?: string | null
+            lastName?: string | null
+            avatarRemoteURL?: string | null
+            role?: UserRole | null
+            avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+          }
+        }> | null
         setting: {
           __typename?: 'GroupSetting'
           visibility: GroupSettingVisibility
@@ -26099,6 +26114,7 @@ export type GetAllGroupsQuery = {
           syncToSlack?: boolean | null
           syncToGithub?: boolean | null
           tags?: Array<string> | null
+          id: string
         }
       } | null
     } | null> | null
@@ -27073,8 +27089,8 @@ export function useDeleteDocumentDataMutation() {
   return Urql.useMutation<DeleteDocumentDataMutation, DeleteDocumentDataMutationVariables>(DeleteDocumentDataDocument)
 }
 export const GetAllGroupsDocument = gql`
-  query GetAllGroups {
-    groups {
+  query GetAllGroups($where: GroupWhereInput) {
+    groups(where: $where) {
       edges {
         node {
           id
@@ -27082,12 +27098,26 @@ export const GetAllGroupsDocument = gql`
           description
           displayName
           logoURL
+          isManaged
+          tags
+          members {
+            user {
+              firstName
+              lastName
+              avatarFile {
+                presignedURL
+              }
+              avatarRemoteURL
+              role
+            }
+          }
           setting {
             visibility
             joinPolicy
             syncToSlack
             syncToGithub
             tags
+            id
           }
         }
       }

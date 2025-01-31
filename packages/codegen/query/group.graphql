@@ -1,5 +1,5 @@
-query GetAllGroups {
-  groups {
+query GetAllGroups($where: GroupWhereInput) {
+  groups(where: $where) {
     edges {
       node {
         id
@@ -7,12 +7,26 @@ query GetAllGroups {
         description
         displayName
         logoURL
+        isManaged
+        tags
+        members {
+          user {
+            firstName
+            lastName
+            avatarFile {
+              presignedURL
+            }
+            avatarRemoteURL
+            role
+          }
+        }
         setting {
           visibility
           joinPolicy
           syncToSlack
           syncToGithub
           tags
+          id
         }
       }
     }
