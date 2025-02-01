@@ -1,18 +1,22 @@
 import React, { useState } from 'react'
-import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { Badge } from '@repo/ui/badge'
-import { Button } from '@repo/ui/button' // Replace with your actual Button component
-import { Copy, GlobeIcon, Link, Pencil, Plus, Tag, Trash2, TrashIcon, User } from 'lucide-react' // Icons from lucide-react
-import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { Group } from '../../../../../app/(protected)/groups/my-groups/page'
+import { Button } from '@repo/ui/button'
+import { Copy, GlobeIcon, Info, Link, Plus, Tag, User } from 'lucide-react'
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import MyGroupsMembersTable from './my-groups-members-table'
+import { useMyGroupsStore } from '@/hooks/useMyGroupsStore'
+import { Card } from '@repo/ui/cardpanel'
+import EditGroupDialog from './dialogs/edit-group-dialog'
+import DeleteGroupDialog from './dialogs/delete-group-dialog'
+import AddMembersDialog from './dialogs/add-members-dialog'
+import AssignPermissionsDialog from './dialogs/assign-permissions-dialog'
+import MyGroupsPermissionsTable from './my-groups-permissions-table'
+import InheritPermissionDialog from './dialogs/inherit-permission-dialog'
 
-interface Props {
-  selectedGroup: Group | null
-  setSelectedGroup: (group: null) => void
-}
-const GroupDetailsSheet = ({ selectedGroup, setSelectedGroup }: Props) => {
+const GroupDetailsSheet = () => {
+  const { selectedGroup, setSelectedGroup } = useMyGroupsStore()
   const [activeTab, setActiveTab] = useState<'Members' | 'Permissions'>('Members')
+
   return (
     <Sheet open={!!selectedGroup} onOpenChange={() => setSelectedGroup(null)}>
       <SheetContent className="bg-card">
@@ -21,20 +25,13 @@ const GroupDetailsSheet = ({ selectedGroup, setSelectedGroup }: Props) => {
             <Button icon={<Link />} iconPosition="left" variant="outline">
               Copy link
             </Button>
-            <Button icon={<Pencil />} iconPosition="left" variant="outline">
-              Copy link
-            </Button>
-            <Button icon={<Trash2 />} iconPosition="left" variant="outline">
-              Copy link
-            </Button>
+            <EditGroupDialog />
+            <DeleteGroupDialog />
           </div>
         </SheetHeader>
         <SheetTitle>{selectedGroup?.name}</SheetTitle>
         <SheetDescription>{selectedGroup?.description}</SheetDescription>
         <div>
-          {/* Header Section */}
-
-          {/* Info Section */}
           <div className="flex gap-6 mt-5">
             <div className=" flex gap-2 flex-col">
               <div className="flex items-center gap-1">
@@ -63,16 +60,24 @@ const GroupDetailsSheet = ({ selectedGroup, setSelectedGroup }: Props) => {
           </div>
 
           <div className="mt-9 flex gap-4">
-            <Button variant="outline" icon={<Plus />} iconPosition="left">
-              Add members
-            </Button>
-            <Button variant="outline" icon={<Plus />} iconPosition="left">
-              Assign permissions to group
-            </Button>
-            <Button variant="outline" icon={<Copy />} iconPosition="left">
-              Inherit permission
-            </Button>
+            <AddMembersDialog />
+            <AssignPermissionsDialog />
+            <InheritPermissionDialog />
           </div>
+
+          <Card className="mt-6 p-4 flex gap-3  ">
+            <Info className="mt-1" width={16} height={16} />
+            <div>
+              <p className="font-semibold ">Did you know?</p>
+              <p className="text-sm ">
+                Groups can be used to assign specific access to objects within the system. Please refer to our{' '}
+                <a href="https://docs.theopenlane.io/docs/docs/platform/security/authorization/permissions" target="_blank" className="text-brand hover:underline">
+                  documentation
+                </a>
+                .
+              </p>
+            </div>
+          </Card>
 
           <div className="mt-9 flex">
             <p
@@ -89,8 +94,7 @@ const GroupDetailsSheet = ({ selectedGroup, setSelectedGroup }: Props) => {
               Permissions
             </p>
           </div>
-
-          <div className="mt-7">{selectedGroup && <MyGroupsMembersTable selectedGroup={selectedGroup} />}</div>
+          <div className="mt-7">{activeTab === 'Members' ? <MyGroupsMembersTable /> : <MyGroupsPermissionsTable />}</div>
         </div>
       </SheetContent>
     </Sheet>

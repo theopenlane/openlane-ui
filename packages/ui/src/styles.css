@@ -127,6 +127,12 @@
   --color-status-error-muted: #f5b8b8;
   --color-status-info-muted: #5a9bd5;
 
+  /* Alert */
+  --color-destructive: #dc2626;
+  --color-destructive-transparent: #dc26261a;
+  --color-destrucitve-border: #fecaca;
+  --color-destructive-foreground: #f0fdf9;
+
   /* JSON Editor */
   .svc-json-editor-tab__content-area {
     background-color: var(--color-bg);
@@ -219,6 +225,12 @@
   --color-status-warning-muted: #fbd079;
   --color-status-error-muted: #f5b8b8;
   --color-status-info-muted: #5a9bd5;
+
+  /* Alert */
+  --color-destructive: #ef4444;
+  --color-destructive-transparent: #ef44441a;
+  --color-destrucitve-border: #7f1d1d;
+  --color-destructive-foreground: #f0fdf9;
 
   /* JSON Editor */
   .svc-json-editor-tab__content-area {

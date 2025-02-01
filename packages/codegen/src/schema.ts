@@ -3654,7 +3654,7 @@ export interface CreateGroupInput {
   riskCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  settingID: Scalars['ID']['input']
+  settingID?: InputMaybe<Scalars['ID']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -3685,8 +3685,6 @@ export interface CreateGroupSettingInput {
   syncToGithub?: InputMaybe<Scalars['Boolean']['input']>
   /** whether to sync group members to slack groups */
   syncToSlack?: InputMaybe<Scalars['Boolean']['input']>
-  /** tags associated with the object */
-  tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** whether the group is visible to it's members / owners only or if it's searchable by anyone within the organization */
   visibility?: InputMaybe<GroupSettingVisibility>
 }
@@ -3824,8 +3822,6 @@ export interface CreateNoteInput {
   ownerID?: InputMaybe<Scalars['ID']['input']>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  /** tags associated with the object */
-  tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** the text of the note */
   text: Scalars['String']['input']
 }
@@ -7701,6 +7697,8 @@ export interface Group extends Node {
   deletedBy?: Maybe<Scalars['String']['output']>
   /** the groups description */
   description?: Maybe<Scalars['String']['output']>
+  /** a shortened prefixed id field to use as a human readable identifier */
+  displayID: Scalars['String']['output']
   /** The group's displayed 'friendly' name */
   displayName: Scalars['String']['output']
   events?: Maybe<Array<Event>>
@@ -7738,7 +7736,7 @@ export interface Group extends Node {
   riskCreators?: Maybe<Array<Organization>>
   riskEditors?: Maybe<Array<Risk>>
   riskViewers?: Maybe<Array<Risk>>
-  setting: GroupSetting
+  setting?: Maybe<GroupSetting>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   tasks?: Maybe<Array<Task>>
@@ -7797,6 +7795,8 @@ export interface GroupHistory extends Node {
   deletedBy?: Maybe<Scalars['String']['output']>
   /** the groups description */
   description?: Maybe<Scalars['String']['output']>
+  /** a shortened prefixed id field to use as a human readable identifier */
+  displayID: Scalars['String']['output']
   /** The group's displayed 'friendly' name */
   displayName: Scalars['String']['output']
   /** the URL to an auto generated gravatar image for the group */
@@ -7920,6 +7920,20 @@ export interface GroupHistoryWhereInput {
   deletedByNEQ?: InputMaybe<Scalars['String']['input']>
   deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** display_id field predicates */
+  displayID?: InputMaybe<Scalars['String']['input']>
+  displayIDContains?: InputMaybe<Scalars['String']['input']>
+  displayIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  displayIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  displayIDGT?: InputMaybe<Scalars['String']['input']>
+  displayIDGTE?: InputMaybe<Scalars['String']['input']>
+  displayIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  displayIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  displayIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  displayIDLT?: InputMaybe<Scalars['String']['input']>
+  displayIDLTE?: InputMaybe<Scalars['String']['input']>
+  displayIDNEQ?: InputMaybe<Scalars['String']['input']>
+  displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   /** display_name field predicates */
   displayName?: InputMaybe<Scalars['String']['input']>
   displayNameContains?: InputMaybe<Scalars['String']['input']>
@@ -8471,8 +8485,6 @@ export interface GroupSetting extends Node {
   syncToGithub?: Maybe<Scalars['Boolean']['output']>
   /** whether to sync group members to slack groups */
   syncToSlack?: Maybe<Scalars['Boolean']['output']>
-  /** tags associated with the object */
-  tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   /** whether the group is visible to it's members / owners only or if it's searchable by anyone within the organization */
@@ -8538,8 +8550,6 @@ export interface GroupSettingHistory extends Node {
   syncToGithub?: Maybe<Scalars['Boolean']['output']>
   /** whether to sync group members to slack groups */
   syncToSlack?: Maybe<Scalars['Boolean']['output']>
-  /** tags associated with the object */
-  tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   /** whether the group is visible to it's members / owners only or if it's searchable by anyone within the organization */
@@ -8763,11 +8773,6 @@ export enum GroupSettingJoinPolicy {
   OPEN = 'OPEN',
 }
 
-export interface GroupSettingSearchResult {
-  __typename?: 'GroupSettingSearchResult'
-  groupSettings?: Maybe<Array<GroupSetting>>
-}
-
 /** Return response for updateGroupSetting mutation */
 export interface GroupSettingUpdatePayload {
   __typename?: 'GroupSettingUpdatePayload'
@@ -8989,6 +8994,20 @@ export interface GroupWhereInput {
   deletedByNEQ?: InputMaybe<Scalars['String']['input']>
   deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** display_id field predicates */
+  displayID?: InputMaybe<Scalars['String']['input']>
+  displayIDContains?: InputMaybe<Scalars['String']['input']>
+  displayIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  displayIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  displayIDGT?: InputMaybe<Scalars['String']['input']>
+  displayIDGTE?: InputMaybe<Scalars['String']['input']>
+  displayIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  displayIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  displayIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  displayIDLT?: InputMaybe<Scalars['String']['input']>
+  displayIDLTE?: InputMaybe<Scalars['String']['input']>
+  displayIDNEQ?: InputMaybe<Scalars['String']['input']>
+  displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   /** display_name field predicates */
   displayName?: InputMaybe<Scalars['String']['input']>
   displayNameContains?: InputMaybe<Scalars['String']['input']>
@@ -12778,8 +12797,6 @@ export interface Note extends Node {
   ownerID?: Maybe<Scalars['ID']['output']>
   program?: Maybe<Array<Program>>
   subcontrols?: Maybe<Array<Subcontrol>>
-  /** tags associated with the object */
-  tags?: Maybe<Array<Scalars['String']['output']>>
   /** the text of the note */
   text: Scalars['String']['output']
   updatedAt?: Maybe<Scalars['Time']['output']>
@@ -12820,8 +12837,6 @@ export interface NoteHistory extends Node {
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['String']['output']>
   ref?: Maybe<Scalars['String']['output']>
-  /** tags associated with the object */
-  tags?: Maybe<Array<Scalars['String']['output']>>
   /** the text of the note */
   text: Scalars['String']['output']
   updatedAt?: Maybe<Scalars['Time']['output']>
@@ -17604,8 +17619,6 @@ export interface Query {
   adminFileSearch?: Maybe<FileSearchResult>
   /** Search across Group objects */
   adminGroupSearch?: Maybe<GroupSearchResult>
-  /** Search across GroupSetting objects */
-  adminGroupSettingSearch?: Maybe<GroupSettingSearchResult>
   /** Search across Integration objects */
   adminIntegrationSearch?: Maybe<IntegrationSearchResult>
   /** Search across InternalPolicy objects */
@@ -17714,8 +17727,6 @@ export interface Query {
   /** Look up groupSetting by ID */
   groupSetting: GroupSetting
   groupSettingHistories: GroupSettingHistoryConnection
-  /** Search across GroupSetting objects */
-  groupSettingSearch?: Maybe<GroupSettingSearchResult>
   groupSettings: GroupSettingConnection
   groups: GroupConnection
   /** Look up hush by ID */
@@ -17917,10 +17928,6 @@ export interface QueryAdminFileSearchArgs {
 }
 
 export interface QueryAdminGroupSearchArgs {
-  query: Scalars['String']['input']
-}
-
-export interface QueryAdminGroupSettingSearchArgs {
   query: Scalars['String']['input']
 }
 
@@ -18287,10 +18294,6 @@ export interface QueryGroupSettingHistoriesArgs {
   first?: InputMaybe<Scalars['Int']['input']>
   last?: InputMaybe<Scalars['Int']['input']>
   where?: InputMaybe<GroupSettingHistoryWhereInput>
-}
-
-export interface QueryGroupSettingSearchArgs {
-  query: Scalars['String']['input']
 }
 
 export interface QueryGroupSettingsArgs {
@@ -19595,7 +19598,6 @@ export type SearchResult =
   | EvidenceSearchResult
   | FileSearchResult
   | GroupSearchResult
-  | GroupSettingSearchResult
   | IntegrationSearchResult
   | InternalPolicySearchResult
   | NarrativeSearchResult
@@ -23556,6 +23558,7 @@ export interface UpdateGroupInput {
   clearRiskCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearRiskEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearRiskViewers?: InputMaybe<Scalars['Boolean']['input']>
+  clearSetting?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearTemplateCreators?: InputMaybe<Scalars['Boolean']['input']>
@@ -23626,11 +23629,9 @@ export interface UpdateGroupMembershipInput {
  * Input was generated by ent.
  */
 export interface UpdateGroupSettingInput {
-  appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearGroup?: InputMaybe<Scalars['Boolean']['input']>
   clearSyncToGithub?: InputMaybe<Scalars['Boolean']['input']>
   clearSyncToSlack?: InputMaybe<Scalars['Boolean']['input']>
-  clearTags?: InputMaybe<Scalars['Boolean']['input']>
   groupID?: InputMaybe<Scalars['ID']['input']>
   /** the policy governing ability to freely join a group, whether it requires an invitation, application, or either */
   joinPolicy?: InputMaybe<GroupSettingJoinPolicy>
@@ -23638,8 +23639,6 @@ export interface UpdateGroupSettingInput {
   syncToGithub?: InputMaybe<Scalars['Boolean']['input']>
   /** whether to sync group members to slack groups */
   syncToSlack?: InputMaybe<Scalars['Boolean']['input']>
-  /** tags associated with the object */
-  tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** whether the group is visible to it's members / owners only or if it's searchable by anyone within the organization */
   visibility?: InputMaybe<GroupSettingVisibility>
 }
@@ -23831,18 +23830,14 @@ export interface UpdateNarrativeInput {
 export interface UpdateNoteInput {
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearEntity?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearProgram?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
-  clearTags?: InputMaybe<Scalars['Boolean']['input']>
   entityID?: InputMaybe<Scalars['ID']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  /** tags associated with the object */
-  tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** the text of the note */
   text?: InputMaybe<Scalars['String']['input']>
 }
@@ -26100,6 +26095,7 @@ export type GetAllGroupsQuery = {
           __typename?: 'GroupMembership'
           user: {
             __typename?: 'User'
+            id: string
             firstName?: string | null
             lastName?: string | null
             avatarRemoteURL?: string | null
@@ -26107,15 +26103,20 @@ export type GetAllGroupsQuery = {
             avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
           }
         }> | null
-        setting: {
+        setting?: {
           __typename?: 'GroupSetting'
           visibility: GroupSettingVisibility
           joinPolicy: GroupSettingJoinPolicy
           syncToSlack?: boolean | null
           syncToGithub?: boolean | null
-          tags?: Array<string> | null
           id: string
-        }
+        } | null
+        programCreators?: Array<{ __typename?: 'Organization'; id: string; name: string }> | null
+        programEditors?: Array<{ __typename?: 'Program'; id: string; name: string }> | null
+        programViewers?: Array<{ __typename?: 'Program'; id: string; name: string }> | null
+        riskViewers?: Array<{ __typename?: 'Risk'; id: string; name: string }> | null
+        controlViewers?: Array<{ __typename?: 'Control'; id: string; name: string }> | null
+        narrativeViewers?: Array<{ __typename?: 'Narrative'; id: string; name: string }> | null
       } | null
     } | null> | null
   }
@@ -26126,6 +26127,19 @@ export type CreateGroupMutationVariables = Exact<{
 }>
 
 export type CreateGroupMutation = { __typename?: 'Mutation'; createGroup: { __typename?: 'GroupCreatePayload'; group: { __typename?: 'Group'; id: string } } }
+
+export type UpdateGroupMutationVariables = Exact<{
+  updateGroupId: Scalars['ID']['input']
+  input: UpdateGroupInput
+}>
+
+export type UpdateGroupMutation = { __typename?: 'Mutation'; updateGroup: { __typename?: 'GroupUpdatePayload'; group: { __typename?: 'Group'; id: string } } }
+
+export type DeleteGroupMutationVariables = Exact<{
+  deleteGroupId: Scalars['ID']['input']
+}>
+
+export type DeleteGroupMutation = { __typename?: 'Mutation'; deleteGroup: { __typename?: 'GroupDeletePayload'; deletedID: string } }
 
 export type UpdateUserRoleInOrgMutationVariables = Exact<{
   updateOrgMemberId: Scalars['ID']['input']
@@ -26690,7 +26704,6 @@ export type SearchQuery = {
       | { __typename?: 'EvidenceSearchResult' }
       | { __typename?: 'FileSearchResult' }
       | { __typename?: 'GroupSearchResult'; groups?: Array<{ __typename?: 'Group'; id: string; name: string }> | null }
-      | { __typename?: 'GroupSettingSearchResult' }
       | { __typename?: 'IntegrationSearchResult' }
       | { __typename?: 'InternalPolicySearchResult' }
       | { __typename?: 'NarrativeSearchResult' }
@@ -27102,6 +27115,7 @@ export const GetAllGroupsDocument = gql`
           tags
           members {
             user {
+              id
               firstName
               lastName
               avatarFile {
@@ -27116,8 +27130,31 @@ export const GetAllGroupsDocument = gql`
             joinPolicy
             syncToSlack
             syncToGithub
-            tags
             id
+          }
+          programCreators {
+            id
+            name
+          }
+          programEditors {
+            id
+            name
+          }
+          programViewers {
+            id
+            name
+          }
+          riskViewers {
+            id
+            name
+          }
+          controlViewers {
+            id
+            name
+          }
+          narrativeViewers {
+            id
+            name
           }
         }
       }
@@ -27140,6 +27177,30 @@ export const CreateGroupDocument = gql`
 
 export function useCreateGroupMutation() {
   return Urql.useMutation<CreateGroupMutation, CreateGroupMutationVariables>(CreateGroupDocument)
+}
+export const UpdateGroupDocument = gql`
+  mutation UpdateGroup($updateGroupId: ID!, $input: UpdateGroupInput!) {
+    updateGroup(id: $updateGroupId, input: $input) {
+      group {
+        id
+      }
+    }
+  }
+`
+
+export function useUpdateGroupMutation() {
+  return Urql.useMutation<UpdateGroupMutation, UpdateGroupMutationVariables>(UpdateGroupDocument)
+}
+export const DeleteGroupDocument = gql`
+  mutation DeleteGroup($deleteGroupId: ID!) {
+    deleteGroup(id: $deleteGroupId) {
+      deletedID
+    }
+  }
+`
+
+export function useDeleteGroupMutation() {
+  return Urql.useMutation<DeleteGroupMutation, DeleteGroupMutationVariables>(DeleteGroupDocument)
 }
 export const UpdateUserRoleInOrgDocument = gql`
   mutation UpdateUserRoleInOrg($updateOrgMemberId: ID!, $input: UpdateOrgMembershipInput!) {
