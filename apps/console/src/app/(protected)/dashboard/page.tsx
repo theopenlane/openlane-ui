@@ -21,7 +21,7 @@ const DashboardLanding: React.FC = () => {
     hasAssigneeWith: [userWhere],
   }
 
-  const [{ data: dashboardData, fetching }] = useGetDashboardDataQuery({ variables: { where: whereFilter }, pause: !session })
+  const [{ data: dashboardData, fetching }] = useGetDashboardDataQuery({ variables: { where: whereFilter }, requestPolicy: 'cache-and-network' })
 
   const programsRes = { edges: dashboardData?.programs?.edges ?? [] }
   const taskRes = { edges: dashboardData?.tasks?.edges || [] }
