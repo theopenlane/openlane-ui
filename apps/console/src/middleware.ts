@@ -16,6 +16,7 @@ export default auth(async (req) => {
       hasSessionCookie = false
     }
   }
+  console.log('hasSessionCookie', hasSessionCookie)
   const session = await auth()
 
   const isTfaEnabled = session?.user.isTfaEnabled
