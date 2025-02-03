@@ -14,6 +14,7 @@ query GetUserProfile($userId: ID!) {
       id
       status
       tags
+      isTfaEnabled
       defaultOrg {
         id
         displayName

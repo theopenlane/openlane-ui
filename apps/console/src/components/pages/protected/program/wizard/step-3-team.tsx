@@ -136,8 +136,6 @@ const AddMemberDropdown: React.FC<{ values: Node[]; fieldName: keyof ProgramInvi
                             onSelect={() => {
                               const newValue = field.value?.includes(value.node.id) ? field.value.filter((id) => id !== value.node.id) : [...(field.value || []), value.node.id]
                               field.onChange(newValue)
-                              console.log(newValue)
-                              console.log(value.node.id)
                             }}
                           >
                             {value.node.name}

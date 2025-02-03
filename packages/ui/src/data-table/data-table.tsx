@@ -59,7 +59,7 @@ export function DataTable<TData, TValue>({ columns, loading = false, data, showF
   })
 
   return (
-    <div>
+    <div className="overflow-hidden rounded-md border bg-background-secondary">
       {(showFilter || showVisibility) && (
         <div className="flex items-center py-4">
           {showFilter && (
