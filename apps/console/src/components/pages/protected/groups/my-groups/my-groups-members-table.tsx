@@ -6,8 +6,8 @@ import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { Trash2 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { Group } from '@/app/(protected)/groups/my-groups/page'
 import { UserRole } from '@repo/codegen/src/schema'
+import { useMyGroupsStore } from '@/hooks/useMyGroupsStore'
 
 interface Member {
   id: string
@@ -16,11 +16,9 @@ interface Member {
   avatar?: string
 }
 
-interface Props {
-  selectedGroup: Group
-}
+const MyGroupsMembersTable = () => {
+  const { selectedGroup } = useMyGroupsStore()
 
-const MyGroupsMembersTable = ({ selectedGroup }: Props) => {
   const [users, setUsers] = useState<Member[]>([])
 
   useEffect(() => {
@@ -28,9 +26,9 @@ const MyGroupsMembersTable = ({ selectedGroup }: Props) => {
       setUsers(
         selectedGroup.members.map((member, index) => ({
           id: `${selectedGroup.id}-${index}`,
-          name: member.firstName || 'Unknown Member',
+          name: member.user.firstName || 'Unknown Member',
           role: UserRole.MEMBER,
-          avatar: member.avatarFile?.presignedURL || member.avatarRemoteURL || '',
+          avatar: member.user.avatarFile?.presignedURL || member.user.avatarRemoteURL || '',
         })),
       )
     }

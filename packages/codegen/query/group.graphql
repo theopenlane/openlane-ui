@@ -11,6 +11,7 @@ query GetAllGroups($where: GroupWhereInput) {
         tags
         members {
           user {
+            id
             firstName
             lastName
             avatarFile {
@@ -25,8 +26,31 @@ query GetAllGroups($where: GroupWhereInput) {
           joinPolicy
           syncToSlack
           syncToGithub
-          tags
           id
+        }
+        programCreators {
+          id
+          name
+        }
+        programEditors {
+          id
+          name
+        }
+        programViewers {
+          id
+          name
+        }
+        riskViewers {
+          id
+          name
+        }
+        controlViewers {
+          id
+          name
+        }
+        narrativeViewers {
+          id
+          name
         }
       }
     }
@@ -38,5 +62,18 @@ mutation CreateGroup($input: CreateGroupInput!) {
     group {
       id
     }
+  }
+}
+
+mutation UpdateGroup($updateGroupId: ID!, $input: UpdateGroupInput!) {
+  updateGroup(id: $updateGroupId, input: $input) {
+    group {
+      id
+    }
+  }
+}
+mutation DeleteGroup($deleteGroupId: ID!) {
+  deleteGroup(id: $deleteGroupId) {
+    deletedID
   }
 }

@@ -165,6 +165,12 @@ export const config: Partial<Config> = {
           'header-bg': 'var(--color-table-header-bg)', // Table header background
           header: 'var(--color-table-header-text)', // Table header text
         },
+        destructive: {
+          DEFAULT: 'var(--color-destructive)',
+          transparent: 'var(--color-destructive-transparent)',
+          border: 'var(--color-destrucitve-border)',
+          foreground: 'var(--destructive-foreground)',
+        },
 
         // Other Palette Colors
         teal: {
