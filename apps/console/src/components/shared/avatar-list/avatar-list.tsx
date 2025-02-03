@@ -1,24 +1,70 @@
-import React from 'react'
+'use client'
+
+import React, { useState, useRef } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
+import { Popover, PopoverTrigger, PopoverContent } from '@radix-ui/react-popover'
 
-const dummyData = [
-  { id: 1, src: 'https://via.placeholder.com/40', fallback: 'S' },
-  { id: 2, src: '', fallback: 'A' },
-  { id: 3, src: '', fallback: 'A' },
-  { id: 4, src: '', fallback: 'R' },
-  { id: 5, src: '', fallback: 'R' },
-  { id: 6, src: '', fallback: 'R' },
-  { id: 7, src: '', fallback: 'A' },
-]
+interface AvatarListData {
+  id: string
+  imageUrl?: string
+  fallback?: string
+  firstName?: string
+  lastName?: string
+}
 
-const AvatarList = () => {
+interface AvatarListProps {
+  data: AvatarListData[]
+  max?: number
+}
+
+const AvatarList = ({ data, max = 10 }: AvatarListProps) => {
+  const visibleAvatars = data.slice(0, max)
+  const hiddenAvatars = data.slice(max)
+  const hiddenCount = hiddenAvatars.length
+  const [isOpen, setIsOpen] = useState(false)
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleMouseEnter = () => {
+    if (timerRef.current) clearTimeout(timerRef.current)
+    setIsOpen(true)
+  }
+
+  const handleMouseLeave = () => {
+    timerRef.current = setTimeout(() => {
+      setIsOpen(false)
+    }, 100)
+  }
+
   return (
-    <div className="flex">
-      {dummyData.map(({ id, src, fallback }, index) => (
-        <Avatar key={id} className={`w-10 h-10 border border-white ${index !== 0 ? '-ml-2' : ''}`}>
-          {src ? <AvatarImage src={src} alt={`Avatar ${id}`} /> : <AvatarFallback>{fallback}</AvatarFallback>}
+    <div className="relative flex">
+      {visibleAvatars.map(({ id, imageUrl, fallback, firstName, lastName }, index) => (
+        <Avatar key={id} className={`w-[30px] h-[30px] border border-white bg-white ${index !== 0 ? '-ml-2' : ''}`}>
+          {imageUrl ? <AvatarImage src={imageUrl} alt={`${firstName} ${lastName}`} /> : <AvatarFallback>{fallback}</AvatarFallback>}
         </Avatar>
       ))}
+
+      {hiddenCount > 0 && (
+        <Popover open={isOpen} onOpenChange={setIsOpen}>
+          <PopoverTrigger asChild onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+            <div className=" z-10 w-[30px] h-[30px] border -ml-2 rounded-full flex items-center justify-center text-xs bg-white cursor-pointer">
+              <span>+{hiddenCount}</span>
+            </div>
+          </PopoverTrigger>
+
+          <PopoverContent onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} className="max-h-80 overflow-y-auto w-60 p-2 bg-background-secondary shadow-md rounded-md border">
+            {hiddenAvatars.map(({ id, firstName, lastName, fallback }) => (
+              <div key={id} className="flex items-center gap-2 p-2 rounded-md">
+                <Avatar className="w-5 h-5">
+                  <AvatarFallback>{fallback}</AvatarFallback>
+                </Avatar>
+                <span className="text-sm">
+                  {firstName} {lastName}
+                </span>
+              </div>
+            ))}
+          </PopoverContent>
+        </Popover>
+      )}
     </div>
   )
 }
