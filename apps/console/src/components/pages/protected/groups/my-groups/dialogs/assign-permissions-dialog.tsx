@@ -10,6 +10,7 @@ import { useToast } from '@repo/ui/use-toast'
 import { Label } from '@repo/ui/label'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
+import { useMyGroupsStore } from '@/hooks/useMyGroupsStore'
 
 const permissions = [
   { id: 'CC1.2', description: 'The board of directors demonstrates independence from management and exercises oversight of the development and performance of internal control. (COSO Principle 2)' },
@@ -54,6 +55,8 @@ const columnsStep2: ColumnDef<{ id: string; permission: string }>[] = [
 ]
 
 const AssignPermissionsDialog = () => {
+  const { selectedGroup } = useMyGroupsStore()
+
   const [isOpen, setIsOpen] = useState(false)
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([])
   const { toast } = useToast()
@@ -86,7 +89,7 @@ const AssignPermissionsDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" icon={<Plus />} iconPosition="left">
+        <Button variant="outline" icon={<Plus />} iconPosition="left" disabled={selectedGroup?.isManaged}>
           Assign permissions to group
         </Button>
       </DialogTrigger>

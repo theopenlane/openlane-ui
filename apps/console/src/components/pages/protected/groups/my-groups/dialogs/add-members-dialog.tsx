@@ -51,7 +51,7 @@ const AddMembersDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" icon={<Plus />} iconPosition="left">
+        <Button variant="outline" icon={<Plus />} iconPosition="left" disabled={selectedGroup?.isManaged}>
           Add members
         </Button>
       </DialogTrigger>

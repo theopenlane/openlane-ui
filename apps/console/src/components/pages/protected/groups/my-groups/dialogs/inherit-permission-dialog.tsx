@@ -10,6 +10,7 @@ import { Copy, ChevronDown, ChevronUp } from 'lucide-react'
 import { useGetAllGroupsQuery } from '@repo/codegen/src/schema'
 import { DataTable } from '@repo/ui/data-table'
 import { Input } from '@repo/ui/input'
+import { useMyGroupsStore } from '@/hooks/useMyGroupsStore'
 
 const columns = [
   { accessorKey: 'object', header: 'Object' },
@@ -19,10 +20,11 @@ const columns = [
 
 const InheritPermissionDialog = () => {
   const [isOpen, setIsOpen] = useState(false)
-  const [selectedGroup, setSelectedGroup] = useState('')
+  const [group, setGroup] = useState('')
   const [step, setStep] = useState(1)
   const [isExpanded, setIsExpanded] = useState(false)
   const { toast } = useToast()
+  const { selectedGroup } = useMyGroupsStore()
 
   const [{ data: TableData }] = useGetAllGroupsQuery()
 
@@ -39,7 +41,7 @@ const InheritPermissionDialog = () => {
   ]
 
   const handleNextStep = () => {
-    if (!selectedGroup) {
+    if (!group) {
       toast({ title: 'Please select a group.', variant: 'destructive' })
       return
     }
@@ -52,8 +54,8 @@ const InheritPermissionDialog = () => {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger>
-        <Button variant="outline" icon={<Copy />} iconPosition="left">
+      <DialogTrigger asChild>
+        <Button variant="outline" icon={<Copy />} iconPosition="left" disabled={selectedGroup?.isManaged}>
           Inherit permission
         </Button>
       </DialogTrigger>
@@ -65,8 +67,8 @@ const InheritPermissionDialog = () => {
         {step === 1 ? (
           <div className="flex flex-col gap-2">
             <Label>Select Group</Label>
-            <Select value={selectedGroup} onValueChange={setSelectedGroup}>
-              <SelectTrigger className="w-full">{selectedGroup ? groups.find((g) => g.id === selectedGroup)?.name : 'Choose...'}</SelectTrigger>
+            <Select value={group} onValueChange={setGroup}>
+              <SelectTrigger className="w-full">{group ? groups.find((g) => g.id === group)?.name : 'Choose...'}</SelectTrigger>
               <SelectContent>
                 {groups.map((group) => (
                   <SelectItem key={group.id} value={group.id ?? ''}>
@@ -80,8 +82,8 @@ const InheritPermissionDialog = () => {
         ) : (
           <div>
             <p className="">
-              You are about to inherit permission from group <strong>{groups.find((g) => g.id === selectedGroup)?.name}</strong>. This will give all users in this group access to the same objects as
-              users in that group.
+              You are about to inherit permission from group <strong>{groups.find((g) => g.id === group)?.name}</strong>. This will give all users in this group access to the same objects as users in
+              that group.
             </p>
 
             <button className="flex items-center  hover:underline my-4" onClick={() => setIsExpanded(!isExpanded)}>

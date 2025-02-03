@@ -11,7 +11,7 @@ import { Textarea } from '@repo/ui/textarea'
 import { useToast } from '@repo/ui/use-toast'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusCircle } from 'lucide-react'
-import { GetSingleOrganizationMembersQueryVariables, useCreateGroupMutation, useGetInvitesQuery, useGetSingleOrganizationMembersQuery } from '@repo/codegen/src/schema'
+import { GetSingleOrganizationMembersQueryVariables, GroupSettingVisibility, InputMaybe, useCreateGroupMutation, useGetSingleOrganizationMembersQuery } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import MultipleSelector from '@repo/ui/multiple-selector'
 
@@ -59,26 +59,35 @@ const CreateGroupDialog = ({ triggerText }: MyGroupsDialogProps) => {
   } = useForm<CreateGroupFormData>({
     resolver: zodResolver(CreateGroupSchema),
     defaultValues: {
+      groupName: '',
+      description: '',
+      tags: [],
       visibility: 'Public',
+      members: [], // ✅ Ensure members is initialized
     },
   })
 
   const onSubmit = async (data: CreateGroupFormData) => {
-    console.log(data)
-    toast({ title: 'Group created successfully!', variant: 'success' })
-    setIsOpen(false)
-    reset()
+    console.log('Form submitted:', data)
     try {
-      // await createGroup({
-      //   input: {
-      //     name: data.groupName,
-      //     userIDs: data.members,
-      //     description: data.description,
-      //     tags: data.tags,
-      //   },
-      // })
+      await createGroup({
+        input: {
+          name: data.groupName,
+          userIDs: data.members,
+          description: data.description,
+          tags: data.tags,
+          // createGroupSettings: {
+          //   visibility: data.visibility === 'Public' ? 'PUBLIC' : 'PRIVATE',
+          // },
+        },
+      })
       toast({ title: 'Group created successfully!', variant: 'success' })
-    } catch (error) {}
+      setIsOpen(false)
+      reset()
+    } catch (error) {
+      console.error('Error creating group:', error)
+      toast({ title: 'Failed to create group', variant: 'destructive' })
+    }
   }
 
   const handleVisibilityChange = (value: 'Public' | 'Private') => {
@@ -112,24 +121,48 @@ const CreateGroupDialog = ({ triggerText }: MyGroupsDialogProps) => {
             <Input id="groupName" placeholder="Group name" {...register('groupName')} />
             {errors.groupName && <p className="text-red-500 text-sm">{errors.groupName.message}</p>}
           </div>
+
           <div className="space-y-2">
             <Label className="text-sm font-medium" htmlFor="members">
               Assign member(s) to the group:
             </Label>
-            {membersOptions && <MultipleSelector defaultOptions={membersOptions} />}
+            <MultipleSelector
+              defaultOptions={membersOptions}
+              onChange={(selected) =>
+                setValue(
+                  'members',
+                  selected.map((s) => s.value),
+                  { shouldValidate: true },
+                )
+              }
+            />
+            {errors.members && <p className="text-red-500 text-sm">{errors.members.message}</p>}
           </div>
+
           <div className="space-y-2">
             <Label className="text-sm font-medium" htmlFor="description">
               Description:
             </Label>
             <Textarea id="description" placeholder="Add a description" {...register('description')} />
           </div>
+
           <div className="space-y-2">
             <Label className="text-sm font-medium" htmlFor="tags">
               Tags:
             </Label>
-            <Input id="tags" placeholder="Choose existing or add tag..." {...register('tags')} />
+            <MultipleSelector
+              creatable
+              onChange={(selected) =>
+                setValue(
+                  'tags',
+                  selected.map((s) => s.value), // ✅ Ensure tags are stored as an array
+                  { shouldValidate: true },
+                )
+              }
+            />
+            {errors.tags && <p className="text-red-500 text-sm">{errors.tags.message}</p>}
           </div>
+
           <div className="space-y-2">
             <Label className="text-sm font-medium">Visibility:</Label>
             <Select value={visibility} onValueChange={handleVisibilityChange}>
@@ -141,6 +174,7 @@ const CreateGroupDialog = ({ triggerText }: MyGroupsDialogProps) => {
             </Select>
             {errors.visibility && <p className="text-red-500 text-sm">{errors.visibility.message}</p>}
           </div>
+
           <DialogFooter>
             <Button className="w-full mt-4" type="submit">
               Create Group

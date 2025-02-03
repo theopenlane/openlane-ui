@@ -69,7 +69,7 @@ const MyGroupsMembersTable = () => {
         const user = row.original
         return (
           <Select value={user.role} onValueChange={(value) => handleRoleChange(user.id, value as UserRole)}>
-            <SelectTrigger className="w-28 border border-brand ">
+            <SelectTrigger disabled={selectedGroup?.isManaged} className="w-28 border border-brand ">
               <SelectValue placeholder="Select role" />
             </SelectTrigger>
             <SelectContent>
@@ -89,7 +89,7 @@ const MyGroupsMembersTable = () => {
       cell: ({ row }) => {
         const user = row.original
         return (
-          <button onClick={() => handleDelete(user.id)} className="text-brand flex justify-end mt-2.5 ">
+          <button disabled={selectedGroup?.isManaged} onClick={() => handleDelete(user.id)} className="text-brand flex justify-end mt-2.5 cursor-not-allowed ">
             <Trash2 className="h-5 w-5" />
           </button>
         )

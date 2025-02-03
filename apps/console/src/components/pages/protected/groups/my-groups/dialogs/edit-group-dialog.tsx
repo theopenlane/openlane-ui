@@ -92,7 +92,7 @@ const EditGroupDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button icon={<Pencil />} iconPosition="left" variant="outline" disabled={!selectedGroup}>
+        <Button icon={<Pencil />} iconPosition="left" variant="outline" disabled={selectedGroup?.isManaged}>
           Edit Group
         </Button>
       </DialogTrigger>

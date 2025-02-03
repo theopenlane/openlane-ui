@@ -19,10 +19,10 @@ const DeleteGroupDialog = () => {
     if (!selectedGroup) return
 
     try {
-      //   await deleteGroup({ id: selectedGroup.id })
-      //   toast({ title: `Group "${selectedGroup.name}" deleted successfully`, variant: 'success' })
-      //   setSelectedGroup(null) // Reset selected group after deletion
-      //   setIsOpen(false)
+      await deleteGroup({ deleteGroupId: selectedGroup.id })
+      toast({ title: `Group "${selectedGroup.name}" deleted successfully`, variant: 'success' })
+      setSelectedGroup(null)
+      setIsOpen(false)
     } catch (error) {
       toast({ title: 'Failed to delete group.', variant: 'destructive' })
     }
@@ -31,7 +31,7 @@ const DeleteGroupDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button icon={<Trash2 />} iconPosition="left" variant="outline" disabled={!selectedGroup}>
+        <Button icon={<Trash2 />} iconPosition="left" variant="outline" disabled={selectedGroup?.isManaged}>
           Delete
         </Button>
       </DialogTrigger>
