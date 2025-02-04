@@ -44,7 +44,6 @@
     "./simple-form": "./src/simple-form.tsx",
     "./select": "./src/select/select.tsx",
     "./separator": "./src/separator/separator.tsx",
-    "./sheet": "./src/sheet.tsx",
     "./slider": "./src/slider/slider.tsx",
     "./switch": "./src/switch/switch.tsx",
     "./tabs": "./src/tabs/tabs.tsx",
