@@ -17,7 +17,7 @@ export default auth(async (req) => {
     }
   }
   const session = await auth()
-  
+
   const isTfaEnabled = session?.user.isTfaEnabled
 
   if (req.auth?.user && hasSessionCookie) {
@@ -49,6 +49,6 @@ export const config = {
      */
 
     //IF YOU ADD PUBLIC PAGE, ITS REQUIRED TO CHANGE IT IN Providers.tsx
-    '/((?!api|[_next/static]|[_next/image]|favicon.ico|backgrounds|backgrounds/|icons|icons/|login|verify|resend-verify|waitlist|subscriber-verify|invite|tfa).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|backgrounds|backgrounds/|icons|icons/|login|verify|resend-verify|waitlist|subscriber-verify|invite|tfa).*)',
   ],
 }

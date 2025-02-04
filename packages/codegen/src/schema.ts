@@ -29,7 +29,85 @@ export interface Scalars {
   Price: { input: any; output: any }
   /** The builtin Time type */
   Time: { input: any; output: any }
-  Upload: { input: File; output: File }
+  Upload: { input: any; output: any }
+}
+
+export interface ApiToken extends Node {
+  __typename?: 'APIToken'
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  deletedAt?: Maybe<Scalars['Time']['output']>
+  deletedBy?: Maybe<Scalars['String']['output']>
+  /** a description of the token's purpose */
+  description?: Maybe<Scalars['String']['output']>
+  /** when the token expires */
+  expiresAt?: Maybe<Scalars['Time']['output']>
+  id: Scalars['ID']['output']
+  lastUsedAt?: Maybe<Scalars['Time']['output']>
+  /** the name associated with the token */
+  name: Scalars['String']['output']
+  owner?: Maybe<Organization>
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['ID']['output']>
+  scopes?: Maybe<Array<Scalars['String']['output']>>
+  /** tags associated with the object */
+  tags?: Maybe<Array<Scalars['String']['output']>>
+  token: Scalars['String']['output']
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+}
+
+/** Return response for createBulkAPIToken mutation */
+export interface ApiTokenBulkCreatePayload {
+  __typename?: 'APITokenBulkCreatePayload'
+  /** Created apiTokens */
+  apiTokens?: Maybe<Array<ApiToken>>
+}
+
+/** A connection to a list of items. */
+export interface ApiTokenConnection {
+  __typename?: 'APITokenConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<ApiTokenEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** Return response for createAPIToken mutation */
+export interface ApiTokenCreatePayload {
+  __typename?: 'APITokenCreatePayload'
+  /** Created apiToken */
+  apiToken: ApiToken
+}
+
+/** Return response for deleteAPIToken mutation */
+export interface ApiTokenDeletePayload {
+  __typename?: 'APITokenDeletePayload'
+  /** Deleted apiToken ID */
+  deletedID: Scalars['ID']['output']
+}
+
+/** An edge in a connection. */
+export interface ApiTokenEdge {
+  __typename?: 'APITokenEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<ApiToken>
+}
+
+export interface ApiTokenSearchResult {
+  __typename?: 'APITokenSearchResult'
+  apiTokens?: Maybe<Array<ApiToken>>
+}
+
+/** Return response for updateAPIToken mutation */
+export interface ApiTokenUpdatePayload {
+  __typename?: 'APITokenUpdatePayload'
+  /** Updated apiToken */
+  apiToken: ApiToken
 }
 
 export interface ApiToken extends Node {
