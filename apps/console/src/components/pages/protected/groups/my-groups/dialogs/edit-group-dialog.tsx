@@ -10,14 +10,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/selec
 import { Textarea } from '@repo/ui/textarea'
 import { useToast } from '@repo/ui/use-toast'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useUpdateGroupMutation } from '@repo/codegen/src/schema'
+import { useUpdateGroupMutation, GroupSettingVisibility, useGetGroupDetailsQuery } from '@repo/codegen/src/schema'
 import { Pencil } from 'lucide-react'
 import { useMyGroupsStore } from '@/hooks/useMyGroupsStore'
+import MultipleSelector from '@repo/ui/multiple-selector'
 
 const EditGroupSchema = z.object({
   groupName: z.string().min(1, 'Group name is required'),
   description: z.string().optional(),
-  tags: z.string().optional(), // Tags should be a single comma-separated string for easier input handling
   visibility: z.enum(['Public', 'Private']),
 })
 
@@ -25,10 +25,13 @@ type EditGroupFormData = z.infer<typeof EditGroupSchema>
 
 const EditGroupDialog = () => {
   const { selectedGroup } = useMyGroupsStore()
-
+  const [newtags, setNewTags] = useState<{ value: string; label: string }[]>([])
   const [isOpen, setIsOpen] = useState(false)
   const [visibility, setVisibility] = useState<'Public' | 'Private'>('Private')
   const { toast } = useToast()
+
+  const [{ data, fetching }] = useGetGroupDetailsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
+  const { id, name, tags, description, setting, isManaged } = data?.group || {}
 
   const [{}, updateGroup] = useUpdateGroupMutation()
 
@@ -43,41 +46,38 @@ const EditGroupDialog = () => {
     defaultValues: {
       groupName: '',
       description: '',
-      tags: '',
       visibility: 'Public',
     },
   })
 
-  // Prefill form when a group is selected
   useEffect(() => {
-    if (selectedGroup) {
-      setValue('groupName', selectedGroup.name)
-      setValue('description', selectedGroup.description || '')
-      setValue('tags', selectedGroup.tags?.join(', ') || '') // Convert array to comma-separated string
-      setValue('visibility', selectedGroup.visibility === 'PUBLIC' ? 'Public' : 'Private')
-      setVisibility(selectedGroup.visibility === 'PUBLIC' ? 'Public' : 'Private')
+    if (data) {
+      setValue('groupName', name || '')
+      setValue('description', description || '')
+      setValue('visibility', setting?.visibility === 'PUBLIC' ? 'Public' : 'Private')
+      setVisibility(setting?.visibility === 'PUBLIC' ? 'Public' : 'Private')
+      setNewTags(tags?.map((tag) => ({ value: tag, label: tag })) || [])
     }
-  }, [selectedGroup, setValue])
+  }, [data])
 
   const onSubmit = async (data: EditGroupFormData) => {
-    if (!selectedGroup) return
-
-    console.log('Updating group:', { id: selectedGroup.id, ...data })
-    toast({ title: 'Group updated successfully!', variant: 'success' })
-    setIsOpen(false)
-    reset()
+    if (!selectedGroup || !id) return
 
     try {
-      //   await updateGroup({
-      //     input: {
-      //       id: selectedGroup.id,
-      //       name: data.groupName,
-      //       description: data.description,
-      //       tags: data?.tags?.split(',').map((tag) => tag.trim()), // Convert back to an array
-      //       visibility: data.visibility === 'Public' ? 'PUBLIC' : 'PRIVATE',
-      //     },
-      //   })
+      await updateGroup({
+        updateGroupId: id,
+        input: {
+          name: data.groupName,
+          description: data.description,
+          tags: newtags.map((t) => t.value),
+          updateGroupSettings: {
+            visibility: data.visibility === 'Public' ? GroupSettingVisibility.PUBLIC : GroupSettingVisibility.PRIVATE,
+          },
+        },
+      })
       toast({ title: 'Group updated successfully!', variant: 'success' })
+      setIsOpen(false)
+      reset()
     } catch (error) {
       console.error('Error updating group:', error)
       toast({ title: 'Failed to update group.', variant: 'destructive' })
@@ -89,10 +89,14 @@ const EditGroupDialog = () => {
     setValue('visibility', value, { shouldValidate: true })
   }
 
+  if (!selectedGroup) {
+    return null
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button icon={<Pencil />} iconPosition="left" variant="outline" disabled={selectedGroup?.isManaged}>
+        <Button icon={<Pencil />} iconPosition="left" variant="outline" disabled={!!isManaged}>
           Edit Group
         </Button>
       </DialogTrigger>
@@ -115,12 +119,19 @@ const EditGroupDialog = () => {
             </Label>
             <Textarea id="description" placeholder="Add a description" {...register('description')} />
           </div>
+
           <div className="space-y-2">
             <Label className="text-sm font-medium" htmlFor="tags">
               Tags:
             </Label>
-            <Input id="tags" placeholder="Choose existing or add tag..." {...register('tags')} />
+            <MultipleSelector
+              value={newtags} // ✅ Controlled by state
+              creatable
+              defaultOptions={newtags} // ✅ Preloaded tags
+              onChange={(selected) => setNewTags(selected)} // ✅ Update state directly
+            />
           </div>
+
           <div className="space-y-2">
             <Label className="text-sm font-medium">Visibility:</Label>
             <Select value={visibility} onValueChange={handleVisibilityChange}>
@@ -132,6 +143,7 @@ const EditGroupDialog = () => {
             </Select>
             {errors.visibility && <p className="text-red-500 text-sm">{errors.visibility.message}</p>}
           </div>
+
           <DialogFooter>
             <Button className="w-full mt-4" type="submit">
               Save Changes

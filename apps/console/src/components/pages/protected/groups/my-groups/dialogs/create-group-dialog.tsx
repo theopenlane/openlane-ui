@@ -11,7 +11,7 @@ import { Textarea } from '@repo/ui/textarea'
 import { useToast } from '@repo/ui/use-toast'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusCircle } from 'lucide-react'
-import { GetSingleOrganizationMembersQueryVariables, GroupSettingVisibility, InputMaybe, useCreateGroupMutation, useGetSingleOrganizationMembersQuery } from '@repo/codegen/src/schema'
+import { GetSingleOrganizationMembersQueryVariables, GroupSettingVisibility, InputMaybe, useCreateGroupWithMembersMutation, useGetSingleOrganizationMembersQuery } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import MultipleSelector from '@repo/ui/multiple-selector'
 
@@ -35,7 +35,7 @@ const CreateGroupDialog = ({ triggerText }: MyGroupsDialogProps) => {
   const [visibility, setVisibility] = useState<'Public' | 'Private'>('Private')
   const { toast } = useToast()
 
-  const [{}, createGroup] = useCreateGroupMutation()
+  const [{}, createGroup] = useCreateGroupWithMembersMutation()
 
   const variables: GetSingleOrganizationMembersQueryVariables = {
     organizationId: session?.user.activeOrganizationId ?? '',
@@ -45,10 +45,12 @@ const CreateGroupDialog = ({ triggerText }: MyGroupsDialogProps) => {
     variables,
   })
 
-  const membersOptions = membersData?.organization?.members?.map((member) => ({
-    value: member.user.id,
-    label: `${member.user.firstName} ${member.user.lastName}`,
-  }))
+  const membersOptions = membersData?.organization?.members
+    ?.filter((member) => member.user.id !== session?.user.userId)
+    .map((member) => ({
+      value: member.user.id,
+      label: `${member.user.firstName} ${member.user.lastName}`,
+    }))
 
   const {
     register,
@@ -63,7 +65,7 @@ const CreateGroupDialog = ({ triggerText }: MyGroupsDialogProps) => {
       description: '',
       tags: [],
       visibility: 'Public',
-      members: [], // ✅ Ensure members is initialized
+      members: [],
     },
   })
 
@@ -71,16 +73,19 @@ const CreateGroupDialog = ({ triggerText }: MyGroupsDialogProps) => {
     console.log('Form submitted:', data)
     try {
       await createGroup({
-        input: {
+        group: {
           name: data.groupName,
-          userIDs: data.members,
           description: data.description,
           tags: data.tags,
-          // createGroupSettings: {
-          //   visibility: data.visibility === 'Public' ? 'PUBLIC' : 'PRIVATE',
-          // },
+          createGroupSettings: {
+            visibility: data.visibility === 'Public' ? GroupSettingVisibility.PUBLIC : GroupSettingVisibility.PUBLIC,
+          },
         },
+        members: data.members.map((memberId) => ({
+          userID: memberId,
+        })),
       })
+
       toast({ title: 'Group created successfully!', variant: 'success' })
       setIsOpen(false)
       reset()

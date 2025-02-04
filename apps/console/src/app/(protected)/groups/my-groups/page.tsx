@@ -17,6 +17,7 @@ export interface Group {
   tags: string[]
   visibility: GroupSettingVisibility
   members: {
+    id: string
     user: {
       firstName?: string
       lastName?: string

@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/selec
 import { useToast } from '@repo/ui/use-toast'
 import { Label } from '@repo/ui/label'
 import { Copy, ChevronDown, ChevronUp } from 'lucide-react'
-import { useGetAllGroupsQuery } from '@repo/codegen/src/schema'
+import { useGetAllGroupsQuery, useGetGroupDetailsQuery } from '@repo/codegen/src/schema'
 import { DataTable } from '@repo/ui/data-table'
 import { Input } from '@repo/ui/input'
 import { useMyGroupsStore } from '@/hooks/useMyGroupsStore'
@@ -25,6 +25,9 @@ const InheritPermissionDialog = () => {
   const [isExpanded, setIsExpanded] = useState(false)
   const { toast } = useToast()
   const { selectedGroup } = useMyGroupsStore()
+
+  const [{ data, fetching }] = useGetGroupDetailsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
+  const { isManaged } = data?.group || {}
 
   const [{ data: TableData }] = useGetAllGroupsQuery()
 
@@ -55,7 +58,7 @@ const InheritPermissionDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" icon={<Copy />} iconPosition="left" disabled={selectedGroup?.isManaged}>
+        <Button variant="outline" icon={<Copy />} iconPosition="left" disabled={!!isManaged}>
           Inherit permission
         </Button>
       </DialogTrigger>

@@ -6,44 +6,56 @@ import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { Trash2 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { UserRole } from '@repo/codegen/src/schema'
+import { GroupMembershipRole, useGetGroupDetailsQuery, UserRole, useUpdateGroupMembershipMutation } from '@repo/codegen/src/schema'
 import { useMyGroupsStore } from '@/hooks/useMyGroupsStore'
+import { useSession } from 'next-auth/react'
 
 interface Member {
   id: string
   name: string
-  role: UserRole
+  role: GroupMembershipRole
   avatar?: string
 }
 
 const MyGroupsMembersTable = () => {
+  const { data: session } = useSession()
   const { selectedGroup } = useMyGroupsStore()
-
+  const [{ data, fetching }] = useGetGroupDetailsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
+  const { members, isManaged, id } = data?.group || {}
   const [users, setUsers] = useState<Member[]>([])
+  const [{}, updateMembership] = useUpdateGroupMembershipMutation()
 
   useEffect(() => {
     if (selectedGroup) {
+      const membersList = members || []
       setUsers(
-        selectedGroup.members.map((member, index) => ({
-          id: `${selectedGroup.id}-${index}`,
-          name: member.user.firstName || 'Unknown Member',
-          role: UserRole.MEMBER,
-          avatar: member.user.avatarFile?.presignedURL || member.user.avatarRemoteURL || '',
-        })),
+        membersList
+          .filter((member) => member.user.id !== session?.user.userId)
+          .map((member, index) => ({
+            id: member.id,
+            name: member.user.firstName || 'Unknown Member',
+            role: member.role,
+            avatar: member.user.avatarFile?.presignedURL || member.user.avatarRemoteURL || '',
+          })),
       )
     }
-  }, [selectedGroup])
+  }, [selectedGroup, members])
 
-  const handleRoleChange = (id: string, newRole: UserRole) => {
+  const handleRoleChange = async (id: string, newRole: GroupMembershipRole) => {
     setUsers((prev) => prev.map((user) => (user.id === id ? { ...user, role: newRole } : user)))
+    updateMembership({
+      updateGroupMembershipId: id,
+      input: {
+        role: newRole,
+      },
+    })
   }
 
   const handleDelete = (id: string) => {
     setUsers((prev) => prev.filter((user) => user.id !== id))
   }
 
-  // Convert UserRole enum to an array for dropdown options
-  const userRoleOptions = Object.values(UserRole)
+  const userRoleOptions = Object.values(GroupMembershipRole)
 
   const columns: ColumnDef<Member>[] = [
     {
@@ -67,9 +79,10 @@ const MyGroupsMembersTable = () => {
       header: 'Role',
       cell: ({ row }) => {
         const user = row.original
+        console.log(user)
         return (
-          <Select value={user.role} onValueChange={(value) => handleRoleChange(user.id, value as UserRole)}>
-            <SelectTrigger disabled={selectedGroup?.isManaged} className="w-28 border border-brand ">
+          <Select value={user.role} onValueChange={(value) => handleRoleChange(user.id, value as GroupMembershipRole)}>
+            <SelectTrigger disabled={!!isManaged} className="w-28 border border-brand ">
               <SelectValue placeholder="Select role" />
             </SelectTrigger>
             <SelectContent>
@@ -88,8 +101,9 @@ const MyGroupsMembersTable = () => {
       header: '',
       cell: ({ row }) => {
         const user = row.original
+
         return (
-          <button disabled={selectedGroup?.isManaged} onClick={() => handleDelete(user.id)} className="text-brand flex justify-end mt-2.5 cursor-not-allowed ">
+          <button disabled={!!isManaged} onClick={() => handleDelete(user.id)} className={`text-brand flex justify-end mt-2.5 ${isManaged ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
             <Trash2 className="h-5 w-5" />
           </button>
         )

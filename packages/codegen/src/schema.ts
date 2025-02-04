@@ -3659,7 +3659,6 @@ export interface CreateGroupInput {
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   templateCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  userIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
 /**
@@ -3897,7 +3896,6 @@ export interface CreateOrganizationInput {
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   templateCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   templateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  userIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
 /**
@@ -4024,7 +4022,6 @@ export interface CreateProgramInput {
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  userIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
@@ -8055,6 +8052,15 @@ export interface GroupHistoryWhereInput {
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+/**
+ * GroupMembersInput is used to create members for a group
+ * along with the group creation
+ */
+export interface GroupMembersInput {
+  role?: InputMaybe<GroupMembershipRole>
+  userID: Scalars['ID']['input']
+}
+
 export interface GroupMembership extends Node {
   __typename?: 'GroupMembership'
   createdAt?: Maybe<Scalars['Time']['output']>
@@ -11335,6 +11341,8 @@ export interface Mutation {
   createGroupMembership: GroupMembershipCreatePayload
   /** Create a new groupSetting */
   createGroupSetting: GroupSettingCreatePayload
+  /** Create a new group with members */
+  createGroupWithMembers: GroupCreatePayload
   /** Create a new hush */
   createHush: HushCreatePayload
   /** Create a new integration */
@@ -11351,6 +11359,8 @@ export interface Mutation {
   createOrganization: OrganizationCreatePayload
   /** Create a new organizationSetting */
   createOrganizationSetting: OrganizationSettingCreatePayload
+  /** Create a new organization with members */
+  createOrganizationWithMembers: OrganizationCreatePayload
   /** Create a new personalAccessToken */
   createPersonalAccessToken: PersonalAccessTokenCreatePayload
   /** Create a new procedure */
@@ -11824,6 +11834,11 @@ export interface MutationCreateGroupSettingArgs {
   input: CreateGroupSettingInput
 }
 
+export interface MutationCreateGroupWithMembersArgs {
+  group: CreateGroupInput
+  members?: InputMaybe<Array<GroupMembersInput>>
+}
+
 export interface MutationCreateHushArgs {
   input: CreateHushInput
 }
@@ -11855,6 +11870,12 @@ export interface MutationCreateOrganizationArgs {
 
 export interface MutationCreateOrganizationSettingArgs {
   input: CreateOrganizationSettingInput
+}
+
+export interface MutationCreateOrganizationWithMembersArgs {
+  avatarFile?: InputMaybe<Scalars['Upload']['input']>
+  members?: InputMaybe<Array<OrgMembersInput>>
+  organization: CreateOrganizationInput
 }
 
 export interface MutationCreatePersonalAccessTokenArgs {
@@ -13210,6 +13231,15 @@ export enum OrderDirection {
   ASC = 'ASC',
   /** Specifies a descending order for a given `orderBy` argument. */
   DESC = 'DESC',
+}
+
+/**
+ * OrgMembersInput is used to create members for a organization
+ * along with the org creation
+ */
+export interface OrgMembersInput {
+  role?: InputMaybe<OrgMembershipRole>
+  userID: Scalars['ID']['input']
 }
 
 export interface OrgMembership extends Node {
@@ -23522,7 +23552,6 @@ export interface UpdateGroupInput {
   addRiskViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTemplateCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addUserIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearControlBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearControlCreators?: InputMaybe<Scalars['Boolean']['input']>
@@ -23562,7 +23591,6 @@ export interface UpdateGroupInput {
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearTemplateCreators?: InputMaybe<Scalars['Boolean']['input']>
-  clearUsers?: InputMaybe<Scalars['Boolean']['input']>
   /** the groups description */
   description?: InputMaybe<Scalars['String']['input']>
   /** The group's displayed 'friendly' name */
@@ -23585,6 +23613,7 @@ export interface UpdateGroupInput {
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeGroupMembers?: InputMaybe<Array<Scalars['ID']['input']>>
   removeIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -23606,7 +23635,6 @@ export interface UpdateGroupInput {
   removeRiskViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTemplateCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeUserIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   settingID?: InputMaybe<Scalars['ID']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
@@ -23894,7 +23922,6 @@ export interface UpdateOrganizationInput {
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTemplateCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addUserIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   avatarFileID?: InputMaybe<Scalars['ID']['input']>
   /** URL of the user's remote avatar */
@@ -23942,7 +23969,6 @@ export interface UpdateOrganizationInput {
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearTemplateCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearTemplates?: InputMaybe<Scalars['Boolean']['input']>
-  clearUsers?: InputMaybe<Scalars['Boolean']['input']>
   /** An optional description of the organization */
   description?: InputMaybe<Scalars['String']['input']>
   /** The organization's displayed 'friendly' name */
@@ -23970,6 +23996,7 @@ export interface UpdateOrganizationInput {
   removeNarrativeCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNoteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeOrgMembers?: InputMaybe<Array<Scalars['ID']['input']>>
   removeOrgSubscriptionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removePersonalAccessTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -23984,7 +24011,6 @@ export interface UpdateOrganizationInput {
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTemplateCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeUserIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   settingID?: InputMaybe<Scalars['ID']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
@@ -24145,7 +24171,6 @@ export interface UpdateProgramInput {
   addStandardIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addUserIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   /** can the auditor read comments */
@@ -24174,7 +24199,6 @@ export interface UpdateProgramInput {
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
-  clearUsers?: InputMaybe<Scalars['Boolean']['input']>
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
   /** the description of the program */
   description?: InputMaybe<Scalars['String']['input']>
@@ -24194,11 +24218,11 @@ export interface UpdateProgramInput {
   removeNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNoteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeProgramMembers?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeStandardIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeUserIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the start date of the period */
   startDate?: InputMaybe<Scalars['Time']['input']>
@@ -26093,6 +26117,8 @@ export type GetAllGroupsQuery = {
         tags?: Array<string> | null
         members?: Array<{
           __typename?: 'GroupMembership'
+          id: string
+          role: GroupMembershipRole
           user: {
             __typename?: 'User'
             id: string
@@ -26122,11 +26148,12 @@ export type GetAllGroupsQuery = {
   }
 }
 
-export type CreateGroupMutationVariables = Exact<{
-  input: CreateGroupInput
+export type CreateGroupWithMembersMutationVariables = Exact<{
+  group: CreateGroupInput
+  members?: InputMaybe<Array<GroupMembersInput> | GroupMembersInput>
 }>
 
-export type CreateGroupMutation = { __typename?: 'Mutation'; createGroup: { __typename?: 'GroupCreatePayload'; group: { __typename?: 'Group'; id: string } } }
+export type CreateGroupWithMembersMutation = { __typename?: 'Mutation'; createGroupWithMembers: { __typename?: 'GroupCreatePayload'; group: { __typename?: 'Group'; id: string; displayID: string } } }
 
 export type UpdateGroupMutationVariables = Exact<{
   updateGroupId: Scalars['ID']['input']
@@ -26140,6 +26167,55 @@ export type DeleteGroupMutationVariables = Exact<{
 }>
 
 export type DeleteGroupMutation = { __typename?: 'Mutation'; deleteGroup: { __typename?: 'GroupDeletePayload'; deletedID: string } }
+
+export type GetGroupDetailsQueryVariables = Exact<{
+  groupId: Scalars['ID']['input']
+}>
+
+export type GetGroupDetailsQuery = {
+  __typename?: 'Query'
+  group: {
+    __typename?: 'Group'
+    id: string
+    name: string
+    description?: string | null
+    displayName: string
+    logoURL?: string | null
+    isManaged?: boolean | null
+    tags?: Array<string> | null
+    members?: Array<{
+      __typename?: 'GroupMembership'
+      id: string
+      role: GroupMembershipRole
+      user: {
+        __typename?: 'User'
+        id: string
+        firstName?: string | null
+        lastName?: string | null
+        avatarRemoteURL?: string | null
+        role?: UserRole | null
+        avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+      }
+    }> | null
+    setting?: { __typename?: 'GroupSetting'; visibility: GroupSettingVisibility; joinPolicy: GroupSettingJoinPolicy; syncToSlack?: boolean | null; syncToGithub?: boolean | null; id: string } | null
+    programCreators?: Array<{ __typename?: 'Organization'; id: string; name: string }> | null
+    programEditors?: Array<{ __typename?: 'Program'; id: string; name: string }> | null
+    programViewers?: Array<{ __typename?: 'Program'; id: string; name: string }> | null
+    riskViewers?: Array<{ __typename?: 'Risk'; id: string; name: string }> | null
+    controlViewers?: Array<{ __typename?: 'Control'; id: string; name: string }> | null
+    narrativeViewers?: Array<{ __typename?: 'Narrative'; id: string; name: string }> | null
+  }
+}
+
+export type UpdateGroupMembershipMutationVariables = Exact<{
+  updateGroupMembershipId: Scalars['ID']['input']
+  input: UpdateGroupMembershipInput
+}>
+
+export type UpdateGroupMembershipMutation = {
+  __typename?: 'Mutation'
+  updateGroupMembership: { __typename?: 'GroupMembershipUpdatePayload'; groupMembership: { __typename?: 'GroupMembership'; id: string } }
+}
 
 export type UpdateUserRoleInOrgMutationVariables = Exact<{
   updateOrgMemberId: Scalars['ID']['input']
@@ -27114,6 +27190,8 @@ export const GetAllGroupsDocument = gql`
           isManaged
           tags
           members {
+            id
+            role
             user {
               id
               firstName
@@ -27165,18 +27243,19 @@ export const GetAllGroupsDocument = gql`
 export function useGetAllGroupsQuery(options?: Omit<Urql.UseQueryArgs<GetAllGroupsQueryVariables>, 'query'>) {
   return Urql.useQuery<GetAllGroupsQuery, GetAllGroupsQueryVariables>({ query: GetAllGroupsDocument, ...options })
 }
-export const CreateGroupDocument = gql`
-  mutation CreateGroup($input: CreateGroupInput!) {
-    createGroup(input: $input) {
+export const CreateGroupWithMembersDocument = gql`
+  mutation CreateGroupWithMembers($group: CreateGroupInput!, $members: [GroupMembersInput!]) {
+    createGroupWithMembers(group: $group, members: $members) {
       group {
         id
+        displayID
       }
     }
   }
 `
 
-export function useCreateGroupMutation() {
-  return Urql.useMutation<CreateGroupMutation, CreateGroupMutationVariables>(CreateGroupDocument)
+export function useCreateGroupWithMembersMutation() {
+  return Urql.useMutation<CreateGroupWithMembersMutation, CreateGroupWithMembersMutationVariables>(CreateGroupWithMembersDocument)
 }
 export const UpdateGroupDocument = gql`
   mutation UpdateGroup($updateGroupId: ID!, $input: UpdateGroupInput!) {
@@ -27201,6 +27280,81 @@ export const DeleteGroupDocument = gql`
 
 export function useDeleteGroupMutation() {
   return Urql.useMutation<DeleteGroupMutation, DeleteGroupMutationVariables>(DeleteGroupDocument)
+}
+export const GetGroupDetailsDocument = gql`
+  query GetGroupDetails($groupId: ID!) {
+    group(id: $groupId) {
+      id
+      name
+      description
+      displayName
+      logoURL
+      isManaged
+      tags
+      members {
+        id
+        role
+        user {
+          id
+          firstName
+          lastName
+          avatarFile {
+            presignedURL
+          }
+          avatarRemoteURL
+          role
+        }
+      }
+      setting {
+        visibility
+        joinPolicy
+        syncToSlack
+        syncToGithub
+        id
+      }
+      programCreators {
+        id
+        name
+      }
+      programEditors {
+        id
+        name
+      }
+      programViewers {
+        id
+        name
+      }
+      riskViewers {
+        id
+        name
+      }
+      controlViewers {
+        id
+        name
+      }
+      narrativeViewers {
+        id
+        name
+      }
+    }
+  }
+`
+
+export function useGetGroupDetailsQuery(options: Omit<Urql.UseQueryArgs<GetGroupDetailsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetGroupDetailsQuery, GetGroupDetailsQueryVariables>({ query: GetGroupDetailsDocument, ...options })
+}
+export const UpdateGroupMembershipDocument = gql`
+  mutation UpdateGroupMembership($updateGroupMembershipId: ID!, $input: UpdateGroupMembershipInput!) {
+    updateGroupMembership(id: $updateGroupMembershipId, input: $input) {
+      groupMembership {
+        id
+      }
+    }
+  }
+`
+
+export function useUpdateGroupMembershipMutation() {
+  return Urql.useMutation<UpdateGroupMembershipMutation, UpdateGroupMembershipMutationVariables>(UpdateGroupMembershipDocument)
 }
 export const UpdateUserRoleInOrgDocument = gql`
   mutation UpdateUserRoleInOrg($updateOrgMemberId: ID!, $input: UpdateOrgMembershipInput!) {

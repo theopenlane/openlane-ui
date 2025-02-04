@@ -11,6 +11,7 @@ import { Label } from '@repo/ui/label'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import { useMyGroupsStore } from '@/hooks/useMyGroupsStore'
+import { useGetGroupDetailsQuery } from '@repo/codegen/src/schema'
 
 const permissions = [
   { id: 'CC1.2', description: 'The board of directors demonstrates independence from management and exercises oversight of the development and performance of internal control. (COSO Principle 2)' },
@@ -57,6 +58,9 @@ const columnsStep2: ColumnDef<{ id: string; permission: string }>[] = [
 const AssignPermissionsDialog = () => {
   const { selectedGroup } = useMyGroupsStore()
 
+  const [{ data, fetching }] = useGetGroupDetailsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
+  const { isManaged } = data?.group || {}
+
   const [isOpen, setIsOpen] = useState(false)
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([])
   const { toast } = useToast()
@@ -69,6 +73,7 @@ const AssignPermissionsDialog = () => {
   const handleBack = () => {
     setStep(1)
   }
+
   const togglePermission = (id: string) => {
     setSelectedPermissions((prev) => (prev.includes(id) ? prev.filter((perm) => perm !== id) : [...prev, id]))
   }
@@ -89,7 +94,7 @@ const AssignPermissionsDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" icon={<Plus />} iconPosition="left" disabled={selectedGroup?.isManaged}>
+        <Button variant="outline" icon={<Plus />} iconPosition="left" disabled={!!isManaged}>
           Assign permissions to group
         </Button>
       </DialogTrigger>
