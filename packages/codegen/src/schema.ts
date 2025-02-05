@@ -26089,11 +26089,6 @@ export type GetAllGroupsQuery = {
           syncToGithub?: boolean | null
           id: string
         } | null
-        programEditors?: Array<{ __typename?: 'Program'; id: string; name: string }> | null
-        programViewers?: Array<{ __typename?: 'Program'; id: string; name: string }> | null
-        riskViewers?: Array<{ __typename?: 'Risk'; id: string; name: string }> | null
-        controlViewers?: Array<{ __typename?: 'Control'; id: string; name: string }> | null
-        narrativeViewers?: Array<{ __typename?: 'Narrative'; id: string; name: string }> | null
       } | null
     } | null> | null
   }
@@ -26149,11 +26144,6 @@ export type GetGroupDetailsQuery = {
       }
     }> | null
     setting?: { __typename?: 'GroupSetting'; visibility: GroupSettingVisibility; joinPolicy: GroupSettingJoinPolicy; syncToSlack?: boolean | null; syncToGithub?: boolean | null; id: string } | null
-    programEditors?: Array<{ __typename?: 'Program'; id: string; name: string }> | null
-    programViewers?: Array<{ __typename?: 'Program'; id: string; name: string }> | null
-    riskViewers?: Array<{ __typename?: 'Risk'; id: string; name: string }> | null
-    controlViewers?: Array<{ __typename?: 'Control'; id: string; name: string }> | null
-    narrativeViewers?: Array<{ __typename?: 'Narrative'; id: string; name: string }> | null
   }
 }
 
@@ -27175,26 +27165,6 @@ export const GetAllGroupsDocument = gql`
             syncToGithub
             id
           }
-          programEditors {
-            id
-            name
-          }
-          programViewers {
-            id
-            name
-          }
-          riskViewers {
-            id
-            name
-          }
-          controlViewers {
-            id
-            name
-          }
-          narrativeViewers {
-            id
-            name
-          }
         }
       }
     }
@@ -27272,26 +27242,6 @@ export const GetGroupDetailsDocument = gql`
         syncToSlack
         syncToGithub
         id
-      }
-      programEditors {
-        id
-        name
-      }
-      programViewers {
-        id
-        name
-      }
-      riskViewers {
-        id
-        name
-      }
-      controlViewers {
-        id
-        name
-      }
-      narrativeViewers {
-        id
-        name
       }
     }
   }
