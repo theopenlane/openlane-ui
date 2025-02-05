@@ -31,6 +31,7 @@ interface DataTableProps<TData, TValue> {
   noDataMarkup?: ReactElement
   columnVisibility?: VisibilityState
   setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
+  visibilityTitle: string
 }
 
 export function DataTable<TData, TValue>({
@@ -43,6 +44,7 @@ export function DataTable<TData, TValue>({
   noDataMarkup,
   columnVisibility,
   setColumnVisibility,
+  visibilityTitle,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -90,7 +92,7 @@ export function DataTable<TData, TValue>({
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="md" className="ml-auto">
                   <EyeIcon />
-                  Columns
+                  {visibilityTitle}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">

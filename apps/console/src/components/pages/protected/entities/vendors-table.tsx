@@ -187,7 +187,7 @@ export const VendorsTable = () => {
           Create New
         </Button>
       </div>
-      <DataTable columns={columns} data={vendors} showVisibility={true} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} loading={fetching} />
+      <DataTable columns={columns} data={vendors} showVisibility={true} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} loading={fetching} visibilityTitle="Columns" />
     </div>
   )
 }
