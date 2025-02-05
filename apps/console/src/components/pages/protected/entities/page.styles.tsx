@@ -7,6 +7,9 @@ export const pageStyles = tv({
     vendorSearchField: '',
     vendorButtons: '',
     nameRow: 'flex gap-2',
+    nameRowDescription: 'flex gap-2 grid grid-flow-col grid-rows-2 grid-cols-3',
+    vendorDescription: 'border-b-2 border-dashed col-span-full',
+    vendorTags: 'flex flex-wrap col-span-full',
     copyIcon: 'text-accent-secondary-muted cursor-pointer',
   },
 })

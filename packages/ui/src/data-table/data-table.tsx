@@ -90,7 +90,7 @@ export function DataTable<TData, TValue>({
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="md" className="ml-auto">
                   <EyeIcon />
-                  Visibility
+                  Columns
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">

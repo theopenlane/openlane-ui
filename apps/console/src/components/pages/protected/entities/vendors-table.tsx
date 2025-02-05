@@ -6,7 +6,6 @@ import { useState, useEffect } from 'react'
 import { Input } from '@repo/ui/input'
 import { Copy } from 'lucide-react'
 import { DataTable } from '@repo/ui/data-table'
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@repo/ui/dropdown-menu'
 import { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import { useCopyToClipboard } from '@uidotdev/usehooks'
 import { useToast } from '@repo/ui/use-toast'
@@ -22,7 +21,7 @@ type VendorEdge = NonNullable<NonNullable<GetVendorQuery['entities']>['edges']>[
 type Vendor = NonNullable<VendorEdge>['node']
 
 export const VendorsTable = () => {
-  const { vendorSearchRow, vendorSearchField, vendorButtons, actionIcon, nameRow, copyIcon } = pageStyles()
+  const { vendorSearchRow, vendorSearchField, vendorButtons, actionIcon, nameRow, nameRowDescription, vendorDescription, vendorTags, copyIcon } = pageStyles()
   const { data: session } = useSession()
   const [vendors, setVendor] = useState<Vendor[]>([])
   const [searchTerm, setSearchTerm] = useState('')
@@ -101,10 +100,9 @@ export const VendorsTable = () => {
         const description = `${row?.original?.description}`
         const tags = row?.original?.tags as string[]
         return (
-          <div className={nameRow() + ' grid grid-flow-col grid-rows-2 grid-cols-3'}>
-            <div className="border-b-2 border-dashed col-span-full">{description}</div>
-            {/* <div className={'border-t-2 border-dashed border-dotted pt-2 m-3 w-[350px] ' + (description.length ? 'relative top-5 -left-[138px]' : '')}> */}
-            <div className="flex flex-wrap col-span-full">
+          <div className={nameRowDescription()}>
+            <div className={vendorDescription()}>{description}</div>
+            <div className={vendorTags()}>
               {tags.map((tag) => (
                 <Badge className="m-1 mt-0" variant="outline">
                   {tag}
