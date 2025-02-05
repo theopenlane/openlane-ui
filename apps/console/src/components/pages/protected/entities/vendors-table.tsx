@@ -101,9 +101,10 @@ export const VendorsTable = () => {
         const description = `${row?.original?.description}`
         const tags = row?.original?.tags as string[]
         return (
-          <div className={nameRow()}>
-            {description}
-            <div className={'border-t-2 border-dashed pt-2 m-3 ' + (description.length ? 'relative top-5 -left-[138px]' : 'border-t-2 border-dashed pt-2')}>
+          <div className={nameRow() + ' grid grid-flow-col grid-rows-2 grid-cols-3'}>
+            <div className="border-b-2 border-dashed col-span-full">{description}</div>
+            {/* <div className={'border-t-2 border-dashed border-dotted pt-2 m-3 w-[350px] ' + (description.length ? 'relative top-5 -left-[138px]' : '')}> */}
+            <div className="flex flex-wrap col-span-full">
               {tags.map((tag) => (
                 <Badge className="m-1 mt-0" variant="outline">
                   {tag}
