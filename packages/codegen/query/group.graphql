@@ -7,12 +7,12 @@ query GetAllGroups {
         description
         displayName
         logoURL
+        tags
         setting {
           visibility
           joinPolicy
           syncToSlack
           syncToGithub
-          tags
         }
       }
     }

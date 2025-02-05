@@ -4,7 +4,11 @@ import { PolicyInfoBar } from '@/components/pages/protected/policies/policy-info
 import { PolicySidebar } from '@/components/pages/protected/policies/policy-sidebar'
 import dynamic from 'next/dynamic'
 import { TElement } from '@udecode/plate-common'
-import { useGetInternalPolicyDetailsByIdQuery, useUpdateInternalPolicyMutation } from '@repo/codegen/src/schema'
+import {
+  useGetInternalPolicyDetailsByIdQuery,
+  useUpdateInternalPolicyMutation,
+  useDeleteInternalPolicyMutation,
+} from '@repo/codegen/src/schema'
 import type { InternalPolicyByIdFragment, InternalPolicyUpdateFieldsFragment } from '@repo/codegen/src/schema'
 const PlateEditor = dynamic(() => import('@/components/shared/editor/plate'), { ssr: false })
 import { z } from 'zod'
@@ -31,6 +35,7 @@ export function PolicyPage({ policyId }: PolicyPageProps) {
 
   const [{ error: updateError }, updatePolicy] = useUpdateInternalPolicyMutation()
   const [{ data }] = useGetInternalPolicyDetailsByIdQuery({ variables: { internalPolicyId: policyId } })
+  const [{ data: deleteData }] = useDeleteInternalPolicyMutation({ deleteInternalPolicyId: policyId })
   const [policy, setPolicy] = useState({} as InternalPolicyUpdateFieldsFragment)
 
   useEffect(() => {

@@ -30,6 +30,12 @@ mutation UpdateInternalPolicy($updateInternalPolicyId: ID!, $input: UpdateIntern
   }
 }
 
+mutation DeleteInternalPolicy($deleteInternalPolicyId: ID!) {
+  deleteInternalPolicy(id: $deleteInternalPolicyId) {
+    deletedID
+  }
+}
+
 query GetAllInternalPoliciesWithDetails {
   internalPolicies {
     edges {
