@@ -1,7 +1,7 @@
 'use client'
 
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@repo/ui/breadcrumb'
-import { SlashIcon } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import React from 'react'
 import { toTitleCase } from '@/components/shared/lib/strings'
 import { usePathname } from 'next/navigation'
@@ -14,7 +14,7 @@ export const BreadcrumbNavigation = ({ homeElement }: TBreadCrumbProps) => {
   const paths = usePathname()
   const pathNames = paths.split('/').filter((path) => path)
 
-  const separator = <SlashIcon size={14} />
+  const separator = <ChevronRight size={16} />
 
   if (homeElement === undefined) {
     homeElement = 'Home'
