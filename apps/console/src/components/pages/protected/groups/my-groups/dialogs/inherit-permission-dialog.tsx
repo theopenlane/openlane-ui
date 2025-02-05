@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/selec
 import { useToast } from '@repo/ui/use-toast'
 import { Label } from '@repo/ui/label'
 import { Copy, ChevronDown, ChevronUp } from 'lucide-react'
-import { useGetAllGroupsQuery, useGetGroupDetailsQuery } from '@repo/codegen/src/schema'
+import { useGetAllGroupsQuery, useGetGroupDetailsQuery, useUpdateGroupMutation } from '@repo/codegen/src/schema'
 import { DataTable } from '@repo/ui/data-table'
 import { Input } from '@repo/ui/input'
 import { useMyGroupsStore } from '@/hooks/useMyGroupsStore'
@@ -29,7 +29,47 @@ const InheritPermissionDialog = () => {
   const [{ data, fetching }] = useGetGroupDetailsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
   const { isManaged } = data?.group || {}
 
-  const [{ data: TableData }] = useGetAllGroupsQuery()
+  const where = selectedGroup ? { idNEQ: selectedGroup } : undefined
+  const [{ data: TableData }] = useGetAllGroupsQuery({ variables: { where } })
+
+  const [{}, updateGroup] = useUpdateGroupMutation()
+
+  const inheritPermissions = async () => {
+    if (!selectedGroup) {
+      toast({
+        title: 'Error',
+        description: 'No selected group found.',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    try {
+      const result = await updateGroup({
+        updateGroupId: selectedGroup,
+        input: {
+          inheritGroupPermissions: group,
+        },
+      })
+
+      if (result.error) {
+        throw new Error(result.error.message)
+      }
+
+      toast({
+        title: 'Success',
+        description: `Permissions successfully inherited from ${groups.find((g) => g.id === group)?.name || 'selected group'}.`,
+      })
+
+      setIsOpen(false)
+    } catch (error) {
+      toast({
+        title: 'Failed to inherit permissions',
+        description: 'An unexpected error occurred.',
+        variant: 'destructive',
+      })
+    }
+  }
 
   const groups =
     TableData?.groups?.edges?.map((edge) => ({
@@ -37,7 +77,6 @@ const InheritPermissionDialog = () => {
       name: edge?.node?.displayName,
     })) || []
 
-  // Replace this with real API data
   const permissionsData = [
     { object: 'CC1.2', type: 'Control', permission: 'Editor' },
     { object: 'CC2.2', type: 'Risk', permission: 'Blocked' },
@@ -120,12 +159,17 @@ const InheritPermissionDialog = () => {
 
         <DialogFooter className="justify-start">
           {step === 1 ? (
-            <Button className="w-full" onClick={handleNextStep}>
+            <Button className="w-full" onClick={handleNextStep} disabled={!group}>
               Next
             </Button>
           ) : (
             <div className="flex gap-2">
-              <Button className="flex-1" onClick={() => setIsOpen(false)}>
+              <Button
+                className="flex-1"
+                onClick={() => {
+                  inheritPermissions(), setIsOpen(false)
+                }}
+              >
                 Inherit
               </Button>
               <Button className="flex-1" onClick={handleBack}>
