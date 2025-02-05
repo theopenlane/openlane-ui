@@ -1,5 +1,5 @@
-query GetAllGroups {
-  groups {
+query GetAllGroups($where: GroupWhereInput) {
+  groups(where: $where) {
     edges {
       node {
         id
@@ -7,14 +7,140 @@ query GetAllGroups {
         description
         displayName
         logoURL
+        isManaged
         tags
+        members {
+          id
+          role
+          user {
+            id
+            firstName
+            lastName
+            avatarFile {
+              presignedURL
+            }
+            avatarRemoteURL
+            role
+          }
+        }
         setting {
           visibility
           joinPolicy
           syncToSlack
           syncToGithub
+          id
         }
       }
     }
   }
 }
+
+mutation CreateGroupWithMembers($groupInput: CreateGroupInput!, $members: [GroupMembersInput!]) {
+  createGroupWithMembers(groupInput: $groupInput, members: $members) {
+    group {
+      id
+      displayID
+    }
+  }
+}
+
+mutation UpdateGroup($updateGroupId: ID!, $input: UpdateGroupInput!) {
+  updateGroup(id: $updateGroupId, input: $input) {
+    group {
+      id
+    }
+  }
+}
+mutation DeleteGroup($deleteGroupId: ID!) {
+  deleteGroup(id: $deleteGroupId) {
+    deletedID
+  }
+}
+
+query GetGroupDetails($groupId: ID!) {
+  group(id: $groupId) {
+    id
+    name
+    description
+    displayName
+    logoURL
+    isManaged
+    tags
+    members {
+      id
+      role
+      user {
+        id
+        firstName
+        lastName
+        avatarFile {
+          presignedURL
+        }
+        avatarRemoteURL
+        role
+      }
+    }
+    setting {
+      visibility
+      joinPolicy
+      syncToSlack
+      syncToGithub
+      id
+    }
+  }
+}
+
+mutation UpdateGroupMembership($updateGroupMembershipId: ID!, $input: UpdateGroupMembershipInput!) {
+  updateGroupMembership(id: $updateGroupMembershipId, input: $input) {
+    groupMembership {
+      id
+    }
+  }
+}
+
+query GetGroupPermissions($groupId: ID!) {
+  group(id: $groupId) {
+    permissions {
+      displayID
+      id
+      name
+      objectType
+      permissions
+    }
+  }
+}
+
+# example for creating a group with other groups members
+# mutation CreateGroupOptionalClone($groupInput: CreateGroupInput!, $inheritGroupPermissions: ID, $cloneGroupMembers: ID) {
+#   createGroupByClone(groupInput: $groupInput, inheritGroupPermissions: $inheritGroupPermissions, cloneGroupMembers: $cloneGroupMembers) {
+#     group {
+#       id
+#       name
+#       displayName
+#       displayID
+#       permissions {
+#         id
+#         displayID
+#         name
+#         objectType
+#         permissions
+#       }
+#       members {
+#         id
+#         user {
+#           firstName
+#           lastName
+#           id
+#         }
+#       }
+#     }
+#   }
+# }
+
+# {
+#   "groupInput": {
+#     "name": "Test 1",
+#   },
+#   "inheritGroupPermissions": "01JK9HSDCMSS6SR6J819SQXQTE",
+#   "cloneGroupMembers": "01JK9HSDCMSS6SR6J819SQXQTE"
+# }

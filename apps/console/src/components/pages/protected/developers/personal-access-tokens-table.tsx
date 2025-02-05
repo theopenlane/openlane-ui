@@ -5,11 +5,11 @@ import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
 import { TokenAction } from './actions/pat-actions'
-import { TableCell, TableRow } from '../../../../../../../packages/ui/src/table/table'
 import { KeyRound } from 'lucide-react'
 import { personalAccessTokenTableStyles } from './personal-access-tokens-table-styles'
 import PersonalApiKeyDialog from './personal-access-token-create-dialog'
 import { usePathname } from 'next/navigation'
+import { TableCell, TableRow } from '@repo/ui/table'
 
 type TokenNode = {
   id: string

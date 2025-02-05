@@ -11308,6 +11308,8 @@ export interface Mutation {
   createFullProgram: ProgramCreatePayload
   /** Create a new group */
   createGroup: GroupCreatePayload
+  /** Create a new group with members */
+  createGroupByClone: GroupCreatePayload
   /** Create a new groupMembership */
   createGroupMembership: GroupMembershipCreatePayload
   /** Create a new groupSetting */
@@ -11795,6 +11797,13 @@ export interface MutationCreateFullProgramArgs {
 
 export interface MutationCreateGroupArgs {
   input: CreateGroupInput
+}
+
+export interface MutationCreateGroupByCloneArgs {
+  cloneGroupMembers?: InputMaybe<Scalars['ID']['input']>
+  groupInput: CreateGroupInput
+  inheritGroupPermissions?: InputMaybe<Scalars['ID']['input']>
+  members?: InputMaybe<Array<GroupMembersInput>>
 }
 
 export interface MutationCreateGroupMembershipArgs {
@@ -23558,6 +23567,11 @@ export interface UpdateGroupInput {
   displayName?: InputMaybe<Scalars['String']['input']>
   /** the URL to an auto generated gravatar image for the group */
   gravatarLogoURL?: InputMaybe<Scalars['String']['input']>
+  /**
+   * inheritGroupPermissions allows a group to be updated with the same permissions
+   * as the specified group ID, existing permissions will be removed
+   */
+  inheritGroupPermissions?: InputMaybe<Scalars['ID']['input']>
   /** the URL to an image uploaded by the customer for the groups avatar image */
   logoURL?: InputMaybe<Scalars['String']['input']>
   /** the name of the group - must be unique within the organization */
@@ -25969,10 +25983,7 @@ export type CreateApiTokenMutationVariables = Exact<{
   input: CreateApiTokenInput
 }>
 
-export type CreateApiTokenMutation = {
-  __typename?: 'Mutation'
-  createAPIToken: { __typename?: 'APITokenCreatePayload'; apiToken: { __typename?: 'APIToken'; token: string } }
-}
+export type CreateApiTokenMutation = { __typename?: 'Mutation'; createAPIToken: { __typename?: 'APITokenCreatePayload'; apiToken: { __typename?: 'APIToken'; token: string } } }
 
 export type GetApiTokensQueryVariables = Exact<{ [key: string]: never }>
 
@@ -25982,14 +25993,7 @@ export type GetApiTokensQuery = {
     __typename?: 'APITokenConnection'
     edges?: Array<{
       __typename?: 'APITokenEdge'
-      node?: {
-        __typename?: 'APIToken'
-        id: string
-        name: string
-        description?: string | null
-        scopes?: Array<string> | null
-        expiresAt?: any | null
-      } | null
+      node?: { __typename?: 'APIToken'; id: string; name: string; description?: string | null; scopes?: Array<string> | null; expiresAt?: any | null } | null
     } | null> | null
   }
 }
@@ -25998,10 +26002,7 @@ export type DeleteApiTokenMutationVariables = Exact<{
   deleteAPITokenId: Scalars['ID']['input']
 }>
 
-export type DeleteApiTokenMutation = {
-  __typename?: 'Mutation'
-  deleteAPIToken: { __typename?: 'APITokenDeletePayload'; deletedID: string }
-}
+export type DeleteApiTokenMutation = { __typename?: 'Mutation'; deleteAPIToken: { __typename?: 'APITokenDeletePayload'; deletedID: string } }
 
 export type GetDashboardDataQueryVariables = Exact<{
   where?: InputMaybe<TaskWhereInput>
@@ -26019,48 +26020,22 @@ export type GetDashboardDataQuery = {
         name: string
         description?: string | null
         controls?: Array<{ __typename?: 'Control'; id: string }> | null
-        tasks?: Array<{
-          __typename?: 'Task'
-          id: string
-          title: string
-          status: TaskTaskStatus
-          description?: string | null
-          due?: any | null
-        }> | null
+        tasks?: Array<{ __typename?: 'Task'; id: string; title: string; status: TaskTaskStatus; description?: string | null; due?: any | null }> | null
       } | null
     } | null> | null
   }
   tasks: {
     __typename?: 'TaskConnection'
-    edges?: Array<{
-      __typename?: 'TaskEdge'
-      node?: {
-        __typename?: 'Task'
-        id: string
-        title: string
-        status: TaskTaskStatus
-        due?: any | null
-        tags?: Array<string> | null
-      } | null
-    } | null> | null
+    edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string; status: TaskTaskStatus; due?: any | null; tags?: Array<string> | null } | null } | null> | null
   }
-  organizations: {
-    __typename?: 'OrganizationConnection'
-    edges?: Array<{
-      __typename?: 'OrganizationEdge'
-      node?: { __typename?: 'Organization'; id: string; name: string } | null
-    } | null> | null
-  }
+  organizations: { __typename?: 'OrganizationConnection'; edges?: Array<{ __typename?: 'OrganizationEdge'; node?: { __typename?: 'Organization'; id: string; name: string } | null } | null> | null }
 }
 
 export type GetDocumentDataQueryVariables = Exact<{
   documentDataId: Scalars['ID']['input']
 }>
 
-export type GetDocumentDataQuery = {
-  __typename?: 'Query'
-  documentData: { __typename?: 'DocumentData'; id: string; templateID: string; data: any }
-}
+export type GetDocumentDataQuery = { __typename?: 'Query'; documentData: { __typename?: 'DocumentData'; id: string; templateID: string; data: any } }
 
 export type CreateDocumentDataMutationVariables = Exact<{
   input: CreateDocumentDataInput
@@ -26068,10 +26043,7 @@ export type CreateDocumentDataMutationVariables = Exact<{
 
 export type CreateDocumentDataMutation = {
   __typename?: 'Mutation'
-  createDocumentData: {
-    __typename?: 'DocumentDataCreatePayload'
-    documentData: { __typename?: 'DocumentData'; id: string; templateID: string; data: any }
-  }
+  createDocumentData: { __typename?: 'DocumentDataCreatePayload'; documentData: { __typename?: 'DocumentData'; id: string; templateID: string; data: any } }
 }
 
 export type UpdateDocumentDataMutationVariables = Exact<{
@@ -26081,22 +26053,18 @@ export type UpdateDocumentDataMutationVariables = Exact<{
 
 export type UpdateDocumentDataMutation = {
   __typename?: 'Mutation'
-  updateDocumentData: {
-    __typename?: 'DocumentDataUpdatePayload'
-    documentData: { __typename?: 'DocumentData'; id: string; templateID: string; data: any }
-  }
+  updateDocumentData: { __typename?: 'DocumentDataUpdatePayload'; documentData: { __typename?: 'DocumentData'; id: string; templateID: string; data: any } }
 }
 
 export type DeleteDocumentDataMutationVariables = Exact<{
   deleteDocumentDataId: Scalars['ID']['input']
 }>
 
-export type DeleteDocumentDataMutation = {
-  __typename?: 'Mutation'
-  deleteDocumentData: { __typename?: 'DocumentDataDeletePayload'; deletedID: string }
-}
+export type DeleteDocumentDataMutation = { __typename?: 'Mutation'; deleteDocumentData: { __typename?: 'DocumentDataDeletePayload'; deletedID: string } }
 
-export type GetAllGroupsQueryVariables = Exact<{ [key: string]: never }>
+export type GetAllGroupsQueryVariables = Exact<{
+  where?: InputMaybe<GroupWhereInput>
+}>
 
 export type GetAllGroupsQuery = {
   __typename?: 'Query'
@@ -26111,16 +26079,107 @@ export type GetAllGroupsQuery = {
         description?: string | null
         displayName: string
         logoURL?: string | null
+        isManaged?: boolean | null
         tags?: Array<string> | null
+        members?: Array<{
+          __typename?: 'GroupMembership'
+          id: string
+          role: GroupMembershipRole
+          user: {
+            __typename?: 'User'
+            id: string
+            firstName?: string | null
+            lastName?: string | null
+            avatarRemoteURL?: string | null
+            role?: UserRole | null
+            avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+          }
+        }> | null
         setting?: {
           __typename?: 'GroupSetting'
           visibility: GroupSettingVisibility
           joinPolicy: GroupSettingJoinPolicy
           syncToSlack?: boolean | null
           syncToGithub?: boolean | null
+          id: string
         } | null
       } | null
     } | null> | null
+  }
+}
+
+export type CreateGroupWithMembersMutationVariables = Exact<{
+  groupInput: CreateGroupInput
+  members?: InputMaybe<Array<GroupMembersInput> | GroupMembersInput>
+}>
+
+export type CreateGroupWithMembersMutation = { __typename?: 'Mutation'; createGroupWithMembers: { __typename?: 'GroupCreatePayload'; group: { __typename?: 'Group'; id: string; displayID: string } } }
+
+export type UpdateGroupMutationVariables = Exact<{
+  updateGroupId: Scalars['ID']['input']
+  input: UpdateGroupInput
+}>
+
+export type UpdateGroupMutation = { __typename?: 'Mutation'; updateGroup: { __typename?: 'GroupUpdatePayload'; group: { __typename?: 'Group'; id: string } } }
+
+export type DeleteGroupMutationVariables = Exact<{
+  deleteGroupId: Scalars['ID']['input']
+}>
+
+export type DeleteGroupMutation = { __typename?: 'Mutation'; deleteGroup: { __typename?: 'GroupDeletePayload'; deletedID: string } }
+
+export type GetGroupDetailsQueryVariables = Exact<{
+  groupId: Scalars['ID']['input']
+}>
+
+export type GetGroupDetailsQuery = {
+  __typename?: 'Query'
+  group: {
+    __typename?: 'Group'
+    id: string
+    name: string
+    description?: string | null
+    displayName: string
+    logoURL?: string | null
+    isManaged?: boolean | null
+    tags?: Array<string> | null
+    members?: Array<{
+      __typename?: 'GroupMembership'
+      id: string
+      role: GroupMembershipRole
+      user: {
+        __typename?: 'User'
+        id: string
+        firstName?: string | null
+        lastName?: string | null
+        avatarRemoteURL?: string | null
+        role?: UserRole | null
+        avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+      }
+    }> | null
+    setting?: { __typename?: 'GroupSetting'; visibility: GroupSettingVisibility; joinPolicy: GroupSettingJoinPolicy; syncToSlack?: boolean | null; syncToGithub?: boolean | null; id: string } | null
+  }
+}
+
+export type UpdateGroupMembershipMutationVariables = Exact<{
+  updateGroupMembershipId: Scalars['ID']['input']
+  input: UpdateGroupMembershipInput
+}>
+
+export type UpdateGroupMembershipMutation = {
+  __typename?: 'Mutation'
+  updateGroupMembership: { __typename?: 'GroupMembershipUpdatePayload'; groupMembership: { __typename?: 'GroupMembership'; id: string } }
+}
+
+export type GetGroupPermissionsQueryVariables = Exact<{
+  groupId: Scalars['ID']['input']
+}>
+
+export type GetGroupPermissionsQuery = {
+  __typename?: 'Query'
+  group: {
+    __typename?: 'Group'
+    permissions?: Array<{ __typename?: 'GroupPermissions'; displayID?: string | null; id?: string | null; name?: string | null; objectType: string; permissions: Permission }> | null
   }
 }
 
@@ -26131,26 +26190,14 @@ export type UpdateUserRoleInOrgMutationVariables = Exact<{
 
 export type UpdateUserRoleInOrgMutation = {
   __typename?: 'Mutation'
-  updateOrgMembership: {
-    __typename?: 'OrgMembershipUpdatePayload'
-    orgMembership: {
-      __typename?: 'OrgMembership'
-      id: string
-      role: OrgMembershipRole
-      userID: string
-      organizationID: string
-    }
-  }
+  updateOrgMembership: { __typename?: 'OrgMembershipUpdatePayload'; orgMembership: { __typename?: 'OrgMembership'; id: string; role: OrgMembershipRole; userID: string; organizationID: string } }
 }
 
 export type RemoveUserFromOrgMutationVariables = Exact<{
   deleteOrgMembershipId: Scalars['ID']['input']
 }>
 
-export type RemoveUserFromOrgMutation = {
-  __typename?: 'Mutation'
-  deleteOrgMembership: { __typename?: 'OrgMembershipDeletePayload'; deletedID: string }
-}
+export type RemoveUserFromOrgMutation = { __typename?: 'Mutation'; deleteOrgMembership: { __typename?: 'OrgMembershipDeletePayload'; deletedID: string } }
 
 export type GetAllOrganizationsQueryVariables = Exact<{ [key: string]: never }>
 
@@ -26177,10 +26224,7 @@ export type GetOrganizationNameByIdQueryVariables = Exact<{
   organizationId: Scalars['ID']['input']
 }>
 
-export type GetOrganizationNameByIdQuery = {
-  __typename?: 'Query'
-  organization: { __typename?: 'Organization'; name: string; displayName: string }
-}
+export type GetOrganizationNameByIdQuery = { __typename?: 'Query'; organization: { __typename?: 'Organization'; name: string; displayName: string } }
 
 export type GetSingleOrganizationMembersQueryVariables = Exact<{
   organizationId: Scalars['ID']['input']
@@ -26241,15 +26285,7 @@ export type GetInvitesQuery = {
     __typename?: 'InviteConnection'
     edges?: Array<{
       __typename?: 'InviteEdge'
-      node?: {
-        __typename?: 'Invite'
-        id: string
-        recipient: string
-        status: InviteInviteStatus
-        createdAt?: any | null
-        expires?: any | null
-        role: InviteRole
-      } | null
+      node?: { __typename?: 'Invite'; id: string; recipient: string; status: InviteInviteStatus; createdAt?: any | null; expires?: any | null; role: InviteRole } | null
     } | null> | null
   }
 }
@@ -26307,25 +26343,13 @@ export type GetBillingEmailQueryVariables = Exact<{
   organizationId: Scalars['ID']['input']
 }>
 
-export type GetBillingEmailQuery = {
-  __typename?: 'Query'
-  organization: {
-    __typename?: 'Organization'
-    setting?: { __typename?: 'OrganizationSetting'; billingEmail?: string | null } | null
-  }
-}
+export type GetBillingEmailQuery = { __typename?: 'Query'; organization: { __typename?: 'Organization'; setting?: { __typename?: 'OrganizationSetting'; billingEmail?: string | null } | null } }
 
 export type CreateOrganizationMutationVariables = Exact<{
   input: CreateOrganizationInput
 }>
 
-export type CreateOrganizationMutation = {
-  __typename?: 'Mutation'
-  createOrganization: {
-    __typename?: 'OrganizationCreatePayload'
-    organization: { __typename?: 'Organization'; id: string }
-  }
-}
+export type CreateOrganizationMutation = { __typename?: 'Mutation'; createOrganization: { __typename?: 'OrganizationCreatePayload'; organization: { __typename?: 'Organization'; id: string } } }
 
 export type UpdateOrganizationMutationVariables = Exact<{
   updateOrganizationId: Scalars['ID']['input']
@@ -26333,43 +26357,25 @@ export type UpdateOrganizationMutationVariables = Exact<{
   avatarFile?: InputMaybe<Scalars['Upload']['input']>
 }>
 
-export type UpdateOrganizationMutation = {
-  __typename?: 'Mutation'
-  updateOrganization: {
-    __typename?: 'OrganizationUpdatePayload'
-    organization: { __typename?: 'Organization'; id: string }
-  }
-}
+export type UpdateOrganizationMutation = { __typename?: 'Mutation'; updateOrganization: { __typename?: 'OrganizationUpdatePayload'; organization: { __typename?: 'Organization'; id: string } } }
 
 export type CreateBulkInviteMutationVariables = Exact<{
   input?: InputMaybe<Array<CreateInviteInput> | CreateInviteInput>
 }>
 
-export type CreateBulkInviteMutation = {
-  __typename?: 'Mutation'
-  createBulkInvite: {
-    __typename?: 'InviteBulkCreatePayload'
-    invites?: Array<{ __typename?: 'Invite'; id: string }> | null
-  }
-}
+export type CreateBulkInviteMutation = { __typename?: 'Mutation'; createBulkInvite: { __typename?: 'InviteBulkCreatePayload'; invites?: Array<{ __typename?: 'Invite'; id: string }> | null } }
 
 export type DeleteOrganizationInviteMutationVariables = Exact<{
   deleteInviteId: Scalars['ID']['input']
 }>
 
-export type DeleteOrganizationInviteMutation = {
-  __typename?: 'Mutation'
-  deleteInvite: { __typename?: 'InviteDeletePayload'; deletedID: string }
-}
+export type DeleteOrganizationInviteMutation = { __typename?: 'Mutation'; deleteInvite: { __typename?: 'InviteDeletePayload'; deletedID: string } }
 
 export type DeleteOrganizationMutationVariables = Exact<{
   deleteOrganizationId: Scalars['ID']['input']
 }>
 
-export type DeleteOrganizationMutation = {
-  __typename?: 'Mutation'
-  deleteOrganization: { __typename?: 'OrganizationDeletePayload'; deletedID: string }
-}
+export type DeleteOrganizationMutation = { __typename?: 'Mutation'; deleteOrganization: { __typename?: 'OrganizationDeletePayload'; deletedID: string } }
 
 export type CreatePersonalAccessTokenMutationVariables = Exact<{
   input: CreatePersonalAccessTokenInput
@@ -26377,10 +26383,7 @@ export type CreatePersonalAccessTokenMutationVariables = Exact<{
 
 export type CreatePersonalAccessTokenMutation = {
   __typename?: 'Mutation'
-  createPersonalAccessToken: {
-    __typename?: 'PersonalAccessTokenCreatePayload'
-    personalAccessToken: { __typename?: 'PersonalAccessToken'; token: string }
-  }
+  createPersonalAccessToken: { __typename?: 'PersonalAccessTokenCreatePayload'; personalAccessToken: { __typename?: 'PersonalAccessToken'; token: string } }
 }
 
 export type GetPersonalAccessTokensQueryVariables = Exact<{ [key: string]: never }>
@@ -26407,10 +26410,7 @@ export type DeletePersonalAccessTokenMutationVariables = Exact<{
   deletePersonalAccessTokenId: Scalars['ID']['input']
 }>
 
-export type DeletePersonalAccessTokenMutation = {
-  __typename?: 'Mutation'
-  deletePersonalAccessToken: { __typename?: 'PersonalAccessTokenDeletePayload'; deletedID: string }
-}
+export type DeletePersonalAccessTokenMutation = { __typename?: 'Mutation'; deletePersonalAccessToken: { __typename?: 'PersonalAccessTokenDeletePayload'; deletedID: string } }
 
 export type CreateInternalPolicyMutationVariables = Exact<{
   input: CreateInternalPolicyInput
@@ -26470,10 +26470,7 @@ export type DeleteInternalPolicyMutationVariables = Exact<{
   deleteInternalPolicyId: Scalars['ID']['input']
 }>
 
-export type DeleteInternalPolicyMutation = {
-  __typename?: 'Mutation'
-  deleteInternalPolicy: { __typename?: 'InternalPolicyDeletePayload'; deletedID: string }
-}
+export type DeleteInternalPolicyMutation = { __typename?: 'Mutation'; deleteInternalPolicy: { __typename?: 'InternalPolicyDeletePayload'; deletedID: string } }
 
 export type GetAllInternalPoliciesWithDetailsQueryVariables = Exact<{ [key: string]: never }>
 
@@ -26534,10 +26531,7 @@ export type GetAllInternalPoliciesQuery = {
   __typename?: 'Query'
   internalPolicies: {
     __typename?: 'InternalPolicyConnection'
-    edges?: Array<{
-      __typename?: 'InternalPolicyEdge'
-      node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null
-    } | null> | null
+    edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
   }
 }
 
@@ -26590,26 +26584,14 @@ export type CreateProcedureMutationVariables = Exact<{
   input: CreateProcedureInput
 }>
 
-export type CreateProcedureMutation = {
-  __typename?: 'Mutation'
-  createProcedure: {
-    __typename?: 'ProcedureCreatePayload'
-    procedure: { __typename?: 'Procedure'; id: string; name: string }
-  }
-}
+export type CreateProcedureMutation = { __typename?: 'Mutation'; createProcedure: { __typename?: 'ProcedureCreatePayload'; procedure: { __typename?: 'Procedure'; id: string; name: string } } }
 
 export type UpdateProcedureMutationVariables = Exact<{
   updateProcedureId: Scalars['ID']['input']
   input: UpdateProcedureInput
 }>
 
-export type UpdateProcedureMutation = {
-  __typename?: 'Mutation'
-  updateProcedure: {
-    __typename?: 'ProcedureUpdatePayload'
-    procedure: { __typename?: 'Procedure'; id: string; name: string }
-  }
-}
+export type UpdateProcedureMutation = { __typename?: 'Mutation'; updateProcedure: { __typename?: 'ProcedureUpdatePayload'; procedure: { __typename?: 'Procedure'; id: string; name: string } } }
 
 export type GetAllProceduresWithDetailsQueryVariables = Exact<{ [key: string]: never }>
 
@@ -26644,13 +26626,7 @@ export type GetAllProceduresQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetAllProceduresQuery = {
   __typename?: 'Query'
-  procedures: {
-    __typename?: 'ProcedureConnection'
-    edges?: Array<{
-      __typename?: 'ProcedureEdge'
-      node?: { __typename?: 'Procedure'; id: string; name: string } | null
-    } | null> | null
-  }
+  procedures: { __typename?: 'ProcedureConnection'; edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null }
 }
 
 export type GetProcedureDetailsByIdQueryVariables = Exact<{
@@ -26686,10 +26662,7 @@ export type CreateProgramWithMembersMutationVariables = Exact<{
 
 export type CreateProgramWithMembersMutation = {
   __typename?: 'Mutation'
-  createProgramWithMembers: {
-    __typename?: 'ProgramCreatePayload'
-    program: { __typename?: 'Program'; id: string; name: string }
-  }
+  createProgramWithMembers: { __typename?: 'ProgramCreatePayload'; program: { __typename?: 'Program'; id: string; name: string } }
 }
 
 export type UpdateProgramMutationVariables = Exact<{
@@ -26697,12 +26670,11 @@ export type UpdateProgramMutationVariables = Exact<{
   input: UpdateProgramInput
 }>
 
-export type UpdateProgramMutation = {
-  __typename?: 'Mutation'
-  updateProgram: { __typename?: 'ProgramUpdatePayload'; program: { __typename?: 'Program'; id: string; name: string } }
-}
+export type UpdateProgramMutation = { __typename?: 'Mutation'; updateProgram: { __typename?: 'ProgramUpdatePayload'; program: { __typename?: 'Program'; id: string; name: string } } }
 
-export type GetAllProgramsQueryVariables = Exact<{ [key: string]: never }>
+export type GetAllProgramsQueryVariables = Exact<{
+  where?: InputMaybe<ProgramWhereInput>
+}>
 
 export type GetAllProgramsQuery = {
   __typename?: 'Query'
@@ -26720,6 +26692,7 @@ export type GetAllProgramsQuery = {
         startDate?: any | null
         endDate?: any | null
         auditorReady: boolean
+        displayID: string
       } | null
     } | null> | null
   }
@@ -26729,48 +26702,18 @@ export type GetProgramEdgesForWizardQueryVariables = Exact<{ [key: string]: neve
 
 export type GetProgramEdgesForWizardQuery = {
   __typename?: 'Query'
-  risks: {
-    __typename?: 'RiskConnection'
-    edges?: Array<{
-      __typename?: 'RiskEdge'
-      node?: { __typename?: 'Risk'; id: string; name: string } | null
-    } | null> | null
-  }
-  procedures: {
-    __typename?: 'ProcedureConnection'
-    edges?: Array<{
-      __typename?: 'ProcedureEdge'
-      node?: { __typename?: 'Procedure'; id: string; name: string } | null
-    } | null> | null
-  }
+  risks: { __typename?: 'RiskConnection'; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
+  procedures: { __typename?: 'ProcedureConnection'; edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null }
   internalPolicies: {
     __typename?: 'InternalPolicyConnection'
-    edges?: Array<{
-      __typename?: 'InternalPolicyEdge'
-      node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null
-    } | null> | null
+    edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
   }
-  groups: {
-    __typename?: 'GroupConnection'
-    edges?: Array<{
-      __typename?: 'GroupEdge'
-      node?: { __typename?: 'Group'; id: string; name: string; displayName: string } | null
-    } | null> | null
-  }
+  groups: { __typename?: 'GroupConnection'; edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; id: string; name: string; displayName: string } | null } | null> | null }
   orgMemberships: {
     __typename?: 'OrgMembershipConnection'
     edges?: Array<{
       __typename?: 'OrgMembershipEdge'
-      node?: {
-        __typename?: 'OrgMembership'
-        user: {
-          __typename?: 'User'
-          id: string
-          firstName?: string | null
-          lastName?: string | null
-          role?: UserRole | null
-        }
-      } | null
+      node?: { __typename?: 'OrgMembership'; user: { __typename?: 'User'; id: string; firstName?: string | null; lastName?: string | null; role?: UserRole | null } } | null
     } | null> | null
   }
 }
@@ -26801,13 +26744,7 @@ export type GetProgramDetailsByIdQuery = {
       status: TaskTaskStatus
       due?: any | null
       details?: any | null
-      assignee?: {
-        __typename?: 'User'
-        id: string
-        firstName?: string | null
-        lastName?: string | null
-        email: string
-      } | null
+      assignee?: { __typename?: 'User'; id: string; firstName?: string | null; lastName?: string | null; email: string } | null
       assigner: { __typename?: 'User'; id: string; firstName?: string | null; lastName?: string | null; email: string }
     }> | null
     controlObjectives?: Array<{ __typename?: 'ControlObjective'; id: string; name: string }> | null
@@ -26823,13 +26760,7 @@ export type GetAllRisksQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetAllRisksQuery = {
   __typename?: 'Query'
-  risks: {
-    __typename?: 'RiskConnection'
-    edges?: Array<{
-      __typename?: 'RiskEdge'
-      node?: { __typename?: 'Risk'; id: string; name: string } | null
-    } | null> | null
-  }
+  risks: { __typename?: 'RiskConnection'; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
 }
 
 export type SearchQueryVariables = Exact<{
@@ -26845,14 +26776,8 @@ export type SearchQuery = {
       | { __typename?: 'APITokenSearchResult' }
       | { __typename?: 'ActionPlanSearchResult' }
       | { __typename?: 'ContactSearchResult' }
-      | {
-          __typename?: 'ControlObjectiveSearchResult'
-          controlObjectives?: Array<{ __typename?: 'ControlObjective'; id: string; name: string }> | null
-        }
-      | {
-          __typename?: 'ControlSearchResult'
-          controls?: Array<{ __typename?: 'Control'; id: string; name: string }> | null
-        }
+      | { __typename?: 'ControlObjectiveSearchResult'; controlObjectives?: Array<{ __typename?: 'ControlObjective'; id: string; name: string }> | null }
+      | { __typename?: 'ControlSearchResult'; controls?: Array<{ __typename?: 'Control'; id: string; name: string }> | null }
       | { __typename?: 'DocumentDataSearchResult' }
       | { __typename?: 'EntitySearchResult' }
       | { __typename?: 'EntityTypeSearchResult' }
@@ -26864,29 +26789,14 @@ export type SearchQuery = {
       | { __typename?: 'InternalPolicySearchResult' }
       | { __typename?: 'NarrativeSearchResult' }
       | { __typename?: 'OrgSubscriptionSearchResult' }
-      | {
-          __typename?: 'OrganizationSearchResult'
-          organizations?: Array<{
-            __typename?: 'Organization'
-            id: string
-            name: string
-            displayName: string
-            avatarRemoteURL?: string | null
-          }> | null
-        }
+      | { __typename?: 'OrganizationSearchResult'; organizations?: Array<{ __typename?: 'Organization'; id: string; name: string; displayName: string; avatarRemoteURL?: string | null }> | null }
       | { __typename?: 'OrganizationSettingSearchResult' }
       | { __typename?: 'PersonalAccessTokenSearchResult' }
       | { __typename?: 'ProcedureSearchResult' }
-      | {
-          __typename?: 'ProgramSearchResult'
-          programs?: Array<{ __typename?: 'Program'; id: string; name: string }> | null
-        }
+      | { __typename?: 'ProgramSearchResult'; programs?: Array<{ __typename?: 'Program'; id: string; name: string }> | null }
       | { __typename?: 'RiskSearchResult'; risks?: Array<{ __typename?: 'Risk'; id: string; name: string }> | null }
       | { __typename?: 'StandardSearchResult' }
-      | {
-          __typename?: 'SubcontrolSearchResult'
-          subcontrols?: Array<{ __typename?: 'Subcontrol'; id: string; name: string }> | null
-        }
+      | { __typename?: 'SubcontrolSearchResult'; subcontrols?: Array<{ __typename?: 'Subcontrol'; id: string; name: string }> | null }
       | { __typename?: 'SubscriberSearchResult' }
       | { __typename?: 'TaskSearchResult'; tasks?: Array<{ __typename?: 'Task'; id: string; title: string }> | null }
       | { __typename?: 'TemplateSearchResult' }
@@ -26900,19 +26810,13 @@ export type CreateStandardMutationVariables = Exact<{
   input: CreateStandardInput
 }>
 
-export type CreateStandardMutation = {
-  __typename?: 'Mutation'
-  createStandard: { __typename?: 'StandardCreatePayload'; standard: { __typename?: 'Standard'; id: string } }
-}
+export type CreateStandardMutation = { __typename?: 'Mutation'; createStandard: { __typename?: 'StandardCreatePayload'; standard: { __typename?: 'Standard'; id: string } } }
 
 export type CreateSubscriberMutationVariables = Exact<{
   input: CreateSubscriberInput
 }>
 
-export type CreateSubscriberMutation = {
-  __typename?: 'Mutation'
-  createSubscriber: { __typename?: 'SubscriberCreatePayload'; subscriber: { __typename?: 'Subscriber'; email: string } }
-}
+export type CreateSubscriberMutation = { __typename?: 'Mutation'; createSubscriber: { __typename?: 'SubscriberCreatePayload'; subscriber: { __typename?: 'Subscriber'; email: string } } }
 
 export type GetAllSubscribersQueryVariables = Exact<{ [key: string]: never }>
 
@@ -26920,10 +26824,7 @@ export type GetAllSubscribersQuery = {
   __typename?: 'Query'
   subscribers: {
     __typename?: 'SubscriberConnection'
-    edges?: Array<{
-      __typename?: 'SubscriberEdge'
-      node?: { __typename?: 'Subscriber'; active: boolean; email: string; id: string; verifiedEmail: boolean } | null
-    } | null> | null
+    edges?: Array<{ __typename?: 'SubscriberEdge'; node?: { __typename?: 'Subscriber'; active: boolean; email: string; id: string; verifiedEmail: boolean } | null } | null> | null
   }
 }
 
@@ -26931,10 +26832,7 @@ export type DeleteSubscriberMutationVariables = Exact<{
   deleteSubscriberEmail: Scalars['String']['input']
 }>
 
-export type DeleteSubscriberMutation = {
-  __typename?: 'Mutation'
-  deleteSubscriber: { __typename?: 'SubscriberDeletePayload'; email: string }
-}
+export type DeleteSubscriberMutation = { __typename?: 'Mutation'; deleteSubscriber: { __typename?: 'SubscriberDeletePayload'; email: string } }
 
 export type TasksWithFilterQueryVariables = Exact<{
   where?: InputMaybe<TaskWhereInput>
@@ -26946,16 +26844,7 @@ export type TasksWithFilterQuery = {
     __typename?: 'TaskConnection'
     edges?: Array<{
       __typename?: 'TaskEdge'
-      node?: {
-        __typename?: 'Task'
-        id: string
-        title: string
-        description?: string | null
-        status: TaskTaskStatus
-        tags?: Array<string> | null
-        details?: any | null
-        due?: any | null
-      } | null
+      node?: { __typename?: 'Task'; id: string; title: string; description?: string | null; status: TaskTaskStatus; tags?: Array<string> | null; details?: any | null; due?: any | null } | null
     } | null> | null
   }
 }
@@ -27057,37 +26946,20 @@ export type GetTemplateQueryVariables = Exact<{
 
 export type GetTemplateQuery = {
   __typename?: 'Query'
-  template: {
-    __typename?: 'Template'
-    id: string
-    templateType: TemplateDocumentType
-    name: string
-    description?: string | null
-    jsonconfig: any
-    uischema?: any | null
-  }
+  template: { __typename?: 'Template'; id: string; templateType: TemplateDocumentType; name: string; description?: string | null; jsonconfig: any; uischema?: any | null }
 }
 
 export type DeleteTemplateMutationVariables = Exact<{
   deleteTemplateId: Scalars['ID']['input']
 }>
 
-export type DeleteTemplateMutation = {
-  __typename?: 'Mutation'
-  deleteTemplate: { __typename?: 'TemplateDeletePayload'; deletedID: string }
-}
+export type DeleteTemplateMutation = { __typename?: 'Mutation'; deleteTemplate: { __typename?: 'TemplateDeletePayload'; deletedID: string } }
 
 export type GetTfaSettingsQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetTfaSettingsQuery = {
   __typename?: 'Query'
-  tfaSettings: {
-    __typename?: 'TFASettingConnection'
-    edges?: Array<{
-      __typename?: 'TFASettingEdge'
-      node?: { __typename?: 'TFASetting'; id: string } | null
-    } | null> | null
-  }
+  tfaSettings: { __typename?: 'TFASettingConnection'; edges?: Array<{ __typename?: 'TFASettingEdge'; node?: { __typename?: 'TFASetting'; id: string } | null } | null> | null }
 }
 
 export type GetUserTfaSettingsQueryVariables = Exact<{
@@ -27096,15 +26968,7 @@ export type GetUserTfaSettingsQueryVariables = Exact<{
 
 export type GetUserTfaSettingsQuery = {
   __typename?: 'Query'
-  user: {
-    __typename?: 'User'
-    tfaSettings?: Array<{
-      __typename?: 'TFASetting'
-      id: string
-      totpAllowed?: boolean | null
-      verified: boolean
-    }> | null
-  }
+  user: { __typename?: 'User'; tfaSettings?: Array<{ __typename?: 'TFASetting'; id: string; totpAllowed?: boolean | null; verified: boolean }> | null }
 }
 
 export type UpdateTfaSettingMutationVariables = Exact<{
@@ -27128,12 +26992,7 @@ export type CreateTfaSettingMutationVariables = Exact<{
 
 export type CreateTfaSettingMutation = {
   __typename?: 'Mutation'
-  createTFASetting: {
-    __typename?: 'TFASettingCreatePayload'
-    qrCode?: string | null
-    tfaSecret?: string | null
-    tfaSetting: { __typename?: 'TFASetting'; id: string }
-  }
+  createTFASetting: { __typename?: 'TFASettingCreatePayload'; qrCode?: string | null; tfaSecret?: string | null; tfaSetting: { __typename?: 'TFASetting'; id: string } }
 }
 
 export type GetUserProfileQueryVariables = Exact<{
@@ -27170,10 +27029,7 @@ export type UpdateUserMutationVariables = Exact<{
 
 export type UpdateUserMutation = {
   __typename?: 'Mutation'
-  updateUser: {
-    __typename?: 'UserUpdatePayload'
-    user: { __typename?: 'User'; id: string; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null }
-  }
+  updateUser: { __typename?: 'UserUpdatePayload'; user: { __typename?: 'User'; id: string; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } }
 }
 
 export type UpdateUserSettingMutationVariables = Exact<{
@@ -27181,13 +27037,7 @@ export type UpdateUserSettingMutationVariables = Exact<{
   input: UpdateUserSettingInput
 }>
 
-export type UpdateUserSettingMutation = {
-  __typename?: 'Mutation'
-  updateUserSetting: {
-    __typename?: 'UserSettingUpdatePayload'
-    userSetting: { __typename?: 'UserSetting'; id: string }
-  }
-}
+export type UpdateUserSettingMutation = { __typename?: 'Mutation'; updateUserSetting: { __typename?: 'UserSettingUpdatePayload'; userSetting: { __typename?: 'UserSetting'; id: string } } }
 
 export const InternalPolicyUpdateFieldsFragmentDoc = gql`
   fragment InternalPolicyUpdateFields on InternalPolicy {
@@ -27309,10 +27159,7 @@ export const GetDashboardDataDocument = gql`
 `
 
 export function useGetDashboardDataQuery(options?: Omit<Urql.UseQueryArgs<GetDashboardDataQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetDashboardDataQuery, GetDashboardDataQueryVariables>({
-    query: GetDashboardDataDocument,
-    ...options,
-  })
+  return Urql.useQuery<GetDashboardDataQuery, GetDashboardDataQueryVariables>({ query: GetDashboardDataDocument, ...options })
 }
 export const GetDocumentDataDocument = gql`
   query GetDocumentData($documentDataId: ID!) {
@@ -27325,10 +27172,7 @@ export const GetDocumentDataDocument = gql`
 `
 
 export function useGetDocumentDataQuery(options: Omit<Urql.UseQueryArgs<GetDocumentDataQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetDocumentDataQuery, GetDocumentDataQueryVariables>({
-    query: GetDocumentDataDocument,
-    ...options,
-  })
+  return Urql.useQuery<GetDocumentDataQuery, GetDocumentDataQueryVariables>({ query: GetDocumentDataDocument, ...options })
 }
 export const CreateDocumentDataDocument = gql`
   mutation CreateDocumentData($input: CreateDocumentDataInput!) {
@@ -27372,8 +27216,8 @@ export function useDeleteDocumentDataMutation() {
   return Urql.useMutation<DeleteDocumentDataMutation, DeleteDocumentDataMutationVariables>(DeleteDocumentDataDocument)
 }
 export const GetAllGroupsDocument = gql`
-  query GetAllGroups {
-    groups {
+  query GetAllGroups($where: GroupWhereInput) {
+    groups(where: $where) {
       edges {
         node {
           id
@@ -27381,12 +27225,28 @@ export const GetAllGroupsDocument = gql`
           description
           displayName
           logoURL
+          isManaged
           tags
+          members {
+            id
+            role
+            user {
+              id
+              firstName
+              lastName
+              avatarFile {
+                presignedURL
+              }
+              avatarRemoteURL
+              role
+            }
+          }
           setting {
             visibility
             joinPolicy
             syncToSlack
             syncToGithub
+            id
           }
         }
       }
@@ -27396,6 +27256,112 @@ export const GetAllGroupsDocument = gql`
 
 export function useGetAllGroupsQuery(options?: Omit<Urql.UseQueryArgs<GetAllGroupsQueryVariables>, 'query'>) {
   return Urql.useQuery<GetAllGroupsQuery, GetAllGroupsQueryVariables>({ query: GetAllGroupsDocument, ...options })
+}
+export const CreateGroupWithMembersDocument = gql`
+  mutation CreateGroupWithMembers($groupInput: CreateGroupInput!, $members: [GroupMembersInput!]) {
+    createGroupWithMembers(groupInput: $groupInput, members: $members) {
+      group {
+        id
+        displayID
+      }
+    }
+  }
+`
+
+export function useCreateGroupWithMembersMutation() {
+  return Urql.useMutation<CreateGroupWithMembersMutation, CreateGroupWithMembersMutationVariables>(CreateGroupWithMembersDocument)
+}
+export const UpdateGroupDocument = gql`
+  mutation UpdateGroup($updateGroupId: ID!, $input: UpdateGroupInput!) {
+    updateGroup(id: $updateGroupId, input: $input) {
+      group {
+        id
+      }
+    }
+  }
+`
+
+export function useUpdateGroupMutation() {
+  return Urql.useMutation<UpdateGroupMutation, UpdateGroupMutationVariables>(UpdateGroupDocument)
+}
+export const DeleteGroupDocument = gql`
+  mutation DeleteGroup($deleteGroupId: ID!) {
+    deleteGroup(id: $deleteGroupId) {
+      deletedID
+    }
+  }
+`
+
+export function useDeleteGroupMutation() {
+  return Urql.useMutation<DeleteGroupMutation, DeleteGroupMutationVariables>(DeleteGroupDocument)
+}
+export const GetGroupDetailsDocument = gql`
+  query GetGroupDetails($groupId: ID!) {
+    group(id: $groupId) {
+      id
+      name
+      description
+      displayName
+      logoURL
+      isManaged
+      tags
+      members {
+        id
+        role
+        user {
+          id
+          firstName
+          lastName
+          avatarFile {
+            presignedURL
+          }
+          avatarRemoteURL
+          role
+        }
+      }
+      setting {
+        visibility
+        joinPolicy
+        syncToSlack
+        syncToGithub
+        id
+      }
+    }
+  }
+`
+
+export function useGetGroupDetailsQuery(options: Omit<Urql.UseQueryArgs<GetGroupDetailsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetGroupDetailsQuery, GetGroupDetailsQueryVariables>({ query: GetGroupDetailsDocument, ...options })
+}
+export const UpdateGroupMembershipDocument = gql`
+  mutation UpdateGroupMembership($updateGroupMembershipId: ID!, $input: UpdateGroupMembershipInput!) {
+    updateGroupMembership(id: $updateGroupMembershipId, input: $input) {
+      groupMembership {
+        id
+      }
+    }
+  }
+`
+
+export function useUpdateGroupMembershipMutation() {
+  return Urql.useMutation<UpdateGroupMembershipMutation, UpdateGroupMembershipMutationVariables>(UpdateGroupMembershipDocument)
+}
+export const GetGroupPermissionsDocument = gql`
+  query GetGroupPermissions($groupId: ID!) {
+    group(id: $groupId) {
+      permissions {
+        displayID
+        id
+        name
+        objectType
+        permissions
+      }
+    }
+  }
+`
+
+export function useGetGroupPermissionsQuery(options: Omit<Urql.UseQueryArgs<GetGroupPermissionsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetGroupPermissionsQuery, GetGroupPermissionsQueryVariables>({ query: GetGroupPermissionsDocument, ...options })
 }
 export const UpdateUserRoleInOrgDocument = gql`
   mutation UpdateUserRoleInOrg($updateOrgMemberId: ID!, $input: UpdateOrgMembershipInput!) {
@@ -27411,9 +27377,7 @@ export const UpdateUserRoleInOrgDocument = gql`
 `
 
 export function useUpdateUserRoleInOrgMutation() {
-  return Urql.useMutation<UpdateUserRoleInOrgMutation, UpdateUserRoleInOrgMutationVariables>(
-    UpdateUserRoleInOrgDocument,
-  )
+  return Urql.useMutation<UpdateUserRoleInOrgMutation, UpdateUserRoleInOrgMutationVariables>(UpdateUserRoleInOrgDocument)
 }
 export const RemoveUserFromOrgDocument = gql`
   mutation RemoveUserFromOrg($deleteOrgMembershipId: ID!) {
@@ -27446,13 +27410,8 @@ export const GetAllOrganizationsDocument = gql`
   }
 `
 
-export function useGetAllOrganizationsQuery(
-  options?: Omit<Urql.UseQueryArgs<GetAllOrganizationsQueryVariables>, 'query'>,
-) {
-  return Urql.useQuery<GetAllOrganizationsQuery, GetAllOrganizationsQueryVariables>({
-    query: GetAllOrganizationsDocument,
-    ...options,
-  })
+export function useGetAllOrganizationsQuery(options?: Omit<Urql.UseQueryArgs<GetAllOrganizationsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetAllOrganizationsQuery, GetAllOrganizationsQueryVariables>({ query: GetAllOrganizationsDocument, ...options })
 }
 export const GetOrganizationNameByIdDocument = gql`
   query GetOrganizationNameByID($organizationId: ID!) {
@@ -27463,13 +27422,8 @@ export const GetOrganizationNameByIdDocument = gql`
   }
 `
 
-export function useGetOrganizationNameByIdQuery(
-  options: Omit<Urql.UseQueryArgs<GetOrganizationNameByIdQueryVariables>, 'query'>,
-) {
-  return Urql.useQuery<GetOrganizationNameByIdQuery, GetOrganizationNameByIdQueryVariables>({
-    query: GetOrganizationNameByIdDocument,
-    ...options,
-  })
+export function useGetOrganizationNameByIdQuery(options: Omit<Urql.UseQueryArgs<GetOrganizationNameByIdQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetOrganizationNameByIdQuery, GetOrganizationNameByIdQueryVariables>({ query: GetOrganizationNameByIdDocument, ...options })
 }
 export const GetSingleOrganizationMembersDocument = gql`
   query GetSingleOrganizationMembers($organizationId: ID!) {
@@ -27497,13 +27451,8 @@ export const GetSingleOrganizationMembersDocument = gql`
   }
 `
 
-export function useGetSingleOrganizationMembersQuery(
-  options: Omit<Urql.UseQueryArgs<GetSingleOrganizationMembersQueryVariables>, 'query'>,
-) {
-  return Urql.useQuery<GetSingleOrganizationMembersQuery, GetSingleOrganizationMembersQueryVariables>({
-    query: GetSingleOrganizationMembersDocument,
-    ...options,
-  })
+export function useGetSingleOrganizationMembersQuery(options: Omit<Urql.UseQueryArgs<GetSingleOrganizationMembersQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetSingleOrganizationMembersQuery, GetSingleOrganizationMembersQueryVariables>({ query: GetSingleOrganizationMembersDocument, ...options })
 }
 export const GetAllOrganizationsWithMembersDocument = gql`
   query GetAllOrganizationsWithMembers {
@@ -27528,13 +27477,8 @@ export const GetAllOrganizationsWithMembersDocument = gql`
   }
 `
 
-export function useGetAllOrganizationsWithMembersQuery(
-  options?: Omit<Urql.UseQueryArgs<GetAllOrganizationsWithMembersQueryVariables>, 'query'>,
-) {
-  return Urql.useQuery<GetAllOrganizationsWithMembersQuery, GetAllOrganizationsWithMembersQueryVariables>({
-    query: GetAllOrganizationsWithMembersDocument,
-    ...options,
-  })
+export function useGetAllOrganizationsWithMembersQuery(options?: Omit<Urql.UseQueryArgs<GetAllOrganizationsWithMembersQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetAllOrganizationsWithMembersQuery, GetAllOrganizationsWithMembersQueryVariables>({ query: GetAllOrganizationsWithMembersDocument, ...options })
 }
 export const GetInvitesDocument = gql`
   query GetInvites {
@@ -27574,13 +27518,8 @@ export const GetOrganizationBillingDocument = gql`
   }
 `
 
-export function useGetOrganizationBillingQuery(
-  options: Omit<Urql.UseQueryArgs<GetOrganizationBillingQueryVariables>, 'query'>,
-) {
-  return Urql.useQuery<GetOrganizationBillingQuery, GetOrganizationBillingQueryVariables>({
-    query: GetOrganizationBillingDocument,
-    ...options,
-  })
+export function useGetOrganizationBillingQuery(options: Omit<Urql.UseQueryArgs<GetOrganizationBillingQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetOrganizationBillingQuery, GetOrganizationBillingQueryVariables>({ query: GetOrganizationBillingDocument, ...options })
 }
 export const GetOrganizationSettingDocument = gql`
   query getOrganizationSetting($organizationId: ID!) {
@@ -27604,13 +27543,8 @@ export const GetOrganizationSettingDocument = gql`
   }
 `
 
-export function useGetOrganizationSettingQuery(
-  options: Omit<Urql.UseQueryArgs<GetOrganizationSettingQueryVariables>, 'query'>,
-) {
-  return Urql.useQuery<GetOrganizationSettingQuery, GetOrganizationSettingQueryVariables>({
-    query: GetOrganizationSettingDocument,
-    ...options,
-  })
+export function useGetOrganizationSettingQuery(options: Omit<Urql.UseQueryArgs<GetOrganizationSettingQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetOrganizationSettingQuery, GetOrganizationSettingQueryVariables>({ query: GetOrganizationSettingDocument, ...options })
 }
 export const GetBillingEmailDocument = gql`
   query getBillingEmail($organizationId: ID!) {
@@ -27623,10 +27557,7 @@ export const GetBillingEmailDocument = gql`
 `
 
 export function useGetBillingEmailQuery(options: Omit<Urql.UseQueryArgs<GetBillingEmailQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetBillingEmailQuery, GetBillingEmailQueryVariables>({
-    query: GetBillingEmailDocument,
-    ...options,
-  })
+  return Urql.useQuery<GetBillingEmailQuery, GetBillingEmailQueryVariables>({ query: GetBillingEmailDocument, ...options })
 }
 export const CreateOrganizationDocument = gql`
   mutation CreateOrganization($input: CreateOrganizationInput!) {
@@ -27676,9 +27607,7 @@ export const DeleteOrganizationInviteDocument = gql`
 `
 
 export function useDeleteOrganizationInviteMutation() {
-  return Urql.useMutation<DeleteOrganizationInviteMutation, DeleteOrganizationInviteMutationVariables>(
-    DeleteOrganizationInviteDocument,
-  )
+  return Urql.useMutation<DeleteOrganizationInviteMutation, DeleteOrganizationInviteMutationVariables>(DeleteOrganizationInviteDocument)
 }
 export const DeleteOrganizationDocument = gql`
   mutation DeleteOrganization($deleteOrganizationId: ID!) {
@@ -27702,9 +27631,7 @@ export const CreatePersonalAccessTokenDocument = gql`
 `
 
 export function useCreatePersonalAccessTokenMutation() {
-  return Urql.useMutation<CreatePersonalAccessTokenMutation, CreatePersonalAccessTokenMutationVariables>(
-    CreatePersonalAccessTokenDocument,
-  )
+  return Urql.useMutation<CreatePersonalAccessTokenMutation, CreatePersonalAccessTokenMutationVariables>(CreatePersonalAccessTokenDocument)
 }
 export const GetPersonalAccessTokensDocument = gql`
   query GetPersonalAccessTokens {
@@ -27725,13 +27652,8 @@ export const GetPersonalAccessTokensDocument = gql`
   }
 `
 
-export function useGetPersonalAccessTokensQuery(
-  options?: Omit<Urql.UseQueryArgs<GetPersonalAccessTokensQueryVariables>, 'query'>,
-) {
-  return Urql.useQuery<GetPersonalAccessTokensQuery, GetPersonalAccessTokensQueryVariables>({
-    query: GetPersonalAccessTokensDocument,
-    ...options,
-  })
+export function useGetPersonalAccessTokensQuery(options?: Omit<Urql.UseQueryArgs<GetPersonalAccessTokensQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetPersonalAccessTokensQuery, GetPersonalAccessTokensQueryVariables>({ query: GetPersonalAccessTokensDocument, ...options })
 }
 export const DeletePersonalAccessTokenDocument = gql`
   mutation DeletePersonalAccessToken($deletePersonalAccessTokenId: ID!) {
@@ -27742,9 +27664,7 @@ export const DeletePersonalAccessTokenDocument = gql`
 `
 
 export function useDeletePersonalAccessTokenMutation() {
-  return Urql.useMutation<DeletePersonalAccessTokenMutation, DeletePersonalAccessTokenMutationVariables>(
-    DeletePersonalAccessTokenDocument,
-  )
+  return Urql.useMutation<DeletePersonalAccessTokenMutation, DeletePersonalAccessTokenMutationVariables>(DeletePersonalAccessTokenDocument)
 }
 export const CreateInternalPolicyDocument = gql`
   mutation CreateInternalPolicy($input: CreateInternalPolicyInput!) {
@@ -27763,9 +27683,7 @@ export const CreateInternalPolicyDocument = gql`
 `
 
 export function useCreateInternalPolicyMutation() {
-  return Urql.useMutation<CreateInternalPolicyMutation, CreateInternalPolicyMutationVariables>(
-    CreateInternalPolicyDocument,
-  )
+  return Urql.useMutation<CreateInternalPolicyMutation, CreateInternalPolicyMutationVariables>(CreateInternalPolicyDocument)
 }
 export const UpdateInternalPolicyDocument = gql`
   mutation UpdateInternalPolicy($updateInternalPolicyId: ID!, $input: UpdateInternalPolicyInput!) {
@@ -27779,9 +27697,7 @@ export const UpdateInternalPolicyDocument = gql`
 `
 
 export function useUpdateInternalPolicyMutation() {
-  return Urql.useMutation<UpdateInternalPolicyMutation, UpdateInternalPolicyMutationVariables>(
-    UpdateInternalPolicyDocument,
-  )
+  return Urql.useMutation<UpdateInternalPolicyMutation, UpdateInternalPolicyMutationVariables>(UpdateInternalPolicyDocument)
 }
 export const DeleteInternalPolicyDocument = gql`
   mutation DeleteInternalPolicy($deleteInternalPolicyId: ID!) {
@@ -27792,9 +27708,7 @@ export const DeleteInternalPolicyDocument = gql`
 `
 
 export function useDeleteInternalPolicyMutation() {
-  return Urql.useMutation<DeleteInternalPolicyMutation, DeleteInternalPolicyMutationVariables>(
-    DeleteInternalPolicyDocument,
-  )
+  return Urql.useMutation<DeleteInternalPolicyMutation, DeleteInternalPolicyMutationVariables>(DeleteInternalPolicyDocument)
 }
 export const GetAllInternalPoliciesWithDetailsDocument = gql`
   query GetAllInternalPoliciesWithDetails {
@@ -27820,13 +27734,8 @@ export const GetAllInternalPoliciesWithDetailsDocument = gql`
   }
 `
 
-export function useGetAllInternalPoliciesWithDetailsQuery(
-  options?: Omit<Urql.UseQueryArgs<GetAllInternalPoliciesWithDetailsQueryVariables>, 'query'>,
-) {
-  return Urql.useQuery<GetAllInternalPoliciesWithDetailsQuery, GetAllInternalPoliciesWithDetailsQueryVariables>({
-    query: GetAllInternalPoliciesWithDetailsDocument,
-    ...options,
-  })
+export function useGetAllInternalPoliciesWithDetailsQuery(options?: Omit<Urql.UseQueryArgs<GetAllInternalPoliciesWithDetailsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetAllInternalPoliciesWithDetailsQuery, GetAllInternalPoliciesWithDetailsQueryVariables>({ query: GetAllInternalPoliciesWithDetailsDocument, ...options })
 }
 export const GetInternalPoliciesListDocument = gql`
   query GetInternalPoliciesList {
@@ -27849,13 +27758,8 @@ export const GetInternalPoliciesListDocument = gql`
   }
 `
 
-export function useGetInternalPoliciesListQuery(
-  options?: Omit<Urql.UseQueryArgs<GetInternalPoliciesListQueryVariables>, 'query'>,
-) {
-  return Urql.useQuery<GetInternalPoliciesListQuery, GetInternalPoliciesListQueryVariables>({
-    query: GetInternalPoliciesListDocument,
-    ...options,
-  })
+export function useGetInternalPoliciesListQuery(options?: Omit<Urql.UseQueryArgs<GetInternalPoliciesListQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetInternalPoliciesListQuery, GetInternalPoliciesListQueryVariables>({ query: GetInternalPoliciesListDocument, ...options })
 }
 export const GetAllInternalPoliciesDocument = gql`
   query GetAllInternalPolicies {
@@ -27870,13 +27774,8 @@ export const GetAllInternalPoliciesDocument = gql`
   }
 `
 
-export function useGetAllInternalPoliciesQuery(
-  options?: Omit<Urql.UseQueryArgs<GetAllInternalPoliciesQueryVariables>, 'query'>,
-) {
-  return Urql.useQuery<GetAllInternalPoliciesQuery, GetAllInternalPoliciesQueryVariables>({
-    query: GetAllInternalPoliciesDocument,
-    ...options,
-  })
+export function useGetAllInternalPoliciesQuery(options?: Omit<Urql.UseQueryArgs<GetAllInternalPoliciesQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetAllInternalPoliciesQuery, GetAllInternalPoliciesQueryVariables>({ query: GetAllInternalPoliciesDocument, ...options })
 }
 export const GetInternalPolicyDetailsByIdDocument = gql`
   query GetInternalPolicyDetailsById($internalPolicyId: ID!) {
@@ -27891,13 +27790,8 @@ export const GetInternalPolicyDetailsByIdDocument = gql`
   ${InternalPolicyByIdFragmentDoc}
 `
 
-export function useGetInternalPolicyDetailsByIdQuery(
-  options: Omit<Urql.UseQueryArgs<GetInternalPolicyDetailsByIdQueryVariables>, 'query'>,
-) {
-  return Urql.useQuery<GetInternalPolicyDetailsByIdQuery, GetInternalPolicyDetailsByIdQueryVariables>({
-    query: GetInternalPolicyDetailsByIdDocument,
-    ...options,
-  })
+export function useGetInternalPolicyDetailsByIdQuery(options: Omit<Urql.UseQueryArgs<GetInternalPolicyDetailsByIdQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetInternalPolicyDetailsByIdQuery, GetInternalPolicyDetailsByIdQueryVariables>({ query: GetInternalPolicyDetailsByIdDocument, ...options })
 }
 export const CreateProcedureDocument = gql`
   mutation CreateProcedure($input: CreateProcedureInput!) {
@@ -27952,13 +27846,8 @@ export const GetAllProceduresWithDetailsDocument = gql`
   }
 `
 
-export function useGetAllProceduresWithDetailsQuery(
-  options?: Omit<Urql.UseQueryArgs<GetAllProceduresWithDetailsQueryVariables>, 'query'>,
-) {
-  return Urql.useQuery<GetAllProceduresWithDetailsQuery, GetAllProceduresWithDetailsQueryVariables>({
-    query: GetAllProceduresWithDetailsDocument,
-    ...options,
-  })
+export function useGetAllProceduresWithDetailsQuery(options?: Omit<Urql.UseQueryArgs<GetAllProceduresWithDetailsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetAllProceduresWithDetailsQuery, GetAllProceduresWithDetailsQueryVariables>({ query: GetAllProceduresWithDetailsDocument, ...options })
 }
 export const GetAllProceduresDocument = gql`
   query GetAllProcedures {
@@ -27974,10 +27863,7 @@ export const GetAllProceduresDocument = gql`
 `
 
 export function useGetAllProceduresQuery(options?: Omit<Urql.UseQueryArgs<GetAllProceduresQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllProceduresQuery, GetAllProceduresQueryVariables>({
-    query: GetAllProceduresDocument,
-    ...options,
-  })
+  return Urql.useQuery<GetAllProceduresQuery, GetAllProceduresQueryVariables>({ query: GetAllProceduresDocument, ...options })
 }
 export const GetProcedureDetailsByIdDocument = gql`
   query GetProcedureDetailsById($procedureId: ID!) {
@@ -28005,13 +27891,8 @@ export const GetProcedureDetailsByIdDocument = gql`
   }
 `
 
-export function useGetProcedureDetailsByIdQuery(
-  options: Omit<Urql.UseQueryArgs<GetProcedureDetailsByIdQueryVariables>, 'query'>,
-) {
-  return Urql.useQuery<GetProcedureDetailsByIdQuery, GetProcedureDetailsByIdQueryVariables>({
-    query: GetProcedureDetailsByIdDocument,
-    ...options,
-  })
+export function useGetProcedureDetailsByIdQuery(options: Omit<Urql.UseQueryArgs<GetProcedureDetailsByIdQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetProcedureDetailsByIdQuery, GetProcedureDetailsByIdQueryVariables>({ query: GetProcedureDetailsByIdDocument, ...options })
 }
 export const CreateProgramWithMembersDocument = gql`
   mutation CreateProgramWithMembers($input: CreateProgramWithMembersInput!) {
@@ -28025,9 +27906,7 @@ export const CreateProgramWithMembersDocument = gql`
 `
 
 export function useCreateProgramWithMembersMutation() {
-  return Urql.useMutation<CreateProgramWithMembersMutation, CreateProgramWithMembersMutationVariables>(
-    CreateProgramWithMembersDocument,
-  )
+  return Urql.useMutation<CreateProgramWithMembersMutation, CreateProgramWithMembersMutationVariables>(CreateProgramWithMembersDocument)
 }
 export const UpdateProgramDocument = gql`
   mutation UpdateProgram($updateProgramId: ID!, $input: UpdateProgramInput!) {
@@ -28044,8 +27923,8 @@ export function useUpdateProgramMutation() {
   return Urql.useMutation<UpdateProgramMutation, UpdateProgramMutationVariables>(UpdateProgramDocument)
 }
 export const GetAllProgramsDocument = gql`
-  query GetAllPrograms {
-    programs {
+  query GetAllPrograms($where: ProgramWhereInput) {
+    programs(where: $where) {
       edges {
         node {
           id
@@ -28056,6 +27935,7 @@ export const GetAllProgramsDocument = gql`
           startDate
           endDate
           auditorReady
+          displayID
         }
       }
     }
@@ -28115,13 +27995,8 @@ export const GetProgramEdgesForWizardDocument = gql`
   }
 `
 
-export function useGetProgramEdgesForWizardQuery(
-  options?: Omit<Urql.UseQueryArgs<GetProgramEdgesForWizardQueryVariables>, 'query'>,
-) {
-  return Urql.useQuery<GetProgramEdgesForWizardQuery, GetProgramEdgesForWizardQueryVariables>({
-    query: GetProgramEdgesForWizardDocument,
-    ...options,
-  })
+export function useGetProgramEdgesForWizardQuery(options?: Omit<Urql.UseQueryArgs<GetProgramEdgesForWizardQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetProgramEdgesForWizardQuery, GetProgramEdgesForWizardQueryVariables>({ query: GetProgramEdgesForWizardDocument, ...options })
 }
 export const GetProgramDetailsByIdDocument = gql`
   query GetProgramDetailsById($programId: ID!) {
@@ -28189,13 +28064,8 @@ export const GetProgramDetailsByIdDocument = gql`
   }
 `
 
-export function useGetProgramDetailsByIdQuery(
-  options: Omit<Urql.UseQueryArgs<GetProgramDetailsByIdQueryVariables>, 'query'>,
-) {
-  return Urql.useQuery<GetProgramDetailsByIdQuery, GetProgramDetailsByIdQueryVariables>({
-    query: GetProgramDetailsByIdDocument,
-    ...options,
-  })
+export function useGetProgramDetailsByIdQuery(options: Omit<Urql.UseQueryArgs<GetProgramDetailsByIdQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetProgramDetailsByIdQuery, GetProgramDetailsByIdQueryVariables>({ query: GetProgramDetailsByIdDocument, ...options })
 }
 export const GetAllRisksDocument = gql`
   query GetAllRisks {
@@ -28318,10 +28188,7 @@ export const GetAllSubscribersDocument = gql`
 `
 
 export function useGetAllSubscribersQuery(options?: Omit<Urql.UseQueryArgs<GetAllSubscribersQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllSubscribersQuery, GetAllSubscribersQueryVariables>({
-    query: GetAllSubscribersDocument,
-    ...options,
-  })
+  return Urql.useQuery<GetAllSubscribersQuery, GetAllSubscribersQueryVariables>({ query: GetAllSubscribersDocument, ...options })
 }
 export const DeleteSubscriberDocument = gql`
   mutation DeleteSubscriber($deleteSubscriberEmail: String!) {
@@ -28353,10 +28220,7 @@ export const TasksWithFilterDocument = gql`
 `
 
 export function useTasksWithFilterQuery(options?: Omit<Urql.UseQueryArgs<TasksWithFilterQueryVariables>, 'query'>) {
-  return Urql.useQuery<TasksWithFilterQuery, TasksWithFilterQueryVariables>({
-    query: TasksWithFilterDocument,
-    ...options,
-  })
+  return Urql.useQuery<TasksWithFilterQuery, TasksWithFilterQueryVariables>({ query: TasksWithFilterDocument, ...options })
 }
 export const CreateTemplateDocument = gql`
   mutation CreateTemplate($input: CreateTemplateInput!) {
@@ -28420,10 +28284,7 @@ export const GetAllTemplatesDocument = gql`
 `
 
 export function useGetAllTemplatesQuery(options?: Omit<Urql.UseQueryArgs<GetAllTemplatesQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllTemplatesQuery, GetAllTemplatesQueryVariables>({
-    query: GetAllTemplatesDocument,
-    ...options,
-  })
+  return Urql.useQuery<GetAllTemplatesQuery, GetAllTemplatesQueryVariables>({ query: GetAllTemplatesDocument, ...options })
 }
 export const FilterTemplatesDocument = gql`
   query FilterTemplates($where: TemplateWhereInput) {
@@ -28445,10 +28306,7 @@ export const FilterTemplatesDocument = gql`
 `
 
 export function useFilterTemplatesQuery(options?: Omit<Urql.UseQueryArgs<FilterTemplatesQueryVariables>, 'query'>) {
-  return Urql.useQuery<FilterTemplatesQuery, FilterTemplatesQueryVariables>({
-    query: FilterTemplatesDocument,
-    ...options,
-  })
+  return Urql.useQuery<FilterTemplatesQuery, FilterTemplatesQueryVariables>({ query: FilterTemplatesDocument, ...options })
 }
 export const GetTemplateDocument = gql`
   query GetTemplate($getTemplateId: ID!) {
@@ -28504,13 +28362,8 @@ export const GetUserTfaSettingsDocument = gql`
   }
 `
 
-export function useGetUserTfaSettingsQuery(
-  options: Omit<Urql.UseQueryArgs<GetUserTfaSettingsQueryVariables>, 'query'>,
-) {
-  return Urql.useQuery<GetUserTfaSettingsQuery, GetUserTfaSettingsQueryVariables>({
-    query: GetUserTfaSettingsDocument,
-    ...options,
-  })
+export function useGetUserTfaSettingsQuery(options: Omit<Urql.UseQueryArgs<GetUserTfaSettingsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetUserTfaSettingsQuery, GetUserTfaSettingsQueryVariables>({ query: GetUserTfaSettingsDocument, ...options })
 }
 export const UpdateTfaSettingDocument = gql`
   mutation UpdateTFASetting($input: UpdateTFASettingInput!) {

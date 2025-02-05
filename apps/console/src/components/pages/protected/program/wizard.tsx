@@ -215,6 +215,7 @@ const ProgramWizard = () => {
                 <AccordionItem
                   key={step.id}
                   value={step.id}
+                  // @ts-ignore
                   className={`${index - 1 < stepper.current.index ? 'rounded-md font-bold hover:bg-teal-200 bg-button-muted h-1/3' : 'bg-background-secondary text-text'}`}
                 >
                   <li key={step.id} className={linkItem()}>
@@ -239,6 +240,7 @@ const ProgramWizard = () => {
                       </span>
                     </Link>
                   </li>
+                  {/* @ts-ignore */}
                   {index < array.length - 1 && <Separator full className={`flex-1 mx-0 ${index < stepper.current.index ? 'bg-primary' : 'bg-muted mx-0'}`} />}
                 </AccordionItem>
               ))}
