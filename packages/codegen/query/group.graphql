@@ -109,3 +109,38 @@ query GetGroupPermissions($groupId: ID!) {
     }
   }
 }
+
+# example for creating a group with other groups members
+# mutation CreateGroupOptionalClone($groupInput: CreateGroupInput!, $inheritGroupPermissions: ID, $cloneGroupMembers: ID) {
+#   createGroupByClone(groupInput: $groupInput, inheritGroupPermissions: $inheritGroupPermissions, cloneGroupMembers: $cloneGroupMembers) {
+#     group {
+#       id
+#       name
+#       displayName
+#       displayID
+#       permissions {
+#         id
+#         displayID
+#         name
+#         objectType
+#         permissions
+#       }
+#       members {
+#         id
+#         user {
+#           firstName
+#           lastName
+#           id
+#         }
+#       }
+#     }
+#   }
+# }
+
+# {
+#   "groupInput": {
+#     "name": "Test 1",
+#   },
+#   "inheritGroupPermissions": "01JK9HSDCMSS6SR6J819SQXQTE",
+#   "cloneGroupMembers": "01JK9HSDCMSS6SR6J819SQXQTE"
+# }
