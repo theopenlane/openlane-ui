@@ -17,9 +17,11 @@ export const UpdateInternalPolicyValidator = z.object({
   description: z.string(),
   policyType: z.string(),
   purposeAndScope: z.string(),
-  details: z.object({
-    content: z.array(z.object({ id: z.string(), type: z.string(), children: z.array(z.object({ text: z.string() })) })),
-  }),
+  details: z.nullable(
+    z.object({
+      content: z.array(z.object({ id: z.string(), type: z.string(), children: z.array(z.object({ text: z.string() })) })),
+    }),
+  ),
 })
 
 type PolicyPageProps = {
@@ -27,7 +29,7 @@ type PolicyPageProps = {
 }
 
 export function PolicyPage({ policyId }: PolicyPageProps) {
-  const [{ error: updateError }, updatePolicy] = useUpdateInternalPolicyMutation()
+  const [, updatePolicy] = useUpdateInternalPolicyMutation()
   const [{ data }] = useGetInternalPolicyDetailsByIdQuery({ variables: { internalPolicyId: policyId } })
   const [{ data: deleteData }] = useDeleteInternalPolicyMutation()
   const [policy, setPolicy] = useState({} as InternalPolicyUpdateFieldsFragment)
@@ -36,8 +38,6 @@ export function PolicyPage({ policyId }: PolicyPageProps) {
     if (!data?.internalPolicy) return
     setPolicy(data.internalPolicy)
   }, [data])
-
-  const policyValidity = UpdateInternalPolicyValidator.safeParse(data?.internalPolicy)
 
   const setField = (field: EditableField, value: string) => {
     setPolicy({ ...policy, [field]: value })
@@ -59,11 +59,17 @@ export function PolicyPage({ policyId }: PolicyPageProps) {
     UpdateInternalPolicyValidator.parse(input)
 
     updatePolicy({ updateInternalPolicyId, input })
+
+    // TODO: handle error reporting
   }
 
-  const handleDelete = () => {}
+  const handleDelete = () => {
+    // TODO: wire this up to a delete button and api call with confirmation dialog
+  }
 
-  const onNameChange = (name: string) => {}
+  const onNameChange = useCallback((name: string) => {
+    setPolicy({ ...policy, name })
+  }, [])
 
   const onDocumentChange = useCallback((content: TElement[]) => {
     setPolicy({ ...policy, details: { content } })
@@ -73,7 +79,7 @@ export function PolicyPage({ policyId }: PolicyPageProps) {
 
   return (
     <>
-      <PageHeading className="grow" eyebrow="Policies & Procedures" heading={data.internalPolicy.name} editable onChange={onNameChange} />
+      <PageHeading className="grow" eyebrow="Policies & Procedures" heading={policy.name} editable onChange={onNameChange} />
 
       <PolicyInfoBar policy={policy} handleSave={saveCurrentPolicy} />
 
