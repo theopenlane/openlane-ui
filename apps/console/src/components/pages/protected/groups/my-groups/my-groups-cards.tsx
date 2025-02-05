@@ -43,7 +43,7 @@ const MyGroupsCard = () => {
   }
 
   return (
-    <div className="space-y-4 mt-5">
+    <div className="space-y-4 mt-5 flex flex-wrap gap-7">
       {transformedData.length > 0 ? (
         transformedData.map((group) => (
           <Card key={group.id} className="w-full max-w-md cursor-pointer" onClick={() => handleRowClick(group as Group)}>
