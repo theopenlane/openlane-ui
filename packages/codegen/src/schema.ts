@@ -26433,6 +26433,17 @@ export type CreateInternalPolicyMutation = {
   }
 }
 
+export type InternalPolicyUpdateFieldsFragment = {
+  __typename?: 'InternalPolicy'
+  id: string
+  name: string
+  background?: string | null
+  description?: string | null
+  policyType?: string | null
+  purposeAndScope?: string | null
+  details?: any | null
+}
+
 export type UpdateInternalPolicyMutationVariables = Exact<{
   updateInternalPolicyId: Scalars['ID']['input']
   input: UpdateInternalPolicyInput
@@ -26454,6 +26465,12 @@ export type UpdateInternalPolicyMutation = {
     }
   }
 }
+
+export type DeleteInternalPolicyMutationVariables = Exact<{
+  deleteInternalPolicyId: Scalars['ID']['input']
+}>
+
+export type DeleteInternalPolicyMutation = { __typename?: 'Mutation'; deleteInternalPolicy: { __typename?: 'InternalPolicyDeletePayload'; deletedID: string } }
 
 export type GetAllInternalPoliciesWithDetailsQueryVariables = Exact<{ [key: string]: never }>
 
@@ -26516,6 +26533,25 @@ export type GetAllInternalPoliciesQuery = {
     __typename?: 'InternalPolicyConnection'
     edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
   }
+}
+
+export type InternalPolicyByIdFragment = {
+  __typename?: 'InternalPolicy'
+  id: string
+  name: string
+  description?: string | null
+  details?: any | null
+  background?: string | null
+  createdAt?: any | null
+  createdBy?: string | null
+  updatedAt?: any | null
+  updatedBy?: string | null
+  tags?: Array<string> | null
+  version?: string | null
+  status?: string | null
+  purposeAndScope?: string | null
+  policyType?: string | null
+  procedures?: Array<{ __typename?: 'Procedure'; id: string; name: string }> | null
 }
 
 export type GetInternalPolicyDetailsByIdQueryVariables = Exact<{
@@ -27003,6 +27039,39 @@ export type UpdateUserSettingMutationVariables = Exact<{
 
 export type UpdateUserSettingMutation = { __typename?: 'Mutation'; updateUserSetting: { __typename?: 'UserSettingUpdatePayload'; userSetting: { __typename?: 'UserSetting'; id: string } } }
 
+export const InternalPolicyUpdateFieldsFragmentDoc = gql`
+  fragment InternalPolicyUpdateFields on InternalPolicy {
+    id
+    name
+    background
+    description
+    policyType
+    purposeAndScope
+    details
+  }
+`
+export const InternalPolicyByIdFragmentDoc = gql`
+  fragment InternalPolicyByID on InternalPolicy {
+    id
+    name
+    description
+    details
+    background
+    createdAt
+    createdBy
+    updatedAt
+    updatedBy
+    tags
+    version
+    status
+    purposeAndScope
+    policyType
+    procedures {
+      id
+      name
+    }
+  }
+`
 export const CreateApiTokenDocument = gql`
   mutation CreateAPIToken($input: CreateAPITokenInput!) {
     createAPIToken(input: $input) {
@@ -27620,20 +27689,26 @@ export const UpdateInternalPolicyDocument = gql`
   mutation UpdateInternalPolicy($updateInternalPolicyId: ID!, $input: UpdateInternalPolicyInput!) {
     updateInternalPolicy(id: $updateInternalPolicyId, input: $input) {
       internalPolicy {
-        id
-        name
-        background
-        description
-        policyType
-        purposeAndScope
-        details
+        ...InternalPolicyUpdateFields
       }
     }
   }
+  ${InternalPolicyUpdateFieldsFragmentDoc}
 `
 
 export function useUpdateInternalPolicyMutation() {
   return Urql.useMutation<UpdateInternalPolicyMutation, UpdateInternalPolicyMutationVariables>(UpdateInternalPolicyDocument)
+}
+export const DeleteInternalPolicyDocument = gql`
+  mutation DeleteInternalPolicy($deleteInternalPolicyId: ID!) {
+    deleteInternalPolicy(id: $deleteInternalPolicyId) {
+      deletedID
+    }
+  }
+`
+
+export function useDeleteInternalPolicyMutation() {
+  return Urql.useMutation<DeleteInternalPolicyMutation, DeleteInternalPolicyMutationVariables>(DeleteInternalPolicyDocument)
 }
 export const GetAllInternalPoliciesWithDetailsDocument = gql`
   query GetAllInternalPoliciesWithDetails {
@@ -27705,26 +27780,14 @@ export function useGetAllInternalPoliciesQuery(options?: Omit<Urql.UseQueryArgs<
 export const GetInternalPolicyDetailsByIdDocument = gql`
   query GetInternalPolicyDetailsById($internalPolicyId: ID!) {
     internalPolicy(id: $internalPolicyId) {
-      id
-      name
-      description
-      details
-      background
-      createdAt
-      createdBy
-      updatedAt
-      updatedBy
-      tags
-      version
-      status
-      purposeAndScope
-      policyType
+      ...InternalPolicyByID
       procedures {
         id
         name
       }
     }
   }
+  ${InternalPolicyByIdFragmentDoc}
 `
 
 export function useGetInternalPolicyDetailsByIdQuery(options: Omit<Urql.UseQueryArgs<GetInternalPolicyDetailsByIdQueryVariables>, 'query'>) {
