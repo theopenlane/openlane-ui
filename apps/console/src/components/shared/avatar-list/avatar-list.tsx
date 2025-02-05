@@ -52,8 +52,8 @@ const AvatarList = ({ data, max = 10 }: AvatarListProps) => {
           </PopoverTrigger>
 
           <PopoverContent onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} className="max-h-80 overflow-y-auto w-60  bg-background-secondary shadow-md rounded-md border">
-            {visibleAvatars.map(({ id, firstName, lastName, fallback }, index) => (
-              <div key={id} className={`flex items-center gap-2 p-2 ${index !== visibleAvatars.length - 1 ? 'border-b' : ''}`}>
+            {hiddenAvatars.map(({ id, firstName, lastName, fallback }, index) => (
+              <div key={id} className={`flex items-center gap-2 p-2 ${index !== hiddenAvatars.length - 1 ? 'border-b' : ''}`}>
                 <Avatar className="w-5 h-5">
                   <AvatarFallback>{fallback}</AvatarFallback>
                 </Avatar>
