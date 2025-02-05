@@ -11,8 +11,6 @@ type PolicyInfoBarProps = {
 }
 
 export const PolicyInfoBar: React.FC<PolicyInfoBarProps> = React.memo(({ policy, handleSave }) => {
-  console.log('PolicyInfoBar', { policy })
-
   const { success: isValid, error: validationMessage } = UpdateInternalPolicyValidator.safeParse(policy)
 
   return (
@@ -20,11 +18,7 @@ export const PolicyInfoBar: React.FC<PolicyInfoBarProps> = React.memo(({ policy,
       <InfoPanelSection heading="Status">{policy.status}</InfoPanelSection>
       <InfoPanelSection heading="Version">{policy.version}</InfoPanelSection>
       <InfoPanelSection heading="Policy Type">{policy.policyType}</InfoPanelSection>
-      {policy.updatedAt && (
-        <InfoPanelSection heading="Last Updated">
-          {!!policy.updatedAt && formatRelative(policy.updatedAt, new Date())}
-        </InfoPanelSection>
-      )}
+      {policy.updatedAt && <InfoPanelSection heading="Last Updated">{!!policy.updatedAt && formatRelative(policy.updatedAt, new Date())}</InfoPanelSection>}
 
       <Button disabled={!isValid} onClick={handleSave}>
         Save

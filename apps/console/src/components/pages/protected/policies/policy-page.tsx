@@ -4,11 +4,7 @@ import { PolicyInfoBar } from '@/components/pages/protected/policies/policy-info
 import { PolicySidebar } from '@/components/pages/protected/policies/policy-sidebar'
 import dynamic from 'next/dynamic'
 import { TElement } from '@udecode/plate-common'
-import {
-  useGetInternalPolicyDetailsByIdQuery,
-  useUpdateInternalPolicyMutation,
-  useDeleteInternalPolicyMutation,
-} from '@repo/codegen/src/schema'
+import { useGetInternalPolicyDetailsByIdQuery, useUpdateInternalPolicyMutation, useDeleteInternalPolicyMutation } from '@repo/codegen/src/schema'
 import type { InternalPolicyByIdFragment, InternalPolicyUpdateFieldsFragment } from '@repo/codegen/src/schema'
 const PlateEditor = dynamic(() => import('@/components/shared/editor/plate'), { ssr: false })
 import { z } from 'zod'
@@ -31,15 +27,12 @@ type PolicyPageProps = {
 }
 
 export function PolicyPage({ policyId }: PolicyPageProps) {
-  console.log('PolicyPage: render')
-
   const [{ error: updateError }, updatePolicy] = useUpdateInternalPolicyMutation()
   const [{ data }] = useGetInternalPolicyDetailsByIdQuery({ variables: { internalPolicyId: policyId } })
   const [{ data: deleteData }] = useDeleteInternalPolicyMutation()
   const [policy, setPolicy] = useState({} as InternalPolicyUpdateFieldsFragment)
 
   useEffect(() => {
-    console.log('PolicyPage: useEffect: setPolicy(data?.internalPolicy)', data)
     if (!data?.internalPolicy) return
     setPolicy(data.internalPolicy)
   }, [data])
@@ -47,7 +40,6 @@ export function PolicyPage({ policyId }: PolicyPageProps) {
   const policyValidity = UpdateInternalPolicyValidator.safeParse(data?.internalPolicy)
 
   const setField = (field: EditableField, value: string) => {
-    console.log('setField', field, value)
     setPolicy({ ...policy, [field]: value })
   }
 
@@ -66,21 +58,14 @@ export function PolicyPage({ policyId }: PolicyPageProps) {
     // check that we're valid
     UpdateInternalPolicyValidator.parse(input)
 
-    console.log('PolicyPage: saveCurrentPolicy', { updateInternalPolicyId, input })
-
     updatePolicy({ updateInternalPolicyId, input })
   }
 
-  const handleDelete = () => {
-    console.log('handleDelete')
-  }
+  const handleDelete = () => {}
 
-  const onNameChange = (name: string) => {
-    console.log('onNameChange', name)
-  }
+  const onNameChange = (name: string) => {}
 
   const onDocumentChange = useCallback((content: TElement[]) => {
-    console.log('onDocumentChange', name)
     setPolicy({ ...policy, details: { content } })
   }, [])
 
@@ -88,13 +73,7 @@ export function PolicyPage({ policyId }: PolicyPageProps) {
 
   return (
     <>
-      <PageHeading
-        className="grow"
-        eyebrow="Policies & Procedures"
-        heading={data.internalPolicy.name}
-        editable
-        onChange={onNameChange}
-      />
+      <PageHeading className="grow" eyebrow="Policies & Procedures" heading={data.internalPolicy.name} editable onChange={onNameChange} />
 
       <PolicyInfoBar policy={policy} handleSave={saveCurrentPolicy} />
 

@@ -24,7 +24,6 @@ type Props = {
 }
 
 export default memo(function PlateEditor({ content, onChange }: Props) {
-  console.log('PlateEditor: render', { content })
   useEffect(() => {
     if (content) {
       editor.tf.setValue(content)
@@ -32,7 +31,6 @@ export default memo(function PlateEditor({ content, onChange }: Props) {
   }, [content])
 
   const handleChange = ({ value }: { value: Value }) => {
-    console.log('PlateEditor: handleChange', value)
     if (onChange) onChange(value)
   }
 
