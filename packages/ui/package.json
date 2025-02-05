@@ -48,6 +48,7 @@
     "./switch": "./src/switch/switch.tsx",
     "./tabs": "./src/tabs/tabs.tsx",
     "./tag": "./src/tag/tag.tsx",
+    "./table": "./src/table/table.tsx",
     "./textarea": "./src/textarea.tsx",
     "./tooltip": "./src/tooltip.tsx",
     "./multiple-selector": "./src/multiple-selector/multiple-selector.tsx",

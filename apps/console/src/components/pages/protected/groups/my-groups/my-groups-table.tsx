@@ -5,13 +5,13 @@ import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import { GlobeIcon, LockIcon, StarsIcon, Users2Icon } from 'lucide-react'
 import React from 'react'
-import { TableCell, TableRow } from '../../../../../../../../packages/ui/src/table/table'
 import { myGroupsTableStyles } from './my-groups-table-styles'
 import CreateGroupDialog from '@/components/pages/protected/groups/my-groups/dialogs/create-group-dialog'
 import { GroupSettingVisibility, GroupWhereInput, useGetAllGroupsQuery } from '@repo/codegen/src/schema'
 import { Group } from '@/app/(protected)/groups/my-groups/page'
 import { useMyGroupsStore } from '@/hooks/useMyGroupsStore'
 import AvatarList from '@/components/shared/avatar-list/avatar-list'
+import { TableCell, TableRow } from '@repo/ui/table'
 
 const columns: ColumnDef<Group>[] = [
   {

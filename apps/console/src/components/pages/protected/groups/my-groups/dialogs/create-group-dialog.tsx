@@ -77,7 +77,7 @@ const CreateGroupDialog = ({ triggerText }: MyGroupsDialogProps) => {
           description: data.description,
           tags: data.tags,
           createGroupSettings: {
-            visibility: data.visibility === 'Public' ? GroupSettingVisibility.PUBLIC : GroupSettingVisibility.PUBLIC,
+            visibility: data.visibility === 'Public' ? GroupSettingVisibility.PUBLIC : GroupSettingVisibility.PRIVATE,
           },
         },
         members: data.members.map((memberId) => ({

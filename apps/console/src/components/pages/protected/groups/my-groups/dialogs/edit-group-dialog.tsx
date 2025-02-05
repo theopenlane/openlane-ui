@@ -54,8 +54,8 @@ const EditGroupDialog = () => {
     if (data) {
       setValue('groupName', name || '')
       setValue('description', description || '')
-      setValue('visibility', setting?.visibility === 'PUBLIC' ? 'Public' : 'Private')
-      setVisibility(setting?.visibility === 'PUBLIC' ? 'Public' : 'Private')
+      setValue('visibility', setting?.visibility === GroupSettingVisibility.PUBLIC ? 'Public' : 'Private')
+      setVisibility(setting?.visibility === GroupSettingVisibility.PUBLIC ? 'Public' : 'Private')
       setNewTags(tags?.map((tag) => ({ value: tag, label: tag })) || [])
     }
   }, [data])
