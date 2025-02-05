@@ -30,10 +30,7 @@ query GetAllGroups($where: GroupWhereInput) {
           syncToGithub
           id
         }
-        programCreators {
-          id
-          name
-        }
+
         programEditors {
           id
           name
@@ -59,8 +56,8 @@ query GetAllGroups($where: GroupWhereInput) {
   }
 }
 
-mutation CreateGroupWithMembers($group: CreateGroupInput!, $members: [GroupMembersInput!]) {
-  createGroupWithMembers(group: $group, members: $members) {
+mutation CreateGroupWithMembers($groupInput: CreateGroupInput!, $members: [GroupMembersInput!]) {
+  createGroupWithMembers(groupInput: $groupInput, members: $members) {
     group {
       id
       displayID
@@ -111,10 +108,7 @@ query GetGroupDetails($groupId: ID!) {
       syncToGithub
       id
     }
-    programCreators {
-      id
-      name
-    }
+
     programEditors {
       id
       name
@@ -142,6 +136,18 @@ mutation UpdateGroupMembership($updateGroupMembershipId: ID!, $input: UpdateGrou
   updateGroupMembership(id: $updateGroupMembershipId, input: $input) {
     groupMembership {
       id
+    }
+  }
+}
+
+query GetGroupPermissions($groupId: ID!) {
+  group(id: $groupId) {
+    permissions {
+      displayID
+      id
+      name
+      objectType
+      permissions
     }
   }
 }

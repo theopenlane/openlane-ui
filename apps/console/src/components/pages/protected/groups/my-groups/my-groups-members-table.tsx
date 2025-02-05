@@ -79,7 +79,6 @@ const MyGroupsMembersTable = () => {
       header: 'Role',
       cell: ({ row }) => {
         const user = row.original
-        console.log(user)
         return (
           <Select value={user.role} onValueChange={(value) => handleRoleChange(user.id, value as GroupMembershipRole)}>
             <SelectTrigger disabled={!!isManaged} className="w-28 border border-brand ">

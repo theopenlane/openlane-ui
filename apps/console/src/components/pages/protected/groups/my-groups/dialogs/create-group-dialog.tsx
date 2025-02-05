@@ -73,7 +73,7 @@ const CreateGroupDialog = ({ triggerText }: MyGroupsDialogProps) => {
     console.log('Form submitted:', data)
     try {
       await createGroup({
-        group: {
+        groupInput: {
           name: data.groupName,
           description: data.description,
           tags: data.tags,

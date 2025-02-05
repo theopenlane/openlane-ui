@@ -3613,10 +3613,8 @@ export interface CreateFullProgramInput {
  */
 export interface CreateGroupInput {
   controlBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  controlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlObjectiveBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  controlObjectiveCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlObjectiveEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlObjectiveViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -3629,36 +3627,29 @@ export interface CreateGroupInput {
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the URL to an auto generated gravatar image for the group */
   gravatarLogoURL?: InputMaybe<Scalars['String']['input']>
-  groupCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   integrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   internalPolicyBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  internalPolicyCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   internalPolicyEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the URL to an image uploaded by the customer for the groups avatar image */
   logoURL?: InputMaybe<Scalars['String']['input']>
   /** the name of the group - must be unique within the organization */
   name: Scalars['String']['input']
   narrativeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  narrativeCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   narrativeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   narrativeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   procedureBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  procedureCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   procedureEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  programCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  riskCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   settingID?: InputMaybe<Scalars['ID']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  templateCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
 /**
@@ -7681,10 +7672,8 @@ export interface FileWhereInput {
 export interface Group extends Node {
   __typename?: 'Group'
   controlBlockedGroups?: Maybe<Array<Control>>
-  controlCreators?: Maybe<Array<Organization>>
   controlEditors?: Maybe<Array<Control>>
   controlObjectiveBlockedGroups?: Maybe<Array<ControlObjective>>
-  controlObjectiveCreators?: Maybe<Array<Organization>>
   controlObjectiveEditors?: Maybe<Array<ControlObjective>>
   controlObjectiveViewers?: Maybe<Array<ControlObjective>>
   controlViewers?: Maybe<Array<Control>>
@@ -7702,11 +7691,9 @@ export interface Group extends Node {
   files?: Maybe<Array<File>>
   /** the URL to an auto generated gravatar image for the group */
   gravatarLogoURL?: Maybe<Scalars['String']['output']>
-  groupCreators?: Maybe<Array<Organization>>
   id: Scalars['ID']['output']
   integrations?: Maybe<Array<Integration>>
   internalPolicyBlockedGroups?: Maybe<Array<InternalPolicy>>
-  internalPolicyCreators?: Maybe<Array<Organization>>
   internalPolicyEditors?: Maybe<Array<InternalPolicy>>
   /** whether the group is managed by the system */
   isManaged?: Maybe<Scalars['Boolean']['output']>
@@ -7716,28 +7703,25 @@ export interface Group extends Node {
   /** the name of the group - must be unique within the organization */
   name: Scalars['String']['output']
   narrativeBlockedGroups?: Maybe<Array<Narrative>>
-  narrativeCreators?: Maybe<Array<Organization>>
   narrativeEditors?: Maybe<Array<Narrative>>
   narrativeViewers?: Maybe<Array<Narrative>>
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  /** permissions the group provides */
+  permissions?: Maybe<Array<GroupPermissions>>
   procedureBlockedGroups?: Maybe<Array<Procedure>>
-  procedureCreators?: Maybe<Array<Organization>>
   procedureEditors?: Maybe<Array<Procedure>>
   programBlockedGroups?: Maybe<Array<Program>>
-  programCreators?: Maybe<Array<Organization>>
   programEditors?: Maybe<Array<Program>>
   programViewers?: Maybe<Array<Program>>
   riskBlockedGroups?: Maybe<Array<Risk>>
-  riskCreators?: Maybe<Array<Organization>>
   riskEditors?: Maybe<Array<Risk>>
   riskViewers?: Maybe<Array<Risk>>
   setting?: Maybe<GroupSetting>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   tasks?: Maybe<Array<Task>>
-  templateCreators?: Maybe<Array<Organization>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   users?: Maybe<Array<User>>
@@ -8470,6 +8454,20 @@ export enum GroupOrderField {
   name = 'name',
 }
 
+/**
+ * GroupPermissions contains details for the related object and the permissions
+ * the group provides (or removes in the case of blocked) to the object within the
+ * organization
+ */
+export interface GroupPermissions {
+  __typename?: 'GroupPermissions'
+  displayID?: Maybe<Scalars['String']['output']>
+  id?: Maybe<Scalars['ID']['output']>
+  name?: Maybe<Scalars['String']['output']>
+  objectType: Scalars['String']['output']
+  permissions: Permission
+}
+
 export interface GroupSearchResult {
   __typename?: 'GroupSearchResult'
   groups?: Maybe<Array<Group>>
@@ -9031,18 +9029,12 @@ export interface GroupWhereInput {
   /** control_blocked_groups edge predicates */
   hasControlBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasControlBlockedGroupsWith?: InputMaybe<Array<ControlWhereInput>>
-  /** control_creators edge predicates */
-  hasControlCreators?: InputMaybe<Scalars['Boolean']['input']>
-  hasControlCreatorsWith?: InputMaybe<Array<OrganizationWhereInput>>
   /** control_editors edge predicates */
   hasControlEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasControlEditorsWith?: InputMaybe<Array<ControlWhereInput>>
   /** control_objective_blocked_groups edge predicates */
   hasControlObjectiveBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasControlObjectiveBlockedGroupsWith?: InputMaybe<Array<ControlObjectiveWhereInput>>
-  /** control_objective_creators edge predicates */
-  hasControlObjectiveCreators?: InputMaybe<Scalars['Boolean']['input']>
-  hasControlObjectiveCreatorsWith?: InputMaybe<Array<OrganizationWhereInput>>
   /** control_objective_editors edge predicates */
   hasControlObjectiveEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasControlObjectiveEditorsWith?: InputMaybe<Array<ControlObjectiveWhereInput>>
@@ -9058,18 +9050,12 @@ export interface GroupWhereInput {
   /** files edge predicates */
   hasFiles?: InputMaybe<Scalars['Boolean']['input']>
   hasFilesWith?: InputMaybe<Array<FileWhereInput>>
-  /** group_creators edge predicates */
-  hasGroupCreators?: InputMaybe<Scalars['Boolean']['input']>
-  hasGroupCreatorsWith?: InputMaybe<Array<OrganizationWhereInput>>
   /** integrations edge predicates */
   hasIntegrations?: InputMaybe<Scalars['Boolean']['input']>
   hasIntegrationsWith?: InputMaybe<Array<IntegrationWhereInput>>
   /** internal_policy_blocked_groups edge predicates */
   hasInternalPolicyBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalPolicyBlockedGroupsWith?: InputMaybe<Array<InternalPolicyWhereInput>>
-  /** internal_policy_creators edge predicates */
-  hasInternalPolicyCreators?: InputMaybe<Scalars['Boolean']['input']>
-  hasInternalPolicyCreatorsWith?: InputMaybe<Array<OrganizationWhereInput>>
   /** internal_policy_editors edge predicates */
   hasInternalPolicyEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalPolicyEditorsWith?: InputMaybe<Array<InternalPolicyWhereInput>>
@@ -9079,9 +9065,6 @@ export interface GroupWhereInput {
   /** narrative_blocked_groups edge predicates */
   hasNarrativeBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasNarrativeBlockedGroupsWith?: InputMaybe<Array<NarrativeWhereInput>>
-  /** narrative_creators edge predicates */
-  hasNarrativeCreators?: InputMaybe<Scalars['Boolean']['input']>
-  hasNarrativeCreatorsWith?: InputMaybe<Array<OrganizationWhereInput>>
   /** narrative_editors edge predicates */
   hasNarrativeEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasNarrativeEditorsWith?: InputMaybe<Array<NarrativeWhereInput>>
@@ -9094,18 +9077,12 @@ export interface GroupWhereInput {
   /** procedure_blocked_groups edge predicates */
   hasProcedureBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasProcedureBlockedGroupsWith?: InputMaybe<Array<ProcedureWhereInput>>
-  /** procedure_creators edge predicates */
-  hasProcedureCreators?: InputMaybe<Scalars['Boolean']['input']>
-  hasProcedureCreatorsWith?: InputMaybe<Array<OrganizationWhereInput>>
   /** procedure_editors edge predicates */
   hasProcedureEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasProcedureEditorsWith?: InputMaybe<Array<ProcedureWhereInput>>
   /** program_blocked_groups edge predicates */
   hasProgramBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasProgramBlockedGroupsWith?: InputMaybe<Array<ProgramWhereInput>>
-  /** program_creators edge predicates */
-  hasProgramCreators?: InputMaybe<Scalars['Boolean']['input']>
-  hasProgramCreatorsWith?: InputMaybe<Array<OrganizationWhereInput>>
   /** program_editors edge predicates */
   hasProgramEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasProgramEditorsWith?: InputMaybe<Array<ProgramWhereInput>>
@@ -9115,9 +9092,6 @@ export interface GroupWhereInput {
   /** risk_blocked_groups edge predicates */
   hasRiskBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasRiskBlockedGroupsWith?: InputMaybe<Array<RiskWhereInput>>
-  /** risk_creators edge predicates */
-  hasRiskCreators?: InputMaybe<Scalars['Boolean']['input']>
-  hasRiskCreatorsWith?: InputMaybe<Array<OrganizationWhereInput>>
   /** risk_editors edge predicates */
   hasRiskEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasRiskEditorsWith?: InputMaybe<Array<RiskWhereInput>>
@@ -9130,9 +9104,6 @@ export interface GroupWhereInput {
   /** tasks edge predicates */
   hasTasks?: InputMaybe<Scalars['Boolean']['input']>
   hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
-  /** template_creators edge predicates */
-  hasTemplateCreators?: InputMaybe<Scalars['Boolean']['input']>
-  hasTemplateCreatorsWith?: InputMaybe<Array<OrganizationWhereInput>>
   /** users edge predicates */
   hasUsers?: InputMaybe<Scalars['Boolean']['input']>
   hasUsersWith?: InputMaybe<Array<UserWhereInput>>
@@ -11835,7 +11806,7 @@ export interface MutationCreateGroupSettingArgs {
 }
 
 export interface MutationCreateGroupWithMembersArgs {
-  group: CreateGroupInput
+  groupInput: CreateGroupInput
   members?: InputMaybe<Array<GroupMembersInput>>
 }
 
@@ -11875,7 +11846,7 @@ export interface MutationCreateOrganizationSettingArgs {
 export interface MutationCreateOrganizationWithMembersArgs {
   avatarFile?: InputMaybe<Scalars['Upload']['input']>
   members?: InputMaybe<Array<OrgMembersInput>>
-  organization: CreateOrganizationInput
+  organizationInput: CreateOrganizationInput
 }
 
 export interface MutationCreatePersonalAccessTokenArgs {
@@ -15559,6 +15530,14 @@ export interface PageInfo {
   hasPreviousPage: Scalars['Boolean']['output']
   /** When paginating backwards, the cursor to continue. */
   startCursor?: Maybe<Scalars['Cursor']['output']>
+}
+
+/** Permission is enum for the permissions types */
+export enum Permission {
+  BLOCKED = 'BLOCKED',
+  CREATOR = 'CREATOR',
+  EDITOR = 'EDITOR',
+  VIEWER = 'VIEWER',
 }
 
 export interface PersonalAccessToken extends Node {
@@ -23520,44 +23499,33 @@ export interface UpdateFileInput {
  */
 export interface UpdateGroupInput {
   addControlBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addControlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlObjectiveBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addControlObjectiveCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlObjectiveEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlObjectiveViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addGroupCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addGroupMembers?: InputMaybe<Array<CreateGroupMembershipInput>>
   addIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addInternalPolicyCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addNarrativeCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addProcedureCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addProgramCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addRiskCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addTemplateCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearControlBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
-  clearControlCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearControlEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearControlObjectiveBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
-  clearControlObjectiveCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearControlObjectiveEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearControlObjectiveViewers?: InputMaybe<Scalars['Boolean']['input']>
   clearControlViewers?: InputMaybe<Scalars['Boolean']['input']>
@@ -23565,32 +23533,25 @@ export interface UpdateGroupInput {
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearGravatarLogoURL?: InputMaybe<Scalars['Boolean']['input']>
-  clearGroupCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearIntegrations?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicyBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
-  clearInternalPolicyCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicyEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearLogoURL?: InputMaybe<Scalars['Boolean']['input']>
   clearNarrativeBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
-  clearNarrativeCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearNarrativeEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearNarrativeViewers?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedureBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
-  clearProcedureCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedureEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearProgramBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
-  clearProgramCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearProgramEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearProgramViewers?: InputMaybe<Scalars['Boolean']['input']>
   clearRiskBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
-  clearRiskCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearRiskEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearRiskViewers?: InputMaybe<Scalars['Boolean']['input']>
   clearSetting?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
-  clearTemplateCreators?: InputMaybe<Scalars['Boolean']['input']>
   /** the groups description */
   description?: InputMaybe<Scalars['String']['input']>
   /** The group's displayed 'friendly' name */
@@ -23603,38 +23564,29 @@ export interface UpdateGroupInput {
   name?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   removeControlBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeControlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeControlObjectiveCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeGroupCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupMembers?: InputMaybe<Array<Scalars['ID']['input']>>
   removeIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeInternalPolicyCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeNarrativeCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeProcedureCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeProgramCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeRiskCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeTemplateCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   settingID?: InputMaybe<Scalars['ID']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
@@ -26137,7 +26089,6 @@ export type GetAllGroupsQuery = {
           syncToGithub?: boolean | null
           id: string
         } | null
-        programCreators?: Array<{ __typename?: 'Organization'; id: string; name: string }> | null
         programEditors?: Array<{ __typename?: 'Program'; id: string; name: string }> | null
         programViewers?: Array<{ __typename?: 'Program'; id: string; name: string }> | null
         riskViewers?: Array<{ __typename?: 'Risk'; id: string; name: string }> | null
@@ -26149,7 +26100,7 @@ export type GetAllGroupsQuery = {
 }
 
 export type CreateGroupWithMembersMutationVariables = Exact<{
-  group: CreateGroupInput
+  groupInput: CreateGroupInput
   members?: InputMaybe<Array<GroupMembersInput> | GroupMembersInput>
 }>
 
@@ -26198,7 +26149,6 @@ export type GetGroupDetailsQuery = {
       }
     }> | null
     setting?: { __typename?: 'GroupSetting'; visibility: GroupSettingVisibility; joinPolicy: GroupSettingJoinPolicy; syncToSlack?: boolean | null; syncToGithub?: boolean | null; id: string } | null
-    programCreators?: Array<{ __typename?: 'Organization'; id: string; name: string }> | null
     programEditors?: Array<{ __typename?: 'Program'; id: string; name: string }> | null
     programViewers?: Array<{ __typename?: 'Program'; id: string; name: string }> | null
     riskViewers?: Array<{ __typename?: 'Risk'; id: string; name: string }> | null
@@ -26215,6 +26165,18 @@ export type UpdateGroupMembershipMutationVariables = Exact<{
 export type UpdateGroupMembershipMutation = {
   __typename?: 'Mutation'
   updateGroupMembership: { __typename?: 'GroupMembershipUpdatePayload'; groupMembership: { __typename?: 'GroupMembership'; id: string } }
+}
+
+export type GetGroupPermissionsQueryVariables = Exact<{
+  groupId: Scalars['ID']['input']
+}>
+
+export type GetGroupPermissionsQuery = {
+  __typename?: 'Query'
+  group: {
+    __typename?: 'Group'
+    permissions?: Array<{ __typename?: 'GroupPermissions'; displayID?: string | null; id?: string | null; name?: string | null; objectType: string; permissions: Permission }> | null
+  }
 }
 
 export type UpdateUserRoleInOrgMutationVariables = Exact<{
@@ -26670,7 +26632,9 @@ export type UpdateProgramMutationVariables = Exact<{
 
 export type UpdateProgramMutation = { __typename?: 'Mutation'; updateProgram: { __typename?: 'ProgramUpdatePayload'; program: { __typename?: 'Program'; id: string; name: string } } }
 
-export type GetAllProgramsQueryVariables = Exact<{ [key: string]: never }>
+export type GetAllProgramsQueryVariables = Exact<{
+  where?: InputMaybe<ProgramWhereInput>
+}>
 
 export type GetAllProgramsQuery = {
   __typename?: 'Query'
@@ -26688,6 +26652,7 @@ export type GetAllProgramsQuery = {
         startDate?: any | null
         endDate?: any | null
         auditorReady: boolean
+        displayID: string
       } | null
     } | null> | null
   }
@@ -27210,10 +27175,6 @@ export const GetAllGroupsDocument = gql`
             syncToGithub
             id
           }
-          programCreators {
-            id
-            name
-          }
           programEditors {
             id
             name
@@ -27244,8 +27205,8 @@ export function useGetAllGroupsQuery(options?: Omit<Urql.UseQueryArgs<GetAllGrou
   return Urql.useQuery<GetAllGroupsQuery, GetAllGroupsQueryVariables>({ query: GetAllGroupsDocument, ...options })
 }
 export const CreateGroupWithMembersDocument = gql`
-  mutation CreateGroupWithMembers($group: CreateGroupInput!, $members: [GroupMembersInput!]) {
-    createGroupWithMembers(group: $group, members: $members) {
+  mutation CreateGroupWithMembers($groupInput: CreateGroupInput!, $members: [GroupMembersInput!]) {
+    createGroupWithMembers(groupInput: $groupInput, members: $members) {
       group {
         id
         displayID
@@ -27312,10 +27273,6 @@ export const GetGroupDetailsDocument = gql`
         syncToGithub
         id
       }
-      programCreators {
-        id
-        name
-      }
       programEditors {
         id
         name
@@ -27355,6 +27312,23 @@ export const UpdateGroupMembershipDocument = gql`
 
 export function useUpdateGroupMembershipMutation() {
   return Urql.useMutation<UpdateGroupMembershipMutation, UpdateGroupMembershipMutationVariables>(UpdateGroupMembershipDocument)
+}
+export const GetGroupPermissionsDocument = gql`
+  query GetGroupPermissions($groupId: ID!) {
+    group(id: $groupId) {
+      permissions {
+        displayID
+        id
+        name
+        objectType
+        permissions
+      }
+    }
+  }
+`
+
+export function useGetGroupPermissionsQuery(options: Omit<Urql.UseQueryArgs<GetGroupPermissionsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetGroupPermissionsQuery, GetGroupPermissionsQueryVariables>({ query: GetGroupPermissionsDocument, ...options })
 }
 export const UpdateUserRoleInOrgDocument = gql`
   mutation UpdateUserRoleInOrg($updateOrgMemberId: ID!, $input: UpdateOrgMembershipInput!) {
@@ -27922,8 +27896,8 @@ export function useUpdateProgramMutation() {
   return Urql.useMutation<UpdateProgramMutation, UpdateProgramMutationVariables>(UpdateProgramDocument)
 }
 export const GetAllProgramsDocument = gql`
-  query GetAllPrograms {
-    programs {
+  query GetAllPrograms($where: ProgramWhereInput) {
+    programs(where: $where) {
       edges {
         node {
           id
@@ -27934,6 +27908,7 @@ export const GetAllProgramsDocument = gql`
           startDate
           endDate
           auditorReady
+          displayID
         }
       }
     }
