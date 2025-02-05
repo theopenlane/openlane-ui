@@ -70,7 +70,6 @@ const CreateGroupDialog = ({ triggerText }: MyGroupsDialogProps) => {
   })
 
   const onSubmit = async (data: CreateGroupFormData) => {
-    console.log('Form submitted:', data)
     try {
       await createGroup({
         groupInput: {

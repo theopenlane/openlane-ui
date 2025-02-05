@@ -30,27 +30,6 @@ query GetAllGroups($where: GroupWhereInput) {
           syncToGithub
           id
         }
-
-        programEditors {
-          id
-          name
-        }
-        programViewers {
-          id
-          name
-        }
-        riskViewers {
-          id
-          name
-        }
-        controlViewers {
-          id
-          name
-        }
-        narrativeViewers {
-          id
-          name
-        }
       }
     }
   }
@@ -107,27 +86,6 @@ query GetGroupDetails($groupId: ID!) {
       syncToSlack
       syncToGithub
       id
-    }
-
-    programEditors {
-      id
-      name
-    }
-    programViewers {
-      id
-      name
-    }
-    riskViewers {
-      id
-      name
-    }
-    controlViewers {
-      id
-      name
-    }
-    narrativeViewers {
-      id
-      name
     }
   }
 }
