@@ -15,6 +15,7 @@ import { Badge } from '@repo/ui/badge'
 import { PlusIcon } from 'lucide-react'
 import { formatDate } from '@/lib/format-date'
 import { Actions } from './actions/actions'
+import { SelectSeparator } from '@repo/ui/select'
 
 type VendorEdge = NonNullable<NonNullable<GetVendorQuery['entities']>['edges']>[number]
 
@@ -98,7 +99,19 @@ export const VendorsTable = () => {
       header: 'Description',
       cell: ({ row }) => {
         const description = `${row?.original?.description}`
-        return <div className={nameRow()}>{description}</div>
+        const tags = row?.original?.tags as string[]
+        return (
+          <div className={nameRow()}>
+            {description}
+            <div className={'border-t-2 border-dashed pt-2 m-3 ' + (description.length ? 'relative top-5 -left-[138px]' : 'border-t-2 border-dashed pt-2')}>
+              {tags.map((tag) => (
+                <Badge className="m-1 mt-0" variant="outline">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )
       },
     },
     {
@@ -108,18 +121,12 @@ export const VendorsTable = () => {
         const domains = row?.original?.domains as string[]
         return (
           <div className={nameRow()}>
-            {domains}
+            {domains.map((domain) => (
+              <span>{domain}</span>
+            ))}
             <Copy width={16} height={16} className={copyIcon()} onClick={() => copyToClipboard(domains)} />
           </div>
         )
-      },
-    },
-    {
-      accessorKey: 'tags',
-      header: 'Tags',
-      cell: ({ row }) => {
-        const tags = row?.original?.tags
-        return <div className={nameRow()}>{tags?.map((tag) => <Badge>{tag}</Badge>)}</div>
       },
     },
     {
