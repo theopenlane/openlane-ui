@@ -35,7 +35,7 @@ export function PolicyPage({ policyId }: PolicyPageProps) {
 
   const [{ error: updateError }, updatePolicy] = useUpdateInternalPolicyMutation()
   const [{ data }] = useGetInternalPolicyDetailsByIdQuery({ variables: { internalPolicyId: policyId } })
-  const [{ data: deleteData }] = useDeleteInternalPolicyMutation({ deleteInternalPolicyId: policyId })
+  const [{ data: deleteData }] = useDeleteInternalPolicyMutation()
   const [policy, setPolicy] = useState({} as InternalPolicyUpdateFieldsFragment)
 
   useEffect(() => {
