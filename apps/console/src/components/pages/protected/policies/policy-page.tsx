@@ -32,11 +32,13 @@ export function PolicyPage({ policyId }: PolicyPageProps) {
   const [, updatePolicy] = useUpdateInternalPolicyMutation()
   const [{ data }] = useGetInternalPolicyDetailsByIdQuery({ variables: { internalPolicyId: policyId } })
   const [{ data: deleteData }] = useDeleteInternalPolicyMutation()
+  const [document, setDocument] = useState([] as TElement[])
   const [policy, setPolicy] = useState({} as InternalPolicyUpdateFieldsFragment)
 
   useEffect(() => {
     if (!data?.internalPolicy) return
     setPolicy(data.internalPolicy)
+    setDocument(data.internalPolicy.details?.content || [])
   }, [data])
 
   const setField = (field: EditableField, value: string) => {
@@ -52,7 +54,10 @@ export function PolicyPage({ policyId }: PolicyPageProps) {
       description,
       policyType,
       purposeAndScope,
-      details,
+      details: {
+        ...details,
+        content: document,
+      },
     }
 
     // check that we're valid
@@ -72,7 +77,11 @@ export function PolicyPage({ policyId }: PolicyPageProps) {
   }, [])
 
   const onDocumentChange = useCallback((content: TElement[]) => {
-    setPolicy({ ...policy, details: { content } })
+    console.log('onDocumentChange', content)
+    // TODO: wire this up with change support.
+    // setPolicy({ ...policy, details: { content } })
+    // FIXME: this will cause your tab to crash
+    // setDocument(content)
   }, [])
 
   if (!data?.internalPolicy) return <></>
@@ -88,7 +97,7 @@ export function PolicyPage({ policyId }: PolicyPageProps) {
 
         <div className="w-full">
           <div>
-            <PlateEditor content={data.internalPolicy.details?.content} />
+            <PlateEditor content={document} onChange={onDocumentChange} />
           </div>
         </div>
       </div>

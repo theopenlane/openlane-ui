@@ -37,7 +37,7 @@ export default memo(function PlateEditor({ content, onChange }: Props) {
   return (
     <>
       <DndProvider backend={HTML5Backend}>
-        <Plate editor={editor}>
+        <Plate editor={editor} onChange={handleChange}>
           <FixedToolbar>
             <FixedToolbarButtons />
           </FixedToolbar>
