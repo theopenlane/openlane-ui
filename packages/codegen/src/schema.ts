@@ -11308,6 +11308,8 @@ export interface Mutation {
   createFullProgram: ProgramCreatePayload
   /** Create a new group */
   createGroup: GroupCreatePayload
+  /** Create a new group with members */
+  createGroupByClone: GroupCreatePayload
   /** Create a new groupMembership */
   createGroupMembership: GroupMembershipCreatePayload
   /** Create a new groupSetting */
@@ -11795,6 +11797,13 @@ export interface MutationCreateFullProgramArgs {
 
 export interface MutationCreateGroupArgs {
   input: CreateGroupInput
+}
+
+export interface MutationCreateGroupByCloneArgs {
+  cloneGroupMembers?: InputMaybe<Scalars['ID']['input']>
+  groupInput: CreateGroupInput
+  inheritGroupPermissions?: InputMaybe<Scalars['ID']['input']>
+  members?: InputMaybe<Array<GroupMembersInput>>
 }
 
 export interface MutationCreateGroupMembershipArgs {
@@ -23558,6 +23567,11 @@ export interface UpdateGroupInput {
   displayName?: InputMaybe<Scalars['String']['input']>
   /** the URL to an auto generated gravatar image for the group */
   gravatarLogoURL?: InputMaybe<Scalars['String']['input']>
+  /**
+   * inheritGroupPermissions allows a group to be updated with the same permissions
+   * as the specified group ID, existing permissions will be removed
+   */
+  inheritGroupPermissions?: InputMaybe<Scalars['ID']['input']>
   /** the URL to an image uploaded by the customer for the groups avatar image */
   logoURL?: InputMaybe<Scalars['String']['input']>
   /** the name of the group - must be unique within the organization */
