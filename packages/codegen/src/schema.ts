@@ -26077,6 +26077,33 @@ export type DeleteDocumentDataMutationVariables = Exact<{
 
 export type DeleteDocumentDataMutation = { __typename?: 'Mutation'; deleteDocumentData: { __typename?: 'DocumentDataDeletePayload'; deletedID: string } }
 
+export type GetVendorQueryVariables = Exact<{
+  where?: InputMaybe<EntityWhereInput>
+}>
+
+export type GetVendorQuery = {
+  __typename?: 'Query'
+  entities: {
+    __typename?: 'EntityConnection'
+    edges?: Array<{
+      __typename?: 'EntityEdge'
+      node?: {
+        __typename?: 'Entity'
+        createdAt?: any | null
+        createdBy?: string | null
+        description?: string | null
+        displayName?: string | null
+        domains?: Array<string> | null
+        id: string
+        status?: string | null
+        tags?: Array<string> | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+      } | null
+    } | null> | null
+  }
+}
+
 export type GetAllGroupsQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetAllGroupsQuery = {
@@ -27065,6 +27092,30 @@ export const DeleteDocumentDataDocument = gql`
 
 export function useDeleteDocumentDataMutation() {
   return Urql.useMutation<DeleteDocumentDataMutation, DeleteDocumentDataMutationVariables>(DeleteDocumentDataDocument)
+}
+export const GetVendorDocument = gql`
+  query GetVendor($where: EntityWhereInput) {
+    entities(where: $where) {
+      edges {
+        node {
+          createdAt
+          createdBy
+          description
+          displayName
+          domains
+          id
+          status
+          tags
+          updatedAt
+          updatedBy
+        }
+      }
+    }
+  }
+`
+
+export function useGetVendorQuery(options?: Omit<Urql.UseQueryArgs<GetVendorQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetVendorQuery, GetVendorQueryVariables>({ query: GetVendorDocument, ...options })
 }
 export const GetAllGroupsDocument = gql`
   query GetAllGroups {
