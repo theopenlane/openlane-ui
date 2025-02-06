@@ -35,6 +35,14 @@ enum ObjectTypes {
   PROCEDURE = 'Procedure',
 }
 
+type TableDataItem = {
+  id: string
+  name: string
+  checked: boolean
+  togglePermission: (id: string) => void
+  displayID: string
+}
+
 const OBJECT_TYPE_CONFIG: Record<ObjectTypes, { roleOptions: string[]; responseObjectKey: string; queryDocument: any }> = {
   [ObjectTypes.PROGRAM]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
@@ -118,9 +126,8 @@ const AssignPermissionsDialog = () => {
   const { toast } = useToast()
   const [step, setStep] = useState(1)
   const [selectedObject, setSelectedObject] = useState<ObjectTypes | null>(null)
-  const [roles, setRoles] = useState<Record<string, string>>({})
+  const [roles, setRoles] = useState<Record<string, string>>({}) // {01JK9CJCC4YJQ2SBTXXMZG45H0: 'View'} example data
   const [debouncedSearchValue, setDebouncedSearchValue] = useState('')
-
   const debouncedSetSearchValue = useCallback(
     debounce((value) => setDebouncedSearchValue(value), 300),
     [],
@@ -153,69 +160,45 @@ const AssignPermissionsDialog = () => {
   const handleSave = async () => {
     if (!selectedGroup || !selectedObject) return
 
-    // Initialize empty arrays for each permission type
-    const addProgramViewerIDs: string[] = []
-    const addProgramEditorIDs: string[] = []
-    const addProgramBlockedGroupIDs: string[] = []
-    const addRiskViewerIDs: string[] = []
-    const addRiskEditorIDs: string[] = []
-    const addRiskBlockedGroupIDs: string[] = []
-    const addControlViewerIDs: string[] = []
-    const addControlEditorIDs: string[] = []
-    const addControlBlockedGroupIDs: string[] = []
-    const addNarrativeViewerIDs: string[] = []
-    const addNarrativeEditorIDs: string[] = []
-    const addNarrativeBlockedGroupIDs: string[] = []
-    const addControlObjectiveViewerIDs: string[] = []
-    const addControlObjectiveEditorIDs: string[] = []
-    const addControlObjectiveBlockedGroupIDs: string[] = []
+    // Initialize a map to store the permission arrays
+    const permissionMap: Record<string, string[]> = {
+      addProgramViewerIDs: [],
+      addProgramEditorIDs: [],
+      addProgramBlockedGroupIDs: [],
+      addRiskViewerIDs: [],
+      addRiskEditorIDs: [],
+      addRiskBlockedGroupIDs: [],
+      addControlViewerIDs: [],
+      addControlEditorIDs: [],
+      addControlBlockedGroupIDs: [],
+      addNarrativeViewerIDs: [],
+      addNarrativeEditorIDs: [],
+      addNarrativeBlockedGroupIDs: [],
+      addControlObjectiveViewerIDs: [],
+      addControlObjectiveEditorIDs: [],
+      addControlObjectiveBlockedGroupIDs: [],
+    }
+
+    const prefix = selectedObject.replace(/\s+/g, '') // Remove spaces for the prefix
 
     selectedPermissions.forEach((id) => {
       const role = roles[id] || 'Edit'
 
-      if (selectedObject === 'Program') {
-        if (role === 'View') addProgramViewerIDs.push(id)
-        else if (role === 'Edit') addProgramEditorIDs.push(id)
-        else if (role === 'Blocked') addProgramBlockedGroupIDs.push(id)
-      } else if (selectedObject === 'Risk') {
-        if (role === 'View') addRiskViewerIDs.push(id)
-        else if (role === 'Edit') addRiskEditorIDs.push(id)
-        else if (role === 'Blocked') addRiskBlockedGroupIDs.push(id)
-      } else if (selectedObject === 'Control') {
-        if (role === 'View') addControlViewerIDs.push(id)
-        else if (role === 'Edit') addControlEditorIDs.push(id)
-        else if (role === 'Blocked') addControlBlockedGroupIDs.push(id)
-      } else if (selectedObject === 'Narrative') {
-        if (role === 'View') addNarrativeViewerIDs.push(id)
-        else if (role === 'Edit') addNarrativeEditorIDs.push(id)
-        else if (role === 'Blocked') addNarrativeBlockedGroupIDs.push(id)
-      } else if (selectedObject === 'Control Objective') {
-        if (role === 'View') addControlObjectiveViewerIDs.push(id)
-        else if (role === 'Edit') addControlObjectiveEditorIDs.push(id)
-        else if (role === 'Blocked') addControlObjectiveBlockedGroupIDs.push(id)
+      const suffix = role === 'View' ? 'ViewerIDs' : role === 'Edit' ? 'EditorIDs' : 'BlockedGroupIDs'
+
+      const key = `add${prefix}${suffix}`
+
+      if (permissionMap[key]) {
+        permissionMap[key].push(id)
       }
     })
+
+    const cleanedPermissionMap = Object.fromEntries(Object.entries(permissionMap).filter(([_, value]) => value.length > 0))
 
     try {
       await updateGroup({
         updateGroupId: selectedGroup,
-        input: {
-          addProgramViewerIDs,
-          addProgramEditorIDs,
-          addProgramBlockedGroupIDs,
-          addRiskViewerIDs,
-          addRiskEditorIDs,
-          addRiskBlockedGroupIDs,
-          addControlViewerIDs,
-          addControlEditorIDs,
-          addControlBlockedGroupIDs,
-          addNarrativeViewerIDs,
-          addNarrativeEditorIDs,
-          addNarrativeBlockedGroupIDs,
-          addControlObjectiveViewerIDs,
-          addControlObjectiveEditorIDs,
-          addControlObjectiveBlockedGroupIDs,
-        },
+        input: cleanedPermissionMap,
       })
 
       toast({
@@ -223,7 +206,7 @@ const AssignPermissionsDialog = () => {
         variant: 'success',
       })
 
-      setIsOpen(false)
+      handleOpenChange(false)
     } catch (error) {
       console.error('Failed to update group:', error)
       toast({
@@ -237,7 +220,7 @@ const AssignPermissionsDialog = () => {
   const objectKey = selectedObject ? OBJECT_TYPE_CONFIG[selectedObject]?.responseObjectKey : null
   const objectDataList = objectKey && data?.[objectKey]?.edges ? data[objectKey].edges : []
 
-  const tableData =
+  const tableData: TableDataItem[] =
     objectDataList.map((item: any) => ({
       id: item?.node?.id,
       name: item?.node?.name,
@@ -245,8 +228,6 @@ const AssignPermissionsDialog = () => {
       togglePermission,
       displayID: item?.node?.displayID || '',
     })) || []
-
-  console.log('objectKey', objectKey)
 
   const step2Data = selectedPermissions.map((id) => {
     const program = tableData.find((p: any) => p.id === id)
@@ -285,8 +266,23 @@ const AssignPermissionsDialog = () => {
     },
   ]
 
+  const resetStates = () => {
+    setSelectedPermissions([])
+    setStep(1)
+    setSelectedObject(null)
+    setRoles({})
+    setDebouncedSearchValue('')
+  }
+
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open)
+    if (!open) {
+      resetStates()
+    }
+  }
+
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline" icon={<Plus />} iconPosition="left" disabled={!!isManaged}>
           Assign permissions to group
