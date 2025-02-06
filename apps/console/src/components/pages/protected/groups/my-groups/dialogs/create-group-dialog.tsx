@@ -17,7 +17,7 @@ import MultipleSelector from '@repo/ui/multiple-selector'
 
 const CreateGroupSchema = z.object({
   groupName: z.string().min(1, 'Group name is required'),
-  members: z.array(z.string()).min(1, 'At least one member must be selected'),
+  members: z.array(z.string()),
   description: z.string().optional(),
   tags: z.array(z.string()).optional(),
   visibility: z.enum(['Public', 'Private']),
@@ -32,7 +32,7 @@ type MyGroupsDialogProps = {
 const CreateGroupDialog = ({ triggerText }: MyGroupsDialogProps) => {
   const { data: session } = useSession()
   const [isOpen, setIsOpen] = useState(false)
-  const [visibility, setVisibility] = useState<'Public' | 'Private'>('Private')
+  const [visibility, setVisibility] = useState<'Public' | 'Private'>('Public')
   const { toast } = useToast()
 
   const [{}, createGroup] = useCreateGroupWithMembersMutation()
