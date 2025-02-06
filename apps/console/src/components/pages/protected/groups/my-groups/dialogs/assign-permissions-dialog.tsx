@@ -267,11 +267,13 @@ const AssignPermissionsDialog = () => {
   ]
 
   const resetStates = () => {
-    setSelectedPermissions([])
-    setStep(1)
-    setSelectedObject(null)
-    setRoles({})
-    setDebouncedSearchValue('')
+    setTimeout(() => {
+      setSelectedPermissions([])
+      setStep(1)
+      setSelectedObject(null)
+      setRoles({})
+      setDebouncedSearchValue('')
+    }, 300)
   }
 
   const handleOpenChange = (open: boolean) => {
