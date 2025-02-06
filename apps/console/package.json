@@ -64,6 +64,6 @@
     "postcss": "^8.4.24",
     "tailwind-variants": "latest",
     "tailwindcss": "3.4.17",
-    "typescript": "5.6.3"
+    "typescript": "5.7.3"
   }
 }
