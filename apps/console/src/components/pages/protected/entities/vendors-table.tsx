@@ -12,7 +12,7 @@ import { useToast } from '@repo/ui/use-toast'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@repo/ui/dropdown-menu'
-import { PlusIcon } from 'lucide-react'
+import { PlusIcon, MoreVertical } from 'lucide-react'
 import { formatDate } from '@/lib/format-date'
 import { Actions } from './actions/actions'
 
@@ -32,18 +32,76 @@ export const VendorsTable = () => {
     pause: !session,
   })
 
+  // const [displayNameVisibility, setDisplayNameVisibility] = useState(true)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     displayName: true,
     status: true,
     description: true,
     domains: true,
-    tags: true,
     updatedBy: false,
     updatedAt: false,
     createdBy: false,
     createdAt: false,
     id: false,
   })
+  const setDisplayNameVisibility = () => {
+    setColumnVisibility((prev) => ({ ...prev, displayName: !columnVisibility.displayName }))
+  }
+  const setStatusVisibility = () => {
+    setColumnVisibility((prev) => ({ ...prev, status: !columnVisibility.status }))
+  }
+  const setDescriptionVisibility = () => {
+    setColumnVisibility((prev) => ({ ...prev, description: !columnVisibility.description }))
+  }
+  const setDomainsVisibility = () => {
+    setColumnVisibility((prev) => ({ ...prev, domains: !columnVisibility.domains }))
+  }
+  const setUpdatedByVisibility = () => {
+    setColumnVisibility((prev) => ({ ...prev, updatedBy: !columnVisibility.updatedBy }))
+  }
+  const setUpdatedAtVisibility = () => {
+    setColumnVisibility((prev) => ({ ...prev, updatedAt: !columnVisibility.updatedAt }))
+  }
+  const setCreatedByVisibility = () => {
+    setColumnVisibility((prev) => ({ ...prev, createdBy: !columnVisibility.createdBy }))
+  }
+  const setCreatedAtVisibility = () => {
+    setColumnVisibility((prev) => ({ ...prev, createdAt: !columnVisibility.createdAt }))
+  }
+  const setIdVisibility = () => {
+    setColumnVisibility((prev) => ({ ...prev, id: !columnVisibility.id }))
+  }
+  const setVisibility = (accessorKey: string) => {
+    switch (accessorKey) {
+      case 'displayName':
+        setDisplayNameVisibility()
+        break
+      case 'status':
+        setStatusVisibility()
+        break
+      case 'description':
+        setDescriptionVisibility()
+        break
+      case 'domains':
+        setDomainsVisibility()
+        break
+      case 'updatedBy':
+        setUpdatedByVisibility()
+        break
+      case 'updatedAt':
+        setUpdatedAtVisibility()
+        break
+      case 'createdBy':
+        setCreatedByVisibility()
+        break
+      case 'createdAt':
+        setCreatedAtVisibility()
+        break
+      case 'id':
+        setIdVisibility()
+        break
+    }
+  }
 
   useEffect(() => {
     if (copiedText) {
@@ -184,10 +242,14 @@ export const VendorsTable = () => {
           <Input placeholder="Search for Vendor" value={searchTerm} onChange={handleSearch} />
         </div>
         <DropdownMenu>
-          <DropdownMenuTrigger className="relative -left-[30%]">Columns</DropdownMenuTrigger>
+          <DropdownMenuTrigger className="relative -left-[28%]">
+            <Button variant="outline" icon={<MoreVertical />} iconPosition="left">
+              Columns
+            </Button>
+          </DropdownMenuTrigger>
           <DropdownMenuContent>
             {columns.map((column) => (
-              <DropdownMenuItem key={`vendor-dropdown-${column.accessorKey}`} onClick={() => setColumnVisibility(!!column.accessorKey)}>
+              <DropdownMenuItem key={`vendor-dropdown-${column.accessorKey}`} onClick={() => setVisibility(column.accessorKey)}>
                 {column.header}
               </DropdownMenuItem>
             ))}
@@ -197,7 +259,7 @@ export const VendorsTable = () => {
           Create New
         </Button>
       </div>
-      <DataTable columns={columns} data={vendors} showVisibility={true} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} loading={fetching} visibilityTitle="Columns" />
+      <DataTable columns={columns} data={vendors} columnVisibility={columnVisibility} loading={fetching} />
     </div>
   )
 }
