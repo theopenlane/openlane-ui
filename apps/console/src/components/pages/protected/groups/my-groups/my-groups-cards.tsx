@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { Badge } from '@repo/ui/badge'
 import { GlobeIcon, LockIcon } from 'lucide-react'
@@ -43,7 +43,7 @@ const MyGroupsCard = () => {
   }
 
   return (
-    <div className="space-y-4 mt-5 flex flex-wrap gap-7">
+    <div className="mt-5 flex flex-wrap gap-7">
       {transformedData.length > 0 ? (
         transformedData.map((group) => (
           <Card key={group.id} className="w-full max-w-md cursor-pointer" onClick={() => handleRowClick(group as Group)}>
@@ -52,7 +52,7 @@ const MyGroupsCard = () => {
               {group.visibility === 'PUBLIC' ? <GlobeIcon className="h-5 w-5 " /> : <LockIcon className="h-5 w-5 " />}
             </div>
             <div className="py-3 px-4 pb-5">
-              <p className=" text-sm mb-3">{group.description}</p>
+              <p className="text-sm mb-3 line-clamp-3 overflow-hidden text-ellipsis">{group.description}</p>{' '}
               {group.tags.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-3">
                   {group.tags.map((tag, index) => (

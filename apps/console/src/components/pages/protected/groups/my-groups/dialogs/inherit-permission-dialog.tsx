@@ -57,7 +57,7 @@ const InheritPermissionDialog = () => {
       }
 
       toast({
-        title: 'Success',
+        variant: 'success',
         description: `Permissions successfully inherited from ${groups.find((g) => g.id === group)?.name || 'selected group'}.`,
       })
 
@@ -157,25 +157,25 @@ const InheritPermissionDialog = () => {
           </div>
         )}
 
-        <DialogFooter className="justify-start">
+        <DialogFooter className="justify-between">
           {step === 1 ? (
             <Button className="w-full" onClick={handleNextStep} disabled={!group}>
               Next
             </Button>
           ) : (
-            <div className="flex gap-2">
+            <>
+              <Button className="" onClick={handleBack}>
+                Back
+              </Button>
               <Button
-                className="flex-1"
+                className=""
                 onClick={() => {
                   inheritPermissions(), setIsOpen(false)
                 }}
               >
                 Inherit
               </Button>
-              <Button className="flex-1" onClick={handleBack}>
-                Back
-              </Button>
-            </div>
+            </>
           )}
         </DialogFooter>
       </DialogContent>
