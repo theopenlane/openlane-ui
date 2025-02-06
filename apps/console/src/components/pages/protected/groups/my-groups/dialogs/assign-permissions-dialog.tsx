@@ -11,29 +11,10 @@ import { Label } from '@repo/ui/label'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import { useMyGroupsStore } from '@/hooks/useMyGroupsStore'
-import {
-  GetAllControlObjectivesDocument,
-  GetAllControlsDocument,
-  GetAllInternalPoliciesDocument,
-  GetAllNarrativesDocument,
-  GetAllProceduresDocument,
-  GetAllProgramsDocument,
-  GetAllRisksDocument,
-  useGetGroupDetailsQuery,
-  useUpdateGroupMutation,
-} from '@repo/codegen/src/schema'
+import { GetAllRisksDocument, useGetGroupDetailsQuery, useUpdateGroupMutation } from '@repo/codegen/src/schema'
 import debounce from 'lodash.debounce'
 import { useQuery } from 'urql'
-
-enum ObjectTypes {
-  PROGRAM = 'Program',
-  RISK = 'Risk',
-  CONTROL = 'Control',
-  CONTROL_OBJECTIVE = 'Control Objective',
-  NARRATIVE = 'Narrative',
-  INTERNAL_POLICY = 'Internal Policy',
-  PROCEDURE = 'Procedure',
-}
+import { OBJECT_TYPE_CONFIG, ObjectTypes } from '@/constants/groups'
 
 type TableDataItem = {
   id: string
@@ -41,44 +22,6 @@ type TableDataItem = {
   checked: boolean
   togglePermission: (id: string) => void
   displayID: string
-}
-
-const OBJECT_TYPE_CONFIG: Record<ObjectTypes, { roleOptions: string[]; responseObjectKey: string; queryDocument: any }> = {
-  [ObjectTypes.PROGRAM]: {
-    roleOptions: ['View', 'Edit', 'Blocked'],
-    responseObjectKey: 'programs',
-    queryDocument: GetAllProgramsDocument,
-  },
-  [ObjectTypes.RISK]: {
-    roleOptions: ['View', 'Edit', 'Blocked'],
-    responseObjectKey: 'risks',
-    queryDocument: GetAllRisksDocument,
-  },
-  [ObjectTypes.CONTROL]: {
-    roleOptions: ['View', 'Edit', 'Blocked'],
-    responseObjectKey: 'controls',
-    queryDocument: GetAllControlsDocument,
-  },
-  [ObjectTypes.CONTROL_OBJECTIVE]: {
-    roleOptions: ['View', 'Edit', 'Blocked'],
-    responseObjectKey: 'controlObjectives',
-    queryDocument: GetAllControlObjectivesDocument,
-  },
-  [ObjectTypes.NARRATIVE]: {
-    roleOptions: ['View', 'Edit', 'Blocked'],
-    responseObjectKey: 'narratives',
-    queryDocument: GetAllNarrativesDocument,
-  },
-  [ObjectTypes.INTERNAL_POLICY]: {
-    roleOptions: ['Edit', 'Blocked'],
-    responseObjectKey: 'internalPolicies',
-    queryDocument: GetAllInternalPoliciesDocument,
-  },
-  [ObjectTypes.PROCEDURE]: {
-    roleOptions: ['Edit', 'Blocked'],
-    responseObjectKey: 'procedures',
-    queryDocument: GetAllProceduresDocument,
-  },
 }
 
 const generateWhere = ({
