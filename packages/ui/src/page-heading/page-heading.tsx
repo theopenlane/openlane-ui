@@ -14,10 +14,17 @@ interface PageHeadingProps extends PageHeadingVariants {
 
 const PageHeading: React.FC<PageHeadingProps> = ({ heading, eyebrow, className, editable, onChange }) => {
   const styles = pageHeadingStyles()
+  const inputRef = React.useRef<HTMLInputElement>(null)
 
   const [editing, setEditing] = React.useState<boolean>(false)
 
   const isEditing = editable && editing
+
+  React.useEffect(() => {
+    if (isEditing && inputRef?.current) {
+      inputRef.current.focus()
+    }
+  }, [isEditing])
 
   const onBlurHandler = (e: React.FocusEvent<HTMLInputElement>) => {
     if (onChange) {
@@ -36,7 +43,7 @@ const PageHeading: React.FC<PageHeadingProps> = ({ heading, eyebrow, className, 
           {heading}
         </h2>
       ) : (
-        <input className="" defaultValue={heading as string} onBlur={onBlurHandler} />
+        <input className="" defaultValue={heading as string} onBlur={onBlurHandler} ref={inputRef} />
       )}
     </div>
   )
