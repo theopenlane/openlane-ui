@@ -11,19 +11,114 @@ import { Label } from '@repo/ui/label'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import { useMyGroupsStore } from '@/hooks/useMyGroupsStore'
-import { useGetAllProgramsQuery, useGetGroupDetailsQuery, useUpdateGroupMutation } from '@repo/codegen/src/schema'
+import {
+  GetAllControlObjectivesDocument,
+  GetAllControlsDocument,
+  GetAllInternalPoliciesDocument,
+  GetAllNarrativesDocument,
+  GetAllProceduresDocument,
+  GetAllProgramsDocument,
+  GetAllRisksDocument,
+  useGetGroupDetailsQuery,
+  useUpdateGroupMutation,
+} from '@repo/codegen/src/schema'
 import debounce from 'lodash.debounce'
+import { useQuery } from 'urql'
 
-const options = ['Program', 'Risk', 'Control', 'Control Objective', 'Narrative']
+enum ObjectTypes {
+  PROGRAM = 'Program',
+  RISK = 'Risk',
+  CONTROL = 'Control',
+  CONTROL_OBJECTIVE = 'Control Objective',
+  NARRATIVE = 'Narrative',
+  INTERNAL_POLICY = 'Internal Policy',
+  PROCEDURE = 'Procedure',
+}
 
-const roleOptions = ['View', 'Edit', 'Blocked']
+const OBJECT_TYPE_CONFIG: Record<ObjectTypes, { roleOptions: string[]; responseObjectKey: string; queryDocument: any }> = {
+  [ObjectTypes.PROGRAM]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'programs',
+    queryDocument: GetAllProgramsDocument,
+  },
+  [ObjectTypes.RISK]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'risks',
+    queryDocument: GetAllRisksDocument,
+  },
+  [ObjectTypes.CONTROL]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'controls',
+    queryDocument: GetAllControlsDocument,
+  },
+  [ObjectTypes.CONTROL_OBJECTIVE]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'controlObjectives',
+    queryDocument: GetAllControlObjectivesDocument,
+  },
+  [ObjectTypes.NARRATIVE]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'narratives',
+    queryDocument: GetAllNarrativesDocument,
+  },
+  [ObjectTypes.INTERNAL_POLICY]: {
+    roleOptions: ['Edit', 'Blocked'],
+    responseObjectKey: 'internalPolicies',
+    queryDocument: GetAllInternalPoliciesDocument,
+  },
+  [ObjectTypes.PROCEDURE]: {
+    roleOptions: ['Edit', 'Blocked'],
+    responseObjectKey: 'procedures',
+    queryDocument: GetAllProceduresDocument,
+  },
+}
+
+const generateWhere = ({
+  debouncedSearchValue,
+  selectedGroup,
+  selectedObject,
+}: {
+  debouncedSearchValue: string
+  selectedGroup: string | null
+  selectedObject: ObjectTypes | null
+}): { where: Record<string, any> } => {
+  const baseWhere = {
+    nameContainsFold: debouncedSearchValue,
+  }
+
+  const exclusionFilter = {
+    not: {
+      or: [{ hasEditorsWith: [{ id: selectedGroup }] }, { hasViewersWith: [{ id: selectedGroup }] }, { hasBlockedGroupsWith: [{ id: selectedGroup }] }],
+    },
+  }
+
+  const objectsWithoutViewers: ObjectTypes[] = [ObjectTypes.PROCEDURE, ObjectTypes.INTERNAL_POLICY]
+
+  return {
+    where: {
+      and: objectsWithoutViewers.includes(selectedObject as ObjectTypes)
+        ? [
+            baseWhere,
+            { not: { or: [{ hasEditorsWith: [{ id: selectedGroup }] }, { hasBlockedGroupsWith: [{ id: selectedGroup }] }] } }, // Excludes `hasViewersWith`
+          ]
+        : [baseWhere, exclusionFilter],
+    },
+  }
+}
+
+const options = Object.values(ObjectTypes)
 
 const AssignPermissionsDialog = () => {
   const { selectedGroup } = useMyGroupsStore()
-  const [{ data }] = useGetGroupDetailsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
-  const { isManaged } = data?.group || {}
+  const [{ data: groupData }] = useGetGroupDetailsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
+  const { isManaged } = groupData?.group || {}
 
-  const [searchValue, setSearchValue] = useState('')
+  const [isOpen, setIsOpen] = useState(false)
+  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([])
+  const { toast } = useToast()
+  const [step, setStep] = useState(1)
+  const [selectedObject, setSelectedObject] = useState<ObjectTypes | null>(null)
+  const [roles, setRoles] = useState<Record<string, string>>({})
   const [debouncedSearchValue, setDebouncedSearchValue] = useState('')
 
   const debouncedSetSearchValue = useCallback(
@@ -31,35 +126,19 @@ const AssignPermissionsDialog = () => {
     [],
   )
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchValue(event.target.value)
-    debouncedSetSearchValue(event.target.value)
-  }
-
-  const where = {
-    where: {
-      and: [
-        { nameContainsFold: debouncedSearchValue },
-        {
-          not: {
-            or: [{ hasEditorsWith: [{ id: selectedGroup }] }, { hasViewersWith: [{ id: selectedGroup }] }, { hasBlockedGroupsWith: [{ id: selectedGroup }] }],
-          },
-        },
-      ],
-    },
-  }
-
-  const [{ data: programsData }] = useGetAllProgramsQuery({ variables: where })
-
-  const [isOpen, setIsOpen] = useState(false)
-  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([])
-  const { toast } = useToast()
-  const [step, setStep] = useState(1)
-  const [selectedObject, setSelectedObject] = useState<string | null>(null)
-  const [roles, setRoles] = useState<Record<string, string>>({}) // Store selected role per program
-
   const [{}, updateGroup] = useUpdateGroupMutation()
 
+  const selectedQuery = selectedObject && OBJECT_TYPE_CONFIG[selectedObject].queryDocument
+
+  const [{ data, fetching, error }] = useQuery({
+    query: selectedQuery || GetAllRisksDocument,
+    variables: generateWhere({
+      debouncedSearchValue,
+      selectedGroup,
+      selectedObject,
+    }),
+    pause: !selectedQuery,
+  })
   const handleNext = () => setStep(2)
   const handleBack = () => setStep(1)
 
@@ -91,9 +170,8 @@ const AssignPermissionsDialog = () => {
     const addControlObjectiveEditorIDs: string[] = []
     const addControlObjectiveBlockedGroupIDs: string[] = []
 
-    // Assign permissions based on the selected object type
     selectedPermissions.forEach((id) => {
-      const role = roles[id] || 'View' // Default to 'View'
+      const role = roles[id] || 'Edit'
 
       if (selectedObject === 'Program') {
         if (role === 'View') addProgramViewerIDs.push(id)
@@ -156,23 +234,32 @@ const AssignPermissionsDialog = () => {
     }
   }
 
-  const programsTableData =
-    programsData?.programs?.edges?.map((program) => ({
-      id: program?.node?.id,
-      name: program?.node?.name,
-      checked: selectedPermissions.includes(program?.node?.id || ''),
+  const objectKey = selectedObject ? OBJECT_TYPE_CONFIG[selectedObject]?.responseObjectKey : null
+  const objectDataList = objectKey && data?.[objectKey]?.edges ? data[objectKey].edges : []
+
+  const tableData =
+    objectDataList.map((item: any) => ({
+      id: item?.node?.id,
+      name: item?.node?.name,
+      checked: selectedPermissions.includes(item?.node?.id || ''),
       togglePermission,
-      displayID: program?.node?.displayID,
+      displayID: item?.node?.displayID || '',
     })) || []
 
+  console.log('objectKey', objectKey)
+
   const step2Data = selectedPermissions.map((id) => {
-    const program = programsTableData.find((p) => p.id === id)
+    const program = tableData.find((p: any) => p.id === id)
     return {
       id,
       name: program?.name || 'Unknown',
       permission: roles[id] || 'View',
     }
   })
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    debouncedSetSearchValue(event.target.value)
+  }
 
   const columnsStep2: ColumnDef<{ id: string; name: string; permission: string }>[] = [
     {
@@ -186,11 +273,12 @@ const AssignPermissionsDialog = () => {
         <Select onValueChange={(value) => handleRoleChange(row.original.id, value)}>
           <SelectTrigger className="w-full">{row.original.permission}</SelectTrigger>
           <SelectContent>
-            {roleOptions.map((role) => (
-              <SelectItem key={role} value={role}>
-                {role}
-              </SelectItem>
-            ))}
+            {selectedObject &&
+              OBJECT_TYPE_CONFIG[selectedObject].roleOptions.map((role) => (
+                <SelectItem key={role} value={role}>
+                  {role}
+                </SelectItem>
+              ))}
           </SelectContent>
         </Select>
       ),
@@ -214,7 +302,11 @@ const AssignPermissionsDialog = () => {
             <div className="flex items-center gap-2.5">
               <div className="flex gap-2 flex-col">
                 <Label>Select Object</Label>
-                <Select onValueChange={setSelectedObject}>
+                <Select
+                  onValueChange={(val: ObjectTypes) => {
+                    setSelectedObject(val)
+                  }}
+                >
                   <SelectTrigger className="border-brand w-[150px]">{selectedObject || 'Select object'}</SelectTrigger>
                   <SelectContent>
                     {options.map((option) => (
@@ -225,15 +317,15 @@ const AssignPermissionsDialog = () => {
                   </SelectContent>
                 </Select>
               </div>
-              {selectedObject === 'Program' && (
+              {selectedObject && (
                 <div className="flex gap-2 flex-col">
                   <Label>Search</Label>
-                  <Input placeholder="Type program name ..." className="border-brand h-10 w-[200px]" />
+                  <Input onChange={handleSearchChange} placeholder="Type program name ..." className="border-brand h-10 w-[200px]" />
                 </div>
               )}
             </div>
 
-            {selectedObject === 'Program' && (
+            {selectedObject && (
               <DataTable
                 columns={[
                   {
@@ -250,7 +342,7 @@ const AssignPermissionsDialog = () => {
                     accessorKey: 'name',
                   },
                 ]}
-                data={programsTableData}
+                data={tableData}
               />
             )}
 
