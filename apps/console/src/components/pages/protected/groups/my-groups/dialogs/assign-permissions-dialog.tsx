@@ -126,7 +126,7 @@ const AssignPermissionsDialog = () => {
     const prefix = selectedObject.replace(/\s+/g, '') // Remove spaces for the prefix
 
     selectedPermissions.forEach((id) => {
-      const role = roles[id] || 'Edit'
+      const role = roles[id] || 'View'
 
       const suffix = role === 'View' ? 'ViewerIDs' : role === 'Edit' ? 'EditorIDs' : 'BlockedGroupIDs'
 

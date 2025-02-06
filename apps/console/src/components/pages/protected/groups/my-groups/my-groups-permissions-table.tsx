@@ -8,32 +8,30 @@ import { useToast } from '@repo/ui/use-toast'
 import { Trash2 } from 'lucide-react'
 import { OBJECT_TYPE_CONFIG, ObjectTypes } from '@/constants/groups'
 
-const permissionLabels: Record<Permission, string> = {
+const PERMISSION_LABELS: Record<Permission, string> = {
   [Permission.VIEWER]: 'View',
   [Permission.EDITOR]: 'Edit',
   [Permission.BLOCKED]: 'Blocked',
   [Permission.CREATOR]: 'Create',
 }
 
-const labelToPermission: Record<string, Permission> = Object.fromEntries(Object.entries(permissionLabels).map(([key, value]) => [value, key as Permission]))
+const LABEL_TO_PERMISSION: Record<string, Permission> = Object.fromEntries(Object.entries(PERMISSION_LABELS).map(([key, value]) => [value, key as Permission]))
 
 const MyGroupsPermissionsTable = () => {
   const { selectedGroup } = useMyGroupsStore()
   const [{ data }] = useGetGroupPermissionsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
-  const [{}, updateGroup] = useUpdateGroupMutation()
+  const [, updateGroup] = useUpdateGroupMutation()
   const { toast } = useToast()
   const [roles, setRoles] = useState<Record<string, Permission>>({})
 
   const getPermissionKey = (permission: Permission, action: 'add' | 'remove', objectType: string) => {
-    const objectKey = objectType.replace(/\s+/g, '') // Remove spaces for the prefix
-
+    const objectKey = objectType.replace(/\s+/g, '')
     const roleKeyMap: Record<Permission, string> = {
       [Permission.VIEWER]: 'Viewer',
       [Permission.EDITOR]: 'Editor',
       [Permission.BLOCKED]: 'BlockedGroup',
-      [Permission.CREATOR]: 'Creator', // Adjust if 'Creator' is not used in the schema
+      [Permission.CREATOR]: 'Creator',
     }
-
     return `${action}${objectKey}${roleKeyMap[permission]}IDs`
   }
 
@@ -49,16 +47,12 @@ const MyGroupsPermissionsTable = () => {
   const handleRoleChange = async (id: string, newRoleLabel: string, objectType: string) => {
     if (!selectedGroup) return
 
-    // Convert label back to Permission enum
-    const newRole = labelToPermission[newRoleLabel] || Permission.VIEWER
+    const newRole = LABEL_TO_PERMISSION[newRoleLabel] || Permission.VIEWER
     const previousRole = roles[id] ?? permissions.find((p) => p.id === id)?.role ?? Permission.VIEWER
 
     if (previousRole === newRole) return
 
     setRoles((prev) => ({ ...prev, [id]: newRole }))
-
-    console.log('handleRoleChange - previousRole:', previousRole)
-    console.log('handleRoleChange - newRole:', newRole)
 
     try {
       await updateGroup({
@@ -82,9 +76,7 @@ const MyGroupsPermissionsTable = () => {
     try {
       await updateGroup({
         updateGroupId: selectedGroup,
-        input: {
-          [getPermissionKey(role, 'remove', objectType)]: [id],
-        },
+        input: { [getPermissionKey(role, 'remove', objectType)]: [id] },
       })
 
       toast({ title: 'Permission removed successfully', variant: 'success' })
@@ -106,8 +98,8 @@ const MyGroupsPermissionsTable = () => {
         const roleOptions = OBJECT_TYPE_CONFIG[objectType]?.roleOptions || []
 
         return (
-          <Select defaultValue={permissionLabels[row.original.role]} onValueChange={(value) => handleRoleChange(row.original.id, value, row.original.objectType)}>
-            <SelectTrigger className="w-full">{permissionLabels[row.original.role]}</SelectTrigger>
+          <Select defaultValue={PERMISSION_LABELS[row.original.role]} onValueChange={(value) => handleRoleChange(row.original.id, value, row.original.objectType)}>
+            <SelectTrigger className="w-full">{PERMISSION_LABELS[row.original.role]}</SelectTrigger>
             <SelectContent>
               {roleOptions.map((role) => (
                 <SelectItem key={role} value={role}>
@@ -122,9 +114,9 @@ const MyGroupsPermissionsTable = () => {
     {
       id: 'actions',
       cell: ({ row }) => (
-        <div className="cursor-pointer hover:text-red-500" onClick={() => handleDelete(row.original.id, row.original.objectType, row.original.role)}>
+        <button className="text-brand flex justify-self-end " onClick={() => handleDelete(row.original.id, row.original.objectType, row.original.role)}>
           <Trash2 className="h-4 w-4" />
-        </div>
+        </button>
       ),
     },
   ]
