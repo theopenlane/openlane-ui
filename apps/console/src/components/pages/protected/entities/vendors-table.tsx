@@ -11,10 +11,10 @@ import { useCopyToClipboard } from '@uidotdev/usehooks'
 import { useToast } from '@repo/ui/use-toast'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@repo/ui/dropdown-menu'
 import { PlusIcon } from 'lucide-react'
 import { formatDate } from '@/lib/format-date'
 import { Actions } from './actions/actions'
-import { SelectSeparator } from '@repo/ui/select'
 
 type VendorEdge = NonNullable<NonNullable<GetVendorQuery['entities']>['edges']>[number]
 
@@ -183,6 +183,16 @@ export const VendorsTable = () => {
         <div className={vendorSearchField()}>
           <Input placeholder="Search for Vendor" value={searchTerm} onChange={handleSearch} />
         </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger className="relative -left-[30%]">Columns</DropdownMenuTrigger>
+          <DropdownMenuContent>
+            {columns.map((column) => (
+              <DropdownMenuItem key={`vendor-dropdown-${column.accessorKey}`} onClick={() => setColumnVisibility(!!column.accessorKey)}>
+                {column.header}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
         <Button icon={<PlusIcon />} iconPosition="left" onClick={handleCreateNew}>
           Create New
         </Button>
