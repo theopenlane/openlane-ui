@@ -127,6 +127,7 @@ const AssignPermissionsDialog = () => {
   const [step, setStep] = useState(1)
   const [selectedObject, setSelectedObject] = useState<ObjectTypes | null>(null)
   const [roles, setRoles] = useState<Record<string, string>>({}) // {01JK9CJCC4YJQ2SBTXXMZG45H0: 'View'} example data
+  const [searchValue, setSearchValue] = useState('')
   const [debouncedSearchValue, setDebouncedSearchValue] = useState('')
   const debouncedSetSearchValue = useCallback(
     debounce((value) => setDebouncedSearchValue(value), 300),
@@ -240,6 +241,7 @@ const AssignPermissionsDialog = () => {
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     debouncedSetSearchValue(event.target.value)
+    setSearchValue(event.target.value)
   }
 
   const columnsStep2: ColumnDef<{ id: string; name: string; permission: string }>[] = [
@@ -303,6 +305,7 @@ const AssignPermissionsDialog = () => {
                 <Select
                   onValueChange={(val: ObjectTypes) => {
                     setSelectedObject(val)
+                    setSearchValue('')
                   }}
                 >
                   <SelectTrigger className="border-brand w-[150px]">{selectedObject || 'Select object'}</SelectTrigger>
@@ -318,7 +321,7 @@ const AssignPermissionsDialog = () => {
               {selectedObject && (
                 <div className="flex gap-2 flex-col">
                   <Label>Search</Label>
-                  <Input onChange={handleSearchChange} placeholder="Type program name ..." className="border-brand h-10 w-[200px]" />
+                  <Input onChange={handleSearchChange} value={searchValue} placeholder="Type program name ..." className="border-brand h-10 w-[200px]" />
                 </div>
               )}
             </div>
