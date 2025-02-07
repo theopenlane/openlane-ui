@@ -99,6 +99,11 @@ const GroupDetailsSheet = () => {
   }, [searchParams, setSelectedGroup])
 
   const handleSheetClose = () => {
+    if (isEditing) {
+      const confirmClose = window.confirm('You have unsaved changes. Do you want to discard them?')
+      if (!confirmClose) return
+    }
+
     setSelectedGroup(null)
     setIsEditing(false)
 
@@ -106,7 +111,6 @@ const GroupDetailsSheet = () => {
     newSearchParams.delete('groupid')
     router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
   }
-
   const onSubmit = async (data: EditGroupFormData) => {
     if (!selectedGroup || !id) return
 
@@ -142,9 +146,21 @@ const GroupDetailsSheet = () => {
                 <Button icon={<Link />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
                   Copy link
                 </Button>
-                <Button disabled={!!isManaged} icon={isEditing ? <X /> : <Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(!isEditing)}>
-                  {isEditing ? 'Cancel' : 'Edit Group'}
-                </Button>
+                {isEditing ? (
+                  <div className="flex gap-2">
+                    <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
+                      Save
+                    </Button>
+                  </div>
+                ) : (
+                  <Button disabled={!!isManaged} icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
+                    Edit Group
+                  </Button>
+                )}
+
                 <DeleteGroupDialog />
               </div>
             </SheetHeader>
@@ -154,21 +170,10 @@ const GroupDetailsSheet = () => {
                 {isEditing ? <Controller name="description" control={control} render={({ field }) => <Textarea {...field} placeholder="Add a description" />} /> : description}
               </SheetDescription>
               <div>
-                <div className="flex gap-6 mt-5">
-                  <div className="flex gap-2 flex-col">
-                    <div className="flex items-center gap-1">
-                      <GlobeIcon height={16} width={16} color="#2CCBAB" /> <p className="text-sm">Visibility:</p>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <User height={16} width={16} color="#2CCBAB" />
-                      <p className="text-sm">Members:</p>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Tag height={16} width={16} color="#2CCBAB" />
-                      <p className="text-sm">Tags:</p>
-                    </div>
-                  </div>
-                  <div className="flex gap-2 flex-col">
+                <div className="flex flex-col gap-4 mt-5">
+                  <div className="flex items-center gap-4">
+                    <GlobeIcon height={16} width={16} color="#2CCBAB" />
+                    <p className="text-sm">Visibility:</p>
                     {isEditing ? (
                       <Controller
                         name="visibility"
@@ -186,11 +191,21 @@ const GroupDetailsSheet = () => {
                     ) : (
                       <p className="capitalize text-sm">{setting?.visibility.toLowerCase()}</p>
                     )}
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <User height={16} width={16} color="#2CCBAB" />
+                    <p className="text-sm">Members:</p>
                     <p className="text-sm">{members?.length}</p>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <Tag height={16} width={16} color="#2CCBAB" />
+                    <p className="text-sm">Tags:</p>
                     {isEditing ? (
                       <Controller name="tags" control={control} render={({ field }) => <MultipleSelector value={field.value} creatable defaultOptions={field.value} onChange={field.onChange} />} />
                     ) : (
-                      <div className="flex flex-wrap gap-2 mt-1">
+                      <div className="flex flex-wrap gap-2">
                         {tags?.map((tag: string, index: number) => (
                           <Badge key={index} variant="outline">
                             {tag}
@@ -238,16 +253,6 @@ const GroupDetailsSheet = () => {
                 </div>
                 <div className="mt-7">{activeTab === 'Members' ? <MyGroupsMembersTable /> : <MyGroupsPermissionsTable />}</div>
               </div>
-              {isEditing && (
-                <div className="mt-6 flex justify-end gap-2">
-                  <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
-                    Cancel
-                  </Button>
-                  <Button type="submit" icon={<Check />} iconPosition="left">
-                    Save Changes
-                  </Button>
-                </div>
-              )}
             </form>
           </>
         )}
