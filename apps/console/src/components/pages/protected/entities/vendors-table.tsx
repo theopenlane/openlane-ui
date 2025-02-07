@@ -35,6 +35,7 @@ export const VendorsTable = () => {
   const columns: ColumnDef<Vendor>[] = [
     {
       accessorKey: 'displayName',
+      key: 'displayName',
       header: 'Name',
       cell: ({ row }) => {
         const displayName = `${row?.original?.displayName}`
@@ -49,6 +50,7 @@ export const VendorsTable = () => {
     {
       accessorKey: 'status',
       header: 'Status',
+      key: 'displayName',
       cell: ({ row }) => {
         const status = `${row?.original?.status}`
         return <div className={nameRow()}>{status}</div>
@@ -57,6 +59,7 @@ export const VendorsTable = () => {
     {
       accessorKey: 'description',
       header: 'Description',
+      key: 'displayName',
       cell: ({ row }) => {
         const description = `${row?.original?.description}`
         const tags = row?.original?.tags as string[]
@@ -65,7 +68,7 @@ export const VendorsTable = () => {
             <div className={vendorDescription()}>{description}</div>
             <div className={vendorTags()}>
               {tags.map((tag) => (
-                <Badge className="m-1 mt-0" variant="outline">
+                <Badge key={tag} className="m-1 mt-0" variant="outline">
                   {tag}
                 </Badge>
               ))}
@@ -82,7 +85,7 @@ export const VendorsTable = () => {
         return (
           <div className={nameRow()}>
             {domains.map((domain) => (
-              <span>{domain}</span>
+              <span key={domain}>{domain}</span>
             ))}
             <Copy width={16} height={16} className={copyIcon()} onClick={() => copyToClipboard(domains)} />
           </div>
@@ -231,17 +234,6 @@ export const VendorsTable = () => {
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const searchValue = e.target.value.toLowerCase()
     setSearchTerm(searchValue)
-
-    if (columns.length > 0) {
-      const filtered = data?.entities?.edges?.filter((edge) => {
-        return edge?.node?.displayName?.toLowerCase().includes(searchValue)
-      })
-      setFilteredColumns(filtered)
-    }
-
-    if (searchValue === '') {
-      setFilteredColumns(columns)
-    }
   }
   const handleCreateNew = () => {
     console.log('create new vendor')
