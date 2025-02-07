@@ -164,7 +164,7 @@ const InheritPermissionDialog = () => {
             </Button>
           ) : (
             <>
-              <Button className="" onClick={handleBack}>
+              <Button variant="back" onClick={handleBack}>
                 Back
               </Button>
               <Button
