@@ -474,6 +474,21 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
                 setOpen(true)
                 inputProps?.onFocus?.(event)
               }}
+              onKeyDown={(e) => {
+                if (creatable && (e.key === 'Enter' || e.key === 'Tab') && inputValue.length > 0) {
+                  e.preventDefault()
+
+                  if (selected.length >= maxSelected) {
+                    onMaxSelected?.(selected.length)
+                    return
+                  }
+
+                  setInputValue('')
+                  const newOptions = [...selected, { value: inputValue, label: inputValue }]
+                  setSelected(newOptions)
+                  onChange?.(newOptions)
+                }
+              }}
               placeholder={hidePlaceholderWhenSelected && selected.length !== 0 ? '' : placeholder}
               className={cn(
                 'flex-1 bg-transparent outline-none placeholder:text-muted-foreground border-none',
@@ -485,6 +500,7 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
                 inputProps?.className,
               )}
             />
+
             <button
               type="button"
               onClick={() => {
