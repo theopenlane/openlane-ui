@@ -32,103 +32,6 @@ export const VendorsTable = () => {
     pause: !session,
   })
 
-  // const [displayNameVisibility, setDisplayNameVisibility] = useState(true)
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
-    displayName: true,
-    status: true,
-    description: true,
-    domains: true,
-    updatedBy: false,
-    updatedAt: false,
-    createdBy: false,
-    createdAt: false,
-    id: false,
-  })
-  const setDisplayNameVisibility = () => {
-    setColumnVisibility((prev) => ({ ...prev, displayName: !columnVisibility.displayName }))
-  }
-  const setStatusVisibility = () => {
-    setColumnVisibility((prev) => ({ ...prev, status: !columnVisibility.status }))
-  }
-  const setDescriptionVisibility = () => {
-    setColumnVisibility((prev) => ({ ...prev, description: !columnVisibility.description }))
-  }
-  const setDomainsVisibility = () => {
-    setColumnVisibility((prev) => ({ ...prev, domains: !columnVisibility.domains }))
-  }
-  const setUpdatedByVisibility = () => {
-    setColumnVisibility((prev) => ({ ...prev, updatedBy: !columnVisibility.updatedBy }))
-  }
-  const setUpdatedAtVisibility = () => {
-    setColumnVisibility((prev) => ({ ...prev, updatedAt: !columnVisibility.updatedAt }))
-  }
-  const setCreatedByVisibility = () => {
-    setColumnVisibility((prev) => ({ ...prev, createdBy: !columnVisibility.createdBy }))
-  }
-  const setCreatedAtVisibility = () => {
-    setColumnVisibility((prev) => ({ ...prev, createdAt: !columnVisibility.createdAt }))
-  }
-  const setIdVisibility = () => {
-    setColumnVisibility((prev) => ({ ...prev, id: !columnVisibility.id }))
-  }
-  const setVisibility = (accessorKey: string) => {
-    switch (accessorKey) {
-      case 'displayName':
-        setDisplayNameVisibility()
-        break
-      case 'status':
-        setStatusVisibility()
-        break
-      case 'description':
-        setDescriptionVisibility()
-        break
-      case 'domains':
-        setDomainsVisibility()
-        break
-      case 'updatedBy':
-        setUpdatedByVisibility()
-        break
-      case 'updatedAt':
-        setUpdatedAtVisibility()
-        break
-      case 'createdBy':
-        setCreatedByVisibility()
-        break
-      case 'createdAt':
-        setCreatedAtVisibility()
-        break
-      case 'id':
-        setIdVisibility()
-        break
-    }
-  }
-
-  useEffect(() => {
-    if (copiedText) {
-      toast({
-        title: 'Copied to clipboard',
-        variant: 'success',
-      })
-    }
-  }, [copiedText])
-
-  useEffect(() => {
-    if (data?.entities?.edges) {
-      const vendors = data.entities.edges.map((edge) => edge?.node).filter((node) => node !== null) as Vendor[]
-      setVendor(vendors)
-    }
-  }, [data])
-
-  if (error || fetching) return null
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const searchValue = e.target.value.toLowerCase()
-    setSearchTerm(searchValue)
-  }
-  const handleCreateNew = () => {
-    console.log('create new vendor')
-  }
-
   const columns: ColumnDef<Vendor>[] = [
     {
       accessorKey: 'displayName',
@@ -235,6 +138,117 @@ export const VendorsTable = () => {
     },
   ]
 
+  const [filteredColumns, setFilteredColumns] = useState<ColumnDef<Vendor>[]>(columns)
+
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    displayName: true,
+    status: true,
+    description: true,
+    domains: true,
+    updatedBy: false,
+    updatedAt: false,
+    createdBy: false,
+    createdAt: false,
+    id: false,
+  })
+  const setDisplayNameVisibility = () => {
+    setColumnVisibility((prev) => ({ ...prev, displayName: !columnVisibility.displayName }))
+  }
+  const setStatusVisibility = () => {
+    setColumnVisibility((prev) => ({ ...prev, status: !columnVisibility.status }))
+  }
+  const setDescriptionVisibility = () => {
+    setColumnVisibility((prev) => ({ ...prev, description: !columnVisibility.description }))
+  }
+  const setDomainsVisibility = () => {
+    setColumnVisibility((prev) => ({ ...prev, domains: !columnVisibility.domains }))
+  }
+  const setUpdatedByVisibility = () => {
+    setColumnVisibility((prev) => ({ ...prev, updatedBy: !columnVisibility.updatedBy }))
+  }
+  const setUpdatedAtVisibility = () => {
+    setColumnVisibility((prev) => ({ ...prev, updatedAt: !columnVisibility.updatedAt }))
+  }
+  const setCreatedByVisibility = () => {
+    setColumnVisibility((prev) => ({ ...prev, createdBy: !columnVisibility.createdBy }))
+  }
+  const setCreatedAtVisibility = () => {
+    setColumnVisibility((prev) => ({ ...prev, createdAt: !columnVisibility.createdAt }))
+  }
+  const setIdVisibility = () => {
+    setColumnVisibility((prev) => ({ ...prev, id: !columnVisibility.id }))
+  }
+  const setVisibility = (accessorKey: string) => {
+    switch (accessorKey) {
+      case 'displayName':
+        setDisplayNameVisibility()
+        break
+      case 'status':
+        setStatusVisibility()
+        break
+      case 'description':
+        setDescriptionVisibility()
+        break
+      case 'domains':
+        setDomainsVisibility()
+        break
+      case 'updatedBy':
+        setUpdatedByVisibility()
+        break
+      case 'updatedAt':
+        setUpdatedAtVisibility()
+        break
+      case 'createdBy':
+        setCreatedByVisibility()
+        break
+      case 'createdAt':
+        setCreatedAtVisibility()
+        break
+      case 'id':
+        setIdVisibility()
+        break
+    }
+  }
+
+  useEffect(() => {
+    if (copiedText) {
+      toast({
+        title: 'Copied to clipboard',
+        variant: 'success',
+      })
+    }
+  }, [copiedText])
+
+  useEffect(() => {
+    if (data?.entities?.edges) {
+      const vendors = data.entities.edges.map((edge) => edge?.node).filter((node) => node !== null) as Vendor[]
+      setVendor(vendors)
+    }
+  }, [data])
+
+  if (error || fetching) return null
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const searchValue = e.target.value.toLowerCase()
+    setSearchTerm(searchValue)
+
+    if (searchValue.length > 1) {
+      const filtered = data?.entities?.edges?.filter((edge) => {
+        // console.log("node", node)
+        console.log('name: ', edge.node.displayName, searchValue)
+        return edge?.node?.displayName?.toLowerCase().includes(searchValue)
+      })
+      setFilteredColumns(filtered)
+    }
+
+    if (searchValue === '') {
+      setFilteredColumns(columns)
+    }
+  }
+  const handleCreateNew = () => {
+    console.log('create new vendor')
+  }
+
   return (
     <div>
       <div className={vendorSearchRow()}>
@@ -243,13 +257,14 @@ export const VendorsTable = () => {
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger className="relative -left-[28%]">
-            <Button variant="outline" icon={<MoreVertical />} iconPosition="left">
+            {/* <Button variant="outline" icon={<MoreVertical />} iconPosition="left">
               Columns
-            </Button>
+            </Button> */}
+            Columns
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             {columns.map((column) => (
-              <DropdownMenuItem key={`vendor-dropdown-${column.accessorKey}`} onClick={() => setVisibility(column.accessorKey)}>
+              <DropdownMenuItem key={`vendor-dropdown-${column.header}`} onClick={() => setVisibility(column.accessorKey)}>
                 {column.header}
               </DropdownMenuItem>
             ))}
@@ -259,7 +274,7 @@ export const VendorsTable = () => {
           Create New
         </Button>
       </div>
-      <DataTable columns={columns} data={vendors} columnVisibility={columnVisibility} loading={fetching} />
+      <DataTable columns={filteredColumns} data={vendors} columnVisibility={columnVisibility} loading={fetching} />
     </div>
   )
 }
