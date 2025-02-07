@@ -232,10 +232,8 @@ export const VendorsTable = () => {
     const searchValue = e.target.value.toLowerCase()
     setSearchTerm(searchValue)
 
-    if (searchValue.length > 1) {
+    if (columns.length > 0) {
       const filtered = data?.entities?.edges?.filter((edge) => {
-        // console.log("node", node)
-        console.log('name: ', edge.node.displayName, searchValue)
         return edge?.node?.displayName?.toLowerCase().includes(searchValue)
       })
       setFilteredColumns(filtered)
@@ -256,12 +254,7 @@ export const VendorsTable = () => {
           <Input placeholder="Search for Vendor" value={searchTerm} onChange={handleSearch} />
         </div>
         <DropdownMenu>
-          <DropdownMenuTrigger className="relative -left-[28%]">
-            {/* <Button variant="outline" icon={<MoreVertical />} iconPosition="left">
-              Columns
-            </Button> */}
-            Columns
-          </DropdownMenuTrigger>
+          <DropdownMenuTrigger className="relative -left-[28%]">Columns</DropdownMenuTrigger>
           <DropdownMenuContent>
             {columns.map((column) => (
               <DropdownMenuItem key={`vendor-dropdown-${column.header}`} onClick={() => setVisibility(column.accessorKey)}>
