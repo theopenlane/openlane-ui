@@ -24,7 +24,7 @@ const InheritPermissionDialog = () => {
   const [step, setStep] = useState(1)
   const [isExpanded, setIsExpanded] = useState(false)
   const { toast } = useToast()
-  const { selectedGroup } = useMyGroupsStore()
+  const { selectedGroup, isAdmin } = useMyGroupsStore()
 
   const [{ data, fetching }] = useGetGroupDetailsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
   const { isManaged } = data?.group || {}
@@ -97,7 +97,7 @@ const InheritPermissionDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" icon={<Copy />} iconPosition="left" disabled={!!isManaged}>
+        <Button variant="outline" icon={<Copy />} iconPosition="left" disabled={!!isManaged || !isAdmin}>
           Inherit permission
         </Button>
       </DialogTrigger>

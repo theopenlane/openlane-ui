@@ -9,7 +9,7 @@ import { useToast } from '@repo/ui/use-toast'
 import { useDeleteGroupMutation, useGetGroupDetailsQuery } from '@repo/codegen/src/schema'
 
 const DeleteGroupDialog = () => {
-  const { selectedGroup, setSelectedGroup } = useMyGroupsStore()
+  const { selectedGroup, setSelectedGroup, isAdmin } = useMyGroupsStore()
   const [isOpen, setIsOpen] = useState(false)
   const { toast } = useToast()
 
@@ -34,7 +34,7 @@ const DeleteGroupDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button icon={<Trash2 />} iconPosition="left" variant="outline" disabled={!!isManaged}>
+        <Button icon={<Trash2 />} iconPosition="left" variant="outline" disabled={!!isManaged || !isAdmin}>
           Delete
         </Button>
       </DialogTrigger>

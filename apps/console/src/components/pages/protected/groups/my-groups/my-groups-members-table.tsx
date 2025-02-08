@@ -19,7 +19,7 @@ interface Member {
 
 const MyGroupsMembersTable = () => {
   const { data: session } = useSession()
-  const { selectedGroup } = useMyGroupsStore()
+  const { selectedGroup, isAdmin } = useMyGroupsStore()
   const [{ data, fetching }] = useGetGroupDetailsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
   const { members, isManaged, id } = data?.group || {}
   const [users, setUsers] = useState<Member[]>([])
@@ -81,7 +81,7 @@ const MyGroupsMembersTable = () => {
         const user = row.original
         return (
           <Select value={user.role} onValueChange={(value) => handleRoleChange(user.id, value as GroupMembershipRole)}>
-            <SelectTrigger disabled={!!isManaged} className="w-28 border border-brand ">
+            <SelectTrigger disabled={!!isManaged || !isAdmin} className="w-28 border border-brand ">
               <SelectValue placeholder="Select role" />
             </SelectTrigger>
             <SelectContent>
@@ -102,7 +102,11 @@ const MyGroupsMembersTable = () => {
         const user = row.original
 
         return (
-          <button disabled={!!isManaged} onClick={() => handleDelete(user.id)} className={`text-brand flex justify-end mt-2.5 ${isManaged ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+          <button
+            disabled={!!isManaged || !isAdmin}
+            onClick={() => handleDelete(user.id)}
+            className={`text-brand flex justify-end mt-2.5 ${isManaged || !isAdmin ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+          >
             <Trash2 className="h-5 w-5" />
           </button>
         )

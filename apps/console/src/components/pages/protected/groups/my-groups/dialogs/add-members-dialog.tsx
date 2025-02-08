@@ -10,7 +10,7 @@ import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import { useMyGroupsStore } from '@/hooks/useMyGroupsStore'
 
 const AddMembersDialog = () => {
-  const { selectedGroup } = useMyGroupsStore()
+  const { selectedGroup, isAdmin } = useMyGroupsStore()
   const { data: session } = useSession()
   const [isOpen, setIsOpen] = useState(false)
   const { toast } = useToast()
@@ -78,7 +78,7 @@ const AddMembersDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" icon={<Plus />} iconPosition="left" disabled={!!isManaged}>
+        <Button variant="outline" icon={<Plus />} iconPosition="left" disabled={!!isManaged || !isAdmin}>
           Add members
         </Button>
       </DialogTrigger>

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
-import { GlobeIcon, Info, Link, Tag, User, Pencil, Check, X } from 'lucide-react'
+import { GlobeIcon, Info, Link, Tag, User, Pencil, Check } from 'lucide-react'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import MyGroupsMembersTable from './my-groups-members-table'
 import { Card } from '@repo/ui/cardpanel'
@@ -13,7 +13,7 @@ import AddMembersDialog from './dialogs/add-members-dialog'
 import AssignPermissionsDialog from './dialogs/assign-permissions-dialog'
 import MyGroupsPermissionsTable from './my-groups-permissions-table'
 import InheritPermissionDialog from './dialogs/inherit-permission-dialog'
-import { useGetGroupDetailsQuery, useUpdateGroupMutation, GroupSettingVisibility } from '@repo/codegen/src/schema'
+import { useGetGroupDetailsQuery, useUpdateGroupMutation, GroupSettingVisibility, GroupMembershipRole } from '@repo/codegen/src/schema'
 import { Loading } from '@/components/shared/loading/loading'
 import { useToast } from '@repo/ui/use-toast'
 import { useMyGroupsStore } from '@/hooks/useMyGroupsStore'
@@ -24,6 +24,8 @@ import MultipleSelector from '@repo/ui/multiple-selector'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Textarea } from '@repo/ui/textarea'
 import { Input } from '@repo/ui/input'
+import { group } from 'console'
+import { useSession } from 'next-auth/react'
 
 const EditGroupSchema = z.object({
   groupName: z.string().min(1, 'Group name is required'),
@@ -35,22 +37,26 @@ const EditGroupSchema = z.object({
 type EditGroupFormData = z.infer<typeof EditGroupSchema>
 
 const GroupDetailsSheet = () => {
+  const { data: sessionData } = useSession()
   const [activeTab, setActiveTab] = useState<'Members' | 'Permissions'>('Members')
   const [isEditing, setIsEditing] = useState(false)
   const searchParams = useSearchParams()
   const router = useRouter()
-  const { selectedGroup, setSelectedGroup } = useMyGroupsStore()
+  const { selectedGroup, setSelectedGroup, setIsAdmin, isAdmin } = useMyGroupsStore()
   const { toast } = useToast()
 
   const [{ data, fetching }] = useGetGroupDetailsQuery({
     variables: { groupId: selectedGroup || '' },
     pause: !selectedGroup,
   })
+
+  console.log('isAdmin', isAdmin)
+
   const { name, description, members, setting, tags, id, isManaged } = data?.group || {}
 
   const [{}, updateGroup] = useUpdateGroupMutation()
 
-  const { control, handleSubmit, reset, setValue } = useForm<EditGroupFormData>({
+  const { control, handleSubmit, reset } = useForm<EditGroupFormData>({
     resolver: zodResolver(EditGroupSchema),
     defaultValues: {
       groupName: name || '',
@@ -59,17 +65,6 @@ const GroupDetailsSheet = () => {
       tags: tags?.map((tag) => ({ value: tag, label: tag })) || [],
     },
   })
-
-  useEffect(() => {
-    if (data) {
-      reset({
-        groupName: name || '',
-        description: description || '',
-        visibility: setting?.visibility === GroupSettingVisibility.PUBLIC ? 'Public' : 'Private',
-        tags: tags?.map((tag) => ({ value: tag, label: tag })) || [],
-      })
-    }
-  }, [data, reset, name, description, setting, tags])
 
   const handleCopyLink = () => {
     if (!selectedGroup) return
@@ -90,13 +85,6 @@ const GroupDetailsSheet = () => {
         })
       })
   }
-
-  useEffect(() => {
-    const groupId = searchParams.get('groupid')
-    if (groupId) {
-      setSelectedGroup(groupId)
-    }
-  }, [searchParams, setSelectedGroup])
 
   const handleSheetClose = () => {
     if (isEditing) {
@@ -134,6 +122,28 @@ const GroupDetailsSheet = () => {
     }
   }
 
+  useEffect(() => {
+    if (data) {
+      reset({
+        groupName: name || '',
+        description: description || '',
+        visibility: setting?.visibility === GroupSettingVisibility.PUBLIC ? 'Public' : 'Private',
+        tags: tags?.map((tag) => ({ value: tag, label: tag })) || [],
+      })
+      const userRole = data.group.members?.find((membership) => membership.user.id === sessionData?.user.userId)?.role
+      if (userRole) {
+        setIsAdmin(userRole === GroupMembershipRole.ADMIN)
+      }
+    }
+  }, [data, reset, name, description, setting, tags])
+
+  useEffect(() => {
+    const groupId = searchParams.get('groupid')
+    if (groupId) {
+      setSelectedGroup(groupId)
+    }
+  }, [searchParams, setSelectedGroup])
+
   return (
     <Sheet open={!!selectedGroup} onOpenChange={handleSheetClose}>
       <SheetContent className="bg-card">
@@ -156,7 +166,7 @@ const GroupDetailsSheet = () => {
                     </Button>
                   </div>
                 ) : (
-                  <Button disabled={!!isManaged} icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
+                  <Button disabled={!!isManaged || !isAdmin} icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
                     Edit Group
                   </Button>
                 )}

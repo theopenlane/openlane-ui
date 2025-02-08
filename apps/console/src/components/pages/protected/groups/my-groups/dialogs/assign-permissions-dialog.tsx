@@ -62,7 +62,6 @@ const options = Object.values(ObjectTypes)
 const AssignPermissionsDialog = () => {
   const { selectedGroup } = useMyGroupsStore()
   const [{ data: groupData }] = useGetGroupDetailsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
-  const { isManaged } = groupData?.group || {}
 
   const [isOpen, setIsOpen] = useState(false)
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([])
@@ -231,7 +230,7 @@ const AssignPermissionsDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="outline" icon={<Plus />} iconPosition="left" disabled={!!isManaged}>
+        <Button variant="outline" icon={<Plus />} iconPosition="left">
           Assign permissions to group
         </Button>
       </DialogTrigger>

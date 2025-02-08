@@ -9,6 +9,9 @@ interface GroupsState {
 
   selectedGroup: string | null
   setSelectedGroup: (groupId: string | null) => void
+
+  isAdmin: boolean
+  setIsAdmin: (value: boolean) => void
 }
 
 export const useMyGroupsStore = create<GroupsState>()((set) => ({
@@ -20,4 +23,7 @@ export const useMyGroupsStore = create<GroupsState>()((set) => ({
 
   selectedGroup: null,
   setSelectedGroup: (groupId) => set({ selectedGroup: groupId }),
+
+  isAdmin: false,
+  setIsAdmin: (value) => set({ isAdmin: value }),
 }))
