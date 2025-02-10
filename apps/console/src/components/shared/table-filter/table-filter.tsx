@@ -1,6 +1,4 @@
-'use client'
-
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { ListFilter, Trash2 } from 'lucide-react'
 import { Popover, PopoverTrigger, PopoverContent } from '@repo/ui/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
@@ -8,6 +6,7 @@ import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { Filter, FilterField, WhereCondition } from '@/types'
 import { tableFilterStyles } from '@/components/shared/table-filter/table-filter-styles'
+import { useDebounce } from '@uidotdev/usehooks'
 
 const getOperatorsForType = (type: Filter['type']) => {
   const operatorMap = {
@@ -48,6 +47,7 @@ export const DataTableFilterList: React.FC<DataTableFilterListProps> = ({ filter
   const [filters, setFilters] = useState<Filter[]>([])
   const [conjunction, setConjunction] = useState<'and' | 'or'>('and')
 
+  const debouncedFilters = useDebounce(filters, 300) // ✅ Debounce filters with 300ms delay
   const { prefixes, columnName, operator, value } = tableFilterStyles()
 
   const generateWhereCondition = (filters: Filter[], conjunction: 'and' | 'or') => {
@@ -66,9 +66,12 @@ export const DataTableFilterList: React.FC<DataTableFilterListProps> = ({ filter
     return conditions.length > 1 ? { [conjunction]: conditions } : conditions[0] || {}
   }
 
+  useEffect(() => {
+    onFilterChange?.(generateWhereCondition(debouncedFilters, conjunction))
+  }, [debouncedFilters, conjunction, onFilterChange])
+
   const updateFilters = (updatedFilters: Filter[]) => {
     setFilters(updatedFilters)
-    onFilterChange?.(generateWhereCondition(updatedFilters, conjunction))
   }
 
   const addFilter = () => {
@@ -101,7 +104,7 @@ export const DataTableFilterList: React.FC<DataTableFilterListProps> = ({ filter
   }
 
   const handleFilterChange = (index: number, field: Partial<Filter>) => {
-    updateFilters(filters.map((filter, i) => (i === index ? { ...filter, ...field } : filter)))
+    setFilters(filters.map((filter, i) => (i === index ? { ...filter, ...field } : filter)))
   }
 
   const removeFilter = (index: number) => {
