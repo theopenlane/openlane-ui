@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState } from 'react'
 import { ListFilter, Trash2 } from 'lucide-react'
 import { Popover, PopoverTrigger, PopoverContent } from '@repo/ui/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
@@ -10,39 +10,33 @@ import { Filter, FilterField, WhereCondition } from '@/types'
 import { tableFilterStyles } from '@/components/shared/table-filter/table-filter-styles'
 
 const getOperatorsForType = (type: Filter['type']) => {
-  switch (type) {
-    case 'text':
-      return [
-        { value: 'is', label: 'Is', fieldSuffix: '' },
-        { value: 'contains', label: 'Contains', fieldSuffix: 'Contains' },
-        { value: 'startsWith', label: 'Starts With', fieldSuffix: 'HasPrefix' },
-        { value: 'endsWith', label: 'Ends With', fieldSuffix: 'HasSuffix' },
-      ]
-    case 'boolean':
-      return [
-        { value: 'is', label: 'Is', fieldSuffix: '' },
-        { value: 'isNot', label: 'Is Not', fieldSuffix: 'NEQ' },
-      ]
-    case 'select':
-      return [
-        { value: 'is', label: 'Is', fieldSuffix: '' },
-        { value: 'isNot', label: 'Is Not', fieldSuffix: 'NEQ' },
-      ]
-    case 'number':
-      return [
-        { value: 'is', label: 'Is', fieldSuffix: '' },
-        { value: 'greaterThan', label: 'Greater Than', fieldSuffix: 'GT' },
-        { value: 'lessThan', label: 'Less Than', fieldSuffix: 'LT' },
-      ]
-    case 'date':
-      return [
-        { value: 'is', label: 'Is', fieldSuffix: '' },
-        { value: 'isAfter', label: 'Is After', fieldSuffix: 'GT' },
-        { value: 'isBefore', label: 'Is Before', fieldSuffix: 'LT' },
-      ]
-    default:
-      return []
+  const operatorMap = {
+    text: [
+      { value: 'EQ', label: 'Is' },
+      { value: 'Contains', label: 'Contains' },
+      { value: 'HasPrefix', label: 'Starts With' },
+      { value: 'HasSuffix', label: 'Ends With' },
+    ],
+    boolean: [
+      { value: 'EQ', label: 'Is' },
+      { value: 'NEQ', label: 'Is Not' },
+    ],
+    select: [
+      { value: 'EQ', label: 'Is' },
+      { value: 'NEQ', label: 'Is Not' },
+    ],
+    number: [
+      { value: 'EQ', label: 'Is' },
+      { value: 'GT', label: 'Greater Than' },
+      { value: 'LT', label: 'Less Than' },
+    ],
+    date: [
+      { value: 'EQ', label: 'Is' },
+      { value: 'GT', label: 'Is After' },
+      { value: 'LT', label: 'Is Before' },
+    ],
   }
+  return operatorMap[type] || []
 }
 
 interface DataTableFilterListProps {
@@ -58,13 +52,13 @@ export const DataTableFilterList: React.FC<DataTableFilterListProps> = ({ filter
 
   const generateWhereCondition = (filters: Filter[], conjunction: 'and' | 'or') => {
     const conditions = filters
-      .filter((filter) => filter.value !== '')
-      .map(({ field, operator, value }) => {
-        const operatorMapping = getOperatorsForType('text').find((op) => op.value === operator)
+      .filter(({ value }) => value !== '')
+      .map(({ field, type, operator, value }) => {
+        const operatorMapping = getOperatorsForType(type).find((op) => op.value === operator)
 
         if (!operatorMapping) return {}
 
-        const queryField = operatorMapping.fieldSuffix ? `${field}${operatorMapping.fieldSuffix}` : field
+        const queryField = operatorMapping.value !== 'EQ' ? `${field}${operatorMapping.value}` : field
 
         return { [queryField]: value }
       })
@@ -87,17 +81,26 @@ export const DataTableFilterList: React.FC<DataTableFilterListProps> = ({ filter
         field: firstField.key,
         value: '',
         type: firstField.type,
-        operator: getOperatorsForType(firstField.type)[0]?.value || 'equals',
+        operator: 'EQ',
       },
     ])
   }
 
   const resetFilters = () => {
-    updateFilters([])
-    addFilter()
+    if (!filterFields.length) return
+    const firstField = filterFields[0]
+    setFilters([
+      {
+        id: crypto.randomUUID(),
+        field: firstField.key,
+        value: '',
+        type: firstField.type,
+        operator: 'EQ',
+      },
+    ])
   }
 
-  const updateFilter = (index: number, field: Partial<Filter>) => {
+  const handleFilterChange = (index: number, field: Partial<Filter>) => {
     updateFilters(filters.map((filter, i) => (i === index ? { ...filter, ...field } : filter)))
   }
 
@@ -112,10 +115,10 @@ export const DataTableFilterList: React.FC<DataTableFilterListProps> = ({ filter
     switch (filter.type) {
       case 'text':
       case 'number':
-        return <Input className={value()} type={filter.type} placeholder="Enter a value..." value={filter.value} onChange={(e) => updateFilter(index, { value: e.target.value })} />
+        return <Input className={value()} type={filter.type} placeholder="Enter a value..." value={filter.value} onChange={(e) => handleFilterChange(index, { value: e.target.value })} />
       case 'select':
         return (
-          <Select value={filter.value} onValueChange={(value) => updateFilter(index, { value })}>
+          <Select value={filter.value} onValueChange={(value) => handleFilterChange(index, { value })}>
             <SelectTrigger className={value()}>
               <SelectValue placeholder="Select an option..." />
             </SelectTrigger>
@@ -129,10 +132,10 @@ export const DataTableFilterList: React.FC<DataTableFilterListProps> = ({ filter
           </Select>
         )
       case 'date':
-        return <Input className={value()} type="date" value={filter.value} onChange={(e) => updateFilter(index, { value: e.target.value })} />
+        return <Input className={value()} type="date" value={filter.value} onChange={(e) => handleFilterChange(index, { value: e.target.value })} />
       case 'boolean':
         return (
-          <Select value={String(filter.value)} onValueChange={(value) => updateFilter(index, { value: value === 'true' })}>
+          <Select value={String(filter.value)} onValueChange={(value) => handleFilterChange(index, { value: value === 'true' })}>
             <SelectTrigger className={value()}>
               <SelectValue placeholder="Select..." />
             </SelectTrigger>
@@ -181,7 +184,7 @@ export const DataTableFilterList: React.FC<DataTableFilterListProps> = ({ filter
                   onValueChange={(value) => {
                     const selectedField = filterFields.find((f) => f.key === value)
                     if (selectedField) {
-                      updateFilter(index, {
+                      handleFilterChange(index, {
                         field: value,
                         type: selectedField.type,
                         value: '',
@@ -202,7 +205,7 @@ export const DataTableFilterList: React.FC<DataTableFilterListProps> = ({ filter
                   </SelectContent>
                 </Select>
 
-                <Select value={filter.operator} onValueChange={(value) => updateFilter(index, { operator: value })}>
+                <Select value={filter.operator} onValueChange={(value) => handleFilterChange(index, { operator: value })}>
                   <SelectTrigger className={operator()}>
                     <SelectValue placeholder="Select operator" />
                   </SelectTrigger>
