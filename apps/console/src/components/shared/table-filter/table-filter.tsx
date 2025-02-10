@@ -13,32 +13,32 @@ const getOperatorsForType = (type: Filter['type']) => {
   switch (type) {
     case 'text':
       return [
-        { value: 'is', label: 'Is' },
-        { value: 'contains', label: 'Contains' },
-        { value: 'startsWith', label: 'Starts With' },
-        { value: 'endsWith', label: 'Ends With' },
+        { value: 'is', label: 'Is', fieldSuffix: '' },
+        { value: 'contains', label: 'Contains', fieldSuffix: 'Contains' },
+        { value: 'startsWith', label: 'Starts With', fieldSuffix: 'HasPrefix' },
+        { value: 'endsWith', label: 'Ends With', fieldSuffix: 'HasSuffix' },
       ]
     case 'boolean':
       return [
-        { value: 'is', label: 'Is' },
-        { value: 'isNot', label: 'Is Not' },
+        { value: 'is', label: 'Is', fieldSuffix: '' },
+        { value: 'isNot', label: 'Is Not', fieldSuffix: 'NEQ' },
       ]
     case 'select':
       return [
-        { value: 'is', label: 'Is' },
-        { value: 'isNot', label: 'Is Not' },
+        { value: 'is', label: 'Is', fieldSuffix: '' },
+        { value: 'isNot', label: 'Is Not', fieldSuffix: 'NEQ' },
       ]
     case 'number':
       return [
-        { value: 'is', label: 'Is' },
-        { value: 'greaterThan', label: 'Greater Than' },
-        { value: 'lessThan', label: 'Less Than' },
+        { value: 'is', label: 'Is', fieldSuffix: '' },
+        { value: 'greaterThan', label: 'Greater Than', fieldSuffix: 'GT' },
+        { value: 'lessThan', label: 'Less Than', fieldSuffix: 'LT' },
       ]
     case 'date':
       return [
-        { value: 'is', label: 'Is' },
-        { value: 'isAfter', label: 'Is After' },
-        { value: 'isBefore', label: 'Is Before' },
+        { value: 'is', label: 'Is', fieldSuffix: '' },
+        { value: 'isAfter', label: 'Is After', fieldSuffix: 'GT' },
+        { value: 'isBefore', label: 'Is Before', fieldSuffix: 'LT' },
       ]
     default:
       return []
@@ -56,15 +56,21 @@ export const DataTableFilterList: React.FC<DataTableFilterListProps> = ({ filter
 
   const { prefixes, columnName, operator, value } = tableFilterStyles()
 
-  const generateWhereCondition = useCallback((filters: Filter[], conjunction: 'and' | 'or'): WhereCondition => {
+  const generateWhereCondition = (filters: Filter[], conjunction: 'and' | 'or') => {
     const conditions = filters
-      .filter(({ value }) => value !== '')
-      .map(({ field, operator, value }) => ({
-        [operator === 'is' ? field : `${field}${operator.charAt(0).toUpperCase() + operator.slice(1)}`]: value,
-      }))
+      .filter((filter) => filter.value !== '')
+      .map(({ field, operator, value }) => {
+        const operatorMapping = getOperatorsForType('text').find((op) => op.value === operator)
+
+        if (!operatorMapping) return {}
+
+        const queryField = operatorMapping.fieldSuffix ? `${field}${operatorMapping.fieldSuffix}` : field
+
+        return { [queryField]: value }
+      })
 
     return conditions.length > 1 ? { [conjunction]: conditions } : conditions[0] || {}
-  }, [])
+  }
 
   const updateFilters = (updatedFilters: Filter[]) => {
     setFilters(updatedFilters)
