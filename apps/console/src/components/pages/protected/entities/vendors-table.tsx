@@ -65,7 +65,7 @@ export const VendorsTable = () => {
         const tags = row?.original?.tags as string[]
         return (
           <div className={nameRowDescription()}>
-            <div className={vendorDescription()}>{description}</div>
+            {!!description.length && <div className={vendorDescription()}>{description}</div>}
             <div className={vendorTags()}>
               {tags.map((tag) => (
                 <Badge key={tag} className="m-1 mt-0" variant="outline">

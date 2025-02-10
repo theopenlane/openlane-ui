@@ -8,8 +8,8 @@ export const pageStyles = tv({
     vendorButtons: '',
     nameRow: 'flex gap-2',
     nameRowDescription: 'flex gap-2 grid grid-flow-col grid-rows-2 grid-cols-3',
-    vendorDescription: 'p-2 col-span-full',
-    vendorTags: 'p-2 col-span-full',
+    vendorDescription: 'p-2 col-span-full line-clamp-3 overflow-hidden text-ellipsis border-dashed border-b',
+    vendorTags: 'pt-2 col-span-full',
     copyIcon: 'text-accent-secondary-muted cursor-pointer',
   },
 })
