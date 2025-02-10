@@ -28,16 +28,22 @@ const MyGroupsMembersTable = () => {
   useEffect(() => {
     if (selectedGroup) {
       const membersList = members || []
-      setUsers(
-        membersList
-          .filter((member) => member.user.id !== session?.user.userId)
-          .map((member, index) => ({
-            id: member.id,
-            name: member.user.firstName || 'Unknown Member',
-            role: member.role,
-            avatar: member.user.avatarFile?.presignedURL || member.user.avatarRemoteURL || '',
-          })),
-      )
+
+      const sortedMembers = membersList
+        .filter((member) => member.user.id !== session?.user.userId)
+        .map((member) => ({
+          id: member.id,
+          name: member.user.firstName || 'Unknown Member',
+          role: member.role,
+          avatar: member.user.avatarFile?.presignedURL || member.user.avatarRemoteURL || '',
+        }))
+        .sort((a, b) => {
+          if (a.role === GroupMembershipRole.ADMIN && b.role !== GroupMembershipRole.ADMIN) return -1
+          if (a.role !== GroupMembershipRole.ADMIN && b.role === GroupMembershipRole.ADMIN) return 1
+          return 0
+        })
+
+      setUsers(sortedMembers)
     }
   }, [selectedGroup, members])
 
