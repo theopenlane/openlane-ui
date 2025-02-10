@@ -51,3 +51,14 @@ export type Filter = {
   type: FilterType
   operator: string
 }
+
+export type Condition = {
+  [field: string]: string | number | boolean | { [operator: string]: string | number }
+}
+
+export type WhereCondition =
+  | {
+      and?: Condition[]
+      or?: Condition[]
+    }
+  | Condition

@@ -1,19 +1,19 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { ListFilter, Trash2 } from 'lucide-react'
 import { Popover, PopoverTrigger, PopoverContent } from '@repo/ui/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
-import { Filter, FilterField } from '@/types'
+import { Filter, FilterField, WhereCondition } from '@/types'
 import { tableFilterStyles } from '@/components/shared/table-filter/table-filter-styles'
 
 const getOperatorsForType = (type: Filter['type']) => {
   switch (type) {
     case 'text':
       return [
-        { value: 'equals', label: 'Equals' },
+        { value: 'is', label: 'Is' },
         { value: 'contains', label: 'Contains' },
         { value: 'startsWith', label: 'Starts With' },
         { value: 'endsWith', label: 'Ends With' },
@@ -30,7 +30,7 @@ const getOperatorsForType = (type: Filter['type']) => {
       ]
     case 'number':
       return [
-        { value: 'equals', label: 'Equals' },
+        { value: 'is', label: 'Is' },
         { value: 'greaterThan', label: 'Greater Than' },
         { value: 'lessThan', label: 'Less Than' },
       ]
@@ -45,46 +45,61 @@ const getOperatorsForType = (type: Filter['type']) => {
   }
 }
 
-export interface DataTableFilterListProps {
+interface DataTableFilterListProps {
   filterFields: FilterField[]
+  onFilterChange?: (whereCondition: WhereCondition) => void
 }
 
-export function DataTableFilterList({ filterFields }: DataTableFilterListProps) {
+export const DataTableFilterList: React.FC<DataTableFilterListProps> = ({ filterFields, onFilterChange }) => {
   const [filters, setFilters] = useState<Filter[]>([])
-  const [conjunction, setConjunction] = useState<string>('and')
+  const [conjunction, setConjunction] = useState<'and' | 'or'>('and')
 
   const { prefixes, columnName, operator, value } = tableFilterStyles()
 
-  function addFilter() {
-    if (!filterFields.length) return
+  const generateWhereCondition = useCallback((filters: Filter[], conjunction: 'and' | 'or'): WhereCondition => {
+    const conditions = filters
+      .filter(({ value }) => value !== '')
+      .map(({ field, operator, value }) => ({
+        [operator === 'is' ? field : `${field}${operator.charAt(0).toUpperCase() + operator.slice(1)}`]: value,
+      }))
 
+    return conditions.length > 1 ? { [conjunction]: conditions } : conditions[0] || {}
+  }, [])
+
+  const updateFilters = (updatedFilters: Filter[]) => {
+    setFilters(updatedFilters)
+    onFilterChange?.(generateWhereCondition(updatedFilters, conjunction))
+  }
+
+  const addFilter = () => {
+    if (!filterFields.length) return
     const firstField = filterFields[0]
-    setFilters((prevFilters) => [
-      ...prevFilters,
+    updateFilters([
+      ...filters,
       {
         id: crypto.randomUUID(),
         field: firstField.key,
         value: '',
         type: firstField.type,
-        operator: getOperatorsForType(firstField.type)[0]?.value || 'equals', // Default to the first operator
-      } as Filter,
+        operator: getOperatorsForType(firstField.type)[0]?.value || 'equals',
+      },
     ])
   }
 
-  function resetFilters() {
-    setFilters([])
+  const resetFilters = () => {
+    updateFilters([])
     addFilter()
   }
 
-  function updateFilter(index: number, field: Partial<Filter>) {
-    setFilters((prevFilters) => prevFilters.map((filter, i) => (i === index ? { ...filter, ...field } : filter)))
+  const updateFilter = (index: number, field: Partial<Filter>) => {
+    updateFilters(filters.map((filter, i) => (i === index ? { ...filter, ...field } : filter)))
   }
 
-  function removeFilter(index: number) {
-    setFilters((prevFilters) => prevFilters.filter((_, i) => i !== index))
+  const removeFilter = (index: number) => {
+    updateFilters(filters.filter((_, i) => i !== index))
   }
 
-  function renderFilterInput(filter: Filter, index: number) {
+  const renderFilterInput = (filter: Filter, index: number) => {
     const filterField = filterFields.find((f) => f.key === filter.field)
     if (!filterField) return null
 
@@ -144,7 +159,7 @@ export function DataTableFilterList({ filterFields }: DataTableFilterListProps) 
               <div key={filter.id} className="flex items-center gap-2">
                 {index === 0 && <p className={prefixes()}>Where</p>}
                 {index === 1 && (
-                  <Select value={conjunction} onValueChange={(val) => setConjunction(val)}>
+                  <Select value={conjunction} onValueChange={(val: 'and' | 'or') => setConjunction(val)}>
                     <SelectTrigger className={prefixes()}>
                       <SelectValue placeholder="And/Or" />
                     </SelectTrigger>
