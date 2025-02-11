@@ -1,6 +1,6 @@
 import { tv, type VariantProps } from 'tailwind-variants'
 
-const myGroupsTableStyles = tv({
+const groupsTableStyles = tv({
   slots: {
     tableRow: 'h-64 text-center',
     keyIcon: 'text-accent-primary cursor-pointer text-4xl',
@@ -9,6 +9,6 @@ const myGroupsTableStyles = tv({
   },
 })
 
-export type myGroupsTableStyles = VariantProps<typeof myGroupsTableStyles>
+export type groupsTableStyles = VariantProps<typeof groupsTableStyles>
 
-export { myGroupsTableStyles }
+export { groupsTableStyles }

@@ -14,7 +14,7 @@ interface GroupsState {
   setIsAdmin: (value: boolean) => void
 }
 
-export const useMyGroupsStore = create<GroupsState>()((set) => ({
+export const useGroupsStore = create<GroupsState>()((set) => ({
   activeTab: 'table',
   setActiveTab: (tab) => set({ activeTab: tab }),
 

@@ -10,7 +10,7 @@ import { useToast } from '@repo/ui/use-toast'
 import { Label } from '@repo/ui/label'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
-import { useMyGroupsStore } from '@/hooks/useMyGroupsStore'
+import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { GetAllRisksDocument, useGetGroupDetailsQuery, useUpdateGroupMutation } from '@repo/codegen/src/schema'
 import debounce from 'lodash.debounce'
 import { useQuery } from 'urql'
@@ -60,7 +60,7 @@ const generateWhere = ({
 const options = Object.values(ObjectTypes)
 
 const AssignPermissionsDialog = () => {
-  const { selectedGroup } = useMyGroupsStore()
+  const { selectedGroup } = useGroupsStore()
   const [{ data: groupData }] = useGetGroupDetailsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
 
   const [isOpen, setIsOpen] = useState(false)

@@ -7,7 +7,7 @@ import { ColumnDef } from '@tanstack/react-table'
 import { Trash2 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { GroupMembershipRole, useGetGroupDetailsQuery, UserRole, useUpdateGroupMembershipMutation } from '@repo/codegen/src/schema'
-import { useMyGroupsStore } from '@/hooks/useMyGroupsStore'
+import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { useSession } from 'next-auth/react'
 
 interface Member {
@@ -17,9 +17,9 @@ interface Member {
   avatar?: string
 }
 
-const MyGroupsMembersTable = () => {
+const GroupsMembersTable = () => {
   const { data: session } = useSession()
-  const { selectedGroup, isAdmin } = useMyGroupsStore()
+  const { selectedGroup, isAdmin } = useGroupsStore()
   const [{ data, fetching }] = useGetGroupDetailsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
   const { members, isManaged, id } = data?.group || {}
   const [users, setUsers] = useState<Member[]>([])
@@ -124,4 +124,4 @@ const MyGroupsMembersTable = () => {
   return <DataTable columns={columns} data={users} noResultsText="No users found" />
 }
 
-export default MyGroupsMembersTable
+export default GroupsMembersTable

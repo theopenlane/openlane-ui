@@ -6,17 +6,17 @@ import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { GlobeIcon, Info, Link, Tag, User, Pencil, Check } from 'lucide-react'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import MyGroupsMembersTable from './my-groups-members-table'
+import GroupsMembersTable from './groups-members-table'
 import { Card } from '@repo/ui/cardpanel'
 import DeleteGroupDialog from './dialogs/delete-group-dialog'
 import AddMembersDialog from './dialogs/add-members-dialog'
 import AssignPermissionsDialog from './dialogs/assign-permissions-dialog'
-import MyGroupsPermissionsTable from './my-groups-permissions-table'
+import GroupsPermissionsTable from './groups-permissions-table'
 import InheritPermissionDialog from './dialogs/inherit-permission-dialog'
 import { useGetGroupDetailsQuery, useUpdateGroupMutation, GroupSettingVisibility, GroupMembershipRole } from '@repo/codegen/src/schema'
 import { Loading } from '@/components/shared/loading/loading'
 import { useToast } from '@repo/ui/use-toast'
-import { useMyGroupsStore } from '@/hooks/useMyGroupsStore'
+import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { z } from 'zod'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -41,7 +41,7 @@ const GroupDetailsSheet = () => {
   const [isEditing, setIsEditing] = useState(false)
   const searchParams = useSearchParams()
   const router = useRouter()
-  const { selectedGroup, setSelectedGroup, setIsAdmin, isAdmin } = useMyGroupsStore()
+  const { selectedGroup, setSelectedGroup, setIsAdmin, isAdmin } = useGroupsStore()
   const { toast } = useToast()
 
   const [{ data, fetching }] = useGetGroupDetailsQuery({
@@ -258,7 +258,7 @@ const GroupDetailsSheet = () => {
                     Permissions
                   </p>
                 </div>
-                <div className="mt-7">{activeTab === 'Members' ? <MyGroupsMembersTable /> : <MyGroupsPermissionsTable />}</div>
+                <div className="mt-7">{activeTab === 'Members' ? <GroupsMembersTable /> : <GroupsPermissionsTable />}</div>
               </div>
             </form>
           </>

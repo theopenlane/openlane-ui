@@ -6,13 +6,12 @@ import { ColumnDef } from '@tanstack/table-core'
 import { GlobeIcon, LockIcon, StarsIcon, Users2Icon } from 'lucide-react'
 import React from 'react'
 import { Exact, GetAllGroupsQuery, GroupSettingVisibility, GroupWhereInput, InputMaybe, useGetAllGroupsQuery } from '@repo/codegen/src/schema'
-import { useMyGroupsStore } from '@/hooks/useMyGroupsStore'
 import AvatarList from '@/components/shared/avatar-list/avatar-list'
 import { TableCell, TableRow } from '@repo/ui/table'
-
 import { Group } from '../groups-page'
-import { myGroupsTableStyles } from './my-groups-table-styles'
+import { groupsTableStyles } from './groups-table-styles'
 import { UseQueryResponse } from 'urql'
+import { useGroupsStore } from '@/hooks/useGroupsStore'
 
 const columns: ColumnDef<Group>[] = [
   {
@@ -106,11 +105,11 @@ interface Props {
   >
 }
 
-const MyGroupsTable = ({ queryResp }: Props) => {
+const GroupsTable = ({ queryResp }: Props) => {
   const [{ data, error }] = queryResp
-  const { setSelectedGroup } = useMyGroupsStore()
+  const { setSelectedGroup } = useGroupsStore()
 
-  const { tableRow, keyIcon, message } = myGroupsTableStyles()
+  const { tableRow, keyIcon, message } = groupsTableStyles()
 
   const transformedData =
     data?.groups?.edges
@@ -153,4 +152,4 @@ const MyGroupsTable = ({ queryResp }: Props) => {
   )
 }
 
-export default MyGroupsTable
+export default GroupsTable

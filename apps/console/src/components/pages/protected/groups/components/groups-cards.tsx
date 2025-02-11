@@ -6,7 +6,7 @@ import { Badge } from '@repo/ui/badge'
 import { GlobeIcon, LockIcon } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
 import { Exact, GetAllGroupsQuery, GroupWhereInput, InputMaybe, useGetAllGroupsQuery } from '@repo/codegen/src/schema'
-import { useMyGroupsStore } from '@/hooks/useMyGroupsStore'
+import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { Group } from '../groups-page'
 import { UseQueryResponse } from 'urql'
 
@@ -20,7 +20,7 @@ interface Props {
 }
 
 const MyGroupsCard = ({ queryResp }: Props) => {
-  const { setSelectedGroup } = useMyGroupsStore()
+  const { setSelectedGroup } = useGroupsStore()
   const [{ data, error, fetching }] = queryResp
 
   const transformedData =

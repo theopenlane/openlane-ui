@@ -1,6 +1,6 @@
 'use client'
 import React, { useState } from 'react'
-import { useMyGroupsStore } from '@/hooks/useMyGroupsStore'
+import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Trash2, AlertTriangle } from 'lucide-react'
@@ -9,7 +9,7 @@ import { useToast } from '@repo/ui/use-toast'
 import { useDeleteGroupMutation, useGetGroupDetailsQuery } from '@repo/codegen/src/schema'
 
 const DeleteGroupDialog = () => {
-  const { selectedGroup, setSelectedGroup, isAdmin } = useMyGroupsStore()
+  const { selectedGroup, setSelectedGroup, isAdmin } = useGroupsStore()
   const [isOpen, setIsOpen] = useState(false)
   const { toast } = useToast()
 

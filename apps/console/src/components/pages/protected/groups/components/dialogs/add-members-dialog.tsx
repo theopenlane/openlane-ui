@@ -7,10 +7,10 @@ import { useToast } from '@repo/ui/use-toast'
 import { GetSingleOrganizationMembersQueryVariables, useGetGroupDetailsQuery, useGetSingleOrganizationMembersQuery, useUpdateGroupMutation } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
-import { useMyGroupsStore } from '@/hooks/useMyGroupsStore'
+import { useGroupsStore } from '@/hooks/useGroupsStore'
 
 const AddMembersDialog = () => {
-  const { selectedGroup, isAdmin } = useMyGroupsStore()
+  const { selectedGroup, isAdmin } = useGroupsStore()
   const { data: session } = useSession()
   const [isOpen, setIsOpen] = useState(false)
   const { toast } = useToast()
