@@ -38,16 +38,16 @@ const getOperatorsForType = (type: Filter['type']) => {
   return operatorMap[type] || []
 }
 
-interface DataTableFilterListProps {
+interface TableFilterProps {
   filterFields: FilterField[]
   onFilterChange?: (whereCondition: WhereCondition) => void
 }
 
-export const DataTableFilterList: React.FC<DataTableFilterListProps> = ({ filterFields, onFilterChange }) => {
+export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilterChange }) => {
   const [filters, setFilters] = useState<Filter[]>([])
   const [conjunction, setConjunction] = useState<'and' | 'or'>('and')
 
-  const debouncedFilters = useDebounce(filters, 300) // ✅ Debounce filters with 300ms delay
+  const debouncedFilters = useDebounce(filters, 300)
   const { prefixes, columnName, operator, value } = tableFilterStyles()
 
   const generateWhereCondition = (filters: Filter[], conjunction: 'and' | 'or') => {
@@ -156,10 +156,12 @@ export const DataTableFilterList: React.FC<DataTableFilterListProps> = ({ filter
   return (
     <Popover onOpenChange={(open) => open && filters.length === 0 && addFilter()}>
       <PopoverTrigger asChild>
-        <Button className="gap-2">
-          <ListFilter className="h-4 w-4" />
-          Add Filter
-        </Button>
+        <button className="gap-2 flex items-center py-1.5 px-3 border rounded-lg">
+          <ListFilter size={16} />
+          <p className="text-sm">Add Filter</p>
+          <div className="border h-4" />
+          <p className="text-sm">{filters.filter((filter) => filter.value !== '').length}</p>
+        </button>
       </PopoverTrigger>
       <PopoverContent align="start" side="bottom" sideOffset={8} asChild className="size-fit p-4 ">
         <div className="flex flex-col gap-2">
