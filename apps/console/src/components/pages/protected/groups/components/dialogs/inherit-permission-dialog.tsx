@@ -10,7 +10,7 @@ import { Copy, ChevronDown, ChevronUp } from 'lucide-react'
 import { useGetAllGroupsQuery, useGetGroupDetailsQuery, useUpdateGroupMutation } from '@repo/codegen/src/schema'
 import { DataTable } from '@repo/ui/data-table'
 import { Input } from '@repo/ui/input'
-import { useMyGroupsStore } from '@/hooks/useMyGroupsStore'
+import { useGroupsStore } from '@/hooks/useGroupsStore'
 
 const columns = [
   { accessorKey: 'object', header: 'Object' },
@@ -24,7 +24,7 @@ const InheritPermissionDialog = () => {
   const [step, setStep] = useState(1)
   const [isExpanded, setIsExpanded] = useState(false)
   const { toast } = useToast()
-  const { selectedGroup } = useMyGroupsStore()
+  const { selectedGroup, isAdmin } = useGroupsStore()
 
   const [{ data, fetching }] = useGetGroupDetailsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
   const { isManaged } = data?.group || {}
@@ -97,7 +97,7 @@ const InheritPermissionDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" icon={<Copy />} iconPosition="left" disabled={!!isManaged}>
+        <Button variant="outline" icon={<Copy />} iconPosition="left" disabled={!!isManaged || !isAdmin}>
           Inherit permission
         </Button>
       </DialogTrigger>
@@ -164,7 +164,7 @@ const InheritPermissionDialog = () => {
             </Button>
           ) : (
             <>
-              <Button className="" onClick={handleBack}>
+              <Button variant="back" onClick={handleBack}>
                 Back
               </Button>
               <Button

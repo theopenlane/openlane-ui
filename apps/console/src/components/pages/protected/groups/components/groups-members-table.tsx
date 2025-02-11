@@ -7,7 +7,7 @@ import { ColumnDef } from '@tanstack/react-table'
 import { Trash2 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { GroupMembershipRole, useGetGroupDetailsQuery, UserRole, useUpdateGroupMembershipMutation } from '@repo/codegen/src/schema'
-import { useMyGroupsStore } from '@/hooks/useMyGroupsStore'
+import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { useSession } from 'next-auth/react'
 
 interface Member {
@@ -17,9 +17,9 @@ interface Member {
   avatar?: string
 }
 
-const MyGroupsMembersTable = () => {
+const GroupsMembersTable = () => {
   const { data: session } = useSession()
-  const { selectedGroup } = useMyGroupsStore()
+  const { selectedGroup, isAdmin } = useGroupsStore()
   const [{ data, fetching }] = useGetGroupDetailsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
   const { members, isManaged, id } = data?.group || {}
   const [users, setUsers] = useState<Member[]>([])
@@ -28,16 +28,22 @@ const MyGroupsMembersTable = () => {
   useEffect(() => {
     if (selectedGroup) {
       const membersList = members || []
-      setUsers(
-        membersList
-          .filter((member) => member.user.id !== session?.user.userId)
-          .map((member, index) => ({
-            id: member.id,
-            name: member.user.firstName || 'Unknown Member',
-            role: member.role,
-            avatar: member.user.avatarFile?.presignedURL || member.user.avatarRemoteURL || '',
-          })),
-      )
+
+      const sortedMembers = membersList
+        .filter((member) => member.user.id !== session?.user.userId)
+        .map((member) => ({
+          id: member.id,
+          name: member.user.firstName || 'Unknown Member',
+          role: member.role,
+          avatar: member.user.avatarFile?.presignedURL || member.user.avatarRemoteURL || '',
+        }))
+        .sort((a, b) => {
+          if (a.role === GroupMembershipRole.ADMIN && b.role !== GroupMembershipRole.ADMIN) return -1
+          if (a.role !== GroupMembershipRole.ADMIN && b.role === GroupMembershipRole.ADMIN) return 1
+          return 0
+        })
+
+      setUsers(sortedMembers)
     }
   }, [selectedGroup, members])
 
@@ -81,7 +87,7 @@ const MyGroupsMembersTable = () => {
         const user = row.original
         return (
           <Select value={user.role} onValueChange={(value) => handleRoleChange(user.id, value as GroupMembershipRole)}>
-            <SelectTrigger disabled={!!isManaged} className="w-28 border border-brand ">
+            <SelectTrigger disabled={!!isManaged || !isAdmin} className="w-28 border border-brand ">
               <SelectValue placeholder="Select role" />
             </SelectTrigger>
             <SelectContent>
@@ -102,7 +108,11 @@ const MyGroupsMembersTable = () => {
         const user = row.original
 
         return (
-          <button disabled={!!isManaged} onClick={() => handleDelete(user.id)} className={`text-brand flex justify-end mt-2.5 ${isManaged ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+          <button
+            disabled={!!isManaged || !isAdmin}
+            onClick={() => handleDelete(user.id)}
+            className={`text-brand flex justify-end mt-2.5 ${isManaged || !isAdmin ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+          >
             <Trash2 className="h-5 w-5" />
           </button>
         )
@@ -114,4 +124,4 @@ const MyGroupsMembersTable = () => {
   return <DataTable columns={columns} data={users} noResultsText="No users found" />
 }
 
-export default MyGroupsMembersTable
+export default GroupsMembersTable

@@ -2,11 +2,11 @@ import React, { useState } from 'react'
 import { ColumnDef } from '@tanstack/table-core'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { DataTable } from '@repo/ui/data-table'
-import { useMyGroupsStore } from '@/hooks/useMyGroupsStore'
 import { Permission, useGetGroupPermissionsQuery, useUpdateGroupMutation } from '@repo/codegen/src/schema'
 import { useToast } from '@repo/ui/use-toast'
 import { Trash2 } from 'lucide-react'
 import { OBJECT_TYPE_CONFIG, ObjectTypes } from '@/constants/groups'
+import { useGroupsStore } from '@/hooks/useGroupsStore'
 
 const PERMISSION_LABELS: Record<Permission, string> = {
   [Permission.VIEWER]: 'View',
@@ -17,8 +17,8 @@ const PERMISSION_LABELS: Record<Permission, string> = {
 
 const LABEL_TO_PERMISSION: Record<string, Permission> = Object.fromEntries(Object.entries(PERMISSION_LABELS).map(([key, value]) => [value, key as Permission]))
 
-const MyGroupsPermissionsTable = () => {
-  const { selectedGroup } = useMyGroupsStore()
+const GroupsPermissionsTable = () => {
+  const { selectedGroup } = useGroupsStore()
   const [{ data }] = useGetGroupPermissionsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
   const [, updateGroup] = useUpdateGroupMutation()
   const { toast } = useToast()
@@ -124,4 +124,4 @@ const MyGroupsPermissionsTable = () => {
   return <DataTable columns={columns} data={permissions} />
 }
 
-export default MyGroupsPermissionsTable
+export default GroupsPermissionsTable

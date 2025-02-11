@@ -135,17 +135,6 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
     title: 'Groups',
     href: '/groups',
     icon: UsersRoundIcon,
-    isChildren: true,
-    children: [
-      {
-        title: 'My Groups',
-        href: '/groups/my-groups',
-      },
-      {
-        title: 'All Groups',
-        href: '/groups/all-groups',
-      },
-    ],
   },
   {
     title: 'Entities',
