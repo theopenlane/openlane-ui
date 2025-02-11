@@ -466,7 +466,7 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
               }}
               onBlur={(event) => {
                 if (!onScrollbar) {
-                  setOpen(false)
+                  requestAnimationFrame(() => setOpen(false))
                 }
                 inputProps?.onBlur?.(event)
               }}
