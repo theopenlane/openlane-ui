@@ -10,7 +10,7 @@ import { useMyGroupsStore } from '@/hooks/useMyGroupsStore'
 import CreateGroupDialog from './my-groups/dialogs/create-group-dialog'
 import GroupDetailsSheet from './my-groups/my-group-details-sheet'
 import { Input } from '@repo/ui/input'
-import { DataTableSortList } from '@/components/shared/table-filter/table-sort'
+import { TableSort } from '@/components/shared/table-filter/table-sort'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { FilterField, SelectFilterField } from '@/types'
 import { useSession } from 'next-auth/react'
@@ -83,12 +83,12 @@ const GroupsPage = ({ heading }: { heading: string }) => {
         <div className="flex items-center gap-5">
           <div className="flex gap-3 items-center">
             <TableFilter filterFields={filterFields} onFilterChange={setWhereFilters} />
-            <DataTableSortList
+            <TableSort
               sortFields={Object.entries(GroupOrderField).map(([key, value]) => ({
                 key: value as GroupOrderField,
                 label: key.replace('_', ' '),
               }))}
-              onSortChange={(val) => console.log('val', val)}
+              onSortChange={(val) => null}
             />
             <Input
               value={searchQuery}

@@ -108,7 +108,6 @@ interface Props {
 
 const MyGroupsTable = ({ queryResp }: Props) => {
   const [{ data, error }] = queryResp
-  console.log('queryResp')
   const { setSelectedGroup } = useMyGroupsStore()
 
   const { tableRow, keyIcon, message } = myGroupsTableStyles()

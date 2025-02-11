@@ -24,7 +24,6 @@ import MultipleSelector from '@repo/ui/multiple-selector'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Textarea } from '@repo/ui/textarea'
 import { Input } from '@repo/ui/input'
-import { group } from 'console'
 import { useSession } from 'next-auth/react'
 
 const EditGroupSchema = z.object({
@@ -49,8 +48,6 @@ const GroupDetailsSheet = () => {
     variables: { groupId: selectedGroup || '' },
     pause: !selectedGroup,
   })
-
-  console.log('isAdmin', isAdmin)
 
   const { name, description, members, setting, tags, id, isManaged } = data?.group || {}
 

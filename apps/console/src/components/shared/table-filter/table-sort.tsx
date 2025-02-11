@@ -6,12 +6,12 @@ import { Button } from '@repo/ui/button'
 import { tableFilterStyles } from '@/components/shared/table-filter/table-filter-styles'
 import { OrderDirection } from '@repo/codegen/src/schema'
 
-interface DataTableSortListProps<T extends string> {
+interface TableSortProps<T extends string> {
   sortFields: { key: T; label: string }[]
   onSortChange?: (sortCondition: { field: T; direction: OrderDirection }[]) => void
 }
 
-export const DataTableSortList = <T extends string>({ sortFields, onSortChange }: DataTableSortListProps<T>) => {
+export const TableSort = <T extends string>({ sortFields, onSortChange }: TableSortProps<T>) => {
   const [sortConditions, setSortConditions] = useState<{ field: T; direction?: OrderDirection }[]>([])
   const { prefixes, columnName, operator } = tableFilterStyles()
 
