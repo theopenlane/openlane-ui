@@ -3,17 +3,18 @@ import React, { useState } from 'react'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
-import { Trash2, AlertTriangle } from 'lucide-react'
-import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
+import { Trash2, AlertTriangle, ChevronUpIcon, ChevronDownIcon } from 'lucide-react'
 import { useToast } from '@repo/ui/use-toast'
 import { useDeleteGroupMutation, useGetGroupDetailsQuery } from '@repo/codegen/src/schema'
+import GroupsDeletePermissionsTable from '../groups-delete-permissions-table'
 
 const DeleteGroupDialog = () => {
-  const { selectedGroup, setSelectedGroup, isAdmin } = useGroupsStore()
+  const { selectedGroup, setSelectedGroup, isAdmin, reexecuteGroupsQuery } = useGroupsStore()
   const [isOpen, setIsOpen] = useState(false)
   const { toast } = useToast()
+  const [expanded, setExpanded] = useState(false)
 
-  const [{ data, fetching }] = useGetGroupDetailsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
+  const [{ data }] = useGetGroupDetailsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
   const { id, name, isManaged } = data?.group || {}
 
   const [{}, deleteGroup] = useDeleteGroupMutation()
@@ -26,6 +27,7 @@ const DeleteGroupDialog = () => {
       toast({ title: `Group "${name}" deleted successfully`, variant: 'success' })
       setSelectedGroup(null)
       setIsOpen(false)
+      reexecuteGroupsQuery?.()
     } catch (error) {
       toast({ title: 'Failed to delete group.', variant: 'destructive' })
     }
@@ -56,15 +58,13 @@ const DeleteGroupDialog = () => {
         <div className="space-y-2.5">
           <p className=" font-medium">Objects associated with the group</p>
           <p className="text-sm ">All granted permissions to the group will be unassociated. No objects will be deleted.</p>
-          <Select>
-            <SelectTrigger>Show associated objects</SelectTrigger>
-            <SelectContent>
-              <SelectItem value="permissions">Permissions</SelectItem>
-              <SelectItem value="users">Users</SelectItem>
-              <SelectItem value="settings">Settings</SelectItem>
-            </SelectContent>
-          </Select>
+          <button className="border rounded-lg flex gap-1 items-center  py-1.5 px-3" onClick={() => setExpanded((prev) => !prev)}>
+            <p>Show associated Objects</p>
+            {expanded ? <ChevronUpIcon size={16} /> : <ChevronDownIcon size={16} />}
+          </button>
+          {expanded && <GroupsDeletePermissionsTable />}
         </div>
+
         <DialogFooter className="flex gap-2 justify-start">
           <Button variant="destructive" onClick={handleDelete}>
             Delete this group
