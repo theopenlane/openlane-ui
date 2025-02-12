@@ -5,13 +5,13 @@ import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { Badge } from '@repo/ui/badge'
 import { GlobeIcon, LockIcon } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
-import { Exact, GetAllGroupsQuery, GroupWhereInput, InputMaybe, useGetAllGroupsQuery } from '@repo/codegen/src/schema'
+import { Exact, GetAllGroupsQuery, GroupWhereInput, InputMaybe } from '@repo/codegen/src/schema'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { Group } from '../groups-page'
-import { UseQueryResponse } from 'urql'
+import { UseQueryResponse, UseQueryState } from 'urql'
 
 interface Props {
-  queryResp: UseQueryResponse<
+  queryResult: UseQueryState<
     GetAllGroupsQuery,
     Exact<{
       where?: InputMaybe<GroupWhereInput>
@@ -19,12 +19,11 @@ interface Props {
   >
 }
 
-const MyGroupsCard = ({ queryResp }: Props) => {
+const MyGroupsCard = ({ queryResult }: Props) => {
   const { setSelectedGroup } = useGroupsStore()
-  const [{ data, error, fetching }] = queryResp
 
   const transformedData =
-    data?.groups?.edges
+    queryResult.data?.groups?.edges
       ?.map((edge) => edge?.node)
       .filter((group) => !!group)
       .map((group) => ({
@@ -41,12 +40,12 @@ const MyGroupsCard = ({ queryResp }: Props) => {
     setSelectedGroup(group.id)
   }
 
-  if (fetching) {
+  if (queryResult.fetching) {
     return <p>Loading groups...</p>
   }
 
-  if (error) {
-    return <p className="text-red-500">Error loading groups: {error.message}</p>
+  if (queryResult.error) {
+    return <p className="text-red-500">Error loading groups</p>
   }
 
   return (
