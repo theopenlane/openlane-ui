@@ -27,21 +27,22 @@ export default auth(async (req) => {
   const isTfaEnabled = session?.user.isTfaEnabled
 
   if (isLoggedIn) {
-    if (isTfaEnabled) {
+    if (isTfaEnabled && (path === '/tfa' || path === '/login')) {
+      return NextResponse.next()
+    } else if (isTfaEnabled) {
       return NextResponse.redirect(new URL('/tfa', req.url))
     }
 
     if (isPublicPage) {
       return NextResponse.redirect(new URL('/dashboard', req.url))
     }
-
     return NextResponse.next()
-  } else {
-    if (isPublicPage) {
-      return NextResponse.next()
-    }
-    return NextResponse.redirect(new URL('/login', req.url))
   }
+  // if not logged in
+  if (isPublicPage) {
+    return NextResponse.next()
+  }
+  return NextResponse.redirect(new URL('/login', req.url))
 })
 
 export const config = {
