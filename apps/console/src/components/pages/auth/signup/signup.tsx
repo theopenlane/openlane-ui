@@ -163,7 +163,6 @@ export const SignupPage = () => {
                 return
               }
             }
-
             const isEmailValid = await validateEmail(payload)
             if (!isEmailValid) {
               router.push('/waitlist')
