@@ -7,6 +7,7 @@ export default auth(async (req) => {
   // Attach `next-url` header for client-side route metadata
   req.headers.append('next-url', req.nextUrl.toString())
 
+  //IF YOU ADD PUBLIC PAGE, ITS REQUIRED TO CHANGE IT IN Providers.tsx
   const publicPages = ['/login', '/tfa', '/invite', '/subscriber-verify', '/verify', '/resend-verify', '/waitlist']
 
   const path = req.nextUrl.pathname
@@ -61,7 +62,6 @@ export const config = {
      * - invite (invite verify page)
      */
 
-    //IF YOU ADD PUBLIC PAGE, ITS REQUIRED TO CHANGE IT IN Providers.tsx
     '/((?!api|_next/static|_next/image|favicon.ico|backgrounds|backgrounds/|icons|icons/).*)',
   ],
 }
