@@ -1,9 +1,9 @@
-import React, { Fragment, useState } from 'react'
+import React, { useState } from 'react'
 
 import { Button } from '@repo/ui/button'
 import { Separator } from '@repo/ui/separator'
 
-import { defineStepper, Stepper } from '@stepperize/react'
+import { defineStepper } from '@stepperize/react'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z, infer as zInfer } from 'zod'
@@ -19,6 +19,8 @@ import { toast } from '@repo/ui/use-toast'
 import { useRouter } from 'next/navigation'
 import { dialogStyles } from './dialog.styles'
 import { mapToNode } from './nodes'
+import { AlertTriangle, Check, CheckCircle, CheckIcon, ChevronDown, ChevronDownIcon, XCircle, XIcon } from 'lucide-react'
+import { Accordion, AccordionContent, AccordionHeader, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 
 const { useStepper, steps } = defineStepper(
   { id: 'init', label: 'Basic information', schema: initProgramSchema },
@@ -79,13 +81,6 @@ const ProgramWizard = () => {
     })
   }
 
-  // handle the click event for the stepper
-  const onClick = (id: (typeof steps)[number]['id'], data: zInfer<typeof stepper.current.schema>) => {
-    // handleChange(data)
-
-    stepper.goTo(id)
-  }
-
   // handle the form submission for each page in the stepper
   const onSubmit = (data: zInfer<typeof stepper.current.schema>) => {
     if (stepper.isLast) {
@@ -109,6 +104,11 @@ const ProgramWizard = () => {
   // get the result and error from the mutation
   const [result, createNewProgram] = useCreateProgramWithMembersMutation()
   const { data, error } = result
+
+  const handleSkip = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    stepper.goTo(steps[steps.length - 1].id)
+  }
 
   // handle the final form submission
   const handleFormSubmit = () => {
@@ -188,29 +188,31 @@ const ProgramWizard = () => {
     <div className="flex flex-col">
       <FormProvider {...form}>
         <div className="flex border-b border-t items-center justify-between">
-          <ul className="flex py-2.5 ">
-            {stepper.all.map((step, index, array) => (
-              <Fragment key={index}>
-                <span className={`mr-2 w-8 h-8 flex justify-center items-center rounded-full text-base font-medium text-white ${step.id === stepper.current.id ? 'bg-primary' : 'bg-border'}`}>
-                  {index + 1}
-                </span>
-                <li key={step.id} className={linkItem()}>
-                  <span className={`flex items-center font-medium ${step.id === stepper.current.id ? 'text-brand' : 'text-text-light'}`}>{step.label}</span>
-                </li>
-                {index < array.length - 1 && <Separator programStep className="mx-1" />}
-              </Fragment>
-            ))}
+          <ul className="flex py-2.5">
+            {stepper.all.map((step, index, array) => {
+              const isCompleted = stepper.current.index > index
+              const isActive = step.id === stepper.current.id
+              return (
+                <div className={`flex ${isActive ? 'opacity-100' : 'opacity-50'}`} key={index}>
+                  <span className={`mr-2 w-8 h-8 flex justify-center items-center rounded-full text-base font-medium text-white ${isCompleted || isActive ? 'bg-primary' : 'bg-border'}`}>
+                    {isCompleted ? <Check size={20} /> : index + 1}
+                  </span>
+                  <li key={step.id} className={linkItem()}>
+                    <span className={`flex items-center font-medium ${isActive ? 'text-brand' : 'text-text-light'}`}>{step.label}</span>
+                  </li>
+                  {index < array.length - 1 && <Separator programStep className="mx-1" />}
+                </div>
+              )
+            })}
           </ul>
           <div className={buttonRow()}>
             <Button onClick={stepper.prev} disabled={stepper.isFirst}>
               Back
             </Button>
             {!stepper.isLast ? (
-              <>
-                <Button onClick={handleSubmit(onSubmit)} disabled={!isValid}>
-                  Next
-                </Button>
-              </>
+              <Button onClick={handleSubmit(onSubmit)} disabled={!isValid}>
+                Next
+              </Button>
             ) : (
               <Button disabled={isSubmitting} onClick={handleFormSubmit}>
                 Create Program
@@ -220,15 +222,26 @@ const ProgramWizard = () => {
         </div>
 
         <form className={formInput()}>
-          <div className="h-full space-y-1">
-            {stepper.switch({
-              init: () => <ProgramInitComponent />,
-              details: () => <ProgramDetailsComponent stepper={stepper} steps={steps} />,
-              invite: () => <ProgramInviteComponent users={users} groups={groups} />,
-              link: () => <ProgramObjectAssociationComponent risks={risks} policies={policies} procedures={procedures} />,
-              // review: () => <ProgramReviewComponent users={users} groups={groups} risks={risks} policies={policies} procedures={procedures} />,
-            })}
+          <div className="h-full space-y-1 flex justify-between">
+            <div>
+              {stepper.switch({
+                init: () => <ProgramInitComponent />,
+                details: () => <ProgramDetailsComponent stepper={stepper} steps={steps} />,
+                invite: () => <ProgramInviteComponent users={users} groups={groups} />,
+                link: () => <ProgramObjectAssociationComponent risks={risks} policies={policies} procedures={procedures} />,
+                // review: () => <ProgramReviewComponent users={users} groups={groups} risks={risks} policies={policies} procedures={procedures} />,
+              })}
+            </div>
+            <SummaryCard />
           </div>
+          {!stepper.isLast && (
+            <div className="flex gap-2 justify-center w-full items-center ">
+              <span>In a hurry?</span>
+              <Button variant="outline" onClick={handleSkip}>
+                Skip to end
+              </Button>
+            </div>
+          )}
         </form>
       </FormProvider>
     </div>
@@ -236,3 +249,53 @@ const ProgramWizard = () => {
 }
 
 export { ProgramWizard }
+
+const accordionItems = [
+  {
+    value: 'framework',
+    label: 'Framework chosen',
+    icon: <XCircle className="text-red-600" size={16} />,
+    description: 'A framework must be selected to create the program, choose from one of the provided options or choose `Custom` to make your own.',
+    link: 'Take me there.',
+  },
+  { value: 'name', label: 'Name chosen', icon: <CheckCircle className="text-green-400" size={16} /> },
+  { value: 'audit-period', label: 'Audit period set', icon: <CheckCircle className="text-green-400" size={16} /> },
+  { value: 'audit-partner', label: 'Audit partner provided', icon: <AlertTriangle className="text-yellow-600" size={16} /> },
+  { value: 'team-members', label: 'Team members invited', icon: <AlertTriangle className="text-yellow-600" size={16} /> },
+  { value: 'objects-linked', label: 'Objects linked or template selected', icon: <AlertTriangle className="text-yellow-600" size={16} /> },
+]
+
+// Reusable Accordion Item Component
+const AccordionItemComponent = ({ value, label, icon, description, link }: any) => (
+  <AccordionItem value={value} className="border-b">
+    <AccordionTrigger className="py-4 w-full flex justify-between items-center group">
+      <div className="flex items-center gap-2">
+        {icon}
+        <span className="font-semibold">{label}</span>
+      </div>
+      <ChevronDown className="h-4 w-4 transition-transform duration-300 group-data-[state=open]:rotate-180" />
+    </AccordionTrigger>
+    {description && (
+      <AccordionContent className="my-3">
+        <p className="text-sm">
+          {description} {link && <span className="text-blue-500 cursor-pointer">{link}</span>}
+        </p>
+      </AccordionContent>
+    )}
+  </AccordionItem>
+)
+
+export const SummaryCard = () => {
+  return (
+    <div className="w-[391px] shrink-0 rounded-lg size-fit !mt-7 p-4 border pb-6">
+      <h3 className="text-base font-semibold">Summary</h3>
+      <p className="text-sm py-4">Confirm you&apos;ve filled out all the necessary information</p>
+
+      <Accordion type="single" collapsible className="w-full">
+        {accordionItems.map((item) => (
+          <AccordionItemComponent key={item.value} {...item} />
+        ))}
+      </Accordion>
+    </div>
+  )
+}

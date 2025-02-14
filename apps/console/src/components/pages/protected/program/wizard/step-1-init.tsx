@@ -42,7 +42,10 @@ export function ProgramInitComponent() {
     <Panel className="border-none p-2">
       <PanelHeader heading="" subheading="Enter the basic information about the program" noBorder />
       <Grid className="grow">
-        <GridRow columns={2}>
+        <GridRow columns={4}>
+          <GridCell className={formRow()}>
+            <ProgramTypeSelect />
+          </GridCell>
           <GridCell className={formRow()}>
             <FrameworkSelect />
           </GridCell>
@@ -65,6 +68,95 @@ export function ProgramInitComponent() {
     </Panel>
   )
 }
+
+const ProgramTypeSelect = () => {
+  const programTypes = [
+    { value: 'framework', label: 'Framework' },
+    { value: 'gap_analysis', label: 'Gap Analysis' },
+    { value: 'risk_assessment', label: 'Risk Assessment' },
+    { value: 'other', label: 'Other - Please Specify' },
+  ]
+
+  const [customProgram, setCustomProgram] = useState('')
+  const {
+    register,
+    control,
+    formState: { errors },
+    setValue,
+    trigger,
+    watch,
+  } = useFormContext()
+
+  const selectedProgramType = watch('programType') || 'framework' // Default to 'Framework'
+  const { inputRow } = wizardStyles()
+
+  return (
+    <FormField
+      control={control}
+      name="programType"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>
+            Program Type<span className="text-red-500"> *</span>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <InfoIcon size={14} className="mx-1" />
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  <p>Select the type of program you want to create (required).</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </FormLabel>
+          <FormControl>
+            <Select
+              value={field.value}
+              onValueChange={(value) => {
+                field.onChange(value)
+                setValue('programType', value)
+                trigger('programType')
+              }}
+              required
+            >
+              <SelectTrigger className={inputRow()}>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {programTypes.map((type) => (
+                  <SelectItem key={type.value} value={type.value}>
+                    {type.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FormControl>
+          {errors.programType && <FormMessage>{errors?.programType?.message}</FormMessage>}
+
+          {selectedProgramType === 'other' && (
+            <div>
+              <FormLabel className="block my-2">Specify Other Program Type</FormLabel>
+              <Input
+                {...register('customProgram')}
+                value={customProgram}
+                onChange={(e) => {
+                  setCustomProgram(e.target.value)
+                  setValue('customProgram', e.target.value)
+                  trigger('customProgram')
+                }}
+                placeholder="Enter program type"
+                className={inputRow()}
+              />
+              {errors.customProgram && <FormMessage>{errors.customProgram.message}</FormMessage>}
+            </div>
+          )}
+        </FormItem>
+      )}
+    />
+  )
+}
+
+export default ProgramTypeSelect
 
 const NameField = () => {
   const {
@@ -260,8 +352,6 @@ const StatusSelect = () => {
     />
   )
 }
-
-// PeriodComponent contains the start and end date of the program
 
 const PeriodComponent = () => {
   const [startDate, setStartDate] = useState<Date>(today)

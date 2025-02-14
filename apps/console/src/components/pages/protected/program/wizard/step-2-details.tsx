@@ -1,17 +1,11 @@
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
-import { Calendar } from '@repo/ui/calendar'
 import { useFormContext } from 'react-hook-form'
 import { z, infer as zInfer } from 'zod'
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Button } from '@repo/ui/button'
-import { CalendarIcon } from '@radix-ui/react-icons'
-import { useState } from 'react'
-import { format, addDays } from 'date-fns'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { wizardStyles } from './wizard.styles'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { InfoIcon } from 'lucide-react'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Switch } from '@repo/ui/switch'
 import { Card } from '@repo/ui/cardpanel'
 import { Grid, GridRow, GridCell } from '@repo/ui/grid'
@@ -50,12 +44,12 @@ export function ProgramDetailsComponent({ stepper, steps }: { stepper: any; step
           </GridRow>
         </Grid>
       </div>
-      <div className="flex gap-2 justify-center w-full items-center">
+      {/* <div className="flex gap-2 justify-center w-full items-center">
         <span>In a hurry?</span>
         <Button variant="outline" onClick={handleSkip}>
           Skip all, and manage later
         </Button>
-      </div>
+      </div> */}
     </Panel>
   )
 }
