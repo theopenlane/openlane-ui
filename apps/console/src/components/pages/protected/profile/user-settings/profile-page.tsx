@@ -28,7 +28,7 @@ const ProfilePage = () => {
 
   const [qrcode, setQrcode] = useState<null | string>(null)
   const [secret, setSecret] = useState<null | string>(null)
-
+  const [regeneratedCodes, setRegeneratedCodes] = useState<null | string[]>(null)
   const variables: GetUserProfileQueryVariables = {
     userId: userId ?? '',
   }
@@ -139,13 +139,22 @@ const ProfilePage = () => {
     refetchUser()
   }
 
+  const regenerateCodes = async () => {
+    const resp = await updateTfaSetting({
+      input: {
+        regenBackupCodes: true,
+      },
+    })
+    setRegeneratedCodes(resp?.data?.updateTFASetting?.recoveryCodes || null)
+  }
+
   const config = useMemo(() => {
     if (!tfaSettings || !isVerified) {
       return {
         badge: <Badge variant="secondary">Recommend</Badge>,
-        text: 'A TOTP method has not been setup for your account.',
+        text: <p className="text-sm">A TOTP method has not been setup for your account.</p>,
         buttons: [
-          <Button className="mx-10 w-24" onClick={handleConfigure}>
+          <Button key={0} className="mx-10 w-24" onClick={handleConfigure}>
             Configure
           </Button>,
         ],
@@ -155,12 +164,20 @@ const ProfilePage = () => {
     if (userData?.user.setting.isTfaEnabled) {
       return {
         badge: <Badge variant="default">Enabled</Badge>,
-        text: 'A TOTP method has been added for your account.',
+        text: (
+          <p className="text-sm">
+            A TOTP method has been added for your account. Ensure you have your recovery codes stored, or{' '}
+            <span className="text-blue-400 cursor-pointer" onClick={regenerateCodes}>
+              regenerate&nbsp;
+            </span>
+            them now.
+          </p>
+        ),
         buttons: [
-          <Button className="mx-10 w-24" onClick={() => handleTfaChange(false)}>
+          <Button key={0} className="mx-10 w-24" onClick={() => handleTfaChange(false)}>
             Disable
           </Button>,
-          <Button variant="redOutline" className="mx-10 w-24" onClick={removeTfa}>
+          <Button key={1} variant="redOutline" className="mx-10 w-24" onClick={removeTfa}>
             Remove
           </Button>,
         ],
@@ -169,12 +186,20 @@ const ProfilePage = () => {
 
     return {
       badge: <Badge variant="destructive">Disabled</Badge>,
-      text: 'A TOTP method has been added for your account.',
+      text: (
+        <p className="text-sm">
+          A TOTP method has been added for your account. Ensure you have your recovery codes stored, or{' '}
+          <span className="text-blue-400 cursor-pointer" onClick={regenerateCodes}>
+            regenerate&nbsp;
+          </span>
+          them now.
+        </p>
+      ),
       buttons: [
-        <Button className="mx-10 w-24" onClick={() => handleTfaChange(true)}>
+        <Button key={0} className="mx-10 w-24" onClick={() => handleTfaChange(true)}>
           Enable
         </Button>,
-        <Button variant="redOutline" className="mx-10 w-24" onClick={removeTfa}>
+        <Button key={1} variant="redOutline" className="mx-10 w-24" onClick={removeTfa}>
           Remove
         </Button>,
       ],
@@ -199,7 +224,7 @@ const ProfilePage = () => {
                   <h2 className="text-lg">Mobile App Authentication</h2>
                   {config?.badge}
                 </div>
-                <p className="text-sm">{config?.text}</p>
+                {config?.text}
               </div>
             </div>
           </div>
@@ -207,7 +232,7 @@ const ProfilePage = () => {
         </div>
       </Panel>
 
-      {qrcode && secret && (
+      {(!!regeneratedCodes || (qrcode && secret)) && (
         <QRCodeDialog
           qrcode={qrcode}
           secret={secret}
@@ -218,7 +243,9 @@ const ProfilePage = () => {
           onClose={() => {
             setQrcode('')
             setSecret('')
+            setRegeneratedCodes(null)
           }}
+          regeneratedCodes={regeneratedCodes}
         />
       )}
       <Suspense fallback={<Loader />}>
