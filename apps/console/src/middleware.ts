@@ -39,10 +39,8 @@ export default auth(async (req) => {
     return NextResponse.next()
   }
   // if not logged in
-  if (isPublicPage) {
-    return NextResponse.next()
-  }
-  return NextResponse.redirect(new URL('/login', req.url))
+
+  return isPublicPage ? NextResponse.next() : NextResponse.redirect(new URL('/login', req.url))
 })
 
 export const config = {
