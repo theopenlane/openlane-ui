@@ -26,22 +26,19 @@ export default auth(async (req) => {
   const isLoggedIn = req.auth?.user && hasSessionCookie
   const isTfaEnabled = session?.user.isTfaEnabled
 
-  if (isLoggedIn) {
-    if (isTfaEnabled) {
-      return NextResponse.redirect(new URL('/tfa', req.url))
-    }
-
-    if (isPublicPage) {
-      return NextResponse.redirect(new URL('/dashboard', req.url))
-    }
-
-    return NextResponse.next()
-  } else {
-    if (isPublicPage) {
-      return NextResponse.next()
-    }
-    return NextResponse.redirect(new URL('/login', req.url))
+  if (!isLoggedIn) {
+    return isPublicPage ? NextResponse.next() : NextResponse.redirect(new URL('/login', req.url))
   }
+
+  if (isTfaEnabled) {
+    return path === '/tfa' || path === '/login' ? NextResponse.next() : NextResponse.redirect(new URL('/tfa', req.url))
+  }
+
+  if (isPublicPage) {
+    return NextResponse.redirect(new URL('/dashboard', req.url))
+  }
+
+  return NextResponse.next()
 })
 
 export const config = {

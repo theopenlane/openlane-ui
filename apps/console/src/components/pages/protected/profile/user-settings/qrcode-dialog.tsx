@@ -81,8 +81,9 @@ const QRCodeDialog = ({ qrcode, secret, refetch, onClose, regeneratedCodes }: QR
   }
 
   const handleDownloadRecoveryCodes = () => {
-    if (recoveryCodes) {
-      const blob = new Blob([recoveryCodes.join('\n')], { type: 'text/plain' })
+    const codes = recoveryCodes || regeneratedCodes
+    if (codes) {
+      const blob = new Blob([codes.join('\n')], { type: 'text/plain' })
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
