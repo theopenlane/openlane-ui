@@ -20,13 +20,7 @@ export const programDetailSchema = z.object({
 
 type ProgramDetailValues = zInfer<typeof programDetailSchema>
 
-type StepType = { id: string; label: string; schema: z.ZodSchema }
-
-export function ProgramDetailsComponent({ stepper, steps }: { stepper: any; steps: StepType[] }) {
-  const handleSkip = () => {
-    stepper.goTo(steps[steps.length - 1].id)
-  }
-
+export function ProgramDetailsComponent() {
   return (
     <Panel className="border-none p-2">
       <PanelHeader heading="" subheading="Configure the details of the program" noBorder />
@@ -43,12 +37,6 @@ export function ProgramDetailsComponent({ stepper, steps }: { stepper: any; step
           </GridRow>
         </Grid>
       </div>
-      {/* <div className="flex gap-2 justify-center w-full items-center">
-        <span>In a hurry?</span>
-        <Button variant="outline" onClick={handleSkip}>
-          Skip all, and manage later
-        </Button>
-      </div> */}
     </Panel>
   )
 }

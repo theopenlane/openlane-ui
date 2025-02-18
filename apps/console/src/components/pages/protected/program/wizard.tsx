@@ -3,11 +3,11 @@ import React, { useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { Separator } from '@repo/ui/separator'
 
-import { defineStepper, Stepper } from '@stepperize/react'
+import { defineStepper } from '@stepperize/react'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z, infer as zInfer } from 'zod'
-import { FieldValues, FormProvider, useForm, useFormState } from 'react-hook-form'
+import { FormProvider, useForm, useFormState } from 'react-hook-form'
 
 import { initProgramSchema, ProgramInitComponent } from './wizard/step-1-init'
 import { programDetailSchema, ProgramDetailsComponent } from './wizard/step-2-details'
@@ -228,7 +228,7 @@ const ProgramWizard = () => {
             <div>
               {stepper.switch({
                 init: () => <ProgramInitComponent />,
-                details: () => <ProgramDetailsComponent stepper={stepper} steps={steps} />,
+                details: () => <ProgramDetailsComponent />,
                 invite: () => <ProgramInviteComponent users={users} groups={groups} />,
                 link: () => <ProgramObjectAssociationComponent risks={risks} policies={policies} procedures={procedures} />,
               })}
