@@ -4,14 +4,21 @@ import {
   FileIcon,
   HandshakeIcon,
   LayersIcon,
-  ListChecks,
   SettingsIcon,
   UsersRoundIcon,
   UserRoundCogIcon,
   Users,
-  ShieldCheckIcon,
   TriangleAlertIcon,
   FileQuestion,
+  ShieldCheck,
+  AlertTriangle,
+  Sliders,
+  Fingerprint,
+  FileText,
+  ClipboardList,
+  ListChecks,
+  Library,
+  ShapesIcon,
 } from 'lucide-react'
 import { NavHeading, type NavItem, type Separator } from '@/types'
 
@@ -24,19 +31,7 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
   {
     title: 'Tasks',
     href: '/tasks',
-    addCount: true,
     icon: ListChecks,
-    isChildren: true,
-    children: [
-      {
-        title: 'Assigned Tasks',
-        href: '/tasks/assigned-tasks',
-      },
-      {
-        title: 'All Tasks',
-        href: '/tasks/all-tasks',
-      },
-    ],
   },
   {
     type: 'separator',
@@ -44,90 +39,44 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
   {
     title: 'Programs',
     href: '/programs',
-    icon: ShieldCheckIcon,
-    isChildren: true,
-    children: [
-      {
-        title: 'Controls',
-        href: '/programs/controls',
-      },
-      {
-        title: 'Control Objectives',
-        href: '/programs/control-objectives',
-      },
-      {
-        title: 'Tasks',
-        href: '/programs/tasks',
-      },
-      {
-        title: 'Evidence',
-        href: '/programs/evidence',
-      },
-      {
-        title: 'Settings',
-        href: '/programs/settings',
-      },
-    ],
-  },
-  {
-    title: 'Questionnaires',
-    href: '/questionnaires',
-    icon: FileQuestion,
-    isChildren: false,
-  },
-  {
-    title: 'Policies & Procedures',
-    href: '/policies-and-procedures',
-    icon: FileIcon,
-    isChildren: true,
-    children: [
-      {
-        title: 'Policies',
-        href: '/policies-and-procedures/policies',
-      },
-      {
-        title: 'Procedures',
-        href: '/policies-and-procedures/procedures',
-      },
-    ],
+    icon: ShieldCheck,
   },
   {
     title: 'Risks',
     href: '/risks',
-    icon: TriangleAlertIcon,
+    icon: AlertTriangle,
   },
-  // {
-  //   title: 'Assets',
-  //   href: '/assets',
-  //   icon: ShapesIcon,
-  //   isChildren: true,
-  //   children: [
-  //     {
-  //       title: 'IP Addresses',
-  //       href: '/assets/ip-addresses',
-  //     },
-  //     {
-  //       title: 'Domains',
-  //       href: '/assets/domains',
-  //     },
-  //     {
-  //       title: 'Servers',
-  //       href: '/assets/servers',
-  //     },
-  //   ],
-  // },
   {
-    title: 'Reporting',
-    href: '/reporting',
-    icon: BarChart3Icon,
-    isChildren: true,
-    children: [
-      {
-        title: 'Compliance',
-        href: '/reporting/compliance',
-      },
-    ],
+    title: 'Controls',
+    href: '/programs/controls',
+    icon: Sliders,
   },
+  {
+    title: 'Evidence',
+    href: '/programs/evidence',
+    icon: Fingerprint,
+  },
+  {
+    title: 'Policies',
+    href: '/policies',
+    icon: FileText,
+  },
+  {
+    title: 'Procedures',
+    href: '/procedures',
+    icon: ClipboardList,
+  },
+  {
+    title: 'Questionnaires',
+    href: '/questionnaires',
+    icon: ListChecks,
+  },
+  {
+    title: 'Standards',
+    href: '/standards',
+    icon: Library,
+  },
+
   {
     type: 'separator',
   },
@@ -140,13 +89,19 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
     title: 'Entities',
     href: '/entities',
     icon: HandshakeIcon,
-    isChildren: true,
-    children: [
-      {
-        title: 'Vendors',
-        href: '/entities/vendors',
-      },
-    ],
+  },
+  {
+    title: 'Assets',
+    href: '/assets',
+    icon: ShapesIcon,
+  },
+  {
+    type: 'separator',
+  },
+  {
+    title: 'Reporting',
+    href: '/reporting',
+    icon: BarChart3Icon,
   },
   {
     type: 'separator',
