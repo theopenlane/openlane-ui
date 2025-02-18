@@ -5,20 +5,22 @@ import { Textarea } from '@repo/ui/textarea'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { useFormContext } from 'react-hook-form'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { z, infer as zInfer } from 'zod'
 import { CalendarIcon, InfoIcon } from 'lucide-react'
 import { wizardStyles } from './wizard.styles'
 import { Grid, GridRow, GridCell } from '@repo/ui/grid'
 import { supportedFrameworks } from '../frameworks'
-import { useState } from 'react'
-import { format, addDays } from 'date-fns'
+import { useEffect, useState } from 'react'
+import { format, addDays, getYear } from 'date-fns'
 import { Popover, PopoverContent, PopoverTrigger } from '@radix-ui/react-popover'
 import { Button } from '@repo/ui/button'
 import { Calendar } from '@repo/ui/calendar'
 
 const today = new Date()
 const oneYearFromToday = addDays(new Date(), 365)
+
+const currentYear = getYear(new Date())
 
 export const initProgramSchema = z.object({
   name: z.string().min(1, { message: 'Name is required' }),
@@ -31,12 +33,17 @@ export const initProgramSchema = z.object({
     .default(ProgramProgramStatus.NOT_STARTED),
   startDate: z.date().min(new Date(), { message: 'Start date must be in the future' }).default(today),
   endDate: z.date().min(new Date(), { message: 'End date must be after start date' }).default(oneYearFromToday),
+  programType: z.string().min(1, { message: 'Program type is required' }),
 })
 
 type InitProgramValues = zInfer<typeof initProgramSchema>
 
 export function ProgramInitComponent() {
   const { formRow } = wizardStyles()
+
+  const { control, watch } = useFormContext()
+
+  const programType = useWatch({ control, name: 'programType' })
 
   return (
     <Panel className="border-none p-2">
@@ -46,9 +53,11 @@ export function ProgramInitComponent() {
           <GridCell className={formRow()}>
             <ProgramTypeSelect />
           </GridCell>
-          <GridCell className={formRow()}>
-            <FrameworkSelect />
-          </GridCell>
+          {programType === 'framework' && (
+            <GridCell className={formRow()}>
+              <FrameworkSelect />
+            </GridCell>
+          )}
           <GridCell className={formRow()}>
             <NameField />
           </GridCell>
@@ -116,6 +125,10 @@ const ProgramTypeSelect = () => {
                 field.onChange(value)
                 setValue('programType', value)
                 trigger('programType')
+                if (value === 'risk_assessment' || value === 'gap_analysis') {
+                  const selectedLabel = programTypes.find((type) => type.value === value)?.label
+                  setValue('name', `${selectedLabel} - ${currentYear}`)
+                }
               }}
               required
             >
@@ -131,7 +144,7 @@ const ProgramTypeSelect = () => {
               </SelectContent>
             </Select>
           </FormControl>
-          {errors.programType && <FormMessage>{errors?.programType?.message}</FormMessage>}
+          {errors.programType && <FormMessage>{String(errors.programType.message)}</FormMessage>}
 
           {selectedProgramType === 'other' && (
             <div>
@@ -143,11 +156,12 @@ const ProgramTypeSelect = () => {
                   setCustomProgram(e.target.value)
                   setValue('customProgram', e.target.value)
                   trigger('customProgram')
+                  setValue('name', `${e.target.value} - ${currentYear}`)
                 }}
                 placeholder="Enter program type"
                 className={inputRow()}
               />
-              {errors.customProgram && <FormMessage>{errors.customProgram.message}</FormMessage>}
+              {errors.customProgram && <FormMessage>{String(errors.customProgram.message)}</FormMessage>}
             </div>
           )}
         </FormItem>
@@ -160,17 +174,16 @@ export default ProgramTypeSelect
 
 const NameField = () => {
   const {
-    register,
     control,
     formState: { errors },
-    getValues,
+    trigger,
   } = useFormContext<InitProgramValues>()
   const { inputRow } = wizardStyles()
 
   return (
     <FormField
       control={control}
-      name={register('name').name}
+      name="name"
       render={({ field }) => (
         <FormItem>
           <FormLabel>
@@ -187,7 +200,7 @@ const NameField = () => {
             </TooltipProvider>
           </FormLabel>
           <FormControl>
-            <Input className={inputRow()} variant="medium" type="string" {...field} required value={field.value || getValues().framework} />
+            <Input onInput={() => trigger('name')} className={inputRow()} variant="medium" type="text" {...field} />
           </FormControl>
           {errors.name && <FormMessage>{errors.name.message}</FormMessage>}
         </FormItem>
@@ -230,7 +243,7 @@ const FrameworkSelect = () => {
               value={field.value}
               onValueChange={(value) => {
                 field.onChange(value)
-                setValue('name', value)
+                setValue('name', `${value} - ${currentYear}`)
                 trigger('name')
               }}
               required

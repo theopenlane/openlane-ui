@@ -1,7 +1,6 @@
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { useFormContext } from 'react-hook-form'
 import { z, infer as zInfer } from 'zod'
-import { Button } from '@repo/ui/button'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { wizardStyles } from './wizard.styles'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
@@ -180,6 +179,7 @@ const AuditPartner = () => {
     register,
     control,
     formState: { errors },
+    trigger,
   } = useFormContext<ProgramDetailValues>()
   const { inputRow, formRow } = wizardStyles()
 
@@ -205,7 +205,16 @@ const AuditPartner = () => {
                 </TooltipProvider>
               </FormLabel>
               <FormControl>
-                <Input className={inputRow()} variant="medium" type="string" {...field} value={field.value || ''} />
+                <Input
+                  onInput={() => {
+                    trigger('auditPartnerName')
+                  }}
+                  className={inputRow()}
+                  variant="medium"
+                  type="string"
+                  {...field}
+                  value={field.value || ''}
+                />
               </FormControl>
             </FormItem>
           )}

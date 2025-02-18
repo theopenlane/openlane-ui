@@ -3,11 +3,11 @@ import React, { useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { Separator } from '@repo/ui/separator'
 
-import { defineStepper } from '@stepperize/react'
+import { defineStepper, Stepper } from '@stepperize/react'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z, infer as zInfer } from 'zod'
-import { FormProvider, useForm, useFormState } from 'react-hook-form'
+import { FieldValues, FormProvider, useForm, useFormState } from 'react-hook-form'
 
 import { initProgramSchema, ProgramInitComponent } from './wizard/step-1-init'
 import { programDetailSchema, ProgramDetailsComponent } from './wizard/step-2-details'
@@ -19,8 +19,10 @@ import { toast } from '@repo/ui/use-toast'
 import { useRouter } from 'next/navigation'
 import { dialogStyles } from './dialog.styles'
 import { mapToNode } from './nodes'
-import { AlertTriangle, Check, CheckCircle, CheckIcon, ChevronDown, ChevronDownIcon, XCircle, XIcon } from 'lucide-react'
-import { Accordion, AccordionContent, AccordionHeader, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
+import { Check } from 'lucide-react'
+import { SummaryCard } from './summary-card'
+
+export type FormFields = z.infer<typeof initProgramSchema & typeof programDetailSchema & typeof programInviteSchema & typeof programObjectAssociationSchema>
 
 const { useStepper, steps } = defineStepper(
   { id: 'init', label: 'Basic information', schema: initProgramSchema },
@@ -47,7 +49,7 @@ const ProgramWizard = () => {
     resolver: zodResolver(stepper.current.schema),
   })
 
-  const fullForm = useForm({
+  const fullForm = useForm<FormFields>({
     mode: 'all',
     resolver: zodResolver(z.union([initProgramSchema, programDetailSchema, programInviteSchema, programObjectAssociationSchema])),
   })
@@ -229,10 +231,9 @@ const ProgramWizard = () => {
                 details: () => <ProgramDetailsComponent stepper={stepper} steps={steps} />,
                 invite: () => <ProgramInviteComponent users={users} groups={groups} />,
                 link: () => <ProgramObjectAssociationComponent risks={risks} policies={policies} procedures={procedures} />,
-                // review: () => <ProgramReviewComponent users={users} groups={groups} risks={risks} policies={policies} procedures={procedures} />,
               })}
             </div>
-            <SummaryCard />
+            <SummaryCard formData={getValues()} stepper={stepper} />
           </div>
           {!stepper.isLast && (
             <div className="flex gap-2 justify-center w-full items-center ">
@@ -249,53 +250,3 @@ const ProgramWizard = () => {
 }
 
 export { ProgramWizard }
-
-const accordionItems = [
-  {
-    value: 'framework',
-    label: 'Framework chosen',
-    icon: <XCircle className="text-red-600" size={16} />,
-    description: 'A framework must be selected to create the program, choose from one of the provided options or choose `Custom` to make your own.',
-    link: 'Take me there.',
-  },
-  { value: 'name', label: 'Name chosen', icon: <CheckCircle className="text-green-400" size={16} /> },
-  { value: 'audit-period', label: 'Audit period set', icon: <CheckCircle className="text-green-400" size={16} /> },
-  { value: 'audit-partner', label: 'Audit partner provided', icon: <AlertTriangle className="text-yellow-600" size={16} /> },
-  { value: 'team-members', label: 'Team members invited', icon: <AlertTriangle className="text-yellow-600" size={16} /> },
-  { value: 'objects-linked', label: 'Objects linked or template selected', icon: <AlertTriangle className="text-yellow-600" size={16} /> },
-]
-
-// Reusable Accordion Item Component
-const AccordionItemComponent = ({ value, label, icon, description, link }: any) => (
-  <AccordionItem value={value} className="border-b">
-    <AccordionTrigger className="py-4 w-full flex justify-between items-center group">
-      <div className="flex items-center gap-2">
-        {icon}
-        <span className="font-semibold">{label}</span>
-      </div>
-      <ChevronDown className="h-4 w-4 transition-transform duration-300 group-data-[state=open]:rotate-180" />
-    </AccordionTrigger>
-    {description && (
-      <AccordionContent className="my-3">
-        <p className="text-sm">
-          {description} {link && <span className="text-blue-500 cursor-pointer">{link}</span>}
-        </p>
-      </AccordionContent>
-    )}
-  </AccordionItem>
-)
-
-export const SummaryCard = () => {
-  return (
-    <div className="w-[391px] shrink-0 rounded-lg size-fit !mt-7 p-4 border pb-6">
-      <h3 className="text-base font-semibold">Summary</h3>
-      <p className="text-sm py-4">Confirm you&apos;ve filled out all the necessary information</p>
-
-      <Accordion type="single" collapsible className="w-full">
-        {accordionItems.map((item) => (
-          <AccordionItemComponent key={item.value} {...item} />
-        ))}
-      </Accordion>
-    </div>
-  )
-}
