@@ -182,7 +182,7 @@ const ProgramWizard = () => {
 
   const isSkipDisabled = () => {
     const form = getValues()
-    if (form.programType === 'framerwork') {
+    if (form.programType === 'framework') {
       return !form.programType || !form.name
     }
     if (form.programType === 'other') {
