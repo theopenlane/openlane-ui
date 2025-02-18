@@ -422,7 +422,7 @@ const PeriodComponent = () => {
                         setIsStartDateCalendarOpen(false)
                       }}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-background-secondary">
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
                       <SelectContent position="popper">

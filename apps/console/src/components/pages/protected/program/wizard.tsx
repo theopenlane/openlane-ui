@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 
 import { Button } from '@repo/ui/button'
 import { Separator } from '@repo/ui/separator'
@@ -96,16 +96,29 @@ const ProgramWizard = () => {
 
   // use the mutation to create a new program
   const createProgram = async (input: CreateProgramWithMembersInput) => {
-    createNewProgram({
+    const resp = await createNewProgram({
       input: input,
-    }).then((result) => {
-      return result
     })
+    if (resp.error) {
+      toast({
+        title: 'Error',
+        description: 'There was an error creating the program. Please try again.',
+        variant: 'destructive',
+        duration: 5000,
+      })
+      return
+    }
+    toast({
+      title: 'Program Created',
+      description: `Your program, ${resp?.data?.createProgramWithMembers?.program?.name}, has been successfully created`,
+      variant: 'success',
+      duration: 5000,
+    })
+    router.push(`/programs?id=${resp?.data?.createProgramWithMembers.program.id}`)
   }
 
   // get the result and error from the mutation
   const [result, createNewProgram] = useCreateProgramWithMembersMutation()
-  const { data, error } = result
 
   const handleSkip = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -167,23 +180,15 @@ const ProgramWizard = () => {
     createProgram(input)
   }
 
-  if (data) {
-    toast({
-      title: 'Program Created',
-      description: `Your program, ${data.createProgramWithMembers?.program?.name}, has been successfully created`,
-      variant: 'success',
-      duration: 5000,
-    })
-    router.push(`/programs?id=${data.createProgramWithMembers.program.id}`)
-  }
-
-  if (error) {
-    toast({
-      title: 'Error',
-      description: 'There was an error creating the program. Please try again.',
-      variant: 'destructive',
-      duration: 5000,
-    })
+  const isSkipDisabled = () => {
+    const form = getValues()
+    if (form.programType === 'framework') {
+      return !form.framework || !form.name
+    }
+    if (form.programType === 'other') {
+      return !form.customProgram || !form.name
+    }
+    return !form.programType || !form.name
   }
 
   return (
@@ -224,7 +229,7 @@ const ProgramWizard = () => {
         </div>
 
         <form className={formInput()}>
-          <div className="h-full space-y-1 flex justify-between">
+          <div className="space-y-1 flex justify-between">
             <div>
               {stepper.switch({
                 init: () => <ProgramInitComponent />,
@@ -236,9 +241,9 @@ const ProgramWizard = () => {
             <SummaryCard formData={getValues()} stepper={stepper} />
           </div>
           {!stepper.isLast && (
-            <div className="flex gap-2 justify-center w-full items-center ">
+            <div className="mt-4 flex gap-2 justify-center w-full items-center ">
               <span>In a hurry?</span>
-              <Button variant="outline" onClick={handleSkip}>
+              <Button variant="outline" onClick={handleSkip} disabled={isSkipDisabled()}>
                 Skip to end
               </Button>
             </div>
