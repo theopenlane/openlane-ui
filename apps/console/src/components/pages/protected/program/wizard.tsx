@@ -1,14 +1,9 @@
-import Link from 'next/link'
 import React, { useState } from 'react'
 
 import { Button } from '@repo/ui/button'
-import { Card } from '@repo/ui/cardpanel'
 import { Separator } from '@repo/ui/separator'
-import { Accordion, AccordionItem } from '@radix-ui/react-accordion'
 
-import { BookTextIcon, EyeIcon, LinkIcon, ShieldPlusIcon, UserRoundPlusIcon } from 'lucide-react'
-
-import { defineStepper, Step } from '@stepperize/react'
+import { defineStepper } from '@stepperize/react'
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z, infer as zInfer } from 'zod'
@@ -18,39 +13,27 @@ import { initProgramSchema, ProgramInitComponent } from './wizard/step-1-init'
 import { programDetailSchema, ProgramDetailsComponent } from './wizard/step-2-details'
 import { ProgramInviteComponent, programInviteSchema } from './wizard/step-3-team'
 import { ProgramObjectAssociationComponent, programObjectAssociationSchema } from './wizard/step-4-associate'
-import { ProgramReviewComponent } from './wizard/step-5-review'
 import { CreateProgramWithMembersInput, ProgramMembershipRole, useCreateProgramWithMembersMutation, useGetProgramEdgesForWizardQuery } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import { toast } from '@repo/ui/use-toast'
 import { useRouter } from 'next/navigation'
 import { dialogStyles } from './dialog.styles'
 import { mapToNode } from './nodes'
+import { Check } from 'lucide-react'
+import { SummaryCard } from './summary-card'
 
-interface StepperProps extends Step {
-  description?: string
-  details?: string
-  icon: React.ReactNode
-}
-
-const stepDetails: StepperProps[] = [
-  { id: 'init', description: 'Get started by choosing one of the supported audit frameworks or build your own custom program', icon: <ShieldPlusIcon size={20} /> },
-  { id: 'details', description: 'Customize your program by configuring your audit period and partners', icon: <BookTextIcon size={20} /> },
-  { id: 'invite', description: 'Invite your team to the program with customizable roles', icon: <UserRoundPlusIcon size={20} /> },
-  { id: 'link', description: 'Associate existing objects with the program (e.g. policies, procedures, etc.)', icon: <LinkIcon size={20} /> },
-  { id: 'review', description: 'Review the final details before creation', icon: <EyeIcon size={20} /> },
-]
+export type FormFields = z.infer<typeof initProgramSchema & typeof programDetailSchema & typeof programInviteSchema & typeof programObjectAssociationSchema>
 
 const { useStepper, steps } = defineStepper(
-  { id: 'init', label: 'New Program', schema: initProgramSchema },
-  { id: 'details', label: 'Program Details', schema: programDetailSchema },
-  { id: 'invite', label: 'Add Your Team', schema: programInviteSchema },
-  { id: 'link', label: 'Associate Existing Objects', schema: programObjectAssociationSchema },
-  { id: 'review', label: 'Review', schema: z.object({}) },
+  { id: 'init', label: 'Basic information', schema: initProgramSchema },
+  { id: 'details', label: 'Auditors', schema: programDetailSchema },
+  { id: 'invite', label: 'Add team members', schema: programInviteSchema },
+  { id: 'link', label: 'Associate existing objects', schema: programObjectAssociationSchema },
 )
 
 const ProgramWizard = () => {
   // styles
-  const { navCard, linkItem, formInput, formCard, buttonRow } = dialogStyles()
+  const { linkItem, formInput, buttonRow } = dialogStyles()
 
   // router for navigation
   const router = useRouter()
@@ -66,7 +49,7 @@ const ProgramWizard = () => {
     resolver: zodResolver(stepper.current.schema),
   })
 
-  const fullForm = useForm({
+  const fullForm = useForm<FormFields>({
     mode: 'all',
     resolver: zodResolver(z.union([initProgramSchema, programDetailSchema, programInviteSchema, programObjectAssociationSchema])),
   })
@@ -100,13 +83,6 @@ const ProgramWizard = () => {
     })
   }
 
-  // handle the click event for the stepper
-  const onClick = (id: (typeof steps)[number]['id'], data: zInfer<typeof stepper.current.schema>) => {
-    handleChange(data)
-
-    stepper.goTo(id)
-  }
-
   // handle the form submission for each page in the stepper
   const onSubmit = (data: zInfer<typeof stepper.current.schema>) => {
     if (stepper.isLast) {
@@ -130,6 +106,11 @@ const ProgramWizard = () => {
   // get the result and error from the mutation
   const [result, createNewProgram] = useCreateProgramWithMembersMutation()
   const { data, error } = result
+
+  const handleSkip = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    stepper.goTo(steps[steps.length - 1].id)
+  }
 
   // handle the final form submission
   const handleFormSubmit = () => {
@@ -206,76 +187,63 @@ const ProgramWizard = () => {
   }
 
   return (
-    <div className="flex flex-row">
+    <div className="flex flex-col">
       <FormProvider {...form}>
-        <Card className={navCard()}>
-          <nav aria-label="Program Creation" className="group">
-            <Accordion type="multiple">
-              {stepper.all.map((step, index, array) => (
-                <AccordionItem
-                  key={step.id}
-                  value={step.id}
-                  // @ts-ignore
-                  className={`${index - 1 < stepper.current.index ? 'rounded-md font-bold hover:bg-teal-200 bg-button-muted h-1/3' : 'bg-background-secondary text-text'}`}
-                >
+        <div className="flex border-b border-t items-center justify-between">
+          <ul className="flex py-2.5">
+            {stepper.all.map((step, index, array) => {
+              const isCompleted = stepper.current.index > index
+              const isActive = step.id === stepper.current.id
+              return (
+                <div className={`flex ${isActive ? 'opacity-100' : 'opacity-50'}`} key={index}>
+                  <span className={`mr-2 w-8 h-8 flex justify-center items-center rounded-full text-base font-medium text-white ${isCompleted || isActive ? 'bg-primary' : 'bg-border'}`}>
+                    {isCompleted ? <Check size={20} /> : index + 1}
+                  </span>
                   <li key={step.id} className={linkItem()}>
-                    <Link
-                      aria-current={stepper.current.id === step.id ? 'step' : undefined}
-                      aria-posinset={index + 1}
-                      aria-setsize={steps.length}
-                      aria-selected={stepper.current.id === step.id}
-                      className="flex"
-                      href={`#${step.id}`}
-                      onClick={(data) => onClick(step.id, data)}
-                    >
-                      <span className="flex items-center">
-                        <span className="mx-2 py-2">{stepDetails[index].icon}</span>
-                        <span className="ml-2 mr-10">
-                          <span>{step.label}</span>
-                          <br />
-                          <div className="">
-                            <span className="text-xs">{stepDetails[index].description}</span>
-                          </div>
-                        </span>
-                      </span>
-                    </Link>
+                    <span className={`flex items-center font-medium ${isActive ? 'text-brand' : 'text-text-light'}`}>{step.label}</span>
                   </li>
-                  {/* @ts-ignore */}
-                  {index < array.length - 1 && <Separator full className={`flex-1 mx-0 ${index < stepper.current.index ? 'bg-primary' : 'bg-muted mx-0'}`} />}
-                </AccordionItem>
-              ))}
-            </Accordion>
-          </nav>
-        </Card>
-        <Card className={formCard()}>
-          <form onSubmit={handleSubmit(onSubmit)} className={formInput()}>
-            <div className="h-full space-y-1">
+                  {index < array.length - 1 && <Separator programStep className="mx-1" />}
+                </div>
+              )
+            })}
+          </ul>
+          <div className={buttonRow()}>
+            <Button onClick={stepper.prev} disabled={stepper.isFirst}>
+              Back
+            </Button>
+            {!stepper.isLast ? (
+              <Button onClick={handleSubmit(onSubmit)} disabled={!isValid}>
+                Next
+              </Button>
+            ) : (
+              <Button disabled={isSubmitting} onClick={handleFormSubmit}>
+                Create Program
+              </Button>
+            )}
+          </div>
+        </div>
+
+        <form className={formInput()}>
+          <div className="h-full space-y-1 flex justify-between">
+            <div>
               {stepper.switch({
                 init: () => <ProgramInitComponent />,
                 details: () => <ProgramDetailsComponent />,
                 invite: () => <ProgramInviteComponent users={users} groups={groups} />,
                 link: () => <ProgramObjectAssociationComponent risks={risks} policies={policies} procedures={procedures} />,
-                review: () => <ProgramReviewComponent users={users} groups={groups} risks={risks} policies={policies} procedures={procedures} />,
               })}
             </div>
-            <div className={buttonRow()}>
-              {!stepper.isLast ? (
-                <>
-                  <Button onClick={stepper.prev} disabled={stepper.isFirst}>
-                    Back
-                  </Button>
-                  <Button type="submit" disabled={!isValid}>
-                    Next
-                  </Button>
-                </>
-              ) : (
-                <Button disabled={isSubmitting} onClick={handleFormSubmit}>
-                  Create Program
-                </Button>
-              )}
+            <SummaryCard formData={getValues()} stepper={stepper} />
+          </div>
+          {!stepper.isLast && (
+            <div className="flex gap-2 justify-center w-full items-center ">
+              <span>In a hurry?</span>
+              <Button variant="outline" onClick={handleSkip}>
+                Skip to end
+              </Button>
             </div>
-          </form>
-        </Card>
+          )}
+        </form>
       </FormProvider>
     </div>
   )
