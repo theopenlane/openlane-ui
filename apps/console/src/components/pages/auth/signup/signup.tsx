@@ -32,8 +32,6 @@ export const SignupPage = () => {
   const [isPasswordActive, setIsPasswordActive] = useState(false)
   const { separator, buttons, keyIcon, form, input } = signupStyles()
 
-  console.log('isLoading', isLoading)
-
   /**
    * Setup Github Authentication
    */
