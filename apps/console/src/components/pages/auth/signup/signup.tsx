@@ -25,12 +25,14 @@ const TEMP_PASSKEY_NAME = 'Temp User'
 
 export const SignupPage = () => {
   const router = useRouter()
-  const [signInError, setSignInError] = useState(false)
+  // const [signInError, setSignInError] = useState(false)
   const [registrationErrorMessage, setRegistrationErrorMessage] = useState('There was an error. Please try again.')
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const showLoginError = !isLoading && signInError
+  const showLoginError = !isLoading && !!setRegistrationErrorMessage
   const [isPasswordActive, setIsPasswordActive] = useState(false)
   const { separator, buttons, keyIcon, form, input } = signupStyles()
+
+  console.log('isLoading', isLoading)
 
   /**
    * Setup Github Authentication
@@ -83,13 +85,12 @@ export const SignupPage = () => {
       }
 
       if (!verificationResult.success) {
-        setSignInError(true)
         setRegistrationErrorMessage(`Error: ${verificationResult.error}`)
       }
 
       return verificationResult
     } catch (error) {
-      setSignInError(true)
+      setRegistrationErrorMessage(`{${error || ''}}`)
     }
   }
 
@@ -144,6 +145,7 @@ export const SignupPage = () => {
         }}
         onSubmit={async (payload: RegisterUser) => {
           setIsLoading(true)
+          setRegistrationErrorMessage('')
           try {
             if (recaptchaSiteKey) {
               // @ts-ignore
@@ -208,6 +210,8 @@ export const SignupPage = () => {
             </div>
           </>
         )}
+        {showLoginError && <MessageBox className={'p-4 ml-1'} message={registrationErrorMessage} />}
+
         <Button className="mr-auto mt-2 w-full" icon={<ArrowUpRight />} size="md" type="submit" iconAnimated>
           {isLoading ? 'loading' : 'Sign up'}
         </Button>
@@ -220,7 +224,6 @@ export const SignupPage = () => {
         Terms of Service
       </Link>
 
-      {showLoginError && <MessageBox className={'p-4 ml-1'} message={registrationErrorMessage} />}
       <div className="text-[10px] text-gray-500 mt-5 text-center">
         This site is protected by reCAPTCHA and the Google{' '}
         <a className="text-blue-500 underline" href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
