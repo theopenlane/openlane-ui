@@ -19,6 +19,14 @@ import {
   ListChecks,
   Library,
   ShapesIcon,
+  Settings2,
+  ScrollText,
+  Workflow,
+  NotebookPen,
+  FileBadge,
+  FileBadge2,
+  Building,
+  LineChart,
 } from 'lucide-react'
 import { NavHeading, type NavItem, type Separator } from '@/types'
 
@@ -49,7 +57,7 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
   {
     title: 'Controls',
     href: '/programs/controls',
-    icon: Sliders,
+    icon: Settings2,
   },
   {
     title: 'Evidence',
@@ -59,22 +67,22 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
   {
     title: 'Policies',
     href: '/policies',
-    icon: FileText,
+    icon: ScrollText,
   },
   {
     title: 'Procedures',
     href: '/procedures',
-    icon: ClipboardList,
+    icon: Workflow,
   },
   {
     title: 'Questionnaires',
     href: '/questionnaires',
-    icon: ListChecks,
+    icon: NotebookPen,
   },
   {
     title: 'Standards',
     href: '/standards',
-    icon: Library,
+    icon: FileBadge2,
   },
 
   {
@@ -88,7 +96,7 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
   {
     title: 'Entities',
     href: '/entities',
-    icon: HandshakeIcon,
+    icon: Building,
   },
   {
     title: 'Assets',
@@ -101,7 +109,7 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
   {
     title: 'Reporting',
     href: '/reporting',
-    icon: BarChart3Icon,
+    icon: LineChart,
   },
   {
     type: 'separator',
