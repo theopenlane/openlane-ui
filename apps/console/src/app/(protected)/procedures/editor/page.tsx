@@ -8,7 +8,7 @@ const PlateEditor = dynamic(() => import('@/components/shared/editor/plate'), { 
 const Page: React.FC = () => {
   return (
     <>
-      <PageHeading eyebrow="Policies & Procedures" heading="Editor" />
+      <PageHeading eyebrow="Procedures" heading="Editor" />
 
       <div className="h-[90%]">
         <PlateEditor />
