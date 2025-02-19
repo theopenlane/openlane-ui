@@ -61,7 +61,7 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
   },
   {
     title: 'Evidence',
-    href: '/programs/evidence',
+    href: '/evidence',
     icon: Fingerprint,
   },
   {
