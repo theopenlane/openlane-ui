@@ -25,7 +25,6 @@ const TEMP_PASSKEY_NAME = 'Temp User'
 
 export const SignupPage = () => {
   const router = useRouter()
-  // const [signInError, setSignInError] = useState(false)
   const [registrationErrorMessage, setRegistrationErrorMessage] = useState('There was an error. Please try again.')
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const showLoginError = !isLoading && !!setRegistrationErrorMessage
