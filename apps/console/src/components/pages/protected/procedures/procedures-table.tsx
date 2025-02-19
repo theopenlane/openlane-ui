@@ -25,7 +25,7 @@ export const ProceduresTable = () => {
   const [filteredProcedures, setFilteredProcedures] = useState<Procedures[]>([])
 
   const handleCreateNew = () => {
-    router.push('/policies-and-procedures/editor?type=procedure')
+    router.push('/policies/editor?type=procedure')
   }
 
   // TODO: add table once backend is ready
