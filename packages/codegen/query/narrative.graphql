@@ -1,0 +1,11 @@
+query GetAllNarratives($where: NarrativeWhereInput) {
+  narratives(where: $where) {
+    edges {
+      node {
+        id
+        name
+        displayID
+      }
+    }
+  }
+}

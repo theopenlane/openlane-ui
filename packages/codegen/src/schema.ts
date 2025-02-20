@@ -11308,6 +11308,8 @@ export interface Mutation {
   createFullProgram: ProgramCreatePayload
   /** Create a new group */
   createGroup: GroupCreatePayload
+  /** Create a new group with members */
+  createGroupByClone: GroupCreatePayload
   /** Create a new groupMembership */
   createGroupMembership: GroupMembershipCreatePayload
   /** Create a new groupSetting */
@@ -11795,6 +11797,13 @@ export interface MutationCreateFullProgramArgs {
 
 export interface MutationCreateGroupArgs {
   input: CreateGroupInput
+}
+
+export interface MutationCreateGroupByCloneArgs {
+  cloneGroupMembers?: InputMaybe<Scalars['ID']['input']>
+  groupInput: CreateGroupInput
+  inheritGroupPermissions?: InputMaybe<Scalars['ID']['input']>
+  members?: InputMaybe<Array<GroupMembersInput>>
 }
 
 export interface MutationCreateGroupMembershipArgs {
@@ -23558,6 +23567,11 @@ export interface UpdateGroupInput {
   displayName?: InputMaybe<Scalars['String']['input']>
   /** the URL to an auto generated gravatar image for the group */
   gravatarLogoURL?: InputMaybe<Scalars['String']['input']>
+  /**
+   * inheritGroupPermissions allows a group to be updated with the same permissions
+   * as the specified group ID, existing permissions will be removed
+   */
+  inheritGroupPermissions?: InputMaybe<Scalars['ID']['input']>
   /** the URL to an image uploaded by the customer for the groups avatar image */
   logoURL?: InputMaybe<Scalars['String']['input']>
   /** the name of the group - must be unique within the organization */
@@ -25990,6 +26004,27 @@ export type DeleteApiTokenMutationVariables = Exact<{
 
 export type DeleteApiTokenMutation = { __typename?: 'Mutation'; deleteAPIToken: { __typename?: 'APITokenDeletePayload'; deletedID: string } }
 
+export type GetAllControlObjectivesQueryVariables = Exact<{
+  where?: InputMaybe<ControlObjectiveWhereInput>
+}>
+
+export type GetAllControlObjectivesQuery = {
+  __typename?: 'Query'
+  controlObjectives: {
+    __typename?: 'ControlObjectiveConnection'
+    edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string; name: string; displayID: string } | null } | null> | null
+  }
+}
+
+export type GetAllControlsQueryVariables = Exact<{
+  where?: InputMaybe<ControlWhereInput>
+}>
+
+export type GetAllControlsQuery = {
+  __typename?: 'Query'
+  controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; name: string; displayID: string } | null } | null> | null }
+}
+
 export type GetDashboardDataQueryVariables = Exact<{
   where?: InputMaybe<TaskWhereInput>
 }>
@@ -26169,6 +26204,18 @@ export type GetGroupPermissionsQuery = {
   }
 }
 
+export type GetAllPoliciesQueryVariables = Exact<{
+  where?: InputMaybe<InternalPolicyWhereInput>
+}>
+
+export type GetAllPoliciesQuery = {
+  __typename?: 'Query'
+  internalPolicies: {
+    __typename?: 'InternalPolicyConnection'
+    edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; displayID: string } | null } | null> | null
+  }
+}
+
 export type UpdateUserRoleInOrgMutationVariables = Exact<{
   updateOrgMemberId: Scalars['ID']['input']
   input: UpdateOrgMembershipInput
@@ -26184,6 +26231,18 @@ export type RemoveUserFromOrgMutationVariables = Exact<{
 }>
 
 export type RemoveUserFromOrgMutation = { __typename?: 'Mutation'; deleteOrgMembership: { __typename?: 'OrgMembershipDeletePayload'; deletedID: string } }
+
+export type GetAllNarrativesQueryVariables = Exact<{
+  where?: InputMaybe<NarrativeWhereInput>
+}>
+
+export type GetAllNarrativesQuery = {
+  __typename?: 'Query'
+  narratives: {
+    __typename?: 'NarrativeConnection'
+    edges?: Array<{ __typename?: 'NarrativeEdge'; node?: { __typename?: 'Narrative'; id: string; name: string; displayID: string } | null } | null> | null
+  }
+}
 
 export type GetAllOrganizationsQueryVariables = Exact<{ [key: string]: never }>
 
@@ -26419,6 +26478,17 @@ export type CreateInternalPolicyMutation = {
   }
 }
 
+export type InternalPolicyUpdateFieldsFragment = {
+  __typename?: 'InternalPolicy'
+  id: string
+  name: string
+  background?: string | null
+  description?: string | null
+  policyType?: string | null
+  purposeAndScope?: string | null
+  details?: any | null
+}
+
 export type UpdateInternalPolicyMutationVariables = Exact<{
   updateInternalPolicyId: Scalars['ID']['input']
   input: UpdateInternalPolicyInput
@@ -26440,6 +26510,12 @@ export type UpdateInternalPolicyMutation = {
     }
   }
 }
+
+export type DeleteInternalPolicyMutationVariables = Exact<{
+  deleteInternalPolicyId: Scalars['ID']['input']
+}>
+
+export type DeleteInternalPolicyMutation = { __typename?: 'Mutation'; deleteInternalPolicy: { __typename?: 'InternalPolicyDeletePayload'; deletedID: string } }
 
 export type GetAllInternalPoliciesWithDetailsQueryVariables = Exact<{ [key: string]: never }>
 
@@ -26502,6 +26578,25 @@ export type GetAllInternalPoliciesQuery = {
     __typename?: 'InternalPolicyConnection'
     edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
   }
+}
+
+export type InternalPolicyByIdFragment = {
+  __typename?: 'InternalPolicy'
+  id: string
+  name: string
+  description?: string | null
+  details?: any | null
+  background?: string | null
+  createdAt?: any | null
+  createdBy?: string | null
+  updatedAt?: any | null
+  updatedBy?: string | null
+  tags?: Array<string> | null
+  version?: string | null
+  status?: string | null
+  purposeAndScope?: string | null
+  policyType?: string | null
+  procedures?: Array<{ __typename?: 'Procedure'; id: string; name: string }> | null
 }
 
 export type GetInternalPolicyDetailsByIdQueryVariables = Exact<{
@@ -26572,11 +26667,16 @@ export type GetAllProceduresWithDetailsQuery = {
   }
 }
 
-export type GetAllProceduresQueryVariables = Exact<{ [key: string]: never }>
+export type GetAllProceduresQueryVariables = Exact<{
+  where?: InputMaybe<ProcedureWhereInput>
+}>
 
 export type GetAllProceduresQuery = {
   __typename?: 'Query'
-  procedures: { __typename?: 'ProcedureConnection'; edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null }
+  procedures: {
+    __typename?: 'ProcedureConnection'
+    edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string } | null } | null> | null
+  }
 }
 
 export type GetProcedureDetailsByIdQueryVariables = Exact<{
@@ -26989,6 +27089,39 @@ export type UpdateUserSettingMutationVariables = Exact<{
 
 export type UpdateUserSettingMutation = { __typename?: 'Mutation'; updateUserSetting: { __typename?: 'UserSettingUpdatePayload'; userSetting: { __typename?: 'UserSetting'; id: string } } }
 
+export const InternalPolicyUpdateFieldsFragmentDoc = gql`
+  fragment InternalPolicyUpdateFields on InternalPolicy {
+    id
+    name
+    background
+    description
+    policyType
+    purposeAndScope
+    details
+  }
+`
+export const InternalPolicyByIdFragmentDoc = gql`
+  fragment InternalPolicyByID on InternalPolicy {
+    id
+    name
+    description
+    details
+    background
+    createdAt
+    createdBy
+    updatedAt
+    updatedBy
+    tags
+    version
+    status
+    purposeAndScope
+    policyType
+    procedures {
+      id
+      name
+    }
+  }
+`
 export const CreateApiTokenDocument = gql`
   mutation CreateAPIToken($input: CreateAPITokenInput!) {
     createAPIToken(input: $input) {
@@ -27031,6 +27164,40 @@ export const DeleteApiTokenDocument = gql`
 
 export function useDeleteApiTokenMutation() {
   return Urql.useMutation<DeleteApiTokenMutation, DeleteApiTokenMutationVariables>(DeleteApiTokenDocument)
+}
+export const GetAllControlObjectivesDocument = gql`
+  query GetAllControlObjectives($where: ControlObjectiveWhereInput) {
+    controlObjectives(where: $where) {
+      edges {
+        node {
+          id
+          name
+          displayID
+        }
+      }
+    }
+  }
+`
+
+export function useGetAllControlObjectivesQuery(options?: Omit<Urql.UseQueryArgs<GetAllControlObjectivesQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetAllControlObjectivesQuery, GetAllControlObjectivesQueryVariables>({ query: GetAllControlObjectivesDocument, ...options })
+}
+export const GetAllControlsDocument = gql`
+  query GetAllControls($where: ControlWhereInput) {
+    controls(where: $where) {
+      edges {
+        node {
+          id
+          name
+          displayID
+        }
+      }
+    }
+  }
+`
+
+export function useGetAllControlsQuery(options?: Omit<Urql.UseQueryArgs<GetAllControlsQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetAllControlsQuery, GetAllControlsQueryVariables>({ query: GetAllControlsDocument, ...options })
 }
 export const GetDashboardDataDocument = gql`
   query GetDashboardData($where: TaskWhereInput) {
@@ -27280,6 +27447,23 @@ export const GetGroupPermissionsDocument = gql`
 export function useGetGroupPermissionsQuery(options: Omit<Urql.UseQueryArgs<GetGroupPermissionsQueryVariables>, 'query'>) {
   return Urql.useQuery<GetGroupPermissionsQuery, GetGroupPermissionsQueryVariables>({ query: GetGroupPermissionsDocument, ...options })
 }
+export const GetAllPoliciesDocument = gql`
+  query GetAllPolicies($where: InternalPolicyWhereInput) {
+    internalPolicies(where: $where) {
+      edges {
+        node {
+          id
+          name
+          displayID
+        }
+      }
+    }
+  }
+`
+
+export function useGetAllPoliciesQuery(options?: Omit<Urql.UseQueryArgs<GetAllPoliciesQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetAllPoliciesQuery, GetAllPoliciesQueryVariables>({ query: GetAllPoliciesDocument, ...options })
+}
 export const UpdateUserRoleInOrgDocument = gql`
   mutation UpdateUserRoleInOrg($updateOrgMemberId: ID!, $input: UpdateOrgMembershipInput!) {
     updateOrgMembership(id: $updateOrgMemberId, input: $input) {
@@ -27306,6 +27490,23 @@ export const RemoveUserFromOrgDocument = gql`
 
 export function useRemoveUserFromOrgMutation() {
   return Urql.useMutation<RemoveUserFromOrgMutation, RemoveUserFromOrgMutationVariables>(RemoveUserFromOrgDocument)
+}
+export const GetAllNarrativesDocument = gql`
+  query GetAllNarratives($where: NarrativeWhereInput) {
+    narratives(where: $where) {
+      edges {
+        node {
+          id
+          name
+          displayID
+        }
+      }
+    }
+  }
+`
+
+export function useGetAllNarrativesQuery(options?: Omit<Urql.UseQueryArgs<GetAllNarrativesQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetAllNarrativesQuery, GetAllNarrativesQueryVariables>({ query: GetAllNarrativesDocument, ...options })
 }
 export const GetAllOrganizationsDocument = gql`
   query GetAllOrganizations {
@@ -27606,20 +27807,26 @@ export const UpdateInternalPolicyDocument = gql`
   mutation UpdateInternalPolicy($updateInternalPolicyId: ID!, $input: UpdateInternalPolicyInput!) {
     updateInternalPolicy(id: $updateInternalPolicyId, input: $input) {
       internalPolicy {
-        id
-        name
-        background
-        description
-        policyType
-        purposeAndScope
-        details
+        ...InternalPolicyUpdateFields
       }
     }
   }
+  ${InternalPolicyUpdateFieldsFragmentDoc}
 `
 
 export function useUpdateInternalPolicyMutation() {
   return Urql.useMutation<UpdateInternalPolicyMutation, UpdateInternalPolicyMutationVariables>(UpdateInternalPolicyDocument)
+}
+export const DeleteInternalPolicyDocument = gql`
+  mutation DeleteInternalPolicy($deleteInternalPolicyId: ID!) {
+    deleteInternalPolicy(id: $deleteInternalPolicyId) {
+      deletedID
+    }
+  }
+`
+
+export function useDeleteInternalPolicyMutation() {
+  return Urql.useMutation<DeleteInternalPolicyMutation, DeleteInternalPolicyMutationVariables>(DeleteInternalPolicyDocument)
 }
 export const GetAllInternalPoliciesWithDetailsDocument = gql`
   query GetAllInternalPoliciesWithDetails {
@@ -27691,26 +27898,14 @@ export function useGetAllInternalPoliciesQuery(options?: Omit<Urql.UseQueryArgs<
 export const GetInternalPolicyDetailsByIdDocument = gql`
   query GetInternalPolicyDetailsById($internalPolicyId: ID!) {
     internalPolicy(id: $internalPolicyId) {
-      id
-      name
-      description
-      details
-      background
-      createdAt
-      createdBy
-      updatedAt
-      updatedBy
-      tags
-      version
-      status
-      purposeAndScope
-      policyType
+      ...InternalPolicyByID
       procedures {
         id
         name
       }
     }
   }
+  ${InternalPolicyByIdFragmentDoc}
 `
 
 export function useGetInternalPolicyDetailsByIdQuery(options: Omit<Urql.UseQueryArgs<GetInternalPolicyDetailsByIdQueryVariables>, 'query'>) {
@@ -27773,12 +27968,13 @@ export function useGetAllProceduresWithDetailsQuery(options?: Omit<Urql.UseQuery
   return Urql.useQuery<GetAllProceduresWithDetailsQuery, GetAllProceduresWithDetailsQueryVariables>({ query: GetAllProceduresWithDetailsDocument, ...options })
 }
 export const GetAllProceduresDocument = gql`
-  query GetAllProcedures {
-    procedures {
+  query GetAllProcedures($where: ProcedureWhereInput) {
+    procedures(where: $where) {
       edges {
         node {
           id
           name
+          displayID
         }
       }
     }
