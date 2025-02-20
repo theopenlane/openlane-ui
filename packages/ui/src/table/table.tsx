@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { cn } from '../../lib/utils'
-import { tableStyles } from './table.styles'
+import { tableStyles } from './table-styles'
 
 const { container, table, tableHeader, tableBody, tableFooter, tableRow, tableHead, tableCell, tableCaption } = tableStyles()
 
@@ -27,6 +27,7 @@ const TableFooter = React.forwardRef<HTMLTableSectionElement, React.HTMLAttribut
 TableFooter.displayName = 'TableFooter'
 
 const TableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTMLTableRowElement>>(({ className, ...props }, ref) => <tr ref={ref} className={cn(tableRow(), className)} {...props} />)
+
 TableRow.displayName = 'TableRow'
 
 const TableHead = React.forwardRef<HTMLTableCellElement, React.ThHTMLAttributes<HTMLTableCellElement>>(({ className, ...props }, ref) => (

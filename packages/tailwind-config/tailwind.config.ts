@@ -2,7 +2,7 @@ import type { Config } from 'tailwindcss'
 import forms from '@tailwindcss/forms'
 import assistantUI from '@assistant-ui/react/tailwindcss'
 
-export const config: Omit<Config, 'content'> = {
+export const config: Partial<Config> = {
   darkMode: 'class', // Enable dark mode via class
   plugins: [
     forms,
@@ -164,6 +164,12 @@ export const config: Omit<Config, 'content'> = {
           'border-muted': 'var(--color-table-border-muted)', // Muted table border
           'header-bg': 'var(--color-table-header-bg)', // Table header background
           header: 'var(--color-table-header-text)', // Table header text
+        },
+        destructive: {
+          DEFAULT: 'var(--color-destructive)',
+          transparent: 'var(--color-destructive-transparent)',
+          border: 'var(--color-destrucitve-border)',
+          foreground: 'var(--destructive-foreground)',
         },
 
         // Other Palette Colors

@@ -1,8 +1,7 @@
 'use client'
-import { useGetAllOrganizationsQuery, useUpdateOrganizationMutation } from '@repo/codegen/src/schema'
+import { File, useUpdateOrganizationMutation } from '@repo/codegen/src/schema'
 import { Input, InputRow } from '@repo/ui/input'
 import { Panel, PanelHeader } from '@repo/ui/panel'
-import { useSession } from 'next-auth/react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormItem, FormField, FormControl, FormMessage } from '@repo/ui/form'
@@ -118,7 +117,7 @@ const OrganizationNameForm = () => {
           </form>
         </Form>
       </Panel>
-      <AvatarUpload fallbackString={currentOrganization?.name?.substring(0, 2) || 'N/A'} uploadCallback={handleUploadAvatar} placeholderImage={image} />
+      <AvatarUpload fallbackString={currentOrganization?.displayName?.substring(0, 2) || 'N/A'} uploadCallback={handleUploadAvatar} placeholderImage={image} />
     </>
   )
 }

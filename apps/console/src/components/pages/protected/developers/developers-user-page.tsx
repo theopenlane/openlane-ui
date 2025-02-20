@@ -13,13 +13,11 @@ const DevelopersPage: React.FC = () => {
   const heading = path.includes('/organization-settings') ? 'API Tokens' : 'Personal Access Tokens'
   return (
     <div className={wrapper()}>
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center ">
         <PanelHeader heading={heading} noBorder />
         <PersonalApiKeyDialog />
       </div>
-      <Panel>
-        <PersonalAccessTokenTable />
-      </Panel>
+      <PersonalAccessTokenTable />
     </div>
   )
 }

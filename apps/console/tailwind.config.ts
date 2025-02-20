@@ -6,7 +6,8 @@ const config: Pick<Config, 'darkMode' | 'content' | 'presets' | 'prefix' | 'them
   darkMode: 'class',
   safelist: ['dark'],
   content: ['./src/app/**/*.tsx', './src/components/**/*.tsx'],
-  presets: [sharedConfig],
+  presets: [sharedConfig as Partial<Config>],
+  plugins: [require('@tailwindcss/container-queries')],
   theme: {
     extend: {
       colors: {
