@@ -51,8 +51,9 @@
     "@headlessui/react": "latest",
     "@next/eslint-plugin-next": "latest",
     "@repo/eslint-config": "workspace:*",
-    "@repo/typescript-config": "workspace:*",
     "@repo/tailwind-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@tailwindcss/container-queries": "^0.1.1",
     "@types/eslint": "latest",
     "@types/node": "latest",
     "@types/react": "18.3.12",
@@ -61,8 +62,8 @@
     "clsx": "latest",
     "eslint": "latest",
     "postcss": "^8.4.24",
-    "tailwindcss": "3.4.17",
     "tailwind-variants": "latest",
+    "tailwindcss": "3.4.17",
     "typescript": "5.6.3"
   }
 }
