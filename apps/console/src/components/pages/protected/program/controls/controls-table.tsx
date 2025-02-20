@@ -75,6 +75,7 @@ const columns: ColumnDef<any>[] = [
     accessorKey: 'owners',
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
+        {/* @ts-ignore */}
         {row.getValue('owners').map((owner: any, index: number) => (
           <Avatar key={index}>
             <AvatarImage src={owner.avatar} alt={owner.fallback} />
