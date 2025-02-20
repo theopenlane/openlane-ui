@@ -76,6 +76,8 @@ const ProgramWizard = () => {
   const procedures = mapToNode(procedureRes)
   const risks = mapToNode(riskRes)
 
+  const currentIndex = stepper.all.findIndex((item) => item.id === stepper.current.id)
+
   // set values from the form when page in stepper is changed
   const handleChange = (data: zInfer<typeof stepper.current.schema>) => {
     Object.entries(data).forEach(([key, value]) => {
@@ -196,18 +198,18 @@ const ProgramWizard = () => {
       <FormProvider {...form}>
         <div className="flex border-b border-t items-center justify-between">
           <ul className="flex py-2.5">
-            {stepper.all.map((step, index, array) => {
-              const isCompleted = stepper.current.index > index
-              const isActive = step.id === stepper.current.id
+            {stepper.all.map((step, index) => {
+              const isCompleted = index < currentIndex
+              const isActive = index === currentIndex
               return (
-                <div className={`flex ${isActive ? 'opacity-100' : 'opacity-50'}`} key={index}>
+                <div className={`flex ${isActive ? 'opacity-100' : 'opacity-50'}`} key={step.id}>
                   <span className={`mr-2 w-8 h-8 flex justify-center items-center rounded-full text-base font-medium text-white ${isCompleted || isActive ? 'bg-primary' : 'bg-border'}`}>
                     {isCompleted ? <Check size={20} /> : index + 1}
                   </span>
-                  <li key={step.id} className={linkItem()}>
+                  <li className={linkItem()}>
                     <span className={`flex items-center font-medium ${isActive ? 'text-brand' : 'text-text-light'}`}>{step.label}</span>
                   </li>
-                  {index < array.length - 1 && <Separator programStep className="mx-1" />}
+                  {index < stepper.all.length - 1 && <Separator programStep className="mx-1" />}
                 </div>
               )
             })}

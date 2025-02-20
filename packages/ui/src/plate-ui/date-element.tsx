@@ -4,7 +4,7 @@ import { cn, withRef } from '@udecode/cn'
 import { setNodes } from '@udecode/plate-common'
 import { findNodePath } from '@udecode/plate-common/react'
 
-import { Calendar } from './calendar'
+import { Calendar } from '../calendar/calendar'
 import { PlateElement } from './plate-element'
 import { Popover, PopoverContent, PopoverTrigger } from './popover'
 

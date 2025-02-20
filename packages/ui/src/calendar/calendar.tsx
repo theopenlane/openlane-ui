@@ -1,6 +1,6 @@
 'use client'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { DayPicker, DayPickerProps } from 'react-day-picker'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 import { calendarStyles, CalendarVariants } from './calendar.styles'
 import { cn } from '../../lib/utils'
@@ -10,11 +10,6 @@ export type CalendarProps = DayPickerProps &
   CalendarVariants & {
     classNames?: Partial<(typeof calendarStyles)['slots']>
   }
-
-const components = {
-  IconLeft: () => <ChevronLeft className="h-4 w-4" />,
-  IconRight: () => <ChevronRight className="h-4 w-4" />,
-}
 
 function Calendar({ className, classNames: customClassNames, showOutsideDays = true, ...props }: CalendarProps) {
   const styles = calendarStyles()
@@ -26,7 +21,7 @@ function Calendar({ className, classNames: customClassNames, showOutsideDays = t
       classNames={{
         months: styles.months(),
         month: styles.month(),
-        caption: styles.caption(),
+        month_caption: styles.caption(),
         caption_label: styles.caption_label(),
         nav: styles.nav(),
         nav_button: cn(buttonStyles({ variant: 'outline' }), styles.nav_button(), customClassNames?.nav_button),
@@ -47,7 +42,12 @@ function Calendar({ className, classNames: customClassNames, showOutsideDays = t
         day_hidden: styles.day_hidden(),
         ...customClassNames,
       }}
-      components={components}
+      components={{
+        Chevron: ({ orientation }) => {
+          const Icon = orientation === 'left' ? ChevronLeft : ChevronRight
+          return <Icon className="h-4 w-4" />
+        },
+      }}
       {...props}
     />
   )

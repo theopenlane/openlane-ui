@@ -6,8 +6,8 @@
     "graphql": "16.10.0",
     "graphql-codegen-plugin-typescript-swr": "^0.8.5",
     "graphql-codegen-typescript-validation-schema": "^0.17.0",
-    "typescript": "5.6.3",
-    "graphql-request": "7.1.2"
+    "graphql-request": "7.1.2",
+    "typescript": "5.7.3"
   },
   "devDependencies": {
     "@graphql-codegen/add": "5.0.3",
