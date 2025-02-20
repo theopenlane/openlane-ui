@@ -1,6 +1,5 @@
+import { Calendar, CalendarProps } from './calendar'
 import type { Meta, StoryObj } from '@storybook/react'
-import { Calendar } from './calendar'
-import { CalendarProps } from './calendar'
 
 const meta: Meta<CalendarProps> = {
   title: 'UI/Calendar',
