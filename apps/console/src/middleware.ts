@@ -2,11 +2,16 @@ import { NextResponse } from 'next/server'
 import { auth } from './lib/auth/auth'
 import { cookies } from 'next/headers'
 import { sessionCookieName } from '@repo/dally/auth'
-import { getToken } from 'next-auth/jwt'
 
 export default auth(async (req) => {
   // Attach `next-url` header for client-side route metadata
   req.headers.append('next-url', req.nextUrl.toString())
+
+  //IF YOU ADD PUBLIC PAGE, ITS REQUIRED TO CHANGE IT IN Providers.tsx
+  const publicPages = ['/login', '/tfa', '/invite', '/subscriber-verify', '/verify', '/resend-verify', '/waitlist']
+
+  const path = req.nextUrl.pathname
+  const isPublicPage = publicPages.includes(path)
 
   let hasSessionCookie = true
 
@@ -18,16 +23,22 @@ export default auth(async (req) => {
   }
   const session = await auth()
 
+  const isLoggedIn = req.auth?.user && hasSessionCookie
   const isTfaEnabled = session?.user.isTfaEnabled
 
-  if (req.auth?.user && hasSessionCookie) {
-    if (isTfaEnabled) {
-      return NextResponse.redirect(new URL('/tfa', req.url))
-    }
-    return NextResponse.next()
+  if (!isLoggedIn) {
+    return isPublicPage ? NextResponse.next() : NextResponse.redirect(new URL('/login', req.url))
   }
 
-  return NextResponse.redirect(new URL('/login', req.url))
+  if (isTfaEnabled) {
+    return path === '/tfa' || path === '/login' ? NextResponse.next() : NextResponse.redirect(new URL('/tfa', req.url))
+  }
+
+  if (isPublicPage) {
+    return NextResponse.redirect(new URL('/dashboard', req.url))
+  }
+
+  return NextResponse.next()
 })
 
 export const config = {
@@ -48,7 +59,6 @@ export const config = {
      * - invite (invite verify page)
      */
 
-    //IF YOU ADD PUBLIC PAGE, ITS REQUIRED TO CHANGE IT IN Providers.tsx
-    '/((?!api|_next/static|_next/image|favicon.ico|backgrounds|backgrounds/|icons|icons/|login|verify|resend-verify|waitlist|subscriber-verify|invite|tfa).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|backgrounds|backgrounds/|icons|icons/).*)',
   ],
 }

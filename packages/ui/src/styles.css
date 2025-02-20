@@ -37,6 +37,7 @@
   --color-button-light: #e8f9f5;
   --color-button-text: #082930;
   --color-button-secondary: #d9ae40;
+  --color-button-back: #e2efeb;
 
   /* Background */
   --color-bg: #e9f1f5;
@@ -146,6 +147,7 @@
   --color-button-muted: #75d2bf;
   --color-button-text: #082930;
   --color-button-secondary: #b48f31;
+  --color-button-back: #96a09d;
 
   /* Background */
   --color-bg: #0d1117;

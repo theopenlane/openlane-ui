@@ -39,12 +39,13 @@ query GetAllProceduresWithDetails {
   }
 }
 
-query GetAllProcedures {
-  procedures {
+query GetAllProcedures($where: ProcedureWhereInput) {
+  procedures(where: $where) {
     edges {
       node {
         id
         name
+        displayID
       }
     }
   }

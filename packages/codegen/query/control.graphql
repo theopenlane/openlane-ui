@@ -1,0 +1,11 @@
+query GetAllControls($where: ControlWhereInput) {
+  controls(where: $where) {
+    edges {
+      node {
+        id
+        name
+        displayID
+      }
+    }
+  }
+}

@@ -247,7 +247,7 @@ const renderOrgSearchResultField = ({ node, handleOrganizationSwitch, setQuery }
         <div className={avatarRow()}>
           <Avatar variant="medium" className="mr-2">
             {image && <AvatarImage src={image} />}
-            <AvatarFallback>{node?.name?.substring(0, 2)}</AvatarFallback>
+            <AvatarFallback>{node?.displayName?.substring(0, 2)}</AvatarFallback>
           </Avatar>
           {node.displayName}
         </div>

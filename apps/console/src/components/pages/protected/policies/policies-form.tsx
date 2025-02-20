@@ -66,12 +66,6 @@ export const PoliciesForm: React.FC<Props> = ({ onSubmit, policy }) => {
 
   return (
     <>
-      {false && (
-        <div className="flex">
-          <pre>{JSON.stringify(policy, null, 2)}</pre>
-          <pre>{JSON.stringify(form.control._formValues, null, 2)}</pre>
-        </div>
-      )}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <InputRow>

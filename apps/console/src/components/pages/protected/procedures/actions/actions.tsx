@@ -28,7 +28,7 @@ export const Actions = ({
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   const handleEditProcedure = () => {
-    router.push(`/policies-and-procedures/editor?id=${procedureId}`)
+    router.push(`/procedures/editor?id=${procedureId}`)
   }
 
   const handleDeleteProcedure = async () => {

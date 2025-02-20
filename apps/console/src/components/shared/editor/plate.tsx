@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 
 import { createPlateEditor, Plate } from '@udecode/plate-common/react'
-import { Value } from '@udecode/plate-common'
+import { TElement, Value } from '@udecode/plate-common'
 
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
@@ -13,17 +13,17 @@ import { FixedToolbar } from '@repo/ui/plate-ui/fixed-toolbar'
 import { FixedToolbarButtons } from '@repo/ui/plate-ui/fixed-toolbar-buttons'
 import { FloatingToolbar } from '@repo/ui/plate-ui/floating-toolbar'
 import { FloatingToolbarButtons } from '@repo/ui/plate-ui/floating-toolbar-buttons'
-
+import { memo } from 'react'
 import PlateConfig from './plate-config'
 
 const editor = createPlateEditor(Object.assign({}, PlateConfig, { value: '' }))
 
 type Props = {
-  content?: Value
+  content?: TElement[] | null
   onChange?: (content: Value) => void
 }
 
-export default function PlateEditor({ content, onChange }: Props) {
+export default memo(function PlateEditor({ content, onChange }: Props) {
   useEffect(() => {
     if (content) {
       editor.tf.setValue(content)
@@ -51,4 +51,4 @@ export default function PlateEditor({ content, onChange }: Props) {
       </DndProvider>
     </>
   )
-}
+})

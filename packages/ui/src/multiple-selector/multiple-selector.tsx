@@ -410,7 +410,7 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
       >
         <div
           className={cn(
-            'min-h-10 rounded-md border border-input text-base md:text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
+            'rounded-md border border-input text-base md:text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
             {
               'px-3 py-2': selected.length !== 0,
               'cursor-text': !disabled && selected.length !== 0,
@@ -466,7 +466,7 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
               }}
               onBlur={(event) => {
                 if (!onScrollbar) {
-                  setOpen(false)
+                  requestAnimationFrame(() => setOpen(false))
                 }
                 inputProps?.onBlur?.(event)
               }}
@@ -474,17 +474,33 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
                 setOpen(true)
                 inputProps?.onFocus?.(event)
               }}
+              onKeyDown={(e) => {
+                if (creatable && (e.key === 'Enter' || e.key === 'Tab') && inputValue.length > 0) {
+                  e.preventDefault()
+
+                  if (selected.length >= maxSelected) {
+                    onMaxSelected?.(selected.length)
+                    return
+                  }
+
+                  setInputValue('')
+                  const newOptions = [...selected, { value: inputValue, label: inputValue }]
+                  setSelected(newOptions)
+                  onChange?.(newOptions)
+                }
+              }}
               placeholder={hidePlaceholderWhenSelected && selected.length !== 0 ? '' : placeholder}
               className={cn(
-                'flex-1 bg-transparent outline-none placeholder:text-muted-foreground border-none',
+                'p-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground border-none',
                 {
                   'w-full': hidePlaceholderWhenSelected,
-                  'px-3 py-2': selected.length === 0,
+                  'px-3 ': selected.length === 0,
                   'ml-1': selected.length !== 0,
                 },
                 inputProps?.className,
               )}
             />
+
             <button
               type="button"
               onClick={() => {

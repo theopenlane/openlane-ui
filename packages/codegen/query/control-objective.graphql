@@ -1,0 +1,11 @@
+query GetAllControlObjectives($where: ControlObjectiveWhereInput) {
+  controlObjectives(where: $where) {
+    edges {
+      node {
+        id
+        name
+        displayID
+      }
+    }
+  }
+}
