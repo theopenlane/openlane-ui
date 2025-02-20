@@ -11,13 +11,14 @@ import { useCopyToClipboard } from '@uidotdev/usehooks'
 import { Copy } from 'lucide-react'
 
 interface QRCodeProps {
-  qrcode: string
-  secret: string
+  qrcode: string | null
+  secret: string | null
   refetch: () => void
   onClose: () => void
+  regeneratedCodes: null | string[]
 }
 
-const QRCodeDialog = ({ qrcode, secret, refetch, onClose }: QRCodeProps) => {
+const QRCodeDialog = ({ qrcode, secret, refetch, onClose, regeneratedCodes }: QRCodeProps) => {
   const [isOpen, setIsOpen] = useState(true)
   const [otpValue, setOtpValue] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -80,8 +81,9 @@ const QRCodeDialog = ({ qrcode, secret, refetch, onClose }: QRCodeProps) => {
   }
 
   const handleDownloadRecoveryCodes = () => {
-    if (recoveryCodes) {
-      const blob = new Blob([recoveryCodes.join('\n')], { type: 'text/plain' })
+    const codes = recoveryCodes || regeneratedCodes
+    if (codes) {
+      const blob = new Blob([codes.join('\n')], { type: 'text/plain' })
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
@@ -113,18 +115,19 @@ const QRCodeDialog = ({ qrcode, secret, refetch, onClose }: QRCodeProps) => {
   }, [copiedText])
 
   const config = useMemo(() => {
-    if (recoveryCodes) {
+    const codes = recoveryCodes || regeneratedCodes
+    if (codes) {
       return {
         title: 'Use recovery codes for login if you lose access to your authenticator',
         body: (
           <>
             <div className="grid grid-cols-4 gap-2">
-              {recoveryCodes.map((rc) => (
+              {codes.map((rc) => (
                 <p key={rc}>{rc}</p>
               ))}
             </div>
             <div className="flex gap-2">
-              <Button onClick={() => copyToClipboard(recoveryCodes.join(' '))}>Copy Recovery Codes</Button>
+              <Button onClick={() => copyToClipboard(codes.join(' '))}>Copy Recovery Codes</Button>
               <Button onClick={handleDownloadRecoveryCodes}>Download Recovery Codes</Button>
             </div>
           </>
@@ -136,14 +139,14 @@ const QRCodeDialog = ({ qrcode, secret, refetch, onClose }: QRCodeProps) => {
         body: (
           <>
             <p className="text-sm ">Use your authenticator app to scan this QR code.</p>
-            <QRCodeSVG value={qrcode} size={180} className="shadow-lg" />
+            {qrcode && <QRCodeSVG value={qrcode} size={180} className="shadow-lg" />}
 
             {isSecretKeySetup ? (
               <div className="flex flex-col gap-1 items-center">
                 <p>Configure your authenticator app manually using this code:</p>
                 <div className="flex items-center gap-1">
                   <p>{secret}</p>
-                  <Copy width={16} height={16} className={'text-accent-secondary-muted cursor-pointer'} onClick={() => copyToClipboard(secret)} />
+                  {secret && <Copy width={16} height={16} className={'text-accent-secondary-muted cursor-pointer'} onClick={() => copyToClipboard(secret)} />}
                 </div>
               </div>
             ) : (
@@ -171,7 +174,7 @@ const QRCodeDialog = ({ qrcode, secret, refetch, onClose }: QRCodeProps) => {
         ),
       }
     }
-  }, [handleOtpChange, handleDownloadRecoveryCodes, recoveryCodes])
+  }, [handleOtpChange, handleDownloadRecoveryCodes, recoveryCodes, regeneratedCodes])
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>

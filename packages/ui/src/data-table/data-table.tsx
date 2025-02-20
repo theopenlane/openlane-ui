@@ -127,7 +127,13 @@ export function DataTable<TData, TValue>({
         <TableBody>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
-              <TableRow onClick={() => onRowClick?.(row.original)} key={row.id} data-state={row.getIsSelected() && 'selected'}>
+              <TableRow
+                onClick={() => onRowClick?.(row.original)}
+                className={`'hover:bg-table-row-bg-hover ${onRowClick ? 'cursor-pointer' : ''}`}
+                key={row.id}
+                data-state={row.getIsSelected() && 'selected'}
+              >
+                {' '}
                 {row.getVisibleCells().map((cell) => (
                   // @ts-ignore
                   <TableCell key={cell.id} className={cell.column.columnDef.meta?.className || ''}>

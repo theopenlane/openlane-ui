@@ -72,9 +72,12 @@ export function PolicyPage({ policyId }: PolicyPageProps) {
     // TODO: wire this up to a delete button and api call with confirmation dialog
   }
 
-  const onNameChange = useCallback((name: string) => {
-    setPolicy({ ...policy, name })
-  }, [])
+  const onNameChange = useCallback(
+    (name: string) => {
+      setPolicy({ ...policy, name })
+    },
+    [policy],
+  )
 
   const onDocumentChange = useCallback((content: TElement[]) => {
     console.log('onDocumentChange', content)

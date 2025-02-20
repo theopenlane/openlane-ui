@@ -58,7 +58,7 @@ export const PoliciesTable = () => {
   }
 
   const editPolicy = (policyId: string) => {
-    router.push(`/policies-and-procedures/policies/${policyId}`)
+    router.push(`/policies/${policyId}`)
   }
 
   const columns: ColumnDef<Policies>[] = [
@@ -67,7 +67,7 @@ export const PoliciesTable = () => {
       header: 'Name',
       cell: ({ cell, row }) => {
         return (
-          <Link href={'/policies-and-procedures/policies/' + row.original.id} className="underline">
+          <Link href={'/policies/' + row.original.id} className="underline">
             {cell.getValue() as string}
           </Link>
         )
