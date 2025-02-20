@@ -23,6 +23,7 @@ export const buttonStyles = tv({
       white: {},
       success: 'flex-row-reverse !bg-teal-600 text-button-text hover:!opacity-90',
       destructive: 'flex-row-reverse !bg-destructive text-destructive-foreground hover:!opacity-90',
+      back: 'bg-button-back text-text-dark hover:!opacity-90',
     },
     iconPosition: {
       left: 'flex-row-reverse',
