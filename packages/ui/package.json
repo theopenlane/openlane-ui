@@ -53,7 +53,6 @@
     "./textarea": "./src/textarea.tsx",
     "./tooltip": "./src/tooltip.tsx",
     "./multiple-selector": "./src/multiple-selector/multiple-selector.tsx",
-    "./sheet": "./src/sheet/sheet.tsx",
     "./message-box": "./src/message-box.tsx",
     "./icons/google": "./src/icons/google.tsx",
     "./icons/github": "./src/icons/github.tsx",
