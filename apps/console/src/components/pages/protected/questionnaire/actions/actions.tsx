@@ -3,38 +3,17 @@
 import { Edit, MoreHorizontal, Send, Trash2, View } from 'lucide-react'
 import { useToast } from '@repo/ui/use-toast'
 import { pageStyles } from '../page.styles'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@repo/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { useDeleteTemplateMutation } from '@repo/codegen/src/schema'
 import { type UseQueryExecute } from 'urql'
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogAction,
-  AlertDialogCancel,
-} from '@repo/ui/alert-dialog'
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from '@repo/ui/alert-dialog'
 import { Button } from '@repo/ui/button'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Input } from '@repo/ui/input'
 import { SubmitHandler, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  Form,
-  FormItem,
-  FormField,
-  FormControl,
-  FormMessage,
-} from '@repo/ui/form'
+import { Form, FormItem, FormField, FormControl, FormMessage } from '@repo/ui/form'
 import { z, infer as zInfer } from 'zod'
 
 type TemplateActionsProps = {
@@ -44,16 +23,13 @@ type TemplateActionsProps = {
 
 const ICON_SIZE = 12
 
-export const Actions = ({
-  templateId: templateId,
-  refetchTemplates: refetchTemplates,
-}: TemplateActionsProps) => {
+export const Actions = ({ templateId: templateId, refetchTemplates: refetchTemplates }: TemplateActionsProps) => {
   const router = useRouter()
   const { actionIcon, dropDownButton, emailRow } = pageStyles()
   const { toast } = useToast()
   const [_, deleteTemplate] = useDeleteTemplateMutation()
-  const [isSendDialogOpen, setIsSendDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isSendDialogOpen, setIsSendDialogOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   const handleEditTemplate = () => {
     router.push(`/questionnaires/questionnaire-editor?id=${templateId}`)
@@ -95,7 +71,6 @@ export const Actions = ({
     })
   }
 
-
   const handleDeleteTemplate = async () => {
     const response = await deleteTemplate({ deleteTemplateId: templateId })
 
@@ -131,14 +106,18 @@ export const Actions = ({
             <DropdownMenuItem onSelect={handleViewTemplate}>
               <View width={ICON_SIZE} /> View
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => {
-              setIsSendDialogOpen(true);
-            }} >
+            <DropdownMenuItem
+              onClick={() => {
+                setIsSendDialogOpen(true)
+              }}
+            >
               <Send width={ICON_SIZE} /> Send to Recipient
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => {
-              setIsDeleteDialogOpen(true);
-            }} >
+            <DropdownMenuItem
+              onClick={() => {
+                setIsDeleteDialogOpen(true)
+              }}
+            >
               <Trash2 width={ICON_SIZE} /> Delete
             </DropdownMenuItem>
           </DropdownMenuGroup>
@@ -149,12 +128,10 @@ export const Actions = ({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Send Questionnaire</AlertDialogTitle>
-            <AlertDialogDescription>
-              Send the questionnaire to recipient
-            </AlertDialogDescription>
+            <AlertDialogDescription>Send the questionnaire to recipient</AlertDialogDescription>
           </AlertDialogHeader>
           <div className={emailRow()}>
-            Email: {' '}
+            Email:{' '}
             <Form {...form}>
               <FormField
                 control={control}
@@ -162,11 +139,9 @@ export const Actions = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input variant="medium" autoComplete='email' type="email" {...field} />
+                      <Input variant="medium" autoComplete="email" type="email" {...field} />
                     </FormControl>
-                    {errors.email && (
-                      <FormMessage>{errors.email.message}</FormMessage>
-                    )}
+                    {errors.email && <FormMessage>{errors.email.message}</FormMessage>}
                   </FormItem>
                 )}
               />
@@ -174,7 +149,9 @@ export const Actions = ({
           </div>
           <AlertDialogFooter>
             <AlertDialogCancel asChild>
-              <Button variant="outline" type="submit">Cancel</Button>
+              <Button variant="outline" type="submit">
+                Cancel
+              </Button>
             </AlertDialogCancel>
             <AlertDialogAction asChild>
               <Button variant="filled" type="submit" onClick={handleSubmit((data) => handleSendForm(data))}>
@@ -188,20 +165,22 @@ export const Actions = ({
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone, this will permanently remove the questionnaire from the organization.
-            </AlertDialogDescription>
+            <AlertDialogDescription>This action cannot be undone, this will permanently remove the questionnaire from the organization.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel asChild>
               <Button variant="outline">Cancel</Button>
             </AlertDialogCancel>
             <AlertDialogAction asChild>
-              <Button variant="filled" onClick={handleDeleteTemplate} onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  handleDeleteTemplate();
-                }
-              }}>
+              <Button
+                variant="filled"
+                onClick={handleDeleteTemplate}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleDeleteTemplate()
+                  }
+                }}
+              >
                 Delete Questionnaire
               </Button>
             </AlertDialogAction>

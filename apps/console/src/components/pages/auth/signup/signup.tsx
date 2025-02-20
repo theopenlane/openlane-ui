@@ -6,12 +6,7 @@ import { SimpleForm } from '@repo/ui/simple-form'
 import { MessageBox } from '@repo/ui/message-box'
 import { Button } from '@repo/ui/button'
 import { ArrowUpRight } from 'lucide-react'
-import {
-  getPasskeyRegOptions,
-  registerUser,
-  verifyRegistration,
-  type RegisterUser,
-} from '@/lib/user'
+import { getPasskeyRegOptions, registerUser, verifyRegistration, type RegisterUser } from '@/lib/user'
 import { GoogleIcon } from '@repo/ui/icons/google'
 import { GithubIcon } from '@repo/ui/icons/github'
 import { signIn } from 'next-auth/react'
@@ -23,19 +18,16 @@ import { Label } from '@repo/ui/label'
 import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
 import { startRegistration } from '@simplewebauthn/browser'
 import Link from 'next/link'
-import { allowedLoginDomains } from '@repo/dally/auth'
+import { allowedLoginDomains, recaptchaSiteKey } from '@repo/dally/auth'
 
 const TEMP_PASSKEY_EMAIL = 'tempuser@test.com'
 const TEMP_PASSKEY_NAME = 'Temp User'
 
 export const SignupPage = () => {
   const router = useRouter()
-  const [signInError, setSignInError] = useState(false)
-  const [registrationErrorMessage, setRegistrationErrorMessage] = useState(
-    'There was an error. Please try again.',
-  )
+  const [registrationErrorMessage, setRegistrationErrorMessage] = useState('There was an error. Please try again.')
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const showLoginError = !isLoading && signInError
+  const showLoginError = !isLoading && !!setRegistrationErrorMessage
   const [isPasswordActive, setIsPasswordActive] = useState(false)
   const { separator, buttons, keyIcon, form, input } = signupStyles()
 
@@ -44,7 +36,7 @@ export const SignupPage = () => {
    */
   const github = async () => {
     await signIn('github', {
-      redirectTo: "/",
+      redirectTo: '/',
     })
   }
 
@@ -53,7 +45,7 @@ export const SignupPage = () => {
    */
   const google = async () => {
     await signIn('google', {
-      redirectTo: "/",
+      redirectTo: '/',
     })
   }
 
@@ -61,15 +53,7 @@ export const SignupPage = () => {
    * Validate Email Domain for Sign Up
    */
   async function validateEmail(payload: any) {
-    let allow = false
-    for (const domain of allowedLoginDomains) {
-      if (payload.email.endsWith(domain)) {
-        allow = true
-        break
-      }
-    }
-
-    return allow
+    return allowedLoginDomains.some((domain) => payload.email.endsWith(domain))
   }
 
   /**
@@ -98,13 +82,12 @@ export const SignupPage = () => {
       }
 
       if (!verificationResult.success) {
-        setSignInError(true)
         setRegistrationErrorMessage(`Error: ${verificationResult.error}`)
       }
 
       return verificationResult
     } catch (error) {
-      setSignInError(true)
+      setRegistrationErrorMessage(`{${error || ''}}`)
     }
   }
 
@@ -159,9 +142,28 @@ export const SignupPage = () => {
         }}
         onSubmit={async (payload: RegisterUser) => {
           setIsLoading(true)
+          setRegistrationErrorMessage('')
           try {
-            const v: any = await validateEmail(payload)
-            if (!v) {
+            if (recaptchaSiteKey) {
+              // @ts-ignore
+              const recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'signup' })
+
+              const recaptchaValidation = await fetch('/api/recaptchaVerify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: recaptchaToken }),
+              })
+
+              const validationResponse = await recaptchaValidation.json()
+
+              if (!validationResponse.success) {
+                setRegistrationErrorMessage('reCAPTCHA validation failed.')
+                setIsLoading(false)
+                return
+              }
+            }
+            const isEmailValid = await validateEmail(payload)
+            if (!isEmailValid) {
               router.push('/waitlist')
               return
             }
@@ -181,6 +183,7 @@ export const SignupPage = () => {
               setRegistrationErrorMessage('Passwords do not match')
             }
           } catch (error) {
+            console.error('Signup error:', error)
             setRegistrationErrorMessage('Unknown error. Please try again.')
           } finally {
             setIsLoading(false)
@@ -188,54 +191,47 @@ export const SignupPage = () => {
         }}
       >
         <div className={input()}>
-          <Label className='text-text-dark' htmlFor="username">Email</Label>
-          <Input
-            variant='light'
-            name="email"
-            placeholder="email@domain.com"
-            autoComplete='email'
-            required
-            type="email"
-          />
+          <Label className="text-text-dark" htmlFor="username">
+            Email
+          </Label>
+          <Input variant="light" name="email" placeholder="email@domain.com" autoComplete="email" required type="email" />
         </div>
         {isPasswordActive && (
           <>
             <div className={input()}>
-              <Label className='text-text-dark' htmlFor="password">Password</Label>
-              <PasswordInput
-                variant='light'
-                name="password"
-                placeholder="password"
-                autoComplete='new-password'
-                required
-              />
-              <PasswordInput
-                variant='light'
-                name="confirmedPassword"
-                placeholder="confirm password"
-                autoComplete='new-password'
-                required
-              />
+              <Label className="text-text-dark" htmlFor="password">
+                Password
+              </Label>
+              <PasswordInput variant="light" name="password" placeholder="password" autoComplete="new-password" required />
+              <PasswordInput variant="light" name="confirmedPassword" placeholder="confirm password" autoComplete="new-password" required />
             </div>
           </>
         )}
-        <Button
-          className="mr-auto mt-2 w-full"
-          icon={<ArrowUpRight />}
-          size="md"
-          type="submit"
-          iconAnimated
-        >
+        {showLoginError && <MessageBox className={'p-4 ml-1'} message={registrationErrorMessage} />}
+
+        <Button className="mr-auto mt-2 w-full" icon={<ArrowUpRight />} size="md" type="submit" iconAnimated>
           {isLoading ? 'loading' : 'Sign up'}
         </Button>
       </SimpleForm>
 
-      <Link href="https://www.theopenlane.io/legal/privacy" className="text-xs text-gray-500 mt-8 text-center">Privacy Policy</Link>
-      <Link href="https://www.theopenlane.io/legal/terms-of-service" className="text-xs text-gray-500 mt-1 text-center">Terms of Service</Link>
+      <Link href="https://www.theopenlane.io/legal/privacy" className="text-xs text-gray-500 mt-8 text-center">
+        Privacy Policy
+      </Link>
+      <Link href="https://www.theopenlane.io/legal/terms-of-service" className="text-xs text-gray-500 mt-1 text-center">
+        Terms of Service
+      </Link>
 
-      {showLoginError && (
-        <MessageBox className={'p-4 ml-1'} message={registrationErrorMessage} />
-      )}
+      <div className="text-[10px] text-gray-500 mt-5 text-center">
+        This site is protected by reCAPTCHA and the Google{' '}
+        <a className="text-blue-500 underline" href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
+          Privacy Policy
+        </a>{' '}
+        and{' '}
+        <a className="text-blue-500 underline" href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">
+          Terms of Service
+        </a>{' '}
+        apply.
+      </div>
     </div>
   )
 }

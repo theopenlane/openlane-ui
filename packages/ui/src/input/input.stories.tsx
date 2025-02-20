@@ -8,8 +8,7 @@ const meta: Meta<typeof Input> = {
   parameters: {
     docs: {
       description: {
-        component:
-          'Form input component: https://ui.shadcn.com/docs/components/input',
+        component: 'Form input component: https://ui.shadcn.com/docs/components/input',
       },
     },
     backgrounds: { default: 'white' },

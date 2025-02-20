@@ -33,7 +33,7 @@ p.red {
 }
 
 .aui-thread-welcome-suggestion-container {
-  @apply flex-col
+  @apply flex-col;
 }
 
 .aui-modal-button {
@@ -42,4 +42,18 @@ p.red {
 
 .aui-avatar-image {
   @apply bg-accent-secondary-muted;
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+.grecaptcha-badge {
+  visibility: hidden;
 }

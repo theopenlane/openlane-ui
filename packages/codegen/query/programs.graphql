@@ -16,8 +16,8 @@ mutation UpdateProgram($updateProgramId: ID!, $input: UpdateProgramInput!) {
   }
 }
 
-query GetAllPrograms {
-  programs {
+query GetAllPrograms($where: ProgramWhereInput) {
+  programs(where: $where) {
     edges {
       node {
         id
@@ -28,6 +28,7 @@ query GetAllPrograms {
         startDate
         endDate
         auditorReady
+        displayID
       }
     }
   }
@@ -70,7 +71,7 @@ query GetProgramEdgesForWizard {
   orgMemberships {
     edges {
       node {
-        user{
+        user {
           id
           firstName
           lastName

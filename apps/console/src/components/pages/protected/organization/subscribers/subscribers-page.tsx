@@ -1,11 +1,8 @@
 'use client'
 import { SubscribersTable } from './subscribers-table'
 
-const SubscribersPage: React.FC = async () => {
-
-  return (
-    <SubscribersTable />
-  )
+const SubscribersPage: React.FC = () => {
+  return <SubscribersTable />
 }
 
 export default SubscribersPage

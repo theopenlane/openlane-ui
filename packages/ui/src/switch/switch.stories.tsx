@@ -7,8 +7,7 @@ const meta: Meta<typeof Switch> = {
   parameters: {
     docs: {
       description: {
-        component:
-          'A control that allows the user to toggle between checked and not checked. https://ui.shadcn.com/docs/components/switch',
+        component: 'A control that allows the user to toggle between checked and not checked. https://ui.shadcn.com/docs/components/switch',
       },
     },
   },

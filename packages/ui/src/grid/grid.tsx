@@ -17,23 +17,12 @@ interface GridCellProps {
   children: ReactNode
 }
 
-const Grid: React.FC<GridProps> = ({
-  rows,
-  columns,
-  gap,
-  className,
-  children,
-}) => {
+const Grid: React.FC<GridProps> = ({ rows, columns, gap, className, children }) => {
   const styles = gridStyles({ rows, columns, gap })
   return <div className={cn(styles.wrapper(), className)}>{children}</div>
 }
 
-const GridRow: React.FC<GridRowProps> = ({
-  columns,
-  gap,
-  className,
-  children,
-}) => {
+const GridRow: React.FC<GridRowProps> = ({ columns, gap, className, children }) => {
   const styles = gridStyles({ columns, gap })
   return <div className={cn(styles.row(), className)}>{children}</div>
 }

@@ -4,8 +4,8 @@ import { LoginUser } from '@repo/dally/user'
 import { Button } from '@repo/ui/button'
 import MessageBox from '@repo/ui/message-box'
 import SimpleForm from '@repo/ui/simple-form'
-import { ArrowUpRight, KeyRoundIcon } from 'lucide-react'
-import { signIn } from 'next-auth/react'
+import { ArrowUpRight } from 'lucide-react'
+import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Separator } from '@repo/ui/separator'
@@ -19,6 +19,7 @@ import { getPasskeySignInOptions, verifyAuthentication } from '@/lib/user'
 import { startAuthentication } from '@simplewebauthn/browser'
 import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
 import Link from 'next/link'
+import { recaptchaSiteKey } from '@repo/dally/auth'
 
 const TEMP_PASSKEY_EMAIL = 'tempuser@test.com'
 const TEMP_PASSKEY_NAME = 'Temp User'
@@ -27,24 +28,38 @@ export const LoginPage = () => {
   const { separator, buttons, keyIcon, form, input } = loginStyles()
   const router = useRouter()
   const [signInError, setSignInError] = useState(false)
-  const [signInErrorMessage, setSignInErrorMessage] = useState(
-    'There was an error. Please try again.',
-  )
+  const [signInErrorMessage, setSignInErrorMessage] = useState('There was an error. Please try again.')
   const [signInLoading, setSignInLoading] = useState(false)
   const showLoginError = !signInLoading && signInError
   const [isPasswordActive, setIsPasswordActive] = useState(false)
 
-  /**
-   * Submit client-side sign-in function using username and password
-   */
   const submit = async (payload: LoginUser) => {
     setSignInLoading(true)
     setSignInError(false)
+
     try {
-      const res: any = await signIn('credentials', {
-        redirect: false,
-        ...payload,
-      })
+      if (recaptchaSiteKey) {
+        // @ts-ignore
+        const recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'login' })
+
+        const recaptchaValidation = await fetch('/api/recaptchaVerify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: recaptchaToken }),
+        })
+
+        const validationResponse = await recaptchaValidation.json()
+
+        if (!validationResponse.success) {
+          setSignInError(true)
+          setSignInLoading(false)
+          setSignInErrorMessage('reCAPTCHA validation failed.')
+          return
+        }
+      }
+
+      const res: any = await signIn('credentials', { redirect: false, ...payload })
+
       if (res.ok && !res.error) {
         router.push('/')
       } else {
@@ -52,6 +67,7 @@ export const LoginPage = () => {
         setSignInError(true)
       }
     } catch (error) {
+      console.error('Login error:', error)
       setSignInLoading(false)
       setSignInError(true)
     }
@@ -152,9 +168,7 @@ export const LoginPage = () => {
             PassKey
           </Button> */}
         </div>
-
         <Separator label="or" className={separator()} />
-
         <SimpleForm
           classNames={form()}
           onSubmit={(e: any) => {
@@ -169,33 +183,42 @@ export const LoginPage = () => {
           }}
         >
           <div className={input()}>
-            <Label className="text-text-dark" htmlFor="username">Email</Label>
+            <Label className="text-text-dark" htmlFor="username">
+              Email
+            </Label>
             <Input variant="light" name="username" placeholder="email@domain.com" />
           </div>
           {isPasswordActive && (
             <div className={input()}>
-              <Label className='text-text-dark' htmlFor="password">Password</Label>
-              <PasswordInput variant='light' name="password" placeholder="password" autoComplete="current-password" />
+              <Label className="text-text-dark" htmlFor="password">
+                Password
+              </Label>
+              <PasswordInput variant="light" name="password" placeholder="password" autoComplete="current-password" />
             </div>
           )}
 
-          <Button variant="filled"
-            className="mr-auto mt-2 w-full"
-            icon={<ArrowUpRight />}
-            size="md"
-            type="submit"
-            iconAnimated
-          >
+          <Button variant="filled" className="mr-auto mt-2 w-full" icon={<ArrowUpRight />} size="md" type="submit" iconAnimated>
             Login
           </Button>
         </SimpleForm>
-
-        <Link href="https://www.theopenlane.io/legal/privacy" className="text-xs text-gray-500 mt-8 text-center">Privacy Policy</Link>
-        <Link href="https://www.theopenlane.io/legal/terms-of-service" className="text-xs text-gray-500 mt-1 text-center">Terms of Service</Link>
-
-        {showLoginError && (
-          <MessageBox className={'p-4 ml-1'} message={signInErrorMessage} />
-        )}
+        <Link href="https://www.theopenlane.io/legal/privacy" className="text-xs text-gray-500 mt-8 text-center">
+          Privacy Policy
+        </Link>
+        <Link href="https://www.theopenlane.io/legal/terms-of-service" className="text-xs text-gray-500 mt-1 text-center">
+          Terms of Service
+        </Link>
+        <div className="text-[10px] text-gray-500 mt-5 text-center">
+          This site is protected by reCAPTCHA and the Google{' '}
+          <a className="text-blue-500 underline" href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
+            Privacy Policy
+          </a>{' '}
+          and{' '}
+          <a className="text-blue-500 underline" href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">
+            Terms of Service
+          </a>{' '}
+          apply.
+        </div>
+        {showLoginError && <MessageBox className={'p-4 ml-1'} message={signInErrorMessage} />}
       </div>
     </>
   )

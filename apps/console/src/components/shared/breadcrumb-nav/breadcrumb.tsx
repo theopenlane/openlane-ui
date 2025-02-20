@@ -1,47 +1,61 @@
 'use client'
 
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from '@repo/ui/breadcrumb'
-import { SlashIcon } from 'lucide-react'
+import { ChevronRight, Loader } from 'lucide-react'
 import React from 'react'
 import { toTitleCase } from '@/components/shared/lib/strings'
-import { usePathname } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
+import { useGetInternalPolicyDetailsByIdQuery } from '@repo/codegen/src/schema'
 
 type TBreadCrumbProps = {
-    homeElement?: string,
+  homeElement?: string
 }
 
-export const BreadcrumbNavigation = ({ homeElement }: TBreadCrumbProps) => {
-    const paths = usePathname()
-    const pathNames = paths.split('/').filter(path => path)
+export const BreadcrumbNavigation = ({ homeElement = 'Home' }: TBreadCrumbProps) => {
+  const pathname = usePathname()
+  const params = useParams()
+  const pathNames = pathname.split('/').filter(Boolean)
 
-    const separator = <SlashIcon size={14} />
+  //TODO: if we get more /:id breadcrumbs we need to write a config instead of fetching just one
+  const isPolicy = pathNames.includes('policies')
+  const policyId = isPolicy ? (params.id as string) : null
+  const [{ data, fetching }] = useGetInternalPolicyDetailsByIdQuery({
+    variables: { internalPolicyId: policyId || '' },
+    pause: !policyId,
+  })
 
-    if (homeElement === undefined) {
-        homeElement = 'Home'
-    }
+  return (
+    <Breadcrumb>
+      <BreadcrumbList>
+        <BreadcrumbItem>
+          <BreadcrumbLink href="/dashboard">{homeElement}</BreadcrumbLink>
+        </BreadcrumbItem>
 
-    return (
-        <Breadcrumb>
-            <BreadcrumbList>
-                <BreadcrumbItem>
-                    <BreadcrumbLink href="/dashboard">{homeElement}</BreadcrumbLink>
-                </BreadcrumbItem>
-                {pathNames.length > 0 && separator}
-                {
-                    pathNames.map((link: string, index: number) => {
-                        let href = `/${pathNames.slice(0, index + 1).join('/')}`
-                        let itemLink = toTitleCase(link.replaceAll("-", " "))
-                        return (
-                            <React.Fragment key={index}>
-                                <BreadcrumbItem>
-                                    <BreadcrumbLink href={href}>{itemLink}</BreadcrumbLink>
-                                </BreadcrumbItem>
-                                {pathNames.length !== index + 1 && separator}
-                            </React.Fragment>
-                        )
-                    })
-                }
-            </BreadcrumbList>
-        </Breadcrumb>
-    )
+        {pathNames.map((link, index) => {
+          const href = `/${pathNames.slice(0, index + 1).join('/')}`
+          let itemLink = toTitleCase(link.replaceAll('-', ' '))
+
+          // replace policy ID with fetched policy name
+          if (policyId && link === policyId && data?.internalPolicy) {
+            itemLink = data.internalPolicy.name
+          }
+          // add spinner to last breadcrumb if it's fetching
+          if (index === pathNames.length - 1 && fetching) {
+            return <Loader />
+          }
+
+          return (
+            <React.Fragment key={index}>
+              <BreadcrumbSeparator>
+                <ChevronRight size={16} />
+              </BreadcrumbSeparator>
+              <BreadcrumbItem>
+                <BreadcrumbLink href={href}>{itemLink}</BreadcrumbLink>
+              </BreadcrumbItem>
+            </React.Fragment>
+          )
+        })}
+      </BreadcrumbList>
+    </Breadcrumb>
+  )
 }
