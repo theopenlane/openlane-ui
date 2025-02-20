@@ -1,4 +1,3 @@
-export const restUrl = process.env.API_REST_URL!
 export const openlaneAPIUrl = process.env.NEXT_PUBLIC_OPENLANE_URL!
 export const openlaneGQLUrl = `${process.env.NEXT_PUBLIC_OPENLANE_URL!}/query`
 export const sessionCookieName = process.env.SESSION_COOKIE_NAME
@@ -11,3 +10,4 @@ export const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_K
 export const pirschAnalyticsKey = process.env.NEXT_PUBLIC_PIRSCH_KEY
 export const isDevelopment = process.env.NODE_ENV === 'development'
 export const isVercelDev = process.env.VERCEL_ENV === 'development' || process.env.VERCEL_ENV === 'preview'
+export const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY

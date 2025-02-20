@@ -1,10 +1,6 @@
 'use client'
 
-import {
-  InviteInviteStatus,
-  InviteRole,
-  useGetInvitesQuery,
-} from '@repo/codegen/src/schema'
+import { InviteInviteStatus, InviteRole, useGetInvitesQuery } from '@repo/codegen/src/schema'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { useSession } from 'next-auth/react'
@@ -36,12 +32,7 @@ export const OrganizationInvites = () => {
   if (fetching) return <p>Loading...</p>
   if (error || !data) return null
 
-  const invites: InviteNode[] =
-    data.invites.edges
-      ?.filter(
-        (edge): edge is InviteEdge => edge !== null && edge.node !== null,
-      )
-      .map((edge) => edge.node as InviteNode) || []
+  const invites: InviteNode[] = data.invites.edges?.filter((edge): edge is InviteEdge => edge !== null && edge.node !== null).map((edge) => edge.node as InviteNode) || []
 
   const columns: ColumnDef<InviteNode>[] = [
     {
@@ -78,8 +69,7 @@ export const OrganizationInvites = () => {
     {
       accessorKey: 'createdAt',
       header: 'Sent',
-      cell: ({ cell }) =>
-        format(new Date(cell.getValue() as string), 'd MMM yyyy'),
+      cell: ({ cell }) => format(new Date(cell.getValue() as string), 'd MMM yyyy'),
     },
     {
       accessorKey: 'role',
@@ -88,20 +78,9 @@ export const OrganizationInvites = () => {
     {
       accessorKey: 'id',
       header: '',
-      cell: ({ cell }) => (
-        <InviteActions
-          inviteId={cell.getValue() as string}
-          refetchInvites={refetch}
-        />
-      ),
+      cell: ({ cell }) => <InviteActions inviteId={cell.getValue() as string} refetchInvites={refetch} />,
     },
   ]
 
-  return (
-    <DataTable
-      columns={columns}
-      data={invites}
-      noResultsText="No invites found"
-    />
-  )
+  return <DataTable columns={columns} data={invites} noResultsText="No invites found" />
 }

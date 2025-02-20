@@ -22,8 +22,7 @@ const meta: Meta<typeof DropdownMenu> = {
   parameters: {
     docs: {
       description: {
-        component:
-          'Displays a menu to the user — such as a set of actions or functions — triggered by a button. https://ui.shadcn.com/docs/components/dropdown-menu',
+        component: 'Displays a menu to the user — such as a set of actions or functions — triggered by a button. https://ui.shadcn.com/docs/components/dropdown-menu',
       },
     },
     backgrounds: { default: 'white' },
@@ -136,5 +135,3 @@ export const UserMenu: Story = {
     )
   },
 }
-
-

@@ -7,8 +7,7 @@ const meta: Meta<typeof Slider> = {
   parameters: {
     docs: {
       description: {
-        component:
-          'A slider component for selecting a value from a range. https://ui.shadcn.com/docs/components/slider',
+        component: 'A slider component for selecting a value from a range. https://ui.shadcn.com/docs/components/slider',
       },
     },
   },

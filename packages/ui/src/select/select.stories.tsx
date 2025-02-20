@@ -1,16 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-  SelectGroup,
-  SelectLabel,
-  SelectSeparator,
-  SelectValue,
-  SelectScrollUpButton,
-  SelectScrollDownButton,
-} from './select'
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectGroup, SelectLabel, SelectSeparator, SelectValue, SelectScrollUpButton, SelectScrollDownButton } from './select'
 
 const meta: Meta<typeof Select> = {
   title: 'UI/Select',
@@ -18,8 +7,7 @@ const meta: Meta<typeof Select> = {
   parameters: {
     docs: {
       description: {
-        component:
-          'A customizable select component built with Radix UI. https://www.radix-ui.com/docs/primitives/components/select',
+        component: 'A customizable select component built with Radix UI. https://www.radix-ui.com/docs/primitives/components/select',
       },
     },
   },

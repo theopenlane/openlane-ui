@@ -1,19 +1,21 @@
 import type { Config } from 'tailwindcss'
 import sharedConfig from '@repo/tailwind-config'
 
-const config: Pick<
-  Config,
-  'darkMode' | 'content' | 'presets' | 'prefix' | 'theme' | 'safelist' | 'mode' | 'plugins'
-> = {
+const config: Pick<Config, 'darkMode' | 'content' | 'presets' | 'prefix' | 'theme' | 'safelist' | 'mode' | 'plugins'> = {
   mode: 'jit',
   darkMode: 'class',
-  safelist: ["dark"],
+  safelist: ['dark'],
   content: ['./src/app/**/*.tsx', './src/components/**/*.tsx'],
-  presets: [sharedConfig],
+  presets: [sharedConfig as Partial<Config>],
+  plugins: [require('@tailwindcss/container-queries')],
   theme: {
     extend: {
       colors: {
         'regal-blue': '#0D1117',
+        brand: {
+          DEFAULT: 'var(--color-brand)',
+          secondary: 'var(--color-brand-secondary)',
+        },
       },
 
       keyframes: {

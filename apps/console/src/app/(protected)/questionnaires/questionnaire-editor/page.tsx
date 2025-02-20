@@ -2,8 +2,8 @@
 
 import React from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
-import dynamic from "next/dynamic";
-import { useSearchParams } from 'next/navigation';
+import dynamic from 'next/dynamic'
+import { useSearchParams } from 'next/navigation'
 
 const QuestionnaireEditor = dynamic(() => import('@/components/pages/protected/questionnaire/questionnaire-editor'), {
   ssr: false,

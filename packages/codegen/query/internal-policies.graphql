@@ -1,0 +1,11 @@
+query GetAllPolicies($where: InternalPolicyWhereInput) {
+  internalPolicies(where: $where) {
+    edges {
+      node {
+        id
+        name
+        displayID
+      }
+    }
+  }
+}

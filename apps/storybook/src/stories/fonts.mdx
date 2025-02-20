@@ -1,7 +1,7 @@
 import { Meta, Typeset } from '@storybook/blocks'
 import themeConfig from '../../tailwind.config.ts'
 
-export const SampleText = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.';
+export const SampleText = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
 export const typography = {
   type: {
     primary: '"Outfit", Helvetica, Arial, sans-serif',
@@ -25,7 +25,7 @@ export const typography = {
     l2: 40,
     l3: 48,
   },
-};
+}
 
 # Typography
 
@@ -34,9 +34,11 @@ export const typography = {
 ## Outfit (Sans-Serif)
 
 ### Weights
+
 100(thin) 300(light) 400(regular), 500(medium), 700(bold), 800(extrabold)
 
 ### Examples
+
 <Typeset
   fontSizes={[
     Number(typography.size.s1),
@@ -49,9 +51,7 @@ export const typography = {
     Number(typography.size.l2),
     Number(typography.size.l3),
   ]}
-  fontWeight={
-    typography.weight.regular
-  }
+  fontWeight={typography.weight.regular}
   sampleText={SampleText}
   fontFamily={typography.type.primary}
 />
@@ -59,6 +59,7 @@ export const typography = {
 ## BIZU DPMincho (Serif)
 
 ### Weights
+
 400(regular), 700(bold)
 
 <Typeset
@@ -81,6 +82,7 @@ export const typography = {
 ## Jetbrains Mono (Monospace)
 
 ### Weights
+
 400(regular), 500(medium), 700(bold)
 
 <Typeset

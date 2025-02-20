@@ -12,20 +12,27 @@ mutation CreateInternalPolicy($input: CreateInternalPolicyInput!) {
   }
 }
 
-mutation UpdateInternalPolicy(
-  $updateInternalPolicyId: ID!
-  $input: UpdateInternalPolicyInput!
-) {
+fragment InternalPolicyUpdateFields on InternalPolicy {
+  id
+  name
+  background
+  description
+  policyType
+  purposeAndScope
+  details
+}
+
+mutation UpdateInternalPolicy($updateInternalPolicyId: ID!, $input: UpdateInternalPolicyInput!) {
   updateInternalPolicy(id: $updateInternalPolicyId, input: $input) {
     internalPolicy {
-      id
-      name
-      background
-      description
-      policyType
-      purposeAndScope
-      details
+      ...InternalPolicyUpdateFields
     }
+  }
+}
+
+mutation DeleteInternalPolicy($deleteInternalPolicyId: ID!) {
+  deleteInternalPolicy(id: $deleteInternalPolicyId) {
+    deletedID
   }
 }
 
@@ -81,22 +88,30 @@ query GetAllInternalPolicies {
   }
 }
 
-query GetInternalPolicyDetailsById($internalPolicyId: ID!) {
-  internalPolicy(id: $internalPolicyId) {
+fragment InternalPolicyByID on InternalPolicy {
+  id
+  name
+  description
+  details
+  background
+  createdAt
+  createdBy
+  updatedAt
+  updatedBy
+  tags
+  version
+  status
+  purposeAndScope
+  policyType
+  procedures {
     id
     name
-    description
-    details
-    background
-    createdAt
-    createdBy
-    updatedAt
-    updatedBy
-    tags
-    version
-    status
-    purposeAndScope
-    policyType
+  }
+}
+
+query GetInternalPolicyDetailsById($internalPolicyId: ID!) {
+  internalPolicy(id: $internalPolicyId) {
+    ...InternalPolicyByID
     procedures {
       id
       name

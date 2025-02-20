@@ -10,7 +10,7 @@ import { useState, useEffect } from 'react'
 import { Input } from '@repo/ui/input'
 import { pageStyles } from './page.styles'
 import { Actions } from './actions/actions'
-import { useGetInternalPoliciesListQuery } from '@repo/codegen/src/schema'
+import { useCreateInternalPolicyMutation, useGetInternalPoliciesListQuery } from '@repo/codegen/src/schema'
 import Link from 'next/link'
 
 type PoliciesEdge = any
@@ -23,8 +23,10 @@ export const PoliciesTable = () => {
 
   const [filteredPolicies, setFilteredPolicies] = useState<Policies[]>([])
 
-  const [result] = useGetInternalPoliciesListQuery()
-  const { data, fetching, error } = result
+  const [result] = useGetInternalPoliciesListQuery({ variables: {} })
+  const { data, fetching } = result
+
+  const [{ fetching: creating }, createPolicy] = useCreateInternalPolicyMutation()
 
   useEffect(() => {
     if (data) {
@@ -41,12 +43,22 @@ export const PoliciesTable = () => {
 
   const [searchTerm, setSearchTerm] = useState('')
 
-  const handleCreateNew = () => {
-    router.push('/policies-and-procedures/policies/create')
+  const handleCreateNew = async () => {
+    const { data, error } = await createPolicy({
+      input: { name: 'Untitled Policy', status: 'new', version: '0.0.0', policyType: 'unknown' },
+    })
+
+    if (error) {
+      console.error(error)
+    }
+
+    if (data) {
+      editPolicy(data.createInternalPolicy.internalPolicy.id)
+    }
   }
 
   const editPolicy = (policyId: string) => {
-    router.push(`/policies-and-procedures/editor?id=${policyId}`)
+    router.push(`/policies/${policyId}`)
   }
 
   const columns: ColumnDef<Policies>[] = [
@@ -55,10 +67,7 @@ export const PoliciesTable = () => {
       header: 'Name',
       cell: ({ cell, row }) => {
         return (
-          <Link
-            href={'/policies-and-procedures/policies/' + row.original.id}
-            className="underline"
-          >
+          <Link href={'/policies/' + row.original.id} className="underline">
             {cell.getValue() as string}
           </Link>
         )
@@ -71,14 +80,12 @@ export const PoliciesTable = () => {
     {
       accessorKey: 'updatedAt',
       header: 'Updated At',
-      cell: ({ cell }) =>
-        format(new Date(cell.getValue() as string), 'dd MMM yyyy'),
+      cell: ({ cell }) => format(new Date(cell.getValue() as string), 'dd MMM yyyy'),
     },
     {
       accessorKey: 'createdAt',
       header: 'Created At',
-      cell: ({ cell }) =>
-        format(new Date(cell.getValue() as string), 'dd MMM yyyy'),
+      cell: ({ cell }) => format(new Date(cell.getValue() as string), 'dd MMM yyyy'),
     },
     {
       accessorKey: 'id',
@@ -97,18 +104,9 @@ export const PoliciesTable = () => {
     <>
       <div className={searchRow()}>
         <div className={searchField()}>
-          <Input
-            placeholder="search"
-            disabled
-            value={searchTerm}
-            onChange={handleSearch}
-          />
+          <Input placeholder="search" disabled value={searchTerm} onChange={handleSearch} />
         </div>
-        <Button
-          icon={<PlusIcon />}
-          iconPosition="left"
-          onClick={handleCreateNew}
-        >
+        <Button icon={<PlusIcon />} iconPosition="left" onClick={handleCreateNew} disabled={creating}>
           Create New
         </Button>
       </div>

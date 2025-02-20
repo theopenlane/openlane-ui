@@ -7,15 +7,13 @@ import { verificationStyles } from './page.styles'
 import { Logo } from '@repo/ui/logo'
 
 export const TokenVerifier = () => {
-  const { errorMessage, successMessage, successIcon, success, loading } =
-    verificationStyles()
+  const { errorMessage, successMessage, successIcon, success, loading } = verificationStyles()
 
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
 
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
-
 
   useEffect(() => {
     const verifyToken = async () => {
@@ -41,11 +39,9 @@ export const TokenVerifier = () => {
     return (
       <>
         <div className="mx-auto animate-pulse w-96">
-          <Logo theme='dark' />
+          <Logo theme="dark" />
         </div>
-        <div className={errorMessage()}>
-          No token provided, please check your email for a verification link.
-        </div>
+        <div className={errorMessage()}>No token provided, please check your email for a verification link.</div>
       </>
     )
   }
@@ -54,7 +50,7 @@ export const TokenVerifier = () => {
     return (
       <>
         <div className="mx-auto animate-pulse w-96">
-          <Logo theme='dark' />
+          <Logo theme="dark" />
         </div>
         <div className={errorMessage()}>{error}</div>
       </>
@@ -65,13 +61,11 @@ export const TokenVerifier = () => {
     return (
       <>
         <div className="mx-auto animate-pulse w-96">
-          <Logo theme='dark' />
+          <Logo theme="dark" />
         </div>
         <div className={success()}>
           <SparklesIcon size={24} className={successIcon()} />
-          <span className={successMessage()}>
-            Thank you for subscribing. Your email is now verified.
-          </span>
+          <span className={successMessage()}>Thank you for subscribing. Your email is now verified.</span>
         </div>
       </>
     )
@@ -80,7 +74,7 @@ export const TokenVerifier = () => {
   return (
     <>
       <div className="mx-auto animate-pulse w-96">
-        <Logo theme='dark' />
+        <Logo theme="dark" />
       </div>
       <div className={loading()}>
         <LoaderCircle className="animate-spin" size={20} />

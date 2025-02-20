@@ -1,17 +1,17 @@
 import type { Config } from 'tailwindcss'
 import forms from '@tailwindcss/forms'
-import assistantUI from "@assistant-ui/react/tailwindcss"
+import assistantUI from '@assistant-ui/react/tailwindcss'
 
-export const config: Omit<Config, 'content'> = {
+export const config: Partial<Config> = {
   darkMode: 'class', // Enable dark mode via class
   plugins: [
     forms,
     function ({ addVariant }: { addVariant: (name: string, value: string[]) => void }) {
-      addVariant('dark-hover', ['@media (prefers-color-scheme: dark)', '&:hover']); // Custom dark-hover variant
+      addVariant('dark-hover', ['@media (prefers-color-scheme: dark)', '&:hover']) // Custom dark-hover variant
     },
     assistantUI({
-      components: ["assistant-modal"],
-      shadcn: true
+      components: ['assistant-modal'],
+      shadcn: true,
     }),
   ],
   theme: {
@@ -164,6 +164,12 @@ export const config: Omit<Config, 'content'> = {
           'border-muted': 'var(--color-table-border-muted)', // Muted table border
           'header-bg': 'var(--color-table-header-bg)', // Table header background
           header: 'var(--color-table-header-text)', // Table header text
+        },
+        destructive: {
+          DEFAULT: 'var(--color-destructive)',
+          transparent: 'var(--color-destructive-transparent)',
+          border: 'var(--color-destrucitve-border)',
+          foreground: 'var(--destructive-foreground)',
         },
 
         // Other Palette Colors

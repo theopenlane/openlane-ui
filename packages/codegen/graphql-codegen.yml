@@ -8,8 +8,8 @@ config:
   maybeValue: T | null
   declarationKind: interface
   preResolveTypes: true
-  onlyOperationTypes: true
-  flattenGeneratedTypes: true
+  onlyOperationTypes: false
+  flattenGeneratedTypes: false
   namingConvention:
     enumValues: keep
   scalars:
@@ -19,7 +19,7 @@ config:
     UUID: string
     ID: string
     JSON: any
-    Upload: File
+    Upload: any
   schema: yup
 overwrite: true
 schema: https://raw.githubusercontent.com/theopenlane/core/main/internal/graphapi/clientschema/schema.graphql

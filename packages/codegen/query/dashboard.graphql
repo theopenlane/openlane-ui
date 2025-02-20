@@ -1,40 +1,40 @@
 query GetDashboardData($where: TaskWhereInput) {
-    programs {
-        edges {
-            node {
-                id
-                name
-                description
-                controls {
-                    id
-                }
-                tasks {
-                    id
-                    title
-                    status
-                    description
-                    due
-                }
-            }
+  programs {
+    edges {
+      node {
+        id
+        name
+        description
+        controls {
+          id
         }
-    }
-    tasks(where: $where) {
-        edges {
-            node {
-                id
-                title
-                status
-                due
-                tags
-            }
+        tasks {
+          id
+          title
+          status
+          description
+          due
         }
+      }
     }
-    organizations{
-        edges {
-            node {
-                id
-                name
-            }
-        }
+  }
+  tasks(where: $where) {
+    edges {
+      node {
+        id
+        title
+        status
+        due
+        tags
+      }
     }
+  }
+  organizations {
+    edges {
+      node {
+        id
+        name
+      }
+    }
+  }
 }

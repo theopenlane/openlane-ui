@@ -7,8 +7,7 @@ const meta: Meta<typeof Tag> = {
   parameters: {
     docs: {
       description: {
-        component:
-          'This is a Tag component used for displaying categories or labels.',
+        component: 'This is a Tag component used for displaying categories or labels.',
       },
     },
   },
