@@ -10,18 +10,16 @@ import { Button } from '@repo/ui/button'
 import Cropper, { Area, Point } from 'react-easy-crop'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import getCroppedImg from './utils/getCroppedImage'
-import { useToast } from '@repo/ui/use-toast'
+import { Scalars } from '@repo/codegen/src/schema'
 
 interface AvatarUploadProps extends AvatarUploadVariants {
   className?: string
   placeholderImage?: string
   fallbackString?: string
-  uploadCallback: (arg: File) => void
+  uploadCallback: (arg: Scalars['Upload']['input']) => void
 }
 
 const AvatarUpload = ({ className, placeholderImage, uploadCallback, fallbackString }: AvatarUploadProps) => {
-  const { toast } = useToast()
-
   const [isCroppingModalOpen, setIsCroppingModalOpen] = useState(false)
   const [crop, setCrop] = useState({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1)

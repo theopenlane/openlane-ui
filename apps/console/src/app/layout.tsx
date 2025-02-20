@@ -19,7 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
   return (
     <html className="h-screen relative" lang="en" suppressHydrationWarning>
       <head>
-        <Script src={`https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`} strategy="lazyOnload" />
+        {recaptchaSiteKey && <Script src={`https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}`} strategy="lazyOnload" />}
         <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
         {pirschAnalyticsKey && <script defer src="https://api.pirsch.io/pa.js" id="pianjs" data-code={pirschAnalyticsKey}></script>}
       </head>

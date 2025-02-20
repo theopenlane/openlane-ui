@@ -25,10 +25,9 @@ const TEMP_PASSKEY_NAME = 'Temp User'
 
 export const SignupPage = () => {
   const router = useRouter()
-  const [signInError, setSignInError] = useState(false)
   const [registrationErrorMessage, setRegistrationErrorMessage] = useState('There was an error. Please try again.')
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const showLoginError = !isLoading && signInError
+  const showLoginError = !isLoading && !!setRegistrationErrorMessage
   const [isPasswordActive, setIsPasswordActive] = useState(false)
   const { separator, buttons, keyIcon, form, input } = signupStyles()
 
@@ -83,13 +82,12 @@ export const SignupPage = () => {
       }
 
       if (!verificationResult.success) {
-        setSignInError(true)
         setRegistrationErrorMessage(`Error: ${verificationResult.error}`)
       }
 
       return verificationResult
     } catch (error) {
-      setSignInError(true)
+      setRegistrationErrorMessage(`{${error || ''}}`)
     }
   }
 
@@ -144,24 +142,26 @@ export const SignupPage = () => {
         }}
         onSubmit={async (payload: RegisterUser) => {
           setIsLoading(true)
+          setRegistrationErrorMessage('')
           try {
-            // @ts-ignore
-            const recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'signup' })
+            if (recaptchaSiteKey) {
+              // @ts-ignore
+              const recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'signup' })
 
-            const recaptchaValidation = await fetch('/api/recaptchaVerify', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ token: recaptchaToken }),
-            })
+              const recaptchaValidation = await fetch('/api/recaptchaVerify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: recaptchaToken }),
+              })
 
-            const validationResponse = await recaptchaValidation.json()
+              const validationResponse = await recaptchaValidation.json()
 
-            if (!validationResponse.success) {
-              setRegistrationErrorMessage('reCAPTCHA validation failed.')
-              setIsLoading(false)
-              return
+              if (!validationResponse.success) {
+                setRegistrationErrorMessage('reCAPTCHA validation failed.')
+                setIsLoading(false)
+                return
+              }
             }
-
             const isEmailValid = await validateEmail(payload)
             if (!isEmailValid) {
               router.push('/waitlist')
@@ -207,6 +207,8 @@ export const SignupPage = () => {
             </div>
           </>
         )}
+        {showLoginError && <MessageBox className={'p-4 ml-1'} message={registrationErrorMessage} />}
+
         <Button className="mr-auto mt-2 w-full" icon={<ArrowUpRight />} size="md" type="submit" iconAnimated>
           {isLoading ? 'loading' : 'Sign up'}
         </Button>
@@ -219,7 +221,6 @@ export const SignupPage = () => {
         Terms of Service
       </Link>
 
-      {showLoginError && <MessageBox className={'p-4 ml-1'} message={registrationErrorMessage} />}
       <div className="text-[10px] text-gray-500 mt-5 text-center">
         This site is protected by reCAPTCHA and the Google{' '}
         <a className="text-blue-500 underline" href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">

@@ -6,20 +6,22 @@ export interface SeparatorProps extends SeparatorVariants, HTMLAttributes<HTMLDi
   label?: string
 }
 
-export const Separator = ({ label, ...rest }: SeparatorProps) => {
-  const { base, line, text } = separatorStyles()
+export const Separator = ({ label, programStep, full, className, ...rest }: SeparatorProps) => {
+  // Apply variants to the styles
+  const { base, line, text } = separatorStyles({ programStep, full })
 
   if (label) {
     return (
-      <div className={cn(base(), rest.className)}>
+      <div className={cn(base(), className)} {...rest}>
         <div className={line()} />
         <div className={text()}>{label}</div>
         <div className={line()} />
       </div>
     )
   }
+
   return (
-    <div className={base()}>
+    <div className={cn(base(), className)} {...rest}>
       <div className={line()}></div>
     </div>
   )

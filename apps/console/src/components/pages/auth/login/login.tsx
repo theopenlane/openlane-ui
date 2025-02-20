@@ -4,8 +4,8 @@ import { LoginUser } from '@repo/dally/user'
 import { Button } from '@repo/ui/button'
 import MessageBox from '@repo/ui/message-box'
 import SimpleForm from '@repo/ui/simple-form'
-import { ArrowUpRight, KeyRoundIcon } from 'lucide-react'
-import { signIn } from 'next-auth/react'
+import { ArrowUpRight } from 'lucide-react'
+import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Separator } from '@repo/ui/separator'
@@ -38,22 +38,24 @@ export const LoginPage = () => {
     setSignInError(false)
 
     try {
-      // @ts-ignore
-      const recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'login' })
+      if (recaptchaSiteKey) {
+        // @ts-ignore
+        const recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'login' })
 
-      const recaptchaValidation = await fetch('/api/recaptchaVerify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: recaptchaToken }),
-      })
+        const recaptchaValidation = await fetch('/api/recaptchaVerify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: recaptchaToken }),
+        })
 
-      const validationResponse = await recaptchaValidation.json()
+        const validationResponse = await recaptchaValidation.json()
 
-      if (!validationResponse.success) {
-        setSignInError(true)
-        setSignInLoading(false)
-        setSignInErrorMessage('reCAPTCHA validation failed.')
-        return
+        if (!validationResponse.success) {
+          setSignInError(true)
+          setSignInLoading(false)
+          setSignInErrorMessage('reCAPTCHA validation failed.')
+          return
+        }
       }
 
       const res: any = await signIn('credentials', { redirect: false, ...payload })

@@ -17,7 +17,6 @@ const Landing = () => {
         <div className="mx-auto animate-pulse w-96">
           <Logo />
         </div>
-
         <h1 className="text-lg text-center mt-4">crafting security, one byte at a time...</h1>
       </div>
     </main>

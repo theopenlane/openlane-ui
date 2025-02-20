@@ -49,22 +49,25 @@ export const credentialsProvider = Credentials({
         session = credentials.session
       }
 
-      setSessionCookie(session)
-
       const uData = await fetch(`${openlaneAPIUrl}/oauth/userinfo`, {
         method: 'GET',
         headers: { Authorization: `Bearer ${accessToken}` },
       })
 
-      if (uData.ok) {
-        const data = await uData.json()
-        return {
-          accessToken,
-          refreshToken,
-          ...data,
-        }
-      } else {
+      if (!uData.ok) {
         console.error('Failed to fetch user info')
+
+        return null
+      }
+      const data = await uData.json()
+      const isTfaEnabled = data.edges.setting.is_tfa_enabled || false
+      setSessionCookie(session)
+
+      return {
+        isTfaEnabled,
+        accessToken,
+        refreshToken,
+        ...data,
       }
     } catch (error) {
       console.error('Authorization error:', error)

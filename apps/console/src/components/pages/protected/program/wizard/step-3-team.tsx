@@ -3,14 +3,10 @@ import { z, infer as zInfer } from 'zod'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Grid, GridRow, GridCell } from '@repo/ui/grid'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { CheckIcon, ChevronsUpDownIcon, InfoIcon } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardTitle } from '@repo/ui/cardpanel'
+import { InfoIcon } from 'lucide-react'
 import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
-import { Button } from '@repo/ui/button'
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
-import { cn } from '@repo/ui/lib/utils'
 import { Node } from '../nodes'
+import MultipleSelector from '@repo/ui/multiple-selector'
 
 export const programInviteSchema = z.object({
   programAdmins: z.array(z.string()).optional(),
@@ -24,9 +20,9 @@ type ProgramInviteProps = { users: Node[]; groups: Node[] }
 
 export const ProgramInviteComponent: React.FC<ProgramInviteProps> = ({ users, groups }) => {
   return (
-    <Panel className="border-none p-2 h-[93%]">
-      <PanelHeader heading="Add Your Team" subheading="Gives read and write access to the program to your team members" noBorder />
-      <div className="overflow-y-auto">
+    <Panel className="border-none p-2 ">
+      <PanelHeader heading="" subheading="Gives read and write access to the program to your team members" noBorder />
+      <div>
         <Grid>
           <GridRow columns={1}>
             <GridCell>
@@ -43,10 +39,10 @@ export const ProgramInviteComponent: React.FC<ProgramInviteProps> = ({ users, gr
 export const InviteComponent: React.FC<ProgramInviteProps> = ({ users, groups }) => {
   return (
     <>
-      <Card className="bg-background-secondary">
-        <CardTitle>Program Members</CardTitle>
-        <CardDescription>Add users in your organization to the program directly. Admins will have read and write access, Members will only have read access</CardDescription>
-        <CardContent>
+      <div className="bg-background-secondary flex flex-col gap-5">
+        <h1 className="text-base font-semibold">Program Members</h1>
+        <p>Add users in your organization to the program directly. Admins will have read and write access, Members will only have read access</p>
+        <div>
           <Grid>
             <GridRow columns={2}>
               <GridCell>
@@ -57,14 +53,12 @@ export const InviteComponent: React.FC<ProgramInviteProps> = ({ users, groups })
               </GridCell>
             </GridRow>
           </Grid>
-        </CardContent>
-      </Card>
-      <Card className="bg-background-secondary">
-        <CardTitle>Group Permissions</CardTitle>
-        <CardDescription>
-          Assign permissions to the program based on groups. Groups with editor access can read and write, groups with viewer access can only read objects in the program.
-        </CardDescription>
-        <CardContent>
+        </div>
+      </div>
+      <div className="bg-background-secondary mt-10 flex flex-col gap-5">
+        <h1 className="text-base font-semibold">Group Permissions</h1>
+        <p>Assign permissions to the program based on groups. Groups with editor access can read and write, groups with viewer access can only read objects in the program.</p>
+        <div>
           <Grid>
             <GridRow columns={2}>
               <GridCell>
@@ -75,8 +69,8 @@ export const InviteComponent: React.FC<ProgramInviteProps> = ({ users, groups })
               </GridCell>
             </GridRow>
           </Grid>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </>
   )
 }
@@ -89,6 +83,7 @@ const AddMemberDropdown: React.FC<{ values: Node[]; fieldName: keyof ProgramInvi
   } = useFormContext<ProgramInviteValues>()
 
   const placeholder = `Search ${fieldType}(s) ...`
+  const options = values.map((item) => ({ label: item.node.name, value: item.node.id }))
 
   return (
     <FormField
@@ -110,46 +105,15 @@ const AddMemberDropdown: React.FC<{ values: Node[]; fieldName: keyof ProgramInvi
             </TooltipProvider>
           </FormLabel>
           <FormControl>
-            <FormItem>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button variant="outlineInput" role="combobox" className={cn('w-[300px] justify-between flex', !field.value && 'text-muted-foreground')}>
-                      <span className="flex">
-                        <ChevronsUpDownIcon className="opacity-50 h-8 w-8 mr-2 mt-1" />
-                        {field.value && field.value.length > 0 ? `${field.value.length} ${fieldType}(s) selected` : `Select ${fieldType}(s)`}
-                      </span>
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-[300px]">
-                  <Command>
-                    <CommandInput placeholder={placeholder} />
-                    <CommandList>
-                      <CommandEmpty>No {fieldType} found.</CommandEmpty>
-                      <CommandGroup>
-                        {values.map((value) => (
-                          <CommandItem
-                            className="flex items-center"
-                            value={value.node.name}
-                            key={value.node.name}
-                            onSelect={() => {
-                              const newValue = field.value?.includes(value.node.id) ? field.value.filter((id) => id !== value.node.id) : [...(field.value || []), value.node.id]
-                              field.onChange(newValue)
-                              console.log(newValue)
-                              console.log(value.node.id)
-                            }}
-                          >
-                            {value.node.name}
-                            <CheckIcon className={cn('ml-auto', field.value && field.value.includes(value.node.id) ? 'opacity-100' : 'opacity-0')} />
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </PopoverContent>
-              </Popover>
-            </FormItem>
+            <MultipleSelector
+              placeholder={placeholder}
+              defaultOptions={options}
+              value={options.filter((option) => field.value?.includes(option.value))} // Ensure selected values are displayed
+              onChange={(selectedOptions) => {
+                const selectedIds = selectedOptions.map((option) => option.value) // Extract selected IDs
+                field.onChange(selectedIds)
+              }}
+            />
           </FormControl>
         </FormItem>
       )}

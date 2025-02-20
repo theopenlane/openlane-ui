@@ -28,7 +28,7 @@ export const OrganizationSelector = () => {
 
   const { currentOrgId } = useOrganization()
 
-  const [{ data: organizationsData, fetching, error }] = useGetAllOrganizationsWithMembersQuery()
+  const [{ data: organizationsData }] = useGetAllOrganizationsWithMembersQuery()
   const orgs = organizationsData?.organizations?.edges ?? []
   const currentOrg = orgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
   const { container, logoWrapper, organizationLabel, organizationDropdown, allOrganizationsLink, popoverContent, searchWrapper, orgWrapper, orgInfo, orgTitle, orgSelect } =
@@ -73,15 +73,6 @@ export const OrganizationSelector = () => {
   }
 
   if (!orgs) return <Loading />
-
-  // if there is only one non-personal organization, show the logo instead of the dropdown
-  if (orgData.numberOfOrgs <= 1) {
-    return (
-      <Link href={'/'} className={logoWrapper()}>
-        <Logo width={160} />
-      </Link>
-    )
-  }
 
   return (
     <div className={container()}>

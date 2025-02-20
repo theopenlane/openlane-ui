@@ -20,8 +20,13 @@ import { Input } from '../input/input'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '../dropdown-menu/dropdown-menu'
 import { EyeIcon } from 'lucide-react'
 
+type CustomColumnDef<TData, TValue> = ColumnDef<TData, TValue> & {
+  meta?: {
+    className?: string
+  }
+}
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
+  columns: CustomColumnDef<TData, TValue>[] // ✅ Now supports `meta.className`
   loading?: boolean
   data: TData[]
   showFilter?: boolean
@@ -69,7 +74,7 @@ export function DataTable<TData, TValue>({
   })
 
   return (
-    <div>
+    <div className="overflow-hidden rounded-md border bg-background-secondary">
       {(showFilter || showVisibility) && (
         <div className="flex items-center py-4">
           {showFilter && (
@@ -122,9 +127,18 @@ export function DataTable<TData, TValue>({
         <TableBody>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
-              <TableRow onClick={() => onRowClick?.(row.original)} key={row.id} data-state={row.getIsSelected() && 'selected'}>
+              <TableRow
+                onClick={() => onRowClick?.(row.original)}
+                className={`'hover:bg-table-row-bg-hover ${onRowClick ? 'cursor-pointer' : ''}`}
+                key={row.id}
+                data-state={row.getIsSelected() && 'selected'}
+              >
+                {' '}
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                  // @ts-ignore
+                  <TableCell key={cell.id} className={cell.column.columnDef.meta?.className || ''}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
                 ))}
               </TableRow>
             ))

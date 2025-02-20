@@ -27,6 +27,7 @@ export const TokenVerifier = () => {
         callbackUrl: '/dashboard',
         accessToken,
         refreshToken,
+        session: verified.session,
       })
     }
   }, [verified, error])

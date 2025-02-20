@@ -8,7 +8,7 @@ const config: Pick<Config, 'prefix' | 'content' | 'presets' | 'extend' | 'plugin
   mode: 'jit',
   darkMode: ['class'],
   content: ['./src/**/*.tsx'],
-  presets: [sharedConfig],
+  presets: [sharedConfig as Partial<Config>],
   theme: {
     extend: {
       borderRadius: {
