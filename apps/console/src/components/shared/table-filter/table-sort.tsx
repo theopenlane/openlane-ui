@@ -47,8 +47,7 @@ export const TableSort = <T extends string>({ sortFields, onSortChange }: TableS
   return (
     <Popover onOpenChange={(open) => open && sortConditions.length === 0 && addSortCondition()}>
       <PopoverTrigger asChild>
-        <Button className="gap-2">
-          <ArrowUpDown className="h-4 w-4" />
+        <Button icon={<ArrowUpDown />} iconPosition="left">
           Add Sort
         </Button>
       </PopoverTrigger>
