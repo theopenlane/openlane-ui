@@ -26,18 +26,15 @@ const DashboardLanding: React.FC = () => {
   const programsRes = { edges: dashboardData?.programs?.edges ?? [] }
   const taskRes = { edges: dashboardData?.tasks?.edges || [] }
 
+  if (dashboardData?.organizations?.edges?.length == 1) {
+    push('/onboarding')
+  }
+
   // if fetching data show loading
   if (fetching || !dashboardData) {
     return <Loading />
   } else {
     // if no organizations other than their personal org, show create organization form,
-    if (dashboardData?.organizations?.edges?.length == 1) {
-      return (
-        <section>
-          <CreateOrganizationForm />
-        </section>
-      )
-    }
 
     // if no programs redirect to new user landing
     if (programsRes && programsRes?.edges?.length == 0) {
