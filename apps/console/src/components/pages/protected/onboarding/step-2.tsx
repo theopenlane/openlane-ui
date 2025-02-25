@@ -36,7 +36,7 @@ export default function Step2() {
         {errors.userDetails?.role && <p className="text-red-500 text-sm">{errors.userDetails.role.message}</p>}
       </div>
       <div className="space-y-2">
-        <Label>Department (Optional)</Label>
+        <Label>Department</Label>
         <Select onValueChange={(value) => setValue('userDetails.department', value)} defaultValue={watch('userDetails.department')}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select department" />
