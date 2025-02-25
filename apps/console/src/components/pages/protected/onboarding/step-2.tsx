@@ -39,7 +39,7 @@ export default function Step2() {
         <Label>Department (Optional)</Label>
         <Select onValueChange={(value) => setValue('userDetails.department', value)} defaultValue={watch('userDetails.department')}>
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select department (Optional)" />
+            <SelectValue placeholder="Select department" />
           </SelectTrigger>
           <SelectContent>
             {departments.map((dept) => (
