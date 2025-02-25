@@ -46,7 +46,7 @@ export default function MultiStepForm() {
   const onSubmit = async () => {
     try {
       if (formDataRef.current.companyDetails.sector === 'Other (Please Specify)') {
-        formDataRef.current.companyDetails.sector === formDataRef.current.companyDetails.otherSector || ''
+        formDataRef.current.companyDetails.sector = formDataRef.current.companyDetails.otherSector || ''
         formDataRef.current.companyDetails.otherSector = undefined
       }
       const fullData: CreateOnboardingInput = {
