@@ -31,7 +31,7 @@ export default function Step3() {
       <h2 className="text-xl font-semibold">Compliance Info</h2>
       <p className="text-sm text-text-light">Help us tailor your experience by sharing where you are in your compliance journey. Just a few quick questions to get started!</p>
       <div className="flex items-center justify-between">
-        <Label>Have you done a risk assessment?</Label>
+        <Label>Have you previously completed a risk assessment?</Label>
         <Switch checked={watch('compliance.completed_risk_assessment') ?? false} onCheckedChange={(value) => setValue('compliance.completed_risk_assessment', value)} />
       </div>
       <div className="flex items-center justify-between">
