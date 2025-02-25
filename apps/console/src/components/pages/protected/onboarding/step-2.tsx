@@ -31,7 +31,7 @@ export default function Step2() {
 
       {/* User Role */}
       <div className="space-y-2">
-        <Label htmlFor="role">Role*</Label>
+        <Label htmlFor="role">Role</Label>
         <Input id="role" {...register('userDetails.role')} required />
         {errors.userDetails?.role && <p className="text-red-500 text-sm">{errors.userDetails.role.message}</p>}
       </div>
