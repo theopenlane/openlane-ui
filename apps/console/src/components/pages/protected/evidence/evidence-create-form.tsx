@@ -12,6 +12,7 @@ import { addDays, format } from 'date-fns'
 import { wizardStyles } from '@/components/pages/protected/program/wizard/wizard.styles'
 import { Button } from '@repo/ui/button'
 import { Calendar } from '@repo/ui/calendar'
+import EvidenceUploadForm from '@/components/pages/protected/evidence/evidence-upload-form'
 
 const EvidenceCreateForm: React.FC = () => {
   const { form } = useFormSchema()
@@ -43,7 +44,7 @@ const EvidenceCreateForm: React.FC = () => {
                       render={({ field }) => (
                         <FormItem className="w-full">
                           <div className="flex items-center">
-                            <FormLabel>Name</FormLabel>
+                            <FormLabel>Evidence name</FormLabel>
                             <TooltipProvider disableHoverableContent>
                               <Tooltip>
                                 <TooltipTrigger type="button">
@@ -215,6 +216,8 @@ const EvidenceCreateForm: React.FC = () => {
                       )}
                     />
                   </InputRow>
+                  <p>Provide supporting files(s)</p>
+                  <EvidenceUploadForm />
                 </form>
               </Form>
             </div>
