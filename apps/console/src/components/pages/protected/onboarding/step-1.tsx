@@ -5,7 +5,8 @@ import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { X } from 'lucide-react'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { InfoIcon, X } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import React, { useEffect, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
@@ -115,6 +116,16 @@ export default function Step1() {
 
       <div className="space-y-2">
         <Label htmlFor="domains">Company Domain(s)*</Label>
+        <TooltipProvider disableHoverableContent={true}>
+          <Tooltip>
+            <TooltipTrigger type="button">
+              <InfoIcon size={14} className="mx-1 mt-1" />
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              <p>Add the top-level domains associated with your company (e.g., acme.com). Avoid subdomains like app.acme.com</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
         <div className="flex flex-wrap gap-2 border rounded-md p-2">
           {domains.map((domain) => (
             <Badge key={domain} className="flex items-center gap-1">
@@ -124,15 +135,7 @@ export default function Step1() {
               </button>
             </Badge>
           ))}
-          <Input
-            id="domains"
-            type="text"
-            placeholder="Add a domain (e.g., acme.com)"
-            value={domainInput}
-            onChange={(e) => setDomainInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="border-none outline-none flex-1"
-          />
+          <Input id="domains" type="text" value={domainInput} onChange={(e) => setDomainInput(e.target.value)} onKeyDown={handleKeyDown} className="border-none outline-none flex-1" />
         </div>
         <Button
           onClick={(e) => {
@@ -140,7 +143,7 @@ export default function Step1() {
             addDomain()
           }}
           variant="outline"
-          className="mt-2"
+          className="mt-2 "
         >
           Add Domain
         </Button>

@@ -31,10 +31,6 @@ export default function Step3() {
       <h2 className="text-xl font-semibold">Compliance Info</h2>
       <p className="text-sm text-text-light">Help us tailor your experience by sharing where you are in your compliance journey. Just a few quick questions to get started!</p>
       <div className="flex items-center justify-between">
-        <Label>Do you have existing policies and procedures you would like to import?</Label>
-        <Switch checked={watch('compliance.existing_policies_procedures') ?? false} onCheckedChange={(value) => setValue('compliance.existing_policies_procedures', value)} />
-      </div>
-      <div className="flex items-center justify-between">
         <Label>Have you done a risk assessment?</Label>
         <Switch checked={watch('compliance.completed_risk_assessment') ?? false} onCheckedChange={(value) => setValue('compliance.completed_risk_assessment', value)} />
       </div>
@@ -45,6 +41,10 @@ export default function Step3() {
       <div className="flex items-center justify-between">
         <Label>Do you have existing controls you'd like to import?</Label>
         <Switch checked={watch('compliance.existing_controls') ?? false} onCheckedChange={(value) => setValue('compliance.existing_controls', value)} />
+      </div>
+      <div className="flex items-center justify-between">
+        <Label>Do you have existing policies and procedures you would like to import?</Label>
+        <Switch checked={watch('compliance.existing_policies_procedures') ?? false} onCheckedChange={(value) => setValue('compliance.existing_policies_procedures', value)} />
       </div>
     </div>
   )
