@@ -10,10 +10,12 @@ export const step2Schema = z.object({
   userDetails: z
     .object({
       role: z.string().optional(),
-      department: z.string().optional(), // ✅ Made department optional
+      department: z.string().optional(),
     })
     .optional(),
 })
+
+const departments = ['Engineering', 'Operations', 'Infosec', 'Corporate IT', 'Internal Audit', 'Marketing', 'Sales', 'Human Resources', 'Finance', 'Legal', 'Other']
 
 type Step2Values = zInfer<typeof step2Schema>
 
@@ -28,15 +30,11 @@ export default function Step2() {
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold">User Info</h2>
-
-      {/* User Role */}
       <div className="space-y-2">
         <Label htmlFor="role">Role*</Label>
         <Input id="role" {...register('userDetails.role')} required />
         {errors.userDetails?.role && <p className="text-red-500 text-sm">{errors.userDetails.role.message}</p>}
       </div>
-
-      {/* User Department (Optional) */}
       <div className="space-y-2">
         <Label>Department (Optional)</Label>
         <Select onValueChange={(value) => setValue('userDetails.department', value)} defaultValue={watch('userDetails.department')}>
@@ -44,11 +42,11 @@ export default function Step2() {
             <SelectValue placeholder="Select department (Optional)" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="Engineering">Engineering</SelectItem>
-            <SelectItem value="Marketing">Marketing</SelectItem>
-            <SelectItem value="Sales">Sales</SelectItem>
-            <SelectItem value="HR">HR</SelectItem>
-            <SelectItem value="Finance">Finance</SelectItem>
+            {departments.map((dept) => (
+              <SelectItem key={dept} value={dept}>
+                {dept}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
