@@ -61,7 +61,6 @@ export default function Step1() {
 
   const { data: sessionData } = useSession()
 
-  const selectedSector = watch('companyDetails.sector')
   const [domainInput, setDomainInput] = useState('')
   const userDomain = sessionData?.user.email.split('@')[1]
   const domains = watch('domains') || []
