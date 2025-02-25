@@ -171,6 +171,9 @@ export const config: Partial<Config> = {
           border: 'var(--color-destrucitve-border)',
           foreground: 'var(--destructive-foreground)',
         },
+        progressbar: {
+          DEFAULT: 'var(--color-progressbar-empty)',
+        },
 
         // Other Palette Colors
         teal: {
