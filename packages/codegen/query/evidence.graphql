@@ -1,0 +1,7 @@
+mutation CreateEvidence($input: CreateEvidenceInput!, $evidenceFiles: [Upload!]) {
+  createEvidence(input: $input, evidenceFiles: $evidenceFiles) {
+    evidence {
+      id
+    }
+  }
+}
