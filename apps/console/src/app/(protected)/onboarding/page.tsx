@@ -49,6 +49,7 @@ export default function MultiStepForm() {
         formDataRef.current.companyDetails.sector = formDataRef.current.companyDetails.otherSector || ''
         formDataRef.current.companyDetails.otherSector = undefined
       }
+
       const fullData: CreateOnboardingInput = {
         companyName: formDataRef.current.companyName || '',
         domains: formDataRef.current.domains || [],
