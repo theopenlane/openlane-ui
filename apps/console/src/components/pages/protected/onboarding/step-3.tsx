@@ -29,28 +29,20 @@ export default function Step3() {
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold">Compliance Info</h2>
-
-      {/* Existing Policies & Procedures */}
       <div className="flex items-center justify-between">
-        <Label>Existing Policies & Procedures</Label>
+        <Label>Do you have existing policies + procedures?</Label>
         <Switch checked={watch('compliance.existing_policies_procedures') ?? false} onCheckedChange={(value) => setValue('compliance.existing_policies_procedures', value)} />
       </div>
-
-      {/* Completed Risk Assessment */}
       <div className="flex items-center justify-between">
-        <Label>Completed Risk Assessment</Label>
+        <Label>Have you done a risk assessment?</Label>
         <Switch checked={watch('compliance.completed_risk_assessment') ?? false} onCheckedChange={(value) => setValue('compliance.completed_risk_assessment', value)} />
       </div>
-
-      {/* Completed Gap Analysis */}
       <div className="flex items-center justify-between">
-        <Label>Completed Gap Analysis</Label>
+        <Label>Have you gone through a gap analysis?</Label>
         <Switch checked={watch('compliance.completed_gap_analysis') ?? false} onCheckedChange={(value) => setValue('compliance.completed_gap_analysis', value)} />
       </div>
-
-      {/* Existing Controls */}
       <div className="flex items-center justify-between">
-        <Label>Existing Controls</Label>
+        <Label>Do you have existing controls you'd like to import?</Label>
         <Switch checked={watch('compliance.existing_controls') ?? false} onCheckedChange={(value) => setValue('compliance.existing_controls', value)} />
       </div>
     </div>
