@@ -29,6 +29,7 @@ export default function Step3() {
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold">Compliance Info</h2>
+      <p className="text-sm text-text-light">Help us tailor your experience by sharing where you are in your compliance journey. Just a few quick questions to get started!</p>
       <div className="flex items-center justify-between">
         <Label>Do you have existing policies and procedures you would like to import?</Label>
         <Switch checked={watch('compliance.existing_policies_procedures') ?? false} onCheckedChange={(value) => setValue('compliance.existing_policies_procedures', value)} />
