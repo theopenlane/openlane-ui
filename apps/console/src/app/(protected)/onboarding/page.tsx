@@ -125,7 +125,7 @@ export default function MultiStepForm() {
     <div className="flex justify-center flex-col items-center max-w-[545px] m-auto">
       <div>
         <h1 className="text-2xl py-3">Welcome to Openlane 🙇‍♀️</h1>
-        <p className="text-sm pb-5">We are glad to have you! Froth coffee barista redeye sit turkish extraction so acerbic plunger cortado lait luwak.</p>
+        <p className="text-sm pb-5">We are glad to have you! Let's get started with a few questions.</p>
       </div>
       <FormProvider {...methods}>
         <form className="w-full" onSubmit={methods.handleSubmit(onSubmit)}>
