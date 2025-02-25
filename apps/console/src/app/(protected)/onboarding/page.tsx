@@ -151,6 +151,11 @@ export default function MultiStepForm() {
                   {isLastStep ? 'Submit' : steps[currentIndex + 1]?.label}
                 </Button>
               </div>
+              {currentIndex === 1 && (
+                <div className="border-t pt-5 mt-5 text-sm" onClick={methods.handleSubmit(onSubmit)}>
+                  <span className="text-blue-500 cursor-pointer">Exit the onboarding process</span> <span> and use general template for my account.</span>
+                </div>
+              )}
             </div>
           </Card>
         </form>
