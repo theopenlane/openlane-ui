@@ -3460,7 +3460,7 @@ export interface CreateDocumentDataInput {
   data: Scalars['JSON']['input']
   entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  ownerID: Scalars['ID']['input']
+  ownerID?: InputMaybe<Scalars['ID']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   templateID: Scalars['ID']['input']
@@ -4339,9 +4339,9 @@ export interface DocumentData extends Node {
   entity?: Maybe<Array<Entity>>
   files?: Maybe<Array<File>>
   id: Scalars['ID']['output']
-  owner: Organization
+  owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
-  ownerID: Scalars['ID']['output']
+  ownerID?: Maybe<Scalars['ID']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   template: Template
@@ -4404,7 +4404,7 @@ export interface DocumentDataHistory extends Node {
   id: Scalars['ID']['output']
   operation: DocumentDataHistoryOpType
   /** the ID of the organization owner of the object */
-  ownerID: Scalars['String']['output']
+  ownerID?: Maybe<Scalars['String']['output']>
   ref?: Maybe<Scalars['String']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
@@ -4538,10 +4538,12 @@ export interface DocumentDataHistoryWhereInput {
   ownerIDHasPrefix?: InputMaybe<Scalars['String']['input']>
   ownerIDHasSuffix?: InputMaybe<Scalars['String']['input']>
   ownerIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
   ownerIDLT?: InputMaybe<Scalars['String']['input']>
   ownerIDLTE?: InputMaybe<Scalars['String']['input']>
   ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** ref field predicates */
   ref?: InputMaybe<Scalars['String']['input']>
   refContains?: InputMaybe<Scalars['String']['input']>
@@ -4708,10 +4710,12 @@ export interface DocumentDataWhereInput {
   ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
   ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
   ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
   ownerIDLT?: InputMaybe<Scalars['ID']['input']>
   ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** template_id field predicates */
   templateID?: InputMaybe<Scalars['ID']['input']>
   templateIDContains?: InputMaybe<Scalars['ID']['input']>
