@@ -10,9 +10,10 @@ interface PageHeadingProps extends PageHeadingVariants {
   eyebrow?: React.ReactNode | string
   editable?: boolean
   onChange?: (value: string) => void
+  actions?: React.ReactNode
 }
 
-const PageHeading: React.FC<PageHeadingProps> = ({ heading, eyebrow, className, editable, onChange }) => {
+const PageHeading: React.FC<PageHeadingProps> = ({ heading, eyebrow, className, editable, onChange, actions }) => {
   const styles = pageHeadingStyles()
   const inputRef = React.useRef<HTMLInputElement>(null)
 
@@ -36,15 +37,18 @@ const PageHeading: React.FC<PageHeadingProps> = ({ heading, eyebrow, className, 
   const headingClasses = !editable ? styles.heading() : cn(['cursor-pointer hover:bg-black', styles.heading()])
 
   return (
-    <div className={cn(styles.wrapper(), className)}>
-      {eyebrow && <span className={styles.eyebrow()}>{eyebrow}</span>}
-      {!isEditing ? (
-        <h2 className={headingClasses} onClick={(e) => setEditing(!editing)}>
-          {heading}
-        </h2>
-      ) : (
-        <input className="" defaultValue={heading as string} onBlur={onBlurHandler} ref={inputRef} />
-      )}
+    <div className="flex">
+      <div className={cn(styles.wrapper(), className)}>
+        {eyebrow && <span className={styles.eyebrow()}>{eyebrow}</span>}
+        {!isEditing ? (
+          <h2 className={headingClasses} onClick={(e) => setEditing(!editing)}>
+            {heading}
+          </h2>
+        ) : (
+          <input className="" defaultValue={heading as string} onBlur={onBlurHandler} ref={inputRef} />
+        )}
+      </div>
+      {actions && <div className={styles.actions()}>{actions}</div>}
     </div>
   )
 }
