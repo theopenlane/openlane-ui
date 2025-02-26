@@ -56,7 +56,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * - public/backgrounds (background images)
      * - public/icons (images)
-     * and the following unprotected pages:
      */
 
     '/((?!api|_next/static|_next/image|favicon.ico|backgrounds|backgrounds/|icons|icons/).*)',
