@@ -16,7 +16,6 @@ const GetDashboardDataDocument = `
 `
 
 export async function getDashboardData(accessToken: string, session: string) {
-  console.log('getDashboardDatagetDashboardDatagetDashboardDatagetDashboardData', getDashboardData)
   try {
     const ssrCache = ssrExchange({ isClient: false })
 
