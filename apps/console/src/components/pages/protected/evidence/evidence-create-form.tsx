@@ -2,7 +2,7 @@ import { Grid, GridCell, GridRow } from '@repo/ui/grid'
 import React, { useState } from 'react'
 import { CalendarIcon, InfoIcon } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
-import useFormSchema from '@/components/pages/protected/evidence/hooks/use-form-schema'
+import useFormSchema, { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { Input, InputRow } from '@repo/ui/input'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Textarea } from '@repo/ui/textarea'
@@ -12,7 +12,9 @@ import { addDays, format } from 'date-fns'
 import { wizardStyles } from '@/components/pages/protected/program/wizard/wizard.styles'
 import { Button } from '@repo/ui/button'
 import { Calendar } from '@repo/ui/calendar'
-import EvidenceUploadForm from '@/components/pages/protected/evidence/evidence-upload-form'
+import { CreateEvidenceInput, useCreateEvidenceMutation } from '@repo/codegen/src/schema'
+import { useSession } from 'next-auth/react'
+import EvidenceUploadForm from '@/components/pages/protected/evidence/upload/evidence-upload-form'
 
 const EvidenceCreateForm: React.FC = () => {
   const { form } = useFormSchema()
@@ -22,10 +24,30 @@ const EvidenceCreateForm: React.FC = () => {
   const [creationDate, setCreationDate] = useState<Date>(today)
   const [isCreationDateCalendarOpen, setIsCreationDateCalendarOpen] = useState(false)
   const [isRenewalDateCalendarOpen, setIsRenewalDateCalendarOpen] = useState(false)
-
   const { calendarIcon, calendarInput, calendarPopover } = wizardStyles()
+  const { data: sessionData } = useSession()
+  const [result, createEvidence] = useCreateEvidenceMutation()
+  const { error, fetching: isSubmitting } = result
 
-  const onSubmitHandler = () => {}
+  const onSubmitHandler = async (data: CreateEvidenceFormData) => {
+    const formData = {
+      input: {
+        name: data.name,
+        description: data.description,
+        tags: data.tags,
+        creationDate: data.creationDate,
+        renewalDate: data.renewalDate,
+        ownerID: sessionData?.user.userId,
+      } as CreateEvidenceInput,
+      evidenceFiles: data.evidenceFiles?.map((item) => item.file) || [],
+    }
+
+    const response = await createEvidence(formData)
+  }
+
+  const handleUploadedFiles = (evidenceFiles: TUploadedFilesProps[]) => {
+    form.setValue('evidenceFiles', evidenceFiles)
+  }
 
   return (
     <Grid rows={2}>
@@ -59,6 +81,7 @@ const EvidenceCreateForm: React.FC = () => {
                           <FormControl>
                             <Input variant="medium" {...field} className="w-full" />
                           </FormControl>
+                          {form.formState.errors.name && <p className="text-red-500 text-sm">{form.formState.errors.name.message}</p>}
                         </FormItem>
                       )}
                     />
@@ -87,6 +110,7 @@ const EvidenceCreateForm: React.FC = () => {
                           <FormControl>
                             <Textarea id="description" {...field} className="w-full" />
                           </FormControl>
+                          {form.formState.errors.description && <p className="text-red-500 text-sm">{form.formState.errors.description.message}</p>}
                         </FormItem>
                       )}
                     />
@@ -108,6 +132,7 @@ const EvidenceCreateForm: React.FC = () => {
                               className="w-full"
                             />
                           </FormControl>
+                          {form.formState.errors.tags && <p className="text-red-500 text-sm">{form.formState.errors.tags.message}</p>}
                         </FormItem>
                       )}
                     />
@@ -160,12 +185,13 @@ const EvidenceCreateForm: React.FC = () => {
                               </PopoverContent>
                             </Popover>
                           </FormControl>
+                          {form.formState.errors.creationDate && <p className="text-red-500 text-sm">{form.formState.errors.creationDate.message}</p>}
                         </FormItem>
                       )}
                     />
                   </InputRow>
 
-                  {/* Creation Date */}
+                  {/* Renewal Date */}
                   <InputRow className="w-full">
                     <FormField
                       control={form.control}
@@ -212,12 +238,13 @@ const EvidenceCreateForm: React.FC = () => {
                               </PopoverContent>
                             </Popover>
                           </FormControl>
+                          {form.formState.errors.renewalDate && <p className="text-red-500 text-sm">{form.formState.errors.renewalDate.message}</p>}
                         </FormItem>
                       )}
                     />
                   </InputRow>
                   <p>Provide supporting files(s)</p>
-                  <EvidenceUploadForm />
+                  <EvidenceUploadForm evidenceFiles={handleUploadedFiles} />
                 </form>
               </Form>
             </div>
@@ -225,6 +252,13 @@ const EvidenceCreateForm: React.FC = () => {
             {/* Right Column - Accordion (50% Width) */}
             <div className="col-span-1"></div>
           </div>
+        </GridCell>
+      </GridRow>
+      <GridRow columns={4}>
+        <GridCell className="col-span-2">
+          <Button onClick={form.handleSubmit(onSubmitHandler)} loading={isSubmitting} disabled={isSubmitting}>
+            {isSubmitting ? 'Submitting...' : 'Submit for review'}
+          </Button>
         </GridCell>
       </GridRow>
     </Grid>
