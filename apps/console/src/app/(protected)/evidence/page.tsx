@@ -1,8 +1,6 @@
 import React from 'react'
-import { PageHeading } from '@repo/ui/page-heading'
+import EvidencePage from '@/components/pages/protected/evidence/evidence-page'
 
-const Page: React.FC = () => {
-  return <PageHeading heading="Evidence" />
-}
+const Page: React.FC = () => <EvidencePage />
 
 export default Page
