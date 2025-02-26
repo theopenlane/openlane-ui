@@ -35,12 +35,12 @@ export default auth(async (req) => {
     return path === '/tfa' || path === '/login' ? NextResponse.next() : NextResponse.redirect(new URL('/tfa', req.url))
   }
 
-  if (isOnboarding) {
-    return path === '/onboarding' || path === '/organization' ? NextResponse.next() : NextResponse.redirect(new URL('/onboarding', req.url))
-  }
-
   if (isPublicPage) {
     return NextResponse.redirect(new URL('/dashboard', req.url))
+  }
+
+  if (isOnboarding) {
+    return path !== '/' ? NextResponse.next() : NextResponse.redirect(new URL('/onboarding', req.url))
   }
 
   return NextResponse.next()
