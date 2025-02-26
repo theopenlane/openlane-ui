@@ -134,6 +134,10 @@
   --color-destrucitve-border: #fecaca;
   --color-destructive-foreground: #f0fdf9;
 
+  /* progressbar */
+
+  --color-progressbar-empty: #dae3e7;
+
   /* JSON Editor */
   .svc-json-editor-tab__content-area {
     background-color: var(--color-bg);
@@ -233,6 +237,10 @@
   --color-destructive-transparent: #ef44441a;
   --color-destrucitve-border: #7f1d1d;
   --color-destructive-foreground: #f0fdf9;
+
+  /* progressbar */
+
+  --color-progressbar-empty: #374a52;
 
   /* JSON Editor */
   .svc-json-editor-tab__content-area {

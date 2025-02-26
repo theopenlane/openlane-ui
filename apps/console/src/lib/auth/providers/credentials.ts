@@ -1,6 +1,7 @@
 import { openlaneAPIUrl } from '@repo/dally/auth'
 import Credentials from 'next-auth/providers/credentials'
 import { setSessionCookie } from '../utils/set-session-cookie'
+import { getDashboardData } from '@/app/api/getDashboardData/route'
 
 // Standard username and password credentials provider
 export const credentialsProvider = Credentials({
@@ -60,11 +61,14 @@ export const credentialsProvider = Credentials({
         return null
       }
       const data = await uData.json()
+      const dashboardData = await getDashboardData(accessToken, session)
       const isTfaEnabled = data.edges.setting.is_tfa_enabled || false
       setSessionCookie(session)
 
       return {
         isTfaEnabled,
+        isOnboarding: dashboardData.organizations?.edges?.length === 1,
+
         accessToken,
         refreshToken,
         ...data,

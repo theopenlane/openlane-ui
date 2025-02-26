@@ -12,6 +12,7 @@ declare module 'next-auth' {
       activeOrganizationId: string
       image: string
       isTfaEnabled: boolean
+      isOnboarding: booleann
     }
   }
   interface User extends DefaultUser {
@@ -19,6 +20,7 @@ declare module 'next-auth' {
     refreshToken: string
     session: string
     isTfaEnabled: boolean
+    isOnboarding: booleann
   }
   interface Profile extends DefaultProfile {
     display_name: string
