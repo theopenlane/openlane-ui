@@ -30,7 +30,7 @@ const UploadTab: React.FC<TProps> = (props: TProps) => {
 
       reader.onload = () => {
         const fileUrl = reader.result as string
-        const newFile: TUploadedFilesProps = { name: file.name, size: file.size, url: fileUrl, type: 'file' }
+        const newFile: TUploadedFilesProps = { name: file.name, size: file.size, url: fileUrl, type: 'file', file: file }
         props.uploadedFile(newFile)
       }
 

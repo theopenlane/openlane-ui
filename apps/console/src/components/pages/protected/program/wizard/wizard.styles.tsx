@@ -8,7 +8,7 @@ export const wizardStyles = tv({
     switchRow: 'py-1',
     calendarIcon: 'ml-10 h-4 w-4 opacity-50',
     calendarInput: 'flex justify-between w-full items-center font-normal px-2 tracking-[-0.16px]',
-    calendarPopover: 'w-auto p-0',
+    calendarPopover: 'w-auto p-0 z-10',
     dateInput: 'flex flex-col',
     reviewCardContent: 'flex items-center content-center',
     checkIcon: 'text-green-500 mr-5',

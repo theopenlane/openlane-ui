@@ -1,6 +1,7 @@
 type TUploadedFilesProps = {
-  name: string
-  size: number | undefined
+  name?: string
+  size?: number | undefined
   url: string
   type: 'file' | 'link'
+  file?: File | null
 }

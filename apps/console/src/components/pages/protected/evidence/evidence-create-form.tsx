@@ -15,9 +15,12 @@ import { Calendar } from '@repo/ui/calendar'
 import { CreateEvidenceInput, useCreateEvidenceMutation } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import EvidenceUploadForm from '@/components/pages/protected/evidence/upload/evidence-upload-form'
+import EvidenceObjectAssociation from '@/components/pages/protected/evidence/object-association/evidence-object-association'
+import { useToast } from '@repo/ui/use-toast'
 
 const EvidenceCreateForm: React.FC = () => {
   const { form } = useFormSchema()
+  const { toast } = useToast()
   const today = new Date()
   const oneYearFromToday = addDays(new Date(), 365)
   const [renewalDate, setRenewalDate] = useState<Date>(oneYearFromToday)
@@ -27,9 +30,20 @@ const EvidenceCreateForm: React.FC = () => {
   const { calendarIcon, calendarInput, calendarPopover } = wizardStyles()
   const { data: sessionData } = useSession()
   const [result, createEvidence] = useCreateEvidenceMutation()
-  const { error, fetching: isSubmitting } = result
+  const { fetching: isSubmitting } = result
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
+    const controlObjectives = data?.controlObjectiveIDs?.reduce(
+      (acc, item) => {
+        acc[item.inputName] = item.objectIds
+        return acc
+      },
+      {} as Record<string, string[]>,
+    )
+
+    const evidenceFiles = data.evidenceFiles?.filter((item) => item.type === 'file')
+    const evidenceDirectLink = data.evidenceFiles?.filter((item) => item.type === 'link')[0]?.url
+
     const formData = {
       input: {
         name: data.name,
@@ -38,11 +52,35 @@ const EvidenceCreateForm: React.FC = () => {
         creationDate: data.creationDate,
         renewalDate: data.renewalDate,
         ownerID: sessionData?.user.userId,
+        ...(evidenceDirectLink ? { url: evidenceDirectLink } : {}),
+        ...controlObjectives,
       } as CreateEvidenceInput,
-      evidenceFiles: data.evidenceFiles?.map((item) => item.file) || [],
+      evidenceFiles: evidenceFiles?.map((item) => item.file) || [],
     }
 
     const response = await createEvidence(formData)
+
+    if (response.error) {
+      toast({
+        title: 'Error',
+        description: 'There was an error creating the evidence. Please try again.',
+        variant: 'destructive',
+        duration: 5000,
+      })
+      return
+    }
+
+    toast({
+      title: 'Evidence Created',
+      description: `Evidence has been successfully created`,
+      variant: 'success',
+      duration: 5000,
+    })
+    form.reset()
+  }
+
+  const handleEvidenceObjectIdsChange = (evidenceObjectIds: TEvidenceObjectIds[]) => {
+    form.setValue('controlObjectiveIDs', evidenceObjectIds)
   }
 
   const handleUploadedFiles = (evidenceFiles: TUploadedFilesProps[]) => {
@@ -176,6 +214,7 @@ const EvidenceCreateForm: React.FC = () => {
                                   selected={creationDate}
                                   onSelect={(day) => {
                                     if (day) {
+                                      form.setValue('creationDate', day)
                                       setCreationDate(day)
                                       setIsCreationDateCalendarOpen(false)
                                     }
@@ -214,14 +253,12 @@ const EvidenceCreateForm: React.FC = () => {
                           <FormControl>
                             <Popover open={isRenewalDateCalendarOpen} onOpenChange={setIsRenewalDateCalendarOpen}>
                               <PopoverTrigger asChild>
-                                <FormControl>
-                                  <Button className="w-full" variant="outlineInput" childFull onClick={() => setIsRenewalDateCalendarOpen(!isRenewalDateCalendarOpen)}>
-                                    <div className={calendarInput()}>
-                                      {renewalDate ? format(renewalDate, 'PPP') : <span>Select a date:</span>}
-                                      <CalendarIcon className={calendarIcon()} />
-                                    </div>
-                                  </Button>
-                                </FormControl>
+                                <Button className="w-full" variant="outlineInput" childFull onClick={() => setIsRenewalDateCalendarOpen(!isRenewalDateCalendarOpen)}>
+                                  <div className={calendarInput()}>
+                                    {renewalDate ? format(renewalDate, 'PPP') : <span>Select a date:</span>}
+                                    <CalendarIcon className={calendarIcon()} />
+                                  </div>
+                                </Button>
                               </PopoverTrigger>
                               <PopoverContent className={calendarPopover()} align="start">
                                 <Calendar
@@ -229,6 +266,7 @@ const EvidenceCreateForm: React.FC = () => {
                                   selected={renewalDate}
                                   onSelect={(day) => {
                                     if (day) {
+                                      form.setValue('renewalDate', day)
                                       setRenewalDate(day)
                                       setIsRenewalDateCalendarOpen(false)
                                     }
@@ -250,7 +288,9 @@ const EvidenceCreateForm: React.FC = () => {
             </div>
 
             {/* Right Column - Accordion (50% Width) */}
-            <div className="col-span-1"></div>
+            <div className="col-span-1">
+              <EvidenceObjectAssociation onEvidenceObjectIdsChange={handleEvidenceObjectIdsChange} />
+            </div>
           </div>
         </GridCell>
       </GridRow>

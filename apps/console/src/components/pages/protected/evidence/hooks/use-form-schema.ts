@@ -13,19 +13,23 @@ const formSchema = z.object({
   tags: z.array(z.string().optional()),
   creationDate: z.date().min(new Date(), { message: 'Start date must be in the future' }).default(new Date()),
   renewalDate: z.date().min(new Date(), { message: 'End date must be after start date' }).default(addDays(new Date(), 365)),
-  evidenceFiles: z.array(z.any()).optional(),
+  evidenceFiles: z.array(z.any()),
+  controlObjectiveIDs: z.array(z.any()).optional(),
 })
 
 export type CreateEvidenceFormData = z.infer<typeof formSchema>
-export type CreateEvidenceFormGrouped = {
-  input: Omit<CreateEvidenceFormData, 'evidenceFiles'>
-  evidenceFiles: Pick<CreateEvidenceFormData, 'evidenceFiles'>
-}
 
 const useFormSchema = () => {
   return {
     form: useForm<CreateEvidenceFormData>({
       resolver: zodResolver(formSchema),
+      defaultValues: {
+        name: '',
+        description: '',
+        tags: [],
+        evidenceFiles: [],
+        controlObjectiveIDs: [],
+      },
     }),
   }
 }

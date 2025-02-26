@@ -1,6 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import React, { useEffect, useState } from 'react'
-import { FileUp, Trash2 } from 'lucide-react'
+import { FileUp, Trash2, File } from 'lucide-react'
 import { Tooltip } from '@nextui-org/react'
 import UploadTab from '@/components/pages/protected/evidence/upload/upload-tab'
 import DirectLinkTab from '@/components/pages/protected/evidence/upload/direct-link-tab'
@@ -18,9 +18,7 @@ const EvidenceUploadForm: React.FC<TProps> = (props: TProps) => {
   }, [evidenceFiles.length])
 
   const handleDelete = (fileName: string) => {
-    setEvidenceFiles((prev) => {
-      return prev.filter((file) => file.name !== fileName)
-    })
+    setEvidenceFiles((prev) => prev.filter((file) => file.name !== fileName))
   }
 
   const handleUploadedFile = (uploadedFile: TUploadedFilesProps) => {
@@ -35,19 +33,16 @@ const EvidenceUploadForm: React.FC<TProps> = (props: TProps) => {
         <TabsTrigger value="existingFiles">Existing Files</TabsTrigger>
       </TabsList>
       <UploadTab uploadedFile={handleUploadedFile} />
-      <DirectLinkTab />
-
+      <DirectLinkTab directLink={handleUploadedFile} evidenceFiles={evidenceFiles} handleDelete={handleDelete} />
       <TabsContent value="existingFiles">Coming soon...</TabsContent>
 
       {evidenceFiles.map((file, index) => (
         <div key={index} className="border rounded p-3 mt-4 flex items-center justify-between">
           <div className="flex items-center">
-            <div className="mr-2">
-              <FileUp className="w-8 h-8" />
-            </div>
+            <div className="mr-2">{file.type === 'file' ? <FileUp className="w-8 h-8" /> : <File />}</div>
             <div>
-              <div className="font-semibold">{file.name}</div>
-              <div className="text-sm">Size: {Math.round(file.size! / 1024)} KB</div>
+              <div className="font-semibold">{file.type === 'file' ? file.name : <div className="truncate max-w-sm">{file.url}</div>}</div>
+              <div className="text-sm">{file.type === 'file' ? `Size: ${Math.round(file.size! / 1024)} KB` : 'Direct link'}</div>
             </div>
           </div>
           <Tooltip>
