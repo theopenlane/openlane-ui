@@ -87,10 +87,11 @@ export default function MultiStepForm() {
               accessToken: response.access_token,
               activeOrganizationId: orgId,
               refreshToken: response.refresh_token,
+              isOnboarding: false,
             },
           })
+          router.push('/dashboard')
         }
-        router.push('/dashboard')
       }
     } catch (err) {
       toast({
