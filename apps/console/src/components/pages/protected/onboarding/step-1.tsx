@@ -13,7 +13,7 @@ import { useFormContext } from 'react-hook-form'
 import { z, infer as zInfer } from 'zod'
 
 export const step1Schema = z.object({
-  companyName: z.string().min(1, 'Company name is required'),
+  companyName: z.string().min(3, 'Company name requires at least 3 characters'),
   domains: z.array(z.string().regex(/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, 'Invalid domain format')).min(1, 'Please enter at least one domain'),
   companyDetails: z.object({
     size: z.string().optional(),
