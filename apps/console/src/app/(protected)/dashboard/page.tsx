@@ -30,15 +30,6 @@ const DashboardLanding: React.FC = () => {
   if (fetching || !dashboardData) {
     return <Loading />
   } else {
-    // if no organizations other than their personal org, show create organization form,
-    if (dashboardData?.organizations?.edges?.length == 1) {
-      return (
-        <section>
-          <CreateOrganizationForm />
-        </section>
-      )
-    }
-
     // if no programs redirect to new user landing
     if (programsRes && programsRes?.edges?.length == 0) {
       return <NewUserLanding push={push} />

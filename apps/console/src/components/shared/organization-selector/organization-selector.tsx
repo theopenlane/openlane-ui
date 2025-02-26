@@ -74,6 +74,16 @@ export const OrganizationSelector = () => {
 
   if (!orgs) return <Loading />
 
+  if (orgs.length < 2) {
+    return (
+      <div className={container()}>
+        <Link href={'/'} className={logoWrapper()}>
+          <Logo width={160} />
+        </Link>
+      </div>
+    )
+  }
+
   return (
     <div className={container()}>
       <Logo width={32} asIcon={true} />

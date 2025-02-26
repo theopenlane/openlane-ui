@@ -3460,7 +3460,7 @@ export interface CreateDocumentDataInput {
   data: Scalars['JSON']['input']
   entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  ownerID?: InputMaybe<Scalars['ID']['input']>
+  ownerID: Scalars['ID']['input']
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   templateID: Scalars['ID']['input']
@@ -4339,9 +4339,9 @@ export interface DocumentData extends Node {
   entity?: Maybe<Array<Entity>>
   files?: Maybe<Array<File>>
   id: Scalars['ID']['output']
-  owner?: Maybe<Organization>
+  owner: Organization
   /** the ID of the organization owner of the object */
-  ownerID?: Maybe<Scalars['ID']['output']>
+  ownerID: Scalars['ID']['output']
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   template: Template
@@ -4404,7 +4404,7 @@ export interface DocumentDataHistory extends Node {
   id: Scalars['ID']['output']
   operation: DocumentDataHistoryOpType
   /** the ID of the organization owner of the object */
-  ownerID?: Maybe<Scalars['String']['output']>
+  ownerID: Scalars['String']['output']
   ref?: Maybe<Scalars['String']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
@@ -4538,12 +4538,10 @@ export interface DocumentDataHistoryWhereInput {
   ownerIDHasPrefix?: InputMaybe<Scalars['String']['input']>
   ownerIDHasSuffix?: InputMaybe<Scalars['String']['input']>
   ownerIDIn?: InputMaybe<Array<Scalars['String']['input']>>
-  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
   ownerIDLT?: InputMaybe<Scalars['String']['input']>
   ownerIDLTE?: InputMaybe<Scalars['String']['input']>
   ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** ref field predicates */
   ref?: InputMaybe<Scalars['String']['input']>
   refContains?: InputMaybe<Scalars['String']['input']>
@@ -4710,12 +4708,10 @@ export interface DocumentDataWhereInput {
   ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
   ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
   ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
   ownerIDLT?: InputMaybe<Scalars['ID']['input']>
   ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** template_id field predicates */
   templateID?: InputMaybe<Scalars['ID']['input']>
   templateIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -26446,6 +26442,27 @@ export type GetAllNarrativesQuery = {
   }
 }
 
+export type CreateOnboardingMutationVariables = Exact<{
+  input: CreateOnboardingInput
+}>
+
+export type CreateOnboardingMutation = {
+  __typename?: 'Mutation'
+  createOnboarding: {
+    __typename?: 'OnboardingCreatePayload'
+    onboarding: {
+      __typename?: 'Onboarding'
+      companyDetails?: any | null
+      companyName: string
+      domains?: Array<string> | null
+      compliance?: any | null
+      id: string
+      organizationID?: string | null
+      userDetails?: any | null
+    }
+  }
+}
+
 export type GetAllOrganizationsQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetAllOrganizationsQuery = {
@@ -27734,6 +27751,25 @@ export const GetAllNarrativesDocument = gql`
 
 export function useGetAllNarrativesQuery(options?: Omit<Urql.UseQueryArgs<GetAllNarrativesQueryVariables>, 'query'>) {
   return Urql.useQuery<GetAllNarrativesQuery, GetAllNarrativesQueryVariables>({ query: GetAllNarrativesDocument, ...options })
+}
+export const CreateOnboardingDocument = gql`
+  mutation CreateOnboarding($input: CreateOnboardingInput!) {
+    createOnboarding(input: $input) {
+      onboarding {
+        companyDetails
+        companyName
+        domains
+        compliance
+        id
+        organizationID
+        userDetails
+      }
+    }
+  }
+`
+
+export function useCreateOnboardingMutation() {
+  return Urql.useMutation<CreateOnboardingMutation, CreateOnboardingMutationVariables>(CreateOnboardingDocument)
 }
 export const GetAllOrganizationsDocument = gql`
   query GetAllOrganizations {

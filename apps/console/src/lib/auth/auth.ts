@@ -6,12 +6,12 @@ import { isDevelopment, openlaneAPIUrl } from '@repo/dally/auth'
 import { jwtDecode } from 'jwt-decode'
 import { JwtPayload } from 'jsonwebtoken'
 import { credentialsProvider } from './providers/credentials'
-// import { passKeyProvider } from './providers/passkey'
 import { getTokenFromOpenlaneAPI } from './utils/get-openlane-token'
 import { setSessionCookie } from './utils/set-session-cookie'
 import { cookies } from 'next/headers'
 import { sessionCookieName, allowedLoginDomains } from '@repo/dally/auth'
 import { fetchNewAccessToken } from './utils/refresh-token'
+import { getDashboardData } from '@/app/api/getDashboardData/route'
 
 export const config = {
   pages: {
@@ -65,12 +65,15 @@ export const config = {
 
         try {
           const data = await getTokenFromOpenlaneAPI(oauthUser)
+          const dashboardData = await getDashboardData(data.access_token, data.session)
+
           if (!data) throw new Error(' ❌ Failed to fetch Openlane token')
           Object.assign(user, {
             accessToken: data.access_token,
             refreshToken: data.refresh_token,
             session: data.session,
             isTfaEnabled: data.tfa_enabled,
+            isOnboarding: dashboardData?.organizations?.edges?.length == 1,
           })
 
           // Store session in a cookie
@@ -91,6 +94,7 @@ export const config = {
           refreshToken: user.refreshToken,
           expiresAt: Date.now() + 1000 * 60 * 15,
           isTfaEnabled: user.isTfaEnabled,
+          isOnboarding: user.isOnboarding,
         })
       } else if (account) {
         Object.assign(token, {
@@ -142,7 +146,7 @@ export const config = {
 
       return token
     },
-    session({ session, token }) {
+    async session({ session, token }) {
       try {
         if (session.user && typeof token.accessToken === 'string' && token.accessToken.trim() !== '') {
           const decodedToken = jwtDecode<JwtPayload>(token.accessToken)
@@ -153,6 +157,7 @@ export const config = {
             activeOrganizationId: decodedToken?.org,
             userId: decodedToken?.user_id,
             isTfaEnabled: token.isTfaEnabled,
+            isOnboarding: token.isOnboarding,
           })
         }
       } catch (error) {

@@ -72,6 +72,7 @@ export const CreateOrganizationForm = () => {
             accessToken: response.extensions.auth.access_token,
             organization: response.extensions.auth.authorized_organization,
             refreshToken: response.extensions.auth.refresh_token,
+            isOnboarding: false,
           },
         })
       }
