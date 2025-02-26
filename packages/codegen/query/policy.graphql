@@ -96,6 +96,7 @@ fragment InternalPolicyByID on InternalPolicy {
   background
   createdAt
   createdBy
+  displayID
   updatedAt
   updatedBy
   tags
