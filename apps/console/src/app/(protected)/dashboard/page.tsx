@@ -26,10 +26,6 @@ const DashboardLanding: React.FC = () => {
   const programsRes = { edges: dashboardData?.programs?.edges ?? [] }
   const taskRes = { edges: dashboardData?.tasks?.edges || [] }
 
-  if (dashboardData?.organizations?.edges?.length == 1) {
-    push('/onboarding')
-  }
-
   // if fetching data show loading
   if (fetching || !dashboardData) {
     return <Loading />

@@ -9,7 +9,6 @@ import { useSession } from 'next-auth/react'
 import { TaskWhereInput, UserWhereInput, useTasksWithFilterQuery } from '@repo/codegen/src/schema'
 import { useOrganization } from '@/hooks/useOrganization'
 import { usePathname } from 'next/navigation'
-import { protectedPages } from '@/constants/protectedPages'
 
 interface SidebarProps {
   className?: string
@@ -42,7 +41,7 @@ export default function Sidebar({ className }: SidebarProps) {
     isOpen,
   })
 
-  if (protectedPages.includes(path)) {
+  if (session?.user.isOnboarding) {
     return null
   }
 

@@ -9,10 +9,12 @@ import { sidebarStyles } from '../sidebar/sidebar.styles'
 import { useSidebar } from '@/hooks/useSidebar'
 import { useState } from 'react'
 import { PanelLeft } from 'lucide-react'
-import { protectedPages } from '@/constants/protectedPages'
 import { usePathname } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 
 export default function Header() {
+  const { data: session } = useSession()
+
   const { isOpen, toggle } = useSidebar()
   const [status, setStatus] = useState(false)
 
@@ -30,7 +32,7 @@ export default function Header() {
     setTimeout(() => setStatus(false), 500)
   }
 
-  if (protectedPages.includes(path)) {
+  if (session?.user.isOnboarding) {
     return (
       <div className={header()}>
         <nav className={nav()}>

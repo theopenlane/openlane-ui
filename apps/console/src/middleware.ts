@@ -25,6 +25,7 @@ export default auth(async (req) => {
 
   const isLoggedIn = req.auth?.user && hasSessionCookie
   const isTfaEnabled = session?.user.isTfaEnabled
+  const isOnboarding = session?.user.isOnboarding
 
   if (!isLoggedIn) {
     return isPublicPage ? NextResponse.next() : NextResponse.redirect(new URL('/login', req.url))
@@ -32,6 +33,10 @@ export default auth(async (req) => {
 
   if (isTfaEnabled) {
     return path === '/tfa' || path === '/login' ? NextResponse.next() : NextResponse.redirect(new URL('/tfa', req.url))
+  }
+
+  if (isOnboarding) {
+    return path === '/onboarding' || path === '/organization' ? NextResponse.next() : NextResponse.redirect(new URL('/onboarding', req.url))
   }
 
   if (isPublicPage) {
@@ -52,11 +57,6 @@ export const config = {
      * - public/backgrounds (background images)
      * - public/icons (images)
      * and the following unprotected pages:
-     * - login (login page)
-     * - verify (verify page)
-     * - resend-verify (resend verify page)
-     * - waitlist (waitlist page)
-     * - invite (invite verify page)
      */
 
     '/((?!api|_next/static|_next/image|favicon.ico|backgrounds|backgrounds/|icons|icons/).*)',
