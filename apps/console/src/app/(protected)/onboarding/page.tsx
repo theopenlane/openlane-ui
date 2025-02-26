@@ -98,7 +98,6 @@ export default function MultiStepForm() {
         title: 'There was an error while submitting the form. Please try again.',
         variant: 'destructive',
       })
-    } finally {
       setIsLoading(false)
     }
   }

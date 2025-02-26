@@ -77,11 +77,9 @@ export const OrganizationSelector = () => {
   if (sessionData?.user.isOnboarding) {
     return (
       <div className={container()}>
-        <Logo width={32} asIcon={true} />
-        <div>
-          <div className={organizationLabel()}>Organization</div>
-          <span>{currentOrg?.displayName}</span>
-        </div>
+        <Link href={'/'} className={logoWrapper()}>
+          <Logo width={160} />
+        </Link>
       </div>
     )
   }
