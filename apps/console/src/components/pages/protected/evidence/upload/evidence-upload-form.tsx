@@ -1,3 +1,4 @@
+'use client'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import React, { useEffect, useState } from 'react'
 import { FileUp, Trash2, File } from 'lucide-react'
@@ -7,6 +8,8 @@ import DirectLinkTab from '@/components/pages/protected/evidence/upload/direct-l
 
 type TProps = {
   evidenceFiles: (uploadedFiles: TUploadedFilesProps[]) => void
+  resetEvidenceFiles: boolean
+  setResetEvidenceFiles: () => void
 }
 
 const EvidenceUploadForm: React.FC<TProps> = (props: TProps) => {
@@ -17,7 +20,14 @@ const EvidenceUploadForm: React.FC<TProps> = (props: TProps) => {
     props.evidenceFiles(evidenceFiles)
   }, [evidenceFiles.length])
 
-  const handleDelete = (fileName: string) => {
+  useEffect(() => {
+    if (props.resetEvidenceFiles) {
+      setEvidenceFiles([])
+      props.setResetEvidenceFiles()
+    }
+  }, [props.resetEvidenceFiles])
+
+  const handleDelete = (fileName: string | undefined) => {
     setEvidenceFiles((prev) => prev.filter((file) => file.name !== fileName))
   }
 

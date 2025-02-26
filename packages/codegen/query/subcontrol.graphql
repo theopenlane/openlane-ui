@@ -1,0 +1,12 @@
+query GetAllSubcontrols($where: SubcontrolWhereInput) {
+  subcontrols(where: $where) {
+    edges {
+      node {
+        id
+        name
+        displayID
+        description
+      }
+    }
+  }
+}

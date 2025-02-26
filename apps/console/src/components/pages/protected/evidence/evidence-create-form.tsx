@@ -1,3 +1,4 @@
+'use client'
 import { Grid, GridCell, GridRow } from '@repo/ui/grid'
 import React, { useState } from 'react'
 import { CalendarIcon, InfoIcon } from 'lucide-react'
@@ -17,6 +18,7 @@ import { useSession } from 'next-auth/react'
 import EvidenceUploadForm from '@/components/pages/protected/evidence/upload/evidence-upload-form'
 import EvidenceObjectAssociation from '@/components/pages/protected/evidence/object-association/evidence-object-association'
 import { useToast } from '@repo/ui/use-toast'
+import { Option } from '@repo/ui/multiple-selector'
 
 const EvidenceCreateForm: React.FC = () => {
   const { form } = useFormSchema()
@@ -25,8 +27,11 @@ const EvidenceCreateForm: React.FC = () => {
   const oneYearFromToday = addDays(new Date(), 365)
   const [renewalDate, setRenewalDate] = useState<Date>(oneYearFromToday)
   const [creationDate, setCreationDate] = useState<Date>(today)
+  const [tagValues, setTagValues] = useState<Option[]>([])
   const [isCreationDateCalendarOpen, setIsCreationDateCalendarOpen] = useState(false)
   const [isRenewalDateCalendarOpen, setIsRenewalDateCalendarOpen] = useState(false)
+  const [resetEvidenceFiles, setResetEvidenceFiles] = useState(false)
+  const [resetObjectAssociation, setResetObjectAssociation] = useState(false)
   const { calendarIcon, calendarInput, calendarPopover } = wizardStyles()
   const { data: sessionData } = useSession()
   const [result, createEvidence] = useCreateEvidenceMutation()
@@ -77,6 +82,9 @@ const EvidenceCreateForm: React.FC = () => {
       duration: 5000,
     })
     form.reset()
+    setTagValues([])
+    setResetEvidenceFiles(true)
+    setResetObjectAssociation(true)
   }
 
   const handleEvidenceObjectIdsChange = (evidenceObjectIds: TEvidenceObjectIds[]) => {
@@ -87,12 +95,19 @@ const EvidenceCreateForm: React.FC = () => {
     form.setValue('evidenceFiles', evidenceFiles)
   }
 
+  const handleResetEvidenceFiles = () => {
+    setResetEvidenceFiles(false)
+  }
+
+  const handleResetObjectAssociation = () => {
+    setResetObjectAssociation(false)
+  }
+
   return (
     <Grid rows={2}>
       <GridRow columns={4}>
         <GridCell className="col-span-2">
           <div className="grid grid-cols-2 gap-4">
-            {/* Left Column - Form (50% Width) */}
             <div className="col-span-1">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmitHandler)} className="grid grid-cols-1 gap-4">
@@ -166,7 +181,19 @@ const EvidenceCreateForm: React.FC = () => {
                             <MultipleSelector
                               placeholder="Choose existing or add tag..."
                               creatable
-                              onChange={(selectedOptions) => field.onChange(selectedOptions.map((option) => option.value))}
+                              value={tagValues}
+                              onChange={(selectedOptions) => {
+                                const options = selectedOptions.map((option) => option.value)
+                                field.onChange(options)
+                                setTagValues(
+                                  selectedOptions.map((item) => {
+                                    return {
+                                      value: item.value,
+                                      label: item.label,
+                                    }
+                                  }),
+                                )
+                              }}
                               className="w-full"
                             />
                           </FormControl>
@@ -282,14 +309,17 @@ const EvidenceCreateForm: React.FC = () => {
                     />
                   </InputRow>
                   <p>Provide supporting files(s)</p>
-                  <EvidenceUploadForm evidenceFiles={handleUploadedFiles} />
+                  <EvidenceUploadForm evidenceFiles={handleUploadedFiles} resetEvidenceFiles={resetEvidenceFiles} setResetEvidenceFiles={handleResetEvidenceFiles} />
                 </form>
               </Form>
             </div>
 
-            {/* Right Column - Accordion (50% Width) */}
             <div className="col-span-1">
-              <EvidenceObjectAssociation onEvidenceObjectIdsChange={handleEvidenceObjectIdsChange} />
+              <EvidenceObjectAssociation
+                onEvidenceObjectIdsChange={handleEvidenceObjectIdsChange}
+                resetObjectAssociation={resetObjectAssociation}
+                setResetObjectAssociation={handleResetObjectAssociation}
+              />
             </div>
           </div>
         </GridCell>

@@ -1,12 +1,11 @@
+'use client'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { addDays } from 'date-fns'
 
 const formSchema = z.object({
-  name: z.string().min(2, {
-    message: 'Name must be at least 2 characters',
-  }),
+  name: z.string().optional(),
   description: z.string().min(2, {
     message: 'Description must be at least 2 characters',
   }),

@@ -1,3 +1,4 @@
+'use client'
 import React, { useCallback } from 'react'
 import { File, Upload } from 'lucide-react'
 import { TabsContent } from '@repo/ui/tabs'
