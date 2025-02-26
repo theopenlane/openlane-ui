@@ -74,7 +74,7 @@ export const OrganizationSelector = () => {
 
   if (!orgs) return <Loading />
 
-  if (sessionData?.user.isOnboarding) {
+  if (orgs.length < 2) {
     return (
       <div className={container()}>
         <Link href={'/'} className={logoWrapper()}>
