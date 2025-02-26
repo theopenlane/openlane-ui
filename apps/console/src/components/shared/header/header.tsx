@@ -19,7 +19,7 @@ export default function Header() {
   const [status, setStatus] = useState(false)
 
   const path = usePathname()
-
+  console.log('path', path)
   const { header, nav, mobileSidebar, userNav } = headerStyles()
   const { expandNav } = sidebarStyles({
     status,
