@@ -32,7 +32,7 @@ export default function Header() {
     setTimeout(() => setStatus(false), 500)
   }
 
-  if (session?.user.isOnboarding) {
+  if (path === '/onboarding') {
     return (
       <div className={header()}>
         <nav className={nav()}>
