@@ -38,7 +38,7 @@ const EvidenceObjectAssociation: React.FC<TProps> = (props: TProps) => {
   const [{ data }] = useQuery({
     query: selectedQuery || GetAllRisksDocument,
     variables: { where: whereFilter },
-    pause: !selectedQuery || !debouncedSearchValue,
+    pause: !selectedQuery,
   })
 
   useEffect(() => {
@@ -61,6 +61,7 @@ const EvidenceObjectAssociation: React.FC<TProps> = (props: TProps) => {
     if (props.resetObjectAssociation) {
       resetState()
       props.setResetObjectAssociation()
+      setFormData([])
     }
   }, [props.resetObjectAssociation])
 
@@ -71,7 +72,6 @@ const EvidenceObjectAssociation: React.FC<TProps> = (props: TProps) => {
   const resetState = () => {
     setSearchValue('')
     setDebouncedSearchValue('')
-    setFormData([])
   }
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -115,7 +115,7 @@ const EvidenceObjectAssociation: React.FC<TProps> = (props: TProps) => {
           />
         </div>
       </div>
-      {formData && formData.length > 0 && <EvidenceObjectAssociationTable data={formData} onEvidenceObjectIdsChange={handleEvidenceObjectIdsChange} />}
+      <EvidenceObjectAssociationTable data={formData} onEvidenceObjectIdsChange={handleEvidenceObjectIdsChange} />
     </Panel>
   )
 }
