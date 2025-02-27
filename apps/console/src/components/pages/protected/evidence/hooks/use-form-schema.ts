@@ -11,7 +11,7 @@ const formSchema = z.object({
   description: z.string().optional(),
   tags: z.array(z.string().optional()),
   creationDate: z.date().default(new Date()),
-  renewalDate: z.date().min(new Date(), { message: 'Renewal date must be after start date' }).default(addDays(new Date(), 365)).optional(),
+  renewalDate: z.date().min(new Date(), { message: 'Renewal date must be after start date' }).optional(),
   evidenceFiles: z.array(z.any()),
   controlObjectiveIDs: z.array(z.any()).optional(),
   url: z.string().url().optional(),
@@ -35,6 +35,7 @@ const useFormSchema = () => {
         collectionProcedure: '',
         source: '',
         fileIDs: [],
+        renewalDate: addDays(new Date(), 365),
       },
     }),
   }
