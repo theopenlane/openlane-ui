@@ -1,97 +1,82 @@
 import { TwoColumnLayout } from '@/components/shared/layouts/two-column-layout'
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
-import { Input } from '@repo/ui/input'
 import { useForm } from 'react-hook-form'
-import { z, infer as zInfer } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { PolicyEditSidebar } from './policy-edit-sidebar'
 import { InternalPolicyByIdFragment, useGetInternalPolicyDetailsByIdQuery, useUpdateInternalPolicyMutation } from '@repo/codegen/src/schema'
 import { useEffect, useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
-import { Panel, PanelHeader } from '@repo/ui/panel'
-import { Info, InfoIcon } from 'lucide-react'
+import { PolicyEditForm } from './policy-edit-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { EditPolicySchema, EditPolicyFormData } from './policy-edit-form-types'
 
 type PolicyEditPageProps = {
   policyId: string
 }
 
 export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
-  const [, updatePolicy] = useUpdateInternalPolicyMutation()
-  const [{ data }] = useGetInternalPolicyDetailsByIdQuery({ variables: { internalPolicyId: policyId } })
+  const [{ fetching: saving }, updatePolicy] = useUpdateInternalPolicyMutation()
+  const [{ data: policyData }] = useGetInternalPolicyDetailsByIdQuery({ variables: { internalPolicyId: policyId } })
   const [policy, setPolicy] = useState({} as InternalPolicyByIdFragment)
 
-  useEffect(() => {
-    if (!data?.internalPolicy) return
-    setPolicy(data.internalPolicy)
-  }, [data])
-
-  const formSchema = z.object({
-    name: z.string().min(3, { message: 'Policy name is required' }),
-    description: z.string().optional(),
-    background: z.string().optional(),
-    purposeAndScope: z.string().optional(),
-  })
-
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<EditPolicyFormData>({
+    resolver: zodResolver(EditPolicySchema),
+    mode: 'onBlur',
+    disabled: saving,
     defaultValues: {
-      name: '',
-      description: '',
-      background: '',
-      purposeAndScope: '',
+      name: policy.name || '',
+      description: policy.description || '',
+      background: policy.background || '',
+      purposeAndScope: policy.purposeAndScope || '',
     },
   })
 
-  const handleSubmit = async (values: FormData) => {}
-  const handleSave = async () => {}
+  useEffect(() => {
+    const policy = policyData?.internalPolicy
 
-  if (!data?.internalPolicy) return <></>
+    if (!policy) return
+
+    setPolicy(policy)
+
+    form.reset({
+      name: policy.name || '',
+      description: policy.description || '',
+      background: policy.background || '',
+      purposeAndScope: policy.purposeAndScope || '',
+    })
+  }, [policyData])
+
+  if (!policyData?.internalPolicy) return <></>
+
+  const handleSave = async () => {
+    const { name, description, background, purposeAndScope } = form.getValues()
+
+    console.dir({
+      name,
+      description,
+      background,
+      purposeAndScope,
+    })
+
+    await updatePolicy({
+      updateInternalPolicyId: policyData?.internalPolicy.id,
+      input: {
+        name,
+        description,
+        background,
+        purposeAndScope,
+      },
+    })
+  }
 
   const policyName = policy.displayID ? `${policy.displayID} - ${policy.name}` : policy.name
+
+  const main = <PolicyEditForm form={form} />
+  const sidebar = <PolicyEditSidebar form={form} policy={policy} handleSave={handleSave} />
 
   return (
     <>
       <PageHeading eyebrow="Policies & Procedures" heading={policyName} />
 
-      <TwoColumnLayout
-        aside={<PolicyEditSidebar policy={policy} handleSave={handleSave} />}
-        main={
-          <>
-            <div className="border rounded-lg p-3 flex flex-row gap-3 align-top mt-0">
-              <div>
-                <InfoIcon size="16" />
-              </div>
-              <div>
-                <h1>Not sure what to write?</h1>
-                <p>
-                  For template library and help docs, please refer to our{' '}
-                  <a className="text-blue-600" href="https://docs.theopenlane.io/docs/category/policies-and-procedures" target="_blank">
-                    documentation
-                  </a>
-                  .
-                </p>
-              </div>
-            </div>
-            {/* <Form {...form}>
-              <form className="space-y-4" onSubmit={form.handleSubmit(handleSubmit)}>
-                <FormField
-                  name="name"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Token name*</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter token name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </form>
-            </Form> */}
-          </>
-        }
-      ></TwoColumnLayout>
+      <TwoColumnLayout main={main} aside={sidebar} />
     </>
   )
 }

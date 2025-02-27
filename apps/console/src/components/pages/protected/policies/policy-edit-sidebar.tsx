@@ -2,20 +2,21 @@
 
 import React, { useMemo } from 'react'
 import { InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
-import { UserRoundCheck, Binoculars, FileStack, ScrollText, Tag, CalendarCheck2, UserRoundPen, CalendarClock } from 'lucide-react'
-import { Badge } from '@repo/ui/badge'
+import { Binoculars, FileStack, ScrollText, Tag, CalendarCheck2, CalendarClock } from 'lucide-react'
 import { MetaPanel, formatTime } from '@/components/shared/meta-panel/meta-panel'
-import { useGetUserProfileQuery } from '@repo/codegen/src/schema'
-import { UserChip } from '@/components/shared/user-chip/user-chip'
 import { Panel } from '@repo/ui/panel'
 import { Button } from '@repo/ui/button'
+import { UseFormReturn } from 'react-hook-form'
+import { EditPolicyFormData } from './policy-edit-form-types'
 
 type PolicyEditSidebarProps = {
   policy: InternalPolicyByIdFragment
+  form: UseFormReturn<EditPolicyFormData>
   handleSave: () => void
 }
 
-export const PolicyEditSidebar: React.FC<PolicyEditSidebarProps> = function ({ policy, handleSave }) {
+// export const PolicyEditSidebar: React.FC<PolicyEditSidebarProps> = function ({ policy, form, handleSave }) {
+export const PolicyEditSidebar = ({ policy, form, handleSave }: PolicyEditSidebarProps) => {
   if (!policy) return null
 
   const sidebarItems = useMemo(() => {
@@ -30,9 +31,13 @@ export const PolicyEditSidebar: React.FC<PolicyEditSidebarProps> = function ({ p
     }
   }, [policy])
 
+  const submittabled = form.formState.isDirty && form.formState.isValid && !form.formState.disabled
+
   return (
     <div className="w-full flex flex-col gap-5">
-      <Button onClick={handleSave}>Save policy</Button>
+      <Button onClick={handleSave} disabled={!submittabled}>
+        Save policy
+      </Button>
       <MetaPanel entries={sidebarItems.status} />
       <Panel>
         <h1>
