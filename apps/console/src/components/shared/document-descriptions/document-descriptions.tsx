@@ -17,7 +17,7 @@ export function DocumentDescriptions({ descriptions }: { descriptions: { label: 
       {descriptionsEmptyLast.map((desc) => (
         <div key={desc.label} className="flex flex-row py-5">
           <div className="w-40 min-w-40 font-bold">{desc.label}</div>
-          <div>{desc.value || <span className="italic">None</span>}</div>
+          <div>{desc.value || <span className="italic text-text-dimmed">None</span>}</div>
         </div>
       ))}
     </div>

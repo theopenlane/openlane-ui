@@ -45,7 +45,7 @@ export const PolicySidebar: React.FC<PolicySidebarProps> = function ({ policy })
               </Badge>
             ))
           ) : (
-            <span className="italic">none</span>
+            <span className="italic text-text-dimmed">none</span>
           ),
         },
       ],
