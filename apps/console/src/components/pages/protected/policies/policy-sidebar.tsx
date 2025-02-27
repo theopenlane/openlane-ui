@@ -4,7 +4,7 @@ import React, { useMemo } from 'react'
 import { InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
 import { UserRoundCheck, Binoculars, FileStack, ScrollText, Tag, CalendarCheck2, UserRoundPen, CalendarClock } from 'lucide-react'
 import { Badge } from '@repo/ui/badge'
-import { MetaPanel, formatTime } from '@/components/shared/meta-panel/meta-panel'
+import { MetaPanel, formatTime, MetaPanelEntry } from '@/components/shared/meta-panel/meta-panel'
 import { useGetUserProfileQuery } from '@repo/codegen/src/schema'
 import { UserChip } from '@/components/shared/user-chip/user-chip'
 
@@ -25,7 +25,7 @@ export const PolicySidebar: React.FC<PolicySidebarProps> = function ({ policy })
     pause: !policy.updatedBy,
   })
 
-  const sidebarItems = useMemo(() => {
+  const sidebarItems: Record<string, MetaPanelEntry[]> = useMemo(() => {
     return {
       // ownership: [
       //   { icon: CircleUser, label: 'Owner', value: 'owner' },
@@ -38,6 +38,7 @@ export const PolicySidebar: React.FC<PolicySidebarProps> = function ({ policy })
         {
           icon: Tag,
           label: 'Tags',
+          align: 'top',
           value: policy.tags?.length ? (
             policy.tags.map((t) => (
               <Badge key={t} variant="outline" className="mr-1">

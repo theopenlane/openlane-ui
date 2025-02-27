@@ -28,7 +28,7 @@ export const PolicyEditSidebar = ({ policy, form, handleSave }: PolicyEditSideba
       status: [
         { icon: Binoculars, label: 'Status', value: policy.status },
         { icon: FileStack, label: 'Version', value: policy.version },
-        { icon: ScrollText, label: 'Policy Type', value: policy.policyType },
+        { icon: ScrollText, label: 'Policy Type', value: <PolicyTypeField form={form} /> },
         { icon: CalendarCheck2, label: 'Created At', value: formatTime(policy.createdAt) },
         { icon: CalendarClock, label: 'Updated At', value: formatTime(policy.updatedAt) },
       ],
@@ -94,5 +94,24 @@ const TagsPanel = ({ form }: { form: UseFormReturn<EditPolicyFormData> }) => {
         />
       </Form>
     </Panel>
+  )
+}
+
+function PolicyTypeField({ form }: { form: UseFormReturn<EditPolicyFormData> }) {
+  return (
+    <Form {...form}>
+      <FormField
+        name="policyType"
+        control={form.control}
+        render={({ field }) => (
+          <FormItem>
+            <FormControl className="w-full">
+              <Input placeholder="Policy type" {...field} className="bg-background text-white w-full text-sm h-auto p-1" />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </Form>
   )
 }
