@@ -4,23 +4,56 @@ import { File, Upload } from 'lucide-react'
 import { TabsContent } from '@repo/ui/tabs'
 import { FileWithPath, useDropzone } from 'react-dropzone'
 import { cn } from '@repo/ui/lib/utils'
+import { useToast } from '@repo/ui/use-toast'
 
 type TProps = {
   uploadedFile: (uploadedFile: TUploadedFilesProps) => void
 }
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10 MB
+const MAX_FILE_SIZE_IN_MB = MAX_FILE_SIZE / (1024 * 1024)
+
 const UploadTab: React.FC<TProps> = (props: TProps) => {
-  const maxFileSize = 10 * 1024 * 1024 // 10 MB
-  const acceptedFileTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/csv', 'text/plain', 'image/png', 'image/jpeg']
+  const { toast } = useToast()
+  const acceptedFileTypes = [
+    'image/jpeg',
+    'image/png',
+    'application/pdf',
+    'text/plain',
+    'text/plain; charset=utf-8',
+    'application/zip',
+    'application/rtf',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.oasis.opendocument.text',
+    'text/markdown',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/x-vnd.oasis.opendocument.spreadsheet',
+    'text/csv',
+    'application/x-yaml',
+    'application/x-yaml; charset=utf-8',
+    'text/yaml',
+    'application/json',
+    'application/json; charset=utf-8',
+  ]
 
   const onDrop = useCallback((acceptedFiles: FileWithPath[]) => {
     const validFiles = acceptedFiles.filter((file) => {
-      if (file.size > maxFileSize) {
-        alert(`${file.name} exceeds the maximum file size of 10 MB.`)
+      if (file.size > MAX_FILE_SIZE) {
+        toast({
+          title: 'Error',
+          description: `exceeds the maximum file size of ${MAX_FILE_SIZE_IN_MB} MB.`,
+          variant: 'destructive',
+          duration: 5000,
+        })
         return false
       }
       if (!acceptedFileTypes.includes(file.type)) {
-        alert(`${file.name} is not an accepted file type.`)
+        toast({
+          title: 'Error',
+          description: `${file.name} is not an accepted file type.`,
+          variant: 'destructive',
+          duration: 5000,
+        })
         return false
       }
       return true
@@ -70,8 +103,8 @@ const UploadTab: React.FC<TProps> = (props: TProps) => {
         </div>
       </div>
       <div className="mt-4 flex justify-between text-sm">
-        <div>PDF, DOC(X), CSV, TXT, PNG, JPG</div>
-        <div>Maximum size: 10 MB / file</div>
+        <div>PDF, DOC(X), ODT, CSV, TXT, PNG, JPG, ZIP, RTF, XLSX, YAML, ...</div>
+        <div>Maximum size: {MAX_FILE_SIZE_IN_MB} MB / file</div>
       </div>
     </TabsContent>
   )
