@@ -1,15 +1,25 @@
+fragment UserInfo on User {
+  id
+  firstName
+  lastName
+  displayName
+  email
+  avatarRemoteURL
+  displayName
+  avatarFile {
+    presignedURL
+  }
+}
+
+query GetUser($userId: ID!) {
+  user(id: $userId) {
+    ...UserInfo
+  }
+}
+
 query GetUserProfile($userId: ID!) {
   user(id: $userId) {
-    id
-    firstName
-    lastName
-    displayName
-    email
-    avatarRemoteURL
-    displayName
-    avatarFile {
-      presignedURL
-    }
+    ...UserInfo
     setting {
       id
       status
