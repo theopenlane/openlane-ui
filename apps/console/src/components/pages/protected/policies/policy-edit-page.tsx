@@ -49,14 +49,7 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
   const handleSave = async () => {
     const { name, description, background, purposeAndScope } = form.getValues()
 
-    console.dir({
-      name,
-      description,
-      background,
-      purposeAndScope,
-    })
-
-    await updatePolicy({
+    const { error } = await updatePolicy({
       updateInternalPolicyId: policyData?.internalPolicy.id,
       input: {
         name,
@@ -65,6 +58,10 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
         purposeAndScope,
       },
     })
+
+    if (error) {
+      console.error(error)
+    }
   }
 
   const policyName = policy.displayID ? `${policy.displayID} - ${policy.name}` : policy.name
