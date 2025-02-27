@@ -11,6 +11,7 @@ import { EditPolicyFormData } from './policy-edit-form-types'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
+import MultipleSelector from '@repo/ui/multiple-selector'
 
 type PolicyEditSidebarProps = {
   policy: InternalPolicyByIdFragment
@@ -48,6 +49,8 @@ export const PolicyEditSidebar = ({ policy, form, handleSave }: PolicyEditSideba
 }
 
 const TagsPanel = ({ form }: { form: UseFormReturn<EditPolicyFormData> }) => {
+  const { setValue } = form
+
   return (
     <Panel className="gap-3">
       <div className="flex flex-row items-center">
@@ -71,7 +74,19 @@ const TagsPanel = ({ form }: { form: UseFormReturn<EditPolicyFormData> }) => {
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Input placeholder="Choose existing or add tag..." {...field} className="bg-background text-white" />
+                <MultipleSelector
+                  className="bg-background text-white p-2"
+                  placeholder="Choose existing or add tag..."
+                  creatable
+                  value={field?.value?.map((tag) => ({ value: tag, label: tag }))}
+                  onChange={(selected) =>
+                    setValue(
+                      'tags',
+                      selected.map((s) => s.value),
+                      { shouldValidate: true },
+                    )
+                  }
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
