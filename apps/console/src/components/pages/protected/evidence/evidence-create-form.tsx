@@ -179,7 +179,7 @@ const EvidenceCreateForm: React.FC = () => {
                           <FormLabel>Tags</FormLabel>
                           <FormControl>
                             <MultipleSelector
-                              placeholder="Choose existing or add tag..."
+                              placeholder="Add tag..."
                               creatable
                               value={tagValues}
                               onChange={(selectedOptions) => {
@@ -272,7 +272,7 @@ const EvidenceCreateForm: React.FC = () => {
                                   <InfoIcon size={14} className="mx-1 mt-1" />
                                 </TooltipTrigger>
                                 <TooltipContent side="right">
-                                  <p>The date the evidence should be renewed, this is generally the creation date plus one year.</p>
+                                  <p>The date the evidence will be re-requested; some evidence may be monthly (e.g. user access reviews), bi-annually, or annually, depending</p>
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
