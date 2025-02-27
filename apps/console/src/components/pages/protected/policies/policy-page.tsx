@@ -8,6 +8,7 @@ import { useGetInternalPolicyDetailsByIdQuery, useUpdateInternalPolicyMutation, 
 import { useRouter } from 'next/navigation'
 import { z } from 'zod'
 import { Pencil } from 'lucide-react'
+import { DocumentDescriptions } from '@/components/shared/document-descriptions/document-descriptions'
 
 import type { InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
 const PlateEditor = dynamic(() => import('@/components/shared/editor/plate'), { ssr: false })
@@ -29,11 +30,6 @@ export const UpdateInternalPolicyValidator = z.object({
 
 type PolicyPageProps = {
   policyId: string
-}
-
-// Sorts an array of objects by a specified key by moving null values to the end
-function sortEmptiesToEndByKey<T extends Record<string, any>>(arr: T[], key: keyof T): T[] {
-  return arr.filter((item) => item[key]).concat(arr.filter((item) => !item[key]))
 }
 
 export function PolicyPage({ policyId }: PolicyPageProps) {
@@ -97,16 +93,15 @@ export function PolicyPage({ policyId }: PolicyPageProps) {
     // setDocument(content)
   }, [])
 
-  if (!data?.internalPolicy) return <></>
-
-  const descriptions = sortEmptiesToEndByKey(
-    [
+  const descriptions = useMemo(() => {
+    return [
       { label: 'Purpose and Scope', value: policy.purposeAndScope },
       { label: 'Description', value: policy.description },
       { label: 'Background', value: policy.background },
-    ],
-    'value',
-  )
+    ]
+  }, [policy])
+
+  if (!data?.internalPolicy) return <></>
 
   const policyName = policy.displayID ? `${policy.displayID} - ${policy.name}` : policy.name
 
@@ -116,15 +111,7 @@ export function PolicyPage({ policyId }: PolicyPageProps) {
 
       <div className="flex flex-row gap-5">
         <div className="grow">
-          <div className="flex flex-col divide-y divide-border mb-10">
-            {descriptions.map((desc) => (
-              <div className="flex flex-row py-5">
-                <div className="w-40 min-w-40 font-bold">{desc.label}</div>
-                <div>{desc.value || <span className="italic">None</span>}</div>
-              </div>
-            ))}
-          </div>
-
+          <DocumentDescriptions descriptions={descriptions} />
           <PlateEditor content={document} onChange={onDocumentChange} />
         </div>
 
