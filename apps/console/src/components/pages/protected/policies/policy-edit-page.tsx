@@ -2,18 +2,22 @@ import { TwoColumnLayout } from '@/components/shared/layouts/two-column-layout'
 import { useForm } from 'react-hook-form'
 import { PolicyEditSidebar } from './policy-edit-sidebar'
 import { InternalPolicyByIdFragment, useGetInternalPolicyDetailsByIdQuery, useUpdateInternalPolicyMutation } from '@repo/codegen/src/schema'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import { PolicyEditForm } from './policy-edit-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { EditPolicySchema, EditPolicyFormData } from './policy-edit-form-types'
 import type { Value } from '@udecode/plate-common'
+import { Button } from '@repo/ui/button'
+import { Eye } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 type PolicyEditPageProps = {
   policyId: string
 }
 
 export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
+  const router = useRouter()
   const [{ fetching: saving }, updatePolicy] = useUpdateInternalPolicyMutation()
   const [{ data: policyData }] = useGetInternalPolicyDetailsByIdQuery({ requestPolicy: 'network-only', variables: { internalPolicyId: policyId } })
   const [policy, setPolicy] = useState(policyData?.internalPolicy ?? ({} as InternalPolicyByIdFragment))
@@ -53,6 +57,14 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
     })
   }, [policyData])
 
+  const actions = useMemo(() => {
+    return [
+      <Button key="view-policy" onClick={() => router.push(`/policies/${policyId}`)} variant="outline" iconPosition="left" icon={<Eye />}>
+        View
+      </Button>,
+    ]
+  }, [policy])
+
   if (!policyData?.internalPolicy) return <></>
 
   const handleSave = async () => {
@@ -84,7 +96,7 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
 
   return (
     <>
-      <PageHeading eyebrow="Policies & Procedures" heading={policyName} />
+      <PageHeading eyebrow="Policies & Procedures" heading={policyName} actions={actions} />
 
       <TwoColumnLayout main={main} aside={sidebar} />
     </>
