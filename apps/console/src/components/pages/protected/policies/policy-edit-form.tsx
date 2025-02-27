@@ -3,16 +3,15 @@
 import React, { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 
-import { Info, InfoIcon } from 'lucide-react'
+import { Info } from 'lucide-react'
 import { Textarea } from '@repo/ui/textarea'
 import { FieldValues, Path, ControllerRenderProps, UseFormReturn } from 'react-hook-form'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
+import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
 import { EditPolicyFormData } from './policy-edit-form-types'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-
 import type { Value } from '@udecode/plate-common'
-import { SeverityCard } from '@/components/shared/severity-card/severity-card'
 
 const PlateEditor = dynamic(() => import('@/components/shared/editor/plate'), { ssr: false })
 
@@ -39,15 +38,19 @@ export const PolicyEditForm = ({ form, document, setDocument }: PolicyEditFormPr
   return (
     <>
       <div className="flex flex-col gap-5">
-        <SeverityCard title="Not sure what to write?">
-          <p>
-            For template library and help docs, please refer to our{' '}
-            <a className="text-blue-600" href="https://docs.theopenlane.io/docs/category/policies-and-procedures" target="_blank">
-              documentation
-            </a>
-            .
-          </p>
-        </SeverityCard>
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertTitle>Not sure what to write?</AlertTitle>
+          <AlertDescription>
+            <p>
+              For template library and help docs, please refer to our{' '}
+              <a className="text-blue-600" href="https://docs.theopenlane.io/docs/category/policies-and-procedures" target="_blank">
+                documentation
+              </a>
+              .
+            </p>
+          </AlertDescription>
+        </Alert>
 
         <Form {...form}>
           <PolicyFormField required form={form} name="name" label="Title" info="The title of the policy.">
