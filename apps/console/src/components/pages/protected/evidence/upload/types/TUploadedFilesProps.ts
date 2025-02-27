@@ -5,4 +5,6 @@ type TUploadedFilesProps = {
   type: 'file' | 'link' | 'existingFile'
   file?: File | null
   id?: string | number
+  category?: string | null
+  createdAt?: string
 }

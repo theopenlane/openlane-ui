@@ -1,7 +1,7 @@
 'use client'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import React, { useEffect, useState } from 'react'
-import { FileUp, Trash2, File } from 'lucide-react'
+import { FileUp, Trash2, File, Link } from 'lucide-react'
 import { Tooltip } from '@nextui-org/react'
 import UploadTab from '@/components/pages/protected/evidence/upload/upload-tab'
 import DirectLinkTab from '@/components/pages/protected/evidence/upload/direct-link-tab'
@@ -57,6 +57,52 @@ const EvidenceUploadForm: React.FC<TProps> = (props: TProps) => {
     setEvidenceFiles((prev) => [uploadedFile, ...prev])
   }
 
+  const handleFileStyle = (file: TUploadedFilesProps) => {
+    switch (file.type) {
+      case 'file':
+        return (
+          <>
+            <div className="mr-2">
+              <FileUp className="w-8 h-8" />
+            </div>
+            <div>
+              <div className="font-semibold">{file.name}</div>
+              <div className="text-sm">Size: {Math.round(file.size! / 1024)} KB</div>
+            </div>
+          </>
+        )
+      case 'link':
+        return (
+          <>
+            <div className="mr-2">
+              <Link className="w-8 h-8" />
+            </div>
+            <div>
+              <div className="font-semibold">
+                <div className="truncate max-w-sm">{file.url}</div>
+              </div>
+              <div className="text-sm">Direct link</div>
+            </div>
+          </>
+        )
+      case 'existingFile':
+        return (
+          <>
+            <div className="mr-2">
+              <File className="w-8 h-8" />
+            </div>
+            <div>
+              <div className="font-semibold">{file.name}</div>
+              <div className="text-sm">
+                Existing file{file.category ? `, ${file.category}` : ''}
+                {file.createdAt ? `, ${file.createdAt}` : ''}
+              </div>
+            </div>
+          </>
+        )
+    }
+  }
+
   return (
     <Tabs variant="solid" defaultValue={defaultTab}>
       <TabsList>
@@ -70,13 +116,7 @@ const EvidenceUploadForm: React.FC<TProps> = (props: TProps) => {
 
       {evidenceFiles.map((file, index) => (
         <div key={index} className="border rounded p-3 mt-4 flex items-center justify-between">
-          <div className="flex items-center">
-            <div className="mr-2">{file.type === 'file' ? <FileUp className="w-8 h-8" /> : <File />}</div>
-            <div>
-              <div className="font-semibold">{file.type === 'file' ? file.name : <div className="truncate max-w-sm">{file.url}</div>}</div>
-              <div className="text-sm">{file.type === 'file' ? `Size: ${Math.round(file.size! / 1024)} KB` : 'Direct link'}</div>
-            </div>
-          </div>
+          <div className="flex items-center">{handleFileStyle(file)}</div>
           <Tooltip>
             <Trash2 className="hover:cursor-pointer" onClick={() => handleDelete(file)} />
           </Tooltip>
