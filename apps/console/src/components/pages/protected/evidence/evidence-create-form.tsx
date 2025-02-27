@@ -104,7 +104,7 @@ const EvidenceCreateForm: React.FC = () => {
   }
 
   return (
-    <Grid rows={2}>
+    <Grid>
       <GridRow columns={4}>
         <GridCell className="col-span-2">
           <div className="grid grid-cols-2 gap-4">
@@ -395,8 +395,8 @@ const EvidenceCreateForm: React.FC = () => {
           </div>
         </GridCell>
       </GridRow>
-      <GridRow columns={4}>
-        <GridCell className="col-span-2">
+      <GridRow columns={1}>
+        <GridCell>
           <Button onClick={form.handleSubmit(onSubmitHandler)} loading={isSubmitting} disabled={isSubmitting}>
             {isSubmitting ? 'Submitting...' : 'Submit for review'}
           </Button>
