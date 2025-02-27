@@ -11,6 +11,8 @@ import type { Value } from '@udecode/plate-common'
 import { Button } from '@repo/ui/button'
 import { Eye } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useGQLErrorToast } from '@/hooks/useGQLErrorToast'
+import { useToast } from '@repo/ui/use-toast'
 
 type PolicyEditPageProps = {
   policyId: string
@@ -18,6 +20,9 @@ type PolicyEditPageProps = {
 
 export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
   const router = useRouter()
+  const { toast } = useToast()
+  const { toastGQLError } = useGQLErrorToast()
+
   const [{ fetching: saving }, updatePolicy] = useUpdateInternalPolicyMutation()
   const [{ data: policyData }] = useGetInternalPolicyDetailsByIdQuery({ requestPolicy: 'network-only', variables: { internalPolicyId: policyId } })
   const [policy, setPolicy] = useState(policyData?.internalPolicy ?? ({} as InternalPolicyByIdFragment))
@@ -85,8 +90,11 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
     })
 
     if (error) {
-      console.error(error)
+      toastGQLError({ title: 'Failed to save Policy', error })
+      return
     }
+
+    toast({ title: 'Policy updated', variant: 'success' })
   }
 
   const policyName = policy.displayID ? `${policy.displayID} - ${policy.name}` : policy.name
