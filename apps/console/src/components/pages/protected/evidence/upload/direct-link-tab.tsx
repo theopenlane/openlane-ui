@@ -4,11 +4,14 @@ import { TabsContent } from '@repo/ui/tabs'
 import { FormItem } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { PlusCircle } from 'lucide-react'
+import { UseFormReturn } from 'react-hook-form'
+import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 
 type TProps = {
   directLink: (uploadedFile: TUploadedFilesProps) => void
   evidenceFiles: TUploadedFilesProps[]
   handleDelete: (fileName: string) => void
+  form: UseFormReturn<CreateEvidenceFormData>
 }
 
 const DirectLinkTab: React.FC<TProps> = (props: TProps) => {
@@ -21,16 +24,21 @@ const DirectLinkTab: React.FC<TProps> = (props: TProps) => {
     !linkAdded && setEvidenceLinkAdded(false)
   }, [props.evidenceFiles?.length])
 
-  const handleAddLink = () => {
-    if (evidenceLinkAdded) {
+  const handleAddLink = async () => {
+    if (evidenceLinkAdded || evidenceDirectLink.trim() === '') {
       return
     }
 
-    if (evidenceDirectLink.trim() !== '') {
-      const newFile: TUploadedFilesProps = { url: evidenceDirectLink, type: 'link', name: evidenceDirectLink }
-      props.directLink(newFile)
-      setEvidenceDirectLink('')
+    props.form.setValue('url', evidenceDirectLink)
+    const isUrlValid = await props.form.trigger('url')
+    if (!isUrlValid) {
+      props.form.setValue('url', undefined)
+      return
     }
+
+    const newFile: TUploadedFilesProps = { url: evidenceDirectLink, type: 'link', name: evidenceDirectLink }
+    props.directLink(newFile)
+    setEvidenceDirectLink('')
   }
 
   return (
@@ -44,6 +52,7 @@ const DirectLinkTab: React.FC<TProps> = (props: TProps) => {
             <PlusCircle className="w-8 h-8 text-primary cursor-pointer hover:scale-105 transition-transform" onClick={handleAddLink} />
           </div>
         </div>
+        {props.form.formState.errors.url && <p className="text-red-500 text-sm">{props.form.formState.errors.url.message}</p>}
       </FormItem>
     </TabsContent>
   )

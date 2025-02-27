@@ -46,9 +46,6 @@ const EvidenceCreateForm: React.FC = () => {
       {} as Record<string, string[]>,
     )
 
-    const evidenceFiles = data.evidenceFiles?.filter((item) => item.type === 'file')
-    const evidenceDirectLink = data.evidenceFiles?.filter((item) => item.type === 'link')[0]?.url
-
     const formData = {
       input: {
         name: data.name,
@@ -57,10 +54,10 @@ const EvidenceCreateForm: React.FC = () => {
         creationDate: data.creationDate,
         renewalDate: data.renewalDate,
         ownerID: sessionData?.user.userId,
-        ...(evidenceDirectLink ? { url: evidenceDirectLink } : {}),
+        ...(data.url ? { url: data.url } : {}),
         ...controlObjectives,
       } as CreateEvidenceInput,
-      evidenceFiles: evidenceFiles?.map((item) => item.file) || [],
+      evidenceFiles: data.evidenceFiles?.map((item) => item.file) || [],
     }
 
     const response = await createEvidence(formData)
@@ -92,7 +89,8 @@ const EvidenceCreateForm: React.FC = () => {
   }
 
   const handleUploadedFiles = (evidenceFiles: TUploadedFilesProps[]) => {
-    form.setValue('evidenceFiles', evidenceFiles)
+    const evidenceFilesFiltered = evidenceFiles?.filter((item) => item.type === 'file')
+    evidenceFilesFiltered && form.setValue('evidenceFiles', evidenceFilesFiltered)
   }
 
   const handleResetEvidenceFiles = () => {
@@ -309,7 +307,7 @@ const EvidenceCreateForm: React.FC = () => {
                     />
                   </InputRow>
                   <p>Provide supporting files(s)</p>
-                  <EvidenceUploadForm evidenceFiles={handleUploadedFiles} resetEvidenceFiles={resetEvidenceFiles} setResetEvidenceFiles={handleResetEvidenceFiles} />
+                  <EvidenceUploadForm evidenceFiles={handleUploadedFiles} resetEvidenceFiles={resetEvidenceFiles} setResetEvidenceFiles={handleResetEvidenceFiles} form={form} />
                 </form>
               </Form>
             </div>

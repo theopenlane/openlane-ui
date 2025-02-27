@@ -5,11 +5,14 @@ import { FileUp, Trash2, File } from 'lucide-react'
 import { Tooltip } from '@nextui-org/react'
 import UploadTab from '@/components/pages/protected/evidence/upload/upload-tab'
 import DirectLinkTab from '@/components/pages/protected/evidence/upload/direct-link-tab'
+import { UseFormReturn } from 'react-hook-form'
+import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 
 type TProps = {
   evidenceFiles: (uploadedFiles: TUploadedFilesProps[]) => void
   resetEvidenceFiles: boolean
   setResetEvidenceFiles: () => void
+  form: UseFormReturn<CreateEvidenceFormData>
 }
 
 const EvidenceUploadForm: React.FC<TProps> = (props: TProps) => {
@@ -43,7 +46,7 @@ const EvidenceUploadForm: React.FC<TProps> = (props: TProps) => {
         <TabsTrigger value="existingFiles">Existing Files</TabsTrigger>
       </TabsList>
       <UploadTab uploadedFile={handleUploadedFile} />
-      <DirectLinkTab directLink={handleUploadedFile} evidenceFiles={evidenceFiles} handleDelete={handleDelete} />
+      <DirectLinkTab directLink={handleUploadedFile} evidenceFiles={evidenceFiles} handleDelete={handleDelete} form={props.form} />
       <TabsContent value="existingFiles">Coming soon...</TabsContent>
 
       {evidenceFiles.map((file, index) => (

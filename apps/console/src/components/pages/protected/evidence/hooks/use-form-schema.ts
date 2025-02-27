@@ -5,15 +5,16 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { addDays } from 'date-fns'
 
 const formSchema = z.object({
-  name: z.string().optional(),
-  description: z.string().min(2, {
-    message: 'Description must be at least 2 characters',
+  name: z.string().min(2, {
+    message: 'Name must be at least 2 characters',
   }),
+  description: z.string().optional(),
   tags: z.array(z.string().optional()),
-  creationDate: z.date().min(new Date(), { message: 'Start date must be in the future' }).default(new Date()),
-  renewalDate: z.date().min(new Date(), { message: 'End date must be after start date' }).default(addDays(new Date(), 365)),
+  creationDate: z.date().default(new Date()),
+  renewalDate: z.date().min(new Date(), { message: 'Renewal date must be after start date' }).default(addDays(new Date(), 365)).optional(),
   evidenceFiles: z.array(z.any()),
   controlObjectiveIDs: z.array(z.any()).optional(),
+  url: z.string().url().optional(),
 })
 
 export type CreateEvidenceFormData = z.infer<typeof formSchema>
