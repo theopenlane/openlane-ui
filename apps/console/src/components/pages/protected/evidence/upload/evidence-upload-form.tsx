@@ -115,7 +115,7 @@ const EvidenceUploadForm: React.FC<TProps> = (props: TProps) => {
       <ExistingFilesTab existingFile={handleUploadedFile} evidenceFiles={evidenceFiles} form={props.form} />
 
       {evidenceFiles.map((file, index) => (
-        <div key={index} className="border rounded p-3 mt-4 flex items-center justify-between">
+        <div key={index} className="border rounded p-3 mt-4 flex items-center justify-between bg-gray-100 dark:bg-glaucous-900">
           <div className="flex items-center">{handleFileStyle(file)}</div>
           <Tooltip>
             <Trash2 className="hover:cursor-pointer" onClick={() => handleDelete(file)} />
