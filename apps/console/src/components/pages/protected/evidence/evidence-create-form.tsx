@@ -1,7 +1,7 @@
 'use client'
 import { Grid, GridCell, GridRow } from '@repo/ui/grid'
 import React, { useState } from 'react'
-import { CalendarIcon, InfoIcon } from 'lucide-react'
+import { CalendarIcon, X, InfoIcon } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import useFormSchema, { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { Input, InputRow } from '@repo/ui/input'
@@ -25,7 +25,7 @@ const EvidenceCreateForm: React.FC = () => {
   const { toast } = useToast()
   const today = new Date()
   const oneYearFromToday = addDays(new Date(), 365)
-  const [renewalDate, setRenewalDate] = useState<Date>(oneYearFromToday)
+  const [renewalDate, setRenewalDate] = useState<Date | undefined>(oneYearFromToday)
   const [creationDate, setCreationDate] = useState<Date>(today)
   const [tagValues, setTagValues] = useState<Option[]>([])
   const [isCreationDateCalendarOpen, setIsCreationDateCalendarOpen] = useState(false)
@@ -278,13 +278,26 @@ const EvidenceCreateForm: React.FC = () => {
                           <FormControl>
                             <Popover open={isRenewalDateCalendarOpen} onOpenChange={setIsRenewalDateCalendarOpen}>
                               <PopoverTrigger asChild>
-                                <Button className="w-full" variant="outlineInput" childFull onClick={() => setIsRenewalDateCalendarOpen(!isRenewalDateCalendarOpen)}>
-                                  <div className={calendarInput()}>
-                                    {renewalDate ? format(renewalDate, 'PPP') : <span>Select a date:</span>}
-                                    <CalendarIcon className={calendarIcon()} />
+                                <Button className="w-full flex justify-between items-center" variant="outlineInput" childFull>
+                                  <div className="flex items-center justify-between w-full">
+                                    <span>{renewalDate ? format(renewalDate, 'PPP') : 'Select a date:'}</span>
+                                    <div className="flex items-center gap-x-2">
+                                      {renewalDate && (
+                                        <X
+                                          className="h-4 w-4 opacity-50 cursor-pointer"
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            form.setValue('renewalDate', undefined)
+                                            setRenewalDate(undefined)
+                                          }}
+                                        />
+                                      )}
+                                      <CalendarIcon className="h-4 w-4 opacity-50" />
+                                    </div>
                                   </div>
                                 </Button>
                               </PopoverTrigger>
+
                               <PopoverContent className={calendarPopover()} align="start">
                                 <Calendar
                                   mode="single"
