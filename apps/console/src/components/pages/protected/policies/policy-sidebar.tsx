@@ -6,31 +6,10 @@ import { UserRoundCheck, Binoculars, FileStack, ScrollText, Tag, CalendarCheck2,
 import { Badge } from '@repo/ui/badge'
 import { MetaPanel, formatTime } from '@/components/shared/meta-panel/meta-panel'
 import { useGetUserProfileQuery } from '@repo/codegen/src/schema'
-import { UserAvatar } from '@/components/shared/user-avatar/user-avatar'
-import type { UserInfoFragment } from '@repo/codegen/src/schema'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { UserLink } from '@/components/shared/user-link/user-link'
 
 type PolicySidebarProps = {
   policy: InternalPolicyByIdFragment
-}
-
-function UserWithAvatar(user: UserInfoFragment | null) {
-  if (!user) return null
-  return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger>
-          <div className="flex items-center gap-2">
-            <UserAvatar user={user} />
-            <span>
-              {user.firstName} {user.lastName}
-            </span>
-          </div>
-        </TooltipTrigger>
-        <TooltipContent>{user.email}</TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  )
 }
 
 export const PolicySidebar: React.FC<PolicySidebarProps> = function ({ policy }) {
@@ -71,9 +50,9 @@ export const PolicySidebar: React.FC<PolicySidebarProps> = function ({ policy })
         },
       ],
       creation: [
-        { icon: UserRoundPen, label: 'Created By', value: UserWithAvatar(createdByUser?.user ?? null) },
+        { icon: UserRoundPen, label: 'Created By', value: UserLink(createdByUser?.user ?? null) },
         { icon: CalendarCheck2, label: 'Created At', value: formatTime(policy.createdAt) },
-        { icon: UserRoundCheck, label: 'Updated By', value: UserWithAvatar(updatedByUser?.user ?? null) },
+        { icon: UserRoundCheck, label: 'Updated By', value: UserLink(updatedByUser?.user ?? null) },
         { icon: CalendarClock, label: 'Updated At', value: formatTime(policy.updatedAt) },
       ],
     }
