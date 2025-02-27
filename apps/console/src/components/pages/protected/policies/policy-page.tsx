@@ -7,9 +7,12 @@ import { useGetInternalPolicyDetailsByIdQuery, useUpdateInternalPolicyMutation, 
 import { useRouter } from 'next/navigation'
 import { z } from 'zod'
 import { DocumentDescriptions } from '@/components/shared/document-descriptions/document-descriptions'
+import { Button } from '@repo/ui/button'
+import { Pencil } from 'lucide-react'
 import { TwoColumnLayout } from '@/components/shared/layouts/two-column-layout'
 
 import type { InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
+
 const PlateEditor = dynamic(() => import('@/components/shared/editor/plate'), { ssr: false })
 
 export type EditableField = 'name' | 'description' | 'background' | 'purposeAndScope'
@@ -100,13 +103,21 @@ export function PolicyPage({ policyId }: PolicyPageProps) {
     ]
   }, [policy])
 
+  const actions = useMemo(() => {
+    return [
+      <Button key="edit-policy" onClick={() => router.push(`/policies/${policy.id}/edit`)} variant="outline" iconPosition="left" icon={<Pencil />}>
+        Edit
+      </Button>,
+    ]
+  }, [policy])
+
   if (!data?.internalPolicy) return <></>
 
   const policyName = policy.displayID ? `${policy.displayID} - ${policy.name}` : policy.name
 
   return (
     <>
-      <PageHeading className="grow" eyebrow="Policies & Procedures" heading={policyName} />
+      <PageHeading eyebrow="Policies & Procedures" heading={policyName} actions={actions} />
       <TwoColumnLayout
         main={
           <>
