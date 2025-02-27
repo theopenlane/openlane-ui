@@ -12,6 +12,7 @@ import { EditPolicyFormData } from './policy-edit-form-types'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 
 import type { Value } from '@udecode/plate-common'
+import { SeverityCard } from '@/components/shared/severity-card/severity-card'
 
 const PlateEditor = dynamic(() => import('@/components/shared/editor/plate'), { ssr: false })
 
@@ -38,7 +39,15 @@ export const PolicyEditForm = ({ form, document, setDocument }: PolicyEditFormPr
   return (
     <>
       <div className="flex flex-col gap-5">
-        <PolicyHelpPanel />
+        <SeverityCard title="Not sure what to write?">
+          <p>
+            For template library and help docs, please refer to our{' '}
+            <a className="text-blue-600" href="https://docs.theopenlane.io/docs/category/policies-and-procedures" target="_blank">
+              documentation
+            </a>
+            .
+          </p>
+        </SeverityCard>
 
         <Form {...form}>
           <PolicyFormField required form={form} name="name" label="Title" info="The title of the policy.">
@@ -88,26 +97,6 @@ function PolicyFormField<T extends FieldValues>({ form, name, label, children, r
         </FormItem>
       )}
     />
-  )
-}
-
-function PolicyHelpPanel() {
-  return (
-    <div className="border rounded-lg p-3 flex flex-row gap-3 align-top mt-0">
-      <div>
-        <InfoIcon size="16" />
-      </div>
-      <div>
-        <h1>Not sure what to write?</h1>
-        <p>
-          For template library and help docs, please refer to our{' '}
-          <a className="text-blue-600" href="https://docs.theopenlane.io/docs/category/policies-and-procedures" target="_blank">
-            documentation
-          </a>
-          .
-        </p>
-      </div>
-    </div>
   )
 }
 
