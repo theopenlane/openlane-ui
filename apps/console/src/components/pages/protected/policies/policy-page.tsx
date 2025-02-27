@@ -128,7 +128,7 @@ export function PolicyPage({ policyId }: PolicyPageProps) {
           <PlateEditor content={document} onChange={onDocumentChange} />
         </div>
 
-        <div className="w-[600px]">
+        <div className="shrink-0 basis-96">
           <PolicySidebar policy={policy} />
         </div>
       </div>
