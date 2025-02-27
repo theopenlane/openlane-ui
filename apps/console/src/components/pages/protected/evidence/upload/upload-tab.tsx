@@ -10,7 +10,7 @@ type TProps = {
   uploadedFile: (uploadedFile: TUploadedFilesProps) => void
 }
 
-const MAX_FILE_SIZE = 100 * 1024 * 1024 // 10 MB
+const MAX_FILE_SIZE = 100 * 1024 * 1024 // 100 MB
 const MAX_FILE_SIZE_IN_MB = MAX_FILE_SIZE / (1024 * 1024)
 
 const UploadTab: React.FC<TProps> = (props: TProps) => {
