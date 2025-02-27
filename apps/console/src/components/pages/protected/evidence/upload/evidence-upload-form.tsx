@@ -1,5 +1,5 @@
 'use client'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import React, { useEffect, useState } from 'react'
 import { FileUp, Trash2, File } from 'lucide-react'
 import { Tooltip } from '@nextui-org/react'
@@ -7,6 +7,7 @@ import UploadTab from '@/components/pages/protected/evidence/upload/upload-tab'
 import DirectLinkTab from '@/components/pages/protected/evidence/upload/direct-link-tab'
 import { UseFormReturn } from 'react-hook-form'
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
+import ExistingFilesTab from '@/components/pages/protected/evidence/upload/existing-files-tab'
 
 type TProps = {
   evidenceFiles: (uploadedFiles: TUploadedFilesProps[]) => void
@@ -30,8 +31,26 @@ const EvidenceUploadForm: React.FC<TProps> = (props: TProps) => {
     }
   }, [props.resetEvidenceFiles])
 
-  const handleDelete = (fileName: string | undefined) => {
-    setEvidenceFiles((prev) => prev.filter((file) => file.name !== fileName))
+  const handleDelete = (file: TUploadedFilesProps) => {
+    setEvidenceFiles((prev) => {
+      const evidenceFiles = prev.filter((evidenceFile) => evidenceFile.name !== file.name)
+
+      if (file.type === 'link') {
+        props.form.setValue('url', undefined)
+      }
+
+      if (file.type === 'existingFile') {
+        const formFileIds = props.form.getValues('fileIDs')
+        const fileId = prev.find((item) => item.id === file.id)?.id
+        formFileIds &&
+          props.form.setValue(
+            'fileIDs',
+            formFileIds.filter((file) => file !== fileId),
+          )
+      }
+
+      return evidenceFiles
+    })
   }
 
   const handleUploadedFile = (uploadedFile: TUploadedFilesProps) => {
@@ -46,8 +65,8 @@ const EvidenceUploadForm: React.FC<TProps> = (props: TProps) => {
         <TabsTrigger value="existingFiles">Existing Files</TabsTrigger>
       </TabsList>
       <UploadTab uploadedFile={handleUploadedFile} />
-      <DirectLinkTab directLink={handleUploadedFile} evidenceFiles={evidenceFiles} handleDelete={handleDelete} form={props.form} />
-      <TabsContent value="existingFiles">Coming soon...</TabsContent>
+      <DirectLinkTab directLink={handleUploadedFile} evidenceFiles={evidenceFiles} form={props.form} />
+      <ExistingFilesTab existingFile={handleUploadedFile} evidenceFiles={evidenceFiles} form={props.form} />
 
       {evidenceFiles.map((file, index) => (
         <div key={index} className="border rounded p-3 mt-4 flex items-center justify-between">
@@ -59,7 +78,7 @@ const EvidenceUploadForm: React.FC<TProps> = (props: TProps) => {
             </div>
           </div>
           <Tooltip>
-            <Trash2 className="hover:cursor-pointer" onClick={() => handleDelete(file.name)} />
+            <Trash2 className="hover:cursor-pointer" onClick={() => handleDelete(file)} />
           </Tooltip>
         </div>
       ))}

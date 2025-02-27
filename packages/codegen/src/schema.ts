@@ -26285,6 +26285,19 @@ export type CreateEvidenceMutationVariables = Exact<{
 
 export type CreateEvidenceMutation = { __typename?: 'Mutation'; createEvidence: { __typename?: 'EvidenceCreatePayload'; evidence: { __typename?: 'Evidence'; id: string } } }
 
+export type GetEvidenceFilesQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetEvidenceFilesQuery = {
+  __typename?: 'Query'
+  files: {
+    __typename?: 'FileConnection'
+    edges?: Array<{
+      __typename?: 'FileEdge'
+      node?: { __typename?: 'File'; id: string; providedFileName: string; presignedURL?: string | null; providedFileExtension: string; categoryType?: string | null; createdAt?: any | null } | null
+    } | null> | null
+  }
+}
+
 export type GetAllGroupsQueryVariables = Exact<{
   where?: InputMaybe<GroupWhereInput>
 }>
@@ -27546,6 +27559,26 @@ export const CreateEvidenceDocument = gql`
 
 export function useCreateEvidenceMutation() {
   return Urql.useMutation<CreateEvidenceMutation, CreateEvidenceMutationVariables>(CreateEvidenceDocument)
+}
+export const GetEvidenceFilesDocument = gql`
+  query GetEvidenceFiles {
+    files {
+      edges {
+        node {
+          id
+          providedFileName
+          presignedURL
+          providedFileExtension
+          categoryType
+          createdAt
+        }
+      }
+    }
+  }
+`
+
+export function useGetEvidenceFilesQuery(options?: Omit<Urql.UseQueryArgs<GetEvidenceFilesQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetEvidenceFilesQuery, GetEvidenceFilesQueryVariables>({ query: GetEvidenceFilesDocument, ...options })
 }
 export const GetAllGroupsDocument = gql`
   query GetAllGroups($where: GroupWhereInput) {

@@ -17,6 +17,7 @@ const formSchema = z.object({
   url: z.string().url().optional(),
   collectionProcedure: z.string().optional(),
   source: z.string().optional(),
+  fileIDs: z.array(z.string()).optional(),
 })
 
 export type CreateEvidenceFormData = z.infer<typeof formSchema>
@@ -33,6 +34,7 @@ const useFormSchema = () => {
         controlObjectiveIDs: [],
         collectionProcedure: '',
         source: '',
+        fileIDs: [],
       },
     }),
   }

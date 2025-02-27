@@ -56,6 +56,7 @@ const EvidenceCreateForm: React.FC = () => {
         ownerID: sessionData?.user.userId,
         collectionProcedure: data.collectionProcedure,
         source: data.source,
+        fileIDs: data.fileIDs,
         ...(data.url ? { url: data.url } : {}),
         ...controlObjectives,
       } as CreateEvidenceInput,
@@ -184,7 +185,7 @@ const EvidenceCreateForm: React.FC = () => {
                                   <InfoIcon size={14} className="mx-1 mt-1" />
                                 </TooltipTrigger>
                                 <TooltipContent side="right">
-                                  <p>Provide a short description of what is contained in the files or linked URLs.</p>
+                                  <p>Write down the steps that were taken to collect the evidence.</p>
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
@@ -198,7 +199,7 @@ const EvidenceCreateForm: React.FC = () => {
                     />
                   </InputRow>
 
-                  {/* Name Field */}
+                  {/* Source Field */}
                   <InputRow className="w-full">
                     <FormField
                       control={form.control}
@@ -213,7 +214,7 @@ const EvidenceCreateForm: React.FC = () => {
                                   <InfoIcon size={14} className="mx-1 mt-1" />
                                 </TooltipTrigger>
                                 <TooltipContent side="right">
-                                  <p>Provide a name for the evidence, generally should include the related Control or Task.</p>
+                                  <p>System the evidence was pulled from.</p>
                                 </TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
@@ -379,9 +380,9 @@ const EvidenceCreateForm: React.FC = () => {
                       )}
                     />
                   </InputRow>
-                  <p>Provide supporting files(s)</p>
-                  <EvidenceUploadForm evidenceFiles={handleUploadedFiles} resetEvidenceFiles={resetEvidenceFiles} setResetEvidenceFiles={handleResetEvidenceFiles} form={form} />
                 </form>
+                <p className="pt-5 pb-5">Provide supporting file(s)</p>
+                <EvidenceUploadForm evidenceFiles={handleUploadedFiles} resetEvidenceFiles={resetEvidenceFiles} setResetEvidenceFiles={handleResetEvidenceFiles} form={form} />
               </Form>
             </div>
 

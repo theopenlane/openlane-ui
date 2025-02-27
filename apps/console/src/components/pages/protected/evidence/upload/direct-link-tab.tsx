@@ -10,7 +10,6 @@ import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/ho
 type TProps = {
   directLink: (uploadedFile: TUploadedFilesProps) => void
   evidenceFiles: TUploadedFilesProps[]
-  handleDelete: (fileName: string) => void
   form: UseFormReturn<CreateEvidenceFormData>
 }
 

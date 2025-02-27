@@ -5,3 +5,18 @@ mutation CreateEvidence($input: CreateEvidenceInput!, $evidenceFiles: [Upload!])
     }
   }
 }
+
+query GetEvidenceFiles {
+  files {
+    edges {
+      node {
+        id
+        providedFileName
+        presignedURL
+        providedFileExtension
+        categoryType
+        createdAt
+      }
+    }
+  }
+}
