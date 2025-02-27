@@ -58,10 +58,17 @@ export const PoliciesTable = () => {
   }
 
   const editPolicy = (policyId: string) => {
-    router.push(`/policies/${policyId}`)
+    router.push(`/policies/${policyId}/edit`)
   }
 
   const columns: ColumnDef<Policies>[] = [
+    {
+      accessorKey: 'displayID',
+      header: 'Display ID',
+      cell: ({ cell, row }) => {
+        return <span className="whitespace-nowrap">{cell.getValue() as string}</span>
+      },
+    },
     {
       accessorKey: 'name',
       header: 'Name',
@@ -80,12 +87,12 @@ export const PoliciesTable = () => {
     {
       accessorKey: 'updatedAt',
       header: 'Updated At',
-      cell: ({ cell }) => format(new Date(cell.getValue() as string), 'dd MMM yyyy'),
+      cell: ({ cell }) => <span className="whitespace-nowrap">{format(new Date(cell.getValue() as string), 'MMM dd, yyyy')}</span>,
     },
     {
       accessorKey: 'createdAt',
       header: 'Created At',
-      cell: ({ cell }) => format(new Date(cell.getValue() as string), 'dd MMM yyyy'),
+      cell: ({ cell }) => <span className="whitespace-nowrap">{format(new Date(cell.getValue() as string), 'MMM dd, yyyy')}</span>,
     },
     {
       accessorKey: 'id',

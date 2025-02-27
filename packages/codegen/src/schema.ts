@@ -26772,6 +26772,7 @@ export type GetInternalPoliciesListQuery = {
       node?: {
         __typename?: 'InternalPolicy'
         id: string
+        displayID: string
         name: string
         description?: string | null
         policyType?: string | null
@@ -28142,6 +28143,7 @@ export const GetInternalPoliciesListDocument = gql`
       edges {
         node {
           id
+          displayID
           name
           description
           policyType
