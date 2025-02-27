@@ -2,12 +2,15 @@
 
 import React, { useMemo } from 'react'
 import { InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
-import { Binoculars, FileStack, ScrollText, Tag, CalendarCheck2, CalendarClock } from 'lucide-react'
+import { Info, Binoculars, FileStack, ScrollText, Tag, CalendarCheck2, CalendarClock } from 'lucide-react'
 import { MetaPanel, formatTime } from '@/components/shared/meta-panel/meta-panel'
 import { Panel } from '@repo/ui/panel'
 import { Button } from '@repo/ui/button'
 import { UseFormReturn } from 'react-hook-form'
 import { EditPolicyFormData } from './policy-edit-form-types'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
+import { Input } from '@repo/ui/input'
 
 type PolicyEditSidebarProps = {
   policy: InternalPolicyByIdFragment
@@ -39,13 +42,42 @@ export const PolicyEditSidebar = ({ policy, form, handleSave }: PolicyEditSideba
         Save policy
       </Button>
       <MetaPanel entries={sidebarItems.status} />
-      <Panel>
-        <h1>
-          <Tag />
-          Tags
-        </h1>
-        <input placeholder="Choose existing or add tag..."></input>
-      </Panel>
+      <TagsPanel form={form} />
     </div>
+  )
+}
+
+const TagsPanel = ({ form }: { form: UseFormReturn<EditPolicyFormData> }) => {
+  return (
+    <Panel className="gap-3">
+      <div className="flex flex-row items-center">
+        <Tag size={16} className="text-brand" />
+        <span className="font-bold ms-2 me-1">Tags</span>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <Info size="14" className="ms-1 text-brand" />
+            </TooltipTrigger>
+            <TooltipContent>Tags for the policy</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+
+      <Form {...form}>
+        <FormField
+          name="tags"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input placeholder="Choose existing or add tag..." {...field} className="bg-background text-white" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </Form>
+    </Panel>
   )
 }

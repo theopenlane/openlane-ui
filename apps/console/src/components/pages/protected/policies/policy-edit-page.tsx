@@ -41,13 +41,16 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
       description: policy.description || '',
       background: policy.background || '',
       purposeAndScope: policy.purposeAndScope || '',
+      tags: policy.tags?.join(', ') || '',
     })
   }, [policyData])
 
   if (!policyData?.internalPolicy) return <></>
 
   const handleSave = async () => {
-    const { name, description, background, purposeAndScope } = form.getValues()
+    const { name, description, background, purposeAndScope, tags: tagStr } = form.getValues()
+
+    const tags = tagStr?.split(',').map((tag) => tag.trim())
 
     const { error } = await updatePolicy({
       updateInternalPolicyId: policyData?.internalPolicy.id,
@@ -56,6 +59,7 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
         description,
         background,
         purposeAndScope,
+        tags,
       },
     })
 
