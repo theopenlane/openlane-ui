@@ -15,6 +15,8 @@ const formSchema = z.object({
   evidenceFiles: z.array(z.any()),
   controlObjectiveIDs: z.array(z.any()).optional(),
   url: z.string().url().optional(),
+  collectionProcedure: z.string().optional(),
+  source: z.string().optional(),
 })
 
 export type CreateEvidenceFormData = z.infer<typeof formSchema>
@@ -29,6 +31,8 @@ const useFormSchema = () => {
         tags: [],
         evidenceFiles: [],
         controlObjectiveIDs: [],
+        collectionProcedure: '',
+        source: '',
       },
     }),
   }

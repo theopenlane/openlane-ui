@@ -54,6 +54,8 @@ const EvidenceCreateForm: React.FC = () => {
         creationDate: data.creationDate,
         renewalDate: data.renewalDate,
         ownerID: sessionData?.user.userId,
+        collectionProcedure: data.collectionProcedure,
+        source: data.source,
         ...(data.url ? { url: data.url } : {}),
         ...controlObjectives,
       } as CreateEvidenceInput,
@@ -162,6 +164,64 @@ const EvidenceCreateForm: React.FC = () => {
                             <Textarea id="description" {...field} className="w-full" />
                           </FormControl>
                           {form.formState.errors.description && <p className="text-red-500 text-sm">{form.formState.errors.description.message}</p>}
+                        </FormItem>
+                      )}
+                    />
+                  </InputRow>
+
+                  {/* Collection Procedure */}
+                  <InputRow className="w-full">
+                    <FormField
+                      control={form.control}
+                      name="collectionProcedure"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <div className="flex items-center">
+                            <FormLabel>Collection Procedure</FormLabel>
+                            <TooltipProvider disableHoverableContent>
+                              <Tooltip>
+                                <TooltipTrigger type="button">
+                                  <InfoIcon size={14} className="mx-1 mt-1" />
+                                </TooltipTrigger>
+                                <TooltipContent side="right">
+                                  <p>Provide a short description of what is contained in the files or linked URLs.</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                          <FormControl>
+                            <Textarea id="collectionProcedure" {...field} className="w-full" />
+                          </FormControl>
+                          {form.formState.errors.collectionProcedure && <p className="text-red-500 text-sm">{form.formState.errors.collectionProcedure.message}</p>}
+                        </FormItem>
+                      )}
+                    />
+                  </InputRow>
+
+                  {/* Name Field */}
+                  <InputRow className="w-full">
+                    <FormField
+                      control={form.control}
+                      name="source"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <div className="flex items-center">
+                            <FormLabel>Source</FormLabel>
+                            <TooltipProvider disableHoverableContent>
+                              <Tooltip>
+                                <TooltipTrigger type="button">
+                                  <InfoIcon size={14} className="mx-1 mt-1" />
+                                </TooltipTrigger>
+                                <TooltipContent side="right">
+                                  <p>Provide a name for the evidence, generally should include the related Control or Task.</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                          <FormControl>
+                            <Input variant="medium" {...field} className="w-full" />
+                          </FormControl>
+                          {form.formState.errors.source && <p className="text-red-500 text-sm">{form.formState.errors.source.message}</p>}
                         </FormItem>
                       )}
                     />
@@ -279,7 +339,7 @@ const EvidenceCreateForm: React.FC = () => {
                             <Popover open={isRenewalDateCalendarOpen} onOpenChange={setIsRenewalDateCalendarOpen}>
                               <PopoverTrigger asChild>
                                 <Button className="w-full flex justify-between items-center" variant="outlineInput" childFull>
-                                  <div className="flex items-center justify-between w-full">
+                                  <div className={calendarInput()}>
                                     <span>{renewalDate ? format(renewalDate, 'PPP') : 'Select a date:'}</span>
                                     <div className="flex items-center gap-x-2">
                                       {renewalDate && (
