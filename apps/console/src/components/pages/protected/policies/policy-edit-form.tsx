@@ -1,12 +1,13 @@
 'use client'
 
 import React from 'react'
-import { InfoIcon } from 'lucide-react'
+import { Info, InfoIcon } from 'lucide-react'
 import { Textarea } from '@repo/ui/textarea'
 import { Control, FieldValues, Path, ControllerRenderProps, UseFormReturn } from 'react-hook-form'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { EditPolicyFormData } from './policy-edit-form-types'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 
 type PolicyEditFormProps = {
   form: UseFormReturn<EditPolicyFormData>
@@ -19,17 +20,17 @@ export const PolicyEditForm = ({ form }: PolicyEditFormProps) => {
         <PolicyHelpPanel />
 
         <Form {...form}>
-          <PolicyFormField form={form} name="name" label="Title" required>
+          <PolicyFormField required form={form} name="name" label="Title" info="The title of the policy.">
             {(field) => <Input placeholder="Policy title" {...field} className="bg-background" />}
           </PolicyFormField>
-          <PolicyFormField form={form} name="description" label="Description">
-            {(field) => <Textarea placeholder="Policy description" {...field} className="bg-background" />}
+          <PolicyFormField form={form} name="description" label="Description" info="The description of the policy.">
+            {(field) => <Textarea rows={7} placeholder="Policy description" {...field} className="bg-background" />}
           </PolicyFormField>
-          <PolicyFormField form={form} name="background" label="Background">
-            {(field) => <Textarea placeholder="Policy background" {...field} className="bg-background" />}
+          <PolicyFormField form={form} name="background" label="Background" info="The background of the policy.">
+            {(field) => <Textarea rows={7} placeholder="Policy background" {...field} className="bg-background" />}
           </PolicyFormField>
-          <PolicyFormField form={form} name="purposeAndScope" label="Purpose and Scope">
-            {(field) => <Textarea placeholder="Policy purpose and scope" {...field} className="bg-background" />}
+          <PolicyFormField form={form} name="purposeAndScope" label="Purpose and Scope" info="The purpose and scope of the policy.">
+            {(field) => <Textarea rows={7} placeholder="Policy purpose and scope" {...field} className="bg-background" />}
           </PolicyFormField>
         </Form>
       </div>
@@ -42,10 +43,11 @@ type PolicyFormFieldProps<T extends FieldValues> = {
   name: Path<T>
   label: string
   required?: boolean
+  info?: string
   children: React.ReactNode | ((field: ControllerRenderProps<T, Path<T>>) => React.ReactNode) // Support function-as-child with correct field typing
 }
 
-function PolicyFormField<T extends FieldValues>({ form, name, label, children, required }: PolicyFormFieldProps<T>) {
+function PolicyFormField<T extends FieldValues>({ form, name, label, children, required, info }: PolicyFormFieldProps<T>) {
   const {
     formState: { errors },
   } = form
@@ -56,8 +58,20 @@ function PolicyFormField<T extends FieldValues>({ form, name, label, children, r
       control={form.control}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>
-            {label} {required && <span className="text-red-500">*</span>}
+          <FormLabel className="flex flex-row items-center">
+            <span className="font-bold">
+              {label} {required && <span className="text-red-500">*</span>}
+            </span>
+            {info && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <Info size="14" className="ms-1 text-brand" />
+                  </TooltipTrigger>
+                  <TooltipContent>{info}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
           </FormLabel>
           <FormControl>{typeof children === 'function' ? children(field) : children}</FormControl>
           <FormMessage />
