@@ -7,6 +7,7 @@ import { PageHeading } from '@repo/ui/page-heading'
 import { PolicyEditForm } from './policy-edit-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { EditPolicySchema, EditPolicyFormData } from './policy-edit-form-types'
+import type { Value } from '@udecode/plate-common'
 
 type PolicyEditPageProps = {
   policyId: string
@@ -14,8 +15,9 @@ type PolicyEditPageProps = {
 
 export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
   const [{ fetching: saving }, updatePolicy] = useUpdateInternalPolicyMutation()
-  const [{ data: policyData }] = useGetInternalPolicyDetailsByIdQuery({ variables: { internalPolicyId: policyId } })
-  const [policy, setPolicy] = useState({} as InternalPolicyByIdFragment)
+  const [{ data: policyData }] = useGetInternalPolicyDetailsByIdQuery({ requestPolicy: 'network-only', variables: { internalPolicyId: policyId } })
+  const [policy, setPolicy] = useState(policyData?.internalPolicy ?? ({} as InternalPolicyByIdFragment))
+  const [document, setDocument] = useState<Value>(policy?.details?.content)
 
   const form = useForm<EditPolicyFormData>({
     resolver: zodResolver(EditPolicySchema),
@@ -27,6 +29,9 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
       background: policy.background || '',
       purposeAndScope: policy.purposeAndScope || '',
       tags: policy.tags?.join(', ') || '',
+      details: policy.details || {
+        content: (policy.details?.content || []) as Value[],
+      },
     },
   })
 
@@ -36,6 +41,7 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
     if (!policy) return
 
     setPolicy(policy)
+    setDocument(policy.details?.content || [])
 
     form.reset({
       name: policy.name || '',
@@ -43,6 +49,7 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
       background: policy.background || '',
       purposeAndScope: policy.purposeAndScope || '',
       tags: policy.tags?.join(', ') || '',
+      details: policy.details,
     })
   }, [policyData])
 
@@ -61,6 +68,9 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
         background,
         purposeAndScope,
         tags,
+        details: {
+          content: document,
+        },
       },
     })
 
@@ -71,7 +81,7 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
 
   const policyName = policy.displayID ? `${policy.displayID} - ${policy.name}` : policy.name
 
-  const main = <PolicyEditForm form={form} />
+  const main = <PolicyEditForm form={form} document={document} setDocument={setDocument} />
   const sidebar = <PolicyEditSidebar form={form} policy={policy} handleSave={handleSave} />
 
   return (

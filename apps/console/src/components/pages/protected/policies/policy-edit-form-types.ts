@@ -6,6 +6,9 @@ export const EditPolicySchema = z.object({
   background: z.string().optional(),
   purposeAndScope: z.string().optional(),
   tags: z.string().optional(),
+  details: z.object({
+    content: z.array(z.any()).optional(),
+  }),
 })
 
 export type EditPolicyFormData = z.infer<typeof EditPolicySchema>
