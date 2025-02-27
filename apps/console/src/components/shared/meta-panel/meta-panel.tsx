@@ -22,7 +22,7 @@ export const MetaPanel: React.FC<MetaPanelProps> = ({ entries }) => {
         {entries.map((entry) => (
           <div key={entry.label} className="flex items-start py-3">
             <div className="w-36 min-w-36 flex items-center gap-2">
-              <entry.icon size={16} className="text-[--color-button]" />
+              <entry.icon size={16} className="text-brand" />
               <span className="font-bold">{entry.label}</span>
             </div>
             <div>{entry.value}</div>
