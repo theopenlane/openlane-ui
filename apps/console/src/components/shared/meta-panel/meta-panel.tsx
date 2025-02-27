@@ -19,8 +19,8 @@ export const MetaPanel: React.FC<MetaPanelProps> = ({ entries }) => {
   return (
     <Panel className="py-1">
       <div className="flex flex-col divide-y divide-border">
-        {entries.map((entry, index) => (
-          <div key={index} className="flex items-start py-3">
+        {entries.map((entry) => (
+          <div key={entry.label} className="flex items-start py-3">
             <div className="w-36 min-w-36 flex items-center gap-2">
               <entry.icon size={16} className="text-[--color-button]" />
               <span className="font-bold">{entry.label}</span>
