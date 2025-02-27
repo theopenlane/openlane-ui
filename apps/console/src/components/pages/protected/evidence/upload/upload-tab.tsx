@@ -10,7 +10,7 @@ type TProps = {
   uploadedFile: (uploadedFile: TUploadedFilesProps) => void
 }
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10 MB
+const MAX_FILE_SIZE = 100 * 1024 * 1024 // 10 MB
 const MAX_FILE_SIZE_IN_MB = MAX_FILE_SIZE / (1024 * 1024)
 
 const UploadTab: React.FC<TProps> = (props: TProps) => {
@@ -103,7 +103,7 @@ const UploadTab: React.FC<TProps> = (props: TProps) => {
         </div>
       </div>
       <div className="mt-4 flex justify-between text-sm">
-        <div>PDF, DOC(X), ODT, CSV, TXT, PNG, JPG, ZIP, RTF, XLSX, YAML, ...</div>
+        <div>PDF, DOC(X), CSV, XLSX, TXT, PNG, JPG, ZIP, YAML</div>
         <div>Maximum size: {MAX_FILE_SIZE_IN_MB} MB / file</div>
       </div>
     </TabsContent>
