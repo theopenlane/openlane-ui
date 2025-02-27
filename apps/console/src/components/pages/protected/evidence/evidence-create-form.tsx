@@ -104,6 +104,12 @@ const EvidenceCreateForm: React.FC = () => {
     setResetObjectAssociation(false)
   }
 
+  const handleClearRenewalDate = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    form.setValue('renewalDate', undefined)
+    setRenewalDate(undefined)
+  }
+
   return (
     <Grid>
       <GridRow columns={4}>
@@ -343,16 +349,7 @@ const EvidenceCreateForm: React.FC = () => {
                                   <div className={calendarInput()}>
                                     <span>{renewalDate ? format(renewalDate, 'PPP') : 'Select a date:'}</span>
                                     <div className="flex items-center gap-x-2">
-                                      {renewalDate && (
-                                        <X
-                                          className="h-4 w-4 opacity-50 cursor-pointer"
-                                          onClick={(e) => {
-                                            e.stopPropagation()
-                                            form.setValue('renewalDate', undefined)
-                                            setRenewalDate(undefined)
-                                          }}
-                                        />
-                                      )}
+                                      {renewalDate && <X className="h-4 w-4 opacity-50 cursor-pointer" onClick={(e) => handleClearRenewalDate(e)} />}
                                       <CalendarIcon className="h-4 w-4 opacity-50" />
                                     </div>
                                   </div>
@@ -375,6 +372,14 @@ const EvidenceCreateForm: React.FC = () => {
                               </PopoverContent>
                             </Popover>
                           </FormControl>
+                          {renewalDate && (
+                            <p>
+                              Don't want to renew this evidence?{' '}
+                              <b className="text-sm cursor-pointer text-accent-secondary" onClick={(e) => handleClearRenewalDate(e)}>
+                                Clear it
+                              </b>
+                            </p>
+                          )}
                           {form.formState.errors.renewalDate && <p className="text-red-500 text-sm">{form.formState.errors.renewalDate.message}</p>}
                         </FormItem>
                       )}
