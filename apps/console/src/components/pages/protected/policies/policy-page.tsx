@@ -7,6 +7,7 @@ import { useGetInternalPolicyDetailsByIdQuery, useUpdateInternalPolicyMutation, 
 import { useRouter } from 'next/navigation'
 import { z } from 'zod'
 import { DocumentDescriptions } from '@/components/shared/document-descriptions/document-descriptions'
+import { TwoColumnLayout } from '@/components/shared/layouts/two-column-layout'
 
 import type { InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
 const PlateEditor = dynamic(() => import('@/components/shared/editor/plate'), { ssr: false })
@@ -106,17 +107,15 @@ export function PolicyPage({ policyId }: PolicyPageProps) {
   return (
     <>
       <PageHeading className="grow" eyebrow="Policies & Procedures" heading={policyName} />
-
-      <div className="flex flex-row gap-5">
-        <div className="grow">
-          <DocumentDescriptions descriptions={descriptions} />
-          <PlateEditor content={document} onChange={onDocumentChange} />
-        </div>
-
-        <div className="shrink-0 basis-96">
-          <PolicySidebar policy={policy} />
-        </div>
-      </div>
+      <TwoColumnLayout
+        main={
+          <>
+            <DocumentDescriptions descriptions={descriptions} />
+            <PlateEditor content={document} onChange={onDocumentChange} />{' '}
+          </>
+        }
+        aside={<PolicySidebar policy={policy} />}
+      ></TwoColumnLayout>
     </>
   )
 }
