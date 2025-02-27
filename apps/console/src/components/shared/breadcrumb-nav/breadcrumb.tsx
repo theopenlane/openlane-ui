@@ -41,11 +41,11 @@ export const BreadcrumbNavigation = ({ homeElement = 'Home' }: TBreadCrumbProps)
           }
           // add spinner to last breadcrumb if it's fetching
           if (index === pathNames.length - 1 && fetching) {
-            return <Loader />
+            return <Loader key={href} />
           }
 
           return (
-            <React.Fragment key={index}>
+            <React.Fragment key={href}>
               <BreadcrumbSeparator>
                 <ChevronRight size={16} />
               </BreadcrumbSeparator>

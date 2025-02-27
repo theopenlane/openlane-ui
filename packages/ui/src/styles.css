@@ -67,6 +67,7 @@
   --color-text-dark: #1c2630;
   --color-text-light: #aabec5;
   --color-text-nav-link: #303e4a;
+  --color-text-dimmed: #8998a9;
 
   /* Panel */
   --color-panel-bg: #ffffff;
@@ -175,6 +176,7 @@
   --color-text-header: #aabec5;
   --color-text-paragraph: #bdd9e1;
   --color-text-nav-link: #bdd9e1;
+  --color-text-dimmed: #5c6c70;
 
   /* Panel */
   --color-panel-bg: #1c2630;

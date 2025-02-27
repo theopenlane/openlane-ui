@@ -26792,6 +26792,7 @@ export type GetInternalPoliciesListQuery = {
       node?: {
         __typename?: 'InternalPolicy'
         id: string
+        displayID: string
         name: string
         description?: string | null
         policyType?: string | null
@@ -26825,6 +26826,7 @@ export type InternalPolicyByIdFragment = {
   background?: string | null
   createdAt?: any | null
   createdBy?: string | null
+  displayID: string
   updatedAt?: any | null
   updatedBy?: string | null
   tags?: Array<string> | null
@@ -26850,6 +26852,7 @@ export type GetInternalPolicyDetailsByIdQuery = {
     background?: string | null
     createdAt?: any | null
     createdBy?: string | null
+    displayID: string
     updatedAt?: any | null
     updatedBy?: string | null
     tags?: Array<string> | null
@@ -27293,6 +27296,35 @@ export type CreateTfaSettingMutation = {
   createTFASetting: { __typename?: 'TFASettingCreatePayload'; qrCode?: string | null; tfaSecret?: string | null; tfaSetting: { __typename?: 'TFASetting'; id: string } }
 }
 
+export type UserInfoFragment = {
+  __typename?: 'User'
+  id: string
+  firstName?: string | null
+  lastName?: string | null
+  displayName: string
+  email: string
+  avatarRemoteURL?: string | null
+  avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+}
+
+export type GetUserQueryVariables = Exact<{
+  userId: Scalars['ID']['input']
+}>
+
+export type GetUserQuery = {
+  __typename?: 'Query'
+  user: {
+    __typename?: 'User'
+    id: string
+    firstName?: string | null
+    lastName?: string | null
+    displayName: string
+    email: string
+    avatarRemoteURL?: string | null
+    avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+  }
+}
+
 export type GetUserProfileQueryVariables = Exact<{
   userId: Scalars['ID']['input']
 }>
@@ -27307,7 +27339,6 @@ export type GetUserProfileQuery = {
     displayName: string
     email: string
     avatarRemoteURL?: string | null
-    avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
     setting: {
       __typename?: 'UserSetting'
       id: string
@@ -27316,6 +27347,7 @@ export type GetUserProfileQuery = {
       isTfaEnabled?: boolean | null
       defaultOrg?: { __typename?: 'Organization'; id: string; displayName: string } | null
     }
+    avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
   }
 }
 
@@ -27357,6 +27389,7 @@ export const InternalPolicyByIdFragmentDoc = gql`
     background
     createdAt
     createdBy
+    displayID
     updatedAt
     updatedBy
     tags
@@ -27367,6 +27400,20 @@ export const InternalPolicyByIdFragmentDoc = gql`
     procedures {
       id
       name
+    }
+  }
+`
+export const UserInfoFragmentDoc = gql`
+  fragment UserInfo on User {
+    id
+    firstName
+    lastName
+    displayName
+    email
+    avatarRemoteURL
+    displayName
+    avatarFile {
+      presignedURL
     }
   }
 `
@@ -28161,6 +28208,7 @@ export const GetInternalPoliciesListDocument = gql`
       edges {
         node {
           id
+          displayID
           name
           description
           policyType
@@ -28833,19 +28881,22 @@ export const CreateTfaSettingDocument = gql`
 export function useCreateTfaSettingMutation() {
   return Urql.useMutation<CreateTfaSettingMutation, CreateTfaSettingMutationVariables>(CreateTfaSettingDocument)
 }
+export const GetUserDocument = gql`
+  query GetUser($userId: ID!) {
+    user(id: $userId) {
+      ...UserInfo
+    }
+  }
+  ${UserInfoFragmentDoc}
+`
+
+export function useGetUserQuery(options: Omit<Urql.UseQueryArgs<GetUserQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetUserQuery, GetUserQueryVariables>({ query: GetUserDocument, ...options })
+}
 export const GetUserProfileDocument = gql`
   query GetUserProfile($userId: ID!) {
     user(id: $userId) {
-      id
-      firstName
-      lastName
-      displayName
-      email
-      avatarRemoteURL
-      displayName
-      avatarFile {
-        presignedURL
-      }
+      ...UserInfo
       setting {
         id
         status
@@ -28858,6 +28909,7 @@ export const GetUserProfileDocument = gql`
       }
     }
   }
+  ${UserInfoFragmentDoc}
 `
 
 export function useGetUserProfileQuery(options: Omit<Urql.UseQueryArgs<GetUserProfileQueryVariables>, 'query'>) {

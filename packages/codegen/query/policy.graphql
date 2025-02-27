@@ -63,6 +63,7 @@ query GetInternalPoliciesList {
     edges {
       node {
         id
+        displayID
         name
         description
         policyType
@@ -96,6 +97,7 @@ fragment InternalPolicyByID on InternalPolicy {
   background
   createdAt
   createdBy
+  displayID
   updatedAt
   updatedBy
   tags
