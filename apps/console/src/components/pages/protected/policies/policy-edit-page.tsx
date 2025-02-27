@@ -26,6 +26,7 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
       description: policy.description || '',
       background: policy.background || '',
       purposeAndScope: policy.purposeAndScope || '',
+      tags: policy.tags?.join(', ') || '',
     },
   })
 
