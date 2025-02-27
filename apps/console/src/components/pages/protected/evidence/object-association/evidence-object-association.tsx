@@ -94,7 +94,7 @@ const EvidenceObjectAssociation: React.FC<TProps> = (props: TProps) => {
               setSelectedObject(val)
             }}
           >
-            <SelectTrigger className="border-brand w-full">{selectedObject || 'Select object'}</SelectTrigger>
+            <SelectTrigger className=" w-full">{selectedObject || 'Select object'}</SelectTrigger>
             <SelectContent>
               {options.map((option) => (
                 <SelectItem key={option} value={option}>
@@ -111,7 +111,7 @@ const EvidenceObjectAssociation: React.FC<TProps> = (props: TProps) => {
             onChange={handleSearchChange}
             value={searchValue}
             placeholder={inputPlaceholder ? `Type ${inputPlaceholder} name` : 'Select object first'}
-            className="border-brand h-10 w-full"
+            className="h-10 w-full"
           />
         </div>
       </div>

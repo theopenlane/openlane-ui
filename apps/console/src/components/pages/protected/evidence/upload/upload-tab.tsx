@@ -58,7 +58,7 @@ const UploadTab: React.FC<TProps> = (props: TProps) => {
           <div className="relative inline-block">
             <div className="relative w-24 h-24 flex justify-center items-center">
               <File className="w-16 h-16" />
-              <Upload className="absolute bottom-4 right-4 w-5 h-5 dark:bg-jade-500 rounded-full p-1 shadow-md" />
+              <Upload className="absolute bottom-4 right-4 w-5 h-5 bg-jade-500 dark:bg-jade-500 rounded-full p-1 shadow-md" />
             </div>
           </div>
           <p>
