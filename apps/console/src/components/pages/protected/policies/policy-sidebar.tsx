@@ -6,7 +6,7 @@ import { UserRoundCheck, Binoculars, FileStack, ScrollText, Tag, CalendarCheck2,
 import { Badge } from '@repo/ui/badge'
 import { MetaPanel, formatTime } from '@/components/shared/meta-panel/meta-panel'
 import { useGetUserProfileQuery } from '@repo/codegen/src/schema'
-import { UserLink } from '@/components/shared/user-link/user-link'
+import { UserChip } from '@/components/shared/user-chip/user-chip'
 
 type PolicySidebarProps = {
   policy: InternalPolicyByIdFragment
@@ -50,9 +50,9 @@ export const PolicySidebar: React.FC<PolicySidebarProps> = function ({ policy })
         },
       ],
       creation: [
-        { icon: UserRoundPen, label: 'Created By', value: UserLink(createdByUser?.user ?? null) },
+        { icon: UserRoundPen, label: 'Created By', value: UserChip(createdByUser?.user ?? null) },
         { icon: CalendarCheck2, label: 'Created At', value: formatTime(policy.createdAt) },
-        { icon: UserRoundCheck, label: 'Updated By', value: UserLink(updatedByUser?.user ?? null) },
+        { icon: UserRoundCheck, label: 'Updated By', value: UserChip(updatedByUser?.user ?? null) },
         { icon: CalendarClock, label: 'Updated At', value: formatTime(policy.updatedAt) },
       ],
     }
