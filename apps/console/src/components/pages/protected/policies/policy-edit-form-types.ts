@@ -5,6 +5,7 @@ export const EditPolicySchema = z.object({
   description: z.string().optional(),
   background: z.string().optional(),
   purposeAndScope: z.string().optional(),
+  policyType: z.string().optional(),
   tags: z.array(z.string()).optional(),
   details: z.object({
     content: z.array(z.any()).optional(),

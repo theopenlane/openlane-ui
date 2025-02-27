@@ -36,6 +36,7 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
       name: policy.name || '',
       description: policy.description || '',
       background: policy.background || '',
+      policyType: policy.policyType || '',
       purposeAndScope: policy.purposeAndScope || '',
       tags: policy.tags || [],
       details: policy.details || {
@@ -57,6 +58,7 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
       description: policy.description || '',
       background: policy.background || '',
       purposeAndScope: policy.purposeAndScope || '',
+      policyType: policy.policyType || '',
       tags: policy.tags || [],
       details: policy.details,
     })
@@ -73,7 +75,7 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
   if (!policyData?.internalPolicy) return <></>
 
   const handleSave = async () => {
-    const { name, description, background, purposeAndScope, tags } = form.getValues()
+    const { name, description, background, purposeAndScope, policyType, tags } = form.getValues()
 
     const { error } = await updatePolicy({
       updateInternalPolicyId: policyData?.internalPolicy.id,
@@ -82,6 +84,7 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
         description,
         background,
         purposeAndScope,
+        policyType,
         tags,
         details: {
           content: document,
