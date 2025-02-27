@@ -2,13 +2,11 @@
 
 import { NextPage } from 'next'
 import { PolicyEditPage } from '@/components/pages/protected/policies/policy-edit-page'
+import { useParams } from 'next/navigation'
 
-type PageProps = {
-  params: { id: string }
-}
-
-export const Page: NextPage<PageProps> = ({ params }) => {
-  return <PolicyEditPage policyId={params.id} />
+export const Page: NextPage = () => {
+  const { id } = useParams()
+  return <PolicyEditPage policyId={id as string} />
 }
 
 export default Page
