@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useMemo } from 'react'
-import { InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
+import React, { useMemo, useState } from 'react'
+import { InternalPolicyByIdFragment, useDeleteInternalPolicyMutation } from '@repo/codegen/src/schema'
 import { Info, Binoculars, FileStack, ScrollText, Tag, CalendarCheck2, CalendarClock } from 'lucide-react'
 import { MetaPanel, formatTime } from '@/components/shared/meta-panel/meta-panel'
 import { Panel } from '@repo/ui/panel'
@@ -12,6 +12,10 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import MultipleSelector from '@repo/ui/multiple-selector'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { useGQLErrorToast } from '@/hooks/useGQLErrorToast'
+import { useToast } from '@repo/ui/use-toast'
+import { useRouter } from 'next/navigation'
 
 type PolicyEditSidebarProps = {
   policy: InternalPolicyByIdFragment
@@ -21,7 +25,30 @@ type PolicyEditSidebarProps = {
 
 // export const PolicyEditSidebar: React.FC<PolicyEditSidebarProps> = function ({ policy, form, handleSave }) {
 export const PolicyEditSidebar = ({ policy, form, handleSave }: PolicyEditSidebarProps) => {
+  const { toast } = useToast()
+  const { toastGQLError } = useGQLErrorToast()
+  const router = useRouter()
+
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
+  const [_, deletePolicy] = useDeleteInternalPolicyMutation()
+
   if (!policy) return null
+
+  const handleDelete = async () => {
+    const { error } = await deletePolicy({ deleteInternalPolicyId: policy.id })
+
+    if (error) {
+      toastGQLError({ title: 'Error deleting policy', error })
+      return
+    }
+
+    toast({
+      title: 'Policy deleted',
+      variant: 'success',
+    })
+
+    router.push('/policies')
+  }
 
   const sidebarItems = useMemo(() => {
     return {
@@ -44,6 +71,16 @@ export const PolicyEditSidebar = ({ policy, form, handleSave }: PolicyEditSideba
       </Button>
       <MetaPanel entries={sidebarItems.status} />
       <TagsPanel form={form} />
+      <Button variant="redOutline" onClick={() => setShowDeleteConfirmation(true)}>
+        Delete policy
+      </Button>
+
+      <ConfirmationDialog
+        open={showDeleteConfirmation}
+        onOpenChange={setShowDeleteConfirmation}
+        onConfirm={handleDelete}
+        description="This action cannot be undone, this will permanently remove the policy from the organization."
+      />
     </div>
   )
 }
