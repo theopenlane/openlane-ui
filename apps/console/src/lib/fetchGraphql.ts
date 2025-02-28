@@ -1,21 +1,24 @@
+// fetchGraphQLWithUpload.ts
 import { getSession } from 'next-auth/react'
+import { ensureAuth } from './auth/utils/tokenValidator'
 
-export const fetchGraphQL = async ({ query, variables = {} }: { query: string; variables?: any }) => {
+export const fetchGraphQLWithUpload = async ({ query, variables = {} }: { query: string; variables?: Record<string, any> }) => {
   const session = await getSession()
 
-  console.log('Sending GraphQL Request:', { query, variables })
-
-  let headers: HeadersInit = {
-    Authorization: `Bearer ${session?.user?.accessToken}`,
+  const accessToken = await ensureAuth(session)
+  if (!accessToken) {
+    throw new Error('Unauthenticated: no valid token')
   }
 
-  let body: BodyInit
+  const headers: HeadersInit = {
+    Authorization: `Bearer ${accessToken}`,
+  }
 
-  const hasFile = Object.values(variables).some((value) => value instanceof File)
+  const hasFile = Object.values(variables).some((val) => val instanceof File)
+  let body: BodyInit
 
   if (hasFile) {
     const formData = new FormData()
-
     const updatedVariables = { ...variables }
     Object.keys(updatedVariables).forEach((key) => {
       if (updatedVariables[key] instanceof File) {
@@ -27,14 +30,12 @@ export const fetchGraphQL = async ({ query, variables = {} }: { query: string; v
 
     const fileMap: Record<string, string[]> = {}
     let fileIndex = 0
-
     Object.entries(variables).forEach(([key, value]) => {
       if (value instanceof File) {
         fileMap[fileIndex] = [`variables.${key}`]
         fileIndex++
       }
     })
-
     formData.append('map', JSON.stringify(fileMap))
 
     fileIndex = 0

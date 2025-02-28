@@ -12,7 +12,7 @@ import {
 
 import { useMutation } from '@tanstack/react-query'
 import {} from '@repo/codegen/query/user'
-import { fetchGraphQL } from '../fetchGraphql'
+import { fetchGraphQLWithUpload } from '../fetchGraphql'
 export const useGetUserProfile = (userId: string) => {
   const { client } = useGraphQLClient()
 
@@ -23,24 +23,24 @@ export const useGetUserProfile = (userId: string) => {
   })
 }
 
-// export const useUpdateUser = () => {
-//   const { client, queryClient } = useGraphQLClient()
-//   return useMutation<UpdateUserMutation, unknown, UpdateUserMutationVariables>({
-//     mutationFn: async (payload) => client.request(UPDATE_USER, payload),
-//     onSuccess: () => {
-//       queryClient.invalidateQueries({ queryKey: ['user'] })
-//     },
-//   })
-// }
-
 export const useUpdateUser = () => {
   const { client, queryClient } = useGraphQLClient()
+  return useMutation<UpdateUserMutation, unknown, UpdateUserMutationVariables>({
+    mutationFn: async (payload) => client.request(UPDATE_USER, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user'] })
+    },
+  })
+}
+
+export const useUpdateUserAvatar = () => {
+  const { queryClient } = useGraphQLClient()
 
   return useMutation({
-    mutationFn: (payload: UpdateUserMutationVariables) => fetchGraphQL({ query: UPDATE_USER, variables: payload }),
+    mutationFn: (payload: UpdateUserMutationVariables) => fetchGraphQLWithUpload({ query: UPDATE_USER, variables: payload }),
 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user'] }) // Invalidate user cache after update
+      queryClient.invalidateQueries({ queryKey: ['user'] })
     },
   })
 }

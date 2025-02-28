@@ -6,9 +6,10 @@ import { QRCodeSVG } from 'qrcode.react'
 import { Button } from '@repo/ui/button'
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@repo/ui/input-otp'
 import { toast } from '@repo/ui/use-toast'
-import { useUpdateTfaSettingMutation } from '@repo/codegen/src/schema'
 import { useCopyToClipboard } from '@uidotdev/usehooks'
 import { Copy } from 'lucide-react'
+import { useUpdateTfaSetting } from '@/lib/graphql-hooks/tfa'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface QRCodeProps {
   qrcode: string | null
@@ -25,8 +26,9 @@ const QRCodeDialog = ({ qrcode, secret, refetch, onClose, regeneratedCodes }: QR
   const [recoveryCodes, setRecoveryCodes] = useState<string[] | null>(null)
   const [isSecretKeySetup, setIsSecretKeySetup] = useState<boolean>(false)
   const [modalClosable, setModalClosable] = useState(true)
+  const queryClient = useQueryClient()
 
-  const [{ fetching: isTfaSubmitting }, updateTfaSetting] = useUpdateTfaSettingMutation()
+  const { mutateAsync: updateTfaSetting } = useUpdateTfaSetting()
 
   const [copiedText, copyToClipboard] = useCopyToClipboard()
 
@@ -50,14 +52,16 @@ const QRCodeDialog = ({ qrcode, secret, refetch, onClose, regeneratedCodes }: QR
 
       if (response.ok) {
         toast({ title: 'OTP validated successfully', variant: 'success' })
-        const { data } = await updateTfaSetting({
+        const data = await updateTfaSetting({
           input: {
             verified: true,
           },
         })
         setRecoveryCodes(data?.updateTFASetting.recoveryCodes || null)
         setModalClosable(false)
-        refetch()
+
+        queryClient.invalidateQueries({ queryKey: ['tfaSettings'] })
+        queryClient.invalidateQueries({ queryKey: ['userTFASettings'] })
       } else {
         toast({ title: 'OTP validation failed', description: data.message, variant: 'destructive' })
       }

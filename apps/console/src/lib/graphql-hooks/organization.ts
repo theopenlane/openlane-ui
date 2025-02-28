@@ -1,7 +1,7 @@
 'use client'
 
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { getGraphQLClient } from '@/lib/graphql'
+import { getGraphQLClient } from '@/lib/graphqlClient'
 import {
   GET_ALL_ORGANIZATIONS,
   GET_ORGANIZATION_NAME_BY_ID,

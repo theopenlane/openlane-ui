@@ -14,7 +14,7 @@ export const useGetTFASettings = () => {
 export const useGetUserTFASettings = (userId?: string) => {
   const { client } = useGraphQLClient()
   return useQuery<GetUserTfaSettingsQuery, unknown>({
-    queryKey: ['userTFASettings', userId],
+    queryKey: ['userTFASettings'],
     queryFn: async () => client.request(GET_USER_TFA_SETTINGS, { userId }),
     enabled: !!userId,
   })

@@ -1,4 +1,4 @@
-import { getGraphQLClient } from '@/lib/graphql'
+import { getGraphQLClient } from '@/lib/graphqlClient'
 import { useSession } from 'next-auth/react'
 import { useQueryClient } from '@tanstack/react-query'
 

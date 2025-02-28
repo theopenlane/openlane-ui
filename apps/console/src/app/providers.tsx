@@ -1,12 +1,12 @@
 'use client'
 
-import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useSession } from 'next-auth/react'
 import { ThemeProvider } from '@/providers/theme'
 import { usePathname } from 'next/navigation'
 import { ReactNode, useEffect, useState } from 'react'
 import { Loading } from '@/components/shared/loading/loading'
-import { getGraphQLClient } from '@/lib/graphql'
+import { getGraphQLClient } from '@/lib/graphqlClient'
 
 interface ProvidersProps {
   children: ReactNode
@@ -32,6 +32,8 @@ const Providers = ({ children }: ProvidersProps) => {
               const [query, variables] = queryKey as [string, Record<string, any>?]
               return client.request(query, variables)
             },
+            placeholderData: (prev: any) => prev,
+            refetchOnWindowFocus: false,
           },
         },
       })
