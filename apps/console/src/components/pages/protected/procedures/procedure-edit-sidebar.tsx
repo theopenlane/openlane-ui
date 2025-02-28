@@ -19,7 +19,6 @@ type ProcedureEditSidebarProps = {
   handleSave: () => void
 }
 
-// export const ProcedureEditSidebar: React.FC<ProcedureEditSidebarProps> = function ({ procedure, form, handleSave }) {
 export const ProcedureEditSidebar = ({ procedure, form, handleSave }: ProcedureEditSidebarProps) => {
   if (!procedure) return null
 
