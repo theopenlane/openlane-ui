@@ -45,7 +45,7 @@ export const MemberActions = ({ memberId, refetchMembers, memberRole }: MemberAc
   const variables = { userId: userId ?? '' }
   const [{ data: userData }] = useGetUserProfileQuery({ variables })
 
-  const { data, isLoading, error } = useUserHasOrganizationEditPermissions(sessionData)
+  const { data } = useUserHasOrganizationEditPermissions(sessionData)
 
   const handleDeleteMember = async () => {
     const response = await deleteMember({ deleteOrgMembershipId: memberId })

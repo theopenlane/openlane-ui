@@ -1,6 +1,6 @@
 'use client'
 
-import { useGetApiTokensQuery, useGetPersonalAccessTokensQuery, GetApiTokensQuery, GetPersonalAccessTokensQuery } from '@repo/codegen/src/schema'
+import { GetApiTokensQuery, GetPersonalAccessTokensQuery } from '@repo/codegen/src/schema'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
@@ -10,6 +10,7 @@ import { personalAccessTokenTableStyles } from './personal-access-tokens-table-s
 import PersonalApiKeyDialog from './personal-access-token-create-dialog'
 import { usePathname } from 'next/navigation'
 import { TableCell, TableRow } from '@repo/ui/table'
+import { useGetApiTokens, useGetPersonalAccessTokens } from '@/lib/graphql-hooks/tokens'
 
 type TokenNode = {
   id: string
@@ -26,11 +27,10 @@ export const PersonalAccessTokenTable = () => {
 
   const { tableRow, keyIcon, message } = personalAccessTokenTableStyles()
 
-  // Use the appropriate query based on `isOrg`
-  const [{ data, fetching, error }, refetch] = isOrg ? useGetApiTokensQuery({ requestPolicy: 'network-only' }) : useGetPersonalAccessTokensQuery({ requestPolicy: 'network-only' })
+  const { data, isFetching, isError } = isOrg ? useGetApiTokens() : useGetPersonalAccessTokens()
 
-  if (fetching) return <p>Loading...</p>
-  if (error || !data) return null
+  // if (isFetching) return <p>Loading...</p>
+  if (isError || !data) return null
 
   const tokens: TokenNode[] = isOrg
     ? (data as GetApiTokensQuery).apiTokens?.edges
@@ -52,7 +52,6 @@ export const PersonalAccessTokenTable = () => {
           organizations: edge.node!.organizations || [],
         })) || []
 
-  // Define columns conditionally based on `isOrg`
   const columns: ColumnDef<TokenNode>[] = [
     {
       accessorKey: 'name',
@@ -90,7 +89,7 @@ export const PersonalAccessTokenTable = () => {
     {
       accessorKey: 'id',
       header: '',
-      cell: ({ cell }) => <TokenAction tokenId={cell.getValue() as string} refetchTokens={refetch} />,
+      cell: ({ cell }) => <TokenAction tokenId={cell.getValue() as string} />,
     },
   ]
 

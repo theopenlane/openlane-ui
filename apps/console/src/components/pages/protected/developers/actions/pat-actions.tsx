@@ -7,22 +7,20 @@ import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
-import { useDeleteApiTokenMutation, useDeletePersonalAccessTokenMutation } from '@repo/codegen/src/schema'
-import { type UseQueryExecute } from 'urql'
 import { usePathname } from 'next/navigation'
+import { useDeleteApiToken, useDeletePersonalAccessToken } from '@/lib/graphql-hooks/tokens'
 
 type TokenActionProps = {
   tokenId: string
-  refetchTokens: UseQueryExecute
 }
 
 const ICON_SIZE = 12
 
-export const TokenAction = ({ tokenId, refetchTokens }: TokenActionProps) => {
+export const TokenAction = ({ tokenId }: TokenActionProps) => {
   const { actionIcon } = pageStyles()
   const { toast } = useToast()
-  const [_, deletePersonalToken] = useDeletePersonalAccessTokenMutation()
-  const [__, deleteApiToken] = useDeleteApiTokenMutation()
+  const { mutateAsync: deletePersonalToken, error: isError } = useDeletePersonalAccessToken()
+  const { mutateAsync: deleteApiToken, error } = useDeleteApiToken()
   const path = usePathname()
   const isOrg = path.includes('/organization-settings')
 
@@ -30,25 +28,20 @@ export const TokenAction = ({ tokenId, refetchTokens }: TokenActionProps) => {
   const [dialogOpen, setDialogOpen] = useState(false) // Track dialog state
 
   const handleDeleteToken = async () => {
-    const response = isOrg
-      ? await deleteApiToken({ deleteAPITokenId: tokenId }) // Use deleteApiToken for organization
-      : await deletePersonalToken({ deletePersonalAccessTokenId: tokenId }) // Use deletePersonalToken otherwise
+    const response = isOrg ? await deleteApiToken({ deleteAPITokenId: tokenId }) : await deletePersonalToken({ deletePersonalAccessTokenId: tokenId })
 
-    if (response.error) {
+    if (error || isError) {
       toast({
         title: 'There was a problem deleting this token, please try again',
         variant: 'destructive',
       })
-    } else if (response.data) {
+    } else if (response) {
       toast({
         title: 'Token deleted successfully',
         variant: 'success',
       })
       setDialogOpen(false)
       setMenuOpen(false)
-      refetchTokens({
-        requestPolicy: 'network-only',
-      })
     }
   }
 

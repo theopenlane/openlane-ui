@@ -25,6 +25,7 @@
     "@simplewebauthn/browser": "^11.0.0",
     "@simplewebauthn/server": "^11.0.0",
     "@stepperize/react": "^4.0.1",
+    "@tanstack/react-query": "^5.66.9",
     "@types/jsonwebtoken": "^9.0.6",
     "@uidotdev/usehooks": "^2.4.1",
     "@urql/exchange-auth": "^2.2.0",

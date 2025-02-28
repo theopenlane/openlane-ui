@@ -1,5 +1,5 @@
 'use client'
-import { File, useUpdateOrganizationMutation } from '@repo/codegen/src/schema'
+import { File } from '@repo/codegen/src/schema'
 import { Input, InputRow } from '@repo/ui/input'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { useForm } from 'react-hook-form'
@@ -12,10 +12,11 @@ import { RESET_SUCCESS_STATE_MS } from '@/constants'
 import { useOrganization } from '@/hooks/useOrganization'
 import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
 import { toast } from '@repo/ui/use-toast'
+import { useUpdateOrganization } from '@/lib/graphql-hooks/organization'
 
 const OrganizationNameForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
-  const [{ fetching: isSubmitting }, updateOrg] = useUpdateOrganizationMutation()
+  const { isPending, mutateAsync: updateOrg } = useUpdateOrganization()
 
   const { currentOrgId, allOrgs } = useOrganization()
   const currentOrganization = allOrgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
@@ -43,6 +44,9 @@ const OrganizationNameForm = () => {
   }, [currentOrganization])
 
   const updateOrganization = async ({ displayName }: { displayName: string }) => {
+    if (!currentOrgId) {
+      return
+    }
     await updateOrg({
       updateOrganizationId: currentOrgId,
       input: {
@@ -110,8 +114,8 @@ const OrganizationNameForm = () => {
                   </FormItem>
                 )}
               />
-              <Button variant={isSuccess ? 'success' : 'filled'} type="submit" loading={isSubmitting}>
-                {isSubmitting ? 'Saving' : isSuccess ? 'Saved' : 'Save'}
+              <Button variant={isSuccess ? 'success' : 'filled'} type="submit" loading={isPending}>
+                {isPending ? 'Saving' : isSuccess ? 'Saved' : 'Save'}
               </Button>
             </InputRow>
           </form>

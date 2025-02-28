@@ -5,25 +5,25 @@ import { useSession } from 'next-auth/react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useGetAllOrganizationsQuery, useGetUserProfileQuery, useUpdateUserSettingMutation } from '@repo/codegen/src/schema'
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
 import { Button } from '@repo/ui/button'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@repo/ui/select'
 import { RESET_SUCCESS_STATE_MS } from '@/constants'
 import { toast } from '@repo/ui/use-toast'
+import { useGetUserProfile, useUpdateUserSetting } from '@/lib/graphql-hooks/user'
+import { useGetAllOrganizations } from '@/lib/graphql-hooks/organization'
 
 const DefaultOrgForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
   const { data: sessionData } = useSession()
   const userId = sessionData?.user.userId
 
-  const variables = { userId: userId ?? '' }
-  const [{ data: userData }] = useGetUserProfileQuery({ variables })
-  const [{ data: orgsData }] = useGetAllOrganizationsQuery()
+  const { data: userData } = useGetUserProfile(userId)
+  const { data: orgsData } = useGetAllOrganizations()
   const allOrgs = orgsData?.organizations?.edges?.filter((org) => !org?.node?.personalOrg) || []
 
-  const [{ fetching: isSubmitting }, updateUserSetting] = useUpdateUserSettingMutation()
+  const { isPending: isSubmitting, mutateAsync: updateUserSetting } = useUpdateUserSetting()
 
   const formSchema = z.object({
     defaultOrg: z.string().min(1, {

@@ -1,39 +1,43 @@
 'use client'
 
-import { Provider as GraphqlProvider } from 'urql'
-import { Client } from '@urql/core'
-import { createClient, createSubscriberClient } from '@/lib/urql'
+import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query'
 import { useSession } from 'next-auth/react'
 import { ThemeProvider } from '@/providers/theme'
 import { usePathname } from 'next/navigation'
 import { ReactNode, useEffect, useState } from 'react'
 import { Loading } from '@/components/shared/loading/loading'
+import { getGraphQLClient } from '@/lib/graphql'
 
 interface ProvidersProps {
   children: ReactNode
 }
 
-//IF YOU ADD PUBLIC PAGE, ITS REQUIRED TO CHANGE IT IN middleware.tsx waitlists page needs provider
 const publicPages = ['/login', '/verify', '/resend-verify', '/invite', '/subscriber-verify', '/tfa']
 
 const Providers = ({ children }: ProvidersProps) => {
   const { data: session, status } = useSession()
   const pathname = usePathname()
-  const [client, setClient] = useState<Client | null>(null)
+  const [queryClient, setQueryClient] = useState<QueryClient | null>(null)
   const [accessToken, setAccessToken] = useState<string | null>(null)
-
   const isPublicPage = publicPages.includes(pathname)
 
   useEffect(() => {
-    const tokenChanged = session?.user.accessToken && session?.user.accessToken !== accessToken
-
-    if (status === 'authenticated' && tokenChanged) {
-      setAccessToken(session?.user.accessToken)
-      setClient(createClient(session))
-    } else if (status === 'unauthenticated' && pathname.endsWith('waitlist')) {
-      setClient(createSubscriberClient())
+    if (status === 'authenticated' && !queryClient) {
+      setAccessToken(session.user.accessToken)
+      const client = getGraphQLClient(session)
+      const newQueryClient = new QueryClient({
+        defaultOptions: {
+          queries: {
+            queryFn: async ({ queryKey }) => {
+              const [query, variables] = queryKey as [string, Record<string, any>?]
+              return client.request(query, variables)
+            },
+          },
+        },
+      })
+      setQueryClient(newQueryClient)
     }
-  }, [session?.user.accessToken, status, pathname, accessToken])
+  }, [session?.user.accessToken, status, accessToken])
 
   if (isPublicPage) {
     return (
@@ -43,13 +47,13 @@ const Providers = ({ children }: ProvidersProps) => {
     )
   }
 
-  if (!client) {
+  if (!queryClient) {
     return <Loading />
   }
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-      <GraphqlProvider value={client}>{children}</GraphqlProvider>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </ThemeProvider>
   )
 }

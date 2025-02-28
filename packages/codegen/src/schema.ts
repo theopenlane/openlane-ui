@@ -1,6 +1,4 @@
 /* eslint-disable */
-import gql from 'graphql-tag'
-import * as Urql from 'urql'
 export type Maybe<T> = T | null
 export type InputMaybe<T> = T | null
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] }
@@ -8,7 +6,6 @@ export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: 
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> }
 export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never }
 export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never }
-export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
 /** All built-in and custom scalars, mapped to their actual values */
 export interface Scalars {
   ID: { input: string; output: string }
@@ -1545,9 +1542,9 @@ export interface Control extends Node {
   /** the name of the control */
   name: Scalars['String']['output']
   narratives?: Maybe<Array<Narrative>>
-  owner: Organization
+  owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
-  ownerID: Scalars['ID']['output']
+  ownerID?: Maybe<Scalars['ID']['output']>
   procedures?: Maybe<Array<Procedure>>
   programs?: Maybe<Array<Program>>
   risks?: Maybe<Array<Risk>>
@@ -1641,7 +1638,7 @@ export interface ControlHistory extends Node {
   name: Scalars['String']['output']
   operation: ControlHistoryOpType
   /** the ID of the organization owner of the object */
-  ownerID: Scalars['String']['output']
+  ownerID?: Maybe<Scalars['String']['output']>
   ref?: Maybe<Scalars['String']['output']>
   /** which control objectives are satisfied by the control */
   satisfies?: Maybe<Scalars['String']['output']>
@@ -1921,10 +1918,12 @@ export interface ControlHistoryWhereInput {
   ownerIDHasPrefix?: InputMaybe<Scalars['String']['input']>
   ownerIDHasSuffix?: InputMaybe<Scalars['String']['input']>
   ownerIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
   ownerIDLT?: InputMaybe<Scalars['String']['input']>
   ownerIDLTE?: InputMaybe<Scalars['String']['input']>
   ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** ref field predicates */
   ref?: InputMaybe<Scalars['String']['input']>
   refContains?: InputMaybe<Scalars['String']['input']>
@@ -2069,9 +2068,9 @@ export interface ControlObjective extends Node {
   /** the name of the control objective */
   name: Scalars['String']['output']
   narratives?: Maybe<Array<Narrative>>
-  owner: Organization
+  owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
-  ownerID: Scalars['ID']['output']
+  ownerID?: Maybe<Scalars['ID']['output']>
   procedures?: Maybe<Array<Procedure>>
   programs?: Maybe<Array<Program>>
   risks?: Maybe<Array<Risk>>
@@ -2163,7 +2162,7 @@ export interface ControlObjectiveHistory extends Node {
   name: Scalars['String']['output']
   operation: ControlObjectiveHistoryOpType
   /** the ID of the organization owner of the object */
-  ownerID: Scalars['String']['output']
+  ownerID?: Maybe<Scalars['String']['output']>
   ref?: Maybe<Scalars['String']['output']>
   /** source of the control objective, e.g. framework, template, user-defined, etc. */
   source?: Maybe<Scalars['String']['output']>
@@ -2441,10 +2440,12 @@ export interface ControlObjectiveHistoryWhereInput {
   ownerIDHasPrefix?: InputMaybe<Scalars['String']['input']>
   ownerIDHasSuffix?: InputMaybe<Scalars['String']['input']>
   ownerIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
   ownerIDLT?: InputMaybe<Scalars['String']['input']>
   ownerIDLTE?: InputMaybe<Scalars['String']['input']>
   ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** ref field predicates */
   ref?: InputMaybe<Scalars['String']['input']>
   refContains?: InputMaybe<Scalars['String']['input']>
@@ -2815,10 +2816,12 @@ export interface ControlObjectiveWhereInput {
   ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
   ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
   ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
   ownerIDLT?: InputMaybe<Scalars['ID']['input']>
   ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** source field predicates */
   source?: InputMaybe<Scalars['String']['input']>
   sourceContains?: InputMaybe<Scalars['String']['input']>
@@ -3173,10 +3176,12 @@ export interface ControlWhereInput {
   ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
   ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
   ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
   ownerIDLT?: InputMaybe<Scalars['ID']['input']>
   ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** satisfies field predicates */
   satisfies?: InputMaybe<Scalars['String']['input']>
   satisfiesContains?: InputMaybe<Scalars['String']['input']>
@@ -3371,7 +3376,7 @@ export interface CreateControlInput {
   /** the name of the control */
   name: Scalars['String']['input']
   narrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  ownerID: Scalars['ID']['input']
+  ownerID?: InputMaybe<Scalars['ID']['input']>
   procedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -3420,7 +3425,7 @@ export interface CreateControlObjectiveInput {
   /** the name of the control objective */
   name: Scalars['String']['input']
   narrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  ownerID: Scalars['ID']['input']
+  ownerID?: InputMaybe<Scalars['ID']['input']>
   procedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -3452,7 +3457,7 @@ export interface CreateDocumentDataInput {
   data: Scalars['JSON']['input']
   entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  ownerID: Scalars['ID']['input']
+  ownerID?: InputMaybe<Scalars['ID']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   templateID: Scalars['ID']['input']
@@ -3537,7 +3542,7 @@ export interface CreateEvidenceInput {
   isAutomated?: InputMaybe<Scalars['Boolean']['input']>
   /** the name of the evidence */
   name: Scalars['String']['input']
-  ownerID: Scalars['ID']['input']
+  ownerID?: InputMaybe<Scalars['ID']['input']>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the date the evidence should be renewed, defaults to a year from entry date */
   renewalDate?: InputMaybe<Scalars['Time']['input']>
@@ -3793,7 +3798,7 @@ export interface CreateNarrativeInput {
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the name of the narrative */
   name: Scalars['String']['input']
-  ownerID: Scalars['ID']['input']
+  ownerID?: InputMaybe<Scalars['ID']['input']>
   procedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** which controls are satisfied by the narrative */
@@ -3808,10 +3813,8 @@ export interface CreateNarrativeInput {
  * Input was generated by ent.
  */
 export interface CreateNoteInput {
-  entityID?: InputMaybe<Scalars['ID']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
-  programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  taskID?: InputMaybe<Scalars['ID']['input']>
   /** the text of the note */
   text: Scalars['String']['input']
 }
@@ -4074,7 +4077,7 @@ export interface CreateRiskInput {
   mitigation?: InputMaybe<Scalars['String']['input']>
   /** the name of the risk */
   name: Scalars['String']['input']
-  ownerID: Scalars['ID']['input']
+  ownerID?: InputMaybe<Scalars['ID']['input']>
   procedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** type of the risk, e.g. strategic, operational, financial, external, etc. */
@@ -4153,8 +4156,7 @@ export interface CreateSubcontrolInput {
   mappedFrameworks?: InputMaybe<Scalars['String']['input']>
   /** the name of the subcontrol */
   name: Scalars['String']['input']
-  notesID?: InputMaybe<Scalars['ID']['input']>
-  ownerID: Scalars['ID']['input']
+  ownerID?: InputMaybe<Scalars['ID']['input']>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** source of the control, e.g. framework, template, user-defined, etc. */
   source?: InputMaybe<Scalars['String']['input']>
@@ -4167,7 +4169,6 @@ export interface CreateSubcontrolInput {
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  userIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** version of the control */
   version?: InputMaybe<Scalars['String']['input']>
 }
@@ -4203,7 +4204,10 @@ export interface CreateTfaSettingInput {
  */
 export interface CreateTaskInput {
   assigneeID?: InputMaybe<Scalars['ID']['input']>
-  assignerID: Scalars['ID']['input']
+  assignerID?: InputMaybe<Scalars['ID']['input']>
+  /** the category of the task, e.g. evidence upload, risk review, policy review, etc. */
+  category?: InputMaybe<Scalars['String']['input']>
+  commentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the completion date of the task */
   completed?: InputMaybe<Scalars['Time']['input']>
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -4211,15 +4215,13 @@ export interface CreateTaskInput {
   /** the description of the task */
   description?: InputMaybe<Scalars['String']['input']>
   /** the details of the task */
-  details?: InputMaybe<Scalars['Map']['input']>
+  details?: InputMaybe<Scalars['String']['input']>
   /** the due date of the task */
   due?: InputMaybe<Scalars['Time']['input']>
   evidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  ownerID: Scalars['ID']['input']
-  /** the priority of the task */
-  priority?: InputMaybe<TaskPriority>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
   procedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the status of the task */
@@ -4334,9 +4336,9 @@ export interface DocumentData extends Node {
   entity?: Maybe<Array<Entity>>
   files?: Maybe<Array<File>>
   id: Scalars['ID']['output']
-  owner: Organization
+  owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
-  ownerID: Scalars['ID']['output']
+  ownerID?: Maybe<Scalars['ID']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   template: Template
@@ -4399,7 +4401,7 @@ export interface DocumentDataHistory extends Node {
   id: Scalars['ID']['output']
   operation: DocumentDataHistoryOpType
   /** the ID of the organization owner of the object */
-  ownerID: Scalars['String']['output']
+  ownerID?: Maybe<Scalars['String']['output']>
   ref?: Maybe<Scalars['String']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
@@ -4533,10 +4535,12 @@ export interface DocumentDataHistoryWhereInput {
   ownerIDHasPrefix?: InputMaybe<Scalars['String']['input']>
   ownerIDHasSuffix?: InputMaybe<Scalars['String']['input']>
   ownerIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
   ownerIDLT?: InputMaybe<Scalars['String']['input']>
   ownerIDLTE?: InputMaybe<Scalars['String']['input']>
   ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** ref field predicates */
   ref?: InputMaybe<Scalars['String']['input']>
   refContains?: InputMaybe<Scalars['String']['input']>
@@ -4703,10 +4707,12 @@ export interface DocumentDataWhereInput {
   ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
   ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
   ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
   ownerIDLT?: InputMaybe<Scalars['ID']['input']>
   ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** template_id field predicates */
   templateID?: InputMaybe<Scalars['ID']['input']>
   templateIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -6229,9 +6235,9 @@ export interface Evidence extends Node {
   isAutomated?: Maybe<Scalars['Boolean']['output']>
   /** the name of the evidence */
   name: Scalars['String']['output']
-  owner: Organization
+  owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
-  ownerID: Scalars['ID']['output']
+  ownerID?: Maybe<Scalars['ID']['output']>
   programs?: Maybe<Array<Program>>
   /** the date the evidence should be renewed, defaults to a year from entry date */
   renewalDate?: Maybe<Scalars['Time']['output']>
@@ -6310,7 +6316,7 @@ export interface EvidenceHistory extends Node {
   name: Scalars['String']['output']
   operation: EvidenceHistoryOpType
   /** the ID of the organization owner of the object */
-  ownerID: Scalars['String']['output']
+  ownerID?: Maybe<Scalars['String']['output']>
   ref?: Maybe<Scalars['String']['output']>
   /** the date the evidence should be renewed, defaults to a year from entry date */
   renewalDate?: Maybe<Scalars['Time']['output']>
@@ -6522,10 +6528,12 @@ export interface EvidenceHistoryWhereInput {
   ownerIDHasPrefix?: InputMaybe<Scalars['String']['input']>
   ownerIDHasSuffix?: InputMaybe<Scalars['String']['input']>
   ownerIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
   ownerIDLT?: InputMaybe<Scalars['String']['input']>
   ownerIDLTE?: InputMaybe<Scalars['String']['input']>
   ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** ref field predicates */
   ref?: InputMaybe<Scalars['String']['input']>
   refContains?: InputMaybe<Scalars['String']['input']>
@@ -6804,10 +6812,12 @@ export interface EvidenceWhereInput {
   ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
   ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
   ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
   ownerIDLT?: InputMaybe<Scalars['ID']['input']>
   ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** renewal_date field predicates */
   renewalDate?: InputMaybe<Scalars['Time']['input']>
   renewalDateGT?: InputMaybe<Scalars['Time']['input']>
@@ -11508,6 +11518,8 @@ export interface Mutation {
   updateTFASetting: TfaSettingUpdatePayload
   /** Update an existing task */
   updateTask: TaskUpdatePayload
+  /** Update an existing task comment */
+  updateTaskComment: TaskUpdatePayload
   /** Update an existing template */
   updateTemplate: TemplateUpdatePayload
   /** Update an existing user */
@@ -12226,6 +12238,11 @@ export interface MutationUpdateTaskArgs {
   input: UpdateTaskInput
 }
 
+export interface MutationUpdateTaskCommentArgs {
+  id: Scalars['ID']['input']
+  input: UpdateNoteInput
+}
+
 export interface MutationUpdateTemplateArgs {
   id: Scalars['ID']['input']
   input: UpdateTemplateInput
@@ -12264,9 +12281,9 @@ export interface Narrative extends Node {
   internalPolicy?: Maybe<Array<InternalPolicy>>
   /** the name of the narrative */
   name: Scalars['String']['output']
-  owner: Organization
+  owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
-  ownerID: Scalars['ID']['output']
+  ownerID?: Maybe<Scalars['ID']['output']>
   procedure?: Maybe<Array<Procedure>>
   programs?: Maybe<Array<Program>>
   /** which controls are satisfied by the narrative */
@@ -12338,7 +12355,7 @@ export interface NarrativeHistory extends Node {
   name: Scalars['String']['output']
   operation: NarrativeHistoryOpType
   /** the ID of the organization owner of the object */
-  ownerID: Scalars['String']['output']
+  ownerID?: Maybe<Scalars['String']['output']>
   ref?: Maybe<Scalars['String']['output']>
   /** which controls are satisfied by the narrative */
   satisfies?: Maybe<Scalars['String']['output']>
@@ -12516,10 +12533,12 @@ export interface NarrativeHistoryWhereInput {
   ownerIDHasPrefix?: InputMaybe<Scalars['String']['input']>
   ownerIDHasSuffix?: InputMaybe<Scalars['String']['input']>
   ownerIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
   ownerIDLT?: InputMaybe<Scalars['String']['input']>
   ownerIDLTE?: InputMaybe<Scalars['String']['input']>
   ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** ref field predicates */
   ref?: InputMaybe<Scalars['String']['input']>
   refContains?: InputMaybe<Scalars['String']['input']>
@@ -12747,10 +12766,12 @@ export interface NarrativeWhereInput {
   ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
   ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
   ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
   ownerIDLT?: InputMaybe<Scalars['ID']['input']>
   ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** satisfies field predicates */
   satisfies?: InputMaybe<Scalars['String']['input']>
   satisfiesContains?: InputMaybe<Scalars['String']['input']>
@@ -12813,13 +12834,11 @@ export interface Note extends Node {
   deletedBy?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
-  entity?: Maybe<Entity>
   id: Scalars['ID']['output']
   owner?: Maybe<Organization>
-  /** the organization id that owns the object */
+  /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
-  program?: Maybe<Array<Program>>
-  subcontrols?: Maybe<Array<Subcontrol>>
+  task?: Maybe<Task>
   /** the text of the note */
   text: Scalars['String']['output']
   updatedAt?: Maybe<Scalars['Time']['output']>
@@ -12857,7 +12876,7 @@ export interface NoteHistory extends Node {
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
   operation: NoteHistoryOpType
-  /** the organization id that owns the object */
+  /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['String']['output']>
   ref?: Maybe<Scalars['String']['output']>
   /** the text of the note */
@@ -13143,18 +13162,12 @@ export interface NoteWhereInput {
   displayIDLTE?: InputMaybe<Scalars['String']['input']>
   displayIDNEQ?: InputMaybe<Scalars['String']['input']>
   displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  /** entity edge predicates */
-  hasEntity?: InputMaybe<Scalars['Boolean']['input']>
-  hasEntityWith?: InputMaybe<Array<EntityWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
-  /** program edge predicates */
-  hasProgram?: InputMaybe<Scalars['Boolean']['input']>
-  hasProgramWith?: InputMaybe<Array<ProgramWhereInput>>
-  /** subcontrols edge predicates */
-  hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
-  hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
+  /** task edge predicates */
+  hasTask?: InputMaybe<Scalars['Boolean']['input']>
+  hasTaskWith?: InputMaybe<Array<TaskWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -17909,6 +17922,8 @@ export interface Query {
   node?: Maybe<Node>
   /** Lookup nodes by a list of IDs. */
   nodes: Array<Maybe<Node>>
+  /** Look up note by ID */
+  note: Note
   noteHistories: NoteHistoryConnection
   notes: NoteConnection
   /** Look up orgMembership by ID */
@@ -18580,6 +18595,10 @@ export interface QueryNodesArgs {
   ids: Array<Scalars['ID']['input']>
 }
 
+export interface QueryNoteArgs {
+  id: Scalars['ID']['input']
+}
+
 export interface QueryNoteHistoriesArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -19007,9 +19026,9 @@ export interface Risk extends Node {
   mitigation?: Maybe<Scalars['String']['output']>
   /** the name of the risk */
   name: Scalars['String']['output']
-  owner: Organization
+  owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
-  ownerID: Scalars['ID']['output']
+  ownerID?: Maybe<Scalars['ID']['output']>
   procedure?: Maybe<Array<Procedure>>
   programs?: Maybe<Array<Program>>
   /** type of the risk, e.g. strategic, operational, financial, external, etc. */
@@ -19093,7 +19112,7 @@ export interface RiskHistory extends Node {
   name: Scalars['String']['output']
   operation: RiskHistoryOpType
   /** the ID of the organization owner of the object */
-  ownerID: Scalars['String']['output']
+  ownerID?: Maybe<Scalars['String']['output']>
   ref?: Maybe<Scalars['String']['output']>
   /** type of the risk, e.g. strategic, operational, financial, external, etc. */
   riskType?: Maybe<Scalars['String']['output']>
@@ -19335,10 +19354,12 @@ export interface RiskHistoryWhereInput {
   ownerIDHasPrefix?: InputMaybe<Scalars['String']['input']>
   ownerIDHasSuffix?: InputMaybe<Scalars['String']['input']>
   ownerIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
   ownerIDLT?: InputMaybe<Scalars['String']['input']>
   ownerIDLTE?: InputMaybe<Scalars['String']['input']>
   ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** ref field predicates */
   ref?: InputMaybe<Scalars['String']['input']>
   refContains?: InputMaybe<Scalars['String']['input']>
@@ -19655,10 +19676,12 @@ export interface RiskWhereInput {
   ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
   ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
   ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
   ownerIDLT?: InputMaybe<Scalars['ID']['input']>
   ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** risk_type field predicates */
   riskType?: InputMaybe<Scalars['String']['input']>
   riskTypeContains?: InputMaybe<Scalars['String']['input']>
@@ -20499,10 +20522,9 @@ export interface Subcontrol extends Node {
   mappedFrameworks?: Maybe<Scalars['String']['output']>
   /** the name of the subcontrol */
   name: Scalars['String']['output']
-  notes?: Maybe<Note>
-  owner: Organization
+  owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
-  ownerID: Scalars['ID']['output']
+  ownerID?: Maybe<Scalars['ID']['output']>
   programs?: Maybe<Array<Program>>
   /** source of the control, e.g. framework, template, user-defined, etc. */
   source?: Maybe<Scalars['String']['output']>
@@ -20517,7 +20539,6 @@ export interface Subcontrol extends Node {
   tasks?: Maybe<Array<Task>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
-  user?: Maybe<Array<User>>
   /** version of the control */
   version?: Maybe<Scalars['String']['output']>
 }
@@ -20599,7 +20620,7 @@ export interface SubcontrolHistory extends Node {
   name: Scalars['String']['output']
   operation: SubcontrolHistoryOpType
   /** the ID of the organization owner of the object */
-  ownerID: Scalars['String']['output']
+  ownerID?: Maybe<Scalars['String']['output']>
   ref?: Maybe<Scalars['String']['output']>
   /** source of the control, e.g. framework, template, user-defined, etc. */
   source?: Maybe<Scalars['String']['output']>
@@ -20919,10 +20940,12 @@ export interface SubcontrolHistoryWhereInput {
   ownerIDHasPrefix?: InputMaybe<Scalars['String']['input']>
   ownerIDHasSuffix?: InputMaybe<Scalars['String']['input']>
   ownerIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
   ownerIDLT?: InputMaybe<Scalars['String']['input']>
   ownerIDLTE?: InputMaybe<Scalars['String']['input']>
   ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** ref field predicates */
   ref?: InputMaybe<Scalars['String']['input']>
   refContains?: InputMaybe<Scalars['String']['input']>
@@ -21204,9 +21227,6 @@ export interface SubcontrolWhereInput {
   /** evidence edge predicates */
   hasEvidence?: InputMaybe<Scalars['Boolean']['input']>
   hasEvidenceWith?: InputMaybe<Array<EvidenceWhereInput>>
-  /** notes edge predicates */
-  hasNotes?: InputMaybe<Scalars['Boolean']['input']>
-  hasNotesWith?: InputMaybe<Array<NoteWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
@@ -21216,9 +21236,6 @@ export interface SubcontrolWhereInput {
   /** tasks edge predicates */
   hasTasks?: InputMaybe<Scalars['Boolean']['input']>
   hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
-  /** user edge predicates */
-  hasUser?: InputMaybe<Scalars['Boolean']['input']>
-  hasUserWith?: InputMaybe<Array<UserWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -21342,10 +21359,12 @@ export interface SubcontrolWhereInput {
   ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
   ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
   ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
   ownerIDLT?: InputMaybe<Scalars['ID']['input']>
   ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** source field predicates */
   source?: InputMaybe<Scalars['String']['input']>
   sourceContains?: InputMaybe<Scalars['String']['input']>
@@ -21871,9 +21890,13 @@ export interface Task extends Node {
   assignee?: Maybe<User>
   /** the id of the user who was assigned the task */
   assigneeID?: Maybe<Scalars['ID']['output']>
-  assigner: User
-  /** the id of the user who assigned the task */
-  assignerID: Scalars['ID']['output']
+  assigner?: Maybe<User>
+  /** the id of the user who assigned the task, can be left empty if created by the system or a service token */
+  assignerID?: Maybe<Scalars['ID']['output']>
+  /** the category of the task, e.g. evidence upload, risk review, policy review, etc. */
+  category?: Maybe<Scalars['String']['output']>
+  /** conversations related to the task */
+  comments?: Maybe<Array<Note>>
   /** the completion date of the task */
   completed?: Maybe<Scalars['Time']['output']>
   control?: Maybe<Array<Control>>
@@ -21885,7 +21908,7 @@ export interface Task extends Node {
   /** the description of the task */
   description?: Maybe<Scalars['String']['output']>
   /** the details of the task */
-  details?: Maybe<Scalars['Map']['output']>
+  details?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   /** the due date of the task */
@@ -21894,11 +21917,9 @@ export interface Task extends Node {
   group?: Maybe<Array<Group>>
   id: Scalars['ID']['output']
   internalPolicy?: Maybe<Array<InternalPolicy>>
-  owner: Organization
+  owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
-  ownerID: Scalars['ID']['output']
-  /** the priority of the task */
-  priority: TaskPriority
+  ownerID?: Maybe<Scalars['ID']['output']>
   procedure?: Maybe<Array<Procedure>>
   program?: Maybe<Array<Program>>
   /** the status of the task */
@@ -21957,8 +21978,10 @@ export interface TaskHistory extends Node {
   __typename?: 'TaskHistory'
   /** the id of the user who was assigned the task */
   assigneeID?: Maybe<Scalars['String']['output']>
-  /** the id of the user who assigned the task */
-  assignerID: Scalars['String']['output']
+  /** the id of the user who assigned the task, can be left empty if created by the system or a service token */
+  assignerID?: Maybe<Scalars['String']['output']>
+  /** the category of the task, e.g. evidence upload, risk review, policy review, etc. */
+  category?: Maybe<Scalars['String']['output']>
   /** the completion date of the task */
   completed?: Maybe<Scalars['Time']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
@@ -21968,7 +21991,7 @@ export interface TaskHistory extends Node {
   /** the description of the task */
   description?: Maybe<Scalars['String']['output']>
   /** the details of the task */
-  details?: Maybe<Scalars['Map']['output']>
+  details?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   /** the due date of the task */
@@ -21977,9 +22000,7 @@ export interface TaskHistory extends Node {
   id: Scalars['ID']['output']
   operation: TaskHistoryOpType
   /** the ID of the organization owner of the object */
-  ownerID: Scalars['String']['output']
-  /** the priority of the task */
-  priority: TaskHistoryPriority
+  ownerID?: Maybe<Scalars['String']['output']>
   ref?: Maybe<Scalars['String']['output']>
   /** the status of the task */
   status: TaskHistoryTaskStatus
@@ -22016,14 +22037,6 @@ export enum TaskHistoryOpType {
   DELETE = 'DELETE',
   INSERT = 'INSERT',
   UPDATE = 'UPDATE',
-}
-
-/** TaskHistoryPriority is enum for the field priority */
-export enum TaskHistoryPriority {
-  CRITICAL = 'CRITICAL',
-  HIGH = 'HIGH',
-  LOW = 'LOW',
-  MEDIUM = 'MEDIUM',
 }
 
 /** TaskHistoryTaskStatus is enum for the field status */
@@ -22067,10 +22080,28 @@ export interface TaskHistoryWhereInput {
   assignerIDHasPrefix?: InputMaybe<Scalars['String']['input']>
   assignerIDHasSuffix?: InputMaybe<Scalars['String']['input']>
   assignerIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  assignerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
   assignerIDLT?: InputMaybe<Scalars['String']['input']>
   assignerIDLTE?: InputMaybe<Scalars['String']['input']>
   assignerIDNEQ?: InputMaybe<Scalars['String']['input']>
   assignerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  assignerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** category field predicates */
+  category?: InputMaybe<Scalars['String']['input']>
+  categoryContains?: InputMaybe<Scalars['String']['input']>
+  categoryContainsFold?: InputMaybe<Scalars['String']['input']>
+  categoryEqualFold?: InputMaybe<Scalars['String']['input']>
+  categoryGT?: InputMaybe<Scalars['String']['input']>
+  categoryGTE?: InputMaybe<Scalars['String']['input']>
+  categoryHasPrefix?: InputMaybe<Scalars['String']['input']>
+  categoryHasSuffix?: InputMaybe<Scalars['String']['input']>
+  categoryIn?: InputMaybe<Array<Scalars['String']['input']>>
+  categoryIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  categoryLT?: InputMaybe<Scalars['String']['input']>
+  categoryLTE?: InputMaybe<Scalars['String']['input']>
+  categoryNEQ?: InputMaybe<Scalars['String']['input']>
+  categoryNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  categoryNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** completed field predicates */
   completed?: InputMaybe<Scalars['Time']['input']>
   completedGT?: InputMaybe<Scalars['Time']['input']>
@@ -22152,6 +22183,22 @@ export interface TaskHistoryWhereInput {
   descriptionNEQ?: InputMaybe<Scalars['String']['input']>
   descriptionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   descriptionNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** details field predicates */
+  details?: InputMaybe<Scalars['String']['input']>
+  detailsContains?: InputMaybe<Scalars['String']['input']>
+  detailsContainsFold?: InputMaybe<Scalars['String']['input']>
+  detailsEqualFold?: InputMaybe<Scalars['String']['input']>
+  detailsGT?: InputMaybe<Scalars['String']['input']>
+  detailsGTE?: InputMaybe<Scalars['String']['input']>
+  detailsHasPrefix?: InputMaybe<Scalars['String']['input']>
+  detailsHasSuffix?: InputMaybe<Scalars['String']['input']>
+  detailsIn?: InputMaybe<Array<Scalars['String']['input']>>
+  detailsIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  detailsLT?: InputMaybe<Scalars['String']['input']>
+  detailsLTE?: InputMaybe<Scalars['String']['input']>
+  detailsNEQ?: InputMaybe<Scalars['String']['input']>
+  detailsNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  detailsNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_id field predicates */
   displayID?: InputMaybe<Scalars['String']['input']>
   displayIDContains?: InputMaybe<Scalars['String']['input']>
@@ -22214,15 +22261,12 @@ export interface TaskHistoryWhereInput {
   ownerIDHasPrefix?: InputMaybe<Scalars['String']['input']>
   ownerIDHasSuffix?: InputMaybe<Scalars['String']['input']>
   ownerIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
   ownerIDLT?: InputMaybe<Scalars['String']['input']>
   ownerIDLTE?: InputMaybe<Scalars['String']['input']>
   ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  /** priority field predicates */
-  priority?: InputMaybe<TaskHistoryPriority>
-  priorityIn?: InputMaybe<Array<TaskHistoryPriority>>
-  priorityNEQ?: InputMaybe<TaskHistoryPriority>
-  priorityNotIn?: InputMaybe<Array<TaskHistoryPriority>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** ref field predicates */
   ref?: InputMaybe<Scalars['String']['input']>
   refContains?: InputMaybe<Scalars['String']['input']>
@@ -22287,14 +22331,6 @@ export interface TaskHistoryWhereInput {
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
-/** TaskPriority is enum for the field priority */
-export enum TaskPriority {
-  CRITICAL = 'CRITICAL',
-  HIGH = 'HIGH',
-  LOW = 'LOW',
-  MEDIUM = 'MEDIUM',
-}
-
 export interface TaskSearchResult {
   __typename?: 'TaskSearchResult'
   tasks?: Maybe<Array<Task>>
@@ -22348,10 +22384,28 @@ export interface TaskWhereInput {
   assignerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
   assignerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
   assignerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  assignerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
   assignerIDLT?: InputMaybe<Scalars['ID']['input']>
   assignerIDLTE?: InputMaybe<Scalars['ID']['input']>
   assignerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   assignerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  assignerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** category field predicates */
+  category?: InputMaybe<Scalars['String']['input']>
+  categoryContains?: InputMaybe<Scalars['String']['input']>
+  categoryContainsFold?: InputMaybe<Scalars['String']['input']>
+  categoryEqualFold?: InputMaybe<Scalars['String']['input']>
+  categoryGT?: InputMaybe<Scalars['String']['input']>
+  categoryGTE?: InputMaybe<Scalars['String']['input']>
+  categoryHasPrefix?: InputMaybe<Scalars['String']['input']>
+  categoryHasSuffix?: InputMaybe<Scalars['String']['input']>
+  categoryIn?: InputMaybe<Array<Scalars['String']['input']>>
+  categoryIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  categoryLT?: InputMaybe<Scalars['String']['input']>
+  categoryLTE?: InputMaybe<Scalars['String']['input']>
+  categoryNEQ?: InputMaybe<Scalars['String']['input']>
+  categoryNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  categoryNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** completed field predicates */
   completed?: InputMaybe<Scalars['Time']['input']>
   completedGT?: InputMaybe<Scalars['Time']['input']>
@@ -22433,6 +22487,22 @@ export interface TaskWhereInput {
   descriptionNEQ?: InputMaybe<Scalars['String']['input']>
   descriptionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   descriptionNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** details field predicates */
+  details?: InputMaybe<Scalars['String']['input']>
+  detailsContains?: InputMaybe<Scalars['String']['input']>
+  detailsContainsFold?: InputMaybe<Scalars['String']['input']>
+  detailsEqualFold?: InputMaybe<Scalars['String']['input']>
+  detailsGT?: InputMaybe<Scalars['String']['input']>
+  detailsGTE?: InputMaybe<Scalars['String']['input']>
+  detailsHasPrefix?: InputMaybe<Scalars['String']['input']>
+  detailsHasSuffix?: InputMaybe<Scalars['String']['input']>
+  detailsIn?: InputMaybe<Array<Scalars['String']['input']>>
+  detailsIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  detailsLT?: InputMaybe<Scalars['String']['input']>
+  detailsLTE?: InputMaybe<Scalars['String']['input']>
+  detailsNEQ?: InputMaybe<Scalars['String']['input']>
+  detailsNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  detailsNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_id field predicates */
   displayID?: InputMaybe<Scalars['String']['input']>
   displayIDContains?: InputMaybe<Scalars['String']['input']>
@@ -22464,6 +22534,9 @@ export interface TaskWhereInput {
   /** assigner edge predicates */
   hasAssigner?: InputMaybe<Scalars['Boolean']['input']>
   hasAssignerWith?: InputMaybe<Array<UserWhereInput>>
+  /** comments edge predicates */
+  hasComments?: InputMaybe<Scalars['Boolean']['input']>
+  hasCommentsWith?: InputMaybe<Array<NoteWhereInput>>
   /** control edge predicates */
   hasControl?: InputMaybe<Scalars['Boolean']['input']>
   /** control_objective edge predicates */
@@ -22514,15 +22587,12 @@ export interface TaskWhereInput {
   ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
   ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
   ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
   ownerIDLT?: InputMaybe<Scalars['ID']['input']>
   ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  /** priority field predicates */
-  priority?: InputMaybe<TaskPriority>
-  priorityIn?: InputMaybe<Array<TaskPriority>>
-  priorityNEQ?: InputMaybe<TaskPriority>
-  priorityNotIn?: InputMaybe<Array<TaskPriority>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** status field predicates */
   status?: InputMaybe<TaskTaskStatus>
   statusIn?: InputMaybe<Array<TaskTaskStatus>>
@@ -23260,7 +23330,6 @@ export interface UpdateControlInput {
   mappedFrameworks?: InputMaybe<Scalars['String']['input']>
   /** the name of the control */
   name?: InputMaybe<Scalars['String']['input']>
-  ownerID?: InputMaybe<Scalars['ID']['input']>
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -23348,7 +23417,6 @@ export interface UpdateControlObjectiveInput {
   mappedFrameworks?: InputMaybe<Scalars['String']['input']>
   /** the name of the control objective */
   name?: InputMaybe<Scalars['String']['input']>
-  ownerID?: InputMaybe<Scalars['ID']['input']>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -23385,7 +23453,6 @@ export interface UpdateDocumentDataInput {
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   /** the json data of the document */
   data?: InputMaybe<Scalars['JSON']['input']>
-  ownerID?: InputMaybe<Scalars['ID']['input']>
   removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** tags associated with the object */
@@ -23535,7 +23602,6 @@ export interface UpdateEvidenceInput {
   isAutomated?: InputMaybe<Scalars['Boolean']['input']>
   /** the name of the evidence */
   name?: InputMaybe<Scalars['String']['input']>
-  ownerID?: InputMaybe<Scalars['ID']['input']>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -23934,7 +24000,6 @@ export interface UpdateNarrativeInput {
   details?: InputMaybe<Scalars['Map']['input']>
   /** the name of the narrative */
   name?: InputMaybe<Scalars['String']['input']>
-  ownerID?: InputMaybe<Scalars['ID']['input']>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -23954,16 +24019,8 @@ export interface UpdateNarrativeInput {
  * Input was generated by ent.
  */
 export interface UpdateNoteInput {
-  addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  clearEntity?: InputMaybe<Scalars['Boolean']['input']>
-  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
-  clearProgram?: InputMaybe<Scalars['Boolean']['input']>
-  clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
-  entityID?: InputMaybe<Scalars['ID']['input']>
-  ownerID?: InputMaybe<Scalars['ID']['input']>
-  removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  clearTask?: InputMaybe<Scalars['Boolean']['input']>
+  taskID?: InputMaybe<Scalars['ID']['input']>
   /** the text of the note */
   text?: InputMaybe<Scalars['String']['input']>
 }
@@ -24386,7 +24443,6 @@ export interface UpdateRiskInput {
   mitigation?: InputMaybe<Scalars['String']['input']>
   /** the name of the risk */
   name?: InputMaybe<Scalars['String']['input']>
-  ownerID?: InputMaybe<Scalars['ID']['input']>
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -24468,7 +24524,6 @@ export interface UpdateSubcontrolInput {
   addEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addUserIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   /** subcontrol class */
   class?: InputMaybe<Scalars['String']['input']>
@@ -24484,7 +24539,6 @@ export interface UpdateSubcontrolInput {
   clearImplementationVerification?: InputMaybe<Scalars['Boolean']['input']>
   clearImplementationVerificationDate?: InputMaybe<Scalars['Boolean']['input']>
   clearMappedFrameworks?: InputMaybe<Scalars['Boolean']['input']>
-  clearNotes?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
   clearSource?: InputMaybe<Scalars['Boolean']['input']>
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
@@ -24492,7 +24546,6 @@ export interface UpdateSubcontrolInput {
   clearSubcontrolType?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
-  clearUser?: InputMaybe<Scalars['Boolean']['input']>
   clearVersion?: InputMaybe<Scalars['Boolean']['input']>
   /** description of the subcontrol */
   description?: InputMaybe<Scalars['String']['input']>
@@ -24516,13 +24569,10 @@ export interface UpdateSubcontrolInput {
   mappedFrameworks?: InputMaybe<Scalars['String']['input']>
   /** the name of the subcontrol */
   name?: InputMaybe<Scalars['String']['input']>
-  notesID?: InputMaybe<Scalars['ID']['input']>
-  ownerID?: InputMaybe<Scalars['ID']['input']>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeUserIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** source of the control, e.g. framework, template, user-defined, etc. */
   source?: InputMaybe<Scalars['String']['input']>
   /** status of the subcontrol */
@@ -24577,6 +24627,8 @@ export interface UpdateTfaSettingInput {
  * Input was generated by ent.
  */
 export interface UpdateTaskInput {
+  addComment?: InputMaybe<CreateNoteInput>
+  addCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -24588,7 +24640,12 @@ export interface UpdateTaskInput {
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   assigneeID?: InputMaybe<Scalars['ID']['input']>
   assignerID?: InputMaybe<Scalars['ID']['input']>
+  /** the category of the task, e.g. evidence upload, risk review, policy review, etc. */
+  category?: InputMaybe<Scalars['String']['input']>
   clearAssignee?: InputMaybe<Scalars['Boolean']['input']>
+  clearAssigner?: InputMaybe<Scalars['Boolean']['input']>
+  clearCategory?: InputMaybe<Scalars['Boolean']['input']>
+  clearComments?: InputMaybe<Scalars['Boolean']['input']>
   clearCompleted?: InputMaybe<Scalars['Boolean']['input']>
   clearControl?: InputMaybe<Scalars['Boolean']['input']>
   clearControlObjective?: InputMaybe<Scalars['Boolean']['input']>
@@ -24604,15 +24661,14 @@ export interface UpdateTaskInput {
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   /** the completion date of the task */
   completed?: InputMaybe<Scalars['Time']['input']>
+  deleteComment?: InputMaybe<Scalars['ID']['input']>
   /** the description of the task */
   description?: InputMaybe<Scalars['String']['input']>
   /** the details of the task */
-  details?: InputMaybe<Scalars['Map']['input']>
+  details?: InputMaybe<Scalars['String']['input']>
   /** the due date of the task */
   due?: InputMaybe<Scalars['Time']['input']>
-  ownerID?: InputMaybe<Scalars['ID']['input']>
-  /** the priority of the task */
-  priority?: InputMaybe<TaskPriority>
+  removeCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -26115,52 +26171,6 @@ export interface UserWhereInput {
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
-export type CreateApiTokenMutationVariables = Exact<{
-  input: CreateApiTokenInput
-}>
-
-export type CreateApiTokenMutation = { __typename?: 'Mutation'; createAPIToken: { __typename?: 'APITokenCreatePayload'; apiToken: { __typename?: 'APIToken'; token: string } } }
-
-export type GetApiTokensQueryVariables = Exact<{ [key: string]: never }>
-
-export type GetApiTokensQuery = {
-  __typename?: 'Query'
-  apiTokens: {
-    __typename?: 'APITokenConnection'
-    edges?: Array<{
-      __typename?: 'APITokenEdge'
-      node?: { __typename?: 'APIToken'; id: string; name: string; description?: string | null; scopes?: Array<string> | null; expiresAt?: any | null } | null
-    } | null> | null
-  }
-}
-
-export type DeleteApiTokenMutationVariables = Exact<{
-  deleteAPITokenId: Scalars['ID']['input']
-}>
-
-export type DeleteApiTokenMutation = { __typename?: 'Mutation'; deleteAPIToken: { __typename?: 'APITokenDeletePayload'; deletedID: string } }
-
-export type GetAllControlObjectivesQueryVariables = Exact<{
-  where?: InputMaybe<ControlObjectiveWhereInput>
-}>
-
-export type GetAllControlObjectivesQuery = {
-  __typename?: 'Query'
-  controlObjectives: {
-    __typename?: 'ControlObjectiveConnection'
-    edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string; name: string; displayID: string } | null } | null> | null
-  }
-}
-
-export type GetAllControlsQueryVariables = Exact<{
-  where?: InputMaybe<ControlWhereInput>
-}>
-
-export type GetAllControlsQuery = {
-  __typename?: 'Query'
-  controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; name: string; displayID: string } | null } | null> | null }
-}
-
 export type GetDashboardDataQueryVariables = Exact<{
   where?: InputMaybe<TaskWhereInput>
 }>
@@ -26186,198 +26196,6 @@ export type GetDashboardDataQuery = {
     edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string; status: TaskTaskStatus; due?: any | null; tags?: Array<string> | null } | null } | null> | null
   }
   organizations: { __typename?: 'OrganizationConnection'; edges?: Array<{ __typename?: 'OrganizationEdge'; node?: { __typename?: 'Organization'; id: string; name: string } | null } | null> | null }
-}
-
-export type GetDocumentDataQueryVariables = Exact<{
-  documentDataId: Scalars['ID']['input']
-}>
-
-export type GetDocumentDataQuery = { __typename?: 'Query'; documentData: { __typename?: 'DocumentData'; id: string; templateID: string; data: any } }
-
-export type CreateDocumentDataMutationVariables = Exact<{
-  input: CreateDocumentDataInput
-}>
-
-export type CreateDocumentDataMutation = {
-  __typename?: 'Mutation'
-  createDocumentData: { __typename?: 'DocumentDataCreatePayload'; documentData: { __typename?: 'DocumentData'; id: string; templateID: string; data: any } }
-}
-
-export type UpdateDocumentDataMutationVariables = Exact<{
-  updateDocumentDataId: Scalars['ID']['input']
-  input: UpdateDocumentDataInput
-}>
-
-export type UpdateDocumentDataMutation = {
-  __typename?: 'Mutation'
-  updateDocumentData: { __typename?: 'DocumentDataUpdatePayload'; documentData: { __typename?: 'DocumentData'; id: string; templateID: string; data: any } }
-}
-
-export type DeleteDocumentDataMutationVariables = Exact<{
-  deleteDocumentDataId: Scalars['ID']['input']
-}>
-
-export type DeleteDocumentDataMutation = { __typename?: 'Mutation'; deleteDocumentData: { __typename?: 'DocumentDataDeletePayload'; deletedID: string } }
-
-export type GetAllGroupsQueryVariables = Exact<{
-  where?: InputMaybe<GroupWhereInput>
-}>
-
-export type GetAllGroupsQuery = {
-  __typename?: 'Query'
-  groups: {
-    __typename?: 'GroupConnection'
-    edges?: Array<{
-      __typename?: 'GroupEdge'
-      node?: {
-        __typename?: 'Group'
-        id: string
-        name: string
-        description?: string | null
-        displayName: string
-        logoURL?: string | null
-        isManaged?: boolean | null
-        tags?: Array<string> | null
-        members?: Array<{
-          __typename?: 'GroupMembership'
-          id: string
-          role: GroupMembershipRole
-          user: {
-            __typename?: 'User'
-            id: string
-            firstName?: string | null
-            lastName?: string | null
-            avatarRemoteURL?: string | null
-            role?: UserRole | null
-            avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
-          }
-        }> | null
-        setting?: {
-          __typename?: 'GroupSetting'
-          visibility: GroupSettingVisibility
-          joinPolicy: GroupSettingJoinPolicy
-          syncToSlack?: boolean | null
-          syncToGithub?: boolean | null
-          id: string
-        } | null
-      } | null
-    } | null> | null
-  }
-}
-
-export type CreateGroupWithMembersMutationVariables = Exact<{
-  groupInput: CreateGroupInput
-  members?: InputMaybe<Array<GroupMembersInput> | GroupMembersInput>
-}>
-
-export type CreateGroupWithMembersMutation = { __typename?: 'Mutation'; createGroupWithMembers: { __typename?: 'GroupCreatePayload'; group: { __typename?: 'Group'; id: string; displayID: string } } }
-
-export type UpdateGroupMutationVariables = Exact<{
-  updateGroupId: Scalars['ID']['input']
-  input: UpdateGroupInput
-}>
-
-export type UpdateGroupMutation = { __typename?: 'Mutation'; updateGroup: { __typename?: 'GroupUpdatePayload'; group: { __typename?: 'Group'; id: string } } }
-
-export type DeleteGroupMutationVariables = Exact<{
-  deleteGroupId: Scalars['ID']['input']
-}>
-
-export type DeleteGroupMutation = { __typename?: 'Mutation'; deleteGroup: { __typename?: 'GroupDeletePayload'; deletedID: string } }
-
-export type GetGroupDetailsQueryVariables = Exact<{
-  groupId: Scalars['ID']['input']
-}>
-
-export type GetGroupDetailsQuery = {
-  __typename?: 'Query'
-  group: {
-    __typename?: 'Group'
-    id: string
-    name: string
-    description?: string | null
-    displayName: string
-    logoURL?: string | null
-    isManaged?: boolean | null
-    tags?: Array<string> | null
-    members?: Array<{
-      __typename?: 'GroupMembership'
-      id: string
-      role: GroupMembershipRole
-      user: {
-        __typename?: 'User'
-        id: string
-        firstName?: string | null
-        lastName?: string | null
-        avatarRemoteURL?: string | null
-        role?: UserRole | null
-        avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
-      }
-    }> | null
-    setting?: { __typename?: 'GroupSetting'; visibility: GroupSettingVisibility; joinPolicy: GroupSettingJoinPolicy; syncToSlack?: boolean | null; syncToGithub?: boolean | null; id: string } | null
-  }
-}
-
-export type UpdateGroupMembershipMutationVariables = Exact<{
-  updateGroupMembershipId: Scalars['ID']['input']
-  input: UpdateGroupMembershipInput
-}>
-
-export type UpdateGroupMembershipMutation = {
-  __typename?: 'Mutation'
-  updateGroupMembership: { __typename?: 'GroupMembershipUpdatePayload'; groupMembership: { __typename?: 'GroupMembership'; id: string } }
-}
-
-export type GetGroupPermissionsQueryVariables = Exact<{
-  groupId: Scalars['ID']['input']
-}>
-
-export type GetGroupPermissionsQuery = {
-  __typename?: 'Query'
-  group: {
-    __typename?: 'Group'
-    permissions?: Array<{ __typename?: 'GroupPermissions'; displayID?: string | null; id?: string | null; name?: string | null; objectType: string; permissions: Permission }> | null
-  }
-}
-
-export type GetAllPoliciesQueryVariables = Exact<{
-  where?: InputMaybe<InternalPolicyWhereInput>
-}>
-
-export type GetAllPoliciesQuery = {
-  __typename?: 'Query'
-  internalPolicies: {
-    __typename?: 'InternalPolicyConnection'
-    edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; displayID: string } | null } | null> | null
-  }
-}
-
-export type UpdateUserRoleInOrgMutationVariables = Exact<{
-  updateOrgMemberId: Scalars['ID']['input']
-  input: UpdateOrgMembershipInput
-}>
-
-export type UpdateUserRoleInOrgMutation = {
-  __typename?: 'Mutation'
-  updateOrgMembership: { __typename?: 'OrgMembershipUpdatePayload'; orgMembership: { __typename?: 'OrgMembership'; id: string; role: OrgMembershipRole; userID: string; organizationID: string } }
-}
-
-export type RemoveUserFromOrgMutationVariables = Exact<{
-  deleteOrgMembershipId: Scalars['ID']['input']
-}>
-
-export type RemoveUserFromOrgMutation = { __typename?: 'Mutation'; deleteOrgMembership: { __typename?: 'OrgMembershipDeletePayload'; deletedID: string } }
-
-export type GetAllNarrativesQueryVariables = Exact<{
-  where?: InputMaybe<NarrativeWhereInput>
-}>
-
-export type GetAllNarrativesQuery = {
-  __typename?: 'Query'
-  narratives: {
-    __typename?: 'NarrativeConnection'
-    edges?: Array<{ __typename?: 'NarrativeEdge'; node?: { __typename?: 'Narrative'; id: string; name: string; displayID: string } | null } | null> | null
-  }
 }
 
 export type CreateOnboardingMutationVariables = Exact<{
@@ -26579,41 +26397,6 @@ export type DeleteOrganizationMutationVariables = Exact<{
 
 export type DeleteOrganizationMutation = { __typename?: 'Mutation'; deleteOrganization: { __typename?: 'OrganizationDeletePayload'; deletedID: string } }
 
-export type CreatePersonalAccessTokenMutationVariables = Exact<{
-  input: CreatePersonalAccessTokenInput
-}>
-
-export type CreatePersonalAccessTokenMutation = {
-  __typename?: 'Mutation'
-  createPersonalAccessToken: { __typename?: 'PersonalAccessTokenCreatePayload'; personalAccessToken: { __typename?: 'PersonalAccessToken'; token: string } }
-}
-
-export type GetPersonalAccessTokensQueryVariables = Exact<{ [key: string]: never }>
-
-export type GetPersonalAccessTokensQuery = {
-  __typename?: 'Query'
-  personalAccessTokens: {
-    __typename?: 'PersonalAccessTokenConnection'
-    edges?: Array<{
-      __typename?: 'PersonalAccessTokenEdge'
-      node?: {
-        __typename?: 'PersonalAccessToken'
-        id: string
-        name: string
-        description?: string | null
-        expiresAt?: any | null
-        organizations?: Array<{ __typename?: 'Organization'; id: string; name: string }> | null
-      } | null
-    } | null> | null
-  }
-}
-
-export type DeletePersonalAccessTokenMutationVariables = Exact<{
-  deletePersonalAccessTokenId: Scalars['ID']['input']
-}>
-
-export type DeletePersonalAccessTokenMutation = { __typename?: 'Mutation'; deletePersonalAccessToken: { __typename?: 'PersonalAccessTokenDeletePayload'; deletedID: string } }
-
 export type CreateInternalPolicyMutationVariables = Exact<{
   input: CreateInternalPolicyInput
 }>
@@ -26782,194 +26565,6 @@ export type GetInternalPolicyDetailsByIdQuery = {
   }
 }
 
-export type CreateProcedureMutationVariables = Exact<{
-  input: CreateProcedureInput
-}>
-
-export type CreateProcedureMutation = { __typename?: 'Mutation'; createProcedure: { __typename?: 'ProcedureCreatePayload'; procedure: { __typename?: 'Procedure'; id: string; name: string } } }
-
-export type UpdateProcedureMutationVariables = Exact<{
-  updateProcedureId: Scalars['ID']['input']
-  input: UpdateProcedureInput
-}>
-
-export type UpdateProcedureMutation = { __typename?: 'Mutation'; updateProcedure: { __typename?: 'ProcedureUpdatePayload'; procedure: { __typename?: 'Procedure'; id: string; name: string } } }
-
-export type GetAllProceduresWithDetailsQueryVariables = Exact<{ [key: string]: never }>
-
-export type GetAllProceduresWithDetailsQuery = {
-  __typename?: 'Query'
-  procedures: {
-    __typename?: 'ProcedureConnection'
-    edges?: Array<{
-      __typename?: 'ProcedureEdge'
-      node?: {
-        __typename?: 'Procedure'
-        id: string
-        name: string
-        background?: string | null
-        description?: string | null
-        procedureType?: string | null
-        purposeAndScope?: string | null
-        satisfies?: string | null
-        status?: string | null
-        version?: string | null
-        updatedAt?: any | null
-        updatedBy?: string | null
-        createdAt?: any | null
-        createdBy?: string | null
-        tags?: Array<string> | null
-      } | null
-    } | null> | null
-  }
-}
-
-export type GetAllProceduresQueryVariables = Exact<{
-  where?: InputMaybe<ProcedureWhereInput>
-}>
-
-export type GetAllProceduresQuery = {
-  __typename?: 'Query'
-  procedures: {
-    __typename?: 'ProcedureConnection'
-    edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string } | null } | null> | null
-  }
-}
-
-export type GetProcedureDetailsByIdQueryVariables = Exact<{
-  procedureId: Scalars['ID']['input']
-}>
-
-export type GetProcedureDetailsByIdQuery = {
-  __typename?: 'Query'
-  procedure: {
-    __typename?: 'Procedure'
-    id: string
-    name: string
-    description?: string | null
-    details?: any | null
-    background?: string | null
-    createdAt?: any | null
-    createdBy?: string | null
-    updatedAt?: any | null
-    updatedBy?: string | null
-    tags?: Array<string> | null
-    version?: string | null
-    status?: string | null
-    satisfies?: string | null
-    purposeAndScope?: string | null
-    procedureType?: string | null
-    internalPolicies?: Array<{ __typename?: 'InternalPolicy'; id: string; name: string }> | null
-  }
-}
-
-export type CreateProgramWithMembersMutationVariables = Exact<{
-  input: CreateProgramWithMembersInput
-}>
-
-export type CreateProgramWithMembersMutation = {
-  __typename?: 'Mutation'
-  createProgramWithMembers: { __typename?: 'ProgramCreatePayload'; program: { __typename?: 'Program'; id: string; name: string } }
-}
-
-export type UpdateProgramMutationVariables = Exact<{
-  updateProgramId: Scalars['ID']['input']
-  input: UpdateProgramInput
-}>
-
-export type UpdateProgramMutation = { __typename?: 'Mutation'; updateProgram: { __typename?: 'ProgramUpdatePayload'; program: { __typename?: 'Program'; id: string; name: string } } }
-
-export type GetAllProgramsQueryVariables = Exact<{
-  where?: InputMaybe<ProgramWhereInput>
-}>
-
-export type GetAllProgramsQuery = {
-  __typename?: 'Query'
-  programs: {
-    __typename?: 'ProgramConnection'
-    edges?: Array<{
-      __typename?: 'ProgramEdge'
-      node?: {
-        __typename?: 'Program'
-        id: string
-        name: string
-        description?: string | null
-        tags?: Array<string> | null
-        status: ProgramProgramStatus
-        startDate?: any | null
-        endDate?: any | null
-        auditorReady: boolean
-        displayID: string
-      } | null
-    } | null> | null
-  }
-}
-
-export type GetProgramEdgesForWizardQueryVariables = Exact<{ [key: string]: never }>
-
-export type GetProgramEdgesForWizardQuery = {
-  __typename?: 'Query'
-  risks: { __typename?: 'RiskConnection'; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
-  procedures: { __typename?: 'ProcedureConnection'; edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null }
-  internalPolicies: {
-    __typename?: 'InternalPolicyConnection'
-    edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
-  }
-  groups: { __typename?: 'GroupConnection'; edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; id: string; name: string; displayName: string } | null } | null> | null }
-  orgMemberships: {
-    __typename?: 'OrgMembershipConnection'
-    edges?: Array<{
-      __typename?: 'OrgMembershipEdge'
-      node?: { __typename?: 'OrgMembership'; user: { __typename?: 'User'; id: string; firstName?: string | null; lastName?: string | null; role?: UserRole | null } } | null
-    } | null> | null
-  }
-}
-
-export type GetProgramDetailsByIdQueryVariables = Exact<{
-  programId: Scalars['ID']['input']
-}>
-
-export type GetProgramDetailsByIdQuery = {
-  __typename?: 'Query'
-  program: {
-    __typename?: 'Program'
-    id: string
-    name: string
-    description?: string | null
-    tags?: Array<string> | null
-    status: ProgramProgramStatus
-    startDate?: any | null
-    endDate?: any | null
-    auditorReady: boolean
-    auditorWriteComments: boolean
-    auditorReadComments: boolean
-    standards?: Array<{ __typename?: 'Standard'; id: string; name: string }> | null
-    tasks?: Array<{
-      __typename?: 'Task'
-      id: string
-      title: string
-      status: TaskTaskStatus
-      due?: any | null
-      details?: any | null
-      assignee?: { __typename?: 'User'; id: string; firstName?: string | null; lastName?: string | null; email: string } | null
-      assigner: { __typename?: 'User'; id: string; firstName?: string | null; lastName?: string | null; email: string }
-    }> | null
-    controlObjectives?: Array<{ __typename?: 'ControlObjective'; id: string; name: string }> | null
-    controls?: Array<{ __typename?: 'Control'; id: string; name: string; class?: string | null }> | null
-    subcontrols?: Array<{ __typename?: 'Subcontrol'; id: string; name: string; class?: string | null }> | null
-    narratives?: Array<{ __typename?: 'Narrative'; id: string; name: string }> | null
-    internalPolicies?: Array<{ __typename?: 'InternalPolicy'; id: string; name: string }> | null
-    procedures?: Array<{ __typename?: 'Procedure'; id: string; name: string }> | null
-  }
-}
-
-export type GetAllRisksQueryVariables = Exact<{ [key: string]: never }>
-
-export type GetAllRisksQuery = {
-  __typename?: 'Query'
-  risks: { __typename?: 'RiskConnection'; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
-}
-
 export type SearchQueryVariables = Exact<{
   query: Scalars['String']['input']
 }>
@@ -27013,34 +26608,6 @@ export type SearchQuery = {
   } | null
 }
 
-export type CreateStandardMutationVariables = Exact<{
-  input: CreateStandardInput
-}>
-
-export type CreateStandardMutation = { __typename?: 'Mutation'; createStandard: { __typename?: 'StandardCreatePayload'; standard: { __typename?: 'Standard'; id: string } } }
-
-export type CreateSubscriberMutationVariables = Exact<{
-  input: CreateSubscriberInput
-}>
-
-export type CreateSubscriberMutation = { __typename?: 'Mutation'; createSubscriber: { __typename?: 'SubscriberCreatePayload'; subscriber: { __typename?: 'Subscriber'; email: string } } }
-
-export type GetAllSubscribersQueryVariables = Exact<{ [key: string]: never }>
-
-export type GetAllSubscribersQuery = {
-  __typename?: 'Query'
-  subscribers: {
-    __typename?: 'SubscriberConnection'
-    edges?: Array<{ __typename?: 'SubscriberEdge'; node?: { __typename?: 'Subscriber'; active: boolean; email: string; id: string; verifiedEmail: boolean } | null } | null> | null
-  }
-}
-
-export type DeleteSubscriberMutationVariables = Exact<{
-  deleteSubscriberEmail: Scalars['String']['input']
-}>
-
-export type DeleteSubscriberMutation = { __typename?: 'Mutation'; deleteSubscriber: { __typename?: 'SubscriberDeletePayload'; email: string } }
-
 export type TasksWithFilterQueryVariables = Exact<{
   where?: InputMaybe<TaskWhereInput>
 }>
@@ -27051,116 +26618,10 @@ export type TasksWithFilterQuery = {
     __typename?: 'TaskConnection'
     edges?: Array<{
       __typename?: 'TaskEdge'
-      node?: { __typename?: 'Task'; id: string; title: string; description?: string | null; status: TaskTaskStatus; tags?: Array<string> | null; details?: any | null; due?: any | null } | null
+      node?: { __typename?: 'Task'; id: string; title: string; description?: string | null; status: TaskTaskStatus; tags?: Array<string> | null; details?: string | null; due?: any | null } | null
     } | null> | null
   }
 }
-
-export type CreateTemplateMutationVariables = Exact<{
-  input: CreateTemplateInput
-}>
-
-export type CreateTemplateMutation = {
-  __typename?: 'Mutation'
-  createTemplate: {
-    __typename?: 'TemplateCreatePayload'
-    template: {
-      __typename?: 'Template'
-      id: string
-      name: string
-      templateType: TemplateDocumentType
-      description?: string | null
-      jsonconfig: any
-      uischema?: any | null
-      owner?: { __typename?: 'Organization'; id: string } | null
-    }
-  }
-}
-
-export type UpdateTemplateMutationVariables = Exact<{
-  updateTemplateId: Scalars['ID']['input']
-  input: UpdateTemplateInput
-}>
-
-export type UpdateTemplateMutation = {
-  __typename?: 'Mutation'
-  updateTemplate: {
-    __typename?: 'TemplateUpdatePayload'
-    template: {
-      __typename?: 'Template'
-      id: string
-      name: string
-      templateType: TemplateDocumentType
-      description?: string | null
-      jsonconfig: any
-      uischema?: any | null
-      owner?: { __typename?: 'Organization'; id: string } | null
-    }
-  }
-}
-
-export type GetAllTemplatesQueryVariables = Exact<{ [key: string]: never }>
-
-export type GetAllTemplatesQuery = {
-  __typename?: 'Query'
-  templates: {
-    __typename?: 'TemplateConnection'
-    edges?: Array<{
-      __typename?: 'TemplateEdge'
-      node?: {
-        __typename?: 'Template'
-        id: string
-        name: string
-        templateType: TemplateDocumentType
-        description?: string | null
-        jsonconfig: any
-        uischema?: any | null
-        createdAt?: any | null
-        updatedAt?: any | null
-      } | null
-    } | null> | null
-  }
-}
-
-export type FilterTemplatesQueryVariables = Exact<{
-  where?: InputMaybe<TemplateWhereInput>
-}>
-
-export type FilterTemplatesQuery = {
-  __typename?: 'Query'
-  templates: {
-    __typename?: 'TemplateConnection'
-    edges?: Array<{
-      __typename?: 'TemplateEdge'
-      node?: {
-        __typename?: 'Template'
-        id: string
-        name: string
-        templateType: TemplateDocumentType
-        description?: string | null
-        jsonconfig: any
-        uischema?: any | null
-        createdAt?: any | null
-        updatedAt?: any | null
-      } | null
-    } | null> | null
-  }
-}
-
-export type GetTemplateQueryVariables = Exact<{
-  getTemplateId: Scalars['ID']['input']
-}>
-
-export type GetTemplateQuery = {
-  __typename?: 'Query'
-  template: { __typename?: 'Template'; id: string; templateType: TemplateDocumentType; name: string; description?: string | null; jsonconfig: any; uischema?: any | null }
-}
-
-export type DeleteTemplateMutationVariables = Exact<{
-  deleteTemplateId: Scalars['ID']['input']
-}>
-
-export type DeleteTemplateMutation = { __typename?: 'Mutation'; deleteTemplate: { __typename?: 'TemplateDeletePayload'; deletedID: string } }
 
 export type GetTfaSettingsQueryVariables = Exact<{ [key: string]: never }>
 
@@ -27201,6 +26662,66 @@ export type CreateTfaSettingMutation = {
   __typename?: 'Mutation'
   createTFASetting: { __typename?: 'TFASettingCreatePayload'; qrCode?: string | null; tfaSecret?: string | null; tfaSetting: { __typename?: 'TFASetting'; id: string } }
 }
+
+export type CreatePersonalAccessTokenMutationVariables = Exact<{
+  input: CreatePersonalAccessTokenInput
+}>
+
+export type CreatePersonalAccessTokenMutation = {
+  __typename?: 'Mutation'
+  createPersonalAccessToken: { __typename?: 'PersonalAccessTokenCreatePayload'; personalAccessToken: { __typename?: 'PersonalAccessToken'; token: string } }
+}
+
+export type GetPersonalAccessTokensQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetPersonalAccessTokensQuery = {
+  __typename?: 'Query'
+  personalAccessTokens: {
+    __typename?: 'PersonalAccessTokenConnection'
+    edges?: Array<{
+      __typename?: 'PersonalAccessTokenEdge'
+      node?: {
+        __typename?: 'PersonalAccessToken'
+        id: string
+        name: string
+        description?: string | null
+        expiresAt?: any | null
+        organizations?: Array<{ __typename?: 'Organization'; id: string; name: string }> | null
+      } | null
+    } | null> | null
+  }
+}
+
+export type DeletePersonalAccessTokenMutationVariables = Exact<{
+  deletePersonalAccessTokenId: Scalars['ID']['input']
+}>
+
+export type DeletePersonalAccessTokenMutation = { __typename?: 'Mutation'; deletePersonalAccessToken: { __typename?: 'PersonalAccessTokenDeletePayload'; deletedID: string } }
+
+export type CreateApiTokenMutationVariables = Exact<{
+  input: CreateApiTokenInput
+}>
+
+export type CreateApiTokenMutation = { __typename?: 'Mutation'; createAPIToken: { __typename?: 'APITokenCreatePayload'; apiToken: { __typename?: 'APIToken'; token: string } } }
+
+export type GetApiTokensQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetApiTokensQuery = {
+  __typename?: 'Query'
+  apiTokens: {
+    __typename?: 'APITokenConnection'
+    edges?: Array<{
+      __typename?: 'APITokenEdge'
+      node?: { __typename?: 'APIToken'; id: string; name: string; description?: string | null; scopes?: Array<string> | null; expiresAt?: any | null } | null
+    } | null> | null
+  }
+}
+
+export type DeleteApiTokenMutationVariables = Exact<{
+  deleteAPITokenId: Scalars['ID']['input']
+}>
+
+export type DeleteApiTokenMutation = { __typename?: 'Mutation'; deleteAPIToken: { __typename?: 'APITokenDeletePayload'; deletedID: string } }
 
 export type GetUserProfileQueryVariables = Exact<{
   userId: Scalars['ID']['input']
@@ -27245,1508 +26766,3 @@ export type UpdateUserSettingMutationVariables = Exact<{
 }>
 
 export type UpdateUserSettingMutation = { __typename?: 'Mutation'; updateUserSetting: { __typename?: 'UserSettingUpdatePayload'; userSetting: { __typename?: 'UserSetting'; id: string } } }
-
-export const InternalPolicyUpdateFieldsFragmentDoc = gql`
-  fragment InternalPolicyUpdateFields on InternalPolicy {
-    id
-    name
-    background
-    description
-    policyType
-    purposeAndScope
-    details
-  }
-`
-export const InternalPolicyByIdFragmentDoc = gql`
-  fragment InternalPolicyByID on InternalPolicy {
-    id
-    name
-    description
-    details
-    background
-    createdAt
-    createdBy
-    updatedAt
-    updatedBy
-    tags
-    version
-    status
-    purposeAndScope
-    policyType
-    procedures {
-      id
-      name
-    }
-  }
-`
-export const CreateApiTokenDocument = gql`
-  mutation CreateAPIToken($input: CreateAPITokenInput!) {
-    createAPIToken(input: $input) {
-      apiToken {
-        token
-      }
-    }
-  }
-`
-
-export function useCreateApiTokenMutation() {
-  return Urql.useMutation<CreateApiTokenMutation, CreateApiTokenMutationVariables>(CreateApiTokenDocument)
-}
-export const GetApiTokensDocument = gql`
-  query GetAPITokens {
-    apiTokens {
-      edges {
-        node {
-          id
-          name
-          description
-          scopes
-          expiresAt
-        }
-      }
-    }
-  }
-`
-
-export function useGetApiTokensQuery(options?: Omit<Urql.UseQueryArgs<GetApiTokensQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetApiTokensQuery, GetApiTokensQueryVariables>({ query: GetApiTokensDocument, ...options })
-}
-export const DeleteApiTokenDocument = gql`
-  mutation DeleteAPIToken($deleteAPITokenId: ID!) {
-    deleteAPIToken(id: $deleteAPITokenId) {
-      deletedID
-    }
-  }
-`
-
-export function useDeleteApiTokenMutation() {
-  return Urql.useMutation<DeleteApiTokenMutation, DeleteApiTokenMutationVariables>(DeleteApiTokenDocument)
-}
-export const GetAllControlObjectivesDocument = gql`
-  query GetAllControlObjectives($where: ControlObjectiveWhereInput) {
-    controlObjectives(where: $where) {
-      edges {
-        node {
-          id
-          name
-          displayID
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllControlObjectivesQuery(options?: Omit<Urql.UseQueryArgs<GetAllControlObjectivesQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllControlObjectivesQuery, GetAllControlObjectivesQueryVariables>({ query: GetAllControlObjectivesDocument, ...options })
-}
-export const GetAllControlsDocument = gql`
-  query GetAllControls($where: ControlWhereInput) {
-    controls(where: $where) {
-      edges {
-        node {
-          id
-          name
-          displayID
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllControlsQuery(options?: Omit<Urql.UseQueryArgs<GetAllControlsQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllControlsQuery, GetAllControlsQueryVariables>({ query: GetAllControlsDocument, ...options })
-}
-export const GetDashboardDataDocument = gql`
-  query GetDashboardData($where: TaskWhereInput) {
-    programs {
-      edges {
-        node {
-          id
-          name
-          description
-          controls {
-            id
-          }
-          tasks {
-            id
-            title
-            status
-            description
-            due
-          }
-        }
-      }
-    }
-    tasks(where: $where) {
-      edges {
-        node {
-          id
-          title
-          status
-          due
-          tags
-        }
-      }
-    }
-    organizations {
-      edges {
-        node {
-          id
-          name
-        }
-      }
-    }
-  }
-`
-
-export function useGetDashboardDataQuery(options?: Omit<Urql.UseQueryArgs<GetDashboardDataQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetDashboardDataQuery, GetDashboardDataQueryVariables>({ query: GetDashboardDataDocument, ...options })
-}
-export const GetDocumentDataDocument = gql`
-  query GetDocumentData($documentDataId: ID!) {
-    documentData(id: $documentDataId) {
-      id
-      templateID
-      data
-    }
-  }
-`
-
-export function useGetDocumentDataQuery(options: Omit<Urql.UseQueryArgs<GetDocumentDataQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetDocumentDataQuery, GetDocumentDataQueryVariables>({ query: GetDocumentDataDocument, ...options })
-}
-export const CreateDocumentDataDocument = gql`
-  mutation CreateDocumentData($input: CreateDocumentDataInput!) {
-    createDocumentData(input: $input) {
-      documentData {
-        id
-        templateID
-        data
-      }
-    }
-  }
-`
-
-export function useCreateDocumentDataMutation() {
-  return Urql.useMutation<CreateDocumentDataMutation, CreateDocumentDataMutationVariables>(CreateDocumentDataDocument)
-}
-export const UpdateDocumentDataDocument = gql`
-  mutation UpdateDocumentData($updateDocumentDataId: ID!, $input: UpdateDocumentDataInput!) {
-    updateDocumentData(id: $updateDocumentDataId, input: $input) {
-      documentData {
-        id
-        templateID
-        data
-      }
-    }
-  }
-`
-
-export function useUpdateDocumentDataMutation() {
-  return Urql.useMutation<UpdateDocumentDataMutation, UpdateDocumentDataMutationVariables>(UpdateDocumentDataDocument)
-}
-export const DeleteDocumentDataDocument = gql`
-  mutation DeleteDocumentData($deleteDocumentDataId: ID!) {
-    deleteDocumentData(id: $deleteDocumentDataId) {
-      deletedID
-    }
-  }
-`
-
-export function useDeleteDocumentDataMutation() {
-  return Urql.useMutation<DeleteDocumentDataMutation, DeleteDocumentDataMutationVariables>(DeleteDocumentDataDocument)
-}
-export const GetAllGroupsDocument = gql`
-  query GetAllGroups($where: GroupWhereInput) {
-    groups(where: $where) {
-      edges {
-        node {
-          id
-          name
-          description
-          displayName
-          logoURL
-          isManaged
-          tags
-          members {
-            id
-            role
-            user {
-              id
-              firstName
-              lastName
-              avatarFile {
-                presignedURL
-              }
-              avatarRemoteURL
-              role
-            }
-          }
-          setting {
-            visibility
-            joinPolicy
-            syncToSlack
-            syncToGithub
-            id
-          }
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllGroupsQuery(options?: Omit<Urql.UseQueryArgs<GetAllGroupsQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllGroupsQuery, GetAllGroupsQueryVariables>({ query: GetAllGroupsDocument, ...options })
-}
-export const CreateGroupWithMembersDocument = gql`
-  mutation CreateGroupWithMembers($groupInput: CreateGroupInput!, $members: [GroupMembersInput!]) {
-    createGroupWithMembers(groupInput: $groupInput, members: $members) {
-      group {
-        id
-        displayID
-      }
-    }
-  }
-`
-
-export function useCreateGroupWithMembersMutation() {
-  return Urql.useMutation<CreateGroupWithMembersMutation, CreateGroupWithMembersMutationVariables>(CreateGroupWithMembersDocument)
-}
-export const UpdateGroupDocument = gql`
-  mutation UpdateGroup($updateGroupId: ID!, $input: UpdateGroupInput!) {
-    updateGroup(id: $updateGroupId, input: $input) {
-      group {
-        id
-      }
-    }
-  }
-`
-
-export function useUpdateGroupMutation() {
-  return Urql.useMutation<UpdateGroupMutation, UpdateGroupMutationVariables>(UpdateGroupDocument)
-}
-export const DeleteGroupDocument = gql`
-  mutation DeleteGroup($deleteGroupId: ID!) {
-    deleteGroup(id: $deleteGroupId) {
-      deletedID
-    }
-  }
-`
-
-export function useDeleteGroupMutation() {
-  return Urql.useMutation<DeleteGroupMutation, DeleteGroupMutationVariables>(DeleteGroupDocument)
-}
-export const GetGroupDetailsDocument = gql`
-  query GetGroupDetails($groupId: ID!) {
-    group(id: $groupId) {
-      id
-      name
-      description
-      displayName
-      logoURL
-      isManaged
-      tags
-      members {
-        id
-        role
-        user {
-          id
-          firstName
-          lastName
-          avatarFile {
-            presignedURL
-          }
-          avatarRemoteURL
-          role
-        }
-      }
-      setting {
-        visibility
-        joinPolicy
-        syncToSlack
-        syncToGithub
-        id
-      }
-    }
-  }
-`
-
-export function useGetGroupDetailsQuery(options: Omit<Urql.UseQueryArgs<GetGroupDetailsQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetGroupDetailsQuery, GetGroupDetailsQueryVariables>({ query: GetGroupDetailsDocument, ...options })
-}
-export const UpdateGroupMembershipDocument = gql`
-  mutation UpdateGroupMembership($updateGroupMembershipId: ID!, $input: UpdateGroupMembershipInput!) {
-    updateGroupMembership(id: $updateGroupMembershipId, input: $input) {
-      groupMembership {
-        id
-      }
-    }
-  }
-`
-
-export function useUpdateGroupMembershipMutation() {
-  return Urql.useMutation<UpdateGroupMembershipMutation, UpdateGroupMembershipMutationVariables>(UpdateGroupMembershipDocument)
-}
-export const GetGroupPermissionsDocument = gql`
-  query GetGroupPermissions($groupId: ID!) {
-    group(id: $groupId) {
-      permissions {
-        displayID
-        id
-        name
-        objectType
-        permissions
-      }
-    }
-  }
-`
-
-export function useGetGroupPermissionsQuery(options: Omit<Urql.UseQueryArgs<GetGroupPermissionsQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetGroupPermissionsQuery, GetGroupPermissionsQueryVariables>({ query: GetGroupPermissionsDocument, ...options })
-}
-export const GetAllPoliciesDocument = gql`
-  query GetAllPolicies($where: InternalPolicyWhereInput) {
-    internalPolicies(where: $where) {
-      edges {
-        node {
-          id
-          name
-          displayID
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllPoliciesQuery(options?: Omit<Urql.UseQueryArgs<GetAllPoliciesQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllPoliciesQuery, GetAllPoliciesQueryVariables>({ query: GetAllPoliciesDocument, ...options })
-}
-export const UpdateUserRoleInOrgDocument = gql`
-  mutation UpdateUserRoleInOrg($updateOrgMemberId: ID!, $input: UpdateOrgMembershipInput!) {
-    updateOrgMembership(id: $updateOrgMemberId, input: $input) {
-      orgMembership {
-        id
-        role
-        userID
-        organizationID
-      }
-    }
-  }
-`
-
-export function useUpdateUserRoleInOrgMutation() {
-  return Urql.useMutation<UpdateUserRoleInOrgMutation, UpdateUserRoleInOrgMutationVariables>(UpdateUserRoleInOrgDocument)
-}
-export const RemoveUserFromOrgDocument = gql`
-  mutation RemoveUserFromOrg($deleteOrgMembershipId: ID!) {
-    deleteOrgMembership(id: $deleteOrgMembershipId) {
-      deletedID
-    }
-  }
-`
-
-export function useRemoveUserFromOrgMutation() {
-  return Urql.useMutation<RemoveUserFromOrgMutation, RemoveUserFromOrgMutationVariables>(RemoveUserFromOrgDocument)
-}
-export const GetAllNarrativesDocument = gql`
-  query GetAllNarratives($where: NarrativeWhereInput) {
-    narratives(where: $where) {
-      edges {
-        node {
-          id
-          name
-          displayID
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllNarrativesQuery(options?: Omit<Urql.UseQueryArgs<GetAllNarrativesQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllNarrativesQuery, GetAllNarrativesQueryVariables>({ query: GetAllNarrativesDocument, ...options })
-}
-export const CreateOnboardingDocument = gql`
-  mutation CreateOnboarding($input: CreateOnboardingInput!) {
-    createOnboarding(input: $input) {
-      onboarding {
-        companyDetails
-        companyName
-        domains
-        compliance
-        id
-        organizationID
-        userDetails
-      }
-    }
-  }
-`
-
-export function useCreateOnboardingMutation() {
-  return Urql.useMutation<CreateOnboardingMutation, CreateOnboardingMutationVariables>(CreateOnboardingDocument)
-}
-export const GetAllOrganizationsDocument = gql`
-  query GetAllOrganizations {
-    organizations {
-      edges {
-        node {
-          id
-          name
-          displayName
-          avatarRemoteURL
-          personalOrg
-          avatarFile {
-            id
-            presignedURL
-          }
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllOrganizationsQuery(options?: Omit<Urql.UseQueryArgs<GetAllOrganizationsQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllOrganizationsQuery, GetAllOrganizationsQueryVariables>({ query: GetAllOrganizationsDocument, ...options })
-}
-export const GetOrganizationNameByIdDocument = gql`
-  query GetOrganizationNameByID($organizationId: ID!) {
-    organization(id: $organizationId) {
-      name
-      displayName
-    }
-  }
-`
-
-export function useGetOrganizationNameByIdQuery(options: Omit<Urql.UseQueryArgs<GetOrganizationNameByIdQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetOrganizationNameByIdQuery, GetOrganizationNameByIdQueryVariables>({ query: GetOrganizationNameByIdDocument, ...options })
-}
-export const GetSingleOrganizationMembersDocument = gql`
-  query GetSingleOrganizationMembers($organizationId: ID!) {
-    organization(id: $organizationId) {
-      members {
-        id
-        createdAt
-        role
-        user {
-          id
-          firstName
-          lastName
-          authProvider
-          avatarRemoteURL
-          email
-          role
-          createdAt
-          avatarFile {
-            id
-            presignedURL
-          }
-        }
-      }
-    }
-  }
-`
-
-export function useGetSingleOrganizationMembersQuery(options: Omit<Urql.UseQueryArgs<GetSingleOrganizationMembersQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetSingleOrganizationMembersQuery, GetSingleOrganizationMembersQueryVariables>({ query: GetSingleOrganizationMembersDocument, ...options })
-}
-export const GetAllOrganizationsWithMembersDocument = gql`
-  query GetAllOrganizationsWithMembers {
-    organizations {
-      edges {
-        node {
-          id
-          personalOrg
-          displayName
-          name
-          avatarRemoteURL
-          avatarFile {
-            id
-            presignedURL
-          }
-          members {
-            role
-          }
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllOrganizationsWithMembersQuery(options?: Omit<Urql.UseQueryArgs<GetAllOrganizationsWithMembersQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllOrganizationsWithMembersQuery, GetAllOrganizationsWithMembersQueryVariables>({ query: GetAllOrganizationsWithMembersDocument, ...options })
-}
-export const GetInvitesDocument = gql`
-  query GetInvites {
-    invites {
-      edges {
-        node {
-          id
-          recipient
-          status
-          createdAt
-          expires
-          role
-        }
-      }
-    }
-  }
-`
-
-export function useGetInvitesQuery(options?: Omit<Urql.UseQueryArgs<GetInvitesQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetInvitesQuery, GetInvitesQueryVariables>({ query: GetInvitesDocument, ...options })
-}
-export const GetOrganizationBillingDocument = gql`
-  query GetOrganizationBilling($organizationId: ID!) {
-    organization(id: $organizationId) {
-      personalOrg
-      orgSubscriptions {
-        active
-        expiresAt
-        subscriptionURL
-        stripeSubscriptionStatus
-        productTier
-        productPrice
-        features
-        productTier
-      }
-    }
-  }
-`
-
-export function useGetOrganizationBillingQuery(options: Omit<Urql.UseQueryArgs<GetOrganizationBillingQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetOrganizationBillingQuery, GetOrganizationBillingQueryVariables>({ query: GetOrganizationBillingDocument, ...options })
-}
-export const GetOrganizationSettingDocument = gql`
-  query getOrganizationSetting($organizationId: ID!) {
-    organization(id: $organizationId) {
-      setting {
-        createdAt
-        updatedAt
-        createdBy
-        updatedBy
-        domains
-        billingContact
-        billingEmail
-        billingPhone
-        billingAddress
-        taxIdentifier
-        tags
-        geoLocation
-        billingNotificationsEnabled
-      }
-    }
-  }
-`
-
-export function useGetOrganizationSettingQuery(options: Omit<Urql.UseQueryArgs<GetOrganizationSettingQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetOrganizationSettingQuery, GetOrganizationSettingQueryVariables>({ query: GetOrganizationSettingDocument, ...options })
-}
-export const GetBillingEmailDocument = gql`
-  query getBillingEmail($organizationId: ID!) {
-    organization(id: $organizationId) {
-      setting {
-        billingEmail
-      }
-    }
-  }
-`
-
-export function useGetBillingEmailQuery(options: Omit<Urql.UseQueryArgs<GetBillingEmailQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetBillingEmailQuery, GetBillingEmailQueryVariables>({ query: GetBillingEmailDocument, ...options })
-}
-export const CreateOrganizationDocument = gql`
-  mutation CreateOrganization($input: CreateOrganizationInput!) {
-    createOrganization(input: $input) {
-      organization {
-        id
-      }
-    }
-  }
-`
-
-export function useCreateOrganizationMutation() {
-  return Urql.useMutation<CreateOrganizationMutation, CreateOrganizationMutationVariables>(CreateOrganizationDocument)
-}
-export const UpdateOrganizationDocument = gql`
-  mutation UpdateOrganization($updateOrganizationId: ID!, $input: UpdateOrganizationInput!, $avatarFile: Upload) {
-    updateOrganization(id: $updateOrganizationId, input: $input, avatarFile: $avatarFile) {
-      organization {
-        id
-      }
-    }
-  }
-`
-
-export function useUpdateOrganizationMutation() {
-  return Urql.useMutation<UpdateOrganizationMutation, UpdateOrganizationMutationVariables>(UpdateOrganizationDocument)
-}
-export const CreateBulkInviteDocument = gql`
-  mutation CreateBulkInvite($input: [CreateInviteInput!]) {
-    createBulkInvite(input: $input) {
-      invites {
-        id
-      }
-    }
-  }
-`
-
-export function useCreateBulkInviteMutation() {
-  return Urql.useMutation<CreateBulkInviteMutation, CreateBulkInviteMutationVariables>(CreateBulkInviteDocument)
-}
-export const DeleteOrganizationInviteDocument = gql`
-  mutation DeleteOrganizationInvite($deleteInviteId: ID!) {
-    deleteInvite(id: $deleteInviteId) {
-      deletedID
-    }
-  }
-`
-
-export function useDeleteOrganizationInviteMutation() {
-  return Urql.useMutation<DeleteOrganizationInviteMutation, DeleteOrganizationInviteMutationVariables>(DeleteOrganizationInviteDocument)
-}
-export const DeleteOrganizationDocument = gql`
-  mutation DeleteOrganization($deleteOrganizationId: ID!) {
-    deleteOrganization(id: $deleteOrganizationId) {
-      deletedID
-    }
-  }
-`
-
-export function useDeleteOrganizationMutation() {
-  return Urql.useMutation<DeleteOrganizationMutation, DeleteOrganizationMutationVariables>(DeleteOrganizationDocument)
-}
-export const CreatePersonalAccessTokenDocument = gql`
-  mutation CreatePersonalAccessToken($input: CreatePersonalAccessTokenInput!) {
-    createPersonalAccessToken(input: $input) {
-      personalAccessToken {
-        token
-      }
-    }
-  }
-`
-
-export function useCreatePersonalAccessTokenMutation() {
-  return Urql.useMutation<CreatePersonalAccessTokenMutation, CreatePersonalAccessTokenMutationVariables>(CreatePersonalAccessTokenDocument)
-}
-export const GetPersonalAccessTokensDocument = gql`
-  query GetPersonalAccessTokens {
-    personalAccessTokens {
-      edges {
-        node {
-          id
-          name
-          description
-          expiresAt
-          organizations {
-            id
-            name
-          }
-        }
-      }
-    }
-  }
-`
-
-export function useGetPersonalAccessTokensQuery(options?: Omit<Urql.UseQueryArgs<GetPersonalAccessTokensQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetPersonalAccessTokensQuery, GetPersonalAccessTokensQueryVariables>({ query: GetPersonalAccessTokensDocument, ...options })
-}
-export const DeletePersonalAccessTokenDocument = gql`
-  mutation DeletePersonalAccessToken($deletePersonalAccessTokenId: ID!) {
-    deletePersonalAccessToken(id: $deletePersonalAccessTokenId) {
-      deletedID
-    }
-  }
-`
-
-export function useDeletePersonalAccessTokenMutation() {
-  return Urql.useMutation<DeletePersonalAccessTokenMutation, DeletePersonalAccessTokenMutationVariables>(DeletePersonalAccessTokenDocument)
-}
-export const CreateInternalPolicyDocument = gql`
-  mutation CreateInternalPolicy($input: CreateInternalPolicyInput!) {
-    createInternalPolicy(input: $input) {
-      internalPolicy {
-        id
-        name
-        background
-        description
-        policyType
-        purposeAndScope
-        details
-      }
-    }
-  }
-`
-
-export function useCreateInternalPolicyMutation() {
-  return Urql.useMutation<CreateInternalPolicyMutation, CreateInternalPolicyMutationVariables>(CreateInternalPolicyDocument)
-}
-export const UpdateInternalPolicyDocument = gql`
-  mutation UpdateInternalPolicy($updateInternalPolicyId: ID!, $input: UpdateInternalPolicyInput!) {
-    updateInternalPolicy(id: $updateInternalPolicyId, input: $input) {
-      internalPolicy {
-        ...InternalPolicyUpdateFields
-      }
-    }
-  }
-  ${InternalPolicyUpdateFieldsFragmentDoc}
-`
-
-export function useUpdateInternalPolicyMutation() {
-  return Urql.useMutation<UpdateInternalPolicyMutation, UpdateInternalPolicyMutationVariables>(UpdateInternalPolicyDocument)
-}
-export const DeleteInternalPolicyDocument = gql`
-  mutation DeleteInternalPolicy($deleteInternalPolicyId: ID!) {
-    deleteInternalPolicy(id: $deleteInternalPolicyId) {
-      deletedID
-    }
-  }
-`
-
-export function useDeleteInternalPolicyMutation() {
-  return Urql.useMutation<DeleteInternalPolicyMutation, DeleteInternalPolicyMutationVariables>(DeleteInternalPolicyDocument)
-}
-export const GetAllInternalPoliciesWithDetailsDocument = gql`
-  query GetAllInternalPoliciesWithDetails {
-    internalPolicies {
-      edges {
-        node {
-          id
-          name
-          background
-          description
-          policyType
-          purposeAndScope
-          status
-          version
-          updatedAt
-          updatedBy
-          createdAt
-          createdBy
-          tags
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllInternalPoliciesWithDetailsQuery(options?: Omit<Urql.UseQueryArgs<GetAllInternalPoliciesWithDetailsQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllInternalPoliciesWithDetailsQuery, GetAllInternalPoliciesWithDetailsQueryVariables>({ query: GetAllInternalPoliciesWithDetailsDocument, ...options })
-}
-export const GetInternalPoliciesListDocument = gql`
-  query GetInternalPoliciesList {
-    internalPolicies {
-      edges {
-        node {
-          id
-          name
-          description
-          policyType
-          tags
-          version
-          updatedAt
-          updatedBy
-          createdAt
-          createdBy
-        }
-      }
-    }
-  }
-`
-
-export function useGetInternalPoliciesListQuery(options?: Omit<Urql.UseQueryArgs<GetInternalPoliciesListQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetInternalPoliciesListQuery, GetInternalPoliciesListQueryVariables>({ query: GetInternalPoliciesListDocument, ...options })
-}
-export const GetAllInternalPoliciesDocument = gql`
-  query GetAllInternalPolicies {
-    internalPolicies {
-      edges {
-        node {
-          id
-          name
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllInternalPoliciesQuery(options?: Omit<Urql.UseQueryArgs<GetAllInternalPoliciesQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllInternalPoliciesQuery, GetAllInternalPoliciesQueryVariables>({ query: GetAllInternalPoliciesDocument, ...options })
-}
-export const GetInternalPolicyDetailsByIdDocument = gql`
-  query GetInternalPolicyDetailsById($internalPolicyId: ID!) {
-    internalPolicy(id: $internalPolicyId) {
-      ...InternalPolicyByID
-      procedures {
-        id
-        name
-      }
-    }
-  }
-  ${InternalPolicyByIdFragmentDoc}
-`
-
-export function useGetInternalPolicyDetailsByIdQuery(options: Omit<Urql.UseQueryArgs<GetInternalPolicyDetailsByIdQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetInternalPolicyDetailsByIdQuery, GetInternalPolicyDetailsByIdQueryVariables>({ query: GetInternalPolicyDetailsByIdDocument, ...options })
-}
-export const CreateProcedureDocument = gql`
-  mutation CreateProcedure($input: CreateProcedureInput!) {
-    createProcedure(input: $input) {
-      procedure {
-        id
-        name
-      }
-    }
-  }
-`
-
-export function useCreateProcedureMutation() {
-  return Urql.useMutation<CreateProcedureMutation, CreateProcedureMutationVariables>(CreateProcedureDocument)
-}
-export const UpdateProcedureDocument = gql`
-  mutation UpdateProcedure($updateProcedureId: ID!, $input: UpdateProcedureInput!) {
-    updateProcedure(id: $updateProcedureId, input: $input) {
-      procedure {
-        id
-        name
-      }
-    }
-  }
-`
-
-export function useUpdateProcedureMutation() {
-  return Urql.useMutation<UpdateProcedureMutation, UpdateProcedureMutationVariables>(UpdateProcedureDocument)
-}
-export const GetAllProceduresWithDetailsDocument = gql`
-  query GetAllProceduresWithDetails {
-    procedures {
-      edges {
-        node {
-          id
-          name
-          background
-          description
-          procedureType
-          purposeAndScope
-          satisfies
-          status
-          version
-          updatedAt
-          updatedBy
-          createdAt
-          createdBy
-          tags
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllProceduresWithDetailsQuery(options?: Omit<Urql.UseQueryArgs<GetAllProceduresWithDetailsQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllProceduresWithDetailsQuery, GetAllProceduresWithDetailsQueryVariables>({ query: GetAllProceduresWithDetailsDocument, ...options })
-}
-export const GetAllProceduresDocument = gql`
-  query GetAllProcedures($where: ProcedureWhereInput) {
-    procedures(where: $where) {
-      edges {
-        node {
-          id
-          name
-          displayID
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllProceduresQuery(options?: Omit<Urql.UseQueryArgs<GetAllProceduresQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllProceduresQuery, GetAllProceduresQueryVariables>({ query: GetAllProceduresDocument, ...options })
-}
-export const GetProcedureDetailsByIdDocument = gql`
-  query GetProcedureDetailsById($procedureId: ID!) {
-    procedure(id: $procedureId) {
-      id
-      name
-      description
-      details
-      background
-      createdAt
-      createdBy
-      updatedAt
-      updatedBy
-      tags
-      version
-      status
-      satisfies
-      purposeAndScope
-      procedureType
-      internalPolicies {
-        id
-        name
-      }
-    }
-  }
-`
-
-export function useGetProcedureDetailsByIdQuery(options: Omit<Urql.UseQueryArgs<GetProcedureDetailsByIdQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetProcedureDetailsByIdQuery, GetProcedureDetailsByIdQueryVariables>({ query: GetProcedureDetailsByIdDocument, ...options })
-}
-export const CreateProgramWithMembersDocument = gql`
-  mutation CreateProgramWithMembers($input: CreateProgramWithMembersInput!) {
-    createProgramWithMembers(input: $input) {
-      program {
-        id
-        name
-      }
-    }
-  }
-`
-
-export function useCreateProgramWithMembersMutation() {
-  return Urql.useMutation<CreateProgramWithMembersMutation, CreateProgramWithMembersMutationVariables>(CreateProgramWithMembersDocument)
-}
-export const UpdateProgramDocument = gql`
-  mutation UpdateProgram($updateProgramId: ID!, $input: UpdateProgramInput!) {
-    updateProgram(id: $updateProgramId, input: $input) {
-      program {
-        id
-        name
-      }
-    }
-  }
-`
-
-export function useUpdateProgramMutation() {
-  return Urql.useMutation<UpdateProgramMutation, UpdateProgramMutationVariables>(UpdateProgramDocument)
-}
-export const GetAllProgramsDocument = gql`
-  query GetAllPrograms($where: ProgramWhereInput) {
-    programs(where: $where) {
-      edges {
-        node {
-          id
-          name
-          description
-          tags
-          status
-          startDate
-          endDate
-          auditorReady
-          displayID
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllProgramsQuery(options?: Omit<Urql.UseQueryArgs<GetAllProgramsQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllProgramsQuery, GetAllProgramsQueryVariables>({ query: GetAllProgramsDocument, ...options })
-}
-export const GetProgramEdgesForWizardDocument = gql`
-  query GetProgramEdgesForWizard {
-    risks {
-      edges {
-        node {
-          id
-          name
-        }
-      }
-    }
-    procedures {
-      edges {
-        node {
-          id
-          name
-        }
-      }
-    }
-    internalPolicies {
-      edges {
-        node {
-          id
-          name
-        }
-      }
-    }
-    groups {
-      edges {
-        node {
-          id
-          name
-          displayName
-        }
-      }
-    }
-    orgMemberships {
-      edges {
-        node {
-          user {
-            id
-            firstName
-            lastName
-            role
-          }
-        }
-      }
-    }
-  }
-`
-
-export function useGetProgramEdgesForWizardQuery(options?: Omit<Urql.UseQueryArgs<GetProgramEdgesForWizardQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetProgramEdgesForWizardQuery, GetProgramEdgesForWizardQueryVariables>({ query: GetProgramEdgesForWizardDocument, ...options })
-}
-export const GetProgramDetailsByIdDocument = gql`
-  query GetProgramDetailsById($programId: ID!) {
-    program(id: $programId) {
-      id
-      name
-      description
-      tags
-      status
-      startDate
-      endDate
-      auditorReady
-      auditorWriteComments
-      auditorReadComments
-      standards {
-        id
-        name
-      }
-      tasks {
-        id
-        title
-        status
-        due
-        details
-        assignee {
-          id
-          firstName
-          lastName
-          email
-        }
-        assigner {
-          id
-          firstName
-          lastName
-          email
-        }
-      }
-      controlObjectives {
-        id
-        name
-      }
-      controls {
-        id
-        name
-        class
-      }
-      subcontrols {
-        id
-        name
-        class
-      }
-      narratives {
-        id
-        name
-      }
-      internalPolicies {
-        id
-        name
-      }
-      procedures {
-        id
-        name
-      }
-    }
-  }
-`
-
-export function useGetProgramDetailsByIdQuery(options: Omit<Urql.UseQueryArgs<GetProgramDetailsByIdQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetProgramDetailsByIdQuery, GetProgramDetailsByIdQueryVariables>({ query: GetProgramDetailsByIdDocument, ...options })
-}
-export const GetAllRisksDocument = gql`
-  query GetAllRisks {
-    risks {
-      edges {
-        node {
-          id
-          name
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllRisksQuery(options?: Omit<Urql.UseQueryArgs<GetAllRisksQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllRisksQuery, GetAllRisksQueryVariables>({ query: GetAllRisksDocument, ...options })
-}
-export const SearchDocument = gql`
-  query Search($query: String!) {
-    search(query: $query) {
-      totalCount
-      nodes {
-        ... on ProgramSearchResult {
-          programs {
-            id
-            name
-          }
-        }
-        ... on OrganizationSearchResult {
-          organizations {
-            id
-            name
-            displayName
-            avatarRemoteURL
-          }
-        }
-        ... on ControlObjectiveSearchResult {
-          controlObjectives {
-            id
-            name
-          }
-        }
-        ... on ControlSearchResult {
-          controls {
-            id
-            name
-          }
-        }
-        ... on SubcontrolSearchResult {
-          subcontrols {
-            id
-            name
-          }
-        }
-        ... on RiskSearchResult {
-          risks {
-            id
-            name
-          }
-        }
-        ... on GroupSearchResult {
-          groups {
-            id
-            name
-          }
-        }
-        ... on TaskSearchResult {
-          tasks {
-            id
-            title
-          }
-        }
-      }
-    }
-  }
-`
-
-export function useSearchQuery(options: Omit<Urql.UseQueryArgs<SearchQueryVariables>, 'query'>) {
-  return Urql.useQuery<SearchQuery, SearchQueryVariables>({ query: SearchDocument, ...options })
-}
-export const CreateStandardDocument = gql`
-  mutation CreateStandard($input: CreateStandardInput!) {
-    createStandard(input: $input) {
-      standard {
-        id
-      }
-    }
-  }
-`
-
-export function useCreateStandardMutation() {
-  return Urql.useMutation<CreateStandardMutation, CreateStandardMutationVariables>(CreateStandardDocument)
-}
-export const CreateSubscriberDocument = gql`
-  mutation CreateSubscriber($input: CreateSubscriberInput!) {
-    createSubscriber(input: $input) {
-      subscriber {
-        email
-      }
-    }
-  }
-`
-
-export function useCreateSubscriberMutation() {
-  return Urql.useMutation<CreateSubscriberMutation, CreateSubscriberMutationVariables>(CreateSubscriberDocument)
-}
-export const GetAllSubscribersDocument = gql`
-  query GetAllSubscribers {
-    subscribers {
-      edges {
-        node {
-          active
-          email
-          id
-          verifiedEmail
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllSubscribersQuery(options?: Omit<Urql.UseQueryArgs<GetAllSubscribersQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllSubscribersQuery, GetAllSubscribersQueryVariables>({ query: GetAllSubscribersDocument, ...options })
-}
-export const DeleteSubscriberDocument = gql`
-  mutation DeleteSubscriber($deleteSubscriberEmail: String!) {
-    deleteSubscriber(email: $deleteSubscriberEmail) {
-      email
-    }
-  }
-`
-
-export function useDeleteSubscriberMutation() {
-  return Urql.useMutation<DeleteSubscriberMutation, DeleteSubscriberMutationVariables>(DeleteSubscriberDocument)
-}
-export const TasksWithFilterDocument = gql`
-  query TasksWithFilter($where: TaskWhereInput) {
-    tasks(where: $where) {
-      edges {
-        node {
-          id
-          title
-          description
-          status
-          tags
-          details
-          due
-        }
-      }
-    }
-  }
-`
-
-export function useTasksWithFilterQuery(options?: Omit<Urql.UseQueryArgs<TasksWithFilterQueryVariables>, 'query'>) {
-  return Urql.useQuery<TasksWithFilterQuery, TasksWithFilterQueryVariables>({ query: TasksWithFilterDocument, ...options })
-}
-export const CreateTemplateDocument = gql`
-  mutation CreateTemplate($input: CreateTemplateInput!) {
-    createTemplate(input: $input) {
-      template {
-        id
-        name
-        templateType
-        description
-        jsonconfig
-        uischema
-        owner {
-          id
-        }
-      }
-    }
-  }
-`
-
-export function useCreateTemplateMutation() {
-  return Urql.useMutation<CreateTemplateMutation, CreateTemplateMutationVariables>(CreateTemplateDocument)
-}
-export const UpdateTemplateDocument = gql`
-  mutation UpdateTemplate($updateTemplateId: ID!, $input: UpdateTemplateInput!) {
-    updateTemplate(id: $updateTemplateId, input: $input) {
-      template {
-        id
-        name
-        templateType
-        description
-        jsonconfig
-        uischema
-        owner {
-          id
-        }
-      }
-    }
-  }
-`
-
-export function useUpdateTemplateMutation() {
-  return Urql.useMutation<UpdateTemplateMutation, UpdateTemplateMutationVariables>(UpdateTemplateDocument)
-}
-export const GetAllTemplatesDocument = gql`
-  query GetAllTemplates {
-    templates {
-      edges {
-        node {
-          id
-          name
-          templateType
-          description
-          jsonconfig
-          uischema
-          createdAt
-          updatedAt
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllTemplatesQuery(options?: Omit<Urql.UseQueryArgs<GetAllTemplatesQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllTemplatesQuery, GetAllTemplatesQueryVariables>({ query: GetAllTemplatesDocument, ...options })
-}
-export const FilterTemplatesDocument = gql`
-  query FilterTemplates($where: TemplateWhereInput) {
-    templates(where: $where) {
-      edges {
-        node {
-          id
-          name
-          templateType
-          description
-          jsonconfig
-          uischema
-          createdAt
-          updatedAt
-        }
-      }
-    }
-  }
-`
-
-export function useFilterTemplatesQuery(options?: Omit<Urql.UseQueryArgs<FilterTemplatesQueryVariables>, 'query'>) {
-  return Urql.useQuery<FilterTemplatesQuery, FilterTemplatesQueryVariables>({ query: FilterTemplatesDocument, ...options })
-}
-export const GetTemplateDocument = gql`
-  query GetTemplate($getTemplateId: ID!) {
-    template(id: $getTemplateId) {
-      id
-      templateType
-      name
-      description
-      jsonconfig
-      uischema
-    }
-  }
-`
-
-export function useGetTemplateQuery(options: Omit<Urql.UseQueryArgs<GetTemplateQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetTemplateQuery, GetTemplateQueryVariables>({ query: GetTemplateDocument, ...options })
-}
-export const DeleteTemplateDocument = gql`
-  mutation DeleteTemplate($deleteTemplateId: ID!) {
-    deleteTemplate(id: $deleteTemplateId) {
-      deletedID
-    }
-  }
-`
-
-export function useDeleteTemplateMutation() {
-  return Urql.useMutation<DeleteTemplateMutation, DeleteTemplateMutationVariables>(DeleteTemplateDocument)
-}
-export const GetTfaSettingsDocument = gql`
-  query GetTFASettings {
-    tfaSettings {
-      edges {
-        node {
-          id
-        }
-      }
-    }
-  }
-`
-
-export function useGetTfaSettingsQuery(options?: Omit<Urql.UseQueryArgs<GetTfaSettingsQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetTfaSettingsQuery, GetTfaSettingsQueryVariables>({ query: GetTfaSettingsDocument, ...options })
-}
-export const GetUserTfaSettingsDocument = gql`
-  query GetUserTFASettings($userId: ID!) {
-    user(id: $userId) {
-      tfaSettings {
-        id
-        totpAllowed
-        verified
-      }
-    }
-  }
-`
-
-export function useGetUserTfaSettingsQuery(options: Omit<Urql.UseQueryArgs<GetUserTfaSettingsQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetUserTfaSettingsQuery, GetUserTfaSettingsQueryVariables>({ query: GetUserTfaSettingsDocument, ...options })
-}
-export const UpdateTfaSettingDocument = gql`
-  mutation UpdateTFASetting($input: UpdateTFASettingInput!) {
-    updateTFASetting(input: $input) {
-      qrCode
-      recoveryCodes
-      tfaSecret
-      tfaSetting {
-        id
-      }
-    }
-  }
-`
-
-export function useUpdateTfaSettingMutation() {
-  return Urql.useMutation<UpdateTfaSettingMutation, UpdateTfaSettingMutationVariables>(UpdateTfaSettingDocument)
-}
-export const CreateTfaSettingDocument = gql`
-  mutation CreateTFASetting($input: CreateTFASettingInput!) {
-    createTFASetting(input: $input) {
-      qrCode
-      tfaSecret
-      tfaSetting {
-        id
-      }
-    }
-  }
-`
-
-export function useCreateTfaSettingMutation() {
-  return Urql.useMutation<CreateTfaSettingMutation, CreateTfaSettingMutationVariables>(CreateTfaSettingDocument)
-}
-export const GetUserProfileDocument = gql`
-  query GetUserProfile($userId: ID!) {
-    user(id: $userId) {
-      id
-      firstName
-      lastName
-      displayName
-      email
-      avatarRemoteURL
-      displayName
-      avatarFile {
-        presignedURL
-      }
-      setting {
-        id
-        status
-        tags
-        isTfaEnabled
-        defaultOrg {
-          id
-          displayName
-        }
-      }
-    }
-  }
-`
-
-export function useGetUserProfileQuery(options: Omit<Urql.UseQueryArgs<GetUserProfileQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetUserProfileQuery, GetUserProfileQueryVariables>({ query: GetUserProfileDocument, ...options })
-}
-export const UpdateUserDocument = gql`
-  mutation UpdateUser($updateUserId: ID!, $input: UpdateUserInput!, $avatarFile: Upload) {
-    updateUser(id: $updateUserId, input: $input, avatarFile: $avatarFile) {
-      user {
-        id
-        avatarFile {
-          presignedURL
-        }
-      }
-    }
-  }
-`
-
-export function useUpdateUserMutation() {
-  return Urql.useMutation<UpdateUserMutation, UpdateUserMutationVariables>(UpdateUserDocument)
-}
-export const UpdateUserSettingDocument = gql`
-  mutation UpdateUserSetting($updateUserSettingId: ID!, $input: UpdateUserSettingInput!) {
-    updateUserSetting(id: $updateUserSettingId, input: $input) {
-      userSetting {
-        id
-      }
-    }
-  }
-`
-
-export function useUpdateUserSettingMutation() {
-  return Urql.useMutation<UpdateUserSettingMutation, UpdateUserSettingMutationVariables>(UpdateUserSettingDocument)
-}

@@ -4,7 +4,7 @@ import { useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { defineStepper } from '@stepperize/react'
 import { useSession } from 'next-auth/react'
-import { CreateOnboardingInput, useCreateOnboardingMutation } from '@repo/codegen/src/schema'
+import { CreateOnboardingInput } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
 import { ArrowRight, ArrowLeft, PartyPopper, Wind, WindIcon } from 'lucide-react'
@@ -15,6 +15,7 @@ import { useRef } from 'react'
 import { toast } from '@repo/ui/use-toast'
 import { useRouter } from 'next/navigation'
 import { switchOrganization } from '@/lib/user'
+import { useCreateOnboarding } from '@/lib/graphql-hooks/onboarding'
 
 const { useStepper, steps } = defineStepper(
   { id: '0', label: `Company Info`, schema: step1Schema },
@@ -24,7 +25,7 @@ const { useStepper, steps } = defineStepper(
 
 export default function MultiStepForm() {
   const stepper = useStepper()
-  const [{ data }, createOnboarding] = useCreateOnboardingMutation()
+  const { mutateAsync: createOnboarding } = useCreateOnboarding()
   const router = useRouter()
   const { data: sessionData, update: updateSession } = useSession()
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -64,7 +65,7 @@ export default function MultiStepForm() {
         input: fullData,
       })
 
-      if (response?.data?.createOnboarding) {
+      if (response.createOnboarding.onboarding) {
         toast({
           title: 'Onboarding completed successfully.!',
         })
@@ -72,7 +73,7 @@ export default function MultiStepForm() {
         throw new Error('Unexpected response format')
       }
 
-      const orgId = response?.data?.createOnboarding.onboarding.organizationID
+      const orgId = response?.createOnboarding.onboarding.organizationID
 
       if (orgId) {
         const response = await switchOrganization({

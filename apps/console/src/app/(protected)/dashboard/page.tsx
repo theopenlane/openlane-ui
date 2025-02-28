@@ -2,11 +2,12 @@
 
 import React from 'react'
 import { useSession } from 'next-auth/react'
-import { TaskWhereInput, useGetDashboardDataQuery, UserWhereInput } from '@repo/codegen/src/schema'
+import { TaskWhereInput, UserWhereInput } from '@repo/codegen/src/schema'
 import { Loading } from '@/components/shared/loading/loading'
 import { DefaultLanding, NewUserLanding } from '@/components/pages/protected/dashboard/dashboard'
 import { CreateOrganizationForm } from '@/components/shared/organization/create-organization/create-organization'
 import { useRouter } from 'next/navigation'
+import { useGetDashboardData } from '@/lib/graphql-hooks/dashboard'
 
 const DashboardLanding: React.FC = () => {
   const { data: session } = useSession()
@@ -21,13 +22,13 @@ const DashboardLanding: React.FC = () => {
     hasAssigneeWith: [userWhere],
   }
 
-  const [{ data: dashboardData, fetching }] = useGetDashboardDataQuery({ variables: { where: whereFilter }, requestPolicy: 'cache-and-network' })
+  const { data, isLoading } = useGetDashboardData(whereFilter)
 
-  const programsRes = { edges: dashboardData?.programs?.edges ?? [] }
-  const taskRes = { edges: dashboardData?.tasks?.edges || [] }
+  const programsRes = { edges: data?.programs?.edges ?? [] }
+  const taskRes = { edges: data?.tasks?.edges || [] }
 
   // if fetching data show loading
-  if (fetching || !dashboardData) {
+  if (isLoading || !data) {
     return <Loading />
   } else {
     // if no programs redirect to new user landing

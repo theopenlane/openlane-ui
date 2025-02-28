@@ -1,6 +1,6 @@
 'use client'
 
-import { GetUserProfileQueryVariables, useGetUserProfileQuery, useUpdateUserMutation } from '@repo/codegen/src/schema'
+import { GetUserProfileQueryVariables } from '@repo/codegen/src/schema'
 import { Input, InputRow } from '@repo/ui/input'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { useSession } from 'next-auth/react'
@@ -14,19 +14,17 @@ import { RESET_SUCCESS_STATE_MS } from '@/constants'
 import { toast } from '@repo/ui/use-toast'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { InfoIcon } from 'lucide-react'
+import { useGetUserProfile, useUpdateUser } from '@/lib/graphql-hooks/user'
+import { useQueryClient } from '@tanstack/react-query'
 
 const ProfileNameForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
-  const [{ fetching: isSubmitting }, updateUserName] = useUpdateUserMutation()
+  const { isPending: isSubmitting, mutateAsync: updateUserName } = useUpdateUser()
 
   const { data: sessionData } = useSession()
   const userId = sessionData?.user.userId
 
-  const variables: GetUserProfileQueryVariables = {
-    userId: userId ?? '',
-  }
-
-  const [{ data: userData }] = useGetUserProfileQuery({ variables })
+  const { data: userData } = useGetUserProfile(userId)
 
   const formSchema = z.object({
     firstName: z.string().min(2, {

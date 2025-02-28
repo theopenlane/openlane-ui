@@ -8,7 +8,6 @@ import { Button } from '@repo/ui/button'
 import { Checkbox } from '@repo/ui/checkbox'
 import { AlertTriangleIcon, CirclePlusIcon, CopyIcon } from 'lucide-react'
 import { toast } from '@repo/ui/use-toast'
-import { CreateApiTokenInput, useCreateApiTokenMutation, useCreatePersonalAccessTokenMutation, useGetApiTokensQuery, useGetPersonalAccessTokensQuery } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import { useOrganization } from '@/hooks/useOrganization'
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
@@ -18,6 +17,8 @@ import { useForm } from 'react-hook-form'
 import { z, infer as zInfer } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { usePathname } from 'next/navigation'
+import { useCreateAPIToken, useCreatePersonalAccessToken } from '@/lib/graphql-hooks/tokens'
+import { CreateApiTokenInput } from '@repo/codegen/src/schema'
 
 type PersonalApiKeyDialogProps = {
   triggerText?: boolean
@@ -34,22 +35,13 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
   const { data: sessionData } = useSession()
   const { allOrgs: orgs } = useOrganization()
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [result, createToken] = useCreatePersonalAccessTokenMutation()
-  const [_, createApiToken] = useCreateApiTokenMutation()
+  const { mutateAsync: createPersonalAccessToken } = useCreatePersonalAccessToken()
+  const { mutateAsync: createApiToken } = useCreateAPIToken()
 
   const [step, setStep] = useState<STEP>(STEP.CREATE)
 
   const [confirmationChecked, setConfirmationChecked] = useState<boolean>(false)
   const [token, setToken] = useState<string>('')
-
-  const [{ data, fetching, error }, refetchPersonalAccessTokens] = useGetPersonalAccessTokensQuery({
-    requestPolicy: 'network-only',
-    pause: isOrg,
-  })
-  const [{ data: dataApi, fetching: fetchingApi, error: errorApi }, refetchApiTokens] = useGetApiTokensQuery({
-    requestPolicy: 'network-only',
-    pause: !isOrg,
-  })
 
   const formSchema = z
     .object({
@@ -115,10 +107,9 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
           input: apiTokenInput,
         })
 
-        createdToken = response.data?.createAPIToken?.apiToken.token
+        createdToken = response?.createAPIToken?.apiToken.token
       } else {
-        // Call createToken when isOrg is false
-        const response = await createToken({
+        const response = await createPersonalAccessToken({
           input: {
             name: values.name,
             description: values.description,
@@ -128,7 +119,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
           },
         })
 
-        createdToken = response.data?.createPersonalAccessToken?.personalAccessToken?.token
+        createdToken = response?.createPersonalAccessToken?.personalAccessToken?.token
       }
 
       if (createdToken) {
@@ -139,7 +130,6 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
           variant: 'success',
         })
         setStep(STEP.CREATED)
-        isOrg ? refetchApiTokens() : refetchPersonalAccessTokens()
       } else {
         throw new Error('Failed to create token')
       }
