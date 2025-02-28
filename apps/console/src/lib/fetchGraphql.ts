@@ -11,13 +11,39 @@ export const fetchGraphQL = async ({ query, variables = {} }: { query: string; v
 
   let body: BodyInit
 
-  if (variables.avatarFile instanceof File) {
-    const file = variables.avatarFile
-    variables.avatarFile = null
+  const hasFile = Object.values(variables).some((value) => value instanceof File)
+
+  if (hasFile) {
     const formData = new FormData()
-    formData.append('operations', JSON.stringify({ query, variables }))
-    formData.append('map', JSON.stringify({ '1': ['variables.avatarFile'] }))
-    formData.append('1', file)
+
+    const updatedVariables = { ...variables }
+    Object.keys(updatedVariables).forEach((key) => {
+      if (updatedVariables[key] instanceof File) {
+        updatedVariables[key] = null
+      }
+    })
+
+    formData.append('operations', JSON.stringify({ query, variables: updatedVariables }))
+
+    const fileMap: Record<string, string[]> = {}
+    let fileIndex = 0
+
+    Object.entries(variables).forEach(([key, value]) => {
+      if (value instanceof File) {
+        fileMap[fileIndex] = [`variables.${key}`]
+        fileIndex++
+      }
+    })
+
+    formData.append('map', JSON.stringify(fileMap))
+
+    fileIndex = 0
+    Object.entries(variables).forEach(([key, value]) => {
+      if (value instanceof File) {
+        formData.append(fileIndex.toString(), value)
+        fileIndex++
+      }
+    })
 
     body = formData
   } else {

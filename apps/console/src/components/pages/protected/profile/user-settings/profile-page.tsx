@@ -22,9 +22,6 @@ const ProfilePage = () => {
   const [qrcode, setQrcode] = useState<null | string>(null)
   const [secret, setSecret] = useState<null | string>(null)
   const [regeneratedCodes, setRegeneratedCodes] = useState<null | string[]>(null)
-  const variables: GetUserProfileQueryVariables = {
-    userId: userId ?? '',
-  }
 
   const { data: userData } = useGetUserProfile(userId)
 
