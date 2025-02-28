@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useMemo } from 'react'
-import { ProcedureByIdFragment } from '@repo/codegen/src/schema'
+import React, { useCallback, useMemo, useState } from 'react'
+import { ProcedureByIdFragment, useDeleteProcedureMutation } from '@repo/codegen/src/schema'
 import { Info, Binoculars, FileStack, ScrollText, Tag, CalendarCheck2, CalendarClock } from 'lucide-react'
 import { MetaPanel, formatTime } from '@/components/shared/meta-panel/meta-panel'
 import { Panel } from '@repo/ui/panel'
@@ -12,6 +12,10 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import MultipleSelector from '@repo/ui/multiple-selector'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { useGQLErrorToast } from '@/hooks/useGQLErrorToast'
+import { useToast } from '@repo/ui/use-toast'
+import { useRouter } from 'next/navigation'
 
 type ProcedureEditSidebarProps = {
   procedure: ProcedureByIdFragment
@@ -20,7 +24,30 @@ type ProcedureEditSidebarProps = {
 }
 
 export const ProcedureEditSidebar = ({ procedure, form, handleSave }: ProcedureEditSidebarProps) => {
+  const { toast } = useToast()
+  const { toastGQLError } = useGQLErrorToast()
+  const router = useRouter()
+
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
+  const [_, deleteProcedure] = useDeleteProcedureMutation()
+
   if (!procedure) return null
+
+  const handleDelete = useCallback(async () => {
+    const { error } = await deleteProcedure({ deleteProcedureId: procedure.id })
+
+    if (error) {
+      toastGQLError({ title: 'Error deleting procedure', error })
+      return
+    }
+
+    toast({
+      title: 'Procedure deleted',
+      variant: 'success',
+    })
+
+    router.push('/procedures')
+  }, [deleteProcedure, procedure, router, toast, toastGQLError])
 
   const sidebarItems = useMemo(() => {
     return {
@@ -43,6 +70,16 @@ export const ProcedureEditSidebar = ({ procedure, form, handleSave }: ProcedureE
       </Button>
       <MetaPanel entries={sidebarItems.status} />
       <TagsPanel form={form} />
+      <Button variant="redOutline" onClick={() => setShowDeleteConfirmation(true)}>
+        Delete procedure
+      </Button>
+
+      <ConfirmationDialog
+        open={showDeleteConfirmation}
+        onOpenChange={setShowDeleteConfirmation}
+        onConfirm={handleDelete}
+        description="This action cannot be undone, this will permanently remove the procedure from the organization."
+      />
     </div>
   )
 }

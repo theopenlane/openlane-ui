@@ -92,3 +92,9 @@ query GetProcedureDetailsById($procedureId: ID!) {
     ...ProcedureByID
   }
 }
+
+mutation DeleteProcedure($deleteProcedureId: ID!) {
+  deleteProcedure(id: $deleteProcedureId) {
+    deletedID
+  }
+}

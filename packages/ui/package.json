@@ -15,6 +15,7 @@
     "./breadcrumb": "./src/breadcrumb/breadcrumb.tsx",
     "./calendar": "./src/calendar/calendar.tsx",
     "./cardpanel": "./src/cardpanel/card.tsx",
+    "./confirmation-dialog": "./src/confirmation-dialog/confirmation-dialog.tsx",
     "./checkbox": "./src/checkbox/checkbox.tsx",
     "./command": "./src/command.tsx",
     "./data-table": "./src/data-table/data-table.tsx",

@@ -6,9 +6,8 @@ import { LoaderCircle, PlusCircle, SearchIcon } from 'lucide-react'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Input } from '@repo/ui/input'
-import { pageStyles } from './page.styles'
 import { Actions } from './actions/actions'
 import { useCreateProcedureMutation, useGetProceduresListQuery, useSearchProceduresQuery } from '@repo/codegen/src/schema'
 import Link from 'next/link'
@@ -33,8 +32,13 @@ export const ProceduresTable = () => {
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300)
 
-  const [{ data, fetching }] = useGetProceduresListQuery({ variables: { where: filters } })
-  const [{ data: searchData, fetching: searching }] = useSearchProceduresQuery({ variables: { query: debouncedSearchTerm }, pause: !debouncedSearchTerm })
+  const [{ data, fetching }, refetchList] = useGetProceduresListQuery({ variables: { where: filters }, requestPolicy: 'network-only' })
+  const [{ data: searchData, fetching: searching }, refetchSearch] = useSearchProceduresQuery({ variables: { query: debouncedSearchTerm }, pause: !debouncedSearchTerm, requestPolicy: 'network-only' })
+
+  const refetch = useCallback(() => {
+    refetchSearch({ requestPolicy: 'network-only' })
+    refetchList({ requestPolicy: 'network-only' })
+  }, [refetchSearch, refetchList])
 
   useEffect(() => {
     if (data && !searchTerm) {
@@ -115,12 +119,7 @@ export const ProceduresTable = () => {
     {
       accessorKey: 'id',
       header: '',
-      cell: ({ cell }) => (
-        <Actions
-          procedureId={cell.getValue() as string}
-          //  refetchProcedures={refetch}
-        />
-      ),
+      cell: ({ cell }) => <Actions procedureId={cell.getValue() as string} refetchProcedures={refetch} />,
       size: 40,
     },
   ]
