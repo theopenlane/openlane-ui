@@ -58,22 +58,34 @@ query GetAllInternalPoliciesWithDetails {
   }
 }
 
-query GetInternalPoliciesList {
-  internalPolicies {
+fragment InternalPolicyList on InternalPolicy {
+  id
+  displayID
+  name
+  description
+  policyType
+  tags
+  version
+  updatedAt
+  updatedBy
+  createdAt
+  createdBy
+}
+
+query GetInternalPoliciesList($where: InternalPolicyWhereInput) {
+  internalPolicies(where: $where) {
     edges {
       node {
-        id
-        displayID
-        name
-        description
-        policyType
-        tags
-        version
-        updatedAt
-        updatedBy
-        createdAt
-        createdBy
+        ...InternalPolicyList
       }
+    }
+  }
+}
+
+query SearchInternalPolicies($query: String!) {
+  internalPolicySearch(query: $query) {
+    internalPolicies {
+      ...InternalPolicyList
     }
   }
 }
