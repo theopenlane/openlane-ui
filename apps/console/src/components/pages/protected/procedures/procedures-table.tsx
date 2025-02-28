@@ -151,7 +151,6 @@ const ProcedureFilterableFields: FilterField[] = [
   { key: 'hasEditors', label: 'Has Editors', type: 'boolean' },
   { key: 'hasInternalPolicies', label: 'Has Internal Policies', type: 'boolean' },
   { key: 'hasNarratives', label: 'Has Narratives', type: 'boolean' },
-  { key: 'hasOwner', label: 'Has Owner', type: 'boolean' },
   { key: 'hasPrograms', label: 'Has Programs', type: 'boolean' },
   { key: 'hasRisks', label: 'Has Risks', type: 'boolean' },
   { key: 'hasTasks', label: 'Has Tasks', type: 'boolean' },
@@ -166,8 +165,6 @@ const ProcedureFilterableFields: FilterField[] = [
 
   { key: 'createdAt', label: 'Date Created', type: 'date' },
   { key: 'createdBy', label: 'Created By', type: 'text' },
-  { key: 'deletedAt', label: 'Date Deleted', type: 'date' },
-  { key: 'deletedBy', label: 'Deleted By', type: 'text' },
   { key: 'updatedAt', label: 'Date Updated', type: 'date' },
   { key: 'updatedBy', label: 'Updated By', type: 'text' },
 ]
