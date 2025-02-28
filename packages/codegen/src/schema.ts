@@ -26925,6 +26925,7 @@ export type ProcedureListFragment = {
   name: string
   background?: string | null
   description?: string | null
+  displayID: string
   procedureType?: string | null
   purposeAndScope?: string | null
   satisfies?: string | null
@@ -26953,6 +26954,7 @@ export type GetProceduresListQuery = {
         name: string
         background?: string | null
         description?: string | null
+        displayID: string
         procedureType?: string | null
         purposeAndScope?: string | null
         satisfies?: string | null
@@ -26982,6 +26984,7 @@ export type SearchProceduresQuery = {
       name: string
       background?: string | null
       description?: string | null
+      displayID: string
       procedureType?: string | null
       purposeAndScope?: string | null
       satisfies?: string | null
@@ -27008,6 +27011,27 @@ export type GetAllProceduresQuery = {
   }
 }
 
+export type ProcedureByIdFragment = {
+  __typename?: 'Procedure'
+  id: string
+  name: string
+  description?: string | null
+  details?: any | null
+  displayID: string
+  background?: string | null
+  createdAt?: any | null
+  createdBy?: string | null
+  updatedAt?: any | null
+  updatedBy?: string | null
+  tags?: Array<string> | null
+  version?: string | null
+  status?: string | null
+  satisfies?: string | null
+  purposeAndScope?: string | null
+  procedureType?: string | null
+  internalPolicies?: Array<{ __typename?: 'InternalPolicy'; id: string; name: string }> | null
+}
+
 export type GetProcedureDetailsByIdQueryVariables = Exact<{
   procedureId: Scalars['ID']['input']
 }>
@@ -27020,6 +27044,7 @@ export type GetProcedureDetailsByIdQuery = {
     name: string
     description?: string | null
     details?: any | null
+    displayID: string
     background?: string | null
     createdAt?: any | null
     createdBy?: string | null
@@ -27514,6 +27539,7 @@ export const ProcedureListFragmentDoc = gql`
     name
     background
     description
+    displayID
     procedureType
     purposeAndScope
     satisfies
@@ -27524,6 +27550,30 @@ export const ProcedureListFragmentDoc = gql`
     createdAt
     createdBy
     tags
+  }
+`
+export const ProcedureByIdFragmentDoc = gql`
+  fragment ProcedureByID on Procedure {
+    id
+    name
+    description
+    details
+    displayID
+    background
+    createdAt
+    createdBy
+    updatedAt
+    updatedBy
+    tags
+    version
+    status
+    satisfies
+    purposeAndScope
+    procedureType
+    internalPolicies {
+      id
+      name
+    }
   }
 `
 export const UserInfoFragmentDoc = gql`
@@ -28465,27 +28515,10 @@ export function useGetAllProceduresQuery(options?: Omit<Urql.UseQueryArgs<GetAll
 export const GetProcedureDetailsByIdDocument = gql`
   query GetProcedureDetailsById($procedureId: ID!) {
     procedure(id: $procedureId) {
-      id
-      name
-      description
-      details
-      background
-      createdAt
-      createdBy
-      updatedAt
-      updatedBy
-      tags
-      version
-      status
-      satisfies
-      purposeAndScope
-      procedureType
-      internalPolicies {
-        id
-        name
-      }
+      ...ProcedureByID
     }
   }
+  ${ProcedureByIdFragmentDoc}
 `
 
 export function useGetProcedureDetailsByIdQuery(options: Omit<Urql.UseQueryArgs<GetProcedureDetailsByIdQueryVariables>, 'query'>) {

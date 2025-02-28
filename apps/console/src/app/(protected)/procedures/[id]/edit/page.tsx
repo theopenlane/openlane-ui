@@ -1,12 +1,12 @@
 'use client'
 
 import { NextPage } from 'next'
-import { ProcedurePage } from '@/components/pages/protected/procedures/procedure-page'
+import { ProcedureEditPage } from '@/components/pages/protected/procedures/procedure-edit-page'
 import { useParams } from 'next/navigation'
 
 export const Page: NextPage = () => {
   const { id } = useParams()
-  return <ProcedurePage procedureId={id as string} />
+  return <ProcedureEditPage procedureId={id as string} />
 }
 
 export default Page

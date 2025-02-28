@@ -21,6 +21,7 @@ fragment ProcedureList on Procedure {
   name
   background
   description
+  displayID
   procedureType
   purposeAndScope
   satisfies
@@ -63,26 +64,31 @@ query GetAllProcedures($where: ProcedureWhereInput) {
   }
 }
 
-query GetProcedureDetailsById($procedureId: ID!) {
-  procedure(id: $procedureId) {
+fragment ProcedureByID on Procedure {
+  id
+  name
+  description
+  details
+  displayID
+  background
+  createdAt
+  createdBy
+  updatedAt
+  updatedBy
+  tags
+  version
+  status
+  satisfies
+  purposeAndScope
+  procedureType
+  internalPolicies {
     id
     name
-    description
-    details
-    background
-    createdAt
-    createdBy
-    updatedAt
-    updatedBy
-    tags
-    version
-    status
-    satisfies
-    purposeAndScope
-    procedureType
-    internalPolicies {
-      id
-      name
-    }
+  }
+}
+
+query GetProcedureDetailsById($procedureId: ID!) {
+  procedure(id: $procedureId) {
+    ...ProcedureByID
   }
 }
