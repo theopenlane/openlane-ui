@@ -155,7 +155,6 @@ const ProcedureFilterableFields: FilterField[] = [
   { key: 'hasRisks', label: 'Has Risks', type: 'boolean' },
   { key: 'hasTasks', label: 'Has Tasks', type: 'boolean' },
   { key: 'name', label: 'Name', type: 'text' },
-  { key: 'ownerID', label: 'Owner ID', type: 'text' },
   { key: 'procedureType', label: 'Type', type: 'text' },
   { key: 'purposeAndScope', label: 'Purpose and Scope', type: 'text' },
   { key: 'reviewDue', label: 'Review Due', type: 'date' },
