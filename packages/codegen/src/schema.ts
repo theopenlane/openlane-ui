@@ -26919,9 +26919,30 @@ export type UpdateProcedureMutationVariables = Exact<{
 
 export type UpdateProcedureMutation = { __typename?: 'Mutation'; updateProcedure: { __typename?: 'ProcedureUpdatePayload'; procedure: { __typename?: 'Procedure'; id: string; name: string } } }
 
-export type GetAllProceduresWithDetailsQueryVariables = Exact<{ [key: string]: never }>
+export type ProcedureListFragment = {
+  __typename?: 'Procedure'
+  id: string
+  name: string
+  background?: string | null
+  description?: string | null
+  displayID: string
+  procedureType?: string | null
+  purposeAndScope?: string | null
+  satisfies?: string | null
+  status?: string | null
+  version?: string | null
+  updatedAt?: any | null
+  updatedBy?: string | null
+  createdAt?: any | null
+  createdBy?: string | null
+  tags?: Array<string> | null
+}
 
-export type GetAllProceduresWithDetailsQuery = {
+export type GetProceduresListQueryVariables = Exact<{
+  where?: InputMaybe<ProcedureWhereInput>
+}>
+
+export type GetProceduresListQuery = {
   __typename?: 'Query'
   procedures: {
     __typename?: 'ProcedureConnection'
@@ -26933,6 +26954,7 @@ export type GetAllProceduresWithDetailsQuery = {
         name: string
         background?: string | null
         description?: string | null
+        displayID: string
         procedureType?: string | null
         purposeAndScope?: string | null
         satisfies?: string | null
@@ -26948,6 +26970,35 @@ export type GetAllProceduresWithDetailsQuery = {
   }
 }
 
+export type SearchProceduresQueryVariables = Exact<{
+  query: Scalars['String']['input']
+}>
+
+export type SearchProceduresQuery = {
+  __typename?: 'Query'
+  procedureSearch?: {
+    __typename?: 'ProcedureSearchResult'
+    procedures?: Array<{
+      __typename?: 'Procedure'
+      id: string
+      name: string
+      background?: string | null
+      description?: string | null
+      displayID: string
+      procedureType?: string | null
+      purposeAndScope?: string | null
+      satisfies?: string | null
+      status?: string | null
+      version?: string | null
+      updatedAt?: any | null
+      updatedBy?: string | null
+      createdAt?: any | null
+      createdBy?: string | null
+      tags?: Array<string> | null
+    }> | null
+  } | null
+}
+
 export type GetAllProceduresQueryVariables = Exact<{
   where?: InputMaybe<ProcedureWhereInput>
 }>
@@ -26958,6 +27009,27 @@ export type GetAllProceduresQuery = {
     __typename?: 'ProcedureConnection'
     edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string } | null } | null> | null
   }
+}
+
+export type ProcedureByIdFragment = {
+  __typename?: 'Procedure'
+  id: string
+  name: string
+  description?: string | null
+  details?: any | null
+  displayID: string
+  background?: string | null
+  createdAt?: any | null
+  createdBy?: string | null
+  updatedAt?: any | null
+  updatedBy?: string | null
+  tags?: Array<string> | null
+  version?: string | null
+  status?: string | null
+  satisfies?: string | null
+  purposeAndScope?: string | null
+  procedureType?: string | null
+  internalPolicies?: Array<{ __typename?: 'InternalPolicy'; id: string; name: string }> | null
 }
 
 export type GetProcedureDetailsByIdQueryVariables = Exact<{
@@ -26972,6 +27044,7 @@ export type GetProcedureDetailsByIdQuery = {
     name: string
     description?: string | null
     details?: any | null
+    displayID: string
     background?: string | null
     createdAt?: any | null
     createdBy?: string | null
@@ -27455,6 +27528,49 @@ export const InternalPolicyByIdFragmentDoc = gql`
     purposeAndScope
     policyType
     procedures {
+      id
+      name
+    }
+  }
+`
+export const ProcedureListFragmentDoc = gql`
+  fragment ProcedureList on Procedure {
+    id
+    name
+    background
+    description
+    displayID
+    procedureType
+    purposeAndScope
+    satisfies
+    status
+    version
+    updatedAt
+    updatedBy
+    createdAt
+    createdBy
+    tags
+  }
+`
+export const ProcedureByIdFragmentDoc = gql`
+  fragment ProcedureByID on Procedure {
+    id
+    name
+    description
+    details
+    displayID
+    background
+    createdAt
+    createdBy
+    updatedAt
+    updatedBy
+    tags
+    version
+    status
+    satisfies
+    purposeAndScope
+    procedureType
+    internalPolicies {
       id
       name
     }
@@ -28349,33 +28465,35 @@ export const UpdateProcedureDocument = gql`
 export function useUpdateProcedureMutation() {
   return Urql.useMutation<UpdateProcedureMutation, UpdateProcedureMutationVariables>(UpdateProcedureDocument)
 }
-export const GetAllProceduresWithDetailsDocument = gql`
-  query GetAllProceduresWithDetails {
-    procedures {
+export const GetProceduresListDocument = gql`
+  query GetProceduresList($where: ProcedureWhereInput) {
+    procedures(where: $where) {
       edges {
         node {
-          id
-          name
-          background
-          description
-          procedureType
-          purposeAndScope
-          satisfies
-          status
-          version
-          updatedAt
-          updatedBy
-          createdAt
-          createdBy
-          tags
+          ...ProcedureList
         }
       }
     }
   }
+  ${ProcedureListFragmentDoc}
 `
 
-export function useGetAllProceduresWithDetailsQuery(options?: Omit<Urql.UseQueryArgs<GetAllProceduresWithDetailsQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllProceduresWithDetailsQuery, GetAllProceduresWithDetailsQueryVariables>({ query: GetAllProceduresWithDetailsDocument, ...options })
+export function useGetProceduresListQuery(options?: Omit<Urql.UseQueryArgs<GetProceduresListQueryVariables>, 'query'>) {
+  return Urql.useQuery<GetProceduresListQuery, GetProceduresListQueryVariables>({ query: GetProceduresListDocument, ...options })
+}
+export const SearchProceduresDocument = gql`
+  query SearchProcedures($query: String!) {
+    procedureSearch(query: $query) {
+      procedures {
+        ...ProcedureList
+      }
+    }
+  }
+  ${ProcedureListFragmentDoc}
+`
+
+export function useSearchProceduresQuery(options: Omit<Urql.UseQueryArgs<SearchProceduresQueryVariables>, 'query'>) {
+  return Urql.useQuery<SearchProceduresQuery, SearchProceduresQueryVariables>({ query: SearchProceduresDocument, ...options })
 }
 export const GetAllProceduresDocument = gql`
   query GetAllProcedures($where: ProcedureWhereInput) {
@@ -28397,27 +28515,10 @@ export function useGetAllProceduresQuery(options?: Omit<Urql.UseQueryArgs<GetAll
 export const GetProcedureDetailsByIdDocument = gql`
   query GetProcedureDetailsById($procedureId: ID!) {
     procedure(id: $procedureId) {
-      id
-      name
-      description
-      details
-      background
-      createdAt
-      createdBy
-      updatedAt
-      updatedBy
-      tags
-      version
-      status
-      satisfies
-      purposeAndScope
-      procedureType
-      internalPolicies {
-        id
-        name
-      }
+      ...ProcedureByID
     }
   }
+  ${ProcedureByIdFragmentDoc}
 `
 
 export function useGetProcedureDetailsByIdQuery(options: Omit<Urql.UseQueryArgs<GetProcedureDetailsByIdQueryVariables>, 'query'>) {
