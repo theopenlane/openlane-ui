@@ -37,7 +37,6 @@ export const PoliciesTable = () => {
   const [{ data: searchData, fetching: searching }, refetchSearch] = useSearchInternalPoliciesQuery({ variables: { query: debouncedSearchTerm }, pause: !debouncedSearchTerm })
 
   const refetch = useCallback(() => {
-    console.log('refetching')
     refetchSearch({ requestPolicy: 'network-only' })
     refetchList({ requestPolicy: 'network-only' })
   }, [refetchSearch, refetchList])
