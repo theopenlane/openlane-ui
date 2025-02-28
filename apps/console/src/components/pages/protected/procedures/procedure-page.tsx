@@ -60,7 +60,7 @@ export function ProcedurePage({ procedureId }: ProcedurePageProps) {
   )
 }
 
-// PlateContentHTML placeholder undtil we get plate updated to we can use plate.serializeHtml
+// PlateContentHTML placeholder until we get plate updated to we can use plate.serializeHtml
 function PlateContentHTML({ content }: { content: Value }) {
   return <div>{content?.length && content?.map((e) => (e as TElement).children[0].text).join('\n')}</div>
 }
