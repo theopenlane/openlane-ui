@@ -32,8 +32,8 @@ export const ProceduresTable = () => {
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300)
 
-  const [{ data, fetching }, refetchList] = useGetProceduresListQuery({ variables: { where: filters } })
-  const [{ data: searchData, fetching: searching }, refetchSearch] = useSearchProceduresQuery({ variables: { query: debouncedSearchTerm }, pause: !debouncedSearchTerm })
+  const [{ data, fetching }, refetchList] = useGetProceduresListQuery({ variables: { where: filters }, requestPolicy: 'network-only' })
+  const [{ data: searchData, fetching: searching }, refetchSearch] = useSearchProceduresQuery({ variables: { query: debouncedSearchTerm }, pause: !debouncedSearchTerm, requestPolicy: 'network-only' })
 
   const refetch = useCallback(() => {
     refetchSearch({ requestPolicy: 'network-only' })
