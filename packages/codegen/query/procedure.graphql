@@ -16,25 +16,37 @@ mutation UpdateProcedure($updateProcedureId: ID!, $input: UpdateProcedureInput!)
   }
 }
 
-query GetAllProceduresWithDetails {
-  procedures {
+fragment ProcedureList on Procedure {
+  id
+  name
+  background
+  description
+  procedureType
+  purposeAndScope
+  satisfies
+  status
+  version
+  updatedAt
+  updatedBy
+  createdAt
+  createdBy
+  tags
+}
+
+query GetProceduresList($where: ProcedureWhereInput) {
+  procedures(where: $where) {
     edges {
       node {
-        id
-        name
-        background
-        description
-        procedureType
-        purposeAndScope
-        satisfies
-        status
-        version
-        updatedAt
-        updatedBy
-        createdAt
-        createdBy
-        tags
+        ...ProcedureList
       }
+    }
+  }
+}
+
+query SearchProcedures($query: String!) {
+  procedureSearch(query: $query) {
+    procedures {
+      ...ProcedureList
     }
   }
 }
