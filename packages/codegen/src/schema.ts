@@ -26781,7 +26781,24 @@ export type GetAllInternalPoliciesWithDetailsQuery = {
   }
 }
 
-export type GetInternalPoliciesListQueryVariables = Exact<{ [key: string]: never }>
+export type InternalPolicyListFragment = {
+  __typename?: 'InternalPolicy'
+  id: string
+  displayID: string
+  name: string
+  description?: string | null
+  policyType?: string | null
+  tags?: Array<string> | null
+  version?: string | null
+  updatedAt?: any | null
+  updatedBy?: string | null
+  createdAt?: any | null
+  createdBy?: string | null
+}
+
+export type GetInternalPoliciesListQueryVariables = Exact<{
+  where?: InputMaybe<InternalPolicyWhereInput>
+}>
 
 export type GetInternalPoliciesListQuery = {
   __typename?: 'Query'
@@ -26805,6 +26822,31 @@ export type GetInternalPoliciesListQuery = {
       } | null
     } | null> | null
   }
+}
+
+export type SearchInternalPoliciesQueryVariables = Exact<{
+  query: Scalars['String']['input']
+}>
+
+export type SearchInternalPoliciesQuery = {
+  __typename?: 'Query'
+  internalPolicySearch?: {
+    __typename?: 'InternalPolicySearchResult'
+    internalPolicies?: Array<{
+      __typename?: 'InternalPolicy'
+      id: string
+      displayID: string
+      name: string
+      description?: string | null
+      policyType?: string | null
+      tags?: Array<string> | null
+      version?: string | null
+      updatedAt?: any | null
+      updatedBy?: string | null
+      createdAt?: any | null
+      createdBy?: string | null
+    }> | null
+  } | null
 }
 
 export type GetAllInternalPoliciesQueryVariables = Exact<{ [key: string]: never }>
@@ -27378,6 +27420,21 @@ export const InternalPolicyUpdateFieldsFragmentDoc = gql`
     policyType
     purposeAndScope
     details
+  }
+`
+export const InternalPolicyListFragmentDoc = gql`
+  fragment InternalPolicyList on InternalPolicy {
+    id
+    displayID
+    name
+    description
+    policyType
+    tags
+    version
+    updatedAt
+    updatedBy
+    createdAt
+    createdBy
   }
 `
 export const InternalPolicyByIdFragmentDoc = gql`
@@ -28203,29 +28260,34 @@ export function useGetAllInternalPoliciesWithDetailsQuery(options?: Omit<Urql.Us
   return Urql.useQuery<GetAllInternalPoliciesWithDetailsQuery, GetAllInternalPoliciesWithDetailsQueryVariables>({ query: GetAllInternalPoliciesWithDetailsDocument, ...options })
 }
 export const GetInternalPoliciesListDocument = gql`
-  query GetInternalPoliciesList {
-    internalPolicies {
+  query GetInternalPoliciesList($where: InternalPolicyWhereInput) {
+    internalPolicies(where: $where) {
       edges {
         node {
-          id
-          displayID
-          name
-          description
-          policyType
-          tags
-          version
-          updatedAt
-          updatedBy
-          createdAt
-          createdBy
+          ...InternalPolicyList
         }
       }
     }
   }
+  ${InternalPolicyListFragmentDoc}
 `
 
 export function useGetInternalPoliciesListQuery(options?: Omit<Urql.UseQueryArgs<GetInternalPoliciesListQueryVariables>, 'query'>) {
   return Urql.useQuery<GetInternalPoliciesListQuery, GetInternalPoliciesListQueryVariables>({ query: GetInternalPoliciesListDocument, ...options })
+}
+export const SearchInternalPoliciesDocument = gql`
+  query SearchInternalPolicies($query: String!) {
+    internalPolicySearch(query: $query) {
+      internalPolicies {
+        ...InternalPolicyList
+      }
+    }
+  }
+  ${InternalPolicyListFragmentDoc}
+`
+
+export function useSearchInternalPoliciesQuery(options: Omit<Urql.UseQueryArgs<SearchInternalPoliciesQueryVariables>, 'query'>) {
+  return Urql.useQuery<SearchInternalPoliciesQuery, SearchInternalPoliciesQueryVariables>({ query: SearchInternalPoliciesDocument, ...options })
 }
 export const GetAllInternalPoliciesDocument = gql`
   query GetAllInternalPolicies {
