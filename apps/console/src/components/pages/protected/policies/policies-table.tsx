@@ -155,8 +155,6 @@ const InternalPolicyFilterableFields: FilterField[] = [
 
   { key: 'createdAt', label: 'Date Created', type: 'date' },
   { key: 'createdBy', label: 'Created By', type: 'text' },
-  { key: 'deletedAt', label: 'Date Deleted', type: 'date' },
-  { key: 'deletedBy', label: 'Deleted By', type: 'text' },
   { key: 'updatedAt', label: 'Date Updated', type: 'date' },
   { key: 'updatedBy', label: 'Updated By', type: 'text' },
 ]
