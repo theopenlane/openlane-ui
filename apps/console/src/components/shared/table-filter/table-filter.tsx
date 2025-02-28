@@ -158,7 +158,7 @@ export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilter
       <PopoverTrigger asChild>
         <button className="gap-2 flex items-center py-1.5 px-3 border rounded-lg">
           <ListFilter size={16} />
-          <p className="text-sm">Add Filter</p>
+          <p className="text-sm whitespace-nowrap">Add Filter</p>
           <div className="border h-4" />
           <p className="text-sm">{filters.filter((filter) => filter.value !== '').length}</p>
         </button>
