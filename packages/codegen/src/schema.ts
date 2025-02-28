@@ -27060,6 +27060,12 @@ export type GetProcedureDetailsByIdQuery = {
   }
 }
 
+export type DeleteProcedureMutationVariables = Exact<{
+  deleteProcedureId: Scalars['ID']['input']
+}>
+
+export type DeleteProcedureMutation = { __typename?: 'Mutation'; deleteProcedure: { __typename?: 'ProcedureDeletePayload'; deletedID: string } }
+
 export type CreateProgramWithMembersMutationVariables = Exact<{
   input: CreateProgramWithMembersInput
 }>
@@ -28523,6 +28529,17 @@ export const GetProcedureDetailsByIdDocument = gql`
 
 export function useGetProcedureDetailsByIdQuery(options: Omit<Urql.UseQueryArgs<GetProcedureDetailsByIdQueryVariables>, 'query'>) {
   return Urql.useQuery<GetProcedureDetailsByIdQuery, GetProcedureDetailsByIdQueryVariables>({ query: GetProcedureDetailsByIdDocument, ...options })
+}
+export const DeleteProcedureDocument = gql`
+  mutation DeleteProcedure($deleteProcedureId: ID!) {
+    deleteProcedure(id: $deleteProcedureId) {
+      deletedID
+    }
+  }
+`
+
+export function useDeleteProcedureMutation() {
+  return Urql.useMutation<DeleteProcedureMutation, DeleteProcedureMutationVariables>(DeleteProcedureDocument)
 }
 export const CreateProgramWithMembersDocument = gql`
   mutation CreateProgramWithMembers($input: CreateProgramWithMembersInput!) {
