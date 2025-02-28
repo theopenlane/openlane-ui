@@ -144,7 +144,6 @@ const InternalPolicyFilterableFields: FilterField[] = [
   { key: 'hasControls', label: 'Has Controls', type: 'boolean' },
   { key: 'hasEditors', label: 'Has Editors', type: 'boolean' },
   { key: 'hasNarratives', label: 'Has Narratives', type: 'boolean' },
-  { key: 'hasOwner', label: 'Has Owner', type: 'boolean' },
   { key: 'hasProcedures', label: 'Has Procedures', type: 'boolean' },
   { key: 'hasPrograms', label: 'Has Programs', type: 'boolean' },
   { key: 'policyType', label: 'Type', type: 'text' },
