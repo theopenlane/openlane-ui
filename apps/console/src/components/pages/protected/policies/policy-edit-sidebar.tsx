@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useCallback } from 'react'
 import { InternalPolicyByIdFragment, useDeleteInternalPolicyMutation } from '@repo/codegen/src/schema'
 import { Info, Binoculars, FileStack, ScrollText, Tag, CalendarCheck2, CalendarClock } from 'lucide-react'
 import { MetaPanel, formatTime } from '@/components/shared/meta-panel/meta-panel'
@@ -34,7 +34,7 @@ export const PolicyEditSidebar = ({ policy, form, handleSave }: PolicyEditSideba
 
   if (!policy) return null
 
-  const handleDelete = async () => {
+  const handleDelete = useCallback(async () => {
     const { error } = await deletePolicy({ deleteInternalPolicyId: policy.id })
 
     if (error) {
@@ -48,7 +48,7 @@ export const PolicyEditSidebar = ({ policy, form, handleSave }: PolicyEditSideba
     })
 
     router.push('/policies')
-  }
+  }, [deletePolicy, policy, router, toast, toastGQLError])
 
   const sidebarItems = useMemo(() => {
     return {
