@@ -8,7 +8,7 @@ import { Label } from '@repo/ui/label'
 import { useGetOrganizationSettingQuery, useUpdateOrganizationMutation } from '@repo/codegen/src/schema'
 import { useOrganization } from '@/hooks/useOrganization'
 import useClickOutside from '@/hooks/useClickOutside'
-import { toast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 
 const libraries: any = ['places']
 
@@ -16,6 +16,7 @@ const BillingContactDialog = () => {
   const { currentOrgId } = useOrganization()
   const [setting] = useGetOrganizationSettingQuery({ pause: !currentOrgId, variables: { organizationId: currentOrgId } })
   const [{ fetching: isSubmitting }, updateOrg] = useUpdateOrganizationMutation()
+  const { successNotification, errorNotification } = useNotification()
   const wrapperRef = useClickOutside(() => setShowPredictions(false))
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
@@ -105,12 +106,11 @@ const BillingContactDialog = () => {
           },
         },
       })
-      toast({
+      successNotification({
         title: `Successfully saved your billing address!`,
-        variant: 'success',
       })
     } catch (error) {
-      toast({
+      errorNotification({
         title: `Something went wrong with saving your billing address!`,
         variant: 'destructive',
       })

@@ -3,7 +3,7 @@ import { ColumnDef } from '@tanstack/table-core'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { DataTable } from '@repo/ui/data-table'
 import { Permission, useGetGroupPermissionsQuery, useUpdateGroupMutation } from '@repo/codegen/src/schema'
-import { useToast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import { Trash2 } from 'lucide-react'
 import { OBJECT_TYPE_CONFIG, ObjectTypes } from '@/constants/groups'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
@@ -21,7 +21,7 @@ const GroupsPermissionsTable = () => {
   const { selectedGroup } = useGroupsStore()
   const [{ data }] = useGetGroupPermissionsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
   const [, updateGroup] = useUpdateGroupMutation()
-  const { toast } = useToast()
+  const { successNotification, errorNotification } = useNotification()
   const [roles, setRoles] = useState<Record<string, Permission>>({})
 
   const getPermissionKey = (permission: Permission, action: 'add' | 'remove', objectType: string) => {
@@ -63,10 +63,10 @@ const GroupsPermissionsTable = () => {
         },
       })
 
-      toast({ title: 'Permissions updated successfully', variant: 'success' })
+      successNotification({ title: 'Permissions updated successfully' })
     } catch (error) {
       console.error('Failed to update permissions:', error)
-      toast({ title: 'Failed to update permissions', description: 'Something went wrong', variant: 'destructive' })
+      errorNotification({ title: 'Failed to update permissions', description: 'Something went wrong' })
     }
   }
 
@@ -79,10 +79,10 @@ const GroupsPermissionsTable = () => {
         input: { [getPermissionKey(role, 'remove', objectType)]: [id] },
       })
 
-      toast({ title: 'Permission removed successfully', variant: 'success' })
+      successNotification({ title: 'Permission removed successfully' })
     } catch (error) {
       console.error('Failed to remove permission:', error)
-      toast({ title: 'Failed to remove permission', description: 'Something went wrong', variant: 'destructive' })
+      errorNotification({ title: 'Failed to remove permission', description: 'Something went wrong' })
     }
   }
 

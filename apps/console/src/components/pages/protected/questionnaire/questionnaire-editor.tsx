@@ -11,7 +11,7 @@ import 'survey-creator-core/survey-creator-core.min.css'
 import { lightTheme } from './theme-light'
 import { darkTheme } from './theme-dark'
 import { TemplateDocumentType, useCreateTemplateMutation, useGetTemplateQuery, useUpdateTemplateMutation } from '@repo/codegen/src/schema'
-import { useToast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import { Panel } from '@repo/ui/panel'
 import { pageStyles } from './page.styles'
 import { useRouter } from 'next/navigation'
@@ -34,7 +34,7 @@ slk(surveyLicenseKey as string)
 
 export default function CreateQuestionnaire(input: { templateId: string; existingId: string }) {
   const router = useRouter()
-  const { toast } = useToast()
+  const { successNotification, errorNotification } = useNotification()
   const { buttonRow } = pageStyles()
 
   const creator = new SurveyCreator(creatorOptions)
@@ -96,22 +96,19 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
       })
         .then((response) => {
           if (!response.error) {
-            toast({
+            successNotification({
               title: 'Questionnaire saved successfully',
-              variant: 'success',
             })
           } else {
-            toast({
+            errorNotification({
               title: 'There was a problem saving the questionnaire, please try again',
-              variant: 'destructive',
             })
           }
         })
         .catch((error) => {
           console.log(error)
-          toast({
+          errorNotification({
             title: 'There was a problem saving the questionnaire, please try again',
-            variant: 'destructive',
           })
         })
     }
@@ -120,37 +117,32 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
     return createTemplateData(variables)
       .then((response) => {
         if (!response.error) {
-          toast({
+          successNotification({
             title: 'Questionnaire saved successfully',
-            variant: 'success',
           })
 
           router.push(`/questionnaires/questionnaire-editor?id=${response.data?.createTemplate.template.id}`)
         } else {
           if (response.error.graphQLErrors[0].message == 'template already exists') {
-            toast({
+            errorNotification({
               title: 'A questionnaire with this name already exists, please choose a different name',
-              variant: 'destructive',
             })
           } else if (response.error.graphQLErrors[0].message == 'must be defined') {
             const missingField = response.error.graphQLErrors[0].path?.slice(-1)[0]
-            toast({
+            errorNotification({
               title: `Please provide a ${missingField} for the questionnaire`,
-              variant: 'destructive',
             })
           } else {
-            toast({
+            errorNotification({
               title: 'There was a problem saving the questionnaire: ' + response.error.graphQLErrors[0].message,
-              variant: 'destructive',
             })
           }
         }
       })
       .catch((error) => {
         console.log(error)
-        toast({
+        errorNotification({
           title: 'There was a problem saving the questionnaire, please try again',
-          variant: 'destructive',
         })
       })
   }

@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { QRCodeSVG } from 'qrcode.react'
 import { Button } from '@repo/ui/button'
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@repo/ui/input-otp'
-import { toast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import { useUpdateTfaSettingMutation } from '@repo/codegen/src/schema'
 import { useCopyToClipboard } from '@uidotdev/usehooks'
 import { Copy } from 'lucide-react'
@@ -19,6 +19,7 @@ interface QRCodeProps {
 }
 
 const QRCodeDialog = ({ qrcode, secret, refetch, onClose, regeneratedCodes }: QRCodeProps) => {
+  const { successNotification, errorNotification } = useNotification()
   const [isOpen, setIsOpen] = useState(true)
   const [otpValue, setOtpValue] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -49,7 +50,7 @@ const QRCodeDialog = ({ qrcode, secret, refetch, onClose, regeneratedCodes }: QR
       const data = await response.json()
 
       if (response.ok) {
-        toast({ title: 'OTP validated successfully', variant: 'success' })
+        successNotification({ title: 'OTP validated successfully' })
         const { data } = await updateTfaSetting({
           input: {
             verified: true,
@@ -59,11 +60,11 @@ const QRCodeDialog = ({ qrcode, secret, refetch, onClose, regeneratedCodes }: QR
         setModalClosable(false)
         refetch()
       } else {
-        toast({ title: 'OTP validation failed', description: data.message, variant: 'destructive' })
+        errorNotification({ title: 'OTP validation failed', description: data.message })
       }
     } catch (error) {
       console.error('Error during OTP validation:', error)
-      toast({ title: 'An error occurred', variant: 'destructive' })
+      errorNotification({ title: 'An error occurred' })
     }
   }
 
@@ -106,9 +107,8 @@ const QRCodeDialog = ({ qrcode, secret, refetch, onClose, regeneratedCodes }: QR
 
   useEffect(() => {
     if (copiedText) {
-      toast({
+      successNotification({
         title: 'Copied to clipboard',
-        variant: 'success',
       })
       setModalClosable(true)
     }

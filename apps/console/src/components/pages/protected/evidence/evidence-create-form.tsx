@@ -17,12 +17,12 @@ import { CreateEvidenceInput, useCreateEvidenceMutation } from '@repo/codegen/sr
 import { useSession } from 'next-auth/react'
 import EvidenceUploadForm from '@/components/pages/protected/evidence/upload/evidence-upload-form'
 import EvidenceObjectAssociation from '@/components/pages/protected/evidence/object-association/evidence-object-association'
-import { useToast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import { Option } from '@repo/ui/multiple-selector'
 
 const EvidenceCreateForm: React.FC = () => {
   const { form } = useFormSchema()
-  const { toast } = useToast()
+  const { successNotification, errorNotification } = useNotification()
   const today = new Date()
   const oneYearFromToday = addDays(new Date(), 365)
   const [renewalDate, setRenewalDate] = useState<Date | undefined>(oneYearFromToday)
@@ -66,20 +66,16 @@ const EvidenceCreateForm: React.FC = () => {
     const response = await createEvidence(formData)
 
     if (response.error) {
-      toast({
+      errorNotification({
         title: 'Error',
         description: 'There was an error creating the evidence. Please try again.',
-        variant: 'destructive',
-        duration: 5000,
       })
       return
     }
 
-    toast({
+    successNotification({
       title: 'Evidence Created',
       description: `Evidence has been successfully created`,
-      variant: 'success',
-      duration: 5000,
     })
     form.reset()
     setTagValues([])

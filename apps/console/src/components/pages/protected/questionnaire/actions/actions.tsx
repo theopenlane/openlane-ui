@@ -1,7 +1,7 @@
 'use client'
 
 import { Edit, MoreHorizontal, Send, Trash2, View } from 'lucide-react'
-import { useToast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { useDeleteTemplateMutation } from '@repo/codegen/src/schema'
@@ -26,7 +26,7 @@ const ICON_SIZE = 12
 export const Actions = ({ templateId: templateId, refetchTemplates: refetchTemplates }: TemplateActionsProps) => {
   const router = useRouter()
   const { actionIcon, dropDownButton, emailRow } = pageStyles()
-  const { toast } = useToast()
+  const { successNotification, errorNotification } = useNotification()
   const [_, deleteTemplate] = useDeleteTemplateMutation()
   const [isSendDialogOpen, setIsSendDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
@@ -60,9 +60,8 @@ export const Actions = ({ templateId: templateId, refetchTemplates: refetchTempl
 
   const handleSendForm: SubmitHandler<FormData> = async (data) => {
     // TODO: Implement sending email
-    toast({
+    successNotification({
       title: 'Email sent successfully to ' + data.email,
-      variant: 'success',
     })
 
     form.reset()
@@ -75,16 +74,14 @@ export const Actions = ({ templateId: templateId, refetchTemplates: refetchTempl
     const response = await deleteTemplate({ deleteTemplateId: templateId })
 
     if (response.error) {
-      toast({
+      errorNotification({
         title: 'There was a problem deleting the questionnaire, please try again',
-        variant: 'destructive',
       })
     }
 
     if (response.data) {
-      toast({
+      successNotification({
         title: 'Questionnaire deleted successfully',
-        variant: 'success',
       })
       refetchTemplates({
         requestPolicy: 'network-only',

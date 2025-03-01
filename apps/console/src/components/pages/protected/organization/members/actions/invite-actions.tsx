@@ -1,7 +1,7 @@
 'use client'
 
 import { MoreHorizontal, RotateCw, Trash2 } from 'lucide-react'
-import { useToast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { useDeleteOrganizationInviteMutation } from '@repo/codegen/src/schema'
@@ -16,21 +16,21 @@ const ICON_SIZE = 12
 
 export const InviteActions = ({ inviteId, refetchInvites }: InviteActionsProps) => {
   const { actionIcon } = pageStyles()
-  const { toast } = useToast()
+  const { successNotification, errorNotification } = useNotification()
   const [_, deleteInvite] = useDeleteOrganizationInviteMutation()
 
   const handleDeleteInvite = async () => {
     const response = await deleteInvite({ deleteInviteId: inviteId })
 
     if (response.error) {
-      toast({
+      errorNotification({
         title: 'There was a problem deleting this invite, please try again',
         variant: 'destructive',
       })
     }
 
     if (response.data) {
-      toast({
+      successNotification({
         title: 'Invite deleted successfully',
         variant: 'success',
       })

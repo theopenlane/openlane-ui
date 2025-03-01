@@ -12,7 +12,7 @@ import Step1, { step1Schema } from '@/components/pages/protected/onboarding/step
 import Step2, { step2Schema } from '@/components/pages/protected/onboarding/step-2'
 import Step3, { step3Schema } from '@/components/pages/protected/onboarding/step-3'
 import { useRef } from 'react'
-import { toast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import { useRouter } from 'next/navigation'
 import { switchOrganization } from '@/lib/user'
 
@@ -28,6 +28,7 @@ export default function MultiStepForm() {
   const router = useRouter()
   const { data: sessionData, update: updateSession } = useSession()
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const { successNotification, errorNotification } = useNotification()
 
   const formDataRef = useRef<Partial<CreateOnboardingInput>>({
     companyName: '',
@@ -65,7 +66,7 @@ export default function MultiStepForm() {
       })
 
       if (response?.data?.createOnboarding) {
-        toast({
+        successNotification({
           title: 'Onboarding completed successfully.!',
         })
       } else {
@@ -94,9 +95,8 @@ export default function MultiStepForm() {
         }
       }
     } catch (err) {
-      toast({
+      errorNotification({
         title: 'There was an error while submitting the form. Please try again.',
-        variant: 'destructive',
       })
       setIsLoading(false)
     }

@@ -1,7 +1,7 @@
 'use client'
 
 import { Edit, MoreHorizontal, Trash2 } from 'lucide-react'
-import { useToast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from '@repo/ui/alert-dialog'
@@ -21,7 +21,7 @@ export const Actions = ({
 }: PolicyActionsProps) => {
   const router = useRouter()
   const { actionIcon } = pageStyles()
-  const { toast } = useToast()
+  const { successNotification, errorNotification } = useNotification()
 
   // const [ _, deleteTemplate] = useDeletePolicyMutation()
 
@@ -42,9 +42,8 @@ export const Actions = ({
     // }
 
     // if (response.data) {
-    toast({
+    successNotification({
       title: 'Questionnaire deleted successfully',
-      variant: 'success',
     })
     // refetchPolicies({
     //   requestPolicy: 'network-only',

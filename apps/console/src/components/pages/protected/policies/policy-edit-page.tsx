@@ -11,8 +11,7 @@ import type { Value } from '@udecode/plate-common'
 import { Button } from '@repo/ui/button'
 import { Eye } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useGQLErrorToast } from '@/hooks/useGQLErrorToast'
-import { useToast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 
 type PolicyEditPageProps = {
   policyId: string
@@ -20,8 +19,7 @@ type PolicyEditPageProps = {
 
 export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
   const router = useRouter()
-  const { toast } = useToast()
-  const { toastGQLError } = useGQLErrorToast()
+  const { errorNotification, successNotification } = useNotification()
 
   const [{ fetching: saving }, updatePolicy] = useUpdateInternalPolicyMutation()
   const [{ data: policyData }] = useGetInternalPolicyDetailsByIdQuery({ requestPolicy: 'network-only', variables: { internalPolicyId: policyId } })
@@ -48,7 +46,9 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
   useEffect(() => {
     const policy = policyData?.internalPolicy
 
-    if (!policy) return
+    if (!policy) {
+      return
+    }
 
     setPolicy(policy)
     setDocument(policy.details?.content || [])
@@ -93,11 +93,11 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
     })
 
     if (error) {
-      toastGQLError({ title: 'Failed to save Policy', error })
+      errorNotification({ title: 'Failed to save Policy', gqlError: error })
       return
     }
 
-    toast({ title: 'Policy updated', variant: 'success' })
+    successNotification({ title: 'Policy updated' })
   }
 
   const policyName = policy.displayID ? `${policy.displayID} - ${policy.name}` : policy.name

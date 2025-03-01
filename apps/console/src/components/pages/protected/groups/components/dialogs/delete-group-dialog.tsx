@@ -4,14 +4,14 @@ import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Trash2, AlertTriangle, ChevronUpIcon, ChevronDownIcon } from 'lucide-react'
-import { useToast } from '@repo/ui/use-toast'
 import { useDeleteGroupMutation, useGetGroupDetailsQuery } from '@repo/codegen/src/schema'
 import GroupsDeletePermissionsTable from '../groups-delete-permissions-table'
+import { useNotification } from '@/hooks/useNotification'
 
 const DeleteGroupDialog = () => {
   const { selectedGroup, setSelectedGroup, isAdmin, reexecuteGroupsQuery } = useGroupsStore()
   const [isOpen, setIsOpen] = useState(false)
-  const { toast } = useToast()
+  const { successNotification, errorNotification } = useNotification()
   const [expanded, setExpanded] = useState(false)
 
   const [{ data }] = useGetGroupDetailsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
@@ -24,12 +24,12 @@ const DeleteGroupDialog = () => {
 
     try {
       await deleteGroup({ deleteGroupId: id })
-      toast({ title: `Group "${name}" deleted successfully`, variant: 'success' })
+      successNotification({ title: `Group "${name}" deleted successfully` })
       setSelectedGroup(null)
       setIsOpen(false)
       reexecuteGroupsQuery?.()
     } catch (error) {
-      toast({ title: 'Failed to delete group.', variant: 'destructive' })
+      errorNotification({ title: 'Failed to delete group.' })
     }
   }
 
