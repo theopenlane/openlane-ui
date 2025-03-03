@@ -13,9 +13,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@repo/ui/input'
 import MultipleSelector from '@repo/ui/multiple-selector'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { useGQLErrorToast } from '@/hooks/useGQLErrorToast'
 import { useToast } from '@repo/ui/use-toast'
 import { useRouter } from 'next/navigation'
+import { useNotification } from '@/hooks/useNotification'
 
 type PolicyEditSidebarProps = {
   policy: InternalPolicyByIdFragment
@@ -26,7 +26,7 @@ type PolicyEditSidebarProps = {
 // export const PolicyEditSidebar: React.FC<PolicyEditSidebarProps> = function ({ policy, form, handleSave }) {
 export const PolicyEditSidebar = ({ policy, form, handleSave }: PolicyEditSidebarProps) => {
   const { toast } = useToast()
-  const { toastGQLError } = useGQLErrorToast()
+  const { successNotification, errorNotification } = useNotification()
   const router = useRouter()
 
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
@@ -38,17 +38,14 @@ export const PolicyEditSidebar = ({ policy, form, handleSave }: PolicyEditSideba
     const { error } = await deletePolicy({ deleteInternalPolicyId: policy.id })
 
     if (error) {
-      toastGQLError({ title: 'Error deleting policy', error })
+      errorNotification({ title: 'Error deleting policy', gqlError: error })
       return
     }
 
-    toast({
-      title: 'Policy deleted',
-      variant: 'success',
-    })
+    successNotification({ title: 'Policy deleted' })
 
     router.push('/policies')
-  }, [deletePolicy, policy, router, toast, toastGQLError])
+  }, [deletePolicy, policy, router, toast])
 
   const sidebarItems = useMemo(() => {
     return {
