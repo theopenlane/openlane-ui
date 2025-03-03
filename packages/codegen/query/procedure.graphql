@@ -16,25 +16,38 @@ mutation UpdateProcedure($updateProcedureId: ID!, $input: UpdateProcedureInput!)
   }
 }
 
-query GetAllProceduresWithDetails {
-  procedures {
+fragment ProcedureList on Procedure {
+  id
+  name
+  background
+  description
+  displayID
+  procedureType
+  purposeAndScope
+  satisfies
+  status
+  version
+  updatedAt
+  updatedBy
+  createdAt
+  createdBy
+  tags
+}
+
+query GetProceduresList($where: ProcedureWhereInput) {
+  procedures(where: $where) {
     edges {
       node {
-        id
-        name
-        background
-        description
-        procedureType
-        purposeAndScope
-        satisfies
-        status
-        version
-        updatedAt
-        updatedBy
-        createdAt
-        createdBy
-        tags
+        ...ProcedureList
       }
+    }
+  }
+}
+
+query SearchProcedures($query: String!) {
+  procedureSearch(query: $query) {
+    procedures {
+      ...ProcedureList
     }
   }
 }
@@ -51,26 +64,37 @@ query GetAllProcedures($where: ProcedureWhereInput) {
   }
 }
 
-query GetProcedureDetailsById($procedureId: ID!) {
-  procedure(id: $procedureId) {
+fragment ProcedureByID on Procedure {
+  id
+  name
+  description
+  details
+  displayID
+  background
+  createdAt
+  createdBy
+  updatedAt
+  updatedBy
+  tags
+  version
+  status
+  satisfies
+  purposeAndScope
+  procedureType
+  internalPolicies {
     id
     name
-    description
-    details
-    background
-    createdAt
-    createdBy
-    updatedAt
-    updatedBy
-    tags
-    version
-    status
-    satisfies
-    purposeAndScope
-    procedureType
-    internalPolicies {
-      id
-      name
-    }
+  }
+}
+
+query GetProcedureDetailsById($procedureId: ID!) {
+  procedure(id: $procedureId) {
+    ...ProcedureByID
+  }
+}
+
+mutation DeleteProcedure($deleteProcedureId: ID!) {
+  deleteProcedure(id: $deleteProcedureId) {
+    deletedID
   }
 }

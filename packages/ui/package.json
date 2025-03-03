@@ -16,6 +16,7 @@
     "./calendar": "./src/calendar/calendar.tsx",
     "./calendar-popover": "./src/calendar-popover/calendar-popover.tsx",
     "./cardpanel": "./src/cardpanel/card.tsx",
+    "./confirmation-dialog": "./src/confirmation-dialog/confirmation-dialog.tsx",
     "./checkbox": "./src/checkbox/checkbox.tsx",
     "./command": "./src/command.tsx",
     "./data-table": "./src/data-table/data-table.tsx",

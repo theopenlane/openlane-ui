@@ -6,7 +6,7 @@ import { LoaderCircle, PlusCircle, SearchIcon } from 'lucide-react'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Input } from '@repo/ui/input'
 import { pageStyles } from './page.styles'
 import { Actions } from './actions/actions'
@@ -33,8 +33,17 @@ export const PoliciesTable = () => {
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300)
 
-  const [{ data, fetching }] = useGetInternalPoliciesListQuery({ variables: { where: filters } })
-  const [{ data: searchData, fetching: searching }] = useSearchInternalPoliciesQuery({ variables: { query: debouncedSearchTerm }, pause: !debouncedSearchTerm })
+  const [{ data, fetching }, refetchList] = useGetInternalPoliciesListQuery({ variables: { where: filters }, requestPolicy: 'network-only' })
+  const [{ data: searchData, fetching: searching }, refetchSearch] = useSearchInternalPoliciesQuery({
+    variables: { query: debouncedSearchTerm },
+    pause: !debouncedSearchTerm,
+    requestPolicy: 'network-only',
+  })
+
+  const refetch = useCallback(() => {
+    refetchSearch({ requestPolicy: 'network-only' })
+    refetchList({ requestPolicy: 'network-only' })
+  }, [refetchSearch, refetchList])
 
   useEffect(() => {
     if (data && !searchTerm) {
@@ -115,19 +124,23 @@ export const PoliciesTable = () => {
     {
       accessorKey: 'id',
       header: '',
-      cell: ({ cell }) => (
-        <Actions
-          policyId={cell.getValue() as string}
-          //  refetchPolicies={refetch}
-        />
-      ),
+      cell: ({ cell }) => <Actions policyId={cell.getValue() as string} refetchPolicies={refetch} />,
       size: 40,
     },
   ]
 
   return (
     <>
-      <PolicyDataTableToolbar className="my-5" creating={creating} handleCreateNew={handleCreateNew} setFilters={setFilters} setSort={setSort} searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      <PolicyDataTableToolbar
+        className="my-5"
+        creating={creating}
+        searching={searching}
+        handleCreateNew={handleCreateNew}
+        setFilters={setFilters}
+        setSort={setSort}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+      />
 
       <DataTable columns={columns} data={filteredPolicies} loading={fetching} />
     </>

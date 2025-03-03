@@ -4,51 +4,45 @@ import { Edit, MoreHorizontal, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from '@repo/ui/alert-dialog'
-import { Button } from '@repo/ui/button'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useDeleteProcedureMutation } from '@repo/codegen/src/schema'
+import { UseQueryExecute } from 'urql'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
 type ProcedureActionsProps = {
   procedureId: string
-  // refetchProcedures: UseQueryExecute
+  refetchProcedures: UseQueryExecute
 }
 
 const ICON_SIZE = 12
 
-export const Actions = ({
-  procedureId: procedureId, // refetchProcedures: refetchProcedures,
-}: ProcedureActionsProps) => {
+export const Actions = ({ procedureId: procedureId, refetchProcedures: refetchProcedures }: ProcedureActionsProps) => {
   const router = useRouter()
   const { actionIcon } = pageStyles()
   const { successNotification, errorNotification } = useNotification()
 
-  // const [ _, deleteTemplate] = useDeleteProcedureMutation()
+  const [_, deleteProcedure] = useDeleteProcedureMutation()
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   const handleEditProcedure = () => {
-    router.push(`/procedures/editor?id=${procedureId}`)
+    router.push(`/procedures/${procedureId}/edit`)
   }
 
   const handleDeleteProcedure = async () => {
-    // const response = await deleteProcedure({ deleteProcedureId: procedureId })
+    const { error } = await deleteProcedure({ deleteProcedureId: procedureId })
 
-    // if (response.error) {
-    //   toast({
-    //     title: 'There was a problem deleting the procedure, please try again',
-    //     variant: 'destructive',
-    //   })
-    // }
+    if (error) {
+      errorNotification({ title: 'Error deleting procedure', gqlError: error })
+      return
+    }
 
-    // if (response.data) {
+    refetchProcedures()
+
     successNotification({
       title: 'Questionnaire deleted successfully',
     })
-    // refetchProcedures({
-    //   requestProcedure: 'network-only',
-    // })
-    // }
   }
 
   return (
@@ -59,10 +53,11 @@ export const Actions = ({
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-10">
           <DropdownMenuGroup>
-            <DropdownMenuItem onSelect={handleEditProcedure}>
+            <DropdownMenuItem onSelect={handleEditProcedure} className="cursor-pointer">
               <Edit width={ICON_SIZE} /> Edit
             </DropdownMenuItem>
             <DropdownMenuItem
+              className="cursor-pointer"
               onClick={() => {
                 setIsDeleteDialogOpen(true)
               }}
@@ -73,32 +68,12 @@ export const Actions = ({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>This action cannot be undone, this will permanently remove the procedure from the organization.</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel asChild>
-              <Button variant="outline">Cancel</Button>
-            </AlertDialogCancel>
-            <AlertDialogAction asChild>
-              <Button
-                variant="filled"
-                onClick={handleDeleteProcedure}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handleDeleteProcedure()
-                  }
-                }}
-              >
-                Delete Procedure
-              </Button>
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmationDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={handleDeleteProcedure}
+        description="This action cannot be undone, this will permanently remove the procedure from the organization."
+      />
     </>
   )
 }

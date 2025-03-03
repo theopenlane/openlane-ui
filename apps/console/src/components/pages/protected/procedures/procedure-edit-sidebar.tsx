@@ -1,13 +1,13 @@
 'use client'
 
-import React, { useMemo, useState, useCallback } from 'react'
-import { InternalPolicyByIdFragment, useDeleteInternalPolicyMutation } from '@repo/codegen/src/schema'
+import React, { useCallback, useMemo, useState } from 'react'
+import { ProcedureByIdFragment, useDeleteProcedureMutation } from '@repo/codegen/src/schema'
 import { Info, Binoculars, FileStack, ScrollText, Tag, CalendarCheck2, CalendarClock } from 'lucide-react'
 import { MetaPanel, formatTime } from '@/components/shared/meta-panel/meta-panel'
 import { Panel } from '@repo/ui/panel'
 import { Button } from '@repo/ui/button'
 import { UseFormReturn } from 'react-hook-form'
-import { EditPolicyFormData } from './policy-edit-form-types'
+import { EditProcedureFormData } from './procedure-edit-form-types'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
@@ -17,75 +17,74 @@ import { useGQLErrorToast } from '@/hooks/useGQLErrorToast'
 import { useToast } from '@repo/ui/use-toast'
 import { useRouter } from 'next/navigation'
 
-type PolicyEditSidebarProps = {
-  policy: InternalPolicyByIdFragment
-  form: UseFormReturn<EditPolicyFormData>
+type ProcedureEditSidebarProps = {
+  procedure: ProcedureByIdFragment
+  form: UseFormReturn<EditProcedureFormData>
   handleSave: () => void
 }
 
-// export const PolicyEditSidebar: React.FC<PolicyEditSidebarProps> = function ({ policy, form, handleSave }) {
-export const PolicyEditSidebar = ({ policy, form, handleSave }: PolicyEditSidebarProps) => {
+export const ProcedureEditSidebar = ({ procedure, form, handleSave }: ProcedureEditSidebarProps) => {
   const { toast } = useToast()
   const { toastGQLError } = useGQLErrorToast()
   const router = useRouter()
 
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
-  const [_, deletePolicy] = useDeleteInternalPolicyMutation()
+  const [_, deleteProcedure] = useDeleteProcedureMutation()
 
-  if (!policy) return null
+  if (!procedure) return null
 
   const handleDelete = useCallback(async () => {
-    const { error } = await deletePolicy({ deleteInternalPolicyId: policy.id })
+    const { error } = await deleteProcedure({ deleteProcedureId: procedure.id })
 
     if (error) {
-      toastGQLError({ title: 'Error deleting policy', error })
+      toastGQLError({ title: 'Error deleting procedure', error })
       return
     }
 
     toast({
-      title: 'Policy deleted',
+      title: 'Procedure deleted',
       variant: 'success',
     })
 
-    router.push('/policies')
-  }, [deletePolicy, policy, router, toast, toastGQLError])
+    router.push('/procedures')
+  }, [deleteProcedure, procedure, router, toast, toastGQLError])
 
   const sidebarItems = useMemo(() => {
     return {
       status: [
-        { icon: Binoculars, label: 'Status', value: policy.status },
-        { icon: FileStack, label: 'Version', value: policy.version },
-        { icon: ScrollText, label: 'Policy Type', value: <PolicyTypeField form={form} /> },
-        { icon: CalendarCheck2, label: 'Created At', value: formatTime(policy.createdAt) },
-        { icon: CalendarClock, label: 'Updated At', value: formatTime(policy.updatedAt) },
+        { icon: Binoculars, label: 'Status', value: procedure.status },
+        { icon: FileStack, label: 'Version', value: procedure.version },
+        { icon: ScrollText, label: 'Procedure Type', value: <ProcedureTypeField form={form} /> },
+        { icon: CalendarCheck2, label: 'Created At', value: formatTime(procedure.createdAt) },
+        { icon: CalendarClock, label: 'Updated At', value: formatTime(procedure.updatedAt) },
       ],
     }
-  }, [policy])
+  }, [procedure])
 
   const submittabled = form.formState.isDirty && form.formState.isValid && !form.formState.disabled
 
   return (
     <div className="w-full flex flex-col gap-5">
       <Button onClick={handleSave} disabled={!submittabled}>
-        Save policy
+        Save procedure
       </Button>
       <MetaPanel entries={sidebarItems.status} />
       <TagsPanel form={form} />
       <Button variant="redOutline" onClick={() => setShowDeleteConfirmation(true)}>
-        Delete policy
+        Delete procedure
       </Button>
 
       <ConfirmationDialog
         open={showDeleteConfirmation}
         onOpenChange={setShowDeleteConfirmation}
         onConfirm={handleDelete}
-        description="This action cannot be undone, this will permanently remove the policy from the organization."
+        description="This action cannot be undone, this will permanently remove the procedure from the organization."
       />
     </div>
   )
 }
 
-const TagsPanel = ({ form }: { form: UseFormReturn<EditPolicyFormData> }) => {
+const TagsPanel = ({ form }: { form: UseFormReturn<EditProcedureFormData> }) => {
   const { setValue } = form
 
   return (
@@ -99,7 +98,7 @@ const TagsPanel = ({ form }: { form: UseFormReturn<EditPolicyFormData> }) => {
             <TooltipTrigger>
               <Info size="14" className="ms-1 text-brand" />
             </TooltipTrigger>
-            <TooltipContent>Tags for the policy</TooltipContent>
+            <TooltipContent>Tags for the procedure</TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </div>
@@ -115,7 +114,7 @@ const TagsPanel = ({ form }: { form: UseFormReturn<EditPolicyFormData> }) => {
                   className="bg-background text-white p-2"
                   placeholder="Choose existing or add tag..."
                   creatable
-                  value={field?.value?.map((tag) => ({ value: tag, label: tag }))}
+                  value={field?.value?.map((tag: string) => ({ value: tag, label: tag }))}
                   onChange={(selected) =>
                     setValue(
                       'tags',
@@ -134,16 +133,16 @@ const TagsPanel = ({ form }: { form: UseFormReturn<EditPolicyFormData> }) => {
   )
 }
 
-function PolicyTypeField({ form }: { form: UseFormReturn<EditPolicyFormData> }) {
+function ProcedureTypeField({ form }: { form: UseFormReturn<EditProcedureFormData> }) {
   return (
     <Form {...form}>
       <FormField
-        name="policyType"
+        name="procedureType"
         control={form.control}
         render={({ field }) => (
           <FormItem>
             <FormControl className="w-full">
-              <Input placeholder="Policy type" {...field} className="bg-background text-white w-full text-sm h-auto p-1" />
+              <Input placeholder="Procedure type" {...field} className="bg-background text-white w-full text-sm h-auto p-1" />
             </FormControl>
             <FormMessage />
           </FormItem>
