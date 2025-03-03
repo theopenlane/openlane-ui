@@ -92,7 +92,7 @@ export const useGetInvites = () => {
   })
 }
 
-export const useGetOrganizationBilling = (organizationId: string) => {
+export const useGetOrganizationBilling = (organizationId: string | undefined) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetOrganizationBillingQuery, GetOrganizationBillingQueryVariables>({
