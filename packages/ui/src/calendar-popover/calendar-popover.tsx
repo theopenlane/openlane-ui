@@ -68,6 +68,6 @@ const CalendarPopover = <T extends FieldValues>({ field, defaultToday, required,
   )
 }
 
-Calendar.displayName = 'CalendarPopover'
+CalendarPopover.displayName = 'CalendarPopover'
 
 export { CalendarPopover }
