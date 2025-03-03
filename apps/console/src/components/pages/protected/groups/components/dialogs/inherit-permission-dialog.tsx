@@ -4,13 +4,13 @@ import React, { useState } from 'react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
-import { useToast } from '@repo/ui/use-toast'
 import { Label } from '@repo/ui/label'
 import { Copy, ChevronDown, ChevronUp } from 'lucide-react'
 import { useGetAllGroupsQuery, useGetGroupDetailsQuery, useUpdateGroupMutation } from '@repo/codegen/src/schema'
 import { DataTable } from '@repo/ui/data-table'
 import { Input } from '@repo/ui/input'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
+import { useNotification } from '@/hooks/useNotification'
 
 const columns = [
   { accessorKey: 'object', header: 'Object' },
@@ -23,7 +23,7 @@ const InheritPermissionDialog = () => {
   const [group, setGroup] = useState('')
   const [step, setStep] = useState(1)
   const [isExpanded, setIsExpanded] = useState(false)
-  const { toast } = useToast()
+  const { errorNotification, successNotification } = useNotification()
   const { selectedGroup, isAdmin } = useGroupsStore()
 
   const [{ data, fetching }] = useGetGroupDetailsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
@@ -36,10 +36,9 @@ const InheritPermissionDialog = () => {
 
   const inheritPermissions = async () => {
     if (!selectedGroup) {
-      toast({
+      errorNotification({
         title: 'Error',
         description: 'No selected group found.',
-        variant: 'destructive',
       })
       return
     }
@@ -56,17 +55,15 @@ const InheritPermissionDialog = () => {
         throw new Error(result.error.message)
       }
 
-      toast({
-        variant: 'success',
+      successNotification({
         description: `Permissions successfully inherited from ${groups.find((g) => g.id === group)?.name || 'selected group'}.`,
       })
 
       setIsOpen(false)
     } catch (error) {
-      toast({
+      errorNotification({
         title: 'Failed to inherit permissions',
         description: 'An unexpected error occurred.',
-        variant: 'destructive',
       })
     }
   }
@@ -84,7 +81,7 @@ const InheritPermissionDialog = () => {
 
   const handleNextStep = () => {
     if (!group) {
-      toast({ title: 'Please select a group.', variant: 'destructive' })
+      errorNotification({ title: 'Please select a group.' })
       return
     }
     setStep(2)

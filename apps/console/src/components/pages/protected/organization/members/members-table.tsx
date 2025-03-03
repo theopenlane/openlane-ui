@@ -13,8 +13,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import Image from 'next/image'
 import { format } from 'date-fns'
 import { useCopyToClipboard } from '@uidotdev/usehooks'
-import { useToast } from '@repo/ui/use-toast'
 import { MemberActions } from './actions/member-actions'
+import { useNotification } from '@/hooks/useNotification'
 
 type MembersTableProps = {
   setActiveTab: Dispatch<SetStateAction<string>>
@@ -28,7 +28,7 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
   const [filteredMembers, setFilteredMembers] = useState<Member[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [copiedText, copyToClipboard] = useCopyToClipboard()
-  const { toast } = useToast()
+  const { successNotification } = useNotification()
 
   const variables: GetSingleOrganizationMembersQueryVariables = {
     organizationId: session?.user.activeOrganizationId ?? '',
@@ -41,7 +41,7 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
 
   useEffect(() => {
     if (copiedText) {
-      toast({
+      successNotification({
         title: 'Copied to clipboard',
         variant: 'success',
       })

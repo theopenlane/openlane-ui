@@ -4,7 +4,7 @@ import { File, Upload } from 'lucide-react'
 import { TabsContent } from '@repo/ui/tabs'
 import { FileWithPath, useDropzone } from 'react-dropzone'
 import { cn } from '@repo/ui/lib/utils'
-import { useToast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 
 type TProps = {
   uploadedFile: (uploadedFile: TUploadedFilesProps) => void
@@ -14,7 +14,7 @@ const MAX_FILE_SIZE = 100 * 1024 * 1024 // 100 MB
 const MAX_FILE_SIZE_IN_MB = MAX_FILE_SIZE / (1024 * 1024)
 
 const UploadTab: React.FC<TProps> = (props: TProps) => {
-  const { toast } = useToast()
+  const { successNotification, errorNotification } = useNotification()
   const acceptedFileTypes = [
     'image/jpeg',
     'image/png',
@@ -39,20 +39,16 @@ const UploadTab: React.FC<TProps> = (props: TProps) => {
   const onDrop = useCallback((acceptedFiles: FileWithPath[]) => {
     const validFiles = acceptedFiles.filter((file) => {
       if (file.size > MAX_FILE_SIZE) {
-        toast({
+        errorNotification({
           title: 'Error',
           description: `exceeds the maximum file size of ${MAX_FILE_SIZE_IN_MB} MB.`,
-          variant: 'destructive',
-          duration: 5000,
         })
         return false
       }
       if (!acceptedFileTypes.includes(file.type)) {
-        toast({
+        errorNotification({
           title: 'Error',
           description: `${file.name} is not an accepted file type.`,
-          variant: 'destructive',
-          duration: 5000,
         })
         return false
       }

@@ -5,14 +5,14 @@ import { Label } from '@repo/ui/label'
 import React, { useEffect, useState } from 'react'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useGetOrganizationSettingQuery, useUpdateOrganizationMutation } from '@repo/codegen/src/schema'
-import { useToast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 
 const BillingEmailDialog = () => {
   const { currentOrgId } = useOrganization()
   const [emailInput, setEmailInput] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const [{ fetching: isSubmitting }, updateOrg] = useUpdateOrganizationMutation()
-  const { toast } = useToast()
+  const { successNotification, errorNotification } = useNotification()
 
   const [settingData] = useGetOrganizationSettingQuery({ pause: !currentOrgId, variables: { organizationId: currentOrgId } })
 
@@ -33,16 +33,14 @@ const BillingEmailDialog = () => {
     })
 
     if (resp.error) {
-      toast({
+      errorNotification({
         title: `Something went wrong with saving your email!`,
-        variant: 'destructive',
       })
       return
     }
 
-    toast({
+    successNotification({
       title: `${emailInput} was successfully added as Billing Alert`,
-      variant: 'success',
     })
     setIsOpen(false)
   }

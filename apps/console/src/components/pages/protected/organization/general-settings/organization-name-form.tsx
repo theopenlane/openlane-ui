@@ -11,10 +11,11 @@ import { useEffect, useState } from 'react'
 import { RESET_SUCCESS_STATE_MS } from '@/constants'
 import { useOrganization } from '@/hooks/useOrganization'
 import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
-import { toast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 
 const OrganizationNameForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
+  const { successNotification, errorNotification } = useNotification()
   const [{ fetching: isSubmitting }, updateOrg] = useUpdateOrganizationMutation()
 
   const { currentOrgId, allOrgs } = useOrganization()
@@ -65,15 +66,13 @@ const OrganizationNameForm = () => {
         avatarFile: file,
       })
       setIsSuccess(true)
-      toast({
+      successNotification({
         title: 'Avatar updated successfully',
-        variant: 'success',
       })
     } catch (error) {
       console.error('file upload error')
-      toast({
+      errorNotification({
         title: 'Failed to update avatar',
-        variant: 'destructive',
       })
     }
   }

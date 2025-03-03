@@ -13,7 +13,7 @@ import {
   useUpdateUserMutation,
   useUpdateUserSettingMutation,
 } from '@repo/codegen/src/schema'
-import { toast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import DefaultOrgForm from './default-org-form'
 import { Loader } from 'lucide-react'
 
@@ -24,6 +24,7 @@ import { Badge } from '@repo/ui/badge'
 
 const ProfilePage = () => {
   const { data: sessionData } = useSession()
+  const { successNotification, errorNotification } = useNotification()
   const userId = sessionData?.user.userId
 
   const [qrcode, setQrcode] = useState<null | string>(null)
@@ -59,15 +60,13 @@ const ProfilePage = () => {
         avatarFile: file,
       })
 
-      toast({
+      successNotification({
         title: 'Avatar updated successfully',
-        variant: 'success',
       })
     } catch (error) {
       console.error('file upload error')
-      toast({
+      errorNotification({
         title: 'Failed to update avatar',
-        variant: 'destructive',
       })
     }
   }
@@ -106,15 +105,13 @@ const ProfilePage = () => {
         },
       })
 
-      toast({
+      successNotification({
         title: `Two-factor authentication ${checked ? 'enabled' : 'disabled'} successfully`,
-        variant: 'success',
       })
     } catch (error) {
       console.error('Error updating TFA setting:', error)
-      toast({
+      errorNotification({
         title: 'Failed to update TFA setting',
-        variant: 'destructive',
       })
     }
   }
@@ -126,14 +123,12 @@ const ProfilePage = () => {
           totpAllowed: false,
         },
       })
-      toast({
+      successNotification({
         title: `Two-factor authentication removed successfully`,
-        variant: 'success',
       })
     } catch (error) {
-      toast({
+      errorNotification({
         title: 'Failed to remove Two-factor authentication ',
-        variant: 'destructive',
       })
     }
     refetchUser()

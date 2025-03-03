@@ -15,12 +15,12 @@ import {
   AlertDialogCancel,
 } from '@repo/ui/alert-dialog'
 import { useRouter } from 'next/navigation'
-import { useToast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import { useUserHasOrganizationDeletePermissions } from '@/lib/authz/utils'
 import { useGetOrganizationNameByIdQuery } from '@repo/codegen/src/schema'
 
 const OrganizationDelete = () => {
-  const { toast } = useToast()
+  const { successNotification, errorNotification } = useNotification()
   const { push } = useRouter()
 
   const [{ fetching: isSubmitting }, deleteOrganization] = useDeleteOrganizationMutation()
@@ -49,9 +49,8 @@ const OrganizationDelete = () => {
         },
       })
     }
-    toast({
+    successNotification({
       title: 'Organization successfully deleted',
-      variant: 'success',
     })
     push('/organization')
   }

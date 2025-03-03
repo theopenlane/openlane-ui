@@ -1,13 +1,12 @@
 'use client'
 
 import { Edit, MoreHorizontal, Trash2 } from 'lucide-react'
-import { useToast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useDeleteProcedureMutation } from '@repo/codegen/src/schema'
-import { useGQLErrorToast } from '@/hooks/useGQLErrorToast'
 import { UseQueryExecute } from 'urql'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
@@ -20,9 +19,8 @@ const ICON_SIZE = 12
 
 export const Actions = ({ procedureId: procedureId, refetchProcedures: refetchProcedures }: ProcedureActionsProps) => {
   const router = useRouter()
-  const { toastGQLError } = useGQLErrorToast()
   const { actionIcon } = pageStyles()
-  const { toast } = useToast()
+  const { successNotification, errorNotification } = useNotification()
 
   const [_, deleteProcedure] = useDeleteProcedureMutation()
 
@@ -36,15 +34,14 @@ export const Actions = ({ procedureId: procedureId, refetchProcedures: refetchPr
     const { error } = await deleteProcedure({ deleteProcedureId: procedureId })
 
     if (error) {
-      toastGQLError({ title: 'Error deleting procedure', error })
+      errorNotification({ title: 'Error deleting procedure', gqlError: error })
       return
     }
 
     refetchProcedures()
 
-    toast({
-      title: 'Procedure deleted',
-      variant: 'success',
+    successNotification({
+      title: 'Questionnaire deleted successfully',
     })
   }
 

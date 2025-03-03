@@ -10,9 +10,9 @@ import type { Value } from '@udecode/plate-common'
 import { Button } from '@repo/ui/button'
 import { Eye } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useGQLErrorToast } from '@/hooks/useGQLErrorToast'
 import { useToast } from '@repo/ui/use-toast'
 import { ProcedureEditForm } from './procedure-edit-form'
+import { useNotification } from '@/hooks/useNotification'
 
 type ProcedureEditPageProps = {
   procedureId: string
@@ -21,7 +21,7 @@ type ProcedureEditPageProps = {
 export function ProcedureEditPage({ procedureId }: ProcedureEditPageProps) {
   const router = useRouter()
   const { toast } = useToast()
-  const { toastGQLError } = useGQLErrorToast()
+  const { successNotification, errorNotification } = useNotification()
 
   const [{ fetching: saving }, updateProcedure] = useUpdateProcedureMutation()
   const [{ data: procedureData }] = useGetProcedureDetailsByIdQuery({ requestPolicy: 'network-only', variables: { procedureId: procedureId } })
@@ -93,11 +93,11 @@ export function ProcedureEditPage({ procedureId }: ProcedureEditPageProps) {
     })
 
     if (error) {
-      toastGQLError({ title: 'Failed to save Procedure', error })
+      errorNotification({ title: 'Failed to save Procedure', gqlError: error })
       return
     }
 
-    toast({ title: 'Procedure updated', variant: 'success' })
+    successNotification({ title: 'Procedure updated' })
   }
 
   const title = procedure.displayID ? `${procedure.displayID} - ${procedure.name}` : procedure.name

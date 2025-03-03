@@ -1,7 +1,7 @@
 'use client'
 
 import { MoreHorizontal, RotateCw, Trash2 } from 'lucide-react'
-import { useToast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { useDeleteSubscriberMutation } from '@repo/codegen/src/schema'
@@ -16,23 +16,21 @@ const ICON_SIZE = 12
 
 export const SubscriberActions = ({ subscriberEmail: subscriberEmail, refetchSubscribers: refetechSubscribers }: SubscriberActionsProps) => {
   const { actionIcon } = pageStyles()
-  const { toast } = useToast()
+  const { successNotification, errorNotification } = useNotification()
   const [_, deleteSubscriber] = useDeleteSubscriberMutation()
 
   const handleDeleteSubscriber = async () => {
     const response = await deleteSubscriber({ deleteSubscriberEmail: subscriberEmail })
 
     if (response.error) {
-      toast({
+      errorNotification({
         title: 'There was a problem deleting the subscriber, please try again',
-        variant: 'destructive',
       })
     }
 
     if (response.data) {
-      toast({
+      successNotification({
         title: 'Subscriber deleted successfully',
-        variant: 'success',
       })
       refetechSubscribers({
         requestPolicy: 'network-only',

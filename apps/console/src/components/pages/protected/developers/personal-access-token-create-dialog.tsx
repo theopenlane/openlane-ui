@@ -7,7 +7,7 @@ import { Label } from '@repo/ui/label'
 import { Button } from '@repo/ui/button'
 import { Checkbox } from '@repo/ui/checkbox'
 import { AlertTriangleIcon, CirclePlusIcon, CopyIcon } from 'lucide-react'
-import { toast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import { CreateApiTokenInput, useCreateApiTokenMutation, useCreatePersonalAccessTokenMutation, useGetApiTokensQuery, useGetPersonalAccessTokensQuery } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import { useOrganization } from '@/hooks/useOrganization'
@@ -36,6 +36,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [result, createToken] = useCreatePersonalAccessTokenMutation()
   const [_, createApiToken] = useCreateApiTokenMutation()
+  const { successNotification, errorNotification } = useNotification()
 
   const [step, setStep] = useState<STEP>(STEP.CREATE)
 
@@ -89,9 +90,8 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
 
   const handleCopyToken = () => {
     navigator.clipboard.writeText(token)
-    toast({
+    successNotification({
       title: 'Token copied!',
-      variant: 'success',
     })
   }
 
@@ -133,10 +133,9 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
 
       if (createdToken) {
         setToken(createdToken)
-        toast({
+        successNotification({
           title: 'Token created successfully!',
           description: 'Copy your token now, as you will not be able to see it again.',
-          variant: 'success',
         })
         setStep(STEP.CREATED)
         isOrg ? refetchApiTokens() : refetchPersonalAccessTokens()
@@ -144,10 +143,9 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
         throw new Error('Failed to create token')
       }
     } catch (error) {
-      toast({
+      errorNotification({
         title: 'Error creating Token!',
         description: 'Something went wrong. Please try again.',
-        variant: 'destructive',
       })
     } finally {
       setIsSubmitting(false)

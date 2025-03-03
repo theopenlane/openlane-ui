@@ -8,12 +8,12 @@ import { Label } from '@repo/ui/label'
 import { Button } from '@repo/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Textarea } from '@repo/ui/textarea'
-import { useToast } from '@repo/ui/use-toast'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusCircle } from 'lucide-react'
 import { GetSingleOrganizationMembersQueryVariables, GroupSettingVisibility, InputMaybe, useCreateGroupWithMembersMutation, useGetSingleOrganizationMembersQuery } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import MultipleSelector from '@repo/ui/multiple-selector'
+import { useNotification } from '@/hooks/useNotification'
 
 const CreateGroupSchema = z.object({
   groupName: z.string().min(1, 'Group name is required'),
@@ -33,7 +33,7 @@ const CreateGroupDialog = ({ triggerText }: MyGroupsDialogProps) => {
   const { data: session } = useSession()
   const [isOpen, setIsOpen] = useState(false)
   const [visibility, setVisibility] = useState<'Public' | 'Private'>('Public')
-  const { toast } = useToast()
+  const { successNotification, errorNotification } = useNotification()
 
   const [{}, createGroup] = useCreateGroupWithMembersMutation()
 
@@ -85,12 +85,12 @@ const CreateGroupDialog = ({ triggerText }: MyGroupsDialogProps) => {
         })),
       })
 
-      toast({ title: 'Group created successfully!', variant: 'success' })
+      successNotification({ title: 'Group created successfully!' })
       setIsOpen(false)
       reset()
     } catch (error) {
       console.error('Error creating group:', error)
-      toast({ title: 'Failed to create group', variant: 'destructive' })
+      errorNotification({ title: 'Failed to create group' })
     }
   }
 

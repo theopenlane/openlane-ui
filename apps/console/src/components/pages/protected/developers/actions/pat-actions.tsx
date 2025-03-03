@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { MoreHorizontal, Trash2 } from 'lucide-react'
-import { useToast } from '@repo/ui/use-toast'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@repo/ui/dialog'
@@ -10,6 +9,7 @@ import { Button } from '@repo/ui/button'
 import { useDeleteApiTokenMutation, useDeletePersonalAccessTokenMutation } from '@repo/codegen/src/schema'
 import { type UseQueryExecute } from 'urql'
 import { usePathname } from 'next/navigation'
+import { useNotification } from '@/hooks/useNotification'
 
 type TokenActionProps = {
   tokenId: string
@@ -20,7 +20,7 @@ const ICON_SIZE = 12
 
 export const TokenAction = ({ tokenId, refetchTokens }: TokenActionProps) => {
   const { actionIcon } = pageStyles()
-  const { toast } = useToast()
+  const { successNotification, errorNotification } = useNotification()
   const [_, deletePersonalToken] = useDeletePersonalAccessTokenMutation()
   const [__, deleteApiToken] = useDeleteApiTokenMutation()
   const path = usePathname()
@@ -35,14 +35,12 @@ export const TokenAction = ({ tokenId, refetchTokens }: TokenActionProps) => {
       : await deletePersonalToken({ deletePersonalAccessTokenId: tokenId }) // Use deletePersonalToken otherwise
 
     if (response.error) {
-      toast({
+      errorNotification({
         title: 'There was a problem deleting this token, please try again',
-        variant: 'destructive',
       })
     } else if (response.data) {
-      toast({
+      successNotification({
         title: 'Token deleted successfully',
-        variant: 'success',
       })
       setDialogOpen(false)
       setMenuOpen(false)

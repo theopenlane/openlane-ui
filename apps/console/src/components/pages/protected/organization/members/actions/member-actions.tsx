@@ -1,7 +1,7 @@
 'use client'
 
 import { MoreHorizontal, Trash2, UserRoundPen } from 'lucide-react'
-import { useToast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { OrgMembershipRole, useGetUserProfileQuery, useRemoveUserFromOrgMutation, useUpdateUserRoleInOrgMutation } from '@repo/codegen/src/schema'
@@ -37,7 +37,7 @@ const ICON_SIZE = 12
 
 export const MemberActions = ({ memberId, refetchMembers, memberRole }: MemberActionsProps) => {
   const { actionIcon, roleRow, buttonRow } = pageStyles()
-  const { toast } = useToast()
+  const { successNotification, errorNotification } = useNotification()
   const [_, deleteMember] = useRemoveUserFromOrgMutation()
   const { data: sessionData } = useSession()
   const userId = sessionData?.user.userId
@@ -51,16 +51,14 @@ export const MemberActions = ({ memberId, refetchMembers, memberRole }: MemberAc
     const response = await deleteMember({ deleteOrgMembershipId: memberId })
 
     if (response.error) {
-      toast({
+      errorNotification({
         title: 'There was a problem deleting the member, please try again',
-        variant: 'destructive',
       })
     }
 
     if (response.data) {
-      toast({
+      successNotification({
         title: 'Member deleted successfully',
-        variant: 'success',
       })
       refetchMembers({
         requestPolicy: 'network-only',
@@ -73,14 +71,14 @@ export const MemberActions = ({ memberId, refetchMembers, memberRole }: MemberAc
     const response = await updateMember({ updateOrgMemberId: memberId, input: { role: role } })
 
     if (response.error) {
-      toast({
+      errorNotification({
         title: 'There was a problem updating the member, please try again',
         variant: 'destructive',
       })
     }
 
     if (response.data) {
-      toast({
+      successNotification({
         title: 'Role changed successfully',
         variant: 'success',
       })

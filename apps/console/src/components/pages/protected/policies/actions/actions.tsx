@@ -1,13 +1,12 @@
 'use client'
 
 import { Edit, MoreHorizontal, Trash2 } from 'lucide-react'
-import { useToast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useDeleteInternalPolicyMutation } from '@repo/codegen/src/schema'
-import { useGQLErrorToast } from '@/hooks/useGQLErrorToast'
 import { UseQueryExecute } from 'urql'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
@@ -20,9 +19,8 @@ const ICON_SIZE = 12
 
 export const Actions = ({ policyId: policyId, refetchPolicies: refetchPolicies }: PolicyActionsProps) => {
   const router = useRouter()
-  const { toastGQLError } = useGQLErrorToast()
   const { actionIcon } = pageStyles()
-  const { toast } = useToast()
+  const { successNotification, errorNotification } = useNotification()
 
   const [_, deletePolicy] = useDeleteInternalPolicyMutation()
 
@@ -36,15 +34,14 @@ export const Actions = ({ policyId: policyId, refetchPolicies: refetchPolicies }
     const { error } = await deletePolicy({ deleteInternalPolicyId: policyId })
 
     if (error) {
-      toastGQLError({ title: 'Error deleting policy', error })
+      errorNotification({ title: 'Error deleting policy', gqlError: error })
       return
     }
 
     refetchPolicies()
 
-    toast({
-      title: 'Policy deleted',
-      variant: 'success',
+    successNotification({
+      title: 'Questionnaire deleted successfully',
     })
   }
 

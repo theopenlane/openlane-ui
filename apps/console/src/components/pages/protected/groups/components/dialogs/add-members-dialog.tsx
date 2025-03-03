@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Plus } from 'lucide-react'
-import { useToast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import { GetSingleOrganizationMembersQueryVariables, useGetGroupDetailsQuery, useGetSingleOrganizationMembersQuery, useUpdateGroupMutation } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
@@ -13,7 +13,7 @@ const AddMembersDialog = () => {
   const { selectedGroup, isAdmin } = useGroupsStore()
   const { data: session } = useSession()
   const [isOpen, setIsOpen] = useState(false)
-  const { toast } = useToast()
+  const { successNotification, errorNotification } = useNotification()
   const [selectedMembers, setSelectedMembers] = useState<Option[]>([])
 
   const [{ data, fetching }] = useGetGroupDetailsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
@@ -59,7 +59,7 @@ const AddMembersDialog = () => {
       },
     })
 
-    toast({ title: 'Members updated successfully', variant: 'success' })
+    successNotification({ title: 'Members updated successfully' })
     setIsOpen(false)
   }
 

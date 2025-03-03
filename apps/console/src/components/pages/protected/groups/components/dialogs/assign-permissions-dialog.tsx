@@ -6,7 +6,6 @@ import { Plus } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Input } from '@repo/ui/input'
 import { Checkbox } from '@repo/ui/checkbox'
-import { useToast } from '@repo/ui/use-toast'
 import { Label } from '@repo/ui/label'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
@@ -15,6 +14,7 @@ import { GetAllRisksDocument, useGetGroupDetailsQuery, useUpdateGroupMutation } 
 import debounce from 'lodash.debounce'
 import { useQuery } from 'urql'
 import { OBJECT_TYPE_CONFIG, ObjectTypes } from '@/constants/groups'
+import { useNotification } from '@/hooks/useNotification'
 
 type TableDataItem = {
   id: string
@@ -65,7 +65,7 @@ const AssignPermissionsDialog = () => {
 
   const [isOpen, setIsOpen] = useState(false)
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([])
-  const { toast } = useToast()
+  const { successNotification, errorNotification } = useNotification()
   const [step, setStep] = useState(1)
   const [selectedObject, setSelectedObject] = useState<ObjectTypes | null>(null)
   const [roles, setRoles] = useState<Record<string, string>>({}) // {01JK9CJCC4YJQ2SBTXXMZG45H0: 'View'} example data
@@ -144,18 +144,16 @@ const AssignPermissionsDialog = () => {
         input: cleanedPermissionMap,
       })
 
-      toast({
+      successNotification({
         title: 'Permissions updated successfully',
-        variant: 'success',
       })
 
       handleOpenChange(false)
     } catch (error) {
       console.error('Failed to update group:', error)
-      toast({
+      errorNotification({
         title: 'Failed to update permissions',
         description: 'Something went wrong',
-        variant: 'destructive',
       })
     }
   }

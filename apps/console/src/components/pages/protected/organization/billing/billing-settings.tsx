@@ -8,11 +8,12 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { billingSettingsStyles } from './billing-settings.styles'
 import { cn } from '@repo/ui/lib/utils'
 import { useGetOrganizationSettingQuery, useUpdateOrganizationMutation } from '@repo/codegen/src/schema'
-import { toast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 
 const BillingSettings: React.FC = () => {
   const { panel, section, sectionContent, sectionTitle, emailText, paragraph, switchContainer, text } = billingSettingsStyles()
   const { currentOrgId } = useOrganization()
+  const { successNotification, errorNotification } = useNotification()
   const [settingData] = useGetOrganizationSettingQuery({ pause: !currentOrgId, variables: { organizationId: currentOrgId } })
   const [{ fetching: isSubmitting }, updateOrg] = useUpdateOrganizationMutation()
   const billingAddress = settingData.data?.organization.setting?.billingAddress
@@ -31,16 +32,14 @@ const BillingSettings: React.FC = () => {
           updateOrgSettings: { billingNotificationsEnabled: checked },
         },
       })
-      toast({
+      successNotification({
         title: `Billing alerts successfully turned ${checked ? 'on' : 'off'}`,
-        variant: 'success',
       })
     } catch (error) {
       console.error('Error updating billing notifications:', error)
       setNotificationsEnabled(!checked)
-      toast({
+      errorNotification({
         title: `Something went wrong with turning ${checked ? 'on' : 'off'} the billing alerts!`,
-        variant: 'destructive',
       })
     }
   }
