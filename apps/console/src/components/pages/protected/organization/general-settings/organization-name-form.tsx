@@ -13,11 +13,12 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
 import { toast } from '@repo/ui/use-toast'
 import { useUpdateOrganization } from '@/lib/graphql-hooks/organization'
+import { useQueryClient } from '@tanstack/react-query'
 
 const OrganizationNameForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
   const { isPending, mutateAsync: updateOrg } = useUpdateOrganization()
-
+  const queryClient = useQueryClient()
   const { currentOrgId, allOrgs } = useOrganization()
   const currentOrganization = allOrgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
 
@@ -54,6 +55,12 @@ const OrganizationNameForm = () => {
       },
     })
     setIsSuccess(true)
+    queryClient.invalidateQueries({
+      predicate: (query) => {
+        const [firstKey] = query.queryKey
+        return firstKey === 'organizationsWithMembers' || firstKey === 'organizations'
+      },
+    })
   }
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {

@@ -4,41 +4,35 @@ import { MoreHorizontal, RotateCw, Trash2 } from 'lucide-react'
 import { useToast } from '@repo/ui/use-toast'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { useDeleteOrganizationInviteMutation } from '@repo/codegen/src/schema'
 import { type UseQueryExecute } from 'urql'
+import { useDeleteOrganizationInvite } from '@/lib/graphql-hooks/organization'
 
 type InviteActionsProps = {
   inviteId: string
-  refetchInvites: UseQueryExecute
 }
 
 const ICON_SIZE = 12
 
-export const InviteActions = ({ inviteId, refetchInvites }: InviteActionsProps) => {
+export const InviteActions = ({ inviteId }: InviteActionsProps) => {
   const { actionIcon } = pageStyles()
   const { toast } = useToast()
-  const [_, deleteInvite] = useDeleteOrganizationInviteMutation()
+  const { mutateAsync: deleteInvite } = useDeleteOrganizationInvite()
 
   const handleDeleteInvite = async () => {
-    const response = await deleteInvite({ deleteInviteId: inviteId })
-
-    if (response.error) {
+    try {
+      await deleteInvite({ deleteInviteId: inviteId })
+      toast({
+        title: 'Invite deleted successfully',
+        variant: 'success',
+      })
+    } catch {
       toast({
         title: 'There was a problem deleting this invite, please try again',
         variant: 'destructive',
       })
     }
-
-    if (response.data) {
-      toast({
-        title: 'Invite deleted successfully',
-        variant: 'success',
-      })
-      refetchInvites({
-        requestPolicy: 'network-only',
-      })
-    }
   }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

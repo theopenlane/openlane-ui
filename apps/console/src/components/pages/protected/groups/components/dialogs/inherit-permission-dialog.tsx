@@ -11,6 +11,7 @@ import { DataTable } from '@repo/ui/data-table'
 import { Input } from '@repo/ui/input'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { useGetAllGroups, useGetGroupDetails, useUpdateGroup } from '@/lib/graphql-hooks/groups'
+import { useQueryClient } from '@tanstack/react-query'
 
 const columns = [
   { accessorKey: 'object', header: 'Object' },
@@ -25,6 +26,7 @@ const InheritPermissionDialog = () => {
   const [isExpanded, setIsExpanded] = useState(false)
   const { toast } = useToast()
   const { selectedGroup, isAdmin } = useGroupsStore()
+  const queryClient = useQueryClient()
 
   const { data, isLoading } = useGetGroupDetails(selectedGroup)
   const { isManaged } = data?.group || {}
@@ -45,12 +47,14 @@ const InheritPermissionDialog = () => {
     }
 
     try {
-      const result = await updateGroup({
+      await updateGroup({
         updateGroupId: selectedGroup,
         input: {
           inheritGroupPermissions: group,
         },
       })
+
+      queryClient.invalidateQueries({ queryKey: ['group', selectedGroup] })
 
       toast({
         variant: 'success',

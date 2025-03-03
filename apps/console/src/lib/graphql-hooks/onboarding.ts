@@ -7,6 +7,6 @@ export const useCreateOnboarding = () => {
   const { client } = useGraphQLClient()
 
   return useMutation<CreateOnboardingMutation, unknown, CreateOnboardingMutationVariables>({
-    mutationFn: async (input) => client.request(CREATE_ONBOARDING, { input }),
+    mutationFn: async (payload) => client.request(CREATE_ONBOARDING, payload),
   })
 }

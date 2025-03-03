@@ -17,6 +17,7 @@ import {
   DeleteGroupMutationVariables,
   UpdateGroupMembershipMutation,
   UpdateGroupMembershipMutationVariables,
+  Program,
 } from '@repo/codegen/src/schema'
 
 export const useGetAllGroups = (where?: GetAllGroupsQueryVariables['where']) => {
@@ -38,7 +39,7 @@ export const useGetGroupDetails = (groupId: string | null) => {
   })
 }
 
-export const useGetGroupPermissions = (groupId?: string) => {
+export const useGetGroupPermissions = (groupId?: string | null) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetGroupPermissionsQuery, GetGroupPermissionsQueryVariables>({

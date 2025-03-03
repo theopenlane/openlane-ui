@@ -26340,6 +26340,22 @@ export type GetGroupPermissionsQuery = {
   }
 }
 
+export type UpdateUserRoleInOrgMutationVariables = Exact<{
+  updateOrgMemberId: Scalars['ID']['input']
+  input: UpdateOrgMembershipInput
+}>
+
+export type UpdateUserRoleInOrgMutation = {
+  __typename?: 'Mutation'
+  updateOrgMembership: { __typename?: 'OrgMembershipUpdatePayload'; orgMembership: { __typename?: 'OrgMembership'; id: string; role: OrgMembershipRole; userID: string; organizationID: string } }
+}
+
+export type RemoveUserFromOrgMutationVariables = Exact<{
+  deleteOrgMembershipId: Scalars['ID']['input']
+}>
+
+export type RemoveUserFromOrgMutation = { __typename?: 'Mutation'; deleteOrgMembership: { __typename?: 'OrgMembershipDeletePayload'; deletedID: string } }
+
 export type GetAllNarrativesQueryVariables = Exact<{
   where?: InputMaybe<NarrativeWhereInput>
 }>
@@ -26949,6 +26965,28 @@ export type SearchQuery = {
     >
   } | null
 }
+
+export type CreateSubscriberMutationVariables = Exact<{
+  input: CreateSubscriberInput
+}>
+
+export type CreateSubscriberMutation = { __typename?: 'Mutation'; createSubscriber: { __typename?: 'SubscriberCreatePayload'; subscriber: { __typename?: 'Subscriber'; email: string } } }
+
+export type GetAllSubscribersQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetAllSubscribersQuery = {
+  __typename?: 'Query'
+  subscribers: {
+    __typename?: 'SubscriberConnection'
+    edges?: Array<{ __typename?: 'SubscriberEdge'; node?: { __typename?: 'Subscriber'; active: boolean; email: string; id: string; verifiedEmail: boolean } | null } | null> | null
+  }
+}
+
+export type DeleteSubscriberMutationVariables = Exact<{
+  deleteSubscriberEmail: Scalars['String']['input']
+}>
+
+export type DeleteSubscriberMutation = { __typename?: 'Mutation'; deleteSubscriber: { __typename?: 'SubscriberDeletePayload'; email: string } }
 
 export type TasksWithFilterQueryVariables = Exact<{
   where?: InputMaybe<TaskWhereInput>

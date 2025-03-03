@@ -68,7 +68,7 @@ export const useGetSingleOrganizationMembers = (organizationId?: string) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetSingleOrganizationMembersQuery, GetSingleOrganizationMembersQueryVariables>({
-    queryKey: ['organizationMembers', organizationId],
+    queryKey: ['organizationsWithMembers', organizationId],
     queryFn: async () => client.request(GET_SINGLE_ORGANIZATION_MEMBERS, { organizationId }),
     enabled: !!organizationId,
   })
@@ -139,10 +139,11 @@ export const useCreateOrganization = () => {
 }
 
 export const useUpdateOrganization = () => {
-  const { client } = useGraphQLClient()
+  const { client, queryClient } = useGraphQLClient()
 
   return useMutation<UpdateOrganizationMutation, unknown, UpdateOrganizationMutationVariables>({
     mutationFn: async (payload) => client.request(UPDATE_ORGANIZATION, payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['organizations'] }),
   })
 }
 
@@ -150,7 +151,7 @@ export const useCreateBulkInvite = () => {
   const { client } = useGraphQLClient()
 
   return useMutation<CreateBulkInviteMutation, unknown, CreateBulkInviteMutationVariables>({
-    mutationFn: async (input) => client.request(CREATE_BULK_INVITE, { input }),
+    mutationFn: async (payload) => client.request(CREATE_BULK_INVITE, payload),
   })
 }
 

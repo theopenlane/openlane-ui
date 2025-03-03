@@ -12,7 +12,7 @@ import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import debounce from 'lodash.debounce'
-import { OBJECT_TYPE_CONFIG, ObjectTypes } from '@/constants/groups'
+import { AllQueriesData, OBJECT_TYPE_CONFIG, ObjectTypes } from '@/constants/groups'
 import { useUpdateGroup } from '@/lib/graphql-hooks/groups'
 import { useQuery } from '@tanstack/react-query'
 import { GET_ALL_RISKS } from '@repo/codegen/query/risks'
@@ -81,10 +81,9 @@ const AssignPermissionsDialog = () => {
 
   const selectedQuery = selectedObject && OBJECT_TYPE_CONFIG[selectedObject].queryDocument
 
-  const { data } = useQuery({
+  const { data } = useQuery<AllQueriesData>({
     queryKey: ['risks', { debouncedSearchValue, selectedGroup, selectedObject }],
     queryFn: () =>
-      // We call the GraphQL client with both the query and the “where” object
       client.request(
         selectedQuery || GET_ALL_RISKS,
         generateWhere({
@@ -152,8 +151,7 @@ const AssignPermissionsDialog = () => {
       queryClient.invalidateQueries({
         predicate: (query) => {
           const qk = query.queryKey
-          // Check for either ['groups'] or ['groups', selectedGroup]
-          return (qk.length === 1 && qk[0] === 'groups') || (qk.length > 1 && qk[0] === 'groups' && qk[1] === selectedGroup)
+          return (qk.length === 1 && qk[0] === 'groups') || (qk.length > 1 && qk[0] === 'group' && qk[1] === selectedGroup)
         },
       })
       toast({
@@ -174,7 +172,6 @@ const AssignPermissionsDialog = () => {
 
   const objectKey = selectedObject ? OBJECT_TYPE_CONFIG[selectedObject]?.responseObjectKey : null
   const objectDataList = objectKey && data?.[objectKey]?.edges ? data[objectKey].edges : []
-  console.log('objectDataList', objectDataList)
   const tableData: TableDataItem[] =
     objectDataList.map((item: any) => ({
       id: item?.node?.id,

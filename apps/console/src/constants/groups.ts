@@ -16,7 +16,45 @@ export enum ObjectTypes {
   PROCEDURE = 'Procedure',
 }
 
-export const OBJECT_TYPE_CONFIG: Record<ObjectTypes, { roleOptions: string[]; responseObjectKey: string; queryDocument: any }> = {
+import { Program, Risk, Control, ControlObjective, NarrativeEdge, InternalPolicy, Procedure } from '@repo/codegen/src/schema'
+
+/**
+ * Our "data" shape for all object types, keyed by their respective property.
+ */
+export type AllQueriesData = {
+  programs?: {
+    edges?: Array<{ node: Program }>
+  }
+  risks?: {
+    edges?: Array<{ node: Risk }>
+  }
+  controls?: {
+    edges?: Array<{ node: Control }>
+  }
+  controlObjectives?: {
+    edges?: Array<{ node: ControlObjective }>
+  }
+  narratives?: {
+    edges?: Array<{ node: NarrativeEdge }>
+  }
+  internalPolicies?: {
+    edges?: Array<{ node: InternalPolicy }>
+  }
+  procedures?: {
+    edges?: Array<{ node: Procedure }>
+  }
+}
+
+export type AllQueriesDataKey = keyof AllQueriesData
+
+export const OBJECT_TYPE_CONFIG: Record<
+  ObjectTypes,
+  {
+    roleOptions: string[]
+    responseObjectKey: AllQueriesDataKey
+    queryDocument: any
+  }
+> = {
   [ObjectTypes.PROGRAM]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'programs',

@@ -10,6 +10,7 @@ import { GroupMembershipRole, UserRole } from '@repo/codegen/src/schema'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { useSession } from 'next-auth/react'
 import { useGetGroupDetails, useUpdateGroupMembership } from '@/lib/graphql-hooks/groups'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface Member {
   id: string
@@ -25,6 +26,7 @@ const GroupsMembersTable = () => {
   const { members, isManaged, id } = data?.group || {}
   const [users, setUsers] = useState<Member[]>([])
   const { mutateAsync: updateMembership } = useUpdateGroupMembership()
+  const queryClient = useQueryClient()
 
   useEffect(() => {
     if (selectedGroup) {
@@ -56,6 +58,7 @@ const GroupsMembersTable = () => {
         role: newRole,
       },
     })
+    queryClient.invalidateQueries({ queryKey: ['group', id] })
   }
 
   const handleDelete = (id: string) => {

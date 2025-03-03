@@ -26,6 +26,7 @@ import { Textarea } from '@repo/ui/textarea'
 import { Input } from '@repo/ui/input'
 import { useSession } from 'next-auth/react'
 import { useGetGroupDetails, useUpdateGroup } from '@/lib/graphql-hooks/groups'
+import { useQueryClient } from '@tanstack/react-query'
 
 const EditGroupSchema = z.object({
   groupName: z.string().min(1, 'Group name is required'),
@@ -44,6 +45,7 @@ const GroupDetailsSheet = () => {
   const router = useRouter()
   const { selectedGroup, setSelectedGroup, setIsAdmin, isAdmin } = useGroupsStore()
   const { toast } = useToast()
+  const queryClient = useQueryClient()
 
   const { data, isPending: fetching } = useGetGroupDetails(selectedGroup)
 
@@ -107,6 +109,13 @@ const GroupDetailsSheet = () => {
           updateGroupSettings: {
             visibility: data.visibility === 'Public' ? GroupSettingVisibility.PUBLIC : GroupSettingVisibility.PRIVATE,
           },
+        },
+      })
+
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const [firstKey, secondKey] = query.queryKey
+          return firstKey === 'groups' || (firstKey === 'group' && secondKey === id)
         },
       })
       toast({ title: 'Group updated successfully!', variant: 'success' })

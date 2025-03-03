@@ -9,6 +9,7 @@ import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { useGetGroupDetails, useUpdateGroup } from '@/lib/graphql-hooks/groups'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
+import { useQueryClient } from '@tanstack/react-query'
 
 const AddMembersDialog = () => {
   const { selectedGroup, isAdmin } = useGroupsStore()
@@ -16,7 +17,7 @@ const AddMembersDialog = () => {
   const [isOpen, setIsOpen] = useState(false)
   const { toast } = useToast()
   const [selectedMembers, setSelectedMembers] = useState<Option[]>([])
-
+  const queryClient = useQueryClient()
   const { data } = useGetGroupDetails(selectedGroup)
   const { members, isManaged, id } = data?.group || {}
 
@@ -55,6 +56,8 @@ const AddMembersDialog = () => {
         addGroupMembers,
       },
     })
+
+    queryClient.invalidateQueries({ queryKey: ['group', selectedGroup] })
 
     toast({ title: 'Members updated successfully', variant: 'success' })
     setIsOpen(false)

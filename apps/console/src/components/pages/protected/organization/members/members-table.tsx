@@ -1,6 +1,6 @@
 'use client'
 
-import { GetSingleOrganizationMembersQuery, GetSingleOrganizationMembersQueryVariables, useGetSingleOrganizationMembersQuery, UserAuthProvider } from '@repo/codegen/src/schema'
+import { GetSingleOrganizationMembersQuery, UserAuthProvider } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import { pageStyles } from './page.styles'
 import { useState, useEffect, Dispatch, SetStateAction } from 'react'
@@ -15,6 +15,7 @@ import { format } from 'date-fns'
 import { useCopyToClipboard } from '@uidotdev/usehooks'
 import { useToast } from '@repo/ui/use-toast'
 import { MemberActions } from './actions/member-actions'
+import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 
 type MembersTableProps = {
   setActiveTab: Dispatch<SetStateAction<string>>
@@ -30,14 +31,7 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
   const [copiedText, copyToClipboard] = useCopyToClipboard()
   const { toast } = useToast()
 
-  const variables: GetSingleOrganizationMembersQueryVariables = {
-    organizationId: session?.user.activeOrganizationId ?? '',
-  }
-
-  const [{ data, fetching, error }, refetch] = useGetSingleOrganizationMembersQuery({
-    variables,
-    pause: !session,
-  })
+  const { data, isPending, isError } = useGetSingleOrganizationMembers(session?.user.activeOrganizationId)
 
   useEffect(() => {
     if (copiedText) {
@@ -54,7 +48,7 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
     }
   }, [data])
 
-  if (error || fetching) return null
+  if (isError || isPending) return null
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const searchValue = e.target.value.toLowerCase()
@@ -132,7 +126,7 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
       accessorKey: 'id',
       header: '',
       cell: ({ cell }) => {
-        return <MemberActions memberId={cell.getValue() as string} refetchMembers={refetch} memberRole={cell.row.original.role} />
+        return <MemberActions memberId={cell.getValue() as string} memberRole={cell.row.original.role} />
       },
       size: 40,
     },

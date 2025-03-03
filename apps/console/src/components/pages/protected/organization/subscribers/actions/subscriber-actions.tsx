@@ -4,38 +4,31 @@ import { MoreHorizontal, RotateCw, Trash2 } from 'lucide-react'
 import { useToast } from '@repo/ui/use-toast'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { useDeleteSubscriberMutation } from '@repo/codegen/src/schema'
-import { type UseQueryExecute } from 'urql'
+import { useDeleteSubscriber } from '@/lib/graphql-hooks/subscribes'
+import { useQueryClient } from '@tanstack/react-query'
 
 type SubscriberActionsProps = {
   subscriberEmail: string
-  refetchSubscribers: UseQueryExecute
 }
 
 const ICON_SIZE = 12
 
-export const SubscriberActions = ({ subscriberEmail: subscriberEmail, refetchSubscribers: refetechSubscribers }: SubscriberActionsProps) => {
+export const SubscriberActions = ({ subscriberEmail: subscriberEmail }: SubscriberActionsProps) => {
   const { actionIcon } = pageStyles()
   const { toast } = useToast()
-  const [_, deleteSubscriber] = useDeleteSubscriberMutation()
+  const { mutateAsync: deleteSubscriber } = useDeleteSubscriber()
 
   const handleDeleteSubscriber = async () => {
-    const response = await deleteSubscriber({ deleteSubscriberEmail: subscriberEmail })
-
-    if (response.error) {
-      toast({
-        title: 'There was a problem deleting the subscriber, please try again',
-        variant: 'destructive',
-      })
-    }
-
-    if (response.data) {
+    await deleteSubscriber({ deleteSubscriberEmail: subscriberEmail })
+    try {
       toast({
         title: 'Subscriber deleted successfully',
         variant: 'success',
       })
-      refetechSubscribers({
-        requestPolicy: 'network-only',
+    } catch {
+      toast({
+        title: 'There was a problem deleting the subscriber, please try again',
+        variant: 'destructive',
       })
     }
   }

@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useForm, SubmitHandler, Control } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z, infer as zInfer } from 'zod'
@@ -12,8 +12,8 @@ import { Tag } from 'emblor'
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@repo/ui/select'
 import { organizationInviteStyles } from './organization-invite-form.styles'
 
-import { CreateInviteInput, InputMaybe, InviteRole, useCreateBulkInviteMutation } from '@repo/codegen/src/schema'
-import { useGqlError } from '@/hooks/useGqlError'
+import { CreateInviteInput, InputMaybe, InviteRole } from '@repo/codegen/src/schema'
+import { useCreateBulkInvite } from '@/lib/graphql-hooks/organization'
 
 const formSchema = z.object({
   emails: z.array(z.string().email({ message: 'Invalid email address' })),
@@ -30,9 +30,7 @@ const OrganizationInviteForm = ({ inviteAdmins }: { inviteAdmins: boolean }) => 
   const { buttonRow, roleRow } = organizationInviteStyles()
   const { toast } = useToast()
 
-  const [result, inviteMembers] = useCreateBulkInviteMutation()
-  const { error, fetching } = result
-  const { errorMessages } = useGqlError(error)
+  const { mutateAsync: inviteMembers } = useCreateBulkInvite()
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -58,28 +56,24 @@ const OrganizationInviteForm = ({ inviteAdmins }: { inviteAdmins: boolean }) => 
       role: data.role,
     }))
 
-    const response = await inviteMembers({
-      input: inviteInput,
-    })
+    try {
+      await inviteMembers({
+        input: inviteInput,
+      })
 
-    response.data &&
       toast({
         title: `Invite${emails.length > 1 ? 's' : ''} sent successfully`,
         variant: 'success',
       })
-    setEmails([])
-  }
-
-  const errorMessage = errors.emails && Array.isArray(errors.emails) && errors.emails.length > 0 ? errors.emails[0]?.message : null
-
-  useEffect(() => {
-    if (errorMessages.length > 0) {
+    } catch {
       toast({
-        title: errorMessages.join('\n'),
+        title: `Error, Ivites not sent`,
         variant: 'destructive',
       })
     }
-  }, [errorMessages])
+    setEmails([])
+  }
+  const errorMessage = errors.emails && Array.isArray(errors.emails) && errors.emails.length > 0 ? errors.emails[0]?.message : null
 
   const isValidEmail = (email: string) => {
     return /\S+@\S+\.\S+/.test(email)
