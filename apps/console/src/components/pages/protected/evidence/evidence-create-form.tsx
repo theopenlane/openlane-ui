@@ -1,18 +1,16 @@
 'use client'
 import { Grid, GridCell, GridRow } from '@repo/ui/grid'
 import React, { useState } from 'react'
-import { CalendarIcon, X, InfoIcon } from 'lucide-react'
+import { InfoIcon } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import useFormSchema, { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { Input, InputRow } from '@repo/ui/input'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Textarea } from '@repo/ui/textarea'
 import MultipleSelector from '@repo/ui/multiple-selector'
-import { Popover, PopoverContent, PopoverTrigger } from '@radix-ui/react-popover'
-import { addDays, format } from 'date-fns'
-import { wizardStyles } from '@/components/pages/protected/program/wizard/wizard.styles'
 import { Button } from '@repo/ui/button'
-import { Calendar } from '@repo/ui/calendar'
+import { CalendarPopover } from '@repo/ui/calendar-popover'
+
 import { CreateEvidenceInput, useCreateEvidenceMutation } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import EvidenceUploadForm from '@/components/pages/protected/evidence/upload/evidence-upload-form'
@@ -23,16 +21,9 @@ import { Option } from '@repo/ui/multiple-selector'
 const EvidenceCreateForm: React.FC = () => {
   const { form } = useFormSchema()
   const { successNotification, errorNotification } = useNotification()
-  const today = new Date()
-  const oneYearFromToday = addDays(new Date(), 365)
-  const [renewalDate, setRenewalDate] = useState<Date | undefined>(oneYearFromToday)
-  const [creationDate, setCreationDate] = useState<Date>(today)
   const [tagValues, setTagValues] = useState<Option[]>([])
-  const [isCreationDateCalendarOpen, setIsCreationDateCalendarOpen] = useState(false)
-  const [isRenewalDateCalendarOpen, setIsRenewalDateCalendarOpen] = useState(false)
   const [resetEvidenceFiles, setResetEvidenceFiles] = useState(false)
   const [resetObjectAssociation, setResetObjectAssociation] = useState(false)
-  const { calendarIcon, calendarInput, calendarPopover } = wizardStyles()
   const { data: sessionData } = useSession()
   const [result, createEvidence] = useCreateEvidenceMutation()
   const { fetching: isSubmitting } = result
@@ -98,12 +89,6 @@ const EvidenceCreateForm: React.FC = () => {
 
   const handleResetObjectAssociation = () => {
     setResetObjectAssociation(false)
-  }
-
-  const handleClearRenewalDate = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    form.setValue('renewalDate', undefined)
-    setRenewalDate(undefined)
   }
 
   return (
@@ -284,34 +269,7 @@ const EvidenceCreateForm: React.FC = () => {
                               </Tooltip>
                             </TooltipProvider>
                           </FormLabel>
-                          <FormControl>
-                            <Popover open={isCreationDateCalendarOpen} onOpenChange={setIsCreationDateCalendarOpen}>
-                              <PopoverTrigger asChild>
-                                <FormControl>
-                                  <Button className="w-full" variant="outlineInput" childFull onClick={() => setIsCreationDateCalendarOpen(!isCreationDateCalendarOpen)}>
-                                    <div className={calendarInput()}>
-                                      {creationDate ? format(creationDate, 'PPP') : <span>Select a date:</span>}
-                                      <CalendarIcon className={calendarIcon()} />
-                                    </div>
-                                  </Button>
-                                </FormControl>
-                              </PopoverTrigger>
-                              <PopoverContent className={calendarPopover()} align="start">
-                                <Calendar
-                                  mode="single"
-                                  selected={creationDate}
-                                  onSelect={(day) => {
-                                    if (day) {
-                                      form.setValue('creationDate', day)
-                                      setCreationDate(day)
-                                      setIsCreationDateCalendarOpen(false)
-                                    }
-                                  }}
-                                  initialFocus
-                                />
-                              </PopoverContent>
-                            </Popover>
-                          </FormControl>
+                          <CalendarPopover field={field} defaultToday required />
                           {form.formState.errors.creationDate && <p className="text-red-500 text-sm">{form.formState.errors.creationDate.message}</p>}
                         </FormItem>
                       )}
@@ -338,40 +296,11 @@ const EvidenceCreateForm: React.FC = () => {
                               </Tooltip>
                             </TooltipProvider>
                           </FormLabel>
-                          <FormControl>
-                            <Popover open={isRenewalDateCalendarOpen} onOpenChange={setIsRenewalDateCalendarOpen}>
-                              <PopoverTrigger asChild>
-                                <Button className="w-full flex justify-between items-center" variant="outlineInput" childFull>
-                                  <div className={calendarInput()}>
-                                    <span>{renewalDate ? format(renewalDate, 'PPP') : 'Select a date:'}</span>
-                                    <div className="flex items-center gap-x-2">
-                                      {renewalDate && <X className="h-4 w-4 opacity-50 cursor-pointer" onClick={(e) => handleClearRenewalDate(e)} />}
-                                      <CalendarIcon className="h-4 w-4 opacity-50" />
-                                    </div>
-                                  </div>
-                                </Button>
-                              </PopoverTrigger>
-
-                              <PopoverContent className={calendarPopover()} align="start">
-                                <Calendar
-                                  mode="single"
-                                  selected={renewalDate}
-                                  onSelect={(day) => {
-                                    if (day) {
-                                      form.setValue('renewalDate', day)
-                                      setRenewalDate(day)
-                                      setIsRenewalDateCalendarOpen(false)
-                                    }
-                                  }}
-                                  initialFocus
-                                />
-                              </PopoverContent>
-                            </Popover>
-                          </FormControl>
-                          {renewalDate && (
+                          <CalendarPopover field={field} defaultAddDays={365} />
+                          {field.value !== null && (
                             <p>
                               Don't want to renew this evidence?{' '}
-                              <b className="text-sm cursor-pointer text-accent-secondary" onClick={(e) => handleClearRenewalDate(e)}>
+                              <b className="text-sm cursor-pointer text-accent-secondary" onClick={() => field.onChange(null)}>
                                 Clear it
                               </b>
                             </p>
