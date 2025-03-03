@@ -33,7 +33,7 @@ export const DefaultLanding: React.FC<DashboardProps> = ({ programs, tasks }) =>
               <PanelHeader heading="Active Programs" noBorder />
               {programs && programs.edges?.length > 0 ? (
                 programs.edges.slice(0, 2).map((program, i) => (
-                  <>
+                  <React.Fragment key={i}>
                     <Link href={`/programs//programs/${program.node.id}`} key={program.node.id} className="text-lg font-medium text-gray-900 dark:text-gray-50">
                       {program.node.name}
                     </Link>
@@ -59,7 +59,7 @@ export const DefaultLanding: React.FC<DashboardProps> = ({ programs, tasks }) =>
                       </div>
                     </div>
                     {programs.edges.length > 1 && i == 0 ? <Separator /> : null}
-                  </>
+                  </React.Fragment>
                 ))
               ) : (
                 <div className={emptyRowInfo()}>No active programs</div>

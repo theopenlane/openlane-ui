@@ -7,15 +7,22 @@ import { FieldValues, Path, ControllerRenderProps } from 'react-hook-form'
 import { Button } from '../button/button'
 import { calendarPopoverStyles } from '../calendar-popover/calendar-popover.styles'
 import { Calendar } from '../calendar/calendar'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../select/select'
+
+type TCustomSelect = {
+  value: any
+  label: string
+}
 
 export type CalendarPopoverProps<T extends FieldValues> = {
   field?: ControllerRenderProps<T, Path<T>>
   defaultToday?: boolean
   defaultAddDays?: number
   required?: boolean
+  customSelect?: TCustomSelect[]
 }
 
-const CalendarPopover = <T extends FieldValues>({ field, defaultToday, required, defaultAddDays }: CalendarPopoverProps<T>) => {
+const CalendarPopover = <T extends FieldValues>({ field, defaultToday, required, defaultAddDays, customSelect }: CalendarPopoverProps<T>) => {
   const todayDate = defaultToday ? new Date() : undefined
   const defaultAddDaysDate = defaultAddDays ? addDays(new Date(), defaultAddDays) : undefined
   const defaultDate = defaultAddDaysDate ?? todayDate ?? null
@@ -35,10 +42,17 @@ const CalendarPopover = <T extends FieldValues>({ field, defaultToday, required,
     setIsCalendarOpen(false)
   }
 
-  const handleClearRenewalDate = (e: React.MouseEvent) => {
+  const handleClearDate = (e: React.MouseEvent) => {
     e.stopPropagation()
     field?.value && field.onChange(null)
     setValue(null)
+  }
+
+  const handleSelectChange = (value: any) => {
+    const selectedValue = addDays(new Date(), parseInt(value))
+    setValue(selectedValue)
+    field?.value && field.onChange(selectedValue)
+    setIsCalendarOpen(false)
   }
 
   return (
@@ -48,13 +62,28 @@ const CalendarPopover = <T extends FieldValues>({ field, defaultToday, required,
           <div className={calendarInput()}>
             <span>{value ? format(value, 'PPP') : 'Select a date:'}</span>
             <div className="flex items-center gap-x-2">
-              {value && !required && <X className="h-4 w-4 opacity-50 cursor-pointer" onClick={(e) => handleClearRenewalDate(e)} />}
+              {value && !required && <X className="h-4 w-4 opacity-50 cursor-pointer" onClick={(e) => handleClearDate(e)} />}
               <CalendarIcon className="h-4 w-4 opacity-50" />
             </div>
           </div>
         </Button>
       </PopoverTrigger>
       <PopoverContent className={calendarPopoverStyle()} align="start">
+        {customSelect && (
+          <Select onValueChange={(value) => handleSelectChange(value)}>
+            <SelectTrigger className="bg-background-secondary">
+              <SelectValue placeholder="Select" />
+            </SelectTrigger>
+            <SelectContent position="popper">
+              {customSelect.map((item) => (
+                <SelectItem key={item.value} value={item.value}>
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+
         <Calendar
           mode="single"
           selected={value ?? undefined}
