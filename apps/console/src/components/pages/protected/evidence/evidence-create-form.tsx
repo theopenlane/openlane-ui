@@ -5,8 +5,8 @@ import { InfoIcon } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import useFormSchema, { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { Input, InputRow } from '@repo/ui/input'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Textarea } from '@repo/ui/textarea'
+import { SystemTooltip } from '@repo/ui/system-tooltip'
 import MultipleSelector from '@repo/ui/multiple-selector'
 import { Button } from '@repo/ui/button'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
@@ -108,16 +108,10 @@ const EvidenceCreateForm: React.FC = () => {
                         <FormItem className="w-full">
                           <div className="flex items-center">
                             <FormLabel>Evidence name</FormLabel>
-                            <TooltipProvider disableHoverableContent>
-                              <Tooltip>
-                                <TooltipTrigger type="button">
-                                  <InfoIcon size={14} className="mx-1 mt-1" />
-                                </TooltipTrigger>
-                                <TooltipContent side="right">
-                                  <p>Provide a name for the evidence, generally should include the related Control or Task.</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
+                            <SystemTooltip
+                              icon={<InfoIcon size={14} className="mx-1 mt-1" />}
+                              content={<p>Provide a name for the evidence, generally should include the related Control or Task.</p>}
+                            />
                           </div>
                           <FormControl>
                             <Input variant="medium" {...field} className="w-full" />
@@ -137,16 +131,7 @@ const EvidenceCreateForm: React.FC = () => {
                         <FormItem className="w-full">
                           <div className="flex items-center">
                             <FormLabel>Description</FormLabel>
-                            <TooltipProvider disableHoverableContent>
-                              <Tooltip>
-                                <TooltipTrigger type="button">
-                                  <InfoIcon size={14} className="mx-1 mt-1" />
-                                </TooltipTrigger>
-                                <TooltipContent side="right">
-                                  <p>Provide a short description of what is contained in the files or linked URLs.</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
+                            <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a short description of what is contained in the files or linked URLs.</p>} />
                           </div>
                           <FormControl>
                             <Textarea id="description" {...field} className="w-full" />
@@ -166,16 +151,7 @@ const EvidenceCreateForm: React.FC = () => {
                         <FormItem className="w-full">
                           <div className="flex items-center">
                             <FormLabel>Collection Procedure</FormLabel>
-                            <TooltipProvider disableHoverableContent>
-                              <Tooltip>
-                                <TooltipTrigger type="button">
-                                  <InfoIcon size={14} className="mx-1 mt-1" />
-                                </TooltipTrigger>
-                                <TooltipContent side="right">
-                                  <p>Write down the steps that were taken to collect the evidence.</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
+                            <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Write down the steps that were taken to collect the evidence.</p>} />
                           </div>
                           <FormControl>
                             <Textarea id="collectionProcedure" {...field} className="w-full" />
@@ -195,16 +171,7 @@ const EvidenceCreateForm: React.FC = () => {
                         <FormItem className="w-full">
                           <div className="flex items-center">
                             <FormLabel>Source</FormLabel>
-                            <TooltipProvider disableHoverableContent>
-                              <Tooltip>
-                                <TooltipTrigger type="button">
-                                  <InfoIcon size={14} className="mx-1 mt-1" />
-                                </TooltipTrigger>
-                                <TooltipContent side="right">
-                                  <p>System the evidence was pulled from.</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
+                            <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>System the evidence was pulled from.</p>} />
                           </div>
                           <FormControl>
                             <Input variant="medium" {...field} className="w-full" />
@@ -258,16 +225,7 @@ const EvidenceCreateForm: React.FC = () => {
                         <FormItem className="w-full">
                           <FormLabel className="mb-2 flex items-center">
                             Creation Date
-                            <TooltipProvider disableHoverableContent>
-                              <Tooltip>
-                                <TooltipTrigger type="button">
-                                  <InfoIcon size={14} className="mx-1 mt-1" />
-                                </TooltipTrigger>
-                                <TooltipContent side="right">
-                                  <p>The date the evidence was collected, generally the current date but can be adjusted.</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
+                            <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>The date the evidence was collected, generally the current date but can be adjusted.</p>} />
                           </FormLabel>
                           <CalendarPopover field={field} defaultToday required />
                           {form.formState.errors.creationDate && <p className="text-red-500 text-sm">{form.formState.errors.creationDate.message}</p>}
@@ -285,17 +243,12 @@ const EvidenceCreateForm: React.FC = () => {
                         <FormItem className="w-full">
                           <FormLabel className="mb-2 flex items-center">
                             Renewal Date
-                            <TooltipProvider disableHoverableContent>
-                              <Tooltip>
-                                <TooltipTrigger type="button">
-                                  <InfoIcon size={14} className="mx-1 mt-1" />
-                                </TooltipTrigger>
-                                <TooltipContent side="right">
-                                  <p>The date the evidence will be re-requested; some evidence may be monthly (e.g. user access reviews), bi-annually, or annually, depending</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
+                            <SystemTooltip
+                              icon={<InfoIcon size={14} className="mx-1 mt-1" />}
+                              content={<p>The date the evidence will be re-requested; some evidence may be monthly (e.g. user access reviews), bi-annually, or annually, depending</p>}
+                            />
                           </FormLabel>
+
                           <CalendarPopover field={field} defaultAddDays={365} />
                           {field.value !== null && (
                             <p>

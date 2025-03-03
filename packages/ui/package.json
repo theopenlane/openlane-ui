@@ -50,6 +50,7 @@
     "./sheet": "./src/sheet/sheet.tsx",
     "./slider": "./src/slider/slider.tsx",
     "./switch": "./src/switch/switch.tsx",
+    "./system-tooltip": "./src/system-tooltip.tsx",
     "./tabs": "./src/tabs/tabs.tsx",
     "./tag": "./src/tag/tag.tsx",
     "./table": "./src/table/table.tsx",
