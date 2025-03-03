@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useFilterTemplatesQuery, TemplateWhereInput, TemplateDocumentType } from '@repo/codegen/src/schema'
+import { TemplateWhereInput, TemplateDocumentType } from '@repo/codegen/src/schema'
 import { Select, SelectContent, SelectTrigger, SelectValue, SelectItem } from '@repo/ui/select'
 import { Form, FormControl, FormField, FormItem } from '@repo/ui/form'
 import { z, infer as zInfer } from 'zod'
@@ -10,7 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { pageStyles } from './page.styles'
 import { AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from '@repo/ui/alert-dialog'
 import { Button } from '@repo/ui/button'
-import { LayoutTemplate } from 'lucide-react'
+import { useFilterTemplates } from '@/lib/graphql-hooks/templates'
 
 const ICON_SIZE = 12
 
@@ -28,9 +28,7 @@ export const TemplateList = () => {
     templateType: TemplateDocumentType.ROOTTEMPLATE,
   }
 
-  const [allTemplates] = useFilterTemplatesQuery({
-    variables: { where: whereFilter },
-  })
+  const { data: allTemplates, isLoading, isError } = useFilterTemplates(whereFilter)
 
   const formSchema = z.object({
     templateId: z.string(),
@@ -45,17 +43,16 @@ export const TemplateList = () => {
 
   const { control, handleSubmit } = form
 
-  if (allTemplates.error) {
-    console.log(allTemplates.error)
+  if (isError) {
     return <div>failed to load</div>
   }
 
   // Wait for the session and template data
-  if (allTemplates.fetching) {
+  if (isLoading) {
     return <div>loading...</div>
   }
 
-  const templates = allTemplates?.data?.templates?.edges || []
+  const templates = allTemplates?.templates?.edges || []
 
   return (
     <>

@@ -11,19 +11,16 @@ import { Group } from '../groups-page'
 import { UseQueryResponse, UseQueryState } from 'urql'
 
 interface Props {
-  queryResult: UseQueryState<
-    GetAllGroupsQuery,
-    Exact<{
-      where?: InputMaybe<GroupWhereInput>
-    }>
-  >
+  queryResult: GetAllGroupsQuery | undefined
+  isPending: boolean
+  isError: boolean
 }
 
-const MyGroupsCard = ({ queryResult }: Props) => {
+const MyGroupsCard = ({ queryResult, isPending, isError }: Props) => {
   const { setSelectedGroup } = useGroupsStore()
 
   const transformedData =
-    queryResult.data?.groups?.edges
+    queryResult?.groups?.edges
       ?.map((edge) => edge?.node)
       .filter((group) => !!group)
       .map((group) => ({
@@ -40,11 +37,11 @@ const MyGroupsCard = ({ queryResult }: Props) => {
     setSelectedGroup(group.id)
   }
 
-  if (queryResult.fetching) {
+  if (isPending) {
     return <p>Loading groups...</p>
   }
 
-  if (queryResult.error) {
+  if (isError) {
     return <p className="text-red-500">Error loading groups</p>
   }
 

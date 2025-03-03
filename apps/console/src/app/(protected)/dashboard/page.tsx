@@ -5,7 +5,6 @@ import { useSession } from 'next-auth/react'
 import { TaskWhereInput, UserWhereInput } from '@repo/codegen/src/schema'
 import { Loading } from '@/components/shared/loading/loading'
 import { DefaultLanding, NewUserLanding } from '@/components/pages/protected/dashboard/dashboard'
-import { CreateOrganizationForm } from '@/components/shared/organization/create-organization/create-organization'
 import { useRouter } from 'next/navigation'
 import { useGetDashboardData } from '@/lib/graphql-hooks/dashboard'
 

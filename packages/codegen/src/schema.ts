@@ -26171,6 +26171,27 @@ export interface UserWhereInput {
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+export type GetAllControlObjectivesQueryVariables = Exact<{
+  where?: InputMaybe<ControlObjectiveWhereInput>
+}>
+
+export type GetAllControlObjectivesQuery = {
+  __typename?: 'Query'
+  controlObjectives: {
+    __typename?: 'ControlObjectiveConnection'
+    edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string; name: string; displayID: string } | null } | null> | null
+  }
+}
+
+export type GetAllControlsQueryVariables = Exact<{
+  where?: InputMaybe<ControlWhereInput>
+}>
+
+export type GetAllControlsQuery = {
+  __typename?: 'Query'
+  controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; name: string; displayID: string } | null } | null> | null }
+}
+
 export type GetDashboardDataQueryVariables = Exact<{
   where?: InputMaybe<TaskWhereInput>
 }>
@@ -26196,6 +26217,139 @@ export type GetDashboardDataQuery = {
     edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string; status: TaskTaskStatus; due?: any | null; tags?: Array<string> | null } | null } | null> | null
   }
   organizations: { __typename?: 'OrganizationConnection'; edges?: Array<{ __typename?: 'OrganizationEdge'; node?: { __typename?: 'Organization'; id: string; name: string } | null } | null> | null }
+}
+
+export type GetAllGroupsQueryVariables = Exact<{
+  where?: InputMaybe<GroupWhereInput>
+}>
+
+export type GetAllGroupsQuery = {
+  __typename?: 'Query'
+  groups: {
+    __typename?: 'GroupConnection'
+    edges?: Array<{
+      __typename?: 'GroupEdge'
+      node?: {
+        __typename?: 'Group'
+        id: string
+        name: string
+        description?: string | null
+        displayName: string
+        logoURL?: string | null
+        isManaged?: boolean | null
+        tags?: Array<string> | null
+        members?: Array<{
+          __typename?: 'GroupMembership'
+          id: string
+          role: GroupMembershipRole
+          user: {
+            __typename?: 'User'
+            id: string
+            firstName?: string | null
+            lastName?: string | null
+            avatarRemoteURL?: string | null
+            role?: UserRole | null
+            avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+          }
+        }> | null
+        setting?: {
+          __typename?: 'GroupSetting'
+          visibility: GroupSettingVisibility
+          joinPolicy: GroupSettingJoinPolicy
+          syncToSlack?: boolean | null
+          syncToGithub?: boolean | null
+          id: string
+        } | null
+      } | null
+    } | null> | null
+  }
+}
+
+export type CreateGroupWithMembersMutationVariables = Exact<{
+  groupInput: CreateGroupInput
+  members?: InputMaybe<Array<GroupMembersInput> | GroupMembersInput>
+}>
+
+export type CreateGroupWithMembersMutation = { __typename?: 'Mutation'; createGroupWithMembers: { __typename?: 'GroupCreatePayload'; group: { __typename?: 'Group'; id: string; displayID: string } } }
+
+export type UpdateGroupMutationVariables = Exact<{
+  updateGroupId: Scalars['ID']['input']
+  input: UpdateGroupInput
+}>
+
+export type UpdateGroupMutation = { __typename?: 'Mutation'; updateGroup: { __typename?: 'GroupUpdatePayload'; group: { __typename?: 'Group'; id: string } } }
+
+export type DeleteGroupMutationVariables = Exact<{
+  deleteGroupId: Scalars['ID']['input']
+}>
+
+export type DeleteGroupMutation = { __typename?: 'Mutation'; deleteGroup: { __typename?: 'GroupDeletePayload'; deletedID: string } }
+
+export type GetGroupDetailsQueryVariables = Exact<{
+  groupId: Scalars['ID']['input']
+}>
+
+export type GetGroupDetailsQuery = {
+  __typename?: 'Query'
+  group: {
+    __typename?: 'Group'
+    id: string
+    name: string
+    description?: string | null
+    displayName: string
+    logoURL?: string | null
+    isManaged?: boolean | null
+    tags?: Array<string> | null
+    members?: Array<{
+      __typename?: 'GroupMembership'
+      id: string
+      role: GroupMembershipRole
+      user: {
+        __typename?: 'User'
+        id: string
+        firstName?: string | null
+        lastName?: string | null
+        avatarRemoteURL?: string | null
+        role?: UserRole | null
+        avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+      }
+    }> | null
+    setting?: { __typename?: 'GroupSetting'; visibility: GroupSettingVisibility; joinPolicy: GroupSettingJoinPolicy; syncToSlack?: boolean | null; syncToGithub?: boolean | null; id: string } | null
+  }
+}
+
+export type UpdateGroupMembershipMutationVariables = Exact<{
+  updateGroupMembershipId: Scalars['ID']['input']
+  input: UpdateGroupMembershipInput
+}>
+
+export type UpdateGroupMembershipMutation = {
+  __typename?: 'Mutation'
+  updateGroupMembership: { __typename?: 'GroupMembershipUpdatePayload'; groupMembership: { __typename?: 'GroupMembership'; id: string } }
+}
+
+export type GetGroupPermissionsQueryVariables = Exact<{
+  groupId: Scalars['ID']['input']
+}>
+
+export type GetGroupPermissionsQuery = {
+  __typename?: 'Query'
+  group: {
+    __typename?: 'Group'
+    permissions?: Array<{ __typename?: 'GroupPermissions'; displayID?: string | null; id?: string | null; name?: string | null; objectType: string; permissions: Permission }> | null
+  }
+}
+
+export type GetAllNarrativesQueryVariables = Exact<{
+  where?: InputMaybe<NarrativeWhereInput>
+}>
+
+export type GetAllNarrativesQuery = {
+  __typename?: 'Query'
+  narratives: {
+    __typename?: 'NarrativeConnection'
+    edges?: Array<{ __typename?: 'NarrativeEdge'; node?: { __typename?: 'Narrative'; id: string; name: string; displayID: string } | null } | null> | null
+  }
 }
 
 export type CreateOnboardingMutationVariables = Exact<{
@@ -26565,6 +26719,194 @@ export type GetInternalPolicyDetailsByIdQuery = {
   }
 }
 
+export type CreateProcedureMutationVariables = Exact<{
+  input: CreateProcedureInput
+}>
+
+export type CreateProcedureMutation = { __typename?: 'Mutation'; createProcedure: { __typename?: 'ProcedureCreatePayload'; procedure: { __typename?: 'Procedure'; id: string; name: string } } }
+
+export type UpdateProcedureMutationVariables = Exact<{
+  updateProcedureId: Scalars['ID']['input']
+  input: UpdateProcedureInput
+}>
+
+export type UpdateProcedureMutation = { __typename?: 'Mutation'; updateProcedure: { __typename?: 'ProcedureUpdatePayload'; procedure: { __typename?: 'Procedure'; id: string; name: string } } }
+
+export type GetAllProceduresWithDetailsQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetAllProceduresWithDetailsQuery = {
+  __typename?: 'Query'
+  procedures: {
+    __typename?: 'ProcedureConnection'
+    edges?: Array<{
+      __typename?: 'ProcedureEdge'
+      node?: {
+        __typename?: 'Procedure'
+        id: string
+        name: string
+        background?: string | null
+        description?: string | null
+        procedureType?: string | null
+        purposeAndScope?: string | null
+        satisfies?: string | null
+        status?: string | null
+        version?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        tags?: Array<string> | null
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetAllProceduresQueryVariables = Exact<{
+  where?: InputMaybe<ProcedureWhereInput>
+}>
+
+export type GetAllProceduresQuery = {
+  __typename?: 'Query'
+  procedures: {
+    __typename?: 'ProcedureConnection'
+    edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string } | null } | null> | null
+  }
+}
+
+export type GetProcedureDetailsByIdQueryVariables = Exact<{
+  procedureId: Scalars['ID']['input']
+}>
+
+export type GetProcedureDetailsByIdQuery = {
+  __typename?: 'Query'
+  procedure: {
+    __typename?: 'Procedure'
+    id: string
+    name: string
+    description?: string | null
+    details?: any | null
+    background?: string | null
+    createdAt?: any | null
+    createdBy?: string | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+    tags?: Array<string> | null
+    version?: string | null
+    status?: string | null
+    satisfies?: string | null
+    purposeAndScope?: string | null
+    procedureType?: string | null
+    internalPolicies?: Array<{ __typename?: 'InternalPolicy'; id: string; name: string }> | null
+  }
+}
+
+export type CreateProgramWithMembersMutationVariables = Exact<{
+  input: CreateProgramWithMembersInput
+}>
+
+export type CreateProgramWithMembersMutation = {
+  __typename?: 'Mutation'
+  createProgramWithMembers: { __typename?: 'ProgramCreatePayload'; program: { __typename?: 'Program'; id: string; name: string } }
+}
+
+export type UpdateProgramMutationVariables = Exact<{
+  updateProgramId: Scalars['ID']['input']
+  input: UpdateProgramInput
+}>
+
+export type UpdateProgramMutation = { __typename?: 'Mutation'; updateProgram: { __typename?: 'ProgramUpdatePayload'; program: { __typename?: 'Program'; id: string; name: string } } }
+
+export type GetAllProgramsQueryVariables = Exact<{
+  where?: InputMaybe<ProgramWhereInput>
+}>
+
+export type GetAllProgramsQuery = {
+  __typename?: 'Query'
+  programs: {
+    __typename?: 'ProgramConnection'
+    edges?: Array<{
+      __typename?: 'ProgramEdge'
+      node?: {
+        __typename?: 'Program'
+        id: string
+        name: string
+        description?: string | null
+        tags?: Array<string> | null
+        status: ProgramProgramStatus
+        startDate?: any | null
+        endDate?: any | null
+        auditorReady: boolean
+        displayID: string
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetProgramEdgesForWizardQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetProgramEdgesForWizardQuery = {
+  __typename?: 'Query'
+  risks: { __typename?: 'RiskConnection'; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
+  procedures: { __typename?: 'ProcedureConnection'; edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null }
+  internalPolicies: {
+    __typename?: 'InternalPolicyConnection'
+    edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
+  }
+  groups: { __typename?: 'GroupConnection'; edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; id: string; name: string; displayName: string } | null } | null> | null }
+  orgMemberships: {
+    __typename?: 'OrgMembershipConnection'
+    edges?: Array<{
+      __typename?: 'OrgMembershipEdge'
+      node?: { __typename?: 'OrgMembership'; user: { __typename?: 'User'; id: string; firstName?: string | null; lastName?: string | null; role?: UserRole | null } } | null
+    } | null> | null
+  }
+}
+
+export type GetProgramDetailsByIdQueryVariables = Exact<{
+  programId: Scalars['ID']['input']
+}>
+
+export type GetProgramDetailsByIdQuery = {
+  __typename?: 'Query'
+  program: {
+    __typename?: 'Program'
+    id: string
+    name: string
+    description?: string | null
+    tags?: Array<string> | null
+    status: ProgramProgramStatus
+    startDate?: any | null
+    endDate?: any | null
+    auditorReady: boolean
+    auditorWriteComments: boolean
+    auditorReadComments: boolean
+    standards?: Array<{ __typename?: 'Standard'; id: string; name: string }> | null
+    tasks?: Array<{
+      __typename?: 'Task'
+      id: string
+      title: string
+      status: TaskTaskStatus
+      due?: any | null
+      details?: string | null
+      assignee?: { __typename?: 'User'; id: string; firstName?: string | null; lastName?: string | null; email: string } | null
+      assigner?: { __typename?: 'User'; id: string; firstName?: string | null; lastName?: string | null; email: string } | null
+    }> | null
+    controlObjectives?: Array<{ __typename?: 'ControlObjective'; id: string; name: string }> | null
+    controls?: Array<{ __typename?: 'Control'; id: string; name: string; class?: string | null }> | null
+    subcontrols?: Array<{ __typename?: 'Subcontrol'; id: string; name: string; class?: string | null }> | null
+    narratives?: Array<{ __typename?: 'Narrative'; id: string; name: string }> | null
+    internalPolicies?: Array<{ __typename?: 'InternalPolicy'; id: string; name: string }> | null
+    procedures?: Array<{ __typename?: 'Procedure'; id: string; name: string }> | null
+  }
+}
+
+export type GetAllRisksQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetAllRisksQuery = {
+  __typename?: 'Query'
+  risks: { __typename?: 'RiskConnection'; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
+}
+
 export type SearchQueryVariables = Exact<{
   query: Scalars['String']['input']
 }>
@@ -26622,6 +26964,112 @@ export type TasksWithFilterQuery = {
     } | null> | null
   }
 }
+
+export type CreateTemplateMutationVariables = Exact<{
+  input: CreateTemplateInput
+}>
+
+export type CreateTemplateMutation = {
+  __typename?: 'Mutation'
+  createTemplate: {
+    __typename?: 'TemplateCreatePayload'
+    template: {
+      __typename?: 'Template'
+      id: string
+      name: string
+      templateType: TemplateDocumentType
+      description?: string | null
+      jsonconfig: any
+      uischema?: any | null
+      owner?: { __typename?: 'Organization'; id: string } | null
+    }
+  }
+}
+
+export type UpdateTemplateMutationVariables = Exact<{
+  updateTemplateId: Scalars['ID']['input']
+  input: UpdateTemplateInput
+}>
+
+export type UpdateTemplateMutation = {
+  __typename?: 'Mutation'
+  updateTemplate: {
+    __typename?: 'TemplateUpdatePayload'
+    template: {
+      __typename?: 'Template'
+      id: string
+      name: string
+      templateType: TemplateDocumentType
+      description?: string | null
+      jsonconfig: any
+      uischema?: any | null
+      owner?: { __typename?: 'Organization'; id: string } | null
+    }
+  }
+}
+
+export type GetAllTemplatesQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetAllTemplatesQuery = {
+  __typename?: 'Query'
+  templates: {
+    __typename?: 'TemplateConnection'
+    edges?: Array<{
+      __typename?: 'TemplateEdge'
+      node?: {
+        __typename?: 'Template'
+        id: string
+        name: string
+        templateType: TemplateDocumentType
+        description?: string | null
+        jsonconfig: any
+        uischema?: any | null
+        createdAt?: any | null
+        updatedAt?: any | null
+      } | null
+    } | null> | null
+  }
+}
+
+export type FilterTemplatesQueryVariables = Exact<{
+  where?: InputMaybe<TemplateWhereInput>
+}>
+
+export type FilterTemplatesQuery = {
+  __typename?: 'Query'
+  templates: {
+    __typename?: 'TemplateConnection'
+    edges?: Array<{
+      __typename?: 'TemplateEdge'
+      node?: {
+        __typename?: 'Template'
+        id: string
+        name: string
+        templateType: TemplateDocumentType
+        description?: string | null
+        jsonconfig: any
+        uischema?: any | null
+        createdAt?: any | null
+        updatedAt?: any | null
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetTemplateQueryVariables = Exact<{
+  getTemplateId: Scalars['ID']['input']
+}>
+
+export type GetTemplateQuery = {
+  __typename?: 'Query'
+  template: { __typename?: 'Template'; id: string; templateType: TemplateDocumentType; name: string; description?: string | null; jsonconfig: any; uischema?: any | null }
+}
+
+export type DeleteTemplateMutationVariables = Exact<{
+  deleteTemplateId: Scalars['ID']['input']
+}>
+
+export type DeleteTemplateMutation = { __typename?: 'Mutation'; deleteTemplate: { __typename?: 'TemplateDeletePayload'; deletedID: string } }
 
 export type GetTfaSettingsQueryVariables = Exact<{ [key: string]: never }>
 

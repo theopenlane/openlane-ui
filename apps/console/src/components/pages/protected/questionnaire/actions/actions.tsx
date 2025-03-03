@@ -4,7 +4,6 @@ import { Edit, MoreHorizontal, Send, Trash2, View } from 'lucide-react'
 import { useToast } from '@repo/ui/use-toast'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { useDeleteTemplateMutation } from '@repo/codegen/src/schema'
 import { type UseQueryExecute } from 'urql'
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from '@repo/ui/alert-dialog'
 import { Button } from '@repo/ui/button'
@@ -15,19 +14,19 @@ import { SubmitHandler, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormItem, FormField, FormControl, FormMessage } from '@repo/ui/form'
 import { z, infer as zInfer } from 'zod'
+import { useDeleteTemplate } from '@/lib/graphql-hooks/templates'
 
 type TemplateActionsProps = {
   templateId: string
-  refetchTemplates: UseQueryExecute
 }
 
 const ICON_SIZE = 12
 
-export const Actions = ({ templateId: templateId, refetchTemplates: refetchTemplates }: TemplateActionsProps) => {
+export const Actions = ({ templateId: templateId }: TemplateActionsProps) => {
   const router = useRouter()
   const { actionIcon, dropDownButton, emailRow } = pageStyles()
   const { toast } = useToast()
-  const [_, deleteTemplate] = useDeleteTemplateMutation()
+  const { mutateAsync: deleteTemplate } = useDeleteTemplate()
   const [isSendDialogOpen, setIsSendDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
@@ -66,28 +65,20 @@ export const Actions = ({ templateId: templateId, refetchTemplates: refetchTempl
     })
 
     form.reset()
-    refetchTemplates({
-      requestPolicy: 'network-only',
-    })
   }
 
   const handleDeleteTemplate = async () => {
-    const response = await deleteTemplate({ deleteTemplateId: templateId })
+    try {
+      await deleteTemplate({ deleteTemplateId: templateId })
 
-    if (response.error) {
-      toast({
-        title: 'There was a problem deleting the questionnaire, please try again',
-        variant: 'destructive',
-      })
-    }
-
-    if (response.data) {
       toast({
         title: 'Questionnaire deleted successfully',
         variant: 'success',
       })
-      refetchTemplates({
-        requestPolicy: 'network-only',
+    } catch {
+      toast({
+        title: 'Something went wrong while deleting the questionnaire',
+        variant: 'destructive',
       })
     }
   }

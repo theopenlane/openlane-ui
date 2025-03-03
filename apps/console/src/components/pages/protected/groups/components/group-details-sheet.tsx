@@ -13,7 +13,7 @@ import AddMembersDialog from './dialogs/add-members-dialog'
 import AssignPermissionsDialog from './dialogs/assign-permissions-dialog'
 import GroupsPermissionsTable from './groups-permissions-table'
 import InheritPermissionDialog from './dialogs/inherit-permission-dialog'
-import { useGetGroupDetailsQuery, useUpdateGroupMutation, GroupSettingVisibility, GroupMembershipRole } from '@repo/codegen/src/schema'
+import { GroupSettingVisibility, GroupMembershipRole } from '@repo/codegen/src/schema'
 import { Loading } from '@/components/shared/loading/loading'
 import { useToast } from '@repo/ui/use-toast'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
@@ -25,6 +25,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/selec
 import { Textarea } from '@repo/ui/textarea'
 import { Input } from '@repo/ui/input'
 import { useSession } from 'next-auth/react'
+import { useGetGroupDetails, useUpdateGroup } from '@/lib/graphql-hooks/groups'
 
 const EditGroupSchema = z.object({
   groupName: z.string().min(1, 'Group name is required'),
@@ -44,14 +45,11 @@ const GroupDetailsSheet = () => {
   const { selectedGroup, setSelectedGroup, setIsAdmin, isAdmin } = useGroupsStore()
   const { toast } = useToast()
 
-  const [{ data, fetching }] = useGetGroupDetailsQuery({
-    variables: { groupId: selectedGroup || '' },
-    pause: !selectedGroup,
-  })
+  const { data, isPending: fetching } = useGetGroupDetails(selectedGroup)
 
   const { name, description, members, setting, tags, id, isManaged } = data?.group || {}
 
-  const [{}, updateGroup] = useUpdateGroupMutation()
+  const { mutateAsync: updateGroup } = useUpdateGroup()
 
   const { control, handleSubmit, reset } = useForm<EditGroupFormData>({
     resolver: zodResolver(EditGroupSchema),
@@ -127,6 +125,7 @@ const GroupDetailsSheet = () => {
         visibility: setting?.visibility === GroupSettingVisibility.PUBLIC ? 'Public' : 'Private',
         tags: tags?.map((tag) => ({ value: tag, label: tag })) || [],
       })
+      console.log(data)
       const userRole = data.group.members?.find((membership) => membership.user.id === sessionData?.user.userId)?.role
       if (userRole) {
         setIsAdmin(userRole === GroupMembershipRole.ADMIN)

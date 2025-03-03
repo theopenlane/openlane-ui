@@ -7,7 +7,7 @@ export const useGetDashboardData = (where?: GetDashboardDataQueryVariables['wher
   const { client } = useGraphQLClient()
 
   return useQuery<GetDashboardDataQuery, unknown>({
-    queryKey: ['dashboardData', where],
+    queryKey: ['dashboard', where],
     queryFn: async () => client.request(GET_DASHBOARD_DATA, { where }),
     enabled: where !== undefined,
   })

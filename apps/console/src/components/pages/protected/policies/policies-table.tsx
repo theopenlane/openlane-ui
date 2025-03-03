@@ -10,8 +10,8 @@ import { useState, useEffect } from 'react'
 import { Input } from '@repo/ui/input'
 import { pageStyles } from './page.styles'
 import { Actions } from './actions/actions'
-import { useCreateInternalPolicyMutation, useGetInternalPoliciesListQuery } from '@repo/codegen/src/schema'
 import Link from 'next/link'
+import { useCreateInternalPolicy, useGetInternalPoliciesList } from '@/lib/graphql-hooks/policy'
 
 type PoliciesEdge = any
 type Policies = NonNullable<PoliciesEdge>['node']
@@ -23,10 +23,9 @@ export const PoliciesTable = () => {
 
   const [filteredPolicies, setFilteredPolicies] = useState<Policies[]>([])
 
-  const [result] = useGetInternalPoliciesListQuery({ variables: {} })
-  const { data, fetching } = result
+  const { data, isLoading: fetching } = useGetInternalPoliciesList()
 
-  const [{ fetching: creating }, createPolicy] = useCreateInternalPolicyMutation()
+  const { isPending: creating, mutateAsync: createPolicy } = useCreateInternalPolicy()
 
   useEffect(() => {
     if (data) {
@@ -44,16 +43,17 @@ export const PoliciesTable = () => {
   const [searchTerm, setSearchTerm] = useState('')
 
   const handleCreateNew = async () => {
-    const { data, error } = await createPolicy({
+    const data = await createPolicy({
       input: { name: 'Untitled Policy', status: 'new', version: '0.0.0', policyType: 'unknown' },
     })
 
-    if (error) {
-      console.error(error)
+    if (data.createInternalPolicy) {
+      editPolicy(data.createInternalPolicy.internalPolicy.id)
+      return
     }
 
-    if (data) {
-      editPolicy(data.createInternalPolicy.internalPolicy.id)
+    if (data.createInternalPolicy) {
+      //TODO: add error toast
     }
   }
 

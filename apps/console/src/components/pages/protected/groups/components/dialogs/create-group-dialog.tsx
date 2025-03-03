@@ -11,9 +11,11 @@ import { Textarea } from '@repo/ui/textarea'
 import { useToast } from '@repo/ui/use-toast'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusCircle } from 'lucide-react'
-import { GetSingleOrganizationMembersQueryVariables, GroupSettingVisibility, InputMaybe, useCreateGroupWithMembersMutation, useGetSingleOrganizationMembersQuery } from '@repo/codegen/src/schema'
+import { GetSingleOrganizationMembersQueryVariables, GroupSettingVisibility } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import MultipleSelector from '@repo/ui/multiple-selector'
+import { useCreateGroupWithMembers } from '@/lib/graphql-hooks/groups'
+import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 
 const CreateGroupSchema = z.object({
   groupName: z.string().min(1, 'Group name is required'),
@@ -34,16 +36,9 @@ const CreateGroupDialog = ({ triggerText }: MyGroupsDialogProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const [visibility, setVisibility] = useState<'Public' | 'Private'>('Public')
   const { toast } = useToast()
+  const { mutateAsync: createGroup } = useCreateGroupWithMembers()
 
-  const [{}, createGroup] = useCreateGroupWithMembersMutation()
-
-  const variables: GetSingleOrganizationMembersQueryVariables = {
-    organizationId: session?.user.activeOrganizationId ?? '',
-  }
-
-  const [{ data: membersData }] = useGetSingleOrganizationMembersQuery({
-    variables,
-  })
+  const { data: membersData } = useGetSingleOrganizationMembers(session?.user.activeOrganizationId)
 
   const membersOptions = membersData?.organization?.members
     ?.filter((member) => member.user.id !== session?.user.userId)
@@ -159,7 +154,7 @@ const CreateGroupDialog = ({ triggerText }: MyGroupsDialogProps) => {
               onChange={(selected) =>
                 setValue(
                   'tags',
-                  selected.map((s) => s.value), // ✅ Ensure tags are stored as an array
+                  selected.map((s) => s.value),
                   { shouldValidate: true },
                 )
               }

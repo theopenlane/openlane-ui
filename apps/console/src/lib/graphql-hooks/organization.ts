@@ -64,7 +64,7 @@ export const useGetOrganizationNameById = (organizationId: string) => {
   })
 }
 
-export const useGetSingleOrganizationMembers = (organizationId: string) => {
+export const useGetSingleOrganizationMembers = (organizationId?: string) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetSingleOrganizationMembersQuery, GetSingleOrganizationMembersQueryVariables>({

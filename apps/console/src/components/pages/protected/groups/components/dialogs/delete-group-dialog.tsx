@@ -5,19 +5,21 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { Button } from '@repo/ui/button'
 import { Trash2, AlertTriangle, ChevronUpIcon, ChevronDownIcon } from 'lucide-react'
 import { useToast } from '@repo/ui/use-toast'
-import { useDeleteGroupMutation, useGetGroupDetailsQuery } from '@repo/codegen/src/schema'
 import GroupsDeletePermissionsTable from '../groups-delete-permissions-table'
+import { useDeleteGroup, useGetGroupDetails } from '@/lib/graphql-hooks/groups'
+import { useQueryClient } from '@tanstack/react-query'
 
 const DeleteGroupDialog = () => {
   const { selectedGroup, setSelectedGroup, isAdmin, reexecuteGroupsQuery } = useGroupsStore()
   const [isOpen, setIsOpen] = useState(false)
   const { toast } = useToast()
   const [expanded, setExpanded] = useState(false)
+  const queryClient = useQueryClient()
 
-  const [{ data }] = useGetGroupDetailsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
+  const { data } = useGetGroupDetails(selectedGroup)
   const { id, name, isManaged } = data?.group || {}
 
-  const [{}, deleteGroup] = useDeleteGroupMutation()
+  const { mutateAsync: deleteGroup } = useDeleteGroup()
 
   const handleDelete = async () => {
     if (!selectedGroup || !id) return
@@ -27,7 +29,7 @@ const DeleteGroupDialog = () => {
       toast({ title: `Group "${name}" deleted successfully`, variant: 'success' })
       setSelectedGroup(null)
       setIsOpen(false)
-      reexecuteGroupsQuery?.()
+      queryClient.invalidateQueries({ queryKey: ['groups'] })
     } catch (error) {
       toast({ title: 'Failed to delete group.', variant: 'destructive' })
     }

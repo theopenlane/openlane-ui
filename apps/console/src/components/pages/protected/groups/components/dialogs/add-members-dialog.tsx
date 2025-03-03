@@ -4,10 +4,11 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { Button } from '@repo/ui/button'
 import { Plus } from 'lucide-react'
 import { useToast } from '@repo/ui/use-toast'
-import { GetSingleOrganizationMembersQueryVariables, useGetGroupDetailsQuery, useGetSingleOrganizationMembersQuery, useUpdateGroupMutation } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
+import { useGetGroupDetails, useUpdateGroup } from '@/lib/graphql-hooks/groups'
+import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 
 const AddMembersDialog = () => {
   const { selectedGroup, isAdmin } = useGroupsStore()
@@ -16,15 +17,11 @@ const AddMembersDialog = () => {
   const { toast } = useToast()
   const [selectedMembers, setSelectedMembers] = useState<Option[]>([])
 
-  const [{ data, fetching }] = useGetGroupDetailsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
+  const { data } = useGetGroupDetails(selectedGroup)
   const { members, isManaged, id } = data?.group || {}
 
-  const variables: GetSingleOrganizationMembersQueryVariables = {
-    organizationId: session?.user.activeOrganizationId ?? '',
-  }
-
-  const [{ data: membersData }] = useGetSingleOrganizationMembersQuery({ variables })
-  const [{}, updateGroup] = useUpdateGroupMutation()
+  const { data: membersData } = useGetSingleOrganizationMembers(session?.user.activeOrganizationId)
+  const { mutateAsync: updateGroup } = useUpdateGroup()
 
   const membersOptions = membersData?.organization?.members
     ?.filter((member) => member.user.id != session?.user.userId)

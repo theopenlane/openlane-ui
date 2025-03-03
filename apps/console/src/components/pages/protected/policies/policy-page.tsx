@@ -4,10 +4,11 @@ import { PolicyInfoBar } from '@/components/pages/protected/policies/policy-info
 import { PolicySidebar } from '@/components/pages/protected/policies/policy-sidebar'
 import dynamic from 'next/dynamic'
 import { TElement } from '@udecode/plate-common'
-import { useGetInternalPolicyDetailsByIdQuery, useUpdateInternalPolicyMutation, useDeleteInternalPolicyMutation } from '@repo/codegen/src/schema'
-import type { InternalPolicyByIdFragment, InternalPolicyUpdateFieldsFragment } from '@repo/codegen/src/schema'
+import type { InternalPolicyUpdateFieldsFragment } from '@repo/codegen/src/schema'
 const PlateEditor = dynamic(() => import('@/components/shared/editor/plate'), { ssr: false })
 import { z } from 'zod'
+import { useGetInternalPolicyDetailsById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy'
+import { useQueryClient } from '@tanstack/react-query'
 
 export type EditableField = 'name' | 'description' | 'background' | 'purposeAndScope'
 
@@ -29,12 +30,11 @@ type PolicyPageProps = {
 }
 
 export function PolicyPage({ policyId }: PolicyPageProps) {
-  const [, updatePolicy] = useUpdateInternalPolicyMutation()
-  const [{ data }] = useGetInternalPolicyDetailsByIdQuery({ variables: { internalPolicyId: policyId } })
-  const [{ data: deleteData }] = useDeleteInternalPolicyMutation()
+  const { mutateAsync: updatePolicy } = useUpdateInternalPolicy()
+  const { data } = useGetInternalPolicyDetailsById(policyId)
   const [document, setDocument] = useState([] as TElement[])
   const [policy, setPolicy] = useState({} as InternalPolicyUpdateFieldsFragment)
-
+  const queryClient = useQueryClient()
   useEffect(() => {
     if (!data?.internalPolicy) return
     setPolicy(data.internalPolicy)
@@ -45,7 +45,7 @@ export function PolicyPage({ policyId }: PolicyPageProps) {
     setPolicy({ ...policy, [field]: value })
   }
 
-  const saveCurrentPolicy = () => {
+  const saveCurrentPolicy = async () => {
     const { id: updateInternalPolicyId, name, background, description, policyType, purposeAndScope, details } = policy
 
     const input = {
@@ -63,9 +63,13 @@ export function PolicyPage({ policyId }: PolicyPageProps) {
     // check that we're valid
     UpdateInternalPolicyValidator.parse(input)
 
-    updatePolicy({ updateInternalPolicyId, input })
-
-    // TODO: handle error reporting
+    try {
+      await updatePolicy({ updateInternalPolicyId, input })
+      queryClient.invalidateQueries({ queryKey: ['internalPolicy', updateInternalPolicyId] })
+      queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+    } catch (error) {
+      // TODO: handle error reporting
+    }
   }
 
   const handleDelete = () => {

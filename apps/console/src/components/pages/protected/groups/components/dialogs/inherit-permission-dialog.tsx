@@ -7,10 +7,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/selec
 import { useToast } from '@repo/ui/use-toast'
 import { Label } from '@repo/ui/label'
 import { Copy, ChevronDown, ChevronUp } from 'lucide-react'
-import { useGetAllGroupsQuery, useGetGroupDetailsQuery, useUpdateGroupMutation } from '@repo/codegen/src/schema'
 import { DataTable } from '@repo/ui/data-table'
 import { Input } from '@repo/ui/input'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
+import { useGetAllGroups, useGetGroupDetails, useUpdateGroup } from '@/lib/graphql-hooks/groups'
 
 const columns = [
   { accessorKey: 'object', header: 'Object' },
@@ -26,13 +26,13 @@ const InheritPermissionDialog = () => {
   const { toast } = useToast()
   const { selectedGroup, isAdmin } = useGroupsStore()
 
-  const [{ data, fetching }] = useGetGroupDetailsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
+  const { data, isLoading } = useGetGroupDetails(selectedGroup)
   const { isManaged } = data?.group || {}
 
   const where = selectedGroup ? { idNEQ: selectedGroup } : undefined
-  const [{ data: TableData }] = useGetAllGroupsQuery({ variables: { where } })
+  const { data: TableData } = useGetAllGroups(where)
 
-  const [{}, updateGroup] = useUpdateGroupMutation()
+  const { mutateAsync: updateGroup } = useUpdateGroup()
 
   const inheritPermissions = async () => {
     if (!selectedGroup) {
@@ -51,10 +51,6 @@ const InheritPermissionDialog = () => {
           inheritGroupPermissions: group,
         },
       })
-
-      if (result.error) {
-        throw new Error(result.error.message)
-      }
 
       toast({
         variant: 'success',
