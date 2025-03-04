@@ -27271,6 +27271,12 @@ export type TasksWithFilterQuery = {
   }
 }
 
+export type CreateTaskMutationVariables = Exact<{
+  input: CreateTaskInput
+}>
+
+export type CreateTaskMutation = { __typename?: 'Mutation'; createTask: { __typename?: 'TaskCreatePayload'; task: { __typename?: 'Task'; id: string } } }
+
 export type CreateTemplateMutationVariables = Exact<{
   input: CreateTemplateInput
 }>
@@ -28886,6 +28892,19 @@ export const TasksWithFilterDocument = gql`
 
 export function useTasksWithFilterQuery(options?: Omit<Urql.UseQueryArgs<TasksWithFilterQueryVariables>, 'query'>) {
   return Urql.useQuery<TasksWithFilterQuery, TasksWithFilterQueryVariables>({ query: TasksWithFilterDocument, ...options })
+}
+export const CreateTaskDocument = gql`
+  mutation CreateTask($input: CreateTaskInput!) {
+    createTask(input: $input) {
+      task {
+        id
+      }
+    }
+  }
+`
+
+export function useCreateTaskMutation() {
+  return Urql.useMutation<CreateTaskMutation, CreateTaskMutationVariables>(CreateTaskDocument)
 }
 export const CreateTemplateDocument = gql`
   mutation CreateTemplate($input: CreateTemplateInput!) {

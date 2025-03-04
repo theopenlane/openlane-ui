@@ -13,3 +13,11 @@ query TasksWithFilter($where: TaskWhereInput) {
     }
   }
 }
+
+mutation CreateTask($input: CreateTaskInput!) {
+  createTask(input: $input) {
+    task {
+      id
+    }
+  }
+}
