@@ -11228,8 +11228,6 @@ export interface Mutation {
   createBulkCSVNarrative: NarrativeBulkCreatePayload
   /** Create multiple new orgMemberships via file upload */
   createBulkCSVOrgMembership: OrgMembershipBulkCreatePayload
-  /** Create multiple new organizations via file upload */
-  createBulkCSVOrganization: OrganizationBulkCreatePayload
   /** Create multiple new organizationSettings via file upload */
   createBulkCSVOrganizationSetting: OrganizationSettingBulkCreatePayload
   /** Create multiple new personalAccessTokens via file upload */
@@ -11286,8 +11284,6 @@ export interface Mutation {
   createBulkNarrative: NarrativeBulkCreatePayload
   /** Create multiple new orgMemberships */
   createBulkOrgMembership: OrgMembershipBulkCreatePayload
-  /** Create multiple new organizations */
-  createBulkOrganization: OrganizationBulkCreatePayload
   /** Create multiple new organizationSettings */
   createBulkOrganizationSetting: OrganizationSettingBulkCreatePayload
   /** Create multiple new personalAccessTokens */
@@ -11616,10 +11612,6 @@ export interface MutationCreateBulkCsvOrgMembershipArgs {
   input: Scalars['Upload']['input']
 }
 
-export interface MutationCreateBulkCsvOrganizationArgs {
-  input: Scalars['Upload']['input']
-}
-
 export interface MutationCreateBulkCsvOrganizationSettingArgs {
   input: Scalars['Upload']['input']
 }
@@ -11730,10 +11722,6 @@ export interface MutationCreateBulkNarrativeArgs {
 
 export interface MutationCreateBulkOrgMembershipArgs {
   input?: InputMaybe<Array<CreateOrgMembershipInput>>
-}
-
-export interface MutationCreateBulkOrganizationArgs {
-  input?: InputMaybe<Array<CreateOrganizationInput>>
 }
 
 export interface MutationCreateBulkOrganizationSettingArgs {
