@@ -17,7 +17,7 @@ const CreateTaskDialog = () => {
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create a New Task</DialogTitle>
+            <DialogTitle>Create a new Task</DialogTitle>
           </DialogHeader>
           <CreateTaskForm />
         </DialogContent>

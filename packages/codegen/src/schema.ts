@@ -11231,8 +11231,6 @@ export interface Mutation {
   createBulkCSVNarrative: NarrativeBulkCreatePayload
   /** Create multiple new orgMemberships via file upload */
   createBulkCSVOrgMembership: OrgMembershipBulkCreatePayload
-  /** Create multiple new organizations via file upload */
-  createBulkCSVOrganization: OrganizationBulkCreatePayload
   /** Create multiple new organizationSettings via file upload */
   createBulkCSVOrganizationSetting: OrganizationSettingBulkCreatePayload
   /** Create multiple new personalAccessTokens via file upload */
@@ -11289,8 +11287,6 @@ export interface Mutation {
   createBulkNarrative: NarrativeBulkCreatePayload
   /** Create multiple new orgMemberships */
   createBulkOrgMembership: OrgMembershipBulkCreatePayload
-  /** Create multiple new organizations */
-  createBulkOrganization: OrganizationBulkCreatePayload
   /** Create multiple new organizationSettings */
   createBulkOrganizationSetting: OrganizationSettingBulkCreatePayload
   /** Create multiple new personalAccessTokens */
@@ -11619,10 +11615,6 @@ export interface MutationCreateBulkCsvOrgMembershipArgs {
   input: Scalars['Upload']['input']
 }
 
-export interface MutationCreateBulkCsvOrganizationArgs {
-  input: Scalars['Upload']['input']
-}
-
 export interface MutationCreateBulkCsvOrganizationSettingArgs {
   input: Scalars['Upload']['input']
 }
@@ -11733,10 +11725,6 @@ export interface MutationCreateBulkNarrativeArgs {
 
 export interface MutationCreateBulkOrgMembershipArgs {
   input?: InputMaybe<Array<CreateOrgMembershipInput>>
-}
-
-export interface MutationCreateBulkOrganizationArgs {
-  input?: InputMaybe<Array<CreateOrganizationInput>>
 }
 
 export interface MutationCreateBulkOrganizationSettingArgs {
@@ -27266,7 +27254,19 @@ export type TasksWithFilterQuery = {
     __typename?: 'TaskConnection'
     edges?: Array<{
       __typename?: 'TaskEdge'
-      node?: { __typename?: 'Task'; id: string; title: string; description?: string | null; status: TaskTaskStatus; tags?: Array<string> | null; details?: string | null; due?: any | null } | null
+      node?: {
+        __typename?: 'Task'
+        id: string
+        title: string
+        description?: string | null
+        status: TaskTaskStatus
+        tags?: Array<string> | null
+        details?: string | null
+        due?: any | null
+        displayID: string
+        category?: string | null
+        assigner?: { __typename?: 'User'; displayName: string; firstName?: string | null; lastName?: string | null } | null
+      } | null
     } | null> | null
   }
 }
@@ -27276,6 +27276,32 @@ export type CreateTaskMutationVariables = Exact<{
 }>
 
 export type CreateTaskMutation = { __typename?: 'Mutation'; createTask: { __typename?: 'TaskCreatePayload'; task: { __typename?: 'Task'; id: string } } }
+
+export type TaskQueryVariables = Exact<{
+  taskId: Scalars['ID']['input']
+}>
+
+export type TaskQuery = {
+  __typename?: 'Query'
+  task: {
+    __typename?: 'Task'
+    id: string
+    category?: string | null
+    title: string
+    status: TaskTaskStatus
+    due?: any | null
+    displayID: string
+    description?: string | null
+    assignee?: { __typename?: 'User'; displayName: string; firstName?: string | null; lastName?: string | null; avatarRemoteURL?: string | null } | null
+    assigner?: { __typename?: 'User'; avatarRemoteURL?: string | null; lastName?: string | null; firstName?: string | null; displayName: string } | null
+    subcontrol?: Array<{ __typename?: 'Subcontrol'; displayID: string }> | null
+    program?: Array<{ __typename?: 'Program'; displayID: string }> | null
+    procedure?: Array<{ __typename?: 'Procedure'; displayID: string }> | null
+    internalPolicy?: Array<{ __typename?: 'InternalPolicy'; displayID: string }> | null
+    evidence?: Array<{ __typename?: 'Evidence'; displayID: string }> | null
+    controlObjective?: Array<{ __typename?: 'ControlObjective'; displayID: string }> | null
+  }
+}
 
 export type CreateTemplateMutationVariables = Exact<{
   input: CreateTemplateInput
@@ -28884,6 +28910,13 @@ export const TasksWithFilterDocument = gql`
           tags
           details
           due
+          displayID
+          category
+          assigner {
+            displayName
+            firstName
+            lastName
+          }
         }
       }
     }
@@ -28905,6 +28938,53 @@ export const CreateTaskDocument = gql`
 
 export function useCreateTaskMutation() {
   return Urql.useMutation<CreateTaskMutation, CreateTaskMutationVariables>(CreateTaskDocument)
+}
+export const TaskDocument = gql`
+  query Task($taskId: ID!) {
+    task(id: $taskId) {
+      assignee {
+        displayName
+        firstName
+        lastName
+        avatarRemoteURL
+      }
+      assigner {
+        avatarRemoteURL
+        lastName
+        firstName
+        displayName
+      }
+      id
+      category
+      title
+      status
+      subcontrol {
+        displayID
+      }
+      program {
+        displayID
+      }
+      procedure {
+        displayID
+      }
+      internalPolicy {
+        displayID
+      }
+      evidence {
+        displayID
+      }
+      due
+      displayID
+      description
+      controlObjective {
+        displayID
+      }
+    }
+  }
+`
+
+export function useTaskQuery(options: Omit<Urql.UseQueryArgs<TaskQueryVariables>, 'query'>) {
+  return Urql.useQuery<TaskQuery, TaskQueryVariables>({ query: TaskDocument, ...options })
 }
 export const CreateTemplateDocument = gql`
   mutation CreateTemplate($input: CreateTemplateInput!) {

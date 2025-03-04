@@ -19,6 +19,7 @@ const formSchema = z.object({
 })
 
 export type CreateTaskFormData = z.infer<typeof formSchema>
+export type EditTaskFormData = z.infer<typeof formSchema>
 
 const useFormSchema = () => {
   return {

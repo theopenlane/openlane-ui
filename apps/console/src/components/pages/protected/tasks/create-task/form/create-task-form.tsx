@@ -13,6 +13,7 @@ import { useSession } from 'next-auth/react'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { Textarea } from '@repo/ui/textarea'
 import { useNotification } from '@/hooks/useNotification'
+import ControlObjectTaskForm from '@/components/pages/protected/tasks/create-task/form/control-object-task-form'
 
 const CreateTaskForm: React.FC = () => {
   const { form } = useFormSchema()
@@ -22,9 +23,8 @@ const CreateTaskForm: React.FC = () => {
   const variables: GetSingleOrganizationMembersQueryVariables = {
     organizationId: session?.user.activeOrganizationId ?? '',
   }
-
-  const [{ data: membersData }] = useGetSingleOrganizationMembersQuery({ variables })
   const [result, createTask] = useCreateTaskMutation()
+  const [{ data: membersData }] = useGetSingleOrganizationMembersQuery({ variables })
 
   const membersOptions = membersData?.organization?.members
     ?.filter((member) => member.user.id != session?.user.userId)
@@ -44,7 +44,6 @@ const CreateTaskForm: React.FC = () => {
         title: data?.title,
         description: data?.description,
         assigneeID: data?.assigneeID,
-        assignerID: '01JMHJDGMA3J169PDBV6VJS1D1',
       } as CreateTaskInput,
     }
 
@@ -193,7 +192,9 @@ const CreateTaskForm: React.FC = () => {
                   </form>
                 </Form>
               </div>
-              <div className="col-span-1"></div>
+              <div className="col-span-1">
+                <ControlObjectTaskForm />
+              </div>
             </div>
           </GridCell>
         </GridRow>

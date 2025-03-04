@@ -9,6 +9,13 @@ query TasksWithFilter($where: TaskWhereInput) {
         tags
         details
         due
+        displayID
+        category
+        assigner {
+          displayName
+          firstName
+          lastName
+        }
       }
     }
   }
@@ -18,6 +25,48 @@ mutation CreateTask($input: CreateTaskInput!) {
   createTask(input: $input) {
     task {
       id
+    }
+  }
+}
+
+query Task($taskId: ID!) {
+  task(id: $taskId) {
+    assignee {
+      displayName
+      firstName
+      lastName
+      avatarRemoteURL
+    }
+    assigner {
+      avatarRemoteURL
+      lastName
+      firstName
+      displayName
+    }
+    id
+    category
+    title
+    status
+    subcontrol {
+      displayID
+    }
+    program {
+      displayID
+    }
+    procedure {
+      displayID
+    }
+    internalPolicy {
+      displayID
+    }
+    evidence {
+      displayID
+    }
+    due
+    displayID
+    description
+    controlObjective {
+      displayID
     }
   }
 }

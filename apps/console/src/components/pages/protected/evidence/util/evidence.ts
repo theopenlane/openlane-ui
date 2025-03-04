@@ -18,7 +18,7 @@ type TEvidenceObjectConfig = {
 export const EVIDENCE_OBJECT_CONFIG: Record<EvidenceObjects, TEvidenceObjectConfig> = {
   [EvidenceObjects.CONTROL]: {
     responseObjectKey: 'controls',
-    inputName: 'programIDs',
+    inputName: 'controlIDs',
     placeholder: 'control',
     queryDocument: GetAllControlsDocument,
   },

@@ -6,9 +6,10 @@ import { Label } from '@repo/ui/label'
 import { Input } from '@repo/ui/input'
 import debounce from 'lodash.debounce'
 import { useQuery } from 'urql'
-import { GetAllRisksDocument } from '@repo/codegen/src/schema'
 import EvidenceObjectAssociationTable from '@/components/pages/protected/evidence/object-association/evidence-object-association-table'
 import { EVIDENCE_OBJECT_CONFIG, EvidenceObjects } from '@/components/pages/protected/evidence/util/evidence'
+import { TFormDataResponse } from '@/components/pages/protected/evidence/object-association/types/TFormDataResponse'
+import { GetAllControlsDocument } from '@repo/codegen/src/schema'
 
 type TProps = {
   onEvidenceObjectIdsChange: (evidenceObjectiveIDs: TEvidenceObjectIds[]) => void
@@ -36,7 +37,7 @@ const EvidenceObjectAssociation: React.FC<TProps> = (props: TProps) => {
   }
 
   const [{ data }] = useQuery({
-    query: selectedQuery || GetAllRisksDocument,
+    query: selectedQuery || GetAllControlsDocument,
     variables: { where: whereFilter },
     pause: !selectedQuery,
   })
