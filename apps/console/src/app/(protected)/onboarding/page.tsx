@@ -12,7 +12,7 @@ import Step1, { step1Schema } from '@/components/pages/protected/onboarding/step
 import Step2, { step2Schema } from '@/components/pages/protected/onboarding/step-2'
 import Step3, { step3Schema } from '@/components/pages/protected/onboarding/step-3'
 import { useRef } from 'react'
-import { toast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import { useRouter } from 'next/navigation'
 import { switchOrganization } from '@/lib/user'
 import { useCreateOnboarding } from '@/lib/graphql-hooks/onboarding'
@@ -29,6 +29,7 @@ export default function MultiStepForm() {
   const router = useRouter()
   const { data: sessionData, update: updateSession } = useSession()
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const { successNotification, errorNotification } = useNotification()
 
   const formDataRef = useRef<Partial<CreateOnboardingInput>>({
     companyName: '',
@@ -65,8 +66,8 @@ export default function MultiStepForm() {
         input: fullData,
       })
 
-      if (response.createOnboarding.onboarding) {
-        toast({
+      if (response?.createOnboarding) {
+        successNotification({
           title: 'Onboarding completed successfully.!',
         })
       } else {
@@ -95,9 +96,8 @@ export default function MultiStepForm() {
         }
       }
     } catch (err) {
-      toast({
+      errorNotification({
         title: 'There was an error while submitting the form. Please try again.',
-        variant: 'destructive',
       })
       setIsLoading(false)
     }

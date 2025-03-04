@@ -11,14 +11,15 @@ import { useEffect, useState } from 'react'
 import { RESET_SUCCESS_STATE_MS } from '@/constants'
 import { useOrganization } from '@/hooks/useOrganization'
 import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
-import { toast } from '@repo/ui/use-toast'
 import { useUpdateOrganization } from '@/lib/graphql-hooks/organization'
 import { useQueryClient } from '@tanstack/react-query'
+import { useNotification } from '@/hooks/useNotification'
 
 const OrganizationNameForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
   const { isPending, mutateAsync: updateOrg } = useUpdateOrganization()
   const queryClient = useQueryClient()
+  const { successNotification, errorNotification } = useNotification()
   const { currentOrgId, allOrgs } = useOrganization()
   const currentOrganization = allOrgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
 
@@ -76,15 +77,13 @@ const OrganizationNameForm = () => {
         avatarFile: file,
       })
       setIsSuccess(true)
-      toast({
+      successNotification({
         title: 'Avatar updated successfully',
-        variant: 'success',
       })
     } catch (error) {
       console.error('file upload error')
-      toast({
+      errorNotification({
         title: 'Failed to update avatar',
-        variant: 'destructive',
       })
     }
   }

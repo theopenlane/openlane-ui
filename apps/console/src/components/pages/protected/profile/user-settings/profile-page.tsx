@@ -3,8 +3,7 @@ import React, { Suspense, useMemo, useState } from 'react'
 import { ProfileNameForm } from './profile-name-form'
 import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
 import { useSession } from 'next-auth/react'
-import { File, GetUserProfileQueryVariables } from '@repo/codegen/src/schema'
-import { toast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import DefaultOrgForm from './default-org-form'
 import { Loader } from 'lucide-react'
 
@@ -12,11 +11,12 @@ import QRCodeDialog from './qrcode-dialog'
 import { Button } from '@repo/ui/button'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Badge } from '@repo/ui/badge'
-import { useGetUserProfile, useUpdateUser, useUpdateUserAvatar, useUpdateUserSetting } from '@/lib/graphql-hooks/user'
+import { useGetUserProfile, useUpdateUserAvatar, useUpdateUserSetting } from '@/lib/graphql-hooks/user'
 import { useCreateTfaSetting, useGetUserTFASettings, useUpdateTfaSetting } from '@/lib/graphql-hooks/tfa'
 
 const ProfilePage = () => {
   const { data: sessionData } = useSession()
+  const { successNotification, errorNotification } = useNotification()
   const userId = sessionData?.user.userId
 
   const [qrcode, setQrcode] = useState<null | string>(null)
@@ -46,15 +46,13 @@ const ProfilePage = () => {
         avatarFile: file,
       })
 
-      toast({
+      successNotification({
         title: 'Avatar updated successfully',
-        variant: 'success',
       })
     } catch (error) {
       console.error('file upload error')
-      toast({
+      errorNotification({
         title: 'Failed to update avatar',
-        variant: 'destructive',
       })
     }
   }
@@ -93,15 +91,13 @@ const ProfilePage = () => {
         },
       })
 
-      toast({
+      successNotification({
         title: `Two-factor authentication ${checked ? 'enabled' : 'disabled'} successfully`,
-        variant: 'success',
       })
     } catch (error) {
       console.error('Error updating TFA setting:', error)
-      toast({
+      errorNotification({
         title: 'Failed to update TFA setting',
-        variant: 'destructive',
       })
     }
   }
@@ -113,14 +109,12 @@ const ProfilePage = () => {
           totpAllowed: false,
         },
       })
-      toast({
+      successNotification({
         title: `Two-factor authentication removed successfully`,
-        variant: 'success',
       })
     } catch (error) {
-      toast({
+      errorNotification({
         title: 'Failed to remove Two-factor authentication ',
-        variant: 'destructive',
       })
     }
     // refetchUser()

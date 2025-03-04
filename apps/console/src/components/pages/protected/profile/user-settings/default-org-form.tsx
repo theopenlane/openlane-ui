@@ -10,12 +10,13 @@ import { Button } from '@repo/ui/button'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@repo/ui/select'
 import { RESET_SUCCESS_STATE_MS } from '@/constants'
-import { toast } from '@repo/ui/use-toast'
 import { useGetUserProfile, useUpdateUserSetting } from '@/lib/graphql-hooks/user'
 import { useGetAllOrganizations } from '@/lib/graphql-hooks/organization'
+import { useNotification } from '@/hooks/useNotification'
 
 const DefaultOrgForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
+  const { successNotification, errorNotification } = useNotification()
   const { data: sessionData } = useSession()
   const userId = sessionData?.user.userId
 
@@ -44,10 +45,10 @@ const DefaultOrgForm = () => {
         },
       })
       setIsSuccess(true)
-      toast({ title: 'Default organization updated successfully!', variant: 'success' })
+      successNotification({ title: 'Default organization updated successfully!' })
     } catch (error) {
       console.error('Failed to update default organization:', error)
-      toast({ title: 'An error occurred while updating the default organization.', variant: 'destructive' })
+      errorNotification({ title: 'An error occurred while updating the default organization.', variant: 'destructive' })
     }
   }
 

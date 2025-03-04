@@ -42,7 +42,7 @@ export const BreadcrumbNavigation = ({ homeElement = 'Home' }: TBreadCrumbProps)
           }
 
           return (
-            <React.Fragment key={index}>
+            <React.Fragment key={href}>
               <BreadcrumbSeparator>
                 <ChevronRight size={16} />
               </BreadcrumbSeparator>

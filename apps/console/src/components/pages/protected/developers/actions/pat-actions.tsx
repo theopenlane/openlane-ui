@@ -2,13 +2,13 @@
 
 import { useState } from 'react'
 import { MoreHorizontal, Trash2 } from 'lucide-react'
-import { useToast } from '@repo/ui/use-toast'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { usePathname } from 'next/navigation'
 import { useDeleteApiToken, useDeletePersonalAccessToken } from '@/lib/graphql-hooks/tokens'
+import { useNotification } from '@/hooks/useNotification'
 
 type TokenActionProps = {
   tokenId: string
@@ -18,9 +18,9 @@ const ICON_SIZE = 12
 
 export const TokenAction = ({ tokenId }: TokenActionProps) => {
   const { actionIcon } = pageStyles()
-  const { toast } = useToast()
   const { mutateAsync: deletePersonalToken, error: isError } = useDeletePersonalAccessToken()
   const { mutateAsync: deleteApiToken, error } = useDeleteApiToken()
+  const { successNotification, errorNotification } = useNotification()
   const path = usePathname()
   const isOrg = path.includes('/organization-settings')
 
@@ -28,17 +28,14 @@ export const TokenAction = ({ tokenId }: TokenActionProps) => {
   const [dialogOpen, setDialogOpen] = useState(false) // Track dialog state
 
   const handleDeleteToken = async () => {
-    const response = isOrg ? await deleteApiToken({ deleteAPITokenId: tokenId }) : await deletePersonalToken({ deletePersonalAccessTokenId: tokenId })
-
-    if (error || isError) {
-      toast({
+    try {
+      isOrg ? await deleteApiToken({ deleteAPITokenId: tokenId }) : await deletePersonalToken({ deletePersonalAccessTokenId: tokenId })
+      errorNotification({
         title: 'There was a problem deleting this token, please try again',
-        variant: 'destructive',
       })
-    } else if (response) {
-      toast({
+    } catch (error) {
+      successNotification({
         title: 'Token deleted successfully',
-        variant: 'success',
       })
       setDialogOpen(false)
       setMenuOpen(false)

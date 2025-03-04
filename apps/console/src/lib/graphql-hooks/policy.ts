@@ -1,24 +1,23 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  GET_ALL_INTERNAL_POLICIES_WITH_DETAILS,
   GET_INTERNAL_POLICIES_LIST,
-  GET_ALL_INTERNAL_POLICIES,
   GET_INTERNAL_POLICY_DETAILS_BY_ID,
   CREATE_INTERNAL_POLICY,
   UPDATE_INTERNAL_POLICY,
+  SEARCH_INTERNAL_POLICIES,
   DELETE_INTERNAL_POLICY,
 } from '@repo/codegen/query/policy'
 import {
-  GetAllInternalPoliciesWithDetailsQuery,
   GetInternalPoliciesListQuery,
-  GetAllInternalPoliciesQuery,
   GetInternalPolicyDetailsByIdQuery,
   GetInternalPolicyDetailsByIdQueryVariables,
   CreateInternalPolicyMutation,
   CreateInternalPolicyMutationVariables,
   UpdateInternalPolicyMutation,
   UpdateInternalPolicyMutationVariables,
+  SearchInternalPoliciesQuery,
+  SearchInternalPoliciesQueryVariables,
   DeleteInternalPolicyMutation,
   DeleteInternalPolicyMutationVariables,
 } from '@repo/codegen/src/schema'
@@ -65,6 +64,18 @@ export const useUpdateInternalPolicy = () => {
   })
 }
 
+export const useSearchInternalPolicies = (searchQuery: string) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<SearchInternalPoliciesQuery>({
+    queryKey: ['internalPoliciesSearch', searchQuery],
+    queryFn: async () => {
+      return client.request<SearchInternalPoliciesQuery, SearchInternalPoliciesQueryVariables>(SEARCH_INTERNAL_POLICIES, { query: searchQuery })
+    },
+    enabled: !!searchQuery,
+  })
+}
+
 // export const useGetAllInternalPoliciesWithDetails = () => {
 //   const { client } = useGraphQLClient()
 
@@ -74,15 +85,15 @@ export const useUpdateInternalPolicy = () => {
 //   })
 // }
 
-// export const useDeleteInternalPolicy = () => {
-//   const { client } = useGraphQLClient()
+export const useDeleteInternalPolicy = () => {
+  const { client } = useGraphQLClient()
 
-//   return useMutation<DeleteInternalPolicyMutation, unknown, DeleteInternalPolicyMutationVariables>({
-//     mutationFn: async (variables) => {
-//       return client.request(DELETE_INTERNAL_POLICY, variables)
-//     },
-//   })
-// }
+  return useMutation<DeleteInternalPolicyMutation, unknown, DeleteInternalPolicyMutationVariables>({
+    mutationFn: async (variables) => {
+      return client.request(DELETE_INTERNAL_POLICY, variables)
+    },
+  })
+}
 
 // export const useGetAllInternalPolicies = () => {
 //   const { client } = useGraphQLClient()

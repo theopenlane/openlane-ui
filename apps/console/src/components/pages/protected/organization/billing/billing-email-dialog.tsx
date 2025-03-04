@@ -4,15 +4,15 @@ import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import React, { useEffect, useState } from 'react'
 import { useOrganization } from '@/hooks/useOrganization'
-import { useToast } from '@repo/ui/use-toast'
 import { useGetOrganizationSetting, useUpdateOrganization } from '@/lib/graphql-hooks/organization'
+import { useNotification } from '@/hooks/useNotification'
 
 const BillingEmailDialog = () => {
   const { currentOrgId } = useOrganization()
   const [emailInput, setEmailInput] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const { isPending, mutateAsync: updateOrg } = useUpdateOrganization()
-  const { toast } = useToast()
+  const { successNotification, errorNotification } = useNotification()
 
   const { data: settingData } = useGetOrganizationSetting(currentOrgId)
 
@@ -32,18 +32,16 @@ const BillingEmailDialog = () => {
           updateOrgSettings: { billingEmail: emailInput },
         },
       })
-
-      toast({
+      successNotification({
         title: `${emailInput} was successfully added as Billing Alert`,
-        variant: 'success',
       })
       setIsOpen(false)
     } catch {
-      toast({
+      errorNotification({
         title: `Something went wrong with saving your email!`,
-        variant: 'destructive',
       })
     }
+    setIsOpen(false)
   }
 
   return (

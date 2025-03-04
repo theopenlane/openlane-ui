@@ -11,15 +11,15 @@ import { z } from 'zod'
 import { Button } from '@repo/ui/button'
 import { useEffect, useState } from 'react'
 import { RESET_SUCCESS_STATE_MS } from '@/constants'
-import { toast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { InfoIcon } from 'lucide-react'
 import { useGetUserProfile, useUpdateUser } from '@/lib/graphql-hooks/user'
-import { useQueryClient } from '@tanstack/react-query'
 
 const ProfileNameForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
   const { isPending: isSubmitting, mutateAsync: updateUserName } = useUpdateUser()
+  const { successNotification, errorNotification } = useNotification()
 
   const { data: sessionData } = useSession()
   const userId = sessionData?.user.userId
@@ -63,12 +63,11 @@ const ProfileNameForm = () => {
         },
       })
       setIsSuccess(true)
-      toast({ title: 'Profile updated successfully!', variant: 'success' })
+      successNotification({ title: 'Profile updated successfully!' })
     } catch (error) {
       console.error('Failed to update profile:', error)
-      toast({
+      errorNotification({
         title: 'An error occurred while updating your profile.',
-        variant: 'destructive',
       })
     }
   }

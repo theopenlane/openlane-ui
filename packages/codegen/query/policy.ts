@@ -121,6 +121,7 @@ export const INTERNAL_POLICY_BY_ID = gql`
     status
     purposeAndScope
     policyType
+    displayID
     procedures {
       id
       name
@@ -139,4 +140,26 @@ export const GET_INTERNAL_POLICY_DETAILS_BY_ID = gql`
     }
   }
   ${INTERNAL_POLICY_BY_ID}
+`
+
+export const SEARCH_INTERNAL_POLICIES = gql`
+  query SearchInternalPolicies($query: String!) {
+    internalPolicySearch(query: $query) {
+      internalPolicies {
+        id
+        name
+        background
+        description
+        displayID
+        purposeAndScope
+        status
+        version
+        updatedAt
+        updatedBy
+        createdAt
+        createdBy
+        tags
+      }
+    }
+  }
 `

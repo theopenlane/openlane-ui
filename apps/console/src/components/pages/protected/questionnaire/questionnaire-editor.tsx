@@ -11,7 +11,7 @@ import 'survey-creator-core/survey-creator-core.min.css'
 import { lightTheme } from './theme-light'
 import { darkTheme } from './theme-dark'
 import { TemplateDocumentType } from '@repo/codegen/src/schema'
-import { useToast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import { Panel } from '@repo/ui/panel'
 import { pageStyles } from './page.styles'
 import { useRouter } from 'next/navigation'
@@ -35,8 +35,7 @@ slk(surveyLicenseKey as string)
 
 export default function CreateQuestionnaire(input: { templateId: string; existingId: string }) {
   const router = useRouter()
-  const { toast } = useToast()
-  const { buttonRow } = pageStyles()
+  const { successNotification, errorNotification } = useNotification()
 
   const creator = new SurveyCreator(creatorOptions)
   const themeTabPlugin = creator.themeEditor
@@ -88,30 +87,26 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
           updateTemplateId: input.existingId,
           input: { ...variables.input },
         })
-        toast({
+        successNotification({
           title: 'Questionnaire saved successfully',
-          variant: 'success',
         })
       } catch {
-        toast({
+        errorNotification({
           title: 'There was a problem saving the questionnaire, please try again',
-          variant: 'destructive',
         })
       }
+      return
     }
 
     try {
       const data = await createTemplateData(variables)
-      toast({
+      successNotification({
         title: 'Questionnaire saved successfully',
-        variant: 'success',
       })
-
       router.push(`/questionnaires/questionnaire-editor?id=${data?.createTemplate.template.id}`)
     } catch {
-      toast({
-        title: 'There was a problem saving the questionnaire, please try again',
-        variant: 'destructive',
+      errorNotification({
+        title: 'There was a problem saving the questionnaire ',
       })
     }
   }

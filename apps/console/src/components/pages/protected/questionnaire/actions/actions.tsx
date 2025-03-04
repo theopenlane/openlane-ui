@@ -1,10 +1,9 @@
 'use client'
 
 import { Edit, MoreHorizontal, Send, Trash2, View } from 'lucide-react'
-import { useToast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { type UseQueryExecute } from 'urql'
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from '@repo/ui/alert-dialog'
 import { Button } from '@repo/ui/button'
 import React, { useState } from 'react'
@@ -24,9 +23,9 @@ const ICON_SIZE = 12
 
 export const Actions = ({ templateId: templateId }: TemplateActionsProps) => {
   const router = useRouter()
-  const { actionIcon, dropDownButton, emailRow } = pageStyles()
-  const { toast } = useToast()
+  const { actionIcon, emailRow } = pageStyles()
   const { mutateAsync: deleteTemplate } = useDeleteTemplate()
+  const { successNotification, errorNotification } = useNotification()
   const [isSendDialogOpen, setIsSendDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
@@ -58,10 +57,8 @@ export const Actions = ({ templateId: templateId }: TemplateActionsProps) => {
   } = form
 
   const handleSendForm: SubmitHandler<FormData> = async (data) => {
-    // TODO: Implement sending email
-    toast({
+    successNotification({
       title: 'Email sent successfully to ' + data.email,
-      variant: 'success',
     })
 
     form.reset()
@@ -70,13 +67,11 @@ export const Actions = ({ templateId: templateId }: TemplateActionsProps) => {
   const handleDeleteTemplate = async () => {
     try {
       await deleteTemplate({ deleteTemplateId: templateId })
-
-      toast({
+      successNotification({
         title: 'Questionnaire deleted successfully',
-        variant: 'success',
       })
     } catch {
-      toast({
+      errorNotification({
         title: 'Something went wrong while deleting the questionnaire',
         variant: 'destructive',
       })

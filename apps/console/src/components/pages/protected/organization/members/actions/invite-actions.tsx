@@ -1,11 +1,10 @@
 'use client'
 
 import { MoreHorizontal, RotateCw, Trash2 } from 'lucide-react'
-import { useToast } from '@repo/ui/use-toast'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { type UseQueryExecute } from 'urql'
 import { useDeleteOrganizationInvite } from '@/lib/graphql-hooks/organization'
+import { useNotification } from '@/hooks/useNotification'
 
 type InviteActionsProps = {
   inviteId: string
@@ -15,20 +14,18 @@ const ICON_SIZE = 12
 
 export const InviteActions = ({ inviteId }: InviteActionsProps) => {
   const { actionIcon } = pageStyles()
-  const { toast } = useToast()
+  const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: deleteInvite } = useDeleteOrganizationInvite()
 
   const handleDeleteInvite = async () => {
     try {
       await deleteInvite({ deleteInviteId: inviteId })
-      toast({
+      successNotification({
         title: 'Invite deleted successfully',
-        variant: 'success',
       })
     } catch {
-      toast({
+      errorNotification({
         title: 'There was a problem deleting this invite, please try again',
-        variant: 'destructive',
       })
     }
   }

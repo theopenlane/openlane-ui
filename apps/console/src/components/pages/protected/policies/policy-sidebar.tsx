@@ -1,38 +1,63 @@
 'use client'
 
-import React from 'react'
-import { Panel, PanelHeader } from '@repo/ui/panel'
-import { Button } from '@repo/ui/button'
-import { EditableTextarea } from '@repo/ui/textarea'
-import { EditableField } from './policy-page'
-import { InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
+import React, { useMemo } from 'react'
+import { InternalPolicyByIdFragment, User } from '@repo/codegen/src/schema'
+import { UserRoundCheck, Binoculars, FileStack, ScrollText, Tag, CalendarCheck2, UserRoundPen, CalendarClock } from 'lucide-react'
+import { Badge } from '@repo/ui/badge'
+import { MetaPanel, formatTime, MetaPanelEntry } from '@/components/shared/meta-panel/meta-panel'
+import { UserChip } from '@/components/shared/user-chip/user-chip'
+import { useGetUserProfile } from '@/lib/graphql-hooks/user'
 
 type PolicySidebarProps = {
   policy: InternalPolicyByIdFragment
-  onFieldChange: (field: EditableField, value: string) => void
 }
 
-export const PolicySidebar: React.FC<PolicySidebarProps> = function ({ policy, onFieldChange }) {
-  return (
-    <div className="flex flex-col gap-5 w-full">
-      <Panel className="p-0 border-0 gap-0">
-        <PanelHeader heading="Description" className="p-4 text-base" noBorder />
+export const PolicySidebar: React.FC<PolicySidebarProps> = function ({ policy }) {
+  if (!policy) return null
 
-        <div className="divide-y divide-oxford-blue-100 dark:divide-oxford-blue-900 *:px-4 *:py-2">
-          <div>
-            <h3 className="text-oxford-blue-500 text-sm mb-1">Description</h3>
-            <EditableTextarea rows={7} onChange={(e) => onFieldChange('description', e.target.value)} value={policy.description ?? ''} placeholder="provide a description" />
-          </div>
-          <div>
-            <h3 className="text-oxford-blue-500 text-sm mb-1">Background</h3>
-            <EditableTextarea rows={7} onChange={(e) => onFieldChange('background', e.target.value)} value={policy.background ?? ''} placeholder="provide a background" />
-          </div>
-          <div>
-            <h3 className="text-oxford-blue-500 text-sm mb-1">Purpose and Scope</h3>
-            <EditableTextarea rows={7} onChange={(e) => onFieldChange('purposeAndScope', e.target.value)} value={policy.purposeAndScope ?? ''} placeholder="provide a purpose and scope" />
-          </div>
-        </div>
-      </Panel>
+  const { data: createdByUser } = useGetUserProfile(policy.createdBy)
+
+  const { data: updatedByUser } = useGetUserProfile(policy.updatedBy)
+
+  const sidebarItems: Record<string, MetaPanelEntry[]> = useMemo(() => {
+    return {
+      // ownership: [
+      //   { icon: CircleUser, label: 'Owner', value: 'owner' },
+      //   { icon: UserRoundCheck, label: 'Approver', value: 'approver' },
+      // ],
+      status: [
+        { icon: Binoculars, label: 'Status', value: policy.status },
+        { icon: FileStack, label: 'Version', value: policy.version },
+        { icon: ScrollText, label: 'Type', value: policy.policyType },
+        {
+          icon: Tag,
+          label: 'Tags',
+          align: 'top',
+          value: policy.tags?.length ? (
+            policy.tags.map((t) => (
+              <Badge key={t} variant="outline" className="mr-1">
+                {t}
+              </Badge>
+            ))
+          ) : (
+            <span className="italic text-text-dimmed">none</span>
+          ),
+        },
+      ],
+      creation: [
+        { icon: UserRoundPen, label: 'Created By', value: UserChip((createdByUser?.user as User) ?? null) },
+        { icon: CalendarCheck2, label: 'Created At', value: formatTime(policy.createdAt) },
+        { icon: UserRoundCheck, label: 'Updated By', value: UserChip((updatedByUser?.user as User) ?? null) },
+        { icon: CalendarClock, label: 'Updated At', value: formatTime(policy.updatedAt) },
+      ],
+    }
+  }, [policy, createdByUser, updatedByUser])
+
+  return (
+    <div className="w-full flex flex-col gap-5">
+      {/* <MetaPanel entries={sidebarItems.ownership} /> */}
+      <MetaPanel entries={sidebarItems.status} />
+      <MetaPanel entries={sidebarItems.creation} />
     </div>
   )
 }

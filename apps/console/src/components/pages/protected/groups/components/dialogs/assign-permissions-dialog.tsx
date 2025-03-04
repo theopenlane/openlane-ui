@@ -6,7 +6,6 @@ import { Plus } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Input } from '@repo/ui/input'
 import { Checkbox } from '@repo/ui/checkbox'
-import { useToast } from '@repo/ui/use-toast'
 import { Label } from '@repo/ui/label'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
@@ -17,6 +16,7 @@ import { useUpdateGroup } from '@/lib/graphql-hooks/groups'
 import { useQuery } from '@tanstack/react-query'
 import { GET_ALL_RISKS } from '@repo/codegen/query/risks'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
+import { useNotification } from '@/hooks/useNotification'
 
 type TableDataItem = {
   id: string
@@ -66,7 +66,7 @@ const AssignPermissionsDialog = () => {
   const { queryClient, client } = useGraphQLClient()
   const [isOpen, setIsOpen] = useState(false)
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([])
-  const { toast } = useToast()
+  const { successNotification, errorNotification } = useNotification()
   const [step, setStep] = useState(1)
   const [selectedObject, setSelectedObject] = useState<ObjectTypes | null>(null)
   const [roles, setRoles] = useState<Record<string, string>>({})
@@ -154,18 +154,17 @@ const AssignPermissionsDialog = () => {
           return (qk.length === 1 && qk[0] === 'groups') || (qk.length > 1 && qk[0] === 'group' && qk[1] === selectedGroup)
         },
       })
-      toast({
+
+      successNotification({
         title: 'Permissions updated successfully',
-        variant: 'success',
       })
 
       handleOpenChange(false)
     } catch (error) {
       console.error('Failed to update group:', error)
-      toast({
+      errorNotification({
         title: 'Failed to update permissions',
         description: 'Something went wrong',
-        variant: 'destructive',
       })
     }
   }

@@ -14,13 +14,13 @@ import {
   AlertDialogCancel,
 } from '@repo/ui/alert-dialog'
 import { useRouter } from 'next/navigation'
-import { useToast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import { useUserHasOrganizationDeletePermissions } from '@/lib/authz/utils'
 import { useDeleteOrganization, useGetOrganizationNameById } from '@/lib/graphql-hooks/organization'
 import { useQueryClient } from '@tanstack/react-query'
 
 const OrganizationDelete = () => {
-  const { toast } = useToast()
+  const { successNotification, errorNotification } = useNotification()
   const { push } = useRouter()
   const queryClient = useQueryClient()
 
@@ -48,9 +48,8 @@ const OrganizationDelete = () => {
         },
       })
     }
-    toast({
+    successNotification({
       title: 'Organization successfully deleted',
-      variant: 'success',
     })
 
     requestAnimationFrame(() => {

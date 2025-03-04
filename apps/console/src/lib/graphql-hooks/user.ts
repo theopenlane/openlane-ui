@@ -13,7 +13,7 @@ import {
 import { useMutation } from '@tanstack/react-query'
 import {} from '@repo/codegen/query/user'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
-export const useGetUserProfile = (userId: string) => {
+export const useGetUserProfile = (userId?: string | null) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetUserProfileQuery, GetUserProfileQueryVariables>({

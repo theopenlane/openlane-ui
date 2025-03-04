@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react'
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@repo/ui/input-otp'
-import { toast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { Loading } from '@/components/shared/loading/loading'
@@ -14,6 +14,7 @@ const TfaPage = () => {
   const router = useRouter()
   const [isSecret, setIsSecret] = useState(false)
   const [error, setError] = useState<string>('')
+  const { successNotification, errorNotification } = useNotification()
 
   const otpLength = isSecret ? 8 : 6
 
@@ -61,7 +62,7 @@ const TfaPage = () => {
 
   const onVerified = async () => {
     if (!sessionData || !sessionData.user) {
-      toast({ title: 'Session is not available', variant: 'destructive' })
+      errorNotification({ title: 'Session is not available', variant: 'destructive' })
       return
     }
 
@@ -96,7 +97,7 @@ const TfaPage = () => {
       }
     } catch (error) {
       console.error('Error during OTP validation:', error)
-      toast({ title: 'An error occurred', variant: 'destructive' })
+      errorNotification({ title: 'An error occurred' })
     }
   }
 

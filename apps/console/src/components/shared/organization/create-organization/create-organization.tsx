@@ -2,7 +2,7 @@
 
 import { createOrganizationStyles } from './create-organization.styles'
 import { Panel, PanelHeader } from '@repo/ui/panel'
-import { useToast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { useSession } from 'next-auth/react'
@@ -12,12 +12,9 @@ import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { useRouter } from 'next/navigation'
 import { z } from 'zod'
-import { useGqlError } from '@/hooks/useGqlError'
-import { useEffect } from 'react'
 import { InfoIcon } from 'lucide-react'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useCreateOrganization } from '@/lib/graphql-hooks/organization'
-import { CombinedError } from 'urql'
 
 const formSchema = z.object({
   name: z
@@ -35,7 +32,7 @@ const formSchema = z.object({
 
 export const CreateOrganizationForm = () => {
   const { push } = useRouter()
-  const { toast } = useToast()
+  const { errorNotification } = useNotification()
   const { data: session, update } = useSession()
   const { allOrgs } = useOrganization()
   const numOrgs = allOrgs.length
@@ -78,9 +75,8 @@ export const CreateOrganizationForm = () => {
       response.data && push('/dashboard')
     } catch (error) {
       console.error('Error creating organization:', error)
-      toast({
+      errorNotification({
         title: 'Failed to create organization. Please try again.',
-        variant: 'destructive',
       })
     }
   }

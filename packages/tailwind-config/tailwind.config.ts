@@ -49,6 +49,7 @@ export const config: Partial<Config> = {
         paragraph: 'var(--color-text-paragraph)', // Paragraph text color
         dark: 'var(--color-text-dark)', // Dark text color
         light: 'var(--color-text-light)', // Light text color
+        dimmed: 'var(--color-text-dimmed)', // dimmed text color
       }),
 
       borderColor: (theme: any) => ({
@@ -72,6 +73,7 @@ export const config: Partial<Config> = {
           dark: 'var(--color-text-dark)', // Dark text
           light: 'var(--color-text-light)', // Light text
           navlink: 'var(--color-text-nav-link)', // Navigation link text
+          dimmed: 'var(--color-text-dimmed)', // dimmed text color
         },
         button: {
           DEFAULT: 'var(--color-button)', // Button background

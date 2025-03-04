@@ -2,13 +2,13 @@ import React, { useState } from 'react'
 import { ColumnDef } from '@tanstack/table-core'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { DataTable } from '@repo/ui/data-table'
-import { Permission } from '@repo/codegen/src/schema'
-import { useToast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import { Trash2 } from 'lucide-react'
 import { OBJECT_TYPE_CONFIG, ObjectTypes } from '@/constants/groups'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { useGetGroupPermissions, useUpdateGroup } from '@/lib/graphql-hooks/groups'
 import { useQueryClient } from '@tanstack/react-query'
+import { Permission } from '@repo/codegen/src/schema'
 
 const PERMISSION_LABELS: Record<Permission, string> = {
   [Permission.VIEWER]: 'View',
@@ -23,7 +23,7 @@ const GroupsPermissionsTable = () => {
   const { selectedGroup } = useGroupsStore()
   const { data } = useGetGroupPermissions(selectedGroup)
   const { mutateAsync: updateGroup } = useUpdateGroup()
-  const { toast } = useToast()
+  const { successNotification, errorNotification } = useNotification()
   const [roles, setRoles] = useState<Record<string, Permission>>({})
   const queryClient = useQueryClient()
 
@@ -67,10 +67,10 @@ const GroupsPermissionsTable = () => {
       })
       queryClient.invalidateQueries({ queryKey: ['group', selectedGroup] })
 
-      toast({ title: 'Permissions updated successfully', variant: 'success' })
+      successNotification({ title: 'Permissions updated successfully' })
     } catch (error) {
       console.error('Failed to update permissions:', error)
-      toast({ title: 'Failed to update permissions', description: 'Something went wrong', variant: 'destructive' })
+      errorNotification({ title: 'Failed to update permissions', description: 'Something went wrong' })
     }
   }
 
@@ -84,10 +84,10 @@ const GroupsPermissionsTable = () => {
       })
       queryClient.invalidateQueries({ queryKey: ['group', selectedGroup] })
 
-      toast({ title: 'Permission removed successfully', variant: 'success' })
+      successNotification({ title: 'Permission removed successfully' })
     } catch (error) {
       console.error('Failed to remove permission:', error)
-      toast({ title: 'Failed to remove permission', description: 'Something went wrong', variant: 'destructive' })
+      errorNotification({ title: 'Failed to remove permission', description: 'Something went wrong' })
     }
   }
 

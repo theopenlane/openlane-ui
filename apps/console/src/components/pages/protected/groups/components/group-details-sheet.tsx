@@ -15,7 +15,6 @@ import GroupsPermissionsTable from './groups-permissions-table'
 import InheritPermissionDialog from './dialogs/inherit-permission-dialog'
 import { GroupSettingVisibility, GroupMembershipRole } from '@repo/codegen/src/schema'
 import { Loading } from '@/components/shared/loading/loading'
-import { useToast } from '@repo/ui/use-toast'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { z } from 'zod'
 import { useForm, Controller } from 'react-hook-form'
@@ -27,6 +26,7 @@ import { Input } from '@repo/ui/input'
 import { useSession } from 'next-auth/react'
 import { useGetGroupDetails, useUpdateGroup } from '@/lib/graphql-hooks/groups'
 import { useQueryClient } from '@tanstack/react-query'
+import { useNotification } from '@/hooks/useNotification'
 
 const EditGroupSchema = z.object({
   groupName: z.string().min(1, 'Group name is required'),
@@ -44,8 +44,8 @@ const GroupDetailsSheet = () => {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { selectedGroup, setSelectedGroup, setIsAdmin, isAdmin } = useGroupsStore()
-  const { toast } = useToast()
   const queryClient = useQueryClient()
+  const { successNotification, errorNotification } = useNotification()
 
   const { data, isPending: fetching } = useGetGroupDetails(selectedGroup)
 
@@ -70,15 +70,13 @@ const GroupDetailsSheet = () => {
     navigator.clipboard
       .writeText(url)
       .then(() => {
-        toast({
+        successNotification({
           title: 'Link copied to clipboard',
-          variant: 'success',
         })
       })
       .catch(() => {
-        toast({
+        errorNotification({
           title: 'Failed to copy link',
-          variant: 'destructive',
         })
       })
   }
@@ -118,11 +116,11 @@ const GroupDetailsSheet = () => {
           return firstKey === 'groups' || (firstKey === 'group' && secondKey === id)
         },
       })
-      toast({ title: 'Group updated successfully!', variant: 'success' })
+      successNotification({ title: 'Group updated successfully!' })
       setIsEditing(false)
     } catch (error) {
       console.error('Error updating group:', error)
-      toast({ title: 'Failed to update group.', variant: 'destructive' })
+      errorNotification({ title: 'Failed to update group.' })
     }
   }
 

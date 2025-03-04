@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 
 import { createPlateEditor, Plate } from '@udecode/plate-common/react'
-import { TElement, Value } from '@udecode/plate-common'
+import { Value } from '@udecode/plate-common'
 
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
@@ -13,17 +13,19 @@ import { FixedToolbar } from '@repo/ui/plate-ui/fixed-toolbar'
 import { FixedToolbarButtons } from '@repo/ui/plate-ui/fixed-toolbar-buttons'
 import { FloatingToolbar } from '@repo/ui/plate-ui/floating-toolbar'
 import { FloatingToolbarButtons } from '@repo/ui/plate-ui/floating-toolbar-buttons'
-import { memo } from 'react'
 import PlateConfig from './plate-config'
+import debounce from 'lodash.debounce'
 
 const editor = createPlateEditor(Object.assign({}, PlateConfig, { value: '' }))
 
 type Props = {
-  content?: TElement[] | null
+  content?: Value | null
   onChange?: (content: Value) => void
 }
 
-export default memo(function PlateEditor({ content, onChange }: Props) {
+export default function PlateEditor({ content, onChange }: Props) {
+  const debouncedOnChange = onChange ? debounce(onChange, 500) : () => {}
+
   useEffect(() => {
     if (content) {
       editor.tf.setValue(content)
@@ -31,7 +33,7 @@ export default memo(function PlateEditor({ content, onChange }: Props) {
   }, [content])
 
   const handleChange = ({ value }: { value: Value }) => {
-    if (onChange) onChange(value)
+    if (onChange) debouncedOnChange(value)
   }
 
   return (
@@ -51,4 +53,4 @@ export default memo(function PlateEditor({ content, onChange }: Props) {
       </DndProvider>
     </>
   )
-})
+}

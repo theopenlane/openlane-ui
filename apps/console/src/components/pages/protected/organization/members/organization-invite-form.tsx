@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z, infer as zInfer } from 'zod'
 import { TagInput } from '@repo/ui/tag-input'
 import { Panel, PanelHeader } from '@repo/ui/panel'
-import { useToast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import { Form, FormItem, FormField, FormControl, FormMessage } from '@repo/ui/form'
 import { Button } from '@repo/ui/button'
 import { Tag } from 'emblor'
@@ -28,7 +28,7 @@ type FormData = zInfer<typeof formSchema>
 
 const OrganizationInviteForm = ({ inviteAdmins }: { inviteAdmins: boolean }) => {
   const { buttonRow, roleRow } = organizationInviteStyles()
-  const { toast } = useToast()
+  const { successNotification, errorNotification } = useNotification()
 
   const { mutateAsync: inviteMembers } = useCreateBulkInvite()
 
@@ -61,17 +61,15 @@ const OrganizationInviteForm = ({ inviteAdmins }: { inviteAdmins: boolean }) => 
         input: inviteInput,
       })
 
-      toast({
+      successNotification({
         title: `Invite${emails.length > 1 ? 's' : ''} sent successfully`,
-        variant: 'success',
       })
     } catch {
-      toast({
-        title: `Error, Ivites not sent`,
-        variant: 'destructive',
+      errorNotification({
+        title: 'Error, Ivites not sent',
       })
+      setEmails([])
     }
-    setEmails([])
   }
   const errorMessage = errors.emails && Array.isArray(errors.emails) && errors.emails.length > 0 ? errors.emails[0]?.message : null
 

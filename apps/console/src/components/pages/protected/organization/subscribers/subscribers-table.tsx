@@ -9,7 +9,7 @@ import { Copy } from 'lucide-react'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { useCopyToClipboard } from '@uidotdev/usehooks'
-import { useToast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import { SubscriberActions } from './actions/subscriber-actions'
 import { useGetAllSubscribers } from '@/lib/graphql-hooks/subscribes'
 
@@ -23,15 +23,14 @@ export const SubscribersTable = () => {
   const [filteredSubscribers, setFilteredSubscribers] = useState<Subscriber[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [copiedText, copyToClipboard] = useCopyToClipboard()
-  const { toast } = useToast()
+  const { successNotification, errorNotification } = useNotification()
 
   const { data, isLoading, isError } = useGetAllSubscribers()
 
   useEffect(() => {
     if (copiedText) {
-      toast({
+      successNotification({
         title: 'Copied to clipboard',
-        variant: 'success',
       })
     }
   }, [copiedText])

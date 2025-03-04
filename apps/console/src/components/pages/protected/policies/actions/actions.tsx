@@ -1,29 +1,27 @@
 'use client'
 
 import { Edit, MoreHorizontal, Trash2 } from 'lucide-react'
-import { useToast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from '@repo/ui/alert-dialog'
-import { Button } from '@repo/ui/button'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { UseQueryExecute } from 'urql'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { useDeleteInternalPolicy } from '@/lib/graphql-hooks/policy'
 
 type PolicyActionsProps = {
   policyId: string
-  // refetchPolicies: UseQueryExecute
 }
 
 const ICON_SIZE = 12
 
-export const Actions = ({
-  policyId: policyId, // refetchPolicies: refetchPolicies,
-}: PolicyActionsProps) => {
+export const Actions = ({ policyId: policyId }: PolicyActionsProps) => {
   const router = useRouter()
   const { actionIcon } = pageStyles()
-  const { toast } = useToast()
+  const { successNotification, errorNotification } = useNotification()
 
-  // const [ _, deleteTemplate] = useDeletePolicyMutation()
+  const { mutateAsync: deletePolicy } = useDeleteInternalPolicy()
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
@@ -32,24 +30,14 @@ export const Actions = ({
   }
 
   const handleDeletePolicy = async () => {
-    // const response = await deletePolicy({ deletePolicyId: policyId })
-
-    // if (response.error) {
-    //   toast({
-    //     title: 'There was a problem deleting the policy, please try again',
-    //     variant: 'destructive',
-    //   })
-    // }
-
-    // if (response.data) {
-    toast({
-      title: 'Questionnaire deleted successfully',
-      variant: 'success',
-    })
-    // refetchPolicies({
-    //   requestPolicy: 'network-only',
-    // })
-    // }
+    try {
+      await deletePolicy({ deleteInternalPolicyId: policyId })
+      successNotification({
+        title: 'Questionnaire deleted successfully',
+      })
+    } catch (error) {
+      errorNotification({ title: 'Error deleting policy' })
+    }
   }
 
   return (
@@ -60,10 +48,11 @@ export const Actions = ({
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-10">
           <DropdownMenuGroup>
-            <DropdownMenuItem onSelect={handleEditPolicy}>
+            <DropdownMenuItem onSelect={handleEditPolicy} className="cursor-pointer">
               <Edit width={ICON_SIZE} /> Edit
             </DropdownMenuItem>
             <DropdownMenuItem
+              className="cursor-pointer"
               onClick={() => {
                 setIsDeleteDialogOpen(true)
               }}
@@ -74,32 +63,12 @@ export const Actions = ({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>This action cannot be undone, this will permanently remove the policy from the organization.</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel asChild>
-              <Button variant="outline">Cancel</Button>
-            </AlertDialogCancel>
-            <AlertDialogAction asChild>
-              <Button
-                variant="filled"
-                onClick={handleDeletePolicy}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handleDeletePolicy()
-                  }
-                }}
-              >
-                Delete Policy
-              </Button>
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmationDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={handleDeletePolicy}
+        description="This action cannot be undone, this will permanently remove the policy from the organization."
+      />
     </>
   )
 }

@@ -26207,6 +26207,26 @@ export type GetDashboardDataQuery = {
   organizations: { __typename?: 'OrganizationConnection'; edges?: Array<{ __typename?: 'OrganizationEdge'; node?: { __typename?: 'Organization'; id: string; name: string } | null } | null> | null }
 }
 
+export type CreateEvidenceMutationVariables = Exact<{
+  input: CreateEvidenceInput
+  evidenceFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
+}>
+
+export type CreateEvidenceMutation = { __typename?: 'Mutation'; createEvidence: { __typename?: 'EvidenceCreatePayload'; evidence: { __typename?: 'Evidence'; id: string } } }
+
+export type GetEvidenceFilesQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetEvidenceFilesQuery = {
+  __typename?: 'Query'
+  files: {
+    __typename?: 'FileConnection'
+    edges?: Array<{
+      __typename?: 'FileEdge'
+      node?: { __typename?: 'File'; id: string; providedFileName: string; presignedURL?: string | null; providedFileExtension: string; categoryType?: string | null; createdAt?: any | null } | null
+    } | null> | null
+  }
+}
+
 export type GetAllGroupsQueryVariables = Exact<{
   where?: InputMaybe<GroupWhereInput>
 }>
@@ -26694,6 +26714,7 @@ export type InternalPolicyByIdFragment = {
   status?: string | null
   purposeAndScope?: string | null
   policyType?: string | null
+  displayID: string
   procedures?: Array<{ __typename?: 'Procedure'; id: string; name: string }> | null
 }
 
@@ -26719,8 +26740,36 @@ export type GetInternalPolicyDetailsByIdQuery = {
     status?: string | null
     purposeAndScope?: string | null
     policyType?: string | null
+    displayID: string
     procedures?: Array<{ __typename?: 'Procedure'; id: string; name: string }> | null
   }
+}
+
+export type SearchInternalPoliciesQueryVariables = Exact<{
+  query: Scalars['String']['input']
+}>
+
+export type SearchInternalPoliciesQuery = {
+  __typename?: 'Query'
+  internalPolicySearch?: {
+    __typename?: 'InternalPolicySearchResult'
+    internalPolicies?: Array<{
+      __typename?: 'InternalPolicy'
+      id: string
+      name: string
+      background?: string | null
+      description?: string | null
+      displayID: string
+      purposeAndScope?: string | null
+      status?: string | null
+      version?: string | null
+      updatedAt?: any | null
+      updatedBy?: string | null
+      createdAt?: any | null
+      createdBy?: string | null
+      tags?: Array<string> | null
+    }> | null
+  } | null
 }
 
 export type CreateProcedureMutationVariables = Exact<{
@@ -26734,7 +26783,10 @@ export type UpdateProcedureMutationVariables = Exact<{
   input: UpdateProcedureInput
 }>
 
-export type UpdateProcedureMutation = { __typename?: 'Mutation'; updateProcedure: { __typename?: 'ProcedureUpdatePayload'; procedure: { __typename?: 'Procedure'; id: string; name: string } } }
+export type UpdateProcedureMutation = {
+  __typename?: 'Mutation'
+  updateProcedure: { __typename?: 'ProcedureUpdatePayload'; procedure: { __typename?: 'Procedure'; id: string; name: string; procedureType?: string | null } }
+}
 
 export type GetAllProceduresWithDetailsQueryVariables = Exact<{ [key: string]: never }>
 
@@ -26750,9 +26802,7 @@ export type GetAllProceduresWithDetailsQuery = {
         name: string
         background?: string | null
         description?: string | null
-        procedureType?: string | null
         purposeAndScope?: string | null
-        satisfies?: string | null
         status?: string | null
         version?: string | null
         updatedAt?: any | null
@@ -26773,7 +26823,25 @@ export type GetAllProceduresQuery = {
   __typename?: 'Query'
   procedures: {
     __typename?: 'ProcedureConnection'
-    edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string } | null } | null> | null
+    edges?: Array<{
+      __typename?: 'ProcedureEdge'
+      node?: {
+        __typename?: 'Procedure'
+        id: string
+        name: string
+        displayID: string
+        background?: string | null
+        description?: string | null
+        purposeAndScope?: string | null
+        status?: string | null
+        version?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        tags?: Array<string> | null
+      } | null
+    } | null> | null
   }
 }
 
@@ -26797,11 +26865,44 @@ export type GetProcedureDetailsByIdQuery = {
     tags?: Array<string> | null
     version?: string | null
     status?: string | null
-    satisfies?: string | null
     purposeAndScope?: string | null
     procedureType?: string | null
+    displayID: string
     internalPolicies?: Array<{ __typename?: 'InternalPolicy'; id: string; name: string }> | null
   }
+}
+
+export type DeleteProcedureMutationVariables = Exact<{
+  deleteProcedureId: Scalars['ID']['input']
+}>
+
+export type DeleteProcedureMutation = { __typename?: 'Mutation'; deleteProcedure: { __typename?: 'ProcedureDeletePayload'; deletedID: string } }
+
+export type SearchProceduresQueryVariables = Exact<{
+  query: Scalars['String']['input']
+}>
+
+export type SearchProceduresQuery = {
+  __typename?: 'Query'
+  procedureSearch?: {
+    __typename?: 'ProcedureSearchResult'
+    procedures?: Array<{
+      __typename?: 'Procedure'
+      id: string
+      name: string
+      background?: string | null
+      description?: string | null
+      displayID: string
+      purposeAndScope?: string | null
+      status?: string | null
+      version?: string | null
+      updatedAt?: any | null
+      updatedBy?: string | null
+      createdAt?: any | null
+      createdBy?: string | null
+      tags?: Array<string> | null
+    }> | null
+  } | null
 }
 
 export type CreateProgramWithMembersMutationVariables = Exact<{
@@ -26952,6 +27053,18 @@ export type SearchQuery = {
       | { __typename?: 'UserSettingSearchResult' }
     >
   } | null
+}
+
+export type GetAllSubcontrolsQueryVariables = Exact<{
+  where?: InputMaybe<SubcontrolWhereInput>
+}>
+
+export type GetAllSubcontrolsQuery = {
+  __typename?: 'Query'
+  subcontrols: {
+    __typename?: 'SubcontrolConnection'
+    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; name: string; displayID: string; description?: string | null } | null } | null> | null
+  }
 }
 
 export type CreateSubscriberMutationVariables = Exact<{

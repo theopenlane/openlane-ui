@@ -7,8 +7,8 @@ import BillingContactDialog from './billing-contract-dialog'
 import { useOrganization } from '@/hooks/useOrganization'
 import { billingSettingsStyles } from './billing-settings.styles'
 import { cn } from '@repo/ui/lib/utils'
-import { toast } from '@repo/ui/use-toast'
 import { useGetOrganizationSetting, useUpdateOrganization } from '@/lib/graphql-hooks/organization'
+import { useNotification } from '@/hooks/useNotification'
 
 const BillingSettings: React.FC = () => {
   const { panel, section, sectionContent, sectionTitle, emailText, paragraph, switchContainer, text } = billingSettingsStyles()
@@ -16,6 +16,7 @@ const BillingSettings: React.FC = () => {
   const { data: settingData } = useGetOrganizationSetting(currentOrgId)
   const { isPending, mutateAsync: updateOrg } = useUpdateOrganization()
   const billingAddress = settingData?.organization.setting?.billingAddress
+  const { successNotification, errorNotification } = useNotification()
   const formattedAddress = [billingAddress?.line1, billingAddress?.city, billingAddress?.postalCode].filter(Boolean).join(', ')
   const email = settingData?.organization.setting?.billingEmail || ''
 
@@ -31,16 +32,14 @@ const BillingSettings: React.FC = () => {
           updateOrgSettings: { billingNotificationsEnabled: checked },
         },
       })
-      toast({
+      successNotification({
         title: `Billing alerts successfully turned ${checked ? 'on' : 'off'}`,
-        variant: 'success',
       })
     } catch (error) {
       console.error('Error updating billing notifications:', error)
       setNotificationsEnabled(!checked)
-      toast({
+      errorNotification({
         title: `Something went wrong with turning ${checked ? 'on' : 'off'} the billing alerts!`,
-        variant: 'destructive',
       })
     }
   }

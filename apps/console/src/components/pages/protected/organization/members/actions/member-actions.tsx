@@ -1,7 +1,7 @@
 'use client'
 
 import { MoreHorizontal, Trash2, UserRoundPen } from 'lucide-react'
-import { useToast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import {
@@ -38,29 +38,24 @@ const ICON_SIZE = 12
 
 export const MemberActions = ({ memberId, memberRole }: MemberActionsProps) => {
   const { actionIcon, roleRow, buttonRow } = pageStyles()
-  const { toast } = useToast()
   const { mutateAsync: deleteMember } = useRemoveUserFromOrg()
   const { data: sessionData } = useSession()
   const userId = sessionData?.user.userId
   const queryClient = useQueryClient()
-
+  const { errorNotification, successNotification } = useNotification()
   const { data: userData } = useGetUserProfile(userId)
-
   const { data } = useUserHasOrganizationEditPermissions(sessionData)
 
   const handleDeleteMember = async () => {
     try {
-      const response = await deleteMember({ deleteOrgMembershipId: memberId })
-
-      toast({
+      await deleteMember({ deleteOrgMembershipId: memberId })
+      successNotification({
         title: 'Member deleted successfully',
-        variant: 'success',
       })
       queryClient.invalidateQueries({ queryKey: ['organizationsWithMembers', sessionData?.user.activeOrganizationId] })
     } catch {
-      toast({
+      errorNotification({
         title: 'There was a problem deleting the member, please try again',
-        variant: 'destructive',
       })
     }
   }
@@ -69,15 +64,16 @@ export const MemberActions = ({ memberId, memberRole }: MemberActionsProps) => {
   const handleChangeRole = async (role: OrgMembershipRole) => {
     try {
       await updateMember({ updateOrgMemberId: memberId, input: { role: role } })
-      toast({
-        title: 'There was a problem updating the member, please try again',
-        variant: 'destructive',
-      })
-      queryClient.invalidateQueries({ queryKey: ['organizationsWithMembers', sessionData?.user.activeOrganizationId] })
-    } catch (error) {
-      toast({
+      successNotification({
         title: 'Role changed successfully',
         variant: 'success',
+      })
+
+      queryClient.invalidateQueries({ queryKey: ['organizationsWithMembers', sessionData?.user.activeOrganizationId] })
+    } catch (error) {
+      errorNotification({
+        title: 'There was a problem updating the member, please try again',
+        variant: 'destructive',
       })
     }
   }

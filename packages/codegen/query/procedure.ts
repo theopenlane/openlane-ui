@@ -17,6 +17,7 @@ export const UPDATE_PROCEDURE = gql`
       procedure {
         id
         name
+        procedureType
       }
     }
   }
@@ -31,9 +32,7 @@ export const GET_ALL_PROCEDURES_WITH_DETAILS = gql`
           name
           background
           description
-          procedureType
           purposeAndScope
-          satisfies
           status
           version
           updatedAt
@@ -55,6 +54,20 @@ export const GET_ALL_PROCEDURES = gql`
           id
           name
           displayID
+          id
+          name
+          background
+          description
+          displayID
+          purposeAndScope
+          status
+          version
+          updatedAt
+
+          updatedBy
+          createdAt
+          createdBy
+          tags
         }
       }
     }
@@ -76,12 +89,42 @@ export const GET_PROCEDURE_DETAILS_BY_ID = gql`
       tags
       version
       status
-      satisfies
       purposeAndScope
       procedureType
+      displayID
       internalPolicies {
         id
         name
+      }
+    }
+  }
+`
+
+export const DELETE_PROCEDURE = gql`
+  mutation DeleteProcedure($deleteProcedureId: ID!) {
+    deleteProcedure(id: $deleteProcedureId) {
+      deletedID
+    }
+  }
+`
+
+export const SEARCH_PROCEDURES = gql`
+  query SearchProcedures($query: String!) {
+    procedureSearch(query: $query) {
+      procedures {
+        id
+        name
+        background
+        description
+        displayID
+        purposeAndScope
+        status
+        version
+        updatedAt
+        updatedBy
+        createdAt
+        createdBy
+        tags
       }
     }
   }

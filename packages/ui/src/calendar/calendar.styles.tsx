@@ -5,7 +5,7 @@ export const calendarStyles = tv({
     root: 'p-3 rounded-md shadow-md bg-background-secondary',
     months: 'flex flex-col relative  space-y-2 sm:space-x-4 sm:space-y-0',
     month: 'space-y-2',
-    caption: 'flex justify-center pt-1 absolute items-center text-center left-0 w-full top-[-6px]',
+    caption: 'flex justify-center pt-1 absolute items-center text-center left-0 w-full top-[-6px] pointer-events-none',
     caption_label: 'text-sm font-medium',
     nav: 'space-x-1 flex items-center justify-between ',
     nav_button: 'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',

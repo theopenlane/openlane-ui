@@ -1,6 +1,14 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { CREATE_PROCEDURE, UPDATE_PROCEDURE, GET_ALL_PROCEDURES_WITH_DETAILS, GET_ALL_PROCEDURES, GET_PROCEDURE_DETAILS_BY_ID } from '@repo/codegen/query/procedure' // Update import path as needed
+import {
+  CREATE_PROCEDURE,
+  UPDATE_PROCEDURE,
+  GET_ALL_PROCEDURES_WITH_DETAILS,
+  GET_ALL_PROCEDURES,
+  GET_PROCEDURE_DETAILS_BY_ID,
+  DELETE_PROCEDURE,
+  SEARCH_PROCEDURES,
+} from '@repo/codegen/query/procedure' // Update import path as needed
 
 import {
   CreateProcedureMutation,
@@ -12,6 +20,10 @@ import {
   GetAllProceduresQueryVariables,
   GetProcedureDetailsByIdQuery,
   GetProcedureDetailsByIdQueryVariables,
+  DeleteProcedureMutation,
+  DeleteProcedureMutationVariables,
+  SearchProceduresQuery,
+  SearchProceduresQueryVariables,
 } from '@repo/codegen/src/schema'
 
 export const useGetAllProceduresWithDetails = () => {
@@ -39,7 +51,7 @@ export const useGetProcedureDetailsById = (procedureId?: string) => {
   return useQuery<GetProcedureDetailsByIdQuery, GetProcedureDetailsByIdQueryVariables>({
     queryKey: ['procedure', procedureId],
     queryFn: () => client.request(GET_PROCEDURE_DETAILS_BY_ID, { procedureId }),
-    enabled: !!procedureId, // Only run if procedureId is defined
+    enabled: !!procedureId,
   })
 }
 
@@ -58,5 +70,27 @@ export const useUpdateProcedure = () => {
   return useMutation<UpdateProcedureMutation, unknown, UpdateProcedureMutationVariables>({
     mutationFn: (variables) => client.request(UPDATE_PROCEDURE, variables),
     // onSuccess: () => { /* Optional: invalidate queries here */ }
+  })
+}
+
+export const useDeleteProcedure = () => {
+  const { client } = useGraphQLClient()
+
+  return useMutation<DeleteProcedureMutation, unknown, DeleteProcedureMutationVariables>({
+    mutationFn: (variables) => client.request(DELETE_PROCEDURE, variables),
+    // onSuccess: () => { /* Optional: invalidate queries here */ }
+  })
+}
+
+export function useSearchProcedures(searchQuery: string) {
+  const { client } = useGraphQLClient()
+
+  return useQuery<SearchProceduresQuery, unknown>({
+    queryKey: ['searchProcedures', searchQuery],
+    queryFn: async () =>
+      client.request<SearchProceduresQuery, SearchProceduresQueryVariables>(SEARCH_PROCEDURES, {
+        query: searchQuery,
+      }),
+    enabled: !!searchQuery,
   })
 }

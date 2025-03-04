@@ -15,7 +15,7 @@ import { ProgramInviteComponent, programInviteSchema } from './wizard/step-3-tea
 import { ProgramObjectAssociationComponent, programObjectAssociationSchema } from './wizard/step-4-associate'
 import { CreateProgramWithMembersInput, ProgramMembershipRole } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
-import { toast } from '@repo/ui/use-toast'
+import { useNotification } from '@/hooks/useNotification'
 import { useRouter } from 'next/navigation'
 import { dialogStyles } from './dialog.styles'
 import { mapToNode } from './nodes'
@@ -33,6 +33,7 @@ const { useStepper, steps } = defineStepper(
 )
 
 const ProgramWizard = () => {
+  const { successNotification, errorNotification } = useNotification()
   // styles
   const { linkItem, formInput, buttonRow } = dialogStyles()
 
@@ -100,19 +101,15 @@ const ProgramWizard = () => {
       input: input,
     })
     if (isError) {
-      toast({
+      errorNotification({
         title: 'Error',
         description: 'There was an error creating the program. Please try again.',
-        variant: 'destructive',
-        duration: 5000,
       })
       return
     }
-    toast({
+    successNotification({
       title: 'Program Created',
       description: `Your program, ${resp?.createProgramWithMembers?.program?.name}, has been successfully created`,
-      variant: 'success',
-      duration: 5000,
     })
     router.push(`/programs?id=${resp?.createProgramWithMembers.program.id}`)
   }
@@ -127,11 +124,9 @@ const ProgramWizard = () => {
     setIsSubmitting(true)
 
     if (!isFullFormValid) {
-      toast({
+      errorNotification({
         title: 'Form Invalid',
         description: 'Please fill out all required fields',
-        variant: 'destructive',
-        duration: 5000,
       })
 
       setIsSubmitting(false)
