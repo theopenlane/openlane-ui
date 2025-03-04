@@ -102,7 +102,7 @@ export const useGetOrganizationBilling = (organizationId: string | undefined) =>
   })
 }
 
-export const useGetOrganizationSetting = (organizationId: string) => {
+export const useGetOrganizationSetting = (organizationId: string | undefined) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetOrganizationSettingQuery, GetOrganizationSettingQueryVariables>({

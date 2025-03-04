@@ -5,17 +5,17 @@ import { Button } from '@repo/ui/button'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
-import { useGetOrganizationSettingQuery, useUpdateOrganizationMutation } from '@repo/codegen/src/schema'
 import { useOrganization } from '@/hooks/useOrganization'
 import useClickOutside from '@/hooks/useClickOutside'
 import { toast } from '@repo/ui/use-toast'
+import { useGetOrganizationSetting, useUpdateOrganization } from '@/lib/graphql-hooks/organization'
 
 const libraries: any = ['places']
 
 const BillingContactDialog = () => {
   const { currentOrgId } = useOrganization()
-  const [setting] = useGetOrganizationSettingQuery({ pause: !currentOrgId, variables: { organizationId: currentOrgId } })
-  const [{ fetching: isSubmitting }, updateOrg] = useUpdateOrganizationMutation()
+  const { data: setting } = useGetOrganizationSetting(currentOrgId)
+  const { isPending, mutateAsync: updateOrg } = useUpdateOrganization()
   const wrapperRef = useClickOutside(() => setShowPredictions(false))
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
@@ -97,7 +97,7 @@ const BillingContactDialog = () => {
 
     try {
       await updateOrg({
-        updateOrganizationId: currentOrgId,
+        updateOrganizationId: currentOrgId!,
         input: {
           updateOrgSettings: {
             billingAddress: address,
@@ -118,12 +118,12 @@ const BillingContactDialog = () => {
   }
 
   useEffect(() => {
-    if (!setting.data) {
+    if (!setting) {
       return
     }
-    setAddress(setting.data.organization.setting?.billingAddress)
+    setAddress(setting.organization.setting?.billingAddress)
 
-    setFullName(setting.data.organization.setting?.billingContact || '')
+    setFullName(setting.organization.setting?.billingContact || '')
     return () => {}
   }, [setting])
 
@@ -195,8 +195,8 @@ const BillingContactDialog = () => {
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button className="w-full mt-4" type="submit" variant="filled" disabled={isSubmitting}>
-                {isSubmitting ? 'Saving...' : 'Save'}
+              <Button className="w-full mt-4" type="submit" variant="filled" disabled={isPending}>
+                {isPending ? 'Saving...' : 'Save'}
               </Button>
             </DialogClose>
           </DialogFooter>

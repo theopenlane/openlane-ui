@@ -4,47 +4,46 @@ import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import React, { useEffect, useState } from 'react'
 import { useOrganization } from '@/hooks/useOrganization'
-import { useGetOrganizationSettingQuery, useUpdateOrganizationMutation } from '@repo/codegen/src/schema'
 import { useToast } from '@repo/ui/use-toast'
+import { useGetOrganizationSetting, useUpdateOrganization } from '@/lib/graphql-hooks/organization'
 
 const BillingEmailDialog = () => {
   const { currentOrgId } = useOrganization()
   const [emailInput, setEmailInput] = useState('')
   const [isOpen, setIsOpen] = useState(false)
-  const [{ fetching: isSubmitting }, updateOrg] = useUpdateOrganizationMutation()
+  const { isPending, mutateAsync: updateOrg } = useUpdateOrganization()
   const { toast } = useToast()
 
-  const [settingData] = useGetOrganizationSettingQuery({ pause: !currentOrgId, variables: { organizationId: currentOrgId } })
+  const { data: settingData } = useGetOrganizationSetting(currentOrgId)
 
   useEffect(() => {
     if (isOpen) {
-      setEmailInput(settingData.data?.organization.setting?.billingEmail || '')
+      setEmailInput(settingData?.organization.setting?.billingEmail || '')
     }
   }, [settingData, isOpen])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    const resp = await updateOrg({
-      updateOrganizationId: currentOrgId,
-      input: {
-        updateOrgSettings: { billingEmail: emailInput },
-      },
-    })
+    try {
+      await updateOrg({
+        updateOrganizationId: currentOrgId!,
+        input: {
+          updateOrgSettings: { billingEmail: emailInput },
+        },
+      })
 
-    if (resp.error) {
+      toast({
+        title: `${emailInput} was successfully added as Billing Alert`,
+        variant: 'success',
+      })
+      setIsOpen(false)
+    } catch {
       toast({
         title: `Something went wrong with saving your email!`,
         variant: 'destructive',
       })
-      return
     }
-
-    toast({
-      title: `${emailInput} was successfully added as Billing Alert`,
-      variant: 'success',
-    })
-    setIsOpen(false)
   }
 
   return (
@@ -67,8 +66,8 @@ const BillingEmailDialog = () => {
           </div>
 
           <DialogFooter>
-            <Button className="w-full mt-4" variant="filled" type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Saving...' : 'Save'}
+            <Button className="w-full mt-4" variant="filled" type="submit" disabled={isPending}>
+              {isPending ? 'Saving...' : 'Save'}
             </Button>
           </DialogFooter>
         </form>
