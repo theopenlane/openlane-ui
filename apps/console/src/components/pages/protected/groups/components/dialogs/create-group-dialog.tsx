@@ -39,7 +39,6 @@ const CreateGroupDialog = ({ triggerText }: MyGroupsDialogProps) => {
   const { successNotification, errorNotification } = useNotification()
 
   const { data: membersData } = useGetSingleOrganizationMembers(session?.user.activeOrganizationId)
-
   const membersOptions = membersData?.organization?.members
     ?.filter((member) => member.user.id !== session?.user.userId)
     .map((member) => ({

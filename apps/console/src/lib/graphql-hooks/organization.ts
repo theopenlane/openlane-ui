@@ -123,17 +123,15 @@ export const useGetBillingEmail = (organizationId: string | undefined) => {
 }
 
 export const useCreateOrganization = () => {
-  const { client } = useGraphQLClient()
+  const { client, queryClient } = useGraphQLClient()
 
   return useMutation<{ data: CreateOrganizationMutation; extensions?: Record<string, any> }, unknown, CreateOrganizationMutationVariables>({
     mutationFn: async (input) => {
       const response: any = await client.rawRequest(CREATE_ORGANIZATION, input)
-
-      if (!response.data) {
-        throw new Error('No data returned from createOrganization mutation')
-      }
-
       return { data: response.data, extensions: response.extensions ?? {} }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['organizationsWithMembers'] })
     },
   })
 }

@@ -55,7 +55,7 @@ export const useCreateInternalPolicy = () => {
 }
 
 export const useUpdateInternalPolicy = () => {
-  const { client } = useGraphQLClient()
+  const { client, queryClient } = useGraphQLClient()
 
   return useMutation<UpdateInternalPolicyMutation, unknown, UpdateInternalPolicyMutationVariables>({
     mutationFn: async (variables) => {

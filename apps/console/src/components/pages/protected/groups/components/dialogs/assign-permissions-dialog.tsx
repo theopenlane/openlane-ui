@@ -82,7 +82,7 @@ const AssignPermissionsDialog = () => {
   const selectedQuery = selectedObject && OBJECT_TYPE_CONFIG[selectedObject].queryDocument
 
   const { data } = useQuery<AllQueriesData>({
-    queryKey: ['risks', { debouncedSearchValue, selectedGroup, selectedObject }],
+    queryKey: ['assignPermissionCustom', { debouncedSearchValue, selectedGroup, selectedObject }],
     queryFn: () =>
       client.request(
         selectedQuery || GET_ALL_RISKS,

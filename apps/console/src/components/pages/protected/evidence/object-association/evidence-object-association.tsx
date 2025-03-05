@@ -5,10 +5,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/selec
 import { Label } from '@repo/ui/label'
 import { Input } from '@repo/ui/input'
 import debounce from 'lodash.debounce'
-import { useQuery } from 'urql'
 import EvidenceObjectAssociationTable from '@/components/pages/protected/evidence/object-association/evidence-object-association-table'
-import { EVIDENCE_OBJECT_CONFIG, EvidenceObjects } from '@/components/pages/protected/evidence/util/evidence'
+import { AllEvidenceQueriesData, AllEvidenceQueriesDataKey, EVIDENCE_OBJECT_CONFIG, EvidenceObjects } from '@/components/pages/protected/evidence/util/evidence'
 import { GET_ALL_RISKS } from '@repo/codegen/query/risks'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
 type TProps = {
   onEvidenceObjectIdsChange: (evidenceObjectiveIDs: TEvidenceObjectIds[]) => void
@@ -17,6 +18,7 @@ type TProps = {
 }
 
 const EvidenceObjectAssociation: React.FC<TProps> = (props: TProps) => {
+  const { client } = useGraphQLClient()
   const [selectedObject, setSelectedObject] = useState<EvidenceObjects | null>(null)
   const [searchValue, setSearchValue] = useState('')
   const [formData, setFormData] = useState<TFormDataResponse[]>([])
@@ -35,21 +37,23 @@ const EvidenceObjectAssociation: React.FC<TProps> = (props: TProps) => {
     ...(objectKey === 'tasks' ? { titleContainsFold: debouncedSearchValue } : { nameContainsFold: debouncedSearchValue }),
   }
 
-  const [{ data }] = useQuery({
-    query: selectedQuery || GET_ALL_RISKS,
-    variables: { where: whereFilter },
-    pause: !selectedQuery,
+  console.log('selectedQuery', selectedQuery)
+
+  const { data } = useQuery<AllEvidenceQueriesData>({
+    queryKey: ['evidenceFilter', whereFilter],
+    queryFn: async () => client.request(selectedQuery || GET_ALL_RISKS, { where: whereFilter }),
+    enabled: !!selectedQuery,
   })
 
   useEffect(() => {
     if (objectKey && data) {
       const updatedData =
-        data[objectKey]?.edges.map((item: any) => {
+        data[objectKey]?.edges?.map((item: any) => {
           return {
-            id: item?.node?.id,
-            name: item?.node?.name,
-            description: item?.node?.description,
-            inputName: inputName,
+            id: item?.node?.id || '',
+            name: item?.node?.name || '',
+            description: item?.node?.description || '',
+            inputName: inputName || '',
           }
         }) || []
 

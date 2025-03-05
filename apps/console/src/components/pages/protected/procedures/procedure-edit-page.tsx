@@ -14,6 +14,7 @@ import { ProcedureEditForm } from './procedure-edit-form'
 import { useNotification } from '@/hooks/useNotification'
 import { useGetProcedureDetailsById, useUpdateProcedure } from '@/lib/graphql-hooks/procedures'
 import { Procedure } from '@repo/codegen/src/schema'
+import { useQueryClient } from '@tanstack/react-query'
 
 type ProcedureEditPageProps = {
   procedureId: string
@@ -21,8 +22,8 @@ type ProcedureEditPageProps = {
 
 export function ProcedureEditPage({ procedureId }: ProcedureEditPageProps) {
   const router = useRouter()
-  const { toast } = useToast()
   const { successNotification, errorNotification } = useNotification()
+  const queryClient = useQueryClient()
 
   const { isPending: saving, mutateAsync: updateProcedure } = useUpdateProcedure()
   const { data: procedureData } = useGetProcedureDetailsById(procedureId)
@@ -94,6 +95,12 @@ export function ProcedureEditPage({ procedureId }: ProcedureEditPageProps) {
         },
       })
       successNotification({ title: 'Procedure updated' })
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const [firstKey, secondKey] = query.queryKey
+          return firstKey === 'policies' || (firstKey === 'policy' && secondKey === procedureData?.procedure.id)
+        },
+      })
     } catch {
       errorNotification({ title: 'Failed to save Procedure' }) // TODO:  gqlError:error ass error to notification
     }

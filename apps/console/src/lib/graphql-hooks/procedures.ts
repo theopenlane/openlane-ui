@@ -69,7 +69,6 @@ export const useUpdateProcedure = () => {
 
   return useMutation<UpdateProcedureMutation, unknown, UpdateProcedureMutationVariables>({
     mutationFn: (variables) => client.request(UPDATE_PROCEDURE, variables),
-    // onSuccess: () => { /* Optional: invalidate queries here */ }
   })
 }
 

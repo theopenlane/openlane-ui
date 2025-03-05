@@ -13,6 +13,7 @@ import { Eye } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useNotification } from '@/hooks/useNotification'
 import { useGetInternalPolicyDetailsById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy'
+import { useQueryClient } from '@tanstack/react-query'
 
 type PolicyEditPageProps = {
   policyId: string
@@ -21,7 +22,7 @@ type PolicyEditPageProps = {
 export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
   const router = useRouter()
   const { errorNotification, successNotification } = useNotification()
-
+  const queryClient = useQueryClient()
   const { isPending: saving, mutateAsync: updatePolicy } = useUpdateInternalPolicy()
   const { data: policyData } = useGetInternalPolicyDetailsById(policyId)
   const [policy, setPolicy] = useState(policyData?.internalPolicy ?? ({} as InternalPolicyByIdFragment))
@@ -94,6 +95,12 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
         },
       })
       successNotification({ title: 'Policy updated' })
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const [firstKey, secondKey] = query.queryKey
+          return firstKey === 'internalPolicies' || (firstKey === 'internalPolicy' && secondKey === policyData?.internalPolicy.id)
+        },
+      })
     } catch {
       errorNotification({ title: 'Failed to save Policy' })
       //  gqlError: error todo: pass graphql error

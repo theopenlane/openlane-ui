@@ -4,6 +4,31 @@ import { GET_ALL_PROGRAMS } from '@repo/codegen/query/programs'
 import { GET_ALL_SUBCONTROLS } from '@repo/codegen/query/subcontrol'
 import { TASKS_WITH_FILTER } from '@repo/codegen/query/tasks'
 
+import { Control, Subcontrol, ControlObjective, Program, TaskEdge } from '@repo/codegen/src/schema'
+
+/**
+ * Defines the data shape for all evidence object types, keyed by their respective property.
+ */
+export type AllEvidenceQueriesData = {
+  controls?: {
+    edges?: Array<{ node: Control }>
+  }
+  subcontrols?: {
+    edges?: Array<{ node: Subcontrol }>
+  }
+  controlObjectives?: {
+    edges?: Array<{ node: ControlObjective }>
+  }
+  programs?: {
+    edges?: Array<{ node: Program }>
+  }
+  tasks?: {
+    edges?: Array<{ node: TaskEdge }>
+  }
+}
+
+export type AllEvidenceQueriesDataKey = keyof AllEvidenceQueriesData
+
 export enum EvidenceObjects {
   CONTROL = 'Control',
   SUB_CONTROL = 'Subcontrol',
@@ -13,7 +38,7 @@ export enum EvidenceObjects {
 }
 
 type TEvidenceObjectConfig = {
-  responseObjectKey: string
+  responseObjectKey: AllEvidenceQueriesDataKey
   queryDocument: any
   inputName: string
   placeholder: string
