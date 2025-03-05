@@ -6,8 +6,10 @@ import React, { useEffect, useState } from 'react'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useGetOrganizationSetting, useUpdateOrganization } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
+import { useQueryClient } from '@tanstack/react-query'
 
 const BillingEmailDialog = () => {
+  const queryClient = useQueryClient()
   const { currentOrgId } = useOrganization()
   const [emailInput, setEmailInput] = useState('')
   const [isOpen, setIsOpen] = useState(false)
@@ -32,6 +34,8 @@ const BillingEmailDialog = () => {
           updateOrgSettings: { billingEmail: emailInput },
         },
       })
+      queryClient.invalidateQueries({ queryKey: ['organizationSetting', currentOrgId] })
+
       successNotification({
         title: `${emailInput} was successfully added as Billing Alert`,
       })

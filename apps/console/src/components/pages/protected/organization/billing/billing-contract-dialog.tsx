@@ -9,10 +9,12 @@ import { useOrganization } from '@/hooks/useOrganization'
 import useClickOutside from '@/hooks/useClickOutside'
 import { useGetOrganizationSetting, useUpdateOrganization } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
+import { useQueryClient } from '@tanstack/react-query'
 
 const libraries: any = ['places']
 
 const BillingContactDialog = () => {
+  const queryClient = useQueryClient()
   const { currentOrgId } = useOrganization()
   const { data: setting } = useGetOrganizationSetting(currentOrgId)
   const { isPending, mutateAsync: updateOrg } = useUpdateOrganization()
@@ -106,6 +108,7 @@ const BillingContactDialog = () => {
           },
         },
       })
+      queryClient.invalidateQueries({ queryKey: ['organizationSetting', currentOrgId] })
       successNotification({
         title: `Successfully saved your billing address!`,
       })

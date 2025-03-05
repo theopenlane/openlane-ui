@@ -10,8 +10,10 @@ import { useEffect, useState } from 'react'
 import { RESET_SUCCESS_STATE_MS } from '@/constants'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useGetBillingEmail, useUpdateOrganization } from '@/lib/graphql-hooks/organization'
+import { useQueryClient } from '@tanstack/react-query'
 
 const OrganizationEmailForm = () => {
+  const queryClient = useQueryClient()
   const [isSuccess, setIsSuccess] = useState(false)
   const { isPending, mutateAsync: updateOrg } = useUpdateOrganization()
   const { currentOrgId } = useOrganization()
@@ -54,6 +56,7 @@ const OrganizationEmailForm = () => {
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     await updateOrganization({ email: data.email })
+    queryClient.invalidateQueries({ queryKey: ['billingEmail', currentOrgId] })
   }
 
   useEffect(() => {

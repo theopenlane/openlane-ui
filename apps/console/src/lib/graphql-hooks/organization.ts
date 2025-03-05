@@ -138,11 +138,10 @@ export const useCreateOrganization = () => {
 }
 
 export const useUpdateOrganization = () => {
-  const { client, queryClient } = useGraphQLClient()
+  const { client } = useGraphQLClient()
 
   return useMutation<UpdateOrganizationMutation, unknown, UpdateOrganizationMutationVariables>({
     mutationFn: async (payload) => client.request(UPDATE_ORGANIZATION, payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['organizations'] }),
   })
 }
 

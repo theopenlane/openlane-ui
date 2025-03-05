@@ -30,12 +30,12 @@ export const TokenAction = ({ tokenId }: TokenActionProps) => {
   const handleDeleteToken = async () => {
     try {
       isOrg ? await deleteApiToken({ deleteAPITokenId: tokenId }) : await deletePersonalToken({ deletePersonalAccessTokenId: tokenId })
-      errorNotification({
-        title: 'There was a problem deleting this token, please try again',
-      })
-    } catch (error) {
       successNotification({
         title: 'Token deleted successfully',
+      })
+    } catch (error) {
+      errorNotification({
+        title: 'There was a problem deleting this token, please try again',
       })
       setDialogOpen(false)
       setMenuOpen(false)
