@@ -29,7 +29,6 @@ export const PersonalAccessTokenTable = () => {
 
   const { data, isFetching, isError } = isOrg ? useGetApiTokens() : useGetPersonalAccessTokens()
 
-  // if (isFetching) return <p>Loading...</p>
   if (isError || !data) return null
 
   const tokens: TokenNode[] = isOrg
