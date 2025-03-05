@@ -60,7 +60,7 @@ export const PoliciesTable = () => {
 
   const handleCreateNew = async () => {
     const data = await createPolicy({
-      input: { name: 'Untitled Policy', status: 'new', version: '0.0.0', policyType: 'unknown' },
+      input: { name: 'Untitled Policy', status: 'new', version: '0.0.0' },
     })
 
     if (data.createInternalPolicy) {
