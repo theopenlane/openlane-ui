@@ -40,12 +40,20 @@ export interface ApiToken extends Node {
   /** when the token expires */
   expiresAt?: Maybe<Scalars['Time']['output']>
   id: Scalars['ID']['output']
+  /** whether the token is active */
+  isActive?: Maybe<Scalars['Boolean']['output']>
   lastUsedAt?: Maybe<Scalars['Time']['output']>
   /** the name associated with the token */
   name: Scalars['String']['output']
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  /** when the token was revoked */
+  revokedAt?: Maybe<Scalars['Time']['output']>
+  /** the user who revoked the token */
+  revokedBy?: Maybe<Scalars['String']['output']>
+  /** the reason the token was revoked */
+  revokedReason?: Maybe<Scalars['String']['output']>
   scopes?: Maybe<Array<Scalars['String']['output']>>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
@@ -192,6 +200,11 @@ export interface ApiTokenWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** is_active field predicates */
+  isActive?: InputMaybe<Scalars['Boolean']['input']>
+  isActiveIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  isActiveNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  isActiveNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** last_used_at field predicates */
   lastUsedAt?: InputMaybe<Scalars['Time']['input']>
   lastUsedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -235,6 +248,49 @@ export interface ApiTokenWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** revoked_at field predicates */
+  revokedAt?: InputMaybe<Scalars['Time']['input']>
+  revokedAtGT?: InputMaybe<Scalars['Time']['input']>
+  revokedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  revokedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  revokedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  revokedAtLT?: InputMaybe<Scalars['Time']['input']>
+  revokedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  revokedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  revokedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  revokedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** revoked_by field predicates */
+  revokedBy?: InputMaybe<Scalars['String']['input']>
+  revokedByContains?: InputMaybe<Scalars['String']['input']>
+  revokedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  revokedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  revokedByGT?: InputMaybe<Scalars['String']['input']>
+  revokedByGTE?: InputMaybe<Scalars['String']['input']>
+  revokedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  revokedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  revokedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  revokedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  revokedByLT?: InputMaybe<Scalars['String']['input']>
+  revokedByLTE?: InputMaybe<Scalars['String']['input']>
+  revokedByNEQ?: InputMaybe<Scalars['String']['input']>
+  revokedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  revokedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** revoked_reason field predicates */
+  revokedReason?: InputMaybe<Scalars['String']['input']>
+  revokedReasonContains?: InputMaybe<Scalars['String']['input']>
+  revokedReasonContainsFold?: InputMaybe<Scalars['String']['input']>
+  revokedReasonEqualFold?: InputMaybe<Scalars['String']['input']>
+  revokedReasonGT?: InputMaybe<Scalars['String']['input']>
+  revokedReasonGTE?: InputMaybe<Scalars['String']['input']>
+  revokedReasonHasPrefix?: InputMaybe<Scalars['String']['input']>
+  revokedReasonHasSuffix?: InputMaybe<Scalars['String']['input']>
+  revokedReasonIn?: InputMaybe<Array<Scalars['String']['input']>>
+  revokedReasonIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  revokedReasonLT?: InputMaybe<Scalars['String']['input']>
+  revokedReasonLTE?: InputMaybe<Scalars['String']['input']>
+  revokedReasonNEQ?: InputMaybe<Scalars['String']['input']>
+  revokedReasonNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  revokedReasonNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -3284,10 +3340,18 @@ export interface CreateApiTokenInput {
   description?: InputMaybe<Scalars['String']['input']>
   /** when the token expires */
   expiresAt?: InputMaybe<Scalars['Time']['input']>
+  /** whether the token is active */
+  isActive?: InputMaybe<Scalars['Boolean']['input']>
   lastUsedAt?: InputMaybe<Scalars['Time']['input']>
   /** the name associated with the token */
   name: Scalars['String']['input']
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** when the token was revoked */
+  revokedAt?: InputMaybe<Scalars['Time']['input']>
+  /** the user who revoked the token */
+  revokedBy?: InputMaybe<Scalars['String']['input']>
+  /** the reason the token was revoked */
+  revokedReason?: InputMaybe<Scalars['String']['input']>
   scopes?: InputMaybe<Array<Scalars['String']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
@@ -3949,11 +4013,19 @@ export interface CreatePersonalAccessTokenInput {
   eventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** when the token expires */
   expiresAt?: InputMaybe<Scalars['Time']['input']>
+  /** whether the token is active */
+  isActive?: InputMaybe<Scalars['Boolean']['input']>
   lastUsedAt?: InputMaybe<Scalars['Time']['input']>
   /** the name associated with the token */
   name: Scalars['String']['input']
   organizationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerID: Scalars['ID']['input']
+  /** when the token was revoked */
+  revokedAt?: InputMaybe<Scalars['Time']['input']>
+  /** the user who revoked the token */
+  revokedBy?: InputMaybe<Scalars['String']['input']>
+  /** the reason the token was revoked */
+  revokedReason?: InputMaybe<Scalars['String']['input']>
   scopes?: InputMaybe<Array<Scalars['String']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
@@ -13755,8 +13827,11 @@ export interface OrgSubscription extends Node {
   active: Scalars['Boolean']['output']
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
+  /** number of days until there is a due payment */
+  daysUntilDue?: Maybe<Scalars['String']['output']>
   deletedAt?: Maybe<Scalars['Time']['output']>
   deletedBy?: Maybe<Scalars['String']['output']>
+  events?: Maybe<Array<Event>>
   /** the time the subscription is set to expire; only populated if subscription is cancelled */
   expiresAt?: Maybe<Scalars['Time']['output']>
   /** the feature lookup keys associated with the subscription */
@@ -13767,6 +13842,8 @@ export interface OrgSubscription extends Node {
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  /** whether or not a payment method has been added to the account */
+  paymentMethodAdded?: Maybe<Scalars['Boolean']['output']>
   /** the price of the product tier */
   productPrice?: Maybe<Scalars['Price']['output']>
   /** the common name of the product tier the subscription is associated with, e.g. starter tier */
@@ -13782,6 +13859,8 @@ export interface OrgSubscription extends Node {
   subscriptionURL?: Maybe<Scalars['String']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
+  /** the time the trial is set to expire */
+  trialExpiresAt?: Maybe<Scalars['Time']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
 }
@@ -13812,6 +13891,8 @@ export interface OrgSubscriptionHistory extends Node {
   active: Scalars['Boolean']['output']
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
+  /** number of days until there is a due payment */
+  daysUntilDue?: Maybe<Scalars['String']['output']>
   deletedAt?: Maybe<Scalars['Time']['output']>
   deletedBy?: Maybe<Scalars['String']['output']>
   /** the time the subscription is set to expire; only populated if subscription is cancelled */
@@ -13825,6 +13906,8 @@ export interface OrgSubscriptionHistory extends Node {
   operation: OrgSubscriptionHistoryOpType
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['String']['output']>
+  /** whether or not a payment method has been added to the account */
+  paymentMethodAdded?: Maybe<Scalars['Boolean']['output']>
   /** the price of the product tier */
   productPrice?: Maybe<Scalars['Price']['output']>
   /** the common name of the product tier the subscription is associated with, e.g. starter tier */
@@ -13840,6 +13923,8 @@ export interface OrgSubscriptionHistory extends Node {
   stripeSubscriptionStatus?: Maybe<Scalars['String']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
+  /** the time the trial is set to expire */
+  trialExpiresAt?: Maybe<Scalars['Time']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
 }
@@ -13907,6 +13992,22 @@ export interface OrgSubscriptionHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** days_until_due field predicates */
+  daysUntilDue?: InputMaybe<Scalars['String']['input']>
+  daysUntilDueContains?: InputMaybe<Scalars['String']['input']>
+  daysUntilDueContainsFold?: InputMaybe<Scalars['String']['input']>
+  daysUntilDueEqualFold?: InputMaybe<Scalars['String']['input']>
+  daysUntilDueGT?: InputMaybe<Scalars['String']['input']>
+  daysUntilDueGTE?: InputMaybe<Scalars['String']['input']>
+  daysUntilDueHasPrefix?: InputMaybe<Scalars['String']['input']>
+  daysUntilDueHasSuffix?: InputMaybe<Scalars['String']['input']>
+  daysUntilDueIn?: InputMaybe<Array<Scalars['String']['input']>>
+  daysUntilDueIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  daysUntilDueLT?: InputMaybe<Scalars['String']['input']>
+  daysUntilDueLTE?: InputMaybe<Scalars['String']['input']>
+  daysUntilDueNEQ?: InputMaybe<Scalars['String']['input']>
+  daysUntilDueNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  daysUntilDueNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** deleted_at field predicates */
   deletedAt?: InputMaybe<Scalars['Time']['input']>
   deletedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -13988,6 +14089,11 @@ export interface OrgSubscriptionHistoryWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** payment_method_added field predicates */
+  paymentMethodAdded?: InputMaybe<Scalars['Boolean']['input']>
+  paymentMethodAddedIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  paymentMethodAddedNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  paymentMethodAddedNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** product_tier field predicates */
   productTier?: InputMaybe<Scalars['String']['input']>
   productTierContains?: InputMaybe<Scalars['String']['input']>
@@ -14084,6 +14190,17 @@ export interface OrgSubscriptionHistoryWhereInput {
   stripeSubscriptionStatusNEQ?: InputMaybe<Scalars['String']['input']>
   stripeSubscriptionStatusNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   stripeSubscriptionStatusNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** trial_expires_at field predicates */
+  trialExpiresAt?: InputMaybe<Scalars['Time']['input']>
+  trialExpiresAtGT?: InputMaybe<Scalars['Time']['input']>
+  trialExpiresAtGTE?: InputMaybe<Scalars['Time']['input']>
+  trialExpiresAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  trialExpiresAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  trialExpiresAtLT?: InputMaybe<Scalars['Time']['input']>
+  trialExpiresAtLTE?: InputMaybe<Scalars['Time']['input']>
+  trialExpiresAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  trialExpiresAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  trialExpiresAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -14154,6 +14271,22 @@ export interface OrgSubscriptionWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** days_until_due field predicates */
+  daysUntilDue?: InputMaybe<Scalars['String']['input']>
+  daysUntilDueContains?: InputMaybe<Scalars['String']['input']>
+  daysUntilDueContainsFold?: InputMaybe<Scalars['String']['input']>
+  daysUntilDueEqualFold?: InputMaybe<Scalars['String']['input']>
+  daysUntilDueGT?: InputMaybe<Scalars['String']['input']>
+  daysUntilDueGTE?: InputMaybe<Scalars['String']['input']>
+  daysUntilDueHasPrefix?: InputMaybe<Scalars['String']['input']>
+  daysUntilDueHasSuffix?: InputMaybe<Scalars['String']['input']>
+  daysUntilDueIn?: InputMaybe<Array<Scalars['String']['input']>>
+  daysUntilDueIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  daysUntilDueLT?: InputMaybe<Scalars['String']['input']>
+  daysUntilDueLTE?: InputMaybe<Scalars['String']['input']>
+  daysUntilDueNEQ?: InputMaybe<Scalars['String']['input']>
+  daysUntilDueNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  daysUntilDueNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** deleted_at field predicates */
   deletedAt?: InputMaybe<Scalars['Time']['input']>
   deletedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -14192,6 +14325,9 @@ export interface OrgSubscriptionWhereInput {
   expiresAtNEQ?: InputMaybe<Scalars['Time']['input']>
   expiresAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
   expiresAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** events edge predicates */
+  hasEvents?: InputMaybe<Scalars['Boolean']['input']>
+  hasEventsWith?: InputMaybe<Array<EventWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
@@ -14224,6 +14360,11 @@ export interface OrgSubscriptionWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** payment_method_added field predicates */
+  paymentMethodAdded?: InputMaybe<Scalars['Boolean']['input']>
+  paymentMethodAddedIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  paymentMethodAddedNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  paymentMethodAddedNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** product_tier field predicates */
   productTier?: InputMaybe<Scalars['String']['input']>
   productTierContains?: InputMaybe<Scalars['String']['input']>
@@ -14304,6 +14445,17 @@ export interface OrgSubscriptionWhereInput {
   stripeSubscriptionStatusNEQ?: InputMaybe<Scalars['String']['input']>
   stripeSubscriptionStatusNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   stripeSubscriptionStatusNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** trial_expires_at field predicates */
+  trialExpiresAt?: InputMaybe<Scalars['Time']['input']>
+  trialExpiresAtGT?: InputMaybe<Scalars['Time']['input']>
+  trialExpiresAtGTE?: InputMaybe<Scalars['Time']['input']>
+  trialExpiresAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  trialExpiresAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  trialExpiresAtLT?: InputMaybe<Scalars['Time']['input']>
+  trialExpiresAtLTE?: InputMaybe<Scalars['Time']['input']>
+  trialExpiresAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  trialExpiresAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  trialExpiresAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -15695,12 +15847,20 @@ export interface PersonalAccessToken extends Node {
   /** when the token expires */
   expiresAt?: Maybe<Scalars['Time']['output']>
   id: Scalars['ID']['output']
+  /** whether the token is active */
+  isActive?: Maybe<Scalars['Boolean']['output']>
   lastUsedAt?: Maybe<Scalars['Time']['output']>
   /** the name associated with the token */
   name: Scalars['String']['output']
   /** the organization(s) the token is associated with */
   organizations?: Maybe<Array<Organization>>
   owner: User
+  /** when the token was revoked */
+  revokedAt?: Maybe<Scalars['Time']['output']>
+  /** the user who revoked the token */
+  revokedBy?: Maybe<Scalars['String']['output']>
+  /** the reason the token was revoked */
+  revokedReason?: Maybe<Scalars['String']['output']>
   scopes?: Maybe<Array<Scalars['String']['output']>>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
@@ -15853,6 +16013,11 @@ export interface PersonalAccessTokenWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** is_active field predicates */
+  isActive?: InputMaybe<Scalars['Boolean']['input']>
+  isActiveIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  isActiveNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  isActiveNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** last_used_at field predicates */
   lastUsedAt?: InputMaybe<Scalars['Time']['input']>
   lastUsedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -15880,6 +16045,49 @@ export interface PersonalAccessTokenWhereInput {
   nameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   not?: InputMaybe<PersonalAccessTokenWhereInput>
   or?: InputMaybe<Array<PersonalAccessTokenWhereInput>>
+  /** revoked_at field predicates */
+  revokedAt?: InputMaybe<Scalars['Time']['input']>
+  revokedAtGT?: InputMaybe<Scalars['Time']['input']>
+  revokedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  revokedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  revokedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  revokedAtLT?: InputMaybe<Scalars['Time']['input']>
+  revokedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  revokedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  revokedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  revokedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** revoked_by field predicates */
+  revokedBy?: InputMaybe<Scalars['String']['input']>
+  revokedByContains?: InputMaybe<Scalars['String']['input']>
+  revokedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  revokedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  revokedByGT?: InputMaybe<Scalars['String']['input']>
+  revokedByGTE?: InputMaybe<Scalars['String']['input']>
+  revokedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  revokedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  revokedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  revokedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  revokedByLT?: InputMaybe<Scalars['String']['input']>
+  revokedByLTE?: InputMaybe<Scalars['String']['input']>
+  revokedByNEQ?: InputMaybe<Scalars['String']['input']>
+  revokedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  revokedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** revoked_reason field predicates */
+  revokedReason?: InputMaybe<Scalars['String']['input']>
+  revokedReasonContains?: InputMaybe<Scalars['String']['input']>
+  revokedReasonContainsFold?: InputMaybe<Scalars['String']['input']>
+  revokedReasonEqualFold?: InputMaybe<Scalars['String']['input']>
+  revokedReasonGT?: InputMaybe<Scalars['String']['input']>
+  revokedReasonGTE?: InputMaybe<Scalars['String']['input']>
+  revokedReasonHasPrefix?: InputMaybe<Scalars['String']['input']>
+  revokedReasonHasSuffix?: InputMaybe<Scalars['String']['input']>
+  revokedReasonIn?: InputMaybe<Array<Scalars['String']['input']>>
+  revokedReasonIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  revokedReasonLT?: InputMaybe<Scalars['String']['input']>
+  revokedReasonLTE?: InputMaybe<Scalars['String']['input']>
+  revokedReasonNEQ?: InputMaybe<Scalars['String']['input']>
+  revokedReasonNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  revokedReasonNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -23156,16 +23364,28 @@ export interface UpdateApiTokenInput {
   appendScopes?: InputMaybe<Array<Scalars['String']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
+  clearIsActive?: InputMaybe<Scalars['Boolean']['input']>
   clearLastUsedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearRevokedAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearRevokedBy?: InputMaybe<Scalars['Boolean']['input']>
+  clearRevokedReason?: InputMaybe<Scalars['Boolean']['input']>
   clearScopes?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   /** a description of the token's purpose */
   description?: InputMaybe<Scalars['String']['input']>
+  /** whether the token is active */
+  isActive?: InputMaybe<Scalars['Boolean']['input']>
   lastUsedAt?: InputMaybe<Scalars['Time']['input']>
   /** the name associated with the token */
   name?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** when the token was revoked */
+  revokedAt?: InputMaybe<Scalars['Time']['input']>
+  /** the user who revoked the token */
+  revokedBy?: InputMaybe<Scalars['String']['input']>
+  /** the reason the token was revoked */
+  revokedReason?: InputMaybe<Scalars['String']['input']>
   scopes?: InputMaybe<Array<Scalars['String']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
@@ -24215,17 +24435,29 @@ export interface UpdatePersonalAccessTokenInput {
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
+  clearIsActive?: InputMaybe<Scalars['Boolean']['input']>
   clearLastUsedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearOrganizations?: InputMaybe<Scalars['Boolean']['input']>
+  clearRevokedAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearRevokedBy?: InputMaybe<Scalars['Boolean']['input']>
+  clearRevokedReason?: InputMaybe<Scalars['Boolean']['input']>
   clearScopes?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   /** a description of the token's purpose */
   description?: InputMaybe<Scalars['String']['input']>
+  /** whether the token is active */
+  isActive?: InputMaybe<Scalars['Boolean']['input']>
   lastUsedAt?: InputMaybe<Scalars['Time']['input']>
   /** the name associated with the token */
   name?: InputMaybe<Scalars['String']['input']>
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeOrganizationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** when the token was revoked */
+  revokedAt?: InputMaybe<Scalars['Time']['input']>
+  /** the user who revoked the token */
+  revokedBy?: InputMaybe<Scalars['String']['input']>
+  /** the reason the token was revoked */
+  revokedReason?: InputMaybe<Scalars['String']['input']>
   scopes?: InputMaybe<Array<Scalars['String']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>

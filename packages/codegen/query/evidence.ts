@@ -1,4 +1,4 @@
-import { gql } from 'graphql-tag'
+import { gql } from 'graphql-request'
 
 export const CREATE_EVIDENCE = gql`
   mutation CreateEvidence($input: CreateEvidenceInput!, $evidenceFiles: [Upload!]) {

@@ -1,4 +1,3 @@
-// fetchGraphQLWithUpload.ts
 import { getSession } from 'next-auth/react'
 import { ensureAuth } from './auth/utils/tokenValidator'
 
@@ -14,35 +13,51 @@ export const fetchGraphQLWithUpload = async ({ query, variables = {} }: { query:
     Authorization: `Bearer ${accessToken}`,
   }
 
-  const hasFile = Object.values(variables).some((val) => val instanceof File)
   let body: BodyInit
+  const formData = new FormData()
+  const updatedVariables = { ...variables }
+
+  let hasFile = false
+  const fileMap: Record<string, string[]> = {}
+  let fileIndex = 0
+
+  // Process variables and detect files
+  Object.entries(variables).forEach(([key, value]) => {
+    if (value instanceof File) {
+      // Single file
+      hasFile = true
+      fileMap[fileIndex] = [`variables.${key}`]
+      updatedVariables[key] = null // GraphQL expects null for files
+      fileIndex++
+    } else if (Array.isArray(value) && value.every((v) => v instanceof File)) {
+      // Multiple files
+      hasFile = true
+      updatedVariables[key] = value.map(() => null) // Replace all files with null in variables
+      value.forEach((file, index) => {
+        fileMap[fileIndex] = [`variables.${key}.${index}`]
+        fileIndex++
+      })
+    }
+  })
 
   if (hasFile) {
-    const formData = new FormData()
-    const updatedVariables = { ...variables }
-    Object.keys(updatedVariables).forEach((key) => {
-      if (updatedVariables[key] instanceof File) {
-        updatedVariables[key] = null
-      }
-    })
-
+    // **IMPORTANT**: Append `operations` FIRST
     formData.append('operations', JSON.stringify({ query, variables: updatedVariables }))
 
-    const fileMap: Record<string, string[]> = {}
-    let fileIndex = 0
-    Object.entries(variables).forEach(([key, value]) => {
-      if (value instanceof File) {
-        fileMap[fileIndex] = [`variables.${key}`]
-        fileIndex++
-      }
-    })
+    // Append `map` SECOND
     formData.append('map', JSON.stringify(fileMap))
 
+    // Append FILES LAST
     fileIndex = 0
     Object.entries(variables).forEach(([key, value]) => {
       if (value instanceof File) {
         formData.append(fileIndex.toString(), value)
         fileIndex++
+      } else if (Array.isArray(value) && value.every((v) => v instanceof File)) {
+        value.forEach((file) => {
+          formData.append(fileIndex.toString(), file)
+          fileIndex++
+        })
       }
     })
 
