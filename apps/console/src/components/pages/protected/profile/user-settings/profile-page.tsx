@@ -117,7 +117,6 @@ const ProfilePage = () => {
         title: 'Failed to remove Two-factor authentication ',
       })
     }
-    // refetchUser()
   }
 
   const regenerateCodes = async () => {
