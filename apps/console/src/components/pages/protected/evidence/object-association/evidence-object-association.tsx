@@ -37,8 +37,6 @@ const EvidenceObjectAssociation: React.FC<TProps> = (props: TProps) => {
     ...(objectKey === 'tasks' ? { titleContainsFold: debouncedSearchValue } : { nameContainsFold: debouncedSearchValue }),
   }
 
-  console.log('selectedQuery', selectedQuery)
-
   const { data } = useQuery<AllEvidenceQueriesData>({
     queryKey: ['evidenceFilter', whereFilter],
     queryFn: async () => client.request(selectedQuery || GET_ALL_RISKS, { where: whereFilter }),
