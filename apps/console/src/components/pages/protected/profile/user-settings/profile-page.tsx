@@ -217,8 +217,6 @@ const ProfilePage = () => {
           qrcode={qrcode}
           secret={secret}
           refetch={() => {
-            // refetch()
-            // refetchUser()
           }}
           onClose={() => {
             setQrcode('')
