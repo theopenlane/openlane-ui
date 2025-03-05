@@ -16,7 +16,7 @@ This monorepo is run on [Bun](https://bun.sh/) and built using
 
 #### Packages
 
-- `@repo/codegen`: Generated graphQL functions using `urql` to make requests to
+- `@repo/codegen`: Generated graphQL functions to make requests to
   the Openlane graphql api. See the [README](packages/codegen/README.md) for
   details.
 - `@repo/ui`: UI component library shared by our applications

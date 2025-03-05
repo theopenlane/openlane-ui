@@ -5,10 +5,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { Badge } from '@repo/ui/badge'
 import { GlobeIcon, LockIcon } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
-import { Exact, GetAllGroupsQuery, GroupWhereInput, InputMaybe } from '@repo/codegen/src/schema'
+import { GetAllGroupsQuery } from '@repo/codegen/src/schema'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { Group } from '../groups-page'
-import { UseQueryResponse, UseQueryState } from 'urql'
 
 interface Props {
   queryResult: GetAllGroupsQuery | undefined

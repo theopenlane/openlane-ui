@@ -6,7 +6,6 @@ import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { UseQueryExecute } from 'urql'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useDeleteInternalPolicy } from '@/lib/graphql-hooks/policy'
 

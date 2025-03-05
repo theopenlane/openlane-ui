@@ -1,5 +1,4 @@
 import { useToast } from '@repo/ui/use-toast'
-import { CombinedError } from 'urql'
 
 type TSuccessProps = {
   title?: string
@@ -10,7 +9,7 @@ type TSuccessProps = {
 type TErrorProps = {
   title?: string
   description?: string
-  gqlError?: CombinedError
+  gqlError?: any // TODO: define error
   variant?: 'default' | 'destructive' | 'success'
 }
 
@@ -27,7 +26,7 @@ export function useNotification() {
       const messages: string[] = []
 
       if (props.gqlError.graphQLErrors) {
-        props.gqlError.graphQLErrors.forEach((graphQLError) => {
+        props.gqlError.graphQLErrors.forEach((graphQLError: any) => {
           const path = graphQLError.path?.join('.') ?? ''
           messages.push(path + ' ' + graphQLError.message)
         })
