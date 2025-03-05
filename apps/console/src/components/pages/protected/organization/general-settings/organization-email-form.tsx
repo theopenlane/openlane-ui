@@ -1,5 +1,4 @@
 'use client'
-import { useGetBillingEmailQuery, useUpdateOrganizationMutation } from '@repo/codegen/src/schema'
 import { Input, InputRow } from '@repo/ui/input'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { useForm } from 'react-hook-form'
@@ -10,14 +9,17 @@ import { Button } from '@repo/ui/button'
 import { useEffect, useState } from 'react'
 import { RESET_SUCCESS_STATE_MS } from '@/constants'
 import { useOrganization } from '@/hooks/useOrganization'
+import { useGetBillingEmail, useUpdateOrganization } from '@/lib/graphql-hooks/organization'
+import { useQueryClient } from '@tanstack/react-query'
 
 const OrganizationEmailForm = () => {
+  const queryClient = useQueryClient()
   const [isSuccess, setIsSuccess] = useState(false)
-  const [{ fetching: isSubmitting }, updateOrg] = useUpdateOrganizationMutation()
+  const { isPending, mutateAsync: updateOrg } = useUpdateOrganization()
   const { currentOrgId } = useOrganization()
 
-  const [setting] = useGetBillingEmailQuery({ pause: !currentOrgId, variables: { organizationId: currentOrgId } })
-  const billingEmail = setting.data?.organization.setting?.billingEmail
+  const { data: setting } = useGetBillingEmail(currentOrgId)
+  const billingEmail = setting?.organization.setting?.billingEmail
   const formSchema = z.object({
     email: z.string().email({ message: 'Invalid email address' }),
   })
@@ -38,6 +40,9 @@ const OrganizationEmailForm = () => {
   }, [billingEmail])
 
   const updateOrganization = async ({ email }: { email: string }) => {
+    if (!currentOrgId) {
+      return
+    }
     await updateOrg({
       updateOrganizationId: currentOrgId,
       input: {
@@ -51,6 +56,7 @@ const OrganizationEmailForm = () => {
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     await updateOrganization({ email: data.email })
+    queryClient.invalidateQueries({ queryKey: ['billingEmail', currentOrgId] })
   }
 
   useEffect(() => {
@@ -80,8 +86,8 @@ const OrganizationEmailForm = () => {
                 </FormItem>
               )}
             />
-            <Button variant={isSuccess ? 'success' : 'filled'} type="submit" loading={isSubmitting}>
-              {isSubmitting ? 'Saving' : isSuccess ? 'Saved' : 'Save'}
+            <Button variant={isSuccess ? 'success' : 'filled'} type="submit" loading={isPending}>
+              {isPending ? 'Saving' : isSuccess ? 'Saved' : 'Save'}
             </Button>
           </InputRow>
         </form>

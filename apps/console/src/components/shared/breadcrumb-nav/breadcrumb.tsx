@@ -5,7 +5,7 @@ import { ChevronRight, Loader } from 'lucide-react'
 import React from 'react'
 import { toTitleCase } from '@/components/shared/lib/strings'
 import { useParams, usePathname } from 'next/navigation'
-import { useGetInternalPolicyDetailsByIdQuery } from '@repo/codegen/src/schema'
+import { useGetInternalPolicyDetailsById } from '@/lib/graphql-hooks/policy'
 
 type TBreadCrumbProps = {
   homeElement?: string
@@ -19,10 +19,7 @@ export const BreadcrumbNavigation = ({ homeElement = 'Home' }: TBreadCrumbProps)
   //TODO: if we get more /:id breadcrumbs we need to write a config instead of fetching just one
   const isPolicy = pathNames.includes('policies')
   const policyId = isPolicy ? (params.id as string) : null
-  const [{ data, fetching }] = useGetInternalPolicyDetailsByIdQuery({
-    variables: { internalPolicyId: policyId || '' },
-    pause: !policyId,
-  })
+  const { data, isFetching } = useGetInternalPolicyDetailsById(policyId)
 
   return (
     <Breadcrumb>
@@ -40,8 +37,8 @@ export const BreadcrumbNavigation = ({ homeElement = 'Home' }: TBreadCrumbProps)
             itemLink = data.internalPolicy.name
           }
           // add spinner to last breadcrumb if it's fetching
-          if (index === pathNames.length - 1 && fetching) {
-            return <Loader key={href} />
+          if (index === pathNames.length - 1 && isFetching) {
+            return <Loader />
           }
 
           return (

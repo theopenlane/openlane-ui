@@ -13,7 +13,7 @@ import { initProgramSchema, ProgramInitComponent } from './wizard/step-1-init'
 import { programDetailSchema, ProgramDetailsComponent } from './wizard/step-2-details'
 import { ProgramInviteComponent, programInviteSchema } from './wizard/step-3-team'
 import { ProgramObjectAssociationComponent, programObjectAssociationSchema } from './wizard/step-4-associate'
-import { CreateProgramWithMembersInput, ProgramMembershipRole, useCreateProgramWithMembersMutation, useGetProgramEdgesForWizardQuery } from '@repo/codegen/src/schema'
+import { CreateProgramWithMembersInput, ProgramMembershipRole } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import { useNotification } from '@/hooks/useNotification'
 import { useRouter } from 'next/navigation'
@@ -21,6 +21,7 @@ import { dialogStyles } from './dialog.styles'
 import { mapToNode } from './nodes'
 import { Check } from 'lucide-react'
 import { SummaryCard } from './summary-card'
+import { useCreateProgramWithMembers, useGetProgramEdgesForWizard } from '@/lib/graphql-hooks/programs'
 
 export type FormFields = z.infer<typeof initProgramSchema & typeof programDetailSchema & typeof programInviteSchema & typeof programObjectAssociationSchema>
 
@@ -39,11 +40,11 @@ const ProgramWizard = () => {
   // router for navigation
   const router = useRouter()
 
-  // session data
-  const { data: sessionData } = useSession()
-
   // form and stepper
   const stepper = useStepper()
+
+  const { mutateAsync: createNewProgram, isError } = useCreateProgramWithMembers()
+  const { data: edgeData } = useGetProgramEdgesForWizard()
 
   const form = useForm({
     mode: 'onTouched',
@@ -61,14 +62,11 @@ const ProgramWizard = () => {
   const { isValid: isFullFormValid } = useFormState({ control: fullForm.control })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // grab all the data from the API to populate the dropdowns
-  const [edgeData] = useGetProgramEdgesForWizardQuery({ pause: !sessionData })
-
-  const groupRes = edgeData.data?.groups?.edges || []
-  const userRes = edgeData.data?.orgMemberships.edges || []
-  const policyRes = edgeData.data?.internalPolicies.edges || []
-  const procedureRes = edgeData.data?.procedures.edges || []
-  const riskRes = edgeData.data?.risks.edges || []
+  const groupRes = edgeData?.groups?.edges || []
+  const userRes = edgeData?.orgMemberships.edges || []
+  const policyRes = edgeData?.internalPolicies.edges || []
+  const procedureRes = edgeData?.procedures.edges || []
+  const riskRes = edgeData?.risks.edges || []
 
   // map to a common format
   const groups = mapToNode(groupRes)
@@ -102,7 +100,7 @@ const ProgramWizard = () => {
     const resp = await createNewProgram({
       input: input,
     })
-    if (resp.error) {
+    if (isError) {
       errorNotification({
         title: 'Error',
         description: 'There was an error creating the program. Please try again.',
@@ -111,13 +109,10 @@ const ProgramWizard = () => {
     }
     successNotification({
       title: 'Program Created',
-      description: `Your program, ${resp?.data?.createProgramWithMembers?.program?.name}, has been successfully created`,
+      description: `Your program, ${resp?.createProgramWithMembers?.program?.name}, has been successfully created`,
     })
-    router.push(`/programs?id=${resp?.data?.createProgramWithMembers.program.id}`)
+    router.push(`/programs?id=${resp?.createProgramWithMembers.program.id}`)
   }
-
-  // get the result and error from the mutation
-  const [result, createNewProgram] = useCreateProgramWithMembersMutation()
 
   const handleSkip = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()

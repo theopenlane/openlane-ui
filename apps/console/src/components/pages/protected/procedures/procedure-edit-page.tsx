@@ -1,7 +1,6 @@
 import { TwoColumnLayout } from '@/components/shared/layouts/two-column-layout'
 import { useForm } from 'react-hook-form'
 import { ProcedureEditSidebar } from './procedure-edit-sidebar'
-import { ProcedureByIdFragment, useGetProcedureDetailsByIdQuery, useUpdateProcedureMutation } from '@repo/codegen/src/schema'
 import { useEffect, useMemo, useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -13,6 +12,9 @@ import { useRouter } from 'next/navigation'
 import { useToast } from '@repo/ui/use-toast'
 import { ProcedureEditForm } from './procedure-edit-form'
 import { useNotification } from '@/hooks/useNotification'
+import { useGetProcedureDetailsById, useUpdateProcedure } from '@/lib/graphql-hooks/procedures'
+import { Procedure } from '@repo/codegen/src/schema'
+import { useQueryClient } from '@tanstack/react-query'
 
 type ProcedureEditPageProps = {
   procedureId: string
@@ -20,12 +22,12 @@ type ProcedureEditPageProps = {
 
 export function ProcedureEditPage({ procedureId }: ProcedureEditPageProps) {
   const router = useRouter()
-  const { toast } = useToast()
   const { successNotification, errorNotification } = useNotification()
+  const queryClient = useQueryClient()
 
-  const [{ fetching: saving }, updateProcedure] = useUpdateProcedureMutation()
-  const [{ data: procedureData }] = useGetProcedureDetailsByIdQuery({ requestPolicy: 'network-only', variables: { procedureId: procedureId } })
-  const [procedure, setProcedure] = useState(procedureData?.procedure ?? ({} as ProcedureByIdFragment))
+  const { isPending: saving, mutateAsync: updateProcedure } = useUpdateProcedure()
+  const { data: procedureData } = useGetProcedureDetailsById(procedureId)
+  const [procedure, setProcedure] = useState((procedureData?.procedure || {}) as Procedure)
   const [document, setDocument] = useState<Value>(procedure?.details?.content)
 
   const form = useForm<EditProcedureFormData>({
@@ -33,14 +35,14 @@ export function ProcedureEditPage({ procedureId }: ProcedureEditPageProps) {
     mode: 'onBlur',
     disabled: saving,
     defaultValues: {
-      name: procedure.name || '',
-      description: procedure.description || '',
-      background: procedure.background || '',
-      procedureType: procedure.procedureType || '',
-      purposeAndScope: procedure.purposeAndScope || '',
-      tags: procedure.tags || [],
-      details: procedure.details || {
-        content: (procedure.details?.content || []) as Value[],
+      name: procedure?.name || '',
+      description: procedure?.description || '',
+      background: procedure?.background || '',
+      procedureType: procedure?.procedureType || '',
+      purposeAndScope: procedure?.purposeAndScope || '',
+      tags: procedure?.tags || [],
+      details: procedure?.details || {
+        content: (procedure?.details?.content || []) as Value[],
       },
     },
   })
@@ -50,17 +52,17 @@ export function ProcedureEditPage({ procedureId }: ProcedureEditPageProps) {
 
     if (!procedure) return
 
-    setProcedure(procedure)
-    setDocument(procedure.details?.content || [])
+    setProcedure(procedure as Procedure)
+    setDocument(procedure?.details?.content || [])
 
     form.reset({
-      name: procedure.name || '',
-      description: procedure.description || '',
-      background: procedure.background || '',
-      purposeAndScope: procedure.purposeAndScope || '',
-      procedureType: procedure.procedureType || '',
-      tags: procedure.tags || [],
-      details: procedure.details,
+      name: procedure?.name || '',
+      description: procedure?.description || '',
+      background: procedure?.background || '',
+      purposeAndScope: procedure?.purposeAndScope || '',
+      procedureType: procedure?.procedureType || '',
+      tags: procedure?.tags || [],
+      details: procedure?.details,
     })
   }, [procedureData])
 
@@ -77,30 +79,34 @@ export function ProcedureEditPage({ procedureId }: ProcedureEditPageProps) {
   const handleSave = async () => {
     const { name, description, background, purposeAndScope, procedureType, tags } = form.getValues()
 
-    const { error } = await updateProcedure({
-      updateProcedureId: procedureData?.procedure.id,
-      input: {
-        name,
-        description,
-        background,
-        purposeAndScope,
-        procedureType,
-        tags,
-        details: {
-          content: document,
+    try {
+      await updateProcedure({
+        updateProcedureId: procedureData?.procedure.id,
+        input: {
+          name,
+          description,
+          background,
+          purposeAndScope,
+          procedureType,
+          tags,
+          details: {
+            content: document,
+          },
         },
-      },
-    })
-
-    if (error) {
-      errorNotification({ title: 'Failed to save Procedure', gqlError: error })
-      return
+      })
+      successNotification({ title: 'Procedure updated' })
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const [firstKey, secondKey] = query.queryKey
+          return firstKey === 'policies' || (firstKey === 'policy' && secondKey === procedureData?.procedure.id)
+        },
+      })
+    } catch {
+      errorNotification({ title: 'Failed to save Procedure' }) // TODO:  gqlError:error ass error to notification
     }
-
-    successNotification({ title: 'Procedure updated' })
   }
 
-  const title = procedure.displayID ? `${procedure.displayID} - ${procedure.name}` : procedure.name
+  const title = procedure?.displayID ? `${procedure?.displayID} - ${procedure?.name}` : procedure?.name
 
   const main = <ProcedureEditForm form={form} document={document} setDocument={setDocument} />
   const sidebar = <ProcedureEditSidebar form={form} procedure={procedure} handleSave={handleSave} />

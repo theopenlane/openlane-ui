@@ -13,7 +13,7 @@ import AddMembersDialog from './dialogs/add-members-dialog'
 import AssignPermissionsDialog from './dialogs/assign-permissions-dialog'
 import GroupsPermissionsTable from './groups-permissions-table'
 import InheritPermissionDialog from './dialogs/inherit-permission-dialog'
-import { useGetGroupDetailsQuery, useUpdateGroupMutation, GroupSettingVisibility, GroupMembershipRole } from '@repo/codegen/src/schema'
+import { GroupSettingVisibility, GroupMembershipRole } from '@repo/codegen/src/schema'
 import { Loading } from '@/components/shared/loading/loading'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { z } from 'zod'
@@ -24,6 +24,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/selec
 import { Textarea } from '@repo/ui/textarea'
 import { Input } from '@repo/ui/input'
 import { useSession } from 'next-auth/react'
+import { useGetGroupDetails, useUpdateGroup } from '@/lib/graphql-hooks/groups'
+import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
 
 const EditGroupSchema = z.object({
@@ -42,16 +44,14 @@ const GroupDetailsSheet = () => {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { selectedGroup, setSelectedGroup, setIsAdmin, isAdmin } = useGroupsStore()
+  const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
 
-  const [{ data, fetching }] = useGetGroupDetailsQuery({
-    variables: { groupId: selectedGroup || '' },
-    pause: !selectedGroup,
-  })
+  const { data, isPending: fetching } = useGetGroupDetails(selectedGroup)
 
   const { name, description, members, setting, tags, id, isManaged } = data?.group || {}
 
-  const [{}, updateGroup] = useUpdateGroupMutation()
+  const { mutateAsync: updateGroup } = useUpdateGroup()
 
   const { control, handleSubmit, reset } = useForm<EditGroupFormData>({
     resolver: zodResolver(EditGroupSchema),
@@ -107,6 +107,13 @@ const GroupDetailsSheet = () => {
           updateGroupSettings: {
             visibility: data.visibility === 'Public' ? GroupSettingVisibility.PUBLIC : GroupSettingVisibility.PRIVATE,
           },
+        },
+      })
+
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const [firstKey, secondKey] = query.queryKey
+          return firstKey === 'groups' || (firstKey === 'group' && secondKey === id)
         },
       })
       successNotification({ title: 'Group updated successfully!' })

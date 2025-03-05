@@ -3,16 +3,6 @@ import React, { Suspense, useMemo, useState } from 'react'
 import { ProfileNameForm } from './profile-name-form'
 import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
 import { useSession } from 'next-auth/react'
-import {
-  File,
-  GetUserProfileQueryVariables,
-  useCreateTfaSettingMutation,
-  useGetUserProfileQuery,
-  useGetUserTfaSettingsQuery,
-  useUpdateTfaSettingMutation,
-  useUpdateUserMutation,
-  useUpdateUserSettingMutation,
-} from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import DefaultOrgForm from './default-org-form'
 import { Loader } from 'lucide-react'
@@ -21,6 +11,8 @@ import QRCodeDialog from './qrcode-dialog'
 import { Button } from '@repo/ui/button'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Badge } from '@repo/ui/badge'
+import { useGetUserProfile, useUpdateUserAvatar, useUpdateUserSetting } from '@/lib/graphql-hooks/user'
+import { useCreateTfaSetting, useGetUserTFASettings, useUpdateTfaSetting } from '@/lib/graphql-hooks/tfa'
 
 const ProfilePage = () => {
   const { data: sessionData } = useSession()
@@ -30,23 +22,17 @@ const ProfilePage = () => {
   const [qrcode, setQrcode] = useState<null | string>(null)
   const [secret, setSecret] = useState<null | string>(null)
   const [regeneratedCodes, setRegeneratedCodes] = useState<null | string[]>(null)
-  const variables: GetUserProfileQueryVariables = {
-    userId: userId ?? '',
-  }
 
-  const [{ data: userData }, refetchUser] = useGetUserProfileQuery({
-    variables,
-    requestPolicy: 'network-only',
-  })
+  const { data: userData } = useGetUserProfile(userId)
 
-  const [{ fetching: isSubmitting }, updateUser] = useUpdateUserMutation()
+  const { isPending, mutateAsync: updateUserAvatar } = useUpdateUserAvatar()
 
-  const [{ data: tfaData }, refetch] = useGetUserTfaSettingsQuery({ variables, requestPolicy: 'network-only' })
+  const { data: tfaData } = useGetUserTFASettings(userId)
   const tfaSettings = tfaData?.user?.tfaSettings?.[0]
 
-  const [{ fetching: isTfaSubmitting }, updateTfaSetting] = useUpdateTfaSettingMutation()
-  const [{ fetching: isTfaCreating }, createTfaSetting] = useCreateTfaSettingMutation()
-  const [{ fetching: updatingUser }, updateUserSetting] = useUpdateUserSettingMutation()
+  const { isPending: isTfaSubmitting, mutateAsync: updateTfaSetting } = useUpdateTfaSetting()
+  const { isPending: isTfaCreating, mutateAsync: createTfaSetting } = useCreateTfaSetting()
+  const { isPending: updatingUser, mutateAsync: updateUserSetting } = useUpdateUserSetting()
 
   const isVerified = !!tfaSettings?.verified
 
@@ -54,7 +40,7 @@ const ProfilePage = () => {
     if (!userId) return
 
     try {
-      await updateUser({
+      await updateUserAvatar({
         updateUserId: userId,
         input: {},
         avatarFile: file,
@@ -75,7 +61,7 @@ const ProfilePage = () => {
     let qrcode
     let secret
     if (!tfaSettings) {
-      const { data } = await createTfaSetting({
+      const data = await createTfaSetting({
         input: {
           totpAllowed: true,
         },
@@ -83,7 +69,7 @@ const ProfilePage = () => {
       qrcode = data?.createTFASetting.qrCode
       secret = data?.createTFASetting.tfaSecret
     } else if (!isVerified) {
-      const { data } = await updateTfaSetting({
+      const data = await updateTfaSetting({
         input: {
           totpAllowed: true,
         },
@@ -131,7 +117,6 @@ const ProfilePage = () => {
         title: 'Failed to remove Two-factor authentication ',
       })
     }
-    refetchUser()
   }
 
   const regenerateCodes = async () => {
@@ -140,7 +125,7 @@ const ProfilePage = () => {
         regenBackupCodes: true,
       },
     })
-    setRegeneratedCodes(resp?.data?.updateTFASetting?.recoveryCodes || null)
+    setRegeneratedCodes(resp?.updateTFASetting?.recoveryCodes || null)
   }
 
   const config = useMemo(() => {
@@ -232,8 +217,6 @@ const ProfilePage = () => {
           qrcode={qrcode}
           secret={secret}
           refetch={() => {
-            refetch()
-            refetchUser()
           }}
           onClose={() => {
             setQrcode('')

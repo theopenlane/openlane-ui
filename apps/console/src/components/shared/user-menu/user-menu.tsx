@@ -10,7 +10,8 @@ import Link from 'next/link'
 import { ChevronDown } from '@repo/ui/icons/chevron-down'
 import { Kbd } from '@repo/ui/kbd'
 import { useTheme } from 'next-themes'
-import { GetUserProfileQueryVariables, useGetUserProfileQuery } from '@repo/codegen/src/schema'
+import { GetUserProfileQueryVariables } from '@repo/codegen/src/schema'
+import { useGetUserProfile } from '@/lib/graphql-hooks/user'
 
 export const UserMenu = () => {
   const { setTheme, theme } = useTheme()
@@ -23,11 +24,9 @@ export const UserMenu = () => {
     userId: userId ?? '',
   }
 
-  const [{ data: userData }] = useGetUserProfileQuery({
-    variables,
-  })
+  const { data } = useGetUserProfile(userId)
 
-  const image = userData?.user.avatarFile?.presignedURL || userData?.user?.avatarRemoteURL
+  const image = data?.user.avatarFile?.presignedURL || data?.user?.avatarRemoteURL
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -44,9 +43,9 @@ export const UserMenu = () => {
           <div>
             <div>
               <div>
-                {`${userData?.user.firstName} ${userData?.user.lastName}`}
+                {`${data?.user.firstName} ${data?.user.lastName}`}
                 <br />
-                <div className={email()}>{userData?.user.email}</div>
+                <div className={email()}>{data?.user.email}</div>
               </div>
               <div>
                 <Link href="/user-settings/profile" className={userSettingsLink()}>

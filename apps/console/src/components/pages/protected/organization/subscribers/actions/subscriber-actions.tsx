@@ -4,36 +4,28 @@ import { MoreHorizontal, RotateCw, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { useDeleteSubscriberMutation } from '@repo/codegen/src/schema'
-import { type UseQueryExecute } from 'urql'
+import { useDeleteSubscriber } from '@/lib/graphql-hooks/subscribes'
 
 type SubscriberActionsProps = {
   subscriberEmail: string
-  refetchSubscribers: UseQueryExecute
 }
 
 const ICON_SIZE = 12
 
-export const SubscriberActions = ({ subscriberEmail: subscriberEmail, refetchSubscribers: refetechSubscribers }: SubscriberActionsProps) => {
+export const SubscriberActions = ({ subscriberEmail: subscriberEmail }: SubscriberActionsProps) => {
   const { actionIcon } = pageStyles()
+  const { mutateAsync: deleteSubscriber } = useDeleteSubscriber()
   const { successNotification, errorNotification } = useNotification()
-  const [_, deleteSubscriber] = useDeleteSubscriberMutation()
-
   const handleDeleteSubscriber = async () => {
-    const response = await deleteSubscriber({ deleteSubscriberEmail: subscriberEmail })
-
-    if (response.error) {
-      errorNotification({
-        title: 'There was a problem deleting the subscriber, please try again',
-      })
-    }
-
-    if (response.data) {
+    await deleteSubscriber({ deleteSubscriberEmail: subscriberEmail })
+    try {
       successNotification({
         title: 'Subscriber deleted successfully',
       })
-      refetechSubscribers({
-        requestPolicy: 'network-only',
+    } catch {
+      errorNotification({
+        title: 'There was a problem deleting the subscriber, please try again',
+        variant: 'destructive',
       })
     }
   }

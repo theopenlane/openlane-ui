@@ -8,9 +8,9 @@ import { z } from 'zod'
 import { Button } from '@repo/ui/button'
 import { Form, FormField, FormControl, FormMessage } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
-import { useCreateSubscriberMutation } from '@repo/codegen/src/schema'
 import { newsletterStyles } from './subscribe.styles'
 import { recaptchaSiteKey } from '@repo/dally/auth'
+import { useCreateSubscriber } from '@/lib/graphql-hooks/subscribes'
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -69,11 +69,7 @@ export const Subscribe = () => {
     subscribeToNewsletter(email)
   }
 
-  // get the result and error from the mutation
-  const [result, addSubscriber] = useCreateSubscriberMutation()
-  const { data, error } = result
-
-  const isLoading = result.fetching
+  const { data, mutateAsync: addSubscriber, isPending } = useCreateSubscriber()
 
   return (
     <>
@@ -99,11 +95,10 @@ export const Subscribe = () => {
                 )}
               />
               <Button type="submit" className={button()}>
-                {isLoading && <LoaderCircle className="animate-spin" size={20} />}
-                {isLoading ? 'Loading' : 'Subscribe for updates'}
+                {isPending && <LoaderCircle className="animate-spin" size={20} />}
+                {isPending ? 'Loading' : 'Subscribe for updates'}
               </Button>
             </form>
-            {error && <div className={errorMessage()}>{error.message}</div>}
           </Form>
         </div>
       )}

@@ -1,6 +1,6 @@
 'use client'
 
-import { GetAllTemplatesQuery, useFilterTemplatesQuery, TemplateDocumentType, TemplateWhereInput } from '@repo/codegen/src/schema'
+import { GetAllTemplatesQuery, TemplateDocumentType, TemplateWhereInput } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import { pageStyles } from './page.styles'
 import { useState, useEffect } from 'react'
@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation'
 import { format } from 'date-fns'
 import { CreateDropdown } from './create'
 import { includeQuestionnaireCreation } from '@repo/dally/auth'
+import { useFilterTemplates } from '@/lib/graphql-hooks/templates'
 
 const ICON_SIZE = 12
 
@@ -32,10 +33,7 @@ export const QuestionnairesTable = () => {
     templateType: TemplateDocumentType.DOCUMENT,
   }
 
-  const [{ data, fetching, error }, refetch] = useFilterTemplatesQuery({
-    variables: { where: whereFilter },
-    pause: !session,
-  })
+  const { data: data, isLoading: fetching, isError } = useFilterTemplates(whereFilter)
 
   useEffect(() => {
     if (data?.templates?.edges) {
@@ -44,7 +42,7 @@ export const QuestionnairesTable = () => {
     }
   }, [data])
 
-  if (error || fetching) return null
+  if (isError || fetching) return null
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const searchValue = e.target.value.toLowerCase()
@@ -82,7 +80,7 @@ export const QuestionnairesTable = () => {
     {
       accessorKey: 'id',
       header: '',
-      cell: ({ cell }) => <Actions templateId={cell.getValue() as string} refetchTemplates={refetch} />,
+      cell: ({ cell }) => <Actions templateId={cell.getValue() as string} />,
       size: 40,
     },
   ]

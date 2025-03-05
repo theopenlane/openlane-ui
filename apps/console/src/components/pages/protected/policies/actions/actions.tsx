@@ -6,23 +6,21 @@ import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useDeleteInternalPolicyMutation } from '@repo/codegen/src/schema'
-import { UseQueryExecute } from 'urql'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { useDeleteInternalPolicy } from '@/lib/graphql-hooks/policy'
 
 type PolicyActionsProps = {
   policyId: string
-  refetchPolicies: UseQueryExecute
 }
 
 const ICON_SIZE = 12
 
-export const Actions = ({ policyId: policyId, refetchPolicies: refetchPolicies }: PolicyActionsProps) => {
+export const Actions = ({ policyId: policyId }: PolicyActionsProps) => {
   const router = useRouter()
   const { actionIcon } = pageStyles()
   const { successNotification, errorNotification } = useNotification()
 
-  const [_, deletePolicy] = useDeleteInternalPolicyMutation()
+  const { mutateAsync: deletePolicy } = useDeleteInternalPolicy()
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
@@ -31,18 +29,14 @@ export const Actions = ({ policyId: policyId, refetchPolicies: refetchPolicies }
   }
 
   const handleDeletePolicy = async () => {
-    const { error } = await deletePolicy({ deleteInternalPolicyId: policyId })
-
-    if (error) {
-      errorNotification({ title: 'Error deleting policy', gqlError: error })
-      return
+    try {
+      await deletePolicy({ deleteInternalPolicyId: policyId })
+      successNotification({
+        title: 'Questionnaire deleted successfully',
+      })
+    } catch (error) {
+      errorNotification({ title: 'Error deleting policy' })
     }
-
-    refetchPolicies()
-
-    successNotification({
-      title: 'Questionnaire deleted successfully',
-    })
   }
 
   return (

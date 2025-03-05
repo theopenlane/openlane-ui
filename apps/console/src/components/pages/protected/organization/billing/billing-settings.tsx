@@ -7,27 +7,27 @@ import BillingContactDialog from './billing-contract-dialog'
 import { useOrganization } from '@/hooks/useOrganization'
 import { billingSettingsStyles } from './billing-settings.styles'
 import { cn } from '@repo/ui/lib/utils'
-import { useGetOrganizationSettingQuery, useUpdateOrganizationMutation } from '@repo/codegen/src/schema'
+import { useGetOrganizationSetting, useUpdateOrganization } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
 
 const BillingSettings: React.FC = () => {
   const { panel, section, sectionContent, sectionTitle, emailText, paragraph, switchContainer, text } = billingSettingsStyles()
   const { currentOrgId } = useOrganization()
+  const { data: settingData } = useGetOrganizationSetting(currentOrgId)
+  const { isPending, mutateAsync: updateOrg } = useUpdateOrganization()
+  const billingAddress = settingData?.organization.setting?.billingAddress
   const { successNotification, errorNotification } = useNotification()
-  const [settingData] = useGetOrganizationSettingQuery({ pause: !currentOrgId, variables: { organizationId: currentOrgId } })
-  const [{ fetching: isSubmitting }, updateOrg] = useUpdateOrganizationMutation()
-  const billingAddress = settingData.data?.organization.setting?.billingAddress
   const formattedAddress = [billingAddress?.line1, billingAddress?.city, billingAddress?.postalCode].filter(Boolean).join(', ')
-  const email = settingData.data?.organization.setting?.billingEmail || ''
+  const email = settingData?.organization.setting?.billingEmail || ''
 
-  const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(settingData.data?.organization.setting?.billingNotificationsEnabled || false)
+  const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(settingData?.organization.setting?.billingNotificationsEnabled || false)
 
   const onToggleNotifications = async (checked: boolean) => {
     setNotificationsEnabled(checked)
 
     try {
       await updateOrg({
-        updateOrganizationId: currentOrgId,
+        updateOrganizationId: currentOrgId!,
         input: {
           updateOrgSettings: { billingNotificationsEnabled: checked },
         },
@@ -59,7 +59,7 @@ const BillingSettings: React.FC = () => {
                 <p className={cn(paragraph())}>
                   {formattedAddress}
                   <br />
-                  {`${settingData.data?.organization.setting?.billingAddress?.country || ''}`}
+                  {`${settingData?.organization.setting?.billingAddress?.country || ''}`}
                 </p>
               ) : (
                 <p className="italic">No billing address provided, please update to continue your subscription</p>
@@ -90,7 +90,7 @@ const BillingSettings: React.FC = () => {
           <h3 className={cn(sectionTitle())}>Billing Alert</h3>
           <div className={cn(switchContainer())}>
             <p className={cn(text())}>Set up automated billing alerts to receive emails when a specified usage amount is reached for spend across your entire team.</p>
-            <Switch checked={notificationsEnabled} onCheckedChange={onToggleNotifications} disabled={isSubmitting} />
+            <Switch checked={notificationsEnabled} onCheckedChange={onToggleNotifications} disabled={isPending} />
           </div>
         </div>
       </div>

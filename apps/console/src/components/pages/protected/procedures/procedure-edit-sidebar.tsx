@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useCallback, useMemo, useState } from 'react'
-import { ProcedureByIdFragment, useDeleteProcedureMutation } from '@repo/codegen/src/schema'
 import { Info, Binoculars, FileStack, ScrollText, Tag, CalendarCheck2, CalendarClock } from 'lucide-react'
 import { MetaPanel, formatTime } from '@/components/shared/meta-panel/meta-panel'
 import { Panel } from '@repo/ui/panel'
@@ -16,9 +15,11 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useToast } from '@repo/ui/use-toast'
 import { useRouter } from 'next/navigation'
 import { useNotification } from '@/hooks/useNotification'
+import { useDeleteProcedure } from '@/lib/graphql-hooks/procedures'
+import { Procedure } from '@repo/codegen/src/schema'
 
 type ProcedureEditSidebarProps = {
-  procedure: ProcedureByIdFragment
+  procedure: Procedure
   form: UseFormReturn<EditProcedureFormData>
   handleSave: () => void
 }
@@ -29,21 +30,18 @@ export const ProcedureEditSidebar = ({ procedure, form, handleSave }: ProcedureE
   const router = useRouter()
 
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
-  const [_, deleteProcedure] = useDeleteProcedureMutation()
+  const { mutateAsync: deleteProcedure } = useDeleteProcedure()
 
   if (!procedure) return null
 
   const handleDelete = useCallback(async () => {
-    const { error } = await deleteProcedure({ deleteProcedureId: procedure.id })
-
-    if (error) {
-      errorNotification({ title: 'Error deleting procedure', gqlError: error })
-      return
+    try {
+      await deleteProcedure({ deleteProcedureId: procedure.id })
+      successNotification({ title: 'Procedure deleted' })
+      router.push('/procedures')
+    } catch (error) {
+      errorNotification({ title: 'Error deleting procedure' }) // todo add gqlError: error to error
     }
-
-    successNotification({ title: 'Procedure deleted' })
-
-    router.push('/procedures')
   }, [deleteProcedure, procedure, router, toast])
 
   const sidebarItems = useMemo(() => {

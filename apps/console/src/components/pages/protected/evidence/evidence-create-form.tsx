@@ -11,12 +11,13 @@ import MultipleSelector from '@repo/ui/multiple-selector'
 import { Button } from '@repo/ui/button'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 
-import { CreateEvidenceInput, useCreateEvidenceMutation } from '@repo/codegen/src/schema'
+import { CreateEvidenceInput } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import EvidenceUploadForm from '@/components/pages/protected/evidence/upload/evidence-upload-form'
 import EvidenceObjectAssociation from '@/components/pages/protected/evidence/object-association/evidence-object-association'
 import { useNotification } from '@/hooks/useNotification'
 import { Option } from '@repo/ui/multiple-selector'
+import { useCreateEvidence } from '@/lib/graphql-hooks/evidence'
 
 const EvidenceCreateForm: React.FC = () => {
   const { form } = useFormSchema()
@@ -25,8 +26,7 @@ const EvidenceCreateForm: React.FC = () => {
   const [resetEvidenceFiles, setResetEvidenceFiles] = useState(false)
   const [resetObjectAssociation, setResetObjectAssociation] = useState(false)
   const { data: sessionData } = useSession()
-  const [result, createEvidence] = useCreateEvidenceMutation()
-  const { fetching: isSubmitting } = result
+  const { mutateAsync: createEvidence, isPending } = useCreateEvidence()
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
     const controlObjectives = data?.controlObjectiveIDs?.reduce(
@@ -54,20 +54,18 @@ const EvidenceCreateForm: React.FC = () => {
       evidenceFiles: data.evidenceFiles?.map((item) => item.file) || [],
     }
 
-    const response = await createEvidence(formData)
-
-    if (response.error) {
+    try {
+      await createEvidence(formData)
+      successNotification({
+        title: 'Evidence Created',
+        description: `Evidence has been successfully created`,
+      })
+    } catch {
       errorNotification({
         title: 'Error',
         description: 'There was an error creating the evidence. Please try again.',
       })
-      return
     }
-
-    successNotification({
-      title: 'Evidence Created',
-      description: `Evidence has been successfully created`,
-    })
     form.reset()
     setTagValues([])
     setResetEvidenceFiles(true)
@@ -281,8 +279,8 @@ const EvidenceCreateForm: React.FC = () => {
       </GridRow>
       <GridRow columns={1}>
         <GridCell>
-          <Button onClick={form.handleSubmit(onSubmitHandler)} loading={isSubmitting} disabled={isSubmitting}>
-            {isSubmitting ? 'Submitting...' : 'Submit for review'}
+          <Button onClick={form.handleSubmit(onSubmitHandler)} loading={isPending} disabled={isPending}>
+            {isPending ? 'Submitting...' : 'Submit for review'}
           </Button>
         </GridCell>
       </GridRow>

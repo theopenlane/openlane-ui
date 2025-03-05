@@ -1,8 +1,9 @@
 import React from 'react'
 import { ColumnDef } from '@tanstack/table-core'
 import { DataTable } from '@repo/ui/data-table'
-import { Permission, useGetGroupPermissionsQuery } from '@repo/codegen/src/schema'
+import { Permission } from '@repo/codegen/src/schema'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
+import { useGetGroupPermissions } from '@/lib/graphql-hooks/groups'
 
 interface GroupPermission {
   id: string
@@ -14,10 +15,7 @@ interface GroupPermission {
 const GroupDeletePermissionsTable: React.FC = () => {
   const { selectedGroup } = useGroupsStore()
 
-  const [{ data }] = useGetGroupPermissionsQuery({
-    variables: { groupId: selectedGroup || '' },
-    pause: !selectedGroup,
-  })
+  const { data } = useGetGroupPermissions(selectedGroup)
 
   const groupPermissions: GroupPermission[] =
     data?.group?.permissions?.map((permission) => ({

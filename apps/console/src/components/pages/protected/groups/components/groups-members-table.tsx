@@ -6,9 +6,11 @@ import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { Trash2 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { GroupMembershipRole, useGetGroupDetailsQuery, UserRole, useUpdateGroupMembershipMutation } from '@repo/codegen/src/schema'
+import { GroupMembershipRole, UserRole } from '@repo/codegen/src/schema'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { useSession } from 'next-auth/react'
+import { useGetGroupDetails, useUpdateGroupMembership } from '@/lib/graphql-hooks/groups'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface Member {
   id: string
@@ -20,10 +22,11 @@ interface Member {
 const GroupsMembersTable = () => {
   const { data: session } = useSession()
   const { selectedGroup, isAdmin } = useGroupsStore()
-  const [{ data, fetching }] = useGetGroupDetailsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
+  const { data } = useGetGroupDetails(selectedGroup)
   const { members, isManaged, id } = data?.group || {}
   const [users, setUsers] = useState<Member[]>([])
-  const [{}, updateMembership] = useUpdateGroupMembershipMutation()
+  const { mutateAsync: updateMembership } = useUpdateGroupMembership()
+  const queryClient = useQueryClient()
 
   useEffect(() => {
     if (selectedGroup) {
@@ -55,6 +58,7 @@ const GroupsMembersTable = () => {
         role: newRole,
       },
     })
+    queryClient.invalidateQueries({ queryKey: ['group', id] })
   }
 
   const handleDelete = (id: string) => {

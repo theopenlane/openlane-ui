@@ -4,8 +4,6 @@ import { MoreHorizontal, Trash2, UserRoundPen } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { OrgMembershipRole, useGetUserProfileQuery, useRemoveUserFromOrgMutation, useUpdateUserRoleInOrgMutation } from '@repo/codegen/src/schema'
-import { type UseQueryExecute } from 'urql'
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -26,64 +24,56 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z, infer as zInfer } from 'zod'
 import { useSession } from 'next-auth/react'
 import { useUserHasOrganizationEditPermissions } from '@/lib/authz/utils'
+import { useQueryClient } from '@tanstack/react-query'
+import { OrgMembershipRole } from '@repo/codegen/src/schema'
+import { useRemoveUserFromOrg, useUpdateUserRoleInOrg } from '@/lib/graphql-hooks/members'
+import { useGetUserProfile } from '@/lib/graphql-hooks/user'
 
 type MemberActionsProps = {
   memberId: string
-  refetchMembers: UseQueryExecute
   memberRole: OrgMembershipRole
 }
 
 const ICON_SIZE = 12
 
-export const MemberActions = ({ memberId, refetchMembers, memberRole }: MemberActionsProps) => {
+export const MemberActions = ({ memberId, memberRole }: MemberActionsProps) => {
   const { actionIcon, roleRow, buttonRow } = pageStyles()
-  const { successNotification, errorNotification } = useNotification()
-  const [_, deleteMember] = useRemoveUserFromOrgMutation()
+  const { mutateAsync: deleteMember } = useRemoveUserFromOrg()
   const { data: sessionData } = useSession()
   const userId = sessionData?.user.userId
-
-  const variables = { userId: userId ?? '' }
-  const [{ data: userData }] = useGetUserProfileQuery({ variables })
-
-  const { data, isLoading, error } = useUserHasOrganizationEditPermissions(sessionData)
+  const queryClient = useQueryClient()
+  const { errorNotification, successNotification } = useNotification()
+  const { data: userData } = useGetUserProfile(userId)
+  const { data } = useUserHasOrganizationEditPermissions(sessionData)
 
   const handleDeleteMember = async () => {
-    const response = await deleteMember({ deleteOrgMembershipId: memberId })
-
-    if (response.error) {
+    try {
+      await deleteMember({ deleteOrgMembershipId: memberId })
+      successNotification({
+        title: 'Member deleted successfully',
+      })
+      queryClient.invalidateQueries({ queryKey: ['organizationsWithMembers', sessionData?.user.activeOrganizationId] })
+    } catch {
       errorNotification({
         title: 'There was a problem deleting the member, please try again',
       })
     }
-
-    if (response.data) {
-      successNotification({
-        title: 'Member deleted successfully',
-      })
-      refetchMembers({
-        requestPolicy: 'network-only',
-      })
-    }
   }
 
-  const [member, updateMember] = useUpdateUserRoleInOrgMutation()
+  const { mutateAsync: updateMember } = useUpdateUserRoleInOrg()
   const handleChangeRole = async (role: OrgMembershipRole) => {
-    const response = await updateMember({ updateOrgMemberId: memberId, input: { role: role } })
-
-    if (response.error) {
-      errorNotification({
-        title: 'There was a problem updating the member, please try again',
-        variant: 'destructive',
-      })
-    }
-
-    if (response.data) {
+    try {
+      await updateMember({ updateOrgMemberId: memberId, input: { role: role } })
       successNotification({
         title: 'Role changed successfully',
         variant: 'success',
       })
-      refetchMembers({
-        requestPolicy: 'network-only',
+
+      queryClient.invalidateQueries({ queryKey: ['organizationsWithMembers', sessionData?.user.activeOrganizationId] })
+    } catch (error) {
+      errorNotification({
+        title: 'There was a problem updating the member, please try again',
+        variant: 'destructive',
       })
     }
   }
