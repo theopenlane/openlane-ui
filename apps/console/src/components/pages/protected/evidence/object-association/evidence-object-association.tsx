@@ -10,6 +10,7 @@ import EvidenceObjectAssociationTable from '@/components/pages/protected/evidenc
 import { EVIDENCE_OBJECT_CONFIG, EvidenceObjects } from '@/components/pages/protected/evidence/util/evidence'
 import { TFormDataResponse } from '@/components/pages/protected/evidence/object-association/types/TFormDataResponse'
 import { GetAllControlsDocument } from '@repo/codegen/src/schema'
+import { TEvidenceObjectIds } from '@/components/pages/protected/evidence/object-association/types/TEvidenceObjectIds'
 
 type TProps = {
   onEvidenceObjectIdsChange: (evidenceObjectiveIDs: TEvidenceObjectIds[]) => void

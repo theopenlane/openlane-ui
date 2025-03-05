@@ -39,7 +39,6 @@ const TaskTable: React.FC = () => {
   }
 
   const handleRowClick = (task: TTableDataResponse) => {
-    console.log(task)
     setSelectedTask(task.id ?? null)
   }
 

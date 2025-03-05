@@ -9,8 +9,16 @@ import debounce from 'lodash.debounce'
 import { useQuery } from 'urql'
 import { TFormDataResponse } from '@/components/pages/protected/tasks/create-task/form/types/TFormDataResponse'
 import { GetAllControlsDocument } from '@repo/codegen/src/schema'
+import { UseFormReturn } from 'react-hook-form'
+import { CreateTaskFormData } from '@/components/pages/protected/tasks/hooks/use-form-schema'
+import TaskObjectTypeTable from '@/components/pages/protected/tasks/create-task/form/task-object-type-table'
+import { TTaskObjectType } from '@/components/pages/protected/tasks/create-task/form/types/TTaskObjectType'
 
-const ControlObjectTaskForm: React.FC = () => {
+type TProps = {
+  form: UseFormReturn<CreateTaskFormData>
+}
+
+const ControlObjectTaskForm: React.FC<TProps> = (props: TProps) => {
   const [selectedObject, setSelectedObject] = useState<TaskObjectTypes | null>(null)
   const [searchValue, setSearchValue] = useState('')
   const [formData, setFormData] = useState<TFormDataResponse[]>([])
@@ -64,6 +72,10 @@ const ControlObjectTaskForm: React.FC = () => {
     setSearchValue(event.target.value)
   }
 
+  const handleTaskObjectTypeChange = (taskObjectTypes: TTaskObjectType[]) => {
+    props.form.setValue('taskObjects', taskObjectTypes)
+  }
+
   return (
     <Panel>
       <PanelHeader heading="Associate this task with other object" noBorder />
@@ -97,6 +109,7 @@ const ControlObjectTaskForm: React.FC = () => {
           />
         </div>
       </div>
+      <TaskObjectTypeTable onTaskObjectTypeChange={handleTaskObjectTypeChange} data={formData} />
     </Panel>
   )
 }

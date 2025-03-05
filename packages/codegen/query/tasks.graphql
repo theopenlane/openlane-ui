@@ -36,12 +36,14 @@ query Task($taskId: ID!) {
       firstName
       lastName
       avatarRemoteURL
+      id
     }
     assigner {
       avatarRemoteURL
       lastName
       firstName
       displayName
+      id
     }
     id
     category
@@ -49,24 +51,34 @@ query Task($taskId: ID!) {
     status
     subcontrol {
       displayID
+      id
     }
     program {
       displayID
+      id
     }
     procedure {
       displayID
+      id
     }
     internalPolicy {
       displayID
+      id
     }
     evidence {
       displayID
+      id
+    }
+    group {
+      displayID
+      id
     }
     due
     displayID
     description
     controlObjective {
       displayID
+      id
     }
   }
 }

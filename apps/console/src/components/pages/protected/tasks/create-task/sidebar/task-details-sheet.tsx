@@ -3,9 +3,9 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Button } from '@repo/ui/button'
-import { Link, Pencil, Check, Trash2, FilePlus, SquareArrowRight, GlobeIcon, User, CircleUser, UserRoundPen, CalendarCheck2, Circle, Folder, BookText } from 'lucide-react'
+import { Link, Pencil, Check, Trash2, FilePlus, SquareArrowRight, CircleUser, UserRoundPen, CalendarCheck2, Circle, Folder, BookText, InfoIcon } from 'lucide-react'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { useUpdateGroupMutation, useTaskQuery, useGetSingleOrganizationMembersQuery, GetSingleOrganizationMembersQueryVariables } from '@repo/codegen/src/schema'
+import { useTaskQuery, useGetSingleOrganizationMembersQuery, GetSingleOrganizationMembersQueryVariables } from '@repo/codegen/src/schema'
 import { Textarea } from '@repo/ui/textarea'
 import { Input } from '@repo/ui/input'
 import { useSession } from 'next-auth/react'
@@ -14,15 +14,19 @@ import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskSt
 import useFormSchema, { EditTaskFormData } from '@/components/pages/protected/tasks/hooks/use-form-schema'
 import { Loading } from '@/components/shared/loading/loading'
 import { Controller } from 'react-hook-form'
-import { Select, SelectContent, SelectTrigger } from '@repo/ui/select'
-import { SelectItem } from '@nextui-org/react'
+import { Select, SelectContent, SelectTrigger, SelectItem } from '@repo/ui/select'
 import { format } from 'date-fns'
 import { Badge } from '@repo/ui/badge'
+import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
+import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { TaskTypes } from '@/components/pages/protected/tasks/util/task'
+import { CalendarPopover } from '@repo/ui/calendar-popover'
+import ControlObjectTaskForm from '@/components/pages/protected/tasks/create-task/form/control-object-task-form'
 
 const TaskDetailsSheet = () => {
-  const { form } = useFormSchema()
   const { data: session } = useSession()
   const [isEditing, setIsEditing] = useState(false)
+  const taskTypeOptions = Object.values(TaskTypes)
   const searchParams = useSearchParams()
   const router = useRouter()
   const { selectedTask, setSelectedTask } = useTaskStore()
@@ -46,7 +50,26 @@ const TaskDetailsSheet = () => {
   })
 
   const taskData = data?.task
-  const [{}, updateGroup] = useUpdateGroupMutation()
+  const { form } = useFormSchema()
+
+  useEffect(() => {
+    if (taskData) {
+      form.reset({
+        title: taskData.title ?? '',
+        description: taskData.description ?? '',
+        due: taskData.due,
+        assigneeID: taskData.assignee?.id,
+        category: TaskTypes[taskData.category as keyof typeof TaskTypes] || undefined,
+        controlObjectiveIDs: taskData?.controlObjective?.map((item) => item.id) || [],
+        subcontrolIDs: taskData?.subcontrol?.map((item) => item.id) || [],
+        programIDs: taskData?.program?.map((item) => item.id) || [],
+        procedureIDs: taskData?.procedure?.map((item) => item.id) || [],
+        internalPolicyIDs: taskData?.internalPolicy?.map((item) => item.id) || [],
+        evidenceIDs: taskData?.evidence?.map((item) => item.id) || [],
+        groupIDs: taskData?.group?.map((item) => item.id) || [],
+      })
+    }
+  }, [taskData, form])
 
   const handleCopyLink = () => {
     if (!selectedTask) {
@@ -81,6 +104,7 @@ const TaskDetailsSheet = () => {
     newSearchParams.delete('taskId')
     router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
   }
+
   const onSubmit = async (data: EditTaskFormData) => {
     if (!selectedTask) {
       return
@@ -89,12 +113,13 @@ const TaskDetailsSheet = () => {
 
   const handleRelatedObjects = () => {
     const items = [
-      ...(taskData?.controlObjective?.map((item) => `display${item.displayID}`) || []),
-      ...(taskData?.subcontrol?.map((item) => `display${item.displayID}`) || []),
-      ...(taskData?.program?.map((item) => `display${item.displayID}`) || []),
-      ...(taskData?.procedure?.map((item) => `display${item.displayID}`) || []),
-      ...(taskData?.internalPolicy?.map((item) => `display${item.displayID}`) || []),
-      ...(taskData?.evidence?.map((item) => `display${item.displayID}`) || []),
+      ...(taskData?.controlObjective?.map((item) => item.displayID) || []),
+      ...(taskData?.subcontrol?.map((item) => item.displayID) || []),
+      ...(taskData?.program?.map((item) => item.displayID) || []),
+      ...(taskData?.procedure?.map((item) => item.displayID) || []),
+      ...(taskData?.internalPolicy?.map((item) => item.displayID) || []),
+      ...(taskData?.evidence?.map((item) => item.displayID) || []),
+      ...(taskData?.group?.map((item) => item.displayID) || []),
     ]
 
     return (
@@ -146,15 +171,39 @@ const TaskDetailsSheet = () => {
                 </Button>
               </div>
             </SheetHeader>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-              <SheetDescription>
-                {taskData?.displayID} - {taskData?.category}
-              </SheetDescription>
-              <SheetTitle>{isEditing ? <Controller name="title" control={form.control} render={({ field }) => <Input {...field} placeholder="Group name" />} /> : taskData?.title}</SheetTitle>
-              <SheetDescription>
-                {isEditing ? <Controller name="description" control={form.control} render={({ field }) => <Textarea {...field} placeholder="Add a description" />} /> : taskData?.description}
-              </SheetDescription>
-            </form>
+
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)}>
+                <SheetDescription>
+                  {taskData?.displayID} - {taskData?.category}
+                </SheetDescription>
+                <SheetTitle>
+                  {isEditing ? (
+                    <FormField
+                      control={form.control}
+                      name="title"
+                      render={({ field }) => (
+                        <FormItem className="w-1/2">
+                          <div className="flex items-center">
+                            <FormLabel>Title</FormLabel>
+                            <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Test1</p>} />
+                          </div>
+                          <FormControl>
+                            <Input variant="medium" {...field} className="w-full" />
+                          </FormControl>
+                          {form.formState.errors.title && <p className="text-red-500 text-sm">{form.formState.errors.title.message}</p>}
+                        </FormItem>
+                      )}
+                    />
+                  ) : (
+                    taskData?.title
+                  )}
+                </SheetTitle>
+                <SheetDescription>
+                  {isEditing ? <Controller name="description" control={form.control} render={({ field }) => <Textarea {...field} placeholder="Add a description" />} /> : taskData?.description}
+                </SheetDescription>
+              </form>
+            </Form>
 
             <div className="mt-9 flex gap-4">
               <Button icon={<FilePlus />} iconPosition="left">
@@ -168,7 +217,7 @@ const TaskDetailsSheet = () => {
               </Button>
             </div>
 
-            <div>
+            <div className="pb-8">
               <div className="flex flex-col gap-4 mt-5">
                 <div className="flex items-center gap-4">
                   <CircleUser height={16} width={16} color="#2CCBAB" />
@@ -186,7 +235,7 @@ const TaskDetailsSheet = () => {
                       render={({ field }) => (
                         <>
                           <Select value={field.value} onValueChange={field.onChange}>
-                            <SelectTrigger className=" w-full">{field.value || 'Select'}</SelectTrigger>
+                            <SelectTrigger className="w-1/2">{(membersOptions || []).find((member) => member.value === field.value)?.label || 'Select'}</SelectTrigger>
                             <SelectContent>
                               {membersOptions &&
                                 membersOptions.length > 0 &&
@@ -209,7 +258,20 @@ const TaskDetailsSheet = () => {
                 <div className="flex items-center gap-4">
                   <CalendarCheck2 height={16} width={16} color="#2CCBAB" />
                   <p className="text-sm w-[120px]">Due Date</p>
-                  <p className="text-sm">{taskData?.due ? format(new Date(taskData.due as string), 'd MMM, yyyy') : ''}</p>
+                  {isEditing ? (
+                    <Controller
+                      name="due"
+                      control={form.control}
+                      render={({ field }) => (
+                        <>
+                          <CalendarPopover field={field} buttonClassName="w-1/2 flex justify-between items-center" />
+                          {form.formState.errors.due && <p className="text-red-500 text-sm">{form.formState.errors.due.message}</p>}
+                        </>
+                      )}
+                    />
+                  ) : (
+                    <p className="text-sm">{taskData?.due ? format(new Date(taskData.due as string), 'd MMM, yyyy') : ''}</p>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-4">
@@ -221,16 +283,40 @@ const TaskDetailsSheet = () => {
                 <div className="flex items-center gap-4">
                   <Folder height={16} width={16} color="#2CCBAB" />
                   <p className="text-sm w-[120px]">Task type</p>
-                  <p className="text-sm">{taskData?.category}</p>
+                  {isEditing ? (
+                    <Controller
+                      name="category"
+                      control={form.control}
+                      render={({ field }) => (
+                        <>
+                          <Select value={field.value} onValueChange={field.onChange}>
+                            <SelectTrigger className="w-1/2">{field.value || 'Select'}</SelectTrigger>
+                            <SelectContent>
+                              {taskTypeOptions.map((option) => (
+                                <SelectItem key={option} value={option}>
+                                  {option}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {form.formState.errors.category && <p className="text-red-500 text-sm">{form.formState.errors.category.message}</p>}
+                        </>
+                      )}
+                    />
+                  ) : (
+                    <p className="text-sm">{taskData?.category}</p>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-4">
                   <BookText height={16} width={16} color="#2CCBAB" />
                   <p className="text-sm w-[120px]">Related Objects</p>
-                  <p className="text-sm">{handleRelatedObjects()}</p>
+                  {handleRelatedObjects()}
                 </div>
               </div>
             </div>
+
+            {isEditing && <ControlObjectTaskForm form={form} />}
           </>
         )}
       </SheetContent>

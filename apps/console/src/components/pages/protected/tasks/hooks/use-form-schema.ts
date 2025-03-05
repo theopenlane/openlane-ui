@@ -16,6 +16,14 @@ const formSchema = z.object({
   description: z.string().optional(),
   assigneeID: z.string().optional(),
   due: z.date(),
+  taskObjects: z.array(z.any()).optional(),
+  controlObjectiveIDs: z.array(z.any()).optional(),
+  subcontrolIDs: z.array(z.any()).optional(),
+  programIDs: z.array(z.any()).optional(),
+  procedureIDs: z.array(z.any()).optional(),
+  internalPolicyIDs: z.array(z.any()).optional(),
+  evidenceIDs: z.array(z.any()).optional(),
+  groupIDs: z.array(z.any()).optional(),
 })
 
 export type CreateTaskFormData = z.infer<typeof formSchema>
@@ -28,6 +36,7 @@ const useFormSchema = () => {
       defaultValues: {
         title: '',
         description: '',
+        taskObjects: [],
       },
     }),
   }

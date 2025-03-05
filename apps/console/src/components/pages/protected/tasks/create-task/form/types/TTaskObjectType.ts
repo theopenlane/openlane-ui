@@ -1,4 +1,4 @@
-export type TEvidenceObjectIds = {
+export type TTaskObjectType = {
   inputName: string
   objectIds: string[]
 }

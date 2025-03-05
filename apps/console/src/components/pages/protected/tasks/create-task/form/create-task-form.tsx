@@ -37,6 +37,14 @@ const CreateTaskForm: React.FC = () => {
   const { fetching: isSubmitting } = result
 
   const onSubmitHandler = async (data: CreateTaskFormData) => {
+    const taskObjects = data?.taskObjects?.reduce(
+      (acc, item) => {
+        acc[item.inputName] = item.objectIds
+        return acc
+      },
+      {} as Record<string, string[]>,
+    )
+
     const formData = {
       input: {
         category: data?.category,
@@ -44,6 +52,7 @@ const CreateTaskForm: React.FC = () => {
         title: data?.title,
         description: data?.description,
         assigneeID: data?.assigneeID,
+        ...taskObjects,
       } as CreateTaskInput,
     }
 
@@ -152,7 +161,7 @@ const CreateTaskForm: React.FC = () => {
                               <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Test123</p>} />
                             </div>
                             <Select value={field.value} onValueChange={field.onChange}>
-                              <SelectTrigger className=" w-full">{field.value || 'Select'}</SelectTrigger>
+                              <SelectTrigger className=" w-full">{(membersOptions || []).find((member) => member.value === field.value)?.label || 'Select'}</SelectTrigger>
                               <SelectContent>
                                 {membersOptions &&
                                   membersOptions.length > 0 &&
@@ -193,7 +202,7 @@ const CreateTaskForm: React.FC = () => {
                 </Form>
               </div>
               <div className="col-span-1">
-                <ControlObjectTaskForm />
+                <ControlObjectTaskForm form={form} />
               </div>
             </div>
           </GridCell>

@@ -20,9 +20,10 @@ export type CalendarPopoverProps<T extends FieldValues> = {
   defaultAddDays?: number
   required?: boolean
   customSelect?: TCustomSelect[]
+  buttonClassName?: string
 }
 
-const CalendarPopover = <T extends FieldValues>({ field, defaultToday, required, defaultAddDays, customSelect }: CalendarPopoverProps<T>) => {
+const CalendarPopover = <T extends FieldValues>({ field, defaultToday, required, defaultAddDays, customSelect, buttonClassName }: CalendarPopoverProps<T>) => {
   const todayDate = defaultToday ? new Date() : undefined
   const defaultAddDaysDate = defaultAddDays ? addDays(new Date(), defaultAddDays) : undefined
   const defaultDate = defaultAddDaysDate ?? todayDate ?? null
@@ -31,7 +32,7 @@ const CalendarPopover = <T extends FieldValues>({ field, defaultToday, required,
   const { calendarInput, calendarPopover: calendarPopoverStyle } = calendarPopoverStyles()
 
   useEffect(() => {
-    if (field && field.value === null) {
+    if (field && field.value !== undefined) {
       setValue(field.value)
     }
   }, [field?.value])
@@ -58,7 +59,7 @@ const CalendarPopover = <T extends FieldValues>({ field, defaultToday, required,
   return (
     <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
       <PopoverTrigger asChild>
-        <Button className="w-full flex justify-between items-center" variant="outlineInput" childFull>
+        <Button className={buttonClassName ?? 'w-full flex justify-between items-center'} variant="outlineInput" childFull>
           <div className={calendarInput()}>
             <span>{value ? format(value, 'PPP') : 'Select a date:'}</span>
             <div className="flex items-center gap-x-2">

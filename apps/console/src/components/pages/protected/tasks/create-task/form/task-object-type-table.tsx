@@ -3,20 +3,20 @@ import React, { useEffect, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { Checkbox } from '@repo/ui/checkbox'
-import { TFormDataResponse } from '@/components/pages/protected/evidence/object-association/types/TFormDataResponse'
-import { TEvidenceObjectIds } from '@/components/pages/protected/evidence/object-association/types/TEvidenceObjectIds'
+import { TFormDataResponse } from '@/components/pages/protected/tasks/create-task/form/types/TFormDataResponse'
+import { TTaskObjectType } from '@/components/pages/protected/tasks/create-task/form/types/TTaskObjectType'
 
 type TProps = {
   data: TFormDataResponse[]
-  onEvidenceObjectIdsChange: (evidenceObjectIds: TEvidenceObjectIds[]) => void
+  onTaskObjectTypeChange: (taskObjectTypes: TTaskObjectType[]) => void
 }
 
-const EvidenceObjectAssociationTable: React.FC<TProps> = (props: TProps) => {
-  const [evidenceObjectIds, setEvidenceObjectIds] = useState<TEvidenceObjectIds[]>([])
+const TaskObjectTypeTable: React.FC<TProps> = (props: TProps) => {
+  const [taskObjectTypes, setTaskObjectTypes] = useState<TTaskObjectType[]>([])
 
   useEffect(() => {
-    props.onEvidenceObjectIdsChange(evidenceObjectIds)
-  }, [evidenceObjectIds])
+    props.onTaskObjectTypeChange(taskObjectTypes)
+  }, [taskObjectTypes])
 
   const columns: ColumnDef<TObjectAssociationColumn>[] = [
     {
@@ -26,7 +26,7 @@ const EvidenceObjectAssociationTable: React.FC<TProps> = (props: TProps) => {
         const objectAssociationId = row.original.id as string
         const name = row.original.name
         const inputName = row.original.inputName
-        const isChecked = evidenceObjectIds.some((item) => item.objectIds.includes(objectAssociationId))
+        const isChecked = taskObjectTypes.some((item) => item.objectIds.includes(objectAssociationId))
 
         return (
           <div className="flex items-center gap-3">
@@ -34,7 +34,7 @@ const EvidenceObjectAssociationTable: React.FC<TProps> = (props: TProps) => {
               id={objectAssociationId}
               checked={isChecked}
               onCheckedChange={(checked) => {
-                setEvidenceObjectIds((prevState) => {
+                setTaskObjectTypes((prevState) => {
                   const existingIndex = prevState.findIndex((item) => item.inputName === inputName)
 
                   if (checked) {
@@ -64,4 +64,4 @@ const EvidenceObjectAssociationTable: React.FC<TProps> = (props: TProps) => {
   return <DataTable columns={columns} data={props.data} />
 }
 
-export default EvidenceObjectAssociationTable
+export default TaskObjectTypeTable

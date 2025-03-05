@@ -8,21 +8,19 @@ import { Button } from '@repo/ui/button'
 
 const CreateTaskDialog = () => {
   return (
-    <>
-      <Dialog>
-        <DialogTrigger>
-          <Button icon={<PlusCircle />} iconPosition="left">
-            Create a new Task
-          </Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create a new Task</DialogTitle>
-          </DialogHeader>
-          <CreateTaskForm />
-        </DialogContent>
-      </Dialog>
-    </>
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button icon={<PlusCircle />} iconPosition="left">
+          Create a new Task
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Create a new Task</DialogTitle>
+        </DialogHeader>
+        <CreateTaskForm />
+      </DialogContent>
+    </Dialog>
   )
 }
 

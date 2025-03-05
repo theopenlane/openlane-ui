@@ -17,6 +17,7 @@ import EvidenceUploadForm from '@/components/pages/protected/evidence/upload/evi
 import EvidenceObjectAssociation from '@/components/pages/protected/evidence/object-association/evidence-object-association'
 import { useNotification } from '@/hooks/useNotification'
 import { Option } from '@repo/ui/multiple-selector'
+import { TEvidenceObjectIds } from '@/components/pages/protected/evidence/object-association/types/TEvidenceObjectIds'
 
 const EvidenceCreateForm: React.FC = () => {
   const { form } = useFormSchema()
