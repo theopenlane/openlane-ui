@@ -24,14 +24,11 @@ const Providers = ({ children }: ProvidersProps) => {
   useEffect(() => {
     if (status === 'authenticated' && !queryClient) {
       setAccessToken(session.user.accessToken)
-      const client = getGraphQLClient(session)
+
       const newQueryClient = new QueryClient({
         defaultOptions: {
           queries: {
-            queryFn: async ({ queryKey }) => {
-              const [query, variables] = queryKey as [string, Record<string, any>?]
-              return client.request(query, variables)
-            },
+            staleTime: 60 * 1000,
             placeholderData: (prev: any) => prev,
             refetchOnWindowFocus: false,
           },

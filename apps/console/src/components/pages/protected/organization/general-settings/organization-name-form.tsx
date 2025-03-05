@@ -11,13 +11,15 @@ import { useEffect, useState } from 'react'
 import { RESET_SUCCESS_STATE_MS } from '@/constants'
 import { useOrganization } from '@/hooks/useOrganization'
 import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
-import { useUpdateOrganization } from '@/lib/graphql-hooks/organization'
+import { useUpdateOrganization, useUpdateOrgAvatar } from '@/lib/graphql-hooks/organization'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
 
 const OrganizationNameForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
   const { isPending, mutateAsync: updateOrg } = useUpdateOrganization()
+  const { isPending: uploading, mutateAsync: uploadAvatar } = useUpdateOrgAvatar()
+
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
   const { currentOrgId, allOrgs } = useOrganization()
@@ -71,7 +73,7 @@ const OrganizationNameForm = () => {
   const handleUploadAvatar = async (file: File) => {
     if (!currentOrgId) return
     try {
-      await updateOrg({
+      await uploadAvatar({
         updateOrganizationId: currentOrgId,
         input: {},
         avatarFile: file,

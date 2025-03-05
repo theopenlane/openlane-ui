@@ -13,7 +13,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@repo/ui/input'
 import MultipleSelector from '@repo/ui/multiple-selector'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { useToast } from '@repo/ui/use-toast'
 import { useRouter } from 'next/navigation'
 import { useNotification } from '@/hooks/useNotification'
 import { useDeleteInternalPolicy } from '@/lib/graphql-hooks/policy'
@@ -24,7 +23,6 @@ type PolicyEditSidebarProps = {
   handleSave: () => void
 }
 
-// export const PolicyEditSidebar: React.FC<PolicyEditSidebarProps> = function ({ policy, form, handleSave }) {
 export const PolicyEditSidebar = ({ policy, form, handleSave }: PolicyEditSidebarProps) => {
   const { successNotification, errorNotification } = useNotification()
   const router = useRouter()

@@ -56,11 +56,11 @@ export const useGetProcedureDetailsById = (procedureId?: string) => {
 }
 
 export const useCreateProcedure = () => {
-  const { client } = useGraphQLClient()
+  const { client, queryClient } = useGraphQLClient()
 
   return useMutation<CreateProcedureMutation, unknown, CreateProcedureMutationVariables>({
     mutationFn: (variables) => client.request(CREATE_PROCEDURE, variables),
-    // onSuccess: () => { /* Optional: invalidate queries here */ }
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['procedures'] }),
   })
 }
 
@@ -73,11 +73,11 @@ export const useUpdateProcedure = () => {
 }
 
 export const useDeleteProcedure = () => {
-  const { client } = useGraphQLClient()
+  const { client, queryClient } = useGraphQLClient()
 
   return useMutation<DeleteProcedureMutation, unknown, DeleteProcedureMutationVariables>({
     mutationFn: (variables) => client.request(DELETE_PROCEDURE, variables),
-    // onSuccess: () => { /* Optional: invalidate queries here */ }
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['procedures'] }),
   })
 }
 

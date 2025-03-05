@@ -44,6 +44,7 @@ import {
 } from '@repo/codegen/src/schema'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { RequestDocument, Variables } from 'graphql-request'
+import { fetchGraphQLWithUpload } from '../fetchGraphql'
 
 export const useGetAllOrganizations = () => {
   const { client } = useGraphQLClient()
@@ -168,6 +169,18 @@ export const useDeleteOrganization = () => {
     mutationFn: async (variables) => {
       const response = await client.rawRequest<DeleteOrganizationMutation, Variables>(DELETE_ORGANIZATION as string, variables)
       return { data: response.data, extensions: response.extensions as Record<string, any> | undefined }
+    },
+  })
+}
+
+export const useUpdateOrgAvatar = () => {
+  const { queryClient } = useGraphQLClient()
+
+  return useMutation({
+    mutationFn: (payload: UpdateOrganizationMutationVariables) => fetchGraphQLWithUpload({ query: UPDATE_ORGANIZATION, variables: payload }),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user'] })
     },
   })
 }
