@@ -11,16 +11,18 @@ import TaskCards from '@/components/pages/protected/tasks/cards/task-cards'
 
 const TaskTable: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
+  const [showCompletedTasks, setShowCompletedTasks] = useState<boolean>(false)
   const { setSelectedTask, orgMembers, setReexecuteTaskQuery } = useTaskStore()
   const [filters, setFilters] = useState<Record<string, any>>({})
 
   const whereFilter = useMemo(() => {
     const conditions: Record<string, any> = {
+      ...(showCompletedTasks ? { status: TaskTaskStatus.COMPLETED } : {}),
       ...filters,
     }
 
     return conditions
-  }, [filters])
+  }, [filters, showCompletedTasks])
 
   const [{ data, fetching }, reexecuteQuery] = useTasksWithFilterQuery({ variables: { where: whereFilter }, requestPolicy: 'network-only' })
   const [tableData, setTableData] = useState<TTableDataResponse[]>([])
@@ -60,9 +62,13 @@ const TaskTable: React.FC = () => {
     setActiveTab(tab)
   }
 
+  const handleShowCompletedTasks = (val: boolean) => {
+    setShowCompletedTasks(val)
+  }
+
   return (
     <>
-      <TaskTableToolbar onFilterChange={setFilters} members={orgMembers} onSortChange={handleSortChange} onTabChange={handleTabChange} />
+      <TaskTableToolbar onFilterChange={setFilters} members={orgMembers} onSortChange={handleSortChange} onTabChange={handleTabChange} onShowCompletedTasksChange={handleShowCompletedTasks} />
       {activeTab === 'table' ? <DataTable columns={taskColumns} data={tableData} loading={fetching} onRowClick={handleRowClick} /> : <TaskCards tasks={tableData} loading={fetching} />}
     </>
   )

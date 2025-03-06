@@ -6,16 +6,19 @@ import { SelectFilterField } from '@/types'
 import { TOrgMembers } from '@/components/pages/protected/tasks/hooks/useTaskStore'
 import { TableSort } from '@/components/shared/table-filter/table-sort'
 import { CreditCard as CardIcon, Table as TableIcon } from 'lucide-react'
+import { Checkbox } from '@repo/ui/checkbox'
 
 type TProps = {
   onFilterChange: (filters: Record<string, any>) => void
   onSortChange: (data: any) => void
   members: TOrgMembers[] | undefined
   onTabChange: (tab: 'table' | 'card') => void
+  onShowCompletedTasksChange: (val: boolean) => void
 }
 
 const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
+  const [showCompletedTasks, setShowCompletedTasks] = useState<boolean>(false)
 
   const filterFields = [
     ...TASK_FILTER_FIELDS,
@@ -36,6 +39,11 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
     props.onTabChange(tab)
   }
 
+  const handleShowCompletedTasks = (val: boolean) => {
+    setShowCompletedTasks(val)
+    props.onShowCompletedTasksChange(val)
+  }
+
   return (
     <div className="flex items-center gap-2 my-5">
       <div className="flex gap-1 size-fit bg-transparent py-0.5 px-1 border rounded-md">
@@ -49,6 +57,10 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
       <div className="grow flex flex-row items-center gap-2">
         <TableFilter filterFields={filterFields} onFilterChange={props.onFilterChange} />
         <TableSort sortFields={TASK_SORT_FIELDS} onSortChange={(data) => handleSort(data)} />
+        <div className="grow flex flex-row items-center gap-2 pl-5">
+          <Checkbox checked={showCompletedTasks} onCheckedChange={(val: boolean) => handleShowCompletedTasks(val)} />
+          <p>Show completed tasks</p>
+        </div>
       </div>
 
       <div className="grow flex flex-row items-center gap-2 justify-end">
