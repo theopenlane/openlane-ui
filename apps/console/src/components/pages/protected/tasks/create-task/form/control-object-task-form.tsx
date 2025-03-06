@@ -109,7 +109,7 @@ const ControlObjectTaskForm: React.FC<TProps> = (props: TProps) => {
           />
         </div>
       </div>
-      <TaskObjectTypeTable onTaskObjectTypeChange={handleTaskObjectTypeChange} data={formData} />
+      <TaskObjectTypeTable onTaskObjectTypeChange={handleTaskObjectTypeChange} data={formData} form={props.form} />
     </Panel>
   )
 }

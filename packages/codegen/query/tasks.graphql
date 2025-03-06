@@ -29,6 +29,14 @@ mutation CreateTask($input: CreateTaskInput!) {
   }
 }
 
+mutation UpdateTask($updateTaskId: ID!, $input: UpdateTaskInput!) {
+  updateTask(id: $updateTaskId, input: $input) {
+    task {
+      id
+    }
+  }
+}
+
 query Task($taskId: ID!) {
   task(id: $taskId) {
     assignee {

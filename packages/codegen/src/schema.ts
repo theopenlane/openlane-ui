@@ -27509,6 +27509,13 @@ export type CreateTaskMutationVariables = Exact<{
 
 export type CreateTaskMutation = { __typename?: 'Mutation'; createTask: { __typename?: 'TaskCreatePayload'; task: { __typename?: 'Task'; id: string } } }
 
+export type UpdateTaskMutationVariables = Exact<{
+  updateTaskId: Scalars['ID']['input']
+  input: UpdateTaskInput
+}>
+
+export type UpdateTaskMutation = { __typename?: 'Mutation'; updateTask: { __typename?: 'TaskUpdatePayload'; task: { __typename?: 'Task'; id: string } } }
+
 export type TaskQueryVariables = Exact<{
   taskId: Scalars['ID']['input']
 }>
@@ -29171,6 +29178,19 @@ export const CreateTaskDocument = gql`
 
 export function useCreateTaskMutation() {
   return Urql.useMutation<CreateTaskMutation, CreateTaskMutationVariables>(CreateTaskDocument)
+}
+export const UpdateTaskDocument = gql`
+  mutation UpdateTask($updateTaskId: ID!, $input: UpdateTaskInput!) {
+    updateTask(id: $updateTaskId, input: $input) {
+      task {
+        id
+      }
+    }
+  }
+`
+
+export function useUpdateTaskMutation() {
+  return Urql.useMutation<UpdateTaskMutation, UpdateTaskMutationVariables>(UpdateTaskDocument)
 }
 export const TaskDocument = gql`
   query Task($taskId: ID!) {

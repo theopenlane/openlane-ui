@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { Link, Pencil, Check, Trash2, FilePlus, SquareArrowRight, CircleUser, UserRoundPen, CalendarCheck2, Circle, Folder, BookText, InfoIcon } from 'lucide-react'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { useTaskQuery, useGetSingleOrganizationMembersQuery, GetSingleOrganizationMembersQueryVariables } from '@repo/codegen/src/schema'
+import { useTaskQuery, useGetSingleOrganizationMembersQuery, GetSingleOrganizationMembersQueryVariables, UpdateTaskInput, useUpdateTaskMutation } from '@repo/codegen/src/schema'
 import { Textarea } from '@repo/ui/textarea'
 import { Input } from '@repo/ui/input'
 import { useSession } from 'next-auth/react'
@@ -44,6 +44,7 @@ const TaskDetailsSheet = () => {
       membershipId: member.id,
     }))
 
+  const [{}, updateTask] = useUpdateTaskMutation()
   const [{ data, fetching }] = useTaskQuery({
     variables: { taskId: (selectedTask as string) || '' },
     pause: !selectedTask,
@@ -57,9 +58,9 @@ const TaskDetailsSheet = () => {
       form.reset({
         title: taskData.title ?? '',
         description: taskData.description ?? '',
-        due: taskData.due,
+        due: new Date(taskData.due as string),
         assigneeID: taskData.assignee?.id,
-        category: TaskTypes[taskData.category as keyof typeof TaskTypes] || undefined,
+        category: taskData?.category ? Object.values(TaskTypes).find((type) => type === taskData?.category) : undefined,
         controlObjectiveIDs: taskData?.controlObjective?.map((item) => item.id) || [],
         subcontrolIDs: taskData?.subcontrol?.map((item) => item.id) || [],
         programIDs: taskData?.program?.map((item) => item.id) || [],
@@ -108,6 +109,90 @@ const TaskDetailsSheet = () => {
   const onSubmit = async (data: EditTaskFormData) => {
     if (!selectedTask) {
       return
+    }
+
+    const taskObjects = data?.taskObjects?.reduce(
+      (acc, item) => {
+        acc[item.inputName] = item.objectIds
+        return acc
+      },
+      {} as Record<string, string[]>,
+    )
+
+    const generatePayload = (existing: Record<string, string[]>, newValues: Record<string, string[]>) => {
+      const payload: Record<string, string[]> = {}
+
+      Object.keys(newValues).forEach((key) => {
+        const newIds = newValues[key] || []
+        const existingIds = existing[key] || []
+
+        const addIds = newIds.filter((id) => !existingIds.includes(id))
+
+        const removeIds = existingIds.filter((id) => !newIds.includes(id))
+
+        if (addIds.length > 0) payload[`add${capitalizeFirstLetter(key)}`] = addIds
+        if (removeIds.length > 0) payload[`remove${capitalizeFirstLetter(key)}`] = removeIds
+      })
+
+      return payload
+    }
+
+    const capitalizeFirstLetter = (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
+
+    const existingTaskObjectsData = [
+      ...[{ inputName: 'controlObjectiveIDs', objectIds: data.controlObjectiveIDs ?? [] }],
+      ...[{ inputName: 'subcontrolIDs', objectIds: data.subcontrolIDs ?? [] }],
+      ...[{ inputName: 'programIDs', objectIds: data.programIDs ?? [] }],
+      ...[{ inputName: 'procedureIDs', objectIds: data.procedureIDs ?? [] }],
+      ...[{ inputName: 'internalPolicyIDs', objectIds: data.internalPolicyIDs ?? [] }],
+      ...[{ inputName: 'evidenceIDs', objectIds: data.evidenceIDs ?? [] }],
+      ...[{ inputName: 'groupIDs', objectIds: data.groupIDs ?? [] }],
+    ]
+
+    const existingTaskObjects = existingTaskObjectsData?.reduce(
+      (acc, item) => {
+        acc[item.inputName] = item.objectIds
+        return acc
+      },
+      {} as Record<string, string[]>,
+    )
+
+    const taskObjectPayload = generatePayload(existingTaskObjects, taskObjects)
+
+    const formData = {
+      category: data?.category,
+      due: data?.due,
+      title: data?.title,
+      description: data?.description,
+      assigneeID: data?.assigneeID,
+      ...taskObjectPayload,
+    }
+
+    try {
+      const response = await updateTask({
+        updateTaskId: selectedTask as string,
+        input: formData,
+      })
+
+      if (response.error) {
+        errorNotification({
+          title: 'Error',
+          description: 'There was an error updating the task. Please try again.',
+        })
+        return
+      }
+
+      successNotification({
+        title: 'Task Updated',
+        description: 'The task has been successfully updated.',
+      })
+
+      setIsEditing(false)
+    } catch (error) {
+      errorNotification({
+        title: 'Error',
+        description: 'There was an unexpected error. Please try again later.',
+      })
     }
   }
 
@@ -174,16 +259,18 @@ const TaskDetailsSheet = () => {
 
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
-                <SheetDescription>
-                  {taskData?.displayID} - {taskData?.category}
-                </SheetDescription>
+                {!isEditing && (
+                  <SheetDescription>
+                    {taskData?.displayID} - {taskData?.category}
+                  </SheetDescription>
+                )}
                 <SheetTitle>
                   {isEditing ? (
                     <FormField
                       control={form.control}
                       name="title"
                       render={({ field }) => (
-                        <FormItem className="w-1/2">
+                        <FormItem className="w-1/3">
                           <div className="flex items-center">
                             <FormLabel>Title</FormLabel>
                             <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Test1</p>} />
@@ -200,22 +287,43 @@ const TaskDetailsSheet = () => {
                   )}
                 </SheetTitle>
                 <SheetDescription>
-                  {isEditing ? <Controller name="description" control={form.control} render={({ field }) => <Textarea {...field} placeholder="Add a description" />} /> : taskData?.description}
+                  {isEditing ? (
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <div className="flex items-center">
+                            <FormLabel>Description</FormLabel>
+                            <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Test3</p>} />
+                          </div>
+                          <FormControl>
+                            <Textarea id="description" {...field} className="w-full" />
+                          </FormControl>
+                          {form.formState.errors.description && <p className="text-red-500 text-sm">{form.formState.errors.description.message}</p>}
+                        </FormItem>
+                      )}
+                    />
+                  ) : (
+                    taskData?.description
+                  )}
                 </SheetDescription>
               </form>
             </Form>
 
-            <div className="mt-9 flex gap-4">
-              <Button icon={<FilePlus />} iconPosition="left">
-                Upload File
-              </Button>
-              <Button icon={<Check />} iconPosition="left" variant="outline">
-                Mark as complete
-              </Button>
-              <Button icon={<SquareArrowRight />} iconPosition="left" variant="outline">
-                Reassign
-              </Button>
-            </div>
+            {!isEditing && (
+              <div className="mt-9 flex gap-4">
+                <Button icon={<FilePlus />} iconPosition="left">
+                  Upload File
+                </Button>
+                <Button icon={<Check />} iconPosition="left" variant="outline">
+                  Mark as complete
+                </Button>
+                <Button icon={<SquareArrowRight />} iconPosition="left" variant="outline">
+                  Reassign
+                </Button>
+              </div>
+            )}
 
             <div className="pb-8">
               <div className="flex flex-col gap-4 mt-5">
@@ -235,7 +343,7 @@ const TaskDetailsSheet = () => {
                       render={({ field }) => (
                         <>
                           <Select value={field.value} onValueChange={field.onChange}>
-                            <SelectTrigger className="w-1/2">{(membersOptions || []).find((member) => member.value === field.value)?.label || 'Select'}</SelectTrigger>
+                            <SelectTrigger className="w-1/3">{(membersOptions || []).find((member) => member.value === field.value)?.label || 'Select'}</SelectTrigger>
                             <SelectContent>
                               {membersOptions &&
                                 membersOptions.length > 0 &&
@@ -264,7 +372,7 @@ const TaskDetailsSheet = () => {
                       control={form.control}
                       render={({ field }) => (
                         <>
-                          <CalendarPopover field={field} buttonClassName="w-1/2 flex justify-between items-center" />
+                          <CalendarPopover field={field} buttonClassName="w-1/3 flex justify-between items-center" />
                           {form.formState.errors.due && <p className="text-red-500 text-sm">{form.formState.errors.due.message}</p>}
                         </>
                       )}
@@ -287,32 +395,36 @@ const TaskDetailsSheet = () => {
                     <Controller
                       name="category"
                       control={form.control}
-                      render={({ field }) => (
-                        <>
-                          <Select value={field.value} onValueChange={field.onChange}>
-                            <SelectTrigger className="w-1/2">{field.value || 'Select'}</SelectTrigger>
-                            <SelectContent>
-                              {taskTypeOptions.map((option) => (
-                                <SelectItem key={option} value={option}>
-                                  {option}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          {form.formState.errors.category && <p className="text-red-500 text-sm">{form.formState.errors.category.message}</p>}
-                        </>
-                      )}
+                      render={({ field }) => {
+                        return (
+                          <>
+                            <Select value={field.value} onValueChange={field.onChange}>
+                              <SelectTrigger className="w-1/3">{field.value || 'Select'}</SelectTrigger>
+                              <SelectContent>
+                                {taskTypeOptions.map((option) => (
+                                  <SelectItem key={option} value={option}>
+                                    {option}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            {form.formState.errors.category && <p className="text-red-500 text-sm">{form.formState.errors.category.message}</p>}
+                          </>
+                        )
+                      }}
                     />
                   ) : (
                     <p className="text-sm">{taskData?.category}</p>
                   )}
                 </div>
 
-                <div className="flex items-center gap-4">
-                  <BookText height={16} width={16} color="#2CCBAB" />
-                  <p className="text-sm w-[120px]">Related Objects</p>
-                  {handleRelatedObjects()}
-                </div>
+                {!isEditing && (
+                  <div className="flex items-center gap-4">
+                    <BookText height={16} width={16} color="#2CCBAB" />
+                    <p className="text-sm w-[120px]">Related Objects</p>
+                    {handleRelatedObjects()}
+                  </div>
+                )}
               </div>
             </div>
 
