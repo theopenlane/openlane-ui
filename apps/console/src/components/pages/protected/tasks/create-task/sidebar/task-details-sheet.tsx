@@ -187,6 +187,37 @@ const TaskDetailsSheet = () => {
     }
   }
 
+  const handleMarkAsComplete = async () => {
+    try {
+      const response = await updateTask({
+        updateTaskId: selectedTask as string,
+        input: {
+          status: TaskTaskStatus.COMPLETED,
+        },
+      })
+
+      if (response.error) {
+        errorNotification({
+          title: 'Error',
+          description: 'There was an error updating the task. Please try again.',
+        })
+        return
+      }
+
+      successNotification({
+        title: 'Task Updated',
+        description: 'The task has been successfully marked as complete.',
+      })
+
+      setIsEditing(false)
+    } catch (error) {
+      errorNotification({
+        title: 'Error',
+        description: 'There was an unexpected error. Please try again later.',
+      })
+    }
+  }
+
   const handleRelatedObjects = () => {
     const items = [
       ...(taskData?.controlObjective?.map((item) => item.displayID) || []),
@@ -298,7 +329,7 @@ const TaskDetailsSheet = () => {
                 <Button icon={<FilePlus />} iconPosition="left">
                   Upload File
                 </Button>
-                <Button icon={<Check />} iconPosition="left" variant="outline">
+                <Button disabled={taskData?.status === TaskTaskStatus.COMPLETED} icon={<Check />} iconPosition="left" variant="outline" onClick={() => handleMarkAsComplete()}>
                   Mark as complete
                 </Button>
                 <Button icon={<SquareArrowRight />} iconPosition="left" variant="outline">
