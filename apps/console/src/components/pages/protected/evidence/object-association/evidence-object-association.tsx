@@ -8,10 +8,9 @@ import debounce from 'lodash.debounce'
 import EvidenceObjectAssociationTable from '@/components/pages/protected/evidence/object-association/evidence-object-association-table'
 import { AllEvidenceQueriesData, EVIDENCE_OBJECT_CONFIG, EvidenceObjects } from '@/components/pages/protected/evidence/util/evidence'
 import { GET_ALL_RISKS } from '@repo/codegen/query/risks'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { TFormDataResponse } from '@/components/pages/protected/evidence/object-association/types/TFormDataResponse'
-import { GetAllControlsDocument } from '@repo/codegen/src/schema'
 import { TEvidenceObjectIds } from '@/components/pages/protected/evidence/object-association/types/TEvidenceObjectIds'
 
 type TProps = {
