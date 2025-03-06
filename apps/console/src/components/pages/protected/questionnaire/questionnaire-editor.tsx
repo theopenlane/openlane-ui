@@ -10,7 +10,7 @@ import 'survey-creator-core/survey-creator-core.min.css'
 
 import { lightTheme } from './theme-light'
 import { darkTheme } from './theme-dark'
-import { TemplateDocumentType, useCreateTemplateMutation, useGetTemplateQuery, useUpdateTemplateMutation } from '@repo/codegen/src/schema'
+import { TemplateDocumentType } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { Panel } from '@repo/ui/panel'
 import { pageStyles } from './page.styles'
@@ -18,6 +18,7 @@ import { useRouter } from 'next/navigation'
 
 import './custom.css'
 import { surveyLicenseKey } from '@repo/dally/auth'
+import { useCreateTemplate, useGetTemplate, useUpdateTemplate } from '@/lib/graphql-hooks/templates'
 
 const enLocale = editorLocalization.getLocale('en')
 
@@ -35,7 +36,6 @@ slk(surveyLicenseKey as string)
 export default function CreateQuestionnaire(input: { templateId: string; existingId: string }) {
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
-  const { buttonRow } = pageStyles()
 
   const creator = new SurveyCreator(creatorOptions)
   const themeTabPlugin = creator.themeEditor
@@ -53,7 +53,6 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
   addCustomTheme(lightTheme, customThemeName)
   addCustomTheme(darkTheme, customThemeName)
 
-  // apply theme to the creator
   const themeContext = useTheme()
   const theme = themeContext.resolvedTheme as 'light' | 'dark' | 'white' | undefined
 
@@ -63,20 +62,14 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
     creator.applyTheme(lightTheme)
   }
 
-  // creator.toolbox.forceCompact = true;
+  const { data: templateResult } = useGetTemplate(input.existingId || input.templateId)
 
-  // get the json if if it exists
-  const variables = { getTemplateId: input.existingId || input.templateId }
-
-  const [templateResult] = useGetTemplateQuery({ variables })
-
-  if (templateResult.data) {
-    creator.JSON = templateResult.data.template.jsonconfig
+  if (templateResult) {
+    creator.JSON = templateResult.template.jsonconfig
   }
 
-  // setup save function
-  const [template, createTemplateData] = useCreateTemplateMutation()
-  const [, updateTemplateData] = useUpdateTemplateMutation()
+  const { mutateAsync: createTemplateData } = useCreateTemplate()
+  const { mutateAsync: updateTemplateData } = useUpdateTemplate()
 
   const saveTemplate = async (data: any, saveNo: string, callback: any) => {
     const variables = {
@@ -85,66 +78,37 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
         jsonconfig: data,
         templateType: TemplateDocumentType.DOCUMENT,
         description: data.description,
-        // version: saveNo, // TODO: add versioning
       },
     }
 
     if (input.existingId) {
-      return updateTemplateData({
-        updateTemplateId: input.existingId,
-        input: { ...variables.input },
-      })
-        .then((response) => {
-          if (!response.error) {
-            successNotification({
-              title: 'Questionnaire saved successfully',
-            })
-          } else {
-            errorNotification({
-              title: 'There was a problem saving the questionnaire, please try again',
-            })
-          }
+      try {
+        updateTemplateData({
+          updateTemplateId: input.existingId,
+          input: { ...variables.input },
         })
-        .catch((error) => {
-          console.log(error)
-          errorNotification({
-            title: 'There was a problem saving the questionnaire, please try again',
-          })
+        successNotification({
+          title: 'Questionnaire saved successfully',
         })
-    }
-
-    // otherwise create a new template
-    return createTemplateData(variables)
-      .then((response) => {
-        if (!response.error) {
-          successNotification({
-            title: 'Questionnaire saved successfully',
-          })
-
-          router.push(`/questionnaires/questionnaire-editor?id=${response.data?.createTemplate.template.id}`)
-        } else {
-          if (response.error.graphQLErrors[0].message == 'template already exists') {
-            errorNotification({
-              title: 'A questionnaire with this name already exists, please choose a different name',
-            })
-          } else if (response.error.graphQLErrors[0].message == 'must be defined') {
-            const missingField = response.error.graphQLErrors[0].path?.slice(-1)[0]
-            errorNotification({
-              title: `Please provide a ${missingField} for the questionnaire`,
-            })
-          } else {
-            errorNotification({
-              title: 'There was a problem saving the questionnaire: ' + response.error.graphQLErrors[0].message,
-            })
-          }
-        }
-      })
-      .catch((error) => {
-        console.log(error)
+      } catch {
         errorNotification({
           title: 'There was a problem saving the questionnaire, please try again',
         })
+      }
+      return
+    }
+
+    try {
+      const data = await createTemplateData(variables)
+      successNotification({
+        title: 'Questionnaire saved successfully',
       })
+      router.push(`/questionnaires/questionnaire-editor?id=${data?.createTemplate.template.id}`)
+    } catch {
+      errorNotification({
+        title: 'There was a problem saving the questionnaire ',
+      })
+    }
   }
 
   creator.saveSurveyFunc = (saveNo: string, callback: any) => {

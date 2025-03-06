@@ -6,23 +6,21 @@ import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useDeleteProcedureMutation } from '@repo/codegen/src/schema'
-import { UseQueryExecute } from 'urql'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { useDeleteProcedure } from '@/lib/graphql-hooks/procedures'
 
 type ProcedureActionsProps = {
   procedureId: string
-  refetchProcedures: UseQueryExecute
 }
 
 const ICON_SIZE = 12
 
-export const Actions = ({ procedureId: procedureId, refetchProcedures: refetchProcedures }: ProcedureActionsProps) => {
+export const Actions = ({ procedureId: procedureId }: ProcedureActionsProps) => {
   const router = useRouter()
   const { actionIcon } = pageStyles()
   const { successNotification, errorNotification } = useNotification()
 
-  const [_, deleteProcedure] = useDeleteProcedureMutation()
+  const { mutateAsync: deleteProcedure } = useDeleteProcedure()
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
@@ -31,18 +29,14 @@ export const Actions = ({ procedureId: procedureId, refetchProcedures: refetchPr
   }
 
   const handleDeleteProcedure = async () => {
-    const { error } = await deleteProcedure({ deleteProcedureId: procedureId })
-
-    if (error) {
-      errorNotification({ title: 'Error deleting procedure', gqlError: error })
-      return
+    try {
+      await deleteProcedure({ deleteProcedureId: procedureId })
+      successNotification({
+        title: 'Questionnaire deleted successfully',
+      })
+    } catch {
+      errorNotification({ title: 'Error deleting procedure' }) //gqlError: error TODO: update notification
     }
-
-    refetchProcedures()
-
-    successNotification({
-      title: 'Questionnaire deleted successfully',
-    })
   }
 
   return (

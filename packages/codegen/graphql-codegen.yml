@@ -23,7 +23,7 @@ config:
   schema: yup
 overwrite: true
 schema: https://raw.githubusercontent.com/theopenlane/core/main/internal/graphapi/clientschema/schema.graphql
-documents: './query/*.graphql'
+documents: './query/**/*.ts'
 generates:
   ./src/introspectionschema.json:
     plugins:
@@ -36,7 +36,6 @@ generates:
     plugins:
       - typescript # This plugin generates the base TypeScript types, based on your GraphQL schema
       - typescript-operations # This plugin generates TypeScript types based on your GraphQLSchema and your GraphQL operations and fragments. It generates types for your GraphQL documents: Query, Mutation, Subscription and Fragment
-      - typescript-urql # This plugin generates urql (https://github.com/FormidableLabs/urql) components and HOC with TypeScript typings
       # - typescript-resolvers # This plugin generates TypeScript signature for resolve functions of your GraphQL API. You can use this plugin to generate simple resolvers signature based on your GraphQL types, or you can change its behavior be providing custom model types (mappers)
       # - typescript-graphql-request
       # - plugin-typescript-swr

@@ -1,6 +1,4 @@
 /* eslint-disable */
-import gql from 'graphql-tag'
-import * as Urql from 'urql'
 export type Maybe<T> = T | null
 export type InputMaybe<T> = T | null
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] }
@@ -8,7 +6,6 @@ export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: 
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> }
 export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never }
 export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never }
-export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>
 /** All built-in and custom scalars, mapped to their actual values */
 export interface Scalars {
   ID: { input: string; output: string }
@@ -26394,31 +26391,6 @@ export interface UserWhereInput {
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
-export type CreateApiTokenMutationVariables = Exact<{
-  input: CreateApiTokenInput
-}>
-
-export type CreateApiTokenMutation = { __typename?: 'Mutation'; createAPIToken: { __typename?: 'APITokenCreatePayload'; apiToken: { __typename?: 'APIToken'; token: string } } }
-
-export type GetApiTokensQueryVariables = Exact<{ [key: string]: never }>
-
-export type GetApiTokensQuery = {
-  __typename?: 'Query'
-  apiTokens: {
-    __typename?: 'APITokenConnection'
-    edges?: Array<{
-      __typename?: 'APITokenEdge'
-      node?: { __typename?: 'APIToken'; id: string; name: string; description?: string | null; scopes?: Array<string> | null; expiresAt?: any | null } | null
-    } | null> | null
-  }
-}
-
-export type DeleteApiTokenMutationVariables = Exact<{
-  deleteAPITokenId: Scalars['ID']['input']
-}>
-
-export type DeleteApiTokenMutation = { __typename?: 'Mutation'; deleteAPIToken: { __typename?: 'APITokenDeletePayload'; deletedID: string } }
-
 export type GetAllControlObjectivesQueryVariables = Exact<{
   where?: InputMaybe<ControlObjectiveWhereInput>
 }>
@@ -26466,37 +26438,6 @@ export type GetDashboardDataQuery = {
   }
   organizations: { __typename?: 'OrganizationConnection'; edges?: Array<{ __typename?: 'OrganizationEdge'; node?: { __typename?: 'Organization'; id: string; name: string } | null } | null> | null }
 }
-
-export type GetDocumentDataQueryVariables = Exact<{
-  documentDataId: Scalars['ID']['input']
-}>
-
-export type GetDocumentDataQuery = { __typename?: 'Query'; documentData: { __typename?: 'DocumentData'; id: string; templateID: string; data: any } }
-
-export type CreateDocumentDataMutationVariables = Exact<{
-  input: CreateDocumentDataInput
-}>
-
-export type CreateDocumentDataMutation = {
-  __typename?: 'Mutation'
-  createDocumentData: { __typename?: 'DocumentDataCreatePayload'; documentData: { __typename?: 'DocumentData'; id: string; templateID: string; data: any } }
-}
-
-export type UpdateDocumentDataMutationVariables = Exact<{
-  updateDocumentDataId: Scalars['ID']['input']
-  input: UpdateDocumentDataInput
-}>
-
-export type UpdateDocumentDataMutation = {
-  __typename?: 'Mutation'
-  updateDocumentData: { __typename?: 'DocumentDataUpdatePayload'; documentData: { __typename?: 'DocumentData'; id: string; templateID: string; data: any } }
-}
-
-export type DeleteDocumentDataMutationVariables = Exact<{
-  deleteDocumentDataId: Scalars['ID']['input']
-}>
-
-export type DeleteDocumentDataMutation = { __typename?: 'Mutation'; deleteDocumentData: { __typename?: 'DocumentDataDeletePayload'; deletedID: string } }
 
 export type CreateEvidenceMutationVariables = Exact<{
   input: CreateEvidenceInput
@@ -26636,18 +26577,6 @@ export type GetGroupPermissionsQuery = {
   group: {
     __typename?: 'Group'
     permissions?: Array<{ __typename?: 'GroupPermissions'; displayID?: string | null; id?: string | null; name?: string | null; objectType: string; permissions: Permission }> | null
-  }
-}
-
-export type GetAllPoliciesQueryVariables = Exact<{
-  where?: InputMaybe<InternalPolicyWhereInput>
-}>
-
-export type GetAllPoliciesQuery = {
-  __typename?: 'Query'
-  internalPolicies: {
-    __typename?: 'InternalPolicyConnection'
-    edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; displayID: string } | null } | null> | null
   }
 }
 
@@ -26878,41 +26807,6 @@ export type DeleteOrganizationMutationVariables = Exact<{
 
 export type DeleteOrganizationMutation = { __typename?: 'Mutation'; deleteOrganization: { __typename?: 'OrganizationDeletePayload'; deletedID: string } }
 
-export type CreatePersonalAccessTokenMutationVariables = Exact<{
-  input: CreatePersonalAccessTokenInput
-}>
-
-export type CreatePersonalAccessTokenMutation = {
-  __typename?: 'Mutation'
-  createPersonalAccessToken: { __typename?: 'PersonalAccessTokenCreatePayload'; personalAccessToken: { __typename?: 'PersonalAccessToken'; token: string } }
-}
-
-export type GetPersonalAccessTokensQueryVariables = Exact<{ [key: string]: never }>
-
-export type GetPersonalAccessTokensQuery = {
-  __typename?: 'Query'
-  personalAccessTokens: {
-    __typename?: 'PersonalAccessTokenConnection'
-    edges?: Array<{
-      __typename?: 'PersonalAccessTokenEdge'
-      node?: {
-        __typename?: 'PersonalAccessToken'
-        id: string
-        name: string
-        description?: string | null
-        expiresAt?: any | null
-        organizations?: Array<{ __typename?: 'Organization'; id: string; name: string }> | null
-      } | null
-    } | null> | null
-  }
-}
-
-export type DeletePersonalAccessTokenMutationVariables = Exact<{
-  deletePersonalAccessTokenId: Scalars['ID']['input']
-}>
-
-export type DeletePersonalAccessTokenMutation = { __typename?: 'Mutation'; deletePersonalAccessToken: { __typename?: 'PersonalAccessTokenDeletePayload'; deletedID: string } }
-
 export type CreateInternalPolicyMutationVariables = Exact<{
   input: CreateInternalPolicyInput
 }>
@@ -27001,24 +26895,7 @@ export type GetAllInternalPoliciesWithDetailsQuery = {
   }
 }
 
-export type InternalPolicyListFragment = {
-  __typename?: 'InternalPolicy'
-  id: string
-  displayID: string
-  name: string
-  description?: string | null
-  policyType?: string | null
-  tags?: Array<string> | null
-  version?: string | null
-  updatedAt?: any | null
-  updatedBy?: string | null
-  createdAt?: any | null
-  createdBy?: string | null
-}
-
-export type GetInternalPoliciesListQueryVariables = Exact<{
-  where?: InputMaybe<InternalPolicyWhereInput>
-}>
+export type GetInternalPoliciesListQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetInternalPoliciesListQuery = {
   __typename?: 'Query'
@@ -27029,7 +26906,6 @@ export type GetInternalPoliciesListQuery = {
       node?: {
         __typename?: 'InternalPolicy'
         id: string
-        displayID: string
         name: string
         description?: string | null
         policyType?: string | null
@@ -27042,31 +26918,6 @@ export type GetInternalPoliciesListQuery = {
       } | null
     } | null> | null
   }
-}
-
-export type SearchInternalPoliciesQueryVariables = Exact<{
-  query: Scalars['String']['input']
-}>
-
-export type SearchInternalPoliciesQuery = {
-  __typename?: 'Query'
-  internalPolicySearch?: {
-    __typename?: 'InternalPolicySearchResult'
-    internalPolicies?: Array<{
-      __typename?: 'InternalPolicy'
-      id: string
-      displayID: string
-      name: string
-      description?: string | null
-      policyType?: string | null
-      tags?: Array<string> | null
-      version?: string | null
-      updatedAt?: any | null
-      updatedBy?: string | null
-      createdAt?: any | null
-      createdBy?: string | null
-    }> | null
-  } | null
 }
 
 export type GetAllInternalPoliciesQueryVariables = Exact<{ [key: string]: never }>
@@ -27088,7 +26939,6 @@ export type InternalPolicyByIdFragment = {
   background?: string | null
   createdAt?: any | null
   createdBy?: string | null
-  displayID: string
   updatedAt?: any | null
   updatedBy?: string | null
   tags?: Array<string> | null
@@ -27096,6 +26946,7 @@ export type InternalPolicyByIdFragment = {
   status?: string | null
   purposeAndScope?: string | null
   policyType?: string | null
+  displayID: string
   procedures?: Array<{ __typename?: 'Procedure'; id: string; name: string }> | null
 }
 
@@ -27114,7 +26965,6 @@ export type GetInternalPolicyDetailsByIdQuery = {
     background?: string | null
     createdAt?: any | null
     createdBy?: string | null
-    displayID: string
     updatedAt?: any | null
     updatedBy?: string | null
     tags?: Array<string> | null
@@ -27122,8 +26972,36 @@ export type GetInternalPolicyDetailsByIdQuery = {
     status?: string | null
     purposeAndScope?: string | null
     policyType?: string | null
+    displayID: string
     procedures?: Array<{ __typename?: 'Procedure'; id: string; name: string }> | null
   }
+}
+
+export type SearchInternalPoliciesQueryVariables = Exact<{
+  query: Scalars['String']['input']
+}>
+
+export type SearchInternalPoliciesQuery = {
+  __typename?: 'Query'
+  internalPolicySearch?: {
+    __typename?: 'InternalPolicySearchResult'
+    internalPolicies?: Array<{
+      __typename?: 'InternalPolicy'
+      id: string
+      name: string
+      background?: string | null
+      description?: string | null
+      displayID: string
+      purposeAndScope?: string | null
+      status?: string | null
+      version?: string | null
+      updatedAt?: any | null
+      updatedBy?: string | null
+      createdAt?: any | null
+      createdBy?: string | null
+      tags?: Array<string> | null
+    }> | null
+  } | null
 }
 
 export type CreateProcedureMutationVariables = Exact<{
@@ -27137,32 +27015,14 @@ export type UpdateProcedureMutationVariables = Exact<{
   input: UpdateProcedureInput
 }>
 
-export type UpdateProcedureMutation = { __typename?: 'Mutation'; updateProcedure: { __typename?: 'ProcedureUpdatePayload'; procedure: { __typename?: 'Procedure'; id: string; name: string } } }
-
-export type ProcedureListFragment = {
-  __typename?: 'Procedure'
-  id: string
-  name: string
-  background?: string | null
-  description?: string | null
-  displayID: string
-  procedureType?: string | null
-  purposeAndScope?: string | null
-  satisfies?: string | null
-  status?: string | null
-  version?: string | null
-  updatedAt?: any | null
-  updatedBy?: string | null
-  createdAt?: any | null
-  createdBy?: string | null
-  tags?: Array<string> | null
+export type UpdateProcedureMutation = {
+  __typename?: 'Mutation'
+  updateProcedure: { __typename?: 'ProcedureUpdatePayload'; procedure: { __typename?: 'Procedure'; id: string; name: string; procedureType?: string | null } }
 }
 
-export type GetProceduresListQueryVariables = Exact<{
-  where?: InputMaybe<ProcedureWhereInput>
-}>
+export type GetAllProceduresWithDetailsQueryVariables = Exact<{ [key: string]: never }>
 
-export type GetProceduresListQuery = {
+export type GetAllProceduresWithDetailsQuery = {
   __typename?: 'Query'
   procedures: {
     __typename?: 'ProcedureConnection'
@@ -27174,10 +27034,7 @@ export type GetProceduresListQuery = {
         name: string
         background?: string | null
         description?: string | null
-        displayID: string
-        procedureType?: string | null
         purposeAndScope?: string | null
-        satisfies?: string | null
         status?: string | null
         version?: string | null
         updatedAt?: any | null
@@ -27189,6 +27046,69 @@ export type GetProceduresListQuery = {
     } | null> | null
   }
 }
+
+export type GetAllProceduresQueryVariables = Exact<{
+  where?: InputMaybe<ProcedureWhereInput>
+}>
+
+export type GetAllProceduresQuery = {
+  __typename?: 'Query'
+  procedures: {
+    __typename?: 'ProcedureConnection'
+    edges?: Array<{
+      __typename?: 'ProcedureEdge'
+      node?: {
+        __typename?: 'Procedure'
+        id: string
+        name: string
+        displayID: string
+        background?: string | null
+        description?: string | null
+        purposeAndScope?: string | null
+        status?: string | null
+        version?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        tags?: Array<string> | null
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetProcedureDetailsByIdQueryVariables = Exact<{
+  procedureId: Scalars['ID']['input']
+}>
+
+export type GetProcedureDetailsByIdQuery = {
+  __typename?: 'Query'
+  procedure: {
+    __typename?: 'Procedure'
+    id: string
+    name: string
+    description?: string | null
+    details?: any | null
+    background?: string | null
+    createdAt?: any | null
+    createdBy?: string | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+    tags?: Array<string> | null
+    version?: string | null
+    status?: string | null
+    purposeAndScope?: string | null
+    procedureType?: string | null
+    displayID: string
+    internalPolicies?: Array<{ __typename?: 'InternalPolicy'; id: string; name: string }> | null
+  }
+}
+
+export type DeleteProcedureMutationVariables = Exact<{
+  deleteProcedureId: Scalars['ID']['input']
+}>
+
+export type DeleteProcedureMutation = { __typename?: 'Mutation'; deleteProcedure: { __typename?: 'ProcedureDeletePayload'; deletedID: string } }
 
 export type SearchProceduresQueryVariables = Exact<{
   query: Scalars['String']['input']
@@ -27205,9 +27125,7 @@ export type SearchProceduresQuery = {
       background?: string | null
       description?: string | null
       displayID: string
-      procedureType?: string | null
       purposeAndScope?: string | null
-      satisfies?: string | null
       status?: string | null
       version?: string | null
       updatedAt?: any | null
@@ -27218,73 +27136,6 @@ export type SearchProceduresQuery = {
     }> | null
   } | null
 }
-
-export type GetAllProceduresQueryVariables = Exact<{
-  where?: InputMaybe<ProcedureWhereInput>
-}>
-
-export type GetAllProceduresQuery = {
-  __typename?: 'Query'
-  procedures: {
-    __typename?: 'ProcedureConnection'
-    edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string } | null } | null> | null
-  }
-}
-
-export type ProcedureByIdFragment = {
-  __typename?: 'Procedure'
-  id: string
-  name: string
-  description?: string | null
-  details?: any | null
-  displayID: string
-  background?: string | null
-  createdAt?: any | null
-  createdBy?: string | null
-  updatedAt?: any | null
-  updatedBy?: string | null
-  tags?: Array<string> | null
-  version?: string | null
-  status?: string | null
-  satisfies?: string | null
-  purposeAndScope?: string | null
-  procedureType?: string | null
-  internalPolicies?: Array<{ __typename?: 'InternalPolicy'; id: string; name: string }> | null
-}
-
-export type GetProcedureDetailsByIdQueryVariables = Exact<{
-  procedureId: Scalars['ID']['input']
-}>
-
-export type GetProcedureDetailsByIdQuery = {
-  __typename?: 'Query'
-  procedure: {
-    __typename?: 'Procedure'
-    id: string
-    name: string
-    description?: string | null
-    details?: any | null
-    displayID: string
-    background?: string | null
-    createdAt?: any | null
-    createdBy?: string | null
-    updatedAt?: any | null
-    updatedBy?: string | null
-    tags?: Array<string> | null
-    version?: string | null
-    status?: string | null
-    satisfies?: string | null
-    purposeAndScope?: string | null
-    procedureType?: string | null
-    internalPolicies?: Array<{ __typename?: 'InternalPolicy'; id: string; name: string }> | null
-  }
-}
-
-export type DeleteProcedureMutationVariables = Exact<{
-  deleteProcedureId: Scalars['ID']['input']
-}>
-
-export type DeleteProcedureMutation = { __typename?: 'Mutation'; deleteProcedure: { __typename?: 'ProcedureDeletePayload'; deletedID: string } }
 
 export type CreateProgramWithMembersMutationVariables = Exact<{
   input: CreateProgramWithMembersInput
@@ -27436,12 +27287,6 @@ export type SearchQuery = {
   } | null
 }
 
-export type CreateStandardMutationVariables = Exact<{
-  input: CreateStandardInput
-}>
-
-export type CreateStandardMutation = { __typename?: 'Mutation'; createStandard: { __typename?: 'StandardCreatePayload'; standard: { __typename?: 'Standard'; id: string } } }
-
 export type GetAllSubcontrolsQueryVariables = Exact<{
   where?: InputMaybe<SubcontrolWhereInput>
 }>
@@ -27486,73 +27331,8 @@ export type TasksWithFilterQuery = {
     __typename?: 'TaskConnection'
     edges?: Array<{
       __typename?: 'TaskEdge'
-      node?: {
-        __typename?: 'Task'
-        id: string
-        title: string
-        description?: string | null
-        status: TaskTaskStatus
-        tags?: Array<string> | null
-        details?: string | null
-        due?: any | null
-        displayID: string
-        category?: string | null
-        assigner?: {
-          __typename?: 'User'
-          displayName: string
-          firstName?: string | null
-          lastName?: string | null
-          avatarRemoteURL?: string | null
-          avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
-        } | null
-      } | null
+      node?: { __typename?: 'Task'; id: string; title: string; description?: string | null; status: TaskTaskStatus; tags?: Array<string> | null; details?: string | null; due?: any | null } | null
     } | null> | null
-  }
-}
-
-export type CreateTaskMutationVariables = Exact<{
-  input: CreateTaskInput
-}>
-
-export type CreateTaskMutation = { __typename?: 'Mutation'; createTask: { __typename?: 'TaskCreatePayload'; task: { __typename?: 'Task'; id: string } } }
-
-export type UpdateTaskMutationVariables = Exact<{
-  updateTaskId: Scalars['ID']['input']
-  input: UpdateTaskInput
-}>
-
-export type UpdateTaskMutation = { __typename?: 'Mutation'; updateTask: { __typename?: 'TaskUpdatePayload'; task: { __typename?: 'Task'; id: string } } }
-
-export type DeleteTaskMutationVariables = Exact<{
-  deleteTaskId: Scalars['ID']['input']
-}>
-
-export type DeleteTaskMutation = { __typename?: 'Mutation'; deleteTask: { __typename?: 'TaskDeletePayload'; deletedID: string } }
-
-export type TaskQueryVariables = Exact<{
-  taskId: Scalars['ID']['input']
-}>
-
-export type TaskQuery = {
-  __typename?: 'Query'
-  task: {
-    __typename?: 'Task'
-    id: string
-    category?: string | null
-    title: string
-    status: TaskTaskStatus
-    due?: any | null
-    displayID: string
-    description?: string | null
-    assignee?: { __typename?: 'User'; displayName: string; firstName?: string | null; lastName?: string | null; avatarRemoteURL?: string | null; id: string } | null
-    assigner?: { __typename?: 'User'; avatarRemoteURL?: string | null; lastName?: string | null; firstName?: string | null; displayName: string; id: string } | null
-    subcontrol?: Array<{ __typename?: 'Subcontrol'; displayID: string; id: string }> | null
-    program?: Array<{ __typename?: 'Program'; displayID: string; id: string }> | null
-    procedure?: Array<{ __typename?: 'Procedure'; displayID: string; id: string }> | null
-    internalPolicy?: Array<{ __typename?: 'InternalPolicy'; displayID: string; id: string }> | null
-    evidence?: Array<{ __typename?: 'Evidence'; displayID: string; id: string }> | null
-    group?: Array<{ __typename?: 'Group'; displayID: string; id: string }> | null
-    controlObjective?: Array<{ __typename?: 'ControlObjective'; displayID: string; id: string }> | null
   }
 }
 
@@ -27702,34 +27482,65 @@ export type CreateTfaSettingMutation = {
   createTFASetting: { __typename?: 'TFASettingCreatePayload'; qrCode?: string | null; tfaSecret?: string | null; tfaSetting: { __typename?: 'TFASetting'; id: string } }
 }
 
-export type UserInfoFragment = {
-  __typename?: 'User'
-  id: string
-  firstName?: string | null
-  lastName?: string | null
-  displayName: string
-  email: string
-  avatarRemoteURL?: string | null
-  avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
-}
-
-export type GetUserQueryVariables = Exact<{
-  userId: Scalars['ID']['input']
+export type CreatePersonalAccessTokenMutationVariables = Exact<{
+  input: CreatePersonalAccessTokenInput
 }>
 
-export type GetUserQuery = {
+export type CreatePersonalAccessTokenMutation = {
+  __typename?: 'Mutation'
+  createPersonalAccessToken: { __typename?: 'PersonalAccessTokenCreatePayload'; personalAccessToken: { __typename?: 'PersonalAccessToken'; token: string } }
+}
+
+export type GetPersonalAccessTokensQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetPersonalAccessTokensQuery = {
   __typename?: 'Query'
-  user: {
-    __typename?: 'User'
-    id: string
-    firstName?: string | null
-    lastName?: string | null
-    displayName: string
-    email: string
-    avatarRemoteURL?: string | null
-    avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+  personalAccessTokens: {
+    __typename?: 'PersonalAccessTokenConnection'
+    edges?: Array<{
+      __typename?: 'PersonalAccessTokenEdge'
+      node?: {
+        __typename?: 'PersonalAccessToken'
+        id: string
+        name: string
+        description?: string | null
+        expiresAt?: any | null
+        organizations?: Array<{ __typename?: 'Organization'; id: string; name: string }> | null
+      } | null
+    } | null> | null
   }
 }
+
+export type DeletePersonalAccessTokenMutationVariables = Exact<{
+  deletePersonalAccessTokenId: Scalars['ID']['input']
+}>
+
+export type DeletePersonalAccessTokenMutation = { __typename?: 'Mutation'; deletePersonalAccessToken: { __typename?: 'PersonalAccessTokenDeletePayload'; deletedID: string } }
+
+export type CreateApiTokenMutationVariables = Exact<{
+  input: CreateApiTokenInput
+}>
+
+export type CreateApiTokenMutation = { __typename?: 'Mutation'; createAPIToken: { __typename?: 'APITokenCreatePayload'; apiToken: { __typename?: 'APIToken'; token: string } } }
+
+export type GetApiTokensQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetApiTokensQuery = {
+  __typename?: 'Query'
+  apiTokens: {
+    __typename?: 'APITokenConnection'
+    edges?: Array<{
+      __typename?: 'APITokenEdge'
+      node?: { __typename?: 'APIToken'; id: string; name: string; description?: string | null; scopes?: Array<string> | null; expiresAt?: any | null } | null
+    } | null> | null
+  }
+}
+
+export type DeleteApiTokenMutationVariables = Exact<{
+  deleteAPITokenId: Scalars['ID']['input']
+}>
+
+export type DeleteApiTokenMutation = { __typename?: 'Mutation'; deleteAPIToken: { __typename?: 'APITokenDeletePayload'; deletedID: string } }
 
 export type GetUserProfileQueryVariables = Exact<{
   userId: Scalars['ID']['input']
@@ -27745,6 +27556,7 @@ export type GetUserProfileQuery = {
     displayName: string
     email: string
     avatarRemoteURL?: string | null
+    avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
     setting: {
       __typename?: 'UserSetting'
       id: string
@@ -27753,7 +27565,6 @@ export type GetUserProfileQuery = {
       isTfaEnabled?: boolean | null
       defaultOrg?: { __typename?: 'Organization'; id: string; displayName: string } | null
     }
-    avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
   }
 }
 
@@ -27774,1745 +27585,3 @@ export type UpdateUserSettingMutationVariables = Exact<{
 }>
 
 export type UpdateUserSettingMutation = { __typename?: 'Mutation'; updateUserSetting: { __typename?: 'UserSettingUpdatePayload'; userSetting: { __typename?: 'UserSetting'; id: string } } }
-
-export const InternalPolicyUpdateFieldsFragmentDoc = gql`
-  fragment InternalPolicyUpdateFields on InternalPolicy {
-    id
-    name
-    background
-    description
-    policyType
-    purposeAndScope
-    details
-  }
-`
-export const InternalPolicyListFragmentDoc = gql`
-  fragment InternalPolicyList on InternalPolicy {
-    id
-    displayID
-    name
-    description
-    policyType
-    tags
-    version
-    updatedAt
-    updatedBy
-    createdAt
-    createdBy
-  }
-`
-export const InternalPolicyByIdFragmentDoc = gql`
-  fragment InternalPolicyByID on InternalPolicy {
-    id
-    name
-    description
-    details
-    background
-    createdAt
-    createdBy
-    displayID
-    updatedAt
-    updatedBy
-    tags
-    version
-    status
-    purposeAndScope
-    policyType
-    procedures {
-      id
-      name
-    }
-  }
-`
-export const ProcedureListFragmentDoc = gql`
-  fragment ProcedureList on Procedure {
-    id
-    name
-    background
-    description
-    displayID
-    procedureType
-    purposeAndScope
-    satisfies
-    status
-    version
-    updatedAt
-    updatedBy
-    createdAt
-    createdBy
-    tags
-  }
-`
-export const ProcedureByIdFragmentDoc = gql`
-  fragment ProcedureByID on Procedure {
-    id
-    name
-    description
-    details
-    displayID
-    background
-    createdAt
-    createdBy
-    updatedAt
-    updatedBy
-    tags
-    version
-    status
-    satisfies
-    purposeAndScope
-    procedureType
-    internalPolicies {
-      id
-      name
-    }
-  }
-`
-export const UserInfoFragmentDoc = gql`
-  fragment UserInfo on User {
-    id
-    firstName
-    lastName
-    displayName
-    email
-    avatarRemoteURL
-    displayName
-    avatarFile {
-      presignedURL
-    }
-  }
-`
-export const CreateApiTokenDocument = gql`
-  mutation CreateAPIToken($input: CreateAPITokenInput!) {
-    createAPIToken(input: $input) {
-      apiToken {
-        token
-      }
-    }
-  }
-`
-
-export function useCreateApiTokenMutation() {
-  return Urql.useMutation<CreateApiTokenMutation, CreateApiTokenMutationVariables>(CreateApiTokenDocument)
-}
-export const GetApiTokensDocument = gql`
-  query GetAPITokens {
-    apiTokens {
-      edges {
-        node {
-          id
-          name
-          description
-          scopes
-          expiresAt
-        }
-      }
-    }
-  }
-`
-
-export function useGetApiTokensQuery(options?: Omit<Urql.UseQueryArgs<GetApiTokensQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetApiTokensQuery, GetApiTokensQueryVariables>({ query: GetApiTokensDocument, ...options })
-}
-export const DeleteApiTokenDocument = gql`
-  mutation DeleteAPIToken($deleteAPITokenId: ID!) {
-    deleteAPIToken(id: $deleteAPITokenId) {
-      deletedID
-    }
-  }
-`
-
-export function useDeleteApiTokenMutation() {
-  return Urql.useMutation<DeleteApiTokenMutation, DeleteApiTokenMutationVariables>(DeleteApiTokenDocument)
-}
-export const GetAllControlObjectivesDocument = gql`
-  query GetAllControlObjectives($where: ControlObjectiveWhereInput) {
-    controlObjectives(where: $where) {
-      edges {
-        node {
-          id
-          name
-          displayID
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllControlObjectivesQuery(options?: Omit<Urql.UseQueryArgs<GetAllControlObjectivesQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllControlObjectivesQuery, GetAllControlObjectivesQueryVariables>({ query: GetAllControlObjectivesDocument, ...options })
-}
-export const GetAllControlsDocument = gql`
-  query GetAllControls($where: ControlWhereInput) {
-    controls(where: $where) {
-      edges {
-        node {
-          id
-          name
-          displayID
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllControlsQuery(options?: Omit<Urql.UseQueryArgs<GetAllControlsQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllControlsQuery, GetAllControlsQueryVariables>({ query: GetAllControlsDocument, ...options })
-}
-export const GetDashboardDataDocument = gql`
-  query GetDashboardData($where: TaskWhereInput) {
-    programs {
-      edges {
-        node {
-          id
-          name
-          description
-          controls {
-            id
-          }
-          tasks {
-            id
-            title
-            status
-            description
-            due
-          }
-        }
-      }
-    }
-    tasks(where: $where) {
-      edges {
-        node {
-          id
-          title
-          status
-          due
-          tags
-        }
-      }
-    }
-    organizations {
-      edges {
-        node {
-          id
-          name
-        }
-      }
-    }
-  }
-`
-
-export function useGetDashboardDataQuery(options?: Omit<Urql.UseQueryArgs<GetDashboardDataQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetDashboardDataQuery, GetDashboardDataQueryVariables>({ query: GetDashboardDataDocument, ...options })
-}
-export const GetDocumentDataDocument = gql`
-  query GetDocumentData($documentDataId: ID!) {
-    documentData(id: $documentDataId) {
-      id
-      templateID
-      data
-    }
-  }
-`
-
-export function useGetDocumentDataQuery(options: Omit<Urql.UseQueryArgs<GetDocumentDataQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetDocumentDataQuery, GetDocumentDataQueryVariables>({ query: GetDocumentDataDocument, ...options })
-}
-export const CreateDocumentDataDocument = gql`
-  mutation CreateDocumentData($input: CreateDocumentDataInput!) {
-    createDocumentData(input: $input) {
-      documentData {
-        id
-        templateID
-        data
-      }
-    }
-  }
-`
-
-export function useCreateDocumentDataMutation() {
-  return Urql.useMutation<CreateDocumentDataMutation, CreateDocumentDataMutationVariables>(CreateDocumentDataDocument)
-}
-export const UpdateDocumentDataDocument = gql`
-  mutation UpdateDocumentData($updateDocumentDataId: ID!, $input: UpdateDocumentDataInput!) {
-    updateDocumentData(id: $updateDocumentDataId, input: $input) {
-      documentData {
-        id
-        templateID
-        data
-      }
-    }
-  }
-`
-
-export function useUpdateDocumentDataMutation() {
-  return Urql.useMutation<UpdateDocumentDataMutation, UpdateDocumentDataMutationVariables>(UpdateDocumentDataDocument)
-}
-export const DeleteDocumentDataDocument = gql`
-  mutation DeleteDocumentData($deleteDocumentDataId: ID!) {
-    deleteDocumentData(id: $deleteDocumentDataId) {
-      deletedID
-    }
-  }
-`
-
-export function useDeleteDocumentDataMutation() {
-  return Urql.useMutation<DeleteDocumentDataMutation, DeleteDocumentDataMutationVariables>(DeleteDocumentDataDocument)
-}
-export const CreateEvidenceDocument = gql`
-  mutation CreateEvidence($input: CreateEvidenceInput!, $evidenceFiles: [Upload!]) {
-    createEvidence(input: $input, evidenceFiles: $evidenceFiles) {
-      evidence {
-        id
-      }
-    }
-  }
-`
-
-export function useCreateEvidenceMutation() {
-  return Urql.useMutation<CreateEvidenceMutation, CreateEvidenceMutationVariables>(CreateEvidenceDocument)
-}
-export const GetEvidenceFilesDocument = gql`
-  query GetEvidenceFiles {
-    files {
-      edges {
-        node {
-          id
-          providedFileName
-          presignedURL
-          providedFileExtension
-          categoryType
-          createdAt
-        }
-      }
-    }
-  }
-`
-
-export function useGetEvidenceFilesQuery(options?: Omit<Urql.UseQueryArgs<GetEvidenceFilesQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetEvidenceFilesQuery, GetEvidenceFilesQueryVariables>({ query: GetEvidenceFilesDocument, ...options })
-}
-export const GetAllGroupsDocument = gql`
-  query GetAllGroups($where: GroupWhereInput) {
-    groups(where: $where) {
-      edges {
-        node {
-          id
-          name
-          description
-          displayName
-          logoURL
-          isManaged
-          tags
-          members {
-            id
-            role
-            user {
-              id
-              firstName
-              lastName
-              avatarFile {
-                presignedURL
-              }
-              avatarRemoteURL
-              role
-            }
-          }
-          setting {
-            visibility
-            joinPolicy
-            syncToSlack
-            syncToGithub
-            id
-          }
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllGroupsQuery(options?: Omit<Urql.UseQueryArgs<GetAllGroupsQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllGroupsQuery, GetAllGroupsQueryVariables>({ query: GetAllGroupsDocument, ...options })
-}
-export const CreateGroupWithMembersDocument = gql`
-  mutation CreateGroupWithMembers($groupInput: CreateGroupInput!, $members: [GroupMembersInput!]) {
-    createGroupWithMembers(groupInput: $groupInput, members: $members) {
-      group {
-        id
-        displayID
-      }
-    }
-  }
-`
-
-export function useCreateGroupWithMembersMutation() {
-  return Urql.useMutation<CreateGroupWithMembersMutation, CreateGroupWithMembersMutationVariables>(CreateGroupWithMembersDocument)
-}
-export const UpdateGroupDocument = gql`
-  mutation UpdateGroup($updateGroupId: ID!, $input: UpdateGroupInput!) {
-    updateGroup(id: $updateGroupId, input: $input) {
-      group {
-        id
-      }
-    }
-  }
-`
-
-export function useUpdateGroupMutation() {
-  return Urql.useMutation<UpdateGroupMutation, UpdateGroupMutationVariables>(UpdateGroupDocument)
-}
-export const DeleteGroupDocument = gql`
-  mutation DeleteGroup($deleteGroupId: ID!) {
-    deleteGroup(id: $deleteGroupId) {
-      deletedID
-    }
-  }
-`
-
-export function useDeleteGroupMutation() {
-  return Urql.useMutation<DeleteGroupMutation, DeleteGroupMutationVariables>(DeleteGroupDocument)
-}
-export const GetGroupDetailsDocument = gql`
-  query GetGroupDetails($groupId: ID!) {
-    group(id: $groupId) {
-      id
-      name
-      description
-      displayName
-      logoURL
-      isManaged
-      tags
-      members {
-        id
-        role
-        user {
-          id
-          firstName
-          lastName
-          avatarFile {
-            presignedURL
-          }
-          avatarRemoteURL
-          role
-        }
-      }
-      setting {
-        visibility
-        joinPolicy
-        syncToSlack
-        syncToGithub
-        id
-      }
-    }
-  }
-`
-
-export function useGetGroupDetailsQuery(options: Omit<Urql.UseQueryArgs<GetGroupDetailsQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetGroupDetailsQuery, GetGroupDetailsQueryVariables>({ query: GetGroupDetailsDocument, ...options })
-}
-export const UpdateGroupMembershipDocument = gql`
-  mutation UpdateGroupMembership($updateGroupMembershipId: ID!, $input: UpdateGroupMembershipInput!) {
-    updateGroupMembership(id: $updateGroupMembershipId, input: $input) {
-      groupMembership {
-        id
-      }
-    }
-  }
-`
-
-export function useUpdateGroupMembershipMutation() {
-  return Urql.useMutation<UpdateGroupMembershipMutation, UpdateGroupMembershipMutationVariables>(UpdateGroupMembershipDocument)
-}
-export const GetGroupPermissionsDocument = gql`
-  query GetGroupPermissions($groupId: ID!) {
-    group(id: $groupId) {
-      permissions {
-        displayID
-        id
-        name
-        objectType
-        permissions
-      }
-    }
-  }
-`
-
-export function useGetGroupPermissionsQuery(options: Omit<Urql.UseQueryArgs<GetGroupPermissionsQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetGroupPermissionsQuery, GetGroupPermissionsQueryVariables>({ query: GetGroupPermissionsDocument, ...options })
-}
-export const GetAllPoliciesDocument = gql`
-  query GetAllPolicies($where: InternalPolicyWhereInput) {
-    internalPolicies(where: $where) {
-      edges {
-        node {
-          id
-          name
-          displayID
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllPoliciesQuery(options?: Omit<Urql.UseQueryArgs<GetAllPoliciesQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllPoliciesQuery, GetAllPoliciesQueryVariables>({ query: GetAllPoliciesDocument, ...options })
-}
-export const UpdateUserRoleInOrgDocument = gql`
-  mutation UpdateUserRoleInOrg($updateOrgMemberId: ID!, $input: UpdateOrgMembershipInput!) {
-    updateOrgMembership(id: $updateOrgMemberId, input: $input) {
-      orgMembership {
-        id
-        role
-        userID
-        organizationID
-      }
-    }
-  }
-`
-
-export function useUpdateUserRoleInOrgMutation() {
-  return Urql.useMutation<UpdateUserRoleInOrgMutation, UpdateUserRoleInOrgMutationVariables>(UpdateUserRoleInOrgDocument)
-}
-export const RemoveUserFromOrgDocument = gql`
-  mutation RemoveUserFromOrg($deleteOrgMembershipId: ID!) {
-    deleteOrgMembership(id: $deleteOrgMembershipId) {
-      deletedID
-    }
-  }
-`
-
-export function useRemoveUserFromOrgMutation() {
-  return Urql.useMutation<RemoveUserFromOrgMutation, RemoveUserFromOrgMutationVariables>(RemoveUserFromOrgDocument)
-}
-export const GetAllNarrativesDocument = gql`
-  query GetAllNarratives($where: NarrativeWhereInput) {
-    narratives(where: $where) {
-      edges {
-        node {
-          id
-          name
-          displayID
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllNarrativesQuery(options?: Omit<Urql.UseQueryArgs<GetAllNarrativesQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllNarrativesQuery, GetAllNarrativesQueryVariables>({ query: GetAllNarrativesDocument, ...options })
-}
-export const CreateOnboardingDocument = gql`
-  mutation CreateOnboarding($input: CreateOnboardingInput!) {
-    createOnboarding(input: $input) {
-      onboarding {
-        companyDetails
-        companyName
-        domains
-        compliance
-        id
-        organizationID
-        userDetails
-      }
-    }
-  }
-`
-
-export function useCreateOnboardingMutation() {
-  return Urql.useMutation<CreateOnboardingMutation, CreateOnboardingMutationVariables>(CreateOnboardingDocument)
-}
-export const GetAllOrganizationsDocument = gql`
-  query GetAllOrganizations {
-    organizations {
-      edges {
-        node {
-          id
-          name
-          displayName
-          avatarRemoteURL
-          personalOrg
-          avatarFile {
-            id
-            presignedURL
-          }
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllOrganizationsQuery(options?: Omit<Urql.UseQueryArgs<GetAllOrganizationsQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllOrganizationsQuery, GetAllOrganizationsQueryVariables>({ query: GetAllOrganizationsDocument, ...options })
-}
-export const GetOrganizationNameByIdDocument = gql`
-  query GetOrganizationNameByID($organizationId: ID!) {
-    organization(id: $organizationId) {
-      name
-      displayName
-    }
-  }
-`
-
-export function useGetOrganizationNameByIdQuery(options: Omit<Urql.UseQueryArgs<GetOrganizationNameByIdQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetOrganizationNameByIdQuery, GetOrganizationNameByIdQueryVariables>({ query: GetOrganizationNameByIdDocument, ...options })
-}
-export const GetSingleOrganizationMembersDocument = gql`
-  query GetSingleOrganizationMembers($organizationId: ID!) {
-    organization(id: $organizationId) {
-      members {
-        id
-        createdAt
-        role
-        user {
-          id
-          firstName
-          lastName
-          authProvider
-          avatarRemoteURL
-          email
-          role
-          createdAt
-          avatarFile {
-            id
-            presignedURL
-          }
-        }
-      }
-    }
-  }
-`
-
-export function useGetSingleOrganizationMembersQuery(options: Omit<Urql.UseQueryArgs<GetSingleOrganizationMembersQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetSingleOrganizationMembersQuery, GetSingleOrganizationMembersQueryVariables>({ query: GetSingleOrganizationMembersDocument, ...options })
-}
-export const GetAllOrganizationsWithMembersDocument = gql`
-  query GetAllOrganizationsWithMembers {
-    organizations {
-      edges {
-        node {
-          id
-          personalOrg
-          displayName
-          name
-          avatarRemoteURL
-          avatarFile {
-            id
-            presignedURL
-          }
-          members {
-            role
-          }
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllOrganizationsWithMembersQuery(options?: Omit<Urql.UseQueryArgs<GetAllOrganizationsWithMembersQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllOrganizationsWithMembersQuery, GetAllOrganizationsWithMembersQueryVariables>({ query: GetAllOrganizationsWithMembersDocument, ...options })
-}
-export const GetInvitesDocument = gql`
-  query GetInvites {
-    invites {
-      edges {
-        node {
-          id
-          recipient
-          status
-          createdAt
-          expires
-          role
-        }
-      }
-    }
-  }
-`
-
-export function useGetInvitesQuery(options?: Omit<Urql.UseQueryArgs<GetInvitesQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetInvitesQuery, GetInvitesQueryVariables>({ query: GetInvitesDocument, ...options })
-}
-export const GetOrganizationBillingDocument = gql`
-  query GetOrganizationBilling($organizationId: ID!) {
-    organization(id: $organizationId) {
-      personalOrg
-      orgSubscriptions {
-        active
-        expiresAt
-        subscriptionURL
-        stripeSubscriptionStatus
-        productTier
-        productPrice
-        features
-        productTier
-      }
-    }
-  }
-`
-
-export function useGetOrganizationBillingQuery(options: Omit<Urql.UseQueryArgs<GetOrganizationBillingQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetOrganizationBillingQuery, GetOrganizationBillingQueryVariables>({ query: GetOrganizationBillingDocument, ...options })
-}
-export const GetOrganizationSettingDocument = gql`
-  query getOrganizationSetting($organizationId: ID!) {
-    organization(id: $organizationId) {
-      setting {
-        createdAt
-        updatedAt
-        createdBy
-        updatedBy
-        domains
-        billingContact
-        billingEmail
-        billingPhone
-        billingAddress
-        taxIdentifier
-        tags
-        geoLocation
-        billingNotificationsEnabled
-      }
-    }
-  }
-`
-
-export function useGetOrganizationSettingQuery(options: Omit<Urql.UseQueryArgs<GetOrganizationSettingQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetOrganizationSettingQuery, GetOrganizationSettingQueryVariables>({ query: GetOrganizationSettingDocument, ...options })
-}
-export const GetBillingEmailDocument = gql`
-  query getBillingEmail($organizationId: ID!) {
-    organization(id: $organizationId) {
-      setting {
-        billingEmail
-      }
-    }
-  }
-`
-
-export function useGetBillingEmailQuery(options: Omit<Urql.UseQueryArgs<GetBillingEmailQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetBillingEmailQuery, GetBillingEmailQueryVariables>({ query: GetBillingEmailDocument, ...options })
-}
-export const CreateOrganizationDocument = gql`
-  mutation CreateOrganization($input: CreateOrganizationInput!) {
-    createOrganization(input: $input) {
-      organization {
-        id
-      }
-    }
-  }
-`
-
-export function useCreateOrganizationMutation() {
-  return Urql.useMutation<CreateOrganizationMutation, CreateOrganizationMutationVariables>(CreateOrganizationDocument)
-}
-export const UpdateOrganizationDocument = gql`
-  mutation UpdateOrganization($updateOrganizationId: ID!, $input: UpdateOrganizationInput!, $avatarFile: Upload) {
-    updateOrganization(id: $updateOrganizationId, input: $input, avatarFile: $avatarFile) {
-      organization {
-        id
-      }
-    }
-  }
-`
-
-export function useUpdateOrganizationMutation() {
-  return Urql.useMutation<UpdateOrganizationMutation, UpdateOrganizationMutationVariables>(UpdateOrganizationDocument)
-}
-export const CreateBulkInviteDocument = gql`
-  mutation CreateBulkInvite($input: [CreateInviteInput!]) {
-    createBulkInvite(input: $input) {
-      invites {
-        id
-      }
-    }
-  }
-`
-
-export function useCreateBulkInviteMutation() {
-  return Urql.useMutation<CreateBulkInviteMutation, CreateBulkInviteMutationVariables>(CreateBulkInviteDocument)
-}
-export const DeleteOrganizationInviteDocument = gql`
-  mutation DeleteOrganizationInvite($deleteInviteId: ID!) {
-    deleteInvite(id: $deleteInviteId) {
-      deletedID
-    }
-  }
-`
-
-export function useDeleteOrganizationInviteMutation() {
-  return Urql.useMutation<DeleteOrganizationInviteMutation, DeleteOrganizationInviteMutationVariables>(DeleteOrganizationInviteDocument)
-}
-export const DeleteOrganizationDocument = gql`
-  mutation DeleteOrganization($deleteOrganizationId: ID!) {
-    deleteOrganization(id: $deleteOrganizationId) {
-      deletedID
-    }
-  }
-`
-
-export function useDeleteOrganizationMutation() {
-  return Urql.useMutation<DeleteOrganizationMutation, DeleteOrganizationMutationVariables>(DeleteOrganizationDocument)
-}
-export const CreatePersonalAccessTokenDocument = gql`
-  mutation CreatePersonalAccessToken($input: CreatePersonalAccessTokenInput!) {
-    createPersonalAccessToken(input: $input) {
-      personalAccessToken {
-        token
-      }
-    }
-  }
-`
-
-export function useCreatePersonalAccessTokenMutation() {
-  return Urql.useMutation<CreatePersonalAccessTokenMutation, CreatePersonalAccessTokenMutationVariables>(CreatePersonalAccessTokenDocument)
-}
-export const GetPersonalAccessTokensDocument = gql`
-  query GetPersonalAccessTokens {
-    personalAccessTokens {
-      edges {
-        node {
-          id
-          name
-          description
-          expiresAt
-          organizations {
-            id
-            name
-          }
-        }
-      }
-    }
-  }
-`
-
-export function useGetPersonalAccessTokensQuery(options?: Omit<Urql.UseQueryArgs<GetPersonalAccessTokensQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetPersonalAccessTokensQuery, GetPersonalAccessTokensQueryVariables>({ query: GetPersonalAccessTokensDocument, ...options })
-}
-export const DeletePersonalAccessTokenDocument = gql`
-  mutation DeletePersonalAccessToken($deletePersonalAccessTokenId: ID!) {
-    deletePersonalAccessToken(id: $deletePersonalAccessTokenId) {
-      deletedID
-    }
-  }
-`
-
-export function useDeletePersonalAccessTokenMutation() {
-  return Urql.useMutation<DeletePersonalAccessTokenMutation, DeletePersonalAccessTokenMutationVariables>(DeletePersonalAccessTokenDocument)
-}
-export const CreateInternalPolicyDocument = gql`
-  mutation CreateInternalPolicy($input: CreateInternalPolicyInput!) {
-    createInternalPolicy(input: $input) {
-      internalPolicy {
-        id
-        name
-        background
-        description
-        policyType
-        purposeAndScope
-        details
-      }
-    }
-  }
-`
-
-export function useCreateInternalPolicyMutation() {
-  return Urql.useMutation<CreateInternalPolicyMutation, CreateInternalPolicyMutationVariables>(CreateInternalPolicyDocument)
-}
-export const UpdateInternalPolicyDocument = gql`
-  mutation UpdateInternalPolicy($updateInternalPolicyId: ID!, $input: UpdateInternalPolicyInput!) {
-    updateInternalPolicy(id: $updateInternalPolicyId, input: $input) {
-      internalPolicy {
-        ...InternalPolicyUpdateFields
-      }
-    }
-  }
-  ${InternalPolicyUpdateFieldsFragmentDoc}
-`
-
-export function useUpdateInternalPolicyMutation() {
-  return Urql.useMutation<UpdateInternalPolicyMutation, UpdateInternalPolicyMutationVariables>(UpdateInternalPolicyDocument)
-}
-export const DeleteInternalPolicyDocument = gql`
-  mutation DeleteInternalPolicy($deleteInternalPolicyId: ID!) {
-    deleteInternalPolicy(id: $deleteInternalPolicyId) {
-      deletedID
-    }
-  }
-`
-
-export function useDeleteInternalPolicyMutation() {
-  return Urql.useMutation<DeleteInternalPolicyMutation, DeleteInternalPolicyMutationVariables>(DeleteInternalPolicyDocument)
-}
-export const GetAllInternalPoliciesWithDetailsDocument = gql`
-  query GetAllInternalPoliciesWithDetails {
-    internalPolicies {
-      edges {
-        node {
-          id
-          name
-          background
-          description
-          policyType
-          purposeAndScope
-          status
-          version
-          updatedAt
-          updatedBy
-          createdAt
-          createdBy
-          tags
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllInternalPoliciesWithDetailsQuery(options?: Omit<Urql.UseQueryArgs<GetAllInternalPoliciesWithDetailsQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllInternalPoliciesWithDetailsQuery, GetAllInternalPoliciesWithDetailsQueryVariables>({ query: GetAllInternalPoliciesWithDetailsDocument, ...options })
-}
-export const GetInternalPoliciesListDocument = gql`
-  query GetInternalPoliciesList($where: InternalPolicyWhereInput) {
-    internalPolicies(where: $where) {
-      edges {
-        node {
-          ...InternalPolicyList
-        }
-      }
-    }
-  }
-  ${InternalPolicyListFragmentDoc}
-`
-
-export function useGetInternalPoliciesListQuery(options?: Omit<Urql.UseQueryArgs<GetInternalPoliciesListQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetInternalPoliciesListQuery, GetInternalPoliciesListQueryVariables>({ query: GetInternalPoliciesListDocument, ...options })
-}
-export const SearchInternalPoliciesDocument = gql`
-  query SearchInternalPolicies($query: String!) {
-    internalPolicySearch(query: $query) {
-      internalPolicies {
-        ...InternalPolicyList
-      }
-    }
-  }
-  ${InternalPolicyListFragmentDoc}
-`
-
-export function useSearchInternalPoliciesQuery(options: Omit<Urql.UseQueryArgs<SearchInternalPoliciesQueryVariables>, 'query'>) {
-  return Urql.useQuery<SearchInternalPoliciesQuery, SearchInternalPoliciesQueryVariables>({ query: SearchInternalPoliciesDocument, ...options })
-}
-export const GetAllInternalPoliciesDocument = gql`
-  query GetAllInternalPolicies {
-    internalPolicies {
-      edges {
-        node {
-          id
-          name
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllInternalPoliciesQuery(options?: Omit<Urql.UseQueryArgs<GetAllInternalPoliciesQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllInternalPoliciesQuery, GetAllInternalPoliciesQueryVariables>({ query: GetAllInternalPoliciesDocument, ...options })
-}
-export const GetInternalPolicyDetailsByIdDocument = gql`
-  query GetInternalPolicyDetailsById($internalPolicyId: ID!) {
-    internalPolicy(id: $internalPolicyId) {
-      ...InternalPolicyByID
-      procedures {
-        id
-        name
-      }
-    }
-  }
-  ${InternalPolicyByIdFragmentDoc}
-`
-
-export function useGetInternalPolicyDetailsByIdQuery(options: Omit<Urql.UseQueryArgs<GetInternalPolicyDetailsByIdQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetInternalPolicyDetailsByIdQuery, GetInternalPolicyDetailsByIdQueryVariables>({ query: GetInternalPolicyDetailsByIdDocument, ...options })
-}
-export const CreateProcedureDocument = gql`
-  mutation CreateProcedure($input: CreateProcedureInput!) {
-    createProcedure(input: $input) {
-      procedure {
-        id
-        name
-      }
-    }
-  }
-`
-
-export function useCreateProcedureMutation() {
-  return Urql.useMutation<CreateProcedureMutation, CreateProcedureMutationVariables>(CreateProcedureDocument)
-}
-export const UpdateProcedureDocument = gql`
-  mutation UpdateProcedure($updateProcedureId: ID!, $input: UpdateProcedureInput!) {
-    updateProcedure(id: $updateProcedureId, input: $input) {
-      procedure {
-        id
-        name
-      }
-    }
-  }
-`
-
-export function useUpdateProcedureMutation() {
-  return Urql.useMutation<UpdateProcedureMutation, UpdateProcedureMutationVariables>(UpdateProcedureDocument)
-}
-export const GetProceduresListDocument = gql`
-  query GetProceduresList($where: ProcedureWhereInput) {
-    procedures(where: $where) {
-      edges {
-        node {
-          ...ProcedureList
-        }
-      }
-    }
-  }
-  ${ProcedureListFragmentDoc}
-`
-
-export function useGetProceduresListQuery(options?: Omit<Urql.UseQueryArgs<GetProceduresListQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetProceduresListQuery, GetProceduresListQueryVariables>({ query: GetProceduresListDocument, ...options })
-}
-export const SearchProceduresDocument = gql`
-  query SearchProcedures($query: String!) {
-    procedureSearch(query: $query) {
-      procedures {
-        ...ProcedureList
-      }
-    }
-  }
-  ${ProcedureListFragmentDoc}
-`
-
-export function useSearchProceduresQuery(options: Omit<Urql.UseQueryArgs<SearchProceduresQueryVariables>, 'query'>) {
-  return Urql.useQuery<SearchProceduresQuery, SearchProceduresQueryVariables>({ query: SearchProceduresDocument, ...options })
-}
-export const GetAllProceduresDocument = gql`
-  query GetAllProcedures($where: ProcedureWhereInput) {
-    procedures(where: $where) {
-      edges {
-        node {
-          id
-          name
-          displayID
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllProceduresQuery(options?: Omit<Urql.UseQueryArgs<GetAllProceduresQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllProceduresQuery, GetAllProceduresQueryVariables>({ query: GetAllProceduresDocument, ...options })
-}
-export const GetProcedureDetailsByIdDocument = gql`
-  query GetProcedureDetailsById($procedureId: ID!) {
-    procedure(id: $procedureId) {
-      ...ProcedureByID
-    }
-  }
-  ${ProcedureByIdFragmentDoc}
-`
-
-export function useGetProcedureDetailsByIdQuery(options: Omit<Urql.UseQueryArgs<GetProcedureDetailsByIdQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetProcedureDetailsByIdQuery, GetProcedureDetailsByIdQueryVariables>({ query: GetProcedureDetailsByIdDocument, ...options })
-}
-export const DeleteProcedureDocument = gql`
-  mutation DeleteProcedure($deleteProcedureId: ID!) {
-    deleteProcedure(id: $deleteProcedureId) {
-      deletedID
-    }
-  }
-`
-
-export function useDeleteProcedureMutation() {
-  return Urql.useMutation<DeleteProcedureMutation, DeleteProcedureMutationVariables>(DeleteProcedureDocument)
-}
-export const CreateProgramWithMembersDocument = gql`
-  mutation CreateProgramWithMembers($input: CreateProgramWithMembersInput!) {
-    createProgramWithMembers(input: $input) {
-      program {
-        id
-        name
-      }
-    }
-  }
-`
-
-export function useCreateProgramWithMembersMutation() {
-  return Urql.useMutation<CreateProgramWithMembersMutation, CreateProgramWithMembersMutationVariables>(CreateProgramWithMembersDocument)
-}
-export const UpdateProgramDocument = gql`
-  mutation UpdateProgram($updateProgramId: ID!, $input: UpdateProgramInput!) {
-    updateProgram(id: $updateProgramId, input: $input) {
-      program {
-        id
-        name
-      }
-    }
-  }
-`
-
-export function useUpdateProgramMutation() {
-  return Urql.useMutation<UpdateProgramMutation, UpdateProgramMutationVariables>(UpdateProgramDocument)
-}
-export const GetAllProgramsDocument = gql`
-  query GetAllPrograms($where: ProgramWhereInput) {
-    programs(where: $where) {
-      edges {
-        node {
-          id
-          name
-          description
-          tags
-          status
-          startDate
-          endDate
-          auditorReady
-          displayID
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllProgramsQuery(options?: Omit<Urql.UseQueryArgs<GetAllProgramsQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllProgramsQuery, GetAllProgramsQueryVariables>({ query: GetAllProgramsDocument, ...options })
-}
-export const GetProgramEdgesForWizardDocument = gql`
-  query GetProgramEdgesForWizard {
-    risks {
-      edges {
-        node {
-          id
-          name
-        }
-      }
-    }
-    procedures {
-      edges {
-        node {
-          id
-          name
-        }
-      }
-    }
-    internalPolicies {
-      edges {
-        node {
-          id
-          name
-        }
-      }
-    }
-    groups {
-      edges {
-        node {
-          id
-          name
-          displayName
-        }
-      }
-    }
-    orgMemberships {
-      edges {
-        node {
-          user {
-            id
-            firstName
-            lastName
-            role
-          }
-        }
-      }
-    }
-  }
-`
-
-export function useGetProgramEdgesForWizardQuery(options?: Omit<Urql.UseQueryArgs<GetProgramEdgesForWizardQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetProgramEdgesForWizardQuery, GetProgramEdgesForWizardQueryVariables>({ query: GetProgramEdgesForWizardDocument, ...options })
-}
-export const GetProgramDetailsByIdDocument = gql`
-  query GetProgramDetailsById($programId: ID!) {
-    program(id: $programId) {
-      id
-      name
-      description
-      tags
-      status
-      startDate
-      endDate
-      auditorReady
-      auditorWriteComments
-      auditorReadComments
-      standards {
-        id
-        name
-      }
-      tasks {
-        id
-        title
-        status
-        due
-        details
-        assignee {
-          id
-          firstName
-          lastName
-          email
-        }
-        assigner {
-          id
-          firstName
-          lastName
-          email
-        }
-      }
-      controlObjectives {
-        id
-        name
-      }
-      controls {
-        id
-        name
-        class
-      }
-      subcontrols {
-        id
-        name
-        class
-      }
-      narratives {
-        id
-        name
-      }
-      internalPolicies {
-        id
-        name
-      }
-      procedures {
-        id
-        name
-      }
-    }
-  }
-`
-
-export function useGetProgramDetailsByIdQuery(options: Omit<Urql.UseQueryArgs<GetProgramDetailsByIdQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetProgramDetailsByIdQuery, GetProgramDetailsByIdQueryVariables>({ query: GetProgramDetailsByIdDocument, ...options })
-}
-export const GetAllRisksDocument = gql`
-  query GetAllRisks {
-    risks {
-      edges {
-        node {
-          id
-          name
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllRisksQuery(options?: Omit<Urql.UseQueryArgs<GetAllRisksQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllRisksQuery, GetAllRisksQueryVariables>({ query: GetAllRisksDocument, ...options })
-}
-export const SearchDocument = gql`
-  query Search($query: String!) {
-    search(query: $query) {
-      totalCount
-      nodes {
-        ... on ProgramSearchResult {
-          programs {
-            id
-            name
-          }
-        }
-        ... on OrganizationSearchResult {
-          organizations {
-            id
-            name
-            displayName
-            avatarRemoteURL
-          }
-        }
-        ... on ControlObjectiveSearchResult {
-          controlObjectives {
-            id
-            name
-          }
-        }
-        ... on ControlSearchResult {
-          controls {
-            id
-            name
-          }
-        }
-        ... on SubcontrolSearchResult {
-          subcontrols {
-            id
-            name
-          }
-        }
-        ... on RiskSearchResult {
-          risks {
-            id
-            name
-          }
-        }
-        ... on GroupSearchResult {
-          groups {
-            id
-            name
-          }
-        }
-        ... on TaskSearchResult {
-          tasks {
-            id
-            title
-          }
-        }
-      }
-    }
-  }
-`
-
-export function useSearchQuery(options: Omit<Urql.UseQueryArgs<SearchQueryVariables>, 'query'>) {
-  return Urql.useQuery<SearchQuery, SearchQueryVariables>({ query: SearchDocument, ...options })
-}
-export const CreateStandardDocument = gql`
-  mutation CreateStandard($input: CreateStandardInput!) {
-    createStandard(input: $input) {
-      standard {
-        id
-      }
-    }
-  }
-`
-
-export function useCreateStandardMutation() {
-  return Urql.useMutation<CreateStandardMutation, CreateStandardMutationVariables>(CreateStandardDocument)
-}
-export const GetAllSubcontrolsDocument = gql`
-  query GetAllSubcontrols($where: SubcontrolWhereInput) {
-    subcontrols(where: $where) {
-      edges {
-        node {
-          id
-          name
-          displayID
-          description
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllSubcontrolsQuery(options?: Omit<Urql.UseQueryArgs<GetAllSubcontrolsQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllSubcontrolsQuery, GetAllSubcontrolsQueryVariables>({ query: GetAllSubcontrolsDocument, ...options })
-}
-export const CreateSubscriberDocument = gql`
-  mutation CreateSubscriber($input: CreateSubscriberInput!) {
-    createSubscriber(input: $input) {
-      subscriber {
-        email
-      }
-    }
-  }
-`
-
-export function useCreateSubscriberMutation() {
-  return Urql.useMutation<CreateSubscriberMutation, CreateSubscriberMutationVariables>(CreateSubscriberDocument)
-}
-export const GetAllSubscribersDocument = gql`
-  query GetAllSubscribers {
-    subscribers {
-      edges {
-        node {
-          active
-          email
-          id
-          verifiedEmail
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllSubscribersQuery(options?: Omit<Urql.UseQueryArgs<GetAllSubscribersQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllSubscribersQuery, GetAllSubscribersQueryVariables>({ query: GetAllSubscribersDocument, ...options })
-}
-export const DeleteSubscriberDocument = gql`
-  mutation DeleteSubscriber($deleteSubscriberEmail: String!) {
-    deleteSubscriber(email: $deleteSubscriberEmail) {
-      email
-    }
-  }
-`
-
-export function useDeleteSubscriberMutation() {
-  return Urql.useMutation<DeleteSubscriberMutation, DeleteSubscriberMutationVariables>(DeleteSubscriberDocument)
-}
-export const TasksWithFilterDocument = gql`
-  query TasksWithFilter($where: TaskWhereInput) {
-    tasks(where: $where) {
-      edges {
-        node {
-          id
-          title
-          description
-          status
-          tags
-          details
-          due
-          displayID
-          category
-          assigner {
-            displayName
-            firstName
-            lastName
-            avatarRemoteURL
-            avatarFile {
-              presignedURL
-            }
-          }
-        }
-      }
-    }
-  }
-`
-
-export function useTasksWithFilterQuery(options?: Omit<Urql.UseQueryArgs<TasksWithFilterQueryVariables>, 'query'>) {
-  return Urql.useQuery<TasksWithFilterQuery, TasksWithFilterQueryVariables>({ query: TasksWithFilterDocument, ...options })
-}
-export const CreateTaskDocument = gql`
-  mutation CreateTask($input: CreateTaskInput!) {
-    createTask(input: $input) {
-      task {
-        id
-      }
-    }
-  }
-`
-
-export function useCreateTaskMutation() {
-  return Urql.useMutation<CreateTaskMutation, CreateTaskMutationVariables>(CreateTaskDocument)
-}
-export const UpdateTaskDocument = gql`
-  mutation UpdateTask($updateTaskId: ID!, $input: UpdateTaskInput!) {
-    updateTask(id: $updateTaskId, input: $input) {
-      task {
-        id
-      }
-    }
-  }
-`
-
-export function useUpdateTaskMutation() {
-  return Urql.useMutation<UpdateTaskMutation, UpdateTaskMutationVariables>(UpdateTaskDocument)
-}
-export const DeleteTaskDocument = gql`
-  mutation DeleteTask($deleteTaskId: ID!) {
-    deleteTask(id: $deleteTaskId) {
-      deletedID
-    }
-  }
-`
-
-export function useDeleteTaskMutation() {
-  return Urql.useMutation<DeleteTaskMutation, DeleteTaskMutationVariables>(DeleteTaskDocument)
-}
-export const TaskDocument = gql`
-  query Task($taskId: ID!) {
-    task(id: $taskId) {
-      assignee {
-        displayName
-        firstName
-        lastName
-        avatarRemoteURL
-        id
-      }
-      assigner {
-        avatarRemoteURL
-        lastName
-        firstName
-        displayName
-        id
-      }
-      id
-      category
-      title
-      status
-      subcontrol {
-        displayID
-        id
-      }
-      program {
-        displayID
-        id
-      }
-      procedure {
-        displayID
-        id
-      }
-      internalPolicy {
-        displayID
-        id
-      }
-      evidence {
-        displayID
-        id
-      }
-      group {
-        displayID
-        id
-      }
-      due
-      displayID
-      description
-      controlObjective {
-        displayID
-        id
-      }
-    }
-  }
-`
-
-export function useTaskQuery(options: Omit<Urql.UseQueryArgs<TaskQueryVariables>, 'query'>) {
-  return Urql.useQuery<TaskQuery, TaskQueryVariables>({ query: TaskDocument, ...options })
-}
-export const CreateTemplateDocument = gql`
-  mutation CreateTemplate($input: CreateTemplateInput!) {
-    createTemplate(input: $input) {
-      template {
-        id
-        name
-        templateType
-        description
-        jsonconfig
-        uischema
-        owner {
-          id
-        }
-      }
-    }
-  }
-`
-
-export function useCreateTemplateMutation() {
-  return Urql.useMutation<CreateTemplateMutation, CreateTemplateMutationVariables>(CreateTemplateDocument)
-}
-export const UpdateTemplateDocument = gql`
-  mutation UpdateTemplate($updateTemplateId: ID!, $input: UpdateTemplateInput!) {
-    updateTemplate(id: $updateTemplateId, input: $input) {
-      template {
-        id
-        name
-        templateType
-        description
-        jsonconfig
-        uischema
-        owner {
-          id
-        }
-      }
-    }
-  }
-`
-
-export function useUpdateTemplateMutation() {
-  return Urql.useMutation<UpdateTemplateMutation, UpdateTemplateMutationVariables>(UpdateTemplateDocument)
-}
-export const GetAllTemplatesDocument = gql`
-  query GetAllTemplates {
-    templates {
-      edges {
-        node {
-          id
-          name
-          templateType
-          description
-          jsonconfig
-          uischema
-          createdAt
-          updatedAt
-        }
-      }
-    }
-  }
-`
-
-export function useGetAllTemplatesQuery(options?: Omit<Urql.UseQueryArgs<GetAllTemplatesQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetAllTemplatesQuery, GetAllTemplatesQueryVariables>({ query: GetAllTemplatesDocument, ...options })
-}
-export const FilterTemplatesDocument = gql`
-  query FilterTemplates($where: TemplateWhereInput) {
-    templates(where: $where) {
-      edges {
-        node {
-          id
-          name
-          templateType
-          description
-          jsonconfig
-          uischema
-          createdAt
-          updatedAt
-        }
-      }
-    }
-  }
-`
-
-export function useFilterTemplatesQuery(options?: Omit<Urql.UseQueryArgs<FilterTemplatesQueryVariables>, 'query'>) {
-  return Urql.useQuery<FilterTemplatesQuery, FilterTemplatesQueryVariables>({ query: FilterTemplatesDocument, ...options })
-}
-export const GetTemplateDocument = gql`
-  query GetTemplate($getTemplateId: ID!) {
-    template(id: $getTemplateId) {
-      id
-      templateType
-      name
-      description
-      jsonconfig
-      uischema
-    }
-  }
-`
-
-export function useGetTemplateQuery(options: Omit<Urql.UseQueryArgs<GetTemplateQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetTemplateQuery, GetTemplateQueryVariables>({ query: GetTemplateDocument, ...options })
-}
-export const DeleteTemplateDocument = gql`
-  mutation DeleteTemplate($deleteTemplateId: ID!) {
-    deleteTemplate(id: $deleteTemplateId) {
-      deletedID
-    }
-  }
-`
-
-export function useDeleteTemplateMutation() {
-  return Urql.useMutation<DeleteTemplateMutation, DeleteTemplateMutationVariables>(DeleteTemplateDocument)
-}
-export const GetTfaSettingsDocument = gql`
-  query GetTFASettings {
-    tfaSettings {
-      edges {
-        node {
-          id
-        }
-      }
-    }
-  }
-`
-
-export function useGetTfaSettingsQuery(options?: Omit<Urql.UseQueryArgs<GetTfaSettingsQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetTfaSettingsQuery, GetTfaSettingsQueryVariables>({ query: GetTfaSettingsDocument, ...options })
-}
-export const GetUserTfaSettingsDocument = gql`
-  query GetUserTFASettings($userId: ID!) {
-    user(id: $userId) {
-      tfaSettings {
-        id
-        totpAllowed
-        verified
-      }
-    }
-  }
-`
-
-export function useGetUserTfaSettingsQuery(options: Omit<Urql.UseQueryArgs<GetUserTfaSettingsQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetUserTfaSettingsQuery, GetUserTfaSettingsQueryVariables>({ query: GetUserTfaSettingsDocument, ...options })
-}
-export const UpdateTfaSettingDocument = gql`
-  mutation UpdateTFASetting($input: UpdateTFASettingInput!) {
-    updateTFASetting(input: $input) {
-      qrCode
-      recoveryCodes
-      tfaSecret
-      tfaSetting {
-        id
-      }
-    }
-  }
-`
-
-export function useUpdateTfaSettingMutation() {
-  return Urql.useMutation<UpdateTfaSettingMutation, UpdateTfaSettingMutationVariables>(UpdateTfaSettingDocument)
-}
-export const CreateTfaSettingDocument = gql`
-  mutation CreateTFASetting($input: CreateTFASettingInput!) {
-    createTFASetting(input: $input) {
-      qrCode
-      tfaSecret
-      tfaSetting {
-        id
-      }
-    }
-  }
-`
-
-export function useCreateTfaSettingMutation() {
-  return Urql.useMutation<CreateTfaSettingMutation, CreateTfaSettingMutationVariables>(CreateTfaSettingDocument)
-}
-export const GetUserDocument = gql`
-  query GetUser($userId: ID!) {
-    user(id: $userId) {
-      ...UserInfo
-    }
-  }
-  ${UserInfoFragmentDoc}
-`
-
-export function useGetUserQuery(options: Omit<Urql.UseQueryArgs<GetUserQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetUserQuery, GetUserQueryVariables>({ query: GetUserDocument, ...options })
-}
-export const GetUserProfileDocument = gql`
-  query GetUserProfile($userId: ID!) {
-    user(id: $userId) {
-      ...UserInfo
-      setting {
-        id
-        status
-        tags
-        isTfaEnabled
-        defaultOrg {
-          id
-          displayName
-        }
-      }
-    }
-  }
-  ${UserInfoFragmentDoc}
-`
-
-export function useGetUserProfileQuery(options: Omit<Urql.UseQueryArgs<GetUserProfileQueryVariables>, 'query'>) {
-  return Urql.useQuery<GetUserProfileQuery, GetUserProfileQueryVariables>({ query: GetUserProfileDocument, ...options })
-}
-export const UpdateUserDocument = gql`
-  mutation UpdateUser($updateUserId: ID!, $input: UpdateUserInput!, $avatarFile: Upload) {
-    updateUser(id: $updateUserId, input: $input, avatarFile: $avatarFile) {
-      user {
-        id
-        avatarFile {
-          presignedURL
-        }
-      }
-    }
-  }
-`
-
-export function useUpdateUserMutation() {
-  return Urql.useMutation<UpdateUserMutation, UpdateUserMutationVariables>(UpdateUserDocument)
-}
-export const UpdateUserSettingDocument = gql`
-  mutation UpdateUserSetting($updateUserSettingId: ID!, $input: UpdateUserSettingInput!) {
-    updateUserSetting(id: $updateUserSettingId, input: $input) {
-      userSetting {
-        id
-      }
-    }
-  }
-`
-
-export function useUpdateUserSettingMutation() {
-  return Urql.useMutation<UpdateUserSettingMutation, UpdateUserSettingMutationVariables>(UpdateUserSettingDocument)
-}

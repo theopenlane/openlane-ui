@@ -5,17 +5,19 @@ import { Button } from '@repo/ui/button'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
-import { useGetOrganizationSettingQuery, useUpdateOrganizationMutation } from '@repo/codegen/src/schema'
 import { useOrganization } from '@/hooks/useOrganization'
 import useClickOutside from '@/hooks/useClickOutside'
+import { useGetOrganizationSetting, useUpdateOrganization } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
+import { useQueryClient } from '@tanstack/react-query'
 
 const libraries: any = ['places']
 
 const BillingContactDialog = () => {
+  const queryClient = useQueryClient()
   const { currentOrgId } = useOrganization()
-  const [setting] = useGetOrganizationSettingQuery({ pause: !currentOrgId, variables: { organizationId: currentOrgId } })
-  const [{ fetching: isSubmitting }, updateOrg] = useUpdateOrganizationMutation()
+  const { data: setting } = useGetOrganizationSetting(currentOrgId)
+  const { isPending, mutateAsync: updateOrg } = useUpdateOrganization()
   const { successNotification, errorNotification } = useNotification()
   const wrapperRef = useClickOutside(() => setShowPredictions(false))
   const { isLoaded } = useLoadScript({
@@ -98,7 +100,7 @@ const BillingContactDialog = () => {
 
     try {
       await updateOrg({
-        updateOrganizationId: currentOrgId,
+        updateOrganizationId: currentOrgId!,
         input: {
           updateOrgSettings: {
             billingAddress: address,
@@ -106,6 +108,7 @@ const BillingContactDialog = () => {
           },
         },
       })
+      queryClient.invalidateQueries({ queryKey: ['organizationSetting', currentOrgId] })
       successNotification({
         title: `Successfully saved your billing address!`,
       })
@@ -118,12 +121,12 @@ const BillingContactDialog = () => {
   }
 
   useEffect(() => {
-    if (!setting.data) {
+    if (!setting) {
       return
     }
-    setAddress(setting.data.organization.setting?.billingAddress)
+    setAddress(setting.organization.setting?.billingAddress)
 
-    setFullName(setting.data.organization.setting?.billingContact || '')
+    setFullName(setting.organization.setting?.billingContact || '')
     return () => {}
   }, [setting])
 
@@ -195,8 +198,8 @@ const BillingContactDialog = () => {
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button className="w-full mt-4" type="submit" variant="filled" disabled={isSubmitting}>
-                {isSubmitting ? 'Saving...' : 'Save'}
+              <Button className="w-full mt-4" type="submit" variant="filled" disabled={isPending}>
+                {isPending ? 'Saving...' : 'Save'}
               </Button>
             </DialogClose>
           </DialogFooter>

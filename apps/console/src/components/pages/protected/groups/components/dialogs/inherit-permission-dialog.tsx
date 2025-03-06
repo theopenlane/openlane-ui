@@ -6,10 +6,11 @@ import { Button } from '@repo/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Label } from '@repo/ui/label'
 import { Copy, ChevronDown, ChevronUp } from 'lucide-react'
-import { useGetAllGroupsQuery, useGetGroupDetailsQuery, useUpdateGroupMutation } from '@repo/codegen/src/schema'
 import { DataTable } from '@repo/ui/data-table'
 import { Input } from '@repo/ui/input'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
+import { useGetAllGroups, useGetGroupDetails, useUpdateGroup } from '@/lib/graphql-hooks/groups'
+import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
 
 const columns = [
@@ -25,14 +26,15 @@ const InheritPermissionDialog = () => {
   const [isExpanded, setIsExpanded] = useState(false)
   const { errorNotification, successNotification } = useNotification()
   const { selectedGroup, isAdmin } = useGroupsStore()
+  const queryClient = useQueryClient()
 
-  const [{ data, fetching }] = useGetGroupDetailsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
+  const { data } = useGetGroupDetails(selectedGroup)
   const { isManaged } = data?.group || {}
 
   const where = selectedGroup ? { idNEQ: selectedGroup } : undefined
-  const [{ data: TableData }] = useGetAllGroupsQuery({ variables: { where } })
+  const { data: TableData } = useGetAllGroups(where)
 
-  const [{}, updateGroup] = useUpdateGroupMutation()
+  const { mutateAsync: updateGroup } = useUpdateGroup()
 
   const inheritPermissions = async () => {
     if (!selectedGroup) {
@@ -44,16 +46,14 @@ const InheritPermissionDialog = () => {
     }
 
     try {
-      const result = await updateGroup({
+      await updateGroup({
         updateGroupId: selectedGroup,
         input: {
           inheritGroupPermissions: group,
         },
       })
 
-      if (result.error) {
-        throw new Error(result.error.message)
-      }
+      queryClient.invalidateQueries({ queryKey: ['group', selectedGroup] })
 
       successNotification({
         description: `Permissions successfully inherited from ${groups.find((g) => g.id === group)?.name || 'selected group'}.`,

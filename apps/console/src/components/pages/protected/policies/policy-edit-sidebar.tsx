@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useMemo, useState, useCallback } from 'react'
-import { InternalPolicyByIdFragment, useDeleteInternalPolicyMutation } from '@repo/codegen/src/schema'
+import { InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
 import { Info, Binoculars, FileStack, ScrollText, Tag, CalendarCheck2, CalendarClock } from 'lucide-react'
 import { MetaPanel, formatTime } from '@/components/shared/meta-panel/meta-panel'
 import { Panel } from '@repo/ui/panel'
@@ -13,9 +13,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@repo/ui/input'
 import MultipleSelector from '@repo/ui/multiple-selector'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { useToast } from '@repo/ui/use-toast'
 import { useRouter } from 'next/navigation'
 import { useNotification } from '@/hooks/useNotification'
+import { useDeleteInternalPolicy } from '@/lib/graphql-hooks/policy'
 
 type PolicyEditSidebarProps = {
   policy: InternalPolicyByIdFragment
@@ -23,29 +23,24 @@ type PolicyEditSidebarProps = {
   handleSave: () => void
 }
 
-// export const PolicyEditSidebar: React.FC<PolicyEditSidebarProps> = function ({ policy, form, handleSave }) {
 export const PolicyEditSidebar = ({ policy, form, handleSave }: PolicyEditSidebarProps) => {
-  const { toast } = useToast()
   const { successNotification, errorNotification } = useNotification()
   const router = useRouter()
 
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
-  const [_, deletePolicy] = useDeleteInternalPolicyMutation()
+  const { mutateAsync: deletePolicy } = useDeleteInternalPolicy()
 
   if (!policy) return null
 
   const handleDelete = useCallback(async () => {
-    const { error } = await deletePolicy({ deleteInternalPolicyId: policy.id })
-
-    if (error) {
-      errorNotification({ title: 'Error deleting policy', gqlError: error })
-      return
+    try {
+      await deletePolicy({ deleteInternalPolicyId: policy.id })
+      successNotification({ title: 'Policy deleted' })
+      router.push('/policies')
+    } catch {
+      errorNotification({ title: 'Error deleting policy' }) // gqlError: error TODO: pass graphql error
     }
-
-    successNotification({ title: 'Policy deleted' })
-
-    router.push('/policies')
-  }, [deletePolicy, policy, router, toast])
+  }, [deletePolicy, policy, router])
 
   const sidebarItems = useMemo(() => {
     return {

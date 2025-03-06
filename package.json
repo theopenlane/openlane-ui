@@ -15,6 +15,7 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
+    "@graphql-codegen/typescript-react-query": "^6.1.0",
     "dotenv-cli": "latest",
     "eslint": "latest",
     "prettier": "latest",

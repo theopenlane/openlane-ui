@@ -4,10 +4,12 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { Button } from '@repo/ui/button'
 import { Plus } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
-import { GetSingleOrganizationMembersQueryVariables, useGetGroupDetailsQuery, useGetSingleOrganizationMembersQuery, useUpdateGroupMutation } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
+import { useGetGroupDetails, useUpdateGroup } from '@/lib/graphql-hooks/groups'
+import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
+import { useQueryClient } from '@tanstack/react-query'
 
 const AddMembersDialog = () => {
   const { selectedGroup, isAdmin } = useGroupsStore()
@@ -15,16 +17,12 @@ const AddMembersDialog = () => {
   const [isOpen, setIsOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const [selectedMembers, setSelectedMembers] = useState<Option[]>([])
-
-  const [{ data, fetching }] = useGetGroupDetailsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
+  const queryClient = useQueryClient()
+  const { data } = useGetGroupDetails(selectedGroup)
   const { members, isManaged, id } = data?.group || {}
 
-  const variables: GetSingleOrganizationMembersQueryVariables = {
-    organizationId: session?.user.activeOrganizationId ?? '',
-  }
-
-  const [{ data: membersData }] = useGetSingleOrganizationMembersQuery({ variables })
-  const [{}, updateGroup] = useUpdateGroupMutation()
+  const { data: membersData } = useGetSingleOrganizationMembers(session?.user.activeOrganizationId)
+  const { mutateAsync: updateGroup } = useUpdateGroup()
 
   const membersOptions = membersData?.organization?.members
     ?.filter((member) => member.user.id != session?.user.userId)
@@ -59,6 +57,7 @@ const AddMembersDialog = () => {
       },
     })
 
+    queryClient.invalidateQueries({ queryKey: ['group', selectedGroup] })
     successNotification({ title: 'Members updated successfully' })
     setIsOpen(false)
   }

@@ -15,11 +15,12 @@ import { useSession } from 'next-auth/react'
 import { switchOrganization } from '@/lib/user'
 import { Loading } from '../loading/loading'
 import { useOrganization } from '@/hooks/useOrganization'
-import { useGetAllOrganizationsWithMembersQuery } from '@repo/codegen/src/schema'
+import { useGetAllOrganizationsWithMembers } from '@/lib/graphql-hooks/organization'
+import { useQueryClient } from '@tanstack/react-query'
 
 export const OrganizationSelector = () => {
   const { data: sessionData, update: updateSession } = useSession()
-
+  const queryClient = useQueryClient()
   const [orgData, setOrgData] = useState({
     organizationSearch: '',
     numberOfOrgs: 0,
@@ -28,8 +29,8 @@ export const OrganizationSelector = () => {
 
   const { currentOrgId } = useOrganization()
 
-  const [{ data: organizationsData }] = useGetAllOrganizationsWithMembersQuery()
-  const orgs = organizationsData?.organizations?.edges ?? []
+  const { data } = useGetAllOrganizationsWithMembers()
+  const orgs = data?.organizations?.edges ?? []
   const currentOrg = orgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
   const { container, logoWrapper, organizationLabel, organizationDropdown, allOrganizationsLink, popoverContent, searchWrapper, orgWrapper, orgInfo, orgTitle, orgSelect } =
     organizationSelectorStyles()
@@ -67,6 +68,10 @@ export const OrganizationSelector = () => {
             activeOrganizationId: orgId,
             refreshToken: response.refresh_token,
           },
+        })
+
+        requestAnimationFrame(() => {
+          queryClient?.invalidateQueries()
         })
       }
     }

@@ -7,8 +7,7 @@ everything in this directory, using the configuration `graphql-codegen.yml`.
 
 When interacting with the Openlane `core` api, most of the requests will
 interact with the [GraphQL API](https://api.theopenlane.io/query). In order to
-make this process easier, we use codegen to create the `urql` functions to be
-used within the components.
+make this process easier, we use codegen to create typescript types from queries.
 
 1. Add a new query or mutation to `/query`. Queries should be added to a file
    relevant to the the object(s) being used. For example, a new organization

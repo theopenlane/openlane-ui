@@ -2,11 +2,13 @@ import React, { useState } from 'react'
 import { ColumnDef } from '@tanstack/table-core'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { DataTable } from '@repo/ui/data-table'
-import { Permission, useGetGroupPermissionsQuery, useUpdateGroupMutation } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { Trash2 } from 'lucide-react'
 import { OBJECT_TYPE_CONFIG, ObjectTypes } from '@/constants/groups'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
+import { useGetGroupPermissions, useUpdateGroup } from '@/lib/graphql-hooks/groups'
+import { useQueryClient } from '@tanstack/react-query'
+import { Permission } from '@repo/codegen/src/schema'
 
 const PERMISSION_LABELS: Record<Permission, string> = {
   [Permission.VIEWER]: 'View',
@@ -19,10 +21,11 @@ const LABEL_TO_PERMISSION: Record<string, Permission> = Object.fromEntries(Objec
 
 const GroupsPermissionsTable = () => {
   const { selectedGroup } = useGroupsStore()
-  const [{ data }] = useGetGroupPermissionsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
-  const [, updateGroup] = useUpdateGroupMutation()
+  const { data } = useGetGroupPermissions(selectedGroup)
+  const { mutateAsync: updateGroup } = useUpdateGroup()
   const { successNotification, errorNotification } = useNotification()
   const [roles, setRoles] = useState<Record<string, Permission>>({})
+  const queryClient = useQueryClient()
 
   const getPermissionKey = (permission: Permission, action: 'add' | 'remove', objectType: string) => {
     const objectKey = objectType.replace(/\s+/g, '')
@@ -62,6 +65,7 @@ const GroupsPermissionsTable = () => {
           [getPermissionKey(newRole, 'add', objectType)]: [id],
         },
       })
+      queryClient.invalidateQueries({ queryKey: ['group', selectedGroup] })
 
       successNotification({ title: 'Permissions updated successfully' })
     } catch (error) {
@@ -78,6 +82,7 @@ const GroupsPermissionsTable = () => {
         updateGroupId: selectedGroup,
         input: { [getPermissionKey(role, 'remove', objectType)]: [id] },
       })
+      queryClient.invalidateQueries({ queryKey: ['group', selectedGroup] })
 
       successNotification({ title: 'Permission removed successfully' })
     } catch (error) {

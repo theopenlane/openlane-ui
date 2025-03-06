@@ -1,12 +1,12 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
+import { InternalPolicyByIdFragment, User } from '@repo/codegen/src/schema'
 import { UserRoundCheck, Binoculars, FileStack, ScrollText, Tag, CalendarCheck2, UserRoundPen, CalendarClock } from 'lucide-react'
 import { Badge } from '@repo/ui/badge'
 import { MetaPanel, formatTime, MetaPanelEntry } from '@/components/shared/meta-panel/meta-panel'
-import { useGetUserProfileQuery } from '@repo/codegen/src/schema'
 import { UserChip } from '@/components/shared/user-chip/user-chip'
+import { useGetUserProfile } from '@/lib/graphql-hooks/user'
 
 type PolicySidebarProps = {
   policy: InternalPolicyByIdFragment
@@ -15,15 +15,9 @@ type PolicySidebarProps = {
 export const PolicySidebar: React.FC<PolicySidebarProps> = function ({ policy }) {
   if (!policy) return null
 
-  const [{ data: createdByUser }] = useGetUserProfileQuery({
-    variables: { userId: policy.createdBy || '' },
-    pause: !policy.createdBy,
-  })
+  const { data: createdByUser } = useGetUserProfile(policy.createdBy)
 
-  const [{ data: updatedByUser }] = useGetUserProfileQuery({
-    variables: { userId: policy.updatedBy || '' },
-    pause: !policy.updatedBy,
-  })
+  const { data: updatedByUser } = useGetUserProfile(policy.updatedBy)
 
   const sidebarItems: Record<string, MetaPanelEntry[]> = useMemo(() => {
     return {
@@ -51,9 +45,9 @@ export const PolicySidebar: React.FC<PolicySidebarProps> = function ({ policy })
         },
       ],
       creation: [
-        { icon: UserRoundPen, label: 'Created By', value: UserChip(createdByUser?.user ?? null) },
+        { icon: UserRoundPen, label: 'Created By', value: UserChip((createdByUser?.user as User) ?? null) },
         { icon: CalendarCheck2, label: 'Created At', value: formatTime(policy.createdAt) },
-        { icon: UserRoundCheck, label: 'Updated By', value: UserChip(updatedByUser?.user ?? null) },
+        { icon: UserRoundCheck, label: 'Updated By', value: UserChip((updatedByUser?.user as User) ?? null) },
         { icon: CalendarClock, label: 'Updated At', value: formatTime(policy.updatedAt) },
       ],
     }

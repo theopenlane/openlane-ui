@@ -6,7 +6,7 @@ import { Tag } from '@repo/ui/tag'
 import { switchOrganization } from '@/lib/user'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useGetAllOrganizationsWithMembersQuery } from '@repo/codegen/src/schema'
+import { useGetAllOrganizationsWithMembers } from '@/lib/graphql-hooks/organization'
 
 export const ExistingOrganizations = () => {
   const { data: sessionData, update: updateSession } = useSession()
@@ -14,15 +14,15 @@ export const ExistingOrganizations = () => {
 
   const { container, orgWrapper, orgInfo, orgSelect, orgTitle } = existingOrganizationsStyles()
 
-  const [{ data: organizations, fetching, error }] = useGetAllOrganizationsWithMembersQuery()
+  const { data, isFetching, isError } = useGetAllOrganizationsWithMembers()
 
   const { push } = useRouter()
 
-  if (!organizations || fetching || error) {
+  if (!data || isFetching || isError) {
     return null
   }
 
-  const orgs = organizations?.organizations.edges?.filter((org) => !org?.node?.personalOrg) || []
+  const orgs = data?.organizations.edges?.filter((org) => !org?.node?.personalOrg) || []
 
   if (orgs.length === 0) {
     return null

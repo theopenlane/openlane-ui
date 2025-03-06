@@ -12,11 +12,9 @@ import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { useRouter } from 'next/navigation'
 import { z } from 'zod'
-import { useCreateOrganizationMutation } from '@repo/codegen/src/schema'
-import { useGqlError } from '@/hooks/useGqlError'
-import { useEffect } from 'react'
 import { InfoIcon } from 'lucide-react'
 import { useOrganization } from '@/hooks/useOrganization'
+import { useCreateOrganization } from '@/lib/graphql-hooks/organization'
 
 const formSchema = z.object({
   name: z
@@ -38,11 +36,8 @@ export const CreateOrganizationForm = () => {
   const { data: session, update } = useSession()
   const { allOrgs } = useOrganization()
   const numOrgs = allOrgs.length
-  const [result, addOrganization] = useCreateOrganizationMutation()
-  const { error, fetching } = result
-  const { errorMessages } = useGqlError(error)
+  const { data, isError, isPending, error, mutateAsync: createOrg, ...rest } = useCreateOrganization()
 
-  const isLoading = fetching
   const { container } = createOrganizationStyles()
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -57,7 +52,7 @@ export const CreateOrganizationForm = () => {
 
   const createOrganization = async ({ name, displayName }: { name: string; displayName?: string }) => {
     try {
-      const response = await addOrganization({
+      const response = await createOrg({
         input: {
           name: name,
           displayName: displayName,
@@ -89,14 +84,6 @@ export const CreateOrganizationForm = () => {
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     createOrganization({ name: data.name, displayName: data.displayName })
   }
-
-  useEffect(() => {
-    if (errorMessages.length > 0) {
-      errorNotification({
-        title: errorMessages.join('\n'),
-      })
-    }
-  }, [errorMessages])
 
   return (
     <div className={container()}>
@@ -153,7 +140,7 @@ export const CreateOrganizationForm = () => {
                 </FormItem>
               )}
             />
-            <Button type="submit">{isLoading ? 'Creating organization' : 'Create organization'}</Button>
+            <Button type="submit">{isPending ? 'Creating organization' : 'Create organization'}</Button>
           </form>
         </Form>
       </Panel>

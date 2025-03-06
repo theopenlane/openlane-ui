@@ -2,12 +2,13 @@ import React, { useMemo } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import { ProcedureSidebar } from '@/components/pages/protected/procedures/procedure-sidebar'
 import { TElement, Value } from '@udecode/plate-common'
-import { useGetProcedureDetailsByIdQuery } from '@repo/codegen/src/schema'
 import { useRouter } from 'next/navigation'
 import { DocumentDescriptions } from '@/components/shared/document-descriptions/document-descriptions'
 import { Button } from '@repo/ui/button'
 import { Pencil } from 'lucide-react'
 import { TwoColumnLayout } from '@/components/shared/layouts/two-column-layout'
+import { useGetProcedureDetailsById } from '@/lib/graphql-hooks/procedures'
+import { Procedure } from '@repo/codegen/src/schema'
 
 type ProcedurePageProps = {
   procedureId: string
@@ -16,9 +17,9 @@ type ProcedurePageProps = {
 export function ProcedurePage({ procedureId }: ProcedurePageProps) {
   const router = useRouter()
 
-  const [{ data }] = useGetProcedureDetailsByIdQuery({ variables: { procedureId: procedureId } })
+  const { data } = useGetProcedureDetailsById(procedureId)
 
-  const procedure = data?.procedure
+  const procedure = data?.procedure as Procedure
 
   const descriptions = useMemo(() => {
     return [

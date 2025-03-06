@@ -1,6 +1,6 @@
 'use client'
 
-import { GetAllSubscribersQuery, useGetAllSubscribersQuery } from '@repo/codegen/src/schema'
+import { GetAllSubscribersQuery } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import { pageStyles } from './page.styles'
 import { useState, useEffect } from 'react'
@@ -11,6 +11,7 @@ import { ColumnDef } from '@tanstack/react-table'
 import { useCopyToClipboard } from '@uidotdev/usehooks'
 import { useNotification } from '@/hooks/useNotification'
 import { SubscriberActions } from './actions/subscriber-actions'
+import { useGetAllSubscribers } from '@/lib/graphql-hooks/subscribes'
 
 type SubscriberEdge = NonNullable<NonNullable<GetAllSubscribersQuery['subscribers']>['edges']>[number]
 
@@ -24,9 +25,7 @@ export const SubscribersTable = () => {
   const [copiedText, copyToClipboard] = useCopyToClipboard()
   const { successNotification, errorNotification } = useNotification()
 
-  const [{ data, fetching, error }, refetch] = useGetAllSubscribersQuery({
-    pause: !session,
-  })
+  const { data, isLoading, isError } = useGetAllSubscribers()
 
   useEffect(() => {
     if (copiedText) {
@@ -43,7 +42,7 @@ export const SubscribersTable = () => {
     }
   }, [data])
 
-  if (error || fetching) return null
+  if (isError || isLoading) return null
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const searchValue = e.target.value.toLowerCase()
@@ -84,7 +83,7 @@ export const SubscribersTable = () => {
     {
       accessorKey: 'email',
       header: '',
-      cell: ({ cell }) => <SubscriberActions subscriberEmail={cell.getValue() as string} refetchSubscribers={refetch} />,
+      cell: ({ cell }) => <SubscriberActions subscriberEmail={cell.getValue() as string} />,
       size: 40,
     },
   ]

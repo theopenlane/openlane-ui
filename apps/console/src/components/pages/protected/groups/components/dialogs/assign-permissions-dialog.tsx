@@ -10,10 +10,12 @@ import { Label } from '@repo/ui/label'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
-import { GetAllRisksDocument, useGetGroupDetailsQuery, useUpdateGroupMutation } from '@repo/codegen/src/schema'
 import debounce from 'lodash.debounce'
-import { useQuery } from 'urql'
-import { OBJECT_TYPE_CONFIG, ObjectTypes } from '@/constants/groups'
+import { AllQueriesData, OBJECT_TYPE_CONFIG, ObjectTypes } from '@/constants/groups'
+import { useUpdateGroup } from '@/lib/graphql-hooks/groups'
+import { useQuery } from '@tanstack/react-query'
+import { GET_ALL_RISKS } from '@repo/codegen/query/risks'
+import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { useNotification } from '@/hooks/useNotification'
 
 type TableDataItem = {
@@ -61,14 +63,13 @@ const options = Object.values(ObjectTypes)
 
 const AssignPermissionsDialog = () => {
   const { selectedGroup } = useGroupsStore()
-  const [{ data: groupData }] = useGetGroupDetailsQuery({ variables: { groupId: selectedGroup || '' }, pause: !selectedGroup })
-
+  const { queryClient, client } = useGraphQLClient()
   const [isOpen, setIsOpen] = useState(false)
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([])
   const { successNotification, errorNotification } = useNotification()
   const [step, setStep] = useState(1)
   const [selectedObject, setSelectedObject] = useState<ObjectTypes | null>(null)
-  const [roles, setRoles] = useState<Record<string, string>>({}) // {01JK9CJCC4YJQ2SBTXXMZG45H0: 'View'} example data
+  const [roles, setRoles] = useState<Record<string, string>>({})
   const [searchValue, setSearchValue] = useState('')
   const [debouncedSearchValue, setDebouncedSearchValue] = useState('')
   const debouncedSetSearchValue = useCallback(
@@ -76,18 +77,22 @@ const AssignPermissionsDialog = () => {
     [],
   )
 
-  const [{}, updateGroup] = useUpdateGroupMutation()
+  const { mutateAsync: updateGroup } = useUpdateGroup()
 
   const selectedQuery = selectedObject && OBJECT_TYPE_CONFIG[selectedObject].queryDocument
 
-  const [{ data, fetching, error }] = useQuery({
-    query: selectedQuery || GetAllRisksDocument,
-    variables: generateWhere({
-      debouncedSearchValue,
-      selectedGroup,
-      selectedObject,
-    }),
-    pause: !selectedQuery,
+  const { data } = useQuery<AllQueriesData>({
+    queryKey: ['assignPermissionCustom', { debouncedSearchValue, selectedGroup, selectedObject }],
+    queryFn: () =>
+      client.request(
+        selectedQuery || GET_ALL_RISKS,
+        generateWhere({
+          debouncedSearchValue,
+          selectedGroup,
+          selectedObject,
+        }),
+      ),
+    enabled: Boolean(selectedQuery),
   })
   const handleNext = () => setStep(2)
   const handleBack = () => setStep(1)
@@ -143,6 +148,12 @@ const AssignPermissionsDialog = () => {
         updateGroupId: selectedGroup,
         input: cleanedPermissionMap,
       })
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const qk = query.queryKey
+          return (qk.length === 1 && qk[0] === 'groups') || (qk.length > 1 && qk[0] === 'group' && qk[1] === selectedGroup)
+        },
+      })
 
       successNotification({
         title: 'Permissions updated successfully',
@@ -160,7 +171,6 @@ const AssignPermissionsDialog = () => {
 
   const objectKey = selectedObject ? OBJECT_TYPE_CONFIG[selectedObject]?.responseObjectKey : null
   const objectDataList = objectKey && data?.[objectKey]?.edges ? data[objectKey].edges : []
-
   const tableData: TableDataItem[] =
     objectDataList.map((item: any) => ({
       id: item?.node?.id,

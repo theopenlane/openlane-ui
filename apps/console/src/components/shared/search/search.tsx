@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { useSearchQuery, SearchQuery } from '@repo/codegen/src/schema'
 import { switchOrganization } from '@/lib/user'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
@@ -13,6 +12,8 @@ import { Input } from '@repo/ui/input'
 import { SearchIcon } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { useDebounce } from '@uidotdev/usehooks'
+import { useSearch } from '@/lib/graphql-hooks/search'
+import { SearchQuery } from '@repo/codegen/src/schema'
 
 export const GlobalSearch = () => {
   const { popover } = searchStyles()
@@ -27,10 +28,7 @@ export const GlobalSearch = () => {
 
   const debouncedQuery = useDebounce(query, 300)
 
-  let [{ data, fetching }] = useSearchQuery({
-    variables: { query: debouncedQuery },
-    pause: debouncedQuery.length < 3, // do not fetch until the query is at least 3 characters long because it is rejected by the server
-  })
+  let { data, isFetching } = useSearch(debouncedQuery)
 
   // when the organization is selected, switch the organization and redirect to the dashboard
   const handleOrganizationSwitch = async (orgId?: string) => {
@@ -80,7 +78,7 @@ export const GlobalSearch = () => {
 
   // open the popover when the data is fetched
   useEffect(() => {
-    if (fetching) {
+    if (isFetching) {
       setOpen(false)
     }
 
@@ -91,7 +89,7 @@ export const GlobalSearch = () => {
       setHasResults(false)
       setOpen(false)
     }
-  }, [data, fetching])
+  }, [data, isFetching])
 
   /**
    * Pass all keydown events from the input to the `CommandInput` to provide navigation using up/down arrow keys etc.

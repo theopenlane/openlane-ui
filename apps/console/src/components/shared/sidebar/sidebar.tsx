@@ -6,9 +6,10 @@ import { sidebarStyles } from './sidebar.styles'
 import { SideNav } from './sidebar-nav/sidebar-nav'
 import { NavItems, PersonalNavItems } from '@/routes/dashboard'
 import { useSession } from 'next-auth/react'
-import { TaskWhereInput, UserWhereInput, useTasksWithFilterQuery } from '@repo/codegen/src/schema'
+import { TaskWhereInput, UserWhereInput } from '@repo/codegen/src/schema'
 import { useOrganization } from '@/hooks/useOrganization'
 import { usePathname } from 'next/navigation'
+import { useTasksWithFilter } from '@/lib/graphql-hooks/tasks'
 
 interface SidebarProps {
   className?: string
@@ -30,8 +31,8 @@ export default function Sidebar({ className }: SidebarProps) {
     hasAssigneeWith: [userWhere],
   }
 
-  const [tasks] = useTasksWithFilterQuery({ variables: { where: whereFilter } })
-  const userTaskCount = tasks?.data?.tasks?.edges?.length || 0
+  const { data } = useTasksWithFilter(whereFilter)
+  const userTaskCount = data?.tasks?.edges?.length || 0
 
   const activeOrg = allOrgs.filter((org) => org?.node?.id === currentOrgId).map((org) => org?.node)[0]
 

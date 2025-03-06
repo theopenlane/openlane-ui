@@ -5,12 +5,11 @@ import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import { GlobeIcon, LockIcon, StarsIcon, Users2Icon } from 'lucide-react'
 import React from 'react'
-import { Exact, GetAllGroupsQuery, GroupSettingVisibility, GroupWhereInput, InputMaybe } from '@repo/codegen/src/schema'
+import { GetAllGroupsQuery, GroupSettingVisibility } from '@repo/codegen/src/schema'
 import AvatarList from '@/components/shared/avatar-list/avatar-list'
 import { TableCell, TableRow } from '@repo/ui/table'
 import { Group } from '../groups-page'
 import { groupsTableStyles } from './groups-table-styles'
-import { UseQueryResponse, UseQueryState } from 'urql'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 
 const columns: ColumnDef<Group>[] = [
@@ -97,21 +96,17 @@ const columns: ColumnDef<Group>[] = [
 ]
 
 interface Props {
-  queryResult: UseQueryState<
-    GetAllGroupsQuery,
-    Exact<{
-      where?: InputMaybe<GroupWhereInput>
-    }>
-  >
+  queryResult: GetAllGroupsQuery | undefined
+  isError: boolean
 }
 
-const GroupsTable = ({ queryResult }: Props) => {
+const GroupsTable = ({ queryResult, isError }: Props) => {
   const { setSelectedGroup } = useGroupsStore()
 
   const { tableRow, keyIcon, message } = groupsTableStyles()
 
   const transformedData =
-    queryResult.data?.groups?.edges
+    queryResult?.groups?.edges
       ?.map((edge) => edge?.node)
       .filter((group) => !!group)
       .map((group) => ({
@@ -128,7 +123,7 @@ const GroupsTable = ({ queryResult }: Props) => {
     setSelectedGroup(group.id)
   }
 
-  if (queryResult.error) return <p className="text-red-500">Error loading groups</p>
+  if (isError) return <p className="text-red-500">Error loading groups</p>
 
   return (
     <div className="mt-5">

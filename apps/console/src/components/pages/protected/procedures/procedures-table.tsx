@@ -9,13 +9,13 @@ import { format } from 'date-fns'
 import React, { useState, useEffect, useCallback } from 'react'
 import { Input } from '@repo/ui/input'
 import { Actions } from './actions/actions'
-import { useCreateProcedureMutation, useGetProceduresListQuery, useSearchProceduresQuery } from '@repo/codegen/src/schema'
 import Link from 'next/link'
 import { useDebounce } from '@uidotdev/usehooks'
 import { cn } from '@repo/ui/lib/utils'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { TableSort } from '@/components/shared/table-filter/table-sort'
 import { FilterField } from '@/types'
+import { useCreateProcedure, useGetAllProcedures, useSearchProcedures } from '@/lib/graphql-hooks/procedures'
 
 type ProceduresEdge = any
 type Procedures = NonNullable<ProceduresEdge>['node']
@@ -23,7 +23,7 @@ type Procedures = NonNullable<ProceduresEdge>['node']
 export const ProceduresTable = () => {
   const router = useRouter()
 
-  const [{ fetching: creating }, createProcedure] = useCreateProcedureMutation()
+  const { isPending: creating, mutateAsync: createProcedure } = useCreateProcedure()
 
   const [filteredProcedures, setFilteredProcedures] = useState<Procedures[]>([])
   const [searchTerm, setSearchTerm] = useState('')
@@ -32,13 +32,8 @@ export const ProceduresTable = () => {
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300)
 
-  const [{ data, fetching }, refetchList] = useGetProceduresListQuery({ variables: { where: filters }, requestPolicy: 'network-only' })
-  const [{ data: searchData, fetching: searching }, refetchSearch] = useSearchProceduresQuery({ variables: { query: debouncedSearchTerm }, pause: !debouncedSearchTerm, requestPolicy: 'network-only' })
-
-  const refetch = useCallback(() => {
-    refetchSearch({ requestPolicy: 'network-only' })
-    refetchList({ requestPolicy: 'network-only' })
-  }, [refetchSearch, refetchList])
+  const { data, isLoading: fetching } = useGetAllProcedures(filters)
+  const { data: searchData, isFetching: searching } = useSearchProcedures(debouncedSearchTerm)
 
   useEffect(() => {
     if (data && !searchTerm) {
@@ -62,16 +57,13 @@ export const ProceduresTable = () => {
   }, [searchData])
 
   const handleCreateNew = async () => {
-    const { data, error } = await createProcedure({
-      input: { name: 'Untitled Procedure', status: 'new', version: '0.0.0' },
-    })
-
-    if (error) {
-      console.error(error)
-    }
-
-    if (data) {
+    try {
+      const data = await createProcedure({
+        input: { name: 'Untitled Procedure', status: 'new', version: '0.0.0' },
+      })
       editProcedure(data.createProcedure.procedure.id)
+    } catch (error) {
+      console.error(error)
     }
   }
 
@@ -119,7 +111,7 @@ export const ProceduresTable = () => {
     {
       accessorKey: 'id',
       header: '',
-      cell: ({ cell }) => <Actions procedureId={cell.getValue() as string} refetchProcedures={refetch} />,
+      cell: ({ cell }) => <Actions procedureId={cell.getValue() as string} />,
       size: 40,
     },
   ]

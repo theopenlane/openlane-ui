@@ -1,5 +1,5 @@
 'use client'
-import { File, useUpdateOrganizationMutation } from '@repo/codegen/src/schema'
+import { File } from '@repo/codegen/src/schema'
 import { Input, InputRow } from '@repo/ui/input'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { useForm } from 'react-hook-form'
@@ -11,13 +11,17 @@ import { useEffect, useState } from 'react'
 import { RESET_SUCCESS_STATE_MS } from '@/constants'
 import { useOrganization } from '@/hooks/useOrganization'
 import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
+import { useUpdateOrganization, useUpdateOrgAvatar } from '@/lib/graphql-hooks/organization'
+import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
 
 const OrganizationNameForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
-  const { successNotification, errorNotification } = useNotification()
-  const [{ fetching: isSubmitting }, updateOrg] = useUpdateOrganizationMutation()
+  const { isPending, mutateAsync: updateOrg } = useUpdateOrganization()
+  const { isPending: uploading, mutateAsync: uploadAvatar } = useUpdateOrgAvatar()
 
+  const queryClient = useQueryClient()
+  const { successNotification, errorNotification } = useNotification()
   const { currentOrgId, allOrgs } = useOrganization()
   const currentOrganization = allOrgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
 
@@ -44,6 +48,9 @@ const OrganizationNameForm = () => {
   }, [currentOrganization])
 
   const updateOrganization = async ({ displayName }: { displayName: string }) => {
+    if (!currentOrgId) {
+      return
+    }
     await updateOrg({
       updateOrganizationId: currentOrgId,
       input: {
@@ -51,6 +58,12 @@ const OrganizationNameForm = () => {
       },
     })
     setIsSuccess(true)
+    queryClient.invalidateQueries({
+      predicate: (query) => {
+        const [firstKey] = query.queryKey
+        return firstKey === 'organizationsWithMembers' || firstKey === 'organizations'
+      },
+    })
   }
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
@@ -60,7 +73,7 @@ const OrganizationNameForm = () => {
   const handleUploadAvatar = async (file: File) => {
     if (!currentOrgId) return
     try {
-      await updateOrg({
+      await uploadAvatar({
         updateOrganizationId: currentOrgId,
         input: {},
         avatarFile: file,
@@ -109,8 +122,8 @@ const OrganizationNameForm = () => {
                   </FormItem>
                 )}
               />
-              <Button variant={isSuccess ? 'success' : 'filled'} type="submit" loading={isSubmitting}>
-                {isSubmitting ? 'Saving' : isSuccess ? 'Saved' : 'Save'}
+              <Button variant={isSuccess ? 'success' : 'filled'} type="submit" loading={isPending}>
+                {isPending ? 'Saving' : isSuccess ? 'Saved' : 'Save'}
               </Button>
             </InputRow>
           </form>

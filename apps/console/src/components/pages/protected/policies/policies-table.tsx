@@ -6,12 +6,11 @@ import { LoaderCircle, PlusCircle, SearchIcon } from 'lucide-react'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Input } from '@repo/ui/input'
-import { pageStyles } from './page.styles'
 import { Actions } from './actions/actions'
-import { useCreateInternalPolicyMutation, useGetInternalPoliciesListQuery, useSearchInternalPoliciesQuery } from '@repo/codegen/src/schema'
 import Link from 'next/link'
+import { useCreateInternalPolicy, useGetInternalPoliciesList, useSearchInternalPolicies } from '@/lib/graphql-hooks/policy'
 import { useDebounce } from '@uidotdev/usehooks'
 import { cn } from '@repo/ui/lib/utils'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
@@ -24,26 +23,19 @@ type Policies = NonNullable<PoliciesEdge>['node']
 export const PoliciesTable = () => {
   const router = useRouter()
 
-  const [{ fetching: creating }, createPolicy] = useCreateInternalPolicyMutation()
-
   const [filteredPolicies, setFilteredPolicies] = useState<Policies[]>([])
+
+  const { data, isLoading: fetching } = useGetInternalPoliciesList()
+
+  const { isPending: creating, mutateAsync: createPolicy } = useCreateInternalPolicy()
+
   const [searchTerm, setSearchTerm] = useState('')
   const [filters, setFilters] = useState<Record<string, any>>({})
   const [sort, setSort] = useState<Record<string, any>>({})
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300)
 
-  const [{ data, fetching }, refetchList] = useGetInternalPoliciesListQuery({ variables: { where: filters }, requestPolicy: 'network-only' })
-  const [{ data: searchData, fetching: searching }, refetchSearch] = useSearchInternalPoliciesQuery({
-    variables: { query: debouncedSearchTerm },
-    pause: !debouncedSearchTerm,
-    requestPolicy: 'network-only',
-  })
-
-  const refetch = useCallback(() => {
-    refetchSearch({ requestPolicy: 'network-only' })
-    refetchList({ requestPolicy: 'network-only' })
-  }, [refetchSearch, refetchList])
+  const { data: searchData, isLoading: searching } = useSearchInternalPolicies(debouncedSearchTerm)
 
   useEffect(() => {
     if (data && !searchTerm) {
@@ -67,16 +59,17 @@ export const PoliciesTable = () => {
   }, [searchData])
 
   const handleCreateNew = async () => {
-    const { data, error } = await createPolicy({
+    const data = await createPolicy({
       input: { name: 'Untitled Policy', status: 'new', version: '0.0.0' },
     })
 
-    if (error) {
-      console.error(error)
+    if (data.createInternalPolicy) {
+      editPolicy(data.createInternalPolicy.internalPolicy.id)
+      return
     }
 
-    if (data) {
-      editPolicy(data.createInternalPolicy.internalPolicy.id)
+    if (data.createInternalPolicy) {
+      //TODO: add error toast
     }
   }
 
@@ -124,7 +117,7 @@ export const PoliciesTable = () => {
     {
       accessorKey: 'id',
       header: '',
-      cell: ({ cell }) => <Actions policyId={cell.getValue() as string} refetchPolicies={refetch} />,
+      cell: ({ cell }) => <Actions policyId={cell.getValue() as string} />,
       size: 40,
     },
   ]

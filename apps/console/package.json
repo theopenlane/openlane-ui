@@ -25,9 +25,9 @@
     "@simplewebauthn/browser": "^11.0.0",
     "@simplewebauthn/server": "^11.0.0",
     "@stepperize/react": "^4.0.1",
+    "@tanstack/react-query": "^5.66.9",
     "@types/jsonwebtoken": "^9.0.6",
     "@uidotdev/usehooks": "^2.4.1",
-    "@urql/exchange-auth": "^2.2.0",
     "graphql-request": "7.1.2",
     "graphql-tag": "^2.12.6",
     "jwt-decode": "^4.0.0",
@@ -44,7 +44,6 @@
     "survey-creator-react": "1.12.8",
     "survey-react-ui": "1.12.8",
     "swr": "latest",
-    "urql": "^4.0.7",
     "zustand": "^5.0.0"
   },
   "devDependencies": {

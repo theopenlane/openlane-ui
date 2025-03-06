@@ -1,12 +1,13 @@
 'use client'
 
-import { InviteInviteStatus, InviteRole, useGetInvitesQuery } from '@repo/codegen/src/schema'
+import { InviteInviteStatus, InviteRole } from '@repo/codegen/src/schema'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { useSession } from 'next-auth/react'
 import { Tag } from '@repo/ui/tag'
 import { format } from 'date-fns'
 import { InviteActions } from './actions/invite-actions'
+import { useGetInvites } from '@/lib/graphql-hooks/organization'
 
 type InviteNode = {
   __typename?: 'Invite' | undefined
@@ -23,14 +24,10 @@ type InviteEdge = {
 }
 
 export const OrganizationInvites = () => {
-  const { data: session } = useSession()
+  const { data, isLoading, isError } = useGetInvites()
 
-  const [{ data, fetching, error }, refetch] = useGetInvitesQuery({
-    pause: !session,
-  })
-
-  if (fetching) return <p>Loading...</p>
-  if (error || !data) return null
+  if (isLoading) return <p>Loading...</p>
+  if (isError || !data) return null
 
   const invites: InviteNode[] = data.invites.edges?.filter((edge): edge is InviteEdge => edge !== null && edge.node !== null).map((edge) => edge.node as InviteNode) || []
 
@@ -78,7 +75,7 @@ export const OrganizationInvites = () => {
     {
       accessorKey: 'id',
       header: '',
-      cell: ({ cell }) => <InviteActions inviteId={cell.getValue() as string} refetchInvites={refetch} />,
+      cell: ({ cell }) => <InviteActions inviteId={cell.getValue() as string} />,
     },
   ]
 

@@ -1,4 +1,3 @@
-import { useGetEvidenceFilesQuery } from '@repo/codegen/src/schema'
 import React, { useEffect, useState } from 'react'
 import { TabsContent } from '@repo/ui/tabs'
 import { ColumnDef } from '@tanstack/react-table'
@@ -7,6 +6,7 @@ import { format } from 'date-fns'
 import { PlusCircle } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
+import { useGetEvidenceFiles } from '@/lib/graphql-hooks/evidence'
 
 type TProps = {
   evidenceFiles: TUploadedFilesProps[]
@@ -15,11 +15,11 @@ type TProps = {
 }
 
 const ExistingFilesTab: React.FC<TProps> = (props: TProps) => {
-  const [{ data, fetching }] = useGetEvidenceFilesQuery()
+  const { data, isLoading } = useGetEvidenceFiles()
   const [files, setFiles] = useState<TEvidenceFilesColumn[]>([])
 
   useEffect(() => {
-    if (!fetching) {
+    if (!isLoading) {
       const tableData: TEvidenceFilesColumn[] =
         data?.files?.edges?.map((edge) => ({
           id: edge!.node!.id,
@@ -32,7 +32,7 @@ const ExistingFilesTab: React.FC<TProps> = (props: TProps) => {
 
       setFiles(tableData)
     }
-  }, [fetching])
+  }, [isLoading])
 
   const handleAdd = (data: TEvidenceFilesColumn) => {
     const fileAdded = props.evidenceFiles.some((item) => item.name === data.providedFileName)

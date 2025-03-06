@@ -6,15 +6,15 @@ import { Badge } from '@repo/ui/badge'
 import { formatDistanceToNowStrict, parseISO, isBefore } from 'date-fns'
 import { CircleCheck, ExternalLink } from 'lucide-react'
 import { useOrganization } from '@/hooks/useOrganization'
-import { useGetOrganizationBillingQuery } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
+import { useGetOrganizationBilling } from '@/lib/graphql-hooks/organization'
 
 const PricingPlan = () => {
   const { currentOrgId } = useOrganization()
 
-  const [data] = useGetOrganizationBillingQuery({ pause: !currentOrgId, variables: { organizationId: currentOrgId } })
+  const { data } = useGetOrganizationBilling(currentOrgId)
 
-  const subscription = data.data?.organization.orgSubscriptions?.[0] ?? {}
+  const subscription = data?.organization.orgSubscriptions?.[0] ?? {}
 
   // @ts-ignore TODO: MISSING TYPES FROM CODEGEN
   const { expiresAt, subscriptionURL, active, productTier, stripeSubscriptionStatus, productPrice = {}, features = [] } = subscription

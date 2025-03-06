@@ -1,44 +1,35 @@
 'use client'
 
 import { MoreHorizontal, RotateCw, Trash2 } from 'lucide-react'
-import { useNotification } from '@/hooks/useNotification'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { useDeleteOrganizationInviteMutation } from '@repo/codegen/src/schema'
-import { type UseQueryExecute } from 'urql'
+import { useDeleteOrganizationInvite } from '@/lib/graphql-hooks/organization'
+import { useNotification } from '@/hooks/useNotification'
 
 type InviteActionsProps = {
   inviteId: string
-  refetchInvites: UseQueryExecute
 }
 
 const ICON_SIZE = 12
 
-export const InviteActions = ({ inviteId, refetchInvites }: InviteActionsProps) => {
+export const InviteActions = ({ inviteId }: InviteActionsProps) => {
   const { actionIcon } = pageStyles()
   const { successNotification, errorNotification } = useNotification()
-  const [_, deleteInvite] = useDeleteOrganizationInviteMutation()
+  const { mutateAsync: deleteInvite } = useDeleteOrganizationInvite()
 
   const handleDeleteInvite = async () => {
-    const response = await deleteInvite({ deleteInviteId: inviteId })
-
-    if (response.error) {
-      errorNotification({
-        title: 'There was a problem deleting this invite, please try again',
-        variant: 'destructive',
-      })
-    }
-
-    if (response.data) {
+    try {
+      await deleteInvite({ deleteInviteId: inviteId })
       successNotification({
         title: 'Invite deleted successfully',
-        variant: 'success',
       })
-      refetchInvites({
-        requestPolicy: 'network-only',
+    } catch {
+      errorNotification({
+        title: 'There was a problem deleting this invite, please try again',
       })
     }
   }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

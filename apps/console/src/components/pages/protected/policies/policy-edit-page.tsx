@@ -1,7 +1,7 @@
 import { TwoColumnLayout } from '@/components/shared/layouts/two-column-layout'
 import { useForm } from 'react-hook-form'
 import { PolicyEditSidebar } from './policy-edit-sidebar'
-import { InternalPolicyByIdFragment, useGetInternalPolicyDetailsByIdQuery, useUpdateInternalPolicyMutation } from '@repo/codegen/src/schema'
+import { InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
 import { useEffect, useMemo, useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import { PolicyEditForm } from './policy-edit-form'
@@ -12,6 +12,8 @@ import { Button } from '@repo/ui/button'
 import { Eye } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useNotification } from '@/hooks/useNotification'
+import { useGetInternalPolicyDetailsById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy'
+import { useQueryClient } from '@tanstack/react-query'
 
 type PolicyEditPageProps = {
   policyId: string
@@ -20,9 +22,9 @@ type PolicyEditPageProps = {
 export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
   const router = useRouter()
   const { errorNotification, successNotification } = useNotification()
-
-  const [{ fetching: saving }, updatePolicy] = useUpdateInternalPolicyMutation()
-  const [{ data: policyData }] = useGetInternalPolicyDetailsByIdQuery({ requestPolicy: 'network-only', variables: { internalPolicyId: policyId } })
+  const queryClient = useQueryClient()
+  const { isPending: saving, mutateAsync: updatePolicy } = useUpdateInternalPolicy()
+  const { data: policyData } = useGetInternalPolicyDetailsById(policyId)
   const [policy, setPolicy] = useState(policyData?.internalPolicy ?? ({} as InternalPolicyByIdFragment))
   const [document, setDocument] = useState<Value>(policy?.details?.content)
 
@@ -77,27 +79,32 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
   const handleSave = async () => {
     const { name, description, background, purposeAndScope, policyType, tags } = form.getValues()
 
-    const { error } = await updatePolicy({
-      updateInternalPolicyId: policyData?.internalPolicy.id,
-      input: {
-        name,
-        description,
-        background,
-        purposeAndScope,
-        policyType,
-        tags,
-        details: {
-          content: document,
+    try {
+      await updatePolicy({
+        updateInternalPolicyId: policyData?.internalPolicy.id,
+        input: {
+          name,
+          description,
+          background,
+          purposeAndScope,
+          policyType,
+          tags,
+          details: {
+            content: document,
+          },
         },
-      },
-    })
-
-    if (error) {
-      errorNotification({ title: 'Failed to save Policy', gqlError: error })
-      return
+      })
+      successNotification({ title: 'Policy updated' })
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const [firstKey, secondKey] = query.queryKey
+          return firstKey === 'internalPolicies' || (firstKey === 'internalPolicy' && secondKey === policyData?.internalPolicy.id)
+        },
+      })
+    } catch {
+      errorNotification({ title: 'Failed to save Policy' })
+      //  gqlError: error todo: pass graphql error
     }
-
-    successNotification({ title: 'Policy updated' })
   }
 
   const policyName = policy.displayID ? `${policy.displayID} - ${policy.name}` : policy.name

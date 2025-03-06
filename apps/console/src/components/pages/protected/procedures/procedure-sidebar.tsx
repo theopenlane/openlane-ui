@@ -1,29 +1,23 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { ProcedureByIdFragment } from '@repo/codegen/src/schema'
+import { Procedure, User } from '@repo/codegen/src/schema'
 import { UserRoundCheck, Binoculars, FileStack, ScrollText, Tag, CalendarCheck2, UserRoundPen, CalendarClock } from 'lucide-react'
 import { Badge } from '@repo/ui/badge'
 import { MetaPanel, formatTime, MetaPanelEntry } from '@/components/shared/meta-panel/meta-panel'
-import { useGetUserProfileQuery } from '@repo/codegen/src/schema'
 import { UserChip } from '@/components/shared/user-chip/user-chip'
+import { useGetUserProfile } from '@/lib/graphql-hooks/user'
 
 type ProcedureSidebarProps = {
-  procedure: ProcedureByIdFragment
+  procedure: Procedure
 }
 
 export const ProcedureSidebar: React.FC<ProcedureSidebarProps> = function ({ procedure }) {
   if (!procedure) return null
 
-  const [{ data: createdByUser }] = useGetUserProfileQuery({
-    variables: { userId: procedure.createdBy || '' },
-    pause: !procedure.createdBy,
-  })
+  const { data: createdByUser } = useGetUserProfile(procedure.createdBy)
 
-  const [{ data: updatedByUser }] = useGetUserProfileQuery({
-    variables: { userId: procedure.updatedBy || '' },
-    pause: !procedure.updatedBy,
-  })
+  const { data: updatedByUser } = useGetUserProfile(procedure.updatedBy)
 
   const sidebarItems: Record<string, MetaPanelEntry[]> = useMemo(() => {
     return {
@@ -51,9 +45,9 @@ export const ProcedureSidebar: React.FC<ProcedureSidebarProps> = function ({ pro
         },
       ],
       creation: [
-        { icon: UserRoundPen, label: 'Created By', value: UserChip(createdByUser?.user ?? null) },
+        { icon: UserRoundPen, label: 'Created By', value: UserChip((createdByUser?.user as User) ?? null) },
         { icon: CalendarCheck2, label: 'Created At', value: formatTime(procedure.createdAt) },
-        { icon: UserRoundCheck, label: 'Updated By', value: UserChip(updatedByUser?.user ?? null) },
+        { icon: UserRoundCheck, label: 'Updated By', value: UserChip((updatedByUser?.user as User) ?? null) },
         { icon: CalendarClock, label: 'Updated At', value: formatTime(procedure.updatedAt) },
       ],
     }
