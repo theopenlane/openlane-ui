@@ -27497,7 +27497,14 @@ export type TasksWithFilterQuery = {
         due?: any | null
         displayID: string
         category?: string | null
-        assigner?: { __typename?: 'User'; displayName: string; firstName?: string | null; lastName?: string | null } | null
+        assigner?: {
+          __typename?: 'User'
+          displayName: string
+          firstName?: string | null
+          lastName?: string | null
+          avatarRemoteURL?: string | null
+          avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+        } | null
       } | null
     } | null> | null
   }
@@ -29156,6 +29163,10 @@ export const TasksWithFilterDocument = gql`
             displayName
             firstName
             lastName
+            avatarRemoteURL
+            avatarFile {
+              presignedURL
+            }
           }
         }
       }

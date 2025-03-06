@@ -5,10 +5,9 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { Link, Pencil, Check, Trash2, FilePlus, SquareArrowRight, CircleUser, UserRoundPen, CalendarCheck2, Circle, Folder, BookText, InfoIcon } from 'lucide-react'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { useTaskQuery, useGetSingleOrganizationMembersQuery, GetSingleOrganizationMembersQueryVariables, UpdateTaskInput, useUpdateTaskMutation, TaskTaskStatus } from '@repo/codegen/src/schema'
+import { useTaskQuery, useUpdateTaskMutation, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { Textarea } from '@repo/ui/textarea'
 import { Input } from '@repo/ui/input'
-import { useSession } from 'next-auth/react'
 import { useNotification } from '@/hooks/useNotification'
 import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
 import useFormSchema, { EditTaskFormData } from '@/components/pages/protected/tasks/hooks/use-form-schema'
@@ -22,28 +21,16 @@ import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { TaskStatusMapper, TaskTypes } from '@/components/pages/protected/tasks/util/task'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import ControlObjectTaskForm from '@/components/pages/protected/tasks/create-task/form/control-object-task-form'
+import { TaskStatusIconMapper } from '@/components/pages/protected/tasks/util/columns'
 
 const TaskDetailsSheet = () => {
-  const { data: session } = useSession()
   const [isEditing, setIsEditing] = useState(false)
   const taskTypeOptions = Object.values(TaskTypes)
   const statusOptions = Object.values(TaskTaskStatus)
   const searchParams = useSearchParams()
   const router = useRouter()
-  const { selectedTask, setSelectedTask } = useTaskStore()
+  const { selectedTask, setSelectedTask, orgMembers } = useTaskStore()
   const { successNotification, errorNotification } = useNotification()
-  const variables: GetSingleOrganizationMembersQueryVariables = {
-    organizationId: session?.user.activeOrganizationId ?? '',
-  }
-  const [{ data: membersData }] = useGetSingleOrganizationMembersQuery({ variables })
-
-  const membersOptions = membersData?.organization?.members
-    ?.filter((member) => member.user.id != session?.user.userId)
-    .map((member) => ({
-      value: member.user.id,
-      label: `${member.user.firstName} ${member.user.lastName}`,
-      membershipId: member.id,
-    }))
 
   const [{}, updateTask] = useUpdateTaskMutation()
   const [{ data, fetching }] = useTaskQuery({
@@ -339,11 +326,11 @@ const TaskDetailsSheet = () => {
                       render={({ field }) => (
                         <>
                           <Select value={field.value} onValueChange={field.onChange}>
-                            <SelectTrigger className="w-1/3">{(membersOptions || []).find((member) => member.value === field.value)?.label || 'Select'}</SelectTrigger>
+                            <SelectTrigger className="w-1/3">{(orgMembers || []).find((member) => member.value === field.value)?.label || 'Select'}</SelectTrigger>
                             <SelectContent>
-                              {membersOptions &&
-                                membersOptions.length > 0 &&
-                                membersOptions.map((option) => (
+                              {orgMembers &&
+                                orgMembers.length > 0 &&
+                                orgMembers.map((option) => (
                                   <SelectItem key={option.value} value={option.value}>
                                     {option.label}
                                   </SelectItem>
@@ -404,7 +391,10 @@ const TaskDetailsSheet = () => {
                       }}
                     />
                   ) : (
-                    <p className="text-sm">{TaskStatusMapper[taskData?.status as TaskTaskStatus]}</p>
+                    <div className="flex items-center space-x-2">
+                      {taskData?.status && TaskStatusIconMapper[TaskStatusMapper[taskData?.status as TaskTaskStatus]]}
+                      <p className="text-sm">{TaskStatusMapper[taskData?.status as TaskTaskStatus]}</p>
+                    </div>
                   )}
                 </div>
 

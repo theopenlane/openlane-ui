@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import { TaskTaskStatus, useTasksWithFilterQuery } from '@repo/codegen/src/schema'
 import TaskTableToolbar from '@/components/pages/protected/tasks/table/task-table-toolbar'
@@ -9,15 +9,24 @@ import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskSt
 import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task'
 
 const TaskTable: React.FC = () => {
-  const { setSelectedTask } = useTaskStore()
+  const { setSelectedTask, orgMembers } = useTaskStore()
   const [filters, setFilters] = useState<Record<string, any>>({})
-  const [{ data, fetching }] = useTasksWithFilterQuery({ variables: { where: filters }, requestPolicy: 'network-only' })
+
+  const whereFilter = useMemo(() => {
+    const conditions: Record<string, any> = {
+      ...filters,
+    }
+
+    return conditions
+  }, [filters])
+
+  const [{ data, fetching }] = useTasksWithFilterQuery({ variables: { where: whereFilter } })
   const [tableData, setTableData] = useState<TTableDataResponse[]>([])
 
   useEffect(() => {
     if (data) {
       const updatedData =
-        data.tasks?.edges?.map((item: any) => {
+        data?.tasks?.edges?.map((item: any) => {
           return {
             id: item?.node?.id,
             displayID: item?.node?.displayID,
@@ -34,18 +43,15 @@ const TaskTable: React.FC = () => {
       setTableData(updatedData)
     }
   }, [data!!])
-
-  const handleFilterChange = (filters: Record<string, any>) => {
-    setFilters(filters)
-  }
-
   const handleRowClick = (task: TTableDataResponse) => {
     setSelectedTask(task.id ?? null)
   }
 
+  const handleSortChange = (data: any) => {}
+
   return (
     <>
-      <TaskTableToolbar onFilterChange={handleFilterChange} isLoading={false} />
+      <TaskTableToolbar onFilterChange={setFilters} members={orgMembers} onSortChange={handleSortChange} />
       <DataTable columns={taskColumns} data={tableData} loading={fetching} onRowClick={handleRowClick} />
     </>
   )
