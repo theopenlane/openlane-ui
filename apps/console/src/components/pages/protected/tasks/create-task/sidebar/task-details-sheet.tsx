@@ -22,6 +22,7 @@ import { TaskStatusMapper, TaskTypes } from '@/components/pages/protected/tasks/
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import ControlObjectTaskForm from '@/components/pages/protected/tasks/create-task/form/control-object-task-form'
 import { TaskStatusIconMapper } from '@/components/pages/protected/tasks/util/columns'
+import DeleteTaskDialog from '@/components/pages/protected/tasks/create-task/dialog/delete-task-dialog'
 
 const TaskDetailsSheet = () => {
   const [isEditing, setIsEditing] = useState(false)
@@ -234,9 +235,7 @@ const TaskDetailsSheet = () => {
                     Edit
                   </Button>
                 )}
-                <Button icon={<Trash2 />} iconPosition="left" variant="outline">
-                  Delete
-                </Button>
+                {taskData?.displayID && <DeleteTaskDialog taskName={taskData.displayID} />}
               </div>
             </SheetHeader>
 

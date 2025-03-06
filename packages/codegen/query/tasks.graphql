@@ -41,6 +41,12 @@ mutation UpdateTask($updateTaskId: ID!, $input: UpdateTaskInput!) {
   }
 }
 
+mutation DeleteTask($deleteTaskId: ID!) {
+  deleteTask(id: $deleteTaskId) {
+    deletedID
+  }
+}
+
 query Task($taskId: ID!) {
   task(id: $taskId) {
     assignee {

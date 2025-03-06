@@ -27523,6 +27523,12 @@ export type UpdateTaskMutationVariables = Exact<{
 
 export type UpdateTaskMutation = { __typename?: 'Mutation'; updateTask: { __typename?: 'TaskUpdatePayload'; task: { __typename?: 'Task'; id: string } } }
 
+export type DeleteTaskMutationVariables = Exact<{
+  deleteTaskId: Scalars['ID']['input']
+}>
+
+export type DeleteTaskMutation = { __typename?: 'Mutation'; deleteTask: { __typename?: 'TaskDeletePayload'; deletedID: string } }
+
 export type TaskQueryVariables = Exact<{
   taskId: Scalars['ID']['input']
 }>
@@ -29202,6 +29208,17 @@ export const UpdateTaskDocument = gql`
 
 export function useUpdateTaskMutation() {
   return Urql.useMutation<UpdateTaskMutation, UpdateTaskMutationVariables>(UpdateTaskDocument)
+}
+export const DeleteTaskDocument = gql`
+  mutation DeleteTask($deleteTaskId: ID!) {
+    deleteTask(id: $deleteTaskId) {
+      deletedID
+    }
+  }
+`
+
+export function useDeleteTaskMutation() {
+  return Urql.useMutation<DeleteTaskMutation, DeleteTaskMutationVariables>(DeleteTaskDocument)
 }
 export const TaskDocument = gql`
   query Task($taskId: ID!) {

@@ -11,7 +11,7 @@ import TaskCards from '@/components/pages/protected/tasks/cards/task-cards'
 
 const TaskTable: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
-  const { setSelectedTask, orgMembers } = useTaskStore()
+  const { setSelectedTask, orgMembers, setReexecuteTaskQuery } = useTaskStore()
   const [filters, setFilters] = useState<Record<string, any>>({})
 
   const whereFilter = useMemo(() => {
@@ -22,7 +22,7 @@ const TaskTable: React.FC = () => {
     return conditions
   }, [filters])
 
-  const [{ data, fetching }] = useTasksWithFilterQuery({ variables: { where: whereFilter } })
+  const [{ data, fetching }, reexecuteQuery] = useTasksWithFilterQuery({ variables: { where: whereFilter }, requestPolicy: 'network-only' })
   const [tableData, setTableData] = useState<TTableDataResponse[]>([])
 
   useEffect(() => {
@@ -45,6 +45,10 @@ const TaskTable: React.FC = () => {
       setTableData(updatedData)
     }
   }, [data!!])
+
+  useEffect(() => {
+    setReexecuteTaskQuery(() => reexecuteQuery())
+  }, [reexecuteQuery, setReexecuteTaskQuery])
 
   const handleRowClick = (task: TTableDataResponse) => {
     setSelectedTask(task.id ?? null)
