@@ -6,6 +6,7 @@ import {
   GetAllProceduresDocument,
   GetAllProgramsDocument,
   GetAllSubcontrolsDocument,
+  TaskTaskStatus,
 } from '@repo/codegen/src/schema'
 
 export enum TaskTypes {
@@ -82,4 +83,12 @@ export const TASK_OBJECT_TASK_CONFIG: Record<TaskObjectTypes, TTaskObjectTypeCon
     placeholder: 'subcontrols',
     queryDocument: GetAllSubcontrolsDocument,
   },
+}
+
+export const TaskStatusMapper: Record<TaskTaskStatus, string> = {
+  [TaskTaskStatus.COMPLETED]: 'Completed',
+  [TaskTaskStatus.IN_PROGRESS]: 'In progress',
+  [TaskTaskStatus.IN_REVIEW]: 'In review',
+  [TaskTaskStatus.OPEN]: 'Open',
+  [TaskTaskStatus.WONT_DO]: "Won't do",
 }

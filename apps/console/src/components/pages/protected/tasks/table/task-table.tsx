@@ -1,11 +1,12 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
-import { useTasksWithFilterQuery } from '@repo/codegen/src/schema'
+import { TaskTaskStatus, useTasksWithFilterQuery } from '@repo/codegen/src/schema'
 import TaskTableToolbar from '@/components/pages/protected/tasks/table/task-table-toolbar'
 import { TTableDataResponse } from '@/components/pages/protected/tasks/table/types/TTableDataResponse'
 import { taskColumns } from '@/components/pages/protected/tasks/util/columns'
 import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
+import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task'
 
 const TaskTable: React.FC = () => {
   const { setSelectedTask } = useTaskStore()
@@ -23,7 +24,7 @@ const TaskTable: React.FC = () => {
             name: item?.node?.name,
             description: item?.node?.description,
             due: item?.node?.due,
-            status: item?.node?.status,
+            status: TaskStatusMapper[item?.node?.status as TaskTaskStatus],
             title: item?.node?.title,
             assigner: item?.node?.assigner,
             category: item?.node?.category,

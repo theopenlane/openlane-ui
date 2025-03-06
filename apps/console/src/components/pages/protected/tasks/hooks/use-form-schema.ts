@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { TaskTypes } from '@/components/pages/protected/tasks/util/task'
+import { TaskTaskStatus } from '@repo/codegen/src/schema'
 
 const formSchema = z.object({
   category: z
@@ -24,6 +25,11 @@ const formSchema = z.object({
   internalPolicyIDs: z.array(z.any()).optional(),
   evidenceIDs: z.array(z.any()).optional(),
   groupIDs: z.array(z.any()).optional(),
+  status: z
+    .nativeEnum(TaskTaskStatus, {
+      errorMap: () => ({ message: 'Invalid status' }),
+    })
+    .default(TaskTaskStatus.OPEN),
 })
 
 export type CreateTaskFormData = z.infer<typeof formSchema>

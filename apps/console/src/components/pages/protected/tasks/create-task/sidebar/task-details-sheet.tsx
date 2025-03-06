@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { Link, Pencil, Check, Trash2, FilePlus, SquareArrowRight, CircleUser, UserRoundPen, CalendarCheck2, Circle, Folder, BookText, InfoIcon } from 'lucide-react'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { useTaskQuery, useGetSingleOrganizationMembersQuery, GetSingleOrganizationMembersQueryVariables, UpdateTaskInput, useUpdateTaskMutation } from '@repo/codegen/src/schema'
+import { useTaskQuery, useGetSingleOrganizationMembersQuery, GetSingleOrganizationMembersQueryVariables, UpdateTaskInput, useUpdateTaskMutation, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { Textarea } from '@repo/ui/textarea'
 import { Input } from '@repo/ui/input'
 import { useSession } from 'next-auth/react'
@@ -19,7 +19,7 @@ import { format } from 'date-fns'
 import { Badge } from '@repo/ui/badge'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
-import { TaskTypes } from '@/components/pages/protected/tasks/util/task'
+import { TaskStatusMapper, TaskTypes } from '@/components/pages/protected/tasks/util/task'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import ControlObjectTaskForm from '@/components/pages/protected/tasks/create-task/form/control-object-task-form'
 
@@ -27,6 +27,7 @@ const TaskDetailsSheet = () => {
   const { data: session } = useSession()
   const [isEditing, setIsEditing] = useState(false)
   const taskTypeOptions = Object.values(TaskTypes)
+  const statusOptions = Object.values(TaskTaskStatus)
   const searchParams = useSearchParams()
   const router = useRouter()
   const { selectedTask, setSelectedTask } = useTaskStore()
@@ -68,6 +69,7 @@ const TaskDetailsSheet = () => {
         internalPolicyIDs: taskData?.internalPolicy?.map((item) => item.id) || [],
         evidenceIDs: taskData?.evidence?.map((item) => item.id) || [],
         groupIDs: taskData?.group?.map((item) => item.id) || [],
+        status: taskData?.status ? Object.values(TaskTaskStatus).find((type) => type === taskData?.status) : undefined,
       })
     }
   }, [taskData, form])
@@ -77,7 +79,7 @@ const TaskDetailsSheet = () => {
       return
     }
 
-    const url = `${window.location.origin}${window.location.pathname}?groupid=${selectedTask}`
+    const url = `${window.location.origin}${window.location.pathname}?taskId=${selectedTask}`
     navigator.clipboard
       .writeText(url)
       .then(() => {
@@ -165,6 +167,7 @@ const TaskDetailsSheet = () => {
       title: data?.title,
       description: data?.description,
       assigneeID: data?.assigneeID,
+      status: data?.status,
       ...taskObjectPayload,
     }
 
@@ -217,13 +220,6 @@ const TaskDetailsSheet = () => {
       </div>
     )
   }
-
-  useEffect(() => {
-    const taskId = searchParams.get('taskId')
-    if (taskId) {
-      setSelectedTask(taskId)
-    }
-  }, [searchParams, setSelectedTask])
 
   return (
     <Sheet open={!!selectedTask} onOpenChange={handleSheetClose}>
@@ -286,7 +282,7 @@ const TaskDetailsSheet = () => {
                     taskData?.title
                   )}
                 </SheetTitle>
-                <SheetDescription>
+                <div className="pt-4">
                   {isEditing ? (
                     <FormField
                       control={form.control}
@@ -307,7 +303,7 @@ const TaskDetailsSheet = () => {
                   ) : (
                     taskData?.description
                   )}
-                </SheetDescription>
+                </div>
               </form>
             </Form>
 
@@ -385,7 +381,31 @@ const TaskDetailsSheet = () => {
                 <div className="flex items-center gap-4">
                   <Circle height={16} width={16} color="#2CCBAB" />
                   <p className="text-sm w-[120px]">Status</p>
-                  <p className="text-sm">{taskData?.status}</p>
+                  {isEditing ? (
+                    <Controller
+                      name="status"
+                      control={form.control}
+                      render={({ field }) => {
+                        return (
+                          <>
+                            <Select value={field.value} onValueChange={field.onChange}>
+                              <SelectTrigger className="w-1/3">{TaskStatusMapper[field.value as TaskTaskStatus] || 'Select'}</SelectTrigger>
+                              <SelectContent>
+                                {statusOptions.map((option) => (
+                                  <SelectItem key={option} value={option}>
+                                    {TaskStatusMapper[option as TaskTaskStatus]}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            {form.formState.errors.status && <p className="text-red-500 text-sm">{form.formState.errors.status.message}</p>}
+                          </>
+                        )
+                      }}
+                    />
+                  ) : (
+                    <p className="text-sm">{TaskStatusMapper[taskData?.status as TaskTaskStatus]}</p>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-4">

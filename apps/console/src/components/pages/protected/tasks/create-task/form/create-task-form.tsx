@@ -15,7 +15,11 @@ import { Textarea } from '@repo/ui/textarea'
 import { useNotification } from '@/hooks/useNotification'
 import ControlObjectTaskForm from '@/components/pages/protected/tasks/create-task/form/control-object-task-form'
 
-const CreateTaskForm: React.FC = () => {
+type TProps = {
+  onSuccess: () => void
+}
+
+const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
   const { form } = useFormSchema()
   const { data: session } = useSession()
   const { successNotification, errorNotification } = useNotification()
@@ -61,16 +65,17 @@ const CreateTaskForm: React.FC = () => {
     if (response.error) {
       errorNotification({
         title: 'Error',
-        description: 'There was an error creating the evidence. Please try again.',
+        description: 'There was an error creating the task. Please try again.',
       })
       return
     }
 
     successNotification({
-      title: 'Evidence Created',
-      description: `Evidence has been successfully created`,
+      title: 'Task Created',
+      description: `Task has been successfully created`,
     })
     form.reset()
+    props.onSuccess()
   }
 
   return (
