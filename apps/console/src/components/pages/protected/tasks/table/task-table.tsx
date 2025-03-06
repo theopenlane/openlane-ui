@@ -7,8 +7,10 @@ import { TTableDataResponse } from '@/components/pages/protected/tasks/table/typ
 import { taskColumns } from '@/components/pages/protected/tasks/util/columns'
 import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
 import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task'
+import TaskCards from '@/components/pages/protected/tasks/cards/task-cards'
 
 const TaskTable: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
   const { setSelectedTask, orgMembers } = useTaskStore()
   const [filters, setFilters] = useState<Record<string, any>>({})
 
@@ -43,16 +45,21 @@ const TaskTable: React.FC = () => {
       setTableData(updatedData)
     }
   }, [data!!])
+
   const handleRowClick = (task: TTableDataResponse) => {
     setSelectedTask(task.id ?? null)
   }
 
   const handleSortChange = (data: any) => {}
 
+  const handleTabChange = (tab: 'table' | 'card') => {
+    setActiveTab(tab)
+  }
+
   return (
     <>
-      <TaskTableToolbar onFilterChange={setFilters} members={orgMembers} onSortChange={handleSortChange} />
-      <DataTable columns={taskColumns} data={tableData} loading={fetching} onRowClick={handleRowClick} />
+      <TaskTableToolbar onFilterChange={setFilters} members={orgMembers} onSortChange={handleSortChange} onTabChange={handleTabChange} />
+      {activeTab === 'table' ? <DataTable columns={taskColumns} data={tableData} loading={fetching} onRowClick={handleRowClick} /> : <TaskCards tasks={tableData} loading={fetching} />}
     </>
   )
 }
