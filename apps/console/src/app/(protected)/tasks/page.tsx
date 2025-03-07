@@ -5,17 +5,14 @@ import TaskTable from '@/components/pages/protected/tasks/table/task-table'
 import TaskDetailsSheet from '@/components/pages/protected/tasks/create-task/sidebar/task-details-sheet'
 import { TOrgMembers, useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
 import { useSearchParams } from 'next/navigation'
-import { GetSingleOrganizationMembersQueryVariables, useGetSingleOrganizationMembersQuery } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
+import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 
 const Page: React.FC = () => {
   const { selectedTask, setSelectedTask, setOrgMembers } = useTaskStore()
   const searchParams = useSearchParams()
   const { data: session } = useSession()
-  const variables: GetSingleOrganizationMembersQueryVariables = {
-    organizationId: session?.user.activeOrganizationId ?? '',
-  }
-  const [{ data: membersData }] = useGetSingleOrganizationMembersQuery({ variables })
+  const { data: membersData } = useGetSingleOrganizationMembers(session?.user.activeOrganizationId)
 
   useEffect(() => {
     const taskId = searchParams.get('taskId')

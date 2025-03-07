@@ -4,7 +4,7 @@ export type TTableDataResponse = {
   displayID?: string
   id?: number
   title?: string
-  description?: string
+  details?: string
   status?: string
   due?: string
   assigner?: User

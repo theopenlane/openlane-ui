@@ -105,10 +105,6 @@ export const GET_PROGRAM_DETAILS_BY_ID = gql`
       auditorReady
       auditorWriteComments
       auditorReadComments
-      standards {
-        id
-        name
-      }
       tasks {
         id
         title
@@ -134,13 +130,9 @@ export const GET_PROGRAM_DETAILS_BY_ID = gql`
       }
       controls {
         id
-        name
-        class
       }
       subcontrols {
         id
-        name
-        class
       }
       narratives {
         id

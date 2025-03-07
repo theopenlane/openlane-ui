@@ -6,7 +6,6 @@ export const GET_ALL_CONTROLS = gql`
       edges {
         node {
           id
-          name
           displayID
         }
       }

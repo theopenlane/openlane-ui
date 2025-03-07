@@ -14,7 +14,7 @@ const formSchema = z.object({
   title: z.string().min(2, {
     message: 'Title must be at least 2 characters',
   }),
-  description: z.string().optional(),
+  details: z.string().optional(),
   assigneeID: z.string().optional(),
   due: z.date(),
   taskObjects: z.array(z.any()).optional(),
@@ -41,7 +41,7 @@ const useFormSchema = () => {
       resolver: zodResolver(formSchema),
       defaultValues: {
         title: '',
-        description: '',
+        details: '',
         taskObjects: [],
       },
     }),

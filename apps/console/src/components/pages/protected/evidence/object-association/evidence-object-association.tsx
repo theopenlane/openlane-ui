@@ -30,13 +30,16 @@ const EvidenceObjectAssociation: React.FC<TProps> = (props: TProps) => {
     debounce((value) => setDebouncedSearchValue(value), 300),
     [],
   )
-  const selectedQuery = selectedObject && EVIDENCE_OBJECT_CONFIG[selectedObject].queryDocument
-  const objectKey = selectedObject && EVIDENCE_OBJECT_CONFIG[selectedObject]?.responseObjectKey
-  const inputName = selectedObject && EVIDENCE_OBJECT_CONFIG[selectedObject]?.inputName
-  const inputPlaceholder = selectedObject && EVIDENCE_OBJECT_CONFIG[selectedObject]?.placeholder
+  const selectedConfig = selectedObject ? EVIDENCE_OBJECT_CONFIG[selectedObject] : null
+  const selectedQuery = selectedConfig?.queryDocument
+  const objectKey = selectedConfig?.responseObjectKey
+  const inputName = selectedConfig?.inputName
+  const inputPlaceholder = selectedConfig?.placeholder
+  const searchAttribute = selectedConfig?.searchAttribute
+  const objectName = selectedConfig?.objectName!
 
   const whereFilter = {
-    ...(objectKey === 'tasks' ? { titleContainsFold: debouncedSearchValue } : { nameContainsFold: debouncedSearchValue }),
+    ...(searchAttribute ? { [searchAttribute]: debouncedSearchValue } : {}),
   }
 
   const { data } = useQuery<AllEvidenceQueriesData>({
@@ -51,7 +54,7 @@ const EvidenceObjectAssociation: React.FC<TProps> = (props: TProps) => {
         data[objectKey]?.edges?.map((item: any) => {
           return {
             id: item?.node?.id || '',
-            name: item?.node?.name || '',
+            name: item?.node[objectName] || '',
             description: item?.node?.description || '',
             inputName: inputName || '',
           }

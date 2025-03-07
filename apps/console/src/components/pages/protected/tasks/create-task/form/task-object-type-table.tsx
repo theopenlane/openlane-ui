@@ -7,6 +7,7 @@ import { TFormDataResponse } from '@/components/pages/protected/tasks/create-tas
 import { TTaskObjectType } from '@/components/pages/protected/tasks/create-task/form/types/TTaskObjectType'
 import { UseFormReturn } from 'react-hook-form'
 import { EditTaskFormData } from '@/components/pages/protected/tasks/hooks/use-form-schema'
+import { TTaskObjectColumn } from '@/components/pages/protected/tasks/create-task/form/types/TTaskObjectColumn'
 
 type TProps = {
   data: TFormDataResponse[]
@@ -33,7 +34,7 @@ const TaskObjectTypeTable: React.FC<TProps> = (props: TProps) => {
     props.onTaskObjectTypeChange(taskObjectTypes)
   }, [taskObjectTypes])
 
-  const columns: ColumnDef<TObjectAssociationColumn>[] = [
+  const columns: ColumnDef<TTaskObjectColumn>[] = [
     {
       accessorKey: 'name',
       header: 'Name',
@@ -71,8 +72,8 @@ const TaskObjectTypeTable: React.FC<TProps> = (props: TProps) => {
       },
     },
     {
-      accessorKey: 'description',
-      header: 'Description',
+      accessorKey: 'details',
+      header: 'Details',
     },
   ]
 

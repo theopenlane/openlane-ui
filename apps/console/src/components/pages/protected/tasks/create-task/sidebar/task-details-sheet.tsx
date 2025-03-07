@@ -3,9 +3,9 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Button } from '@repo/ui/button'
-import { Link, Pencil, Check, Trash2, FilePlus, SquareArrowRight, CircleUser, UserRoundPen, CalendarCheck2, Circle, Folder, BookText, InfoIcon } from 'lucide-react'
+import { Link, Pencil, Check, FilePlus, SquareArrowRight, CircleUser, UserRoundPen, CalendarCheck2, Circle, Folder, BookText, InfoIcon } from 'lucide-react'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { useTaskQuery, useUpdateTaskMutation, TaskTaskStatus } from '@repo/codegen/src/schema'
+import { TaskTaskStatus } from '@repo/codegen/src/schema'
 import { Textarea } from '@repo/ui/textarea'
 import { Input } from '@repo/ui/input'
 import { useNotification } from '@/hooks/useNotification'
@@ -23,9 +23,12 @@ import { CalendarPopover } from '@repo/ui/calendar-popover'
 import ControlObjectTaskForm from '@/components/pages/protected/tasks/create-task/form/control-object-task-form'
 import { TaskStatusIconMapper } from '@/components/pages/protected/tasks/util/columns'
 import DeleteTaskDialog from '@/components/pages/protected/tasks/create-task/dialog/delete-task-dialog'
+import { useTask, useUpdateTask } from '@/lib/graphql-hooks/tasks'
+import { useQueryClient } from '@tanstack/react-query'
 
 const TaskDetailsSheet = () => {
   const [isEditing, setIsEditing] = useState(false)
+  const queryClient = useQueryClient()
   const taskTypeOptions = Object.values(TaskTypes)
   const statusOptions = Object.values(TaskTaskStatus)
   const searchParams = useSearchParams()
@@ -33,11 +36,8 @@ const TaskDetailsSheet = () => {
   const { selectedTask, setSelectedTask, orgMembers } = useTaskStore()
   const { successNotification, errorNotification } = useNotification()
 
-  const [{}, updateTask] = useUpdateTaskMutation()
-  const [{ data, fetching }] = useTaskQuery({
-    variables: { taskId: (selectedTask as string) || '' },
-    pause: !selectedTask,
-  })
+  const { mutateAsync: updateTask } = useUpdateTask()
+  const { data, isLoading: fetching } = useTask(selectedTask as string)
 
   const taskData = data?.task
   const { form } = useFormSchema()
@@ -46,7 +46,7 @@ const TaskDetailsSheet = () => {
     if (taskData) {
       form.reset({
         title: taskData.title ?? '',
-        description: taskData.description ?? '',
+        details: taskData.details ?? '',
         due: new Date(taskData.due as string),
         assigneeID: taskData.assignee?.id,
         category: taskData?.category ? Object.values(TaskTypes).find((type) => type === taskData?.category) : undefined,
@@ -153,26 +153,19 @@ const TaskDetailsSheet = () => {
       category: data?.category,
       due: data?.due,
       title: data?.title,
-      description: data?.description,
+      details: data?.details,
       assigneeID: data?.assigneeID,
       status: data?.status,
       ...taskObjectPayload,
     }
 
     try {
-      const response = await updateTask({
+      await updateTask({
         updateTaskId: selectedTask as string,
         input: formData,
       })
 
-      if (response.error) {
-        errorNotification({
-          title: 'Error',
-          description: 'There was an error updating the task. Please try again.',
-        })
-        return
-      }
-
+      queryClient.invalidateQueries({ queryKey: ['task'] })
       successNotification({
         title: 'Task Updated',
         description: 'The task has been successfully updated.',
@@ -189,21 +182,14 @@ const TaskDetailsSheet = () => {
 
   const handleMarkAsComplete = async () => {
     try {
-      const response = await updateTask({
+      await updateTask({
         updateTaskId: selectedTask as string,
         input: {
           status: TaskTaskStatus.COMPLETED,
         },
       })
 
-      if (response.error) {
-        errorNotification({
-          title: 'Error',
-          description: 'There was an error updating the task. Please try again.',
-        })
-        return
-      }
-
+      queryClient.invalidateQueries({ queryKey: ['task'] })
       successNotification({
         title: 'Task Updated',
         description: 'The task has been successfully marked as complete.',
@@ -303,22 +289,22 @@ const TaskDetailsSheet = () => {
                   {isEditing ? (
                     <FormField
                       control={form.control}
-                      name="description"
+                      name="details"
                       render={({ field }) => (
                         <FormItem className="w-full">
                           <div className="flex items-center">
-                            <FormLabel>Description</FormLabel>
+                            <FormLabel>Details</FormLabel>
                             <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Test3</p>} />
                           </div>
                           <FormControl>
-                            <Textarea id="description" {...field} className="w-full" />
+                            <Textarea id="details" {...field} className="w-full" />
                           </FormControl>
-                          {form.formState.errors.description && <p className="text-red-500 text-sm">{form.formState.errors.description.message}</p>}
+                          {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors.details.message}</p>}
                         </FormItem>
                       )}
                     />
                   ) : (
-                    taskData?.description
+                    taskData?.details
                   )}
                 </div>
               </form>

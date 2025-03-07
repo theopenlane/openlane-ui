@@ -5,18 +5,20 @@ import { Button } from '@repo/ui/button'
 import { Trash2, AlertTriangle } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
-import { useDeleteTaskMutation } from '@repo/codegen/src/schema'
+import { useQueryClient } from '@tanstack/react-query'
+import { useDeleteTask } from '@/lib/graphql-hooks/tasks'
 
 type TProps = {
   taskName: string
 }
 
 const DeleteTaskDialog: React.FC<TProps> = (props: TProps) => {
-  const { selectedTask, setSelectedTask, reexecuteTaskQuery } = useTaskStore()
+  const { selectedTask, setSelectedTask } = useTaskStore()
+  const queryClient = useQueryClient()
   const [isOpen, setIsOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
 
-  const [{}, deleteTask] = useDeleteTaskMutation()
+  const { mutateAsync: deleteTask } = useDeleteTask()
 
   const handleDelete = async () => {
     if (!selectedTask) {
@@ -25,8 +27,8 @@ const DeleteTaskDialog: React.FC<TProps> = (props: TProps) => {
 
     try {
       await deleteTask({ deleteTaskId: selectedTask as string })
+      queryClient.invalidateQueries({ queryKey: ['tasks'] })
       successNotification({ title: `Task deleted successfully.` })
-      reexecuteTaskQuery?.()
       setSelectedTask(null)
       setIsOpen(false)
     } catch (error) {

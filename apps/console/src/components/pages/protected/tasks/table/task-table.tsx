@@ -1,18 +1,19 @@
 'use client'
 import React, { useEffect, useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
-import { TaskTaskStatus, useTasksWithFilterQuery } from '@repo/codegen/src/schema'
 import TaskTableToolbar from '@/components/pages/protected/tasks/table/task-table-toolbar'
 import { TTableDataResponse } from '@/components/pages/protected/tasks/table/types/TTableDataResponse'
 import { taskColumns } from '@/components/pages/protected/tasks/util/columns'
 import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
 import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task'
 import TaskCards from '@/components/pages/protected/tasks/cards/task-cards'
+import { useTasksWithFilter } from '@/lib/graphql-hooks/tasks'
+import { TaskTaskStatus } from '@repo/codegen/src/schema'
 
 const TaskTable: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
   const [showCompletedTasks, setShowCompletedTasks] = useState<boolean>(false)
-  const { setSelectedTask, orgMembers, setReexecuteTaskQuery } = useTaskStore()
+  const { setSelectedTask, orgMembers } = useTaskStore()
   const [filters, setFilters] = useState<Record<string, any>>({})
 
   const whereFilter = useMemo(() => {
@@ -24,7 +25,7 @@ const TaskTable: React.FC = () => {
     return conditions
   }, [filters, showCompletedTasks])
 
-  const [{ data, fetching }, reexecuteQuery] = useTasksWithFilterQuery({ variables: { where: whereFilter }, requestPolicy: 'network-only' })
+  const { data, isLoading: fetching } = useTasksWithFilter(whereFilter)
   const [tableData, setTableData] = useState<TTableDataResponse[]>([])
 
   useEffect(() => {
@@ -35,7 +36,7 @@ const TaskTable: React.FC = () => {
             id: item?.node?.id,
             displayID: item?.node?.displayID,
             name: item?.node?.name,
-            description: item?.node?.description,
+            details: item?.node?.details,
             due: item?.node?.due,
             status: TaskStatusMapper[item?.node?.status as TaskTaskStatus],
             title: item?.node?.title,
@@ -47,10 +48,6 @@ const TaskTable: React.FC = () => {
       setTableData(updatedData)
     }
   }, [data!!])
-
-  useEffect(() => {
-    setReexecuteTaskQuery(() => reexecuteQuery())
-  }, [reexecuteQuery, setReexecuteTaskQuery])
 
   const handleRowClick = (task: TTableDataResponse) => {
     setSelectedTask(task.id ?? null)

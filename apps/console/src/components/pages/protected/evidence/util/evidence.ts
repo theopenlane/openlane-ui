@@ -42,6 +42,8 @@ type TEvidenceObjectConfig = {
   queryDocument: any
   inputName: string
   placeholder: string
+  searchAttribute: string
+  objectName: string
 }
 
 export const EVIDENCE_OBJECT_CONFIG: Record<EvidenceObjects, TEvidenceObjectConfig> = {
@@ -50,29 +52,39 @@ export const EVIDENCE_OBJECT_CONFIG: Record<EvidenceObjects, TEvidenceObjectConf
     inputName: 'controlIDs',
     placeholder: 'control',
     queryDocument: GET_ALL_CONTROLS,
+    searchAttribute: 'refCode',
+    objectName: 'refCode',
   },
   [EvidenceObjects.SUB_CONTROL]: {
     responseObjectKey: 'subcontrols',
     inputName: 'subcontrolIDs',
     placeholder: 'subcontrol',
     queryDocument: GET_ALL_SUBCONTROLS,
+    searchAttribute: 'refCode',
+    objectName: 'refCode',
   },
   [EvidenceObjects.CONTROL_OBJECTIVE]: {
     responseObjectKey: 'controlObjectives',
     inputName: 'controlObjectiveIDs',
     placeholder: 'control objective',
     queryDocument: GET_ALL_CONTROL_OBJECTIVES,
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
   },
   [EvidenceObjects.PROGRAM]: {
     responseObjectKey: 'programs',
     inputName: 'programIDs',
     placeholder: 'program',
     queryDocument: GET_ALL_PROGRAMS,
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
   },
   [EvidenceObjects.TASK]: {
     responseObjectKey: 'tasks',
     inputName: 'taskIDs',
     placeholder: 'task',
     queryDocument: TASKS_WITH_FILTER,
+    searchAttribute: 'titleContainsFold',
+    objectName: 'title',
   },
 }

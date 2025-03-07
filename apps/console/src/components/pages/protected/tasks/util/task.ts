@@ -1,13 +1,11 @@
-import {
-  GetAllControlObjectivesDocument,
-  GetAllControlsDocument,
-  GetAllGroupsDocument,
-  GetAllInternalPoliciesDocument,
-  GetAllProceduresDocument,
-  GetAllProgramsDocument,
-  GetAllSubcontrolsDocument,
-  TaskTaskStatus,
-} from '@repo/codegen/src/schema'
+import { GET_ALL_CONTROLS } from '@repo/codegen/query/control'
+import { GET_ALL_CONTROL_OBJECTIVES } from '@repo/codegen/query/control-objective'
+import { GET_ALL_GROUPS } from '@repo/codegen/query/group'
+import { GET_ALL_INTERNAL_POLICIES } from '@repo/codegen/query/policy'
+import { GET_ALL_PROCEDURES } from '@repo/codegen/query/procedure'
+import { GET_ALL_PROGRAMS } from '@repo/codegen/query/programs'
+import { Control, ControlObjective, Evidence, InternalPolicy, Procedure, Program, Subcontrol, TaskTaskStatus } from '@repo/codegen/src/schema'
+import { Group } from '@/components/pages/protected/groups/groups-page'
 
 export enum TaskTypes {
   EVIDENCE = 'Evidence',
@@ -27,11 +25,45 @@ export enum TaskObjectTypes {
   SUBCONTROL = 'Subcontrol',
 }
 
+/**
+ * Our "data" shape for all object types, keyed by their respective property.
+ */
+export type AllQueriesData = {
+  controls?: {
+    edges?: Array<{ node: Control }>
+  }
+  controlObjectives?: {
+    edges?: Array<{ node: ControlObjective }>
+  }
+  evidences?: {
+    edges?: Array<{ node: Evidence }>
+  }
+  groups?: {
+    edges?: Array<{ node: Group }>
+  }
+  internalPolicies?: {
+    edges?: Array<{ node: InternalPolicy }>
+  }
+  procedures?: {
+    edges?: Array<{ node: Procedure }>
+  }
+  programs?: {
+    edges?: Array<{ node: Program }>
+  }
+  subcontrols?: {
+    edges?: Array<{ node: Subcontrol }>
+  }
+}
+
+export type AllQueriesDataKey = keyof AllQueriesData
+
 type TTaskObjectTypeConfig = {
-  responseObjectKey: string
+  responseObjectKey: AllQueriesDataKey
   queryDocument: any
   inputName: string
   placeholder: string
+  searchAttribute: string
+  objectName: string
 }
 
 export const TASK_OBJECT_TASK_CONFIG: Record<TaskObjectTypes, TTaskObjectTypeConfig> = {
@@ -39,49 +71,65 @@ export const TASK_OBJECT_TASK_CONFIG: Record<TaskObjectTypes, TTaskObjectTypeCon
     responseObjectKey: 'controls',
     inputName: 'controlIDs',
     placeholder: 'control',
-    queryDocument: GetAllControlsDocument,
+    queryDocument: GET_ALL_CONTROLS,
+    searchAttribute: 'refCode',
+    objectName: 'refCode',
   },
   [TaskObjectTypes.CONTROL_OBJECTIVE]: {
     responseObjectKey: 'controlObjectives',
     inputName: 'controlObjectiveIDs',
     placeholder: 'control objective',
-    queryDocument: GetAllControlObjectivesDocument,
+    queryDocument: GET_ALL_CONTROL_OBJECTIVES,
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
   },
   [TaskObjectTypes.EVIDENCE]: {
     responseObjectKey: 'evidences',
     inputName: 'evidenceIDs',
     placeholder: 'evidence',
-    queryDocument: GetAllControlObjectivesDocument,
+    queryDocument: GET_ALL_CONTROL_OBJECTIVES,
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
   },
   [TaskObjectTypes.GROUP]: {
     responseObjectKey: 'groups',
     inputName: 'groupIDs',
     placeholder: 'group',
-    queryDocument: GetAllGroupsDocument,
+    queryDocument: GET_ALL_GROUPS,
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
   },
   [TaskObjectTypes.INTERNAL_POLICY]: {
     responseObjectKey: 'internalPolicies',
     inputName: 'internalPolicyIDs',
     placeholder: 'internal policy',
-    queryDocument: GetAllInternalPoliciesDocument,
+    queryDocument: GET_ALL_INTERNAL_POLICIES,
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
   },
   [TaskObjectTypes.PROCEDURE]: {
     responseObjectKey: 'procedures',
     inputName: 'procedureIDs',
     placeholder: 'procedure',
-    queryDocument: GetAllProceduresDocument,
+    queryDocument: GET_ALL_PROCEDURES,
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
   },
   [TaskObjectTypes.PROGRAM]: {
     responseObjectKey: 'programs',
     inputName: 'programIDs',
     placeholder: 'program',
-    queryDocument: GetAllProgramsDocument,
+    queryDocument: GET_ALL_PROGRAMS,
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
   },
   [TaskObjectTypes.SUBCONTROL]: {
     responseObjectKey: 'subcontrols',
     inputName: 'subcontrolIDs',
     placeholder: 'subcontrols',
-    queryDocument: GetAllSubcontrolsDocument,
+    queryDocument: GET_ALL_CONTROLS,
+    searchAttribute: 'refCode',
+    objectName: 'refCode',
   },
 }
 

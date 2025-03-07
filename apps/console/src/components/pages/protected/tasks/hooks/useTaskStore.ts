@@ -11,8 +11,6 @@ interface ITaskStoreState {
   setSelectedTask: (taskId: string | number | null) => void
   orgMembers: TOrgMembers[] | undefined
   setOrgMembers: (members: TOrgMembers[] | undefined) => void
-  reexecuteTaskQuery: ((opts?: { requestPolicy?: string }) => void) | null
-  setReexecuteTaskQuery: (refetchFn: (opts?: { requestPolicy?: string }) => void) => void
 }
 
 export const useTaskStore = create<ITaskStoreState>((set) => ({
@@ -20,6 +18,4 @@ export const useTaskStore = create<ITaskStoreState>((set) => ({
   setSelectedTask: (taskId) => set({ selectedTask: taskId }),
   orgMembers: [],
   setOrgMembers: (members) => set({ orgMembers: members }),
-  reexecuteTaskQuery: null,
-  setReexecuteTaskQuery: (refetchFn) => set({ reexecuteTaskQuery: refetchFn }),
 }))

@@ -2,7 +2,7 @@ import { ColumnDef } from '@tanstack/react-table'
 import { TTableDataResponse } from '@/components/pages/protected/tasks/table/types/TTableDataResponse'
 import { format } from 'date-fns'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
-import { CircleCheck, CircleX, MessageSquareCode, PanelTopOpen, Timer } from 'lucide-react'
+import { CircleCheck, CircleX, ListTodo, MessageSquareCode, PanelTopOpen, Timer, View } from 'lucide-react'
 
 export const taskColumns: ColumnDef<TTableDataResponse>[] = [
   {
@@ -70,7 +70,7 @@ export const taskColumns: ColumnDef<TTableDataResponse>[] = [
 export const TaskStatusIconMapper: Record<string, React.ReactNode> = {
   ['Completed']: <CircleCheck height={16} width={16} color="#2CCBAB" />,
   ['In progress']: <Timer height={16} width={16} color="#EAB308" />,
-  ['In review']: <MessageSquareCode height={16} width={16} color="#2CCBAB" />,
-  ['Open']: <PanelTopOpen height={16} width={16} color="#2CCBAB" />,
+  ['In review']: <View height={16} width={16} color="#EAB308" />,
+  ['Open']: <ListTodo height={16} width={16} color="#2CCBAB" />,
   ["Won't do"]: <CircleX height={16} width={16} color="#c70000" />,
 }

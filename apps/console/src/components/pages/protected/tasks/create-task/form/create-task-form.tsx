@@ -8,12 +8,14 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { Grid, GridCell, GridRow } from '@repo/ui/grid'
 import { Button } from '@repo/ui/button'
-import { CreateTaskInput, GetSingleOrganizationMembersQueryVariables, useCreateTaskMutation, useGetSingleOrganizationMembersQuery } from '@repo/codegen/src/schema'
+import { CreateTaskInput } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { Textarea } from '@repo/ui/textarea'
 import { useNotification } from '@/hooks/useNotification'
 import ControlObjectTaskForm from '@/components/pages/protected/tasks/create-task/form/control-object-task-form'
+import { useCreateTask } from '@/lib/graphql-hooks/tasks'
+import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 
 type TProps = {
   onSuccess: () => void
@@ -24,11 +26,8 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
   const { data: session } = useSession()
   const { successNotification, errorNotification } = useNotification()
   const taskTypeOptions = Object.values(TaskTypes)
-  const variables: GetSingleOrganizationMembersQueryVariables = {
-    organizationId: session?.user.activeOrganizationId ?? '',
-  }
-  const [result, createTask] = useCreateTaskMutation()
-  const [{ data: membersData }] = useGetSingleOrganizationMembersQuery({ variables })
+  const { mutateAsync: createTask, isPending: isSubmitting } = useCreateTask()
+  const { data: membersData } = useGetSingleOrganizationMembers(session?.user.activeOrganizationId)
 
   const membersOptions = membersData?.organization?.members
     ?.filter((member) => member.user.id != session?.user.userId)
@@ -37,8 +36,6 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
       label: `${member.user.firstName} ${member.user.lastName}`,
       membershipId: member.id,
     }))
-
-  const { fetching: isSubmitting } = result
 
   const onSubmitHandler = async (data: CreateTaskFormData) => {
     const taskObjects = data?.taskObjects?.reduce(
@@ -54,28 +51,25 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
         category: data?.category,
         due: data?.due,
         title: data?.title,
-        description: data?.description,
+        details: data?.details,
         assigneeID: data?.assigneeID,
         ...taskObjects,
       } as CreateTaskInput,
     }
-
-    const response = await createTask(formData)
-
-    if (response.error) {
+    try {
+      await createTask(formData)
+      successNotification({
+        title: 'Task Created',
+        description: `Task has been successfully created`,
+      })
+      form.reset()
+      props.onSuccess()
+    } catch (error) {
       errorNotification({
         title: 'Error',
         description: 'There was an error creating the task. Please try again.',
       })
-      return
     }
-
-    successNotification({
-      title: 'Task Created',
-      description: `Task has been successfully created`,
-    })
-    form.reset()
-    props.onSuccess()
   }
 
   return (
@@ -134,21 +128,21 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                       />
                     </InputRow>
 
-                    {/* Description Field */}
+                    {/* details Field */}
                     <InputRow className="w-full">
                       <FormField
                         control={form.control}
-                        name="description"
+                        name="details"
                         render={({ field }) => (
                           <FormItem className="w-full">
                             <div className="flex items-center">
-                              <FormLabel>Description</FormLabel>
+                              <FormLabel>Details</FormLabel>
                               <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Test3</p>} />
                             </div>
                             <FormControl>
-                              <Textarea id="description" {...field} className="w-full" />
+                              <Textarea id="details" {...field} className="w-full" />
                             </FormControl>
-                            {form.formState.errors.description && <p className="text-red-500 text-sm">{form.formState.errors.description.message}</p>}
+                            {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors.details.message}</p>}
                           </FormItem>
                         )}
                       />

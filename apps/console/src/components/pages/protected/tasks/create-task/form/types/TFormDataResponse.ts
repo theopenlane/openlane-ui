@@ -1,6 +1,6 @@
 export type TFormDataResponse = {
   id: number | string
   name: string
-  description: string
+  details: string
   inputName: string
 }
