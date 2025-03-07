@@ -16,7 +16,7 @@ const formSchema = z.object({
   }),
   details: z.string().optional(),
   assigneeID: z.string().optional(),
-  due: z.date(),
+  due: z.date().optional(),
   taskObjects: z.array(z.any()).optional(),
   controlObjectiveIDs: z.array(z.any()).optional(),
   subcontrolIDs: z.array(z.any()).optional(),
