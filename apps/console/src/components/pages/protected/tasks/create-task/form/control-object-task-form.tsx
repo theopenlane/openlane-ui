@@ -46,7 +46,7 @@ const ControlObjectTaskForm: React.FC<TProps> = (props: TProps) => {
           ...(searchAttribute ? { [searchAttribute]: debouncedSearchValue } : {}),
         },
       }),
-    enabled: Boolean(selectedQuery),
+    enabled: !!selectedQuery,
   })
 
   useEffect(() => {
