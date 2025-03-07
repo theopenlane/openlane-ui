@@ -28125,7 +28125,7 @@ export type SearchQuery = {
       | { __typename?: 'ContactSearchResult' }
       | { __typename?: 'ControlImplementationSearchResult' }
       | { __typename?: 'ControlObjectiveSearchResult'; controlObjectives?: Array<{ __typename?: 'ControlObjective'; id: string; name: string }> | null }
-      | { __typename?: 'ControlSearchResult'; controls?: Array<{ __typename?: 'Control'; id: string }> | null }
+      | { __typename?: 'ControlSearchResult'; controls?: Array<{ __typename?: 'Control'; id: string; refCode: string }> | null }
       | { __typename?: 'DocumentDataSearchResult' }
       | { __typename?: 'EntitySearchResult' }
       | { __typename?: 'EntityTypeSearchResult' }
@@ -28145,7 +28145,7 @@ export type SearchQuery = {
       | { __typename?: 'ProgramSearchResult'; programs?: Array<{ __typename?: 'Program'; id: string; name: string }> | null }
       | { __typename?: 'RiskSearchResult'; risks?: Array<{ __typename?: 'Risk'; id: string; name: string }> | null }
       | { __typename?: 'StandardSearchResult' }
-      | { __typename?: 'SubcontrolSearchResult'; subcontrols?: Array<{ __typename?: 'Subcontrol'; id: string }> | null }
+      | { __typename?: 'SubcontrolSearchResult'; subcontrols?: Array<{ __typename?: 'Subcontrol'; id: string; refCode: string }> | null }
       | { __typename?: 'SubscriberSearchResult' }
       | { __typename?: 'TaskSearchResult'; tasks?: Array<{ __typename?: 'Task'; id: string; title: string }> | null }
       | { __typename?: 'TemplateSearchResult' }
