@@ -3,11 +3,8 @@ import React, { useEffect, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { Checkbox } from '@repo/ui/checkbox'
-
-type TEvidenceObjectIds = {
-  inputName: string
-  objectIds: string[]
-}
+import { TFormDataResponse } from '@/components/pages/protected/evidence/object-association/types/TFormDataResponse'
+import { TEvidenceObjectIds } from '@/components/pages/protected/evidence/object-association/types/TEvidenceObjectIds'
 
 type TProps = {
   data: TFormDataResponse[]

@@ -6,7 +6,6 @@ export const GET_ALL_SUBCONTROLS = gql`
       edges {
         node {
           id
-          name
           displayID
           description
         }

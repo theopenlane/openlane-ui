@@ -18,6 +18,7 @@ import EvidenceObjectAssociation from '@/components/pages/protected/evidence/obj
 import { useNotification } from '@/hooks/useNotification'
 import { Option } from '@repo/ui/multiple-selector'
 import { useCreateEvidence } from '@/lib/graphql-hooks/evidence'
+import { TEvidenceObjectIds } from '@/components/pages/protected/evidence/object-association/types/TEvidenceObjectIds'
 
 const EvidenceCreateForm: React.FC = () => {
   const { form } = useFormSchema()
