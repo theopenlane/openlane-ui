@@ -226,6 +226,10 @@ const TaskDetailsSheet = () => {
     )
   }
 
+  const handleReassignComingSoon = () => {
+    alert('Reassign feature coming soon!')
+  }
+
   return (
     <Sheet open={!!selectedTask} onOpenChange={handleSheetClose}>
       <SheetContent className="bg-card">
@@ -318,7 +322,7 @@ const TaskDetailsSheet = () => {
                 <Button disabled={taskData?.status === TaskTaskStatus.COMPLETED} icon={<Check />} iconPosition="left" variant="outline" onClick={() => handleMarkAsComplete()}>
                   Mark as complete
                 </Button>
-                <Button icon={<SquareArrowRight />} iconPosition="left" variant="outline">
+                <Button icon={<SquareArrowRight />} iconPosition="left" variant="outline" onClick={handleReassignComingSoon}>
                   Reassign
                 </Button>
               </div>
