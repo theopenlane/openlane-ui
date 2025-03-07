@@ -276,7 +276,7 @@ const TaskDetailsSheet = () => {
                         <FormItem className="w-1/3">
                           <div className="flex items-center">
                             <FormLabel>Title</FormLabel>
-                            <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Test1</p>} />
+                            <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a brief, descriptive title to help easily identify the task later.</p>} />
                           </div>
                           <FormControl>
                             <Input variant="medium" {...field} className="w-full" />
@@ -298,10 +298,13 @@ const TaskDetailsSheet = () => {
                         <FormItem className="w-full">
                           <div className="flex items-center">
                             <FormLabel>Details</FormLabel>
-                            <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Test3</p>} />
+                            <SystemTooltip
+                              icon={<InfoIcon size={14} className="mx-1 mt-1" />}
+                              content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
+                            />
                           </div>
                           <FormControl>
-                            <Textarea id="details" {...field} className="w-full" />
+                            <Textarea rows={7} id="details" {...field} className="w-full" />
                           </FormControl>
                           {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors.details.message}</p>}
                         </FormItem>

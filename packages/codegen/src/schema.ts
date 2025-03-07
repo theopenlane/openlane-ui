@@ -27326,6 +27326,18 @@ export type GetEvidenceFilesQuery = {
   }
 }
 
+export type GetAllEvidencesQueryVariables = Exact<{
+  where?: InputMaybe<EvidenceWhereInput>
+}>
+
+export type GetAllEvidencesQuery = {
+  __typename?: 'Query'
+  evidences: {
+    __typename?: 'EvidenceConnection'
+    edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string; displayID: string; description?: string | null } | null } | null> | null
+  }
+}
+
 export type GetAllGroupsQueryVariables = Exact<{
   where?: InputMaybe<GroupWhereInput>
 }>

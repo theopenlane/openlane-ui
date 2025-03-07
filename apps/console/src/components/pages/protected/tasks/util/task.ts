@@ -6,6 +6,7 @@ import { GET_ALL_PROCEDURES } from '@repo/codegen/query/procedure'
 import { GET_ALL_PROGRAMS } from '@repo/codegen/query/programs'
 import { Control, ControlObjective, Evidence, InternalPolicy, Procedure, Program, Subcontrol, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { Group } from '@/components/pages/protected/groups/groups-page'
+import { GET_ALL_EVIDENCES } from '@repo/codegen/query/evidence'
 
 export enum TaskTypes {
   EVIDENCE = 'Evidence',
@@ -87,7 +88,7 @@ export const TASK_OBJECT_TASK_CONFIG: Record<TaskObjectTypes, TTaskObjectTypeCon
     responseObjectKey: 'evidences',
     inputName: 'evidenceIDs',
     placeholder: 'evidence',
-    queryDocument: GET_ALL_CONTROL_OBJECTIVES,
+    queryDocument: GET_ALL_EVIDENCES,
     searchAttribute: 'nameContainsFold',
     objectName: 'name',
   },

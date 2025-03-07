@@ -90,7 +90,10 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                           <FormItem className="w-full">
                             <div className="flex items-center">
                               <FormLabel>Type</FormLabel>
-                              <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Test123</p>} />
+                              <SystemTooltip
+                                icon={<InfoIcon size={14} className="mx-1 mt-1" />}
+                                content={<p>Select a category for the task, such as evidence collection, policy review, risk review, or other.</p>}
+                              />
                             </div>
                             <Select value={field.value} onValueChange={field.onChange}>
                               <SelectTrigger className=" w-full">{field.value || 'Select'}</SelectTrigger>
@@ -117,7 +120,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                           <FormItem className="w-full">
                             <div className="flex items-center">
                               <FormLabel>Title</FormLabel>
-                              <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Test1</p>} />
+                              <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a brief, descriptive title to help easily identify the task later.</p>} />
                             </div>
                             <FormControl>
                               <Input variant="medium" {...field} className="w-full" />
@@ -137,10 +140,13 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                           <FormItem className="w-full">
                             <div className="flex items-center">
                               <FormLabel>Details</FormLabel>
-                              <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Test3</p>} />
+                              <SystemTooltip
+                                icon={<InfoIcon size={14} className="mx-1 mt-1" />}
+                                content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
+                              />
                             </div>
                             <FormControl>
-                              <Textarea id="details" {...field} className="w-full" />
+                              <Textarea rows={7} id="details" {...field} className="w-full" />
                             </FormControl>
                             {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors.details.message}</p>}
                           </FormItem>
@@ -186,10 +192,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                           <FormItem className="w-full">
                             <FormLabel className="mb-2 flex items-center">
                               Due date
-                              <SystemTooltip
-                                icon={<InfoIcon size={14} className="mx-1 mt-1" />}
-                                content={<p>The date the evidence was collected, generally the current date but can be adjusted.</p>}
-                              />
+                              <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Set the deadline by which the task must be completed.</p>} />
                             </FormLabel>
                             <CalendarPopover field={field} />
                             {form.formState.errors.due && <p className="text-red-500 text-sm">{form.formState.errors.due.message}</p>}
