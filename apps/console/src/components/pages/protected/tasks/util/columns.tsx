@@ -68,9 +68,9 @@ export const taskColumns: ColumnDef<TTableDataResponse>[] = [
 ]
 
 export const TaskStatusIconMapper: Record<string, React.ReactNode> = {
-  ['Completed']: <CircleCheck height={16} width={16} color="#2CCBAB" />,
-  ['In progress']: <Timer height={16} width={16} color="#EAB308" />,
-  ['In review']: <View height={16} width={16} color="#EAB308" />,
-  ['Open']: <ListTodo height={16} width={16} color="#2CCBAB" />,
-  ["Won't do"]: <CircleX height={16} width={16} color="#c70000" />,
+  ['Completed']: <CircleCheck height={16} width={16} className="text-task-complete" />,
+  ['In progress']: <Timer height={16} width={16} className="text-task-in-progress" />,
+  ['In review']: <View height={16} width={16} className="text-task-in-review" />,
+  ['Open']: <ListTodo height={16} width={16} className="text-task-open" />,
+  ["Won't do"]: <CircleX height={16} width={16} className="text-task-wont-do" />,
 }
