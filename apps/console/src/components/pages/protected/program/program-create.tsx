@@ -2,7 +2,7 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { ProgramWizard } from './wizard'
-import { ArrowUpRightIcon, InfoIcon } from 'lucide-react'
+import { ArrowUpRightIcon, InfoIcon, ShieldPlus } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { dialogStyles } from './dialog.styles'
 
@@ -12,7 +12,8 @@ const ProgramCreate = () => {
     <>
       <Dialog>
         <DialogTrigger className={dialogTrigger()}>
-          Create Program <ArrowUpRightIcon className="h-4 w-4" />
+          <ShieldPlus size={16} strokeWidth={2} />
+          Create Program
         </DialogTrigger>
         <DialogContent className={dialogContent()}>
           <DialogHeader>
