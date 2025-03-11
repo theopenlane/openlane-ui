@@ -12,6 +12,7 @@ import { Card } from '@repo/ui/cardpanel'
 import StatsCards from '@/components/shared/stats-cards/stats-cards'
 import Risks from '@/components/pages/protected/overview/risks'
 import Questionnaire from '@/components/pages/protected/overview/questionnaire'
+import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 
 const Page: React.FC = () => {
   const [selectedObject, setSelectedObject] = useState<string>('All programs')
@@ -32,9 +33,7 @@ const Page: React.FC = () => {
                 </SelectContent>
               </Select>
               <ProgramCreate />
-              <Button iconPosition="left" icon={<ListPlus size={16} />}>
-                Create Task
-              </Button>
+              <CreateTaskDialog />
             </div>
           </div>
         }

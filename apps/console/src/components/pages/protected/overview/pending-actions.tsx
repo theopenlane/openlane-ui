@@ -12,7 +12,6 @@ const PendingActions = () => {
   const [tab, setTab] = useState('waiting-on-you')
 
   const pendingActions = [
-    // Empty array for testing no-data state
     // {
     //   date: 'Jan 11, 2025',
     //   type: 'Procedure',
@@ -24,7 +23,6 @@ const PendingActions = () => {
   ]
 
   const approvalsWaitingFor = [
-    // Empty array for testing no-data state
     // {
     //   date: 'Jan 11, 2025',
     //   type: 'Procedure',

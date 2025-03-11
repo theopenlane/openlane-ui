@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { TASKS_WITH_FILTER, CREATE_TASK, UPDATE_TASK, DELETE_TASK, TASK } from '@repo/codegen/query/tasks'
+import { TASKS_WITH_FILTER, CREATE_TASK, UPDATE_TASK, DELETE_TASK, TASK, USER_TASKS } from '@repo/codegen/query/tasks'
 import {
   TasksWithFilterQuery,
   TasksWithFilterQueryVariables,
@@ -12,6 +12,7 @@ import {
   DeleteTaskMutationVariables,
   TaskQuery,
   TaskQueryVariables,
+  UserTasksQuery,
 } from '@repo/codegen/src/schema'
 
 export const useTasksWithFilter = (where?: TasksWithFilterQueryVariables['where']) => {
@@ -67,5 +68,15 @@ export const useTask = (taskId?: TaskQueryVariables['taskId']) => {
     queryKey: ['task', taskId],
     queryFn: async () => client.request(TASK, { taskId }),
     enabled: !!taskId,
+  })
+}
+
+export const useUserTasks = (assigneeId?: string) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<UserTasksQuery, Error>({
+    queryKey: ['tasks', assigneeId],
+    queryFn: async () => client.request(USER_TASKS, { assigneeID: assigneeId }),
+    enabled: !!assigneeId,
   })
 }

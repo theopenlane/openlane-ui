@@ -28122,6 +28122,30 @@ export type GetAllRisksQuery = {
   risks: { __typename?: 'RiskConnection'; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
 }
 
+export type RisksNotMitigatedQueryVariables = Exact<{
+  where?: InputMaybe<RiskWhereInput>
+}>
+
+export type RisksNotMitigatedQuery = {
+  __typename?: 'Query'
+  risks: {
+    __typename?: 'RiskConnection'
+    edges?: Array<{
+      __typename?: 'RiskEdge'
+      node?: {
+        __typename?: 'Risk'
+        id: string
+        displayID: string
+        name: string
+        businessCosts?: string | null
+        likelihood?: RiskRiskLikelihood | null
+        impact?: RiskRiskImpact | null
+        control?: Array<{ __typename?: 'Control'; id: string; refCode: string }> | null
+      } | null
+    } | null> | null
+  }
+}
+
 export type SearchQueryVariables = Exact<{
   query: Scalars['String']['input']
 }>
@@ -28279,6 +28303,18 @@ export type TaskQuery = {
     evidence?: Array<{ __typename?: 'Evidence'; displayID: string; id: string }> | null
     group?: Array<{ __typename?: 'Group'; displayID: string; id: string }> | null
     controlObjective?: Array<{ __typename?: 'ControlObjective'; displayID: string; id: string }> | null
+  }
+}
+
+export type UserTasksQueryVariables = Exact<{
+  where?: InputMaybe<TaskWhereInput>
+}>
+
+export type UserTasksQuery = {
+  __typename?: 'Query'
+  tasks: {
+    __typename?: 'TaskConnection'
+    edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; due?: any | null } | null } | null> | null
   }
 }
 

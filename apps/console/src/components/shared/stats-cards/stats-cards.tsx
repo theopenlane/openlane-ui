@@ -1,5 +1,8 @@
+import React from 'react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
-import { ArrowUpRight, ArrowDownRight } from 'lucide-react'
+import { ArrowUpRight, ArrowDownRight, Hourglass } from 'lucide-react'
+import { statCardStyles } from './stats-cards-styles'
+import { useGetAllEvidences } from '@/lib/graphql-hooks/evidence'
 
 interface Stat {
   title: string
@@ -41,61 +44,56 @@ const stats: Stat[] = [
   },
 ]
 
-const colorVariants: Record<Stat['color'], { progressBg: string; progressBar: string; trendBg: string; trendText: string }> = {
-  green: {
-    progressBg: 'bg-green-50',
-    progressBar: 'bg-green-400',
-    trendBg: 'bg-green-200',
-    trendText: 'text-green-700',
-  },
-  red: {
-    progressBg: 'bg-red-50',
-    progressBar: 'bg-red-700',
-    trendBg: 'bg-red-200',
-    trendText: 'text-red-700',
-  },
-  yellow: {
-    progressBg: 'bg-yellow-50',
-    progressBar: 'bg-yellow-500',
-    trendBg: 'bg-slate-200',
-    trendText: 'text-slate-700',
-  },
-}
+const StatCard: React.FC<{ stat: Stat; hasData: boolean }> = ({ stat, hasData }) => {
+  const { title, percentage, count, total, trend, trendType, color } = stat
+  const { wrapper, content, title: titleClass, trendBadge, percentage: percentageClass, statDetails, progressWrapper, progressBar } = statCardStyles({ color })
 
-const StatCard: React.FC<Stat> = ({ title, percentage, count, total, trend, trendType, color }) => {
-  const colors = colorVariants[color]
   return (
-    <Card className="shadow-sm border rounded-lg w-full max-w-sm">
-      <CardContent className="space-y-2">
-        <div className="flex justify-between items-center">
-          <h3 className="text-sm font-medium">
-            {title} <span className="cursor-pointer">&#9432;</span>
-          </h3>
-          <div className={`text-xs flex items-center px-2 py-1 rounded-full ${colors.trendBg} ${colors.trendText}`}>
-            {trendType === 'up' ? <ArrowUpRight size={12} className="mr-1" /> : <ArrowDownRight size={12} className="mr-1" />}
-            {trend}%
+    <Card className={wrapper()}>
+      <CardContent className={content()}>
+        <h3 className={titleClass()}>{title}</h3>
+
+        {/* If no data, show placeholder */}
+        {!hasData ? (
+          <div className="flex items-center gap-2 justify-start mt-5 ">
+            <Hourglass size={24} strokeWidth={1} className="text-brand" />
+            <span>No data...</span>
           </div>
-        </div>
-        <div className="text-3xl font-semibold">{percentage}%</div>
-        <div className="flex justify-between text-xs">
-          <div>
-            {percentage}% ({count})
-          </div>
-          <div>{total} Controls</div>
-        </div>
-        <div className={`w-full h-1.5 rounded-full ${colors.progressBg}`}>
-          <div className={`h-1.5 rounded-full ${colors.progressBar}`} style={{ width: `${percentage}%` }}></div>
-        </div>
+        ) : (
+          <>
+            <div className="flex justify-between items-center">
+              <div className={trendBadge()}>
+                {trendType === 'up' ? <ArrowUpRight size={12} className="mr-1" /> : <ArrowDownRight size={12} className="mr-1" />}
+                {trend}%
+              </div>
+            </div>
+            <div className={percentageClass()}>{percentage}%</div>
+            <div className={statDetails()}>
+              <div>
+                {percentage}% ({count})
+              </div>
+              <div>{total} Controls</div>
+            </div>
+            <div className={progressWrapper()}>
+              <div className={progressBar()} style={{ width: `${percentage}%` }}></div>
+            </div>
+          </>
+        )}
       </CardContent>
     </Card>
   )
 }
 
 const StatsCards: React.FC = () => {
+  // @ts-ignore
+  const { data: data, isLoading, error } = useGetAllEvidences({ hasEvidenceWith: null })
+
+  const hasData = !!data?.evidences.edges?.length
+
   return (
-    <div className="flex flex-wrap gap-8 justify-center">
+    <div className="flex gap-8 justify-center">
       {stats.map((stat, index) => (
-        <StatCard key={index} {...stat} />
+        <StatCard key={index} stat={stat} hasData={hasData} />
       ))}
     </div>
   )

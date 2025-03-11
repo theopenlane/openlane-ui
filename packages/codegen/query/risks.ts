@@ -12,3 +12,23 @@ export const GET_ALL_RISKS = gql`
     }
   }
 `
+export const RISKS_NOT_MITIGATED = gql`
+  query RisksNotMitigated($where: RiskWhereInput) {
+    risks(where: $where) {
+      edges {
+        node {
+          id
+          displayID
+          name
+          businessCosts
+          likelihood
+          impact
+          control {
+            id
+            refCode
+          }
+        }
+      }
+    }
+  }
+`

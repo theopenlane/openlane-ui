@@ -3,30 +3,14 @@ import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
 import { DataTable } from '@repo/ui/data-table'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
-import { Cog, Pencil, SquareCheck, SquareX } from 'lucide-react'
+import { Cog, FileQuestion, SquareCheck, SquareX } from 'lucide-react'
 import { ColumnDef } from '@tanstack/table-core'
 import { ProgressCircle } from '@repo/ui/progress-circle'
+import { useGetAllTemplates } from '@/lib/graphql-hooks/templates'
+import { format } from 'date-fns'
+import { Template } from '@repo/codegen/src/schema'
 
-const questionnaireData = [
-  {
-    name: 'Vendor Security Questionnaire',
-    created: 'Jan 1, 2025',
-    pending: 3,
-    completed: 3,
-    pendingReview: 'Deny',
-    accepted: 'Approve',
-  },
-  {
-    name: 'Ut seasonal chicory at barista sugar ut lai...',
-    created: 'Jan 1, 2025',
-    pending: 3,
-    completed: 3,
-    pendingReview: 'Deny',
-    accepted: 'Deny',
-  },
-]
-
-const columns: ColumnDef<any>[] = [
+const columns: ColumnDef<Template>[] = [
   {
     header: 'Questionnaire',
     accessorKey: 'name',
@@ -69,6 +53,41 @@ const columns: ColumnDef<any>[] = [
 ]
 
 const Questionnaire = () => {
+  const { data } = useGetAllTemplates()
+  const templates = (data?.templates?.edges?.map((edge) => edge?.node) as Template[]) || []
+  const hasData = !!templates.length
+
+  const questionnaireContent = (
+    <CardContent>
+      <div className="flex gap-6 items-center mb-6">
+        <ProgressCircle radius={65} strokeWidth={20} value={templates.length} max={50} variant="success" />
+        <div className="flex gap-4">
+          <div className="flex flex-col items-center gap-1">
+            <div className="text-3xl font-medium">24</div>
+            <Badge className="bg-gray-500 text-white">Created</Badge>
+          </div>
+          <div className="flex flex-col items-center gap-1">
+            <div className="text-3xl font-medium">10</div>
+            <Badge className="bg-yellow-500 text-white">Outstanding</Badge>
+          </div>
+          <div className="flex flex-col items-center gap-1">
+            <div className="text-3xl font-medium">14</div>
+            <Badge className="bg-green-500 text-white">Completed</Badge>
+          </div>
+          <div className="flex flex-col items-center gap-1">
+            <div className="text-3xl font-medium">2</div>
+            <Badge className="bg-green-600 text-white">Completed Pending Review</Badge>
+          </div>
+          <div className="flex flex-col items-center gap-1">
+            <div className="text-3xl font-medium">1</div>
+            <Badge className="bg-green-600 text-white">Completed Accepted</Badge>
+          </div>
+        </div>
+      </div>
+      <DataTable columns={columns} data={templates} />
+    </CardContent>
+  )
+
   return (
     <Card className="shadow-md rounded-lg flex-1">
       <div className="flex justify-between items-center">
@@ -77,34 +96,20 @@ const Questionnaire = () => {
           Edit
         </Button>
       </div>
-      <CardContent>
-        <div className="flex gap-6 items-center mb-6">
-          <ProgressCircle radius={65} strokeWidth={20} value={24} max={50} variant="success"></ProgressCircle>
-          <div className="flex gap-4">
-            <div className="flex flex-col items-center gap-1">
-              <div className="text-3xl font-medium">24</div>
-              <Badge className="bg-yellow-500">Created</Badge>
-            </div>
-            <div className="flex flex-col items-center gap-1">
-              <div className="text-3xl font-medium">10</div>
-              <Badge className="bg-yellow-500">Outstanding</Badge>
-            </div>
-            <div className="flex flex-col items-center gap-1">
-              <div className="text-3xl font-medium">14</div>
-              <Badge className="bg-green-500">Completed</Badge>
-            </div>
-            <div className="flex flex-col items-center gap-1">
-              <div className="text-3xl font-medium">2</div>
-              <Badge className="bg-green-500">Completed Pending Review</Badge>
-            </div>
-            <div className="flex flex-col items-center gap-1">
-              <div className="text-3xl font-medium">1</div>
-              <Badge className="bg-green-500">Completed Accepted</Badge>
-            </div>
+      {hasData ? (
+        questionnaireContent
+      ) : (
+        <CardContent>
+          <div className="flex flex-col items-center justify-center text-center py-16">
+            <FileQuestion size={48} className="text-gray-400 mb-4" />
+            <h2 className="text-lg font-semibold">No questionnaire</h2>
+            <p className="text-gray-400 text-sm">Arabica press cappuccino organic turkish rich cortado carajillo au variety sit medium mazagran sugar crema.</p>
+            <Button variant="outline" className="mt-4">
+              Take me there
+            </Button>
           </div>
-        </div>
-        <DataTable columns={columns} data={questionnaireData} />
-      </CardContent>
+        </CardContent>
+      )}
     </Card>
   )
 }
