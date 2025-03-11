@@ -19,7 +19,6 @@ const BulkCSVCreateTaskDialog = () => {
     if (!uploadedFile) {
       return
     }
-    console.log(uploadedFile?.file)
 
     try {
       await createBulkTask({ input: uploadedFile.file! })
