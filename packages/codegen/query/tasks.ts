@@ -110,6 +110,18 @@ export const TASK = gql`
         displayID
         id
       }
+      comments {
+        createdAt
+        createdBy
+        owner {
+          avatarRemoteURL
+          avatarFile {
+            presignedURL
+          }
+          displayName
+        }
+        text
+      }
     }
   }
 `

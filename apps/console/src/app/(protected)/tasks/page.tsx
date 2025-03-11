@@ -9,7 +9,7 @@ import { useSession } from 'next-auth/react'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 
 const Page: React.FC = () => {
-  const { selectedTask, setSelectedTask, setOrgMembers } = useTaskStore()
+  const { setSelectedTask, setOrgMembers } = useTaskStore()
   const searchParams = useSearchParams()
   const { data: session } = useSession()
   const { data: membersData } = useGetSingleOrganizationMembers(session?.user.activeOrganizationId)
@@ -39,7 +39,7 @@ const Page: React.FC = () => {
     <>
       <PageHeading heading="Tasks" />
       <TaskTable />
-      {selectedTask && <TaskDetailsSheet />}
+      <TaskDetailsSheet />
     </>
   )
 }

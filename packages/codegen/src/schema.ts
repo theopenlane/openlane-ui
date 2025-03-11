@@ -28279,6 +28279,13 @@ export type TaskQuery = {
     evidence?: Array<{ __typename?: 'Evidence'; displayID: string; id: string }> | null
     group?: Array<{ __typename?: 'Group'; displayID: string; id: string }> | null
     controlObjective?: Array<{ __typename?: 'ControlObjective'; displayID: string; id: string }> | null
+    comments?: Array<{
+      __typename?: 'Note'
+      createdAt?: any | null
+      createdBy?: string | null
+      text: string
+      owner?: { __typename?: 'Organization'; avatarRemoteURL?: string | null; displayName: string; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
+    }> | null
   }
 }
 
@@ -28531,3 +28538,26 @@ export type UpdateUserSettingMutationVariables = Exact<{
 }>
 
 export type UpdateUserSettingMutation = { __typename?: 'Mutation'; updateUserSetting: { __typename?: 'UserSettingUpdatePayload'; userSetting: { __typename?: 'UserSetting'; id: string } } }
+
+export type GetAllUsersQueryVariables = Exact<{
+  where?: InputMaybe<UserWhereInput>
+}>
+
+export type GetAllUsersQuery = {
+  __typename?: 'Query'
+  users: {
+    __typename?: 'UserConnection'
+    edges?: Array<{
+      __typename?: 'UserEdge'
+      node?: {
+        __typename?: 'User'
+        id: string
+        firstName?: string | null
+        lastName?: string | null
+        displayName: string
+        avatarRemoteURL?: string | null
+        avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+      } | null
+    } | null> | null
+  }
+}
