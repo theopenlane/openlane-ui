@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { TaskTypes } from '@/components/pages/protected/tasks/util/task'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { InfoIcon } from 'lucide-react'
@@ -18,6 +18,7 @@ import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organizatio
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Value } from '@udecode/plate-common'
+import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 
 type TProps = {
   onSuccess: () => void
@@ -25,7 +26,7 @@ type TProps = {
 
 const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
   const helper = usePlateEditor()
-
+  const [tagValues, setTagValues] = useState<Option[]>([])
   const { form } = useFormSchema()
   const { data: session } = useSession()
   const { successNotification, errorNotification } = useNotification()
@@ -160,6 +161,40 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                               <PlateEditor field={field} />
                             </FormControl>
                             {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
+                          </FormItem>
+                        )}
+                      />
+                    </InputRow>
+
+                    {/* Tags Field */}
+                    <InputRow className="w-full">
+                      <FormField
+                        control={form.control}
+                        name="tags"
+                        render={({ field }) => (
+                          <FormItem className="w-full">
+                            <FormLabel>Tags</FormLabel>
+                            <FormControl>
+                              <MultipleSelector
+                                placeholder="Add tag..."
+                                creatable
+                                value={tagValues}
+                                onChange={(selectedOptions) => {
+                                  const options = selectedOptions.map((option) => option.value)
+                                  field.onChange(options)
+                                  setTagValues(
+                                    selectedOptions.map((item) => {
+                                      return {
+                                        value: item.value,
+                                        label: item.label,
+                                      }
+                                    }),
+                                  )
+                                }}
+                                className="w-full"
+                              />
+                            </FormControl>
+                            {form.formState.errors.tags && <p className="text-red-500 text-sm">{form.formState.errors.tags.message}</p>}
                           </FormItem>
                         )}
                       />

@@ -60,6 +60,7 @@ export const DELETE_TASK = gql`
 export const TASK = gql`
   query Task($taskId: ID!) {
     task(id: $taskId) {
+      tags
       assignee {
         displayName
         firstName

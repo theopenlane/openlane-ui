@@ -30568,6 +30568,7 @@ export type TaskQuery = {
   __typename?: 'Query'
   task: {
     __typename?: 'Task'
+    tags?: Array<string> | null
     id: string
     category?: string | null
     title: string

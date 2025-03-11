@@ -33,6 +33,7 @@ import AddComment from '@/components/shared/comments/AddComment'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import { Value } from '@udecode/plate-common'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import EvidenceCreateFormDialog from '../../../evidence/evidence-create-form-dialog'
 
 const TaskDetailsSheet = () => {
   const [isEditing, setIsEditing] = useState(false)
@@ -375,6 +376,7 @@ const TaskDetailsSheet = () => {
                 <Button icon={<FilePlus />} iconPosition="left">
                   Upload File
                 </Button>
+                {taskData && <EvidenceCreateFormDialog taskData={{ taskId: taskData!.id, displayID: taskData!.displayID, tags: taskData!.tags ?? undefined }} />}
                 <Button disabled={taskData?.status === TaskTaskStatus.COMPLETED} icon={<Check />} iconPosition="left" variant="outline" onClick={() => handleMarkAsComplete()}>
                   Mark as complete
                 </Button>

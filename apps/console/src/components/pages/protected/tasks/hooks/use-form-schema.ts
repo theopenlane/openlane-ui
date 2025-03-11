@@ -26,6 +26,7 @@ const formSchema = z.object({
   internalPolicyIDs: z.array(z.any()).optional(),
   evidenceIDs: z.array(z.any()).optional(),
   groupIDs: z.array(z.any()).optional(),
+  tags: z.array(z.string().optional()),
   status: z
     .nativeEnum(TaskTaskStatus, {
       errorMap: () => ({ message: 'Invalid status' }),
@@ -44,6 +45,7 @@ const useFormSchema = () => {
         title: '',
         details: '',
         taskObjects: [],
+        tags: [],
       },
     }),
   }
