@@ -28,13 +28,13 @@ export const SEARCH = gql`
         ... on ControlSearchResult {
           controls {
             id
-            name
+            refCode
           }
         }
         ... on SubcontrolSearchResult {
           subcontrols {
             id
-            name
+            refCode
           }
         }
         ... on RiskSearchResult {
