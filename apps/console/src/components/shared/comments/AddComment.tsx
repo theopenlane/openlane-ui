@@ -22,6 +22,7 @@ const AddComment: React.FC<TProps> = (props: TProps) => {
   const [comment, setComment] = useState<string>('')
 
   const handleSaveComment = () => {
+    setComment('')
     props.onSuccess({
       comment,
       userId: 1,
