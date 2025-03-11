@@ -6,7 +6,7 @@ import CalendarArrow from '@/assets/CalendarArrow'
 import SquareArrow from '@/assets/SquareArrow'
 import { ClipboardCheck } from 'lucide-react'
 
-const MyTask = ({ status = 'no-data' }) => {
+const MyTask = ({ status = 'default' }) => {
   if (status === 'finished') {
     return (
       <Card className="size-fit">

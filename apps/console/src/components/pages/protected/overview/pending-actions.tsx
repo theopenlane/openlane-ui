@@ -1,47 +1,36 @@
 import { Avatar, AvatarFallback } from '@repo/ui/avatar'
 import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
-import { CalendarDays, ChevronRight } from 'lucide-react'
+import { CalendarDays, ChevronRight, Inbox } from 'lucide-react'
 import { DataTable } from '@repo/ui/data-table'
 import React, { useState } from 'react'
 import { ColumnDef } from '@tanstack/table-core'
 import { Badge } from '@repo/ui/badge'
+import { Button } from '@repo/ui/button'
 
 const PendingActions = () => {
   const [tab, setTab] = useState('waiting-on-you')
 
   const pendingActions = [
-    {
-      date: 'Jan 11, 2025',
-      type: 'Procedure',
-      name: 'Steamed qui est strong shop crema fair cappuccino',
-      submitter: 'Sally Shell',
-      submitterInitial: 'S',
-      submitterColor: 'bg-purple-500',
-    },
-    {
-      date: 'Jan 11, 2025',
-      type: 'Policy',
-      name: 'Macchiato caramelization grinder espresso turkish',
-      submitter: 'Ann Smith',
-      submitterInitial: 'A',
-      submitterColor: 'bg-red-500',
-    },
+    // Empty array for testing no-data state
+    // {
+    //   date: 'Jan 11, 2025',
+    //   type: 'Procedure',
+    //   name: 'Steamed qui est strong shop crema fair cappuccino',
+    //   submitter: 'Sally Shell',
+    //   submitterInitial: 'S',
+    //   submitterColor: 'bg-purple-500',
+    // },
   ]
 
   const approvalsWaitingFor = [
-    {
-      date: 'Jan 11, 2025',
-      type: 'Procedure',
-      name: 'Environmental Compliance Procedure',
-      approver: 'Karen Henderson',
-    },
-    {
-      date: 'Jan 11, 2025',
-      type: 'Policy',
-      name: 'Crema mocha instant robusta turkish cappuccino...',
-      approver: 'Karen Henderson',
-    },
+    // Empty array for testing no-data state
+    // {
+    //   date: 'Jan 11, 2025',
+    //   type: 'Procedure',
+    //   name: 'Environmental Compliance Procedure',
+    //   approver: 'Karen Henderson',
+    // },
   ]
 
   const columns: ColumnDef<any>[] = [
@@ -59,7 +48,7 @@ const PendingActions = () => {
       header: 'Name',
       accessorKey: 'name',
       cell: ({ row }) => (
-        <div className="flex flex-col  ">
+        <div className="flex flex-col">
           <Badge variant="outline" className="size-fit">
             {row.original.type}
           </Badge>
@@ -83,30 +72,45 @@ const PendingActions = () => {
     },
   ]
 
+  const noData = pendingActions.length === 0 && approvalsWaitingFor.length === 0
+
   return (
     <Card className="shadow-md rounded-lg border flex-1">
       <CardTitle className="text-lg font-semibold">Pending Actions</CardTitle>
       <CardContent>
-        <Tabs defaultValue={tab} onValueChange={setTab}>
-          <TabsList className="flex w-full justify-between border-b">
-            <TabsTrigger value="waiting-on-you" className="flex-1">
-              Waiting on you ({pendingActions.length})
-            </TabsTrigger>
-            <TabsTrigger value="approvals-you-wait-for" className="flex-1">
-              Approvals you are waiting for ({approvalsWaitingFor.length})
-            </TabsTrigger>
-          </TabsList>
+        {noData ? (
+          <div className="flex flex-col items-center justify-center text-center p-10">
+            <Inbox size={89} strokeWidth={1} className="text-border" />
+            <h3 className="mt-4 text-lg font-semibold">No pending actions</h3>
+            <p className="text-sm text-muted-foreground mt-2">Maybe it's time to review some policies and procedures that haven't been updated in a while?</p>
+            <Button variant="outline" className="mt-4">
+              Take me there
+            </Button>
+          </div>
+        ) : (
+          <Tabs defaultValue={tab} onValueChange={setTab}>
+            <TabsList className="flex w-full justify-between border-b">
+              <TabsTrigger value="waiting-on-you" className="flex-1">
+                Waiting on you ({pendingActions.length})
+              </TabsTrigger>
+              <TabsTrigger value="approvals-you-wait-for" className="flex-1">
+                Approvals you are waiting for ({approvalsWaitingFor.length})
+              </TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="waiting-on-you">
-            <DataTable columns={columns} data={pendingActions} />
-          </TabsContent>
-          <TabsContent value="approvals-you-wait-for">
-            <DataTable columns={columns} data={approvalsWaitingFor} />
-          </TabsContent>
-        </Tabs>
-        <div className="mt-7 text-sm text-primary flex items-center cursor-pointer">
-          Show more Pending Actions <ChevronRight size={16} className="ml-1" />
-        </div>
+            <TabsContent value="waiting-on-you">
+              <DataTable columns={columns} data={pendingActions} />
+            </TabsContent>
+            <TabsContent value="approvals-you-wait-for">
+              <DataTable columns={columns} data={approvalsWaitingFor} />
+            </TabsContent>
+          </Tabs>
+        )}
+        {!noData && (
+          <div className="mt-7 text-sm text-primary flex items-center cursor-pointer">
+            Show more Pending Actions <ChevronRight size={16} className="ml-1" />
+          </div>
+        )}
       </CardContent>
     </Card>
   )
