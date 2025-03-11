@@ -28289,6 +28289,12 @@ export type TaskQuery = {
   }
 }
 
+export type CreateBulkCsvTaskMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvTaskMutation = { __typename?: 'Mutation'; createBulkCSVTask: { __typename?: 'TaskBulkCreatePayload'; tasks?: Array<{ __typename?: 'Task'; id: string }> | null } }
+
 export type CreateTemplateMutationVariables = Exact<{
   input: CreateTemplateInput
 }>

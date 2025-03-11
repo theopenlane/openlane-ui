@@ -125,3 +125,13 @@ export const TASK = gql`
     }
   }
 `
+
+export const CREATE_CSV_BULK_TASK = gql`
+  mutation CreateBulkCSVTask($input: Upload!) {
+    createBulkCSVTask(input: $input) {
+      tasks {
+        id
+      }
+    }
+  }
+`

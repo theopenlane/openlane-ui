@@ -24,6 +24,7 @@ export const fetchGraphQLWithUpload = async ({ query, variables = {} }: { query:
   // Process variables and detect files
   Object.entries(variables).forEach(([key, value]) => {
     if (value instanceof File) {
+      console.log(value)
       // Single file
       hasFile = true
       fileMap[fileIndex] = [`variables.${key}`]
@@ -50,6 +51,8 @@ export const fetchGraphQLWithUpload = async ({ query, variables = {} }: { query:
     // Append FILES LAST
     fileIndex = 0
     Object.entries(variables).forEach(([key, value]) => {
+      console.log(value)
+      console.log(key)
       if (value instanceof File) {
         formData.append(fileIndex.toString(), value)
         fileIndex++
