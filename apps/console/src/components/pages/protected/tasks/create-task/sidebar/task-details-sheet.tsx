@@ -515,18 +515,22 @@ const TaskDetailsSheet = () => {
             {isEditing && <ControlObjectTaskForm form={form} />}
           </>
         )}
-        <div className="mt-4 p-2 w-full">
-          <div className="flex justify-between items-end">
-            <p className="text-lg">Conversation</p>
-            <div className="flex items-center gap-1 text-right cursor-pointer" onClick={handleCommentSort}>
-              {commentSortIsAsc && <ArrowDownUp height={16} width={16} />}
-              {!commentSortIsAsc && <ArrowUpDown height={16} width={16} className="text-accent-secondary" />}
-              <p className="text-sm ">Newest at bottom</p>
+        {!isEditing && (
+          <>
+            <div className="mt-4 p-2 w-full">
+              <div className="flex justify-between items-end">
+                <p className="text-lg">Conversation</p>
+                <div className="flex items-center gap-1 text-right cursor-pointer" onClick={handleCommentSort}>
+                  {commentSortIsAsc && <ArrowDownUp height={16} width={16} />}
+                  {!commentSortIsAsc && <ArrowUpDown height={16} width={16} className="text-accent-secondary" />}
+                  <p className="text-sm ">Newest at bottom</p>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-        <CommentList comments={comments} />
-        <AddComment onSuccess={handleSendComment} />
+            <CommentList comments={comments} />
+            <AddComment onSuccess={handleSendComment} />
+          </>
+        )}
       </SheetContent>
     </Sheet>
   )
