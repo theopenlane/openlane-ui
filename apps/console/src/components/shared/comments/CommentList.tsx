@@ -1,7 +1,7 @@
 import React from 'react'
-import { TCommentData } from '@/components/pages/protected/tasks/comments/types/TCommentData'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { format } from 'date-fns'
+import { TCommentData } from '@/components/shared/comments/types/TCommentData'
 
 type TProps = {
   comments: TCommentData[]
