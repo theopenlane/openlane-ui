@@ -72,7 +72,7 @@ const Risks = () => {
         ) : (
           <div className="flex flex-col items-center justify-center text-center py-16">
             <AlertTriangle size={89} strokeWidth={1} className="text-border mb-4" />
-            <h2 className="text-lg font-semibold">You have no risk</h2>
+            <h2 className="text-lg font-semibold">You have no risks</h2>
             <Button variant="outline" className="mt-4">
               Take me there
             </Button>
