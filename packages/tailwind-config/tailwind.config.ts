@@ -176,6 +176,11 @@ export const config: Partial<Config> = {
         progressbar: {
           DEFAULT: 'var(--color-progressbar-empty)',
         },
+        'task-complete': '#2CCBAB',
+        'task-in-progress': '#EAB308',
+        'task-in-review': '#EAB308',
+        'task-open': '#2CCBAB',
+        'task-wont-do': '#c70000',
 
         // Other Palette Colors
         teal: {

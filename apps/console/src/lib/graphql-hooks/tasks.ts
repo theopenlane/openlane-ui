@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { TASKS_WITH_FILTER, CREATE_TASK, UPDATE_TASK, DELETE_TASK, TASK, USER_TASKS } from '@repo/codegen/query/tasks'
+import { TASKS_WITH_FILTER, CREATE_TASK, UPDATE_TASK, DELETE_TASK, TASK, USER_TASKS, CREATE_CSV_BULK_TASK } from '@repo/codegen/query/tasks'
 import {
   TasksWithFilterQuery,
   TasksWithFilterQueryVariables,
@@ -13,7 +13,10 @@ import {
   TaskQuery,
   TaskQueryVariables,
   UserTasksQuery,
+  CreateBulkCsvTaskMutation,
+  CreateBulkCsvTaskMutationVariables,
 } from '@repo/codegen/src/schema'
+import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 
 export const useTasksWithFilter = (where?: TasksWithFilterQueryVariables['where']) => {
   const { client } = useGraphQLClient()
@@ -78,5 +81,16 @@ export const useUserTasks = (assigneeId?: string) => {
     queryKey: ['tasks', assigneeId],
     queryFn: async () => client.request(USER_TASKS, { assigneeID: assigneeId }),
     enabled: !!assigneeId,
+  })
+}
+
+export const useCreateBulkCSVTask = () => {
+  const { queryClient } = useGraphQLClient()
+
+  return useMutation<CreateBulkCsvTaskMutation, unknown, CreateBulkCsvTaskMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_TASK, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] })
+    },
   })
 }

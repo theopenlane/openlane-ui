@@ -110,9 +110,32 @@ export const TASK = gql`
         displayID
         id
       }
+      comments {
+        createdAt
+        createdBy
+        owner {
+          avatarRemoteURL
+          avatarFile {
+            presignedURL
+          }
+          displayName
+        }
+        text
+      }
     }
   }
 `
+
+export const CREATE_CSV_BULK_TASK = gql`
+  mutation CreateBulkCSVTask($input: Upload!) {
+    createBulkCSVTask(input: $input) {
+      tasks {
+        id
+      }
+    }
+  }
+`
+
 export const USER_TASKS = gql`
   query UserTasks($where: TaskWhereInput) {
     tasks(where: $where) {

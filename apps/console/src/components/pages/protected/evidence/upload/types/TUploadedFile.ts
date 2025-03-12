@@ -1,4 +1,4 @@
-type TUploadedFilesProps = {
+type TUploadedFile = {
   name?: string
   size?: number | undefined
   url?: string
