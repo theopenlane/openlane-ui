@@ -5,7 +5,8 @@ import { Button } from '@repo/ui/button'
 import { Avatar, AvatarFallback } from '@repo/ui/avatar'
 import { Cog, AlertTriangle } from 'lucide-react'
 import { ColumnDef } from '@tanstack/table-core'
-import { useRisksNotMitigated } from '@/lib/graphql-hooks/risks'
+import { useRisksWithFilter } from '@/lib/graphql-hooks/risks'
+import { useSearchParams } from 'next/navigation'
 
 const risksData = [
   {
@@ -55,8 +56,17 @@ const columns: ColumnDef<any>[] = [
 ]
 
 const Risks = () => {
-  const { data } = useRisksNotMitigated()
-  const hasData = !!data?.risks.edges?.length
+  const searchParams = useSearchParams()
+  const programId = searchParams.get('id')
+
+  const where = {
+    statusNEQ: 'mitigated',
+    programsWith: programId ? [{ id: programId }] : undefined,
+  }
+
+  const { data } = useRisksWithFilter(where)
+
+  const hasData = !!data?.risks?.edges?.length
 
   return (
     <Card className="shadow-md rounded-lg flex-1 ">

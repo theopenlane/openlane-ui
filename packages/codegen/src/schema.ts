@@ -28119,15 +28119,6 @@ export type GetAllRisksQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetAllRisksQuery = {
   __typename?: 'Query'
-  risks: { __typename?: 'RiskConnection'; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
-}
-
-export type RisksNotMitigatedQueryVariables = Exact<{
-  where?: InputMaybe<RiskWhereInput>
-}>
-
-export type RisksNotMitigatedQuery = {
-  __typename?: 'Query'
   risks: {
     __typename?: 'RiskConnection'
     edges?: Array<{

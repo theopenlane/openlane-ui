@@ -3,6 +3,7 @@ import { Card, CardContent } from '@repo/ui/cardpanel'
 import { ArrowUpRight, ArrowDownRight, Hourglass } from 'lucide-react'
 import { statCardStyles } from './stats-cards-styles'
 import { useGetAllEvidences } from '@/lib/graphql-hooks/evidence'
+import { useSearchParams } from 'next/navigation'
 
 interface Stat {
   title: string
@@ -85,8 +86,10 @@ const StatCard: React.FC<{ stat: Stat; hasData: boolean }> = ({ stat, hasData })
 }
 
 const StatsCards: React.FC = () => {
-  // @ts-ignore
-  const { data: data, isLoading, error } = useGetAllEvidences({ hasEvidenceWith: null })
+  const searchParams = useSearchParams()
+  const programId = searchParams.get('id') as string
+
+  const { data: data, isLoading, error } = useGetAllEvidences({ hasProgramsWith: programId ? [{ id: programId }] : undefined })
 
   const hasData = !!data?.evidences.edges?.length
 

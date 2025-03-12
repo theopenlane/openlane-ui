@@ -6,18 +6,6 @@ export const GET_ALL_RISKS = gql`
       edges {
         node {
           id
-          name
-        }
-      }
-    }
-  }
-`
-export const RISKS_NOT_MITIGATED = gql`
-  query RisksNotMitigated($where: RiskWhereInput) {
-    risks(where: $where) {
-      edges {
-        node {
-          id
           displayID
           name
           businessCosts
