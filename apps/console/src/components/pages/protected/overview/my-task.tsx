@@ -9,11 +9,13 @@ import { addDays, formatDistanceToNowStrict, isBefore, parseISO } from 'date-fns
 import { useUserTasks } from '@/lib/graphql-hooks/tasks'
 import { Task } from '@repo/codegen/src/schema'
 import clsx from 'clsx'
+import { useRouter } from 'next/navigation'
 
 const dueSoonLimit = addDays(new Date(), 7)
 
 const MyTaskContent = ({ userId }: { userId: string }) => {
   const { data } = useUserTasks(userId)
+  const router = useRouter()
 
   const tasks = data?.tasks?.edges?.map((edge) => edge?.node ?? ({} as Task)) || []
 
@@ -92,7 +94,7 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
           })}
         </div>
 
-        <div className="mt-7 text-sm text-primary flex items-center cursor-pointer">
+        <div onClick={() => router.push('/tasks')} className="mt-7 text-sm text-primary flex items-center cursor-pointer">
           Show more Tasks <ChevronRight size={16} className="ml-1" />
         </div>
       </CardContent>
