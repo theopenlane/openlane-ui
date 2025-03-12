@@ -91,8 +91,6 @@ const ProgramWizard = () => {
     }
 
     handleChange(data)
-
-    stepper.next()
   }
 
   // use the mutation to create a new program
@@ -119,36 +117,52 @@ const ProgramWizard = () => {
     stepper.goTo(steps[steps.length - 1].id)
   }
 
-  // handle the final form submission
+  const validateForm = (formData: any) => {
+    const result = initProgramSchema.safeParse(formData)
+
+    if (!result.success) {
+      // Collect all errors from the schema validation
+      const errors = result.error.format()
+
+      return {
+        isValid: false,
+        errors,
+      }
+    }
+
+    return {
+      isValid: true,
+      errors: null,
+    }
+  }
+
   const handleFormSubmit = () => {
     setIsSubmitting(true)
 
-    if (!isFullFormValid) {
+    const validationResult = validateForm(getValues())
+
+    if (!validationResult.isValid) {
       errorNotification({
         title: 'Form Invalid',
-        description: 'Please fill out all required fields',
+        description: 'Please fill out all required fields before submitting.',
       })
 
+      console.log('Validation Errors:', validationResult.errors)
       setIsSubmitting(false)
-
       return
     }
 
-    let programMembers = []
-    for (let i = 0; i < getValues().programMembers?.length; i++) {
-      programMembers.push({
-        userID: getValues().programMembers[i],
+    let programMembers =
+      getValues().programMembers?.map((userId: string) => ({
+        userID: userId,
         role: ProgramMembershipRole.MEMBER,
-      })
-    }
+      })) || []
 
-    let programAdmins = []
-    for (let i = 0; i < getValues().programAdmins?.length; i++) {
-      programAdmins.push({
-        userID: getValues().programAdmins[i],
+    let programAdmins =
+      getValues().programAdmins?.map((userId: string) => ({
+        userID: userId,
         role: ProgramMembershipRole.ADMIN,
-      })
-    }
+      })) || []
 
     const input: CreateProgramWithMembersInput = {
       program: {
@@ -209,7 +223,12 @@ const ProgramWizard = () => {
               Back
             </Button>
             {!stepper.isLast ? (
-              <Button onClick={handleSubmit(onSubmit)} disabled={!isValid}>
+              <Button
+                onClick={() => {
+                  handleSubmit(onSubmit)
+                  stepper.next()
+                }}
+              >
                 Next
               </Button>
             ) : (
