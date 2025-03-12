@@ -153,7 +153,7 @@ export default function MultiStepForm() {
           <form className="w-full" onSubmit={methods.handleSubmit(onSubmit)}>
             <Card className="bg-transparent">
               <p className="text-center p-2">{`Let’s get you started (${currentIndex + 1}/${steps.length})`}</p>
-              <div className="relative bg-[var(--color-progressbar-empty)] h-1 w-full">
+              <div className="relative bg-progressbar h-1 w-full">
                 <div className={`absolute bg-brand h-1`} style={{ width: `${((currentIndex + 1) / steps.length) * 100}%` }}></div>
               </div>
               <div className="p-7 bg-secondary">

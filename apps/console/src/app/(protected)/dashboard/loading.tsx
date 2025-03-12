@@ -1,7 +1,8 @@
+import { Loading } from '@/components/shared/loading/loading'
 import React from 'react'
 
-const DashboardLandingLoader: React.FC = () => {
-  return <section className="h-full w-full rounded animate-pulse" />
+const Loader: React.FC = () => {
+  return <Loading />
 }
 
-export default DashboardLandingLoader
+export default Loader

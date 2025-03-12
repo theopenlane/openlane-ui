@@ -6,7 +6,15 @@ export const GET_ALL_RISKS = gql`
       edges {
         node {
           id
+          displayID
           name
+          businessCosts
+          likelihood
+          impact
+          control {
+            id
+            refCode
+          }
         }
       }
     }

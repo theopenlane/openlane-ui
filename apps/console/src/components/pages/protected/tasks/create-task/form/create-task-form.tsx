@@ -29,13 +29,11 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
   const { mutateAsync: createTask, isPending: isSubmitting } = useCreateTask()
   const { data: membersData } = useGetSingleOrganizationMembers(session?.user.activeOrganizationId)
 
-  const membersOptions = membersData?.organization?.members
-    ?.filter((member) => member.user.id != session?.user.userId)
-    .map((member) => ({
-      value: member.user.id,
-      label: `${member.user.firstName} ${member.user.lastName}`,
-      membershipId: member.id,
-    }))
+  const membersOptions = membersData?.organization?.members?.map((member) => ({
+    value: member.user.id,
+    label: `${member.user.firstName} ${member.user.lastName}`,
+    membershipId: member.id,
+  }))
 
   const onSubmitHandler = async (data: CreateTaskFormData) => {
     const taskObjects = data?.taskObjects?.reduce(

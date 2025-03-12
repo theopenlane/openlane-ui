@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { TASKS_WITH_FILTER, CREATE_TASK, UPDATE_TASK, DELETE_TASK, TASK, CREATE_CSV_BULK_TASK } from '@repo/codegen/query/tasks'
+import { TASKS_WITH_FILTER, CREATE_TASK, UPDATE_TASK, DELETE_TASK, TASK, USER_TASKS, CREATE_CSV_BULK_TASK } from '@repo/codegen/query/tasks'
 import {
   TasksWithFilterQuery,
   TasksWithFilterQueryVariables,
@@ -12,6 +12,7 @@ import {
   DeleteTaskMutationVariables,
   TaskQuery,
   TaskQueryVariables,
+  UserTasksQuery,
   CreateBulkCsvTaskMutation,
   CreateBulkCsvTaskMutationVariables,
 } from '@repo/codegen/src/schema'

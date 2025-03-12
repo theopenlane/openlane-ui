@@ -135,3 +135,18 @@ export const CREATE_CSV_BULK_TASK = gql`
     }
   }
 `
+
+export const USER_TASKS = gql`
+  query UserTasks($where: TaskWhereInput) {
+    tasks(where: $where) {
+      edges {
+        node {
+          id
+          displayID
+          title
+          due
+        }
+      }
+    }
+  }
+`

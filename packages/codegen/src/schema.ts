@@ -28119,7 +28119,22 @@ export type GetAllRisksQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetAllRisksQuery = {
   __typename?: 'Query'
-  risks: { __typename?: 'RiskConnection'; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
+  risks: {
+    __typename?: 'RiskConnection'
+    edges?: Array<{
+      __typename?: 'RiskEdge'
+      node?: {
+        __typename?: 'Risk'
+        id: string
+        displayID: string
+        name: string
+        businessCosts?: string | null
+        likelihood?: RiskRiskLikelihood | null
+        impact?: RiskRiskImpact | null
+        control?: Array<{ __typename?: 'Control'; id: string; refCode: string }> | null
+      } | null
+    } | null> | null
+  }
 }
 
 export type SearchQueryVariables = Exact<{
@@ -28294,6 +28309,18 @@ export type CreateBulkCsvTaskMutationVariables = Exact<{
 }>
 
 export type CreateBulkCsvTaskMutation = { __typename?: 'Mutation'; createBulkCSVTask: { __typename?: 'TaskBulkCreatePayload'; tasks?: Array<{ __typename?: 'Task'; id: string }> | null } }
+
+export type UserTasksQueryVariables = Exact<{
+  where?: InputMaybe<TaskWhereInput>
+}>
+
+export type UserTasksQuery = {
+  __typename?: 'Query'
+  tasks: {
+    __typename?: 'TaskConnection'
+    edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; due?: any | null } | null } | null> | null
+  }
+}
 
 export type CreateTemplateMutationVariables = Exact<{
   input: CreateTemplateInput
