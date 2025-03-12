@@ -1,42 +1,108 @@
 'use client'
-
-import React from 'react'
-import { useSession } from 'next-auth/react'
-import { TaskWhereInput, UserWhereInput } from '@repo/codegen/src/schema'
+import React, { useState, useMemo, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { PageHeading } from '@repo/ui/page-heading'
+import { Select, SelectTrigger, SelectContent, SelectItem } from '@repo/ui/select'
+import { ProgramCreate } from '@/components/pages/protected/program/program-create'
+import MyTask from '@/components/pages/protected/overview/my-task'
+import PendingActions from '@/components/pages/protected/overview/pending-actions'
+import Risks from '@/components/pages/protected/overview/risks'
+import Questionnaire from '@/components/pages/protected/overview/questionnaire'
+import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
+import { useGetAllPrograms } from '@/lib/graphql-hooks/programs'
+import StatsCards from '@/components/shared/stats-cards/stats-cards'
+import { NewUserLanding } from '@/components/pages/protected/dashboard/dashboard'
 import { Loading } from '@/components/shared/loading/loading'
-import { DefaultLanding, NewUserLanding } from '@/components/pages/protected/dashboard/dashboard'
-import { useRouter } from 'next/navigation'
-import { useGetDashboardData } from '@/lib/graphql-hooks/dashboard'
 
-const DashboardLanding: React.FC = () => {
-  const { data: session } = useSession()
+const Page: React.FC = () => {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [selectedObject, setSelectedObject] = useState<string>('All programs')
 
-  const assigneeId = session?.user.userId
+  const { data, isLoading } = useGetAllPrograms()
 
-  const userWhere: UserWhereInput = {
-    id: assigneeId,
-  }
-  const whereFilter: TaskWhereInput = {
-    hasAssigneeWith: [userWhere],
-  }
+  const programMap = useMemo(() => {
+    const map: Record<string, string> = {}
+    data?.programs?.edges?.forEach((edge) => {
+      if (edge?.node) {
+        map[edge.node.id] = edge.node.name
+      }
+    })
+    return map
+  }, [data])
 
-  const { data, isLoading } = useGetDashboardData(whereFilter)
+  useEffect(() => {
+    const programId = searchParams.get('id')
 
-  const programsRes = { edges: data?.programs?.edges ?? [] }
-  const taskRes = { edges: data?.tasks?.edges || [] }
-
-  // if fetching data show loading
-  if (isLoading || !data) {
-    return <Loading />
-  } else {
-    // if no programs redirect to new user landing
-    if (programsRes && programsRes?.edges?.length == 0) {
-      return <NewUserLanding />
+    if (!programId) {
+      setSelectedObject('All programs')
+    } else {
+      const programName = programMap[programId] ?? 'Unknown Program'
+      setSelectedObject(programName)
     }
+  }, [searchParams, programMap])
 
-    //  default landing page with programs and tasks
-    return <DefaultLanding programs={programsRes} tasks={taskRes} />
+  const handleSelectChange = (val: string) => {
+    if (val === 'All programs') {
+      setSelectedObject('All programs')
+      router.push('/dashboard')
+    } else {
+      const programName = programMap[val] ?? 'Unknown Program'
+      setSelectedObject(programName)
+      router.push(`/dashboard?id=${val}`)
+    }
   }
+
+  if (isLoading) {
+    return <Loading />
+  }
+
+  if (!data?.programs.edges?.length) {
+    return <NewUserLanding />
+  }
+
+  return (
+    <>
+      <PageHeading
+        heading={
+          <div className="flex justify-between items-center">
+            <h1>Overview</h1>
+            <div className="flex gap-2.5">
+              <Select onValueChange={handleSelectChange}>
+                <SelectTrigger className="w-48 border rounded-md px-3 py-2 flex items-center justify-between">{selectedObject}</SelectTrigger>
+                <SelectContent className="border rounded-md shadow-md">
+                  <SelectItem value="All programs">All programs</SelectItem>
+                  {data?.programs?.edges?.map((edge) => {
+                    const program = edge?.node
+                    if (!program) return null
+
+                    return (
+                      <SelectItem key={program.id} value={program.id}>
+                        {program.name}
+                      </SelectItem>
+                    )
+                  })}
+                </SelectContent>
+              </Select>
+
+              <ProgramCreate />
+              <CreateTaskDialog />
+            </div>
+          </div>
+        }
+      />
+
+      <div className="flex flex-col gap-7">
+        <div className="flex flex-wrap gap-7">
+          <MyTask />
+          <PendingActions />
+        </div>
+        <StatsCards />
+        <Risks />
+        <Questionnaire />
+      </div>
+    </>
+  )
 }
 
-export default DashboardLanding
+export default Page
