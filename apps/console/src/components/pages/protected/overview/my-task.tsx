@@ -10,6 +10,7 @@ import { useUserTasks } from '@/lib/graphql-hooks/tasks'
 import { Task } from '@repo/codegen/src/schema'
 import clsx from 'clsx'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 const dueSoonLimit = addDays(new Date(), 7)
 
@@ -56,7 +57,6 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
     <Card className="size-fit">
       <CardTitle className="text-lg font-semibold">My Task</CardTitle>
       <CardContent>
-        {/* Task Summary */}
         <div className="grid grid-cols-2 gap-12 mb-7">
           <div className="flex flex-col items-center justify-center py-4 px-8 border rounded-lg relative">
             <span className="text-sm text-muted-foreground">Task due soon</span>
@@ -72,7 +72,6 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
             <span className="text-2xl font-bold">{upcomingCount}</span>
           </div>
         </div>
-
         <div className="space-y-3">
           {displayedTasks.map((task) => {
             const dueDate = parseISO(task.due)
@@ -80,16 +79,17 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
             const isDue = isBefore(dueDate, new Date())
 
             return (
-              <div key={task.id} className="flex items-center ">
-                <div className={clsx('flex items-center gap-2 w-full', isDue && 'text-destructive')}>
+              <Link key={task.id} href={`/tasks?taskId=${task.id}`} className="flex items-center w-full space-x-4">
+                <div className={clsx('flex items-center gap-2', isDue && 'text-destructive')}>
                   {isDue ? <CalendarArrow /> : <Calendar strokeWidth={1} size={16} />}
-                  <span className="text-sm font-medium ">{distance}</span>
+                  <span className="text-sm font-medium">{distance}</span>
                 </div>
-                <div className="flex items-center gap-2 w-full">
+
+                <div className="flex items-center gap-2">
                   <SquareArrow className={clsx(!isDue && 'rotate-90 text-blue-500', isDue && 'text-yellow-500')} />
                   <span className="text-sm font-medium truncate w-56">{task.title}</span>
                 </div>
-              </div>
+              </Link>
             )
           })}
         </div>
