@@ -53,8 +53,6 @@ const StatCard: React.FC<{ stat: Stat; hasData: boolean }> = ({ stat, hasData })
     <Card className={wrapper()}>
       <CardContent className={content()}>
         <h3 className={titleClass()}>{title}</h3>
-
-        {/* If no data, show placeholder */}
         {!hasData ? (
           <div className="flex items-center gap-2 justify-start mt-5 ">
             <Hourglass size={24} strokeWidth={1} className="text-brand" />
@@ -90,7 +88,6 @@ const StatsCards: React.FC = () => {
   const programId = searchParams.get('id') as string
 
   const { data: data, isLoading, error } = useGetAllEvidences({ hasProgramsWith: programId ? [{ id: programId }] : undefined })
-
   const hasData = !!data?.evidences.edges?.length
 
   return (

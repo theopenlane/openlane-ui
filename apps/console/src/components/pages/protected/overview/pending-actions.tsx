@@ -77,10 +77,10 @@ const PendingActions = () => {
       <CardTitle className="text-lg font-semibold">Pending Actions</CardTitle>
       <CardContent>
         {noData ? (
-          <div className="flex flex-col items-center justify-center text-center p-10">
+          <div className="flex flex-col items-center justify-center text-center">
             <Inbox size={89} strokeWidth={1} className="text-border" />
             <h3 className="mt-4 text-lg font-semibold">No pending actions</h3>
-            <p className="text-sm text-muted-foreground mt-2">Maybe it's time to review some policies and procedures that haven't been updated in a while?</p>
+            <p className="text-sm text-muted-foreground mt-1">Maybe it's time to review some policies and procedures that haven't been updated in a while?</p>
             <Button variant="outline" className="mt-4">
               Take me there
             </Button>

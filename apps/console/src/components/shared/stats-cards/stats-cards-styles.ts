@@ -2,7 +2,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 
 export const statCardStyles = tv({
   slots: {
-    wrapper: 'shadow-sm border rounded-lg w-full max-w-sm',
+    wrapper: 'shadow-sm border rounded-lg w-full ',
     content: 'space-y-2',
     title: 'text-lg font-medium flex items-center',
     trendBadge: 'text-xs flex items-center px-2 py-1 rounded-full',

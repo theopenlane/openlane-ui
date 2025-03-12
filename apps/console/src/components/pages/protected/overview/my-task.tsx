@@ -43,7 +43,8 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
 
   if (dueSoonCount === 0 && upcomingCount === 0) {
     return (
-      <Card className="size-fit">
+      //TODO: add size fit when we have pending actions, currently no api
+      <Card>
         <CardTitle className="text-lg font-semibold">My Task</CardTitle>
         <CardContent className="flex flex-col items-center text-center">
           <div className="grid grid-cols-2 gap-6 mb-6 w-full">
@@ -64,7 +65,8 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
   }
 
   return (
-    <Card className="size-fit">
+    //TODO: add size fit when we have pending actions, currently no api
+    <Card>
       <CardTitle className="text-lg font-semibold">My Task</CardTitle>
       <CardContent>
         <div className="grid grid-cols-2 gap-12 mb-7">
@@ -118,7 +120,8 @@ const MyTask = ({ status = 'default' }) => {
 
   if (!userId) {
     return (
-      <Card className="size-fit">
+      //TODO: add size fit when we have pending actions, currently no api
+      <Card>
         <CardTitle className="text-lg font-semibold">My Task</CardTitle>
         <CardContent className="text-center text-red-500">Error: No user found</CardContent>
       </Card>
@@ -128,7 +131,8 @@ const MyTask = ({ status = 'default' }) => {
   return (
     <Suspense
       fallback={
-        <Card className="size-fit">
+        //TODO: add size fit when we have pending actions, currently no api
+        <Card>
           <CardTitle className="text-lg font-semibold">My Task</CardTitle>
           <CardContent className="text-center">Loading...</CardContent>
         </Card>
