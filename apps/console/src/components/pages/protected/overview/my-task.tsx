@@ -1,13 +1,14 @@
 import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
-import { ChevronRight, ClipboardCheck } from 'lucide-react'
+import { Calendar, ChevronRight } from 'lucide-react'
 import React, { Suspense } from 'react'
 import Image from 'next/image'
 import CalendarArrow from '@/assets/CalendarArrow'
 import SquareArrow from '@/assets/SquareArrow'
 import { useSession } from 'next-auth/react'
-import { addDays, isBefore } from 'date-fns'
+import { addDays, formatDistanceToNowStrict, isBefore, parseISO } from 'date-fns'
 import { useUserTasks } from '@/lib/graphql-hooks/tasks'
 import { Task } from '@repo/codegen/src/schema'
+import clsx from 'clsx'
 
 const dueSoonLimit = addDays(new Date(), 7)
 
@@ -71,22 +72,28 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
         </div>
 
         <div className="space-y-3">
-          {displayedTasks.map((task) => (
-            <div key={task.id} className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-destructive">
-                <CalendarArrow />
-                <span className="text-sm font-medium">{task.due}</span>
+          {displayedTasks.map((task) => {
+            const dueDate = parseISO(task.due)
+            const distance = formatDistanceToNowStrict(dueDate)
+            const isDue = isBefore(dueDate, new Date())
+
+            return (
+              <div key={task.id} className="flex items-center ">
+                <div className={clsx('flex items-center gap-2 w-full', isDue && 'text-destructive')}>
+                  {isDue ? <CalendarArrow /> : <Calendar strokeWidth={1} size={16} />}
+                  <span className="text-sm font-medium ">{distance}</span>
+                </div>
+                <div className="flex items-center gap-2 w-full">
+                  <SquareArrow className={clsx(!isDue && 'rotate-90 text-blue-500', isDue && 'text-yellow-500')} />
+                  <span className="text-sm font-medium truncate w-56">{task.title}</span>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <SquareArrow className="text-yellow-500" />
-                <span className="text-sm font-medium">{task.title}</span>
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
 
         <div className="mt-7 text-sm text-primary flex items-center cursor-pointer">
-          Show more Task <ChevronRight size={16} className="ml-1" />
+          Show more Tasks <ChevronRight size={16} className="ml-1" />
         </div>
       </CardContent>
     </Card>
