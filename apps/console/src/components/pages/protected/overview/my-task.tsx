@@ -6,16 +6,26 @@ import CalendarArrow from '@/assets/CalendarArrow'
 import SquareArrow from '@/assets/SquareArrow'
 import { useSession } from 'next-auth/react'
 import { addDays, formatDistanceToNowStrict, isBefore, parseISO } from 'date-fns'
-import { useUserTasks } from '@/lib/graphql-hooks/tasks'
+import { useTasksWithFilter } from '@/lib/graphql-hooks/tasks'
 import { Task } from '@repo/codegen/src/schema'
 import clsx from 'clsx'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 const dueSoonLimit = addDays(new Date(), 7)
 
 const MyTaskContent = ({ userId }: { userId: string }) => {
-  const { data } = useUserTasks(userId)
+  const searchParams = useSearchParams()
+  const programId = searchParams.get('id')
+
+  const where = {
+    assigneeID: userId,
+    dueLTE: dueSoonLimit,
+    hasProgramWith: programId ? [{ id: programId }] : undefined,
+  }
+
+  const { data } = useTasksWithFilter(where)
+
   const router = useRouter()
 
   const tasks = data?.tasks?.edges?.map((edge) => edge?.node ?? ({} as Task)) || []
@@ -79,7 +89,7 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
             const isDue = isBefore(dueDate, new Date())
 
             return (
-              <Link key={task.id} href={`/tasks?taskId=${task.id}`} className="flex items-center w-full space-x-4">
+              <Link key={task.id} href={`/tasks?taskId=${task.id}`} className="flex items-center  space-x-4 gap-8">
                 <div className={clsx('flex items-center gap-2', isDue && 'text-destructive')}>
                   {isDue ? <CalendarArrow /> : <Calendar strokeWidth={1} size={16} />}
                   <span className="text-sm font-medium">{distance}</span>
@@ -87,7 +97,7 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
 
                 <div className="flex items-center gap-2">
                   <SquareArrow className={clsx(!isDue && 'rotate-90 text-blue-500', isDue && 'text-yellow-500')} />
-                  <span className="text-sm font-medium truncate w-56">{task.title}</span>
+                  <span className="text-sm font-medium truncate max-w-56">{task.title}</span>
                 </div>
               </Link>
             )

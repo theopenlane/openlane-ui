@@ -10,7 +10,6 @@ import { useGetDashboardData } from '@/lib/graphql-hooks/dashboard'
 
 const DashboardLanding: React.FC = () => {
   const { data: session } = useSession()
-  const { push } = useRouter()
 
   const assigneeId = session?.user.userId
 
@@ -32,11 +31,11 @@ const DashboardLanding: React.FC = () => {
   } else {
     // if no programs redirect to new user landing
     if (programsRes && programsRes?.edges?.length == 0) {
-      return <NewUserLanding push={push} />
+      return <NewUserLanding />
     }
 
     //  default landing page with programs and tasks
-    return <DefaultLanding programs={programsRes} tasks={taskRes} push={push} />
+    return <DefaultLanding programs={programsRes} tasks={taskRes} />
   }
 }
 

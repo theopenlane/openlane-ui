@@ -74,16 +74,6 @@ export const useTask = (taskId?: TaskQueryVariables['taskId']) => {
   })
 }
 
-export const useUserTasks = (assigneeId?: string) => {
-  const { client } = useGraphQLClient()
-
-  return useQuery<UserTasksQuery, Error>({
-    queryKey: ['tasks', assigneeId],
-    queryFn: async () => client.request(USER_TASKS, { assigneeID: assigneeId }),
-    enabled: !!assigneeId,
-  })
-}
-
 export const useCreateBulkCSVTask = () => {
   const { queryClient } = useGraphQLClient()
 

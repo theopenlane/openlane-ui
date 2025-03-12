@@ -12,12 +12,11 @@ import { Separator } from '@repo/ui/separator'
 import { LineChartExample } from '@repo/ui/line-chart-example'
 import Link from 'next/link'
 import { pageStyles } from './page.style'
-import { NavigateOptions } from 'next/dist/shared/lib/app-router-context.shared-runtime'
+import { useRouter } from 'next/navigation'
 
 type DashboardProps = {
   programs?: { edges: any[] }
   tasks?: { edges: any[] }
-  push: (href: string, options?: NavigateOptions) => void
 }
 
 export const DefaultLanding: React.FC<DashboardProps> = ({ programs, tasks }) => {
@@ -104,7 +103,9 @@ export const DefaultLanding: React.FC<DashboardProps> = ({ programs, tasks }) =>
   )
 }
 
-export const NewUserLanding: React.FC<DashboardProps> = ({ push }) => {
+export const NewUserLanding: React.FC<DashboardProps> = () => {
+  const { push } = useRouter()
+
   return (
     <section>
       <PageHeading heading={<>Dashboard</>} />
