@@ -30,6 +30,7 @@ import { TCommentData } from '@/components/shared/comments/types/TCommentData'
 import { TComments } from '@/components/shared/comments/types/TComments'
 import CommentList from '@/components/shared/comments/CommentList'
 import AddComment from '@/components/shared/comments/AddComment'
+import EvidenceCreateFormDialog from '@/components/pages/protected/evidence/evidence-create-form-dialog'
 
 const TaskDetailsSheet = () => {
   const [isEditing, setIsEditing] = useState(false)
@@ -373,6 +374,8 @@ const TaskDetailsSheet = () => {
                 <Button icon={<FilePlus />} iconPosition="left">
                   Upload File
                 </Button>
+                {taskData && <EvidenceCreateFormDialog taskData={{ taskId: taskData!.id, displayID: taskData!.displayID, tags: taskData!.tags ?? undefined }} />}
+
                 <Button disabled={taskData?.status === TaskTaskStatus.COMPLETED} icon={<Check />} iconPosition="left" variant="outline" onClick={() => handleMarkAsComplete()}>
                   Mark as complete
                 </Button>

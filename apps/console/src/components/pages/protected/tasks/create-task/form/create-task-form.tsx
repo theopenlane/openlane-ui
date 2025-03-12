@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { TaskTypes } from '@/components/pages/protected/tasks/util/task'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { InfoIcon } from 'lucide-react'
@@ -16,6 +16,7 @@ import { useNotification } from '@/hooks/useNotification'
 import ControlObjectTaskForm from '@/components/pages/protected/tasks/create-task/form/control-object-task-form'
 import { useCreateTask } from '@/lib/graphql-hooks/tasks'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
+import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 
 type TProps = {
   onSuccess: () => void
@@ -24,6 +25,7 @@ type TProps = {
 const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
   const { form } = useFormSchema()
   const { data: session } = useSession()
+  const [tagValues, setTagValues] = useState<Option[]>([])
   const { successNotification, errorNotification } = useNotification()
   const taskTypeOptions = Object.values(TaskTypes)
   const { mutateAsync: createTask, isPending: isSubmitting } = useCreateTask()
@@ -53,6 +55,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
         title: data?.title,
         details: data?.details,
         assigneeID: data?.assigneeID,
+        tags: data?.tags,
         ...taskObjects,
       } as CreateTaskInput,
     }
@@ -149,6 +152,40 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                               <Textarea rows={7} id="details" {...field} className="w-full" />
                             </FormControl>
                             {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors.details.message}</p>}
+                          </FormItem>
+                        )}
+                      />
+                    </InputRow>
+
+                    {/* Tags Field */}
+                    <InputRow className="w-full">
+                      <FormField
+                        control={form.control}
+                        name="tags"
+                        render={({ field }) => (
+                          <FormItem className="w-full">
+                            <FormLabel>Tags</FormLabel>
+                            <FormControl>
+                              <MultipleSelector
+                                placeholder="Add tag..."
+                                creatable
+                                value={tagValues}
+                                onChange={(selectedOptions) => {
+                                  const options = selectedOptions.map((option) => option.value)
+                                  field.onChange(options)
+                                  setTagValues(
+                                    selectedOptions.map((item) => {
+                                      return {
+                                        value: item.value,
+                                        label: item.label,
+                                      }
+                                    }),
+                                  )
+                                }}
+                                className="w-full"
+                              />
+                            </FormControl>
+                            {form.formState.errors.tags && <p className="text-red-500 text-sm">{form.formState.errors.tags.message}</p>}
                           </FormItem>
                         )}
                       />

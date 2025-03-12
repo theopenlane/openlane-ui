@@ -1,6 +1,6 @@
 'use client'
 import { Grid, GridCell, GridRow } from '@repo/ui/grid'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { InfoIcon } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import useFormSchema, { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
@@ -20,7 +20,12 @@ import { Option } from '@repo/ui/multiple-selector'
 import { useCreateEvidence } from '@/lib/graphql-hooks/evidence'
 import { TEvidenceObjectIds } from '@/components/pages/protected/evidence/object-association/types/TEvidenceObjectIds'
 
-const EvidenceCreateForm: React.FC = () => {
+type TProps = {
+  taskData?: { taskId: string; displayID: string; tags?: string[] }
+  onEvidenceCreateSuccess?: () => void
+}
+
+const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
   const { form } = useFormSchema()
   const { successNotification, errorNotification } = useNotification()
   const [tagValues, setTagValues] = useState<Option[]>([])
@@ -89,6 +94,22 @@ const EvidenceCreateForm: React.FC = () => {
   const handleResetObjectAssociation = () => {
     setResetObjectAssociation(false)
   }
+
+  useEffect(() => {
+    if (props.taskData) {
+      form.setValue('name', `Evidence for ${props.taskData.displayID}`)
+      if (props.taskData?.tags) {
+        form.setValue('tags', props.taskData.tags)
+        const tags = props.taskData.tags.map((item) => {
+          return {
+            value: item,
+            label: item,
+          } as Option
+        })
+        setTagValues(tags)
+      }
+    }
+  }, [])
 
   return (
     <Grid>
