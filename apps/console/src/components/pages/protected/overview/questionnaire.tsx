@@ -102,8 +102,7 @@ const Questionnaire = () => {
         <CardContent>
           <div className="flex flex-col items-center justify-center text-center py-16">
             <FileQuestion size={89} strokeWidth={1} className="text-border mb-4" />
-            <h2 className="text-lg font-semibold">No questionnaire</h2>
-            <p className=" text-sm">Arabica press cappuccino organic turkish rich cortado carajillo au variety sit medium mazagran sugar crema.</p>
+            <h2 className="text-lg font-semibold">No questionnaires</h2>
             <Button variant="outline" className="mt-4">
               Take me there
             </Button>
