@@ -11,7 +11,7 @@ import { Button } from '@repo/ui/button'
 const PendingActions = () => {
   const [tab, setTab] = useState('waiting-on-you')
 
-  const pendingActions = [
+  const pendingActions: any = [
     // {
     //   date: 'Jan 11, 2025',
     //   type: 'Procedure',
@@ -22,7 +22,7 @@ const PendingActions = () => {
     // },
   ]
 
-  const approvalsWaitingFor = [
+  const approvalsWaitingFor: any = [
     // {
     //   date: 'Jan 11, 2025',
     //   type: 'Procedure',
