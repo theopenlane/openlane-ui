@@ -43,9 +43,6 @@ const Page: React.FC = () => {
           <MyTask />
           <PendingActions />
         </div>
-        <Card>
-          <LineChartExample />
-        </Card>
         <StatsCards />
         <Risks />
         <Questionnaire />
