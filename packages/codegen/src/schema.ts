@@ -28119,7 +28119,22 @@ export type GetAllRisksQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetAllRisksQuery = {
   __typename?: 'Query'
-  risks: { __typename?: 'RiskConnection'; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
+  risks: {
+    __typename?: 'RiskConnection'
+    edges?: Array<{
+      __typename?: 'RiskEdge'
+      node?: {
+        __typename?: 'Risk'
+        id: string
+        displayID: string
+        name: string
+        businessCosts?: string | null
+        likelihood?: RiskRiskLikelihood | null
+        impact?: RiskRiskImpact | null
+        control?: Array<{ __typename?: 'Control'; id: string; refCode: string }> | null
+      } | null
+    } | null> | null
+  }
 }
 
 export type RisksNotMitigatedQueryVariables = Exact<{

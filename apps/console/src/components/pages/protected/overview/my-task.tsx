@@ -1,18 +1,32 @@
 import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
-import { ChevronRight, ClipboardCheck } from 'lucide-react'
+import { Calendar, ChevronRight } from 'lucide-react'
 import React, { Suspense } from 'react'
 import Image from 'next/image'
 import CalendarArrow from '@/assets/CalendarArrow'
 import SquareArrow from '@/assets/SquareArrow'
 import { useSession } from 'next-auth/react'
-import { addDays, isBefore } from 'date-fns'
-import { useUserTasks } from '@/lib/graphql-hooks/tasks'
+import { addDays, formatDistanceToNowStrict, isBefore, parseISO } from 'date-fns'
+import { useTasksWithFilter } from '@/lib/graphql-hooks/tasks'
 import { Task } from '@repo/codegen/src/schema'
+import clsx from 'clsx'
+import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 
 const dueSoonLimit = addDays(new Date(), 7)
 
 const MyTaskContent = ({ userId }: { userId: string }) => {
-  const { data } = useUserTasks(userId)
+  const searchParams = useSearchParams()
+  const programId = searchParams.get('id')
+
+  const where = {
+    assigneeID: userId,
+    dueLTE: dueSoonLimit,
+    hasProgramWith: programId ? [{ id: programId }] : undefined,
+  }
+
+  const { data } = useTasksWithFilter(where)
+
+  const router = useRouter()
 
   const tasks = data?.tasks?.edges?.map((edge) => edge?.node ?? ({} as Task)) || []
 
@@ -29,7 +43,8 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
 
   if (dueSoonCount === 0 && upcomingCount === 0) {
     return (
-      <Card className="size-fit">
+      //TODO: add size fit when we have pending actions, currently no api
+      <Card>
         <CardTitle className="text-lg font-semibold">My Task</CardTitle>
         <CardContent className="flex flex-col items-center text-center">
           <div className="grid grid-cols-2 gap-6 mb-6 w-full">
@@ -50,10 +65,10 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
   }
 
   return (
-    <Card className="size-fit">
+    //TODO: add size fit when we have pending actions, currently no api
+    <Card>
       <CardTitle className="text-lg font-semibold">My Task</CardTitle>
       <CardContent>
-        {/* Task Summary */}
         <div className="grid grid-cols-2 gap-12 mb-7">
           <div className="flex flex-col items-center justify-center py-4 px-8 border rounded-lg relative">
             <span className="text-sm text-muted-foreground">Task due soon</span>
@@ -69,24 +84,30 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
             <span className="text-2xl font-bold">{upcomingCount}</span>
           </div>
         </div>
-
         <div className="space-y-3">
-          {displayedTasks.map((task) => (
-            <div key={task.id} className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-destructive">
-                <CalendarArrow />
-                <span className="text-sm font-medium">{task.due}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <SquareArrow className="text-yellow-500" />
-                <span className="text-sm font-medium">{task.title}</span>
-              </div>
-            </div>
-          ))}
+          {displayedTasks.map((task) => {
+            const dueDate = parseISO(task.due)
+            const distance = formatDistanceToNowStrict(dueDate)
+            const isDue = isBefore(dueDate, new Date())
+
+            return (
+              <Link key={task.id} href={`/tasks?taskId=${task.id}`} className="flex items-center  space-x-4 gap-8">
+                <div className={clsx('flex items-center gap-2', isDue && 'text-destructive')}>
+                  {isDue ? <CalendarArrow /> : <Calendar strokeWidth={1} size={16} />}
+                  <span className="text-sm font-medium">{distance}</span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <SquareArrow className={clsx(!isDue && 'rotate-90 text-blue-500', isDue && 'text-yellow-500')} />
+                  <span className="text-sm font-medium truncate max-w-56">{task.title}</span>
+                </div>
+              </Link>
+            )
+          })}
         </div>
 
-        <div className="mt-7 text-sm text-primary flex items-center cursor-pointer">
-          Show more Task <ChevronRight size={16} className="ml-1" />
+        <div onClick={() => router.push('/tasks')} className="mt-7 text-sm text-primary flex items-center cursor-pointer">
+          Show more Tasks <ChevronRight size={16} className="ml-1" />
         </div>
       </CardContent>
     </Card>
@@ -99,7 +120,8 @@ const MyTask = ({ status = 'default' }) => {
 
   if (!userId) {
     return (
-      <Card className="size-fit">
+      //TODO: add size fit when we have pending actions, currently no api
+      <Card>
         <CardTitle className="text-lg font-semibold">My Task</CardTitle>
         <CardContent className="text-center text-red-500">Error: No user found</CardContent>
       </Card>
@@ -109,7 +131,8 @@ const MyTask = ({ status = 'default' }) => {
   return (
     <Suspense
       fallback={
-        <Card className="size-fit">
+        //TODO: add size fit when we have pending actions, currently no api
+        <Card>
           <CardTitle className="text-lg font-semibold">My Task</CardTitle>
           <CardContent className="text-center">Loading...</CardContent>
         </Card>
