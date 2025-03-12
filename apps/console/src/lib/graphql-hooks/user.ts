@@ -1,7 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { GET_USER_PROFILE, UPDATE_USER, UPDATE_USER_SETTING } from '@repo/codegen/query/user'
+import { GET_USER_PROFILE, GET_USERS, UPDATE_USER, UPDATE_USER_SETTING } from '@repo/codegen/query/user'
 import {
+  GetAllUsersQuery,
+  GetAllUsersQueryVariables,
   GetUserProfileQuery,
   GetUserProfileQueryVariables,
   UpdateUserMutation,
@@ -11,8 +13,8 @@ import {
 } from '@repo/codegen/src/schema'
 
 import { useMutation } from '@tanstack/react-query'
-import {} from '@repo/codegen/query/user'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
+
 export const useGetUserProfile = (userId?: string | null) => {
   const { client } = useGraphQLClient()
 
@@ -53,5 +55,14 @@ export const useUpdateUserSetting = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user'] })
     },
+  })
+}
+
+export const useGetUsers = (where?: GetAllUsersQueryVariables['where']) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetAllUsersQuery>({
+    queryKey: ['users', where],
+    queryFn: () => client.request(GET_USERS, { where }),
   })
 }

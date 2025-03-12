@@ -3,9 +3,9 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Button } from '@repo/ui/button'
-import { Link, Pencil, Check, FilePlus, SquareArrowRight, CircleUser, UserRoundPen, CalendarCheck2, Circle, Folder, BookText, InfoIcon } from 'lucide-react'
+import { Link, Pencil, Check, FilePlus, SquareArrowRight, CircleUser, UserRoundPen, CalendarCheck2, Circle, Folder, BookText, InfoIcon, ArrowDownUp, ArrowUpDown } from 'lucide-react'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { TaskTaskStatus } from '@repo/codegen/src/schema'
+import { CreateNoteInput, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { Textarea } from '@repo/ui/textarea'
 import { Input } from '@repo/ui/input'
 import { useNotification } from '@/hooks/useNotification'
@@ -25,9 +25,15 @@ import { TaskStatusIconMapper } from '@/components/pages/protected/tasks/util/co
 import DeleteTaskDialog from '@/components/pages/protected/tasks/create-task/dialog/delete-task-dialog'
 import { useTask, useUpdateTask } from '@/lib/graphql-hooks/tasks'
 import { useQueryClient } from '@tanstack/react-query'
+import { useGetUsers } from '@/lib/graphql-hooks/user'
+import { TCommentData } from '@/components/shared/comments/types/TCommentData'
+import { TComments } from '@/components/shared/comments/types/TComments'
+import CommentList from '@/components/shared/comments/CommentList'
+import AddComment from '@/components/shared/comments/AddComment'
 
 const TaskDetailsSheet = () => {
   const [isEditing, setIsEditing] = useState(false)
+  const [commentSortIsAsc, setCommentSortIsAsc] = useState<boolean>(true)
   const queryClient = useQueryClient()
   const taskTypeOptions = Object.values(TaskTypes)
   const statusOptions = Object.values(TaskTaskStatus)
@@ -35,12 +41,15 @@ const TaskDetailsSheet = () => {
   const router = useRouter()
   const { selectedTask, setSelectedTask, orgMembers } = useTaskStore()
   const { successNotification, errorNotification } = useNotification()
+  const [comments, setComments] = useState<TCommentData[]>([])
 
   const { mutateAsync: updateTask } = useUpdateTask()
   const { data, isLoading: fetching } = useTask(selectedTask as string)
 
   const taskData = data?.task
   const { form } = useFormSchema()
+  const where = taskData?.comments ? { idIn: taskData.comments.map((item) => item.createdBy!) } : undefined
+  const { data: userData } = useGetUsers(where)
 
   useEffect(() => {
     if (taskData) {
@@ -59,6 +68,21 @@ const TaskDetailsSheet = () => {
         groupIDs: taskData?.group?.map((item) => item.id) || [],
         status: taskData?.status ? Object.values(TaskTaskStatus).find((type) => type === taskData?.status) : undefined,
       })
+    }
+
+    if (taskData && userData && userData?.users?.edges?.length) {
+      const comments = (taskData?.comments || []).map((item) => {
+        const user = userData.users!.edges!.find((user) => user!.node!.id === item.createdBy)?.node!
+        const avatarUrl = user!.avatarFile?.presignedURL || user.avatarRemoteURL
+        return {
+          comment: item.text,
+          avatarUrl: avatarUrl,
+          createdAt: item.createdAt,
+          userName: user?.firstName ? `${user.firstName} ${user?.lastName}` : user.displayName,
+        } as TCommentData
+      })
+      const sortedComments = comments.sort((a, b) => new Date(!commentSortIsAsc ? b.createdAt : a.createdAt).getTime() - new Date(!commentSortIsAsc ? a.createdAt : b.createdAt).getTime())
+      setComments(sortedComments)
     }
   }, [taskData, form])
 
@@ -230,9 +254,36 @@ const TaskDetailsSheet = () => {
     alert('Reassign feature coming soon!')
   }
 
+  const handleSendComment = async (data: TComments) => {
+    try {
+      await updateTask({
+        updateTaskId: selectedTask as string,
+        input: {
+          addComment: {
+            text: data.comment,
+          } as CreateNoteInput,
+        },
+      })
+
+      queryClient.invalidateQueries({ queryKey: ['task'] })
+    } catch (error) {
+      errorNotification({
+        title: 'Error',
+        description: 'There was an unexpected error. Please try again later.',
+      })
+    }
+  }
+
+  const handleCommentSort = () => {
+    const sortedComments = comments.sort((a, b) => new Date(commentSortIsAsc ? b.createdAt : a.createdAt).getTime() - new Date(commentSortIsAsc ? a.createdAt : b.createdAt).getTime())
+    setCommentSortIsAsc((usePrev) => !usePrev)
+
+    setComments(sortedComments)
+  }
+
   return (
     <Sheet open={!!selectedTask} onOpenChange={handleSheetClose}>
-      <SheetContent className="bg-card">
+      <SheetContent className="bg-card flex flex-col">
         {fetching ? (
           <Loading />
         ) : (
@@ -334,14 +385,14 @@ const TaskDetailsSheet = () => {
             <div className="pb-8">
               <div className="flex flex-col gap-4 mt-5">
                 <div className="flex items-center gap-4">
-                  <CircleUser height={16} width={16} color="#2CCBAB" />
-                  <p className="text-sm w-[120px]">Assigner:</p>
+                  <CircleUser height={16} width={16} className="text-accent-secondary" />
+                  <p className="text-sm w-[120px]">Assigner</p>
                   <p className="capitalize text-sm">{taskData?.assigner?.displayName}</p>
                 </div>
 
                 <div className="flex items-center gap-4">
-                  <UserRoundPen height={16} width={16} color="#2CCBAB" />
-                  <p className="text-sm w-[120px]">Assignee:</p>
+                  <UserRoundPen height={16} width={16} className="text-accent-secondary" />
+                  <p className="text-sm w-[120px]">Assignee</p>
                   {isEditing ? (
                     <Controller
                       name="assigneeID"
@@ -370,7 +421,7 @@ const TaskDetailsSheet = () => {
                 </div>
 
                 <div className="flex items-center gap-4">
-                  <CalendarCheck2 height={16} width={16} color="#2CCBAB" />
+                  <CalendarCheck2 height={16} width={16} className="text-accent-secondary" />
                   <p className="text-sm w-[120px]">Due Date</p>
                   {isEditing ? (
                     <Controller
@@ -389,7 +440,7 @@ const TaskDetailsSheet = () => {
                 </div>
 
                 <div className="flex items-center gap-4">
-                  <Circle height={16} width={16} color="#2CCBAB" />
+                  <Circle height={16} width={16} className="text-accent-secondary" />
                   <p className="text-sm w-[120px]">Status</p>
                   {isEditing ? (
                     <Controller
@@ -422,7 +473,7 @@ const TaskDetailsSheet = () => {
                 </div>
 
                 <div className="flex items-center gap-4">
-                  <Folder height={16} width={16} color="#2CCBAB" />
+                  <Folder height={16} width={16} className="text-accent-secondary" />
                   <p className="text-sm w-[120px]">Task type</p>
                   {isEditing ? (
                     <Controller
@@ -453,7 +504,7 @@ const TaskDetailsSheet = () => {
 
                 {!isEditing && (
                   <div className="flex items-center gap-4">
-                    <BookText height={16} width={16} color="#2CCBAB" />
+                    <BookText height={16} width={16} className="text-accent-secondary" />
                     <p className="text-sm w-[120px]">Related Objects</p>
                     {handleRelatedObjects()}
                   </div>
@@ -462,6 +513,22 @@ const TaskDetailsSheet = () => {
             </div>
 
             {isEditing && <ControlObjectTaskForm form={form} />}
+          </>
+        )}
+        {!isEditing && (
+          <>
+            <div className="mt-4 p-2 w-full">
+              <div className="flex justify-between items-end">
+                <p className="text-lg">Conversation</p>
+                <div className="flex items-center gap-1 text-right cursor-pointer" onClick={handleCommentSort}>
+                  {commentSortIsAsc && <ArrowDownUp height={16} width={16} />}
+                  {!commentSortIsAsc && <ArrowUpDown height={16} width={16} className="text-accent-secondary" />}
+                  <p className="text-sm ">Newest at bottom</p>
+                </div>
+              </div>
+            </div>
+            <CommentList comments={comments} />
+            <AddComment onSuccess={handleSendComment} />
           </>
         )}
       </SheetContent>

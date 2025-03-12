@@ -77,7 +77,7 @@ const EvidenceCreateForm: React.FC = () => {
     form.setValue('controlObjectiveIDs', evidenceObjectIds)
   }
 
-  const handleUploadedFiles = (evidenceFiles: TUploadedFilesProps[]) => {
+  const handleUploadedFiles = (evidenceFiles: TUploadedFile[]) => {
     const evidenceFilesFiltered = evidenceFiles?.filter((item) => item.type === 'file')
     evidenceFilesFiltered && form.setValue('evidenceFiles', evidenceFilesFiltered)
   }

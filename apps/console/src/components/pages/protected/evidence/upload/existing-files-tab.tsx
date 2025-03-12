@@ -9,9 +9,9 @@ import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/ho
 import { useGetEvidenceFiles } from '@/lib/graphql-hooks/evidence'
 
 type TProps = {
-  evidenceFiles: TUploadedFilesProps[]
+  evidenceFiles: TUploadedFile[]
   form: UseFormReturn<CreateEvidenceFormData>
-  existingFile: (uploadedFile: TUploadedFilesProps) => void
+  existingFile: (uploadedFile: TUploadedFile) => void
 }
 
 const ExistingFilesTab: React.FC<TProps> = (props: TProps) => {
@@ -43,7 +43,7 @@ const ExistingFilesTab: React.FC<TProps> = (props: TProps) => {
     const formFileIds = props.form.getValues('fileIDs')
     props.form.setValue('fileIDs', [...(formFileIds || []), data.id])
 
-    const newFile: TUploadedFilesProps = {
+    const newFile: TUploadedFile = {
       name: data.providedFileName,
       type: 'existingFile',
       id: data.id,
