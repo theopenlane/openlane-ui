@@ -6,7 +6,7 @@ import { pageStyles } from './page.styles'
 import { useState, useEffect, Dispatch, SetStateAction } from 'react'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
-import { Copy, KeyRoundIcon, PlusIcon } from 'lucide-react'
+import { Copy, KeyRoundIcon, PlusIcon, Search } from 'lucide-react'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
@@ -136,7 +136,7 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
     <div>
       <div className={membersSearchRow()}>
         <div className={membersSearchField()}>
-          <Input placeholder="Search for user" value={searchTerm} onChange={handleSearch} />
+          <Input variant="searchTable" icon={<Search size={16} />} iconPosition="left" placeholder="Search for user" value={searchTerm} onChange={handleSearch} />
         </div>
         <div className={membersButtons()}>
           <Button size="md" icon={<PlusIcon />} iconPosition="left" onClick={() => setActiveTab('invites')}>

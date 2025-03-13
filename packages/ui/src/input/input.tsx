@@ -9,6 +9,8 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
   prefix?: ReactNode
   onIconClick?: () => void
   maxWidth?: boolean
+  iconPosition?: 'right' | 'left'
+  variant?: 'medium' | 'light' | 'searchTable'
 }
 
 interface InputRowProps extends InputRowVariants {
@@ -16,7 +18,7 @@ interface InputRowProps extends InputRowVariants {
   children: ReactNode
 }
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type, icon, prefix, variant, onIconClick, maxWidth, ...props }, ref) => {
+const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type, icon, prefix, variant, onIconClick, maxWidth, iconPosition = 'right', ...props }, ref) => {
   const { input, inputWrapper, iconWrapper, prefixWrapper } = inputStyles({
     variant,
   })
@@ -38,9 +40,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type,
           {prefix}
         </div>
       )}
-      <input type={type} className={cn(input({ hasIcon, hasPrefix }), className)} ref={ref} {...props} style={{ paddingLeft: hasPrefix ? prefixWidth + 12 : undefined }} />
+      <input type={type} className={cn(input({ hasIcon, hasPrefix, iconPosition }), className)} ref={ref} {...props} style={{ paddingLeft: hasPrefix ? prefixWidth + 12 : undefined }} />
       {icon && (
-        <div className={iconWrapper()} onClick={onIconClick} style={{ cursor: onIconClick ? 'pointer' : 'filled' }}>
+        <div className={iconWrapper({ iconPosition })} onClick={onIconClick} style={{ cursor: onIconClick ? 'pointer' : 'filled' }}>
           {icon}
         </div>
       )}

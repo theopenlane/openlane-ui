@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react'
 import { pageStyles } from './page.styles'
 import { useState, useEffect } from 'react'
 import { Input } from '@repo/ui/input'
-import { Copy } from 'lucide-react'
+import { Copy, Search } from 'lucide-react'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { useCopyToClipboard } from '@uidotdev/usehooks'
@@ -92,7 +92,7 @@ export const SubscribersTable = () => {
     <div>
       <div className={subscribersSearchRow()}>
         <div className={subscribersSearchField()}>
-          <Input placeholder="Search for user" value={searchTerm} onChange={handleSearch} />
+          <Input placeholder="Search for user" value={searchTerm} onChange={handleSearch} icon={<Search size={16} />} iconPosition="left" variant="searchTable" />
         </div>
       </div>
       <DataTable columns={columns} data={filteredSubscribers} />
