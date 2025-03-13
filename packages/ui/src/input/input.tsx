@@ -10,6 +10,7 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
   onIconClick?: () => void
   maxWidth?: boolean
   iconPosition?: 'right' | 'left'
+  variant?: 'medium' | 'light' | 'searchTable'
 }
 
 interface InputRowProps extends InputRowVariants {

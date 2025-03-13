@@ -36,6 +36,9 @@ export const inputStyles = tv({
       light: {
         input: 'bg-white text-text-dark',
       },
+      searchTable: {
+        input: 'border !border-border h-[34px] KURDAY',
+      },
     },
   },
 })
