@@ -110,7 +110,7 @@ export const GlobalSearch = () => {
           <Input
             ref={inputRef}
             placeholder="Search..."
-            icon={<SearchIcon size={17} />}
+            icon={<SearchIcon size={16} />}
             value={query}
             onChange={(e) => {
               e.stopPropagation()
@@ -119,7 +119,7 @@ export const GlobalSearch = () => {
               setQuery(e.currentTarget.value)
             }}
             onKeyDown={relayInputKeyDownToCommand}
-            className="!border-none"
+            className="!border-none !h-9"
             iconPosition="left"
           />
         </PopoverAnchor>

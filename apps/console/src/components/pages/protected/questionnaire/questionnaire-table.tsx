@@ -13,6 +13,7 @@ import { format } from 'date-fns'
 import { CreateDropdown } from './create'
 import { includeQuestionnaireCreation } from '@repo/dally/auth'
 import { useFilterTemplates } from '@/lib/graphql-hooks/templates'
+import { Search } from 'lucide-react'
 
 const ICON_SIZE = 12
 
@@ -97,7 +98,7 @@ export const QuestionnairesTable = () => {
     <div>
       <div className={searchRow()}>
         <div className={searchField()}>
-          <Input placeholder="search" value={searchTerm} onChange={handleSearch} />
+          <Input placeholder="search" icon={<Search size={16} />} iconPosition="left" value={searchTerm} onChange={handleSearch} variant="searchTable" />
         </div>
 
         {createDropdown()}
