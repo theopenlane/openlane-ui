@@ -20,11 +20,7 @@ const CreateTaskDialog = () => {
           Create a new Task
         </Button>
       </DialogTrigger>
-      <DialogContent
-        onOpenAutoFocus={(event) => {
-          event.preventDefault()
-        }}
-      >
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Create a new Task</DialogTitle>
         </DialogHeader>
