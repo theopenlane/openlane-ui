@@ -117,37 +117,33 @@ const ProgramWizard = () => {
     stepper.goTo(steps[steps.length - 1].id)
   }
 
-  const validateForm = (formData: any) => {
-    const result = initProgramSchema.safeParse(formData)
+  const isFormValid = () => {
+    //need to doublecheck because of skipping
+    const formData = getValues()
 
-    if (!result.success) {
-      // Collect all errors from the schema validation
-      const errors = result.error.format()
-
-      return {
-        isValid: false,
-        errors,
-      }
+    if (!formData.programType || formData.programType.trim().length < 1) {
+      return false
     }
 
-    return {
-      isValid: true,
-      errors: null,
+    if (!formData.name || formData.name.trim().length < 1) {
+      return false
     }
+
+    if (formData.programType === 'framework' && (!formData.framework || formData.framework.trim() === '')) {
+      return false
+    }
+    return true
   }
 
   const handleFormSubmit = () => {
     setIsSubmitting(true)
 
-    const validationResult = validateForm(getValues())
-
-    if (!validationResult.isValid) {
+    if (!isFormValid()) {
       errorNotification({
         title: 'Form Invalid',
         description: 'Please fill out all required fields before submitting.',
       })
 
-      console.log('Validation Errors:', validationResult.errors)
       setIsSubmitting(false)
       return
     }
