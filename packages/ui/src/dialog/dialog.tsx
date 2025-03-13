@@ -46,6 +46,9 @@ const DialogContent = React.forwardRef<React.ElementRef<typeof DialogPrimitive.C
             e.preventDefault() // Prevent closing on Escape key
           }
         }}
+        onOpenAutoFocus={(event) => {
+          event.preventDefault()
+        }}
       >
         {children}
         {isClosable && (
