@@ -119,6 +119,8 @@ export const GlobalSearch = () => {
               setQuery(e.currentTarget.value)
             }}
             onKeyDown={relayInputKeyDownToCommand}
+            className="!border-none"
+            iconPosition="left"
           />
         </PopoverAnchor>
         <PopoverTrigger asChild>

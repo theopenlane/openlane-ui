@@ -418,7 +418,7 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
       >
         <div
           className={cn(
-            'h-12 rounded-md border border-neutral-300 dark:border-brand bg-input-background text-base md:text-sm px-3 py-2',
+            'h-10 rounded-md border border-neutral-300 dark:border-brand bg-input-background text-base md:text-sm px-3 py-2',
             {
               'cursor-text': !disabled && selected.length !== 0,
             },
@@ -498,7 +498,7 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
               }}
               placeholder={hidePlaceholderWhenSelected && selected.length !== 0 ? '' : placeholder}
               className={cn(
-                'p-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground border-none',
+                'p-0 text-sm flex-1 bg-transparent outline-none placeholder:text-muted-foreground border-none',
                 {
                   'w-full': hidePlaceholderWhenSelected,
                   'ml-1': selected.length !== 0,
