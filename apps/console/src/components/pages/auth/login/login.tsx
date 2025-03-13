@@ -186,18 +186,18 @@ export const LoginPage = () => {
             <Label className="text-text-dark" htmlFor="username">
               Email
             </Label>
-            <Input variant="light" name="username" placeholder="email@domain.com" />
+            <Input variant="light" name="username" placeholder="email@domain.com" className="!border-neutral-300 dark:!border-neutral-300" />
           </div>
           {isPasswordActive && (
             <div className={input()}>
               <Label className="text-text-dark" htmlFor="password">
                 Password
               </Label>
-              <PasswordInput variant="light" name="password" placeholder="password" autoComplete="current-password" />
+              <PasswordInput variant="light" name="password" placeholder="password" autoComplete="current-password" className="!border-neutral-300 dark:!border-neutral-300" />
             </div>
           )}
 
-          <Button variant="filled" className="mr-auto mt-2 w-full" icon={<ArrowUpRight />} size="md" type="submit" iconAnimated>
+          <Button variant="filled" className="  mr-auto mt-2 w-full" icon={<ArrowUpRight />} size="md" type="submit" iconAnimated>
             Login
           </Button>
         </SimpleForm>

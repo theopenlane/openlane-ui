@@ -194,7 +194,7 @@ export const SignupPage = () => {
           <Label className="text-text-dark" htmlFor="username">
             Email
           </Label>
-          <Input variant="light" name="email" placeholder="email@domain.com" autoComplete="email" required type="email" />
+          <Input variant="light" name="email" placeholder="email@domain.com" autoComplete="email" required type="email" className="!border-neutral-300 dark:!border-neutral-300" />
         </div>
         {isPasswordActive && (
           <>
@@ -202,8 +202,8 @@ export const SignupPage = () => {
               <Label className="text-text-dark" htmlFor="password">
                 Password
               </Label>
-              <PasswordInput variant="light" name="password" placeholder="password" autoComplete="new-password" required />
-              <PasswordInput variant="light" name="confirmedPassword" placeholder="confirm password" autoComplete="new-password" required />
+              <PasswordInput variant="light" name="password" placeholder="password" autoComplete="new-password" required className="!border-neutral-300 dark:!border-neutral-300" />
+              <PasswordInput variant="light" name="confirmedPassword" placeholder="confirm password" autoComplete="new-password" required className="!border-neutral-300 dark:!border-neutral-300" />
             </div>
           </>
         )}
