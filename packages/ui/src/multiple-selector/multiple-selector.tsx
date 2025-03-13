@@ -146,7 +146,15 @@ const CommandEmpty = forwardRef<HTMLDivElement, React.ComponentProps<typeof Comm
 
   if (!render) return null
 
-  return <div ref={forwardedRef} className={cn('py-6 text-center text-sm', className)} cmdk-empty="" role="presentation" {...props} />
+  return (
+    <div
+      ref={forwardedRef}
+      className={cn('py-6 text-center text-sm rounded-md border border-neutral-300 dark:border-brand bg-input-background shadow-md', className)}
+      cmdk-empty=""
+      role="presentation"
+      {...props}
+    />
+  )
 })
 
 CommandEmpty.displayName = 'CommandEmpty'
@@ -404,15 +412,14 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
           handleKeyDown(e)
           commandProps?.onKeyDown?.(e)
         }}
-        className={cn('h-auto overflow-visible bg-transparent', commandProps?.className)}
+        className={cn(' h-auto overflow-visible bg-transparent', commandProps?.className)}
         shouldFilter={commandProps?.shouldFilter !== undefined ? commandProps.shouldFilter : !onSearch} // When onSearch is provided, we don't want to filter the options. You can still override it.
         filter={commandFilter()}
       >
         <div
           className={cn(
-            'rounded-md border border-input text-base md:text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
+            'rounded-md border border-neutral-300 dark:border-brand bg-input-background text-base md:text-sm px-3 py-2',
             {
-              'px-3 py-2': selected.length !== 0,
               'cursor-text': !disabled && selected.length !== 0,
             },
             className,
@@ -437,7 +444,7 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
                 >
                   {option.label}
                   <button
-                    className={cn('ml-1 rounded-full outline-none ring-offset-background focus:ring-2 focus:ring-ring focus:ring-offset-2', (disabled || option.fixed) && 'hidden')}
+                    className={cn('ml-1 rounded-full outline-none ', (disabled || option.fixed) && 'hidden')}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         handleUnselect(option)
@@ -494,7 +501,6 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
                 'p-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground border-none',
                 {
                   'w-full': hidePlaceholderWhenSelected,
-                  'px-3 ': selected.length === 0,
                   'ml-1': selected.length !== 0,
                 },
                 inputProps?.className,

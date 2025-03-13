@@ -139,6 +139,11 @@
 
   --color-progressbar-empty: #dae3e7;
 
+  /* inputs */
+
+  --color-input-background: #f9fbfc;
+  --color-input-text: #505f6f;
+
   /* JSON Editor */
   .svc-json-editor-tab__content-area {
     background-color: var(--color-bg);
@@ -243,6 +248,10 @@
   /* progressbar */
 
   --color-progressbar-empty: #374a52;
+
+  /* input */
+  --color-input-background: #0d1117;
+  --color-input-text: #bcd9e1;
 
   /* JSON Editor */
   .svc-json-editor-tab__content-area {
