@@ -45,7 +45,7 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
     return (
       //TODO: add size fit when we have pending actions, currently no api
       <Card>
-        <CardTitle className="text-lg font-semibold">My Task</CardTitle>
+        <CardTitle className="text-lg font-semibold">My Tasks</CardTitle>
         <CardContent className="flex flex-col items-center text-center">
           <div className="grid grid-cols-2 gap-6 mb-6 w-full">
             <div className="flex flex-col items-center justify-center py-4 px-8 border rounded-lg w-40">
@@ -58,7 +58,7 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
             </div>
           </div>
           <p className="text-lg font-medium">🎉 Yay! You're all caught up!</p>
-          <p>No tasks to do—enjoy the peace and quiet.</p>
+          <p className="text-sm text-muted-foreground mt-1">No tasks to do—enjoy the peace and quiet.</p>
         </CardContent>
       </Card>
     )
@@ -67,7 +67,7 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
   return (
     //TODO: add size fit when we have pending actions, currently no api
     <Card>
-      <CardTitle className="text-lg font-semibold">My Task</CardTitle>
+      <CardTitle className="text-lg font-semibold">My Tasks</CardTitle>
       <CardContent>
         <div className="grid grid-cols-2 gap-12 mb-7">
           <div className="flex flex-col items-center justify-center py-4 px-8 border rounded-lg relative">
@@ -122,7 +122,7 @@ const MyTask = ({ status = 'default' }) => {
     return (
       //TODO: add size fit when we have pending actions, currently no api
       <Card>
-        <CardTitle className="text-lg font-semibold">My Task</CardTitle>
+        <CardTitle className="text-lg font-semibold">My Tasks</CardTitle>
         <CardContent className="text-center text-red-500">Error: No user found</CardContent>
       </Card>
     )
@@ -133,7 +133,7 @@ const MyTask = ({ status = 'default' }) => {
       fallback={
         //TODO: add size fit when we have pending actions, currently no api
         <Card>
-          <CardTitle className="text-lg font-semibold">My Task</CardTitle>
+          <CardTitle className="text-lg font-semibold">My Tasks</CardTitle>
           <CardContent className="text-center">Loading...</CardContent>
         </Card>
       }
