@@ -17,6 +17,7 @@ import ControlObjectTaskForm from '@/components/pages/protected/tasks/create-tas
 import { useCreateTask } from '@/lib/graphql-hooks/tasks'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
+import { PlateEditor } from '@repo/ui/components/editor/plate-editor.tsx'
 
 type TProps = {
   onSuccess: () => void
@@ -149,7 +150,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                               />
                             </div>
                             <FormControl>
-                              <Textarea rows={7} id="details" {...field} className="w-full" />
+                              <PlateEditor />
                             </FormControl>
                             {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors.details.message}</p>}
                           </FormItem>
