@@ -25,12 +25,12 @@ const TEMP_PASSKEY_NAME = 'Temp User'
 
 export const SignupPage = () => {
   const router = useRouter()
-  const [registrationErrorMessage, setRegistrationErrorMessage] = useState('There was an error. Please try again.')
+  const [registrationErrorMessage, setRegistrationErrorMessage] = useState('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const showLoginError = !isLoading && !!setRegistrationErrorMessage
   const [isPasswordActive, setIsPasswordActive] = useState(false)
   const { separator, buttons, keyIcon, form, input } = signupStyles()
 
+  const showLoginError = !isLoading && !!registrationErrorMessage
   /**
    * Setup Github Authentication
    */
