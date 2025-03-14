@@ -152,7 +152,7 @@
     "date-fns": "^4.1.0",
     "emblor": "^1.4.7",
     "input-otp": "^1.4.2",
-    "lucide-react": "^0.469.0",
+    "lucide-react": "^0.482.0",
     "prismjs": "^1.29.0",
     "react": "19.0.0",
     "react-day-picker": "9.5.1",
