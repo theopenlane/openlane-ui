@@ -6,6 +6,7 @@ import React from 'react'
 import { toTitleCase } from '@/components/shared/lib/strings'
 import { useParams, usePathname } from 'next/navigation'
 import { useGetInternalPolicyDetailsById } from '@/lib/graphql-hooks/policy'
+import { useGetProcedureDetailsById } from '@/lib/graphql-hooks/procedures'
 
 type TBreadCrumbProps = {
   homeElement?: string
@@ -16,10 +17,15 @@ export const BreadcrumbNavigation = ({ homeElement = 'Home' }: TBreadCrumbProps)
   const params = useParams()
   const pathNames = pathname.split('/').filter(Boolean)
 
-  //TODO: if we get more /:id breadcrumbs we need to write a config instead of fetching just one
+  // Identify if the path is for a policy or procedure
   const isPolicy = pathNames.includes('policies')
+  const isProcedure = pathNames.includes('procedures')
+
   const policyId = isPolicy ? (params.id as string) : null
-  const { data, isFetching } = useGetInternalPolicyDetailsById(policyId)
+  const procedureId = isProcedure ? (params.id as string) : null
+
+  const { data: policyData, isFetching: isFetchingPolicy } = useGetInternalPolicyDetailsById(policyId)
+  const { data: procedureData, isFetching: isFetchingProcedure } = useGetProcedureDetailsById(procedureId)
 
   return (
     <Breadcrumb>
@@ -32,13 +38,18 @@ export const BreadcrumbNavigation = ({ homeElement = 'Home' }: TBreadCrumbProps)
           const href = `/${pathNames.slice(0, index + 1).join('/')}`
           let itemLink = toTitleCase(link.replaceAll('-', ' '))
 
-          // replace policy ID with fetched policy name
-          if (policyId && link === policyId && data?.internalPolicy) {
-            itemLink = data.internalPolicy.name
+          // Replace policy/procedure ID with fetched name
+          if (policyId && link === policyId && policyData?.internalPolicy) {
+            itemLink = policyData.internalPolicy.name
           }
-          // add spinner to last breadcrumb if it's fetching
-          if (index === pathNames.length - 1 && isFetching) {
-            return <Loader />
+          if (procedureId && link === procedureId && procedureData?.procedure) {
+            itemLink = procedureData.procedure.name
+          }
+
+          // Add spinner to last breadcrumb if it's fetching
+          const isFetching = index === pathNames.length - 1 && (isFetchingPolicy || isFetchingProcedure)
+          if (isFetching) {
+            return <Loader key={href} />
           }
 
           return (

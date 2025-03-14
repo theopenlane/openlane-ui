@@ -45,7 +45,7 @@ export const useGetAllProcedures = (where?: GetAllProceduresQueryVariables['wher
   })
 }
 
-export const useGetProcedureDetailsById = (procedureId?: string) => {
+export const useGetProcedureDetailsById = (procedureId?: string | null) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetProcedureDetailsByIdQuery, GetProcedureDetailsByIdQueryVariables>({
