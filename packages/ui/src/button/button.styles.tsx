@@ -9,7 +9,7 @@ export const buttonStyles = tv({
     loadingWrapper: 'absolute top-1/2 left-1/2  transform -translate-x-1/2 -translate-y-1/2',
     loadingIcon: 'animate-spin !h-6 !w-6',
     loadingText: 'opacity-0',
-    childWrapper: '',
+    childWrapper: 'tracking-normal',
   },
   variants: {
     variant: {
