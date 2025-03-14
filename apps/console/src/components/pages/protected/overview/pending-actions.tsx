@@ -73,7 +73,7 @@ const PendingActions = () => {
   const noData = pendingActions.length === 0 && approvalsWaitingFor.length === 0
 
   return (
-    <Card className="shadow-md rounded-lg border flex-1">
+    <Card className=" rounded-lg border flex-1">
       <CardTitle className="text-lg font-semibold">Pending Actions</CardTitle>
       <CardContent>
         {noData ? (
