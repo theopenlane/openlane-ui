@@ -20,8 +20,12 @@ export const GET_PERSONAL_ACCESS_TOKENS = gql`
           description
           expiresAt
           organizations {
-            id
-            name
+            edges {
+              node {
+                id
+                name
+              }
+            }
           }
         }
       }

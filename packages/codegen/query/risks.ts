@@ -12,8 +12,12 @@ export const GET_ALL_RISKS = gql`
           likelihood
           impact
           control {
-            id
-            refCode
+            edges {
+              node {
+                id
+                refCode
+              }
+            }
           }
         }
       }

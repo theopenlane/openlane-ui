@@ -4,13 +4,17 @@ export const CREATE_INTERNAL_POLICY = gql`
   mutation CreateInternalPolicy($input: CreateInternalPolicyInput!) {
     createInternalPolicy(input: $input) {
       internalPolicy {
-        id
-        name
-        background
-        description
-        policyType
-        purposeAndScope
-        details
+        edges {
+          node {
+            id
+            name
+            # background
+            # description
+            policyType
+            # purposeAndScope
+            details #COMMENTED FIELDS ARE HERE
+          }
+        }
       }
     }
   }
@@ -18,13 +22,14 @@ export const CREATE_INTERNAL_POLICY = gql`
 
 export const INTERNAL_POLICY_UPDATE_FIELDS = gql`
   fragment InternalPolicyUpdateFields on InternalPolicy {
-    id
-    name
-    background
-    description
-    policyType
-    purposeAndScope
-    details
+    edges {
+      node {
+        id
+        name
+        policyType
+        details
+      }
+    }
   }
 `
 
@@ -54,17 +59,19 @@ export const GET_ALL_INTERNAL_POLICIES_WITH_DETAILS = gql`
         node {
           id
           name
-          background
-          description
+          # background
+          # description
           policyType
-          purposeAndScope
+          # purposeAndScope
           status
-          version
+          # version  now it's revision
+          revision
           updatedAt
           updatedBy
           createdAt
           createdBy
           tags
+          details #purposeAndScope, background are inside. details was just added.
         }
       }
     }
@@ -78,14 +85,14 @@ export const GET_INTERNAL_POLICIES_LIST = gql`
         node {
           id
           name
-          description
           policyType
           tags
-          version
+          revision
           updatedAt
           updatedBy
           createdAt
           createdBy
+          details
         }
       }
     }
@@ -109,19 +116,17 @@ export const INTERNAL_POLICY_BY_ID = gql`
   fragment InternalPolicyByID on InternalPolicy {
     id
     name
-    description
     details
-    background
     createdAt
     createdBy
     updatedAt
     updatedBy
     tags
-    version
+    revision
     status
-    purposeAndScope
     policyType
     displayID
+    details
     procedures {
       id
       name
@@ -147,18 +152,18 @@ export const SEARCH_INTERNAL_POLICIES = gql`
     internalPolicySearch(query: $query) {
       internalPolicies {
         id
-        name
-        background
-        description
-        displayID
-        purposeAndScope
-        status
-        version
-        updatedAt
-        updatedBy
-        createdAt
-        createdBy
-        tags
+            name
+            displayID
+            status
+            revision
+            updatedAt
+            updatedBy
+            createdAt
+            createdBy
+            tags
+            details
+
+        }
       }
     }
   }

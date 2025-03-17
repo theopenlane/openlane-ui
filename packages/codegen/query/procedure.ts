@@ -30,11 +30,8 @@ export const GET_ALL_PROCEDURES_WITH_DETAILS = gql`
         node {
           id
           name
-          background
-          description
-          purposeAndScope
           status
-          version
+          revision
           updatedAt
           updatedBy
           createdAt
@@ -56,14 +53,10 @@ export const GET_ALL_PROCEDURES = gql`
           displayID
           id
           name
-          background
-          description
           displayID
-          purposeAndScope
           status
-          version
+          revision
           updatedAt
-
           updatedBy
           createdAt
           createdBy
@@ -79,22 +72,24 @@ export const GET_PROCEDURE_DETAILS_BY_ID = gql`
     procedure(id: $procedureId) {
       id
       name
-      description
       details
-      background
+      details
       createdAt
       createdBy
       updatedAt
       updatedBy
       tags
-      version
+      revision
       status
-      purposeAndScope
       procedureType
       displayID
       internalPolicies {
-        id
-        name
+        edges {
+          node {
+            id
+            name
+          }
+        }
       }
     }
   }
@@ -114,12 +109,11 @@ export const SEARCH_PROCEDURES = gql`
       procedures {
         id
         name
-        background
-        description
+        details
         displayID
-        purposeAndScope
+
         status
-        version
+        revision
         updatedAt
         updatedBy
         createdAt

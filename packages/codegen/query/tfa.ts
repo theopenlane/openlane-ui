@@ -16,9 +16,13 @@ export const GET_USER_TFA_SETTINGS = gql`
   query GetUserTFASettings($userId: ID!) {
     user(id: $userId) {
       tfaSettings {
-        id
-        totpAllowed
-        verified
+        edges {
+          node {
+            id
+            totpAllowed
+            verified
+          }
+        }
       }
     }
   }

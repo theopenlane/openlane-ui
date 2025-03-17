@@ -1,6 +1,6 @@
 'use client'
 
-import { GetApiTokensQuery, GetPersonalAccessTokensQuery } from '@repo/codegen/src/schema'
+import { GetApiTokensQuery, GetPersonalAccessTokensQuery, PersonalAccessTokenEdge } from '@repo/codegen/src/schema'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
@@ -27,29 +27,29 @@ export const PersonalAccessTokenTable = () => {
 
   const { tableRow, keyIcon, message } = personalAccessTokenTableStyles()
 
-  const { data, isFetching, isError } = isOrg ? useGetApiTokens() : useGetPersonalAccessTokens()
+  const { data, isError } = isOrg ? useGetApiTokens() : useGetPersonalAccessTokens()
 
   if (isError || !data) return null
 
   const tokens: TokenNode[] = isOrg
-    ? (data as GetApiTokensQuery).apiTokens?.edges
-        ?.filter((edge): edge is NonNullable<typeof edge> => !!edge?.node && !!edge.node.id)
-        .map((edge) => ({
-          id: edge.node!.id,
-          name: edge.node!.name || 'Unnamed Token',
-          description: edge.node!.description || '',
-          expiresAt: edge.node!.expiresAt || '',
-          scopes: edge.node!.scopes?.join(', ') || '-',
-        })) || []
-    : (data as GetPersonalAccessTokensQuery).personalAccessTokens?.edges
-        ?.filter((edge): edge is NonNullable<typeof edge> => !!edge?.node && !!edge.node.id)
-        .map((edge) => ({
-          id: edge.node!.id,
-          name: edge.node!.name || 'Unnamed Token',
-          description: edge.node!.description || '',
-          expiresAt: edge.node!.expiresAt || '',
-          organizations: edge.node!.organizations || [],
-        })) || []
+    ? (data as GetApiTokensQuery).apiTokens?.edges?.map((edge) => ({
+        id: edge?.node?.id!!,
+        name: edge?.node?.name || 'Unnamed Token',
+        description: edge?.node?.description!!,
+        expiresAt: edge?.node?.expiresAt!!,
+        scopes: edge?.node?.scopes?.join(', ') || '-',
+      })) || []
+    : (data as GetPersonalAccessTokensQuery).personalAccessTokens?.edges?.map((edge) => ({
+        id: edge?.node?.id!!,
+        name: edge?.node?.name!!,
+        description: edge?.node?.description!!,
+        expiresAt: edge?.node?.expiresAt!!,
+        organizations:
+          edge?.node?.organizations?.edges?.map((orgEdge) => ({
+            id: orgEdge?.node?.id!!,
+            name: orgEdge?.node?.name!!,
+          })) || [],
+      })) || []
 
   const columns: ColumnDef<TokenNode>[] = [
     {
