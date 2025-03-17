@@ -7,11 +7,11 @@ import { CopilotPlugin } from '@udecode/plate-ai/react'
 import { useEditorPlugin } from '@udecode/plate/react'
 import { Check, ChevronsUpDown, ExternalLinkIcon, Eye, EyeOff, Settings, Wand2Icon } from 'lucide-react'
 
-import { Button } from 'src/components/plate-ui/button'
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from 'src/components/plate-ui/command'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from 'src/components/plate-ui/dialog'
-import { Input } from 'src/components/plate-ui/input'
-import { Popover, PopoverContent, PopoverTrigger } from 'src/components/plate-ui/popover'
+import { Button } from '../plate-ui/button'
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '../plate-ui/command'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../plate-ui/dialog'
+import { Input } from '../plate-ui/input'
+import { Popover, PopoverContent, PopoverTrigger } from '../plate-ui/popover'
 
 interface Model {
   label: string

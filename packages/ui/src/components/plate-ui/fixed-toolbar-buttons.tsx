@@ -9,7 +9,7 @@ import { AudioPlugin, FilePlugin, ImagePlugin, VideoPlugin } from '@udecode/plat
 import { useEditorReadOnly } from '@udecode/plate/react'
 import { ArrowUpToLineIcon, BaselineIcon, BoldIcon, Code2Icon, HighlighterIcon, ItalicIcon, PaintBucketIcon, StrikethroughIcon, UnderlineIcon, WandSparklesIcon } from 'lucide-react'
 
-import { MoreDropdownMenu } from './more-dropdown-menu'
+import { MoreDropdownMenu } from '../plate-ui/more-dropdown-menu'
 
 import { AIToolbarButton } from './ai-toolbar-button'
 import { AlignDropdownMenu } from './align-dropdown-menu'

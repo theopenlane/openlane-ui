@@ -11,7 +11,7 @@ import { PlateElement, useEditorPlugin, withHOC, withRef } from '@udecode/plate/
 import { AudioLines, FileUp, Film, ImageIcon } from 'lucide-react'
 import { useFilePicker } from 'use-file-picker'
 
-import { useUploadFile } from 'src/lib/uploadthing'
+import { useUploadFile } from '../../lib/uploadthing'
 
 import { Spinner } from './spinner'
 

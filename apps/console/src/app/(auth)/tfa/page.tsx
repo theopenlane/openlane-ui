@@ -1,13 +1,12 @@
 'use client'
 
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@repo/ui/input-otp'
 import { useNotification } from '@/hooks/useNotification'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { Loading } from '@/components/shared/loading/loading'
 
-const TfaPage = () => {
+const TfaPage: React.FC = () => {
   const [otpValue, setOtpValue] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { data: sessionData, update: updateSession } = useSession()

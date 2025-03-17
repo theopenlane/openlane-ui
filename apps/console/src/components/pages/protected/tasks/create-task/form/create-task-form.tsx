@@ -15,7 +15,8 @@ import { useNotification } from '@/hooks/useNotification'
 import ControlObjectTaskForm from '@/components/pages/protected/tasks/create-task/form/control-object-task-form'
 import { useCreateTask } from '@/lib/graphql-hooks/tasks'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
-import { PlateEditor } from '@repo/ui/components/editor/plate-editor'
+import dynamic from 'next/dynamic'
+import PlateEditor from '@/components/shared/plate/plate-editor'
 
 type TProps = {
   onSuccess: () => void

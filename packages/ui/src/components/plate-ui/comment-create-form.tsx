@@ -18,7 +18,7 @@ import { type CreatePlateEditorOptions, PlateLeaf } from '@udecode/plate/react'
 import { ArrowUpIcon } from 'lucide-react'
 
 import { useCreateEditor } from '../editor/use-create-editor'
-import { Avatar, AvatarFallback, AvatarImage } from './avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '../plate-ui/avatar'
 
 import type { TDiscussion } from './block-discussion'
 import type { TComment } from './comment'

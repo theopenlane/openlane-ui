@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense } from 'react'
+import React, { Suspense } from 'react'
 import { LoaderCircle } from 'lucide-react'
 import { TokenVerifier } from '@/components/pages/auth/verify/verifier'
 

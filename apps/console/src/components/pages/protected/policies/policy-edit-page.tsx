@@ -2,7 +2,7 @@ import { TwoColumnLayout } from '@/components/shared/layouts/two-column-layout'
 import { useForm } from 'react-hook-form'
 import { PolicyEditSidebar } from './policy-edit-sidebar'
 import { InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
-import { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import { PolicyEditForm } from './policy-edit-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation'
 import { useNotification } from '@/hooks/useNotification'
 import { useGetInternalPolicyDetailsById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy'
 import { useQueryClient } from '@tanstack/react-query'
+import { PlateEditor } from '@repo/ui/components/editor/plate-editor'
 
 type PolicyEditPageProps = {
   policyId: string

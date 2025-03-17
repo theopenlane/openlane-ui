@@ -1,10 +1,10 @@
 {
   "$schema": "https://ui.shadcn.com/schema.json",
   "style": "default",
-  "rsc": false,
+  "rsc": true,
   "tsx": true,
   "tailwind": {
-    "config": "tailwind.config.ts",
+    "config": "",
     "css": "src/globals.css",
     "baseColor": "slate",
     "cssVariables": true,
@@ -18,9 +18,6 @@
   "iconLibrary": "lucide",
   "registries": {
     "plate": {
-      "aliases": {
-        "ui": "@/components/plate-ui"
-      },
       "url": "https://platejs.org/r"
     }
   }

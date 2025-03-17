@@ -14,8 +14,8 @@ import { MessageSquareTextIcon, MessagesSquareIcon, PencilLineIcon } from 'lucid
 
 import { type CommentsConfig, commentsPlugin } from '../editor/plugins/comments-plugin'
 import { suggestionPlugin } from '../editor/plugins/suggestion-plugin'
-import { Button } from './button'
-import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from './popover'
+import { Button } from '../plate-ui/button'
+import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '../plate-ui/popover'
 
 import { BlockSuggestionCard, isResolvedSuggestion, useResolveSuggestion } from './block-suggestion'
 import { type TComment, Comment } from './comment'

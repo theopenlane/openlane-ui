@@ -1,7 +1,7 @@
 'use client'
 
 import { LoaderCircle } from 'lucide-react'
-import { Suspense } from 'react'
+import React, { Suspense } from 'react'
 import { TokenVerifier } from '@/components/pages/auth/subscriber-verify/verifier'
 
 const VerifySubscriber: React.FC = () => {

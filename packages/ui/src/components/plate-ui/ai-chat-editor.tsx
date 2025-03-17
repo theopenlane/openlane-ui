@@ -16,7 +16,7 @@ import { BaseLinkPlugin } from '@udecode/plate-link'
 import { MarkdownPlugin } from '@udecode/plate-markdown'
 import { usePlateEditor } from '@udecode/plate/react'
 
-import { TodoLiStatic, TodoMarkerStatic } from './indent-todo-marker-static'
+import { TodoLiStatic, TodoMarkerStatic } from '../plate-ui/indent-todo-marker-static'
 
 import { BlockquoteElementStatic } from './blockquote-element-static'
 import { CodeBlockElementStatic } from './code-block-element-static'
