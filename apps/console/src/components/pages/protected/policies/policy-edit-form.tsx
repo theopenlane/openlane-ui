@@ -12,8 +12,7 @@ import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
 import { EditPolicyFormData } from './policy-edit-form-types'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import type { Value } from '@udecode/plate-common'
-
-const PlateEditor = dynamic(() => import('@/components/shared/editor/plate'), { ssr: false })
+import { PlateEditor } from '@repo/ui/components/editor/plate-editor'
 
 type PolicyEditFormProps = {
   document: Value
@@ -69,7 +68,7 @@ export const PolicyEditForm = ({ form, document, setDocument }: PolicyEditFormPr
 
         <div>
           <FormLabelContent label="Policy" info="The Policy document contents" />
-          <PlateEditor content={document} onChange={setUpdatedDocument} />
+          <PlateEditor />
         </div>
       </div>
     </>

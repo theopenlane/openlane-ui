@@ -16,7 +16,7 @@ export default auth(async (req) => {
   let hasSessionCookie = true
 
   if (sessionCookieName) {
-    const sessionData = cookies().get(sessionCookieName)
+    const sessionData = (await cookies()).get(sessionCookieName)
     if (!sessionData || !sessionData.value) {
       hasSessionCookie = false
     }

@@ -11,11 +11,11 @@ import { Button } from '@repo/ui/button'
 import { CreateTaskInput } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
-import { Textarea } from '@repo/ui/textarea'
 import { useNotification } from '@/hooks/useNotification'
 import ControlObjectTaskForm from '@/components/pages/protected/tasks/create-task/form/control-object-task-form'
 import { useCreateTask } from '@/lib/graphql-hooks/tasks'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
+import { PlateEditor } from '@repo/ui/components/editor/plate-editor'
 
 type TProps = {
   onSuccess: () => void
@@ -146,7 +146,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                               />
                             </div>
                             <FormControl>
-                              <Textarea rows={7} id="details" {...field} className="w-full" />
+                              <PlateEditor />
                             </FormControl>
                             {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors.details.message}</p>}
                           </FormItem>

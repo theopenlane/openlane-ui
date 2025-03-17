@@ -23,6 +23,7 @@ import { recaptchaSiteKey } from '@repo/dally/auth'
 
 const TEMP_PASSKEY_EMAIL = 'tempuser@test.com'
 const TEMP_PASSKEY_NAME = 'Temp User'
+import react from 'react'
 
 export const LoginPage = () => {
   const { separator, buttons, keyIcon, form, input } = loginStyles()
@@ -202,7 +203,7 @@ export const LoginPage = () => {
           </Button>
         </SimpleForm>
         <Link href="https://www.theopenlane.io/legal/privacy" className="text-xs text-gray-500 mt-8 text-center">
-          Privacy Policy
+          Privacy Policy {react.version}
         </Link>
         <Link href="https://www.theopenlane.io/legal/terms-of-service" className="text-xs text-gray-500 mt-1 text-center">
           Terms of Service
