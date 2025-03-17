@@ -10,10 +10,10 @@ import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '@repo/ui
 import { Input } from '@repo/ui/input'
 
 import { SearchIcon } from 'lucide-react'
-import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useSearch } from '@/lib/graphql-hooks/search'
 import { SearchQuery } from '@repo/codegen/src/schema'
+import { Avatar } from '../avatar/avatar'
 
 export const GlobalSearch = () => {
   const { popover } = searchStyles()
@@ -245,10 +245,7 @@ const renderOrgSearchResultField = ({ node, handleOrganizationSwitch, setQuery }
     >
       <div>
         <div className={avatarRow()}>
-          <Avatar variant="medium" className="mr-2">
-            {image && <AvatarImage src={image} />}
-            <AvatarFallback>{node?.displayName?.substring(0, 2)}</AvatarFallback>
-          </Avatar>
+          <Avatar entity={node} />
           {node.displayName}
         </div>
       </div>

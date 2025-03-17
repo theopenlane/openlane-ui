@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback } from '@repo/ui/avatar'
+import { Avatar } from '@repo/ui/avatar'
 import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { CalendarDays, ChevronRight, Inbox } from 'lucide-react'
@@ -61,9 +61,7 @@ const PendingActions = () => {
       accessorKey: 'submitter',
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
-          <Avatar className="w-6 h-6">
-            <AvatarFallback className={`${row.original.submitterColor} text-white text-xs`}>{row.original.submitterInitial || 'A'}</AvatarFallback>
-          </Avatar>
+          {/* <Avatar entity={user}/>  TODO: IMPLEMENT AVATAR WITH REAL DATA*/}
           {row.getValue('submitter') || row.getValue('approver')}
         </div>
       ),
