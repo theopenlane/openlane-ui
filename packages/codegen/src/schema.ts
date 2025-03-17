@@ -30044,6 +30044,15 @@ export type DeleteOrganizationMutationVariables = Exact<{
 
 export type DeleteOrganizationMutation = { __typename?: 'Mutation'; deleteOrganization: { __typename?: 'OrganizationDeletePayload'; deletedID: string } }
 
+export type CreateInternalPolicyMutationVariables = Exact<{
+  input: CreateInternalPolicyInput
+}>
+
+export type CreateInternalPolicyMutation = {
+  __typename?: 'Mutation'
+  createInternalPolicy: { __typename?: 'InternalPolicyCreatePayload'; internalPolicy: { __typename?: 'InternalPolicy'; id: string; name: string; policyType?: string | null; details?: string | null } }
+}
+
 export type CreateProcedureMutationVariables = Exact<{
   input: CreateProcedureInput
 }>
