@@ -25,12 +25,12 @@ const TEMP_PASSKEY_NAME = 'Temp User'
 
 export const SignupPage = () => {
   const router = useRouter()
-  const [registrationErrorMessage, setRegistrationErrorMessage] = useState('There was an error. Please try again.')
+  const [registrationErrorMessage, setRegistrationErrorMessage] = useState('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
-  const showLoginError = !isLoading && !!setRegistrationErrorMessage
   const [isPasswordActive, setIsPasswordActive] = useState(false)
   const { separator, buttons, keyIcon, form, input } = signupStyles()
 
+  const showLoginError = !isLoading && !!registrationErrorMessage
   /**
    * Setup Github Authentication
    */
@@ -194,7 +194,7 @@ export const SignupPage = () => {
           <Label className="text-text-dark" htmlFor="username">
             Email
           </Label>
-          <Input variant="light" name="email" placeholder="email@domain.com" autoComplete="email" required type="email" />
+          <Input variant="light" name="email" placeholder="email@domain.com" autoComplete="email" required type="email" className="!border-neutral-300 dark:!border-neutral-300" />
         </div>
         {isPasswordActive && (
           <>
@@ -202,8 +202,8 @@ export const SignupPage = () => {
               <Label className="text-text-dark" htmlFor="password">
                 Password
               </Label>
-              <PasswordInput variant="light" name="password" placeholder="password" autoComplete="new-password" required />
-              <PasswordInput variant="light" name="confirmedPassword" placeholder="confirm password" autoComplete="new-password" required />
+              <PasswordInput variant="light" name="password" placeholder="password" autoComplete="new-password" required className="!border-neutral-300 dark:!border-neutral-300" />
+              <PasswordInput variant="light" name="confirmedPassword" placeholder="confirm password" autoComplete="new-password" required className="!border-neutral-300 dark:!border-neutral-300" />
             </div>
           </>
         )}

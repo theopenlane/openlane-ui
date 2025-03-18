@@ -10,7 +10,7 @@ import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/ho
 import ExistingFilesTab from '@/components/pages/protected/evidence/upload/existing-files-tab'
 
 type TProps = {
-  evidenceFiles: (uploadedFiles: TUploadedFilesProps[]) => void
+  evidenceFiles: (uploadedFiles: TUploadedFile[]) => void
   resetEvidenceFiles: boolean
   setResetEvidenceFiles: () => void
   form: UseFormReturn<CreateEvidenceFormData>
@@ -18,7 +18,7 @@ type TProps = {
 
 const EvidenceUploadForm: React.FC<TProps> = (props: TProps) => {
   const defaultTab = 'upload'
-  const [evidenceFiles, setEvidenceFiles] = useState<TUploadedFilesProps[]>([])
+  const [evidenceFiles, setEvidenceFiles] = useState<TUploadedFile[]>([])
 
   useEffect(() => {
     props.evidenceFiles(evidenceFiles)
@@ -31,7 +31,7 @@ const EvidenceUploadForm: React.FC<TProps> = (props: TProps) => {
     }
   }, [props.resetEvidenceFiles])
 
-  const handleDelete = (file: TUploadedFilesProps) => {
+  const handleDelete = (file: TUploadedFile) => {
     setEvidenceFiles((prev) => {
       const evidenceFiles = prev.filter((evidenceFile) => evidenceFile.name !== file.name)
 
@@ -53,11 +53,11 @@ const EvidenceUploadForm: React.FC<TProps> = (props: TProps) => {
     })
   }
 
-  const handleUploadedFile = (uploadedFile: TUploadedFilesProps) => {
+  const handleUploadedFile = (uploadedFile: TUploadedFile) => {
     setEvidenceFiles((prev) => [uploadedFile, ...prev])
   }
 
-  const handleFileStyle = (file: TUploadedFilesProps) => {
+  const handleFileStyle = (file: TUploadedFile) => {
     switch (file.type) {
       case 'file':
         return (

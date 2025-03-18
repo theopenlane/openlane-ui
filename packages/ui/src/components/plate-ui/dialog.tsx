@@ -25,7 +25,7 @@ export const DialogContent = withRef<typeof DialogPrimitive.Content>(({ children
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        'data-[state=closed]:slide-out-to-left-1/2 data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-48% data-[state=closed]:slide-out-to-top-48% fixed top-1/2 left-1/2 z-50 grid w-full max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 sm:rounded-lg',
+        'fixed left-1/2 top-1/2 z-50 grid w-full max-w-xl -translate-x-1/2 -translate-y-1/2 gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] rounded-md',
         className,
       )}
       {...props}
@@ -43,6 +43,6 @@ export const DialogHeader = withCn(createPrimitiveElement('div'), 'flex flex-col
 
 export const DialogFooter = withCn(createPrimitiveElement('div'), 'flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2')
 
-export const DialogTitle = withCn(DialogPrimitive.Title, 'text-lg leading-none font-semibold tracking-tight')
+export const DialogTitle = withCn(DialogPrimitive.Title, 'text-lg font-semibold leading-none tracking-tight')
 
 export const DialogDescription = withCn(DialogPrimitive.Description, 'text-sm text-muted-foreground')

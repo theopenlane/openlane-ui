@@ -7,6 +7,7 @@ import { TOrgMembers } from '@/components/pages/protected/tasks/hooks/useTaskSto
 import { TableSort } from '@/components/shared/table-filter/table-sort'
 import { CreditCard as CardIcon, Table as TableIcon } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
+import { BulkCSVCreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/bulk-csv-create-task-dialog'
 
 type TProps = {
   onFilterChange: (filters: Record<string, any>) => void
@@ -64,6 +65,7 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
       </div>
 
       <div className="grow flex flex-row items-center gap-2 justify-end">
+        <BulkCSVCreateTaskDialog />
         <CreateTaskDialog />
       </div>
     </div>

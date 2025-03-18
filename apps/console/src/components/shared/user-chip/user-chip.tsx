@@ -1,6 +1,6 @@
-import { UserAvatar } from '@/components/shared/user-avatar/user-avatar'
 import { User } from '@repo/codegen/src/schema'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { Avatar } from '../avatar/avatar'
 
 export function UserChip(user: User | null) {
   //TODO: if we ever get ts error with user object we can create a fragment in query.ts file and use fragment as type
@@ -10,7 +10,7 @@ export function UserChip(user: User | null) {
       <Tooltip>
         <TooltipTrigger>
           <div className="flex items-center gap-2">
-            <UserAvatar user={user} />
+            <Avatar entity={user} variant="small" />
             <span>
               {user.firstName} {user.lastName}
             </span>

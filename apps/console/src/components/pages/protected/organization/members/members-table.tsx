@@ -1,21 +1,21 @@
 'use client'
 
-import { GetSingleOrganizationMembersQuery, UserAuthProvider } from '@repo/codegen/src/schema'
+import { GetSingleOrganizationMembersQuery, User, UserAuthProvider } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import { pageStyles } from './page.styles'
 import { useState, useEffect, Dispatch, SetStateAction } from 'react'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
-import { Copy, KeyRoundIcon, PlusIcon } from 'lucide-react'
+import { Copy, KeyRoundIcon, PlusIcon, Search } from 'lucide-react'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
-import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import Image from 'next/image'
 import { format } from 'date-fns'
 import { useCopyToClipboard } from '@uidotdev/usehooks'
 import { MemberActions } from './actions/member-actions'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
+import { Avatar } from '@/components/shared/avatar/avatar'
 
 type MembersTableProps = {
   setActiveTab: Dispatch<SetStateAction<string>>
@@ -79,13 +79,7 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
       accessorKey: 'user.id',
       header: '',
       cell: ({ row }) => {
-        const image = row.original.user.avatarFile?.presignedURL || row.original.user.avatarRemoteURL
-        return (
-          <Avatar variant="small">
-            {image && <AvatarImage src={image} />}
-            <AvatarFallback>{row.original.user.firstName?.substring(0, 2)}</AvatarFallback>
-          </Avatar>
-        )
+        return <Avatar variant="small" entity={row.original.user as User} />
       },
       size: 40,
     },
@@ -136,7 +130,7 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
     <div>
       <div className={membersSearchRow()}>
         <div className={membersSearchField()}>
-          <Input placeholder="Search for user" value={searchTerm} onChange={handleSearch} />
+          <Input variant="searchTable" icon={<Search size={16} />} iconPosition="left" placeholder="Search for user" value={searchTerm} onChange={handleSearch} />
         </div>
         <div className={membersButtons()}>
           <Button size="md" icon={<PlusIcon />} iconPosition="left" onClick={() => setActiveTab('invites')}>

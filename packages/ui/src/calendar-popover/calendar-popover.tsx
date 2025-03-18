@@ -59,7 +59,14 @@ const CalendarPopover = <T extends FieldValues>({ field, defaultToday, required,
   return (
     <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
       <PopoverTrigger asChild>
-        <Button className={buttonClassName ?? 'w-full flex justify-between items-center'} variant="outlineInput" childFull>
+        <Button
+          className={
+            buttonClassName ??
+            'bg-input-background  w-full flex justify-between items-center border border-neutral-300 border-input dark:border-brand !p-1  text-base rounded-md focus-visible:outline-none  disabled:cursor-not-allowed disabled:opacity-50'
+          }
+          variant="outlineInput"
+          childFull
+        >
           <div className={calendarInput()}>
             <span>{value ? format(value, 'PPP') : 'Select a date:'}</span>
             <div className="flex items-center gap-x-2">

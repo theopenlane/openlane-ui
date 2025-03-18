@@ -101,6 +101,7 @@ export const config: Partial<Config> = {
           DEFAULT: 'var(--color-border)', // Border color
           light: 'var(--color-border-light)', // Light border color
           dark: 'var(--color-border-dark)', // Dark border color
+          input: 'var(--color-border-input)',
         },
         gradient: {
           light: 'var(--color-gradient-light)', // Gradient in light mode
@@ -176,6 +177,14 @@ export const config: Partial<Config> = {
         progressbar: {
           DEFAULT: 'var(--color-progressbar-empty)',
         },
+        input: {
+          background: 'var(--color-input-background)',
+        },
+        'task-complete': '#2CCBAB',
+        'task-in-progress': '#EAB308',
+        'task-in-review': '#EAB308',
+        'task-open': '#2CCBAB',
+        'task-wont-do': '#c70000',
 
         // Other Palette Colors
         teal: {

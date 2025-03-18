@@ -18,8 +18,8 @@ const config: Pick<Config, 'prefix' | 'content' | 'presets' | 'extend' | 'plugin
       },
       colors: {
         brand: {
-          DEFAULT: 'hsl(var(--brand))',
-          foreground: 'hsl(var(--brand-foreground))',
+          DEFAULT: 'var(--color-brand)',
+          secondary: 'var(--color-brand-secondary)',
         },
         highlight: {
           DEFAULT: 'hsl(var(--highlight))',

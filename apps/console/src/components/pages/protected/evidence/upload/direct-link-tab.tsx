@@ -8,8 +8,8 @@ import { UseFormReturn } from 'react-hook-form'
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 
 type TProps = {
-  directLink: (uploadedFile: TUploadedFilesProps) => void
-  evidenceFiles: TUploadedFilesProps[]
+  directLink: (uploadedFile: TUploadedFile) => void
+  evidenceFiles: TUploadedFile[]
   form: UseFormReturn<CreateEvidenceFormData>
 }
 
@@ -35,7 +35,7 @@ const DirectLinkTab: React.FC<TProps> = (props: TProps) => {
       return
     }
 
-    const newFile: TUploadedFilesProps = { url: evidenceDirectLink, type: 'link', name: evidenceDirectLink }
+    const newFile: TUploadedFile = { url: evidenceDirectLink, type: 'link', name: evidenceDirectLink }
     props.directLink(newFile)
     setEvidenceDirectLink('')
   }

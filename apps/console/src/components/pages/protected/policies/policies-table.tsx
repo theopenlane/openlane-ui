@@ -214,7 +214,7 @@ const SearchInput = ({ value, onChange, searching }: SearchInputProps) => {
       placeholder="Search"
       value={value}
       onChange={(event) => onChange(event.currentTarget.value)}
-      className="h-min py-1 px-2"
+      variant="searchTable"
     />
   )
 }

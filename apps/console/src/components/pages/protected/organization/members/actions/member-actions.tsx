@@ -16,7 +16,7 @@ import {
   AlertDialogCancel,
 } from '@repo/ui/alert-dialog'
 import { Button } from '@repo/ui/button'
-import React from 'react'
+import React, { useState } from 'react'
 import { Form, FormControl, FormField, FormItem } from '@repo/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { useForm } from 'react-hook-form'
@@ -28,6 +28,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { OrgMembershipRole } from '@repo/codegen/src/schema'
 import { useRemoveUserFromOrg, useUpdateUserRoleInOrg } from '@/lib/graphql-hooks/members'
 import { useGetUserProfile } from '@/lib/graphql-hooks/user'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
 type MemberActionsProps = {
   memberId: string
@@ -37,6 +38,7 @@ type MemberActionsProps = {
 const ICON_SIZE = 12
 
 export const MemberActions = ({ memberId, memberRole }: MemberActionsProps) => {
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
   const { actionIcon, roleRow, buttonRow } = pageStyles()
   const { mutateAsync: deleteMember } = useRemoveUserFromOrg()
   const { data: sessionData } = useSession()
@@ -128,29 +130,15 @@ export const MemberActions = ({ memberId, memberRole }: MemberActionsProps) => {
               e.preventDefault()
             }}
           >
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <div style={{ display: 'flex' }}>
-                  <Trash2 width={ICON_SIZE} /> &nbsp; Remove Member
-                </div>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                  <AlertDialogDescription>This action cannot be undone, this will permanently remove the member from the organization.</AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel asChild>
-                    <Button variant="outline">Cancel</Button>
-                  </AlertDialogCancel>
-                  <AlertDialogAction asChild>
-                    <Button variant="filled" onClick={handleDeleteMember}>
-                      Remove Member
-                    </Button>
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <div className="flex" onClick={() => setShowDeleteConfirmation(true)}>
+              <Trash2 width={ICON_SIZE} /> &nbsp; Remove Member
+            </div>
+            <ConfirmationDialog
+              open={showDeleteConfirmation}
+              onOpenChange={setShowDeleteConfirmation}
+              onConfirm={handleDeleteMember}
+              description="This action cannot be undone, this will permanently remove the member from the organization."
+            />
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuGroup>

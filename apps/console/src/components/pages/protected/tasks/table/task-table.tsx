@@ -15,10 +15,12 @@ const TaskTable: React.FC = () => {
   const [showCompletedTasks, setShowCompletedTasks] = useState<boolean>(false)
   const { setSelectedTask, orgMembers } = useTaskStore()
   const [filters, setFilters] = useState<Record<string, any>>({})
+  const allStatuses = [TaskTaskStatus.COMPLETED, TaskTaskStatus.OPEN, TaskTaskStatus.IN_PROGRESS, TaskTaskStatus.IN_REVIEW, TaskTaskStatus.WONT_DO]
+  const statusesWithoutComplete = [TaskTaskStatus.OPEN, TaskTaskStatus.IN_PROGRESS, TaskTaskStatus.IN_REVIEW, TaskTaskStatus.WONT_DO]
 
   const whereFilter = useMemo(() => {
     const conditions: Record<string, any> = {
-      ...(showCompletedTasks ? { status: TaskTaskStatus.COMPLETED } : {}),
+      ...(showCompletedTasks ? { statusIn: allStatuses } : { statusIn: statusesWithoutComplete }),
       ...filters,
     }
 
