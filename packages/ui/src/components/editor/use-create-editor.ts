@@ -67,6 +67,33 @@ import { TableElement } from '../plate-ui/table-element'
 import { TableRowElement } from '../plate-ui/table-row-element'
 import { TocElement } from '../plate-ui/toc-element'
 import { ToggleElement } from '../plate-ui/toggle-element'
+import { MediaAudioElementStatic } from '../plate-ui/media-audio-element-static'
+import { BlockquoteElementStatic } from '../plate-ui/blockquote-element-static'
+import { CommentLeafStatic } from '../plate-ui/comment-leaf-static'
+import { DateElementStatic } from '../plate-ui/date-element-static'
+import { EquationElementStatic } from '../plate-ui/equation-element-static'
+import { MediaFileElementStatic } from '../plate-ui/media-file-element-static'
+import { HighlightLeafStatic } from '../plate-ui/highlight-leaf-static'
+import { HrElementStatic } from '../plate-ui/hr-element-static'
+import { ImageElementStatic } from '../plate-ui/image-element-static'
+import { InlineEquationElementStatic } from '../plate-ui/inline-equation-element-static'
+import { KbdLeafStatic } from '../plate-ui/kbd-leaf-static'
+import { LinkElementStatic } from '../plate-ui/link-element-static'
+import { MentionElementStatic } from '../plate-ui/mention-element-static'
+import { ParagraphElementStatic } from '../plate-ui/paragraph-element-static'
+import { SuggestionLeafStatic } from '../plate-ui/suggestion-leaf-static'
+import { TableCellElementStatic, TableCellHeaderStaticElement } from '../plate-ui/table-cell-element-static'
+import { TableElementStatic } from '../plate-ui/table-element-static'
+import { TableRowElementStatic } from '../plate-ui/table-row-element-static'
+import { TocElementStatic } from '../plate-ui/toc-element-static'
+import { ToggleElementStatic } from '../plate-ui/toggle-element-static'
+import { MediaVideoElementStatic } from '../plate-ui/media-video-element-static'
+import { CodeBlockElementStatic } from '../plate-ui/code-block-element-static'
+import { CodeLeafStatic } from '../plate-ui/code-leaf-static'
+import { CodeLineElementStatic } from '../plate-ui/code-line-element-static'
+import { CodeSyntaxLeafStatic } from '../plate-ui/code-syntax-leaf-static'
+import { ColumnElementStatic } from '../plate-ui/column-element-static'
+import { ColumnGroupElementStatic } from '../plate-ui/column-group-element-static'
 
 export const viewComponents = {
   [AudioPlugin.key]: MediaAudioElement,
@@ -120,6 +147,52 @@ export const editorComponents = {
   [EmojiInputPlugin.key]: EmojiInputElement,
   [MentionInputPlugin.key]: MentionInputElement,
   [SlashInputPlugin.key]: SlashInputElement,
+}
+
+export const staticViewComponents = {
+  [AudioPlugin.key]: MediaAudioElementStatic,
+  [BlockquotePlugin.key]: BlockquoteElementStatic,
+  [BoldPlugin.key]: withProps(PlateLeaf, { as: 'strong' }),
+  [CodeBlockPlugin.key]: CodeBlockElementStatic,
+  [CodeLinePlugin.key]: CodeLineElementStatic,
+  [CodePlugin.key]: CodeLeafStatic,
+  [CodeSyntaxPlugin.key]: CodeSyntaxLeafStatic,
+  [ColumnItemPlugin.key]: ColumnElementStatic,
+  [ColumnPlugin.key]: ColumnGroupElementStatic,
+  [CommentsPlugin.key]: CommentLeafStatic,
+  [DatePlugin.key]: DateElementStatic,
+  [EquationPlugin.key]: EquationElementStatic,
+  //[ExcalidrawPlugin.key]: ExcalidrawElementStatic,
+  [FilePlugin.key]: MediaFileElementStatic,
+  [HEADING_KEYS.h1]: withProps(HeadingElement, { variant: 'h1' }),
+  [HEADING_KEYS.h2]: withProps(HeadingElement, { variant: 'h2' }),
+  [HEADING_KEYS.h3]: withProps(HeadingElement, { variant: 'h3' }),
+  [HEADING_KEYS.h4]: withProps(HeadingElement, { variant: 'h4' }),
+  [HEADING_KEYS.h5]: withProps(HeadingElement, { variant: 'h5' }),
+  [HEADING_KEYS.h6]: withProps(HeadingElement, { variant: 'h6' }),
+  [HighlightPlugin.key]: HighlightLeafStatic,
+  [HorizontalRulePlugin.key]: HrElementStatic,
+  [ImagePlugin.key]: ImageElementStatic,
+  [InlineEquationPlugin.key]: InlineEquationElementStatic,
+  [ItalicPlugin.key]: withProps(PlateLeaf, { as: 'em' }),
+  [KbdPlugin.key]: KbdLeafStatic,
+  [LinkPlugin.key]: LinkElementStatic,
+  //[MediaEmbedPlugin.key]: MediaEmbedElementStatic,
+  [MentionPlugin.key]: MentionElementStatic,
+  [ParagraphPlugin.key]: ParagraphElementStatic,
+  //[PlaceholderPlugin.key]: MediaPlaceholderElementStatic,
+  [StrikethroughPlugin.key]: withProps(PlateLeaf, { as: 's' }),
+  [SubscriptPlugin.key]: withProps(PlateLeaf, { as: 'sub' }),
+  [SuggestionPlugin.key]: SuggestionLeafStatic,
+  [SuperscriptPlugin.key]: withProps(PlateLeaf, { as: 'sup' }),
+  [TableCellHeaderPlugin.key]: TableCellHeaderStaticElement,
+  [TableCellPlugin.key]: TableCellElementStatic,
+  [TablePlugin.key]: TableElementStatic,
+  [TableRowPlugin.key]: TableRowElementStatic,
+  [TocPlugin.key]: TocElementStatic,
+  [TogglePlugin.key]: ToggleElementStatic,
+  [UnderlinePlugin.key]: withProps(PlateLeaf, { as: 'u' }),
+  [VideoPlugin.key]: MediaVideoElementStatic,
 }
 
 export const useCreateEditor = (

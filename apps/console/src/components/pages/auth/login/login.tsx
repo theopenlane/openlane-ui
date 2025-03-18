@@ -203,7 +203,7 @@ export const LoginPage = () => {
           </Button>
         </SimpleForm>
         <Link href="https://www.theopenlane.io/legal/privacy" className="text-xs text-gray-500 mt-8 text-center">
-          Privacy Policy {react.version}
+          Privacy Policy
         </Link>
         <Link href="https://www.theopenlane.io/legal/terms-of-service" className="text-xs text-gray-500 mt-1 text-center">
           Terms of Service

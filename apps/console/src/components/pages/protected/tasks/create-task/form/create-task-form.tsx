@@ -147,7 +147,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                               />
                             </div>
                             <FormControl>
-                              <PlateEditor />
+                              <PlateEditor field={field} />
                             </FormControl>
                             {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors.details.message}</p>}
                           </FormItem>
