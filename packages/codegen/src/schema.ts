@@ -30053,6 +30053,123 @@ export type CreateInternalPolicyMutation = {
   createInternalPolicy: { __typename?: 'InternalPolicyCreatePayload'; internalPolicy: { __typename?: 'InternalPolicy'; id: string; name: string; policyType?: string | null; details?: string | null } }
 }
 
+export type UpdateInternalPolicyMutationVariables = Exact<{
+  updateInternalPolicyId: Scalars['ID']['input']
+  input: UpdateInternalPolicyInput
+}>
+
+export type UpdateInternalPolicyMutation = {
+  __typename?: 'Mutation'
+  updateInternalPolicy: { __typename?: 'InternalPolicyUpdatePayload'; internalPolicy: { __typename?: 'InternalPolicy'; id: string; name: string; policyType?: string | null; details?: string | null } }
+}
+
+export type DeleteInternalPolicyMutationVariables = Exact<{
+  deleteInternalPolicyId: Scalars['ID']['input']
+}>
+
+export type DeleteInternalPolicyMutation = { __typename?: 'Mutation'; deleteInternalPolicy: { __typename?: 'InternalPolicyDeletePayload'; deletedID: string } }
+
+export type GetInternalPoliciesListQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetInternalPoliciesListQuery = {
+  __typename?: 'Query'
+  internalPolicies: {
+    __typename?: 'InternalPolicyConnection'
+    edges?: Array<{
+      __typename?: 'InternalPolicyEdge'
+      node?: {
+        __typename?: 'InternalPolicy'
+        id: string
+        name: string
+        policyType?: string | null
+        tags?: Array<string> | null
+        revision?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        details?: string | null
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetAllInternalPoliciesQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetAllInternalPoliciesQuery = {
+  __typename?: 'Query'
+  internalPolicies: {
+    __typename?: 'InternalPolicyConnection'
+    edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
+  }
+}
+
+export type InternalPolicyByIdFragment = {
+  __typename?: 'InternalPolicy'
+  id: string
+  name: string
+  details?: string | null
+  createdAt?: any | null
+  createdBy?: string | null
+  updatedAt?: any | null
+  updatedBy?: string | null
+  tags?: Array<string> | null
+  revision?: string | null
+  status?: InternalPolicyDocumentStatus | null
+  policyType?: string | null
+  displayID: string
+  procedures: { __typename?: 'ProcedureConnection'; edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null }
+}
+
+export type GetInternalPolicyDetailsByIdQueryVariables = Exact<{
+  internalPolicyId: Scalars['ID']['input']
+}>
+
+export type GetInternalPolicyDetailsByIdQuery = {
+  __typename?: 'Query'
+  internalPolicy: {
+    __typename?: 'InternalPolicy'
+    id: string
+    name: string
+    details?: string | null
+    createdAt?: any | null
+    createdBy?: string | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+    tags?: Array<string> | null
+    revision?: string | null
+    status?: InternalPolicyDocumentStatus | null
+    policyType?: string | null
+    displayID: string
+    procedures: { __typename?: 'ProcedureConnection'; edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null }
+  }
+}
+
+export type SearchInternalPoliciesQueryVariables = Exact<{
+  query: Scalars['String']['input']
+}>
+
+export type SearchInternalPoliciesQuery = {
+  __typename?: 'Query'
+  internalPolicySearch?: {
+    __typename?: 'InternalPolicySearchResult'
+    internalPolicies?: Array<{
+      __typename?: 'InternalPolicy'
+      id: string
+      name: string
+      displayID: string
+      status?: InternalPolicyDocumentStatus | null
+      revision?: string | null
+      updatedAt?: any | null
+      updatedBy?: string | null
+      createdAt?: any | null
+      createdBy?: string | null
+      tags?: Array<string> | null
+      details?: string | null
+    }> | null
+  } | null
+}
+
 export type CreateProcedureMutationVariables = Exact<{
   input: CreateProcedureInput
 }>

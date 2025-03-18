@@ -59,7 +59,7 @@ export const ProceduresTable = () => {
   const handleCreateNew = async () => {
     try {
       const data = await createProcedure({
-        input: { name: 'Untitled Procedure', status: 'new', version: '0.0.0' },
+        input: { name: 'Untitled Procedure' },
       })
       editProcedure(data.createProcedure.procedure.id)
     } catch (error) {

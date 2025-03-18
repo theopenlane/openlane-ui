@@ -8,6 +8,19 @@ import {
   SEARCH_INTERNAL_POLICIES,
   DELETE_INTERNAL_POLICY,
 } from '@repo/codegen/query/policy'
+import {
+  CreateInternalPolicyMutation,
+  CreateInternalPolicyMutationVariables,
+  DeleteInternalPolicyMutation,
+  DeleteInternalPolicyMutationVariables,
+  GetInternalPoliciesListQuery,
+  GetInternalPolicyDetailsByIdQuery,
+  GetInternalPolicyDetailsByIdQueryVariables,
+  SearchInternalPoliciesQuery,
+  SearchInternalPoliciesQueryVariables,
+  UpdateInternalPolicyMutation,
+  UpdateInternalPolicyMutationVariables,
+} from '@repo/codegen/src/schema'
 
 export const useGetInternalPoliciesList = () => {
   const { client } = useGraphQLClient()

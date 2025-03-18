@@ -22,10 +22,14 @@ export function ProcedurePage({ procedureId }: ProcedurePageProps) {
   const procedure = data?.procedure as Procedure
 
   const descriptions = useMemo(() => {
+    let details: any = {} // add type after rich text update
+    if (procedure?.details) {
+      details = { ...details, ...JSON.parse(procedure?.details) }
+    }
     return [
-      { label: 'Purpose and Scope', value: procedure?.purposeAndScope },
-      { label: 'Description', value: procedure?.description },
-      { label: 'Background', value: procedure?.background },
+      { label: 'Purpose and Scope', value: details?.purposeAndScope ?? '' },
+      { label: 'Description', value: details?.description },
+      { label: 'Background', value: details?.background },
     ]
   }, [procedure])
 
@@ -51,7 +55,7 @@ export function ProcedurePage({ procedureId }: ProcedurePageProps) {
 
             <div className="text-2xl mb-5">Procedure</div>
             <div className="text-ellipsis overflow-hidden whitespace-pre-wrap">
-              <PlateContentHTML content={procedure.details?.content} />
+              <PlateContentHTML content={(procedure?.details && (JSON.parse(procedure?.details) as Value)) || []} />
             </div>
           </>
         }

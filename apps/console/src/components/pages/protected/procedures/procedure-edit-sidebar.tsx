@@ -48,8 +48,6 @@ export const ProcedureEditSidebar = ({ procedure, form, handleSave }: ProcedureE
     return {
       status: [
         { icon: Binoculars, label: 'Status', value: procedure.status },
-        { icon: FileStack, label: 'Version', value: procedure.version },
-        { icon: ScrollText, label: 'Procedure Type', value: <ProcedureTypeField form={form} /> },
         { icon: CalendarCheck2, label: 'Created At', value: formatTime(procedure.createdAt) },
         { icon: CalendarClock, label: 'Updated At', value: formatTime(procedure.updatedAt) },
       ],
@@ -125,24 +123,5 @@ const TagsPanel = ({ form }: { form: UseFormReturn<EditProcedureFormData> }) => 
         />
       </Form>
     </Panel>
-  )
-}
-
-function ProcedureTypeField({ form }: { form: UseFormReturn<EditProcedureFormData> }) {
-  return (
-    <Form {...form}>
-      <FormField
-        name="procedureType"
-        control={form.control}
-        render={({ field }) => (
-          <FormItem>
-            <FormControl className="w-full">
-              <Input placeholder="Procedure type" {...field} className="bg-background text-white w-full text-sm h-auto p-1" />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    </Form>
   )
 }

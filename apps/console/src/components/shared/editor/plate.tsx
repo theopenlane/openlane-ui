@@ -19,8 +19,8 @@ import debounce from 'lodash.debounce'
 const editor = createPlateEditor(Object.assign({}, PlateConfig, { value: '' }))
 
 type Props = {
-  content?: Value | null
-  onChange?: (content: Value) => void
+  content?: string | null
+  onChange?: (content: string) => string
 }
 
 export default function PlateEditor({ content, onChange }: Props) {
@@ -32,14 +32,15 @@ export default function PlateEditor({ content, onChange }: Props) {
     }
   }, [content])
 
-  const handleChange = ({ value }: { value: Value }) => {
+  const handleChange = ({ value }: any) => {
     if (onChange) debouncedOnChange(value)
   }
 
   return (
     <>
       <DndProvider backend={HTML5Backend}>
-        <Plate editor={editor} onChange={handleChange}>
+        {/* TODO: fix values after rich text update */}
+        <Plate editor={editor} onChange={(val) => handleChange(val.value as any)}>
           <FixedToolbar>
             <FixedToolbarButtons />
           </FixedToolbar>
