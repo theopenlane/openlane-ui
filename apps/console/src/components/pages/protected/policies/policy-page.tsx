@@ -2,7 +2,6 @@ import React, { useMemo } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import { PolicySidebar } from '@/components/pages/protected/policies/policy-sidebar'
 import dynamic from 'next/dynamic'
-import type { InternalPolicyUpdateFieldsFragment } from '@repo/codegen/src/schema'
 const PlateEditor = dynamic(() => import('@/components/shared/editor/plate'), { ssr: false })
 import { z } from 'zod'
 import { useGetInternalPolicyDetailsById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy'
@@ -42,10 +41,14 @@ export function PolicyPage({ policyId }: PolicyPageProps) {
   const policy = data?.internalPolicy
 
   const descriptions = useMemo(() => {
+    let details: any = {} // add type after rich text update
+    if (policy?.details) {
+      details = { ...details, ...JSON.parse(policy?.details) }
+    }
     return [
-      { label: 'Purpose and Scope', value: policy?.purposeAndScope },
-      { label: 'Description', value: policy?.description },
-      { label: 'Background', value: policy?.background },
+      { label: 'Purpose and Scope', value: details?.purposeAndScope ?? '' },
+      { label: 'Description', value: details?.description },
+      { label: 'Background', value: details?.background },
     ]
   }, [policy])
 
@@ -71,7 +74,7 @@ export function PolicyPage({ policyId }: PolicyPageProps) {
 
             <div className="text-2xl mb-5">Policy</div>
             <div className="text-ellipsis overflow-hidden whitespace-pre-wrap">
-              <PlateContentHTML content={policy.details?.content} />
+              <PlateContentHTML content={(policy?.details && (JSON.parse(policy?.details) as Value)) || []} />
             </div>
           </>
         }

@@ -4,20 +4,18 @@ import React, { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 
 import { Info } from 'lucide-react'
-import { Textarea } from '@repo/ui/textarea'
 import { FieldValues, Path, ControllerRenderProps, UseFormReturn } from 'react-hook-form'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
 import { EditPolicyFormData } from './policy-edit-form-types'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import type { Value } from '@udecode/plate-common'
 
 const PlateEditor = dynamic(() => import('@/components/shared/editor/plate'), { ssr: false })
 
 type PolicyEditFormProps = {
-  document: Value
-  setDocument: React.Dispatch<React.SetStateAction<Value>>
+  document: string
+  setDocument: React.Dispatch<React.SetStateAction<string>>
   form: UseFormReturn<EditPolicyFormData>
 }
 
@@ -28,9 +26,7 @@ export const PolicyEditForm = ({ form, document, setDocument }: PolicyEditFormPr
   useEffect(() => {
     if (!updatedDocument?.length) return
     setDocument((state) => {
-      state.length = 0 // clear out the current document
-      state.push(...updatedDocument)
-      setFormValue('details', { content: state }, { shouldValidate: true })
+      setFormValue('details', state, { shouldValidate: true })
       return state
     })
   }, [updatedDocument])
@@ -51,25 +47,14 @@ export const PolicyEditForm = ({ form, document, setDocument }: PolicyEditFormPr
             </p>
           </AlertDescription>
         </Alert>
-
         <Form {...form}>
           <PolicyFormField required form={form} name="name" label="Title" info="The title of the policy.">
             {(field) => <Input placeholder="Policy title" {...field} className="bg-background" />}
           </PolicyFormField>
-          <PolicyFormField form={form} name="description" label="Description" info="The description of the policy.">
-            {(field) => <Textarea rows={7} placeholder="Policy description" {...field} className="bg-background" />}
-          </PolicyFormField>
-          <PolicyFormField form={form} name="background" label="Background" info="The background of the policy.">
-            {(field) => <Textarea rows={7} placeholder="Policy background" {...field} className="bg-background" />}
-          </PolicyFormField>
-          <PolicyFormField form={form} name="purposeAndScope" label="Purpose and Scope" info="The purpose and scope of the policy.">
-            {(field) => <Textarea rows={7} placeholder="Policy purpose and scope" {...field} className="bg-background" />}
-          </PolicyFormField>
         </Form>
-
         <div>
           <FormLabelContent label="Policy" info="The Policy document contents" />
-          <PlateEditor content={document} onChange={setUpdatedDocument} />
+          <PlateEditor content={document} onChange={setUpdatedDocument as any} />
         </div>
       </div>
     </>

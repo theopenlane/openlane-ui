@@ -9,14 +9,22 @@ export const GET_DASHBOARD_DATA = gql`
           name
           description
           controls {
-            id
+            edges {
+              node {
+                id
+              }
+            }
           }
           tasks {
-            id
-            title
-            status
-            description
-            due
+            edges {
+              node {
+                id
+                title
+                status
+                description
+                due
+              }
+            }
           }
         }
       }

@@ -5,11 +5,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { EditProcedureSchema, EditProcedureFormData } from './procedure-edit-form-types'
-import type { Value } from '@udecode/plate-common'
 import { Button } from '@repo/ui/button'
 import { Eye } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { useToast } from '@repo/ui/use-toast'
 import { ProcedureEditForm } from './procedure-edit-form'
 import { useNotification } from '@/hooks/useNotification'
 import { useGetProcedureDetailsById, useUpdateProcedure } from '@/lib/graphql-hooks/procedures'
@@ -28,7 +26,7 @@ export function ProcedureEditPage({ procedureId }: ProcedureEditPageProps) {
   const { isPending: saving, mutateAsync: updateProcedure } = useUpdateProcedure()
   const { data: procedureData } = useGetProcedureDetailsById(procedureId)
   const [procedure, setProcedure] = useState((procedureData?.procedure || {}) as Procedure)
-  const [document, setDocument] = useState<Value>(procedure?.details?.content)
+  const [document, setDocument] = useState<string>(procedure?.details!!)
 
   const form = useForm<EditProcedureFormData>({
     resolver: zodResolver(EditProcedureSchema),
@@ -36,14 +34,9 @@ export function ProcedureEditPage({ procedureId }: ProcedureEditPageProps) {
     disabled: saving,
     defaultValues: {
       name: procedure?.name || '',
-      description: procedure?.description || '',
-      background: procedure?.background || '',
-      procedureType: procedure?.procedureType || '',
-      purposeAndScope: procedure?.purposeAndScope || '',
       tags: procedure?.tags || [],
-      details: procedure?.details || {
-        content: (procedure?.details?.content || []) as Value[],
-      },
+      details: procedure?.details!!,
+      procedureType: procedure?.procedureType || '',
     },
   })
 
@@ -53,16 +46,13 @@ export function ProcedureEditPage({ procedureId }: ProcedureEditPageProps) {
     if (!procedure) return
 
     setProcedure(procedure as Procedure)
-    setDocument(procedure?.details?.content || [])
+    setDocument(procedure?.details ?? '')
 
     form.reset({
       name: procedure?.name || '',
-      description: procedure?.description || '',
-      background: procedure?.background || '',
-      purposeAndScope: procedure?.purposeAndScope || '',
-      procedureType: procedure?.procedureType || '',
       tags: procedure?.tags || [],
-      details: procedure?.details,
+      details: procedure?.details ?? '',
+      procedureType: procedure?.procedureType || '',
     })
   }, [procedureData])
 
@@ -77,21 +67,16 @@ export function ProcedureEditPage({ procedureId }: ProcedureEditPageProps) {
   if (!procedureData?.procedure) return <></>
 
   const handleSave = async () => {
-    const { name, description, background, purposeAndScope, procedureType, tags } = form.getValues()
+    const { name, tags, procedureType } = form.getValues()
 
     try {
       await updateProcedure({
         updateProcedureId: procedureData?.procedure.id,
         input: {
           name,
-          description,
-          background,
-          purposeAndScope,
-          procedureType,
           tags,
-          details: {
-            content: document,
-          },
+          details: document,
+          procedureType,
         },
       })
       successNotification({ title: 'Procedure updated' })

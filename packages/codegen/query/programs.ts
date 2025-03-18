@@ -106,45 +106,73 @@ export const GET_PROGRAM_DETAILS_BY_ID = gql`
       auditorWriteComments
       auditorReadComments
       tasks {
-        id
-        title
-        status
-        due
-        details
-        assignee {
-          id
-          firstName
-          lastName
-          email
-        }
-        assigner {
-          id
-          firstName
-          lastName
-          email
+        edges {
+          node {
+            id
+            title
+            status
+            due
+            details
+            assignee {
+              id
+              firstName
+              lastName
+              email
+            }
+            assigner {
+              id
+              firstName
+              lastName
+              email
+            }
+          }
         }
       }
       controlObjectives {
-        id
-        name
+        edges {
+          node {
+            id
+            name
+          }
+        }
       }
       controls {
-        id
+        edges {
+          node {
+            id
+          }
+        }
       }
       subcontrols {
-        id
+        edges {
+          node {
+            id
+          }
+        }
       }
       narratives {
-        id
-        name
+        edges {
+          node {
+            id
+            name
+          }
+        }
       }
       internalPolicies {
-        id
-        name
+        edges {
+          node {
+            id
+            name
+          }
+        }
       }
       procedures {
-        id
-        name
+        edges {
+          node {
+            id
+            name
+          }
+        }
       }
     }
   }

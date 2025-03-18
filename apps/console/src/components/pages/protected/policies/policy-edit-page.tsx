@@ -2,7 +2,7 @@ import { TwoColumnLayout } from '@/components/shared/layouts/two-column-layout'
 import { useForm } from 'react-hook-form'
 import { PolicyEditSidebar } from './policy-edit-sidebar'
 import { InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
-import { useEffect, useMemo, useState } from 'react'
+import React, { ReactNode, useEffect, useMemo, useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import { PolicyEditForm } from './policy-edit-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -26,7 +26,7 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
   const { isPending: saving, mutateAsync: updatePolicy } = useUpdateInternalPolicy()
   const { data: policyData } = useGetInternalPolicyDetailsById(policyId)
   const [policy, setPolicy] = useState(policyData?.internalPolicy ?? ({} as InternalPolicyByIdFragment))
-  const [document, setDocument] = useState<Value>(policy?.details?.content)
+  const [document, setDocument] = useState<string>(policy?.details as string)
 
   const form = useForm<EditPolicyFormData>({
     resolver: zodResolver(EditPolicySchema),
@@ -34,14 +34,8 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
     disabled: saving,
     defaultValues: {
       name: policy.name || '',
-      description: policy.description || '',
-      background: policy.background || '',
       policyType: policy.policyType || '',
-      purposeAndScope: policy.purposeAndScope || '',
       tags: policy.tags || [],
-      details: policy.details || {
-        content: (policy.details?.content || []) as Value[],
-      },
     },
   })
 
@@ -53,16 +47,18 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
     }
 
     setPolicy(policy)
-    setDocument(policy.details?.content || [])
+    if (policy?.details) {
+      setDocument(JSON.parse(policy?.details))
+    } else {
+      // @ts-ignore it will be a string when we update rich text
+      setDocument('')
+    }
 
     form.reset({
       name: policy.name || '',
-      description: policy.description || '',
-      background: policy.background || '',
-      purposeAndScope: policy.purposeAndScope || '',
       policyType: policy.policyType || '',
       tags: policy.tags || [],
-      details: policy.details,
+      details: policy?.details ?? '',
     })
   }, [policyData])
 
@@ -77,21 +73,17 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
   if (!policyData?.internalPolicy) return <></>
 
   const handleSave = async () => {
-    const { name, description, background, purposeAndScope, policyType, tags } = form.getValues()
+    const { name, policyType, tags } = form.getValues()
 
     try {
+      const details = { description: '', background: '', purposeAndScope: '', editor: '' }
       await updatePolicy({
         updateInternalPolicyId: policyData?.internalPolicy.id,
         input: {
           name,
-          description,
-          background,
-          purposeAndScope,
           policyType,
           tags,
-          details: {
-            content: document,
-          },
+          details: JSON.stringify(details),
         },
       })
       successNotification({ title: 'Policy updated' })

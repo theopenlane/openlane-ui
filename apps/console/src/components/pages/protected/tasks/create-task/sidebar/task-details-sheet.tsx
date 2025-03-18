@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Fragment } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { Link, Pencil, Check, FilePlus, SquareArrowRight, CircleUser, UserRoundPen, CalendarCheck2, Circle, Folder, BookText, InfoIcon, ArrowDownUp, ArrowUpDown } from 'lucide-react'
@@ -48,7 +48,7 @@ const TaskDetailsSheet = () => {
 
   const taskData = data?.task
   const { form } = useFormSchema()
-  const where = taskData?.comments ? { idIn: taskData.comments.map((item) => item.createdBy!) } : undefined
+  const where = taskData?.comments ? { idIn: taskData?.comments?.edges?.map((item) => item?.node?.createdBy!) } : undefined
   const { data: userData } = useGetUsers(where)
 
   useEffect(() => {
@@ -59,30 +59,30 @@ const TaskDetailsSheet = () => {
         due: new Date(taskData.due as string),
         assigneeID: taskData.assignee?.id,
         category: taskData?.category ? Object.values(TaskTypes).find((type) => type === taskData?.category) : undefined,
-        controlObjectiveIDs: taskData?.controlObjective?.map((item) => item.id) || [],
-        subcontrolIDs: taskData?.subcontrol?.map((item) => item.id) || [],
-        programIDs: taskData?.program?.map((item) => item.id) || [],
-        procedureIDs: taskData?.procedure?.map((item) => item.id) || [],
-        internalPolicyIDs: taskData?.internalPolicy?.map((item) => item.id) || [],
-        evidenceIDs: taskData?.evidence?.map((item) => item.id) || [],
-        groupIDs: taskData?.group?.map((item) => item.id) || [],
+        controlObjectiveIDs: taskData?.controlObjective?.edges?.map((item) => item?.node?.id) || [],
+        subcontrolIDs: taskData?.subcontrol?.edges?.map((item) => item?.node?.id) || [],
+        programIDs: taskData?.program?.edges?.map((item) => item?.node?.id) || [],
+        procedureIDs: taskData?.procedure?.edges?.map((item) => item?.node?.id) || [],
+        internalPolicyIDs: taskData?.internalPolicy?.edges?.map((item) => item?.node?.id) || [],
+        evidenceIDs: taskData?.evidence?.edges?.map((item) => item?.node?.id) || [],
+        groupIDs: taskData?.group?.edges?.map((item) => item?.node?.id) || [],
         status: taskData?.status ? Object.values(TaskTaskStatus).find((type) => type === taskData?.status) : undefined,
       })
     }
 
     if (taskData && userData && userData?.users?.edges?.length) {
-      const comments = (taskData?.comments || []).map((item) => {
-        const user = userData.users!.edges!.find((user) => user!.node!.id === item.createdBy)?.node!
+      const comments = (taskData?.comments || [])?.edges?.map((item) => {
+        const user = userData.users!.edges!.find((user) => user!.node!.id === item?.node?.createdBy)?.node!
         const avatarUrl = user!.avatarFile?.presignedURL || user.avatarRemoteURL
         return {
-          comment: item.text,
+          comment: item?.node?.text,
           avatarUrl: avatarUrl,
-          createdAt: item.createdAt,
+          createdAt: item?.node?.createdAt,
           userName: user?.firstName ? `${user.firstName} ${user?.lastName}` : user.displayName,
         } as TCommentData
       })
-      const sortedComments = comments.sort((a, b) => new Date(!commentSortIsAsc ? b.createdAt : a.createdAt).getTime() - new Date(!commentSortIsAsc ? a.createdAt : b.createdAt).getTime())
-      setComments(sortedComments)
+      const sortedComments = comments?.sort((a, b) => new Date(!commentSortIsAsc ? b.createdAt : a.createdAt).getTime() - new Date(!commentSortIsAsc ? a.createdAt : b.createdAt).getTime())
+      setComments(sortedComments || [])
     }
   }, [taskData, form])
 
@@ -230,24 +230,16 @@ const TaskDetailsSheet = () => {
 
   const handleRelatedObjects = () => {
     const items = [
-      ...(taskData?.controlObjective?.map((item) => item.displayID) || []),
-      ...(taskData?.subcontrol?.map((item) => item.displayID) || []),
-      ...(taskData?.program?.map((item) => item.displayID) || []),
-      ...(taskData?.procedure?.map((item) => item.displayID) || []),
-      ...(taskData?.internalPolicy?.map((item) => item.displayID) || []),
-      ...(taskData?.evidence?.map((item) => item.displayID) || []),
-      ...(taskData?.group?.map((item) => item.displayID) || []),
+      ...(taskData?.controlObjective?.edges?.map((item) => item?.node?.displayID) || []),
+      ...(taskData?.subcontrol?.edges?.map((item) => item?.node?.displayID) || []),
+      ...(taskData?.program?.edges?.map((item) => item?.node?.displayID) || []),
+      ...(taskData?.procedure?.edges?.map((item) => item?.node?.displayID) || []),
+      ...(taskData?.internalPolicy?.edges?.map((item) => item?.node?.displayID) || []),
+      ...(taskData?.evidence?.edges?.map((item) => item?.node?.displayID) || []),
+      ...(taskData?.group?.edges?.map((item) => item?.node?.displayID) || []),
     ]
 
-    return (
-      <div className="flex flex-wrap gap-2">
-        {items?.map((item: string, index: number) => (
-          <Badge key={index} variant="outline">
-            {item}
-          </Badge>
-        ))}
-      </div>
-    )
+    return <div className="flex flex-wrap gap-2">{items?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}</div>
   }
 
   const handleReassignComingSoon = () => {
