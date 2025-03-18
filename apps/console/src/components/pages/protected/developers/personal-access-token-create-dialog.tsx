@@ -12,13 +12,13 @@ import { useSession } from 'next-auth/react'
 import { useOrganization } from '@/hooks/useOrganization'
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { useForm } from 'react-hook-form'
 import { z, infer as zInfer } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { usePathname } from 'next/navigation'
 import { useCreateAPIToken, useCreatePersonalAccessToken } from '@/lib/graphql-hooks/tokens'
-import { CreateApiTokenInput } from '@repo/codegen/src/schema'
+import { CreateApiTokenInput, Organization } from '@repo/codegen/src/schema'
+import { Avatar } from '@/components/shared/avatar/avatar'
 
 type PersonalApiKeyDialogProps = {
   triggerText?: boolean
@@ -229,7 +229,6 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent>
                             {Object.entries(orgs).map(([key, value]) => {
-                              const image = value?.node?.avatarFile?.presignedURL ?? value?.node?.avatarRemoteURL
                               return (
                                 <DropdownMenuCheckboxItem
                                   key={value?.node?.id}
@@ -239,10 +238,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
                                     field.onChange(newValue)
                                   }}
                                 >
-                                  <Avatar variant="medium">
-                                    {image && <AvatarImage src={image} />}
-                                    <AvatarFallback>{value?.node?.name?.substring(0, 2)}</AvatarFallback>
-                                  </Avatar>
+                                  {value?.node && <Avatar entity={value.node as Organization} />}
                                   {value?.node?.name}
                                 </DropdownMenuCheckboxItem>
                               )

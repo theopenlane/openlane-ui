@@ -1,13 +1,13 @@
 'use client'
 
 import React from 'react'
-import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { Badge } from '@repo/ui/badge'
 import { GlobeIcon, LockIcon } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
-import { GetAllGroupsQuery } from '@repo/codegen/src/schema'
+import { GetAllGroupsQuery, User } from '@repo/codegen/src/schema'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { Group } from '../groups-page'
+import { Avatar } from '@/components/shared/avatar/avatar'
 
 interface Props {
   queryResult: GetAllGroupsQuery | undefined
@@ -70,13 +70,7 @@ const MyGroupsCard = ({ queryResult, isPending, isError }: Props) => {
               {group.members.length > 0 ? (
                 <div className="flex items-center gap-2">
                   {group.members.map((member: any, index: number) => {
-                    const avatarUrl = member.avatarFile?.presignedURL || member.avatarRemoteURL
-                    return (
-                      <Avatar key={index} className="h-8 w-8">
-                        {avatarUrl && <AvatarImage src={avatarUrl} />}
-                        <AvatarFallback>{member.firstName?.substring(0, 2) || 'U'}</AvatarFallback>
-                      </Avatar>
-                    )
+                    return <Avatar key={index} className="h-8 w-8" entity={member.user as User} />
                   })}
                 </div>
               ) : (

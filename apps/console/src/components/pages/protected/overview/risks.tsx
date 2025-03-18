@@ -2,7 +2,6 @@ import React from 'react'
 import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
 import { DataTable } from '@repo/ui/data-table'
 import { Button } from '@repo/ui/button'
-import { Avatar, AvatarFallback } from '@repo/ui/avatar'
 import { Cog, AlertTriangle } from 'lucide-react'
 import { ColumnDef } from '@tanstack/table-core'
 import { useRisksWithFilter } from '@/lib/graphql-hooks/risks'
@@ -43,9 +42,8 @@ const columns: ColumnDef<any>[] = [
     accessorKey: 'assigner',
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
-        <Avatar className="w-6 h-6">
-          <AvatarFallback className="bg-yellow-500 text-white text-xs">K</AvatarFallback>
-        </Avatar>
+        {/* <Avatar className="w-6 h-6"> add entity when have data
+        </Avatar> */}
         {row.getValue('assigner')}
       </div>
     ),
