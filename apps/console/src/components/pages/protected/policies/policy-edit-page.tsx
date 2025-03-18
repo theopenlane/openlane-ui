@@ -71,7 +71,6 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
   }, [policy])
 
   if (!policyData?.internalPolicy) return <></>
-  console.log(document)
 
   const handleSave = async () => {
     const { name, policyType, tags } = form.getValues()
