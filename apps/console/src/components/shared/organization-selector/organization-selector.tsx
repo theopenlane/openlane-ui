@@ -7,7 +7,6 @@ import { Button } from '@repo/ui/button'
 import { ArrowRight, SearchIcon } from 'lucide-react'
 import { ChevronDown } from '@repo/ui/icons/chevron-down'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
-import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { Input } from '@repo/ui/input'
 import { Tag } from '@repo/ui/tag'
 import Link from 'next/link'
@@ -17,6 +16,8 @@ import { Loading } from '../loading/loading'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useGetAllOrganizationsWithMembers } from '@/lib/graphql-hooks/organization'
 import { useQueryClient } from '@tanstack/react-query'
+import { Organization } from '@repo/codegen/src/schema'
+import { Avatar } from '../avatar/avatar'
 
 export const OrganizationSelector = () => {
   const { data: sessionData, update: updateSession } = useSession()
@@ -124,10 +125,7 @@ export const OrganizationSelector = () => {
               return (
                 <div key={org?.node?.id} className={`${orgWrapper()} group`}>
                   <div>
-                    <Avatar>
-                      {image && <AvatarImage src={image} />}
-                      <AvatarFallback>{org?.node?.displayName.substring(0, 2)}</AvatarFallback>
-                    </Avatar>
+                    <Avatar entity={org?.node as Organization} />
                   </div>
                   <div className={orgInfo()}>
                     <div className={orgTitle()}>{org?.node?.displayName}</div>

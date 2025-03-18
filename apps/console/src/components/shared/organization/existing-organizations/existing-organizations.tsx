@@ -1,12 +1,13 @@
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { existingOrganizationsStyles } from './existing-organizations.styles'
-import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { Button } from '@repo/ui/button'
 import { Tag } from '@repo/ui/tag'
 import { switchOrganization } from '@/lib/user'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useGetAllOrganizationsWithMembers } from '@/lib/graphql-hooks/organization'
+import { Avatar } from '../../avatar/avatar'
+import { Organization } from '@repo/codegen/src/schema'
 
 export const ExistingOrganizations = () => {
   const { data: sessionData, update: updateSession } = useSession()
@@ -56,16 +57,10 @@ export const ExistingOrganizations = () => {
         <PanelHeader heading="Existing organizations" />
         {orgs.map((org) => {
           const role = org?.node?.members?.[0]?.role ?? 'Owner'
-          const image = org?.node?.avatarFile?.presignedURL || org?.node?.avatarRemoteURL
-
           return (
             <div key={org?.node?.id} className={`${orgWrapper()} group`}>
               <div>
-                <Avatar variant="large">
-                  {image && <AvatarImage src={image} />}
-
-                  <AvatarFallback>{org?.node?.displayName.substring(0, 2)}</AvatarFallback>
-                </Avatar>
+                <Avatar entity={org?.node as Organization} />
               </div>
               <div className={orgInfo()}>
                 <div className={orgTitle()}>{org?.node?.displayName}</div>
