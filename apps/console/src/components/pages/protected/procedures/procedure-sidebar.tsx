@@ -27,7 +27,6 @@ export const ProcedureSidebar: React.FC<ProcedureSidebarProps> = function ({ pro
       // ],
       status: [
         { icon: Binoculars, label: 'Status', value: procedure.status },
-        { icon: FileStack, label: 'Version', value: procedure.version },
         { icon: ScrollText, label: 'Type', value: procedure.procedureType },
         {
           icon: Tag,

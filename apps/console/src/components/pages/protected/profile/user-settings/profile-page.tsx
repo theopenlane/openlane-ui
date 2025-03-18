@@ -28,7 +28,7 @@ const ProfilePage = () => {
   const { isPending, mutateAsync: updateUserAvatar } = useUpdateUserAvatar()
 
   const { data: tfaData } = useGetUserTFASettings(userId)
-  const tfaSettings = tfaData?.user?.tfaSettings?.[0]
+  const tfaSettings = tfaData?.user?.tfaSettings?.edges?.[0]?.node
 
   const { isPending: isTfaSubmitting, mutateAsync: updateTfaSetting } = useUpdateTfaSetting()
   const { isPending: isTfaCreating, mutateAsync: createTfaSetting } = useCreateTfaSetting()
@@ -216,8 +216,7 @@ const ProfilePage = () => {
         <QRCodeDialog
           qrcode={qrcode}
           secret={secret}
-          refetch={() => {
-          }}
+          refetch={() => {}}
           onClose={() => {
             setQrcode('')
             setSecret('')

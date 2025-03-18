@@ -16,6 +16,7 @@ import { cn } from '@repo/ui/lib/utils'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { TableSort } from '@/components/shared/table-filter/table-sort'
 import { FilterField } from '@/types'
+import { InternalPolicyDocumentStatus } from '@repo/codegen/src/schema'
 
 type PoliciesEdge = any
 type Policies = NonNullable<PoliciesEdge>['node']
@@ -60,7 +61,7 @@ export const PoliciesTable = () => {
 
   const handleCreateNew = async () => {
     const data = await createPolicy({
-      input: { name: 'Untitled Policy', status: 'new', version: '0.0.0' },
+      input: { name: 'Untitled Policy' },
     })
 
     if (data.createInternalPolicy) {

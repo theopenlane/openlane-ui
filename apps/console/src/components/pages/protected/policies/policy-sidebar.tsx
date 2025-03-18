@@ -27,7 +27,6 @@ export const PolicySidebar: React.FC<PolicySidebarProps> = function ({ policy })
       // ],
       status: [
         { icon: Binoculars, label: 'Status', value: policy.status },
-        { icon: FileStack, label: 'Version', value: policy.version },
         { icon: ScrollText, label: 'Type', value: policy.policyType },
         {
           icon: Tag,

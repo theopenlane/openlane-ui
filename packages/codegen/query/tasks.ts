@@ -79,48 +79,80 @@ export const TASK = gql`
       title
       status
       subcontrol {
-        displayID
-        id
+        edges {
+          node {
+            id
+            displayID
+          }
+        }
       }
       program {
-        displayID
-        id
+        edges {
+          node {
+            id
+            displayID
+          }
+        }
       }
       procedure {
-        displayID
-        id
+        edges {
+          node {
+            id
+            displayID
+          }
+        }
       }
       internalPolicy {
-        displayID
-        id
+        edges {
+          node {
+            id
+            displayID
+          }
+        }
       }
       evidence {
-        displayID
-        id
+        edges {
+          node {
+            displayID
+            id
+          }
+        }
       }
       group {
-        displayID
-        id
+        edges {
+          node {
+            displayID
+            id
+          }
+        }
       }
       due
       displayID
       description
       details
       controlObjective {
-        displayID
-        id
+        edges {
+          node {
+            displayID
+            id
+          }
+        }
       }
       comments {
-        createdAt
-        createdBy
-        owner {
-          avatarRemoteURL
-          avatarFile {
-            presignedURL
+        edges {
+          node {
+            createdAt
+            createdBy
+            owner {
+              avatarRemoteURL
+              avatarFile {
+                presignedURL
+              }
+              displayName
+            }
+            text
           }
-          displayName
         }
-        text
       }
     }
   }

@@ -11,26 +11,23 @@ import { Input } from '@repo/ui/input'
 import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
 import { EditProcedureFormData } from './procedure-edit-form-types'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import type { Value } from '@udecode/plate-common'
 
 const PlateEditor = dynamic(() => import('@/components/shared/editor/plate'), { ssr: false })
 
 type ProcedureEditFormProps = {
-  document: Value
-  setDocument: React.Dispatch<React.SetStateAction<Value>>
+  document: string
+  setDocument: React.Dispatch<React.SetStateAction<string>>
   form: UseFormReturn<EditProcedureFormData>
 }
 
 export const ProcedureEditForm = ({ form, document, setDocument }: ProcedureEditFormProps) => {
   const { setValue: setFormValue } = form
-  const [updatedDocument, setUpdatedDocument] = useState(document)
+  const [updatedDocument, setUpdatedDocument] = useState<string>(document)
 
   useEffect(() => {
     if (!updatedDocument?.length) return
     setDocument((state) => {
-      state.length = 0 // clear out the current document
-      state.push(...updatedDocument)
-      setFormValue('details', { content: state }, { shouldValidate: true })
+      setFormValue('details', state, { shouldValidate: true })
       return state
     })
   }, [updatedDocument])
@@ -56,20 +53,10 @@ export const ProcedureEditForm = ({ form, document, setDocument }: ProcedureEdit
           <ProcedureFormField required form={form} name="name" label="Title" info="The title of the procedure.">
             {(field) => <Input placeholder="Procedure title" {...field} className="bg-background" />}
           </ProcedureFormField>
-          <ProcedureFormField form={form} name="description" label="Description" info="The description of the procedure.">
-            {(field) => <Textarea rows={7} placeholder="Procedure description" {...field} className="bg-background" />}
-          </ProcedureFormField>
-          <ProcedureFormField form={form} name="background" label="Background" info="The background of the procedure.">
-            {(field) => <Textarea rows={7} placeholder="Procedure background" {...field} className="bg-background" />}
-          </ProcedureFormField>
-          <ProcedureFormField form={form} name="purposeAndScope" label="Purpose and Scope" info="The purpose and scope of the procedure.">
-            {(field) => <Textarea rows={7} placeholder="Procedure purpose and scope" {...field} className="bg-background" />}
-          </ProcedureFormField>
         </Form>
-
         <div>
           <FormLabelContent label="Procedure" info="The Procedure document contents" />
-          <PlateEditor content={document} onChange={setUpdatedDocument} />
+          <PlateEditor content={document} onChange={setUpdatedDocument as any} />
         </div>
       </div>
     </>

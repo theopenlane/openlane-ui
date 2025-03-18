@@ -46,7 +46,6 @@ export const PolicyEditSidebar = ({ policy, form, handleSave }: PolicyEditSideba
     return {
       status: [
         { icon: Binoculars, label: 'Status', value: policy.status },
-        { icon: FileStack, label: 'Version', value: policy.version },
         { icon: ScrollText, label: 'Policy Type', value: <PolicyTypeField form={form} /> },
         { icon: CalendarCheck2, label: 'Created At', value: formatTime(policy.createdAt) },
         { icon: CalendarClock, label: 'Updated At', value: formatTime(policy.updatedAt) },

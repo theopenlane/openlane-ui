@@ -6,6 +6,7 @@ import { Cog, AlertTriangle } from 'lucide-react'
 import { ColumnDef } from '@tanstack/table-core'
 import { useRisksWithFilter } from '@/lib/graphql-hooks/risks'
 import { useSearchParams } from 'next/navigation'
+import { RiskRiskStatus, RiskWhereInput } from '@repo/codegen/src/schema'
 
 const risksData = [
   {
@@ -57,9 +58,9 @@ const Risks = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
 
-  const where = {
-    statusNEQ: 'mitigated',
-    programsWith: programId ? [{ id: programId }] : undefined,
+  const where: RiskWhereInput = {
+    statusNEQ: RiskRiskStatus.MITIGATED,
+    hasProgramsWith: programId ? [{ id: programId }] : undefined,
   }
 
   const { data } = useRisksWithFilter(where)

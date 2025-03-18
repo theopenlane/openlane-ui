@@ -9,17 +9,17 @@ import {
   DELETE_INTERNAL_POLICY,
 } from '@repo/codegen/query/policy'
 import {
+  CreateInternalPolicyMutation,
+  CreateInternalPolicyMutationVariables,
+  DeleteInternalPolicyMutation,
+  DeleteInternalPolicyMutationVariables,
   GetInternalPoliciesListQuery,
   GetInternalPolicyDetailsByIdQuery,
   GetInternalPolicyDetailsByIdQueryVariables,
-  CreateInternalPolicyMutation,
-  CreateInternalPolicyMutationVariables,
-  UpdateInternalPolicyMutation,
-  UpdateInternalPolicyMutationVariables,
   SearchInternalPoliciesQuery,
   SearchInternalPoliciesQueryVariables,
-  DeleteInternalPolicyMutation,
-  DeleteInternalPolicyMutationVariables,
+  UpdateInternalPolicyMutation,
+  UpdateInternalPolicyMutationVariables,
 } from '@repo/codegen/src/schema'
 
 export const useGetInternalPoliciesList = () => {

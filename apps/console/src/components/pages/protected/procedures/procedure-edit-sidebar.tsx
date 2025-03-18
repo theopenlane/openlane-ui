@@ -48,7 +48,6 @@ export const ProcedureEditSidebar = ({ procedure, form, handleSave }: ProcedureE
     return {
       status: [
         { icon: Binoculars, label: 'Status', value: procedure.status },
-        { icon: FileStack, label: 'Version', value: procedure.version },
         { icon: ScrollText, label: 'Procedure Type', value: <ProcedureTypeField form={form} /> },
         { icon: CalendarCheck2, label: 'Created At', value: formatTime(procedure.createdAt) },
         { icon: CalendarClock, label: 'Updated At', value: formatTime(procedure.updatedAt) },
