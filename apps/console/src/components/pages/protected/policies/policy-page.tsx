@@ -28,7 +28,6 @@ import { DocumentDescriptions } from '@/components/shared/document-descriptions/
 import { Button } from '@repo/ui/button'
 import { Pencil } from 'lucide-react'
 import { TwoColumnLayout } from '@/components/shared/layouts/two-column-layout'
-import { HtmlContext } from 'next/dist/server/future/route-modules/app-page/vendored/contexts/entrypoints'
 
 type PolicyPageProps = {
   policyId: string

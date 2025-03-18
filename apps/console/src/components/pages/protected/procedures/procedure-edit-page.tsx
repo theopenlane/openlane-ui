@@ -65,7 +65,7 @@ export function ProcedureEditPage({ procedureId }: ProcedureEditPageProps) {
   if (!procedureData?.procedure) return <></>
 
   const handleSave = async () => {
-    const { name, tags } = form.getValues()
+    const { name, tags, procedureType } = form.getValues()
 
     try {
       await updateProcedure({
@@ -74,6 +74,7 @@ export function ProcedureEditPage({ procedureId }: ProcedureEditPageProps) {
           name,
           tags,
           details: document,
+          procedureType,
         },
       })
       successNotification({ title: 'Procedure updated' })
