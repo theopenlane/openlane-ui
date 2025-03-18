@@ -36,6 +36,7 @@ export function ProcedureEditPage({ procedureId }: ProcedureEditPageProps) {
       name: procedure?.name || '',
       tags: procedure?.tags || [],
       details: procedure?.details!!,
+      procedureType: procedure?.procedureType || '',
     },
   })
 
@@ -51,6 +52,7 @@ export function ProcedureEditPage({ procedureId }: ProcedureEditPageProps) {
       name: procedure?.name || '',
       tags: procedure?.tags || [],
       details: procedure?.details ?? '',
+      procedureType: procedure?.procedureType || '',
     })
   }, [procedureData])
 
