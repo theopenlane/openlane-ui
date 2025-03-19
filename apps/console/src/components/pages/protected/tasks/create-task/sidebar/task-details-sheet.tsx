@@ -30,11 +30,15 @@ import { TCommentData } from '@/components/shared/comments/types/TCommentData'
 import { TComments } from '@/components/shared/comments/types/TComments'
 import CommentList from '@/components/shared/comments/CommentList'
 import AddComment from '@/components/shared/comments/AddComment'
+import PlateEditor from '@/components/shared/plate/plate-editor'
+import { Value } from '@udecode/plate-common'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 
 const TaskDetailsSheet = () => {
   const [isEditing, setIsEditing] = useState(false)
   const [commentSortIsAsc, setCommentSortIsAsc] = useState<boolean>(true)
   const queryClient = useQueryClient()
+  const helper = usePlateEditor()
   const taskTypeOptions = Object.values(TaskTypes)
   const statusOptions = Object.values(TaskTaskStatus)
   const searchParams = useSearchParams()
@@ -125,6 +129,12 @@ const TaskDetailsSheet = () => {
       return
     }
 
+    let detailsField = data?.details
+
+    if (detailsField) {
+      detailsField = await helper.convertToHtml(detailsField as Value)
+    }
+
     const taskObjects = data?.taskObjects?.reduce(
       (acc, item) => {
         acc[item.inputName] = item.objectIds
@@ -177,7 +187,7 @@ const TaskDetailsSheet = () => {
       category: data?.category,
       due: data?.due,
       title: data?.title,
-      details: data?.details,
+      details: detailsField,
       assigneeID: data?.assigneeID,
       status: data?.status,
       ...taskObjectPayload,
@@ -347,7 +357,7 @@ const TaskDetailsSheet = () => {
                             />
                           </div>
                           <FormControl>
-                            <Textarea rows={7} id="details" {...field} className="w-full" />
+                            <PlateEditor field={field} />
                           </FormControl>
                           {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors.details.message}</p>}
                         </FormItem>

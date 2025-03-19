@@ -52,7 +52,6 @@ export const PolicyEditForm = ({ form, document, setDocument }: PolicyEditFormPr
         </Form>
         <div>
           <FormLabelContent label="Policy" info="The Policy document contents" />
-          <PlateEditor />
         </div>
       </div>
     </>

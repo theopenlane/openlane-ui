@@ -83,7 +83,7 @@ export const viewPlugins = [
 
 export const editorPlugins = [
   // AI
-  ...aiPlugins,
+  //...aiPlugins,
 
   // Nodes
   ...viewPlugins,
@@ -101,7 +101,7 @@ export const editorPlugins = [
   autoformatPlugin,
   cursorOverlayPlugin,
   ...blockMenuPlugins,
-  ...dndPlugins,
+  //...dndPlugins,
   EmojiPlugin.configure({ options: { data: emojiMartData as any } }),
   exitBreakPlugin,
   resetBlockTypePlugin,

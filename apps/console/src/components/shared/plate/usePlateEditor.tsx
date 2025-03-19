@@ -1,7 +1,8 @@
-import { createSlateEditor, serializeHtml } from '@udecode/plate-core'
+'use client'
+import { createSlateEditor, PlateStatic, serializeHtml } from '@udecode/plate-core'
 import { Value } from '@udecode/plate-common'
 import { staticViewComponents } from '@repo/ui/components/editor/use-create-editor.ts'
-import { EditorStatic } from '@repo/ui/components/plate-ui/editor-static.tsx'
+import { viewPlugins } from '@repo/ui/components/editor/plugins/editor-plugins.tsx'
 
 const usePlateEditor = () => {
   return {
@@ -10,7 +11,10 @@ const usePlateEditor = () => {
         return ''
       }
 
+      console.log(data)
+
       const editor = createSlateEditor({
+        plugins: [...viewPlugins],
         value: data,
       })
 
@@ -18,7 +22,6 @@ const usePlateEditor = () => {
         components: staticViewComponents,
         stripClassNames: true,
         stripDataAttributes: true,
-        editorComponent: EditorStatic,
       })
     },
   }

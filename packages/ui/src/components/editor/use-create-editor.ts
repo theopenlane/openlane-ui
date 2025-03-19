@@ -143,7 +143,7 @@ export const viewComponents = {
 
 export const editorComponents = {
   ...viewComponents,
-  [AIPlugin.key]: AILeaf,
+  //[AIPlugin.key]: AILeaf,
   [EmojiInputPlugin.key]: EmojiInputElement,
   [MentionInputPlugin.key]: MentionInputElement,
   [SlashInputPlugin.key]: SlashInputElement,
@@ -217,23 +217,8 @@ export const useCreateEditor = (
         },
         ...override,
       },
-      plugins: [...copilotPlugins, ...editorPlugins, FixedToolbarPlugin, FloatingToolbarPlugin],
-      value: [
-        {
-          children: [{ text: 'Playground' }],
-          type: 'h1',
-        },
-        {
-          children: [
-            { text: 'A rich-text editor with AI capabilities. Try the ' },
-            { bold: true, text: 'AI commands' },
-            { text: ' or use ' },
-            { kbd: true, text: 'Cmd+J' },
-            { text: ' to open the AI menu.' },
-          ],
-          type: ParagraphPlugin.key,
-        },
-      ],
+      //...copilotPlugins,
+      plugins: [...editorPlugins, FixedToolbarPlugin, FloatingToolbarPlugin],
       ...options,
     },
     deps,

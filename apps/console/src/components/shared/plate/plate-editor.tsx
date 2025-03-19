@@ -1,38 +1,42 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-
-import { Plate } from '@udecode/plate/react'
-
-import { staticViewComponents, useCreateEditor } from '@repo/ui/components/editor/use-create-editor.ts'
-import { SettingsDialog } from '@repo/ui/components/editor/settings.tsx'
+import { createPlateEditor, Plate } from '@udecode/plate/react'
+import { useCreateEditor } from '@repo/ui/components/editor/use-create-editor.ts'
 import { Editor, EditorContainer } from '@repo/ui/components/plate-ui/editor.tsx'
 import { ControllerRenderProps, FieldValues, Path } from 'react-hook-form'
 import { Value } from '@udecode/plate'
 import debounce from 'lodash.debounce'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { viewPlugins } from '@repo/ui/components/editor/plugins/editor-plugins.tsx'
 
 export type TPlateEditorProps<T extends FieldValues> = {
   field?: ControllerRenderProps<T, Path<T>>
-  onChange?: (data: string) => void
+  onChange?: (data: Value) => void
 }
 
 const PlateEditor = <T extends FieldValues>({ field, onChange }: TPlateEditorProps<T>) => {
   const editor = useCreateEditor()
-  const helper = usePlateEditor()
   const [data, setData] = useState<Value>()
+
+  useMemo(() => {
+    if (field?.value) {
+      const plateEditor = createPlateEditor({
+        plugins: [...viewPlugins],
+      })
+      editor.children = plateEditor.api.html.deserialize({ element: field.value }) as Value
+    }
+  }, [])
+
   const updateData = debounce((newData) => {
     setData(newData)
-  }, 300)
+  }, 2000)
 
   useEffect(() => {
     if (data) {
-      helper.convertToHtml(data).then((htmlData) => {
-        field && field.onChange(htmlData)
-        onChange && onChange(htmlData)
-      })
+      field && field.onChange(data)
+      onChange && onChange(data)
     }
   }, [JSON.stringify(data)])
 
@@ -48,11 +52,10 @@ const PlateEditor = <T extends FieldValues>({ field, onChange }: TPlateEditorPro
           <EditorContainer>
             <Editor variant="demo" />
           </EditorContainer>
-          <SettingsDialog />
         </Plate>
       </DndProvider>
     </>
   )
 }
 
-export default PlateEditor
+export default React.memo(PlateEditor)

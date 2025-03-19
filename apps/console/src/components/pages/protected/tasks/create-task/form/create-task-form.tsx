@@ -15,14 +15,17 @@ import { useNotification } from '@/hooks/useNotification'
 import ControlObjectTaskForm from '@/components/pages/protected/tasks/create-task/form/control-object-task-form'
 import { useCreateTask } from '@/lib/graphql-hooks/tasks'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
-import dynamic from 'next/dynamic'
 import PlateEditor from '@/components/shared/plate/plate-editor'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { Value } from '@udecode/plate-common'
 
 type TProps = {
   onSuccess: () => void
 }
 
 const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
+  const helper = usePlateEditor()
+
   const { form } = useFormSchema()
   const { data: session } = useSession()
   const { successNotification, errorNotification } = useNotification()
@@ -37,30 +40,39 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
   }))
 
   const onSubmitHandler = async (data: CreateTaskFormData) => {
-    const taskObjects = data?.taskObjects?.reduce(
-      (acc, item) => {
-        acc[item.inputName] = item.objectIds
-        return acc
-      },
-      {} as Record<string, string[]>,
-    )
-
-    const formData = {
-      input: {
-        category: data?.category,
-        due: data?.due,
-        title: data?.title,
-        details: data?.details,
-        assigneeID: data?.assigneeID,
-        ...taskObjects,
-      } as CreateTaskInput,
-    }
     try {
+      let detailsField = data?.details
+
+      if (detailsField) {
+        detailsField = await helper.convertToHtml(detailsField as Value)
+      }
+
+      const taskObjects = (data?.taskObjects || []).reduce(
+        (acc, item) => {
+          acc[item.inputName] = item.objectIds
+          return acc
+        },
+        {} as Record<string, string[]>,
+      )
+
+      const formData: { input: CreateTaskInput } = {
+        input: {
+          category: data?.category,
+          due: data?.due,
+          title: data?.title,
+          details: detailsField,
+          assigneeID: data?.assigneeID,
+          ...taskObjects,
+        },
+      }
+
       await createTask(formData)
+
       successNotification({
         title: 'Task Created',
-        description: `Task has been successfully created`,
+        description: 'Task has been successfully created',
       })
+
       form.reset()
       props.onSuccess()
     } catch (error) {
@@ -147,7 +159,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                             <FormControl>
                               <PlateEditor field={field} />
                             </FormControl>
-                            {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors.details.message}</p>}
+                            {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
                           </FormItem>
                         )}
                       />
