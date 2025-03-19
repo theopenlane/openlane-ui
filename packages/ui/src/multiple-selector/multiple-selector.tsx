@@ -418,7 +418,7 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
       >
         <div
           className={cn(
-            'h-10 rounded-md border border-neutral-300 dark:border-brand bg-input-background text-base md:text-sm px-3 py-2',
+            'min-h-10 rounded-md border border-neutral-300 dark:border-brand bg-input-background text-base md:text-sm px-3 py-2',
             {
               'cursor-text': !disabled && selected.length !== 0,
             },
