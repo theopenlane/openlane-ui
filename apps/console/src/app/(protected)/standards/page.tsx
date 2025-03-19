@@ -69,7 +69,7 @@ const StandardsPage = () => {
             <div className="flex justify-between items-start mb-2">
               <div>
                 <h3 className="font-semibold text-base">{standard?.node?.shortName}</h3>
-                <span className="text-xs">{standard?.node?.version}</span>
+                <span className="text-xs">version: {standard?.node?.version}</span>
               </div>
               {standard?.node?.governingBodyLogoURL && <img src={standard?.node?.governingBodyLogoURL} alt="logo" className="h-8" />}
             </div>
