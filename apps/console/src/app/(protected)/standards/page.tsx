@@ -78,7 +78,7 @@ const StandardsPage = () => {
                 <SettingsIcon className="text-brand" size={16} /> {standard?.node?.standardType}
               </p>
               <p className="flex items-center gap-1">
-                <Settings2 className="text-brand" size={16} /> Controls: TODO: ADD NUMBER OF CONTROLS
+                <Settings2 className="text-brand" size={16} /> Controls: {standard?.node?.controls.totalCount}
               </p>
               <p className="flex items-center gap-1">
                 <CheckCircleIcon className="text-brand" size={16} /> Last updated: {new Date(standard?.node?.updatedAt).toLocaleDateString()}

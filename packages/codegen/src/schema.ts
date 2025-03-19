@@ -30493,6 +30493,7 @@ export type GetAllStandardsQuery = {
         updatedAt?: any | null
         tags?: Array<string> | null
         description?: string | null
+        controls: { __typename?: 'ControlConnection'; totalCount: number }
       } | null
     } | null> | null
   }
