@@ -63,6 +63,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
           title: data?.title,
           details: detailsField,
           assigneeID: data?.assigneeID,
+          tags: data?.tags,
           ...taskObjects,
         },
       }
@@ -82,6 +83,10 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
         description: 'There was an error creating the task. Please try again.',
       })
     }
+  }
+
+  const handleDetailsChange = (value: Value) => {
+    form.setValue('details', value)
   }
 
   return (
@@ -150,16 +155,12 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                         name="details"
                         render={({ field }) => (
                           <FormItem className="w-full">
-                            <div className="flex items-center">
-                              <FormLabel>Details</FormLabel>
-                              <SystemTooltip
-                                icon={<InfoIcon size={14} className="mx-1 mt-1" />}
-                                content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
-                              />
-                            </div>
-                            <FormControl>
-                              <PlateEditor field={field} />
-                            </FormControl>
+                            <FormLabel>Details</FormLabel>
+                            <SystemTooltip
+                              icon={<InfoIcon size={14} className="mx-1 mt-1" />}
+                              content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
+                            />
+                            <PlateEditor onChange={handleDetailsChange} />
                             {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
                           </FormItem>
                         )}

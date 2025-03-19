@@ -3,10 +3,9 @@
 import React, { useState, useEffect, Fragment } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Button } from '@repo/ui/button'
-import { Link, Pencil, Check, FilePlus, SquareArrowRight, CircleUser, UserRoundPen, CalendarCheck2, Circle, Folder, BookText, InfoIcon, ArrowDownUp, ArrowUpDown } from 'lucide-react'
+import { Link, Pencil, Check, FilePlus, SquareArrowRight, CircleUser, UserRoundPen, CalendarCheck2, Circle, Folder, BookText, InfoIcon, ArrowDownUp, ArrowUpDown, Tag } from 'lucide-react'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { CreateNoteInput, TaskTaskStatus } from '@repo/codegen/src/schema'
-import { Textarea } from '@repo/ui/textarea'
 import { Input } from '@repo/ui/input'
 import { useNotification } from '@/hooks/useNotification'
 import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
@@ -34,10 +33,12 @@ import PlateEditor from '@/components/shared/plate/plate-editor'
 import { Value } from '@udecode/plate-common'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import EvidenceCreateFormDialog from '../../../evidence/evidence-create-form-dialog'
+import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 
 const TaskDetailsSheet = () => {
   const [isEditing, setIsEditing] = useState(false)
   const [commentSortIsAsc, setCommentSortIsAsc] = useState<boolean>(true)
+  const [tagValues, setTagValues] = useState<Option[]>([])
   const queryClient = useQueryClient()
   const helper = usePlateEditor()
   const taskTypeOptions = Object.values(TaskTypes)
@@ -72,7 +73,18 @@ const TaskDetailsSheet = () => {
         evidenceIDs: taskData?.evidence?.edges?.map((item) => item?.node?.id) || [],
         groupIDs: taskData?.group?.edges?.map((item) => item?.node?.id) || [],
         status: taskData?.status ? Object.values(TaskTaskStatus).find((type) => type === taskData?.status) : undefined,
+        tags: taskData?.tags ?? [],
       })
+
+      if (taskData?.tags) {
+        const tags = taskData.tags.map((item) => {
+          return {
+            value: item,
+            label: item,
+          } as Option
+        })
+        setTagValues(tags)
+      }
     }
 
     if (taskData && userData && userData?.users?.edges?.length) {
@@ -123,6 +135,10 @@ const TaskDetailsSheet = () => {
     const newSearchParams = new URLSearchParams(searchParams.toString())
     newSearchParams.delete('taskId')
     router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
+  }
+
+  const onInvalid = async (data: any) => {
+    console.log(data)
   }
 
   const onSubmit = async (data: EditTaskFormData) => {
@@ -253,6 +269,12 @@ const TaskDetailsSheet = () => {
     return <div className="flex flex-wrap gap-2">{items?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}</div>
   }
 
+  const handleTags = () => {
+    return (
+      <div className="flex flex-wrap gap-2">{taskData?.tags?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}</div>
+    )
+  }
+
   const handleReassignComingSoon = () => {
     alert('Reassign feature coming soon!')
   }
@@ -284,6 +306,10 @@ const TaskDetailsSheet = () => {
     setComments(sortedComments)
   }
 
+  const handleDetailsChange = (value: Value) => {
+    form.setValue('details', value)
+  }
+
   return (
     <Sheet open={!!selectedTask} onOpenChange={handleSheetClose}>
       <SheetContent className="bg-card flex flex-col">
@@ -301,7 +327,7 @@ const TaskDetailsSheet = () => {
                     <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
                       Cancel
                     </Button>
-                    <Button onClick={form.handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
+                    <Button onClick={form.handleSubmit(onSubmit, onInvalid)} icon={<Check />} iconPosition="left">
                       Save
                     </Button>
                   </div>
@@ -358,14 +384,14 @@ const TaskDetailsSheet = () => {
                             />
                           </div>
                           <FormControl>
-                            <PlateEditor field={field} />
+                            <PlateEditor onChange={handleDetailsChange} initialValue={taskData?.details ?? undefined} />
                           </FormControl>
                           {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors.details.message}</p>}
                         </FormItem>
                       )}
                     />
                   ) : (
-                    taskData?.details
+                    <div>{taskData?.details ? helper.convertToReadOnly(taskData.details) : ''}</div>
                   )}
                 </div>
               </form>
@@ -503,6 +529,46 @@ const TaskDetailsSheet = () => {
                     />
                   ) : (
                     <p className="text-sm">{taskData?.category}</p>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <Tag height={16} width={16} className="text-accent-secondary" />
+                  <p className="text-sm w-[120px]">Tags</p>
+                  {isEditing ? (
+                    <Controller
+                      name="tags"
+                      control={form.control}
+                      render={({ field }) => {
+                        return (
+                          <>
+                            <MultipleSelector
+                              placeholder="Add tag..."
+                              creatable
+                              commandProps={{
+                                className: 'w-1/3',
+                              }}
+                              value={tagValues}
+                              onChange={(selectedOptions) => {
+                                const options = selectedOptions.map((option) => option.value)
+                                field.onChange(options)
+                                setTagValues(
+                                  selectedOptions.map((item) => {
+                                    return {
+                                      value: item.value,
+                                      label: item.label,
+                                    }
+                                  }),
+                                )
+                              }}
+                            />
+                            {form.formState.errors.tags && <p className="text-red-500 text-sm">{form.formState.errors.tags.message}</p>}
+                          </>
+                        )
+                      }}
+                    />
+                  ) : (
+                    <>{handleTags()}</>
                   )}
                 </div>
 

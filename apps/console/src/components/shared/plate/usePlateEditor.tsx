@@ -2,7 +2,7 @@
 import { createSlateEditor, PlateStatic, serializeHtml } from '@udecode/plate-core'
 import { Value } from '@udecode/plate-common'
 import { staticViewComponents } from '@repo/ui/components/editor/use-create-editor.ts'
-import { viewPlugins } from '@repo/ui/components/editor/plugins/editor-plugins.tsx'
+import { basePlugins, viewPlugins } from '@repo/ui/components/editor/plugins/editor-plugins.tsx'
 
 const usePlateEditor = () => {
   return {
@@ -11,10 +11,8 @@ const usePlateEditor = () => {
         return ''
       }
 
-      console.log(data)
-
       const editor = createSlateEditor({
-        plugins: [...viewPlugins],
+        plugins: [...basePlugins],
         value: data,
       })
 
@@ -23,6 +21,15 @@ const usePlateEditor = () => {
         stripClassNames: true,
         stripDataAttributes: true,
       })
+    },
+    convertToReadOnly: (data: string) => {
+      const editor = createSlateEditor({
+        plugins: [...basePlugins],
+      })
+
+      editor.children = editor.api.html.deserialize({ element: data }) as Value
+
+      return <PlateStatic editor={editor} components={staticViewComponents} style={{ padding: 16 }} className="my-plate-static" />
     },
   }
 }

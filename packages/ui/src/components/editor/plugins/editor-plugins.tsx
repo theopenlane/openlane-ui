@@ -44,6 +44,105 @@ import { softBreakPlugin } from './soft-break-plugin'
 import { suggestionPlugin } from './suggestion-plugin'
 import { tablePlugin } from './table-plugin'
 import { tocPlugin } from './toc-plugin'
+import { BaseEquationPlugin, BaseInlineEquationPlugin } from '@udecode/plate-math'
+import { BaseColumnItemPlugin, BaseColumnPlugin } from '@udecode/plate-layout'
+import { BaseHeadingPlugin, BaseTocPlugin, HEADING_LEVELS } from '@udecode/plate-heading'
+import { BaseAudioPlugin, BaseFilePlugin, BaseImagePlugin, BaseMediaEmbedPlugin, BaseVideoPlugin } from '@udecode/plate-media'
+import { BaseParagraphPlugin } from '@udecode/plate'
+import { BaseBoldPlugin, BaseCodePlugin, BaseItalicPlugin, BaseStrikethroughPlugin, BaseSubscriptPlugin, BaseSuperscriptPlugin, BaseUnderlinePlugin } from '@udecode/plate-basic-marks'
+import { BaseTogglePlugin } from '@udecode/plate-toggle'
+import { BaseCommentsPlugin } from '@udecode/plate-comments'
+import { BaseMentionPlugin } from '@udecode/plate-mention'
+import { BaseHighlightPlugin } from '@udecode/plate-highlight'
+import { BaseLineHeightPlugin } from '@udecode/plate-line-height'
+import { BaseAlignPlugin } from '@udecode/plate-alignment'
+import { BaseFontBackgroundColorPlugin, BaseFontColorPlugin, BaseFontSizePlugin } from '@udecode/plate-font'
+import { BaseKbdPlugin } from '@udecode/plate-kbd'
+import { BaseHorizontalRulePlugin } from '@udecode/plate-horizontal-rule'
+import { BaseTableCellPlugin, BaseTablePlugin, BaseTableRowPlugin } from '@udecode/plate-table'
+import { BaseLinkPlugin } from '@udecode/plate-link'
+import { TodoLiStatic, TodoMarkerStatic } from '../../plate-ui/indent-todo-marker-static'
+import { FireLiComponent, FireMarker } from '../../plate-ui/indent-fire-marker'
+import { BaseCodeBlockPlugin } from '@udecode/plate-code-block'
+import { BaseIndentListPlugin } from '@udecode/plate-indent-list'
+import { BaseIndentPlugin } from '@udecode/plate-indent'
+import { BaseBlockquotePlugin } from '@udecode/plate-block-quote'
+import { BaseDatePlugin } from '@udecode/plate-date'
+import { all, createLowlight } from 'lowlight'
+
+const lowlight = createLowlight(all)
+
+export const basePlugins = [
+  BaseEquationPlugin,
+  BaseInlineEquationPlugin,
+  BaseColumnPlugin,
+  BaseColumnItemPlugin,
+  BaseTocPlugin,
+  BaseVideoPlugin,
+  BaseAudioPlugin,
+  BaseParagraphPlugin,
+  BaseHeadingPlugin,
+  BaseMediaEmbedPlugin,
+  BaseBoldPlugin,
+  BaseCodePlugin,
+  BaseItalicPlugin,
+  BaseStrikethroughPlugin,
+  BaseSubscriptPlugin,
+  BaseSuperscriptPlugin,
+  BaseUnderlinePlugin,
+  BaseBlockquotePlugin,
+  BaseDatePlugin,
+  BaseCodeBlockPlugin.configure({
+    options: {
+      lowlight,
+    },
+  }),
+  BaseIndentPlugin.extend({
+    inject: {
+      targetPlugins: [BaseParagraphPlugin.key, BaseBlockquotePlugin.key, BaseCodeBlockPlugin.key],
+    },
+  }),
+  BaseIndentListPlugin.extend({
+    inject: {
+      targetPlugins: [BaseParagraphPlugin.key, ...HEADING_LEVELS, BaseBlockquotePlugin.key, BaseCodeBlockPlugin.key, BaseTogglePlugin.key],
+    },
+    options: {
+      listStyleTypes: {
+        fire: {
+          liComponent: FireLiComponent,
+          markerComponent: FireMarker,
+          type: 'fire',
+        },
+        todo: {
+          liComponent: TodoLiStatic,
+          markerComponent: TodoMarkerStatic,
+          type: 'todo',
+        },
+      },
+    },
+  }),
+  BaseLinkPlugin,
+  BaseTableRowPlugin,
+  BaseTablePlugin,
+  BaseTableCellPlugin,
+  BaseHorizontalRulePlugin,
+  BaseFontColorPlugin,
+  BaseFontBackgroundColorPlugin,
+  BaseFontSizePlugin,
+  BaseKbdPlugin,
+  BaseAlignPlugin.extend({
+    inject: {
+      targetPlugins: [BaseParagraphPlugin.key, BaseMediaEmbedPlugin.key, ...HEADING_LEVELS, BaseImagePlugin.key],
+    },
+  }),
+  BaseLineHeightPlugin,
+  BaseHighlightPlugin,
+  BaseFilePlugin,
+  BaseImagePlugin,
+  BaseMentionPlugin,
+  BaseCommentsPlugin,
+  BaseTogglePlugin,
+] as const
 
 export const viewPlugins = [
   ...basicNodesPlugins,
