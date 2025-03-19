@@ -22,7 +22,7 @@ const filterFields: FilterField[] = [
   { key: 'governingBody', label: 'Governing Body', type: 'text' },
 ]
 
-const StandardsCatalog = () => {
+const StandardsPage = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [filters, setFilters] = useState<Record<string, any>>({})
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
@@ -108,4 +108,4 @@ const StandardsCatalog = () => {
   )
 }
 
-export default StandardsCatalog
+export default StandardsPage
