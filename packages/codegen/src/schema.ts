@@ -30473,6 +30473,32 @@ export type SearchQuery = {
   } | null
 }
 
+export type GetAllStandardsQueryVariables = Exact<{
+  where?: InputMaybe<StandardWhereInput>
+}>
+
+export type GetAllStandardsQuery = {
+  __typename?: 'Query'
+  standards: {
+    __typename?: 'StandardConnection'
+    edges?: Array<{
+      __typename?: 'StandardEdge'
+      node?: {
+        __typename?: 'Standard'
+        id: string
+        shortName?: string | null
+        version?: string | null
+        governingBodyLogoURL?: string | null
+        standardType?: string | null
+        updatedAt?: any | null
+        tags?: Array<string> | null
+        description?: string | null
+        controls: { __typename?: 'ControlConnection'; totalCount: number }
+      } | null
+    } | null> | null
+  }
+}
+
 export type GetAllSubcontrolsQueryVariables = Exact<{
   where?: InputMaybe<SubcontrolWhereInput>
 }>

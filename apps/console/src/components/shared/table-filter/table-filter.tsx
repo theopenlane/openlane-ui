@@ -7,6 +7,8 @@ import { Button } from '@repo/ui/button'
 import { Filter, FilterField, WhereCondition } from '@/types'
 import { tableFilterStyles } from '@/components/shared/table-filter/table-filter-styles'
 import { useDebounce } from '@uidotdev/usehooks'
+import { CalendarPopover } from '@repo/ui/calendar-popover'
+import { format, startOfDay, addDays } from 'date-fns'
 
 const getOperatorsForType = (type: Filter['type']) => {
   const operatorMap = {
@@ -50,17 +52,26 @@ export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilter
   const debouncedFilters = useDebounce(filters, 300)
   const { prefixes, columnName, operator, value } = tableFilterStyles()
 
+  const handleDateEQOperator = (value: string, field: string) => {
+    const start = format(startOfDay(new Date(value)), "yyyy-MM-dd'T'HH:mm:ss'Z'")
+    const end = format(startOfDay(addDays(new Date(value), 1)), "yyyy-MM-dd'T'HH:mm:ss'Z'")
+    return [{ [`${field}GTE`]: start }, { [`${field}LT`]: end }]
+  }
+
   const generateWhereCondition = (filters: Filter[], conjunction: 'and' | 'or') => {
     const conditions = filters
       .filter(({ value }) => value !== '')
-      .map(({ field, type, operator, value }) => {
+      .flatMap(({ field, type, operator, value }) => {
         const operatorMapping = getOperatorsForType(type).find((op) => op.value === operator)
 
-        if (!operatorMapping) return {}
+        if (!operatorMapping) return []
 
+        if (type === 'date' && operator === 'EQ') {
+          //since we are using timestamp, we need to check the day, not just the exact time.
+          return handleDateEQOperator(value, field)
+        }
         const queryField = operatorMapping.value !== 'EQ' ? `${field}${operatorMapping.value}` : field
-
-        return { [queryField]: value }
+        return [{ [queryField]: value }]
       })
 
     return conditions.length > 1 ? { [conjunction]: conditions } : conditions[0] || {}
@@ -135,7 +146,18 @@ export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilter
           </Select>
         )
       case 'date':
-        return <Input className={value()} type="date" value={filter.value} onChange={(e) => handleFilterChange(index, { value: e.target.value })} />
+        return (
+          <CalendarPopover
+            defaultToday
+            field={{
+              value: filter.value ? new Date(filter.value) : null,
+              onChange: (selectedDate) => handleFilterChange(index, { value: selectedDate ? format(selectedDate, "yyyy-MM-dd'T'HH:mm:ss'Z'") : '' }),
+              name: filter.field,
+              onBlur: () => {},
+              ref: () => {},
+            }}
+          />
+        )
       case 'boolean':
         return (
           <Select value={String(filter.value)} onValueChange={(value) => handleFilterChange(index, { value: value === 'true' })}>
