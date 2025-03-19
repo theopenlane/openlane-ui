@@ -13,6 +13,9 @@ export const GET_ALL_STANDARDS = gql`
           updatedAt
           tags
           description
+          controls {
+              totalCount
+          }
         }
       }
     }
