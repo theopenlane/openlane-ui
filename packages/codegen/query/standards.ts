@@ -5,32 +5,14 @@ export const GET_ALL_STANDARDS = gql`
     standards(where: $where) {
       edges {
         node {
-          createdAt
-          createdBy
-          deletedAt
-          deletedBy
-          description
-          domains
-          framework
-          freeToUse
-          governingBody
-          governingBodyLogoURL
           id
-          isPublic
-          link
-          name
-          owner {
-            id
-          }
-          revision
           shortName
-          standardType
-          status
-          systemOwned
-          tags
-          updatedAt
-          updatedBy
           version
+          governingBodyLogoURL
+          standardType
+          updatedAt
+          tags
+          description
         }
       }
     }

@@ -11,6 +11,7 @@ import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { Input } from '@repo/ui/input'
 import { FilterField } from '@/types'
 import { useDebounce } from '@uidotdev/usehooks'
+import { Loading } from '@/components/shared/loading/loading'
 
 const filterFields: FilterField[] = [
   { key: 'systemOwned', label: 'System Owned', type: 'boolean' },
@@ -38,7 +39,7 @@ const StandardsCatalog = () => {
   const { data, isLoading, isError } = useGetStandards(whereFilter)
 
   if (isLoading) {
-    return <p>Loading standards...</p>
+    return <Loading />
   }
 
   if (isError) {
@@ -48,7 +49,6 @@ const StandardsCatalog = () => {
   return (
     <>
       <PageHeading heading="Standards Catalog" />
-
       <div className="mt-5 flex justify-between items-center gap-5">
         <div className="flex gap-4">
           <TableFilter filterFields={filterFields} onFilterChange={setFilters} />
@@ -63,7 +63,6 @@ const StandardsCatalog = () => {
           />
         </div>
       </div>
-
       <div className="mt-5 flex flex-wrap gap-7">
         {data?.standards?.edges?.map((standard) => (
           <Card key={standard?.node?.id} className="w-full max-w-xl bg-card p-4 rounded-lg shadow">
@@ -96,7 +95,6 @@ const StandardsCatalog = () => {
             <Button className="mt-auto py-2 px-4 rounded">Details</Button>
           </Card>
         ))}
-
         <Card className="w-full max-w-xl bg-card p-28 rounded-lg shadow border border-dashed flex flex-col items-center justify-center text-center h-[350px]">
           <p className="mb-4">Looking for a framework that’s not supported yet? Reach out with the details.</p>
           <a href="mailto:info@theopenlane.io">
