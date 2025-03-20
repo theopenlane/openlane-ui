@@ -18,8 +18,8 @@ const usePlateEditor = () => {
 
       return await serializeHtml(editor, {
         components: staticViewComponents,
-        stripClassNames: true,
-        stripDataAttributes: true,
+        stripClassNames: false,
+        stripDataAttributes: false,
       })
     },
     convertToReadOnly: (data: string) => {
@@ -29,7 +29,7 @@ const usePlateEditor = () => {
 
       editor.children = editor.api.html.deserialize({ element: data }) as Value
 
-      return <PlateStatic editor={editor} components={staticViewComponents} style={{ padding: 16 }} className="my-plate-static" />
+      return <PlateStatic editor={editor} components={staticViewComponents} style={{ padding: 16 }} className="plate-static" />
     },
   }
 }
