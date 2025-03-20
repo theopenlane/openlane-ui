@@ -26,7 +26,7 @@ type TProps = {
 }
 
 const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
-  const helper = usePlateEditor()
+  const plateEditorHelper = usePlateEditor()
   const { formInput } = dialogStyles()
   const [tagValues, setTagValues] = useState<Option[]>([])
   const { form } = useFormSchema()
@@ -47,7 +47,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
       let detailsField = data?.details
 
       if (detailsField) {
-        detailsField = await helper.convertToHtml(detailsField as Value)
+        detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
       }
 
       const taskObjects = (data?.taskObjects || []).reduce(

@@ -16,6 +16,7 @@ export type TPlateEditorProps = {
 }
 
 const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue }: TPlateEditorProps) => {
+  // useCreateEditor hook is used for rendering Rich Text Editor (Inside hook all plugins are being imported)
   const editor = useCreateEditor()
   const [data, setData] = useState<Value>()
 
@@ -24,6 +25,7 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue }: TP
       const plateEditor = createPlateEditor({
         plugins: [...viewPlugins],
       })
+      // Converts html text into PlateJs readable structure, and editor.children sets default value
       editor.children = plateEditor.api.html.deserialize({ element: initialValue }) as Value
     }
   }, [])
