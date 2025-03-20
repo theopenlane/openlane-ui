@@ -44,6 +44,7 @@ const TaskTable: React.FC = () => {
             title: item?.node?.title,
             assigner: item?.node?.assigner,
             category: item?.node?.category,
+            assignee: item?.node?.assignee,
           }
         }) || []
 

@@ -19,6 +19,7 @@ import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Value } from '@udecode/plate-common'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
+import { dialogStyles } from '@/components/pages/protected/program/dialog.styles.tsx'
 
 type TProps = {
   onSuccess: () => void
@@ -26,6 +27,7 @@ type TProps = {
 
 const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
   const helper = usePlateEditor()
+  const { formInput } = dialogStyles()
   const [tagValues, setTagValues] = useState<Option[]>([])
   const { form } = useFormSchema()
   const { data: session } = useSession()
@@ -90,7 +92,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
   }
 
   return (
-    <>
+    <div className={formInput()}>
       <Grid>
         <GridRow columns={4}>
           <GridCell className="col-span-2">
@@ -265,7 +267,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
           </GridCell>
         </GridRow>
       </Grid>
-    </>
+    </div>
   )
 }
 

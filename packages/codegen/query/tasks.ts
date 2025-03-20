@@ -23,6 +23,15 @@ export const TASKS_WITH_FILTER = gql`
               presignedURL
             }
           }
+          assignee {
+            displayName
+            firstName
+            lastName
+            avatarRemoteURL
+            avatarFile {
+              presignedURL
+            }
+          }
         }
       }
     }

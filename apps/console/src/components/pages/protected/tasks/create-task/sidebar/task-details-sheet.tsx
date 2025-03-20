@@ -137,10 +137,6 @@ const TaskDetailsSheet = () => {
     router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
   }
 
-  const onInvalid = async (data: any) => {
-    console.log(data)
-  }
-
   const onSubmit = async (data: EditTaskFormData) => {
     if (!selectedTask) {
       return
@@ -327,7 +323,7 @@ const TaskDetailsSheet = () => {
                     <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
                       Cancel
                     </Button>
-                    <Button onClick={form.handleSubmit(onSubmit, onInvalid)} icon={<Check />} iconPosition="left">
+                    <Button onClick={form.handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
                       Save
                     </Button>
                   </div>

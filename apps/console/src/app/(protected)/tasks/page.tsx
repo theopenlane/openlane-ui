@@ -22,16 +22,14 @@ const Page: React.FC = () => {
   }, [searchParams, setSelectedTask])
 
   useEffect(() => {
-    const members = membersData?.organization?.members
-      ?.filter((member) => member.user.id != session?.user.userId)
-      .map(
-        (member) =>
-          ({
-            value: member.user.id,
-            label: `${member.user.firstName} ${member.user.lastName}`,
-            membershipId: member.id,
-          }) as TOrgMembers,
-      )
+    const members = membersData?.organization?.members?.map(
+      (member) =>
+        ({
+          value: member.user.id,
+          label: `${member.user.firstName} ${member.user.lastName}`,
+          membershipId: member.id,
+        }) as TOrgMembers,
+    )
     setOrgMembers(members)
   }, [membersData])
 

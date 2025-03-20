@@ -30536,6 +30536,14 @@ export type TasksWithFilterQuery = {
           avatarRemoteURL?: string | null
           avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
         } | null
+        assignee?: {
+          __typename?: 'User'
+          displayName: string
+          firstName?: string | null
+          lastName?: string | null
+          avatarRemoteURL?: string | null
+          avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+        } | null
       } | null
     } | null> | null
   }
