@@ -11,7 +11,7 @@ export const GET_ALL_RISKS = gql`
           businessCosts
           likelihood
           impact
-          control {
+          controls {
             edges {
               node {
                 id

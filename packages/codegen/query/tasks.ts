@@ -88,7 +88,7 @@ export const TASK = gql`
       category
       title
       status
-      subcontrol {
+      subcontrols {
         edges {
           node {
             id
@@ -96,7 +96,7 @@ export const TASK = gql`
           }
         }
       }
-      program {
+      programs {
         edges {
           node {
             id
@@ -104,7 +104,7 @@ export const TASK = gql`
           }
         }
       }
-      procedure {
+      procedures {
         edges {
           node {
             id
@@ -112,7 +112,7 @@ export const TASK = gql`
           }
         }
       }
-      internalPolicy {
+      internalPolicies {
         edges {
           node {
             id
@@ -128,7 +128,7 @@ export const TASK = gql`
           }
         }
       }
-      group {
+      groups {
         edges {
           node {
             displayID
@@ -140,7 +140,7 @@ export const TASK = gql`
       displayID
       description
       details
-      controlObjective {
+      controlObjectives {
         edges {
           node {
             displayID
