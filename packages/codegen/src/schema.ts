@@ -30562,6 +30562,14 @@ export type TasksWithFilterQuery = {
           avatarRemoteURL?: string | null
           avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
         } | null
+        assignee?: {
+          __typename?: 'User'
+          displayName: string
+          firstName?: string | null
+          lastName?: string | null
+          avatarRemoteURL?: string | null
+          avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+        } | null
       } | null
     } | null> | null
   }
@@ -30594,6 +30602,7 @@ export type TaskQuery = {
   __typename?: 'Query'
   task: {
     __typename?: 'Task'
+    tags?: Array<string> | null
     id: string
     category?: string | null
     title: string

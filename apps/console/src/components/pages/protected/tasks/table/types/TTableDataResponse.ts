@@ -8,5 +8,6 @@ export type TTableDataResponse = {
   status?: string
   due?: string
   assigner?: User
+  assignee?: User
   category?: string
 }

@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { TaskTypes } from '@/components/pages/protected/tasks/util/task'
 import { TaskTaskStatus } from '@repo/codegen/src/schema'
+import { Value } from '@udecode/plate-common'
 
 const formSchema = z.object({
   category: z
@@ -14,7 +15,7 @@ const formSchema = z.object({
   title: z.string().min(2, {
     message: 'Title must be at least 2 characters',
   }),
-  details: z.string().optional(),
+  details: z.custom<Value | string>().optional(),
   assigneeID: z.string().optional(),
   due: z.date().optional(),
   taskObjects: z.array(z.any()).optional(),
@@ -25,6 +26,7 @@ const formSchema = z.object({
   internalPolicyIDs: z.array(z.any()).optional(),
   evidenceIDs: z.array(z.any()).optional(),
   groupIDs: z.array(z.any()).optional(),
+  tags: z.array(z.string().optional()),
   status: z
     .nativeEnum(TaskTaskStatus, {
       errorMap: () => ({ message: 'Invalid status' }),
@@ -41,8 +43,8 @@ const useFormSchema = () => {
       resolver: zodResolver(formSchema),
       defaultValues: {
         title: '',
-        details: '',
         taskObjects: [],
+        tags: [],
       },
     }),
   }

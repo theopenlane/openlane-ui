@@ -23,6 +23,15 @@ export const TASKS_WITH_FILTER = gql`
               presignedURL
             }
           }
+          assignee {
+            displayName
+            firstName
+            lastName
+            avatarRemoteURL
+            avatarFile {
+              presignedURL
+            }
+          }
         }
       }
     }
@@ -60,6 +69,7 @@ export const DELETE_TASK = gql`
 export const TASK = gql`
   query Task($taskId: ID!) {
     task(id: $taskId) {
+      tags
       assignee {
         displayName
         firstName

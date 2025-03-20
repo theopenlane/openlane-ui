@@ -11,8 +11,6 @@ import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
 import { EditPolicyFormData } from './policy-edit-form-types'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 
-const PlateEditor = dynamic(() => import('@/components/shared/editor/plate'), { ssr: false })
-
 type PolicyEditFormProps = {
   document: string
   setDocument: React.Dispatch<React.SetStateAction<string>>
@@ -54,7 +52,6 @@ export const PolicyEditForm = ({ form, document, setDocument }: PolicyEditFormPr
         </Form>
         <div>
           <FormLabelContent label="Policy" info="The Policy document contents" />
-          <PlateEditor content={document} onChange={setUpdatedDocument as any} />
         </div>
       </div>
     </>

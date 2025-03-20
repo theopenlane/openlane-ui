@@ -6,6 +6,6 @@ export const metadata: Metadata = {
   description: 'The open source foundation of a sustainable digital world',
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }): JSX.Element {
+export default function RootLayout({ children }: { children: React.ReactNode }): React.ReactNode {
   return <DashboardLayout>{children}</DashboardLayout>
 }

@@ -23,6 +23,7 @@ import { recaptchaSiteKey } from '@repo/dally/auth'
 
 const TEMP_PASSKEY_EMAIL = 'tempuser@test.com'
 const TEMP_PASSKEY_NAME = 'Temp User'
+import react from 'react'
 
 export const LoginPage = () => {
   const { separator, buttons, keyIcon, form, input } = loginStyles()

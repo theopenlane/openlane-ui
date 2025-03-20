@@ -3,6 +3,7 @@ import { TTableDataResponse } from '@/components/pages/protected/tasks/table/typ
 import { format } from 'date-fns'
 import { CircleCheck, CircleX, ListTodo, MessageSquareCode, PanelTopOpen, Timer, View } from 'lucide-react'
 import { Avatar } from '@/components/shared/avatar/avatar'
+import AssigneeCell from '@/components/pages/protected/tasks/table/assignee-cell.tsx'
 
 export const taskColumns: ColumnDef<TTableDataResponse>[] = [
   {
@@ -31,6 +32,13 @@ export const taskColumns: ColumnDef<TTableDataResponse>[] = [
           <p>{fullName}</p>
         </div>
       )
+    },
+  },
+  {
+    accessorKey: 'assignee',
+    header: 'Assignee',
+    cell: ({ row }) => {
+      return <AssigneeCell assignee={row.original.assignee} taskId={row.original.id!} />
     },
   },
   {

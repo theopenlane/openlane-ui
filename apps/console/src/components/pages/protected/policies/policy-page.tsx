@@ -1,8 +1,6 @@
 import React, { useMemo } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import { PolicySidebar } from '@/components/pages/protected/policies/policy-sidebar'
-import dynamic from 'next/dynamic'
-const PlateEditor = dynamic(() => import('@/components/shared/editor/plate'), { ssr: false })
 import { z } from 'zod'
 import { useGetInternalPolicyDetailsById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy'
 import { useQueryClient } from '@tanstack/react-query'

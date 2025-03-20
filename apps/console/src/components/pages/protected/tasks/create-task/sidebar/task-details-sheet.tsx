@@ -3,10 +3,9 @@
 import React, { useState, useEffect, Fragment } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Button } from '@repo/ui/button'
-import { Link, Pencil, Check, FilePlus, SquareArrowRight, CircleUser, UserRoundPen, CalendarCheck2, Circle, Folder, BookText, InfoIcon, ArrowDownUp, ArrowUpDown } from 'lucide-react'
+import { Link, Pencil, Check, FilePlus, SquareArrowRight, CircleUser, UserRoundPen, CalendarCheck2, Circle, Folder, BookText, InfoIcon, ArrowDownUp, ArrowUpDown, Tag } from 'lucide-react'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { CreateNoteInput, TaskTaskStatus } from '@repo/codegen/src/schema'
-import { Textarea } from '@repo/ui/textarea'
 import { Input } from '@repo/ui/input'
 import { useNotification } from '@/hooks/useNotification'
 import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
@@ -30,11 +29,18 @@ import { TCommentData } from '@/components/shared/comments/types/TCommentData'
 import { TComments } from '@/components/shared/comments/types/TComments'
 import CommentList from '@/components/shared/comments/CommentList'
 import AddComment from '@/components/shared/comments/AddComment'
+import PlateEditor from '@/components/shared/plate/plate-editor'
+import { Value } from '@udecode/plate-common'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import EvidenceCreateFormDialog from '../../../evidence/evidence-create-form-dialog'
+import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 
 const TaskDetailsSheet = () => {
   const [isEditing, setIsEditing] = useState(false)
   const [commentSortIsAsc, setCommentSortIsAsc] = useState<boolean>(true)
+  const [tagValues, setTagValues] = useState<Option[]>([])
   const queryClient = useQueryClient()
+  const helper = usePlateEditor()
   const taskTypeOptions = Object.values(TaskTypes)
   const statusOptions = Object.values(TaskTaskStatus)
   const searchParams = useSearchParams()
@@ -67,7 +73,18 @@ const TaskDetailsSheet = () => {
         evidenceIDs: taskData?.evidence?.edges?.map((item) => item?.node?.id) || [],
         groupIDs: taskData?.group?.edges?.map((item) => item?.node?.id) || [],
         status: taskData?.status ? Object.values(TaskTaskStatus).find((type) => type === taskData?.status) : undefined,
+        tags: taskData?.tags ?? [],
       })
+
+      if (taskData?.tags) {
+        const tags = taskData.tags.map((item) => {
+          return {
+            value: item,
+            label: item,
+          } as Option
+        })
+        setTagValues(tags)
+      }
     }
 
     if (taskData && userData && userData?.users?.edges?.length) {
@@ -125,6 +142,12 @@ const TaskDetailsSheet = () => {
       return
     }
 
+    let detailsField = data?.details
+
+    if (detailsField) {
+      detailsField = await helper.convertToHtml(detailsField as Value)
+    }
+
     const taskObjects = data?.taskObjects?.reduce(
       (acc, item) => {
         acc[item.inputName] = item.objectIds
@@ -177,7 +200,7 @@ const TaskDetailsSheet = () => {
       category: data?.category,
       due: data?.due,
       title: data?.title,
-      details: data?.details,
+      details: detailsField,
       assigneeID: data?.assigneeID,
       status: data?.status,
       ...taskObjectPayload,
@@ -242,6 +265,12 @@ const TaskDetailsSheet = () => {
     return <div className="flex flex-wrap gap-2">{items?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}</div>
   }
 
+  const handleTags = () => {
+    return (
+      <div className="flex flex-wrap gap-2">{taskData?.tags?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}</div>
+    )
+  }
+
   const handleReassignComingSoon = () => {
     alert('Reassign feature coming soon!')
   }
@@ -271,6 +300,10 @@ const TaskDetailsSheet = () => {
     setCommentSortIsAsc((usePrev) => !usePrev)
 
     setComments(sortedComments)
+  }
+
+  const handleDetailsChange = (value: Value) => {
+    form.setValue('details', value)
   }
 
   return (
@@ -347,14 +380,14 @@ const TaskDetailsSheet = () => {
                             />
                           </div>
                           <FormControl>
-                            <Textarea rows={7} id="details" {...field} className="w-full" />
+                            <PlateEditor onChange={handleDetailsChange} initialValue={taskData?.details ?? undefined} />
                           </FormControl>
                           {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors.details.message}</p>}
                         </FormItem>
                       )}
                     />
                   ) : (
-                    taskData?.details
+                    <div>{taskData?.details ? helper.convertToReadOnly(taskData.details) : ''}</div>
                   )}
                 </div>
               </form>
@@ -365,6 +398,7 @@ const TaskDetailsSheet = () => {
                 <Button icon={<FilePlus />} iconPosition="left">
                   Upload File
                 </Button>
+                {taskData && <EvidenceCreateFormDialog taskData={{ taskId: taskData!.id, displayID: taskData!.displayID, tags: taskData!.tags ?? undefined }} />}
                 <Button disabled={taskData?.status === TaskTaskStatus.COMPLETED} icon={<Check />} iconPosition="left" variant="outline" onClick={() => handleMarkAsComplete()}>
                   Mark as complete
                 </Button>
@@ -491,6 +525,46 @@ const TaskDetailsSheet = () => {
                     />
                   ) : (
                     <p className="text-sm">{taskData?.category}</p>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <Tag height={16} width={16} className="text-accent-secondary" />
+                  <p className="text-sm w-[120px]">Tags</p>
+                  {isEditing ? (
+                    <Controller
+                      name="tags"
+                      control={form.control}
+                      render={({ field }) => {
+                        return (
+                          <>
+                            <MultipleSelector
+                              placeholder="Add tag..."
+                              creatable
+                              commandProps={{
+                                className: 'w-1/3',
+                              }}
+                              value={tagValues}
+                              onChange={(selectedOptions) => {
+                                const options = selectedOptions.map((option) => option.value)
+                                field.onChange(options)
+                                setTagValues(
+                                  selectedOptions.map((item) => {
+                                    return {
+                                      value: item.value,
+                                      label: item.label,
+                                    }
+                                  }),
+                                )
+                              }}
+                            />
+                            {form.formState.errors.tags && <p className="text-red-500 text-sm">{form.formState.errors.tags.message}</p>}
+                          </>
+                        )
+                      }}
+                    />
+                  ) : (
+                    <>{handleTags()}</>
                   )}
                 </div>
 

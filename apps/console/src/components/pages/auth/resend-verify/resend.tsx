@@ -12,7 +12,7 @@ import { resendVerification } from '@/lib/user'
 import { useRouter } from 'next/navigation'
 import { Panel } from '@repo/ui/panel'
 import { Logo } from '@repo/ui/logo'
-import { buttonVariants } from '@repo/ui/plate-ui/button'
+import { buttonVariants } from '@repo/ui/components/plate-ui/button.tsx'
 
 const formSchema = z.object({
   email: z.string().email(),

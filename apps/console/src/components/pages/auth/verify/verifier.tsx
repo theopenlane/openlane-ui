@@ -7,7 +7,7 @@ import { signIn } from 'next-auth/react'
 import { Logo } from '@repo/ui/logo'
 import { useVerifyUser } from '@/lib/user'
 import { verificationStyles } from './page.styles'
-import { buttonVariants } from '@repo/ui/plate-ui/button'
+import { buttonVariants } from '@repo/ui/components/plate-ui/button.tsx'
 
 export const TokenVerifier = () => {
   const { successMessage, button, success, content, logo, wrapper, verifying } = verificationStyles()

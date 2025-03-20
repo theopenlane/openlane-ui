@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { TaskTypes } from '@/components/pages/protected/tasks/util/task'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { InfoIcon } from 'lucide-react'
@@ -11,17 +11,24 @@ import { Button } from '@repo/ui/button'
 import { CreateTaskInput } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
-import { Textarea } from '@repo/ui/textarea'
 import { useNotification } from '@/hooks/useNotification'
 import ControlObjectTaskForm from '@/components/pages/protected/tasks/create-task/form/control-object-task-form'
 import { useCreateTask } from '@/lib/graphql-hooks/tasks'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
+import PlateEditor from '@/components/shared/plate/plate-editor'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { Value } from '@udecode/plate-common'
+import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
+import { dialogStyles } from '@/components/pages/protected/program/dialog.styles.tsx'
 
 type TProps = {
   onSuccess: () => void
 }
 
 const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
+  const plateEditorHelper = usePlateEditor()
+  const { formInput } = dialogStyles()
+  const [tagValues, setTagValues] = useState<Option[]>([])
   const { form } = useFormSchema()
   const { data: session } = useSession()
   const { successNotification, errorNotification } = useNotification()
@@ -36,30 +43,40 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
   }))
 
   const onSubmitHandler = async (data: CreateTaskFormData) => {
-    const taskObjects = data?.taskObjects?.reduce(
-      (acc, item) => {
-        acc[item.inputName] = item.objectIds
-        return acc
-      },
-      {} as Record<string, string[]>,
-    )
-
-    const formData = {
-      input: {
-        category: data?.category,
-        due: data?.due,
-        title: data?.title,
-        details: data?.details,
-        assigneeID: data?.assigneeID,
-        ...taskObjects,
-      } as CreateTaskInput,
-    }
     try {
+      let detailsField = data?.details
+
+      if (detailsField) {
+        detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
+      }
+
+      const taskObjects = (data?.taskObjects || []).reduce(
+        (acc, item) => {
+          acc[item.inputName] = item.objectIds
+          return acc
+        },
+        {} as Record<string, string[]>,
+      )
+
+      const formData: { input: CreateTaskInput } = {
+        input: {
+          category: data?.category,
+          due: data?.due,
+          title: data?.title,
+          details: detailsField,
+          assigneeID: data?.assigneeID,
+          tags: data?.tags,
+          ...taskObjects,
+        },
+      }
+
       await createTask(formData)
+
       successNotification({
         title: 'Task Created',
-        description: `Task has been successfully created`,
+        description: 'Task has been successfully created',
       })
+
       form.reset()
       props.onSuccess()
     } catch (error) {
@@ -70,8 +87,12 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
     }
   }
 
+  const handleDetailsChange = (value: Value) => {
+    form.setValue('details', value)
+  }
+
   return (
-    <>
+    <div className={formInput()}>
       <Grid>
         <GridRow columns={4}>
           <GridCell className="col-span-2">
@@ -136,17 +157,47 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                         name="details"
                         render={({ field }) => (
                           <FormItem className="w-full">
-                            <div className="flex items-center">
-                              <FormLabel>Details</FormLabel>
-                              <SystemTooltip
-                                icon={<InfoIcon size={14} className="mx-1 mt-1" />}
-                                content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
-                              />
-                            </div>
+                            <FormLabel>Details</FormLabel>
+                            <SystemTooltip
+                              icon={<InfoIcon size={14} className="mx-1 mt-1" />}
+                              content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
+                            />
+                            <PlateEditor onChange={handleDetailsChange} />
+                            {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
+                          </FormItem>
+                        )}
+                      />
+                    </InputRow>
+
+                    {/* Tags Field */}
+                    <InputRow className="w-full">
+                      <FormField
+                        control={form.control}
+                        name="tags"
+                        render={({ field }) => (
+                          <FormItem className="w-full">
+                            <FormLabel>Tags</FormLabel>
                             <FormControl>
-                              <Textarea rows={7} id="details" {...field} className="w-full" />
+                              <MultipleSelector
+                                placeholder="Add tag..."
+                                creatable
+                                value={tagValues}
+                                onChange={(selectedOptions) => {
+                                  const options = selectedOptions.map((option) => option.value)
+                                  field.onChange(options)
+                                  setTagValues(
+                                    selectedOptions.map((item) => {
+                                      return {
+                                        value: item.value,
+                                        label: item.label,
+                                      }
+                                    }),
+                                  )
+                                }}
+                                className="w-full"
+                              />
                             </FormControl>
-                            {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors.details.message}</p>}
+                            {form.formState.errors.tags && <p className="text-red-500 text-sm">{form.formState.errors.tags.message}</p>}
                           </FormItem>
                         )}
                       />
@@ -216,7 +267,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
           </GridCell>
         </GridRow>
       </Grid>
-    </>
+    </div>
   )
 }
 

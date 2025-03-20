@@ -8,7 +8,7 @@ import { JwtPayload } from 'jsonwebtoken'
 import { credentialsProvider } from './providers/credentials'
 import { getTokenFromOpenlaneAPI } from './utils/get-openlane-token'
 import { setSessionCookie } from './utils/set-session-cookie'
-import { cookies } from 'next/headers'
+import { cookies, type UnsafeUnwrappedCookies } from 'next/headers'
 import { sessionCookieName, allowedLoginDomains } from '@repo/dally/auth'
 import { fetchNewAccessToken } from './utils/refresh-token'
 import { getDashboardData } from '@/app/api/getDashboardData/route'
@@ -38,8 +38,8 @@ export const config = {
   ],
   events: {
     async signOut() {
-      if (sessionCookieName && cookies().has(sessionCookieName)) {
-        cookies().delete(sessionCookieName)
+      if (sessionCookieName && (cookies() as unknown as UnsafeUnwrappedCookies).has(sessionCookieName)) {
+        ;(cookies() as unknown as UnsafeUnwrappedCookies).delete(sessionCookieName)
       }
     },
   },
