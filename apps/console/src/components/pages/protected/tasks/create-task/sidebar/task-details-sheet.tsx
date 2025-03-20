@@ -65,13 +65,13 @@ const TaskDetailsSheet = () => {
         due: new Date(taskData.due as string),
         assigneeID: taskData.assignee?.id,
         category: taskData?.category ? Object.values(TaskTypes).find((type) => type === taskData?.category) : undefined,
-        controlObjectiveIDs: taskData?.controlObjective?.edges?.map((item) => item?.node?.id) || [],
-        subcontrolIDs: taskData?.subcontrol?.edges?.map((item) => item?.node?.id) || [],
-        programIDs: taskData?.program?.edges?.map((item) => item?.node?.id) || [],
-        procedureIDs: taskData?.procedure?.edges?.map((item) => item?.node?.id) || [],
-        internalPolicyIDs: taskData?.internalPolicy?.edges?.map((item) => item?.node?.id) || [],
+        controlObjectiveIDs: taskData?.controlObjectives?.edges?.map((item) => item?.node?.id) || [],
+        subcontrolIDs: taskData?.subcontrols?.edges?.map((item) => item?.node?.id) || [],
+        programIDs: taskData?.programs?.edges?.map((item) => item?.node?.id) || [],
+        procedureIDs: taskData?.procedures?.edges?.map((item) => item?.node?.id) || [],
+        internalPolicyIDs: taskData?.internalPolicies?.edges?.map((item) => item?.node?.id) || [],
         evidenceIDs: taskData?.evidence?.edges?.map((item) => item?.node?.id) || [],
-        groupIDs: taskData?.group?.edges?.map((item) => item?.node?.id) || [],
+        groupIDs: taskData?.groups?.edges?.map((item) => item?.node?.id) || [],
         status: taskData?.status ? Object.values(TaskTaskStatus).find((type) => type === taskData?.status) : undefined,
         tags: taskData?.tags ?? [],
       })
@@ -253,13 +253,13 @@ const TaskDetailsSheet = () => {
 
   const handleRelatedObjects = () => {
     const items = [
-      ...(taskData?.controlObjective?.edges?.map((item) => item?.node?.displayID) || []),
-      ...(taskData?.subcontrol?.edges?.map((item) => item?.node?.displayID) || []),
-      ...(taskData?.program?.edges?.map((item) => item?.node?.displayID) || []),
-      ...(taskData?.procedure?.edges?.map((item) => item?.node?.displayID) || []),
-      ...(taskData?.internalPolicy?.edges?.map((item) => item?.node?.displayID) || []),
+      ...(taskData?.controlObjectives?.edges?.map((item) => item?.node?.displayID) || []),
+      ...(taskData?.subcontrols?.edges?.map((item) => item?.node?.displayID) || []),
+      ...(taskData?.programs?.edges?.map((item) => item?.node?.displayID) || []),
+      ...(taskData?.procedures?.edges?.map((item) => item?.node?.displayID) || []),
+      ...(taskData?.internalPolicies?.edges?.map((item) => item?.node?.displayID) || []),
       ...(taskData?.evidence?.edges?.map((item) => item?.node?.displayID) || []),
-      ...(taskData?.group?.edges?.map((item) => item?.node?.displayID) || []),
+      ...(taskData?.groups?.edges?.map((item) => item?.node?.displayID) || []),
     ]
 
     return <div className="flex flex-wrap gap-2">{items?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}</div>
