@@ -1,18 +1,13 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import dynamic from 'next/dynamic'
-
 import { Info } from 'lucide-react'
-import { Textarea } from '@repo/ui/textarea'
 import { FieldValues, Path, ControllerRenderProps, UseFormReturn } from 'react-hook-form'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
 import { EditProcedureFormData } from './procedure-edit-form-types'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-
-const PlateEditor = dynamic(() => import('@/components/shared/editor/plate'), { ssr: false })
 
 type ProcedureEditFormProps = {
   document: string
@@ -56,7 +51,6 @@ export const ProcedureEditForm = ({ form, document, setDocument }: ProcedureEdit
         </Form>
         <div>
           <FormLabelContent label="Procedure" info="The Procedure document contents" />
-          <PlateEditor content={document} onChange={setUpdatedDocument as any} />
         </div>
       </div>
     </>

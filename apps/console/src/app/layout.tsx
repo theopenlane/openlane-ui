@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   description: 'Accelerate your security and compliance programs with Openlane.',
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }): JSX.Element {
+export default function RootLayout({ children }: { children: React.ReactNode }): React.ReactNode {
   return (
     <html className="h-screen relative" lang="en" suppressHydrationWarning>
       <head>

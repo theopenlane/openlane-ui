@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import type { OurFileRouter } from 'src/app/api/uploadthing/route'
+import type { OurFileRouter } from '../app/api/uploadthing/route'
 import type { ClientUploadedFileData, UploadFilesOptions } from 'uploadthing/types'
 
 import { generateReactHelpers } from '@uploadthing/react'
