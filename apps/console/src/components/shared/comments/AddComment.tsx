@@ -3,7 +3,7 @@ import { Paperclip, Smile } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { useSession } from 'next-auth/react'
-import { useGetUserProfile } from '@/lib/graphql-hooks/user'
+import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
 import EmojiPicker from '@/components/shared/emoji/EmojiPicker'
 import { TComments } from '@/components/shared/comments/types/TComments'
 import { Avatar } from '../avatar/avatar'
@@ -17,7 +17,7 @@ const AddComment: React.FC<TProps> = (props: TProps) => {
   const { data: session } = useSession()
   const [emojiIsOpen, setEmojiIsOpen] = useState<boolean>(false)
   const userId = session?.user.userId
-  const { data } = useGetUserProfile(userId)
+  const { data } = useGetCurrentUser(userId)
 
   const [comment, setComment] = useState<string>('')
 

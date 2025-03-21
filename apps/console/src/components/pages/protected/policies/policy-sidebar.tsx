@@ -6,7 +6,7 @@ import { UserRoundCheck, Binoculars, FileStack, ScrollText, Tag, CalendarCheck2,
 import { Badge } from '@repo/ui/badge'
 import { MetaPanel, formatTime, MetaPanelEntry } from '@/components/shared/meta-panel/meta-panel'
 import { UserChip } from '@/components/shared/user-chip/user-chip'
-import { useGetUserProfile } from '@/lib/graphql-hooks/user'
+import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
 
 type PolicySidebarProps = {
   policy: InternalPolicyByIdFragment
@@ -15,9 +15,9 @@ type PolicySidebarProps = {
 export const PolicySidebar: React.FC<PolicySidebarProps> = function ({ policy }) {
   if (!policy) return null
 
-  const { data: createdByUser } = useGetUserProfile(policy.createdBy)
+  const { data: createdByUser } = useGetCurrentUser(policy.createdBy)
 
-  const { data: updatedByUser } = useGetUserProfile(policy.updatedBy)
+  const { data: updatedByUser } = useGetCurrentUser(policy.updatedBy)
 
   const sidebarItems: Record<string, MetaPanelEntry[]> = useMemo(() => {
     return {

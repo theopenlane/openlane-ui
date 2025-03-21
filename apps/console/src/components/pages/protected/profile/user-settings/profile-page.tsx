@@ -11,7 +11,7 @@ import QRCodeDialog from './qrcode-dialog'
 import { Button } from '@repo/ui/button'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Badge } from '@repo/ui/badge'
-import { useGetUserProfile, useUpdateUserAvatar, useUpdateUserSetting } from '@/lib/graphql-hooks/user'
+import { useGetCurrentUser, useUpdateUserAvatar, useUpdateUserSetting } from '@/lib/graphql-hooks/user'
 import { useCreateTfaSetting, useGetUserTFASettings, useUpdateTfaSetting } from '@/lib/graphql-hooks/tfa'
 
 const ProfilePage = () => {
@@ -23,7 +23,7 @@ const ProfilePage = () => {
   const [secret, setSecret] = useState<null | string>(null)
   const [regeneratedCodes, setRegeneratedCodes] = useState<null | string[]>(null)
 
-  const { data: userData } = useGetUserProfile(userId)
+  const { data: userData } = useGetCurrentUser(userId)
 
   const { isPending, mutateAsync: updateUserAvatar } = useUpdateUserAvatar()
 
