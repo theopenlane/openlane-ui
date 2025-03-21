@@ -153,7 +153,8 @@ const StandardDetailsAccordion: FC = () => {
           </Select>
           <DialogFooter>
             <Button onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-            <Button onClick={() => console.log(selectedControls, selectedProgram)}>Add</Button>
+            {/* <Button onClick={() => console.log(selectedControls, selectedProgram)}>Add</Button> */}
+            <Button>Add</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
