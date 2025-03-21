@@ -8,7 +8,7 @@ export const useGetAllControls = (where?: GetAllControlsQueryVariables['where'])
   const { client } = useGraphQLClient()
 
   return useQuery<GetAllControlsQuery, unknown>({
-    queryKey: ['allControls', where],
+    queryKey: ['controls', where],
     queryFn: async () => client.request(GET_ALL_CONTROLS, { where }),
     enabled: where !== undefined,
   })

@@ -43,12 +43,8 @@ interface SheetContentProps extends React.ComponentPropsWithoutRef<typeof SheetP
 const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Content>, SheetContentProps>(({ side = 'right', className, children, ...props }, ref) => (
   <SheetPortal>
     <SheetOverlay />
-    <SheetPrimitive.Content ref={ref} className={cn(sheetVariants({ side }), className)} {...props}>
+    <SheetPrimitive.Content ref={ref} className={cn(sheetVariants({ side }), className)} onOpenAutoFocus={(event) => event.preventDefault()} {...props}>
       {children}
-      <SheetPrimitive.Close className="absolute left-6 top-6 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-secondary">
-        <ArrowRight className="h-4 w-4" />
-        <span className="sr-only">Close</span>
-      </SheetPrimitive.Close>
     </SheetPrimitive.Content>
   </SheetPortal>
 ))
