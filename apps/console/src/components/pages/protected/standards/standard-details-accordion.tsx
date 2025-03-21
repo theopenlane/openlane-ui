@@ -54,7 +54,7 @@ const StandardDetailsAccordion: FC = () => {
   }, [data])
 
   const programs = useMemo(() => {
-    return programsData?.programs?.edges.map((edge) => edge.node) || []
+    return programsData?.programs?.edges?.map((edge) => edge?.node) || []
   }, [programsData])
 
   const toggleSelection = (controlId: string) => {
