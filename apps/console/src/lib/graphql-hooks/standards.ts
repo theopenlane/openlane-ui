@@ -14,7 +14,7 @@ export const useGetStandards = (where?: GetAllStandardsQueryVariables['where']) 
   })
 }
 
-export const useGetStandardDetails = (standardId: string) => {
+export const useGetStandardDetails = (standardId: string | null) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetStandardDetailsQuery>({

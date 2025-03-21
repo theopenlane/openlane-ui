@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import type { FC } from 'react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/table'
@@ -65,9 +65,16 @@ const StandardDetailsAccordion: FC = () => {
     setOpenSections((prev) => (prev.includes(section) ? prev.filter((s) => s !== section) : [...prev, section]))
   }
 
+  useEffect(() => {
+    const firstCategory = Object.keys(groupedControls)[0]
+    if (firstCategory && openSections.length === 0) {
+      setOpenSections([firstCategory])
+    }
+  }, [groupedControls])
+
   return (
     <>
-      <Accordion type="multiple" className="w-full">
+      <Accordion type="multiple" value={openSections} onValueChange={setOpenSections} className="w-full">
         <div className="flex justify-between">
           <h2 className="text-2xl">Domains</h2>
           <Input
@@ -85,7 +92,7 @@ const StandardDetailsAccordion: FC = () => {
           const isOpen = openSections.includes(category)
           return (
             <AccordionItem key={category} value={category}>
-              <AccordionTrigger className="flex items-center gap-2 text-lg font-semibold w-full p-4 cursor-pointer rounded-lg" onClick={() => toggleSection(category)}>
+              <AccordionTrigger className="flex items-center gap-2 text-lg font-semibold w-full p-4 cursor-pointer rounded-lg">
                 <span>{category}</span>
                 {isOpen ? <ChevronDown size={22} className="text-brand" /> : <ChevronRight size={22} className="text-brand" />}
               </AccordionTrigger>
@@ -111,9 +118,16 @@ const StandardDetailsAccordion: FC = () => {
                             <Checkbox checked={selectedControls.includes(control.id)} onCheckedChange={() => toggleSelection(control.id)} />
                           </TableCell>
                           <TableCell className="text-blue-400 whitespace-nowrap">{control.refCode}</TableCell>
-                          <TableCell>{control.description}</TableCell>
+                          <TableCell>
+                            {control?.description?.split('\n').map((line, i) => (
+                              <React.Fragment key={i}>
+                                {line}
+                                <br />
+                              </React.Fragment>
+                            ))}
+                          </TableCell>{' '}
                           <TableCell>{control.subcategory}</TableCell>
-                          <TableCell>{control.mappedCategories}</TableCell>
+                          <TableCell>{control.mappedCategories?.join(', ')}</TableCell>
                           <TableCell>{control.subcontrols.totalCount}</TableCell>
                         </TableRow>
                       ))}
