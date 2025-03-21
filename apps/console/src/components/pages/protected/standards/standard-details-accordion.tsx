@@ -113,7 +113,7 @@ const StandardDetailsAccordion: FC = () => {
                           <TableCell className="text-blue-400 whitespace-nowrap">{control.refCode}</TableCell>
                           <TableCell>{control.description}</TableCell>
                           <TableCell>{control.subcategory}</TableCell>
-                          <TableCell>{control.category}</TableCell>
+                          <TableCell>{control.mappedCategories}</TableCell>
                           <TableCell>{control.subcontrols.totalCount}</TableCell>
                         </TableRow>
                       ))}
