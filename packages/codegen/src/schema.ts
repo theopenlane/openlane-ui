@@ -30062,13 +30062,41 @@ export type GetAllControlObjectivesQuery = {
   }
 }
 
+export type ControlFieldsFragment = {
+  __typename?: 'Control'
+  id: string
+  displayID: string
+  category?: string | null
+  refCode: string
+  subcategory?: string | null
+  description?: string | null
+  mappedCategories?: Array<string> | null
+  subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
+}
+
 export type GetAllControlsQueryVariables = Exact<{
   where?: InputMaybe<ControlWhereInput>
 }>
 
 export type GetAllControlsQuery = {
   __typename?: 'Query'
-  controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string } | null } | null> | null }
+  controls: {
+    __typename?: 'ControlConnection'
+    edges?: Array<{
+      __typename?: 'ControlEdge'
+      node?: {
+        __typename?: 'Control'
+        id: string
+        displayID: string
+        category?: string | null
+        refCode: string
+        subcategory?: string | null
+        description?: string | null
+        mappedCategories?: Array<string> | null
+        subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
+      } | null
+    } | null> | null
+  }
 }
 
 export type GetDashboardDataQueryVariables = Exact<{
@@ -30936,6 +30964,30 @@ export type GetAllStandardsQuery = {
         controls: { __typename?: 'ControlConnection'; totalCount: number }
       } | null
     } | null> | null
+  }
+}
+
+export type GetStandardDetailsQueryVariables = Exact<{
+  standardId: Scalars['ID']['input']
+}>
+
+export type GetStandardDetailsQuery = {
+  __typename?: 'Query'
+  standard: {
+    __typename?: 'Standard'
+    id: string
+    shortName?: string | null
+    version?: string | null
+    governingBodyLogoURL?: string | null
+    standardType?: string | null
+    updatedAt?: any | null
+    tags?: Array<string> | null
+    description?: string | null
+    name: string
+    revision?: string | null
+    link?: string | null
+    framework?: string | null
+    controls: { __typename?: 'ControlConnection'; totalCount: number }
   }
 }
 
