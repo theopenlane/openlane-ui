@@ -30986,6 +30986,7 @@ export type GetStandardDetailsQuery = {
     name: string
     revision?: string | null
     link?: string | null
+    framework?: string | null
     controls: { __typename?: 'ControlConnection'; totalCount: number }
   }
 }
