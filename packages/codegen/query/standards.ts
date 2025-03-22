@@ -37,6 +37,7 @@ export const GET_STANDARD_DETAILS = gql`
       revision
       link
       framework
+      governingBody
       controls {
         totalCount
       }
