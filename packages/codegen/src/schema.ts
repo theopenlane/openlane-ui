@@ -5164,7 +5164,7 @@ export interface CreateRiskInput {
  */
 export interface CreateStandardInput {
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  /** description of the standard */
+  /** long description of the standard with details of what is covered */
   description?: InputMaybe<Scalars['String']['input']>
   /** domains the standard covers, e.g. availability, confidentiality, etc. */
   domains?: InputMaybe<Array<Scalars['String']['input']>>
@@ -23103,7 +23103,7 @@ export interface Standard extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   deletedAt?: Maybe<Scalars['Time']['output']>
   deletedBy?: Maybe<Scalars['String']['output']>
-  /** description of the standard */
+  /** long description of the standard with details of what is covered */
   description?: Maybe<Scalars['String']['output']>
   /** domains the standard covers, e.g. availability, confidentiality, etc. */
   domains?: Maybe<Array<Scalars['String']['output']>>
@@ -23199,7 +23199,7 @@ export interface StandardHistory extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   deletedAt?: Maybe<Scalars['Time']['output']>
   deletedBy?: Maybe<Scalars['String']['output']>
-  /** description of the standard */
+  /** long description of the standard with details of what is covered */
   description?: Maybe<Scalars['String']['output']>
   /** domains the standard covers, e.g. availability, confidentiality, etc. */
   domains?: Maybe<Array<Scalars['String']['output']>>
@@ -28177,7 +28177,7 @@ export interface UpdateStandardInput {
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearVersion?: InputMaybe<Scalars['Boolean']['input']>
-  /** description of the standard */
+  /** long description of the standard with details of what is covered */
   description?: InputMaybe<Scalars['String']['input']>
   /** domains the standard covers, e.g. availability, confidentiality, etc. */
   domains?: InputMaybe<Array<Scalars['String']['input']>>

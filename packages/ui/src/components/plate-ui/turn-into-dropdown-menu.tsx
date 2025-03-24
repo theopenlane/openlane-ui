@@ -16,7 +16,7 @@ import { getBlockType, setBlockType, STRUCTURAL_TYPES } from '../editor/transfor
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger, useOpenState } from './dropdown-menu'
 import { ToolbarButton } from './toolbar'
-import { TPlateEditorVariants } from '@/components/editor/use-create-editor.ts'
+import { TPlateEditorVariants } from '../editor/use-create-editor.ts'
 
 const turnIntoItemsAdvanced = [
   {
