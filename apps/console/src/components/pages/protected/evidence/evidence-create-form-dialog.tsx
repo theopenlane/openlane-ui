@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
-import { PlusCircle } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import EvidenceCreateForm from '@/components/pages/protected/evidence/evidence-create-form'
+import { FilePlus } from 'lucide-react'
 
 type TProps = {
   taskData?: { taskId: string; displayID: string; tags?: string[] }
@@ -18,8 +18,8 @@ const EvidenceCreateFormDialog: React.FC<TProps> = (props: TProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button icon={<PlusCircle />} iconPosition="left" onClick={() => setIsOpen(true)}>
-          Create Evidence
+        <Button icon={<FilePlus />} iconPosition="left" onClick={() => setIsOpen(true)}>
+          Upload File
         </Button>
       </DialogTrigger>
       <DialogContent>

@@ -401,9 +401,6 @@ const TaskDetailsSheet = () => {
 
             {!isEditing && (
               <div className="mt-9 flex gap-4">
-                <Button icon={<FilePlus />} iconPosition="left">
-                  Upload File
-                </Button>
                 {taskData && <EvidenceCreateFormDialog taskData={{ taskId: taskData!.id, displayID: taskData!.displayID, tags: taskData!.tags ?? undefined }} />}
                 <Button disabled={taskData?.status === TaskTaskStatus.COMPLETED} icon={<Check />} iconPosition="left" variant="outline" onClick={() => handleMarkAsComplete()}>
                   Mark as complete
