@@ -162,7 +162,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                               icon={<InfoIcon size={14} className="mx-1 mt-1" />}
                               content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
                             />
-                            <PlateEditor onChange={handleDetailsChange} />
+                            <PlateEditor onChange={handleDetailsChange} variant="basic" />
                             {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
                           </FormItem>
                         )}

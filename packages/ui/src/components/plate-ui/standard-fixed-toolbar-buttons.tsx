@@ -35,7 +35,7 @@ import { ToggleToolbarButton } from './toggle-toolbar-button'
 import { ToolbarGroup } from './toolbar'
 import { TurnIntoDropdownMenu } from './turn-into-dropdown-menu'
 
-export function FixedToolbarButtons() {
+export function StandardFixedToolbarButtons() {
   const readOnly = useEditorReadOnly()
 
   return (
@@ -47,11 +47,11 @@ export function FixedToolbarButtons() {
             <RedoToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup>
+          {/*<ToolbarGroup>
             <AIToolbarButton tooltip="AI commands">
               <WandSparklesIcon />
             </AIToolbarButton>
-          </ToolbarGroup>
+          </ToolbarGroup>*/}
 
           <ToolbarGroup>
             <ExportToolbarButton>
@@ -63,7 +63,7 @@ export function FixedToolbarButtons() {
 
           <ToolbarGroup>
             <InsertDropdownMenu />
-            <TurnIntoDropdownMenu />
+            <TurnIntoDropdownMenu variant="standard" />
             <FontSizeToolbarButton />
           </ToolbarGroup>
 

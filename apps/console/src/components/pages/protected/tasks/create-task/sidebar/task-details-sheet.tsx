@@ -34,6 +34,7 @@ import { Value } from '@udecode/plate-common'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import EvidenceCreateFormDialog from '../../../evidence/evidence-create-form-dialog'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
+import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 
 const TaskDetailsSheet = () => {
   const [isEditing, setIsEditing] = useState(false)
@@ -48,6 +49,7 @@ const TaskDetailsSheet = () => {
   const { selectedTask, setSelectedTask, orgMembers } = useTaskStore()
   const { successNotification, errorNotification } = useNotification()
   const [comments, setComments] = useState<TCommentData[]>([])
+  const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
 
   const { mutateAsync: updateTask } = useUpdateTask()
   const { data, isLoading: fetching } = useTask(selectedTask as string)
@@ -62,7 +64,7 @@ const TaskDetailsSheet = () => {
       form.reset({
         title: taskData.title ?? '',
         details: taskData.details ?? '',
-        due: new Date(taskData.due as string),
+        due: taskData.due ? new Date(taskData.due as string) : undefined,
         assigneeID: taskData.assignee?.id,
         category: taskData?.category ? Object.values(TaskTypes).find((type) => type === taskData?.category) : undefined,
         controlObjectiveIDs: taskData?.controlObjectives?.edges?.map((item) => item?.node?.id) || [],
@@ -125,10 +127,14 @@ const TaskDetailsSheet = () => {
 
   const handleSheetClose = () => {
     if (isEditing) {
-      const confirmClose = window.confirm('You have unsaved changes. Do you want to discard them?')
-      if (!confirmClose) return
+      setIsDiscardDialogOpen(true)
+      return
     }
 
+    handleCloseParams()
+  }
+
+  const handleCloseParams = () => {
     setSelectedTask(null)
     setIsEditing(false)
 
@@ -597,6 +603,14 @@ const TaskDetailsSheet = () => {
             <AddComment onSuccess={handleSendComment} />
           </>
         )}
+        <CancelDialog
+          isOpen={isDiscardDialogOpen}
+          onConfirm={() => {
+            setIsDiscardDialogOpen(false)
+            handleCloseParams()
+          }}
+          onCancel={() => setIsDiscardDialogOpen(false)}
+        />
       </SheetContent>
     </Sheet>
   )

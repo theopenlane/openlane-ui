@@ -17,8 +17,9 @@ import { SlashPlugin } from '@udecode/plate-slash-command/react'
 import { TogglePlugin } from '@udecode/plate-toggle/react'
 import { TrailingBlockPlugin } from '@udecode/plate-trailing-block'
 
-import { FixedToolbarPlugin } from '../../editor/plugins/fixed-toolbar-plugin'
-import { FloatingToolbarPlugin } from '../../editor/plugins/floating-toolbar-plugin'
+import { AdvancedFixedToolbarPlugin } from './advanced-fixed-toolbar-plugin.tsx'
+import { AdvancedFloatingToolbarPlugin } from './advanced-floating-toolbar-plugin.tsx'
+import { BasicFloatingToolbarPlugin } from '../../editor/plugins/basic-floating-toolbar-plugin'
 import { BlockDiscussion } from '../../plate-ui/block-discussion'
 import { SuggestionBelowNodes } from '../../plate-ui/suggestion-line-break'
 
@@ -69,6 +70,9 @@ import { BaseIndentPlugin } from '@udecode/plate-indent'
 import { BaseBlockquotePlugin } from '@udecode/plate-block-quote'
 import { BaseDatePlugin } from '@udecode/plate-date'
 import { all, createLowlight } from 'lowlight'
+import { BasicFixedToolbarPlugin } from '../../editor/plugins/basic-fixed-toolbar-plugin.tsx'
+import { StandardFixedToolbarPlugin } from '../../editor/plugins/standard-fixed-toolbar-plugin.tsx'
+import { StandardFloatingToolbarPlugin } from '../../editor/plugins/standard-floating-toolbar-plugin'
 
 const lowlight = createLowlight(all)
 
@@ -180,7 +184,7 @@ export const viewPlugins = [
   }),
 ] as const
 
-export const editorPlugins = [
+export const advancedPlugins = [
   // AI
   //...aiPlugins,
 
@@ -214,6 +218,114 @@ export const editorPlugins = [
   JuicePlugin,
 
   // UI
-  FixedToolbarPlugin,
-  FloatingToolbarPlugin,
+  AdvancedFixedToolbarPlugin,
+  AdvancedFloatingToolbarPlugin,
+]
+
+export const basicPlugins = [
+  // AI
+  //...aiPlugins,
+
+  // Nodes
+  ...basicNodesPlugins,
+  HorizontalRulePlugin,
+  linkPlugin,
+  tocPlugin,
+
+  // Marks
+  FontColorPlugin,
+  FontBackgroundColorPlugin,
+  FontSizePlugin,
+  HighlightPlugin,
+  KbdPlugin,
+  skipMarkPlugin,
+
+  // Block Style
+  alignPlugin,
+  ...indentListPlugins,
+  lineHeightPlugin,
+
+  // Functionality
+  SlashPlugin.extend({
+    options: {
+      triggerQuery(editor) {
+        return !editor.api.some({
+          match: { type: editor.getType(CodeBlockPlugin) },
+        })
+      },
+    },
+  }),
+  autoformatPlugin,
+  cursorOverlayPlugin,
+  ...blockMenuPlugins,
+  //...dndPlugins,
+  EmojiPlugin.configure({ options: { data: emojiMartData as any } }),
+  exitBreakPlugin,
+  resetBlockTypePlugin,
+  ...deletePlugins,
+  softBreakPlugin,
+  TrailingBlockPlugin,
+
+  // Deserialization
+  DocxPlugin,
+  MarkdownPlugin.configure({ options: { indentList: true } }),
+  JuicePlugin,
+
+  // UI
+  BasicFixedToolbarPlugin,
+  BasicFloatingToolbarPlugin,
+]
+
+export const standardPlugins = [
+  // AI
+  //...aiPlugins,
+
+  // Nodes
+  ...basicNodesPlugins,
+  HorizontalRulePlugin,
+  linkPlugin,
+  tocPlugin,
+
+  // Marks
+  FontColorPlugin,
+  FontBackgroundColorPlugin,
+  FontSizePlugin,
+  HighlightPlugin,
+  KbdPlugin,
+  skipMarkPlugin,
+
+  // Block Style
+  alignPlugin,
+  ...indentListPlugins,
+  lineHeightPlugin,
+
+  // Functionality
+  SlashPlugin.extend({
+    options: {
+      triggerQuery(editor) {
+        return !editor.api.some({
+          match: { type: editor.getType(CodeBlockPlugin) },
+        })
+      },
+    },
+  }),
+  autoformatPlugin,
+  cursorOverlayPlugin,
+  ...blockMenuPlugins,
+  //...dndPlugins,
+  EmojiPlugin.configure({ options: { data: emojiMartData as any } }),
+  exitBreakPlugin,
+  resetBlockTypePlugin,
+  ...deletePlugins,
+  softBreakPlugin,
+  TrailingBlockPlugin,
+
+  // Deserialization
+  DocxPlugin,
+  MarkdownPlugin.configure({ options: { indentList: true } }),
+  JuicePlugin,
+
+  // UI
+  StandardFixedToolbarPlugin,
+  StandardFloatingToolbarPlugin,
 ]
