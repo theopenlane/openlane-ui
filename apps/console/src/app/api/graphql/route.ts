@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   const { query, variables } = await request.json()
-
   if (!process.env.OPENLANE_API_WRITE_TOKEN) {
     const errorResponse = {
       errors: [

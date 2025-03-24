@@ -21,7 +21,7 @@ const formSchema = z.object({
 export const Resend = () => {
   const router = useRouter()
 
-  const { wrapper, input, button, text, header, logo } = resendStyles()
+  const { wrapper, button, text, header, logo } = resendStyles()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -55,7 +55,7 @@ export const Resend = () => {
                 <>
                   <FormLabel className="text-text-light">Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="jane.doe@example.com" className={input()} {...field} />
+                    <Input type="email" placeholder="jane.doe@example.com" {...field} />
                   </FormControl>
                   <FormMessage />
                 </>
