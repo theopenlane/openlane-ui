@@ -8,13 +8,14 @@ import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskSt
 import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task'
 import TaskCards from '@/components/pages/protected/tasks/cards/task-cards'
 import { useTasksWithFilter } from '@/lib/graphql-hooks/tasks'
-import { TaskTaskStatus } from '@repo/codegen/src/schema'
+import { TasksWithFilterQueryVariables, TaskTaskStatus } from '@repo/codegen/src/schema'
 
 const TaskTable: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
   const [showCompletedTasks, setShowCompletedTasks] = useState<boolean>(false)
   const { setSelectedTask, orgMembers } = useTaskStore()
   const [filters, setFilters] = useState<Record<string, any>>({})
+  const [orderBy, setOrderBy] = useState<TasksWithFilterQueryVariables['orderBy']>()
   const allStatuses = [TaskTaskStatus.COMPLETED, TaskTaskStatus.OPEN, TaskTaskStatus.IN_PROGRESS, TaskTaskStatus.IN_REVIEW, TaskTaskStatus.WONT_DO]
   const statusesWithoutComplete = [TaskTaskStatus.OPEN, TaskTaskStatus.IN_PROGRESS, TaskTaskStatus.IN_REVIEW, TaskTaskStatus.WONT_DO]
 
@@ -27,7 +28,11 @@ const TaskTable: React.FC = () => {
     return conditions
   }, [filters, showCompletedTasks])
 
-  const { data, isLoading: fetching } = useTasksWithFilter(whereFilter)
+  const orderByFilter = useMemo(() => {
+    return orderBy || undefined
+  }, [orderBy])
+
+  const { data, isLoading: fetching } = useTasksWithFilter(whereFilter, orderByFilter)
   const [tableData, setTableData] = useState<TTableDataResponse[]>([])
 
   useEffect(() => {
@@ -56,8 +61,6 @@ const TaskTable: React.FC = () => {
     setSelectedTask(task.id ?? null)
   }
 
-  const handleSortChange = (data: any) => {}
-
   const handleTabChange = (tab: 'table' | 'card') => {
     setActiveTab(tab)
   }
@@ -68,7 +71,7 @@ const TaskTable: React.FC = () => {
 
   return (
     <>
-      <TaskTableToolbar onFilterChange={setFilters} members={orgMembers} onSortChange={handleSortChange} onTabChange={handleTabChange} onShowCompletedTasksChange={handleShowCompletedTasks} />
+      <TaskTableToolbar onFilterChange={setFilters} members={orgMembers} onSortChange={setOrderBy} onTabChange={handleTabChange} onShowCompletedTasksChange={handleShowCompletedTasks} />
       {activeTab === 'table' ? <DataTable columns={taskColumns} data={tableData} loading={fetching} onRowClick={handleRowClick} /> : <TaskCards tasks={tableData} loading={fetching} />}
     </>
   )

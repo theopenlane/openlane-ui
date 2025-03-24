@@ -5,10 +5,13 @@ import { ColumnDef } from '@tanstack/react-table'
 import { Checkbox } from '@repo/ui/checkbox'
 import { TFormDataResponse } from '@/components/pages/protected/evidence/object-association/types/TFormDataResponse'
 import { TEvidenceObjectIds } from '@/components/pages/protected/evidence/object-association/types/TEvidenceObjectIds'
+import { UseFormReturn } from 'react-hook-form'
+import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema.ts'
 
 type TProps = {
   data: TFormDataResponse[]
   onEvidenceObjectIdsChange: (evidenceObjectIds: TEvidenceObjectIds[]) => void
+  form?: UseFormReturn<CreateEvidenceFormData>
 }
 
 const EvidenceObjectAssociationTable: React.FC<TProps> = (props: TProps) => {
@@ -17,6 +20,16 @@ const EvidenceObjectAssociationTable: React.FC<TProps> = (props: TProps) => {
   useEffect(() => {
     props.onEvidenceObjectIdsChange(evidenceObjectIds)
   }, [evidenceObjectIds])
+
+  useEffect(() => {
+    if (props?.form) {
+      setEvidenceObjectIds([
+        ...(props.form.getValues('controlObjectiveIDs')?.length ? [{ inputName: 'controlObjectiveIDs', objectIds: props.form.getValues('controlObjectiveIDs') || [] }] : []),
+        ...(props.form.getValues('subcontrolIDs')?.length ? [{ inputName: 'subcontrolIDs', objectIds: props.form.getValues('subcontrolIDs') || [] }] : []),
+        ...(props.form.getValues('programIDs')?.length ? [{ inputName: 'programIDs', objectIds: props.form.getValues('programIDs') || [] }] : []),
+      ])
+    }
+  }, [props?.form])
 
   const columns: ColumnDef<TObjectAssociationColumn>[] = [
     {

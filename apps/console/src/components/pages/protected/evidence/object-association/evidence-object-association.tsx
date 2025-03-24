@@ -12,11 +12,14 @@ import { useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { TFormDataResponse } from '@/components/pages/protected/evidence/object-association/types/TFormDataResponse'
 import { TEvidenceObjectIds } from '@/components/pages/protected/evidence/object-association/types/TEvidenceObjectIds'
+import { UseFormReturn } from 'react-hook-form'
+import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema.ts'
 
 type TProps = {
   onEvidenceObjectIdsChange: (evidenceObjectiveIDs: TEvidenceObjectIds[]) => void
   resetObjectAssociation: boolean
   setResetObjectAssociation: () => void
+  form?: UseFormReturn<CreateEvidenceFormData>
 }
 
 const EvidenceObjectAssociation: React.FC<TProps> = (props: TProps) => {
@@ -122,7 +125,7 @@ const EvidenceObjectAssociation: React.FC<TProps> = (props: TProps) => {
           />
         </div>
       </div>
-      <EvidenceObjectAssociationTable data={formData} onEvidenceObjectIdsChange={handleEvidenceObjectIdsChange} />
+      <EvidenceObjectAssociationTable data={formData} onEvidenceObjectIdsChange={handleEvidenceObjectIdsChange} form={props?.form} />
     </Panel>
   )
 }

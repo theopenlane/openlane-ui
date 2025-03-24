@@ -1,8 +1,8 @@
 import { gql } from 'graphql-request'
 
 export const TASKS_WITH_FILTER = gql`
-  query TasksWithFilter($where: TaskWhereInput) {
-    tasks(where: $where) {
+  query TasksWithFilter($where: TaskWhereInput, $orderBy: [TaskOrder!]) {
+    tasks(where: $where, orderBy: $orderBy) {
       edges {
         node {
           id

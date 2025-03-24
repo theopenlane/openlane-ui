@@ -19,9 +19,10 @@ import { useNotification } from '@/hooks/useNotification'
 import { Option } from '@repo/ui/multiple-selector'
 import { useCreateEvidence } from '@/lib/graphql-hooks/evidence'
 import { TEvidenceObjectIds } from '@/components/pages/protected/evidence/object-association/types/TEvidenceObjectIds'
+import { TTaskDataEvidence } from '@/components/pages/protected/evidence/types/TTaskDataEvidence.ts'
 
 type TProps = {
-  taskData?: { taskId: string; displayID: string; tags?: string[] }
+  taskData?: TTaskDataEvidence
   onEvidenceCreateSuccess?: () => void
 }
 
@@ -81,6 +82,10 @@ const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
   useEffect(() => {
     if (props.taskData) {
       form.setValue('name', `Evidence for ${props.taskData.displayID}`)
+      form.setValue('controlObjectiveIDs', props.taskData?.controlObjectiveIDs?.edges?.map((item: any) => item?.node?.id) || [])
+      form.setValue('subcontrolIDs', props.taskData?.subcontrolIDs?.edges?.map((item: any) => item?.node?.id) || [])
+      form.setValue('programIDs', props.taskData?.programIDs?.edges?.map((item: any) => item?.node?.id) || [])
+
       if (props.taskData?.tags) {
         form.setValue('tags', props.taskData.tags)
         const tags = props.taskData.tags.map((item) => {
@@ -294,6 +299,7 @@ const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
                 onEvidenceObjectIdsChange={handleEvidenceObjectIdsChange}
                 resetObjectAssociation={resetObjectAssociation}
                 setResetObjectAssociation={handleResetObjectAssociation}
+                form={form}
               />
             </div>
           </div>

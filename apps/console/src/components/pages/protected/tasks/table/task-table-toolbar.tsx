@@ -31,10 +31,6 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
     } as SelectFilterField,
   ]
 
-  const handleSort = (data: any) => {
-    props.onSortChange(data)
-  }
-
   const handleTabChange = (tab: 'table' | 'card') => {
     setActiveTab(tab)
     props.onTabChange(tab)
@@ -57,7 +53,7 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
       </div>
       <div className="grow flex flex-row items-center gap-2">
         <TableFilter filterFields={filterFields} onFilterChange={props.onFilterChange} />
-        <TableSort sortFields={TASK_SORT_FIELDS} onSortChange={(data) => handleSort(data)} />
+        <TableSort sortFields={TASK_SORT_FIELDS} onSortChange={props.onSortChange} />
         <div className="grow flex flex-row items-center gap-2 pl-5">
           <Checkbox checked={showCompletedTasks} onCheckedChange={(val: boolean) => handleShowCompletedTasks(val)} />
           <p>Show completed tasks</p>

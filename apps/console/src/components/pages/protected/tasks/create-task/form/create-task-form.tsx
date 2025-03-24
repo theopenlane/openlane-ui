@@ -214,9 +214,15 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                               <FormLabel>Assign team member</FormLabel>
                               <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Test123</p>} />
                             </div>
-                            <Select value={field.value} onValueChange={field.onChange}>
+                            <Select
+                              value={field.value || 'unassigned'}
+                              onValueChange={(value) => {
+                                field.onChange(value === 'unassigned' ? null : value || undefined)
+                              }}
+                            >
                               <SelectTrigger className=" w-full">{(membersOptions || []).find((member) => member.value === field.value)?.label || 'Select'}</SelectTrigger>
                               <SelectContent>
+                                <SelectItem value="unassigned">Not Assigned</SelectItem>
                                 {membersOptions &&
                                   membersOptions.length > 0 &&
                                   membersOptions.map((option) => (

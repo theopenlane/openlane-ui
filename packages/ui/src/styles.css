@@ -60,6 +60,9 @@
   --color-separator: #b4c1d5;
   --color-separator-light: #b4c1d5;
   --color-separator-dark: #273344;
+  --color-separator-edit: #bfbfbf;
+  --color-separator-edit-light: #bfbfbf;
+  --color-separator-edit-dark: #60737a;
 
   /* Text */
   --color-text-header: #303e4a;

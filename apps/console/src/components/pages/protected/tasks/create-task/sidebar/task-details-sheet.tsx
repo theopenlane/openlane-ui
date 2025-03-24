@@ -209,6 +209,7 @@ const TaskDetailsSheet = () => {
       details: detailsField,
       assigneeID: data?.assigneeID,
       status: data?.status,
+      clearAssignee: !data?.assigneeID,
       ...taskObjectPayload,
     }
 
@@ -401,7 +402,18 @@ const TaskDetailsSheet = () => {
 
             {!isEditing && (
               <div className="mt-9 flex gap-4">
-                {taskData && <EvidenceCreateFormDialog taskData={{ taskId: taskData!.id, displayID: taskData!.displayID, tags: taskData!.tags ?? undefined }} />}
+                {taskData && (
+                  <EvidenceCreateFormDialog
+                    taskData={{
+                      taskId: taskData!.id,
+                      displayID: taskData!.displayID,
+                      tags: taskData!.tags ?? undefined,
+                      controlObjectiveIDs: taskData?.controlObjectives,
+                      subcontrolIDs: taskData?.subcontrols,
+                      programIDs: taskData?.programs,
+                    }}
+                  />
+                )}
                 <Button disabled={taskData?.status === TaskTaskStatus.COMPLETED} icon={<Check />} iconPosition="left" variant="outline" onClick={() => handleMarkAsComplete()}>
                   Mark as complete
                 </Button>
@@ -428,9 +440,15 @@ const TaskDetailsSheet = () => {
                       control={form.control}
                       render={({ field }) => (
                         <>
-                          <Select value={field.value} onValueChange={field.onChange}>
+                          <Select
+                            value={field.value || 'unassigned'}
+                            onValueChange={(value) => {
+                              field.onChange(value === 'unassigned' ? null : value || undefined)
+                            }}
+                          >
                             <SelectTrigger className="w-1/3">{(orgMembers || []).find((member) => member.value === field.value)?.label || 'Select'}</SelectTrigger>
                             <SelectContent>
+                              <SelectItem value="unassigned">Not Assigned</SelectItem>
                               {orgMembers &&
                                 orgMembers.length > 0 &&
                                 orgMembers.map((option) => (
