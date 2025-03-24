@@ -12,6 +12,8 @@ import { Input } from '@repo/ui/input'
 import { FilterField } from '@/types'
 import { useDebounce } from '@uidotdev/usehooks'
 import { Loading } from '@/components/shared/loading/loading'
+import { format } from 'date-fns'
+import Link from 'next/link'
 
 const filterFields: FilterField[] = [
   { key: 'systemOwned', label: 'System Owned', type: 'boolean' },
@@ -81,7 +83,7 @@ const StandardsPage = () => {
                 <Settings2 className="text-brand" size={16} /> Controls: {standard?.node?.controls.totalCount}
               </p>
               <p className="flex items-center gap-1">
-                <CheckCircleIcon className="text-brand" size={16} /> Last updated: {new Date(standard?.node?.updatedAt).toLocaleDateString()}
+                <CheckCircleIcon className="text-brand" size={16} /> Last updated: {format(new Date(standard?.node?.updatedAt), 'MMMM d, yyyy')}
               </p>
             </div>
             <div className="border-t pt-3 mb-3 flex flex-wrap gap-2">
@@ -92,7 +94,9 @@ const StandardsPage = () => {
               ))}
             </div>
             <p className="text-sm mb-4 line-clamp-3 overflow-hidden text-ellipsis">{standard?.node?.description}</p>
-            <Button className="mt-auto py-2 px-4 rounded">Details</Button>
+            <Link href={`standards/${standard?.node?.id}`}>
+              <Button className="mt-auto py-2 px-4 rounded">Details</Button>
+            </Link>
           </Card>
         ))}
         <Card className="w-full max-w-xl bg-card p-28 rounded-lg shadow border border-dashed flex flex-col items-center justify-center text-center h-[350px]">
