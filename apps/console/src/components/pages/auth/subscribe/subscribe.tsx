@@ -1,23 +1,26 @@
 'use client'
 
+import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { LoaderCircle, MailCheck } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-
 import { Button } from '@repo/ui/button'
 import { Form, FormField, FormControl, FormMessage } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { newsletterStyles } from './subscribe.styles'
 import { recaptchaSiteKey } from '@repo/dally/auth'
-import { useCreateSubscriber } from '@/lib/graphql-hooks/subscribes'
+import { CREATE_SUBSCRIBER } from '@repo/codegen/query/subscribe'
 
 const formSchema = z.object({
   email: z.string().email(),
 })
 
 export const Subscribe = () => {
-  const { wrapper, input, button, errorMessage, success, successMessage, successIcon } = newsletterStyles()
+  const { wrapper, button, errorMessage, success, successMessage, successIcon } = newsletterStyles()
+
+  const [isPending, setIsPending] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -28,9 +31,12 @@ export const Subscribe = () => {
 
   const subscribeToNewsletter = async (email: string) => {
     try {
+      setIsPending(true)
+
+      let recaptchaToken = ''
       if (recaptchaSiteKey) {
         // @ts-ignore
-        const recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'subscribe' })
+        recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'subscribe' })
 
         const recaptchaValidation = await fetch('/api/recaptchaVerify', {
           method: 'POST',
@@ -39,41 +45,46 @@ export const Subscribe = () => {
         })
 
         const validationResponse = await recaptchaValidation.json()
-
         if (!validationResponse.success) {
           console.error('reCAPTCHA validation failed.')
-          return {
-            success: false,
-            message: 'reCAPTCHA validation failed.',
-          }
+          return { success: false, message: 'reCAPTCHA validation failed.' }
         }
       }
 
-      const result = await addSubscriber({
-        input: {
-          email: email,
-        },
+      const res = await fetch('/api/graphql', {
+        method: 'POST',
+        body: JSON.stringify({
+          query: CREATE_SUBSCRIBER,
+          variables: { input: { email } },
+        }),
       })
 
-      return result
+      const json = await res.json()
+      if (json.errors?.length) {
+        throw new Error(json.errors.map((e: any) => e.message).join('\n'))
+      }
+
+      return { success: true }
     } catch (error) {
       console.error('Error subscribing to newsletter:', error)
-      return {
-        success: false,
-        message: 'An error occurred while subscribing.',
-      }
+      return { success: false, message: 'An error occurred while subscribing.' }
+    } finally {
+      setIsPending(false)
     }
   }
 
-  const onSubmit = ({ email }: z.infer<typeof formSchema>) => {
-    subscribeToNewsletter(email)
+  const onSubmit = async ({ email }: z.infer<typeof formSchema>) => {
+    const result = await subscribeToNewsletter(email)
+    if (result.success) {
+      setSubmitted(true)
+    } else {
+      form.setError('email', { message: result.message || 'Subscription failed' })
+    }
   }
-
-  const { data, mutateAsync: addSubscriber, isPending } = useCreateSubscriber()
 
   return (
     <>
-      {data ? (
+      {submitted ? (
         <div className={success()}>
           <MailCheck size={24} className={successIcon()} />
           <span className={successMessage()}>Thank you for subscribing. Please check your email and click on the verification link to receive updates.</span>
@@ -88,14 +99,14 @@ export const Subscribe = () => {
                 render={({ field }) => (
                   <>
                     <FormControl>
-                      <Input type="email" placeholder="Your email" className={input()} {...field} />
+                      <Input type="email" placeholder="Your email" {...field} />
                     </FormControl>
                     <FormMessage />
                   </>
                 )}
               />
-              <Button type="submit" className={button()}>
-                {isPending && <LoaderCircle className="animate-spin" size={20} />}
+              <Button type="submit" className={button()} disabled={isPending}>
+                {isPending && <LoaderCircle className="animate-spin mr-2" size={20} />}
                 {isPending ? 'Loading' : 'Subscribe for updates'}
               </Button>
             </form>
