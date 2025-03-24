@@ -33,10 +33,9 @@ export const Subscribe = () => {
     try {
       setIsPending(true)
 
-      let recaptchaToken = ''
       if (recaptchaSiteKey) {
         // @ts-ignore
-        recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'subscribe' })
+        const recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'subscribe' })
 
         const recaptchaValidation = await fetch('/api/recaptchaVerify', {
           method: 'POST',
