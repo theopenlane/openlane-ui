@@ -36,9 +36,9 @@ export function BasicFloatingToolbarButtons() {
             <MarkToolbarButton nodeType={CodePlugin.key} tooltip="Code (⌘+E)">
               <Code2Icon />
             </MarkToolbarButton>
-
-            <LinkToolbarButton />
           </ToolbarGroup>
+
+          <LinkToolbarButton />
         </>
       )}
     </>

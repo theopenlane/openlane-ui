@@ -15,7 +15,6 @@ import { LineHeightDropdownMenu } from './line-height-dropdown-menu'
 import { LinkToolbarButton } from './link-toolbar-button'
 import { MarkToolbarButton } from './mark-toolbar-button'
 import { ToolbarGroup } from './toolbar'
-import { TurnIntoDropdownMenu } from './turn-into-dropdown-menu'
 
 export function BasicFixedToolbarButtons() {
   const readOnly = useEditorReadOnly()
@@ -25,12 +24,6 @@ export function BasicFixedToolbarButtons() {
       {!readOnly && (
         <>
           <ToolbarGroup>
-            <UndoToolbarButton />
-            <RedoToolbarButton />
-          </ToolbarGroup>
-
-          <ToolbarGroup>
-            <TurnIntoDropdownMenu variant="basic" />
             <FontSizeToolbarButton />
           </ToolbarGroup>
 
@@ -60,9 +53,7 @@ export function BasicFixedToolbarButtons() {
             <LinkToolbarButton />
           </ToolbarGroup>
 
-          <ToolbarGroup>
-            <LineHeightDropdownMenu />
-          </ToolbarGroup>
+          <LineHeightDropdownMenu />
         </>
       )}
     </div>

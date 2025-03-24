@@ -69,10 +69,10 @@ const AssigneeCell: React.FC<TProps> = (props: TProps) => {
               e.stopPropagation()
               setIsEditing(true)
             }}
-            className="flex items-center cursor-pointer border-b-2 border-dashed dark:!border-separator-edit-dark border-separator-edit pb-1"
+            className="flex items-center cursor-pointer"
           >
-            <div className="flex items-center space-x-1">
-              <Avatar entity={props.assignee} />
+            <div className="flex items-center space-x-1 relative">
+              <Avatar entity={props.assignee} className="w-[28px] h-[28px]" />
               <p className="flex items-center">
                 {fullName ? (
                   fullName
@@ -83,6 +83,7 @@ const AssigneeCell: React.FC<TProps> = (props: TProps) => {
                   </>
                 )}
               </p>
+              <span className="absolute bottom-[-5px] left-0 right-0 border-b-2 border-dashed dark:!border-separator-edit-dark border-separator-edit pointer-events-none" />
             </div>
           </div>
         </div>

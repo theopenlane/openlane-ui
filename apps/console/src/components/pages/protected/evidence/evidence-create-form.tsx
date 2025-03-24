@@ -67,6 +67,7 @@ const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
         title: 'Evidence Created',
         description: `Evidence has been successfully created`,
       })
+      props?.onEvidenceCreateSuccess && props.onEvidenceCreateSuccess()
     } catch {
       errorNotification({
         title: 'Error',
