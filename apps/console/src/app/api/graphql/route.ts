@@ -26,8 +26,6 @@ export async function POST(request: NextRequest) {
     body: JSON.stringify({ query, variables }),
   })
 
-  console.log('graphqlResponse', graphqlResponse)
-
   const data = await graphqlResponse.json()
 
   if (!graphqlResponse.ok) {
