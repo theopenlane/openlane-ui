@@ -10,7 +10,7 @@ import { PlateContent, useEditorContainerRef, useEditorRef } from '@udecode/plat
 import { cva } from 'class-variance-authority'
 
 const editorContainerVariants = cva(
-  'relative w-full cursor-text overflow-y-auto caret-primary select-text selection:bg-brand/25 focus-visible:outline-none [&_.slate-selection-area]:z-50 [&_.slate-selection-area]:border [&_.slate-selection-area]:border-brand/25 [&_.slate-selection-area]:bg-brand/15',
+  'relative w-full cursor-text overflow-y-auto caret-primary select-text border border-neutral-300 dark:border-brand bg-input-background selection:bg-brand/25 focus-visible:outline-none [&_.slate-selection-area]:z-50 [&_.slate-selection-area]:border [&_.slate-selection-area]:border-brand/25 [&_.slate-selection-area]:bg-brand/15',
   {
     defaultVariants: {
       variant: 'default',
@@ -23,7 +23,7 @@ const editorContainerVariants = cva(
           'has-[[data-slate-editor]:focus]:border-brand/50 has-[[data-slate-editor]:focus]:ring-2 has-[[data-slate-editor]:focus]:ring-brand/30',
           'has-aria-disabled:border-input has-aria-disabled:bg-muted',
         ),
-        default: 'h-full',
+        default: 'h-[300px]',
         demo: 'h-[650px]',
         select: cn(
           'group rounded-md border border-input ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
@@ -66,9 +66,9 @@ const editorVariants = cva(
         ai: 'w-full px-0 text-base md:text-sm',
         aiChat: 'max-h-[min(70vh,320px)] w-full max-w-[700px] overflow-y-auto px-3 py-2 text-base md:text-sm',
         comment: cn('rounded-none border-none bg-transparent text-sm'),
-        default: 'size-full px-16 pt-4 pb-72 text-base sm:px-[max(64px,calc(50%-350px))]',
-        demo: 'size-full px-16 pt-4 pb-72 text-base sm:px-[max(64px,calc(50%-350px))]',
-        fullWidth: 'size-full px-16 pt-4 pb-72 text-base sm:px-24',
+        default: 'size-full px-5 pt-4 text-base',
+        demo: 'size-full px-5 pt-4 text-base',
+        fullWidth: 'size-full px-5 pt-4 text-base sm:px-24',
         none: '',
         select: 'px-3 py-2 text-base data-readonly:w-fit',
       },

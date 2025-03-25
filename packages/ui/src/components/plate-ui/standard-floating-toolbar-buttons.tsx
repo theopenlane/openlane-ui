@@ -16,22 +16,22 @@ import { SuggestionToolbarButton } from './suggestion-toolbar-button'
 import { ToolbarGroup } from './toolbar'
 import { TurnIntoDropdownMenu } from './turn-into-dropdown-menu'
 
-export function FloatingToolbarButtons() {
+export function StandardFloatingToolbarButtons() {
   const readOnly = useEditorReadOnly()
 
   return (
     <>
       {!readOnly && (
         <>
-          <ToolbarGroup>
+          {/*<ToolbarGroup>
             <AIToolbarButton tooltip="AI commands">
               <WandSparklesIcon />
               Ask AI
             </AIToolbarButton>
-          </ToolbarGroup>
+          </ToolbarGroup>*/}
 
           <ToolbarGroup>
-            <TurnIntoDropdownMenu />
+            <TurnIntoDropdownMenu variant="standard" />
 
             <MarkToolbarButton nodeType={BoldPlugin.key} tooltip="Bold (⌘+B)">
               <BoldIcon />

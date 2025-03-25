@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/selec
 import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore.ts'
 import { Form } from '@repo/ui/form'
 import useAssigneeFormSchema, { EditTaskAssigneeFormData } from '@/components/pages/protected/tasks/hooks/use-assignee-form-schema.ts'
-import { Check, Pencil, X } from 'lucide-react'
+import { Check, CircleUser, X } from 'lucide-react'
 
 type TProps = {
   assignee?: User
@@ -36,6 +36,7 @@ const AssigneeCell: React.FC<TProps> = (props: TProps) => {
         updateTaskId: props.taskId.toString(),
         input: {
           assigneeID: data?.assigneeID,
+          clearAssignee: !data?.assigneeID,
         },
       })
 
@@ -70,10 +71,19 @@ const AssigneeCell: React.FC<TProps> = (props: TProps) => {
             }}
             className="flex items-center cursor-pointer"
           >
-            <Avatar entity={props.assignee} />
-            <div className="flex items-center pl-1 space-x-1">
-              <p>{fullName}</p>
-              <Pencil size={18} className="pl-1 cursor-pointer" />
+            <div className="flex items-center space-x-1 relative">
+              <Avatar entity={props.assignee} className="w-[28px] h-[28px]" />
+              <p className="flex items-center">
+                {fullName ? (
+                  fullName
+                ) : (
+                  <>
+                    <CircleUser width={30} height={30} className="inline-block mr-1 dark:!text-separator-edit-dark text-separator-edit" />
+                    <span className="dark:!text-separator-edit-dark text-separator-edit">Not assigned</span>
+                  </>
+                )}
+              </p>
+              <span className="absolute bottom-[-5px] left-0 right-0 border-b-2 border-dashed dark:!border-separator-edit-dark border-separator-edit pointer-events-none" />
             </div>
           </div>
         </div>
@@ -86,9 +96,15 @@ const AssigneeCell: React.FC<TProps> = (props: TProps) => {
                 control={form.control}
                 render={({ field }) => (
                   <>
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select
+                      value={field.value || 'unassigned'}
+                      onValueChange={(value) => {
+                        field.onChange(value === 'unassigned' ? null : value || undefined)
+                      }}
+                    >
                       <SelectTrigger className="w-full">{(orgMembers || []).find((member) => member.value === field.value)?.label || 'Select'}</SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="unassigned">Not Assigned</SelectItem>
                         {orgMembers &&
                           orgMembers.length > 0 &&
                           orgMembers.map((option) => (
@@ -98,7 +114,7 @@ const AssigneeCell: React.FC<TProps> = (props: TProps) => {
                           ))}
                       </SelectContent>
                     </Select>
-                    {form.formState.errors.assigneeID && <p className="text-red-500 text-sm">{form.formState.errors.assigneeID.message}</p>}
+                    {form.formState.errors.assigneeID && <p className="text-red-500 text-sm pl-1">{form.formState.errors.assigneeID.message}</p>}
                   </>
                 )}
               />

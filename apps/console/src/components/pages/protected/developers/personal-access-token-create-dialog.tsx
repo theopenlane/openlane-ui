@@ -114,7 +114,6 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
             name: values.name,
             description: values.description,
             expiresAt: values.noExpire ? null : values.expiryDate,
-            ownerID: sessionData?.user.userId,
             organizationIDs: values.organizationIDs || [],
           },
         })

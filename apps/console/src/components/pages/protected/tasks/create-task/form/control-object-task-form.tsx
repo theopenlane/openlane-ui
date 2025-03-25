@@ -14,6 +14,7 @@ import { TTaskObjectType } from '@/components/pages/protected/tasks/create-task/
 import { useQuery } from '@tanstack/react-query'
 import { GET_ALL_CONTROLS } from '@repo/codegen/query/control'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
+import EvidenceCircle from '@/assets/EvidenceCircle.tsx'
 
 type TProps = {
   form: UseFormReturn<CreateTaskFormData>
@@ -117,7 +118,12 @@ const ControlObjectTaskForm: React.FC<TProps> = (props: TProps) => {
           />
         </div>
       </div>
-      <TaskObjectTypeTable onTaskObjectTypeChange={handleTaskObjectTypeChange} data={formData} form={props.form} />
+      {selectedObject && <TaskObjectTypeTable onTaskObjectTypeChange={handleTaskObjectTypeChange} data={formData} form={props.form} />}
+      {!selectedObject && (
+        <div className="flex items-center justify-center w-full">
+          <EvidenceCircle />
+        </div>
+      )}
     </Panel>
   )
 }
