@@ -99,7 +99,7 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
                 </div>
                 <div className="flex items-center gap-2">
                   <SquareArrow className={clsx(!isDue && 'rotate-90 text-blue-500', isDue && 'text-yellow-500')} />
-                  <span className="text-sm font-medium truncate">{task.title}</span>
+                  <span className="text-sm font-medium truncate max-w-56">{task.title}</span>
                 </div>
               </Link>
             )
