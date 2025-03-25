@@ -14,8 +14,6 @@ export default auth(async (req) => {
   const isPublicPage = publicPages.includes(path)
   const isInvite = path === '/invite'
 
-  const isInvite = path.startsWith('/invite')
-
   let hasSessionCookie = true
 
   if (sessionCookieName) {
