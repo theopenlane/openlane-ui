@@ -6,7 +6,7 @@ import MessageBox from '@repo/ui/message-box'
 import SimpleForm from '@repo/ui/simple-form'
 import { ArrowUpRight } from 'lucide-react'
 import { signIn, useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { Separator } from '@repo/ui/separator'
 import { loginStyles } from './login.styles'
@@ -34,6 +34,9 @@ export const LoginPage = () => {
   const showLoginError = !signInLoading && signInError
   const [isPasswordActive, setIsPasswordActive] = useState(false)
 
+  const searchParams = useSearchParams()
+  const token = searchParams?.get('token')
+
   const submit = async (payload: LoginUser) => {
     setSignInLoading(true)
     setSignInError(false)
@@ -60,9 +63,8 @@ export const LoginPage = () => {
       }
 
       const res: any = await signIn('credentials', { redirect: false, ...payload })
-
       if (res.ok && !res.error) {
-        router.push('/')
+        token ? router.push(`/invite?token=${token}`) : router.push(`/`)
       } else {
         setSignInLoading(false)
         setSignInError(true)
