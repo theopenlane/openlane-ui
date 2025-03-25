@@ -8,7 +8,7 @@ export default auth(async (req) => {
   req.headers.append('next-url', req.nextUrl.toString())
 
   //IF YOU ADD PUBLIC PAGE, ITS REQUIRED TO CHANGE IT IN Providers.tsx
-  const publicPages = ['/login', '/tfa', '/invite', '/subscriber-verify', '/verify', '/resend-verify', '/waitlist']
+  const publicPages = ['/login', '/tfa', '/invite', '/subscriber-verify', '/verify', '/resend-verify', '/waitlist', '/unsubscribe']
 
   const path = req.nextUrl.pathname
   const isPublicPage = publicPages.includes(path)

@@ -24911,6 +24911,8 @@ export interface Subscriber extends Node {
   phoneNumber?: Maybe<Scalars['String']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
+  /** indicates if the subscriber has unsubscribed from communications */
+  unsubscribed: Scalars['Boolean']['output']
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   /** indicates if the email address has been verified */
@@ -24982,6 +24984,7 @@ export enum SubscriberOrderField {
   active = 'active',
   created_at = 'created_at',
   email = 'email',
+  unsubscribed = 'unsubscribed',
   updated_at = 'updated_at',
 }
 
@@ -25125,6 +25128,9 @@ export interface SubscriberWhereInput {
   phoneNumberNEQ?: InputMaybe<Scalars['String']['input']>
   phoneNumberNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   phoneNumberNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** unsubscribed field predicates */
+  unsubscribed?: InputMaybe<Scalars['Boolean']['input']>
+  unsubscribedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -28324,6 +28330,8 @@ export interface UpdateSubscriberInput {
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
+  /** indicates if the subscriber has unsubscribed from communications */
+  unsubscribed?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 /**
@@ -31013,6 +31021,13 @@ export type DeleteSubscriberMutationVariables = Exact<{
 }>
 
 export type DeleteSubscriberMutation = { __typename?: 'Mutation'; deleteSubscriber: { __typename?: 'SubscriberDeletePayload'; email: string } }
+
+export type UpdateSubscriberMutationVariables = Exact<{
+  email: Scalars['String']['input']
+  input: UpdateSubscriberInput
+}>
+
+export type UpdateSubscriberMutation = { __typename?: 'Mutation'; updateSubscriber: { __typename?: 'SubscriberUpdatePayload'; subscriber: { __typename?: 'Subscriber'; id: string } } }
 
 export type TasksWithFilterQueryVariables = Exact<{
   where?: InputMaybe<TaskWhereInput>

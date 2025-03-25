@@ -32,3 +32,13 @@ export const DELETE_SUBSCRIBER = gql`
     }
   }
 `
+
+export const UNSUBSCRIBE_MUTATION = gql`
+  mutation UpdateSubscriber($email: String!, $input: UpdateSubscriberInput!) {
+    updateSubscriber(email: $email, input: $input) {
+      subscriber {
+        id
+      }
+    }
+  }
+`
