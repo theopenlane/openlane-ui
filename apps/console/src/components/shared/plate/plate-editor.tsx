@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { createPlateEditor, Plate } from '@udecode/plate/react'
-import { useCreateEditor } from '@repo/ui/components/editor/use-create-editor.ts'
+import { TPlateEditorVariants, useCreateEditor } from '@repo/ui/components/editor/use-create-editor.ts'
 import { Editor, EditorContainer } from '@repo/ui/components/plate-ui/editor.tsx'
 import { Value } from '@udecode/plate'
 import debounce from 'lodash.debounce'
@@ -13,11 +13,12 @@ import { viewPlugins } from '@repo/ui/components/editor/plugins/editor-plugins.t
 export type TPlateEditorProps = {
   onChange?: (data: Value) => void
   initialValue?: string
+  variant?: TPlateEditorVariants
 }
 
-const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue }: TPlateEditorProps) => {
+const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, variant }: TPlateEditorProps) => {
   // useCreateEditor hook is used for rendering Rich Text Editor (Inside hook all plugins are being imported)
-  const editor = useCreateEditor()
+  const editor = useCreateEditor({ variant: variant })
   const [data, setData] = useState<Value>()
 
   useMemo(() => {
@@ -50,7 +51,7 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue }: TP
           }}
         >
           <EditorContainer>
-            <Editor variant="demo" />
+            <Editor />
           </EditorContainer>
         </Plate>
       </DndProvider>

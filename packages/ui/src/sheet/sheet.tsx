@@ -3,6 +3,7 @@ import * as SheetPrimitive from '@radix-ui/react-dialog'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { ArrowRight, X } from 'lucide-react'
 import { cn } from '../../lib/utils'
+import { DialogTitle } from '@repo/ui/components/plate-ui/dialog.tsx'
 
 const Sheet = SheetPrimitive.Root
 
@@ -44,6 +45,9 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
   <SheetPortal>
     <SheetOverlay />
     <SheetPrimitive.Content ref={ref} className={cn(sheetVariants({ side }), className)} {...props}>
+      <DialogTitle>
+        <div className="sr-only">Sheet Title</div>
+      </DialogTitle>
       {children}
       <SheetPrimitive.Close className="absolute left-6 top-6 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-secondary">
         <ArrowRight className="h-4 w-4" />
