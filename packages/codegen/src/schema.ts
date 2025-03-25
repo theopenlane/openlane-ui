@@ -31034,6 +31034,7 @@ export type UpdateSubscriberMutation = {
 
 export type TasksWithFilterQueryVariables = Exact<{
   where?: InputMaybe<TaskWhereInput>
+  orderBy?: InputMaybe<Array<TaskOrder> | TaskOrder>
 }>
 
 export type TasksWithFilterQuery = {

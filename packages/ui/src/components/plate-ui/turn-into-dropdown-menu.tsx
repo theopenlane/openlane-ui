@@ -16,8 +16,9 @@ import { getBlockType, setBlockType, STRUCTURAL_TYPES } from '../editor/transfor
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger, useOpenState } from './dropdown-menu'
 import { ToolbarButton } from './toolbar'
+import { TPlateEditorVariants } from '../editor/use-create-editor.ts'
 
-const turnIntoItems = [
+const turnIntoItemsAdvanced = [
   {
     icon: <PilcrowIcon />,
     keywords: ['paragraph'],
@@ -85,7 +86,113 @@ const turnIntoItems = [
   },
 ]
 
-export function TurnIntoDropdownMenu(props: DropdownMenuProps) {
+const turnIntoItemsBasic = [
+  {
+    icon: <PilcrowIcon />,
+    keywords: ['paragraph'],
+    label: 'Text',
+    value: ParagraphPlugin.key,
+  },
+  {
+    icon: <Heading1Icon />,
+    keywords: ['title', 'h1'],
+    label: 'Heading 1',
+    value: HEADING_KEYS.h1,
+  },
+  {
+    icon: <Heading2Icon />,
+    keywords: ['subtitle', 'h2'],
+    label: 'Heading 2',
+    value: HEADING_KEYS.h2,
+  },
+  {
+    icon: <Heading3Icon />,
+    keywords: ['subtitle', 'h3'],
+    label: 'Heading 3',
+    value: HEADING_KEYS.h3,
+  },
+  {
+    icon: <ListIcon />,
+    keywords: ['unordered', 'ul', '-'],
+    label: 'Bulleted list',
+    value: ListStyleType.Disc,
+  },
+  {
+    icon: <ListOrderedIcon />,
+    keywords: ['ordered', 'ol', '1'],
+    label: 'Numbered list',
+    value: ListStyleType.Decimal,
+  },
+  {
+    icon: <SquareIcon />,
+    keywords: ['checklist', 'task', 'checkbox', '[]'],
+    label: 'To-do list',
+    value: INDENT_LIST_KEYS.todo,
+  },
+  {
+    icon: <FileCodeIcon />,
+    keywords: ['```'],
+    label: 'Code',
+    value: CodeBlockPlugin.key,
+  },
+]
+
+const turnIntoItemsStandard = [
+  {
+    icon: <PilcrowIcon />,
+    keywords: ['paragraph'],
+    label: 'Text',
+    value: ParagraphPlugin.key,
+  },
+  {
+    icon: <Heading1Icon />,
+    keywords: ['title', 'h1'],
+    label: 'Heading 1',
+    value: HEADING_KEYS.h1,
+  },
+  {
+    icon: <Heading2Icon />,
+    keywords: ['subtitle', 'h2'],
+    label: 'Heading 2',
+    value: HEADING_KEYS.h2,
+  },
+  {
+    icon: <Heading3Icon />,
+    keywords: ['subtitle', 'h3'],
+    label: 'Heading 3',
+    value: HEADING_KEYS.h3,
+  },
+  {
+    icon: <ListIcon />,
+    keywords: ['unordered', 'ul', '-'],
+    label: 'Bulleted list',
+    value: ListStyleType.Disc,
+  },
+  {
+    icon: <ListOrderedIcon />,
+    keywords: ['ordered', 'ol', '1'],
+    label: 'Numbered list',
+    value: ListStyleType.Decimal,
+  },
+  {
+    icon: <SquareIcon />,
+    keywords: ['checklist', 'task', 'checkbox', '[]'],
+    label: 'To-do list',
+    value: INDENT_LIST_KEYS.todo,
+  },
+  {
+    icon: <FileCodeIcon />,
+    keywords: ['```'],
+    label: 'Code',
+    value: CodeBlockPlugin.key,
+  },
+]
+
+type TTurnIntoDropdownMenuProps = {
+  variant: TPlateEditorVariants
+} & DropdownMenuProps
+
+export function TurnIntoDropdownMenu(props: TTurnIntoDropdownMenuProps) {
   const editor = useEditorRef()
   const openState = useOpenState()
 
@@ -94,6 +201,14 @@ export function TurnIntoDropdownMenu(props: DropdownMenuProps) {
     structuralTypes: STRUCTURAL_TYPES,
     getProp: (node) => getBlockType(node as any),
   })
+  const variantItems = {
+    basic: turnIntoItemsBasic,
+    standard: turnIntoItemsStandard,
+    advanced: turnIntoItemsAdvanced,
+  }
+
+  const turnIntoItems = variantItems[props.variant]
+
   const selectedItem = React.useMemo(() => turnIntoItems.find((item) => item.value === (value ?? ParagraphPlugin.key)) ?? turnIntoItems[0], [value])
 
   return (

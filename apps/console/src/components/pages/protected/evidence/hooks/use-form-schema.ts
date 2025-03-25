@@ -18,6 +18,10 @@ const formSchema = z.object({
   collectionProcedure: z.string().optional(),
   source: z.string().optional(),
   fileIDs: z.array(z.string()).optional(),
+  subcontrolIDs: z.array(z.any()).optional().nullable(),
+  programIDs: z.array(z.any()).optional().nullable(),
+  controlIDs: z.array(z.any()).optional().nullable(),
+  taskIDs: z.array(z.any()).optional().nullable(),
 })
 
 export type CreateEvidenceFormData = z.infer<typeof formSchema>

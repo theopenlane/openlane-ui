@@ -34,6 +34,7 @@ import { Value } from '@udecode/plate-common'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import EvidenceCreateFormDialog from '../../../evidence/evidence-create-form-dialog'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
+import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 
 const TaskDetailsSheet = () => {
   const [isEditing, setIsEditing] = useState(false)
@@ -48,6 +49,7 @@ const TaskDetailsSheet = () => {
   const { selectedTask, setSelectedTask, orgMembers } = useTaskStore()
   const { successNotification, errorNotification } = useNotification()
   const [comments, setComments] = useState<TCommentData[]>([])
+  const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
 
   const { mutateAsync: updateTask } = useUpdateTask()
   const { data, isLoading: fetching } = useTask(selectedTask as string)
@@ -62,7 +64,7 @@ const TaskDetailsSheet = () => {
       form.reset({
         title: taskData.title ?? '',
         details: taskData.details ?? '',
-        due: new Date(taskData.due as string),
+        due: taskData.due ? new Date(taskData.due as string) : undefined,
         assigneeID: taskData.assignee?.id,
         category: taskData?.category ? Object.values(TaskTypes).find((type) => type === taskData?.category) : undefined,
         controlObjectiveIDs: taskData?.controlObjectives?.edges?.map((item) => item?.node?.id) || [],
@@ -125,10 +127,14 @@ const TaskDetailsSheet = () => {
 
   const handleSheetClose = () => {
     if (isEditing) {
-      const confirmClose = window.confirm('You have unsaved changes. Do you want to discard them?')
-      if (!confirmClose) return
+      setIsDiscardDialogOpen(true)
+      return
     }
 
+    handleCloseParams()
+  }
+
+  const handleCloseParams = () => {
     setSelectedTask(null)
     setIsEditing(false)
 
@@ -203,6 +209,7 @@ const TaskDetailsSheet = () => {
       details: detailsField,
       assigneeID: data?.assigneeID,
       status: data?.status,
+      clearAssignee: !data?.assigneeID,
       ...taskObjectPayload,
     }
 
@@ -269,10 +276,6 @@ const TaskDetailsSheet = () => {
     return (
       <div className="flex flex-wrap gap-2">{taskData?.tags?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}</div>
     )
-  }
-
-  const handleReassignComingSoon = () => {
-    alert('Reassign feature coming soon!')
   }
 
   const handleSendComment = async (data: TComments) => {
@@ -395,15 +398,20 @@ const TaskDetailsSheet = () => {
 
             {!isEditing && (
               <div className="mt-9 flex gap-4">
-                <Button icon={<FilePlus />} iconPosition="left">
-                  Upload File
-                </Button>
-                {taskData && <EvidenceCreateFormDialog taskData={{ taskId: taskData!.id, displayID: taskData!.displayID, tags: taskData!.tags ?? undefined }} />}
+                {taskData && (
+                  <EvidenceCreateFormDialog
+                    taskData={{
+                      taskId: taskData!.id,
+                      displayID: taskData!.displayID,
+                      tags: taskData!.tags ?? undefined,
+                      controlObjectiveIDs: taskData?.controlObjectives,
+                      subcontrolIDs: taskData?.subcontrols,
+                      programIDs: taskData?.programs,
+                    }}
+                  />
+                )}
                 <Button disabled={taskData?.status === TaskTaskStatus.COMPLETED} icon={<Check />} iconPosition="left" variant="outline" onClick={() => handleMarkAsComplete()}>
                   Mark as complete
-                </Button>
-                <Button icon={<SquareArrowRight />} iconPosition="left" variant="outline" onClick={handleReassignComingSoon}>
-                  Reassign
                 </Button>
               </div>
             )}
@@ -425,9 +433,15 @@ const TaskDetailsSheet = () => {
                       control={form.control}
                       render={({ field }) => (
                         <>
-                          <Select value={field.value} onValueChange={field.onChange}>
+                          <Select
+                            value={field.value || 'unassigned'}
+                            onValueChange={(value) => {
+                              field.onChange(value === 'unassigned' ? null : value || undefined)
+                            }}
+                          >
                             <SelectTrigger className="w-1/3">{(orgMembers || []).find((member) => member.value === field.value)?.label || 'Select'}</SelectTrigger>
                             <SelectContent>
+                              <SelectItem value="unassigned">Not Assigned</SelectItem>
                               {orgMembers &&
                                 orgMembers.length > 0 &&
                                 orgMembers.map((option) => (
@@ -597,6 +611,14 @@ const TaskDetailsSheet = () => {
             <AddComment onSuccess={handleSendComment} />
           </>
         )}
+        <CancelDialog
+          isOpen={isDiscardDialogOpen}
+          onConfirm={() => {
+            setIsDiscardDialogOpen(false)
+            handleCloseParams()
+          }}
+          onCancel={() => setIsDiscardDialogOpen(false)}
+        />
       </SheetContent>
     </Sheet>
   )
