@@ -39,6 +39,7 @@ export const InviteAccepter = () => {
         accessToken: verified?.access_token,
         refreshToken: verified?.refresh_token,
         organization: verified?.joined_org_id,
+        isOnboarding: false,
       },
     }).then(() => {
       window.location.href = '/'
