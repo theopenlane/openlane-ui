@@ -81,7 +81,7 @@ export const LoginPage = () => {
    */
   const github = async () => {
     await signIn('github', {
-      redirectTo: '/',
+      redirectTo: token ? `/invite?token=${token}` : '/',
     })
   }
 
@@ -90,7 +90,7 @@ export const LoginPage = () => {
    */
   const google = async () => {
     await signIn('google', {
-      redirectTo: '/',
+      redirectTo: token ? `/invite?token=${token}` : '/',
     })
   }
 
