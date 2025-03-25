@@ -4,18 +4,18 @@ import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { Checkbox } from '@repo/ui/checkbox'
 import { TFormDataResponse } from '@/components/pages/protected/evidence/object-association/types/TFormDataResponse'
-import { TEvidenceObjectIds } from '@/components/pages/protected/evidence/object-association/types/TEvidenceObjectIds'
+import { TEvidenceObjectTypes } from '@/components/pages/protected/evidence/object-association/types/TEvidenceObjectTypes.ts'
 import { UseFormReturn } from 'react-hook-form'
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema.ts'
 
 type TProps = {
   data: TFormDataResponse[]
-  onEvidenceObjectIdsChange: (evidenceObjectIds: TEvidenceObjectIds[]) => void
+  onEvidenceObjectIdsChange: (evidenceObjectIds: TEvidenceObjectTypes[]) => void
   form?: UseFormReturn<CreateEvidenceFormData>
 }
 
 const EvidenceObjectAssociationTable: React.FC<TProps> = (props: TProps) => {
-  const [evidenceObjectIds, setEvidenceObjectIds] = useState<TEvidenceObjectIds[]>([])
+  const [evidenceObjectIds, setEvidenceObjectIds] = useState<TEvidenceObjectTypes[]>([])
 
   useEffect(() => {
     props.onEvidenceObjectIdsChange(evidenceObjectIds)

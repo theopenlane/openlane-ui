@@ -5,4 +5,5 @@ export type TTaskDataEvidence = {
   controlObjectiveIDs?: any
   subcontrolIDs?: any
   programIDs?: any
+  controlIDs?: any
 }

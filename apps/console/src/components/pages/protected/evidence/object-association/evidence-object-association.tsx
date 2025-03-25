@@ -1,25 +1,29 @@
 'use client'
 import { Panel, PanelHeader } from '@repo/ui/panel'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { Fragment, useCallback, useEffect, useState } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Label } from '@repo/ui/label'
 import { Input } from '@repo/ui/input'
 import debounce from 'lodash.debounce'
 import EvidenceObjectAssociationTable from '@/components/pages/protected/evidence/object-association/evidence-object-association-table'
 import { AllEvidenceQueriesData, EVIDENCE_OBJECT_CONFIG, EvidenceObjects } from '@/components/pages/protected/evidence/util/evidence'
-import { GET_ALL_RISKS } from '@repo/codegen/query/risks'
 import { useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { TFormDataResponse } from '@/components/pages/protected/evidence/object-association/types/TFormDataResponse'
-import { TEvidenceObjectIds } from '@/components/pages/protected/evidence/object-association/types/TEvidenceObjectIds'
+import { TEvidenceObjectTypes } from '@/components/pages/protected/evidence/object-association/types/TEvidenceObjectTypes.ts'
 import { UseFormReturn } from 'react-hook-form'
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema.ts'
+import { ChevronDown } from 'lucide-react'
+import { Card } from '@repo/ui/cardpanel'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
+import { Badge } from '@repo/ui/badge'
 
 type TProps = {
-  onEvidenceObjectIdsChange: (evidenceObjectiveIDs: TEvidenceObjectIds[]) => void
+  onEvidenceObjectIdsChange: (evidenceObjectiveIDs: TEvidenceObjectTypes[]) => void
   resetObjectAssociation: boolean
   setResetObjectAssociation: () => void
   form?: UseFormReturn<CreateEvidenceFormData>
+  preselectedObjectDisplayIDs?: string[]
 }
 
 const EvidenceObjectAssociation: React.FC<TProps> = (props: TProps) => {
@@ -47,7 +51,7 @@ const EvidenceObjectAssociation: React.FC<TProps> = (props: TProps) => {
 
   const { data } = useQuery<AllEvidenceQueriesData>({
     queryKey: ['evidenceFilter', whereFilter],
-    queryFn: async () => client.request(selectedQuery || GET_ALL_RISKS, { where: whereFilter }),
+    queryFn: async () => client.request(selectedQuery, { where: whereFilter }),
     enabled: !!selectedQuery,
   })
 
@@ -89,16 +93,37 @@ const EvidenceObjectAssociation: React.FC<TProps> = (props: TProps) => {
     setSearchValue(event.target.value)
   }
 
-  const handleEvidenceObjectIdsChange = (evidenceObjectIds: TEvidenceObjectIds[]) => {
+  const handleEvidenceObjectIdsChange = (evidenceObjectIds: TEvidenceObjectTypes[]) => {
     props.onEvidenceObjectIdsChange(evidenceObjectIds)
   }
 
   return (
     <Panel>
       <PanelHeader heading="Object association" noBorder />
+      {props?.form && (
+        <Card className="p-4 flex gap-3 ">
+          <div>
+            <p className="font-semibold">Heads up!</p>
+            <p className="text-sm ">This requested evidence you are submitting will also be used by other tasks, controls. We have pre-selected the object association below.</p>
+            <div className="w-3/5 pt-3">
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="objects">
+                  <AccordionTrigger className="py-2 w-full flex justify-between items-center gap-2 group border p-3 border-neutral-300 dark:border-brand">
+                    <span className="text-sm">Show objects linked to this evidence</span>
+                    <ChevronDown className="h-4 w-4 group-data-[state=open]:rotate-180" />
+                  </AccordionTrigger>
+                  <AccordionContent className="my-3">
+                    {props.preselectedObjectDisplayIDs && props.preselectedObjectDisplayIDs.map((item, index) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </div>
+          </div>
+        </Card>
+      )}
       <div className="grid grid-cols-2 gap-4 items-center">
         <div className="flex flex-col gap-2">
-          <Label>Select Object</Label>
+          <Label>Object Type</Label>
           <Select
             onValueChange={(val: EvidenceObjects) => {
               setSelectedObject(val)
