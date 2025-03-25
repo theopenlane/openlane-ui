@@ -93,9 +93,9 @@ export const useVerifyUser = (arg: string | null) => {
   }
 }
 
-export const useAcceptOrganizationInvite = (arg: string | null) => {
+export const useAcceptOrganizationInvite = (token: string | null, enabled: boolean) => {
   const { data, isLoading, error } = useSWR(
-    arg ? `/api/auth/invite?token=${arg}` : null,
+    enabled && token ? `/api/auth/invite?token=${token}` : null,
     async (url) => {
       return (
         await fetch(url, {
@@ -109,11 +109,12 @@ export const useAcceptOrganizationInvite = (arg: string | null) => {
     },
     {
       revalidateOnFocus: false,
-      revalidateOnMount: true,
+      revalidateOnMount: true, // prevent auto revalidate
       refreshInterval: 0,
       revalidateIfStale: false,
     },
   )
+
   return {
     verified: data,
     isLoading,
