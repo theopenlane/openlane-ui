@@ -13,33 +13,33 @@ const AuthLogin: React.FC = () => {
   const [activeTab, setActiveTab] = useState(defaultTab)
   return (
     <>
-      <div className={content()}>
-        <div className={logo()}>
-          <Logo width={300} theme="light" />
-        </div>
-        <Tabs
-          variant="underline"
-          defaultValue={defaultTab}
-          onValueChange={(value) => {
-            setActiveTab(value)
-          }}
-        >
-          <TabsList>
-            <TabsTrigger value="login">Login</TabsTrigger>
-            <TabsTrigger value="signup">Signup</TabsTrigger>
-          </TabsList>
-          <TabsContent value="login">
-            <Suspense>
+      <Suspense>
+        <div className={content()}>
+          <div className={logo()}>
+            <Logo width={300} theme="light" />
+          </div>
+          <Tabs
+            variant="underline"
+            defaultValue={defaultTab}
+            onValueChange={(value) => {
+              setActiveTab(value)
+            }}
+          >
+            <TabsList>
+              <TabsTrigger value="login">Login</TabsTrigger>
+              <TabsTrigger value="signup">Signup</TabsTrigger>
+            </TabsList>
+            <TabsContent value="login">
               <LoginPage />
-            </Suspense>
-          </TabsContent>
-          <TabsContent value="signup">
-            <SignupPage />
-          </TabsContent>
-        </Tabs>
-      </div>
-      <div className={bg({ activeBg: activeTab === 'login' })}></div>
-      <div className={bg({ activeBg: activeTab === 'signup' })}></div>
+            </TabsContent>
+            <TabsContent value="signup">
+              <SignupPage />
+            </TabsContent>
+          </Tabs>
+        </div>
+        <div className={bg({ activeBg: activeTab === 'login' })}></div>
+        <div className={bg({ activeBg: activeTab === 'signup' })}></div>
+      </Suspense>
     </>
   )
 }
