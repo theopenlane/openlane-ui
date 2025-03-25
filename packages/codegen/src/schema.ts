@@ -31027,10 +31027,7 @@ export type UpdateSubscriberMutationVariables = Exact<{
   input: UpdateSubscriberInput
 }>
 
-export type UpdateSubscriberMutation = {
-  __typename?: 'Mutation'
-  updateSubscriber: { __typename?: 'SubscriberUpdatePayload'; subscriber: { __typename?: 'Subscriber'; id: string; active: boolean; unsubscribed: boolean } }
-}
+export type UpdateSubscriberMutation = { __typename?: 'Mutation'; updateSubscriber: { __typename?: 'SubscriberUpdatePayload'; subscriber: { __typename?: 'Subscriber'; id: string } } }
 
 export type TasksWithFilterQueryVariables = Exact<{
   where?: InputMaybe<TaskWhereInput>

@@ -85,59 +85,38 @@ const UnsubscribeForm = () => {
   }
 
   return (
-    <main className="flex items-center justify-center h-screen relative">
-      <div className="w-full relative z-3 px-4">
-        <div className="mx-auto animate-pulse w-96">
-          <Logo theme="dark" />
+    <>
+      <Panel className="flex flex-col border w-full shadow-3xl rounded-lg border-border py-4 px-40 gap-6 items-stretch justify-start text-left mt-10 bg-oxford-blue-950 border-none text-neutral-300">
+        <h2 className="text-2xl text-center">Unsubscribe</h2>
+        <div className="flex flex-col text-center">
+          We’re sorry to see you go — but we get it.
+          <br />
+          Enter your email below to stop receiving updates from us.
         </div>
-
-        <Panel className="flex flex-col border w-full shadow-3xl rounded-lg border-border py-4 px-40 gap-6 items-stretch justify-start text-left mt-10 bg-oxford-blue-950 border-none text-neutral-300">
-          <h2 className="text-2xl text-center">Unsubscribe</h2>
-          <div className="flex flex-col text-center">
-            We’re sorry to see you go — but we get it.
-            <br />
-            Enter your email below to stop receiving updates from us.
-          </div>
-        </Panel>
-        <div className="relative w-72 mt-14 flex flex-col gap-5 justify-center m-auto">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 ">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <>
-                    <FormControl>
-                      <Input type="email" placeholder="Your email" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </>
-                )}
-              />
-              <Button type="submit" disabled={isPending} className="w-full">
-                {isPending && <LoaderCircle className="animate-spin mr-2" size={20} />}
-                {isPending ? 'Processing...' : 'Unsubscribe'}
-              </Button>
-            </form>
-          </Form>
-        </div>
-
-        <div className="flex flex-col text-center text-sm mt-20">
-          <Link href="/login">Back to login</Link>
-        </div>
-        <div className="text-[10px] text-gray-500 mt-5 text-center">
-          This site is protected by reCAPTCHA and the Google{' '}
-          <a className="text-blue-500 underline" href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
-            Privacy Policy
-          </a>{' '}
-          and{' '}
-          <a className="text-blue-500 underline" href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">
-            Terms of Service
-          </a>{' '}
-          apply.
-        </div>
+      </Panel>
+      <div className="relative w-72 mt-14 flex flex-col gap-5 justify-center m-auto">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 ">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <>
+                  <FormControl>
+                    <Input type="email" placeholder="Your email" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </>
+              )}
+            />
+            <Button type="submit" disabled={isPending} className="w-full">
+              {isPending && <LoaderCircle className="animate-spin mr-2" size={20} />}
+              {isPending ? 'Processing...' : 'Unsubscribe'}
+            </Button>
+          </form>
+        </Form>
       </div>
-    </main>
+    </>
   )
 }
 
