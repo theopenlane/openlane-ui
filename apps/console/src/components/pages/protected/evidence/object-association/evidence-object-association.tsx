@@ -17,6 +17,7 @@ import { ChevronDown } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { Badge } from '@repo/ui/badge'
+import EvidenceCircle from '@/assets/EvidenceCircle'
 
 type TProps = {
   onEvidenceObjectIdsChange: (evidenceObjectiveIDs: TEvidenceObjectTypes[]) => void
@@ -150,7 +151,12 @@ const EvidenceObjectAssociation: React.FC<TProps> = (props: TProps) => {
           />
         </div>
       </div>
-      <EvidenceObjectAssociationTable data={formData} onEvidenceObjectIdsChange={handleEvidenceObjectIdsChange} form={props?.form} />
+      {selectedObject && <EvidenceObjectAssociationTable data={formData} onEvidenceObjectIdsChange={handleEvidenceObjectIdsChange} form={props?.form} />}
+      {!selectedObject && (
+        <div className="flex items-center justify-center w-full">
+          <EvidenceCircle />
+        </div>
+      )}
     </Panel>
   )
 }
