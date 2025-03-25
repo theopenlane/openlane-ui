@@ -91,12 +91,12 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
             const isDue = isBefore(dueDate, new Date())
 
             return (
-              <Link key={task.id} href={`/tasks?taskId=${task.id}`} className="flex items-center  space-x-4 gap-8">
+              <Link key={task.id} href={`/tasks?taskId=${task.id}`} className="grid grid-cols-[120px_1fr] items-center gap-[20px] size-fit">
+                {' '}
                 <div className={clsx('flex items-center gap-2', isDue && 'text-destructive')}>
                   {isDue ? <CalendarArrow /> : <Calendar strokeWidth={1} size={16} />}
                   <span className="text-sm font-medium">{distance}</span>
                 </div>
-
                 <div className="flex items-center gap-2">
                   <SquareArrow className={clsx(!isDue && 'rotate-90 text-blue-500', isDue && 'text-yellow-500')} />
                   <span className="text-sm font-medium truncate max-w-56">{task.title}</span>
