@@ -113,7 +113,7 @@ export const MemberActions = ({ memberId, memberRole }: MemberActionsProps) => {
     return null
   }
 
-  if (!data.allowed) {
+  if (!data?.allowed) {
     //MEMBERS CANT EDIT ANYONE
     return null
   }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { Logo } from '@repo/ui/logo'
@@ -9,31 +9,38 @@ import { useAcceptOrganizationInvite } from '../../../lib/user'
 
 export const InviteAccepter = () => {
   const searchParams = useSearchParams()
-  const { data: session, update } = useSession()
-  const { push } = useRouter()
   const token = searchParams?.get('token')
+  const { data: session, update, status } = useSession()
+  const { push } = useRouter()
+
+  const hasUpdatedRef = useRef(false)
 
   const { isLoading, verified, error } = useAcceptOrganizationInvite(token ?? null)
 
   useEffect(() => {
-    const updateSession = async () => {
-      if (verified && session) {
-        await update({
-          ...session,
-          user: {
-            ...session.user,
-            accessToken: verified?.access_token,
-            refreshToken: verified?.refresh_token,
-            organization: verified?.joined_org_id,
-          },
-        })
+    if (hasUpdatedRef.current) return
 
-        push('/dashboard')
-      }
+    if (status === 'unauthenticated' && session === null) {
+      push(`/login?token=${token}`)
+      return
     }
 
-    updateSession()
-  }, [verified, error])
+    if (verified && session) {
+      hasUpdatedRef.current = true
+
+      update({
+        ...session,
+        user: {
+          ...session.user,
+          accessToken: verified?.access_token,
+          refreshToken: verified?.refresh_token,
+          organization: verified?.joined_org_id,
+        },
+      }).then(() => {
+        window.location.href = '/'
+      })
+    }
+  }, [verified, session, status, push, token, hasUpdatedRef.current])
 
   return (
     <main className="flex flex-col min-h-screen w-full items-center space-between dark:bg-dk-surface-0 bg-surface-0">
