@@ -2,7 +2,7 @@
 
 import { Logo } from '@repo/ui/logo'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { pageStyles } from './page.styles'
 import { LoginPage } from '@/components/pages/auth/login/login'
 import { SignupPage } from '@/components/pages/auth/signup/signup'
@@ -29,7 +29,9 @@ const AuthLogin: React.FC = () => {
             <TabsTrigger value="signup">Signup</TabsTrigger>
           </TabsList>
           <TabsContent value="login">
-            <LoginPage />
+            <Suspense>
+              <LoginPage />
+            </Suspense>
           </TabsContent>
           <TabsContent value="signup">
             <SignupPage />

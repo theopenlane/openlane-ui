@@ -12,6 +12,7 @@ export default auth(async (req) => {
 
   const path = req.nextUrl.pathname
   const isPublicPage = publicPages.includes(path)
+  const isInvite = path === '/invite'
 
   const isInvite = path.startsWith('/invite')
 
