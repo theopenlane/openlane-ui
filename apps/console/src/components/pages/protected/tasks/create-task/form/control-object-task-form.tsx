@@ -14,7 +14,8 @@ import { TTaskObjectType } from '@/components/pages/protected/tasks/create-task/
 import { useQuery } from '@tanstack/react-query'
 import { GET_ALL_CONTROLS } from '@repo/codegen/query/control'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import EvidenceCircle from '@/assets/EvidenceCircle.tsx'
+import ObjectAssociationCircle from '@/assets/ObjectAssociationCircle.tsx'
+import ObjectAssociationPlaceholder from '@/components/shared/object-association/object-association-placeholder.tsx'
 
 type TProps = {
   form: UseFormReturn<CreateTaskFormData>
@@ -87,8 +88,8 @@ const ControlObjectTaskForm: React.FC<TProps> = (props: TProps) => {
 
   return (
     <Panel>
-      <PanelHeader heading="Associate this task with other object" noBorder />
-      <p>If the assigned team member has access to the object, you can see it bellow.</p>
+      <PanelHeader heading="Object association" noBorder />
+      <p>Associating objects will allow users with access to the object to see the created task.</p>
       <div className="grid grid-cols-2 gap-4 items-center">
         <div className="flex flex-col gap-2">
           <Label>Object type</Label>
@@ -121,7 +122,7 @@ const ControlObjectTaskForm: React.FC<TProps> = (props: TProps) => {
       {selectedObject && <TaskObjectTypeTable onTaskObjectTypeChange={handleTaskObjectTypeChange} data={formData} form={props.form} />}
       {!selectedObject && (
         <div className="flex items-center justify-center w-full">
-          <EvidenceCircle />
+          <ObjectAssociationPlaceholder />
         </div>
       )}
     </Panel>

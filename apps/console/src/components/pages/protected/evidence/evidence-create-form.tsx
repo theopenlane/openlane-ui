@@ -96,6 +96,7 @@ const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
         ...(props.taskData?.subcontrolIDs?.edges?.map((item: any) => item?.node?.displayID) || []),
         ...(props.taskData?.programIDs?.edges?.map((item: any) => item?.node?.displayID) || []),
         ...(props.taskData?.controlIDs?.edges?.map((item: any) => item?.node?.displayID) || []),
+        props.taskData?.displayID,
       ])
 
       if (props.taskData?.tags) {

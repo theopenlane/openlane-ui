@@ -21,9 +21,10 @@ export type CalendarPopoverProps<T extends FieldValues> = {
   required?: boolean
   customSelect?: TCustomSelect[]
   buttonClassName?: string
+  disabledFrom?: Date
 }
 
-const CalendarPopover = <T extends FieldValues>({ field, defaultToday, required, defaultAddDays, customSelect, buttonClassName }: CalendarPopoverProps<T>) => {
+const CalendarPopover = <T extends FieldValues>({ field, defaultToday, required, defaultAddDays, customSelect, buttonClassName, disabledFrom }: CalendarPopoverProps<T>) => {
   const todayDate = defaultToday ? new Date() : undefined
   const defaultAddDaysDate = defaultAddDays ? addDays(new Date(), defaultAddDays) : undefined
   const defaultDate = defaultAddDaysDate ?? todayDate ?? null
@@ -94,6 +95,7 @@ const CalendarPopover = <T extends FieldValues>({ field, defaultToday, required,
 
         <Calendar
           mode="single"
+          disabled={(date) => (disabledFrom ? date < disabledFrom : false)}
           selected={value ?? undefined}
           onSelect={(calendarValue) => {
             calendarValue && handleForm(calendarValue)

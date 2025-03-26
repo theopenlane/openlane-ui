@@ -28,9 +28,7 @@ import { TogglePlugin } from '@udecode/plate-toggle/react'
 import { type CreatePlateEditorOptions, ParagraphPlugin, PlateLeaf, usePlateEditor } from '@udecode/plate/react'
 
 import { copilotPlugins } from '../editor/plugins/copilot-plugins'
-import { advancedPlugins, basicPlugins, standardPlugins } from './plugins/editor-plugins.tsx'
-import { AdvancedFixedToolbarPlugin } from './plugins/advanced-fixed-toolbar-plugin.tsx'
-import { AdvancedFloatingToolbarPlugin } from './plugins/advanced-floating-toolbar-plugin.tsx'
+import { advancedPlugins, basicPlugins, standardPlugins, minimalPlugins } from './plugins/editor-plugins.tsx'
 import { AILeaf } from '../plate-ui/ai-leaf'
 import { BlockquoteElement } from '../plate-ui/blockquote-element'
 import { CodeBlockElement } from '../plate-ui/code-block-element'
@@ -187,6 +185,22 @@ export const staticViewComponents = {
   [VideoPlugin.key]: MediaVideoElementStatic,
 }
 
+const minimalComponents = {
+  [BlockquotePlugin.key]: BlockquoteElement,
+  [BoldPlugin.key]: withProps(PlateLeaf, { as: 'strong' }),
+  [HEADING_KEYS.h1]: withProps(HeadingElement, { variant: 'h1' }),
+  [HEADING_KEYS.h2]: withProps(HeadingElement, { variant: 'h2' }),
+  [HEADING_KEYS.h3]: withProps(HeadingElement, { variant: 'h3' }),
+  [HEADING_KEYS.h4]: withProps(HeadingElement, { variant: 'h4' }),
+  [HEADING_KEYS.h5]: withProps(HeadingElement, { variant: 'h5' }),
+  [HEADING_KEYS.h6]: withProps(HeadingElement, { variant: 'h6' }),
+  [HighlightPlugin.key]: HighlightLeaf,
+  [HorizontalRulePlugin.key]: HrElement,
+  [ItalicPlugin.key]: withProps(PlateLeaf, { as: 'em' }),
+  [ParagraphPlugin.key]: ParagraphElement,
+  [UnderlinePlugin.key]: withProps(PlateLeaf, { as: 'u' }),
+}
+
 const basicComponents = {
   [BlockquotePlugin.key]: BlockquoteElement,
   [BoldPlugin.key]: withProps(PlateLeaf, { as: 'strong' }),
@@ -310,7 +324,8 @@ const advancedComponents = {
   [SlashInputPlugin.key]: SlashInputElement,
 }
 
-export type TPlateEditorVariants = 'basic' | 'standard' | 'advanced'
+export type TPlateEditorVariants = 'basic' | 'standard' | 'advanced' | 'minimal'
+export type TPlateEditorStyleVariant = 'default' | 'comment' | 'select' | 'demo' | null | undefined
 
 export const useCreateEditor = (
   {
@@ -328,12 +343,14 @@ export const useCreateEditor = (
   deps: any[] = [],
 ) => {
   const componentVariants = {
+    minimal: withPlaceholders(minimalComponents),
     basic: withPlaceholders(basicComponents),
     standard: withPlaceholders(standardComponents),
     advanced: withPlaceholders(advancedComponents),
   }
 
   const pluginVariants = {
+    minimal: minimalPlugins,
     basic: basicPlugins,
     standard: standardPlugins,
     advanced: advancedPlugins,

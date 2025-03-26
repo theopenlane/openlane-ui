@@ -28,6 +28,7 @@ const EvidenceObjectAssociationTable: React.FC<TProps> = (props: TProps) => {
         ...(props.form.getValues('subcontrolIDs')?.length ? [{ inputName: 'subcontrolIDs', objectIds: props.form.getValues('subcontrolIDs') || [] }] : []),
         ...(props.form.getValues('programIDs')?.length ? [{ inputName: 'programIDs', objectIds: props.form.getValues('programIDs') || [] }] : []),
         ...(props.form.getValues('controlIDs')?.length ? [{ inputName: 'controlIDs', objectIds: props.form.getValues('controlIDs') || [] }] : []),
+        ...(props.form.getValues('taskIDs')?.length ? [{ inputName: 'taskIDs', objectIds: props.form.getValues('taskIDs') || [] }] : []),
       ])
     }
   }, [props?.form])

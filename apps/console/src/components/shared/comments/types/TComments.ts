@@ -1,4 +1,5 @@
+import { Value } from '@udecode/plate-common'
+
 export type TComments = {
-  comment: string
-  userId: string | number
+  comment: Value
 }
