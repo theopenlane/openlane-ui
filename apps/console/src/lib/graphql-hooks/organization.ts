@@ -157,7 +157,7 @@ export const useDeleteOrganizationInvite = () => {
   const { client } = useGraphQLClient()
 
   return useMutation<DeleteOrganizationInviteMutation, unknown, DeleteOrganizationInviteMutationVariables>({
-    mutationFn: async (deleteInviteId) => client.request(DELETE_ORGANIZATION_INVITE, { deleteInviteId }),
+    mutationFn: async (payload) => client.request(DELETE_ORGANIZATION_INVITE, payload),
   })
 }
 

@@ -30416,7 +30416,7 @@ export type GetInvitesQuery = {
     __typename?: 'InviteConnection'
     edges?: Array<{
       __typename?: 'InviteEdge'
-      node?: { __typename?: 'Invite'; id: string; recipient: string; status: InviteInviteStatus; createdAt?: any | null; expires?: any | null; role: InviteRole } | null
+      node?: { __typename?: 'Invite'; id: string; recipient: string; status: InviteInviteStatus; createdAt?: any | null; expires?: any | null; role: InviteRole; sendAttempts: number } | null
     } | null> | null
   }
 }
