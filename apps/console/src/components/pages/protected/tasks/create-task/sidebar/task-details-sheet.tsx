@@ -200,7 +200,7 @@ const TaskDetailsSheet = () => {
       {} as Record<string, string[]>,
     )
 
-    const taskObjectPayload = generatePayload(existingTaskObjects, taskObjects)
+    const taskObjectPayload = generatePayload(existingTaskObjects, taskObjects ?? {})
 
     const formData = {
       category: data?.category,
@@ -341,11 +341,6 @@ const TaskDetailsSheet = () => {
 
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
-                {!isEditing && (
-                  <SheetDescription>
-                    {taskData?.displayID} - {taskData?.category}
-                  </SheetDescription>
-                )}
                 <SheetTitle>
                   {isEditing ? (
                     <FormField
@@ -368,36 +363,34 @@ const TaskDetailsSheet = () => {
                     taskData?.title
                   )}
                 </SheetTitle>
-                <div className="pt-4">
-                  {isEditing ? (
-                    <FormField
-                      control={form.control}
-                      name="details"
-                      render={({ field }) => (
-                        <FormItem className="w-full">
-                          <div className="flex items-center">
-                            <FormLabel>Details</FormLabel>
-                            <SystemTooltip
-                              icon={<InfoIcon size={14} className="mx-1 mt-1" />}
-                              content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
-                            />
-                          </div>
-                          <FormControl>
-                            <PlateEditor onChange={handleDetailsChange} initialValue={taskData?.details ?? undefined} />
-                          </FormControl>
-                          {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors.details.message}</p>}
-                        </FormItem>
-                      )}
-                    />
-                  ) : (
-                    <div>{taskData?.details ? helper.convertToReadOnly(taskData.details) : ''}</div>
-                  )}
-                </div>
+                {isEditing ? (
+                  <FormField
+                    control={form.control}
+                    name="details"
+                    render={({ field }) => (
+                      <FormItem className="w-full pt-4">
+                        <div className="flex items-center">
+                          <FormLabel>Details</FormLabel>
+                          <SystemTooltip
+                            icon={<InfoIcon size={14} className="mx-1 mt-1" />}
+                            content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
+                          />
+                        </div>
+                        <FormControl>
+                          <PlateEditor onChange={handleDetailsChange} initialValue={taskData?.details ?? undefined} variant="basic" />
+                        </FormControl>
+                        {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors.details.message}</p>}
+                      </FormItem>
+                    )}
+                  />
+                ) : (
+                  <>{!!taskData?.details && <div>{helper.convertToReadOnly(taskData.details)}</div>}</>
+                )}
               </form>
             </Form>
 
             {!isEditing && (
-              <div className="mt-9 flex gap-4">
+              <div className="flex gap-4">
                 {taskData && (
                   <EvidenceCreateFormDialog
                     taskData={{
@@ -416,7 +409,7 @@ const TaskDetailsSheet = () => {
               </div>
             )}
 
-            <div className="pb-8">
+            <div>
               <div className="flex flex-col gap-4 mt-5">
                 <div className="flex items-center gap-4">
                   <CircleUser height={16} width={16} className="text-accent-secondary" />
@@ -469,7 +462,7 @@ const TaskDetailsSheet = () => {
                       control={form.control}
                       render={({ field }) => (
                         <>
-                          <CalendarPopover field={field} buttonClassName="w-1/3 flex justify-between items-center" />
+                          <CalendarPopover field={field} disabledFrom={new Date()} buttonClassName="w-1/3 flex justify-between items-center" />
                           {form.formState.errors.due && <p className="text-red-500 text-sm">{form.formState.errors.due.message}</p>}
                         </>
                       )}
@@ -597,7 +590,7 @@ const TaskDetailsSheet = () => {
         )}
         {!isEditing && (
           <>
-            <div className="mt-4 p-2 w-full">
+            <div className="p-2 w-full">
               <div className="flex justify-between items-end">
                 <p className="text-lg">Conversation</p>
                 <div className="flex items-center gap-1 text-right cursor-pointer" onClick={handleCommentSort}>
