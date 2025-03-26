@@ -1,24 +1,42 @@
 import { gql } from 'graphql-request'
 
-export const GET_ALL_RISKS = gql`
-  query GetAllRisks {
-    risks {
+const RISK_FIELDS_FRAGMENT = gql`
+  fragment RiskFields on Risk {
+    id
+    displayID
+    name
+    details
+    tags
+    category
+    riskType
+    score
+    status
+    businessCosts
+    likelihood
+    impact
+    controls {
       edges {
         node {
           id
-          displayID
-          name
-          businessCosts
-          likelihood
-          impact
-          controls {
-            edges {
-              node {
-                id
-                refCode
-              }
-            }
-          }
+          refCode
+        }
+      }
+    }
+  }
+`
+
+export const GET_ALL_RISKS = gql`
+  ${RISK_FIELDS_FRAGMENT}
+  query GetAllRisks {
+    risks {
+      totalCount
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+      }
+      edges {
+        node {
+          ...RiskFields
         }
       }
     }
