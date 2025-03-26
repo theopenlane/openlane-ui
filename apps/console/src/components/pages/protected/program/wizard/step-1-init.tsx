@@ -218,7 +218,7 @@ const FrameworkSelect = () => {
 
   const { inputRow } = wizardStyles()
   const { data, isLoading, isError } = useGetStandards({})
-  const currentYear = new Date().getFullYear() // assuming you want to keep using this
+  const currentYear = new Date().getFullYear()
 
   const frameworks = data?.standards?.edges?.map((edge) => edge?.node as Standard) || []
 
