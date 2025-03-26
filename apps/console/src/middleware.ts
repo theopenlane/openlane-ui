@@ -13,6 +13,7 @@ export default auth(async (req) => {
   const path = req.nextUrl.pathname
   const isPublicPage = publicPages.includes(path)
   const isInvite = path === '/invite'
+  const isUnsubscribe = path === '/unsubscribe'
 
   let hasSessionCookie = true
 
@@ -36,7 +37,7 @@ export default auth(async (req) => {
     return path === '/tfa' || path === '/login' ? NextResponse.next() : NextResponse.redirect(new URL('/tfa', req.url))
   }
 
-  if (isInvite) {
+  if (isInvite || isUnsubscribe) {
     return NextResponse.next()
   }
 
