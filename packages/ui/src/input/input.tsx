@@ -40,7 +40,14 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type,
           {prefix}
         </div>
       )}
-      <input type={type} className={cn(input({ hasIcon, hasPrefix, iconPosition }), className)} ref={ref} {...props} style={{ paddingLeft: hasPrefix ? prefixWidth + 12 : undefined }} />
+      <input
+        type={type}
+        className={cn(input({ hasIcon, hasPrefix, iconPosition }), className)}
+        ref={ref}
+        {...props}
+        value={props.value ?? ''}
+        style={{ paddingLeft: hasPrefix ? prefixWidth + 12 : undefined }}
+      />{' '}
       {icon && (
         <div className={iconWrapper({ iconPosition })} onClick={onIconClick} style={{ cursor: onIconClick ? 'pointer' : 'filled' }}>
           {icon}
