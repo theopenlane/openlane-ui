@@ -41,7 +41,7 @@ const TaskDetailsSheet = () => {
   const [commentSortIsAsc, setCommentSortIsAsc] = useState<boolean>(true)
   const [tagValues, setTagValues] = useState<Option[]>([])
   const queryClient = useQueryClient()
-  const helper = usePlateEditor()
+  const plateEditorHelper = usePlateEditor()
   const taskTypeOptions = Object.values(TaskTypes)
   const statusOptions = Object.values(TaskTaskStatus)
   const searchParams = useSearchParams()
@@ -151,7 +151,7 @@ const TaskDetailsSheet = () => {
     let detailsField = data?.details
 
     if (detailsField) {
-      detailsField = await helper.convertToHtml(detailsField as Value)
+      detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
     }
 
     const taskObjects = data?.taskObjects?.reduce(
@@ -280,11 +280,13 @@ const TaskDetailsSheet = () => {
 
   const handleSendComment = async (data: TComments) => {
     try {
+      const comment = await plateEditorHelper.convertToHtml(data.comment)
+
       await updateTask({
         updateTaskId: selectedTask as string,
         input: {
           addComment: {
-            text: data.comment,
+            text: comment,
           } as CreateNoteInput,
         },
       })
@@ -384,7 +386,7 @@ const TaskDetailsSheet = () => {
                     )}
                   />
                 ) : (
-                  <>{!!taskData?.details && <div>{helper.convertToReadOnly(taskData.details)}</div>}</>
+                  <>{!!taskData?.details && <div>{plateEditorHelper.convertToReadOnly(taskData.details)}</div>}</>
                 )}
               </form>
             </Form>

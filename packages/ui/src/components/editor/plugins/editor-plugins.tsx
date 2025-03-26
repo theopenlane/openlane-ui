@@ -73,6 +73,8 @@ import { all, createLowlight } from 'lowlight'
 import { BasicFixedToolbarPlugin } from '../../editor/plugins/basic-fixed-toolbar-plugin.tsx'
 import { StandardFixedToolbarPlugin } from '../../editor/plugins/standard-fixed-toolbar-plugin.tsx'
 import { StandardFloatingToolbarPlugin } from '../../editor/plugins/standard-floating-toolbar-plugin'
+import { MinimalFixedToolbarPlugin } from '../../editor/plugins/minimal-fixed-toolbar-plugin.tsx'
+import { MinimalFloatingToolbarPlugin } from '../../editor/plugins/minimal-floating-toolbar-plugin.tsx'
 
 const lowlight = createLowlight(all)
 
@@ -328,4 +330,50 @@ export const standardPlugins = [
   // UI
   StandardFixedToolbarPlugin,
   StandardFloatingToolbarPlugin,
+]
+
+export const minimalPlugins = [
+  // AI
+  //...aiPlugins,
+
+  // Nodes
+  ...basicNodesPlugins,
+  HorizontalRulePlugin,
+  linkPlugin,
+
+  // Marks
+  FontColorPlugin,
+  FontBackgroundColorPlugin,
+  FontSizePlugin,
+  HighlightPlugin,
+
+  // Block Style
+  alignPlugin,
+  ...indentListPlugins,
+  lineHeightPlugin,
+
+  // Functionality
+  SlashPlugin.extend({
+    options: {
+      triggerQuery(editor) {
+        return !editor.api.some({
+          match: { type: editor.getType(CodeBlockPlugin) },
+        })
+      },
+    },
+  }),
+  autoformatPlugin,
+  cursorOverlayPlugin,
+  ...blockMenuPlugins,
+  //...dndPlugins,
+  EmojiPlugin.configure({ options: { data: emojiMartData as any } }),
+  exitBreakPlugin,
+  resetBlockTypePlugin,
+  ...deletePlugins,
+  softBreakPlugin,
+  TrailingBlockPlugin,
+
+  // UI
+  MinimalFixedToolbarPlugin,
+  MinimalFloatingToolbarPlugin,
 ]
