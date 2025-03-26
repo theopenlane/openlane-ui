@@ -27,7 +27,6 @@ const AddComment: React.FC<TProps> = (props: TProps) => {
     setClearData(true)
     props.onSuccess({
       comment,
-      userId: 1,
     })
   }
 
