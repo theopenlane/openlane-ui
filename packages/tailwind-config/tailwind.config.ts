@@ -185,6 +185,9 @@ export const config: Partial<Config> = {
         input: {
           background: 'var(--color-input-background)',
         },
+        note: {
+          DEFAULT: 'var(--color-warning-muted-more)',
+        },
         'task-complete': '#2CCBAB',
         'task-in-progress': '#EAB308',
         'task-in-review': '#EAB308',
