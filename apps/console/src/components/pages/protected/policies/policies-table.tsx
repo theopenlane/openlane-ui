@@ -6,7 +6,7 @@ import { LoaderCircle, PlusCircle, SearchIcon } from 'lucide-react'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { Input } from '@repo/ui/input'
 import { Actions } from './actions/actions'
 import Link from 'next/link'
@@ -16,7 +16,7 @@ import { cn } from '@repo/ui/lib/utils'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { TableSort } from '@/components/shared/table-filter/table-sort'
 import { FilterField } from '@/types'
-import { InternalPolicyDocumentStatus } from '@repo/codegen/src/schema'
+import { GetInternalPoliciesListQueryVariables } from '@repo/codegen/src/schema'
 
 type PoliciesEdge = any
 type Policies = NonNullable<PoliciesEdge>['node']
@@ -25,14 +25,26 @@ export const PoliciesTable = () => {
   const router = useRouter()
 
   const [filteredPolicies, setFilteredPolicies] = useState<Policies[]>([])
+  const [filters, setFilters] = useState<Record<string, any>>({})
+  const [orderBy, setOrderBy] = useState<GetInternalPoliciesListQueryVariables['orderBy']>()
 
-  const { data, isLoading: fetching } = useGetInternalPoliciesList()
+  const whereFilter = useMemo(() => {
+    const conditions: Record<string, any> = {
+      ...filters,
+    }
+
+    return conditions
+  }, [filters])
+
+  const orderByFilter = useMemo(() => {
+    return orderBy || undefined
+  }, [orderBy])
+
+  const { data, isLoading: fetching } = useGetInternalPoliciesList(whereFilter, orderByFilter)
 
   const { isPending: creating, mutateAsync: createPolicy } = useCreateInternalPolicy()
 
   const [searchTerm, setSearchTerm] = useState('')
-  const [filters, setFilters] = useState<Record<string, any>>({})
-  const [sort, setSort] = useState<Record<string, any>>({})
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300)
 
@@ -131,7 +143,7 @@ export const PoliciesTable = () => {
         searching={searching}
         handleCreateNew={handleCreateNew}
         setFilters={setFilters}
-        setSort={setSort}
+        onSortChange={setOrderBy}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
       />
@@ -166,10 +178,8 @@ const InternalPolicyFilterableFields: FilterField[] = [
 ]
 
 const InternalPolicySortableFields = [
-  { key: 'name', label: 'Name' },
-  { key: 'displayId', label: 'Display ID' },
-  { key: 'createdAt', label: 'Date Created' },
-  { key: 'updatedAt', label: 'Date Updated' },
+  { key: 'created_at', label: 'Created At' },
+  { key: 'updated_at', label: 'Updated At' },
 ]
 
 type PolicyDataTableToolbarProps = {
@@ -179,15 +189,15 @@ type PolicyDataTableToolbarProps = {
   searchTerm: string
   setSearchTerm: (searchTerm: string) => void
   setFilters: (filters: Record<string, any>) => void
-  setSort: (sort: Record<string, any>) => void
+  onSortChange: (data: any) => void
   handleCreateNew: () => void
 }
-const PolicyDataTableToolbar: React.FC<PolicyDataTableToolbarProps> = ({ className, creating, searching, searchTerm, handleCreateNew, setFilters, setSort, setSearchTerm }) => {
+const PolicyDataTableToolbar: React.FC<PolicyDataTableToolbarProps> = ({ className, creating, searching, searchTerm, handleCreateNew, setFilters, onSortChange, setSearchTerm }) => {
   return (
     <div className={cn('flex items-center gap-2', className)}>
       <div className="grow flex flex-row items-center gap-2">
         <TableFilter filterFields={InternalPolicyFilterableFields} onFilterChange={setFilters} />
-        {/* <TableSort sortFields={InternalPolicySortableFields} onSortChange={setSort} /> */}
+        <TableSort sortFields={InternalPolicySortableFields} onSortChange={onSortChange} />
         <SearchInput value={searchTerm} onChange={setSearchTerm} searching={searching} />
       </div>
 

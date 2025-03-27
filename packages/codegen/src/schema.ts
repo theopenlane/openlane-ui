@@ -30072,6 +30072,7 @@ export type ControlFieldsFragment = {
 
 export type GetAllControlsQueryVariables = Exact<{
   where?: InputMaybe<ControlWhereInput>
+  orderBy?: InputMaybe<Array<ControlOrder> | ControlOrder>
 }>
 
 export type GetAllControlsQuery = {
@@ -30162,6 +30163,7 @@ export type GetAllEvidencesQuery = {
 
 export type GetAllGroupsQueryVariables = Exact<{
   where?: InputMaybe<GroupWhereInput>
+  orderBy?: InputMaybe<Array<GroupOrder> | GroupOrder>
 }>
 
 export type GetAllGroupsQuery = {
@@ -30533,7 +30535,10 @@ export type DeleteInternalPolicyMutationVariables = Exact<{
 
 export type DeleteInternalPolicyMutation = { __typename?: 'Mutation'; deleteInternalPolicy: { __typename?: 'InternalPolicyDeletePayload'; deletedID: string } }
 
-export type GetInternalPoliciesListQueryVariables = Exact<{ [key: string]: never }>
+export type GetInternalPoliciesListQueryVariables = Exact<{
+  orderBy?: InputMaybe<Array<InternalPolicyOrder> | InternalPolicyOrder>
+  where?: InputMaybe<InternalPolicyWhereInput>
+}>
 
 export type GetInternalPoliciesListQuery = {
   __typename?: 'Query'
@@ -30676,6 +30681,7 @@ export type GetAllProceduresWithDetailsQuery = {
 
 export type GetAllProceduresQueryVariables = Exact<{
   where?: InputMaybe<ProcedureWhereInput>
+  orderBy?: InputMaybe<Array<ProcedureOrder> | ProcedureOrder>
 }>
 
 export type GetAllProceduresQuery = {

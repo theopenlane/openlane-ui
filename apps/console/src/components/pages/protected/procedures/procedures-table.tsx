@@ -6,7 +6,7 @@ import { LoaderCircle, PlusCircle, SearchIcon } from 'lucide-react'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { Input } from '@repo/ui/input'
 import { Actions } from './actions/actions'
 import Link from 'next/link'
@@ -16,6 +16,7 @@ import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { TableSort } from '@/components/shared/table-filter/table-sort'
 import { FilterField } from '@/types'
 import { useCreateProcedure, useGetAllProcedures, useSearchProcedures } from '@/lib/graphql-hooks/procedures'
+import { GetAllProceduresQueryVariables } from '@repo/codegen/src/schema.ts'
 
 type ProceduresEdge = any
 type Procedures = NonNullable<ProceduresEdge>['node']
@@ -28,11 +29,14 @@ export const ProceduresTable = () => {
   const [filteredProcedures, setFilteredProcedures] = useState<Procedures[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [filters, setFilters] = useState<Record<string, any>>({})
-  const [sort, setSort] = useState<Record<string, any>>({})
+  const [orderBy, setOrderBy] = useState<GetAllProceduresQueryVariables['orderBy']>()
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300)
+  const orderByFilter = useMemo(() => {
+    return orderBy || undefined
+  }, [orderBy])
 
-  const { data, isLoading: fetching } = useGetAllProcedures(filters)
+  const { data, isLoading: fetching } = useGetAllProcedures(filters, orderByFilter)
   const { data: searchData, isFetching: searching } = useSearchProcedures(debouncedSearchTerm)
 
   useEffect(() => {
@@ -123,7 +127,7 @@ export const ProceduresTable = () => {
         creating={creating}
         handleCreateNew={handleCreateNew}
         setFilters={setFilters}
-        setSort={setSort}
+        onSortChange={setOrderBy}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
       />
@@ -160,10 +164,8 @@ const ProcedureFilterableFields: FilterField[] = [
 ]
 
 const ProcedureSortableFields = [
-  { key: 'name', label: 'Name' },
-  { key: 'displayId', label: 'Display ID' },
-  { key: 'createdAt', label: 'Date Created' },
-  { key: 'updatedAt', label: 'Date Updated' },
+  { key: 'created_at', label: 'Created At' },
+  { key: 'updated_at', label: 'Updated At' },
 ]
 
 type ProcedureDataTableToolbarProps = {
@@ -173,15 +175,15 @@ type ProcedureDataTableToolbarProps = {
   searchTerm: string
   setSearchTerm: (searchTerm: string) => void
   setFilters: (filters: Record<string, any>) => void
-  setSort: (sort: Record<string, any>) => void
+  onSortChange: (data: any) => void
   handleCreateNew: () => void
 }
-const ProcedureDataTableToolbar: React.FC<ProcedureDataTableToolbarProps> = ({ className, creating, searching, searchTerm, handleCreateNew, setFilters, setSort, setSearchTerm }) => {
+const ProcedureDataTableToolbar: React.FC<ProcedureDataTableToolbarProps> = ({ className, creating, searching, searchTerm, handleCreateNew, setFilters, onSortChange, setSearchTerm }) => {
   return (
     <div className={cn('flex items-center gap-2', className)}>
       <div className="grow flex flex-row items-center gap-2">
         <TableFilter filterFields={ProcedureFilterableFields} onFilterChange={setFilters} />
-        {/* <TableSort sortFields={ProcedureSortableFields} onSortChange={setSort} /> */}
+        <TableSort sortFields={ProcedureSortableFields} onSortChange={onSortChange} />
         <SearchInput value={searchTerm} onChange={setSearchTerm} searching={searching} />
       </div>
 

@@ -8,6 +8,8 @@ import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { ColumnDef } from '@tanstack/table-core'
 import { DownloadIcon, PencilIcon } from 'lucide-react'
 import React, { useState } from 'react'
+import ControlsTableToolbar from '@/components/pages/protected/program/controls/table/controls-table-toolbar.tsx'
+import { TasksWithFilterQueryVariables } from '@repo/codegen/src/schema.ts'
 
 // Sample data
 const data = [
@@ -108,12 +110,19 @@ const exportToCSV = (data: any[], fileName: string) => {
 }
 
 const ControlsTable: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
   const [isSheetOpen, setSheetOpen] = useState(false)
   const [currentRow, setCurrentRow] = useState<any>(null)
+  const [filters, setFilters] = useState<Record<string, any>>({})
+  const [orderBy, setOrderBy] = useState<TasksWithFilterQueryVariables['orderBy']>()
 
   const handleRowClick = (row: any) => {
     setCurrentRow(row)
     setSheetOpen(true)
+  }
+
+  const handleTabChange = (tab: 'table' | 'card') => {
+    setActiveTab(tab)
   }
 
   return (
@@ -124,6 +133,7 @@ const ControlsTable: React.FC = () => {
           Export
         </Button>
       </div>
+      <ControlsTableToolbar onFilterChange={setFilters} onSortChange={setOrderBy} onTabChange={handleTabChange} />
       <DataTable columns={columns} data={data} onRowClick={(row: any) => handleRowClick(row)} />
       <Sheet open={isSheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent>
