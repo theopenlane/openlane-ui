@@ -1,15 +1,87 @@
-import { SquareArrowDown, SquareArrowRight, SquareArrowUpRight, SquareArrowUp, RotateCcw, ShieldCheck, RefreshCcw, Play, Archive, RefreshCw, Umbrella, CirclePlay } from 'lucide-react'
+import { SquareArrowDown, SquareArrowRight, SquareArrowUpRight, SquareArrowUp, RotateCcw, Umbrella, RefreshCw, CirclePlay, Archive } from 'lucide-react'
 
 import { RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 
 interface RiskLabelProps {
   score?: number
   impact?: RiskRiskImpact
   likelihood?: RiskRiskLikelihood
   status?: RiskRiskStatus
+  isEditing: boolean
+  onChange?: (value: any) => void
 }
 
-export const RiskLabel = ({ score, impact, likelihood, status }: RiskLabelProps) => {
+export const RiskLabel = ({ score, impact, likelihood, status, isEditing, onChange }: RiskLabelProps) => {
+  if (isEditing) {
+    if (typeof score === 'number') {
+      return (
+        <Select value={String(score)} onValueChange={(val) => onChange?.(Number(val))}>
+          <SelectTrigger className="w-[120px]">
+            <SelectValue placeholder="Select score" />
+          </SelectTrigger>
+          <SelectContent>
+            {[1, 2, 3, 5, 7, 10, 12, 15, 17].map((val) => (
+              <SelectItem key={val} value={String(val)}>
+                {val}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )
+    }
+
+    if (impact) {
+      return (
+        <Select value={impact} onValueChange={(val) => onChange?.(val)}>
+          <SelectTrigger className="w-[120px]">
+            <SelectValue placeholder="Select impact" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={RiskRiskImpact.LOW}>Low</SelectItem>
+            <SelectItem value={RiskRiskImpact.MODERATE}>Medium</SelectItem>
+            <SelectItem value={RiskRiskImpact.HIGH}>High</SelectItem>
+            <SelectItem value={RiskRiskImpact.CRITICAL}>Critical</SelectItem>
+          </SelectContent>
+        </Select>
+      )
+    }
+
+    if (likelihood) {
+      return (
+        <Select value={likelihood} onValueChange={(val) => onChange?.(val)}>
+          <SelectTrigger className="w-[140px]">
+            <SelectValue placeholder="Select likelihood" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={RiskRiskLikelihood.UNLIKELY}>Unlikely</SelectItem>
+            <SelectItem value={RiskRiskLikelihood.LIKELY}>Likely</SelectItem>
+            <SelectItem value={RiskRiskLikelihood.HIGHLY_LIKELY}>Highly likely</SelectItem>
+          </SelectContent>
+        </Select>
+      )
+    }
+
+    if (status) {
+      return (
+        <Select value={status} onValueChange={(val) => onChange?.(val)}>
+          <SelectTrigger className="w-[140px]">
+            <SelectValue placeholder="Select status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={RiskRiskStatus.OPEN}>Open</SelectItem>
+            <SelectItem value={RiskRiskStatus.MITIGATED}>Mitigated</SelectItem>
+            <SelectItem value={RiskRiskStatus.ONGOING}>Ongoing</SelectItem>
+            <SelectItem value={RiskRiskStatus.IN_PROGRESS}>In-progress</SelectItem>
+            <SelectItem value={RiskRiskStatus.ARCHIVED}>Archived</SelectItem>
+          </SelectContent>
+        </Select>
+      )
+    }
+  }
+
+  // Non-editing display below
+
   if (typeof score === 'number') {
     if (score < 5) {
       return (
@@ -105,35 +177,35 @@ export const RiskLabel = ({ score, impact, likelihood, status }: RiskLabelProps)
     switch (status) {
       case RiskRiskStatus.OPEN:
         return (
-          <div className=" flex gap-2 items-center text-sm">
+          <div className="flex gap-2 items-center text-sm">
             <RotateCcw size={16} />
             Open
           </div>
         )
       case RiskRiskStatus.MITIGATED:
         return (
-          <div className=" flex gap-2 items-center text-sm">
+          <div className="flex gap-2 items-center text-sm">
             <Umbrella size={16} />
             Mitigated
           </div>
         )
       case RiskRiskStatus.ONGOING:
         return (
-          <div className=" flex gap-2 items-center text-sm">
+          <div className="flex gap-2 items-center text-sm">
             <RefreshCw size={16} />
             Ongoing
           </div>
         )
       case RiskRiskStatus.IN_PROGRESS:
         return (
-          <div className=" flex gap-2 items-center text-sm">
+          <div className="flex gap-2 items-center text-sm">
             <CirclePlay size={16} />
             In-progress
           </div>
         )
       case RiskRiskStatus.ARCHIVED:
         return (
-          <div className=" flex gap-2 items-center text-sm">
+          <div className="flex gap-2 items-center text-sm">
             <Archive size={16} />
             Archived
           </div>
@@ -143,3 +215,5 @@ export const RiskLabel = ({ score, impact, likelihood, status }: RiskLabelProps)
 
   return null
 }
+
+export default RiskLabel
