@@ -6,15 +6,17 @@ import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { PageHeading } from '@repo/ui/page-heading'
 import { TableCell, TableRow } from '@repo/ui/table'
-import { RiskFieldsFragment } from '@repo/codegen/src/schema'
+import { RiskEdge, RiskFieldsFragment } from '@repo/codegen/src/schema'
+import RiskDetailsSheet from '@/components/pages/protected/risks/risk-details-sheet'
+import { useRouter } from 'next/navigation'
 
 const RiskTablePage: React.FC = () => {
   const { data, isError } = useGetAllRisks()
+  const { replace } = useRouter()
 
   if (isError || !data) return null
 
-  const risks: RiskFieldsFragment[] = data?.risks?.edges as RiskFieldsFragment[]
-
+  const risks: RiskFieldsFragment[] = (data?.risks?.edges ?? []).map((edge) => edge?.node as RiskFieldsFragment)
   const columns: ColumnDef<RiskFieldsFragment>[] = [
     {
       accessorKey: 'displayID',
@@ -71,6 +73,7 @@ const RiskTablePage: React.FC = () => {
         columns={columns}
         data={risks}
         noResultsText="No risks found"
+        onRowClick={(row) => replace(`/risks?id=${row.id}`)} // ✅ pass the correct id
         noDataMarkup={
           <TableRow>
             <TableCell colSpan={columns.length}>
@@ -79,6 +82,7 @@ const RiskTablePage: React.FC = () => {
           </TableRow>
         }
       />
+      <RiskDetailsSheet />
     </div>
   )
 }

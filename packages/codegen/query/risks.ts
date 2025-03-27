@@ -1,32 +1,30 @@
 import { gql } from 'graphql-request'
 
-const RISK_FIELDS_FRAGMENT = gql`
-  fragment RiskFields on Risk {
-    id
-    displayID
-    name
-    details
-    tags
-    category
-    riskType
-    score
-    status
-    businessCosts
-    likelihood
-    impact
-    controls {
-      edges {
-        node {
-          id
-          refCode
-        }
+const RISK_FIELDS = `
+  id
+  displayID
+  name
+  details
+  tags
+  category
+  riskType
+  score
+  status
+  businessCosts
+  likelihood
+  impact
+  mitigation
+  controls {
+    edges {
+      node {
+        id
+        refCode
       }
     }
   }
 `
 
 export const GET_ALL_RISKS = gql`
-  ${RISK_FIELDS_FRAGMENT}
   query GetAllRisks {
     risks {
       totalCount
@@ -36,9 +34,17 @@ export const GET_ALL_RISKS = gql`
       }
       edges {
         node {
-          ...RiskFields
+          ${RISK_FIELDS}
         }
       }
+    }
+  }
+`
+
+export const GET_RISK_BY_ID = gql`
+  query GetRiskByID($riskId: ID!) {
+    risk(id: $riskId) {
+      ${RISK_FIELDS}
     }
   }
 `

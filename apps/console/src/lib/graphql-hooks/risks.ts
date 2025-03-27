@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
-import { GET_ALL_RISKS } from '@repo/codegen/query/risks'
+import { GET_ALL_RISKS, GET_RISK_BY_ID } from '@repo/codegen/query/risks'
 
-import { GetAllRisksQuery, RiskWhereInput } from '@repo/codegen/src/schema'
+import { GetAllRisksQuery, GetRiskByIdQuery, GetRiskByIdQueryVariables, RiskWhereInput } from '@repo/codegen/src/schema'
 
 export const useGetAllRisks = () => {
   const { client } = useGraphQLClient()
@@ -22,5 +22,18 @@ export const useRisksWithFilter = (where: RiskWhereInput) => {
     queryFn: async () => {
       return client.request<GetAllRisksQuery>(GET_ALL_RISKS, { where })
     },
+  })
+}
+
+export const useGetRiskById = (riskId: string | null) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetRiskByIdQuery, unknown>({
+    queryKey: ['risk', riskId],
+    queryFn: async () => {
+      if (!riskId) throw new Error('Missing risk ID')
+      return client.request<GetRiskByIdQuery, GetRiskByIdQueryVariables>(GET_RISK_BY_ID, { riskId })
+    },
+    enabled: !!riskId,
   })
 }
