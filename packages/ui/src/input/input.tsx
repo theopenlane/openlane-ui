@@ -44,7 +44,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type,
         type={type}
         className={cn(input({ hasIcon, hasPrefix, iconPosition }), className)}
         ref={ref}
-        {...(props.value && { value: props.value || '' })} // Fallback to empty string if undefined
+        {...(props.value && { value: props.value || '' })}
         {...props}
         style={{ paddingLeft: hasPrefix ? prefixWidth + 12 : undefined }}
       />
