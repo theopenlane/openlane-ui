@@ -1,4 +1,5 @@
 import { FilterField, SelectFilterField } from '@/types'
+import { OrderDirection } from '@repo/codegen/src/schema.ts'
 
 export const CONTROLS_FILTER_FIELDS: FilterField[] = [
   { key: 'name', label: 'Name', type: 'text' },
@@ -20,4 +21,12 @@ export const CONTROLS_SORT_FIELDS = [
   { key: 'CONTROL_TYPE', label: 'Control Type' },
   { key: 'category', label: 'Category' },
   { key: 'subcategory', label: 'Subcategory' },
+  {
+    key: 'ref_code',
+    label: 'Ref',
+    default: {
+      key: 'ref_code',
+      direction: OrderDirection.DESC,
+    },
+  },
 ]

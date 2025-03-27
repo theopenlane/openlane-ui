@@ -7,7 +7,7 @@ import { tableFilterStyles } from '@/components/shared/table-filter/table-filter
 import { OrderDirection } from '@repo/codegen/src/schema'
 
 interface TableSortProps<T extends string> {
-  sortFields: { key: T; label: string }[]
+  sortFields: { key: T; label: string; default?: { key: T; direction: OrderDirection } }[]
   onSortChange?: (sortCondition: { field: T; direction: OrderDirection }[]) => void
 }
 
@@ -17,12 +17,12 @@ export const TableSort = <T extends string>({ sortFields, onSortChange }: TableS
 
   const addSortCondition = () => {
     if (!sortFields.length) return
-    const firstField = sortFields[0]
+    const defaultOrFistField = sortFields.find((field) => field.default) ?? sortFields[0]
     setSortConditions((prev) => [
       ...prev,
       {
-        field: firstField.key,
-        direction: undefined,
+        field: defaultOrFistField?.default?.key ?? defaultOrFistField.key,
+        direction: defaultOrFistField?.default?.direction ?? undefined,
       },
     ])
   }

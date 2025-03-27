@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { SelectFilterField } from '@/types'
 import { TableSort } from '@/components/shared/table-filter/table-sort'
 import { CreditCard as CardIcon, Table as TableIcon } from 'lucide-react'
-import { CONTROLS_FILTER_FIELDS, CONTROLS_SORT_FIELDS } from '@/components/pages/protected/program/controls/table/table-config.ts'
+import { CONTROLS_FILTER_FIELDS, CONTROLS_SORT_FIELDS } from './table-config'
 
 type TProps = {
   onFilterChange: (filters: Record<string, any>) => void
