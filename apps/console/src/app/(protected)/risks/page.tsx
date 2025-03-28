@@ -17,7 +17,7 @@ const RiskTablePage: React.FC = () => {
   const { replace } = useRouter()
 
   const [searchQuery, setSearchQuery] = React.useState('')
-  const debouncedSearchQuery = useDebounce(searchQuery, 300) // debounce to reduce query load
+  const debouncedSearchQuery = useDebounce(searchQuery, 300)
 
   const { data, isError } = useRisksWithFilter({
     nameContainsFold: debouncedSearchQuery || undefined,
