@@ -11,7 +11,7 @@ const formSchema = z.object({
   description: z.string().optional(),
   tags: z.array(z.string().optional()),
   creationDate: z.date().default(new Date()),
-  renewalDate: z.date().min(new Date(), { message: 'Renewal date must be after start date' }).optional(),
+  renewalDate: z.date().min(new Date(), { message: 'Renewal date must be in the future' }).optional(),
   evidenceFiles: z.array(z.any()),
   controlObjectiveIDs: z.array(z.any()).optional(),
   url: z.string().url().optional(),

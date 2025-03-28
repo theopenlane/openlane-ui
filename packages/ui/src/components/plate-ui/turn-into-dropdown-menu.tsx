@@ -86,6 +86,33 @@ const turnIntoItemsAdvanced = [
   },
 ]
 
+const turnIntoItemsMinimal = [
+  {
+    icon: <PilcrowIcon />,
+    keywords: ['paragraph'],
+    label: 'Text',
+    value: ParagraphPlugin.key,
+  },
+  {
+    icon: <Heading1Icon />,
+    keywords: ['title', 'h1'],
+    label: 'Heading 1',
+    value: HEADING_KEYS.h1,
+  },
+  {
+    icon: <Heading2Icon />,
+    keywords: ['subtitle', 'h2'],
+    label: 'Heading 2',
+    value: HEADING_KEYS.h2,
+  },
+  {
+    icon: <Heading3Icon />,
+    keywords: ['subtitle', 'h3'],
+    label: 'Heading 3',
+    value: HEADING_KEYS.h3,
+  },
+]
+
 const turnIntoItemsBasic = [
   {
     icon: <PilcrowIcon />,
@@ -202,6 +229,7 @@ export function TurnIntoDropdownMenu(props: TTurnIntoDropdownMenuProps) {
     getProp: (node) => getBlockType(node as any),
   })
   const variantItems = {
+    minimal: turnIntoItemsMinimal,
     basic: turnIntoItemsBasic,
     standard: turnIntoItemsStandard,
     advanced: turnIntoItemsAdvanced,

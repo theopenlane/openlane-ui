@@ -1,4 +1,4 @@
-import { ProgramProgramStatus } from '@repo/codegen/src/schema'
+import { ProgramProgramStatus, Standard } from '@repo/codegen/src/schema'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
@@ -10,10 +10,10 @@ import { z, infer as zInfer } from 'zod'
 import { InfoIcon } from 'lucide-react'
 import { wizardStyles } from './wizard.styles'
 import { Grid, GridRow, GridCell } from '@repo/ui/grid'
-import { supportedFrameworks } from '../frameworks'
 import React, { useState } from 'react'
 import { addDays, getYear } from 'date-fns'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
+import { useGetStandards } from '@/lib/graphql-hooks/standards'
 
 const today = new Date()
 const oneYearFromToday = addDays(new Date(), 365)
@@ -215,7 +215,12 @@ const FrameworkSelect = () => {
     setValue,
     trigger,
   } = useFormContext<InitProgramValues>()
+
   const { inputRow } = wizardStyles()
+  const { data, isLoading, isError } = useGetStandards({})
+  const currentYear = new Date().getFullYear()
+
+  const frameworks = data?.standards?.edges?.map((edge) => edge?.node as Standard) || []
 
   return (
     <FormField
@@ -247,12 +252,12 @@ const FrameworkSelect = () => {
               required
             >
               <SelectTrigger className={inputRow()}>
-                <SelectValue />
+                <SelectValue placeholder="Select a framework" />
               </SelectTrigger>
               <SelectContent>
-                {supportedFrameworks.map((framework) => (
-                  <SelectItem key={framework.shortname} value={framework.shortname}>
-                    {framework.shortname} {framework.version ? `  (${framework.version})` : ''}
+                {frameworks.map((framework) => (
+                  <SelectItem key={framework.id} value={framework?.shortName ?? ''}>
+                    {framework.shortName} {framework.version ? `(${framework.version})` : ''}
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger>
@@ -260,7 +265,7 @@ const FrameworkSelect = () => {
                         </TooltipTrigger>
                         <TooltipContent side="bottom">
                           <p>
-                            {framework.name} - {framework.description}
+                            {framework.shortName} - {framework.description}
                           </p>
                         </TooltipContent>
                       </Tooltip>

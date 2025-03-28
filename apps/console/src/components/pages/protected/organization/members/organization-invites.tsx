@@ -16,6 +16,7 @@ type InviteNode = {
   status: InviteInviteStatus
   createdAt?: any
   role: InviteRole
+  sendAttempts?: number
 }
 
 type InviteEdge = {
@@ -29,7 +30,7 @@ export const OrganizationInvites = () => {
   if (isLoading) return <p>Loading...</p>
   if (isError || !data) return null
 
-  const invites: InviteNode[] = data.invites.edges?.filter((edge): edge is InviteEdge => edge !== null && edge.node !== null).map((edge) => edge.node as InviteNode) || []
+  const invites: InviteNode[] = data.invites.edges?.filter((edge) => edge !== null && edge.node !== null).map((edge) => edge?.node as InviteNode) || []
 
   const columns: ColumnDef<InviteNode>[] = [
     {
@@ -75,7 +76,15 @@ export const OrganizationInvites = () => {
     {
       accessorKey: 'id',
       header: '',
-      cell: ({ cell }) => <InviteActions inviteId={cell.getValue() as string} />,
+      cell: ({ row }) => {
+        const invite = row.original
+        return <InviteActions inviteId={invite.id} recipient={invite.recipient} role={invite.role} />
+      },
+    },
+    {
+      accessorKey: 'sendAttempts',
+      header: 'Send Attempts',
+      cell: ({ cell }) => `${cell.getValue() || 0}/5`,
     },
   ]
 

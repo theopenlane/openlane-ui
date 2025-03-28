@@ -147,6 +147,9 @@
   --color-input-background: #f9fbfc;
   --color-input-text: #505f6f;
 
+  /* notes */
+  --color-warning-muted-more: #fff1da;
+
   /* JSON Editor */
   .svc-json-editor-tab__content-area {
     background-color: var(--color-bg);
@@ -255,6 +258,9 @@
   /* input */
   --color-input-background: #0d1117;
   --color-input-text: #bcd9e1;
+
+  /* notes */
+  --color-warning-muted-more: #514024;
 
   /* JSON Editor */
   .svc-json-editor-tab__content-area {

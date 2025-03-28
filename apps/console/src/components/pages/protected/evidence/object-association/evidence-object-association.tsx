@@ -17,7 +17,7 @@ import { ChevronDown } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { Badge } from '@repo/ui/badge'
-import EvidenceCircle from '@/assets/EvidenceCircle'
+import ObjectAssociationPlaceholder from '@/components/shared/object-association/object-association-placeholder.tsx'
 
 type TProps = {
   onEvidenceObjectIdsChange: (evidenceObjectiveIDs: TEvidenceObjectTypes[]) => void
@@ -102,19 +102,28 @@ const EvidenceObjectAssociation: React.FC<TProps> = (props: TProps) => {
     <Panel>
       <PanelHeader heading="Object association" noBorder />
       {props?.form && (
-        <Card className="p-4 flex gap-3 ">
+        <Card className="p-4 flex gap-3 bg-note">
           <div>
             <p className="font-semibold">Heads up!</p>
             <p className="text-sm ">This requested evidence you are submitting will also be used by other tasks, controls. We have pre-selected the object association below.</p>
             <div className="w-3/5 pt-3">
               <Accordion type="single" collapsible className="w-full">
                 <AccordionItem value="objects">
-                  <AccordionTrigger className="py-2 w-full flex justify-between items-center gap-2 group border p-3 border-neutral-300 dark:border-brand">
+                  <AccordionTrigger className="py-2 w-full flex justify-between items-center gap-2 group border p-3 bg-background-secondary">
                     <span className="text-sm">Show objects linked to this evidence</span>
                     <ChevronDown className="h-4 w-4 group-data-[state=open]:rotate-180" />
                   </AccordionTrigger>
                   <AccordionContent className="my-3">
-                    {props.preselectedObjectDisplayIDs && props.preselectedObjectDisplayIDs.map((item, index) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}
+                    {props.preselectedObjectDisplayIDs &&
+                      props.preselectedObjectDisplayIDs.map((item, index) => (
+                        <Fragment key={index}>
+                          {item && (
+                            <Badge className="bg-background-secondary mr-1" variant="outline">
+                              {item}
+                            </Badge>
+                          )}
+                        </Fragment>
+                      ))}
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
@@ -154,7 +163,7 @@ const EvidenceObjectAssociation: React.FC<TProps> = (props: TProps) => {
       {selectedObject && <EvidenceObjectAssociationTable data={formData} onEvidenceObjectIdsChange={handleEvidenceObjectIdsChange} form={props?.form} />}
       {!selectedObject && (
         <div className="flex items-center justify-center w-full">
-          <EvidenceCircle />
+          <ObjectAssociationPlaceholder />
         </div>
       )}
     </Panel>
