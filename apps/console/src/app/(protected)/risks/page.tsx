@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { useGetAllRisks } from '@/lib/graphql-hooks/risks'
+import { useGetAllRisks, useRisksWithFilter } from '@/lib/graphql-hooks/risks'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { PageHeading } from '@repo/ui/page-heading'
@@ -9,10 +9,19 @@ import { TableCell, TableRow } from '@repo/ui/table'
 import { RiskEdge, RiskFieldsFragment } from '@repo/codegen/src/schema'
 import RiskDetailsSheet from '@/components/pages/protected/risks/risk-details-sheet'
 import { useRouter } from 'next/navigation'
+import { useDebounce } from '@uidotdev/usehooks'
+import { SearchIcon } from 'lucide-react'
+import { Input } from '@repo/ui/input'
 
 const RiskTablePage: React.FC = () => {
-  const { data, isError } = useGetAllRisks()
   const { replace } = useRouter()
+
+  const [searchQuery, setSearchQuery] = React.useState('')
+  const debouncedSearchQuery = useDebounce(searchQuery, 300) // debounce to reduce query load
+
+  const { data, isError } = useRisksWithFilter({
+    nameContainsFold: debouncedSearchQuery || undefined,
+  })
 
   if (isError || !data) return null
 
@@ -69,6 +78,15 @@ const RiskTablePage: React.FC = () => {
   return (
     <div className="space-y-6">
       <PageHeading heading="Risks" />
+      <Input
+        value={searchQuery}
+        name="riskSearch"
+        placeholder="Search risks..."
+        onChange={(e) => setSearchQuery(e.currentTarget.value)}
+        icon={<SearchIcon width={17} />}
+        iconPosition="left"
+        variant="searchTable"
+      />
       <DataTable
         columns={columns}
         data={risks}

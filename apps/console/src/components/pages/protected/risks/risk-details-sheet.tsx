@@ -18,27 +18,29 @@ import { RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codege
 import { Controller, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNotification } from '@/hooks/useNotification'
+import MultipleSelector from '@repo/ui/multiple-selector'
 
 const riskFormSchema = z.object({
-  name: z.string().min(1),
-  riskType: z.string(),
-  category: z.string(),
-  score: z.coerce.number().min(0).max(100),
-  impact: z.nativeEnum(RiskRiskImpact),
-  likelihood: z.nativeEnum(RiskRiskLikelihood),
-  status: z.nativeEnum(RiskRiskStatus),
+  name: z.string().min(1, 'Name is required'),
+  riskType: z.string().optional(),
+  category: z.string().optional(),
+  score: z.coerce.number().min(0).max(100).optional(),
+  impact: z.nativeEnum(RiskRiskImpact).optional(),
+  likelihood: z.nativeEnum(RiskRiskLikelihood).optional(),
+  status: z.nativeEnum(RiskRiskStatus).optional(),
   details: z.string().optional(),
   mitigation: z.string().optional(),
   businessCosts: z.string().optional(),
+  tags: z.array(z.string()).optional(),
 })
 
 const RiskDetailsSheet = () => {
   const searchParams = useSearchParams()
   const router = useRouter()
   const riskId = searchParams.get('id')
-  const { data, isLoading } = useGetRiskById(riskId)
   const [isEditing, setIsEditing] = useState(false)
 
+  const { data, isLoading } = useGetRiskById(riskId)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: updateRisk, isPending } = useUpdateRisk()
 
@@ -48,7 +50,7 @@ const RiskDetailsSheet = () => {
     reset,
     watch,
     formState: { isDirty },
-  } = useForm({
+  } = useForm<z.infer<typeof riskFormSchema>>({
     resolver: zodResolver(riskFormSchema),
     defaultValues: {
       name: '',
@@ -61,6 +63,7 @@ const RiskDetailsSheet = () => {
       details: '',
       mitigation: '',
       businessCosts: '',
+      tags: [],
     },
   })
 
@@ -79,6 +82,7 @@ const RiskDetailsSheet = () => {
         details: risk.details ?? '',
         mitigation: risk.mitigation ?? '',
         businessCosts: risk.businessCosts ?? '',
+        tags: risk.tags || [],
       })
     }
   }, [risk, reset])
@@ -95,6 +99,7 @@ const RiskDetailsSheet = () => {
   }
 
   const onSubmit = async (values: z.infer<typeof riskFormSchema>) => {
+    console.log(values)
     if (!risk?.id) return
 
     try {
@@ -111,6 +116,7 @@ const RiskDetailsSheet = () => {
           details: values.details,
           mitigation: values.mitigation,
           businessCosts: values.businessCosts,
+          tags: values.tags,
         },
       })
 
@@ -155,14 +161,38 @@ const RiskDetailsSheet = () => {
             </SheetHeader>
 
             <div className="flex-1">
-              <SheetTitle>{isEditing ? <Controller name="name" control={control} render={({ field }) => <Input {...field} />} /> : watch('name') || 'Unnamed Risk'}</SheetTitle>
+              <SheetTitle>
+                {isEditing ? (
+                  <Controller
+                    name="name"
+                    control={control}
+                    render={({ field, fieldState }) => (
+                      <div className="flex flex-col gap-1">
+                        <Input {...field} />
+                        {fieldState.error && <p className="text-sm text-red-500">{fieldState.error.message}</p>}
+                      </div>
+                    )}
+                  />
+                ) : (
+                  watch('name') || 'Unnamed Risk'
+                )}
+              </SheetTitle>
             </div>
 
             <div className="grid grid-cols-[160px_1fr] gap-y-3 text-sm mt-6">
               <FieldRow label="Type">{isEditing ? <Controller name="riskType" control={control} render={({ field }) => <Input {...field} />} /> : watch('riskType')}</FieldRow>
               <FieldRow label="Category">{isEditing ? <Controller name="category" control={control} render={({ field }) => <Input {...field} />} /> : watch('category')}</FieldRow>
               <FieldRow label="Score">
-                <Controller name="score" control={control} render={({ field }) => <RiskLabel isEditing={isEditing} score={field.value} onChange={field.onChange} />} />
+                <Controller
+                  name="score"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <div className="flex flex-col gap-1">
+                      <RiskLabel isEditing={isEditing} score={field.value} onChange={field.onChange} />
+                      {fieldState.error && <p className="text-sm text-red-500">{fieldState.error.message}</p>}
+                    </div>
+                  )}
+                />
               </FieldRow>
               <FieldRow label="Impact">
                 <Controller name="impact" control={control} render={({ field }) => <RiskLabel isEditing={isEditing} impact={field.value} onChange={field.onChange} />} />
@@ -174,13 +204,32 @@ const RiskDetailsSheet = () => {
                 <Controller name="status" control={control} render={({ field }) => <RiskLabel isEditing={isEditing} status={field.value} onChange={field.onChange} />} />
               </FieldRow>
               <FieldRow label="Tags">
-                <div className="flex flex-wrap gap-2">
-                  {risk?.tags?.map((tag, i) => (
-                    <Badge key={i} variant="outline" className="text-xs lowercase">
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
+                {isEditing ? (
+                  <Controller
+                    name="tags"
+                    control={control}
+                    render={({ field }) => {
+                      const selectorValue = (field.value || []).map((tag: string) => ({
+                        value: tag,
+                        label: tag,
+                      }))
+
+                      const handleChange = (selected: { value: string; label: string }[]) => {
+                        field.onChange(selected.map((s) => s.value))
+                      }
+
+                      return <MultipleSelector value={selectorValue} onChange={handleChange} creatable defaultOptions={selectorValue} />
+                    }}
+                  />
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {(watch('tags') || []).map((tag, i) => (
+                      <Badge key={i} variant="outline" className="text-xs lowercase">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
               </FieldRow>
             </div>
 

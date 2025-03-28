@@ -2,6 +2,7 @@ import { SquareArrowDown, SquareArrowRight, SquareArrowUpRight, SquareArrowUp, R
 
 import { RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { Input } from '@repo/ui/input'
 
 interface RiskLabelProps {
   score?: number
@@ -16,18 +17,15 @@ export const RiskLabel = ({ score, impact, likelihood, status, isEditing, onChan
   if (isEditing) {
     if (typeof score === 'number') {
       return (
-        <Select value={String(score)} onValueChange={(val) => onChange?.(Number(val))}>
-          <SelectTrigger className="w-[120px]">
-            <SelectValue placeholder="Select score" />
-          </SelectTrigger>
-          <SelectContent>
-            {[1, 2, 3, 5, 7, 10, 12, 15, 17].map((val) => (
-              <SelectItem key={val} value={String(val)}>
-                {val}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Input
+          type="text"
+          className="w-[120px]"
+          value={String(score)}
+          onChange={(e) => {
+            const numeric = e.target.value.replace(/\D/g, '')
+            onChange?.(numeric ? Number(numeric) : 0)
+          }}
+        />
       )
     }
 
