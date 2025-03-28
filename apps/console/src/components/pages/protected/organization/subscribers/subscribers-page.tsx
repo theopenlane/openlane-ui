@@ -1,5 +1,6 @@
 'use client'
-import { SubscribersTable } from './subscribers-table'
+
+import { SubscribersTable } from './table/subscribers-table'
 
 const SubscribersPage: React.FC = () => {
   return <SubscribersTable />

@@ -31048,7 +31048,10 @@ export type CreateSubscriberMutationVariables = Exact<{
 
 export type CreateSubscriberMutation = { __typename?: 'Mutation'; createSubscriber: { __typename?: 'SubscriberCreatePayload'; subscriber: { __typename?: 'Subscriber'; email: string } } }
 
-export type GetAllSubscribersQueryVariables = Exact<{ [key: string]: never }>
+export type GetAllSubscribersQueryVariables = Exact<{
+  where?: InputMaybe<SubscriberWhereInput>
+  orderBy?: InputMaybe<Array<SubscriberOrder> | SubscriberOrder>
+}>
 
 export type GetAllSubscribersQuery = {
   __typename?: 'Query'

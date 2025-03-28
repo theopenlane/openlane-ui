@@ -54,8 +54,11 @@ export const TableSort = <T extends string>({ sortFields, onSortChange }: TableS
   }
 
   const resetSortConditions = () => {
-    setSortConditions([])
-    onSortChange?.([])
+    const defaultField = sortFields.find((field) => field.default)
+    const defaultSortCondition = defaultField ? [{ field: defaultField.key, direction: defaultField.default!.direction }] : []
+
+    setSortConditions(defaultSortCondition)
+    onSortChange?.(defaultSortCondition)
   }
 
   const handleSortChange = (index: number, field: Partial<{ field: T; direction: OrderDirection }>) => {
