@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { ArrowUpDown, Trash2 } from 'lucide-react'
+import React, { useEffect, useState } from 'react'
+import { ArrowUpDown, ListFilter, Trash2 } from 'lucide-react'
 import { Popover, PopoverTrigger, PopoverContent } from '@repo/ui/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Button } from '@repo/ui/button'
@@ -15,16 +15,42 @@ export const TableSort = <T extends string>({ sortFields, onSortChange }: TableS
   const [sortConditions, setSortConditions] = useState<{ field: T; direction?: OrderDirection }[]>([])
   const { prefixes, columnName, operator } = tableFilterStyles()
 
+  useEffect(() => {
+    const defaultField = sortFields.find((field) => field.default)
+    if (!defaultField) {
+      return
+    }
+
+    setSortConditions((prev) => {
+      if (prev.some((cond) => cond.field === defaultField.key)) {
+        return prev
+      }
+
+      return [
+        ...prev,
+        {
+          field: defaultField.key,
+          direction: defaultField.default?.direction,
+        },
+      ]
+    })
+  }, [sortFields])
+
   const addSortCondition = () => {
-    if (!sortFields.length) return
-    const defaultOrFistField = sortFields.find((field) => field.default) ?? sortFields[0]
-    setSortConditions((prev) => [
-      ...prev,
-      {
-        field: defaultOrFistField?.default?.key ?? defaultOrFistField.key,
-        direction: defaultOrFistField?.default?.direction ?? undefined,
-      },
-    ])
+    if (!sortFields.length) {
+      return
+    }
+
+    const firstNonDefaultField = sortFields.find((field) => !field.default)
+    if (firstNonDefaultField) {
+      setSortConditions((prev) => [
+        ...prev,
+        {
+          field: firstNonDefaultField.key,
+          direction: undefined,
+        },
+      ])
+    }
   }
 
   const resetSortConditions = () => {
@@ -47,9 +73,12 @@ export const TableSort = <T extends string>({ sortFields, onSortChange }: TableS
   return (
     <Popover onOpenChange={(open) => open && sortConditions.length === 0 && addSortCondition()}>
       <PopoverTrigger asChild>
-        <Button icon={<ArrowUpDown />} iconPosition="left">
-          Add Sort
-        </Button>
+        <button className="gap-2 flex items-center py-1.5 px-3 border rounded-lg">
+          <ArrowUpDown size={16} />
+          <p className="text-sm whitespace-nowrap">Add Sort</p>
+          <div className="border h-4" />
+          <p className="text-sm">{sortConditions.filter((sort) => sort.field !== '').length}</p>
+        </button>
       </PopoverTrigger>
       <PopoverContent align="start" side="bottom" sideOffset={8} asChild className="size-fit p-4 ">
         <div className="flex flex-col gap-2">
