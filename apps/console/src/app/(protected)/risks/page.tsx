@@ -86,6 +86,7 @@ const RiskTablePage: React.FC = () => {
         icon={<SearchIcon width={17} />}
         iconPosition="left"
         variant="searchTable"
+        className="max-w-60"
       />
       <DataTable
         columns={columns}
