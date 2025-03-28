@@ -1,6 +1,6 @@
 import React from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
-import { ProceduresTable } from '@/components/pages/protected/procedures/procedures-table'
+import ProceduresTable from '@/components/pages/protected/procedures/table/procedures-table'
 
 const Page: React.FC = () => {
   return (

@@ -14,8 +14,8 @@ export const GET_ALL_CONTROLS = gql`
     }
   }
 
-  query GetAllControls($where: ControlWhereInput) {
-    controls(where: $where) {
+  query GetAllControls($where: ControlWhereInput, $orderBy: [ControlOrder!]) {
+    controls(where: $where, orderBy: $orderBy) {
       edges {
         node {
           ...ControlFields

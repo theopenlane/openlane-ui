@@ -1,7 +1,6 @@
 import React from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
-import dynamic from 'next/dynamic'
-import { QuestionnairesTable } from '@/components/pages/protected/questionnaire/questionnaire-table'
+import { QuestionnairesTable } from '@/components/pages/protected/questionnaire/table/questionnaire-table.tsx'
 
 const Page: React.FC = () => {
   return (

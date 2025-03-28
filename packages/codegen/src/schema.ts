@@ -591,8 +591,13 @@ export interface ActionPlanHistoryOrder {
 /** Properties by which ActionPlanHistory connections can be ordered. */
 export enum ActionPlanHistoryOrderField {
   PRIORITY = 'PRIORITY',
+  REVIEW_FREQUENCY = 'REVIEW_FREQUENCY',
+  STATUS = 'STATUS',
   created_at = 'created_at',
   due_date = 'due_date',
+  name = 'name',
+  review_due = 'review_due',
+  revision = 'revision',
   source = 'source',
   updated_at = 'updated_at',
 }
@@ -890,8 +895,13 @@ export interface ActionPlanOrder {
 /** Properties by which ActionPlan connections can be ordered. */
 export enum ActionPlanOrderField {
   PRIORITY = 'PRIORITY',
+  REVIEW_FREQUENCY = 'REVIEW_FREQUENCY',
+  STATUS = 'STATUS',
   created_at = 'created_at',
   due_date = 'due_date',
+  name = 'name',
+  review_due = 'review_due',
+  revision = 'revision',
   source = 'source',
   updated_at = 'updated_at',
 }
@@ -2258,6 +2268,7 @@ export enum ControlHistoryOrderField {
   SOURCE = 'SOURCE',
   category = 'category',
   created_at = 'created_at',
+  ref_code = 'ref_code',
   status = 'status',
   subcategory = 'subcategory',
   updated_at = 'updated_at',
@@ -3344,6 +3355,7 @@ export enum ControlObjectiveHistoryOrderField {
   control_objective_type = 'control_objective_type',
   created_at = 'created_at',
   name = 'name',
+  revision = 'revision',
   status = 'status',
   subcategory = 'subcategory',
   updated_at = 'updated_at',
@@ -3643,6 +3655,7 @@ export enum ControlObjectiveOrderField {
   control_objective_type = 'control_objective_type',
   created_at = 'created_at',
   name = 'name',
+  revision = 'revision',
   status = 'status',
   subcategory = 'subcategory',
   updated_at = 'updated_at',
@@ -3962,6 +3975,7 @@ export enum ControlOrderField {
   SOURCE = 'SOURCE',
   category = 'category',
   created_at = 'created_at',
+  ref_code = 'ref_code',
   status = 'status',
   subcategory = 'subcategory',
   updated_at = 'updated_at',
@@ -12070,7 +12084,12 @@ export interface InternalPolicyHistoryOrder {
 
 /** Properties by which InternalPolicyHistory connections can be ordered. */
 export enum InternalPolicyHistoryOrderField {
+  REVIEW_FREQUENCY = 'REVIEW_FREQUENCY',
+  STATUS = 'STATUS',
   created_at = 'created_at',
+  name = 'name',
+  review_due = 'review_due',
+  revision = 'revision',
   updated_at = 'updated_at',
 }
 
@@ -12338,7 +12357,12 @@ export interface InternalPolicyOrder {
 
 /** Properties by which InternalPolicy connections can be ordered. */
 export enum InternalPolicyOrderField {
+  REVIEW_FREQUENCY = 'REVIEW_FREQUENCY',
+  STATUS = 'STATUS',
   created_at = 'created_at',
+  name = 'name',
+  review_due = 'review_due',
+  revision = 'revision',
   updated_at = 'updated_at',
 }
 
@@ -19007,7 +19031,12 @@ export interface ProcedureHistoryOrder {
 
 /** Properties by which ProcedureHistory connections can be ordered. */
 export enum ProcedureHistoryOrderField {
+  REVIEW_FREQUENCY = 'REVIEW_FREQUENCY',
+  STATUS = 'STATUS',
   created_at = 'created_at',
+  name = 'name',
+  review_due = 'review_due',
+  revision = 'revision',
   updated_at = 'updated_at',
 }
 
@@ -19275,7 +19304,12 @@ export interface ProcedureOrder {
 
 /** Properties by which Procedure connections can be ordered. */
 export enum ProcedureOrderField {
+  REVIEW_FREQUENCY = 'REVIEW_FREQUENCY',
+  STATUS = 'STATUS',
   created_at = 'created_at',
+  name = 'name',
+  review_due = 'review_due',
+  revision = 'revision',
   updated_at = 'updated_at',
 }
 
@@ -23283,6 +23317,7 @@ export enum StandardHistoryOrderField {
   framework = 'framework',
   governing_body = 'governing_body',
   name = 'name',
+  revision = 'revision',
   short_name = 'short_name',
   standard_type = 'standard_type',
   updated_at = 'updated_at',
@@ -23638,6 +23673,7 @@ export enum StandardOrderField {
   framework = 'framework',
   governing_body = 'governing_body',
   name = 'name',
+  revision = 'revision',
   short_name = 'short_name',
   standard_type = 'standard_type',
   updated_at = 'updated_at',
@@ -30072,6 +30108,7 @@ export type ControlFieldsFragment = {
 
 export type GetAllControlsQueryVariables = Exact<{
   where?: InputMaybe<ControlWhereInput>
+  orderBy?: InputMaybe<Array<ControlOrder> | ControlOrder>
 }>
 
 export type GetAllControlsQuery = {
@@ -30162,6 +30199,7 @@ export type GetAllEvidencesQuery = {
 
 export type GetAllGroupsQueryVariables = Exact<{
   where?: InputMaybe<GroupWhereInput>
+  orderBy?: InputMaybe<Array<GroupOrder> | GroupOrder>
 }>
 
 export type GetAllGroupsQuery = {
@@ -30533,7 +30571,10 @@ export type DeleteInternalPolicyMutationVariables = Exact<{
 
 export type DeleteInternalPolicyMutation = { __typename?: 'Mutation'; deleteInternalPolicy: { __typename?: 'InternalPolicyDeletePayload'; deletedID: string } }
 
-export type GetInternalPoliciesListQueryVariables = Exact<{ [key: string]: never }>
+export type GetInternalPoliciesListQueryVariables = Exact<{
+  orderBy?: InputMaybe<Array<InternalPolicyOrder> | InternalPolicyOrder>
+  where?: InputMaybe<InternalPolicyWhereInput>
+}>
 
 export type GetInternalPoliciesListQuery = {
   __typename?: 'Query'
@@ -30676,6 +30717,7 @@ export type GetAllProceduresWithDetailsQuery = {
 
 export type GetAllProceduresQueryVariables = Exact<{
   where?: InputMaybe<ProcedureWhereInput>
+  orderBy?: InputMaybe<Array<ProcedureOrder> | ProcedureOrder>
 }>
 
 export type GetAllProceduresQuery = {
@@ -31006,7 +31048,10 @@ export type CreateSubscriberMutationVariables = Exact<{
 
 export type CreateSubscriberMutation = { __typename?: 'Mutation'; createSubscriber: { __typename?: 'SubscriberCreatePayload'; subscriber: { __typename?: 'Subscriber'; email: string } } }
 
-export type GetAllSubscribersQueryVariables = Exact<{ [key: string]: never }>
+export type GetAllSubscribersQueryVariables = Exact<{
+  where?: InputMaybe<SubscriberWhereInput>
+  orderBy?: InputMaybe<Array<SubscriberOrder> | SubscriberOrder>
+}>
 
 export type GetAllSubscribersQuery = {
   __typename?: 'Query'
@@ -31225,6 +31270,7 @@ export type GetAllTemplatesQuery = {
 
 export type FilterTemplatesQueryVariables = Exact<{
   where?: InputMaybe<TemplateWhereInput>
+  orderBy?: InputMaybe<Array<TemplateOrder> | TemplateOrder>
 }>
 
 export type FilterTemplatesQuery = {

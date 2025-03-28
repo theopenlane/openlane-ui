@@ -1,8 +1,8 @@
 import { gql } from 'graphql-request'
 
 export const GET_ALL_GROUPS = gql`
-  query GetAllGroups($where: GroupWhereInput) {
-    groups(where: $where) {
+  query GetAllGroups($where: GroupWhereInput, $orderBy: [GroupOrder!]) {
+    groups(where: $where, orderBy: $orderBy) {
       edges {
         node {
           id

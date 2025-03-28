@@ -20,7 +20,6 @@ import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { TaskStatusMapper, TaskTypes } from '@/components/pages/protected/tasks/util/task'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import ControlObjectTaskForm from '@/components/pages/protected/tasks/create-task/form/control-object-task-form'
-import { TaskStatusIconMapper } from '@/components/pages/protected/tasks/util/columns'
 import DeleteTaskDialog from '@/components/pages/protected/tasks/create-task/dialog/delete-task-dialog'
 import { useTask, useUpdateTask } from '@/lib/graphql-hooks/tasks'
 import { useQueryClient } from '@tanstack/react-query'
@@ -35,6 +34,7 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import EvidenceCreateFormDialog from '../../../evidence/evidence-create-form-dialog'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
+import { TaskStatusIconMapper } from '../../table/columns'
 
 const TaskDetailsSheet = () => {
   const [isEditing, setIsEditing] = useState(false)

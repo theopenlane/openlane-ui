@@ -44,8 +44,8 @@ export const GET_ALL_PROCEDURES_WITH_DETAILS = gql`
 `
 
 export const GET_ALL_PROCEDURES = gql`
-  query GetAllProcedures($where: ProcedureWhereInput) {
-    procedures(where: $where) {
+  query GetAllProcedures($where: ProcedureWhereInput, $orderBy: [ProcedureOrder!]) {
+    procedures(where: $where, orderBy: $orderBy) {
       edges {
         node {
           id

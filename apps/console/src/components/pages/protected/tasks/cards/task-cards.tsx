@@ -5,9 +5,9 @@ import { Calendar, CircleUser, ListChecks } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
 import { TTableDataResponse } from '@/components/pages/protected/tasks/table/types/TTableDataResponse'
 import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
-import { TaskStatusIconMapper } from '@/components/pages/protected/tasks/util/columns'
 import { format } from 'date-fns'
 import { Avatar } from '@/components/shared/avatar/avatar'
+import { TaskStatusIconMapper } from '../table/columns'
 
 interface TProps {
   tasks: TTableDataResponse[]
