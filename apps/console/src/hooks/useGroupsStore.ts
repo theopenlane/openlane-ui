@@ -6,10 +6,6 @@ interface GroupsState {
 
   isAdmin: boolean
   setIsAdmin: (value: boolean) => void
-
-  // ADD:
-  reexecuteGroupsQuery: ((opts?: { requestPolicy?: string }) => void) | null
-  setReexecuteGroupsQuery: (refetchFn: (opts?: { requestPolicy?: string }) => void) => void
 }
 
 export const useGroupsStore = create<GroupsState>((set) => ({
@@ -18,8 +14,4 @@ export const useGroupsStore = create<GroupsState>((set) => ({
 
   isAdmin: false,
   setIsAdmin: (value) => set({ isAdmin: value }),
-
-  // Initialize to null; we’ll set it from GroupsPage
-  reexecuteGroupsQuery: null,
-  setReexecuteGroupsQuery: (refetchFn) => set({ reexecuteGroupsQuery: refetchFn }),
 }))
