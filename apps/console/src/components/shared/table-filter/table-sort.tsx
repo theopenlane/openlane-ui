@@ -36,20 +36,18 @@ export const TableSort = <T extends string>({ sortFields, onSortChange }: TableS
     })
   }, [sortFields])
 
-  const addSortCondition = () => {
-    if (!sortFields.length) {
-      return
+  useEffect(() => {
+    if (sortConditions.every(({ direction }) => direction !== undefined)) {
+      onSortChange?.(sortConditions as { field: T; direction: OrderDirection }[])
     }
+  }, [sortConditions])
+
+  const addSortCondition = () => {
+    if (!sortFields.length) return
 
     const firstNonDefaultField = sortFields.find((field) => !field.default)
     if (firstNonDefaultField) {
-      setSortConditions((prev) => [
-        ...prev,
-        {
-          field: firstNonDefaultField.key,
-          direction: undefined,
-        },
-      ])
+      setSortConditions((prev) => [...prev, { field: firstNonDefaultField.key, direction: undefined }])
     }
   }
 
@@ -58,15 +56,10 @@ export const TableSort = <T extends string>({ sortFields, onSortChange }: TableS
     const defaultSortCondition = defaultField ? [{ field: defaultField.key, direction: defaultField.default!.direction }] : []
 
     setSortConditions(defaultSortCondition)
-    onSortChange?.(defaultSortCondition)
   }
 
   const handleSortChange = (index: number, field: Partial<{ field: T; direction: OrderDirection }>) => {
-    const updatedConditions = sortConditions.map((condition, i) => (i === index ? { ...condition, ...field } : condition))
-    setSortConditions(updatedConditions)
-    if (updatedConditions.every(({ direction }) => direction !== undefined)) {
-      onSortChange?.(updatedConditions as { field: T; direction: OrderDirection }[])
-    }
+    setSortConditions((prev) => prev.map((condition, i) => (i === index ? { ...condition, ...field } : condition)))
   }
 
   const removeSortCondition = (index: number) => {

@@ -79,8 +79,8 @@ export const GET_ALL_ORGANIZATIONS_WITH_MEMBERS = gql`
 `
 
 export const GET_INVITES = gql`
-  query GetInvites {
-    invites {
+  query GetInvites($where: InviteWhereInput, $orderBy: [InviteOrder!]) {
+    invites(where: $where, orderBy: $orderBy) {
       edges {
         node {
           id

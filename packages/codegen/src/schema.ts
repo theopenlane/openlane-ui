@@ -30446,7 +30446,10 @@ export type GetAllOrganizationsWithMembersQuery = {
   }
 }
 
-export type GetInvitesQueryVariables = Exact<{ [key: string]: never }>
+export type GetInvitesQueryVariables = Exact<{
+  where?: InputMaybe<InviteWhereInput>
+  orderBy?: InputMaybe<Array<InviteOrder> | InviteOrder>
+}>
 
 export type GetInvitesQuery = {
   __typename?: 'Query'
