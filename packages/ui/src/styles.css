@@ -60,6 +60,9 @@
   --color-separator: #b4c1d5;
   --color-separator-light: #b4c1d5;
   --color-separator-dark: #273344;
+  --color-separator-edit: #bfbfbf;
+  --color-separator-edit-light: #bfbfbf;
+  --color-separator-edit-dark: #60737a;
 
   /* Text */
   --color-text-header: #303e4a;
@@ -143,6 +146,9 @@
 
   --color-input-background: #f9fbfc;
   --color-input-text: #505f6f;
+
+  /* notes */
+  --color-warning-muted-more: #fff1da;
 
   /* JSON Editor */
   .svc-json-editor-tab__content-area {
@@ -252,6 +258,9 @@
   /* input */
   --color-input-background: #0d1117;
   --color-input-text: #bcd9e1;
+
+  /* notes */
+  --color-warning-muted-more: #514024;
 
   /* JSON Editor */
   .svc-json-editor-tab__content-area {

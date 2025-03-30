@@ -3,14 +3,14 @@
 import { createPlatePlugin } from '@udecode/plate/react'
 
 import { FixedToolbar } from '../../plate-ui/fixed-toolbar'
-import { FixedToolbarButtons } from '../../plate-ui/fixed-toolbar-buttons'
+import { AdvancedFixedToolbarButtons } from '../../plate-ui/advanced-fixed-toolbar-buttons.tsx'
 
-export const FixedToolbarPlugin = createPlatePlugin({
-  key: 'fixed-toolbar',
+export const AdvancedFixedToolbarPlugin = createPlatePlugin({
+  key: 'advanced-fixed-toolbar',
   render: {
     beforeEditable: () => (
       <FixedToolbar>
-        <FixedToolbarButtons />
+        <AdvancedFixedToolbarButtons />
       </FixedToolbar>
     ),
   },

@@ -6,6 +6,8 @@ import React from 'react'
 import { toTitleCase } from '@/components/shared/lib/strings'
 import { useParams, usePathname } from 'next/navigation'
 import { useGetInternalPolicyDetailsById } from '@/lib/graphql-hooks/policy'
+import { useGetStandardDetails } from '@/lib/graphql-hooks/standards'
+import { useGetControlById } from '@/lib/graphql-hooks/controls'
 
 type TBreadCrumbProps = {
   homeElement?: string
@@ -16,10 +18,18 @@ export const BreadcrumbNavigation = ({ homeElement = 'Home' }: TBreadCrumbProps)
   const params = useParams()
   const pathNames = pathname.split('/').filter(Boolean)
 
-  //TODO: if we get more /:id breadcrumbs we need to write a config instead of fetching just one
   const isPolicy = pathNames.includes('policies')
   const policyId = isPolicy ? (params.id as string) : null
-  const { data, isFetching } = useGetInternalPolicyDetailsById(policyId)
+  const isStandard = pathNames.includes('standards')
+  const standardId = isStandard ? (params.id as string) : null
+  const isControl = pathNames.includes('controls')
+  const controlId = isControl ? (params.id as string) : null
+
+  const { data, isLoading: isLoadingPolicy } = useGetInternalPolicyDetailsById(policyId)
+  const { data: standardData, isLoading: isLoadingStandard } = useGetStandardDetails(standardId)
+  const { data: controlData, isLoading: isLoadingControl } = useGetControlById(controlId)
+
+  const isLoading = isLoadingPolicy || isLoadingStandard || isLoadingControl
 
   return (
     <Breadcrumb>
@@ -32,13 +42,20 @@ export const BreadcrumbNavigation = ({ homeElement = 'Home' }: TBreadCrumbProps)
           const href = `/${pathNames.slice(0, index + 1).join('/')}`
           let itemLink = toTitleCase(link.replaceAll('-', ' '))
 
-          // replace policy ID with fetched policy name
           if (policyId && link === policyId && data?.internalPolicy) {
             itemLink = data.internalPolicy.name
+          } else if (standardId && link === standardId && standardData?.standard) {
+            itemLink = standardData.standard.shortName ?? 'Unknown'
+          } else if (controlId && link === controlId && controlData?.control) {
+            itemLink = controlData.control.refCode
           }
-          // add spinner to last breadcrumb if it's fetching
-          if (index === pathNames.length - 1 && isFetching) {
-            return <Loader />
+
+          if (index === pathNames.length - 1 && isLoading) {
+            return (
+              <BreadcrumbSeparator key="loading">
+                <Loader size={16} className="animate-spin" />
+              </BreadcrumbSeparator>
+            )
           }
 
           return (

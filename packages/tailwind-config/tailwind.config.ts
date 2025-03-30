@@ -97,6 +97,11 @@ export const config: Partial<Config> = {
           dark: 'var(--color-separator-dark)', // Dark separator color
           light: 'var(--color-separator-light)', // Light separator color
         },
+        'separator-edit': {
+          DEFAULT: 'var(--color-separator-edit)',
+          dark: 'var(--color-separator-edit-dark)',
+          light: 'var(--color-separator-edit-light)',
+        },
         border: {
           DEFAULT: 'var(--color-border)', // Border color
           light: 'var(--color-border-light)', // Light border color
@@ -179,6 +184,9 @@ export const config: Partial<Config> = {
         },
         input: {
           background: 'var(--color-input-background)',
+        },
+        note: {
+          DEFAULT: 'var(--color-warning-muted-more)',
         },
         'task-complete': '#2CCBAB',
         'task-in-progress': '#EAB308',

@@ -89,6 +89,7 @@ export const GET_INVITES = gql`
           createdAt
           expires
           role
+          sendAttempts
         }
       }
     }

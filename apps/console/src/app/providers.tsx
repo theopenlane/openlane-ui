@@ -6,13 +6,12 @@ import { ThemeProvider } from '@/providers/theme'
 import { usePathname } from 'next/navigation'
 import { ReactNode, useEffect, useState } from 'react'
 import { Loading } from '@/components/shared/loading/loading'
-import { getGraphQLClient } from '@/lib/graphqlClient'
 
 interface ProvidersProps {
   children: ReactNode
 }
 
-const publicPages = ['/login', '/verify', '/resend-verify', '/invite', '/subscriber-verify', '/tfa']
+const publicPages = ['/login', '/verify', '/resend-verify', '/invite', '/subscriber-verify', '/tfa', '/waitlist', '/unsubscribe']
 
 const Providers = ({ children }: ProvidersProps) => {
   const { data: session, status } = useSession()

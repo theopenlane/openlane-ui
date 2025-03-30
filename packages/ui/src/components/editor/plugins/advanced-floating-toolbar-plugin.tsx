@@ -3,14 +3,14 @@
 import { createPlatePlugin } from '@udecode/plate/react'
 
 import { FloatingToolbar } from '../../plate-ui/floating-toolbar'
-import { FloatingToolbarButtons } from '../../plate-ui/floating-toolbar-buttons'
+import { AdvancedFloatingToolbarButtons } from '../../plate-ui/advanced-floating-toolbar-buttons.tsx'
 
-export const FloatingToolbarPlugin = createPlatePlugin({
+export const AdvancedFloatingToolbarPlugin = createPlatePlugin({
   key: 'floating-toolbar',
   render: {
     afterEditable: () => (
       <FloatingToolbar>
-        <FloatingToolbarButtons />
+        <AdvancedFloatingToolbarButtons />
       </FloatingToolbar>
     ),
   },

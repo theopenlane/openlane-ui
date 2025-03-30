@@ -34,5 +34,6 @@ export const TASK_FILTER_FIELDS: FilterField[] = [
 export const TASK_SORT_FIELDS = [
   { key: 'title', label: 'Title' },
   { key: 'due', label: 'Due Date' },
-  { key: 'status', label: 'Status' },
+  { key: 'STATUS', label: 'Status' },
+  { key: 'category', label: 'Type' },
 ]

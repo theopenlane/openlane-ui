@@ -3,6 +3,7 @@ import * as SheetPrimitive from '@radix-ui/react-dialog'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { ArrowRight, X } from 'lucide-react'
 import { cn } from '../../lib/utils'
+import { DialogTitle } from '@repo/ui/components/plate-ui/dialog.tsx'
 
 const Sheet = SheetPrimitive.Root
 
@@ -43,7 +44,10 @@ interface SheetContentProps extends React.ComponentPropsWithoutRef<typeof SheetP
 const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Content>, SheetContentProps>(({ side = 'right', className, children, ...props }, ref) => (
   <SheetPortal>
     <SheetOverlay />
-    <SheetPrimitive.Content ref={ref} className={cn(sheetVariants({ side }), className)} onOpenAutoFocus={(event) => event.preventDefault()} {...props}>
+    <SheetPrimitive.Content ref={ref} className={cn(sheetVariants({ side }), className)} {...props}>
+      <DialogTitle>
+        <div className="sr-only">Sheet Title</div>
+      </DialogTitle>
       {children}
     </SheetPrimitive.Content>
   </SheetPortal>

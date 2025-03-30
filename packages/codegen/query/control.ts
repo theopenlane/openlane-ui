@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request'
 
-export const GET_ALL_CONTROLS = gql`
+export const CONTROL_FIELDS_FRAGMENT = gql`
   fragment ControlFields on Control {
     id
     category
@@ -30,7 +30,10 @@ export const GET_ALL_CONTROLS = gql`
       totalCount
     }
   }
+`
 
+export const GET_ALL_CONTROLS = gql`
+  ${CONTROL_FIELDS_FRAGMENT}
   query GetAllControls($where: ControlWhereInput) {
     controls(where: $where) {
       edges {
@@ -38,6 +41,15 @@ export const GET_ALL_CONTROLS = gql`
           ...ControlFields
         }
       }
+    }
+  }
+`
+
+export const GET_CONTROL_BY_ID = gql`
+  ${CONTROL_FIELDS_FRAGMENT}
+  query GetControlById($controlId: ID!) {
+    control(id: $controlId) {
+      ...ControlFields
     }
   }
 `

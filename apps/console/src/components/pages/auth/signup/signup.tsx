@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { SimpleForm } from '@repo/ui/simple-form'
 import { MessageBox } from '@repo/ui/message-box'
 import { Button } from '@repo/ui/button'
@@ -24,6 +24,8 @@ const TEMP_PASSKEY_EMAIL = 'tempuser@test.com'
 const TEMP_PASSKEY_NAME = 'Temp User'
 
 export const SignupPage = () => {
+  const searchParams = useSearchParams()
+  const token = searchParams?.get('token')
   const router = useRouter()
   const [registrationErrorMessage, setRegistrationErrorMessage] = useState('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -172,7 +174,9 @@ export const SignupPage = () => {
               delete payload.confirmedPassword
 
               const res: any = await registerUser(payload)
-              if (res?.ok) {
+              if (res?.ok && token) {
+                router.push(`/invite?token=${token}`)
+              } else if (res?.ok) {
                 router.push('/verify')
               } else if (res?.message) {
                 setRegistrationErrorMessage(res.message)

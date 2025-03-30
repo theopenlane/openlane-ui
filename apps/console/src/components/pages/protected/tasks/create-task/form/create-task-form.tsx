@@ -162,7 +162,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                               icon={<InfoIcon size={14} className="mx-1 mt-1" />}
                               content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
                             />
-                            <PlateEditor onChange={handleDetailsChange} />
+                            <PlateEditor onChange={handleDetailsChange} variant="basic" />
                             {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
                           </FormItem>
                         )}
@@ -214,9 +214,15 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                               <FormLabel>Assign team member</FormLabel>
                               <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Test123</p>} />
                             </div>
-                            <Select value={field.value} onValueChange={field.onChange}>
+                            <Select
+                              value={field.value || 'unassigned'}
+                              onValueChange={(value) => {
+                                field.onChange(value === 'unassigned' ? null : value || undefined)
+                              }}
+                            >
                               <SelectTrigger className=" w-full">{(membersOptions || []).find((member) => member.value === field.value)?.label || 'Select'}</SelectTrigger>
                               <SelectContent>
+                                <SelectItem value="unassigned">Not Assigned</SelectItem>
                                 {membersOptions &&
                                   membersOptions.length > 0 &&
                                   membersOptions.map((option) => (
@@ -243,7 +249,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                               Due date
                               <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Set the deadline by which the task must be completed.</p>} />
                             </FormLabel>
-                            <CalendarPopover field={field} />
+                            <CalendarPopover field={field} disabledFrom={new Date()} />
                             {form.formState.errors.due && <p className="text-red-500 text-sm">{form.formState.errors.due.message}</p>}
                           </FormItem>
                         )}

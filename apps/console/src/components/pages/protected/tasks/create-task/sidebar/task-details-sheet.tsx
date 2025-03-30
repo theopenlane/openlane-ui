@@ -34,13 +34,14 @@ import { Value } from '@udecode/plate-common'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import EvidenceCreateFormDialog from '../../../evidence/evidence-create-form-dialog'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
+import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 
 const TaskDetailsSheet = () => {
   const [isEditing, setIsEditing] = useState(false)
   const [commentSortIsAsc, setCommentSortIsAsc] = useState<boolean>(true)
   const [tagValues, setTagValues] = useState<Option[]>([])
   const queryClient = useQueryClient()
-  const helper = usePlateEditor()
+  const plateEditorHelper = usePlateEditor()
   const taskTypeOptions = Object.values(TaskTypes)
   const statusOptions = Object.values(TaskTaskStatus)
   const searchParams = useSearchParams()
@@ -48,6 +49,7 @@ const TaskDetailsSheet = () => {
   const { selectedTask, setSelectedTask, orgMembers } = useTaskStore()
   const { successNotification, errorNotification } = useNotification()
   const [comments, setComments] = useState<TCommentData[]>([])
+  const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
 
   const { mutateAsync: updateTask } = useUpdateTask()
   const { data, isLoading: fetching } = useTask(selectedTask as string)
@@ -62,7 +64,7 @@ const TaskDetailsSheet = () => {
       form.reset({
         title: taskData.title ?? '',
         details: taskData.details ?? '',
-        due: new Date(taskData.due as string),
+        due: taskData.due ? new Date(taskData.due as string) : undefined,
         assigneeID: taskData.assignee?.id,
         category: taskData?.category ? Object.values(TaskTypes).find((type) => type === taskData?.category) : undefined,
         controlObjectiveIDs: taskData?.controlObjectives?.edges?.map((item) => item?.node?.id) || [],
@@ -125,10 +127,14 @@ const TaskDetailsSheet = () => {
 
   const handleSheetClose = () => {
     if (isEditing) {
-      const confirmClose = window.confirm('You have unsaved changes. Do you want to discard them?')
-      if (!confirmClose) return
+      setIsDiscardDialogOpen(true)
+      return
     }
 
+    handleCloseParams()
+  }
+
+  const handleCloseParams = () => {
     setSelectedTask(null)
     setIsEditing(false)
 
@@ -145,7 +151,7 @@ const TaskDetailsSheet = () => {
     let detailsField = data?.details
 
     if (detailsField) {
-      detailsField = await helper.convertToHtml(detailsField as Value)
+      detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
     }
 
     const taskObjects = data?.taskObjects?.reduce(
@@ -194,7 +200,7 @@ const TaskDetailsSheet = () => {
       {} as Record<string, string[]>,
     )
 
-    const taskObjectPayload = generatePayload(existingTaskObjects, taskObjects)
+    const taskObjectPayload = generatePayload(existingTaskObjects, taskObjects ?? {})
 
     const formData = {
       category: data?.category,
@@ -203,6 +209,7 @@ const TaskDetailsSheet = () => {
       details: detailsField,
       assigneeID: data?.assigneeID,
       status: data?.status,
+      clearAssignee: !data?.assigneeID,
       ...taskObjectPayload,
     }
 
@@ -271,17 +278,15 @@ const TaskDetailsSheet = () => {
     )
   }
 
-  const handleReassignComingSoon = () => {
-    alert('Reassign feature coming soon!')
-  }
-
   const handleSendComment = async (data: TComments) => {
     try {
+      const comment = await plateEditorHelper.convertToHtml(data.comment)
+
       await updateTask({
         updateTaskId: selectedTask as string,
         input: {
           addComment: {
-            text: data.comment,
+            text: comment,
           } as CreateNoteInput,
         },
       })
@@ -338,11 +343,6 @@ const TaskDetailsSheet = () => {
 
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
-                {!isEditing && (
-                  <SheetDescription>
-                    {taskData?.displayID} - {taskData?.category}
-                  </SheetDescription>
-                )}
                 <SheetTitle>
                   {isEditing ? (
                     <FormField
@@ -365,50 +365,53 @@ const TaskDetailsSheet = () => {
                     taskData?.title
                   )}
                 </SheetTitle>
-                <div className="pt-4">
-                  {isEditing ? (
-                    <FormField
-                      control={form.control}
-                      name="details"
-                      render={({ field }) => (
-                        <FormItem className="w-full">
-                          <div className="flex items-center">
-                            <FormLabel>Details</FormLabel>
-                            <SystemTooltip
-                              icon={<InfoIcon size={14} className="mx-1 mt-1" />}
-                              content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
-                            />
-                          </div>
-                          <FormControl>
-                            <PlateEditor onChange={handleDetailsChange} initialValue={taskData?.details ?? undefined} />
-                          </FormControl>
-                          {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors.details.message}</p>}
-                        </FormItem>
-                      )}
-                    />
-                  ) : (
-                    <div>{taskData?.details ? helper.convertToReadOnly(taskData.details) : ''}</div>
-                  )}
-                </div>
+                {isEditing ? (
+                  <FormField
+                    control={form.control}
+                    name="details"
+                    render={({ field }) => (
+                      <FormItem className="w-full pt-4">
+                        <div className="flex items-center">
+                          <FormLabel>Details</FormLabel>
+                          <SystemTooltip
+                            icon={<InfoIcon size={14} className="mx-1 mt-1" />}
+                            content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
+                          />
+                        </div>
+                        <FormControl>
+                          <PlateEditor onChange={handleDetailsChange} initialValue={taskData?.details ?? undefined} variant="basic" />
+                        </FormControl>
+                        {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors.details.message}</p>}
+                      </FormItem>
+                    )}
+                  />
+                ) : (
+                  <>{!!taskData?.details && <div>{plateEditorHelper.convertToReadOnly(taskData.details)}</div>}</>
+                )}
               </form>
             </Form>
 
             {!isEditing && (
-              <div className="mt-9 flex gap-4">
-                <Button icon={<FilePlus />} iconPosition="left">
-                  Upload File
-                </Button>
-                {taskData && <EvidenceCreateFormDialog taskData={{ taskId: taskData!.id, displayID: taskData!.displayID, tags: taskData!.tags ?? undefined }} />}
+              <div className="flex gap-4">
+                {taskData && (
+                  <EvidenceCreateFormDialog
+                    taskData={{
+                      taskId: taskData!.id,
+                      displayID: taskData!.displayID,
+                      tags: taskData!.tags ?? undefined,
+                      controlObjectiveIDs: taskData?.controlObjectives,
+                      subcontrolIDs: taskData?.subcontrols,
+                      programIDs: taskData?.programs,
+                    }}
+                  />
+                )}
                 <Button disabled={taskData?.status === TaskTaskStatus.COMPLETED} icon={<Check />} iconPosition="left" variant="outline" onClick={() => handleMarkAsComplete()}>
                   Mark as complete
-                </Button>
-                <Button icon={<SquareArrowRight />} iconPosition="left" variant="outline" onClick={handleReassignComingSoon}>
-                  Reassign
                 </Button>
               </div>
             )}
 
-            <div className="pb-8">
+            <div>
               <div className="flex flex-col gap-4 mt-5">
                 <div className="flex items-center gap-4">
                   <CircleUser height={16} width={16} className="text-accent-secondary" />
@@ -425,9 +428,15 @@ const TaskDetailsSheet = () => {
                       control={form.control}
                       render={({ field }) => (
                         <>
-                          <Select value={field.value} onValueChange={field.onChange}>
+                          <Select
+                            value={field.value || 'unassigned'}
+                            onValueChange={(value) => {
+                              field.onChange(value === 'unassigned' ? null : value || undefined)
+                            }}
+                          >
                             <SelectTrigger className="w-1/3">{(orgMembers || []).find((member) => member.value === field.value)?.label || 'Select'}</SelectTrigger>
                             <SelectContent>
+                              <SelectItem value="unassigned">Not Assigned</SelectItem>
                               {orgMembers &&
                                 orgMembers.length > 0 &&
                                 orgMembers.map((option) => (
@@ -455,7 +464,7 @@ const TaskDetailsSheet = () => {
                       control={form.control}
                       render={({ field }) => (
                         <>
-                          <CalendarPopover field={field} buttonClassName="w-1/3 flex justify-between items-center" />
+                          <CalendarPopover field={field} disabledFrom={new Date()} buttonClassName="w-1/3 flex justify-between items-center" />
                           {form.formState.errors.due && <p className="text-red-500 text-sm">{form.formState.errors.due.message}</p>}
                         </>
                       )}
@@ -583,7 +592,7 @@ const TaskDetailsSheet = () => {
         )}
         {!isEditing && (
           <>
-            <div className="mt-4 p-2 w-full">
+            <div className="p-2 w-full">
               <div className="flex justify-between items-end">
                 <p className="text-lg">Conversation</p>
                 <div className="flex items-center gap-1 text-right cursor-pointer" onClick={handleCommentSort}>
@@ -597,6 +606,14 @@ const TaskDetailsSheet = () => {
             <AddComment onSuccess={handleSendComment} />
           </>
         )}
+        <CancelDialog
+          isOpen={isDiscardDialogOpen}
+          onConfirm={() => {
+            setIsDiscardDialogOpen(false)
+            handleCloseParams()
+          }}
+          onCancel={() => setIsDiscardDialogOpen(false)}
+        />
       </SheetContent>
     </Sheet>
   )

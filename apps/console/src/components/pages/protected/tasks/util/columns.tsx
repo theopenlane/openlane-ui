@@ -28,7 +28,7 @@ export const taskColumns: ColumnDef<TTableDataResponse>[] = [
 
       return (
         <div className="flex items-center space-x-1">
-          <Avatar entity={row?.original?.assigner} />
+          <Avatar entity={row?.original?.assigner} className="w-[28px] h-[28px]" />
           <p>{fullName}</p>
         </div>
       )
@@ -46,7 +46,7 @@ export const taskColumns: ColumnDef<TTableDataResponse>[] = [
     header: 'Due Date',
     cell: ({ cell }) => {
       const value = cell.getValue() as string | null
-      return value ? format(new Date(value), 'd MMM, yyyy') : null
+      return value ? format(new Date(value), 'MMMM d, yyyy') : null
     },
   },
   {

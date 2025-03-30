@@ -11,13 +11,17 @@ const formSchema = z.object({
   description: z.string().optional(),
   tags: z.array(z.string().optional()),
   creationDate: z.date().default(new Date()),
-  renewalDate: z.date().min(new Date(), { message: 'Renewal date must be after start date' }).optional(),
+  renewalDate: z.date().min(new Date(), { message: 'Renewal date must be in the future' }).optional(),
   evidenceFiles: z.array(z.any()),
   controlObjectiveIDs: z.array(z.any()).optional(),
   url: z.string().url().optional(),
   collectionProcedure: z.string().optional(),
   source: z.string().optional(),
   fileIDs: z.array(z.string()).optional(),
+  subcontrolIDs: z.array(z.any()).optional().nullable(),
+  programIDs: z.array(z.any()).optional().nullable(),
+  controlIDs: z.array(z.any()).optional().nullable(),
+  taskIDs: z.array(z.any()).optional().nullable(),
 })
 
 export type CreateEvidenceFormData = z.infer<typeof formSchema>

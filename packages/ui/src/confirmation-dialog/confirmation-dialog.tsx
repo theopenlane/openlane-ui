@@ -7,9 +7,11 @@ type ConfirmationAlertProps = {
   onConfirm: () => void
   title?: string
   description?: string
+  confirmationText?: string
+  confirmationTextVariant?: 'filled' | 'white' | 'success' | 'light' | 'outline' | 'outlineLight' | 'outlineInput' | 'outlineInputPadding' | 'redOutline' | 'destructive' | 'back' | undefined
 }
 
-export const ConfirmationDialog = ({ open, onOpenChange, onConfirm, title, description }: ConfirmationAlertProps) => {
+export const ConfirmationDialog = ({ open, onOpenChange, onConfirm, title, description, confirmationText, confirmationTextVariant }: ConfirmationAlertProps) => {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
@@ -23,7 +25,7 @@ export const ConfirmationDialog = ({ open, onOpenChange, onConfirm, title, descr
           </AlertDialogCancel>
           <AlertDialogAction asChild>
             <Button
-              variant="destructive"
+              variant={confirmationTextVariant ?? 'destructive'}
               onClick={onConfirm}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
@@ -31,7 +33,7 @@ export const ConfirmationDialog = ({ open, onOpenChange, onConfirm, title, descr
                 }
               }}
             >
-              Delete
+              {confirmationText ?? 'Delete'}
             </Button>
           </AlertDialogAction>
         </AlertDialogFooter>

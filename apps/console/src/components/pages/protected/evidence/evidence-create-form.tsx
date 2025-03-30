@@ -18,10 +18,11 @@ import EvidenceObjectAssociation from '@/components/pages/protected/evidence/obj
 import { useNotification } from '@/hooks/useNotification'
 import { Option } from '@repo/ui/multiple-selector'
 import { useCreateEvidence } from '@/lib/graphql-hooks/evidence'
-import { TEvidenceObjectIds } from '@/components/pages/protected/evidence/object-association/types/TEvidenceObjectIds'
+import { TEvidenceObjectTypes } from '@/components/pages/protected/evidence/object-association/types/TEvidenceObjectTypes.ts'
+import { TTaskDataEvidence } from '@/components/pages/protected/evidence/types/TTaskDataEvidence.ts'
 
 type TProps = {
-  taskData?: { taskId: string; displayID: string; tags?: string[] }
+  taskData?: TTaskDataEvidence
   onEvidenceCreateSuccess?: () => void
 }
 
@@ -31,11 +32,13 @@ const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
   const [tagValues, setTagValues] = useState<Option[]>([])
   const [resetEvidenceFiles, setResetEvidenceFiles] = useState(false)
   const [resetObjectAssociation, setResetObjectAssociation] = useState(false)
+  const [evidenceObjectTypes, setEvidenceObjectTypes] = useState<TEvidenceObjectTypes[]>([])
+  const [preselectedObjectTypes, setPreselectedObjectTypes] = useState<string[]>([])
   const { data: sessionData } = useSession()
   const { mutateAsync: createEvidence, isPending } = useCreateEvidence()
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
-    const controlObjectives = data?.controlObjectiveIDs?.reduce(
+    const controlObjectives = evidenceObjectTypes?.reduce(
       (acc, item) => {
         acc[item.inputName] = item.objectIds
         return acc
@@ -54,6 +57,7 @@ const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
         collectionProcedure: data.collectionProcedure,
         source: data.source,
         fileIDs: data.fileIDs,
+        taskIDs: data?.taskIDs,
         ...(data.url ? { url: data.url } : {}),
         ...controlObjectives,
       } as CreateEvidenceInput,
@@ -66,6 +70,7 @@ const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
         title: 'Evidence Created',
         description: `Evidence has been successfully created`,
       })
+      props?.onEvidenceCreateSuccess && props.onEvidenceCreateSuccess()
     } catch {
       errorNotification({
         title: 'Error',
@@ -81,6 +86,19 @@ const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
   useEffect(() => {
     if (props.taskData) {
       form.setValue('name', `Evidence for ${props.taskData.displayID}`)
+      form.setValue('controlObjectiveIDs', props.taskData?.controlObjectiveIDs?.edges?.map((item: any) => item?.node?.id) || [])
+      form.setValue('subcontrolIDs', props.taskData?.subcontrolIDs?.edges?.map((item: any) => item?.node?.id) || [])
+      form.setValue('programIDs', props.taskData?.programIDs?.edges?.map((item: any) => item?.node?.id) || [])
+      form.setValue('controlIDs', props.taskData?.controlIDs?.edges?.map((item: any) => item?.node?.id) || [])
+      form.setValue('taskIDs', props.taskData?.taskId ? [props.taskData.taskId] : [])
+      setPreselectedObjectTypes([
+        ...(props.taskData?.controlObjectiveIDs?.edges?.map((item: any) => item?.node?.displayID) || []),
+        ...(props.taskData?.subcontrolIDs?.edges?.map((item: any) => item?.node?.displayID) || []),
+        ...(props.taskData?.programIDs?.edges?.map((item: any) => item?.node?.displayID) || []),
+        ...(props.taskData?.controlIDs?.edges?.map((item: any) => item?.node?.displayID) || []),
+        props.taskData?.displayID,
+      ])
+
       if (props.taskData?.tags) {
         form.setValue('tags', props.taskData.tags)
         const tags = props.taskData.tags.map((item) => {
@@ -94,8 +112,8 @@ const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
     }
   }, [])
 
-  const handleEvidenceObjectIdsChange = (evidenceObjectIds: TEvidenceObjectIds[]) => {
-    form.setValue('controlObjectiveIDs', evidenceObjectIds)
+  const handleEvidenceObjectIdsChange = (evidenceObjectTypes: TEvidenceObjectTypes[]) => {
+    setEvidenceObjectTypes(evidenceObjectTypes)
   }
 
   const handleUploadedFiles = (evidenceFiles: TUploadedFile[]) => {
@@ -294,6 +312,8 @@ const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
                 onEvidenceObjectIdsChange={handleEvidenceObjectIdsChange}
                 resetObjectAssociation={resetObjectAssociation}
                 setResetObjectAssociation={handleResetObjectAssociation}
+                form={props.taskData && form}
+                preselectedObjectDisplayIDs={preselectedObjectTypes}
               />
             </div>
           </div>

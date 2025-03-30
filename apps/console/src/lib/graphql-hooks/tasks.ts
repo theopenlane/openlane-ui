@@ -18,13 +18,13 @@ import {
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 
-export const useTasksWithFilter = (where?: TasksWithFilterQueryVariables['where']) => {
+export const useTasksWithFilter = (where?: TasksWithFilterQueryVariables['where'], orderBy?: TasksWithFilterQueryVariables['orderBy']) => {
   const { client } = useGraphQLClient()
 
   return useQuery<TasksWithFilterQuery, unknown>({
-    queryKey: ['tasks', where],
-    queryFn: async () => client.request(TASKS_WITH_FILTER, { where }),
-    enabled: where !== undefined,
+    queryKey: ['tasks', { where, orderBy }],
+    queryFn: async () => client.request(TASKS_WITH_FILTER, { where, orderBy }),
+    enabled: Boolean(where || orderBy),
   })
 }
 

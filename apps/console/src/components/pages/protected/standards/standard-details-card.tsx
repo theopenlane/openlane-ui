@@ -30,7 +30,7 @@ const StandardDetailsCard = () => {
 
   const details = [
     { label: 'Short name', value: standard.shortName, icon: icons.shortName },
-    { label: 'Governing body', value: standard.standardType, icon: icons.governingBody },
+    { label: 'Governing body', value: standard.governingBody, icon: icons.governingBody },
     { label: 'Framework', value: standard.framework, icon: icons.framework },
     { label: 'Version', value: standard.version, icon: icons.version },
     { label: 'Revision', value: standard.revision, icon: icons.revision },
