@@ -75,7 +75,7 @@ export const OrganizationInvites = () => {
     },
     {
       accessorKey: 'sendAttempts',
-      header: 'Send Attempts',
+      header: 'Resend Attempts',
       cell: ({ cell }) => `${cell.getValue() || 0}/5`,
     },
     {
