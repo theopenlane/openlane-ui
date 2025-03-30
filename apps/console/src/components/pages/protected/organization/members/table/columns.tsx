@@ -57,7 +57,7 @@ export const invitesColumns: ColumnDef<InviteNode>[] = [
   },
   {
     accessorKey: 'sendAttempts',
-    header: 'Send Attempts',
+    header: 'Resend Attempts',
     cell: ({ cell }) => `${cell.getValue() || 0}/5`,
   },
   {
