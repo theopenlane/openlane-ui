@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation'
 import { useDebounce } from '@uidotdev/usehooks'
 import { SearchIcon } from 'lucide-react'
 import { Input } from '@repo/ui/input'
+import { Badge } from '@repo/ui/badge'
 
 const RiskTablePage: React.FC = () => {
   const { replace } = useRouter()
@@ -43,13 +44,13 @@ const RiskTablePage: React.FC = () => {
         const tags = row.original.tags || []
         return (
           <div>
-            <pre className="whitespace-pre-wrap text-sm">{details}</pre>
-            {tags.length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-1">
-                {tags.map((tag, i) => (
-                  <span key={i} className="bg-muted text-xs text-muted-foreground px-2 py-1 rounded-full">
+            <p>{details}</p>
+            {!!tags.length && (
+              <div className="mt-2 border-t border-dotted pt-2 flex flex-wrap gap-2">
+                {tags.map((tag: string, index: number) => (
+                  <Badge key={index} variant="outline">
                     {tag}
-                  </span>
+                  </Badge>
                 ))}
               </div>
             )}
