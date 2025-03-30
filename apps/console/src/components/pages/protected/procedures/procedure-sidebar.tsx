@@ -6,7 +6,7 @@ import { UserRoundCheck, Binoculars, FileStack, ScrollText, Tag, CalendarCheck2,
 import { Badge } from '@repo/ui/badge'
 import { MetaPanel, formatTime, MetaPanelEntry } from '@/components/shared/meta-panel/meta-panel'
 import { UserChip } from '@/components/shared/user-chip/user-chip'
-import { useGetUserProfile } from '@/lib/graphql-hooks/user'
+import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
 
 type ProcedureSidebarProps = {
   procedure: Procedure
@@ -15,9 +15,9 @@ type ProcedureSidebarProps = {
 export const ProcedureSidebar: React.FC<ProcedureSidebarProps> = function ({ procedure }) {
   if (!procedure) return null
 
-  const { data: createdByUser } = useGetUserProfile(procedure.createdBy)
+  const { data: createdByUser } = useGetCurrentUser(procedure.createdBy)
 
-  const { data: updatedByUser } = useGetUserProfile(procedure.updatedBy)
+  const { data: updatedByUser } = useGetCurrentUser(procedure.updatedBy)
 
   const sidebarItems: Record<string, MetaPanelEntry[]> = useMemo(() => {
     return {

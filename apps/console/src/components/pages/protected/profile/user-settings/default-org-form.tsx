@@ -10,7 +10,7 @@ import { Button } from '@repo/ui/button'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@repo/ui/select'
 import { RESET_SUCCESS_STATE_MS } from '@/constants'
-import { useGetUserProfile, useUpdateUserSetting } from '@/lib/graphql-hooks/user'
+import { useGetCurrentUser, useUpdateUserSetting } from '@/lib/graphql-hooks/user'
 import { useGetAllOrganizations } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
 
@@ -20,7 +20,7 @@ const DefaultOrgForm = () => {
   const { data: sessionData } = useSession()
   const userId = sessionData?.user.userId
 
-  const { data: userData } = useGetUserProfile(userId)
+  const { data: userData } = useGetCurrentUser(userId)
   const { data: orgsData } = useGetAllOrganizations()
   const allOrgs = orgsData?.organizations?.edges?.filter((org) => !org?.node?.personalOrg) || []
 

@@ -30097,12 +30097,23 @@ export type GetAllControlObjectivesQuery = {
 export type ControlFieldsFragment = {
   __typename?: 'Control'
   id: string
-  displayID: string
   category?: string | null
   refCode: string
   subcategory?: string | null
-  description?: string | null
   mappedCategories?: Array<string> | null
+  status?: string | null
+  tags?: Array<string> | null
+  description?: string | null
+  implementationGuidance?: Array<any> | null
+  exampleEvidence?: Array<any> | null
+  controlQuestions?: Array<string> | null
+  assessmentMethods?: Array<any> | null
+  assessmentObjectives?: Array<any> | null
+  createdBy?: string | null
+  updatedBy?: string | null
+  updatedAt?: any | null
+  createdAt?: any | null
+  owner?: { __typename?: 'Organization'; users?: Array<{ __typename?: 'User'; avatarRemoteURL?: string | null; firstName?: string | null; lastName?: string | null }> | null } | null
   subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
 }
 
@@ -30119,15 +30130,56 @@ export type GetAllControlsQuery = {
       node?: {
         __typename?: 'Control'
         id: string
-        displayID: string
         category?: string | null
         refCode: string
         subcategory?: string | null
-        description?: string | null
         mappedCategories?: Array<string> | null
+        status?: string | null
+        tags?: Array<string> | null
+        description?: string | null
+        implementationGuidance?: Array<any> | null
+        exampleEvidence?: Array<any> | null
+        controlQuestions?: Array<string> | null
+        assessmentMethods?: Array<any> | null
+        assessmentObjectives?: Array<any> | null
+        createdBy?: string | null
+        updatedBy?: string | null
+        updatedAt?: any | null
+        createdAt?: any | null
+        owner?: { __typename?: 'Organization'; users?: Array<{ __typename?: 'User'; avatarRemoteURL?: string | null; firstName?: string | null; lastName?: string | null }> | null } | null
         subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
       } | null
     } | null> | null
+  }
+}
+
+export type GetControlByIdQueryVariables = Exact<{
+  controlId: Scalars['ID']['input']
+}>
+
+export type GetControlByIdQuery = {
+  __typename?: 'Query'
+  control: {
+    __typename?: 'Control'
+    id: string
+    category?: string | null
+    refCode: string
+    subcategory?: string | null
+    mappedCategories?: Array<string> | null
+    status?: string | null
+    tags?: Array<string> | null
+    description?: string | null
+    implementationGuidance?: Array<any> | null
+    exampleEvidence?: Array<any> | null
+    controlQuestions?: Array<string> | null
+    assessmentMethods?: Array<any> | null
+    assessmentObjectives?: Array<any> | null
+    createdBy?: string | null
+    updatedBy?: string | null
+    updatedAt?: any | null
+    createdAt?: any | null
+    owner?: { __typename?: 'Organization'; users?: Array<{ __typename?: 'User'; avatarRemoteURL?: string | null; firstName?: string | null; lastName?: string | null }> | null } | null
+    subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
   }
 }
 

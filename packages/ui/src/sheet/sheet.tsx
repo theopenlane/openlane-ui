@@ -49,10 +49,6 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
         <div className="sr-only">Sheet Title</div>
       </DialogTitle>
       {children}
-      <SheetPrimitive.Close className="absolute left-6 top-6 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-secondary">
-        <ArrowRight className="h-4 w-4" />
-        <span className="sr-only">Close</span>
-      </SheetPrimitive.Close>
     </SheetPrimitive.Content>
   </SheetPortal>
 ))
