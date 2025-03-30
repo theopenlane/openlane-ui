@@ -60,7 +60,7 @@ export const InviteActions = ({ inviteId, recipient, role }: InviteActionsProps)
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger asChild className="flex justify-self-end">
         <MoreHorizontal className={actionIcon()} />
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-10">

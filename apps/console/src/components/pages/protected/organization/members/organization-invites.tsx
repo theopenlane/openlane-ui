@@ -74,17 +74,17 @@ export const OrganizationInvites = () => {
       header: 'Role',
     },
     {
+      accessorKey: 'sendAttempts',
+      header: 'Send Attempts',
+      cell: ({ cell }) => `${cell.getValue() || 0}/5`,
+    },
+    {
       accessorKey: 'id',
       header: '',
       cell: ({ row }) => {
         const invite = row.original
         return <InviteActions inviteId={invite.id} recipient={invite.recipient} role={invite.role} />
       },
-    },
-    {
-      accessorKey: 'sendAttempts',
-      header: 'Send Attempts',
-      cell: ({ cell }) => `${cell.getValue() || 0}/5`,
     },
   ]
 
