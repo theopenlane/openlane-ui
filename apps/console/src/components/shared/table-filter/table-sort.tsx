@@ -16,6 +16,10 @@ export const TableSort = <T extends string>({ sortFields, onSortChange }: TableS
   const { prefixes, columnName, operator } = tableFilterStyles()
 
   useEffect(() => {
+    if (!sortFields) {
+      return
+    }
+
     const defaultField = sortFields.find((field) => field.default)
     if (!defaultField) {
       return
@@ -43,7 +47,9 @@ export const TableSort = <T extends string>({ sortFields, onSortChange }: TableS
   }, [sortConditions])
 
   const addSortCondition = () => {
-    if (!sortFields.length) return
+    if (!sortFields?.length) {
+      return
+    }
 
     const firstNonDefaultField = sortFields.find((field) => !field.default)
     if (firstNonDefaultField) {

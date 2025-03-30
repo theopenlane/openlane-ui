@@ -22,7 +22,7 @@ export const OrganizationInvitesTable = () => {
   const [orderBy, setOrderBy] = useState<GetInvitesQueryVariables['orderBy']>([
     {
       field: InviteOrderField.created_at,
-      direction: OrderDirection.ASC,
+      direction: OrderDirection.DESC,
     },
   ])
 

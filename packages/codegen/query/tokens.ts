@@ -11,8 +11,8 @@ export const CREATE_PERSONAL_ACCESS_TOKEN = gql`
 `
 
 export const GET_PERSONAL_ACCESS_TOKENS = gql`
-  query GetPersonalAccessTokens {
-    personalAccessTokens {
+  query GetPersonalAccessTokens($where: PersonalAccessTokenWhereInput, $orderBy: [PersonalAccessTokenOrder!]) {
+    personalAccessTokens(where: $where, orderBy: $orderBy) {
       edges {
         node {
           id
@@ -52,8 +52,8 @@ export const CREATE_API_TOKEN = gql`
 `
 
 export const GET_API_TOKENS = gql`
-  query GetAPITokens {
-    apiTokens {
+  query GetAPITokens($where: APITokenWhereInput, $orderBy: [APITokenOrder!]) {
+    apiTokens(where: $where, orderBy: $orderBy) {
       edges {
         node {
           id

@@ -1,16 +1,25 @@
 'use client'
 
-import { GetApiTokensQuery, GetPersonalAccessTokensQuery, PersonalAccessTokenEdge } from '@repo/codegen/src/schema'
+import {
+  GetApiTokensQuery,
+  GetApiTokensQueryVariables,
+  GetPersonalAccessTokensQuery,
+  GetPersonalAccessTokensQueryVariables,
+  OrderDirection,
+  PersonalAccessTokenOrderField,
+} from '@repo/codegen/src/schema'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
-import { TokenAction } from './actions/pat-actions'
 import { KeyRound } from 'lucide-react'
-import { personalAccessTokenTableStyles } from './personal-access-tokens-table-styles'
-import PersonalApiKeyDialog from './personal-access-token-create-dialog'
 import { usePathname } from 'next/navigation'
 import { TableCell, TableRow } from '@repo/ui/table'
 import { useGetApiTokens, useGetPersonalAccessTokens } from '@/lib/graphql-hooks/tokens'
+import PersonalAccessTokensTableToolbar from '@/components/pages/protected/developers/table/personal-access-tokens-table-toolbar.tsx'
+import { useMemo, useState } from 'react'
+import { personalAccessTokenTableStyles } from '../personal-access-tokens-table-styles'
+import { TokenAction } from '@/components/pages/protected/developers/actions/pat-actions.tsx'
+import PersonalApiKeyDialog from '../personal-access-token-create-dialog'
 
 type TokenNode = {
   id: string
@@ -27,7 +36,34 @@ export const PersonalAccessTokenTable = () => {
 
   const { tableRow, keyIcon, message } = personalAccessTokenTableStyles()
 
-  const { data, isError } = isOrg ? useGetApiTokens() : useGetPersonalAccessTokens()
+  type CommonWhereType = GetPersonalAccessTokensQueryVariables['where'] | GetApiTokensQueryVariables['where']
+
+  type CommonOrderByType = Array<{
+    field: PersonalAccessTokenOrderField | any
+    direction: OrderDirection
+  }>
+
+  const [filters, setFilters] = useState<CommonWhereType>({})
+  const [orderBy, setOrderBy] = useState<CommonOrderByType>([
+    {
+      field: PersonalAccessTokenOrderField.expires_at,
+      direction: OrderDirection.ASC,
+    },
+  ])
+
+  const whereFilter = useMemo(() => {
+    return { ...filters } as CommonWhereType
+  }, [filters])
+
+  const orderByFilter = useMemo(() => {
+    return orderBy.length > 0 ? orderBy : undefined
+  }, [orderBy])
+
+  //@todo add these when orders will be implemented
+  //orderByFilter as GetApiTokensQueryVariables['orderBy']
+  //orderByFilter as GetPersonalAccessTokensQueryVariables['orderBy']
+
+  const { data, isError } = isOrg ? useGetApiTokens(whereFilter) : useGetPersonalAccessTokens(whereFilter)
 
   if (isError || !data) return null
 
@@ -93,21 +129,24 @@ export const PersonalAccessTokenTable = () => {
   ]
 
   return (
-    <DataTable
-      columns={columns}
-      data={tokens}
-      noResultsText="No tokens found"
-      noDataMarkup={
-        <TableRow className={tableRow()}>
-          <TableCell colSpan={columns.length}>
-            <div className="flex flex-col justify-center items-center">
-              <KeyRound height={89} width={89} className={keyIcon()} strokeWidth={1} color="#DAE3E7" />
-              <p className={message()}> No tokens found</p>
-              <PersonalApiKeyDialog triggerText />
-            </div>
-          </TableCell>
-        </TableRow>
-      }
-    />
+    <>
+      <PersonalAccessTokensTableToolbar onFilterChange={setFilters} onSortChange={setOrderBy} />
+      <DataTable
+        columns={columns}
+        data={tokens}
+        noResultsText="No tokens found"
+        noDataMarkup={
+          <TableRow className={tableRow()}>
+            <TableCell colSpan={columns.length}>
+              <div className="flex flex-col justify-center items-center">
+                <KeyRound height={89} width={89} className={keyIcon()} strokeWidth={1} color="#DAE3E7" />
+                <p className={message()}> No tokens found</p>
+                <PersonalApiKeyDialog triggerText />
+              </div>
+            </TableCell>
+          </TableRow>
+        }
+      />
+    </>
   )
 }

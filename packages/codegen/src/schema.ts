@@ -31367,7 +31367,10 @@ export type CreatePersonalAccessTokenMutation = {
   createPersonalAccessToken: { __typename?: 'PersonalAccessTokenCreatePayload'; personalAccessToken: { __typename?: 'PersonalAccessToken'; token: string } }
 }
 
-export type GetPersonalAccessTokensQueryVariables = Exact<{ [key: string]: never }>
+export type GetPersonalAccessTokensQueryVariables = Exact<{
+  where?: InputMaybe<PersonalAccessTokenWhereInput>
+  orderBy?: InputMaybe<Array<PersonalAccessTokenOrder> | PersonalAccessTokenOrder>
+}>
 
 export type GetPersonalAccessTokensQuery = {
   __typename?: 'Query'
@@ -31402,7 +31405,10 @@ export type CreateApiTokenMutationVariables = Exact<{
 
 export type CreateApiTokenMutation = { __typename?: 'Mutation'; createAPIToken: { __typename?: 'APITokenCreatePayload'; apiToken: { __typename?: 'APIToken'; token: string } } }
 
-export type GetApiTokensQueryVariables = Exact<{ [key: string]: never }>
+export type GetApiTokensQueryVariables = Exact<{
+  where?: InputMaybe<ApiTokenWhereInput>
+  orderBy?: InputMaybe<Array<ApiTokenOrder> | ApiTokenOrder>
+}>
 
 export type GetApiTokensQuery = {
   __typename?: 'Query'
