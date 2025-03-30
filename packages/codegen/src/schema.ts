@@ -30915,12 +30915,57 @@ export type GetProgramDetailsByIdQuery = {
   }
 }
 
+export type RiskFieldsFragment = {
+  __typename?: 'Risk'
+  id: string
+  displayID: string
+  name: string
+  details?: string | null
+  tags?: Array<string> | null
+  category?: string | null
+  riskType?: string | null
+  score?: number | null
+  status?: RiskRiskStatus | null
+  businessCosts?: string | null
+  likelihood?: RiskRiskLikelihood | null
+  impact?: RiskRiskImpact | null
+  mitigation?: string | null
+  controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
+}
+
+export type GetRiskByIdQueryVariables = Exact<{
+  riskId: Scalars['ID']['input']
+}>
+
+export type GetRiskByIdQuery = {
+  __typename?: 'Query'
+  risk: {
+    __typename?: 'Risk'
+    id: string
+    displayID: string
+    name: string
+    details?: string | null
+    tags?: Array<string> | null
+    category?: string | null
+    riskType?: string | null
+    score?: number | null
+    status?: RiskRiskStatus | null
+    businessCosts?: string | null
+    likelihood?: RiskRiskLikelihood | null
+    impact?: RiskRiskImpact | null
+    mitigation?: string | null
+    controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
+  }
+}
+
 export type GetAllRisksQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetAllRisksQuery = {
   __typename?: 'Query'
   risks: {
     __typename?: 'RiskConnection'
+    totalCount: number
+    pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; hasPreviousPage: boolean }
     edges?: Array<{
       __typename?: 'RiskEdge'
       node?: {
@@ -30928,14 +30973,28 @@ export type GetAllRisksQuery = {
         id: string
         displayID: string
         name: string
+        details?: string | null
+        tags?: Array<string> | null
+        category?: string | null
+        riskType?: string | null
+        score?: number | null
+        status?: RiskRiskStatus | null
         businessCosts?: string | null
         likelihood?: RiskRiskLikelihood | null
         impact?: RiskRiskImpact | null
+        mitigation?: string | null
         controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
       } | null
     } | null> | null
   }
 }
+
+export type UpdateRiskMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+  input: UpdateRiskInput
+}>
+
+export type UpdateRiskMutation = { __typename?: 'Mutation'; updateRisk: { __typename?: 'RiskUpdatePayload'; risk: { __typename?: 'Risk'; id: string } } }
 
 export type SearchQueryVariables = Exact<{
   query: Scalars['String']['input']
