@@ -114,17 +114,17 @@ export const PersonalAccessTokenTable = () => {
           },
         },
     {
+      accessorKey: 'id',
+      header: '',
+      cell: ({ cell }) => <TokenAction tokenId={cell.getValue() as string} />,
+    },
+    {
       accessorKey: 'expiresAt',
       header: 'Expires',
       cell: ({ cell }) => {
         const value = cell.getValue() as string | null
         return value ? format(new Date(value), 'd MMM yyyy') : 'Never'
       },
-    },
-    {
-      accessorKey: 'id',
-      header: '',
-      cell: ({ cell }) => <TokenAction tokenId={cell.getValue() as string} />,
     },
   ]
 
