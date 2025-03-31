@@ -5,14 +5,16 @@ import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { DataTable } from '@repo/ui/data-table'
 import { Sheet, SheetContent } from '@repo/ui/sheet'
-import { ColumnDef } from '@tanstack/table-core'
 import { DownloadIcon, PencilIcon } from 'lucide-react'
 import React, { useState } from 'react'
+import { ControlOrderField, GetAllControlsQueryVariables, OrderDirection } from '@repo/codegen/src/schema.ts'
+import ControlsTableToolbar from '@/components/pages/protected/controls/table/controls-table-toolbar.tsx'
+import { controlColumns } from '@/components/pages/protected/controls/table/columns.tsx'
 
 // Sample data
-const data = [
+const data: any[] = [
   {
-    name: 'CC1.2',
+    displayID: 'CC1.2',
     ref: 'CC1.2',
     description: 'The board of directors demonstrates independence from management and exercises oversight of the development and performance of internal control. (COSO Principle 2)',
     tags: ['Security', 'CC1.2', 'Control Environment'],
@@ -24,7 +26,7 @@ const data = [
     owners: [{ avatar: '/path/to/avatar1.png', fallback: 'K' }],
   },
   {
-    name: 'CC1.3',
+    displayID: 'CC1.3',
     ref: 'CC1.3',
     description: 'Management establishes, with board oversight, structures, reporting lines, and appropriate authorities and responsibilities. (COSO Principle 3)',
     tags: ['Governance', 'CC1.3'],
@@ -37,83 +39,45 @@ const data = [
   },
 ]
 
-// Columns definition
-const columns: ColumnDef<any>[] = [
-  {
-    header: 'Name',
-    accessorKey: 'name',
-    cell: ({ row }) => <div>{row.getValue('name')}</div>,
-  },
-  {
-    header: 'Ref',
-    accessorKey: 'ref',
-    cell: ({ row }) => <div>{row.getValue('ref')}</div>,
-  },
-  {
-    header: 'Description',
-    accessorKey: 'description',
-    cell: ({ row }) => (
-      <div>
-        <p>{row.getValue('description')}</p>
-        <div className="mt-2 border-t border-dotted pt-2 flex flex-wrap gap-2">
-          {row.original.tags.map((tag: string, index: number) => (
-            <Badge key={index} variant="outline">
-              {tag}
-            </Badge>
-          ))}
-        </div>
-      </div>
-    ),
-  },
-  {
-    header: 'Status',
-    accessorKey: 'status',
-    cell: ({ row }) => <span className="flex items-center gap-2">{row.getValue('status')}</span>,
-  },
-  {
-    header: 'Owners',
-    accessorKey: 'owners',
-    cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-        {/* @ts-ignore */}
-        {row.getValue('owners').map((owner: any, index: number) => (
-          <Avatar key={index}>
-            <AvatarImage src={owner.avatar} alt={owner.fallback} />
-            <AvatarFallback>{owner.fallback}</AvatarFallback>
-          </Avatar>
-        ))}
-      </div>
-    ),
-  },
-]
-
-// CSV export utility
-const exportToCSV = (data: any[], fileName: string) => {
-  const csvRows = []
-
-  csvRows.push(['Name', 'Ref', 'Description', 'Tags', 'Status', 'Owners'].join(','))
-
-  data.forEach((row) => {
-    const owners = row.owners.map((o: any) => o.fallback).join(' | ')
-    csvRows.push([row.name, row.ref, row.description, row.tags.join('; '), row.status, owners].join(','))
-  })
-
-  const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `${fileName}.csv`
-  a.click()
-  URL.revokeObjectURL(url)
-}
-
 const ControlsTable: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
   const [isSheetOpen, setSheetOpen] = useState(false)
   const [currentRow, setCurrentRow] = useState<any>(null)
+  const [filters, setFilters] = useState<Record<string, any>>({})
+  //@todo for Bruno. This should be ordered by ref desc (Currently missing in controlOrderField
+  const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>([
+    {
+      field: ControlOrderField.ref_code,
+      direction: OrderDirection.DESC,
+    },
+  ])
 
   const handleRowClick = (row: any) => {
     setCurrentRow(row)
     setSheetOpen(true)
+  }
+
+  const handleTabChange = (tab: 'table' | 'card') => {
+    setActiveTab(tab)
+  }
+
+  const exportToCSV = (data: any[], fileName: string) => {
+    const csvRows = []
+
+    csvRows.push(['Name', 'Ref', 'Description', 'Tags', 'Status', 'Owners'].join(','))
+
+    data.forEach((row) => {
+      const owners = row.owners.map((o: any) => o.fallback).join(' | ')
+      csvRows.push([row.name, row.ref, row.description, row.tags.join('; '), row.status, owners].join(','))
+    })
+
+    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${fileName}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
   }
 
   return (
@@ -124,7 +88,8 @@ const ControlsTable: React.FC = () => {
           Export
         </Button>
       </div>
-      <DataTable columns={columns} data={data} onRowClick={(row: any) => handleRowClick(row)} />
+      <ControlsTableToolbar onFilterChange={setFilters} onSortChange={setOrderBy} onTabChange={handleTabChange} />
+      <DataTable columns={controlColumns} data={data} onRowClick={(row: any) => handleRowClick(row)} />
       <Sheet open={isSheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent>
           {currentRow && (
@@ -170,7 +135,7 @@ const ControlsTable: React.FC = () => {
 
               {/* Tags Section */}
               <div className="mt-4">
-                <h3 className="text-xl font-medium font-bold">Tags</h3>
+                <h3 className="text-xl font-medium">Tags</h3>
                 <div className="flex gap-2 mt-2">
                   {currentRow.tags.map((tag: string, index: number) => (
                     <Badge key={index} variant="outline">

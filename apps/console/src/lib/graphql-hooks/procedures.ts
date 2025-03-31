@@ -35,12 +35,12 @@ export const useGetAllProceduresWithDetails = () => {
   })
 }
 
-export const useGetAllProcedures = (where?: GetAllProceduresQueryVariables['where']) => {
+export const useGetAllProcedures = (where?: GetAllProceduresQueryVariables['where'], orderBy?: GetAllProceduresQueryVariables['orderBy']) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetAllProceduresQuery>({
-    queryKey: ['procedures', where],
-    queryFn: () => client.request(GET_ALL_PROCEDURES, { where }),
+    queryKey: ['procedures', { where, orderBy }],
+    queryFn: () => client.request(GET_ALL_PROCEDURES, { where, orderBy }),
     enabled: where !== undefined,
   })
 }

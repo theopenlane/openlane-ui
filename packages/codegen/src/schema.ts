@@ -30108,6 +30108,7 @@ export type ControlFieldsFragment = {
 
 export type GetAllControlsQueryVariables = Exact<{
   where?: InputMaybe<ControlWhereInput>
+  orderBy?: InputMaybe<Array<ControlOrder> | ControlOrder>
 }>
 
 export type GetAllControlsQuery = {
@@ -30198,6 +30199,7 @@ export type GetAllEvidencesQuery = {
 
 export type GetAllGroupsQueryVariables = Exact<{
   where?: InputMaybe<GroupWhereInput>
+  orderBy?: InputMaybe<Array<GroupOrder> | GroupOrder>
 }>
 
 export type GetAllGroupsQuery = {
@@ -30444,7 +30446,10 @@ export type GetAllOrganizationsWithMembersQuery = {
   }
 }
 
-export type GetInvitesQueryVariables = Exact<{ [key: string]: never }>
+export type GetInvitesQueryVariables = Exact<{
+  where?: InputMaybe<InviteWhereInput>
+  orderBy?: InputMaybe<Array<InviteOrder> | InviteOrder>
+}>
 
 export type GetInvitesQuery = {
   __typename?: 'Query'
@@ -30569,7 +30574,10 @@ export type DeleteInternalPolicyMutationVariables = Exact<{
 
 export type DeleteInternalPolicyMutation = { __typename?: 'Mutation'; deleteInternalPolicy: { __typename?: 'InternalPolicyDeletePayload'; deletedID: string } }
 
-export type GetInternalPoliciesListQueryVariables = Exact<{ [key: string]: never }>
+export type GetInternalPoliciesListQueryVariables = Exact<{
+  orderBy?: InputMaybe<Array<InternalPolicyOrder> | InternalPolicyOrder>
+  where?: InputMaybe<InternalPolicyWhereInput>
+}>
 
 export type GetInternalPoliciesListQuery = {
   __typename?: 'Query'
@@ -30712,6 +30720,7 @@ export type GetAllProceduresWithDetailsQuery = {
 
 export type GetAllProceduresQueryVariables = Exact<{
   where?: InputMaybe<ProcedureWhereInput>
+  orderBy?: InputMaybe<Array<ProcedureOrder> | ProcedureOrder>
 }>
 
 export type GetAllProceduresQuery = {
@@ -31101,7 +31110,10 @@ export type CreateSubscriberMutationVariables = Exact<{
 
 export type CreateSubscriberMutation = { __typename?: 'Mutation'; createSubscriber: { __typename?: 'SubscriberCreatePayload'; subscriber: { __typename?: 'Subscriber'; email: string } } }
 
-export type GetAllSubscribersQueryVariables = Exact<{ [key: string]: never }>
+export type GetAllSubscribersQueryVariables = Exact<{
+  where?: InputMaybe<SubscriberWhereInput>
+  orderBy?: InputMaybe<Array<SubscriberOrder> | SubscriberOrder>
+}>
 
 export type GetAllSubscribersQuery = {
   __typename?: 'Query'
@@ -31320,6 +31332,7 @@ export type GetAllTemplatesQuery = {
 
 export type FilterTemplatesQueryVariables = Exact<{
   where?: InputMaybe<TemplateWhereInput>
+  orderBy?: InputMaybe<Array<TemplateOrder> | TemplateOrder>
 }>
 
 export type FilterTemplatesQuery = {
@@ -31413,7 +31426,10 @@ export type CreatePersonalAccessTokenMutation = {
   createPersonalAccessToken: { __typename?: 'PersonalAccessTokenCreatePayload'; personalAccessToken: { __typename?: 'PersonalAccessToken'; token: string } }
 }
 
-export type GetPersonalAccessTokensQueryVariables = Exact<{ [key: string]: never }>
+export type GetPersonalAccessTokensQueryVariables = Exact<{
+  where?: InputMaybe<PersonalAccessTokenWhereInput>
+  orderBy?: InputMaybe<Array<PersonalAccessTokenOrder> | PersonalAccessTokenOrder>
+}>
 
 export type GetPersonalAccessTokensQuery = {
   __typename?: 'Query'
@@ -31448,7 +31464,10 @@ export type CreateApiTokenMutationVariables = Exact<{
 
 export type CreateApiTokenMutation = { __typename?: 'Mutation'; createAPIToken: { __typename?: 'APITokenCreatePayload'; apiToken: { __typename?: 'APIToken'; token: string } } }
 
-export type GetApiTokensQueryVariables = Exact<{ [key: string]: never }>
+export type GetApiTokensQueryVariables = Exact<{
+  where?: InputMaybe<ApiTokenWhereInput>
+  orderBy?: InputMaybe<Array<ApiTokenOrder> | ApiTokenOrder>
+}>
 
 export type GetApiTokensQuery = {
   __typename?: 'Query'

@@ -14,6 +14,7 @@ import { organizationInviteStyles } from './organization-invite-form.styles'
 
 import { CreateInviteInput, InputMaybe, InviteRole } from '@repo/codegen/src/schema'
 import { useCreateBulkInvite } from '@/lib/graphql-hooks/organization'
+import { useQueryClient } from '@tanstack/react-query'
 
 const formSchema = z.object({
   emails: z.array(z.string().email({ message: 'Invalid email address' })),
@@ -29,6 +30,7 @@ type FormData = zInfer<typeof formSchema>
 const OrganizationInviteForm = ({ inviteAdmins }: { inviteAdmins: boolean }) => {
   const { buttonRow, roleRow } = organizationInviteStyles()
   const { successNotification, errorNotification } = useNotification()
+  const queryClient = useQueryClient()
 
   const { mutateAsync: inviteMembers } = useCreateBulkInvite()
 
@@ -61,6 +63,7 @@ const OrganizationInviteForm = ({ inviteAdmins }: { inviteAdmins: boolean }) => 
         input: inviteInput,
       })
 
+      queryClient.invalidateQueries({ queryKey: ['invites'] })
       successNotification({
         title: `Invite${emails.length > 1 ? 's' : ''} sent successfully`,
       })

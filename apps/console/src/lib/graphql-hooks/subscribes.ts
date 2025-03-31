@@ -2,14 +2,14 @@ import { useQuery, useMutation } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { GET_ALL_SUBSCRIBERS, DELETE_SUBSCRIBER } from '@repo/codegen/query/subscribe'
 
-import { GetAllSubscribersQuery, DeleteSubscriberMutation, DeleteSubscriberMutationVariables } from '@repo/codegen/src/schema'
+import { GetAllSubscribersQuery, DeleteSubscriberMutation, DeleteSubscriberMutationVariables, GetAllSubscribersQueryVariables } from '@repo/codegen/src/schema'
 
-export const useGetAllSubscribers = () => {
+export const useGetAllSubscribers = (where?: GetAllSubscribersQueryVariables['where'], orderBy?: GetAllSubscribersQueryVariables['orderBy']) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetAllSubscribersQuery>({
-    queryKey: ['subscribers'],
-    queryFn: () => client.request(GET_ALL_SUBSCRIBERS),
+    queryKey: ['subscribers', { where, orderBy }],
+    queryFn: () => client.request(GET_ALL_SUBSCRIBERS, { where, orderBy }),
   })
 }
 

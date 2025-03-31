@@ -14,6 +14,7 @@ import {
   DeleteInternalPolicyMutation,
   DeleteInternalPolicyMutationVariables,
   GetInternalPoliciesListQuery,
+  GetInternalPoliciesListQueryVariables,
   GetInternalPolicyDetailsByIdQuery,
   GetInternalPolicyDetailsByIdQueryVariables,
   SearchInternalPoliciesQuery,
@@ -22,12 +23,12 @@ import {
   UpdateInternalPolicyMutationVariables,
 } from '@repo/codegen/src/schema'
 
-export const useGetInternalPoliciesList = () => {
+export const useGetInternalPoliciesList = (where?: GetInternalPoliciesListQueryVariables['where'], orderBy?: GetInternalPoliciesListQueryVariables['orderBy']) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetInternalPoliciesListQuery>({
-    queryKey: ['internalPolicies'],
-    queryFn: async () => client.request(GET_INTERNAL_POLICIES_LIST),
+    queryKey: ['internalPolicies', { where, orderBy }],
+    queryFn: async () => client.request(GET_INTERNAL_POLICIES_LIST, { where, orderBy }),
   })
 }
 

@@ -1,6 +1,6 @@
 import { FilterField, SelectFilterField } from '@/types'
 import { TaskTypes } from '@/components/pages/protected/tasks/util/task'
-import { TaskTaskStatus } from '@repo/codegen/src/schema'
+import { OrderDirection, TaskTaskStatus } from '@repo/codegen/src/schema'
 
 export const TASK_FILTER_FIELDS: FilterField[] = [
   { key: 'displayID', label: 'Task', type: 'text' },
@@ -33,7 +33,14 @@ export const TASK_FILTER_FIELDS: FilterField[] = [
 
 export const TASK_SORT_FIELDS = [
   { key: 'title', label: 'Title' },
-  { key: 'due', label: 'Due Date' },
+  {
+    key: 'due',
+    label: 'Due Date',
+    default: {
+      key: 'due',
+      direction: OrderDirection.ASC,
+    },
+  },
   { key: 'STATUS', label: 'Status' },
   { key: 'category', label: 'Type' },
 ]

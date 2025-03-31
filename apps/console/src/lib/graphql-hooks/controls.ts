@@ -4,12 +4,12 @@ import { GET_ALL_CONTROLS } from '@repo/codegen/query/control'
 
 import { GetAllControlsQuery, GetAllControlsQueryVariables } from '@repo/codegen/src/schema'
 
-export const useGetAllControls = (where?: GetAllControlsQueryVariables['where']) => {
+export const useGetAllControls = (where?: GetAllControlsQueryVariables['where'], orderBy?: GetAllControlsQueryVariables['orderBy']) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetAllControlsQuery, unknown>({
-    queryKey: ['allControls', where],
-    queryFn: async () => client.request(GET_ALL_CONTROLS, { where }),
+    queryKey: ['allControls', { where, orderBy }],
+    queryFn: async () => client.request(GET_ALL_CONTROLS, { where, orderBy }),
     enabled: where !== undefined,
   })
 }
