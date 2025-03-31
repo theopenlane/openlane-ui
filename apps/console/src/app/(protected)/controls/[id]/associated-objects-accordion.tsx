@@ -59,7 +59,7 @@ const AssociatedObjectsAccordion: React.FC = () => {
           <ChevronDown className="h-4 w-4 text-primary transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
           <span className="text-base font-medium">{label}</span>
         </div>
-        <span className="rounded-full border border-border text-xs px-2 py-[2px] text-muted-foreground">{count}</span>
+        <span className="rounded-full border border-border text-xs text-muted-foreground flex justify-center items-center h-[26px] w-[26px]">{count}</span>
       </button>
     </AccordionTrigger>
   )
