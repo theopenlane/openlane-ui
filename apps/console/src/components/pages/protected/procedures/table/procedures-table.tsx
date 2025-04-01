@@ -8,6 +8,7 @@ import { useCreateProcedure, useGetAllProcedures, useSearchProcedures } from '@/
 import { GetAllProceduresQueryVariables, OrderDirection, ProcedureOrderField } from '@repo/codegen/src/schema.ts'
 import ProcedureDataTableToolbar from '@/components/pages/protected/procedures/table/procedures-table-toolbar.tsx'
 import { proceduresColumns } from '@/components/pages/protected/procedures/table/columns.tsx'
+import { PROCEDURE_SORTABLE_FIELDS } from '@/components/pages/protected/procedures/table/table-config.ts'
 
 type ProceduresEdge = any
 type Procedures = NonNullable<ProceduresEdge>['node']
@@ -73,17 +74,8 @@ const ProceduresTable: React.FC = () => {
 
   return (
     <>
-      <ProcedureDataTableToolbar
-        className="my-5"
-        creating={creating}
-        handleCreateNew={handleCreateNew}
-        setFilters={setFilters}
-        onSortChange={setOrderBy}
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-      />
-
-      <DataTable columns={proceduresColumns} data={filteredProcedures} loading={fetching} />
+      <ProcedureDataTableToolbar className="my-5" creating={creating} handleCreateNew={handleCreateNew} setFilters={setFilters} searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      <DataTable sortFields={PROCEDURE_SORTABLE_FIELDS} onSortChange={setOrderBy} columns={proceduresColumns} data={filteredProcedures} loading={fetching} />
     </>
   )
 }

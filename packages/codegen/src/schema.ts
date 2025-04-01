@@ -136,6 +136,8 @@ export interface ApiTokenOrder {
 /** Properties by which APIToken connections can be ordered. */
 export enum ApiTokenOrderField {
   created_at = 'created_at',
+  expires_at = 'expires_at',
+  last_used_at = 'last_used_at',
   updated_at = 'updated_at',
 }
 
@@ -18570,6 +18572,7 @@ export enum PersonalAccessTokenOrderField {
   created_at = 'created_at',
   expires_at = 'expires_at',
   is_active = 'is_active',
+  last_used_at = 'last_used_at',
   name = 'name',
   updated_at = 'updated_at',
 }

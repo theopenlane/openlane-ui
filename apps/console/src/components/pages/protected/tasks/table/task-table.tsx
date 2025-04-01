@@ -9,6 +9,7 @@ import TaskCards from '@/components/pages/protected/tasks/cards/task-cards'
 import { useTasksWithFilter } from '@/lib/graphql-hooks/tasks'
 import { OrderDirection, TaskOrderField, TasksWithFilterQueryVariables, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { taskColumns } from '@/components/pages/protected/tasks/table/columns.tsx'
+import { TASK_SORT_FIELDS } from '@/components/pages/protected/tasks/table/table-config.ts'
 
 const TaskTable: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
@@ -76,8 +77,12 @@ const TaskTable: React.FC = () => {
 
   return (
     <>
-      <TaskTableToolbar onFilterChange={setFilters} members={orgMembers} onSortChange={setOrderBy} onTabChange={handleTabChange} onShowCompletedTasksChange={handleShowCompletedTasks} />
-      {activeTab === 'table' ? <DataTable columns={taskColumns} data={tableData} loading={fetching} onRowClick={handleRowClick} /> : <TaskCards tasks={tableData} loading={fetching} />}
+      <TaskTableToolbar onFilterChange={setFilters} members={orgMembers} onTabChange={handleTabChange} onShowCompletedTasksChange={handleShowCompletedTasks} />
+      {activeTab === 'table' ? (
+        <DataTable columns={taskColumns} sortFields={TASK_SORT_FIELDS} onSortChange={setOrderBy} data={tableData} loading={fetching} onRowClick={handleRowClick} />
+      ) : (
+        <TaskCards tasks={tableData} loading={fetching} />
+      )}
     </>
   )
 }
