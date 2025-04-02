@@ -7,23 +7,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@repo/ui/button'
 import { ChevronDown, ChevronsDownUp, ChevronsUpDown } from 'lucide-react'
 import { SetObjectAssociationDialog } from './set-object-association-modal'
-
-type NodeWithName = { id: string; name: string }
-
-type Edge<T> = {
-  node: T | null
-} | null
-
-type EdgeList<T> = {
-  totalCount: number
-  edges: Edge<T>[]
-}
+import { ControlFieldsFragment } from '@repo/codegen/src/schema'
 
 type AssociatedObjectsAccordionProps = {
-  policies: EdgeList<NodeWithName>
-  procedures: EdgeList<NodeWithName>
-  tasks: EdgeList<{ id: string; title: string }>
-  programs: EdgeList<NodeWithName>
+  policies: ControlFieldsFragment['internalPolicies']
+  procedures: ControlFieldsFragment['procedures']
+  tasks: ControlFieldsFragment['tasks']
+  programs: ControlFieldsFragment['programs']
 }
 
 const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({ policies, procedures, tasks, programs }) => {
@@ -76,7 +66,9 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
     </AccordionTrigger>
   )
 
-  const extractNodes = <T,>(edges: Edge<T>[]): T[] => edges.map((e) => e?.node).filter(Boolean) as T[]
+  const extractNodes = <T extends { id: string }>(edges: Array<{ node?: T | null } | null> | null | undefined): T[] => {
+    return (edges ?? []).map((edge) => edge?.node).filter((node): node is T => !!node)
+  }
 
   return (
     <div className="mt-10 space-y-4">
