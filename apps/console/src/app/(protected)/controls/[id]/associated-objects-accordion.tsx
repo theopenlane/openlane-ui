@@ -1,52 +1,64 @@
 'use client'
 
 import React, { useState } from 'react'
+import Link from 'next/link'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/table'
-import Link from 'next/link'
 import { Button } from '@repo/ui/button'
 import { ChevronDown, ChevronsDownUp, ChevronsUpDown } from 'lucide-react'
+import { SetObjectAssociationDialog } from './set-object-association-modal'
 
-const dummyRows = [
-  {
-    id: 'R-CC2212',
-    name: 'R123',
-    description: 'Cappuccino blue cappuccino eu instant go chicory mocha.',
-  },
-  {
-    id: 'R-123123',
-    name: 'R321',
-    description: 'Mountain steamed sugar aromatic saucer luwak froth sugar body foam.',
-  },
-]
+type NodeWithName = { id: string; name: string }
 
-const AssociatedObjectsAccordion: React.FC = () => {
-  const [expandedItems, setExpandedItems] = useState<string[]>(['procedures', 'programs'])
+type Edge<T> = {
+  node: T | null
+} | null
+
+type EdgeList<T> = {
+  totalCount: number
+  edges: Edge<T>[]
+}
+
+type AssociatedObjectsAccordionProps = {
+  policies: EdgeList<NodeWithName>
+  procedures: EdgeList<NodeWithName>
+  tasks: EdgeList<{ id: string; title: string }>
+  programs: EdgeList<NodeWithName>
+}
+
+const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({ policies, procedures, tasks, programs }) => {
+  const [expandedItems, setExpandedItems] = useState<string[]>(['policies'])
 
   const toggleAll = (expand: boolean) => {
     setExpandedItems(expand ? ['policies', 'procedures', 'tasks', 'programs'] : [])
   }
 
-  const renderTable = () => (
+  const renderTable = (rows: { id: string; name?: string; title?: string }[]) => (
     <div className="mt-4 rounded-md border border-border overflow-hidden bg-card">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="px-4 py-2">Display ID</TableHead>
+            <TableHead className="px-4 py-2">ID</TableHead>
             <TableHead className="px-4 py-2">Name</TableHead>
-            <TableHead className="px-4 py-2">Description</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {dummyRows.map((row) => (
-            <TableRow key={row.id}>
-              <TableCell className="px-4 py-2 text-primary">
-                <Link href={`/objects/${row.id}`}>{row.id}</Link>
+          {rows.length > 0 ? (
+            rows.map((row) => (
+              <TableRow key={row.id}>
+                <TableCell className="px-4 py-2 text-primary">
+                  <Link href={`/objects/${row.id}`}>{row.id}</Link>
+                </TableCell>
+                <TableCell className="px-4 py-2">{row.name || row.title || '-'}</TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={2} className="px-4 py-2 text-muted-foreground">
+                No records found.
               </TableCell>
-              <TableCell className="px-4 py-2">{row.name}</TableCell>
-              <TableCell className="px-4 py-2">{row.description}</TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
     </div>
@@ -54,7 +66,7 @@ const AssociatedObjectsAccordion: React.FC = () => {
 
   const SectionTrigger = ({ label, count }: { label: string; count: number }) => (
     <AccordionTrigger asChild>
-      <button className="group flex items-center py-2 text-left gap-3">
+      <button className="group flex items-center py-2 text-left gap-3 w-full">
         <div className="flex items-center gap-2">
           <ChevronDown className="h-4 w-4 text-primary transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
           <span className="text-base font-medium">{label}</span>
@@ -64,40 +76,44 @@ const AssociatedObjectsAccordion: React.FC = () => {
     </AccordionTrigger>
   )
 
+  const extractNodes = <T,>(edges: Edge<T>[]): T[] => edges.map((e) => e?.node).filter(Boolean) as T[]
+
   return (
     <div className="mt-10 space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold">Associated Objects</h2>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => toggleAll(false)} icon={<ChevronsDownUp />} iconPosition="left">
-            Collapse all
-          </Button>
-          <Button variant="outline" onClick={() => toggleAll(true)} icon={<ChevronsUpDown />} iconPosition="left">
-            Expand all
-          </Button>
-          <Button>Set Association</Button>
+      <div className="flex items-center gap-2.5">
+        <h2 className="text-lg font-semibold whitespace-nowrap">Associated Objects</h2>
+        <div className="flex justify-between w-full">
+          <div className="flex gap-2.5 items-center">
+            <Button className="h-8 !px-2" variant="outline" onClick={() => toggleAll(false)} icon={<ChevronsDownUp />} iconPosition="left">
+              Collapse all
+            </Button>
+            <Button className="h-8 !px-2" variant="outline" onClick={() => toggleAll(true)} icon={<ChevronsUpDown />} iconPosition="left">
+              Expand all
+            </Button>
+          </div>
+          <SetObjectAssociationDialog />
         </div>
       </div>
 
       <Accordion type="multiple" value={expandedItems} onValueChange={(values) => setExpandedItems(values)} className="w-full">
         <AccordionItem value="policies">
-          <SectionTrigger label="Policies" count={178} />
-          <AccordionContent>{renderTable()}</AccordionContent>
+          <SectionTrigger label="Policies" count={policies.totalCount} />
+          <AccordionContent>{renderTable(extractNodes(policies.edges))}</AccordionContent>
         </AccordionItem>
 
         <AccordionItem value="procedures">
-          <SectionTrigger label="Procedures" count={4} />
-          <AccordionContent>{renderTable()}</AccordionContent>
+          <SectionTrigger label="Procedures" count={procedures.totalCount} />
+          <AccordionContent>{renderTable(extractNodes(procedures.edges))}</AccordionContent>
         </AccordionItem>
 
         <AccordionItem value="tasks">
-          <SectionTrigger label="Tasks" count={88} />
-          <AccordionContent>{renderTable()}</AccordionContent>
+          <SectionTrigger label="Tasks" count={tasks.totalCount} />
+          <AccordionContent>{renderTable(extractNodes(tasks.edges))}</AccordionContent>
         </AccordionItem>
 
         <AccordionItem value="programs">
-          <SectionTrigger label="Programs" count={2} />
-          <AccordionContent>{renderTable()}</AccordionContent>
+          <SectionTrigger label="Programs" count={programs.totalCount} />
+          <AccordionContent>{renderTable(extractNodes(programs.edges))}</AccordionContent>
         </AccordionItem>
       </Accordion>
     </div>

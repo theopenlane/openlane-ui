@@ -136,6 +136,10 @@ export interface ApiTokenOrder {
 /** Properties by which APIToken connections can be ordered. */
 export enum ApiTokenOrderField {
   created_at = 'created_at',
+  expires_at = 'expires_at',
+  is_active = 'is_active',
+  last_used_at = 'last_used_at',
+  name = 'name',
   updated_at = 'updated_at',
 }
 
@@ -1230,6 +1234,16 @@ export interface AuditLogWhereInput {
   updatedBy?: InputMaybe<Scalars['ID']['input']>
 }
 
+/**
+ * CloneControlInput is used to clone controls and their subcontrols
+ * under an organization (ownerID)
+ */
+export interface CloneControlInput {
+  controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  programID?: InputMaybe<Scalars['ID']['input']>
+}
+
 export interface Contact extends Node {
   __typename?: 'Contact'
   /** the address of the contact */
@@ -1928,6 +1942,8 @@ export interface Control extends Node {
   assessmentMethods?: Maybe<Array<Scalars['AssessmentMethod']['output']>>
   /** objectives of the audit assessment for the control */
   assessmentObjectives?: Maybe<Array<Scalars['AssessmentObjective']['output']>>
+  /** external auditor id of the control, can be used to map to external audit partner mappings */
+  auditorReferenceID?: Maybe<Scalars['String']['output']>
   /** groups that are blocked from viewing or editing the risk */
   blockedGroups?: Maybe<Array<Group>>
   /** category of the control */
@@ -1972,6 +1988,8 @@ export interface Control extends Node {
   programs: ProgramConnection
   /** the unique reference code for the control */
   refCode: Scalars['String']['output']
+  /** internal reference id of the control, can be used for internal tracking */
+  referenceID?: Maybe<Scalars['String']['output']>
   /** references for the control */
   references?: Maybe<Array<Scalars['Reference']['output']>>
   risks: RiskConnection
@@ -1981,7 +1999,7 @@ export interface Control extends Node {
   /** the id of the standard that the control belongs to, if applicable */
   standardID?: Maybe<Scalars['ID']['output']>
   /** status of the control */
-  status?: Maybe<Scalars['String']['output']>
+  status?: Maybe<ControlControlStatus>
   /** subcategory of the control */
   subcategory?: Maybe<Scalars['String']['output']>
   subcontrols: SubcontrolConnection
@@ -2128,6 +2146,16 @@ export enum ControlControlSource {
   USER_DEFINED = 'USER_DEFINED',
 }
 
+/** ControlControlStatus is enum for the field status */
+export enum ControlControlStatus {
+  APPROVED = 'APPROVED',
+  ARCHIVED = 'ARCHIVED',
+  CHANGES_REQUESTED = 'CHANGES_REQUESTED',
+  NEEDS_APPROVAL = 'NEEDS_APPROVAL',
+  NULL = 'NULL',
+  PREPARING = 'PREPARING',
+}
+
 /** ControlControlType is enum for the field control_type */
 export enum ControlControlType {
   CORRECTIVE = 'CORRECTIVE',
@@ -2165,6 +2193,8 @@ export interface ControlHistory extends Node {
   assessmentMethods?: Maybe<Array<Scalars['AssessmentMethod']['output']>>
   /** objectives of the audit assessment for the control */
   assessmentObjectives?: Maybe<Array<Scalars['AssessmentObjective']['output']>>
+  /** external auditor id of the control, can be used to map to external audit partner mappings */
+  auditorReferenceID?: Maybe<Scalars['String']['output']>
   /** category of the control */
   category?: Maybe<Scalars['String']['output']>
   /** category id of the control */
@@ -2195,6 +2225,8 @@ export interface ControlHistory extends Node {
   ref?: Maybe<Scalars['String']['output']>
   /** the unique reference code for the control */
   refCode: Scalars['String']['output']
+  /** internal reference id of the control, can be used for internal tracking */
+  referenceID?: Maybe<Scalars['String']['output']>
   /** references for the control */
   references?: Maybe<Array<Scalars['Reference']['output']>>
   /** source of the control, e.g. framework, template, custom, etc. */
@@ -2202,7 +2234,7 @@ export interface ControlHistory extends Node {
   /** the id of the standard that the control belongs to, if applicable */
   standardID?: Maybe<Scalars['String']['output']>
   /** status of the control */
-  status?: Maybe<Scalars['String']['output']>
+  status?: Maybe<ControlHistoryControlStatus>
   /** subcategory of the control */
   subcategory?: Maybe<Scalars['String']['output']>
   /** tags associated with the object */
@@ -2228,6 +2260,16 @@ export enum ControlHistoryControlSource {
   IMPORTED = 'IMPORTED',
   TEMPLATE = 'TEMPLATE',
   USER_DEFINED = 'USER_DEFINED',
+}
+
+/** ControlHistoryControlStatus is enum for the field status */
+export enum ControlHistoryControlStatus {
+  APPROVED = 'APPROVED',
+  ARCHIVED = 'ARCHIVED',
+  CHANGES_REQUESTED = 'CHANGES_REQUESTED',
+  NEEDS_APPROVAL = 'NEEDS_APPROVAL',
+  NULL = 'NULL',
+  PREPARING = 'PREPARING',
 }
 
 /** ControlHistoryControlType is enum for the field control_type */
@@ -2266,10 +2308,10 @@ export interface ControlHistoryOrder {
 export enum ControlHistoryOrderField {
   CONTROL_TYPE = 'CONTROL_TYPE',
   SOURCE = 'SOURCE',
+  STATUS = 'STATUS',
   category = 'category',
   created_at = 'created_at',
   ref_code = 'ref_code',
-  status = 'status',
   subcategory = 'subcategory',
   updated_at = 'updated_at',
 }
@@ -2280,6 +2322,22 @@ export enum ControlHistoryOrderField {
  */
 export interface ControlHistoryWhereInput {
   and?: InputMaybe<Array<ControlHistoryWhereInput>>
+  /** auditor_reference_id field predicates */
+  auditorReferenceID?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDContains?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDGT?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDGTE?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  auditorReferenceIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  auditorReferenceIDLT?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDLTE?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDNEQ?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  auditorReferenceIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** category field predicates */
   category?: InputMaybe<Scalars['String']['input']>
   categoryContains?: InputMaybe<Scalars['String']['input']>
@@ -2476,6 +2534,22 @@ export interface ControlHistoryWhereInput {
   refNEQ?: InputMaybe<Scalars['String']['input']>
   refNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   refNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** reference_id field predicates */
+  referenceID?: InputMaybe<Scalars['String']['input']>
+  referenceIDContains?: InputMaybe<Scalars['String']['input']>
+  referenceIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  referenceIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  referenceIDGT?: InputMaybe<Scalars['String']['input']>
+  referenceIDGTE?: InputMaybe<Scalars['String']['input']>
+  referenceIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  referenceIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  referenceIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  referenceIDLT?: InputMaybe<Scalars['String']['input']>
+  referenceIDLTE?: InputMaybe<Scalars['String']['input']>
+  referenceIDNEQ?: InputMaybe<Scalars['String']['input']>
+  referenceIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** source field predicates */
   source?: InputMaybe<ControlHistoryControlSource>
   sourceIn?: InputMaybe<Array<ControlHistoryControlSource>>
@@ -2500,20 +2574,11 @@ export interface ControlHistoryWhereInput {
   standardIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   standardIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** status field predicates */
-  status?: InputMaybe<Scalars['String']['input']>
-  statusContains?: InputMaybe<Scalars['String']['input']>
-  statusContainsFold?: InputMaybe<Scalars['String']['input']>
-  statusEqualFold?: InputMaybe<Scalars['String']['input']>
-  statusGT?: InputMaybe<Scalars['String']['input']>
-  statusGTE?: InputMaybe<Scalars['String']['input']>
-  statusHasPrefix?: InputMaybe<Scalars['String']['input']>
-  statusHasSuffix?: InputMaybe<Scalars['String']['input']>
-  statusIn?: InputMaybe<Array<Scalars['String']['input']>>
+  status?: InputMaybe<ControlHistoryControlStatus>
+  statusIn?: InputMaybe<Array<ControlHistoryControlStatus>>
   statusIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  statusLT?: InputMaybe<Scalars['String']['input']>
-  statusLTE?: InputMaybe<Scalars['String']['input']>
-  statusNEQ?: InputMaybe<Scalars['String']['input']>
-  statusNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  statusNEQ?: InputMaybe<ControlHistoryControlStatus>
+  statusNotIn?: InputMaybe<Array<ControlHistoryControlStatus>>
   statusNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** subcategory field predicates */
   subcategory?: InputMaybe<Scalars['String']['input']>
@@ -3973,10 +4038,10 @@ export interface ControlOrder {
 export enum ControlOrderField {
   CONTROL_TYPE = 'CONTROL_TYPE',
   SOURCE = 'SOURCE',
+  STATUS = 'STATUS',
   category = 'category',
   created_at = 'created_at',
   ref_code = 'ref_code',
-  status = 'status',
   subcategory = 'subcategory',
   updated_at = 'updated_at',
 }
@@ -3999,6 +4064,22 @@ export interface ControlUpdatePayload {
  */
 export interface ControlWhereInput {
   and?: InputMaybe<Array<ControlWhereInput>>
+  /** auditor_reference_id field predicates */
+  auditorReferenceID?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDContains?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDGT?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDGTE?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  auditorReferenceIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  auditorReferenceIDLT?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDLTE?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDNEQ?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  auditorReferenceIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** category field predicates */
   category?: InputMaybe<Scalars['String']['input']>
   categoryContains?: InputMaybe<Scalars['String']['input']>
@@ -4222,6 +4303,22 @@ export interface ControlWhereInput {
   refCodeLTE?: InputMaybe<Scalars['String']['input']>
   refCodeNEQ?: InputMaybe<Scalars['String']['input']>
   refCodeNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** reference_id field predicates */
+  referenceID?: InputMaybe<Scalars['String']['input']>
+  referenceIDContains?: InputMaybe<Scalars['String']['input']>
+  referenceIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  referenceIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  referenceIDGT?: InputMaybe<Scalars['String']['input']>
+  referenceIDGTE?: InputMaybe<Scalars['String']['input']>
+  referenceIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  referenceIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  referenceIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  referenceIDLT?: InputMaybe<Scalars['String']['input']>
+  referenceIDLTE?: InputMaybe<Scalars['String']['input']>
+  referenceIDNEQ?: InputMaybe<Scalars['String']['input']>
+  referenceIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** source field predicates */
   source?: InputMaybe<ControlControlSource>
   sourceIn?: InputMaybe<Array<ControlControlSource>>
@@ -4246,20 +4343,11 @@ export interface ControlWhereInput {
   standardIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   standardIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** status field predicates */
-  status?: InputMaybe<Scalars['String']['input']>
-  statusContains?: InputMaybe<Scalars['String']['input']>
-  statusContainsFold?: InputMaybe<Scalars['String']['input']>
-  statusEqualFold?: InputMaybe<Scalars['String']['input']>
-  statusGT?: InputMaybe<Scalars['String']['input']>
-  statusGTE?: InputMaybe<Scalars['String']['input']>
-  statusHasPrefix?: InputMaybe<Scalars['String']['input']>
-  statusHasSuffix?: InputMaybe<Scalars['String']['input']>
-  statusIn?: InputMaybe<Array<Scalars['String']['input']>>
+  status?: InputMaybe<ControlControlStatus>
+  statusIn?: InputMaybe<Array<ControlControlStatus>>
   statusIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  statusLT?: InputMaybe<Scalars['String']['input']>
-  statusLTE?: InputMaybe<Scalars['String']['input']>
-  statusNEQ?: InputMaybe<Scalars['String']['input']>
-  statusNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  statusNEQ?: InputMaybe<ControlControlStatus>
+  statusNotIn?: InputMaybe<Array<ControlControlStatus>>
   statusNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** subcategory field predicates */
   subcategory?: InputMaybe<Scalars['String']['input']>
@@ -4426,6 +4514,8 @@ export interface CreateControlInput {
   assessmentMethods?: InputMaybe<Array<Scalars['AssessmentMethod']['input']>>
   /** objectives of the audit assessment for the control */
   assessmentObjectives?: InputMaybe<Array<Scalars['AssessmentObjective']['input']>>
+  /** external auditor id of the control, can be used to map to external audit partner mappings */
+  auditorReferenceID?: InputMaybe<Scalars['String']['input']>
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** category of the control */
   category?: InputMaybe<Scalars['String']['input']>
@@ -4457,6 +4547,8 @@ export interface CreateControlInput {
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the unique reference code for the control */
   refCode: Scalars['String']['input']
+  /** internal reference id of the control, can be used for internal tracking */
+  referenceID?: InputMaybe<Scalars['String']['input']>
   /** references for the control */
   references?: InputMaybe<Array<Scalars['Reference']['input']>>
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -4464,7 +4556,7 @@ export interface CreateControlInput {
   source?: InputMaybe<ControlControlSource>
   standardID?: InputMaybe<Scalars['ID']['input']>
   /** status of the control */
-  status?: InputMaybe<Scalars['String']['input']>
+  status?: InputMaybe<ControlControlStatus>
   /** subcategory of the control */
   subcategory?: InputMaybe<Scalars['String']['input']>
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -5177,7 +5269,6 @@ export interface CreateRiskInput {
  * Input was generated by ent.
  */
 export interface CreateStandardInput {
-  controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** long description of the standard with details of what is covered */
   description?: InputMaybe<Scalars['String']['input']>
   /** domains the standard covers, e.g. availability, confidentiality, etc. */
@@ -5221,6 +5312,8 @@ export interface CreateSubcontrolInput {
   assessmentMethods?: InputMaybe<Array<Scalars['AssessmentMethod']['input']>>
   /** objectives of the audit assessment for the control */
   assessmentObjectives?: InputMaybe<Array<Scalars['AssessmentObjective']['input']>>
+  /** external auditor id of the control, can be used to map to external audit partner mappings */
+  auditorReferenceID?: InputMaybe<Scalars['String']['input']>
   /** category of the control */
   category?: InputMaybe<Scalars['String']['input']>
   /** category id of the control */
@@ -5249,13 +5342,15 @@ export interface CreateSubcontrolInput {
   procedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the unique reference code for the control */
   refCode: Scalars['String']['input']
+  /** internal reference id of the control, can be used for internal tracking */
+  referenceID?: InputMaybe<Scalars['String']['input']>
   /** references for the control */
   references?: InputMaybe<Array<Scalars['Reference']['input']>>
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** source of the control, e.g. framework, template, custom, etc. */
   source?: InputMaybe<SubcontrolControlSource>
   /** status of the control */
-  status?: InputMaybe<Scalars['String']['input']>
+  status?: InputMaybe<SubcontrolControlStatus>
   /** subcategory of the control */
   subcategory?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
@@ -13540,6 +13635,8 @@ export interface Mutation {
   createControlObjective: ControlObjectiveCreatePayload
   /** Create a controls with subcontrols */
   createControlWithSubcontrols: ControlCreatePayload
+  /** Create a new controls based on existing control ID(s) */
+  createControlsByClone: ControlBulkCreatePayload
   /** Create a new documentData */
   createDocumentData: DocumentDataCreatePayload
   /** Create a new entity */
@@ -14024,6 +14121,10 @@ export interface MutationCreateControlObjectiveArgs {
 
 export interface MutationCreateControlWithSubcontrolsArgs {
   input: CreateControlWithSubcontrolsInput
+}
+
+export interface MutationCreateControlsByCloneArgs {
+  input?: InputMaybe<CloneControlInput>
 }
 
 export interface MutationCreateDocumentDataArgs {
@@ -18570,6 +18671,7 @@ export enum PersonalAccessTokenOrderField {
   created_at = 'created_at',
   expires_at = 'expires_at',
   is_active = 'is_active',
+  last_used_at = 'last_used_at',
   name = 'name',
   updated_at = 'updated_at',
 }
@@ -24009,6 +24111,8 @@ export interface Subcontrol extends Node {
   assessmentMethods?: Maybe<Array<Scalars['AssessmentMethod']['output']>>
   /** objectives of the audit assessment for the control */
   assessmentObjectives?: Maybe<Array<Scalars['AssessmentObjective']['output']>>
+  /** external auditor id of the control, can be used to map to external audit partner mappings */
+  auditorReferenceID?: Maybe<Scalars['String']['output']>
   /** category of the control */
   category?: Maybe<Scalars['String']['output']>
   /** category id of the control */
@@ -24050,13 +24154,15 @@ export interface Subcontrol extends Node {
   procedures: ProcedureConnection
   /** the unique reference code for the control */
   refCode: Scalars['String']['output']
+  /** internal reference id of the control, can be used for internal tracking */
+  referenceID?: Maybe<Scalars['String']['output']>
   /** references for the control */
   references?: Maybe<Array<Scalars['Reference']['output']>>
   risks: RiskConnection
   /** source of the control, e.g. framework, template, custom, etc. */
   source?: Maybe<SubcontrolControlSource>
   /** status of the control */
-  status?: Maybe<Scalars['String']['output']>
+  status?: Maybe<SubcontrolControlStatus>
   /** subcategory of the control */
   subcategory?: Maybe<Scalars['String']['output']>
   /** tags associated with the object */
@@ -24173,6 +24279,16 @@ export enum SubcontrolControlSource {
   USER_DEFINED = 'USER_DEFINED',
 }
 
+/** SubcontrolControlStatus is enum for the field status */
+export enum SubcontrolControlStatus {
+  APPROVED = 'APPROVED',
+  ARCHIVED = 'ARCHIVED',
+  CHANGES_REQUESTED = 'CHANGES_REQUESTED',
+  NEEDS_APPROVAL = 'NEEDS_APPROVAL',
+  NULL = 'NULL',
+  PREPARING = 'PREPARING',
+}
+
 /** SubcontrolControlType is enum for the field control_type */
 export enum SubcontrolControlType {
   CORRECTIVE = 'CORRECTIVE',
@@ -24210,6 +24326,8 @@ export interface SubcontrolHistory extends Node {
   assessmentMethods?: Maybe<Array<Scalars['AssessmentMethod']['output']>>
   /** objectives of the audit assessment for the control */
   assessmentObjectives?: Maybe<Array<Scalars['AssessmentObjective']['output']>>
+  /** external auditor id of the control, can be used to map to external audit partner mappings */
+  auditorReferenceID?: Maybe<Scalars['String']['output']>
   /** category of the control */
   category?: Maybe<Scalars['String']['output']>
   /** category id of the control */
@@ -24242,12 +24360,14 @@ export interface SubcontrolHistory extends Node {
   ref?: Maybe<Scalars['String']['output']>
   /** the unique reference code for the control */
   refCode: Scalars['String']['output']
+  /** internal reference id of the control, can be used for internal tracking */
+  referenceID?: Maybe<Scalars['String']['output']>
   /** references for the control */
   references?: Maybe<Array<Scalars['Reference']['output']>>
   /** source of the control, e.g. framework, template, custom, etc. */
   source?: Maybe<SubcontrolHistoryControlSource>
   /** status of the control */
-  status?: Maybe<Scalars['String']['output']>
+  status?: Maybe<SubcontrolHistoryControlStatus>
   /** subcategory of the control */
   subcategory?: Maybe<Scalars['String']['output']>
   /** tags associated with the object */
@@ -24273,6 +24393,16 @@ export enum SubcontrolHistoryControlSource {
   IMPORTED = 'IMPORTED',
   TEMPLATE = 'TEMPLATE',
   USER_DEFINED = 'USER_DEFINED',
+}
+
+/** SubcontrolHistoryControlStatus is enum for the field status */
+export enum SubcontrolHistoryControlStatus {
+  APPROVED = 'APPROVED',
+  ARCHIVED = 'ARCHIVED',
+  CHANGES_REQUESTED = 'CHANGES_REQUESTED',
+  NEEDS_APPROVAL = 'NEEDS_APPROVAL',
+  NULL = 'NULL',
+  PREPARING = 'PREPARING',
 }
 
 /** SubcontrolHistoryControlType is enum for the field control_type */
@@ -24311,10 +24441,10 @@ export interface SubcontrolHistoryOrder {
 export enum SubcontrolHistoryOrderField {
   CONTROL_TYPE = 'CONTROL_TYPE',
   SOURCE = 'SOURCE',
+  STATUS = 'STATUS',
   category = 'category',
   created_at = 'created_at',
   ref_code = 'ref_code',
-  status = 'status',
   subcategory = 'subcategory',
   updated_at = 'updated_at',
 }
@@ -24325,6 +24455,22 @@ export enum SubcontrolHistoryOrderField {
  */
 export interface SubcontrolHistoryWhereInput {
   and?: InputMaybe<Array<SubcontrolHistoryWhereInput>>
+  /** auditor_reference_id field predicates */
+  auditorReferenceID?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDContains?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDGT?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDGTE?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  auditorReferenceIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  auditorReferenceIDLT?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDLTE?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDNEQ?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  auditorReferenceIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** category field predicates */
   category?: InputMaybe<Scalars['String']['input']>
   categoryContains?: InputMaybe<Scalars['String']['input']>
@@ -24535,6 +24681,22 @@ export interface SubcontrolHistoryWhereInput {
   refNEQ?: InputMaybe<Scalars['String']['input']>
   refNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   refNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** reference_id field predicates */
+  referenceID?: InputMaybe<Scalars['String']['input']>
+  referenceIDContains?: InputMaybe<Scalars['String']['input']>
+  referenceIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  referenceIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  referenceIDGT?: InputMaybe<Scalars['String']['input']>
+  referenceIDGTE?: InputMaybe<Scalars['String']['input']>
+  referenceIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  referenceIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  referenceIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  referenceIDLT?: InputMaybe<Scalars['String']['input']>
+  referenceIDLTE?: InputMaybe<Scalars['String']['input']>
+  referenceIDNEQ?: InputMaybe<Scalars['String']['input']>
+  referenceIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** source field predicates */
   source?: InputMaybe<SubcontrolHistoryControlSource>
   sourceIn?: InputMaybe<Array<SubcontrolHistoryControlSource>>
@@ -24543,20 +24705,11 @@ export interface SubcontrolHistoryWhereInput {
   sourceNotIn?: InputMaybe<Array<SubcontrolHistoryControlSource>>
   sourceNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** status field predicates */
-  status?: InputMaybe<Scalars['String']['input']>
-  statusContains?: InputMaybe<Scalars['String']['input']>
-  statusContainsFold?: InputMaybe<Scalars['String']['input']>
-  statusEqualFold?: InputMaybe<Scalars['String']['input']>
-  statusGT?: InputMaybe<Scalars['String']['input']>
-  statusGTE?: InputMaybe<Scalars['String']['input']>
-  statusHasPrefix?: InputMaybe<Scalars['String']['input']>
-  statusHasSuffix?: InputMaybe<Scalars['String']['input']>
-  statusIn?: InputMaybe<Array<Scalars['String']['input']>>
+  status?: InputMaybe<SubcontrolHistoryControlStatus>
+  statusIn?: InputMaybe<Array<SubcontrolHistoryControlStatus>>
   statusIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  statusLT?: InputMaybe<Scalars['String']['input']>
-  statusLTE?: InputMaybe<Scalars['String']['input']>
-  statusNEQ?: InputMaybe<Scalars['String']['input']>
-  statusNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  statusNEQ?: InputMaybe<SubcontrolHistoryControlStatus>
+  statusNotIn?: InputMaybe<Array<SubcontrolHistoryControlStatus>>
   statusNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** subcategory field predicates */
   subcategory?: InputMaybe<Scalars['String']['input']>
@@ -24615,10 +24768,10 @@ export interface SubcontrolOrder {
 export enum SubcontrolOrderField {
   CONTROL_TYPE = 'CONTROL_TYPE',
   SOURCE = 'SOURCE',
+  STATUS = 'STATUS',
   category = 'category',
   created_at = 'created_at',
   ref_code = 'ref_code',
-  status = 'status',
   subcategory = 'subcategory',
   updated_at = 'updated_at',
 }
@@ -24641,6 +24794,22 @@ export interface SubcontrolUpdatePayload {
  */
 export interface SubcontrolWhereInput {
   and?: InputMaybe<Array<SubcontrolWhereInput>>
+  /** auditor_reference_id field predicates */
+  auditorReferenceID?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDContains?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDGT?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDGTE?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  auditorReferenceIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  auditorReferenceIDLT?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDLTE?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDNEQ?: InputMaybe<Scalars['String']['input']>
+  auditorReferenceIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  auditorReferenceIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** category field predicates */
   category?: InputMaybe<Scalars['String']['input']>
   categoryContains?: InputMaybe<Scalars['String']['input']>
@@ -24860,6 +25029,22 @@ export interface SubcontrolWhereInput {
   refCodeLTE?: InputMaybe<Scalars['String']['input']>
   refCodeNEQ?: InputMaybe<Scalars['String']['input']>
   refCodeNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** reference_id field predicates */
+  referenceID?: InputMaybe<Scalars['String']['input']>
+  referenceIDContains?: InputMaybe<Scalars['String']['input']>
+  referenceIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  referenceIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  referenceIDGT?: InputMaybe<Scalars['String']['input']>
+  referenceIDGTE?: InputMaybe<Scalars['String']['input']>
+  referenceIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  referenceIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  referenceIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  referenceIDLT?: InputMaybe<Scalars['String']['input']>
+  referenceIDLTE?: InputMaybe<Scalars['String']['input']>
+  referenceIDNEQ?: InputMaybe<Scalars['String']['input']>
+  referenceIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** source field predicates */
   source?: InputMaybe<SubcontrolControlSource>
   sourceIn?: InputMaybe<Array<SubcontrolControlSource>>
@@ -24868,20 +25053,11 @@ export interface SubcontrolWhereInput {
   sourceNotIn?: InputMaybe<Array<SubcontrolControlSource>>
   sourceNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** status field predicates */
-  status?: InputMaybe<Scalars['String']['input']>
-  statusContains?: InputMaybe<Scalars['String']['input']>
-  statusContainsFold?: InputMaybe<Scalars['String']['input']>
-  statusEqualFold?: InputMaybe<Scalars['String']['input']>
-  statusGT?: InputMaybe<Scalars['String']['input']>
-  statusGTE?: InputMaybe<Scalars['String']['input']>
-  statusHasPrefix?: InputMaybe<Scalars['String']['input']>
-  statusHasSuffix?: InputMaybe<Scalars['String']['input']>
-  statusIn?: InputMaybe<Array<Scalars['String']['input']>>
+  status?: InputMaybe<SubcontrolControlStatus>
+  statusIn?: InputMaybe<Array<SubcontrolControlStatus>>
   statusIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  statusLT?: InputMaybe<Scalars['String']['input']>
-  statusLTE?: InputMaybe<Scalars['String']['input']>
-  statusNEQ?: InputMaybe<Scalars['String']['input']>
-  statusNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  statusNEQ?: InputMaybe<SubcontrolControlStatus>
+  statusNotIn?: InputMaybe<Array<SubcontrolControlStatus>>
   statusNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** subcategory field predicates */
   subcategory?: InputMaybe<Scalars['String']['input']>
@@ -26997,6 +27173,8 @@ export interface UpdateControlInput {
   assessmentMethods?: InputMaybe<Array<Scalars['AssessmentMethod']['input']>>
   /** objectives of the audit assessment for the control */
   assessmentObjectives?: InputMaybe<Array<Scalars['AssessmentObjective']['input']>>
+  /** external auditor id of the control, can be used to map to external audit partner mappings */
+  auditorReferenceID?: InputMaybe<Scalars['String']['input']>
   /** category of the control */
   category?: InputMaybe<Scalars['String']['input']>
   /** category id of the control */
@@ -27004,6 +27182,7 @@ export interface UpdateControlInput {
   clearActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   clearAssessmentMethods?: InputMaybe<Scalars['Boolean']['input']>
   clearAssessmentObjectives?: InputMaybe<Scalars['Boolean']['input']>
+  clearAuditorReferenceID?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearCategory?: InputMaybe<Scalars['Boolean']['input']>
   clearCategoryID?: InputMaybe<Scalars['Boolean']['input']>
@@ -27024,6 +27203,7 @@ export interface UpdateControlInput {
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
+  clearReferenceID?: InputMaybe<Scalars['Boolean']['input']>
   clearReferences?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
   clearSource?: InputMaybe<Scalars['Boolean']['input']>
@@ -27050,6 +27230,8 @@ export interface UpdateControlInput {
   mappedCategories?: InputMaybe<Array<Scalars['String']['input']>>
   /** the unique reference code for the control */
   refCode?: InputMaybe<Scalars['String']['input']>
+  /** internal reference id of the control, can be used for internal tracking */
+  referenceID?: InputMaybe<Scalars['String']['input']>
   /** references for the control */
   references?: InputMaybe<Array<Scalars['Reference']['input']>>
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -27071,7 +27253,7 @@ export interface UpdateControlInput {
   source?: InputMaybe<ControlControlSource>
   standardID?: InputMaybe<Scalars['ID']['input']>
   /** status of the control */
-  status?: InputMaybe<Scalars['String']['input']>
+  status?: InputMaybe<ControlControlStatus>
   /** subcategory of the control */
   subcategory?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
@@ -28200,10 +28382,8 @@ export interface UpdateRiskInput {
  */
 export interface UpdateStandardInput {
   RevisionBump?: InputMaybe<Scalars['VersionBump']['input']>
-  addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendDomains?: InputMaybe<Array<Scalars['String']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
-  clearControls?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearDomains?: InputMaybe<Scalars['Boolean']['input']>
   clearFramework?: InputMaybe<Scalars['Boolean']['input']>
@@ -28238,7 +28418,6 @@ export interface UpdateStandardInput {
   /** the long name of the standard body */
   name?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
-  removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
   revision?: InputMaybe<Scalars['String']['input']>
   /** short name of the standard, e.g. SOC 2, ISO 27001, etc. */
@@ -28279,6 +28458,8 @@ export interface UpdateSubcontrolInput {
   assessmentMethods?: InputMaybe<Array<Scalars['AssessmentMethod']['input']>>
   /** objectives of the audit assessment for the control */
   assessmentObjectives?: InputMaybe<Array<Scalars['AssessmentObjective']['input']>>
+  /** external auditor id of the control, can be used to map to external audit partner mappings */
+  auditorReferenceID?: InputMaybe<Scalars['String']['input']>
   /** category of the control */
   category?: InputMaybe<Scalars['String']['input']>
   /** category id of the control */
@@ -28286,6 +28467,7 @@ export interface UpdateSubcontrolInput {
   clearActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   clearAssessmentMethods?: InputMaybe<Scalars['Boolean']['input']>
   clearAssessmentObjectives?: InputMaybe<Scalars['Boolean']['input']>
+  clearAuditorReferenceID?: InputMaybe<Scalars['Boolean']['input']>
   clearCategory?: InputMaybe<Scalars['Boolean']['input']>
   clearCategoryID?: InputMaybe<Scalars['Boolean']['input']>
   clearControlObjectives?: InputMaybe<Scalars['Boolean']['input']>
@@ -28302,6 +28484,7 @@ export interface UpdateSubcontrolInput {
   clearMappedControls?: InputMaybe<Scalars['Boolean']['input']>
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
+  clearReferenceID?: InputMaybe<Scalars['Boolean']['input']>
   clearReferences?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
   clearSource?: InputMaybe<Scalars['Boolean']['input']>
@@ -28326,6 +28509,8 @@ export interface UpdateSubcontrolInput {
   mappedCategories?: InputMaybe<Array<Scalars['String']['input']>>
   /** the unique reference code for the control */
   refCode?: InputMaybe<Scalars['String']['input']>
+  /** internal reference id of the control, can be used for internal tracking */
+  referenceID?: InputMaybe<Scalars['String']['input']>
   /** references for the control */
   references?: InputMaybe<Array<Scalars['Reference']['input']>>
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -28340,7 +28525,7 @@ export interface UpdateSubcontrolInput {
   /** source of the control, e.g. framework, template, custom, etc. */
   source?: InputMaybe<SubcontrolControlSource>
   /** status of the control */
-  status?: InputMaybe<Scalars['String']['input']>
+  status?: InputMaybe<SubcontrolControlStatus>
   /** subcategory of the control */
   subcategory?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
@@ -30101,7 +30286,7 @@ export type ControlFieldsFragment = {
   refCode: string
   subcategory?: string | null
   mappedCategories?: Array<string> | null
-  status?: string | null
+  status?: ControlControlStatus | null
   tags?: Array<string> | null
   description?: string | null
   implementationGuidance?: Array<any> | null
@@ -30113,8 +30298,29 @@ export type ControlFieldsFragment = {
   updatedBy?: string | null
   updatedAt?: any | null
   createdAt?: any | null
+  controlObjectives: {
+    __typename?: 'ControlObjectiveConnection'
+    edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; status?: string | null; desiredOutcome?: string | null; name: string } | null } | null> | null
+  }
+  evidence: {
+    __typename?: 'EvidenceConnection'
+    edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; displayID: string; name: string; creationDate: any } | null } | null> | null
+  }
+  subcontrols: {
+    __typename?: 'SubcontrolConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; refCode: string; description?: string | null } | null } | null> | null
+  }
+  internalPolicies: {
+    __typename?: 'InternalPolicyConnection'
+    edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
+  }
+  procedures: { __typename?: 'ProcedureConnection'; edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null }
+  tasks: { __typename?: 'TaskConnection'; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null }
+  programs: { __typename?: 'ProgramConnection'; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string } | null } | null> | null }
+  delegate?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
+  controlOwner?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
   owner?: { __typename?: 'Organization'; users?: Array<{ __typename?: 'User'; avatarRemoteURL?: string | null; firstName?: string | null; lastName?: string | null }> | null } | null
-  subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
 }
 
 export type GetAllControlsQueryVariables = Exact<{
@@ -30134,7 +30340,7 @@ export type GetAllControlsQuery = {
         refCode: string
         subcategory?: string | null
         mappedCategories?: Array<string> | null
-        status?: string | null
+        status?: ControlControlStatus | null
         tags?: Array<string> | null
         description?: string | null
         implementationGuidance?: Array<any> | null
@@ -30146,8 +30352,29 @@ export type GetAllControlsQuery = {
         updatedBy?: string | null
         updatedAt?: any | null
         createdAt?: any | null
+        controlObjectives: {
+          __typename?: 'ControlObjectiveConnection'
+          edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; status?: string | null; desiredOutcome?: string | null; name: string } | null } | null> | null
+        }
+        evidence: {
+          __typename?: 'EvidenceConnection'
+          edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; displayID: string; name: string; creationDate: any } | null } | null> | null
+        }
+        subcontrols: {
+          __typename?: 'SubcontrolConnection'
+          totalCount: number
+          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; refCode: string; description?: string | null } | null } | null> | null
+        }
+        internalPolicies: {
+          __typename?: 'InternalPolicyConnection'
+          edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
+        }
+        procedures: { __typename?: 'ProcedureConnection'; edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null }
+        tasks: { __typename?: 'TaskConnection'; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null }
+        programs: { __typename?: 'ProgramConnection'; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string } | null } | null> | null }
+        delegate?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
+        controlOwner?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
         owner?: { __typename?: 'Organization'; users?: Array<{ __typename?: 'User'; avatarRemoteURL?: string | null; firstName?: string | null; lastName?: string | null }> | null } | null
-        subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
       } | null
     } | null> | null
   }
@@ -30166,7 +30393,7 @@ export type GetControlByIdQuery = {
     refCode: string
     subcategory?: string | null
     mappedCategories?: Array<string> | null
-    status?: string | null
+    status?: ControlControlStatus | null
     tags?: Array<string> | null
     description?: string | null
     implementationGuidance?: Array<any> | null
@@ -30178,8 +30405,29 @@ export type GetControlByIdQuery = {
     updatedBy?: string | null
     updatedAt?: any | null
     createdAt?: any | null
+    controlObjectives: {
+      __typename?: 'ControlObjectiveConnection'
+      edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; status?: string | null; desiredOutcome?: string | null; name: string } | null } | null> | null
+    }
+    evidence: {
+      __typename?: 'EvidenceConnection'
+      edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; displayID: string; name: string; creationDate: any } | null } | null> | null
+    }
+    subcontrols: {
+      __typename?: 'SubcontrolConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; refCode: string; description?: string | null } | null } | null> | null
+    }
+    internalPolicies: {
+      __typename?: 'InternalPolicyConnection'
+      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
+    }
+    procedures: { __typename?: 'ProcedureConnection'; edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null }
+    tasks: { __typename?: 'TaskConnection'; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null }
+    programs: { __typename?: 'ProgramConnection'; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string } | null } | null> | null }
+    delegate?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
+    controlOwner?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
     owner?: { __typename?: 'Organization'; users?: Array<{ __typename?: 'User'; avatarRemoteURL?: string | null; firstName?: string | null; lastName?: string | null }> | null } | null
-    subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
   }
 }
 

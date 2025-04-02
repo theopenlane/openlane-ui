@@ -45,7 +45,7 @@ const ControlObjectTaskForm: React.FC<TProps> = (props: TProps) => {
     queryFn: () =>
       client.request(selectedQuery || GET_ALL_CONTROLS, {
         where: {
-          ...(searchAttribute ? { [searchAttribute]: debouncedSearchValue } : {}),
+          ...(searchAttribute && debouncedSearchValue ? { [searchAttribute]: debouncedSearchValue } : {}),
         },
       }),
     enabled: !!selectedQuery,

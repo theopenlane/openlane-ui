@@ -4,43 +4,51 @@ import React from 'react'
 import Link from 'next/link'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/table'
 
-const SubcontrolsTable: React.FC = () => {
-  const subcontrols = [
-    {
-      id: 'R-CC2212',
-      name: 'Mazagran in au seasonal foam turkish kopi iced body in so dark id. White grinder sugar aged kopi fair acerbic redeye variety strong pumpkin bar. Siphon con spice grounds blue mazagran...',
-    },
-    {
-      id: 'C-123987',
-      name: 'Mazagran in au seasonal foam turkish kopi iced body in so dark id. White grinder sugar aged kopi fair acerbic redeye variety strong pumpkin bar. Siphon con spice grounds blue mazagran...',
-    },
-    {
-      id: 'D-129387',
-      name: 'Mazagran in au seasonal foam turkish kopi iced body in so dark id. White grinder sugar aged kopi fair acerbic redeye variety strong pumpkin bar. Siphon con spice grounds blue mazagran...',
-    },
-  ]
+type Props = {
+  subcontrols: ({
+    node?: {
+      refCode: string
+      description?: string | null
+    } | null
+  } | null)[]
+  totalCount: number
+}
 
+const SubcontrolsTable: React.FC<Props> = ({ subcontrols, totalCount }) => {
   return (
     <div className="mt-8 space-y-4">
-      <h2 className="text-lg font-semibold">Subcontrol</h2>
+      <div className="flex gap-2">
+        <h2 className="text-lg font-semibold">Subcontrols</h2>
+        <span className="rounded-full border border-border text-xs text-muted-foreground flex justify-center items-center h-[26px] w-[26px]">{totalCount}</span>
+      </div>
 
       <div className="rounded-md border border-border overflow-hidden bg-card">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead className="px-4 py-2">Ref Code</TableHead>
-              <TableHead className="px-4 py-2">Name</TableHead>
+              <TableHead className="px-4 py-2">Description</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {subcontrols.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell className="px-4 py-2 text-primary">
-                  <Link href={`/controls/${item.id}`}>{item.id}</Link>
+            {subcontrols.filter((edge): edge is { node: { refCode: string; description?: string | null } } => !!edge?.node).length > 0 ? (
+              subcontrols
+                .filter((edge): edge is { node: { refCode: string; description?: string | null } } => !!edge?.node)
+                .map(({ node }) => (
+                  <TableRow key={node.refCode}>
+                    <TableCell className="px-4 py-2 text-primary">
+                      <p className="text-blue-500">{node.refCode}</p>
+                    </TableCell>
+                    <TableCell className="px-4 py-2 max-w-[700px] truncate text-ellipsis overflow-hidden">{node.description || '-'}</TableCell>
+                  </TableRow>
+                ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={2} className="px-4 py-2 text-muted-foreground">
+                  No subcontrols found.
                 </TableCell>
-                <TableCell className="px-4 py-2 max-w-[700px] truncate text-ellipsis overflow-hidden">{item.name}</TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </div>

@@ -19,15 +19,94 @@ export const CONTROL_FIELDS_FRAGMENT = gql`
     updatedBy
     updatedAt
     createdAt
+    controlObjectives {
+      edges {
+        node {
+          status
+          desiredOutcome
+          name
+        }
+      }
+    }
+    # controlImplementations {
+    #   edges {
+    #     node {
+    #       details
+    #       status
+    #       verificationDate
+    #     }
+    #   }
+    # }
+    evidence {
+      edges {
+        node {
+          displayID
+          name
+          creationDate
+        }
+      }
+    }
+    subcontrols {
+      totalCount
+      edges {
+        node {
+          refCode
+          description
+        }
+      }
+    }
+    internalPolicies {
+      totalCount
+      edges {
+        node {
+          id
+          name
+        }
+      }
+    }
+    procedures {
+      totalCount
+      edges {
+        node {
+          id
+          name
+        }
+      }
+    }
+    tasks {
+      totalCount
+      edges {
+        node {
+          id
+          title
+        }
+      }
+    }
+    programs {
+      totalCount
+      edges {
+        node {
+          id
+          name
+        }
+      }
+    }
+    delegate {
+      displayName
+      logoURL
+      gravatarLogoURL
+    }
+    controlOwner {
+      displayName
+      logoURL
+      gravatarLogoURL
+    }
     owner {
       users {
         avatarRemoteURL
         firstName
         lastName
       }
-    }
-    subcontrols {
-      totalCount
     }
   }
 `

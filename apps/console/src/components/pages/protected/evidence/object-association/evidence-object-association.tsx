@@ -47,7 +47,7 @@ const EvidenceObjectAssociation: React.FC<TProps> = (props: TProps) => {
   const objectName = selectedConfig?.objectName!
 
   const whereFilter = {
-    ...(searchAttribute ? { [searchAttribute]: debouncedSearchValue } : {}),
+    ...(searchAttribute && debouncedSearchValue ? { [searchAttribute]: debouncedSearchValue } : {}),
   }
 
   const { data } = useQuery<AllEvidenceQueriesData>({
