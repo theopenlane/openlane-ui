@@ -13,6 +13,7 @@ export const GET_ALL_STANDARDS = gql`
           updatedAt
           tags
           description
+          domains
           controls {
             totalCount
           }

@@ -19,6 +19,7 @@ export const CONTROL_FIELDS_FRAGMENT = gql`
     updatedBy
     updatedAt
     createdAt
+
     controlObjectives {
       edges {
         node {
@@ -28,15 +29,15 @@ export const CONTROL_FIELDS_FRAGMENT = gql`
         }
       }
     }
-    # controlImplementations {
-    #   edges {
-    #     node {
-    #       details
-    #       status
-    #       verificationDate
-    #     }
-    #   }
-    # }
+    controlImplementations {
+      edges {
+        node {
+          details
+          status
+          verificationDate
+        }
+      }
+    }
     evidence {
       edges {
         node {
@@ -92,11 +93,13 @@ export const CONTROL_FIELDS_FRAGMENT = gql`
       }
     }
     delegate {
+      id
       displayName
       logoURL
       gravatarLogoURL
     }
     controlOwner {
+      id
       displayName
       logoURL
       gravatarLogoURL
@@ -129,6 +132,16 @@ export const GET_CONTROL_BY_ID = gql`
   query GetControlById($controlId: ID!) {
     control(id: $controlId) {
       ...ControlFields
+    }
+  }
+`
+
+export const UPDATE_CONTROL = gql`
+  mutation UpdateControl($updateControlId: ID!, $input: UpdateControlInput!) {
+    updateControl(id: $updateControlId, input: $input) {
+      control {
+        id
+      }
     }
   }
 `
