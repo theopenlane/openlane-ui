@@ -9,13 +9,11 @@ import { GetAllGroupsQueryVariables, GroupSettingVisibility, UserRole } from '@r
 import CreateGroupDialog from './components/dialogs/create-group-dialog'
 import GroupDetailsSheet from './components/group-details-sheet'
 import { Input } from '@repo/ui/input'
-import { TableSort } from '@/components/shared/table-filter/table-sort'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { FilterField, SelectFilterField } from '@/types'
 import { useSession } from 'next-auth/react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
-import { GROUP_SORT_FIELDS } from '@/components/pages/protected/groups/table/table-config.ts'
 
 export interface Group {
   id: string
@@ -91,7 +89,6 @@ const GroupsPage = () => {
             </div>
           </div>
           <TableFilter filterFields={filterFields} onFilterChange={setWhereFilters} />
-          <TableSort sortFields={GROUP_SORT_FIELDS} onSortChange={setOrderBy} />
           <Input
             value={searchQuery}
             name="groupSearch"
@@ -109,7 +106,7 @@ const GroupsPage = () => {
         <CreateGroupDialog />
       </div>
 
-      {activeTab === 'table' ? <GroupsTable queryResult={data} isError={isError} /> : <GroupsCard isError={isError} isPending={isPending} queryResult={data} />}
+      {activeTab === 'table' ? <GroupsTable queryResult={data} isError={isError} onSortChange={setOrderBy} /> : <GroupsCard isError={isError} isPending={isPending} queryResult={data} />}
       <GroupDetailsSheet />
     </>
   )

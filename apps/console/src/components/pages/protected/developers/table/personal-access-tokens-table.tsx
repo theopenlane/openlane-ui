@@ -20,6 +20,7 @@ import { useMemo, useState } from 'react'
 import { personalAccessTokenTableStyles } from '../personal-access-tokens-table-styles'
 import { TokenAction } from '@/components/pages/protected/developers/actions/pat-actions.tsx'
 import PersonalApiKeyDialog from '../personal-access-token-create-dialog'
+import { TOKEN_SORT_FIELDS } from '@/components/pages/protected/developers/table/table-config.ts'
 
 type TokenNode = {
   id: string
@@ -46,8 +47,8 @@ export const PersonalAccessTokenTable = () => {
   const [filters, setFilters] = useState<CommonWhereType>({})
   const [orderBy, setOrderBy] = useState<CommonOrderByType>([
     {
-      field: PersonalAccessTokenOrderField.expires_at,
-      direction: OrderDirection.ASC,
+      field: PersonalAccessTokenOrderField.name,
+      direction: OrderDirection.DESC,
     },
   ])
 
@@ -59,11 +60,9 @@ export const PersonalAccessTokenTable = () => {
     return orderBy.length > 0 ? orderBy : undefined
   }, [orderBy])
 
-  //@todo add these when orders will be implemented
-  //orderByFilter as GetApiTokensQueryVariables['orderBy']
-  //orderByFilter as GetPersonalAccessTokensQueryVariables['orderBy']
-
-  const { data, isError } = isOrg ? useGetApiTokens(whereFilter) : useGetPersonalAccessTokens(whereFilter)
+  const { data, isError } = isOrg
+    ? useGetApiTokens(whereFilter, orderByFilter as GetApiTokensQueryVariables['orderBy'])
+    : useGetPersonalAccessTokens(whereFilter, orderByFilter as GetPersonalAccessTokensQueryVariables['orderBy'])
 
   if (isError || !data) return null
 
@@ -130,10 +129,12 @@ export const PersonalAccessTokenTable = () => {
 
   return (
     <>
-      <PersonalAccessTokensTableToolbar onFilterChange={setFilters} onSortChange={setOrderBy} />
+      <PersonalAccessTokensTableToolbar onFilterChange={setFilters} />
       <DataTable
         columns={columns}
         data={tokens}
+        sortFields={TOKEN_SORT_FIELDS}
+        onSortChange={setOrderBy}
         noResultsText="No tokens found"
         noDataMarkup={
           <TableRow className={tableRow()}>

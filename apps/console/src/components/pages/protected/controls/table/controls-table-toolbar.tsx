@@ -1,13 +1,11 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React, { useState } from 'react'
 import { SelectFilterField } from '@/types'
-import { TableSort } from '@/components/shared/table-filter/table-sort'
 import { CreditCard as CardIcon, Table as TableIcon } from 'lucide-react'
-import { CONTROLS_FILTER_FIELDS, CONTROLS_SORT_FIELDS } from './table-config'
+import { CONTROLS_FILTER_FIELDS } from './table-config'
 
 type TProps = {
   onFilterChange: (filters: Record<string, any>) => void
-  onSortChange: (data: any) => void
   onTabChange: (tab: 'table' | 'card') => void
   //@todo for Bruno
   owners?: { value: string; label: string }[]
@@ -43,7 +41,6 @@ const ControlsTableToolbar: React.FC<TProps> = (props: TProps) => {
       </div>
       <div className="grow flex flex-row items-center gap-2">
         <TableFilter filterFields={filterFields} onFilterChange={props.onFilterChange} />
-        <TableSort sortFields={CONTROLS_SORT_FIELDS} onSortChange={props.onSortChange} />
       </div>
     </div>
   )

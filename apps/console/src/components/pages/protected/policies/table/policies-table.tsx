@@ -8,6 +8,7 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { GetInternalPoliciesListQueryVariables, InternalPolicyOrderField, OrderDirection } from '@repo/codegen/src/schema'
 import { Policies, policiesColumns } from '@/components/pages/protected/policies/table/columns.tsx'
 import PoliciesTableToolbar from '@/components/pages/protected/policies/table/policies-table-toolbar.tsx'
+import { INTERNAL_POLICIES_SORTABLE_FIELDS } from '@/components/pages/protected/policies/table/table-config.ts'
 
 export const PoliciesTable = () => {
   const router = useRouter()
@@ -91,12 +92,11 @@ export const PoliciesTable = () => {
         searching={searching}
         handleCreateNew={handleCreateNew}
         setFilters={setFilters}
-        onSortChange={setOrderBy}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
       />
 
-      <DataTable columns={policiesColumns} data={filteredPolicies} loading={fetching} />
+      <DataTable sortFields={INTERNAL_POLICIES_SORTABLE_FIELDS} onSortChange={setOrderBy} columns={policiesColumns} data={filteredPolicies} loading={fetching} />
     </>
   )
 }

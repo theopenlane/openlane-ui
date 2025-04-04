@@ -11,6 +11,7 @@ import { TableCell, TableRow } from '@repo/ui/table'
 import { Group } from '../groups-page'
 import { groupsTableStyles } from './groups-table-styles'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
+import { GROUP_SORT_FIELDS } from '@/components/pages/protected/groups/table/table-config.ts'
 
 const columns: ColumnDef<Group>[] = [
   {
@@ -98,9 +99,10 @@ const columns: ColumnDef<Group>[] = [
 interface Props {
   queryResult: GetAllGroupsQuery | undefined
   isError: boolean
+  onSortChange?: (sortCondition: any[]) => void
 }
 
-const GroupsTable = ({ queryResult, isError }: Props) => {
+const GroupsTable = ({ queryResult, isError, onSortChange }: Props) => {
   const { setSelectedGroup } = useGroupsStore()
 
   const { tableRow, keyIcon, message } = groupsTableStyles()
@@ -131,6 +133,8 @@ const GroupsTable = ({ queryResult, isError }: Props) => {
         columns={columns as ColumnDef<Group>[]}
         data={transformedData as Group[]}
         onRowClick={handleRowClick}
+        sortFields={GROUP_SORT_FIELDS}
+        onSortChange={onSortChange}
         noDataMarkup={
           <TableRow className={tableRow()}>
             <TableCell colSpan={columns.length}>

@@ -6,6 +6,7 @@ import { useGetInvites } from '@/lib/graphql-hooks/organization'
 import { invitesColumns } from '@/components/pages/protected/organization/members/table/columns.tsx'
 import OrganizationInvitesTableToolbar from '@/components/pages/protected/organization/members/table/organization-invites-table-toolbar.tsx'
 import { useMemo, useState } from 'react'
+import { INVITES_SORT_FIELDS } from '@/components/pages/protected/organization/members/table/table-config.ts'
 
 type InviteNode = {
   __typename?: 'Invite' | undefined
@@ -47,8 +48,8 @@ export const OrganizationInvitesTable = () => {
 
   return (
     <>
-      <OrganizationInvitesTableToolbar onFilterChange={setFilters} onSortChange={setOrderBy} />
-      <DataTable columns={invitesColumns} data={invites} noResultsText="No invites found" />
+      <OrganizationInvitesTableToolbar onFilterChange={setFilters} />
+      <DataTable sortFields={INVITES_SORT_FIELDS} onSortChange={setOrderBy} columns={invitesColumns} data={invites} noResultsText="No invites found" />
     </>
   )
 }

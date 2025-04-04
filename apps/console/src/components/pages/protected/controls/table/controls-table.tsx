@@ -10,6 +10,7 @@ import React, { useState } from 'react'
 import { ControlOrderField, GetAllControlsQueryVariables, OrderDirection } from '@repo/codegen/src/schema.ts'
 import ControlsTableToolbar from '@/components/pages/protected/controls/table/controls-table-toolbar.tsx'
 import { controlColumns } from '@/components/pages/protected/controls/table/columns.tsx'
+import { CONTROLS_SORT_FIELDS } from '@/components/pages/protected/controls/table/table-config.ts'
 
 // Sample data
 const data: any[] = [
@@ -88,8 +89,8 @@ const ControlsTable: React.FC = () => {
           Export
         </Button>
       </div>
-      <ControlsTableToolbar onFilterChange={setFilters} onSortChange={setOrderBy} onTabChange={handleTabChange} />
-      <DataTable columns={controlColumns} data={data} onRowClick={(row: any) => handleRowClick(row)} />
+      <ControlsTableToolbar onFilterChange={setFilters} onTabChange={handleTabChange} />
+      <DataTable sortFields={CONTROLS_SORT_FIELDS} onSortChange={setOrderBy} columns={controlColumns} data={data} onRowClick={(row: any) => handleRowClick(row)} />
       <Sheet open={isSheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent>
           {currentRow && (

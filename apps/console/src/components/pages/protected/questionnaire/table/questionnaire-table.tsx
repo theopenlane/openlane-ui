@@ -6,6 +6,7 @@ import { DataTable } from '@repo/ui/data-table'
 import { useFilterTemplates } from '@/lib/graphql-hooks/templates'
 import { questionnaireColumns } from '@/components/pages/protected/questionnaire/table/columns.tsx'
 import QuestionnaireTableToolbar from '@/components/pages/protected/questionnaire/table/questionnaire-table-toolbar.tsx'
+import { QUESTIONNAIRE_SORT_FIELDS } from '@/components/pages/protected/questionnaire/table/table-config.ts'
 
 type TemplateEdge = NonNullable<NonNullable<GetAllTemplatesQuery['templates']>['edges']>[number]
 
@@ -56,8 +57,8 @@ export const QuestionnairesTable = () => {
 
   return (
     <div>
-      <QuestionnaireTableToolbar creating={fetching} searchTerm={searchTerm} setSearchTerm={setSearchTerm} setFilters={setFilters} onSortChange={setOrderBy} />
-      <DataTable columns={questionnaireColumns} data={filteredTemplates} />
+      <QuestionnaireTableToolbar creating={fetching} searchTerm={searchTerm} setSearchTerm={setSearchTerm} setFilters={setFilters} />
+      <DataTable sortFields={QUESTIONNAIRE_SORT_FIELDS} onSortChange={setOrderBy} columns={questionnaireColumns} data={filteredTemplates} />
     </div>
   )
 }
