@@ -16,7 +16,7 @@ interface AuthorityCardProps {
 }
 
 const AuthorityCard: React.FC<AuthorityCardProps> = ({ controlOwner, delegate, isEditing }) => {
-  const { data } = useGetAllGroups({}, isEditing)
+  const { data } = useGetAllGroups({ where: {}, enabled: !!isEditing })
   const { control } = useFormContext()
 
   const groups = data?.groups?.edges?.map((edge) => edge?.node!) || []

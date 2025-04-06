@@ -76,7 +76,7 @@ const GroupsPage = () => {
     return orderBy || undefined
   }, [orderBy])
 
-  const { data, isError, isPending } = useGetAllGroups(whereFilter, orderByFilter)
+  const { data, isError, isPending } = useGetAllGroups({ where: whereFilter, orderBy: orderByFilter })
   return (
     <>
       <PageHeading heading={'Groups'} />
