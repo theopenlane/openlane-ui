@@ -13,7 +13,6 @@
     "@assistant-ui/react": "^0.7.17",
     "@jsonforms/react": "^3.2.1",
     "@jsonforms/vanilla-renderers": "^3.2.1",
-    "@nextui-org/react": "^2.2.10",
     "@novu/node": "^0.24.1",
     "@novu/notification-center": "^0.24.1",
     "@radix-ui/react-accordion": "^1.1.2",

@@ -6,7 +6,7 @@ import { Label } from '@repo/ui/label'
 import { Input } from '@repo/ui/input'
 import debounce from 'lodash.debounce'
 import EvidenceObjectAssociationTable from '@/components/pages/protected/evidence/object-association/evidence-object-association-table'
-import { AllEvidenceQueriesData, EVIDENCE_OBJECT_CONFIG, EvidenceObjects } from '@/components/pages/protected/evidence/util/evidence'
+import { AllObjectQueriesData, OBJECT_QUERY_CONFIG, ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { TFormDataResponse } from '@/components/pages/protected/evidence/object-association/types/TFormDataResponse'
@@ -29,16 +29,16 @@ type TProps = {
 
 const EvidenceObjectAssociation: React.FC<TProps> = (props: TProps) => {
   const { client } = useGraphQLClient()
-  const [selectedObject, setSelectedObject] = useState<EvidenceObjects | null>(null)
+  const [selectedObject, setSelectedObject] = useState<ObjectTypeObjects | null>(null)
   const [searchValue, setSearchValue] = useState('')
   const [formData, setFormData] = useState<TFormDataResponse[]>([])
-  const options = Object.values(EvidenceObjects)
+  const options = Object.values(ObjectTypeObjects)
   const [debouncedSearchValue, setDebouncedSearchValue] = useState('')
   const debouncedSetSearchValue = useCallback(
     debounce((value) => setDebouncedSearchValue(value), 300),
     [],
   )
-  const selectedConfig = selectedObject ? EVIDENCE_OBJECT_CONFIG[selectedObject] : null
+  const selectedConfig = selectedObject ? OBJECT_QUERY_CONFIG[selectedObject] : null
   const selectedQuery = selectedConfig?.queryDocument
   const objectKey = selectedConfig?.responseObjectKey
   const inputName = selectedConfig?.inputName
@@ -47,10 +47,10 @@ const EvidenceObjectAssociation: React.FC<TProps> = (props: TProps) => {
   const objectName = selectedConfig?.objectName!
 
   const whereFilter = {
-    ...(searchAttribute ? { [searchAttribute]: debouncedSearchValue } : {}),
+    ...(searchAttribute && debouncedSearchValue ? { [searchAttribute]: debouncedSearchValue } : {}),
   }
 
-  const { data } = useQuery<AllEvidenceQueriesData>({
+  const { data } = useQuery<AllObjectQueriesData>({
     queryKey: ['evidenceFilter', whereFilter],
     queryFn: async () => client.request(selectedQuery, { where: whereFilter }),
     enabled: !!selectedQuery,
@@ -135,7 +135,7 @@ const EvidenceObjectAssociation: React.FC<TProps> = (props: TProps) => {
         <div className="flex flex-col gap-2">
           <Label>Object Type</Label>
           <Select
-            onValueChange={(val: EvidenceObjects) => {
+            onValueChange={(val: ObjectTypeObjects) => {
               setSelectedObject(val)
             }}
           >

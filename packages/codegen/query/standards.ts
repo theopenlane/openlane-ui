@@ -13,6 +13,7 @@ export const GET_ALL_STANDARDS = gql`
           updatedAt
           tags
           description
+          domains
           controls(where: { ownerIDIsNil: true }) {
             totalCount
           }
@@ -31,7 +32,6 @@ export const GET_STANDARD_DETAILS = gql`
       standardType
       updatedAt
       tags
-      description
       description
       name
       revision

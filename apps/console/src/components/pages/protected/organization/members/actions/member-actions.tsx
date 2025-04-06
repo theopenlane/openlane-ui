@@ -27,7 +27,7 @@ import { useUserHasOrganizationEditPermissions } from '@/lib/authz/utils'
 import { useQueryClient } from '@tanstack/react-query'
 import { OrgMembershipRole } from '@repo/codegen/src/schema'
 import { useRemoveUserFromOrg, useUpdateUserRoleInOrg } from '@/lib/graphql-hooks/members'
-import { useGetUserProfile } from '@/lib/graphql-hooks/user'
+import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
 type MemberActionsProps = {
@@ -45,7 +45,7 @@ export const MemberActions = ({ memberId, memberRole }: MemberActionsProps) => {
   const userId = sessionData?.user.userId
   const queryClient = useQueryClient()
   const { errorNotification, successNotification } = useNotification()
-  const { data: userData } = useGetUserProfile(userId)
+  const { data: userData } = useGetCurrentUser(userId)
   const { data } = useUserHasOrganizationEditPermissions(sessionData)
 
   const handleDeleteMember = async () => {

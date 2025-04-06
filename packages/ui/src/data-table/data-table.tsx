@@ -25,8 +25,9 @@ type CustomColumnDef<TData, TValue> = ColumnDef<TData, TValue> & {
     className?: string
   }
 }
+
 interface DataTableProps<TData, TValue> {
-  columns: CustomColumnDef<TData, TValue>[] // ✅ Now supports `meta.className`
+  columns: CustomColumnDef<TData, TValue>[]
   loading?: boolean
   data: TData[]
   showFilter?: boolean
@@ -34,6 +35,7 @@ interface DataTableProps<TData, TValue> {
   noResultsText?: string
   noDataMarkup?: ReactElement
   onRowClick?: (rowData: TData) => void
+  pageSize?: number
 }
 
 export function DataTable<TData, TValue>({
@@ -45,11 +47,17 @@ export function DataTable<TData, TValue>({
   noResultsText = 'No results',
   noDataMarkup,
   onRowClick,
+  pageSize,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = useState({})
+
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: pageSize ?? 10,
+  })
 
   const table = useReactTable({
     data,
@@ -67,6 +75,7 @@ export function DataTable<TData, TValue>({
       columnFilters,
       columnVisibility,
       rowSelection,
+      pagination,
     },
     defaultColumn: {
       size: 0,

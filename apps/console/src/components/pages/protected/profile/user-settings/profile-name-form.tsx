@@ -14,7 +14,7 @@ import { RESET_SUCCESS_STATE_MS } from '@/constants'
 import { useNotification } from '@/hooks/useNotification'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { InfoIcon } from 'lucide-react'
-import { useGetUserProfile, useUpdateUser } from '@/lib/graphql-hooks/user'
+import { useGetCurrentUser, useUpdateUser } from '@/lib/graphql-hooks/user'
 
 const ProfileNameForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
@@ -24,7 +24,7 @@ const ProfileNameForm = () => {
   const { data: sessionData } = useSession()
   const userId = sessionData?.user.userId
 
-  const { data: userData } = useGetUserProfile(userId)
+  const { data: userData } = useGetCurrentUser(userId)
 
   const formSchema = z.object({
     firstName: z.string().min(2, {
