@@ -11,8 +11,8 @@ export const CREATE_SUBSCRIBER = gql`
 `
 
 export const GET_ALL_SUBSCRIBERS = gql`
-  query GetAllSubscribers {
-    subscribers {
+  query GetAllSubscribers($where: SubscriberWhereInput, $orderBy: [SubscriberOrder!]) {
+    subscribers(where: $where, orderBy: $orderBy) {
       edges {
         node {
           active

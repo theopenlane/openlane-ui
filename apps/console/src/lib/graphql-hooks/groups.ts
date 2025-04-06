@@ -20,13 +20,12 @@ import {
   Program,
 } from '@repo/codegen/src/schema'
 
-export const useGetAllGroups = (where?: GetAllGroupsQueryVariables['where'], enabled: boolean = true) => {
+export const useGetAllGroups = (where?: GetAllGroupsQueryVariables['where'], orderBy?: GetAllGroupsQueryVariables['orderBy']) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetAllGroupsQuery>({
-    queryKey: ['groups', where],
-    queryFn: () => client.request(GET_ALL_GROUPS, { where }),
-    enabled,
+    queryKey: ['groups', { where, orderBy }],
+    queryFn: () => client.request(GET_ALL_GROUPS, { where, orderBy }),
   })
 }
 

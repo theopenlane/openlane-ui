@@ -10,7 +10,7 @@ import GroupsDeletePermissionsTable from '../groups-delete-permissions-table'
 import { useNotification } from '@/hooks/useNotification'
 
 const DeleteGroupDialog = () => {
-  const { selectedGroup, setSelectedGroup, isAdmin, reexecuteGroupsQuery } = useGroupsStore()
+  const { selectedGroup, setSelectedGroup, isAdmin } = useGroupsStore()
   const [isOpen, setIsOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const [expanded, setExpanded] = useState(false)

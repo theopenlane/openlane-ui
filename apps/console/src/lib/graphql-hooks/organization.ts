@@ -1,7 +1,6 @@
 'use client'
 
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { getGraphQLClient } from '@/lib/graphqlClient'
 import {
   GET_ALL_ORGANIZATIONS,
   GET_ORGANIZATION_NAME_BY_ID,
@@ -41,9 +40,10 @@ import {
   DeleteOrganizationMutationVariables,
   GetOrganizationNameByIdQuery,
   GetOrganizationNameByIdQueryVariables,
+  GetInvitesQueryVariables,
 } from '@repo/codegen/src/schema'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { RequestDocument, Variables } from 'graphql-request'
+import { Variables } from 'graphql-request'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 
 export const useGetAllOrganizations = () => {
@@ -84,12 +84,12 @@ export const useGetAllOrganizationsWithMembers = () => {
   })
 }
 
-export const useGetInvites = () => {
+export const useGetInvites = (where?: GetInvitesQueryVariables['where'], orderBy?: GetInvitesQueryVariables['orderBy']) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetInvitesQuery>({
-    queryKey: ['invites'],
-    queryFn: async () => client.request(GET_INVITES),
+    queryKey: ['invites', { where, orderBy }],
+    queryFn: async () => client.request(GET_INVITES, { where, orderBy }),
   })
 }
 

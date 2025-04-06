@@ -56,8 +56,8 @@ export const GET_ALL_TEMPLATES = gql`
 `
 
 export const FILTER_TEMPLATES = gql`
-  query FilterTemplates($where: TemplateWhereInput) {
-    templates(where: $where) {
+  query FilterTemplates($where: TemplateWhereInput, $orderBy: [TemplateOrder!]) {
+    templates(where: $where, orderBy: $orderBy) {
       edges {
         node {
           id

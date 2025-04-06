@@ -26,12 +26,12 @@ export const useGetAllTemplates = () => {
   })
 }
 
-export const useFilterTemplates = (where?: FilterTemplatesQueryVariables['where']) => {
+export const useFilterTemplates = (where?: FilterTemplatesQueryVariables['where'], orderBy?: FilterTemplatesQueryVariables['orderBy']) => {
   const { client } = useGraphQLClient()
 
   return useQuery<FilterTemplatesQuery>({
-    queryKey: ['templates', 'filter', where],
-    queryFn: () => client.request(FILTER_TEMPLATES, { where }),
+    queryKey: ['templates', 'filter', { where, orderBy }],
+    queryFn: () => client.request(FILTER_TEMPLATES, { where, orderBy }),
     enabled: where !== undefined,
   })
 }

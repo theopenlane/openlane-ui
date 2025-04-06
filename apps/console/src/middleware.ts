@@ -15,17 +15,9 @@ export default auth(async (req) => {
   const isInvite = path === '/invite'
   const isUnsubscribe = path === '/unsubscribe'
 
-  let hasSessionCookie = true
-
-  if (sessionCookieName) {
-    const sessionData = (await cookies()).get(sessionCookieName)
-    if (!sessionData || !sessionData.value) {
-      hasSessionCookie = false
-    }
-  }
   const session = await auth()
 
-  const isLoggedIn = req.auth?.user && hasSessionCookie
+  const isLoggedIn = req.auth?.user
   const isTfaEnabled = session?.user.isTfaEnabled
   const isOnboarding = session?.user.isOnboarding
 

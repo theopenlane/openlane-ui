@@ -12,13 +12,15 @@ import {
   CreateApiTokenMutationVariables,
   DeleteApiTokenMutation,
   DeleteApiTokenMutationVariables,
+  GetApiTokensQueryVariables,
+  GetPersonalAccessTokensQueryVariables,
 } from '@repo/codegen/src/schema'
 
-export const useGetPersonalAccessTokens = () => {
+export const useGetPersonalAccessTokens = (where?: GetPersonalAccessTokensQueryVariables['where'], orderBy?: GetPersonalAccessTokensQueryVariables['orderBy']) => {
   const { client } = useGraphQLClient()
   return useQuery<GetPersonalAccessTokensQuery, unknown>({
-    queryKey: ['personalAccessTokens'],
-    queryFn: async () => client.request(GET_PERSONAL_ACCESS_TOKENS),
+    queryKey: ['personalAccessTokens', { where, orderBy }],
+    queryFn: async () => client.request(GET_PERSONAL_ACCESS_TOKENS, { where, orderBy }),
   })
 }
 
@@ -42,11 +44,11 @@ export const useDeletePersonalAccessToken = () => {
   })
 }
 
-export const useGetApiTokens = () => {
+export const useGetApiTokens = (where?: GetApiTokensQueryVariables['where'], orderBy?: GetApiTokensQueryVariables['orderBy']) => {
   const { client } = useGraphQLClient()
   return useQuery<GetApiTokensQuery, unknown>({
-    queryKey: ['apiTokens'],
-    queryFn: async () => client.request(GET_API_TOKENS),
+    queryKey: ['apiTokens', { where, orderBy }],
+    queryFn: async () => client.request(GET_API_TOKENS, { where, orderBy }),
   })
 }
 

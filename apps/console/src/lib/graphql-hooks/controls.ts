@@ -4,12 +4,12 @@ import { GET_ALL_CONTROLS, GET_CONTROL_BY_ID, UPDATE_CONTROL } from '@repo/codeg
 
 import { GetAllControlsQuery, GetAllControlsQueryVariables, GetControlByIdQuery, UpdateControlMutation, UpdateControlMutationVariables } from '@repo/codegen/src/schema'
 
-export const useGetAllControls = (where?: GetAllControlsQueryVariables['where']) => {
+export const useGetAllControls = (where?: GetAllControlsQueryVariables['where'], orderBy?: GetAllControlsQueryVariables['orderBy']) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetAllControlsQuery, unknown>({
-    queryKey: ['controls', where],
-    queryFn: async () => client.request(GET_ALL_CONTROLS, { where }),
+    queryKey: ['controls', { where, orderBy }],
+    queryFn: async () => client.request(GET_ALL_CONTROLS, { where, orderBy }),
     enabled: where !== undefined,
   })
 }
@@ -18,7 +18,7 @@ export const useGetControlById = (controlId?: string | null) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetControlByIdQuery, unknown>({
-    queryKey: ['control', controlId],
+    queryKey: ['controls', controlId],
     queryFn: async () => client.request(GET_CONTROL_BY_ID, { controlId }),
     enabled: !!controlId,
   })
@@ -29,6 +29,6 @@ export const useUpdateControl = () => {
 
   return useMutation<UpdateControlMutation, unknown, UpdateControlMutationVariables>({
     mutationFn: async (variables) => client.request(UPDATE_CONTROL, variables),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['control'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['controls'] }),
   })
 }

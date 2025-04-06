@@ -106,9 +106,9 @@ export function DataTable<TData, TValue>({
                 {table
                   .getAllColumns()
                   .filter((column) => column.getCanHide())
-                  .map((column) => {
+                  .map((column, index) => {
                     return (
-                      <DropdownMenuCheckboxItem key={column.id} className="capitalize" checked={column.getIsVisible()} onCheckedChange={(value) => column.toggleVisibility(!!value)}>
+                      <DropdownMenuCheckboxItem key={`${column.id}-${index}`} className="capitalize" checked={column.getIsVisible()} onCheckedChange={(value) => column.toggleVisibility(!!value)}>
                         {column.id}
                       </DropdownMenuCheckboxItem>
                     )
@@ -122,10 +122,10 @@ export function DataTable<TData, TValue>({
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
+              {headerGroup.headers.map((header, index) => {
                 const columnWidth = header.getSize() === 20 ? 'auto' : `${header.getSize()}px`
                 return (
-                  <TableHead key={header.id} style={{ width: columnWidth }}>
+                  <TableHead key={`${header.id}-${index}`} style={{ width: columnWidth }}>
                     {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
                 )
