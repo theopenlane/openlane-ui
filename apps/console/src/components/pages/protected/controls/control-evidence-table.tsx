@@ -4,28 +4,15 @@ import React from 'react'
 import { format } from 'date-fns'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/table'
 import EvidenceCreateFormDialog from '@/components/pages/protected/evidence/evidence-create-form-dialog'
+import { EvidenceEdge } from '@repo/codegen/src/schema'
 
-const ControlEvidenceTable: React.FC = () => {
-  const evidenceList = [
-    {
-      id: 'E123',
-      name: 'Café seasonal cinnamon flavour mocha',
-      createdAt: '2025-01-16',
-    },
-    {
-      id: 'E123',
-      name: 'Café seasonal cinnamon flavour mocha',
-      createdAt: '2025-01-16',
-    },
-    {
-      id: 'E123',
-      name: 'Café seasonal cinnamon flavour mocha',
-      createdAt: '2025-01-16',
-    },
-  ]
+type Props = {
+  evidences?: (EvidenceEdge | null)[]
+}
 
+const ControlEvidenceTable = ({ evidences }: Props) => {
   return (
-    <div className="mt-8 space-y-4 ">
+    <div className="mt-8 space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold">Control Evidence</h2>
         <EvidenceCreateFormDialog />
@@ -41,15 +28,28 @@ const ControlEvidenceTable: React.FC = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {evidenceList.map((evidence, i) => (
-              <TableRow key={i}>
-                <TableCell className="px-4 py-2 text-primary">
-                  <p className="text-blue-500 ">{evidence.id}</p>
+            {evidences && evidences.length > 0 ? (
+              evidences.map((edge, i) => {
+                const node = edge?.node
+                if (!node) return null
+
+                return (
+                  <TableRow key={i}>
+                    <TableCell className="px-4 py-2 text-primary">
+                      <p className="text-blue-500">{node.displayID}</p>
+                    </TableCell>
+                    <TableCell className="px-4 py-2">{node.name}</TableCell>
+                    <TableCell className="px-4 py-2">{node.creationDate ? format(new Date(node.creationDate), 'MMM d, yyyy') : '—'}</TableCell>
+                  </TableRow>
+                )
+              })
+            ) : (
+              <TableRow>
+                <TableCell colSpan={3} className="px-4 py-4 text-center text-muted-foreground">
+                  No evidence linked to this control yet.
                 </TableCell>
-                <TableCell className="px-4 py-2">{evidence.name}</TableCell>
-                <TableCell className="px-4 py-2">{format(new Date(evidence.createdAt), 'MMM d, yyyy')}</TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </div>

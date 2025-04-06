@@ -18,7 +18,7 @@ import PropertiesCard from '../../../../components/pages/protected/controls/prop
 import ImplementationDetailsCard from '../../../../components/pages/protected/controls/implementation-details-card.tsx'
 import InfoCard from '../../../../components/pages/protected/controls/info-card.tsx'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
-import { ControlControlStatus } from '@repo/codegen/src/schema.ts'
+import { ControlControlStatus, EvidenceEdge } from '@repo/codegen/src/schema.ts'
 
 interface FormValues {
   refCode: string
@@ -95,9 +95,15 @@ const ControlDetailsPage: React.FC = () => {
     }
   }
 
-  const handleCancel = () => {
+  const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
     form.reset(initialValues)
     setIsEditing(false)
+  }
+
+  const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    setIsEditing(true)
   }
 
   useEffect(() => {
@@ -130,14 +136,14 @@ const ControlDetailsPage: React.FC = () => {
             <TitleField isEditing={isEditing} />
           </div>
           <DescriptionField isEditing={isEditing} initialValue={initialValues.description} />
-          <ControlEvidenceTable />
+          <ControlEvidenceTable evidences={control.evidence?.edges?.filter((e): e is EvidenceEdge => !!e && !!e.node) || []} />{' '}
           <SubcontrolsTable subcontrols={control.subcontrols?.edges || []} totalCount={control.subcontrols.totalCount} />
-          <AssociatedObjectsAccordion policies={control.internalPolicies} procedures={control.procedures} tasks={control.tasks} programs={control.programs} />
+          <AssociatedObjectsAccordion policies={control.internalPolicies} procedures={control.procedures} tasks={control.tasks} programs={control.programs} risks={control.risks} />
         </div>
         <div className="space-y-4">
           {isEditing ? (
             <div className="flex gap-2 justify-end">
-              <Button type="button" className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
+              <Button className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
                 Cancel
               </Button>
               <Button type="submit" iconPosition="left" className="h-8 !px-2" icon={<SaveIcon />}>
@@ -146,7 +152,7 @@ const ControlDetailsPage: React.FC = () => {
             </div>
           ) : (
             <div className="flex gap-2 justify-end">
-              <Button className="h-8 !px-2" icon={<PencilIcon />} iconPosition="left" onClick={() => setIsEditing(true)}>
+              <Button className="h-8 !px-2" icon={<PencilIcon />} iconPosition="left" onClick={handleEdit}>
                 Edit Control
               </Button>
             </div>

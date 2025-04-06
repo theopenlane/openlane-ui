@@ -92,6 +92,15 @@ export const CONTROL_FIELDS_FRAGMENT = gql`
         }
       }
     }
+    risks {
+      totalCount
+      edges {
+        node {
+          id
+          name
+        }
+      }
+    }
     delegate {
       id
       displayName

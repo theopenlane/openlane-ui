@@ -6,6 +6,7 @@ import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { useState } from 'react'
 import { useParams } from 'next/navigation'
+import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 
 export function SetObjectAssociationDialog() {
   const { id } = useParams<{ id: string }>()
@@ -35,7 +36,7 @@ export function SetObjectAssociationDialog() {
       })
 
       console.log('Associations updated successfully.')
-      setOpen(false) // close modal after save
+      setOpen(false)
     } catch (error) {
       console.error('Failed to update associations:', error)
     } finally {
@@ -45,7 +46,6 @@ export function SetObjectAssociationDialog() {
 
   const handleDialogChange = (isOpen: boolean) => {
     if (!isOpen) {
-      // Reset state when dialog closes
       setAssociations([])
     }
     setOpen(isOpen)
@@ -66,6 +66,7 @@ export function SetObjectAssociationDialog() {
             console.log('Selected associations:', objectsWithIds)
             setAssociations(objectsWithIds)
           }}
+          excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.CONTROL]}
         />
         <DialogFooter>
           <Button onClick={onSave} disabled={isSaving}>

@@ -5,7 +5,8 @@ import EvidenceCreateForm from '@/components/pages/protected/evidence/evidence-c
 import { FilePlus } from 'lucide-react'
 import { dialogStyles } from '@/components/pages/protected/program/dialog.styles.tsx'
 import { TTaskDataEvidence } from '@/components/pages/protected/evidence/types/TTaskDataEvidence.ts'
-import { usePathname } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
+import { useGetControlById } from '@/lib/graphql-hooks/controls'
 
 type TProps = {
   taskData?: TTaskDataEvidence
@@ -15,6 +16,11 @@ const EvidenceCreateFormDialog: React.FC<TProps> = (props: TProps) => {
   const path = usePathname()
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const { formInput } = dialogStyles()
+
+  const isControl = path.startsWith('/controls')
+
+  const { id } = useParams<{ id: string }>()
+  const { data: controlData } = useGetControlById(isControl ? id : null)
 
   const handleSuccess = () => {
     setIsOpen(false)
@@ -28,6 +34,7 @@ const EvidenceCreateFormDialog: React.FC<TProps> = (props: TProps) => {
             Upload Evidence
           </Button>
         ),
+        title: `Submit Evidence for Control ${controlData?.control?.refCode}`,
       }
     }
     return {
@@ -44,7 +51,9 @@ const EvidenceCreateFormDialog: React.FC<TProps> = (props: TProps) => {
       <DialogTrigger asChild>{config.button}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Submit Evidence for {props.taskData?.displayID}</DialogTitle>
+          <DialogTitle>{config.title}</DialogTitle>
+          {/* TODO: add config for Evidence */}
+          {/* <DialogTitle>Submit Evidence for {props.taskData?.displayID}</DialogTitle> */}
         </DialogHeader>
         <div className={formInput()}>
           <EvidenceCreateForm taskData={props.taskData} onEvidenceCreateSuccess={handleSuccess} />

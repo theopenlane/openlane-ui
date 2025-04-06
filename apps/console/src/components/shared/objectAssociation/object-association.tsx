@@ -16,9 +16,10 @@ import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 type Props = {
   form?: UseFormReturn<CreateEvidenceFormData>
   onIdChange: (objectsWithIds: { inputName: string; objectIds: string[] }[]) => void
+  excludeObjectTypes?: ObjectTypeObjects[]
 }
 
-const ObjectAssociation: React.FC<Props> = ({ form, onIdChange }) => {
+const ObjectAssociation: React.FC<Props> = ({ form, onIdChange, excludeObjectTypes }) => {
   const { client } = useGraphQLClient()
   const [selectedObject, setSelectedObject] = useState<ObjectTypeObjects | null>(null)
   const [searchValue, setSearchValue] = useState('')
@@ -43,7 +44,7 @@ const ObjectAssociation: React.FC<Props> = ({ form, onIdChange }) => {
   }
 
   const { data } = useQuery<AllObjectQueriesData>({
-    queryKey: ['evidenceFilter', whereFilter],
+    queryKey: ['assignPermission', selectedObject, whereFilter],
     queryFn: async () => client.request(selectedQuery, { where: whereFilter }),
     enabled: !!selectedQuery,
   })
@@ -75,11 +76,13 @@ const ObjectAssociation: React.FC<Props> = ({ form, onIdChange }) => {
           <Select onValueChange={(val: ObjectTypeObjects) => setSelectedObject(val)}>
             <SelectTrigger className="w-full">{selectedObject || 'Select object'}</SelectTrigger>
             <SelectContent>
-              {Object.values(ObjectTypeObjects).map((option) => (
-                <SelectItem key={option} value={option}>
-                  {option}
-                </SelectItem>
-              ))}
+              {Object.values(ObjectTypeObjects)
+                .filter((option) => !excludeObjectTypes?.includes(option))
+                .map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
             </SelectContent>
           </Select>
         </div>

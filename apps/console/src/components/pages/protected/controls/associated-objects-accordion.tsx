@@ -14,13 +14,14 @@ type AssociatedObjectsAccordionProps = {
   procedures: ControlFieldsFragment['procedures']
   tasks: ControlFieldsFragment['tasks']
   programs: ControlFieldsFragment['programs']
+  risks: ControlFieldsFragment['risks']
 }
 
-const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({ policies, procedures, tasks, programs }) => {
+const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({ policies, procedures, tasks, programs, risks }) => {
   const [expandedItems, setExpandedItems] = useState<string[]>(['policies'])
 
   const toggleAll = (expand: boolean) => {
-    setExpandedItems(expand ? ['policies', 'procedures', 'tasks', 'programs'] : [])
+    setExpandedItems(expand ? ['policies', 'procedures', 'tasks', 'programs', 'risks'] : [])
   }
 
   const renderTable = (rows: { id: string; name?: string; title?: string }[]) => (
@@ -106,6 +107,11 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
         <AccordionItem value="programs">
           <SectionTrigger label="Programs" count={programs.totalCount} />
           {!!programs.edges?.length && <AccordionContent>{renderTable(extractNodes(programs.edges))}</AccordionContent>}
+        </AccordionItem>
+
+        <AccordionItem value="risks">
+          <SectionTrigger label="Risks" count={risks.totalCount} />
+          {!!risks.edges?.length && <AccordionContent>{renderTable(extractNodes(risks.edges))}</AccordionContent>}
         </AccordionItem>
       </Accordion>
     </div>

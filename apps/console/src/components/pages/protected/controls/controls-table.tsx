@@ -10,76 +10,83 @@ import { DownloadIcon } from 'lucide-react'
 import { ControlFieldsFragment, Organization, User } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useRouter } from 'next/navigation'
-
-const columns: ColumnDef<ControlFieldsFragment>[] = [
-  {
-    header: 'Name',
-    accessorKey: 'refCode',
-    cell: ({ row }) => <div>{row.getValue('refCode')}</div>,
-  },
-  {
-    header: 'Description',
-    accessorKey: 'description',
-    cell: ({ row }) => {
-      const tags = row.original.tags
-      return (
-        <div>
-          <p className="line-clamp-4">{row.getValue('description')}</p>
-          <div className="mt-2 border-t border-dotted pt-2 flex flex-wrap gap-2">
-            {tags?.map((tag, index) => (
-              <Badge key={index} variant="outline">
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        </div>
-      )
-    },
-  },
-  {
-    header: 'Status',
-    accessorKey: 'status',
-    cell: ({ row }) => <span className="flex items-center gap-2">{row.getValue('status')}</span>,
-  },
-  {
-    header: 'Owner',
-    accessorKey: 'owner',
-    cell: ({ row }) => {
-      const owner = row.getValue<ControlFieldsFragment['owner']>('owner')
-      const users = owner?.users ?? []
-
-      return (
-        <div className="flex items-center gap-2">
-          {users.map((user, index) => (
-            <Fragment key={index}>
-              <Avatar entity={user as Organization} variant="small" />
-              <span>{`${user.firstName} ${user.lastName}`}</span>
-            </Fragment>
-          ))}
-        </div>
-      )
-    },
-  },
-  {
-    header: 'Type',
-    accessorKey: 'type',
-    cell: ({ row }) => <div>{row.getValue('type') || '-'}</div>,
-  },
-  {
-    header: 'Category',
-    accessorKey: 'category',
-    cell: ({ row }) => <div>{row.getValue('category') || '-'}</div>,
-  },
-  {
-    header: 'Subcategory',
-    accessorKey: 'subcategory',
-    cell: ({ row }) => <div>{row.getValue('subcategory') || '-'}</div>,
-  },
-]
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { Value } from '@udecode/plate-common'
 
 const ControlsTable: React.FC = () => {
   const { data: controlsData, isLoading, isError } = useGetAllControls({})
   const { push } = useRouter()
+  const plateEditorHelper = usePlateEditor()
+
+  const columns: ColumnDef<ControlFieldsFragment>[] = [
+    {
+      header: 'Name',
+      accessorKey: 'refCode',
+      cell: ({ row }) => <div>{row.getValue('refCode')}</div>,
+    },
+    {
+      header: 'Description',
+      accessorKey: 'description',
+      cell: ({ row }) => {
+        const tags = row.original.tags
+        const description = () => {
+          return plateEditorHelper.convertToReadOnly(row.getValue('description') as Value | any)
+        }
+
+        return (
+          <div>
+            <div className="line-clamp-4">{description()}</div>
+            <div className="mt-2 border-t border-dotted pt-2 flex flex-wrap gap-2">
+              {tags?.map((tag, index) => (
+                <Badge key={index} variant="outline">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )
+      },
+    },
+    {
+      header: 'Status',
+      accessorKey: 'status',
+      cell: ({ row }) => <span className="flex items-center gap-2">{row.getValue('status')}</span>,
+    },
+    {
+      header: 'Owner',
+      accessorKey: 'owner',
+      cell: ({ row }) => {
+        const owner = row.getValue<ControlFieldsFragment['owner']>('owner')
+        const users = owner?.users ?? []
+
+        return (
+          <div className="flex items-center gap-2">
+            {users.map((user, index) => (
+              <Fragment key={index}>
+                <Avatar entity={user as Organization} variant="small" />
+                <span>{`${user.firstName} ${user.lastName}`}</span>
+              </Fragment>
+            ))}
+          </div>
+        )
+      },
+    },
+    {
+      header: 'Type',
+      accessorKey: 'type',
+      cell: ({ row }) => <div>{row.getValue('type') || '-'}</div>,
+    },
+    {
+      header: 'Category',
+      accessorKey: 'category',
+      cell: ({ row }) => <div>{row.getValue('category') || '-'}</div>,
+    },
+    {
+      header: 'Subcategory',
+      accessorKey: 'subcategory',
+      cell: ({ row }) => <div>{row.getValue('subcategory') || '-'}</div>,
+    },
+  ]
 
   if (isLoading) return <div>Loading Controls...</div>
   if (isError) return <div>Failed to load Controls</div>

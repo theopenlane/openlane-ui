@@ -1,14 +1,15 @@
 import { GET_ALL_CONTROLS } from '@repo/codegen/query/control'
 import { GET_ALL_CONTROL_OBJECTIVES } from '@repo/codegen/query/control-objective'
+import { GET_ALL_EVIDENCES } from '@repo/codegen/query/evidence'
+import { GET_ALL_GROUPS } from '@repo/codegen/query/group'
+import { GET_ALL_INTERNAL_POLICIES } from '@repo/codegen/query/policy'
+import { GET_ALL_PROCEDURES } from '@repo/codegen/query/procedure'
 import { GET_ALL_PROGRAMS } from '@repo/codegen/query/programs'
 import { GET_ALL_SUBCONTROLS } from '@repo/codegen/query/subcontrol'
 import { TASKS_WITH_FILTER } from '@repo/codegen/query/tasks'
 
-import { Control, Subcontrol, ControlObjective, Program, TaskEdge } from '@repo/codegen/src/schema'
+import { Control, Subcontrol, ControlObjective, Program, TaskEdge, Evidence, Group, InternalPolicy, Procedure } from '@repo/codegen/src/schema'
 
-/**
- * Defines the data shape for all evidence object types, keyed by their respective property.
- */
 export type AllObjectQueriesData = {
   controls?: {
     edges?: Array<{ node: Control }>
@@ -21,6 +22,18 @@ export type AllObjectQueriesData = {
   }
   programs?: {
     edges?: Array<{ node: Program }>
+  }
+  evidences?: {
+    edges?: Array<{ node: Evidence }>
+  }
+  groups?: {
+    edges?: Array<{ node: Group }>
+  }
+  internalPolicies?: {
+    edges?: Array<{ node: InternalPolicy }>
+  }
+  procedures?: {
+    edges?: Array<{ node: Procedure }>
   }
   tasks?: {
     edges?: Array<{ node: TaskEdge }>
@@ -35,6 +48,10 @@ export enum ObjectTypeObjects {
   CONTROL_OBJECTIVE = 'Control Objective',
   PROGRAM = 'Program',
   TASK = 'Task',
+  EVIDENCE = 'Evidence',
+  GROUP = 'Group',
+  INTERNAL_POLICY = 'Internal Policy',
+  PROCEDURE = 'Procedure',
 }
 
 type ObjectQueryConfig = {
@@ -86,5 +103,37 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     queryDocument: TASKS_WITH_FILTER,
     searchAttribute: 'titleContainsFold',
     objectName: 'title',
+  },
+  [ObjectTypeObjects.EVIDENCE]: {
+    responseObjectKey: 'evidences',
+    inputName: 'evidenceIDs',
+    placeholder: 'evidence',
+    queryDocument: GET_ALL_EVIDENCES,
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
+  },
+  [ObjectTypeObjects.GROUP]: {
+    responseObjectKey: 'groups',
+    inputName: 'groupIDs',
+    placeholder: 'group',
+    queryDocument: GET_ALL_GROUPS,
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
+  },
+  [ObjectTypeObjects.INTERNAL_POLICY]: {
+    responseObjectKey: 'internalPolicies',
+    inputName: 'internalPolicyIDs',
+    placeholder: 'internal policy',
+    queryDocument: GET_ALL_INTERNAL_POLICIES,
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
+  },
+  [ObjectTypeObjects.PROCEDURE]: {
+    responseObjectKey: 'procedures',
+    inputName: 'procedureIDs',
+    placeholder: 'procedure',
+    queryDocument: GET_ALL_PROCEDURES,
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
   },
 }
