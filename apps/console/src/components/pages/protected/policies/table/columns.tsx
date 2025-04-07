@@ -3,11 +3,9 @@ import Link from 'next/link'
 import { format } from 'date-fns'
 import React from 'react'
 import { Actions } from '@/components/pages/protected/policies/actions/actions.tsx'
+import { InternalPolicy } from '@repo/codegen/src/schema.ts'
 
-type PoliciesEdge = any
-export type Policies = NonNullable<PoliciesEdge>['node']
-
-export const policiesColumns: ColumnDef<Policies>[] = [
+export const policiesColumns: ColumnDef<InternalPolicy>[] = [
   {
     accessorKey: 'displayID',
     header: 'Display ID',

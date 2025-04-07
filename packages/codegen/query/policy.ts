@@ -41,13 +41,14 @@ export const GET_INTERNAL_POLICIES_LIST = gql`
         node {
           id
           name
-          policyType
-          tags
+          displayID
+          status
           revision
           updatedAt
           updatedBy
           createdAt
           createdBy
+          tags
           details
         }
       }
