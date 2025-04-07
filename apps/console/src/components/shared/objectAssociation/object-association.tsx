@@ -12,12 +12,10 @@ import ObjectAssociationPlaceholder from '@/components/shared/object-association
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { TObjectAssociationMap } from './types/TObjectAssociationMap'
 
-type InitialData = Partial<Record<`${Lowercase<string>}IDs`, string[]>>
-
 type Props = {
   onIdChange: (updatedMap: TObjectAssociationMap) => void
   excludeObjectTypes?: ObjectTypeObjects[]
-  initialData?: InitialData
+  initialData?: TObjectAssociationMap
 }
 
 const ObjectAssociation: React.FC<Props> = ({ onIdChange, excludeObjectTypes, initialData }) => {

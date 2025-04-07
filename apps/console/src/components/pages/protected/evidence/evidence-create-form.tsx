@@ -35,20 +35,13 @@ const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
   const [tagValues, setTagValues] = useState<Option[]>([])
   const [resetEvidenceFiles, setResetEvidenceFiles] = useState(false)
   const [resetObjectAssociation, setResetObjectAssociation] = useState(false)
-  const [evidenceObjectTypes, setEvidenceObjectTypes] = useState<TEvidenceObjectTypes[]>([])
-  const [preselectedObjectTypes, setPreselectedObjectTypes] = useState<string[]>([])
+  const [evidenceObjectTypes, setEvidenceObjectTypes] = useState<TObjectAssociationMap>()
+  const [preselectedObjectTypes, setPreselectedObjectTypes] = useState<Partial<Record<`${Lowercase<string>}IDs`, string[]>>>()
   const { data: sessionData } = useSession()
   const { mutateAsync: createEvidence, isPending } = useCreateEvidence()
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
-    const controlObjectives = evidenceObjectTypes?.reduce(
-      (acc, item) => {
-        acc[item.inputName] = item.objectIds
-        return acc
-      },
-      {} as Record<string, string[]>,
-    )
-
+    console.log(evidenceObjectTypes)
     const formData = {
       input: {
         name: data.name,
@@ -62,7 +55,7 @@ const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
         fileIDs: data.fileIDs,
         taskIDs: data?.taskIDs,
         ...(data.url ? { url: data.url } : {}),
-        ...controlObjectives,
+        ...evidenceObjectTypes,
       } as CreateEvidenceInput,
       evidenceFiles: data.evidenceFiles?.map((item) => item.file) || [],
     }
@@ -94,13 +87,14 @@ const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
       form.setValue('programIDs', props.taskData?.programIDs?.edges?.map((item: any) => item?.node?.id) || [])
       form.setValue('controlIDs', props.taskData?.controlIDs?.edges?.map((item: any) => item?.node?.id) || [])
       form.setValue('taskIDs', props.taskData?.taskId ? [props.taskData.taskId] : [])
-      setPreselectedObjectTypes([
-        ...(props.taskData?.controlObjectiveIDs?.edges?.map((item: any) => item?.node?.displayID) || []),
-        ...(props.taskData?.subcontrolIDs?.edges?.map((item: any) => item?.node?.displayID) || []),
-        ...(props.taskData?.programIDs?.edges?.map((item: any) => item?.node?.displayID) || []),
-        ...(props.taskData?.controlIDs?.edges?.map((item: any) => item?.node?.displayID) || []),
-        props.taskData?.displayID,
-      ])
+      const preselectedObjectTypes: TObjectAssociationMap = {
+        controlObjectiveIDs: props.taskData?.controlObjectiveIDs?.edges?.map((item: any) => item?.node?.id) || [],
+        subcontrolIDs: props.taskData?.subcontrolIDs?.edges?.map((item: any) => item?.node?.id) || [],
+        programIDs: props.taskData?.programIDs?.edges?.map((item: any) => item?.node?.id) || [],
+        controlIDs: props.taskData?.controlIDs?.edges?.map((item: any) => item?.node?.id) || [],
+        taskIDs: props.taskData?.taskId ? [props.taskData?.taskId] : [],
+      }
+      setPreselectedObjectTypes(preselectedObjectTypes)
 
       if (props.taskData?.tags) {
         form.setValue('tags', props.taskData.tags)
@@ -116,7 +110,7 @@ const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
   }, [])
 
   const handleEvidenceObjectIdsChange = (updatedMap: TObjectAssociationMap) => {
-    // setEvidenceObjectTypes(evidenceObjectTypes)
+    setEvidenceObjectTypes(updatedMap)
   }
 
   const handleUploadedFiles = (evidenceFiles: TUploadedFile[]) => {
@@ -311,7 +305,7 @@ const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
             </div>
 
             <div className="col-span-1">
-              <ObjectAssociation onIdChange={handleEvidenceObjectIdsChange} excludeObjectTypes={props?.excludeObjectTypes || []} />
+              <ObjectAssociation onIdChange={handleEvidenceObjectIdsChange} excludeObjectTypes={props?.excludeObjectTypes || []} initialData={preselectedObjectTypes} />
               {/* <EvidenceObjectAssociation
                 onEvidenceObjectIdsChange={handleEvidenceObjectIdsChange}
                 resetObjectAssociation={resetObjectAssociation}

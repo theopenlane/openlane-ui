@@ -8,7 +8,7 @@ import { TObjectAssociationMap } from './types/TObjectAssociationMap'
 type Props = {
   data: TObjectAssociationColumn[]
   onIDsChange: (objectIds: TObjectAssociationMap) => void
-  initialData?: Partial<Record<`${Lowercase<string>}IDs`, string[]>>
+  initialData?: TObjectAssociationMap
 }
 
 const ObjectAssociationTable = ({ data, onIDsChange, initialData }: Props) => {
@@ -44,9 +44,7 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData }: Props) => {
               return { ...prev, [inputName]: [...currentList, id] }
             } else {
               const updatedList = currentList.filter((i) => i !== id)
-              const next = { ...prev, [inputName]: updatedList }
-              if (updatedList.length === 0) delete next[inputName]
-              return next
+              return { ...prev, [inputName]: updatedList }
             }
           })
         }

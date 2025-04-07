@@ -57,11 +57,7 @@ const EvidenceCreateFormDialog: React.FC<TProps> = (props: TProps) => {
           {/* <DialogTitle>Submit Evidence for {props.taskData?.displayID}</DialogTitle> */}
         </DialogHeader>
         <div className={formInput()}>
-          <EvidenceCreateForm
-            taskData={props.taskData}
-            onEvidenceCreateSuccess={handleSuccess}
-            excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.CONTROL, ObjectTypeObjects.CONTROL_OBJECTIVE, ObjectTypeObjects.GROUP]}
-          />
+          <EvidenceCreateForm taskData={props.taskData} onEvidenceCreateSuccess={handleSuccess} excludeObjectTypes={[ObjectTypeObjects.EVIDENCE]} />
         </div>
       </DialogContent>
     </Dialog>
