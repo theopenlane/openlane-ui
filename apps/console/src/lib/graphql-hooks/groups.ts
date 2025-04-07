@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { GET_ALL_GROUPS, GET_GROUP_DETAILS, GET_GROUP_PERMISSIONS, CREATE_GROUP_WITH_MEMBERS, UPDATE_GROUP, DELETE_GROUP, UPDATE_GROUP_MEMBERSHIP } from '@repo/codegen/query/group' // adjust path as needed
+import { GET_ALL_GROUPS, GET_GROUP_DETAILS, GET_GROUP_PERMISSIONS, CREATE_GROUP_WITH_MEMBERS, UPDATE_GROUP, DELETE_GROUP, UPDATE_GROUP_MEMBERSHIP, SEARCH_GROUPS } from '@repo/codegen/query/group' // adjust path as needed
 
 import {
   GetAllGroupsQuery,
@@ -17,8 +17,11 @@ import {
   DeleteGroupMutationVariables,
   UpdateGroupMembershipMutation,
   UpdateGroupMembershipMutationVariables,
-  Program,
+  SearchGroupsQuery,
+  SearchGroupsQueryVariables,
+  Group,
 } from '@repo/codegen/src/schema'
+import { useDebounce } from '../../../../../packages/ui/src/hooks/use-debounce'
 
 type UseGetAllGroupsArgs = {
   where?: GetAllGroupsQueryVariables['where']
@@ -26,14 +29,50 @@ type UseGetAllGroupsArgs = {
   enabled?: boolean
 }
 
+export const useFilteredGroups = (searchQuery: string, where?: GetAllGroupsQueryVariables['where'], orderBy?: GetAllGroupsQueryVariables['orderBy'], enabled = true) => {
+  const debouncedSearchTerm = useDebounce(searchQuery, 300)
+  const { groups: allGroups, isLoading: isFetchingAll, ...allQueryRest } = useGetAllGroups({ where, orderBy, enabled })
+  const { groups: searchGroupsRaw, isLoading: isSearching, ...searchQueryRest } = useSearchGroups(debouncedSearchTerm)
+  const showSearch = !!debouncedSearchTerm
+  const filteredAndOrderedGroups = showSearch ? allGroups?.filter((proc) => searchGroupsRaw?.some((searchProc) => searchProc.id === proc.id)) : allGroups
+  const isLoading = showSearch ? isSearching : isFetchingAll
+
+  return {
+    groups: filteredAndOrderedGroups,
+    isLoading,
+    ...(showSearch ? searchQueryRest : allQueryRest),
+  }
+}
+
 export const useGetAllGroups = ({ where, orderBy, enabled = true }: UseGetAllGroupsArgs) => {
   const { client } = useGraphQLClient()
 
-  return useQuery<GetAllGroupsQuery>({
+  const queryResult = useQuery<GetAllGroupsQuery>({
     queryKey: ['groups', { where, orderBy }],
     queryFn: () => client.request<GetAllGroupsQuery, GetAllGroupsQueryVariables>(GET_ALL_GROUPS, { where, orderBy }),
     enabled,
   })
+
+  const groups = (queryResult.data?.groups?.edges?.map((edge) => edge?.node) ?? []) as Group[]
+
+  return { ...queryResult, groups }
+}
+
+export function useSearchGroups(searchQuery: string) {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<SearchGroupsQuery, unknown>({
+    queryKey: ['searchGroups', searchQuery],
+    queryFn: async () =>
+      client.request<SearchGroupsQuery, SearchGroupsQueryVariables>(SEARCH_GROUPS, {
+        query: searchQuery,
+      }),
+    enabled: !!searchQuery,
+  })
+
+  const groups = (queryResult.data?.groupSearch?.groups ?? []) as Group[]
+
+  return { ...queryResult, groups }
 }
 
 export const useGetGroupDetails = (groupId: string | null) => {

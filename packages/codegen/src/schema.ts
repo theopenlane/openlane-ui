@@ -31245,6 +31245,42 @@ export type GetGroupPermissionsQuery = {
   }
 }
 
+export type SearchGroupsQueryVariables = Exact<{
+  query: Scalars['String']['input']
+}>
+
+export type SearchGroupsQuery = {
+  __typename?: 'Query'
+  groupSearch?: {
+    __typename?: 'GroupSearchResult'
+    groups?: Array<{
+      __typename?: 'Group'
+      id: string
+      name: string
+      description?: string | null
+      displayName: string
+      logoURL?: string | null
+      isManaged?: boolean | null
+      tags?: Array<string> | null
+      members?: Array<{
+        __typename?: 'GroupMembership'
+        id: string
+        role: GroupMembershipRole
+        user: {
+          __typename?: 'User'
+          id: string
+          firstName?: string | null
+          lastName?: string | null
+          avatarRemoteURL?: string | null
+          role?: UserRole | null
+          avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+        }
+      }> | null
+      setting?: { __typename?: 'GroupSetting'; visibility: GroupSettingVisibility; joinPolicy: GroupSettingJoinPolicy; syncToSlack?: boolean | null; syncToGithub?: boolean | null; id: string } | null
+    }> | null
+  } | null
+}
+
 export type UpdateUserRoleInOrgMutationVariables = Exact<{
   updateOrgMemberId: Scalars['ID']['input']
   input: UpdateOrgMembershipInput

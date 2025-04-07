@@ -13,27 +13,7 @@ import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { FilterField, SelectFilterField } from '@/types'
 import { useSession } from 'next-auth/react'
 import { useDebounce } from '@uidotdev/usehooks'
-import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
-
-export interface Group {
-  id: string
-  name: string
-  description?: string
-  tags: string[]
-  visibility: GroupSettingVisibility
-  members: {
-    id: string
-    user: {
-      firstName?: string
-      lastName?: string
-      avatarFile?: { presignedURL?: string }
-      avatarRemoteURL?: string
-      role?: UserRole
-      id: string
-    }
-  }[]
-  isManaged: boolean
-}
+import { useFilteredGroups } from '@/lib/graphql-hooks/groups'
 
 const filterFields: FilterField[] = [
   { key: 'name', label: 'Name', type: 'text' },
@@ -74,7 +54,7 @@ const GroupsPage = () => {
     return orderBy || undefined
   }, [orderBy])
 
-  const { data, isError, isPending } = useGetAllGroups({ where: whereFilter, orderBy: orderByFilter })
+  const { groups, isError, isPending } = useFilteredGroups(searchQuery, whereFilter, orderByFilter)
   return (
     <>
       <PageHeading heading={'Groups'} />
@@ -106,7 +86,7 @@ const GroupsPage = () => {
         <CreateGroupDialog />
       </div>
 
-      {activeTab === 'table' ? <GroupsTable queryResult={data} isError={isError} onSortChange={setOrderBy} /> : <GroupsCard isError={isError} isPending={isPending} queryResult={data} />}
+      {activeTab === 'table' ? <GroupsTable groups={groups} isError={isError} onSortChange={setOrderBy} /> : <GroupsCard isError={isError} isPending={isPending} groups={groups} />}
       <GroupDetailsSheet />
     </>
   )
