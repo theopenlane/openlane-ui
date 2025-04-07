@@ -38,7 +38,7 @@ export const taskColumns: ColumnDef<Task>[] = [
     accessorKey: 'assignee',
     header: 'Assignee',
     cell: ({ row }) => {
-      return <AssigneeCell assignee={row.original.assignee!} taskId={+row.original.id!} />
+      return <AssigneeCell assignee={row.original.assignee!} taskId={row.original.id!} />
     },
   },
   {

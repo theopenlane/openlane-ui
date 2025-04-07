@@ -13,7 +13,7 @@ import { Check, CircleUser, X } from 'lucide-react'
 
 type TProps = {
   assignee?: User
-  taskId: number
+  taskId: string
 }
 
 const AssigneeCell: React.FC<TProps> = (props: TProps) => {
