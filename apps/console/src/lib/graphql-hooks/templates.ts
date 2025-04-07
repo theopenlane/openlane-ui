@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
-import { CREATE_TEMPLATE, UPDATE_TEMPLATE, GET_ALL_TEMPLATES, FILTER_TEMPLATES, GET_TEMPLATE, DELETE_TEMPLATE } from '@repo/codegen/query/template'
+import { CREATE_TEMPLATE, UPDATE_TEMPLATE, GET_ALL_TEMPLATES, FILTER_TEMPLATES, GET_TEMPLATE, DELETE_TEMPLATE, SEARCH_TEMPLATE } from '@repo/codegen/query/template'
 
 import {
   CreateTemplateMutation,
@@ -15,7 +15,11 @@ import {
   GetTemplateQueryVariables,
   DeleteTemplateMutation,
   DeleteTemplateMutationVariables,
+  SearchTemplatesQuery,
+  SearchTemplatesQueryVariables,
+  Template,
 } from '@repo/codegen/src/schema'
+import { useDebounce } from '../../../../../packages/ui/src/hooks/use-debounce'
 
 export const useGetAllTemplates = () => {
   const { client } = useGraphQLClient()
@@ -26,14 +30,50 @@ export const useGetAllTemplates = () => {
   })
 }
 
+export const useFilteredTemplates = (searchQuery: string, where?: FilterTemplatesQueryVariables['where'], orderBy?: FilterTemplatesQueryVariables['orderBy']) => {
+  const debouncedSearchTerm = useDebounce(searchQuery, 300)
+  const { templates: allTemplates, isLoading: isFetchingAll, ...allQueryRest } = useFilterTemplates(where, orderBy)
+  const { templates: searchTemplatesRaw, isLoading: isSearching, ...searchQueryRest } = useSearchTemplates(debouncedSearchTerm)
+  const showSearch = !!debouncedSearchTerm
+  const filteredAndOrderedTemplates = showSearch ? allTemplates?.filter((proc) => searchTemplatesRaw?.some((searchProc) => searchProc.id === proc.id)) : allTemplates
+  const isLoading = showSearch ? isSearching : isFetchingAll
+
+  return {
+    templates: filteredAndOrderedTemplates,
+    isLoading,
+    ...(showSearch ? searchQueryRest : allQueryRest),
+  }
+}
+
+export function useSearchTemplates(searchQuery: string) {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<SearchTemplatesQuery, unknown>({
+    queryKey: ['searchTemplates', searchQuery],
+    queryFn: async () =>
+      client.request<SearchTemplatesQuery, SearchTemplatesQueryVariables>(SEARCH_TEMPLATE, {
+        query: searchQuery,
+      }),
+    enabled: !!searchQuery,
+  })
+
+  const templates = (queryResult.data?.templateSearch?.templates ?? []) as Template[]
+
+  return { ...queryResult, templates }
+}
+
 export const useFilterTemplates = (where?: FilterTemplatesQueryVariables['where'], orderBy?: FilterTemplatesQueryVariables['orderBy']) => {
   const { client } = useGraphQLClient()
 
-  return useQuery<FilterTemplatesQuery>({
+  const queryResult = useQuery<FilterTemplatesQuery>({
     queryKey: ['templates', 'filter', { where, orderBy }],
     queryFn: () => client.request(FILTER_TEMPLATES, { where, orderBy }),
     enabled: where !== undefined,
   })
+
+  const templates = (queryResult.data?.templates?.edges?.map((edge) => edge?.node) ?? []) as Template[]
+
+  return { ...queryResult, templates }
 }
 
 export const useGetTemplate = (getTemplateId?: string) => {

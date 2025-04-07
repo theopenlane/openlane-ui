@@ -1,11 +1,7 @@
 import { ColumnDef } from '@tanstack/react-table'
-import { GetAllTemplatesQuery } from '@repo/codegen/src/schema.ts'
 import { format } from 'date-fns'
 import { Actions } from '@/components/pages/protected/questionnaire/actions/actions.tsx'
-
-type TemplateEdge = NonNullable<NonNullable<GetAllTemplatesQuery['templates']>['edges']>[number]
-
-export type Template = NonNullable<TemplateEdge>['node']
+import { Template } from '@repo/codegen/src/schema'
 
 export const questionnaireColumns: ColumnDef<Template>[] = [
   {

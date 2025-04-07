@@ -32299,6 +32299,28 @@ export type DeleteTemplateMutationVariables = Exact<{
 
 export type DeleteTemplateMutation = { __typename?: 'Mutation'; deleteTemplate: { __typename?: 'TemplateDeletePayload'; deletedID: string } }
 
+export type SearchTemplatesQueryVariables = Exact<{
+  query: Scalars['String']['input']
+}>
+
+export type SearchTemplatesQuery = {
+  __typename?: 'Query'
+  templateSearch?: {
+    __typename?: 'TemplateSearchResult'
+    templates?: Array<{
+      __typename?: 'Template'
+      id: string
+      name: string
+      templateType: TemplateDocumentType
+      description?: string | null
+      jsonconfig: any
+      uischema?: any | null
+      createdAt?: any | null
+      updatedAt?: any | null
+    }> | null
+  } | null
+}
+
 export type GetTfaSettingsQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetTfaSettingsQuery = {
