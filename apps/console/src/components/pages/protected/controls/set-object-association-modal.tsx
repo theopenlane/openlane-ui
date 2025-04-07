@@ -113,6 +113,7 @@ export function SetObjectAssociationDialog() {
 
         <ObjectAssociation
           onIdChange={(updatedMap) => {
+            console.log('updatedMap', updatedMap)
             setAssociations(updatedMap)
           }}
           initialData={initialData}

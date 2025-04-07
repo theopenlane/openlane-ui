@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
 import { ControlFieldsFragment, Group } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
-import { CircleUser, CircleArrowRight, ChevronsUpDown, Check } from 'lucide-react'
+import { CircleUser, CircleArrowRight, ChevronsUpDown, Check, ChevronDown } from 'lucide-react'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useFormContext, Controller } from 'react-hook-form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
@@ -109,11 +109,11 @@ export const SearchableSingleSelect: React.FC<SearchableSingleSelectProps> = ({ 
           <div className="w-[200px]">
             <label className="text-sm font-medium block mb-1">{formLabel}</label>
             <Popover open={open} onOpenChange={setOpen}>
-              <PopoverTrigger asChild>
-                <Button role="combobox" aria-expanded={open} className="w-full justify-between border-brand bg-input-background">
-                  {selected?.label || placeholder}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
+              <PopoverTrigger asChild className="flex">
+                <div className="w-full flex text-sm h-10 px-3 !py-0 justify-between border-brand border bg-input-background  rounded-md items-center cursor-pointer ">
+                  <span>{selected?.label || placeholder}</span>
+                  <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </div>
               </PopoverTrigger>
               <PopoverContent className="w-[200px] p-0">
                 <Command>

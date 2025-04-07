@@ -12,7 +12,7 @@ type Props = {
 }
 
 const ObjectAssociationTable = ({ data, onIDsChange, initialData }: Props) => {
-  const [selectedIdsMap, setSelectedIdsMap] = useState<Partial<Record<string, string[]>>>({})
+  const [selectedIdsMap, setSelectedIdsMap] = useState<TObjectAssociationMap>({})
 
   useEffect(() => {
     if (initialData) {
@@ -44,7 +44,8 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData }: Props) => {
               return { ...prev, [inputName]: [...currentList, id] }
             } else {
               const updatedList = currentList.filter((i) => i !== id)
-              return { ...prev, [inputName]: updatedList }
+              const next = { ...prev, [inputName]: updatedList }
+              return next
             }
           })
         }
