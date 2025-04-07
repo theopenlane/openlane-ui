@@ -38,8 +38,9 @@ export const config = {
   ],
   events: {
     async signOut() {
-      if (sessionCookieName && (cookies() as unknown as UnsafeUnwrappedCookies).has(sessionCookieName)) {
-        ;(cookies() as unknown as UnsafeUnwrappedCookies).delete(sessionCookieName)
+      const cookieStore = await cookies()
+      if (sessionCookieName && cookieStore.has(sessionCookieName)) {
+        cookieStore.delete(sessionCookieName)
       }
     },
   },
