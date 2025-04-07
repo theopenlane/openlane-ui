@@ -115,7 +115,7 @@ export const SearchableSingleSelect: React.FC<SearchableSingleSelectProps> = ({ 
                   <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </div>
               </PopoverTrigger>
-              <PopoverContent className="w-[200px] p-0">
+              <PopoverContent className="w-[200px] p-0 !bg-input-background border-brand">
                 <Command>
                   <CommandInput placeholder="Search..." />
                   <CommandList>
@@ -124,13 +124,12 @@ export const SearchableSingleSelect: React.FC<SearchableSingleSelectProps> = ({ 
                       {options.map((option) => (
                         <CommandItem
                           key={option.value}
-                          value={option.label} // 🔥 this is what CommandInput matches against
+                          value={option.label}
                           onSelect={() => {
                             field.onChange(option.value)
                             setOpen(false)
                           }}
                         >
-                          <Check className={cn('mr-2 h-4 w-4', option.value === field.value ? 'opacity-100' : 'opacity-0')} />
                           {option.label}
                         </CommandItem>
                       ))}
