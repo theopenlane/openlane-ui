@@ -3,21 +3,21 @@
 import React from 'react'
 import { Calendar, CircleUser, ListChecks } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
-import { TTableDataResponse } from '@/components/pages/protected/tasks/table/types/TTableDataResponse'
 import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
 import { format } from 'date-fns'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { TaskStatusIconMapper } from '../table/columns'
+import { Task } from '@repo/codegen/src/schema.ts'
 
 interface TProps {
-  tasks: TTableDataResponse[]
+  tasks: Task[]
   loading: boolean
 }
 
 const TaskCards: React.FC<TProps> = (props: TProps) => {
   const { setSelectedTask } = useTaskStore()
 
-  const handleRowClick = (task: TTableDataResponse) => {
+  const handleRowClick = (task: Task) => {
     setSelectedTask(task.id ?? null)
   }
 

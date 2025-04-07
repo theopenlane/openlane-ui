@@ -8,7 +8,6 @@ export const TOKEN_FILTER_FIELDS: FilterField[] = [
 ]
 
 export const TOKEN_SORT_FIELDS = [
-  { key: 'description', label: 'Description' },
   {
     key: 'expires_at',
     label: 'Expires At',

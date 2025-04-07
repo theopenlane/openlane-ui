@@ -1,13 +1,11 @@
 'use client'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import TaskTableToolbar from '@/components/pages/protected/tasks/table/task-table-toolbar'
-import { TTableDataResponse } from '@/components/pages/protected/tasks/table/types/TTableDataResponse'
 import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
-import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task'
 import TaskCards from '@/components/pages/protected/tasks/cards/task-cards'
 import { useTasksWithFilter } from '@/lib/graphql-hooks/tasks'
-import { OrderDirection, TaskOrderField, TasksWithFilterQueryVariables, TaskTaskStatus } from '@repo/codegen/src/schema'
+import { OrderDirection, Task, TaskOrderField, TasksWithFilterQueryVariables, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { taskColumns } from '@/components/pages/protected/tasks/table/columns.tsx'
 import { TASK_SORT_FIELDS } from '@/components/pages/protected/tasks/table/table-config.ts'
 
@@ -38,32 +36,9 @@ const TaskTable: React.FC = () => {
     return orderBy || undefined
   }, [orderBy])
 
-  const { data, isLoading: fetching } = useTasksWithFilter(whereFilter, orderByFilter)
-  const [tableData, setTableData] = useState<TTableDataResponse[]>([])
+  const { tasks, isLoading: fetching } = useTasksWithFilter(whereFilter, orderByFilter)
 
-  useEffect(() => {
-    if (data) {
-      const updatedData =
-        data?.tasks?.edges?.map((item: any) => {
-          return {
-            id: item?.node?.id,
-            displayID: item?.node?.displayID,
-            name: item?.node?.name,
-            details: item?.node?.details,
-            due: item?.node?.due,
-            status: TaskStatusMapper[item?.node?.status as TaskTaskStatus],
-            title: item?.node?.title,
-            assigner: item?.node?.assigner,
-            category: item?.node?.category,
-            assignee: item?.node?.assignee,
-          }
-        }) || []
-
-      setTableData(updatedData)
-    }
-  }, [data!!])
-
-  const handleRowClick = (task: TTableDataResponse) => {
+  const handleRowClick = (task: Task) => {
     setSelectedTask(task.id ?? null)
   }
 
@@ -79,9 +54,9 @@ const TaskTable: React.FC = () => {
     <>
       <TaskTableToolbar onFilterChange={setFilters} members={orgMembers} onTabChange={handleTabChange} onShowCompletedTasksChange={handleShowCompletedTasks} />
       {activeTab === 'table' ? (
-        <DataTable columns={taskColumns} sortFields={TASK_SORT_FIELDS} onSortChange={setOrderBy} data={tableData} loading={fetching} onRowClick={handleRowClick} />
+        <DataTable columns={taskColumns} sortFields={TASK_SORT_FIELDS} onSortChange={setOrderBy} data={tasks} loading={fetching} onRowClick={handleRowClick} />
       ) : (
-        <TaskCards tasks={tableData} loading={fetching} />
+        <TaskCards tasks={tasks} loading={fetching} />
       )}
     </>
   )
