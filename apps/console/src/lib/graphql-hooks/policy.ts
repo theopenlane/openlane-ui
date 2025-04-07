@@ -17,19 +17,40 @@ import {
   GetInternalPoliciesListQueryVariables,
   GetInternalPolicyDetailsByIdQuery,
   GetInternalPolicyDetailsByIdQueryVariables,
+  InternalPolicy,
   SearchInternalPoliciesQuery,
   SearchInternalPoliciesQueryVariables,
   UpdateInternalPolicyMutation,
   UpdateInternalPolicyMutationVariables,
 } from '@repo/codegen/src/schema'
+import { useDebounce } from '../../../../../packages/ui/src/hooks/use-debounce'
+
+export const useFilteredInternalPolicies = (searchQuery: string, where?: GetInternalPoliciesListQueryVariables['where'], orderBy?: GetInternalPoliciesListQueryVariables['orderBy']) => {
+  const debouncedSearchTerm = useDebounce(searchQuery, 300)
+  const { policies: allPolicies, isLoading: isFetchingAll, ...allQueryRest } = useGetInternalPoliciesList(where, orderBy)
+  const { policies: searchPoliciesRaw, isLoading: isSearching, ...searchQueryRest } = useSearchInternalPolicies(debouncedSearchTerm)
+  const showSearch = !!debouncedSearchTerm
+  const filteredAndOrderedPolicies = showSearch ? allPolicies?.filter((policy) => searchPoliciesRaw?.some((searchPolicy) => searchPolicy.id === policy.id)) : allPolicies
+  const isLoading = showSearch ? isSearching : isFetchingAll
+
+  return {
+    policies: filteredAndOrderedPolicies,
+    isLoading,
+    ...(showSearch ? searchQueryRest : allQueryRest),
+  }
+}
 
 export const useGetInternalPoliciesList = (where?: GetInternalPoliciesListQueryVariables['where'], orderBy?: GetInternalPoliciesListQueryVariables['orderBy']) => {
   const { client } = useGraphQLClient()
 
-  return useQuery<GetInternalPoliciesListQuery>({
+  const queryResult = useQuery<GetInternalPoliciesListQuery>({
     queryKey: ['internalPolicies', { where, orderBy }],
     queryFn: async () => client.request(GET_INTERNAL_POLICIES_LIST, { where, orderBy }),
   })
+
+  const policies = (queryResult.data?.internalPolicies?.edges?.map((edge) => edge?.node) ?? []) as InternalPolicy[]
+
+  return { ...queryResult, policies }
 }
 
 export const useGetInternalPolicyDetailsById = (internalPolicyId: string | null) => {
@@ -68,13 +89,17 @@ export const useUpdateInternalPolicy = () => {
 export const useSearchInternalPolicies = (searchQuery: string) => {
   const { client } = useGraphQLClient()
 
-  return useQuery<SearchInternalPoliciesQuery>({
+  const queryResult = useQuery<SearchInternalPoliciesQuery>({
     queryKey: ['internalPoliciesSearch', searchQuery],
     queryFn: async () => {
       return client.request<SearchInternalPoliciesQuery, SearchInternalPoliciesQueryVariables>(SEARCH_INTERNAL_POLICIES, { query: searchQuery })
     },
     enabled: !!searchQuery,
   })
+
+  const policies = (queryResult.data?.internalPolicySearch?.internalPolicies ?? []) as InternalPolicy[]
+
+  return { ...queryResult, policies }
 }
 
 export const useDeleteInternalPolicy = () => {

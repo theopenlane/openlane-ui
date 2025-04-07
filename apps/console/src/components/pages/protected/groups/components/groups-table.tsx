@@ -5,12 +5,12 @@ import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import { GlobeIcon, LockIcon, StarsIcon, Users2Icon } from 'lucide-react'
 import React from 'react'
-import { GetAllGroupsQuery, GroupSettingVisibility } from '@repo/codegen/src/schema'
+import { Group, GroupSettingVisibility } from '@repo/codegen/src/schema'
 import AvatarList from '@/components/shared/avatar-list/avatar-list'
 import { TableCell, TableRow } from '@repo/ui/table'
-import { Group } from '../groups-page'
 import { groupsTableStyles } from './groups-table-styles'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
+import { GROUP_SORT_FIELDS } from '@/components/pages/protected/groups/table/table-config.ts'
 
 const columns: ColumnDef<Group>[] = [
   {
@@ -42,7 +42,7 @@ const columns: ColumnDef<Group>[] = [
     cell: ({ row }) => (
       <div>
         <p>{row.getValue('description')}</p>
-        {!!row.original.tags.length && (
+        {!!row.original?.tags?.length && (
           <div className="mt-2 border-t border-dashed pt-2 flex flex-wrap gap-2">
             {row.original.tags.map((tag: string, index: number) => (
               <Badge key={index} variant="outline">
@@ -58,7 +58,7 @@ const columns: ColumnDef<Group>[] = [
     header: 'Visibility',
     accessorKey: 'visibility',
     cell: ({ row }) => {
-      const value: GroupSettingVisibility = row.getValue('visibility')
+      const value = row.original.setting?.visibility!
       return (
         <span className="flex items-center gap-2 capitalize">
           {value === 'PUBLIC' ? <GlobeIcon height={18} /> : <LockIcon height={18} />}
@@ -75,15 +75,15 @@ const columns: ColumnDef<Group>[] = [
 
       return (
         <div className="flex items-center gap-2">
-          {members.length > 0 ? (
+          {members && members.length > 0 ? (
             <AvatarList
               max={10}
               data={members.map((user) => ({
                 id: user.user.id,
-                imageUrl: user.user.avatarFile?.presignedURL || user.user.avatarRemoteURL,
-                fallback: user?.user?.firstName?.substring(0, 2),
-                firstName: user.user.firstName,
-                lastName: user.user.lastName,
+                imageUrl: user.user.avatarFile?.presignedURL ?? user.user.avatarRemoteURL ?? undefined,
+                fallback: user.user.firstName?.substring(0, 2) ?? undefined,
+                firstName: user.user.firstName ?? undefined,
+                lastName: user.user.lastName ?? undefined,
               }))}
             />
           ) : (
@@ -96,28 +96,15 @@ const columns: ColumnDef<Group>[] = [
 ]
 
 interface Props {
-  queryResult: GetAllGroupsQuery | undefined
+  groups: Group[]
   isError: boolean
+  onSortChange?: (sortCondition: any[]) => void
 }
 
-const GroupsTable = ({ queryResult, isError }: Props) => {
+const GroupsTable = ({ groups, isError, onSortChange }: Props) => {
   const { setSelectedGroup } = useGroupsStore()
 
   const { tableRow, keyIcon, message } = groupsTableStyles()
-
-  const transformedData =
-    queryResult?.groups?.edges
-      ?.map((edge) => edge?.node)
-      .filter((group) => !!group)
-      .map((group) => ({
-        id: group.id,
-        name: group.displayName,
-        description: group.description || 'No description',
-        tags: group.tags || [],
-        visibility: group.setting?.visibility || 'UNKNOWN',
-        members: group.members || [],
-        isManaged: group.isManaged,
-      })) || []
 
   const handleRowClick = (group: Group) => {
     setSelectedGroup(group.id)
@@ -129,8 +116,10 @@ const GroupsTable = ({ queryResult, isError }: Props) => {
     <div className="mt-5">
       <DataTable
         columns={columns as ColumnDef<Group>[]}
-        data={transformedData as Group[]}
+        data={groups}
         onRowClick={handleRowClick}
+        sortFields={GROUP_SORT_FIELDS}
+        onSortChange={onSortChange}
         noDataMarkup={
           <TableRow className={tableRow()}>
             <TableCell colSpan={columns.length}>

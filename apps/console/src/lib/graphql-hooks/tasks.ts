@@ -12,20 +12,31 @@ import {
   DeleteTaskMutationVariables,
   TaskQuery,
   TaskQueryVariables,
-  UserTasksQuery,
   CreateBulkCsvTaskMutation,
   CreateBulkCsvTaskMutationVariables,
+  Task,
+  TaskTaskStatus,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
+import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task.ts'
 
 export const useTasksWithFilter = (where?: TasksWithFilterQueryVariables['where'], orderBy?: TasksWithFilterQueryVariables['orderBy']) => {
   const { client } = useGraphQLClient()
 
-  return useQuery<TasksWithFilterQuery, unknown>({
+  const queryResult = useQuery<TasksWithFilterQuery, unknown>({
     queryKey: ['tasks', { where, orderBy }],
     queryFn: async () => client.request(TASKS_WITH_FILTER, { where, orderBy }),
     enabled: Boolean(where || orderBy),
   })
+
+  const tasks = (queryResult.data?.tasks?.edges?.map((edge) => {
+    return {
+      ...edge?.node,
+      status: TaskStatusMapper[edge?.node?.status as TaskTaskStatus],
+    }
+  }) ?? []) as Task[]
+
+  return { ...queryResult, tasks }
 }
 
 export const useCreateTask = () => {
