@@ -21,6 +21,7 @@ import { TEvidenceObjectTypes } from '@/components/pages/protected/evidence/obje
 import { TTaskDataEvidence } from '@/components/pages/protected/evidence/types/TTaskDataEvidence.ts'
 import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
+import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 
 type TProps = {
   taskData?: TTaskDataEvidence
@@ -114,8 +115,8 @@ const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
     }
   }, [])
 
-  const handleEvidenceObjectIdsChange = (evidenceObjectTypes: TEvidenceObjectTypes[]) => {
-    setEvidenceObjectTypes(evidenceObjectTypes)
+  const handleEvidenceObjectIdsChange = (updatedMap: TObjectAssociationMap) => {
+    // setEvidenceObjectTypes(evidenceObjectTypes)
   }
 
   const handleUploadedFiles = (evidenceFiles: TUploadedFile[]) => {

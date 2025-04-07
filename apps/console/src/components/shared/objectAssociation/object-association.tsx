@@ -10,11 +10,12 @@ import debounce from 'lodash.debounce'
 import ObjectAssociationTable from '@/components/shared/objectAssociation/object-association-table'
 import ObjectAssociationPlaceholder from '@/components/shared/object-association/object-association-placeholder'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
+import { TObjectAssociationMap } from './types/TObjectAssociationMap'
 
 type InitialData = Partial<Record<`${Lowercase<string>}IDs`, string[]>>
 
 type Props = {
-  onIdChange: (objectsWithIds: { inputName: string; objectIds: string[] }[]) => void
+  onIdChange: (updatedMap: TObjectAssociationMap) => void
   excludeObjectTypes?: ObjectTypeObjects[]
   initialData?: InitialData
 }

@@ -1,5 +1,5 @@
 type TObjectAssociationColumn = {
-  id: string | number
+  id: string
   name: string
   description: string
   inputName: string
