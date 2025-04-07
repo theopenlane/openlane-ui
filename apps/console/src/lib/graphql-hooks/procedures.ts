@@ -24,7 +24,9 @@ import {
   DeleteProcedureMutationVariables,
   SearchProceduresQuery,
   SearchProceduresQueryVariables,
+  Procedure,
 } from '@repo/codegen/src/schema'
+import { useDebounce } from '../../../../../packages/ui/src/hooks/use-debounce'
 
 export const useGetAllProceduresWithDetails = () => {
   const { client } = useGraphQLClient()
@@ -35,14 +37,33 @@ export const useGetAllProceduresWithDetails = () => {
   })
 }
 
+export const useFilteredProcedures = (searchQuery: string, where?: GetAllProceduresQueryVariables['where'], orderBy?: GetAllProceduresQueryVariables['orderBy']) => {
+  const debouncedSearchTerm = useDebounce(searchQuery, 300)
+  const { procedures: allProcedures, isLoading: isFetchingAll, ...allQueryRest } = useGetAllProcedures(where, orderBy)
+  const { procedures: searchProceduresRaw, isLoading: isSearching, ...searchQueryRest } = useSearchProcedures(debouncedSearchTerm)
+  const showSearch = !!debouncedSearchTerm
+  const filteredAndOrderedProcedures = showSearch ? allProcedures?.filter((proc) => searchProceduresRaw?.some((searchProc) => searchProc.id === proc.id)) : allProcedures
+  const isLoading = showSearch ? isSearching : isFetchingAll
+
+  return {
+    procedures: filteredAndOrderedProcedures,
+    isLoading,
+    ...(showSearch ? searchQueryRest : allQueryRest),
+  }
+}
+
 export const useGetAllProcedures = (where?: GetAllProceduresQueryVariables['where'], orderBy?: GetAllProceduresQueryVariables['orderBy']) => {
   const { client } = useGraphQLClient()
 
-  return useQuery<GetAllProceduresQuery>({
+  const queryResult = useQuery<GetAllProceduresQuery>({
     queryKey: ['procedures', { where, orderBy }],
     queryFn: () => client.request(GET_ALL_PROCEDURES, { where, orderBy }),
     enabled: where !== undefined,
   })
+
+  const procedures = (queryResult.data?.procedures?.edges?.map((edge) => edge?.node) ?? []) as Procedure[]
+
+  return { ...queryResult, procedures }
 }
 
 export const useGetProcedureDetailsById = (procedureId?: string) => {
@@ -84,7 +105,7 @@ export const useDeleteProcedure = () => {
 export function useSearchProcedures(searchQuery: string) {
   const { client } = useGraphQLClient()
 
-  return useQuery<SearchProceduresQuery, unknown>({
+  const queryResult = useQuery<SearchProceduresQuery, unknown>({
     queryKey: ['searchProcedures', searchQuery],
     queryFn: async () =>
       client.request<SearchProceduresQuery, SearchProceduresQueryVariables>(SEARCH_PROCEDURES, {
@@ -92,4 +113,8 @@ export function useSearchProcedures(searchQuery: string) {
       }),
     enabled: !!searchQuery,
   })
+
+  const procedures = (queryResult.data?.procedureSearch?.procedures ?? []) as Procedure[]
+
+  return { ...queryResult, procedures }
 }

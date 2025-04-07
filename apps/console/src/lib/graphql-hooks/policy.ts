@@ -28,14 +28,13 @@ import { useDebounce } from '../../../../../packages/ui/src/hooks/use-debounce'
 export const useFilteredInternalPolicies = (searchQuery: string, where?: GetInternalPoliciesListQueryVariables['where'], orderBy?: GetInternalPoliciesListQueryVariables['orderBy']) => {
   const debouncedSearchTerm = useDebounce(searchQuery, 300)
   const { policies: allPolicies, isLoading: isFetchingAll, ...allQueryRest } = useGetInternalPoliciesList(where, orderBy)
-  const { policies: searchPolicies, isLoading: isSearching, ...searchQueryRest } = useSearchInternalPolicies(debouncedSearchTerm)
-
+  const { policies: searchPoliciesRaw, isLoading: isSearching, ...searchQueryRest } = useSearchInternalPolicies(debouncedSearchTerm)
   const showSearch = !!debouncedSearchTerm
-  const policies = showSearch ? searchPolicies : allPolicies
+  const filteredAndOrderedPolicies = showSearch ? allPolicies?.filter((policy) => searchPoliciesRaw?.some((searchPolicy) => searchPolicy.id === policy.id)) : allPolicies
   const isLoading = showSearch ? isSearching : isFetchingAll
 
   return {
-    policies,
+    policies: filteredAndOrderedPolicies,
     isLoading,
     ...(showSearch ? searchQueryRest : allQueryRest),
   }
