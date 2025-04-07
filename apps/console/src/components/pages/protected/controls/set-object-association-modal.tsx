@@ -8,6 +8,7 @@ import { useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
+import { useNotification } from '@/hooks/useNotification'
 
 export function SetObjectAssociationDialog() {
   const { id } = useParams<{ id: string }>()
@@ -16,6 +17,9 @@ export function SetObjectAssociationDialog() {
   const [associations, setAssociations] = useState<TObjectAssociationMap>({})
   const [isSaving, setIsSaving] = useState(false)
   const [open, setOpen] = useState(false)
+  const [saveEnabled, setSaveEnabled] = useState(false)
+
+  const { errorNotification, successNotification } = useNotification()
 
   const initialData: TObjectAssociationMap = useMemo(() => {
     return {
@@ -85,10 +89,10 @@ export function SetObjectAssociationDialog() {
         input: associationInputs,
       })
 
-      console.log('Associations updated successfully.')
+      successNotification({ title: 'Control updated' })
       setOpen(false)
     } catch (error) {
-      console.error('Failed to update associations:', error)
+      errorNotification({ title: 'Could not update Control, please try again later' })
     } finally {
       setIsSaving(false)
     }
@@ -113,13 +117,14 @@ export function SetObjectAssociationDialog() {
 
         <ObjectAssociation
           onIdChange={(updatedMap) => {
+            setSaveEnabled(saveEnabled)
             setAssociations(updatedMap)
           }}
           initialData={initialData}
           excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.CONTROL, ObjectTypeObjects.CONTROL_OBJECTIVE, ObjectTypeObjects.GROUP]}
         />
         <DialogFooter>
-          <Button onClick={onSave} disabled={isSaving}>
+          <Button onClick={onSave} disabled={isSaving || saveEnabled}>
             {isSaving ? 'Saving...' : 'Save'}
           </Button>
           <Button variant="outline" onClick={() => setOpen(false)}>
