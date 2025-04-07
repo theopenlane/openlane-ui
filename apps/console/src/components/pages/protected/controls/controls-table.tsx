@@ -14,7 +14,7 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Value } from '@udecode/plate-common'
 
 const ControlsTable: React.FC = () => {
-  const { data: controlsData, isLoading, isError } = useGetAllControls({})
+  const { data: controlsData, isLoading, isError } = useGetAllControls({ ownerIDIsNil: false })
   const { push } = useRouter()
   const plateEditorHelper = usePlateEditor()
 

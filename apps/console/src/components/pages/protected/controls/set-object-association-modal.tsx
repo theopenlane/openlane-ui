@@ -1,6 +1,6 @@
 'use client'
 
-import { useUpdateControl } from '@/lib/graphql-hooks/controls'
+import { useGetControlById, useUpdateControl } from '@/lib/graphql-hooks/controls'
 import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
@@ -11,6 +11,15 @@ import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-
 export function SetObjectAssociationDialog() {
   const { id } = useParams<{ id: string }>()
   const { mutateAsync: updateControl } = useUpdateControl()
+  const { data: controlData } = useGetControlById(id)
+
+  const initialData = {
+    programIDs: controlData?.control?.programs?.edges?.map((e) => e?.node?.id) ?? [],
+    taskIDs: controlData?.control?.tasks?.edges?.map((e) => e?.node?.id) ?? [],
+    riskIDs: controlData?.control?.risks?.edges?.map((e) => e?.node?.id) ?? [],
+    procedureIDs: controlData?.control?.procedures?.edges?.map((e) => e?.node?.id) ?? [],
+    internalPolicyIDs: controlData?.control?.internalPolicies?.edges?.map((e) => e?.node?.id) ?? [],
+  }
 
   const [associations, setAssociations] = useState<{ inputName: string; objectIds: string[] }[]>([])
   const [isSaving, setIsSaving] = useState(false)
@@ -66,7 +75,8 @@ export function SetObjectAssociationDialog() {
             console.log('Selected associations:', objectsWithIds)
             setAssociations(objectsWithIds)
           }}
-          excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.CONTROL]}
+          initialData={initialData}
+          excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.CONTROL, ObjectTypeObjects.CONTROL_OBJECTIVE, ObjectTypeObjects.GROUP]}
         />
         <DialogFooter>
           <Button onClick={onSave} disabled={isSaving}>

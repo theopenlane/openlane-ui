@@ -7,6 +7,7 @@ import { dialogStyles } from '@/components/pages/protected/program/dialog.styles
 import { TTaskDataEvidence } from '@/components/pages/protected/evidence/types/TTaskDataEvidence.ts'
 import { useParams, usePathname } from 'next/navigation'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
+import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 
 type TProps = {
   taskData?: TTaskDataEvidence
@@ -56,7 +57,11 @@ const EvidenceCreateFormDialog: React.FC<TProps> = (props: TProps) => {
           {/* <DialogTitle>Submit Evidence for {props.taskData?.displayID}</DialogTitle> */}
         </DialogHeader>
         <div className={formInput()}>
-          <EvidenceCreateForm taskData={props.taskData} onEvidenceCreateSuccess={handleSuccess} />
+          <EvidenceCreateForm
+            taskData={props.taskData}
+            onEvidenceCreateSuccess={handleSuccess}
+            excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.CONTROL, ObjectTypeObjects.CONTROL_OBJECTIVE, ObjectTypeObjects.GROUP]}
+          />
         </div>
       </DialogContent>
     </Dialog>

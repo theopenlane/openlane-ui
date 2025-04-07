@@ -5,6 +5,7 @@ import { GET_ALL_GROUPS } from '@repo/codegen/query/group'
 import { GET_ALL_INTERNAL_POLICIES } from '@repo/codegen/query/policy'
 import { GET_ALL_PROCEDURES } from '@repo/codegen/query/procedure'
 import { GET_ALL_PROGRAMS } from '@repo/codegen/query/programs'
+import { GET_ALL_RISKS } from '@repo/codegen/query/risks'
 import { GET_ALL_SUBCONTROLS } from '@repo/codegen/query/subcontrol'
 import { TASKS_WITH_FILTER } from '@repo/codegen/query/tasks'
 
@@ -38,6 +39,9 @@ export type AllObjectQueriesData = {
   tasks?: {
     edges?: Array<{ node: TaskEdge }>
   }
+  risks?: {
+    edges?: Array<{ node: TaskEdge }>
+  }
 }
 
 export type AllObjectQueriesDataKey = keyof AllObjectQueriesData
@@ -52,6 +56,7 @@ export enum ObjectTypeObjects {
   GROUP = 'Group',
   INTERNAL_POLICY = 'Internal Policy',
   PROCEDURE = 'Procedure',
+  RISK = 'Risk',
 }
 
 type ObjectQueryConfig = {
@@ -133,6 +138,14 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     inputName: 'procedureIDs',
     placeholder: 'procedure',
     queryDocument: GET_ALL_PROCEDURES,
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
+  },
+  [ObjectTypeObjects.RISK]: {
+    responseObjectKey: 'risks',
+    inputName: 'riskIDs',
+    placeholder: 'risk',
+    queryDocument: GET_ALL_RISKS,
     searchAttribute: 'nameContainsFold',
     objectName: 'name',
   },

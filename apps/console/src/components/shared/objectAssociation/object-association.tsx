@@ -7,24 +7,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/selec
 import { AllObjectQueriesData, OBJECT_QUERY_CONFIG, ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { useQuery } from '@tanstack/react-query'
 import debounce from 'lodash.debounce'
-import EvidenceObjectAssociationTable from '@/components/pages/protected/evidence/object-association/evidence-object-association-table'
+import ObjectAssociationTable from '@/components/shared/objectAssociation/object-association-table'
 import ObjectAssociationPlaceholder from '@/components/shared/object-association/object-association-placeholder'
-import { UseFormReturn } from 'react-hook-form'
-import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
+type InitialData = Partial<Record<`${Lowercase<string>}IDs`, string[]>>
+
 type Props = {
-  form?: UseFormReturn<CreateEvidenceFormData>
   onIdChange: (objectsWithIds: { inputName: string; objectIds: string[] }[]) => void
   excludeObjectTypes?: ObjectTypeObjects[]
+  initialData?: InitialData
 }
 
-const ObjectAssociation: React.FC<Props> = ({ form, onIdChange, excludeObjectTypes }) => {
+const ObjectAssociation: React.FC<Props> = ({ onIdChange, excludeObjectTypes, initialData }) => {
   const { client } = useGraphQLClient()
   const [selectedObject, setSelectedObject] = useState<ObjectTypeObjects | null>(null)
   const [searchValue, setSearchValue] = useState('')
   const [debouncedSearchValue, setDebouncedSearchValue] = useState('')
-  const [formData, setFormData] = useState<any[]>([])
+  const [TableData, setTableData] = useState<any[]>([])
 
   const debouncedSetSearchValue = useCallback(
     debounce((value) => setDebouncedSearchValue(value), 300),
@@ -58,7 +58,7 @@ const ObjectAssociation: React.FC<Props> = ({ form, onIdChange, excludeObjectTyp
           description: item?.node?.description || '',
           inputName: inputName || '',
         })) || []
-      setFormData(updatedData)
+      setTableData(updatedData)
     }
   }, [data, objectKey])
 
@@ -98,7 +98,7 @@ const ObjectAssociation: React.FC<Props> = ({ form, onIdChange, excludeObjectTyp
         </div>
       </div>
       {selectedObject ? (
-        <EvidenceObjectAssociationTable data={formData} onEvidenceObjectIdsChange={onIdChange} form={form} />
+        <ObjectAssociationTable data={TableData} onIDsChange={onIdChange} initialData={initialData} />
       ) : (
         <div className="flex items-center justify-center w-full">
           <ObjectAssociationPlaceholder />

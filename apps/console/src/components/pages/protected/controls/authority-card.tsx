@@ -1,13 +1,19 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
 import { ControlFieldsFragment, Group } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
-import { CircleUser, CircleArrowRight } from 'lucide-react'
+import { CircleUser, CircleArrowRight, ChevronsUpDown, Check } from 'lucide-react'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useFormContext, Controller } from 'react-hook-form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
+import { Input } from '@repo/ui/input'
+import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
+import { Button } from '@repo/ui/button'
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
+import { cn } from '@repo/ui/lib/utils'
 
 interface AuthorityCardProps {
   controlOwner: ControlFieldsFragment['controlOwner']
@@ -33,23 +39,14 @@ const AuthorityCard: React.FC<AuthorityCardProps> = ({ controlOwner, delegate, i
           </div>
 
           {isEditing ? (
-            <Controller
-              control={control}
-              name="controlOwnerID"
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder="Select owner group" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {groups.map((group) => (
-                      <SelectItem key={group.id} value={group.id}>
-                        {group.displayName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
+            <SearchableSingleSelect
+              fieldName="controlOwnerID"
+              formLabel="Owner"
+              placeholder="Select a group"
+              options={groups.map((g) => ({
+                label: g.displayName,
+                value: g.id,
+              }))}
             />
           ) : (
             <div className="flex gap-2">
@@ -67,23 +64,14 @@ const AuthorityCard: React.FC<AuthorityCardProps> = ({ controlOwner, delegate, i
           </div>
 
           {isEditing ? (
-            <Controller
-              control={control}
-              name="delegateID"
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder="Select delegate group" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {groups.map((group) => (
-                      <SelectItem key={group.id} value={group.id}>
-                        {group.displayName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
+            <SearchableSingleSelect
+              fieldName="delegateID"
+              formLabel="Delegate"
+              placeholder="Select a group"
+              options={groups.map((g) => ({
+                label: g.displayName,
+                value: g.id,
+              }))}
             />
           ) : (
             <div className="flex gap-2">
@@ -98,3 +86,62 @@ const AuthorityCard: React.FC<AuthorityCardProps> = ({ controlOwner, delegate, i
 }
 
 export default AuthorityCard
+
+interface SearchableSingleSelectProps {
+  fieldName: string
+  formLabel: string
+  placeholder?: string
+  options: Option[]
+}
+
+export const SearchableSingleSelect: React.FC<SearchableSingleSelectProps> = ({ fieldName, formLabel, placeholder = 'Select an option...', options }) => {
+  const { control } = useFormContext()
+  const [open, setOpen] = React.useState(false)
+
+  return (
+    <Controller
+      name={fieldName}
+      control={control}
+      render={({ field }) => {
+        const selected = options.find((opt) => opt.value === field.value)
+
+        return (
+          <div className="w-[200px]">
+            <label className="text-sm font-medium block mb-1">{formLabel}</label>
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" role="combobox" aria-expanded={open} className="w-full justify-between">
+                  {selected?.label || placeholder}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[200px] p-0">
+                <Command>
+                  <CommandInput placeholder="Search..." />
+                  <CommandList>
+                    <CommandEmpty>No results found.</CommandEmpty>
+                    <CommandGroup>
+                      {options.map((option) => (
+                        <CommandItem
+                          key={option.value}
+                          value={option.label} // 🔥 this is what CommandInput matches against
+                          onSelect={() => {
+                            field.onChange(option.value)
+                            setOpen(false)
+                          }}
+                        >
+                          <Check className={cn('mr-2 h-4 w-4', option.value === field.value ? 'opacity-100' : 'opacity-0')} />
+                          {option.label}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </div>
+        )
+      }}
+    />
+  )
+}

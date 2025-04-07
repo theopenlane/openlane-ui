@@ -14,16 +14,18 @@ import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { CreateEvidenceInput } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import EvidenceUploadForm from '@/components/pages/protected/evidence/upload/evidence-upload-form'
-import EvidenceObjectAssociation from '@/components/pages/protected/evidence/object-association/evidence-object-association'
 import { useNotification } from '@/hooks/useNotification'
 import { Option } from '@repo/ui/multiple-selector'
 import { useCreateEvidence } from '@/lib/graphql-hooks/evidence'
 import { TEvidenceObjectTypes } from '@/components/pages/protected/evidence/object-association/types/TEvidenceObjectTypes.ts'
 import { TTaskDataEvidence } from '@/components/pages/protected/evidence/types/TTaskDataEvidence.ts'
+import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
+import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 
 type TProps = {
   taskData?: TTaskDataEvidence
   onEvidenceCreateSuccess?: () => void
+  excludeObjectTypes?: ObjectTypeObjects[]
 }
 
 const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
@@ -308,13 +310,14 @@ const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
             </div>
 
             <div className="col-span-1">
-              <EvidenceObjectAssociation
+              <ObjectAssociation onIdChange={handleEvidenceObjectIdsChange} excludeObjectTypes={props?.excludeObjectTypes || []} />
+              {/* <EvidenceObjectAssociation
                 onEvidenceObjectIdsChange={handleEvidenceObjectIdsChange}
                 resetObjectAssociation={resetObjectAssociation}
                 setResetObjectAssociation={handleResetObjectAssociation}
                 form={props.taskData && form}
                 preselectedObjectDisplayIDs={preselectedObjectTypes}
-              />
+              /> */}
             </div>
           </div>
         </GridCell>

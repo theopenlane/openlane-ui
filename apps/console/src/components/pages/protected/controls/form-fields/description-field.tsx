@@ -17,7 +17,7 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialV
   return isEditing ? (
     <div className="w-full">
       <label htmlFor="description" className="block text-sm font-medium text-muted-foreground mb-1">
-        Policy
+        Description
       </label>
       <Controller control={control} name="description" render={({ field }) => <PlateEditor initialValue={field.value} onChange={field.onChange} variant="basic" />} />
     </div>
