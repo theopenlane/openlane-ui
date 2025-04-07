@@ -177,7 +177,7 @@ export function DataTable<TData, TValue>({
 
                 const sorting = sortConditions.find((sc) => sc.field === sortField.key)?.direction
                 return (
-                  <TableHead key={header.id} style={{ width: columnWidth, cursor: 'pointer' }} onClick={() => handleSortChange(sortField.key)}>
+                  <TableHead key={`${header.id}-${index}`} style={{ width: columnWidth, cursor: 'pointer' }} onClick={() => handleSortChange(sortField.key)}>
                     {header.isPlaceholder ? null : (
                       <div className="flex items-center gap-1">
                         {flexRender(header.column.columnDef.header, header.getContext())}

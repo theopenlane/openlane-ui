@@ -32100,6 +32100,15 @@ export type UpdateSubscriberMutationVariables = Exact<{
 
 export type UpdateSubscriberMutation = { __typename?: 'Mutation'; updateSubscriber: { __typename?: 'SubscriberUpdatePayload'; subscriber: { __typename?: 'Subscriber'; id: string } } }
 
+export type SearchSubscribersQueryVariables = Exact<{
+  query: Scalars['String']['input']
+}>
+
+export type SearchSubscribersQuery = {
+  __typename?: 'Query'
+  subscriberSearch?: { __typename?: 'SubscriberSearchResult'; subscribers?: Array<{ __typename?: 'Subscriber'; active: boolean; email: string; id: string; verifiedEmail: boolean }> | null } | null
+}
+
 export type TasksWithFilterQueryVariables = Exact<{
   where?: InputMaybe<TaskWhereInput>
   orderBy?: InputMaybe<Array<TaskOrder> | TaskOrder>
