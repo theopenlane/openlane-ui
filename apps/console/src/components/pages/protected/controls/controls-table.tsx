@@ -30,7 +30,7 @@ const ControlsTable: React.FC = () => {
       cell: ({ row }) => {
         const tags = row.original.tags
         const description = () => {
-          return plateEditorHelper.convertToReadOnly(row.getValue('description') as Value | any)
+          return plateEditorHelper.convertToReadOnly(row.getValue('description') as Value | any, 0)
         }
 
         return (
