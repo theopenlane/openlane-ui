@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { useSession } from 'next-auth/react'
-import { useGetUserProfile } from '@/lib/graphql-hooks/user'
+import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
 import { TComments } from '@/components/shared/comments/types/TComments'
 import { Avatar } from '../avatar/avatar'
 import { User } from '@repo/codegen/src/schema'
@@ -16,7 +16,7 @@ const AddComment: React.FC<TProps> = (props: TProps) => {
   const { data: session } = useSession()
   const [clearData, setClearData] = useState<boolean>(false)
   const userId = session?.user.userId
-  const { data } = useGetUserProfile(userId)
+  const { data } = useGetCurrentUser(userId)
   const [comment, setComment] = useState<Value | null>(null)
 
   const handleSaveComment = () => {

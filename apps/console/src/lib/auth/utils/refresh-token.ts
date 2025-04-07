@@ -1,6 +1,6 @@
 import { openlaneAPIUrl } from '@repo/dally/auth'
 
-interface Tokens {
+export interface Tokens {
   accessToken: string
   refreshToken: string
 }
@@ -12,6 +12,7 @@ export const fetchNewAccessToken = async (refreshToken: string): Promise<Tokens 
     const response = await fetch(apiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ refresh_token: refreshToken }),
     })
 
@@ -21,7 +22,6 @@ export const fetchNewAccessToken = async (refreshToken: string): Promise<Tokens 
     }
 
     const data = await response.json()
-
     return {
       accessToken: data.access_token,
       refreshToken: data.refresh_token,

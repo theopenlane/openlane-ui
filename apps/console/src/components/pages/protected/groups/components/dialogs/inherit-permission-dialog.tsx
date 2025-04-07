@@ -32,7 +32,7 @@ const InheritPermissionDialog = () => {
   const { isManaged } = data?.group || {}
 
   const where = selectedGroup ? { idNEQ: selectedGroup } : undefined
-  const { data: TableData } = useGetAllGroups(where)
+  const { data: TableData } = useGetAllGroups({ where })
 
   const { mutateAsync: updateGroup } = useUpdateGroup()
 

@@ -32,7 +32,7 @@ export async function ensureAuth(session: Session | null): Promise<string | null
       accessToken = newTokens.accessToken
     } catch (err) {
       console.error('Token refresh error:', err)
-      await signOut() // session is invalid
+      await signOut()
       return null
     }
   }

@@ -73,10 +73,13 @@ const EvidenceObjectAssociationTable: React.FC<TProps> = (props: TProps) => {
     {
       accessorKey: 'description',
       header: 'Description',
+      cell: ({ row }) => {
+        return <span className="line-clamp-2 overflow-hidden">{row.original.description}</span>
+      },
     },
   ]
 
-  return <DataTable columns={columns} data={props.data} />
+  return <DataTable columns={columns} data={props.data} pageSize={5} />
 }
 
 export default EvidenceObjectAssociationTable

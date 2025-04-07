@@ -15,8 +15,9 @@ type CustomColumnDef<TData, TValue> = ColumnDef<TData, TValue> & {
     className?: string
   }
 }
+
 interface DataTableProps<TData, TValue> {
-  columns: CustomColumnDef<TData, TValue>[] // ✅ Now supports `meta.className`
+  columns: CustomColumnDef<TData, TValue>[]
   loading?: boolean
   data: TData[]
   showFilter?: boolean
@@ -26,6 +27,7 @@ interface DataTableProps<TData, TValue> {
   onRowClick?: (rowData: TData) => void
   sortFields?: { key: string; label: string; default?: { key: string; direction: OrderDirection } }[]
   onSortChange?: (sortCondition: any[]) => void
+  pageSize?: number
 }
 
 export function DataTable<TData, TValue>({
@@ -37,6 +39,7 @@ export function DataTable<TData, TValue>({
   noResultsText = 'No results',
   noDataMarkup,
   onRowClick,
+  pageSize,
   sortFields,
   onSortChange,
 }: DataTableProps<TData, TValue>) {
@@ -44,6 +47,11 @@ export function DataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = useState({})
+
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: pageSize ?? 10,
+  })
 
   useEffect(() => {
     if (!sortFields) {
@@ -107,6 +115,7 @@ export function DataTable<TData, TValue>({
       columnFilters,
       columnVisibility,
       rowSelection,
+      pagination,
     },
     defaultColumn: {
       size: 0,

@@ -13,7 +13,8 @@ export const GET_ALL_STANDARDS = gql`
           updatedAt
           tags
           description
-          controls {
+          domains
+          controls(where: { ownerIDIsNil: true }) {
             totalCount
           }
         }
@@ -32,13 +33,12 @@ export const GET_STANDARD_DETAILS = gql`
       updatedAt
       tags
       description
-      description
       name
       revision
       link
       framework
       governingBody
-      controls {
+      controls(where: { ownerIDIsNil: true }) {
         totalCount
       }
     }

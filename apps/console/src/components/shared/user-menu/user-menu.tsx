@@ -9,7 +9,7 @@ import Link from 'next/link'
 import { ChevronDown } from '@repo/ui/icons/chevron-down'
 import { Kbd } from '@repo/ui/kbd'
 import { useTheme } from 'next-themes'
-import { useGetUserProfile } from '@/lib/graphql-hooks/user'
+import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
 import { Avatar } from '../avatar/avatar'
 import { User } from '@repo/codegen/src/schema'
 
@@ -18,7 +18,7 @@ export const UserMenu = () => {
   const { data: sessionData } = useSession()
   const { trigger, email, userSettingsLink, themeRow, themeDropdown, commandRow, commands } = userMenuStyles()
   const userId = sessionData?.user.userId
-  const { data } = useGetUserProfile(userId)
+  const { data } = useGetCurrentUser(userId)
 
   return (
     <DropdownMenu>
