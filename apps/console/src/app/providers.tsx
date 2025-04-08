@@ -6,6 +6,7 @@ import { ThemeProvider } from '@/providers/theme'
 import { usePathname } from 'next/navigation'
 import { ReactNode, useEffect, useState } from 'react'
 import { Loading } from '@/components/shared/loading/loading'
+import { NavigationGuardProvider } from 'next-navigation-guard'
 
 interface ProvidersProps {
   children: ReactNode
@@ -50,9 +51,11 @@ const Providers = ({ children }: ProvidersProps) => {
   }
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    </ThemeProvider>
+    <NavigationGuardProvider>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+      </ThemeProvider>
+    </NavigationGuardProvider>
   )
 }
 

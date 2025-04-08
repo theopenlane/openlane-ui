@@ -19,6 +19,7 @@ import ImplementationDetailsCard from '../../../../components/pages/protected/co
 import InfoCard from '../../../../components/pages/protected/controls/info-card.tsx'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { ControlControlStatus, EvidenceEdge } from '@repo/codegen/src/schema.ts'
+import { useNavigationGuard } from 'next-navigation-guard'
 
 interface FormValues {
   refCode: string
@@ -59,6 +60,11 @@ const ControlDetailsPage: React.FC = () => {
 
   const { mutateAsync: updateControl } = useUpdateControl()
   const plateEditorHelper = usePlateEditor()
+
+  useNavigationGuard({
+    enabled: isEditing,
+    confirm: () => window.confirm('You have unsaved changes that will be lost.'),
+  })
 
   const form = useForm<FormValues>({
     defaultValues: initialDataObj,
