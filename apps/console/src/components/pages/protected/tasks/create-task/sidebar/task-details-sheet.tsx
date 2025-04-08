@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useState, useEffect, Fragment } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
+import React, { Fragment, useEffect, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
-import { Link, Pencil, Check, CircleUser, UserRoundPen, CalendarCheck2, Circle, Folder, BookText, InfoIcon, ArrowDownUp, ArrowUpDown, Tag } from 'lucide-react'
+import { ArrowDownUp, ArrowUpDown, BookText, CalendarCheck2, Check, Circle, CircleUser, Folder, InfoIcon, Link, Pencil, Tag, UserRoundPen } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { CreateNoteInput, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { Input } from '@repo/ui/input'
@@ -12,7 +12,7 @@ import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskSt
 import useFormSchema, { EditTaskFormData } from '@/components/pages/protected/tasks/hooks/use-form-schema'
 import { Loading } from '@/components/shared/loading/loading'
 import { Controller } from 'react-hook-form'
-import { Select, SelectContent, SelectTrigger, SelectItem } from '@repo/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { format } from 'date-fns'
 import { Badge } from '@repo/ui/badge'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
@@ -35,6 +35,7 @@ import EvidenceCreateFormDialog from '../../../evidence/evidence-create-form-dia
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { TaskStatusIconMapper } from '../../table/columns'
+import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
 
 const TaskDetailsSheet = () => {
   const [isEditing, setIsEditing] = useState(false)
@@ -395,13 +396,22 @@ const TaskDetailsSheet = () => {
               <div className="flex gap-4">
                 {taskData && (
                   <EvidenceCreateFormDialog
-                    taskData={{
-                      taskId: taskData!.id,
+                    formData={{
+                      refId: taskData!.id,
                       displayID: taskData!.displayID,
                       tags: taskData!.tags ?? undefined,
-                      controlObjectiveIDs: taskData?.controlObjectives,
-                      subcontrolIDs: taskData?.subcontrols,
-                      programIDs: taskData?.programs,
+                      objectAssociations: {
+                        controlObjectiveIDs: taskData?.controlObjectives?.edges?.map((item) => item?.node?.id!) || [],
+                        subcontrolIDs: taskData?.subcontrols?.edges?.map((item) => item?.node?.id!) || [],
+                        programIDs: taskData?.programs?.edges?.map((item) => item?.node?.id!) || [],
+                        taskIDs: [taskData.id],
+                      },
+                      objectAssociationsDisplayIDs: [
+                        ...(taskData?.controlObjectives?.edges?.map((item) => item?.node?.displayID!) || []),
+                        ...(taskData?.subcontrols?.edges?.map((item) => item?.node?.displayID!) || []),
+                        ...(taskData?.programs?.edges?.map((item) => item?.node?.displayID!) || []),
+                        ...[taskData.displayID],
+                      ],
                     }}
                   />
                 )}
