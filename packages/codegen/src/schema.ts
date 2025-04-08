@@ -5057,7 +5057,7 @@ export interface CreateHushInput {
   kind?: InputMaybe<Scalars['String']['input']>
   /** the logical name of the corresponding hush secret or it's general grouping */
   name: Scalars['String']['input']
-  organizationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
   /** the generic name of a secret associated with the organization */
   secretName?: InputMaybe<Scalars['String']['input']>
   /** the secret value */
@@ -11131,7 +11131,9 @@ export interface Hush extends Node {
   kind?: Maybe<Scalars['String']['output']>
   /** the logical name of the corresponding hush secret or it's general grouping */
   name: Scalars['String']['output']
-  organization?: Maybe<Array<Organization>>
+  owner?: Maybe<Organization>
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['ID']['output']>
   /** the generic name of a secret associated with the organization */
   secretName?: Maybe<Scalars['String']['output']>
   updatedAt?: Maybe<Scalars['Time']['output']>
@@ -11212,6 +11214,8 @@ export interface HushHistory extends Node {
   /** the logical name of the corresponding hush secret or it's general grouping */
   name: Scalars['String']['output']
   operation: HushHistoryOpType
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['String']['output']>
   ref?: Maybe<Scalars['String']['output']>
   /** the generic name of a secret associated with the organization */
   secretName?: Maybe<Scalars['String']['output']>
@@ -11379,6 +11383,22 @@ export interface HushHistoryWhereInput {
   operationNEQ?: InputMaybe<HushHistoryOpType>
   operationNotIn?: InputMaybe<Array<HushHistoryOpType>>
   or?: InputMaybe<Array<HushHistoryWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['String']['input']>
+  ownerIDContains?: InputMaybe<Scalars['String']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  ownerIDGT?: InputMaybe<Scalars['String']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['String']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['String']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['String']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** ref field predicates */
   ref?: InputMaybe<Scalars['String']['input']>
   refContains?: InputMaybe<Scalars['String']['input']>
@@ -11529,9 +11549,9 @@ export interface HushWhereInput {
   /** integrations edge predicates */
   hasIntegrations?: InputMaybe<Scalars['Boolean']['input']>
   hasIntegrationsWith?: InputMaybe<Array<IntegrationWhereInput>>
-  /** organization edge predicates */
-  hasOrganization?: InputMaybe<Scalars['Boolean']['input']>
-  hasOrganizationWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** owner edge predicates */
+  hasOwner?: InputMaybe<Scalars['Boolean']['input']>
+  hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -11575,6 +11595,22 @@ export interface HushWhereInput {
   nameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   not?: InputMaybe<HushWhereInput>
   or?: InputMaybe<Array<HushWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContains?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** secret_name field predicates */
   secretName?: InputMaybe<Scalars['String']['input']>
   secretNameContains?: InputMaybe<Scalars['String']['input']>
@@ -28268,21 +28304,20 @@ export interface UpdateGroupSettingInput {
 export interface UpdateHushInput {
   addEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addOrganizationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
   clearIntegrations?: InputMaybe<Scalars['Boolean']['input']>
   clearKind?: InputMaybe<Scalars['Boolean']['input']>
-  clearOrganization?: InputMaybe<Scalars['Boolean']['input']>
+  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   /** a description of the hush value or purpose, such as github PAT */
   description?: InputMaybe<Scalars['String']['input']>
   /** the kind of secret, such as sshkey, certificate, api token, etc. */
   kind?: InputMaybe<Scalars['String']['input']>
   /** the logical name of the corresponding hush secret or it's general grouping */
   name?: InputMaybe<Scalars['String']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeOrganizationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
 /**
@@ -31210,6 +31245,42 @@ export type GetGroupPermissionsQuery = {
   }
 }
 
+export type SearchGroupsQueryVariables = Exact<{
+  query: Scalars['String']['input']
+}>
+
+export type SearchGroupsQuery = {
+  __typename?: 'Query'
+  groupSearch?: {
+    __typename?: 'GroupSearchResult'
+    groups?: Array<{
+      __typename?: 'Group'
+      id: string
+      name: string
+      description?: string | null
+      displayName: string
+      logoURL?: string | null
+      isManaged?: boolean | null
+      tags?: Array<string> | null
+      members?: Array<{
+        __typename?: 'GroupMembership'
+        id: string
+        role: GroupMembershipRole
+        user: {
+          __typename?: 'User'
+          id: string
+          firstName?: string | null
+          lastName?: string | null
+          avatarRemoteURL?: string | null
+          role?: UserRole | null
+          avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+        }
+      }> | null
+      setting?: { __typename?: 'GroupSetting'; visibility: GroupSettingVisibility; joinPolicy: GroupSettingJoinPolicy; syncToSlack?: boolean | null; syncToGithub?: boolean | null; id: string } | null
+    }> | null
+  } | null
+}
+
 export type UpdateUserRoleInOrgMutationVariables = Exact<{
   updateOrgMemberId: Scalars['ID']['input']
   input: UpdateOrgMembershipInput
@@ -31480,13 +31551,14 @@ export type GetInternalPoliciesListQuery = {
         __typename?: 'InternalPolicy'
         id: string
         name: string
-        policyType?: string | null
-        tags?: Array<string> | null
+        displayID: string
+        status?: InternalPolicyDocumentStatus | null
         revision?: string | null
         updatedAt?: any | null
         updatedBy?: string | null
         createdAt?: any | null
         createdBy?: string | null
+        tags?: Array<string> | null
         details?: string | null
       } | null
     } | null> | null
@@ -32028,6 +32100,15 @@ export type UpdateSubscriberMutationVariables = Exact<{
 
 export type UpdateSubscriberMutation = { __typename?: 'Mutation'; updateSubscriber: { __typename?: 'SubscriberUpdatePayload'; subscriber: { __typename?: 'Subscriber'; id: string } } }
 
+export type SearchSubscribersQueryVariables = Exact<{
+  query: Scalars['String']['input']
+}>
+
+export type SearchSubscribersQuery = {
+  __typename?: 'Query'
+  subscriberSearch?: { __typename?: 'SubscriberSearchResult'; subscribers?: Array<{ __typename?: 'Subscriber'; active: boolean; email: string; id: string; verifiedEmail: boolean }> | null } | null
+}
+
 export type TasksWithFilterQueryVariables = Exact<{
   where?: InputMaybe<TaskWhereInput>
   orderBy?: InputMaybe<Array<TaskOrder> | TaskOrder>
@@ -32262,6 +32343,28 @@ export type DeleteTemplateMutationVariables = Exact<{
 }>
 
 export type DeleteTemplateMutation = { __typename?: 'Mutation'; deleteTemplate: { __typename?: 'TemplateDeletePayload'; deletedID: string } }
+
+export type SearchTemplatesQueryVariables = Exact<{
+  query: Scalars['String']['input']
+}>
+
+export type SearchTemplatesQuery = {
+  __typename?: 'Query'
+  templateSearch?: {
+    __typename?: 'TemplateSearchResult'
+    templates?: Array<{
+      __typename?: 'Template'
+      id: string
+      name: string
+      templateType: TemplateDocumentType
+      description?: string | null
+      jsonconfig: any
+      uischema?: any | null
+      createdAt?: any | null
+      updatedAt?: any | null
+    }> | null
+  } | null
+}
 
 export type GetTfaSettingsQueryVariables = Exact<{ [key: string]: never }>
 

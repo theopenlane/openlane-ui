@@ -1,24 +1,14 @@
 'use client'
 
-import {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from '@tanstack/react-table'
+import { ColumnDef, ColumnFiltersState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable, VisibilityState } from '@tanstack/react-table'
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from '../table/table'
+import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '../table/table'
 import { Button } from '../button/button'
-import { ReactElement, useState } from 'react'
+import { ReactElement, useEffect, useState } from 'react'
 import { Input } from '../input/input'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '../dropdown-menu/dropdown-menu'
-import { EyeIcon } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowUpDown, EyeIcon } from 'lucide-react'
+import { OrderDirection } from '@repo/codegen/src/schema.ts'
 
 type CustomColumnDef<TData, TValue> = ColumnDef<TData, TValue> & {
   meta?: {
@@ -35,6 +25,8 @@ interface DataTableProps<TData, TValue> {
   noResultsText?: string
   noDataMarkup?: ReactElement
   onRowClick?: (rowData: TData) => void
+  sortFields?: { key: string; label: string; default?: { key: string; direction: OrderDirection } }[]
+  onSortChange?: (sortCondition: any[]) => void
   pageSize?: number
 }
 
@@ -48,8 +40,10 @@ export function DataTable<TData, TValue>({
   noDataMarkup,
   onRowClick,
   pageSize,
+  sortFields,
+  onSortChange,
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([])
+  const [sortConditions, setSortConditions] = useState<{ field: string; direction?: OrderDirection }[]>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = useState({})
@@ -59,19 +53,65 @@ export function DataTable<TData, TValue>({
     pageSize: pageSize ?? 10,
   })
 
+  useEffect(() => {
+    if (!sortFields) {
+      return
+    }
+
+    const defaultField = sortFields.find((field) => field.default)
+    if (!defaultField) {
+      return
+    }
+
+    setSortConditions((prev) => {
+      if (prev.some((cond) => cond.field === defaultField.key)) {
+        return prev
+      }
+
+      return [
+        ...prev,
+        {
+          field: defaultField.key,
+          direction: defaultField.default?.direction,
+        },
+      ]
+    })
+  }, [sortFields])
+
+  useEffect(() => {
+    if (sortConditions.every(({ direction }) => direction !== undefined)) {
+      onSortChange?.(sortConditions as { field: string; direction: OrderDirection }[])
+    }
+  }, [sortConditions])
+
+  const handleSortChange = (field: string) => {
+    setSortConditions((prev) => {
+      const existingIndex = prev.findIndex((sc) => sc.field === field)
+      let newSortConditions = [...prev]
+
+      if (existingIndex === -1) {
+        newSortConditions.push({ field, direction: OrderDirection.ASC })
+      } else if (newSortConditions[existingIndex].direction === OrderDirection.ASC) {
+        newSortConditions[existingIndex] = { field, direction: OrderDirection.DESC }
+      } else {
+        newSortConditions.splice(existingIndex, 1)
+      }
+
+      return newSortConditions
+    })
+  }
+
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     state: {
-      sorting,
       columnFilters,
       columnVisibility,
       rowSelection,
@@ -123,10 +163,27 @@ export function DataTable<TData, TValue>({
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header, index) => {
+                //This is used for converting header and sort keys to same format
+                const normalizeKey = (key: string) => key.replace(/_/g, '').toLowerCase()
+                const sortField = sortFields?.find((sf) => normalizeKey(sf.key) === normalizeKey(header.column.id))
                 const columnWidth = header.getSize() === 20 ? 'auto' : `${header.getSize()}px`
+                if (!sortField) {
+                  return (
+                    <TableHead key={`${header.id}-${index}`} style={{ width: columnWidth }}>
+                      {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                    </TableHead>
+                  )
+                }
+
+                const sorting = sortConditions.find((sc) => sc.field === sortField.key)?.direction
                 return (
-                  <TableHead key={`${header.id}-${index}`} style={{ width: columnWidth }}>
-                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                  <TableHead key={`${header.id}-${index}`} style={{ width: columnWidth, cursor: 'pointer' }} onClick={() => handleSortChange(sortField.key)}>
+                    {header.isPlaceholder ? null : (
+                      <div className="flex items-center gap-1">
+                        {flexRender(header.column.columnDef.header, header.getContext())}
+                        {sorting === OrderDirection.ASC ? <ArrowUp size={16} /> : sorting === OrderDirection.DESC ? <ArrowDown size={16} /> : <ArrowUpDown size={16} className="text-gray-400" />}
+                      </div>
+                    )}
                   </TableHead>
                 )
               })}
@@ -154,7 +211,6 @@ export function DataTable<TData, TValue>({
             <NoData loading={loading} colLength={columns.length} noDataMarkup={noDataMarkup} noResultsText={noResultsText} />
           )}
         </TableBody>
-
         {(table.getCanNextPage() || table.getCanPreviousPage()) && (
           <TableFooter>
             <TableRow>

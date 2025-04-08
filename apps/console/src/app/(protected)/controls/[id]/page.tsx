@@ -1,13 +1,13 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter, usePathname } from 'next/navigation'
 import { useGetControlById, useUpdateControl } from '@/lib/graphql-hooks/controls'
 import { useForm, FormProvider } from 'react-hook-form'
 import { Value } from '@udecode/plate-common'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import { PencilIcon, SaveIcon, XIcon } from 'lucide-react'
+import { ArrowRight, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
 import ControlEvidenceTable from '../../../../components/pages/protected/controls/control-evidence-table.tsx'
 import SubcontrolsTable from '../../../../components/pages/protected/controls/subcontrols-table.tsx'
 import AssociatedObjectsAccordion from '../../../../components/pages/protected/controls/associated-objects-accordion.tsx'
@@ -19,6 +19,7 @@ import ImplementationDetailsCard from '../../../../components/pages/protected/co
 import InfoCard from '../../../../components/pages/protected/controls/info-card.tsx'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { ControlControlStatus, EvidenceEdge } from '@repo/codegen/src/schema.ts'
+import { useNavigationGuard } from 'next-navigation-guard'
 
 interface FormValues {
   refCode: string
@@ -49,11 +50,12 @@ const initialDataObj = {
 
 const ControlDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
+  const router = useRouter()
+  const pathname = usePathname()
   const { data, isLoading, isError } = useGetControlById(id)
   const [isEditing, setIsEditing] = useState(false)
   const [showSheet, setShowSheet] = useState<boolean>(false)
   const [sheetData, setSheetData] = useState<SheetData | null>(null)
-
   const [initialValues, setInitialValues] = useState<FormValues>(initialDataObj)
 
   const { mutateAsync: updateControl } = useUpdateControl()
@@ -61,6 +63,13 @@ const ControlDetailsPage: React.FC = () => {
 
   const form = useForm<FormValues>({
     defaultValues: initialDataObj,
+  })
+
+  const { isDirty } = form.formState
+
+  useNavigationGuard({
+    enabled: isDirty,
+    confirm: () => window.confirm('You have unsaved changes that will be lost.'),
   })
 
   const onSubmit = async (values: FormValues) => {
@@ -174,6 +183,7 @@ const ControlDetailsPage: React.FC = () => {
       <Sheet open={showSheet} onOpenChange={handleSheetClose}>
         <SheetContent>
           <SheetHeader>
+            <ArrowRight size={16} className="cursor-pointer" onClick={() => handleSheetClose(false)} />
             <SheetTitle>{sheetData?.refCode}</SheetTitle>
           </SheetHeader>
           <div className="py-4">{sheetData?.content}</div>

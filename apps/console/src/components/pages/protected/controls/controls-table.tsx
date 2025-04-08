@@ -30,7 +30,7 @@ const ControlsTable: React.FC = () => {
       cell: ({ row }) => {
         const tags = row.original.tags
         const description = () => {
-          return plateEditorHelper.convertToReadOnly(row.getValue('description') as Value | any)
+          return plateEditorHelper.convertToReadOnly(row.getValue('description') as Value | any, 0)
         }
 
         return (
@@ -118,8 +118,7 @@ const ControlsTable: React.FC = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-bold">Controls Table</h1>
+      <div className="flex justify-end items-center mb-4 w-full">
         <Button onClick={() => exportToCSV(tableData, 'control_list')} icon={<DownloadIcon />} iconPosition="left">
           Export
         </Button>

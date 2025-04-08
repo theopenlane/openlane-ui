@@ -4,8 +4,7 @@ import { GET_ALL_GROUPS } from '@repo/codegen/query/group'
 import { GET_ALL_INTERNAL_POLICIES } from '@repo/codegen/query/policy'
 import { GET_ALL_PROCEDURES } from '@repo/codegen/query/procedure'
 import { GET_ALL_PROGRAMS } from '@repo/codegen/query/programs'
-import { Control, ControlObjective, Evidence, InternalPolicy, Procedure, Program, Subcontrol, TaskTaskStatus } from '@repo/codegen/src/schema'
-import { Group } from '@/components/pages/protected/groups/groups-page'
+import { Control, ControlObjective, Evidence, Group, InternalPolicy, Procedure, Program, Subcontrol, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { GET_ALL_EVIDENCES } from '@repo/codegen/query/evidence'
 
 export enum TaskTypes {

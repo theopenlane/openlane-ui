@@ -3,11 +3,10 @@ import Link from 'next/link'
 import { format } from 'date-fns'
 import React from 'react'
 import { Actions } from '@/components/pages/protected/policies/actions/actions.tsx'
+import { InternalPolicy } from '@repo/codegen/src/schema.ts'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 
-type PoliciesEdge = any
-export type Policies = NonNullable<PoliciesEdge>['node']
-
-export const policiesColumns: ColumnDef<Policies>[] = [
+export const policiesColumns: ColumnDef<InternalPolicy>[] = [
   {
     accessorKey: 'displayID',
     header: 'Display ID',
@@ -31,8 +30,13 @@ export const policiesColumns: ColumnDef<Policies>[] = [
     header: 'Type',
   },
   {
-    accessorKey: 'description',
-    header: 'Description',
+    accessorKey: 'details',
+    header: 'Details',
+    cell: ({ cell }) => {
+      const plateEditorHelper = usePlateEditor()
+
+      return <div>{plateEditorHelper.convertToReadOnly(cell.getValue() as string, 0)}</div>
+    },
   },
   {
     accessorKey: 'updatedAt',

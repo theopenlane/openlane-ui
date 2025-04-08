@@ -3,7 +3,7 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
-import { ArrowDownUp, ArrowUpDown, BookText, CalendarCheck2, Check, Circle, CircleUser, Folder, InfoIcon, Link, Pencil, Tag, UserRoundPen } from 'lucide-react'
+import { ArrowDownUp, ArrowUpDown, ArrowRight, BookText, CalendarCheck2, Check, Circle, CircleUser, Folder, InfoIcon, Link, Pencil, Tag, UserRoundPen } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { CreateNoteInput, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { Input } from '@repo/ui/input'
@@ -320,25 +320,28 @@ const TaskDetailsSheet = () => {
         ) : (
           <>
             <SheetHeader>
-              <div className="flex justify-end gap-2">
-                <Button icon={<Link />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
-                  Copy link
-                </Button>
-                {isEditing ? (
-                  <div className="flex gap-2">
-                    <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
-                      Cancel
-                    </Button>
-                    <Button onClick={form.handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
-                      Save
-                    </Button>
-                  </div>
-                ) : (
-                  <Button icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
-                    Edit
+              <div className="flex items-center justify-between">
+                <ArrowRight size={16} className="cursor-pointer" onClick={handleSheetClose} />
+                <div className="flex justify-end gap-2">
+                  <Button icon={<Link />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
+                    Copy link
                   </Button>
-                )}
-                {taskData?.displayID && <DeleteTaskDialog taskName={taskData.displayID} />}
+                  {isEditing ? (
+                    <div className="flex gap-2">
+                      <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
+                        Cancel
+                      </Button>
+                      <Button onClick={form.handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
+                        Save
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
+                      Edit
+                    </Button>
+                  )}
+                  {taskData?.displayID && <DeleteTaskDialog taskName={taskData.displayID} />}
+                </div>
               </div>
             </SheetHeader>
 

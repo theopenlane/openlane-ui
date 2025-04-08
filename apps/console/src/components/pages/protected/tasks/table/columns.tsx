@@ -1,11 +1,11 @@
 import { ColumnDef } from '@tanstack/react-table'
-import { TTableDataResponse } from '@/components/pages/protected/tasks/table/types/TTableDataResponse'
 import { format } from 'date-fns'
-import { CircleCheck, CircleX, ListTodo, MessageSquareCode, PanelTopOpen, Timer, View } from 'lucide-react'
+import { CircleCheck, CircleX, ListTodo, Timer, View } from 'lucide-react'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import AssigneeCell from '@/components/pages/protected/tasks/table/assignee-cell.tsx'
+import { Task } from '@repo/codegen/src/schema.ts'
 
-export const taskColumns: ColumnDef<TTableDataResponse>[] = [
+export const taskColumns: ColumnDef<Task>[] = [
   {
     accessorKey: 'displayID',
     header: 'Task',
@@ -38,7 +38,7 @@ export const taskColumns: ColumnDef<TTableDataResponse>[] = [
     accessorKey: 'assignee',
     header: 'Assignee',
     cell: ({ row }) => {
-      return <AssigneeCell assignee={row.original.assignee} taskId={row.original.id!} />
+      return <AssigneeCell assignee={row.original.assignee!} taskId={row.original.id!} />
     },
   },
   {
