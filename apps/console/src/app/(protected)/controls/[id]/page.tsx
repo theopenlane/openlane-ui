@@ -61,13 +61,15 @@ const ControlDetailsPage: React.FC = () => {
   const { mutateAsync: updateControl } = useUpdateControl()
   const plateEditorHelper = usePlateEditor()
 
-  useNavigationGuard({
-    enabled: isEditing,
-    confirm: () => window.confirm('You have unsaved changes that will be lost.'),
-  })
-
   const form = useForm<FormValues>({
     defaultValues: initialDataObj,
+  })
+
+  const { isDirty } = form.formState
+
+  useNavigationGuard({
+    enabled: isDirty,
+    confirm: () => window.confirm('You have unsaved changes that will be lost.'),
   })
 
   const onSubmit = async (values: FormValues) => {
