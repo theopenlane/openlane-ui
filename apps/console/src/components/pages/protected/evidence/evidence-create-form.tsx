@@ -311,7 +311,7 @@ const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
             <div className="col-span-1">
               <Panel>
                 <PanelHeader heading="Object association" noBorder />
-                {form && (
+                {props?.taskData && (
                   <Card className="p-4 flex gap-3 bg-note">
                     <div>
                       <p className="font-semibold">Heads up!</p>
