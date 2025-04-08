@@ -89,7 +89,6 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
   }
 
   const policyName = policy.displayID ? `${policy.displayID} - ${policy.name}` : policy.name
-  console.log(form.getValues())
 
   return (
     <>
