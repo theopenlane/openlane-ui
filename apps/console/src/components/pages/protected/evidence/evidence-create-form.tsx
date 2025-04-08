@@ -1,7 +1,7 @@
 'use client'
 import { Grid, GridCell, GridRow } from '@repo/ui/grid'
-import React, { useEffect, useState } from 'react'
-import { InfoIcon } from 'lucide-react'
+import React, { Fragment, useEffect, useState } from 'react'
+import { ChevronDown, InfoIcon } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import useFormSchema, { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { Input, InputRow } from '@repo/ui/input'
@@ -17,11 +17,14 @@ import EvidenceUploadForm from '@/components/pages/protected/evidence/upload/evi
 import { useNotification } from '@/hooks/useNotification'
 import { Option } from '@repo/ui/multiple-selector'
 import { useCreateEvidence } from '@/lib/graphql-hooks/evidence'
-import { TEvidenceObjectTypes } from '@/components/pages/protected/evidence/object-association/types/TEvidenceObjectTypes.ts'
 import { TTaskDataEvidence } from '@/components/pages/protected/evidence/types/TTaskDataEvidence.ts'
 import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
+import { Panel, PanelHeader } from '@repo/ui/panel'
+import { Card } from '@repo/ui/cardpanel'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
+import { Badge } from '@repo/ui/badge'
 
 type TProps = {
   taskData?: TTaskDataEvidence
@@ -34,14 +37,13 @@ const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
   const { successNotification, errorNotification } = useNotification()
   const [tagValues, setTagValues] = useState<Option[]>([])
   const [resetEvidenceFiles, setResetEvidenceFiles] = useState(false)
-  const [resetObjectAssociation, setResetObjectAssociation] = useState(false)
+  const [preselectedObjectDisplayIDs, setPreselectedObjectDisplayIDs] = useState<string[]>([])
   const [evidenceObjectTypes, setEvidenceObjectTypes] = useState<TObjectAssociationMap>()
   const [preselectedObjectTypes, setPreselectedObjectTypes] = useState<Partial<Record<`${Lowercase<string>}IDs`, string[]>>>()
   const { data: sessionData } = useSession()
   const { mutateAsync: createEvidence, isPending } = useCreateEvidence()
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
-    console.log(evidenceObjectTypes)
     const formData = {
       input: {
         name: data.name,
@@ -76,7 +78,6 @@ const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
     form.reset()
     setTagValues([])
     setResetEvidenceFiles(true)
-    setResetObjectAssociation(true)
   }
 
   useEffect(() => {
@@ -94,6 +95,13 @@ const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
         controlIDs: props.taskData?.controlIDs?.edges?.map((item: any) => item?.node?.id) || [],
         taskIDs: props.taskData?.taskId ? [props.taskData?.taskId] : [],
       }
+      setPreselectedObjectDisplayIDs([
+        ...(props.taskData?.controlObjectiveIDs?.edges?.map((item: any) => item?.node?.displayID) || []),
+        ...(props.taskData?.subcontrolIDs?.edges?.map((item: any) => item?.node?.displayID) || []),
+        ...(props.taskData?.programIDs?.edges?.map((item: any) => item?.node?.displayID) || []),
+        ...(props.taskData?.controlIDs?.edges?.map((item: any) => item?.node?.displayID) || []),
+        props.taskData?.displayID,
+      ])
       setPreselectedObjectTypes(preselectedObjectTypes)
 
       if (props.taskData?.tags) {
@@ -120,10 +128,6 @@ const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
 
   const handleResetEvidenceFiles = () => {
     setResetEvidenceFiles(false)
-  }
-
-  const handleResetObjectAssociation = () => {
-    setResetObjectAssociation(false)
   }
 
   return (
@@ -305,14 +309,40 @@ const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
             </div>
 
             <div className="col-span-1">
-              <ObjectAssociation onIdChange={handleEvidenceObjectIdsChange} excludeObjectTypes={props?.excludeObjectTypes || []} initialData={preselectedObjectTypes} />
-              {/* <EvidenceObjectAssociation
-                onEvidenceObjectIdsChange={handleEvidenceObjectIdsChange}
-                resetObjectAssociation={resetObjectAssociation}
-                setResetObjectAssociation={handleResetObjectAssociation}
-                form={props.taskData && form}
-                preselectedObjectDisplayIDs={preselectedObjectTypes}
-              /> */}
+              <Panel>
+                <PanelHeader heading="Object association" noBorder />
+                {form && (
+                  <Card className="p-4 flex gap-3 bg-note">
+                    <div>
+                      <p className="font-semibold">Heads up!</p>
+                      <p className="text-sm ">This requested evidence you are submitting will also be used by other tasks, controls. We have pre-selected the object association below.</p>
+                      <div className="w-3/5 pt-3">
+                        <Accordion type="single" collapsible className="w-full">
+                          <AccordionItem value="objects">
+                            <AccordionTrigger className="py-2 w-full flex justify-between items-center gap-2 group border p-3 bg-background-secondary">
+                              <span className="text-sm">Show objects linked to this evidence</span>
+                              <ChevronDown className="h-4 w-4 group-data-[state=open]:rotate-180" />
+                            </AccordionTrigger>
+                            <AccordionContent className="my-3">
+                              {preselectedObjectDisplayIDs &&
+                                preselectedObjectDisplayIDs.map((item, index) => (
+                                  <Fragment key={index}>
+                                    {item && (
+                                      <Badge className="bg-background-secondary mr-1" variant="outline">
+                                        {item}
+                                      </Badge>
+                                    )}
+                                  </Fragment>
+                                ))}
+                            </AccordionContent>
+                          </AccordionItem>
+                        </Accordion>
+                      </div>
+                    </div>
+                  </Card>
+                )}
+                <ObjectAssociation onIdChange={handleEvidenceObjectIdsChange} excludeObjectTypes={props?.excludeObjectTypes || []} initialData={preselectedObjectTypes} />
+              </Panel>
             </div>
           </div>
         </GridCell>
