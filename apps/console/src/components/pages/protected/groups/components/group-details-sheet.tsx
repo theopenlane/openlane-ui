@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
-import { GlobeIcon, Info, Link, Tag, User, Pencil, Check } from 'lucide-react'
+import { GlobeIcon, Info, Link, Tag, User, Pencil, Check, ArrowRight } from 'lucide-react'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import GroupsMembersTable from './groups-members-table'
 import { Card } from '@repo/ui/cardpanel'
@@ -154,26 +154,30 @@ const GroupDetailsSheet = () => {
         ) : (
           <>
             <SheetHeader>
-              <div className="flex justify-end gap-2">
-                <Button icon={<Link />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
-                  Copy link
-                </Button>
-                {isEditing ? (
-                  <div className="flex gap-2">
-                    <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
-                      Cancel
-                    </Button>
-                    <Button onClick={handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
-                      Save
-                    </Button>
-                  </div>
-                ) : (
-                  <Button disabled={!!isManaged || !isAdmin} icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
-                    Edit Group
-                  </Button>
-                )}
+              <div className="flex items-center justify-between">
+                <ArrowRight size={16} className="cursor-pointer" onClick={handleSheetClose} />
 
-                <DeleteGroupDialog />
+                <div className="flex justify-end gap-2">
+                  <Button icon={<Link />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
+                    Copy link
+                  </Button>
+                  {isEditing ? (
+                    <div className="flex gap-2">
+                      <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
+                        Cancel
+                      </Button>
+                      <Button onClick={handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
+                        Save
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button disabled={!!isManaged || !isAdmin} icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
+                      Edit Group
+                    </Button>
+                  )}
+
+                  <DeleteGroupDialog />
+                </div>
               </div>
             </SheetHeader>
             <form onSubmit={handleSubmit(onSubmit)}>

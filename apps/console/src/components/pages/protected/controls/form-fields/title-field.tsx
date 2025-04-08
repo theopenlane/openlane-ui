@@ -14,7 +14,7 @@ const TitleField: React.FC<TitleFieldProps> = ({ isEditing }) => {
   return isEditing ? (
     <div className="w-full">
       <label htmlFor="refCode" className="block text-sm font-medium text-muted-foreground mb-1">
-        Title<span className="text-red-500 ml-1">*</span>
+        Name<span className="text-red-500 ml-1">*</span>
       </label>
       <Input id="refCode" {...register('refCode')} />
     </div>

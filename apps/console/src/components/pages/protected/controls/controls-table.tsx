@@ -14,7 +14,7 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Value } from '@udecode/plate-common'
 
 const ControlsTable: React.FC = () => {
-  const { data: controlsData, isLoading, isError } = useGetAllControls({})
+  const { data: controlsData, isLoading, isError } = useGetAllControls({ ownerIDIsNil: false })
   const { push } = useRouter()
   const plateEditorHelper = usePlateEditor()
 
@@ -118,8 +118,7 @@ const ControlsTable: React.FC = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-bold">Controls Table</h1>
+      <div className="flex justify-end items-center mb-4 w-full">
         <Button onClick={() => exportToCSV(tableData, 'control_list')} icon={<DownloadIcon />} iconPosition="left">
           Export
         </Button>

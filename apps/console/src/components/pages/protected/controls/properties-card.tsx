@@ -57,14 +57,16 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ category, subcategory, 
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Select status" />
+                      <SelectValue placeholder="Select status">{field.value === 'NULL' ? '-' : statusLabels[field.value as ControlControlStatus]}</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {statusOptions.map((status) => (
-                        <SelectItem key={status} value={status}>
-                          {statusLabels[status]}
-                        </SelectItem>
-                      ))}
+                      {statusOptions
+                        .filter((status) => status !== 'NULL') // omit NULL from selectable options
+                        .map((status) => (
+                          <SelectItem key={status} value={status}>
+                            {statusLabels[status]}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                 )}

@@ -3,8 +3,8 @@
 import React, { useState, useEffect, Fragment } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Button } from '@repo/ui/button'
-import { Link, Pencil, Check, FilePlus, SquareArrowRight, CircleUser, UserRoundPen, CalendarCheck2, Circle, Folder, BookText, InfoIcon, ArrowDownUp, ArrowUpDown, Tag } from 'lucide-react'
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
+import { Link, Pencil, Check, CircleUser, UserRoundPen, CalendarCheck2, Circle, Folder, BookText, InfoIcon, ArrowDownUp, ArrowUpDown, Tag, ArrowRight } from 'lucide-react'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { CreateNoteInput, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { Input } from '@repo/ui/input'
 import { useNotification } from '@/hooks/useNotification'
@@ -319,25 +319,28 @@ const TaskDetailsSheet = () => {
         ) : (
           <>
             <SheetHeader>
-              <div className="flex justify-end gap-2">
-                <Button icon={<Link />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
-                  Copy link
-                </Button>
-                {isEditing ? (
-                  <div className="flex gap-2">
-                    <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
-                      Cancel
-                    </Button>
-                    <Button onClick={form.handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
-                      Save
-                    </Button>
-                  </div>
-                ) : (
-                  <Button icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
-                    Edit
+              <div className="flex items-center justify-between">
+                <ArrowRight size={16} className="cursor-pointer" onClick={handleSheetClose} />
+                <div className="flex justify-end gap-2">
+                  <Button icon={<Link />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
+                    Copy link
                   </Button>
-                )}
-                {taskData?.displayID && <DeleteTaskDialog taskName={taskData.displayID} />}
+                  {isEditing ? (
+                    <div className="flex gap-2">
+                      <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
+                        Cancel
+                      </Button>
+                      <Button onClick={form.handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
+                        Save
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
+                      Edit
+                    </Button>
+                  )}
+                  {taskData?.displayID && <DeleteTaskDialog taskName={taskData.displayID} />}
+                </div>
               </div>
             </SheetHeader>
 
