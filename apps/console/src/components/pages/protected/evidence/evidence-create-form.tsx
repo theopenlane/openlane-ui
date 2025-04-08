@@ -42,7 +42,6 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
   const { mutateAsync: createEvidence, isPending } = useCreateEvidence()
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
-    console.log(evidenceObjectTypes)
     const formData = {
       input: {
         name: data.name,
