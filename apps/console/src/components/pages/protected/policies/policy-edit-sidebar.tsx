@@ -53,13 +53,9 @@ export const PolicyEditSidebar = ({ policy, form, handleSave }: PolicyEditSideba
     }
   }, [policy])
 
-  const submittabled = form.formState.isDirty && form.formState.isValid && !form.formState.disabled
-
   return (
     <div className="w-full flex flex-col gap-5">
-      <Button onClick={handleSave} disabled={!submittabled}>
-        Save policy
-      </Button>
+      <Button onClick={handleSave}>Save policy</Button>
       <MetaPanel entries={sidebarItems.status} />
       <TagsPanel form={form} />
       <Button variant="redOutline" onClick={() => setShowDeleteConfirmation(true)}>
