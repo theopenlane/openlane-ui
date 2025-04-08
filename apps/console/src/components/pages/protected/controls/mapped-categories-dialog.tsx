@@ -9,14 +9,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@repo/ui/table'
 import { useGetStandards } from '@/lib/graphql-hooks/standards'
 import { FolderIcon } from 'lucide-react'
+import { useParams } from 'next/navigation'
+import { useUpdateControl } from '@/lib/graphql-hooks/controls'
 
 const ROWS_PER_PAGE = 5
 
 const MappedCategoriesDialog = () => {
+  const { id } = useParams<{ id: string }>()
   const [open, setOpen] = useState(false)
   const [selected, setSelected] = useState<string[]>([]) // now stores domain only
   const [selectedStandardId, setSelectedStandardId] = useState<string | 'all'>('all')
   const [page, setPage] = useState(0)
+
+  const { mutateAsync: updateControl, isPending } = useUpdateControl()
 
   const { setValue, getValues } = useFormContext()
   const { data } = useGetStandards()
@@ -51,9 +56,15 @@ const MappedCategoriesDialog = () => {
     setSelected((prev) => (prev.includes(domain) ? prev.filter((d) => d !== domain) : [...prev, domain]))
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setValue('mappedCategories', selected)
     setOpen(false)
+    await updateControl({
+      updateControlId: id!,
+      input: {
+        mappedCategories: selected,
+      },
+    })
   }
 
   const handlePageChange = (direction: 'prev' | 'next') => {
@@ -167,7 +178,7 @@ const MappedCategoriesDialog = () => {
               Cancel
             </Button>
             <Button className="h-8 !px-2" onClick={handleSave}>
-              Save ({selected.length})
+              {isPending ? 'Saving...' : `Save(${selected.length}})`}
             </Button>
           </div>
         </DialogContent>
