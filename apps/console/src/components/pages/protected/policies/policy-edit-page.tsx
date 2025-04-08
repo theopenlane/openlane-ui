@@ -14,6 +14,8 @@ import { useRouter } from 'next/navigation'
 import { useNotification } from '@/hooks/useNotification'
 import { useGetInternalPolicyDetailsById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy'
 import { useQueryClient } from '@tanstack/react-query'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
+import { Loading } from '@/components/shared/loading/loading.tsx'
 
 type PolicyEditPageProps = {
   policyId: string
@@ -21,12 +23,12 @@ type PolicyEditPageProps = {
 
 export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
   const router = useRouter()
+  const plateEditorHelper = usePlateEditor()
   const { errorNotification, successNotification } = useNotification()
   const queryClient = useQueryClient()
   const { isPending: saving, mutateAsync: updatePolicy } = useUpdateInternalPolicy()
-  const { data: policyData } = useGetInternalPolicyDetailsById(policyId)
+  const { data: policyData, isLoading } = useGetInternalPolicyDetailsById(policyId)
   const [policy, setPolicy] = useState(policyData?.internalPolicy ?? ({} as InternalPolicyByIdFragment))
-  const [document, setDocument] = useState<string>(policy?.details as string)
 
   const form = useForm<EditPolicyFormData>({
     resolver: zodResolver(EditPolicySchema),
@@ -36,24 +38,11 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
       name: policy.name || '',
       policyType: policy.policyType || '',
       tags: policy.tags || [],
+      details: policy?.details as string,
     },
   })
 
   useEffect(() => {
-    const policy = policyData?.internalPolicy
-
-    if (!policy) {
-      return
-    }
-
-    setPolicy(policy)
-    if (policy?.details) {
-      setDocument(JSON.parse(policy?.details))
-    } else {
-      // @ts-ignore it will be a string when we update rich text
-      setDocument('')
-    }
-
     form.reset({
       name: policy.name || '',
       policyType: policy.policyType || '',
@@ -73,17 +62,17 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
   if (!policyData?.internalPolicy) return <></>
 
   const handleSave = async () => {
-    const { name, policyType, tags } = form.getValues()
+    const { name, policyType, tags, details } = form.getValues()
+    const detailsHtml = await plateEditorHelper.convertToHtml(details as Value)
 
     try {
-      const details = { description: '', background: '', purposeAndScope: '', editor: '' }
       await updatePolicy({
         updateInternalPolicyId: policyData?.internalPolicy.id,
         input: {
           name,
           policyType,
           tags,
-          details: JSON.stringify(details),
+          details: detailsHtml,
         },
       })
       successNotification({ title: 'Policy updated' })
@@ -101,14 +90,11 @@ export function PolicyEditPage({ policyId }: PolicyEditPageProps) {
 
   const policyName = policy.displayID ? `${policy.displayID} - ${policy.name}` : policy.name
 
-  const main = <PolicyEditForm form={form} document={document} setDocument={setDocument} />
-  const sidebar = <PolicyEditSidebar form={form} policy={policy} handleSave={handleSave} />
-
   return (
     <>
       <PageHeading eyebrow="Policies & Procedures" heading={policyName} actions={actions} />
 
-      <TwoColumnLayout main={main} aside={sidebar} />
+      {isLoading ? <Loading /> : <TwoColumnLayout main={<PolicyEditForm form={form} />} aside={<PolicyEditSidebar form={form} policy={policy} handleSave={handleSave} />} />}
     </>
   )
 }

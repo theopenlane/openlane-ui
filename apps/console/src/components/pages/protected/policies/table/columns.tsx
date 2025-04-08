@@ -4,6 +4,7 @@ import { format } from 'date-fns'
 import React from 'react'
 import { Actions } from '@/components/pages/protected/policies/actions/actions.tsx'
 import { InternalPolicy } from '@repo/codegen/src/schema.ts'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 
 export const policiesColumns: ColumnDef<InternalPolicy>[] = [
   {
@@ -29,8 +30,13 @@ export const policiesColumns: ColumnDef<InternalPolicy>[] = [
     header: 'Type',
   },
   {
-    accessorKey: 'description',
-    header: 'Description',
+    accessorKey: 'details',
+    header: 'Details',
+    cell: ({ cell }) => {
+      const plateEditorHelper = usePlateEditor()
+
+      return <div>{plateEditorHelper.convertToReadOnly(cell.getValue() as string, 0)}</div>
+    },
   },
   {
     accessorKey: 'updatedAt',

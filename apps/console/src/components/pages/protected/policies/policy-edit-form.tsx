@@ -1,33 +1,26 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import dynamic from 'next/dynamic'
 
-import { Info } from 'lucide-react'
+import { Info, InfoIcon } from 'lucide-react'
 import { FieldValues, Path, ControllerRenderProps, UseFormReturn } from 'react-hook-form'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
 import { EditPolicyFormData } from './policy-edit-form-types'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
+import { Value } from '@udecode/plate-common'
+import { SystemTooltip } from '@repo/ui/system-tooltip'
 
 type PolicyEditFormProps = {
-  document: string
-  setDocument: React.Dispatch<React.SetStateAction<string>>
   form: UseFormReturn<EditPolicyFormData>
 }
 
-export const PolicyEditForm = ({ form, document, setDocument }: PolicyEditFormProps) => {
-  const { setValue: setFormValue } = form
-  const [updatedDocument, setUpdatedDocument] = useState(document)
-
-  useEffect(() => {
-    if (!updatedDocument?.length) return
-    setDocument((state) => {
-      setFormValue('details', state, { shouldValidate: true })
-      return state
-    })
-  }, [updatedDocument])
+export const PolicyEditForm = ({ form }: PolicyEditFormProps) => {
+  const handleDocumentChange = (value: Value) => {
+    form.setValue('details', value)
+  }
 
   return (
     <>
@@ -46,12 +39,25 @@ export const PolicyEditForm = ({ form, document, setDocument }: PolicyEditFormPr
           </AlertDescription>
         </Alert>
         <Form {...form}>
-          <PolicyFormField required form={form} name="name" label="Title" info="The title of the policy.">
-            {(field) => <Input placeholder="Policy title" {...field} className="bg-background" />}
-          </PolicyFormField>
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem className="w-1/3">
+                <div className="flex items-center">
+                  <FormLabel>Title</FormLabel>
+                  <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>The title of the policy.</p>} />
+                </div>
+                <FormControl>
+                  <Input variant="medium" {...field} className="w-full" />
+                </FormControl>
+              </FormItem>
+            )}
+          />
         </Form>
         <div>
           <FormLabelContent label="Policy" info="The Policy document contents" />
+          <PlateEditor onChange={handleDocumentChange} initialValue={form.getValues('details') as string} variant="basic" />
         </div>
       </div>
     </>
