@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
-import { Pencil, Check } from 'lucide-react'
+import { Pencil, Check, ArrowRight } from 'lucide-react'
 import { Circle } from 'lucide-react'
 import { useGetRiskById, useUpdateRisk } from '@/lib/graphql-hooks/risks'
 import { Risk, RiskFieldsFragment } from '@repo/codegen/src/schema'
@@ -141,22 +141,27 @@ const RiskDetailsSheet = () => {
           <Loading />
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <SheetHeader className="flex flex-row items-end justify-end">
-              <div className="flex gap-2 mt-1">
-                {isEditing ? (
-                  <>
-                    <Button type="button" icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(false)}>
-                      Cancel
-                    </Button>
-                    <Button type="submit" icon={<Check size={14} />}>
-                      {isPending ? 'Saving...' : 'Save'}
-                    </Button>
-                  </>
-                ) : (
-                  <Button type="button" icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
-                    Edit
-                  </Button>
-                )}
+            <SheetHeader>
+              <div className="flex items-center justify-between">
+                <ArrowRight size={16} className="cursor-pointer" onClick={handleSheetClose} />
+                <div className='className="flex flex-row items-end justify-end"'>
+                  <div className="flex gap-2 mt-1">
+                    {isEditing ? (
+                      <>
+                        <Button type="button" icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(false)}>
+                          Cancel
+                        </Button>
+                        <Button type="submit" icon={<Check size={14} />}>
+                          {isPending ? 'Saving...' : 'Save'}
+                        </Button>
+                      </>
+                    ) : (
+                      <Button type="button" icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
+                        Edit
+                      </Button>
+                    )}
+                  </div>
+                </div>
               </div>
             </SheetHeader>
 
