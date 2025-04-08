@@ -30,7 +30,7 @@
     "graphql-request": "7.1.2",
     "graphql-tag": "^2.12.6",
     "jwt-decode": "^4.0.0",
-    "lucide-react": "^0.482.0",
+    "lucide-react": "^0.487.0",
     "next": "15.2.4",
     "next-auth": "beta",
     "next-navigation-guard": "^0.1.2",
