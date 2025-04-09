@@ -57,7 +57,7 @@ export const PolicyEditForm = ({ form }: PolicyEditFormProps) => {
         </Form>
         <div>
           <FormLabelContent label="Policy" info="The Policy document contents" />
-          <PlateEditor onChange={handleDocumentChange} initialValue={form.getValues('details') as string} variant="basic" />
+          <PlateEditor onChange={handleDocumentChange} initialValue={form.getValues('details') as string} variant="basic" placeholder="Write your policy" />
         </div>
       </div>
     </>

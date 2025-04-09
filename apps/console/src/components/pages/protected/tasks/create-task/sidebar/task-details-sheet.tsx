@@ -383,7 +383,7 @@ const TaskDetailsSheet = () => {
                           />
                         </div>
                         <FormControl>
-                          <PlateEditor onChange={handleDetailsChange} initialValue={taskData?.details ?? undefined} variant="basic" />
+                          <PlateEditor onChange={handleDetailsChange} initialValue={taskData?.details ?? undefined} variant="basic" placeholder="Write your task details" />
                         </FormControl>
                         {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors.details.message}</p>}
                       </FormItem>
