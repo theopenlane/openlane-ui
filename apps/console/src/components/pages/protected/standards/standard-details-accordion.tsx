@@ -36,7 +36,7 @@ const StandardDetailsAccordion: FC = () => {
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
 
   const where = generateWhere(id, debouncedSearchQuery)
-  const { data } = useGetAllControls(where)
+  const { data } = useGetAllControls({ where })
   const { data: programsData } = useGetAllPrograms()
 
   const groupedControls = useMemo(() => {

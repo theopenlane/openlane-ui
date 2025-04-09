@@ -1,6 +1,6 @@
 'use client'
 
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useEffect, useState } from 'react'
 import { useGetAllControls } from '@/lib/graphql-hooks/controls'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
@@ -12,11 +12,101 @@ import { Avatar } from '@/components/shared/avatar/avatar'
 import { useRouter } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Value } from '@udecode/plate-common'
+import { TPagination } from '@repo/ui/pagination-types'
 
 const ControlsTable: React.FC = () => {
-  const { data: controlsData, isLoading, isError } = useGetAllControls({ ownerIDIsNil: false })
   const { push } = useRouter()
+  const [pagination, setPagination] = useState<null | TPagination>(null)
+
   const plateEditorHelper = usePlateEditor()
+
+  const {
+    data: controlsData,
+    isLoading,
+    isError,
+  } = useGetAllControls({
+    where: { ownerIDNEQ: '' },
+    pagination,
+  })
+
+  console.log('pagination', pagination)
+
+  // const totalCount = controlsData?.controls.totalCount ?? 0
+  // const totalPages = Math.ceil(totalCount / pageSize)
+
+  // const handlePageSizeChange = (newSize: number) => {
+  //   setPageSize(newSize)
+  //   setPage(1)
+  //   setPagination({ first: newSize })
+  // }
+
+  // const goToFirstPage = () => {
+  //   setPage(1)
+  //   setPagination({ first: pageSize })
+  // }
+
+  // const goToLastPage = () => {
+  //   setPage(totalPages)
+  //   setPagination({ last: pageSize })
+  // }
+
+  // const handlePageChange = (newPage: number) => {
+  //   if (newPage === 1) {
+  //     goToFirstPage()
+  //     return
+  //   }
+
+  //   if (newPage === totalPages) {
+  //     goToLastPage()
+  //     return
+  //   }
+
+  //   const isForward = newPage > page
+  //   setPage(newPage)
+
+  //   if (isForward) {
+  //     setPagination({
+  //       first: pageSize,
+  //       after: controlsData?.controls.pageInfo?.endCursor ?? null,
+  //     })
+  //   } else {
+  //     if (newPage === totalPages) {
+  //       setPagination({
+  //         last: pageSize,
+  //       })
+  //     } else {
+  //       setPagination({
+  //         last: pageSize,
+  //         before: controlsData?.controls.pageInfo?.startCursor ?? null,
+  //       })
+  //     }
+  //   }
+  // }
+
+  useEffect(() => {
+    if (!controlsData?.controls?.totalCount) return
+
+    const totalCount = controlsData.controls.totalCount
+    const pageSize = 10
+    let totalPages = Math.ceil(totalCount / pageSize)
+    const pageInfo = controlsData.controls.pageInfo
+    if (pagination === null) {
+      setPagination({
+        page: 1,
+        pageSize,
+        totalPages,
+        query: { first: pageSize },
+        pageInfo,
+      })
+      return
+    }
+    totalPages = Math.ceil(totalCount / pagination.pageSize)
+    setPagination({
+      ...pagination,
+      totalPages,
+      pageInfo,
+    })
+  }, [controlsData])
 
   const columns: ColumnDef<ControlFieldsFragment>[] = [
     {
@@ -123,7 +213,16 @@ const ControlsTable: React.FC = () => {
           Export
         </Button>
       </div>
-      <DataTable columns={columns} data={tableData} onRowClick={handleRowClick} />
+      <DataTable
+        columns={columns}
+        data={tableData}
+        onRowClick={handleRowClick}
+        pagination={pagination}
+        onPaginationChange={(pagination: TPagination) => {
+          setPagination(pagination)
+        }}
+      />
+      {/* <Pagination currentPage={page} totalPages={totalPages} pageSize={pageSize} onPageChange={handlePageChange} onPageSizeChange={handlePageSizeChange} />{' '} */}
     </div>
   )
 }

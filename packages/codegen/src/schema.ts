@@ -30915,14 +30915,18 @@ export type ControlFieldsFragment = {
 export type GetAllControlsQueryVariables = Exact<{
   where?: InputMaybe<ControlWhereInput>
   orderBy?: InputMaybe<Array<ControlOrder> | ControlOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type GetAllControlsQuery = {
   __typename?: 'Query'
   controls: {
     __typename?: 'ControlConnection'
+    totalCount: number
     edges?: Array<{
       __typename?: 'ControlEdge'
+      cursor: any
       node?: {
         __typename?: 'Control'
         id: string
@@ -30984,6 +30988,7 @@ export type GetAllControlsQuery = {
         owner?: { __typename?: 'Organization'; users?: Array<{ __typename?: 'User'; avatarRemoteURL?: string | null; firstName?: string | null; lastName?: string | null }> | null } | null
       } | null
     } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; hasPreviousPage: boolean; endCursor?: any | null; startCursor?: any | null }
   }
 }
 
