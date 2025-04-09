@@ -4,13 +4,13 @@ import { Button } from '@repo/ui/button'
 import EvidenceCreateForm from '@/components/pages/protected/evidence/evidence-create-form'
 import { FilePlus } from 'lucide-react'
 import { dialogStyles } from '@/components/pages/protected/program/dialog.styles.tsx'
-import { TTaskDataEvidence } from '@/components/pages/protected/evidence/types/TTaskDataEvidence.ts'
+import { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
 import { useParams, usePathname } from 'next/navigation'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
-import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
+import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
 
 type TProps = {
-  taskData?: TTaskDataEvidence
+  formData?: TFormEvidenceData
 }
 
 const EvidenceCreateFormDialog: React.FC<TProps> = (props: TProps) => {
@@ -38,14 +38,14 @@ const EvidenceCreateFormDialog: React.FC<TProps> = (props: TProps) => {
         title: `Submit Evidence for Control ${controlData?.control?.refCode}`,
       }
     }
-    if (props.taskData) {
+    if (props.formData) {
       return {
         button: (
           <Button icon={<FilePlus />} iconPosition="left" onClick={() => setIsOpen(true)}>
             Upload File
           </Button>
         ),
-        title: `Submit Evidence for ${props.taskData?.displayID}`,
+        title: `Submit Evidence for ${props.formData?.displayID}`,
       }
     }
     return {
@@ -65,7 +65,11 @@ const EvidenceCreateFormDialog: React.FC<TProps> = (props: TProps) => {
           <DialogTitle>{config.title}</DialogTitle>
         </DialogHeader>
         <div className={formInput()}>
-          <EvidenceCreateForm taskData={props.taskData} onEvidenceCreateSuccess={handleSuccess} excludeObjectTypes={[ObjectTypeObjects.EVIDENCE]} />
+          <EvidenceCreateForm
+            formData={props.formData}
+            onEvidenceCreateSuccess={handleSuccess}
+            excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.RISK, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.GROUP, ObjectTypeObjects.INTERNAL_POLICY]}
+          />
         </div>
       </DialogContent>
     </Dialog>

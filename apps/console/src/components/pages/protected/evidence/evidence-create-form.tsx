@@ -17,7 +17,7 @@ import EvidenceUploadForm from '@/components/pages/protected/evidence/upload/evi
 import { useNotification } from '@/hooks/useNotification'
 import { Option } from '@repo/ui/multiple-selector'
 import { useCreateEvidence } from '@/lib/graphql-hooks/evidence'
-import { TTaskDataEvidence } from '@/components/pages/protected/evidence/types/TTaskDataEvidence.ts'
+import { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
 import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
@@ -27,19 +27,17 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@r
 import { Badge } from '@repo/ui/badge'
 
 type TProps = {
-  taskData?: TTaskDataEvidence
+  formData?: TFormEvidenceData
   onEvidenceCreateSuccess?: () => void
   excludeObjectTypes?: ObjectTypeObjects[]
 }
 
-const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
+const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSuccess, excludeObjectTypes }: TProps) => {
   const { form } = useFormSchema()
   const { successNotification, errorNotification } = useNotification()
   const [tagValues, setTagValues] = useState<Option[]>([])
   const [resetEvidenceFiles, setResetEvidenceFiles] = useState(false)
-  const [preselectedObjectDisplayIDs, setPreselectedObjectDisplayIDs] = useState<string[]>([])
   const [evidenceObjectTypes, setEvidenceObjectTypes] = useState<TObjectAssociationMap>()
-  const [preselectedObjectTypes, setPreselectedObjectTypes] = useState<Partial<Record<`${Lowercase<string>}IDs`, string[]>>>()
   const { data: sessionData } = useSession()
   const { mutateAsync: createEvidence, isPending } = useCreateEvidence()
 
@@ -55,7 +53,6 @@ const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
         collectionProcedure: data.collectionProcedure,
         source: data.source,
         fileIDs: data.fileIDs,
-        taskIDs: data?.taskIDs,
         ...(data.url ? { url: data.url } : {}),
         ...evidenceObjectTypes,
       } as CreateEvidenceInput,
@@ -68,7 +65,7 @@ const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
         title: 'Evidence Created',
         description: `Evidence has been successfully created`,
       })
-      props?.onEvidenceCreateSuccess && props.onEvidenceCreateSuccess()
+      onEvidenceCreateSuccess && onEvidenceCreateSuccess()
     } catch {
       errorNotification({
         title: 'Error',
@@ -81,32 +78,15 @@ const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
   }
 
   useEffect(() => {
-    if (props.taskData) {
-      form.setValue('name', `Evidence for ${props.taskData.displayID}`)
-      form.setValue('controlObjectiveIDs', props.taskData?.controlObjectiveIDs?.edges?.map((item: any) => item?.node?.id) || [])
-      form.setValue('subcontrolIDs', props.taskData?.subcontrolIDs?.edges?.map((item: any) => item?.node?.id) || [])
-      form.setValue('programIDs', props.taskData?.programIDs?.edges?.map((item: any) => item?.node?.id) || [])
-      form.setValue('controlIDs', props.taskData?.controlIDs?.edges?.map((item: any) => item?.node?.id) || [])
-      form.setValue('taskIDs', props.taskData?.taskId ? [props.taskData.taskId] : [])
-      const preselectedObjectTypes: TObjectAssociationMap = {
-        controlObjectiveIDs: props.taskData?.controlObjectiveIDs?.edges?.map((item: any) => item?.node?.id) || [],
-        subcontrolIDs: props.taskData?.subcontrolIDs?.edges?.map((item: any) => item?.node?.id) || [],
-        programIDs: props.taskData?.programIDs?.edges?.map((item: any) => item?.node?.id) || [],
-        controlIDs: props.taskData?.controlIDs?.edges?.map((item: any) => item?.node?.id) || [],
-        taskIDs: props.taskData?.taskId ? [props.taskData?.taskId] : [],
+    if (formData) {
+      form.setValue('name', `Evidence for ${formData.displayID}`)
+      for (const [key, value] of Object.entries(formData.objectAssociations)) {
+        form.setValue(key as keyof CreateEvidenceFormData, value)
       }
-      setPreselectedObjectDisplayIDs([
-        ...(props.taskData?.controlObjectiveIDs?.edges?.map((item: any) => item?.node?.displayID) || []),
-        ...(props.taskData?.subcontrolIDs?.edges?.map((item: any) => item?.node?.displayID) || []),
-        ...(props.taskData?.programIDs?.edges?.map((item: any) => item?.node?.displayID) || []),
-        ...(props.taskData?.controlIDs?.edges?.map((item: any) => item?.node?.displayID) || []),
-        props.taskData?.displayID,
-      ])
-      setPreselectedObjectTypes(preselectedObjectTypes)
 
-      if (props.taskData?.tags) {
-        form.setValue('tags', props.taskData.tags)
-        const tags = props.taskData.tags.map((item) => {
+      if (formData?.tags) {
+        form.setValue('tags', formData.tags)
+        const tags = formData.tags.map((item) => {
           return {
             value: item,
             label: item,
@@ -311,7 +291,7 @@ const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
             <div className="col-span-1">
               <Panel>
                 <PanelHeader heading="Object association" noBorder />
-                {props?.taskData && (
+                {formData && formData?.objectAssociationsDisplayIDs && (
                   <Card className="p-4 flex gap-3 bg-note">
                     <div>
                       <p className="font-semibold">Heads up!</p>
@@ -324,8 +304,8 @@ const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
                               <ChevronDown className="h-4 w-4 group-data-[state=open]:rotate-180" />
                             </AccordionTrigger>
                             <AccordionContent className="my-3">
-                              {preselectedObjectDisplayIDs &&
-                                preselectedObjectDisplayIDs.map((item, index) => (
+                              {formData?.objectAssociationsDisplayIDs &&
+                                formData?.objectAssociationsDisplayIDs.map((item, index) => (
                                   <Fragment key={index}>
                                     {item && (
                                       <Badge className="bg-background-secondary mr-1" variant="outline">
@@ -341,7 +321,7 @@ const EvidenceCreateForm: React.FC<TProps> = (props: TProps) => {
                     </div>
                   </Card>
                 )}
-                <ObjectAssociation onIdChange={handleEvidenceObjectIdsChange} excludeObjectTypes={props?.excludeObjectTypes || []} initialData={preselectedObjectTypes} />
+                <ObjectAssociation onIdChange={handleEvidenceObjectIdsChange} excludeObjectTypes={excludeObjectTypes || []} initialData={formData?.objectAssociations} />
               </Panel>
             </div>
           </div>
