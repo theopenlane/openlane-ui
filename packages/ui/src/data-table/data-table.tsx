@@ -33,6 +33,7 @@ interface DataTableProps<TData, TValue> {
   onPaginationChange?: (arg: TPagination) => void
   totalCount?: number
   pageInfo?: TPageInfo
+  isLoading?: boolean
 }
 
 export function DataTable<TData, TValue>({
@@ -50,6 +51,7 @@ export function DataTable<TData, TValue>({
   onPaginationChange,
   totalCount,
   pageInfo,
+  isLoading,
 }: DataTableProps<TData, TValue>) {
   const [sortConditions, setSortConditions] = useState<{ field: string; direction?: OrderDirection }[]>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -213,74 +215,82 @@ export function DataTable<TData, TValue>({
                   {table
                     .getAllColumns()
                     .filter((column) => column.getCanHide())
-                    .map((column, index) => {
-                      return (
-                        <DropdownMenuCheckboxItem key={`${column.id}-${index}`} className="capitalize" checked={column.getIsVisible()} onCheckedChange={(value) => column.toggleVisibility(!!value)}>
-                          {column.id}
-                        </DropdownMenuCheckboxItem>
-                      )
-                    })}
+                    .map((column, index) => (
+                      <DropdownMenuCheckboxItem key={`${column.id}-${index}`} className="capitalize" checked={column.getIsVisible()} onCheckedChange={(value) => column.toggleVisibility(!!value)}>
+                        {column.id}
+                      </DropdownMenuCheckboxItem>
+                    ))}
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
           </div>
         )}
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header, index) => {
-                  //This is used for converting header and sort keys to same format
-                  const normalizeKey = (key: string) => key.replace(/_/g, '').toLowerCase()
-                  const sortField = sortFields?.find((sf) => normalizeKey(sf.key) === normalizeKey(header.column.id))
-                  const columnWidth = header.getSize() === 20 ? 'auto' : `${header.getSize()}px`
-                  if (!sortField) {
+
+        {/* Apply opacity and disable interactions while loading */}
+        <div className={isLoading ? 'opacity-50 pointer-events-none transition-opacity duration-300' : 'transition-opacity duration-300'}>
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header, index) => {
+                    const normalizeKey = (key: string) => key.replace(/_/g, '').toLowerCase()
+                    const sortField = sortFields?.find((sf) => normalizeKey(sf.key) === normalizeKey(header.column.id))
+                    const columnWidth = header.getSize() === 20 ? 'auto' : `${header.getSize()}px`
+
+                    if (!sortField) {
+                      return (
+                        <TableHead key={`${header.id}-${index}`} style={{ width: columnWidth }}>
+                          {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                        </TableHead>
+                      )
+                    }
+
+                    const sorting = sortConditions.find((sc) => sc.field === sortField.key)?.direction
                     return (
-                      <TableHead key={`${header.id}-${index}`} style={{ width: columnWidth }}>
-                        {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                      <TableHead key={`${header.id}-${index}`} style={{ width: columnWidth, cursor: 'pointer' }} onClick={() => handleSortChange(sortField.key)}>
+                        {header.isPlaceholder ? null : (
+                          <div className="flex items-center gap-1">
+                            {flexRender(header.column.columnDef.header, header.getContext())}
+                            {sorting === OrderDirection.ASC ? <ArrowUp size={16} /> : sorting === OrderDirection.DESC ? <ArrowDown size={16} /> : <ArrowUpDown size={16} className="text-gray-400" />}
+                          </div>
+                        )}
                       </TableHead>
                     )
-                  }
-
-                  const sorting = sortConditions.find((sc) => sc.field === sortField.key)?.direction
-                  return (
-                    <TableHead key={`${header.id}-${index}`} style={{ width: columnWidth, cursor: 'pointer' }} onClick={() => handleSortChange(sortField.key)}>
-                      {header.isPlaceholder ? null : (
-                        <div className="flex items-center gap-1">
-                          {flexRender(header.column.columnDef.header, header.getContext())}
-                          {sorting === OrderDirection.ASC ? <ArrowUp size={16} /> : sorting === OrderDirection.DESC ? <ArrowDown size={16} /> : <ArrowUpDown size={16} className="text-gray-400" />}
-                        </div>
-                      )}
-                    </TableHead>
-                  )
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  onClick={() => onRowClick?.(row.original)}
-                  className={`hover:bg-table-row-bg-hover ${onRowClick ? 'cursor-pointer' : ''}`}
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    // @ts-ignore
-                    <TableCell key={cell.id} className={cell.column.columnDef.meta?.className || ''}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
+                  })}
                 </TableRow>
-              ))
-            ) : (
-              <NoData loading={loading} colLength={columns.length} noDataMarkup={noDataMarkup} noResultsText={noResultsText} />
-            )}
-          </TableBody>
-        </Table>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    onClick={() => onRowClick?.(row.original)}
+                    className={`hover:bg-table-row-bg-hover ${onRowClick ? 'cursor-pointer' : ''}`}
+                    key={row.id}
+                    data-state={row.getIsSelected() && 'selected'}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      // @ts-ignore
+                      <TableCell key={cell.id} className={cell.column.columnDef.meta?.className || ''}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <NoData loading={loading} colLength={columns.length} noDataMarkup={noDataMarkup} noResultsText={noResultsText} />
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
-      {pagination && <Pagination currentPage={currentPage} totalPages={totalPages} pageSize={currentPageSize} onPageChange={handlePageChange} onPageSizeChange={handlePageSizeChange} />}
+
+      {/* Pagination also gets opacity and interaction block on loading */}
+      {pagination && (
+        <div className={isLoading ? 'opacity-50 pointer-events-none transition-opacity duration-300' : 'transition-opacity duration-300'}>
+          <Pagination currentPage={currentPage} totalPages={totalPages} pageSize={currentPageSize} onPageChange={handlePageChange} onPageSizeChange={handlePageSizeChange} />
+        </div>
+      )}
     </>
   )
 }

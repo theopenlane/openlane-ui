@@ -28,6 +28,7 @@ const ControlsTable: React.FC = () => {
     data: controlsData,
     isLoading,
     isError,
+    isFetching,
   } = useGetAllControls({
     where: { ownerIDNEQ: '' },
     pagination,
@@ -151,6 +152,7 @@ const ControlsTable: React.FC = () => {
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
         totalCount={controlsData?.controls.totalCount || 1}
         pageInfo={controlsData?.controls.pageInfo}
+        isLoading={isFetching}
       />
     </div>
   )
