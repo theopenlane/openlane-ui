@@ -3,13 +3,23 @@ import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { GET_ALL_CONTROLS, GET_CONTROL_BY_ID, UPDATE_CONTROL } from '@repo/codegen/query/control'
 
 import { GetAllControlsQuery, GetAllControlsQueryVariables, GetControlByIdQuery, UpdateControlMutation, UpdateControlMutationVariables } from '@repo/codegen/src/schema'
+import { TPagination } from '@repo/ui/pagination-types'
 
-export const useGetAllControls = (where?: GetAllControlsQueryVariables['where'], orderBy?: GetAllControlsQueryVariables['orderBy']) => {
+type UseGetAllControlsArgs = {
+  where?: GetAllControlsQueryVariables['where']
+  pagination?: TPagination | null
+}
+
+export const useGetAllControls = ({ where, pagination }: UseGetAllControlsArgs) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetAllControlsQuery, unknown>({
-    queryKey: ['controls', { where, orderBy }],
-    queryFn: async () => client.request(GET_ALL_CONTROLS, { where, orderBy }),
+    queryKey: ['controls', where, pagination?.page, pagination?.pageSize],
+    queryFn: async () =>
+      client.request(GET_ALL_CONTROLS, {
+        where,
+        ...pagination?.query,
+      }),
     enabled: where !== undefined,
   })
 }

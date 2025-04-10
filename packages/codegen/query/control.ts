@@ -125,13 +125,21 @@ export const CONTROL_FIELDS_FRAGMENT = gql`
 
 export const GET_ALL_CONTROLS = gql`
   ${CONTROL_FIELDS_FRAGMENT}
-  query GetAllControls($where: ControlWhereInput, $orderBy: [ControlOrder!]) {
-    controls(where: $where, orderBy: $orderBy) {
+  query GetAllControls($where: ControlWhereInput, $orderBy: [ControlOrder!], $first: Int, $after: Cursor) {
+    controls(where: $where, orderBy: $orderBy, first: $first, after: $after) {
       edges {
         node {
           ...ControlFields
         }
+        cursor
       }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        endCursor
+        startCursor
+      }
+      totalCount
     }
   }
 `
