@@ -7,7 +7,7 @@ import { Button } from '@repo/ui/button'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import { DownloadIcon } from 'lucide-react'
-import { ControlFieldsFragment, Organization } from '@repo/codegen/src/schema'
+import { ControlFieldsFragment, Group, Organization } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useRouter } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -71,19 +71,14 @@ const ControlsTable: React.FC = () => {
       },
       {
         header: 'Owner',
-        accessorKey: 'owner',
+        accessorKey: 'controlOwner',
         cell: ({ row }) => {
-          const owner = row.getValue<ControlFieldsFragment['owner']>('owner')
-          const users = owner?.users ?? []
+          const owner = row.getValue<ControlFieldsFragment['controlOwner']>('controlOwner')
 
           return (
             <div className="flex items-center gap-2">
-              {users.map((user, index) => (
-                <Fragment key={index}>
-                  <Avatar entity={user as Organization} variant="small" />
-                  <span>{`${user.firstName} ${user.lastName}`}</span>
-                </Fragment>
-              ))}
+              <Avatar entity={owner as Group} variant="small" />
+              <span>{owner?.displayName ?? '-'}</span>
             </div>
           )
         },

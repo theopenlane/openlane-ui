@@ -19,7 +19,6 @@ export const CONTROL_FIELDS_FRAGMENT = gql`
     updatedBy
     updatedAt
     createdAt
-
     controlObjectives {
       edges {
         node {
