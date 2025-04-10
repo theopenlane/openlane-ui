@@ -133,8 +133,6 @@ export const GET_ALL_CONTROLS = gql`
         cursor
       }
       pageInfo {
-        hasNextPage
-        hasPreviousPage
         endCursor
         startCursor
       }

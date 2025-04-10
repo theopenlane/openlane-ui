@@ -7,8 +7,11 @@ import { questionnaireColumns } from '@/components/pages/protected/questionnaire
 import QuestionnaireTableToolbar from '@/components/pages/protected/questionnaire/table/questionnaire-table-toolbar.tsx'
 import { QUESTIONNAIRE_SORT_FIELDS } from '@/components/pages/protected/questionnaire/table/table-config.ts'
 import { FilterTemplatesQueryVariables, OrderDirection, TemplateDocumentType, TemplateOrderField } from '@repo/codegen/src/schema.ts'
+import { TPagination } from '@repo/ui/pagination-types'
+import { DEFAULT_PAGINATION } from '@/constants/pagination'
 
 export const QuestionnairesTable = () => {
+  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<Record<string, any>>({})
   const [orderBy, setOrderBy] = useState<FilterTemplatesQueryVariables['orderBy']>([
     {
@@ -17,25 +20,40 @@ export const QuestionnairesTable = () => {
     },
   ])
   const [searchTerm, setSearchTerm] = useState('')
+
   const whereFilter = useMemo(() => {
-    const conditions: Record<string, any> = {
+    return {
       templateType: TemplateDocumentType.DOCUMENT,
       ...filters,
     }
-
-    return conditions
   }, [filters])
 
-  const orderByFilter = useMemo(() => {
-    return orderBy || undefined
-  }, [orderBy])
+  const orderByFilter = useMemo(() => orderBy || undefined, [orderBy])
 
-  const { templates, isLoading: fetching } = useFilteredTemplates(searchTerm, whereFilter, orderByFilter)
-
+  const {
+    templates,
+    isLoading: fetching,
+    isFetching,
+    data,
+  } = useFilteredTemplates({
+    search: searchTerm,
+    where: whereFilter,
+    orderBy: orderByFilter,
+    pagination,
+  })
   return (
     <div>
       <QuestionnaireTableToolbar creating={fetching} searchTerm={searchTerm} setSearchTerm={setSearchTerm} setFilters={setFilters} />
-      <DataTable sortFields={QUESTIONNAIRE_SORT_FIELDS} onSortChange={setOrderBy} columns={questionnaireColumns} data={templates} />
+      <DataTable
+        sortFields={QUESTIONNAIRE_SORT_FIELDS}
+        onSortChange={setOrderBy}
+        columns={questionnaireColumns}
+        data={templates}
+        loading={fetching}
+        pagination={pagination}
+        onPaginationChange={setPagination}
+        // paginationMeta={{ totalCount: data, pageInfo: data?.pageInfo, isLoading: isFetching }}
+      />
     </div>
   )
 }

@@ -47,7 +47,7 @@ const ProceduresTable: React.FC = () => {
   return (
     <>
       <ProcedureDataTableToolbar className="my-5" creating={creating} handleCreateNew={handleCreateNew} setFilters={setFilters} searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-      <DataTable sortFields={PROCEDURE_SORTABLE_FIELDS} onSortChange={setOrderBy} columns={proceduresColumns} data={procedures} loading={fetching} />
+      <DataTable sortFields={PROCEDURE_SORTABLE_FIELDS} onSortChange={setOrderBy} columns={proceduresColumns} data={procedures} />
     </>
   )
 }

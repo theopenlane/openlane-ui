@@ -35,8 +35,9 @@ export const DELETE_INTERNAL_POLICY = gql`
 `
 
 export const GET_INTERNAL_POLICIES_LIST = gql`
-  query GetInternalPoliciesList($orderBy: [InternalPolicyOrder!], $where: InternalPolicyWhereInput) {
-    internalPolicies(where: $where, orderBy: $orderBy) {
+  query GetInternalPoliciesList($orderBy: [InternalPolicyOrder!], $where: InternalPolicyWhereInput, $first: Int, $after: Cursor) {
+    internalPolicies(where: $where, orderBy: $orderBy, first: $first, after: $after) {
+      totalCount
       edges {
         node {
           id
@@ -52,6 +53,11 @@ export const GET_INTERNAL_POLICIES_LIST = gql`
           details
         }
       }
+      pageInfo {
+        startCursor
+        endCursor
+      }
+      totalCount
     }
   }
 `

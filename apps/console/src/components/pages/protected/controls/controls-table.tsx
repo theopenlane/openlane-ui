@@ -13,16 +13,13 @@ import { useRouter } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Value } from '@udecode/plate-common'
 import { TPagination } from '@repo/ui/pagination-types'
+import { DEFAULT_PAGINATION } from '@/constants/pagination'
 
 const ControlsTable: React.FC = () => {
   const { push } = useRouter()
   const plateEditorHelper = usePlateEditor()
 
-  const [pagination, setPagination] = useState<TPagination>({
-    page: 1,
-    pageSize: 10,
-    query: { first: 10 },
-  })
+  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
 
   const {
     data: controlsData,
@@ -145,9 +142,7 @@ const ControlsTable: React.FC = () => {
         onRowClick={handleRowClick}
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
-        totalCount={controlsData?.controls.totalCount || 1}
-        pageInfo={controlsData?.controls.pageInfo}
-        isLoading={isFetching}
+        paginationMeta={{ totalCount: controlsData?.controls.totalCount, pageInfo: controlsData?.controls.pageInfo, isLoading: isFetching }}
       />
     </div>
   )

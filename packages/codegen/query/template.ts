@@ -70,6 +70,11 @@ export const FILTER_TEMPLATES = gql`
           updatedAt
         }
       }
+      pageInfo {
+        endCursor
+        startCursor
+      }
+      totalCount
     }
   }
 `
@@ -108,6 +113,11 @@ export const SEARCH_TEMPLATE = gql`
         createdAt
         updatedAt
       }
+      # pageInfo {
+      #   endCursor
+      #   startCursor
+      # }
+      # totalCount
     }
   }
 `

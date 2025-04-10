@@ -30988,7 +30988,7 @@ export type GetAllControlsQuery = {
         owner?: { __typename?: 'Organization'; users?: Array<{ __typename?: 'User'; avatarRemoteURL?: string | null; firstName?: string | null; lastName?: string | null }> | null } | null
       } | null
     } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; hasPreviousPage: boolean; endCursor?: any | null; startCursor?: any | null }
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
   }
 }
 
@@ -31544,12 +31544,15 @@ export type DeleteInternalPolicyMutation = { __typename?: 'Mutation'; deleteInte
 export type GetInternalPoliciesListQueryVariables = Exact<{
   orderBy?: InputMaybe<Array<InternalPolicyOrder> | InternalPolicyOrder>
   where?: InputMaybe<InternalPolicyWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type GetInternalPoliciesListQuery = {
   __typename?: 'Query'
   internalPolicies: {
     __typename?: 'InternalPolicyConnection'
+    totalCount: number
     edges?: Array<{
       __typename?: 'InternalPolicyEdge'
       node?: {
@@ -31567,6 +31570,7 @@ export type GetInternalPoliciesListQuery = {
         details?: string | null
       } | null
     } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; startCursor?: any | null; endCursor?: any | null }
   }
 }
 
@@ -31695,6 +31699,7 @@ export type GetAllProceduresQuery = {
   __typename?: 'Query'
   procedures: {
     __typename?: 'ProcedureConnection'
+    totalCount: number
     edges?: Array<{
       __typename?: 'ProcedureEdge'
       node?: {
@@ -31711,6 +31716,7 @@ export type GetAllProceduresQuery = {
         tags?: Array<string> | null
       } | null
     } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
   }
 }
 
@@ -31749,6 +31755,8 @@ export type DeleteProcedureMutation = { __typename?: 'Mutation'; deleteProcedure
 
 export type SearchProceduresQueryVariables = Exact<{
   query: Scalars['String']['input']
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type SearchProceduresQuery = {
@@ -32117,12 +32125,16 @@ export type SearchSubscribersQuery = {
 export type TasksWithFilterQueryVariables = Exact<{
   where?: InputMaybe<TaskWhereInput>
   orderBy?: InputMaybe<Array<TaskOrder> | TaskOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type TasksWithFilterQuery = {
   __typename?: 'Query'
   tasks: {
     __typename?: 'TaskConnection'
+    totalCount: number
+    pageInfo: { __typename?: 'PageInfo'; startCursor?: any | null; endCursor?: any | null }
     edges?: Array<{
       __typename?: 'TaskEdge'
       node?: {
@@ -32317,6 +32329,7 @@ export type FilterTemplatesQuery = {
   __typename?: 'Query'
   templates: {
     __typename?: 'TemplateConnection'
+    totalCount: number
     edges?: Array<{
       __typename?: 'TemplateEdge'
       node?: {
@@ -32331,6 +32344,7 @@ export type FilterTemplatesQuery = {
         updatedAt?: any | null
       } | null
     } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
   }
 }
 

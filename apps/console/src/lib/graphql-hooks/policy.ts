@@ -24,11 +24,19 @@ import {
   UpdateInternalPolicyMutationVariables,
 } from '@repo/codegen/src/schema'
 import { useDebounce } from '../../../../../packages/ui/src/hooks/use-debounce'
+import { TPagination } from '@repo/ui/pagination-types'
 
-export const useFilteredInternalPolicies = (searchQuery: string, where?: GetInternalPoliciesListQueryVariables['where'], orderBy?: GetInternalPoliciesListQueryVariables['orderBy']) => {
-  const debouncedSearchTerm = useDebounce(searchQuery, 300)
-  const { policies: allPolicies, isLoading: isFetchingAll, ...allQueryRest } = useGetInternalPoliciesList(where, orderBy)
-  const { policies: searchPoliciesRaw, isLoading: isSearching, ...searchQueryRest } = useSearchInternalPolicies(debouncedSearchTerm)
+type UseFilteredInternalPoliciesArgs = {
+  where?: GetInternalPoliciesListQueryVariables['where']
+  orderBy?: GetInternalPoliciesListQueryVariables['orderBy']
+  pagination?: TPagination
+  search: string
+}
+
+export const useFilteredInternalPolicies = ({ search, where, orderBy, pagination }: UseFilteredInternalPoliciesArgs) => {
+  const debouncedSearchTerm = useDebounce(search, 300)
+  const { policies: allPolicies, isLoading: isFetchingAll, ...allQueryRest } = useGetInternalPoliciesList({ where, orderBy, pagination })
+  const { policies: searchPoliciesRaw, isLoading: isSearching, ...searchQueryRest } = useSearchInternalPolicies({ search: debouncedSearchTerm, pagination })
   const showSearch = !!debouncedSearchTerm
   const filteredAndOrderedPolicies = showSearch ? allPolicies?.filter((policy) => searchPoliciesRaw?.some((searchPolicy) => searchPolicy.id === policy.id)) : allPolicies
   const isLoading = showSearch ? isSearching : isFetchingAll
@@ -40,12 +48,18 @@ export const useFilteredInternalPolicies = (searchQuery: string, where?: GetInte
   }
 }
 
-export const useGetInternalPoliciesList = (where?: GetInternalPoliciesListQueryVariables['where'], orderBy?: GetInternalPoliciesListQueryVariables['orderBy']) => {
+type GetInternalPoliciesListArgs = {
+  where?: GetInternalPoliciesListQueryVariables['where']
+  orderBy?: GetInternalPoliciesListQueryVariables['orderBy']
+  pagination?: TPagination
+}
+
+export const useGetInternalPoliciesList = ({ where, orderBy, pagination }: GetInternalPoliciesListArgs) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<GetInternalPoliciesListQuery>({
-    queryKey: ['internalPolicies', { where, orderBy }],
-    queryFn: async () => client.request(GET_INTERNAL_POLICIES_LIST, { where, orderBy }),
+    queryKey: ['internalPolicies', where, orderBy, pagination?.page, pagination?.pageSize],
+    queryFn: async () => client.request(GET_INTERNAL_POLICIES_LIST, { where, orderBy, ...pagination?.query }),
   })
 
   const policies = (queryResult.data?.internalPolicies?.edges?.map((edge) => edge?.node) ?? []) as InternalPolicy[]
@@ -86,15 +100,20 @@ export const useUpdateInternalPolicy = () => {
   })
 }
 
-export const useSearchInternalPolicies = (searchQuery: string) => {
+type searchInternalPoliciesArgs = {
+  search: string
+  pagination?: TPagination
+}
+
+export const useSearchInternalPolicies = ({ search, pagination }: searchInternalPoliciesArgs) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<SearchInternalPoliciesQuery>({
-    queryKey: ['internalPoliciesSearch', searchQuery],
+    queryKey: ['internalPolicies', 'search', search, pagination?.page, pagination?.pageSize],
     queryFn: async () => {
-      return client.request<SearchInternalPoliciesQuery, SearchInternalPoliciesQueryVariables>(SEARCH_INTERNAL_POLICIES, { query: searchQuery })
+      return client.request<SearchInternalPoliciesQuery, SearchInternalPoliciesQueryVariables>(SEARCH_INTERNAL_POLICIES, { query: search, ...pagination?.query })
     },
-    enabled: !!searchQuery,
+    enabled: !!search,
   })
 
   const policies = (queryResult.data?.internalPolicySearch?.internalPolicies ?? []) as InternalPolicy[]

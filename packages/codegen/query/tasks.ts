@@ -1,8 +1,13 @@
 import { gql } from 'graphql-request'
 
 export const TASKS_WITH_FILTER = gql`
-  query TasksWithFilter($where: TaskWhereInput, $orderBy: [TaskOrder!]) {
-    tasks(where: $where, orderBy: $orderBy) {
+  query TasksWithFilter($where: TaskWhereInput, $orderBy: [TaskOrder!], $first: Int, $after: Cursor) {
+    tasks(where: $where, orderBy: $orderBy, first: $first, after: $after) {
+      pageInfo {
+        startCursor
+        endCursor
+      }
+      totalCount
       edges {
         node {
           id
