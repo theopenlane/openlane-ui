@@ -1,13 +1,13 @@
 'use client'
 
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment, useMemo, useState } from 'react'
 import { useGetAllControls } from '@/lib/graphql-hooks/controls'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import { DownloadIcon } from 'lucide-react'
-import { ControlFieldsFragment, Organization, User } from '@repo/codegen/src/schema'
+import { ControlFieldsFragment, Organization } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useRouter } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -16,9 +16,13 @@ import { TPagination } from '@repo/ui/pagination-types'
 
 const ControlsTable: React.FC = () => {
   const { push } = useRouter()
-  const [pagination, setPagination] = useState<null | TPagination>(null)
-
   const plateEditorHelper = usePlateEditor()
+
+  const [pagination, setPagination] = useState<TPagination>({
+    page: 1,
+    pageSize: 10,
+    query: { first: 10 },
+  })
 
   const {
     data: controlsData,
@@ -29,160 +33,83 @@ const ControlsTable: React.FC = () => {
     pagination,
   })
 
-  console.log('pagination', pagination)
+  const columns: ColumnDef<ControlFieldsFragment>[] = useMemo(
+    () => [
+      {
+        header: 'Name',
+        accessorKey: 'refCode',
+        cell: ({ row }) => <div>{row.getValue('refCode')}</div>,
+      },
+      {
+        header: 'Description',
+        accessorKey: 'description',
+        cell: ({ row }) => {
+          const tags = row.original.tags
+          const description = () => {
+            return plateEditorHelper.convertToReadOnly(row.getValue('description') as Value | any, 0)
+          }
 
-  // const totalCount = controlsData?.controls.totalCount ?? 0
-  // const totalPages = Math.ceil(totalCount / pageSize)
+          return (
+            <div>
+              <div className="line-clamp-4">{description()}</div>
+              <div className="mt-2 border-t border-dotted pt-2 flex flex-wrap gap-2">
+                {tags?.map((tag, index) => (
+                  <Badge key={index} variant="outline">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )
+        },
+      },
+      {
+        header: 'Status',
+        accessorKey: 'status',
+        cell: ({ row }) => <span className="flex items-center gap-2">{row.getValue('status')}</span>,
+      },
+      {
+        header: 'Owner',
+        accessorKey: 'owner',
+        cell: ({ row }) => {
+          const owner = row.getValue<ControlFieldsFragment['owner']>('owner')
+          const users = owner?.users ?? []
 
-  // const handlePageSizeChange = (newSize: number) => {
-  //   setPageSize(newSize)
-  //   setPage(1)
-  //   setPagination({ first: newSize })
-  // }
-
-  // const goToFirstPage = () => {
-  //   setPage(1)
-  //   setPagination({ first: pageSize })
-  // }
-
-  // const goToLastPage = () => {
-  //   setPage(totalPages)
-  //   setPagination({ last: pageSize })
-  // }
-
-  // const handlePageChange = (newPage: number) => {
-  //   if (newPage === 1) {
-  //     goToFirstPage()
-  //     return
-  //   }
-
-  //   if (newPage === totalPages) {
-  //     goToLastPage()
-  //     return
-  //   }
-
-  //   const isForward = newPage > page
-  //   setPage(newPage)
-
-  //   if (isForward) {
-  //     setPagination({
-  //       first: pageSize,
-  //       after: controlsData?.controls.pageInfo?.endCursor ?? null,
-  //     })
-  //   } else {
-  //     if (newPage === totalPages) {
-  //       setPagination({
-  //         last: pageSize,
-  //       })
-  //     } else {
-  //       setPagination({
-  //         last: pageSize,
-  //         before: controlsData?.controls.pageInfo?.startCursor ?? null,
-  //       })
-  //     }
-  //   }
-  // }
-
-  useEffect(() => {
-    if (!controlsData?.controls?.totalCount) return
-
-    const totalCount = controlsData.controls.totalCount
-    const pageSize = 10
-    let totalPages = Math.ceil(totalCount / pageSize)
-    const pageInfo = controlsData.controls.pageInfo
-    if (pagination === null) {
-      setPagination({
-        page: 1,
-        pageSize,
-        totalPages,
-        query: { first: pageSize },
-        pageInfo,
-      })
-      return
-    }
-    totalPages = Math.ceil(totalCount / pagination.pageSize)
-    setPagination({
-      ...pagination,
-      totalPages,
-      pageInfo,
-    })
-  }, [controlsData])
-
-  const columns: ColumnDef<ControlFieldsFragment>[] = [
-    {
-      header: 'Name',
-      accessorKey: 'refCode',
-      cell: ({ row }) => <div>{row.getValue('refCode')}</div>,
-    },
-    {
-      header: 'Description',
-      accessorKey: 'description',
-      cell: ({ row }) => {
-        const tags = row.original.tags
-        const description = () => {
-          return plateEditorHelper.convertToReadOnly(row.getValue('description') as Value | any, 0)
-        }
-
-        return (
-          <div>
-            <div className="line-clamp-4">{description()}</div>
-            <div className="mt-2 border-t border-dotted pt-2 flex flex-wrap gap-2">
-              {tags?.map((tag, index) => (
-                <Badge key={index} variant="outline">
-                  {tag}
-                </Badge>
+          return (
+            <div className="flex items-center gap-2">
+              {users.map((user, index) => (
+                <Fragment key={index}>
+                  <Avatar entity={user as Organization} variant="small" />
+                  <span>{`${user.firstName} ${user.lastName}`}</span>
+                </Fragment>
               ))}
             </div>
-          </div>
-        )
+          )
+        },
       },
-    },
-    {
-      header: 'Status',
-      accessorKey: 'status',
-      cell: ({ row }) => <span className="flex items-center gap-2">{row.getValue('status')}</span>,
-    },
-    {
-      header: 'Owner',
-      accessorKey: 'owner',
-      cell: ({ row }) => {
-        const owner = row.getValue<ControlFieldsFragment['owner']>('owner')
-        const users = owner?.users ?? []
-
-        return (
-          <div className="flex items-center gap-2">
-            {users.map((user, index) => (
-              <Fragment key={index}>
-                <Avatar entity={user as Organization} variant="small" />
-                <span>{`${user.firstName} ${user.lastName}`}</span>
-              </Fragment>
-            ))}
-          </div>
-        )
+      {
+        header: 'Type',
+        accessorKey: 'type',
+        cell: ({ row }) => <div>{row.getValue('type') || '-'}</div>,
       },
-    },
-    {
-      header: 'Type',
-      accessorKey: 'type',
-      cell: ({ row }) => <div>{row.getValue('type') || '-'}</div>,
-    },
-    {
-      header: 'Category',
-      accessorKey: 'category',
-      cell: ({ row }) => <div>{row.getValue('category') || '-'}</div>,
-    },
-    {
-      header: 'Subcategory',
-      accessorKey: 'subcategory',
-      cell: ({ row }) => <div>{row.getValue('subcategory') || '-'}</div>,
-    },
-  ]
+      {
+        header: 'Category',
+        accessorKey: 'category',
+        cell: ({ row }) => <div>{row.getValue('category') || '-'}</div>,
+      },
+      {
+        header: 'Subcategory',
+        accessorKey: 'subcategory',
+        cell: ({ row }) => <div>{row.getValue('subcategory') || '-'}</div>,
+      },
+    ],
+    [plateEditorHelper],
+  )
 
-  if (isLoading) return <div>Loading Controls...</div>
-  if (isError) return <div>Failed to load Controls</div>
-
-  const edges = controlsData?.controls?.edges || []
-  const tableData = edges.map((edge) => edge?.node).filter((node): node is ControlFieldsFragment => node !== null && node !== undefined)
+  const tableData = useMemo(() => {
+    const edges = controlsData?.controls?.edges || []
+    return edges.map((edge) => edge?.node).filter((node): node is ControlFieldsFragment => !!node)
+  }, [controlsData])
 
   const handleRowClick = (row: ControlFieldsFragment) => {
     push(`/controls/${row.id}`)
@@ -206,6 +133,9 @@ const ControlsTable: React.FC = () => {
     URL.revokeObjectURL(url)
   }
 
+  if (isLoading) return <div>Loading Controls...</div>
+  if (isError) return <div>Failed to load Controls</div>
+
   return (
     <div>
       <div className="flex justify-end items-center mb-4 w-full">
@@ -218,11 +148,10 @@ const ControlsTable: React.FC = () => {
         data={tableData}
         onRowClick={handleRowClick}
         pagination={pagination}
-        onPaginationChange={(pagination: TPagination) => {
-          setPagination(pagination)
-        }}
+        onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
+        totalCount={controlsData?.controls.totalCount || 1}
+        pageInfo={controlsData?.controls.pageInfo}
       />
-      {/* <Pagination currentPage={page} totalPages={totalPages} pageSize={pageSize} onPageChange={handlePageChange} onPageSizeChange={handlePageSizeChange} />{' '} */}
     </div>
   )
 }

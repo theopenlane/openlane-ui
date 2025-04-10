@@ -3,12 +3,12 @@ export type TPaginationQuery = { first?: number; after?: string | null } | { las
 export type TPagination = {
   page: number
   pageSize: number
-  totalPages?: number
   query: TPaginationQuery
-  pageInfo?: {
-    hasNextPage: boolean
-    hasPreviousPage: boolean
-    endCursor?: any | null
-    startCursor?: any | null
-  }
+}
+
+export type TPageInfo = {
+  hasNextPage: boolean
+  hasPreviousPage: boolean
+  endCursor?: any | null
+  startCursor?: any | null
 }

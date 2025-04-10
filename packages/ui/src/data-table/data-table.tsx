@@ -4,13 +4,13 @@ import { ColumnDef, ColumnFiltersState, flexRender, getCoreRowModel, getFiltered
 
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '../table/table'
 import { Button } from '../button/button'
-import { ReactElement, useEffect, useState } from 'react'
+import { ReactElement, useEffect, useMemo, useState } from 'react'
 import { Input } from '../input/input'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '../dropdown-menu/dropdown-menu'
 import { ArrowDown, ArrowUp, ArrowUpDown, EyeIcon } from 'lucide-react'
 import { OrderDirection } from '@repo/codegen/src/schema.ts'
 import Pagination from '../pagination/pagination'
-import { TPagination } from '../pagination/types'
+import { TPagination, TPageInfo } from '../pagination/types'
 
 type CustomColumnDef<TData, TValue> = ColumnDef<TData, TValue> & {
   meta?: {
@@ -31,6 +31,8 @@ interface DataTableProps<TData, TValue> {
   onSortChange?: (sortCondition: any[]) => void
   pagination?: TPagination | null
   onPaginationChange?: (arg: TPagination) => void
+  totalCount?: number
+  pageInfo?: TPageInfo
 }
 
 export function DataTable<TData, TValue>({
@@ -46,54 +48,20 @@ export function DataTable<TData, TValue>({
   onSortChange,
   pagination,
   onPaginationChange,
+  totalCount,
+  pageInfo,
 }: DataTableProps<TData, TValue>) {
   const [sortConditions, setSortConditions] = useState<{ field: string; direction?: OrderDirection }[]>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = useState({})
 
-  // const isControlled = pagination && onPaginationChange
-
-  // const [internalPage, setInternalPage] = useState(1)
-  // const [internalPageSize, setInternalPageSize] = useState(pageSize ?? 10)
-  // const [internalCursors, setInternalCursors] = useState<Record<number, { after?: string | null; before?: string | null }>>({})
-
-  // const currentPage = isControlled ? pagination!.page : internalPage
-  // const currentPageSize = isControlled ? pagination!.pageSize : internalPageSize
   const currentPage = pagination?.page || 1
   const currentPageSize = pagination?.pageSize || 10
-  const pageInfo = pagination?.pageInfo
 
-  useEffect(() => {
-    if (!sortFields) {
-      return
-    }
-
-    const defaultField = sortFields.find((field) => field.default)
-    if (!defaultField) {
-      return
-    }
-
-    setSortConditions((prev) => {
-      if (prev.some((cond) => cond.field === defaultField.key)) {
-        return prev
-      }
-
-      return [
-        ...prev,
-        {
-          field: defaultField.key,
-          direction: defaultField.default?.direction,
-        },
-      ]
-    })
-  }, [sortFields])
-
-  useEffect(() => {
-    if (sortConditions.every(({ direction }) => direction !== undefined)) {
-      onSortChange?.(sortConditions as { field: string; direction: OrderDirection }[])
-    }
-  }, [sortConditions])
+  const totalPages = useMemo(() => {
+    return totalCount ? Math.ceil(totalCount / currentPageSize) : 1
+  }, [totalCount, currentPageSize])
 
   const handleSortChange = (field: string) => {
     setSortConditions((prev) => {
@@ -138,47 +106,30 @@ export function DataTable<TData, TValue>({
 
   //PAGINATION
 
-  const totalPages = pagination?.totalPages ?? 1
-
   const setNewPagination = (newPage: number, query: TPagination['query']) => {
+    if (!pagination) {
+      return
+    }
+
     const newPagination: TPagination = {
+      ...pagination,
       page: newPage,
-      pageSize: currentPageSize || 10,
-      totalPages,
       query,
-      pageInfo,
     }
     onPaginationChange?.(newPagination)
-
-    // if (isControlled) {
-    //   onPaginationChange?.(newPagination)
-    // } else {
-    //   setInternalPage(newPage)
-    //   setInternalCursors((prev) => ({
-    //     ...prev,
-    //     [newPage]: {
-    //       after: (query as any)?.after ?? null,
-    //       before: (query as any)?.before ?? null,
-    //     },
-    //   }))
-    // }
   }
 
   const handlePageSizeChange = (newSize: number) => {
+    if (!pagination) {
+      return
+    }
     const newPagination: TPagination = {
+      ...pagination,
       page: 1,
       pageSize: newSize,
-      totalPages,
       query: { first: newSize },
-      pageInfo,
     }
     onPaginationChange?.(newPagination)
-    // if (isControlled) {
-    //   onPaginationChange?.(newPagination)
-    // } else {
-    //   setInternalPage(1)
-    //   setInternalPageSize(newSize)
-    // }
   }
 
   const goToFirstPage = () => {
@@ -206,19 +157,36 @@ export function DataTable<TData, TValue>({
     setNewPagination(newPage, query)
   }
 
-  // useEffect(() => {
-  //   if (pagination && !isControlled) {
-  //     setInternalPage(pagination.page)
-  //     setInternalPageSize(pagination.pageSize)
-  //     setInternalCursors((prev) => ({
-  //       ...prev,
-  //       [pagination.page]: {
-  //         after: (pagination.query as any)?.after ?? null,
-  //         before: (pagination.query as any)?.before ?? null,
-  //       },
-  //     }))
-  //   }
-  // }, [pagination])
+  useEffect(() => {
+    if (!sortFields) {
+      return
+    }
+
+    const defaultField = sortFields.find((field) => field.default)
+    if (!defaultField) {
+      return
+    }
+
+    setSortConditions((prev) => {
+      if (prev.some((cond) => cond.field === defaultField.key)) {
+        return prev
+      }
+
+      return [
+        ...prev,
+        {
+          field: defaultField.key,
+          direction: defaultField.default?.direction,
+        },
+      ]
+    })
+  }, [sortFields])
+
+  useEffect(() => {
+    if (sortConditions.every(({ direction }) => direction !== undefined)) {
+      onSortChange?.(sortConditions as { field: string; direction: OrderDirection }[])
+    }
+  }, [sortConditions])
 
   return (
     <>
