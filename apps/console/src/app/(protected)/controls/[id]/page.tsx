@@ -80,7 +80,7 @@ const ControlDetailsPage: React.FC = () => {
           ...values,
           description,
           controlOwnerID: values.controlOwnerID || undefined,
-          delegateID: values.controlOwnerID || undefined,
+          delegateID: values.delegateID || undefined,
         },
       })
 
