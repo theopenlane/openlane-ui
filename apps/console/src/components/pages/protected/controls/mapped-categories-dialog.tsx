@@ -178,7 +178,7 @@ const MappedCategoriesDialog = () => {
               Cancel
             </Button>
             <Button className="h-8 !px-2" onClick={handleSave}>
-              {isPending ? 'Saving...' : `Save(${selected.length}})`}
+              {isPending ? 'Saving...' : `Save(${selected.length})`}
             </Button>
           </div>
         </DialogContent>
