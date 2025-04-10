@@ -34,8 +34,6 @@ const ControlsTable: React.FC = () => {
     pagination,
   })
 
-  console.log('isFetching', isFetching)
-
   const columns: ColumnDef<ControlFieldsFragment>[] = useMemo(
     () => [
       {
