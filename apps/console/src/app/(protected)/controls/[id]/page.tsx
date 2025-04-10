@@ -20,6 +20,7 @@ import InfoCard from '../../../../components/pages/protected/controls/info-card.
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { ControlControlStatus, EvidenceEdge } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
+import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 
 interface FormValues {
   refCode: string
@@ -67,10 +68,7 @@ const ControlDetailsPage: React.FC = () => {
 
   const { isDirty } = form.formState
 
-  useNavigationGuard({
-    enabled: isDirty,
-    confirm: () => window.confirm('You have unsaved changes that will be lost.'),
-  })
+  const navGuard = useNavigationGuard({ enabled: isDirty })
 
   const onSubmit = async (values: FormValues) => {
     try {
@@ -81,6 +79,8 @@ const ControlDetailsPage: React.FC = () => {
         input: {
           ...values,
           description,
+          controlOwnerID: values.controlOwnerID || undefined,
+          delegateID: values.controlOwnerID || undefined,
         },
       })
 
@@ -136,60 +136,66 @@ const ControlDetailsPage: React.FC = () => {
   if (isLoading) return <div className="p-4 text-muted-foreground">Loading...</div>
   if (isError || !data?.control) return <div className="p-4 text-red-500">Control not found</div>
   const control = data?.control
+  const hasInfoData = control.implementationGuidance || control.exampleEvidence || control.controlQuestions || control.assessmentMethods || control.assessmentObjectives
 
   return (
-    <FormProvider {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-[1fr_336px] gap-6">
-        <div className="space-y-6">
-          <div className="flex items-center justify-between mb-4">
-            <TitleField isEditing={isEditing} />
+    <>
+      <CancelDialog isOpen={navGuard.active} onConfirm={navGuard.accept} onCancel={navGuard.reject} />
+      <FormProvider {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-[1fr_336px] gap-6">
+          <div className="space-y-6">
+            <div className="flex items-center justify-between mb-4">
+              <TitleField isEditing={isEditing} />
+            </div>
+            <DescriptionField isEditing={isEditing} initialValue={initialValues.description} />
+            <ControlEvidenceTable evidences={control.evidence?.edges?.filter((e): e is EvidenceEdge => !!e && !!e.node) || []} />{' '}
+            <SubcontrolsTable subcontrols={control.subcontrols?.edges || []} totalCount={control.subcontrols.totalCount} />
+            <AssociatedObjectsAccordion policies={control.internalPolicies} procedures={control.procedures} tasks={control.tasks} programs={control.programs} risks={control.risks} />
           </div>
-          <DescriptionField isEditing={isEditing} initialValue={initialValues.description} />
-          <ControlEvidenceTable evidences={control.evidence?.edges?.filter((e): e is EvidenceEdge => !!e && !!e.node) || []} />{' '}
-          <SubcontrolsTable subcontrols={control.subcontrols?.edges || []} totalCount={control.subcontrols.totalCount} />
-          <AssociatedObjectsAccordion policies={control.internalPolicies} procedures={control.procedures} tasks={control.tasks} programs={control.programs} risks={control.risks} />
-        </div>
-        <div className="space-y-4">
-          {isEditing ? (
-            <div className="flex gap-2 justify-end">
-              <Button className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
-                Cancel
-              </Button>
-              <Button type="submit" iconPosition="left" className="h-8 !px-2" icon={<SaveIcon />}>
-                Save
-              </Button>
-            </div>
-          ) : (
-            <div className="flex gap-2 justify-end">
-              <Button className="h-8 !px-2" icon={<PencilIcon />} iconPosition="left" onClick={handleEdit}>
-                Edit Control
-              </Button>
-            </div>
-          )}
-          <AuthorityCard controlOwner={control.controlOwner} delegate={control.delegate} isEditing={isEditing} />
-          <PropertiesCard category={control.category} subcategory={control.subcategory} status={control.status} mappedCategories={control.mappedCategories} isEditing={isEditing} />
-          <ImplementationDetailsCard isEditing={isEditing} />
-          <InfoCard
-            implementationGuidance={control.implementationGuidance}
-            exampleEvidence={control.exampleEvidence}
-            controlQuestions={control.controlQuestions}
-            assessmentMethods={control.assessmentMethods}
-            assessmentObjectives={control.assessmentObjectives}
-            showInfoDetails={showInfoDetails}
-          />
-        </div>
-      </form>
+          <div className="space-y-4">
+            {isEditing ? (
+              <div className="flex gap-2 justify-end">
+                <Button className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
+                  Cancel
+                </Button>
+                <Button type="submit" iconPosition="left" className="h-8 !px-2" icon={<SaveIcon />}>
+                  Save
+                </Button>
+              </div>
+            ) : (
+              <div className="flex gap-2 justify-end">
+                <Button className="h-8 !px-2" icon={<PencilIcon />} iconPosition="left" onClick={handleEdit}>
+                  Edit Control
+                </Button>
+              </div>
+            )}
+            <AuthorityCard controlOwner={control.controlOwner} delegate={control.delegate} isEditing={isEditing} />
+            <PropertiesCard category={control.category} subcategory={control.subcategory} status={control.status} mappedCategories={control.mappedCategories} isEditing={isEditing} />
+            <ImplementationDetailsCard isEditing={isEditing} />
+            {hasInfoData && (
+              <InfoCard
+                implementationGuidance={control.implementationGuidance}
+                exampleEvidence={control.exampleEvidence}
+                controlQuestions={control.controlQuestions}
+                assessmentMethods={control.assessmentMethods}
+                assessmentObjectives={control.assessmentObjectives}
+                showInfoDetails={showInfoDetails}
+              />
+            )}
+          </div>
+        </form>
 
-      <Sheet open={showSheet} onOpenChange={handleSheetClose}>
-        <SheetContent>
-          <SheetHeader>
-            <ArrowRight size={16} className="cursor-pointer" onClick={() => handleSheetClose(false)} />
-            <SheetTitle>{sheetData?.refCode}</SheetTitle>
-          </SheetHeader>
-          <div className="py-4">{sheetData?.content}</div>
-        </SheetContent>
-      </Sheet>
-    </FormProvider>
+        <Sheet open={showSheet} onOpenChange={handleSheetClose}>
+          <SheetContent>
+            <SheetHeader>
+              <ArrowRight size={16} className="cursor-pointer" onClick={() => handleSheetClose(false)} />
+              <SheetTitle>{sheetData?.refCode}</SheetTitle>
+            </SheetHeader>
+            <div className="py-4">{sheetData?.content}</div>
+          </SheetContent>
+        </Sheet>
+      </FormProvider>
+    </>
   )
 }
 

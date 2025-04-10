@@ -100,9 +100,11 @@ const InfoCardWithSheet: React.FC<InfoCardWithSheetProps> = ({ implementationGui
     <Card className="p-4 bg-muted rounded-xl shadow-sm">
       <h3 className="text-lg font-medium mb-4">Info</h3>
       <div>
-        {infoItems.map((item, index) => (
-          <InfoRow key={item.label} label={item.label} isFirst={index === 0} onClick={() => showInfoDetails(item.label, item.render())} showButton={item.hasData} />
-        ))}
+        {infoItems
+          .filter((item) => item.hasData)
+          .map((item, index) => (
+            <InfoRow key={item.label} label={item.label} isFirst={index === 0} onClick={() => showInfoDetails(item.label, item.render())} />
+          ))}
       </div>
     </Card>
   )
@@ -110,13 +112,11 @@ const InfoCardWithSheet: React.FC<InfoCardWithSheetProps> = ({ implementationGui
 
 export default InfoCardWithSheet
 
-const InfoRow: React.FC<{ label: string; isFirst?: boolean; onClick: () => void; showButton: boolean }> = ({ label, isFirst, onClick, showButton }) => (
+const InfoRow: React.FC<{ label: string; isFirst?: boolean; onClick: () => void }> = ({ label, isFirst, onClick }) => (
   <div className={`flex items-center justify-between m-0 py-2.5 ${!isFirst ? 'border-t border-border' : ''}`}>
     <span className="text-sm">{label}</span>
-    {showButton && (
-      <Button type="button" className="h-8 !px-2" variant="outline" icon={<PanelRightOpenIcon size={16} />} iconPosition="left" onClick={onClick}>
-        Show
-      </Button>
-    )}
+    <Button type="button" className="h-8 !px-2" variant="outline" icon={<PanelRightOpenIcon size={16} />} iconPosition="left" onClick={onClick}>
+      Show
+    </Button>
   </div>
 )
