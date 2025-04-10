@@ -65,7 +65,7 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData }: Props) => {
     },
   ]
 
-  return <DataTable columns={columns} data={data} pageSize={5} />
+  return <DataTable columns={columns} data={data} />
 }
 
 export default ObjectAssociationTable

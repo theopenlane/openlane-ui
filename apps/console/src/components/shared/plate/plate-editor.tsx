@@ -17,9 +17,10 @@ export type TPlateEditorProps = {
   styleVariant?: TPlateEditorStyleVariant
   clearData?: boolean
   onClear?: () => void
+  placeholder?: string
 }
 
-const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, variant, styleVariant, clearData, onClear }: TPlateEditorProps) => {
+const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, variant, styleVariant, clearData, onClear, placeholder }: TPlateEditorProps) => {
   // useCreateEditor hook is used for rendering Rich Text Editor (Inside hook all plugins are being imported)
   const editor = useCreateEditor({ variant: variant })
   const [data, setData] = useState<Value>()
@@ -61,7 +62,7 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, vari
           }}
         >
           <EditorContainer variant={styleVariant}>
-            <Editor />
+            <Editor placeholder={placeholder ?? 'Type a paragraph'} />
           </EditorContainer>
         </Plate>
       </DndProvider>

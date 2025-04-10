@@ -64,6 +64,8 @@
     "./lib/utils": "./lib/utils.ts",
     "./lib/windowResize": "./lib/windowResize.tsx",
     "./lib/chartUtils": "./lib/chartUtils.tsx",
+    "./pagination": "./src/pagination/pagination.tsx",
+    "./pagination-types": "./src/pagination/types.ts",
     "./components/*": "./src/components/*"
   },
   "scripts": {

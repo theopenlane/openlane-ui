@@ -40,7 +40,7 @@ const AddComment: React.FC<TProps> = (props: TProps) => {
         <div className="flex items-start space-x-3">
           <Avatar entity={data?.user as User} variant="medium" className="relative flex shrink-0 overflow-hidden rounded-full p-0 h-10 w-10" />
           <div className="flex-1 border rounded-lg p-2 w-full flex flex-col space-y-2">
-            <PlateEditor onChange={handleDetailsChange} variant="minimal" styleVariant="comment" clearData={clearData} onClear={() => setClearData(false)} />
+            <PlateEditor onChange={handleDetailsChange} variant="minimal" styleVariant="comment" clearData={clearData} onClear={() => setClearData(false)} placeholder="Add a comment" />
             <div className="flex justify-end items-center">
               <Button iconPosition="left" onClick={() => handleSaveComment()}>
                 Send
