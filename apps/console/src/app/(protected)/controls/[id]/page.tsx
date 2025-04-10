@@ -136,6 +136,7 @@ const ControlDetailsPage: React.FC = () => {
   if (isLoading) return <div className="p-4 text-muted-foreground">Loading...</div>
   if (isError || !data?.control) return <div className="p-4 text-red-500">Control not found</div>
   const control = data?.control
+  const hasInfoData = control.implementationGuidance || control.exampleEvidence || control.controlQuestions || control.assessmentMethods || control.assessmentObjectives
 
   return (
     <>
@@ -171,14 +172,16 @@ const ControlDetailsPage: React.FC = () => {
             <AuthorityCard controlOwner={control.controlOwner} delegate={control.delegate} isEditing={isEditing} />
             <PropertiesCard category={control.category} subcategory={control.subcategory} status={control.status} mappedCategories={control.mappedCategories} isEditing={isEditing} />
             <ImplementationDetailsCard isEditing={isEditing} />
-            <InfoCard
-              implementationGuidance={control.implementationGuidance}
-              exampleEvidence={control.exampleEvidence}
-              controlQuestions={control.controlQuestions}
-              assessmentMethods={control.assessmentMethods}
-              assessmentObjectives={control.assessmentObjectives}
-              showInfoDetails={showInfoDetails}
-            />
+            {hasInfoData && (
+              <InfoCard
+                implementationGuidance={control.implementationGuidance}
+                exampleEvidence={control.exampleEvidence}
+                controlQuestions={control.controlQuestions}
+                assessmentMethods={control.assessmentMethods}
+                assessmentObjectives={control.assessmentObjectives}
+                showInfoDetails={showInfoDetails}
+              />
+            )}
           </div>
         </form>
 
