@@ -26,10 +26,6 @@ export const policiesColumns: ColumnDef<InternalPolicy>[] = [
     },
   },
   {
-    accessorKey: 'policyType',
-    header: 'Type',
-  },
-  {
     accessorKey: 'details',
     header: 'Details',
     cell: ({ cell }) => {
