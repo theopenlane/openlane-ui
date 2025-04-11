@@ -37,18 +37,7 @@ export const PoliciesTable = () => {
   const { policies, isLoading: fetching } = useFilteredInternalPolicies(searchTerm, whereFilter, orderByFilter)
 
   const handleCreateNew = async () => {
-    const data = await createPolicy({
-      input: { name: 'Untitled Policy' },
-    })
-
-    if (data.createInternalPolicy) {
-      editPolicy(data.createInternalPolicy.internalPolicy.id)
-      return
-    }
-
-    if (data.createInternalPolicy) {
-      //TODO: add error toast
-    }
+    router.push(`/policies/create`)
   }
 
   const editPolicy = (policyId: string) => {
