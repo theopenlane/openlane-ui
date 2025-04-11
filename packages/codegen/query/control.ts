@@ -1,7 +1,25 @@
 import { gql } from 'graphql-request'
 
-export const CONTROL_FIELDS_FRAGMENT = gql`
-  fragment ControlFields on Control {
+export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
+  fragment ControlListFields on Control {
+    id
+    refCode
+    description
+    status
+    category
+    subcategory
+    tags
+    controlOwner {
+      id
+      displayName
+      logoURL
+      gravatarLogoURL
+    }
+  }
+`
+
+export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
+  fragment ControlDetailsFields on Control {
     id
     category
     refCode
@@ -15,17 +33,15 @@ export const CONTROL_FIELDS_FRAGMENT = gql`
     controlQuestions
     assessmentMethods
     assessmentObjectives
-    createdBy
-    updatedBy
-    updatedAt
-    createdAt
     displayID
     controlObjectives {
       edges {
         node {
+          id
           status
           desiredOutcome
           name
+          displayID
         }
       }
     }
@@ -52,6 +68,7 @@ export const CONTROL_FIELDS_FRAGMENT = gql`
       totalCount
       edges {
         node {
+          id
           refCode
           description
           displayID
@@ -120,23 +137,16 @@ export const CONTROL_FIELDS_FRAGMENT = gql`
       logoURL
       gravatarLogoURL
     }
-    owner {
-      users {
-        avatarRemoteURL
-        firstName
-        lastName
-      }
-    }
   }
 `
 
 export const GET_ALL_CONTROLS = gql`
-  ${CONTROL_FIELDS_FRAGMENT}
+  ${CONTROL_LIST_FIELDS_FRAGMENT}
   query GetAllControls($where: ControlWhereInput, $orderBy: [ControlOrder!], $first: Int, $after: Cursor) {
     controls(where: $where, orderBy: $orderBy, first: $first, after: $after) {
       edges {
         node {
-          ...ControlFields
+          ...ControlListFields
         }
         cursor
       }
@@ -152,10 +162,10 @@ export const GET_ALL_CONTROLS = gql`
 `
 
 export const GET_CONTROL_BY_ID = gql`
-  ${CONTROL_FIELDS_FRAGMENT}
+  ${CONTROL_DETAILS_FIELDS_FRAGMENT}
   query GetControlById($controlId: ID!) {
     control(id: $controlId) {
-      ...ControlFields
+      ...ControlDetailsFields
     }
   }
 `

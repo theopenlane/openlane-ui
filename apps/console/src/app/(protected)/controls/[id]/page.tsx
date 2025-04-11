@@ -8,8 +8,6 @@ import { Value } from '@udecode/plate-common'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { ArrowRight, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
-import ControlEvidenceTable from '../../../../components/pages/protected/controls/control-evidence-table.tsx'
-import SubcontrolsTable from '../../../../components/pages/protected/controls/subcontrols-table.tsx'
 import AssociatedObjectsAccordion from '../../../../components/pages/protected/controls/associated-objects-accordion.tsx'
 import TitleField from '../../../../components/pages/protected/controls/form-fields/title-field.tsx'
 import DescriptionField from '../../../../components/pages/protected/controls/form-fields/description-field.tsx'
@@ -21,6 +19,8 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { ControlControlStatus, EvidenceEdge } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
+import SubcontrolsTable from '@/components/pages/protected/controls/subcontrols-table.tsx'
+import ControlEvidenceTable from '@/components/pages/protected/controls/control-evidence-table.tsx'
 
 interface FormValues {
   refCode: string
@@ -153,19 +153,17 @@ const ControlDetailsPage: React.FC = () => {
                 displayID: control?.refCode,
                 tags: control.tags ?? [],
                 objectAssociations: {
+                  controlIDs: [control?.id],
                   programIDs: (control?.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
                   taskIDs: (control?.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                  riskIDs: (control?.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                  procedureIDs: (control?.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                  internalPolicyIDs: (control?.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                  controlIDs: [control?.id],
+                  subcontrolIDs: (control?.subcontrols?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                  controlObjectiveIDs: (control?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
                 },
                 objectAssociationsDisplayIDs: [
                   ...((control?.programs?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
                   ...((control?.tasks?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
-                  ...((control?.risks?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
-                  ...((control?.procedures?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
-                  ...((control?.internalPolicies?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
+                  ...((control?.subcontrols?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
+                  ...((control?.controlObjectives?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
                   ...(id ? [id] : []),
                 ],
               }}
