@@ -19,6 +19,7 @@ export const CONTROL_FIELDS_FRAGMENT = gql`
     updatedBy
     updatedAt
     createdAt
+    displayID
     controlObjectives {
       edges {
         node {
@@ -43,6 +44,7 @@ export const CONTROL_FIELDS_FRAGMENT = gql`
           displayID
           name
           creationDate
+          displayID
         }
       }
     }
@@ -52,6 +54,7 @@ export const CONTROL_FIELDS_FRAGMENT = gql`
         node {
           refCode
           description
+          displayID
         }
       }
     }
@@ -61,6 +64,7 @@ export const CONTROL_FIELDS_FRAGMENT = gql`
         node {
           id
           name
+          displayID
         }
       }
     }
@@ -70,6 +74,7 @@ export const CONTROL_FIELDS_FRAGMENT = gql`
         node {
           id
           name
+          displayID
         }
       }
     }
@@ -79,6 +84,7 @@ export const CONTROL_FIELDS_FRAGMENT = gql`
         node {
           id
           title
+          displayID
         }
       }
     }
@@ -88,6 +94,7 @@ export const CONTROL_FIELDS_FRAGMENT = gql`
         node {
           id
           name
+          displayID
         }
       }
     }
@@ -97,6 +104,7 @@ export const CONTROL_FIELDS_FRAGMENT = gql`
         node {
           id
           name
+          displayID
         }
       }
     }

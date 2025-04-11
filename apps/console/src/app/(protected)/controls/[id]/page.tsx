@@ -148,7 +148,29 @@ const ControlDetailsPage: React.FC = () => {
               <TitleField isEditing={isEditing} />
             </div>
             <DescriptionField isEditing={isEditing} initialValue={initialValues.description} />
-            <ControlEvidenceTable evidences={control.evidence?.edges?.filter((e): e is EvidenceEdge => !!e && !!e.node) || []} />{' '}
+            <ControlEvidenceTable
+              control={{
+                displayID: control?.refCode,
+                tags: control.tags ?? [],
+                objectAssociations: {
+                  programIDs: (control?.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                  taskIDs: (control?.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                  riskIDs: (control?.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                  procedureIDs: (control?.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                  internalPolicyIDs: (control?.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                  controlIDs: [control?.id],
+                },
+                objectAssociationsDisplayIDs: [
+                  ...((control?.programs?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
+                  ...((control?.tasks?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
+                  ...((control?.risks?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
+                  ...((control?.procedures?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
+                  ...((control?.internalPolicies?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
+                  ...(id ? [id] : []),
+                ],
+              }}
+              evidences={control.evidence?.edges?.filter((e): e is EvidenceEdge => !!e && !!e.node) || []}
+            />
             <SubcontrolsTable subcontrols={control.subcontrols?.edges || []} totalCount={control.subcontrols.totalCount} />
             <AssociatedObjectsAccordion policies={control.internalPolicies} procedures={control.procedures} tasks={control.tasks} programs={control.programs} risks={control.risks} />
           </div>

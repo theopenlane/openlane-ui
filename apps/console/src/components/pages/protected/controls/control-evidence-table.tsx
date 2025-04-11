@@ -5,17 +5,19 @@ import { format } from 'date-fns'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/table'
 import EvidenceCreateFormDialog from '@/components/pages/protected/evidence/evidence-create-form-dialog'
 import { EvidenceEdge } from '@repo/codegen/src/schema'
+import { TFormEvidenceData } from '../evidence/types/TFormEvidenceData'
 
 type Props = {
   evidences?: (EvidenceEdge | null)[]
+  control: TFormEvidenceData
 }
 
-const ControlEvidenceTable = ({ evidences }: Props) => {
+const ControlEvidenceTable = ({ evidences, control }: Props) => {
   return (
     <div className="mt-8 space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold">Control Evidence</h2>
-        <EvidenceCreateFormDialog />
+        <EvidenceCreateFormDialog formData={control} />{' '}
       </div>
 
       <div className="rounded-md border border-border overflow-hidden bg-card">

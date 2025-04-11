@@ -28,16 +28,6 @@ const EvidenceCreateFormDialog: React.FC<TProps> = (props: TProps) => {
   }
 
   const config = useMemo(() => {
-    if (path.startsWith('/controls')) {
-      return {
-        button: (
-          <Button className="h-8 !px-2" onClick={() => setIsOpen(true)}>
-            Upload Evidence
-          </Button>
-        ),
-        title: `Submit Evidence for Control ${controlData?.control?.refCode}`,
-      }
-    }
     if (props.formData) {
       return {
         button: (
