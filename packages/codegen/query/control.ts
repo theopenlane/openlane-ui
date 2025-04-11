@@ -9,6 +9,10 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
     category
     subcategory
     tags
+    mappedCategories
+    subcontrols {
+      totalCount
+    }
     controlOwner {
       id
       displayName

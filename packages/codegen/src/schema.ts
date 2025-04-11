@@ -30876,6 +30876,8 @@ export type ControlListFieldsFragment = {
   category?: string | null
   subcategory?: string | null
   tags?: Array<string> | null
+  mappedCategories?: Array<string> | null
+  subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
   controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
 }
 
@@ -30971,6 +30973,8 @@ export type GetAllControlsQuery = {
         category?: string | null
         subcategory?: string | null
         tags?: Array<string> | null
+        mappedCategories?: Array<string> | null
+        subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
         controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
       } | null
     } | null> | null

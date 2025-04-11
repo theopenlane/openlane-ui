@@ -7,14 +7,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@repo/ui/button'
 import { ChevronDown, ChevronsDownUp, ChevronsUpDown } from 'lucide-react'
 import { SetObjectAssociationDialog } from './set-object-association-modal'
-import { ControlFieldsFragment } from '@repo/codegen/src/schema'
+import { ControlDetailsFieldsFragment } from '@repo/codegen/src/schema'
 
 type AssociatedObjectsAccordionProps = {
-  policies: ControlFieldsFragment['internalPolicies']
-  procedures: ControlFieldsFragment['procedures']
-  tasks: ControlFieldsFragment['tasks']
-  programs: ControlFieldsFragment['programs']
-  risks: ControlFieldsFragment['risks']
+  policies: ControlDetailsFieldsFragment['internalPolicies']
+  procedures: ControlDetailsFieldsFragment['procedures']
+  tasks: ControlDetailsFieldsFragment['tasks']
+  programs: ControlDetailsFieldsFragment['programs']
+  risks: ControlDetailsFieldsFragment['risks']
 }
 
 const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({ policies, procedures, tasks, programs, risks }) => {

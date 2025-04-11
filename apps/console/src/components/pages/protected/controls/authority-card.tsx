@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
-import { ControlFieldsFragment, Group } from '@repo/codegen/src/schema'
+import { ControlDetailsFieldsFragment, Group } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
 import { CircleUser, CircleArrowRight, ChevronsUpDown, Check, ChevronDown } from 'lucide-react'
 import { Avatar } from '@/components/shared/avatar/avatar'
@@ -16,8 +16,8 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { cn } from '@repo/ui/lib/utils'
 
 interface AuthorityCardProps {
-  controlOwner: ControlFieldsFragment['controlOwner']
-  delegate: ControlFieldsFragment['delegate']
+  controlOwner: ControlDetailsFieldsFragment['controlOwner']
+  delegate: ControlDetailsFieldsFragment['delegate']
   isEditing: boolean
 }
 
