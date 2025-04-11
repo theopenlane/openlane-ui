@@ -262,7 +262,7 @@ const TaskDetailsSheet = () => {
   const handleRelatedObjects = () => {
     const items = [
       ...(taskData?.controlObjectives?.edges?.map((item) => item?.node?.displayID) || []),
-      ...(taskData?.subcontrols?.edges?.map((item) => item?.node?.displayID) || []),
+      ...(taskData?.subcontrols?.edges?.map((item) => item?.node?.refCode) || []),
       ...(taskData?.programs?.edges?.map((item) => item?.node?.displayID) || []),
       ...(taskData?.procedures?.edges?.map((item) => item?.node?.displayID) || []),
       ...(taskData?.internalPolicies?.edges?.map((item) => item?.node?.displayID) || []),
@@ -410,7 +410,7 @@ const TaskDetailsSheet = () => {
                       },
                       objectAssociationsDisplayIDs: [
                         ...(taskData?.controlObjectives?.edges?.map((item) => item?.node?.displayID!) || []),
-                        ...(taskData?.subcontrols?.edges?.map((item) => item?.node?.displayID!) || []),
+                        ...(taskData?.subcontrols?.edges?.map((item) => item?.node?.refCode!) || []),
                         ...(taskData?.programs?.edges?.map((item) => item?.node?.displayID!) || []),
                         ...[taskData.displayID],
                       ],
