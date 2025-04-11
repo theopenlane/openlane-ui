@@ -400,7 +400,6 @@ const TaskDetailsSheet = () => {
                 {taskData && (
                   <EvidenceCreateFormDialog
                     formData={{
-                      refId: taskData!.id,
                       displayID: taskData!.displayID,
                       tags: taskData!.tags ?? undefined,
                       objectAssociations: {
