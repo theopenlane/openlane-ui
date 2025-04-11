@@ -7,7 +7,7 @@ import { Button } from '@repo/ui/button'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import { DownloadIcon } from 'lucide-react'
-import { ControlFieldsFragment, Group, Organization } from '@repo/codegen/src/schema'
+import { ControlListFieldsFragment, Group } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useRouter } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -31,7 +31,7 @@ const ControlsTable: React.FC = () => {
     pagination,
   })
 
-  const columns: ColumnDef<ControlFieldsFragment>[] = useMemo(
+  const columns: ColumnDef<ControlListFieldsFragment>[] = useMemo(
     () => [
       {
         header: 'Name',
@@ -70,7 +70,7 @@ const ControlsTable: React.FC = () => {
         header: 'Owner',
         accessorKey: 'controlOwner',
         cell: ({ row }) => {
-          const owner = row.getValue<ControlFieldsFragment['controlOwner']>('controlOwner')
+          const owner = row.getValue<ControlListFieldsFragment['controlOwner']>('controlOwner')
 
           return (
             <div className="flex items-center gap-2">
@@ -101,20 +101,20 @@ const ControlsTable: React.FC = () => {
 
   const tableData = useMemo(() => {
     const edges = controlsData?.controls?.edges || []
-    return edges.map((edge) => edge?.node).filter((node): node is ControlFieldsFragment => !!node)
+    return edges.map((edge) => edge?.node).filter((node): node is ControlListFieldsFragment => !!node)
   }, [controlsData])
 
-  const handleRowClick = (row: ControlFieldsFragment) => {
+  const handleRowClick = (row: ControlListFieldsFragment) => {
     push(`/controls/${row.id}`)
   }
 
-  const exportToCSV = (data: ControlFieldsFragment[], fileName: string) => {
+  const exportToCSV = (data: ControlListFieldsFragment[], fileName: string) => {
     const csvRows = []
     csvRows.push(['Name', 'Ref', 'Description', 'Tags', 'Status', 'Owners'].join(','))
 
     data.forEach((row) => {
-      const owners = row.owner?.users?.map((o) => `${o?.firstName ?? ''} ${o?.lastName ?? ''}`.trim()).join(' | ') || ''
-      csvRows.push([row.refCode, row.refCode, row.description || '', row.tags?.join('; ') || '', row.status || '', owners].join(','))
+      const owner = row.controlOwner?.displayName
+      csvRows.push([row.refCode, row.refCode, row.description || '', row.tags?.join('; ') || '', row.status || '', owner].join(','))
     })
 
     const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' })
