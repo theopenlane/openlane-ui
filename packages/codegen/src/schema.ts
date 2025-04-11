@@ -25686,6 +25686,8 @@ export interface Subscriber extends Node {
   ownerID?: Maybe<Scalars['ID']['output']>
   /** phone number of the subscriber */
   phoneNumber?: Maybe<Scalars['String']['output']>
+  /** the number of attempts made to perform email send of the subscription, maximum of 5 */
+  sendAttempts: Scalars['Int']['output']
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   /** indicates if the subscriber has unsubscribed from communications */
@@ -25761,6 +25763,7 @@ export enum SubscriberOrderField {
   active = 'active',
   created_at = 'created_at',
   email = 'email',
+  send_attempts = 'send_attempts',
   unsubscribed = 'unsubscribed',
   updated_at = 'updated_at',
 }
@@ -25905,6 +25908,15 @@ export interface SubscriberWhereInput {
   phoneNumberNEQ?: InputMaybe<Scalars['String']['input']>
   phoneNumberNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   phoneNumberNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** send_attempts field predicates */
+  sendAttempts?: InputMaybe<Scalars['Int']['input']>
+  sendAttemptsGT?: InputMaybe<Scalars['Int']['input']>
+  sendAttemptsGTE?: InputMaybe<Scalars['Int']['input']>
+  sendAttemptsIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  sendAttemptsLT?: InputMaybe<Scalars['Int']['input']>
+  sendAttemptsLTE?: InputMaybe<Scalars['Int']['input']>
+  sendAttemptsNEQ?: InputMaybe<Scalars['Int']['input']>
+  sendAttemptsNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
   /** unsubscribed field predicates */
   unsubscribed?: InputMaybe<Scalars['Boolean']['input']>
   unsubscribedNEQ?: InputMaybe<Scalars['Boolean']['input']>
@@ -30855,7 +30867,21 @@ export type GetAllControlObjectivesQuery = {
   }
 }
 
-export type ControlFieldsFragment = {
+export type ControlListFieldsFragment = {
+  __typename?: 'Control'
+  id: string
+  refCode: string
+  description?: string | null
+  status?: ControlControlStatus | null
+  category?: string | null
+  subcategory?: string | null
+  tags?: Array<string> | null
+  mappedCategories?: Array<string> | null
+  subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
+  controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
+}
+
+export type ControlDetailsFieldsFragment = {
   __typename?: 'Control'
   id: string
   category?: string | null
@@ -30870,13 +30896,13 @@ export type ControlFieldsFragment = {
   controlQuestions?: Array<string> | null
   assessmentMethods?: Array<any> | null
   assessmentObjectives?: Array<any> | null
-  createdBy?: string | null
-  updatedBy?: string | null
-  updatedAt?: any | null
-  createdAt?: any | null
+  displayID: string
   controlObjectives: {
     __typename?: 'ControlObjectiveConnection'
-    edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; status?: string | null; desiredOutcome?: string | null; name: string } | null } | null> | null
+    edges?: Array<{
+      __typename?: 'ControlObjectiveEdge'
+      node?: { __typename?: 'ControlObjective'; id: string; status?: string | null; desiredOutcome?: string | null; name: string; displayID: string } | null
+    } | null> | null
   }
   controlImplementations: {
     __typename?: 'ControlImplementationConnection'
@@ -30892,24 +30918,35 @@ export type ControlFieldsFragment = {
   subcontrols: {
     __typename?: 'SubcontrolConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; refCode: string; description?: string | null } | null } | null> | null
+    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; description?: string | null } | null } | null> | null
   }
   internalPolicies: {
     __typename?: 'InternalPolicyConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
+    edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; displayID: string } | null } | null> | null
   }
   procedures: {
     __typename?: 'ProcedureConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null
+    edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string } | null } | null> | null
   }
-  tasks: { __typename?: 'TaskConnection'; totalCount: number; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null }
-  programs: { __typename?: 'ProgramConnection'; totalCount: number; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string } | null } | null> | null }
-  risks: { __typename?: 'RiskConnection'; totalCount: number; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
+  tasks: {
+    __typename?: 'TaskConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string; displayID: string } | null } | null> | null
+  }
+  programs: {
+    __typename?: 'ProgramConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string; displayID: string } | null } | null> | null
+  }
+  risks: {
+    __typename?: 'RiskConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string; displayID: string } | null } | null> | null
+  }
   delegate?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
   controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
-  owner?: { __typename?: 'Organization'; users?: Array<{ __typename?: 'User'; avatarRemoteURL?: string | null; firstName?: string | null; lastName?: string | null }> | null } | null
 }
 
 export type GetAllControlsQueryVariables = Exact<{
@@ -30930,62 +30967,15 @@ export type GetAllControlsQuery = {
       node?: {
         __typename?: 'Control'
         id: string
-        category?: string | null
         refCode: string
-        subcategory?: string | null
-        mappedCategories?: Array<string> | null
-        status?: ControlControlStatus | null
-        tags?: Array<string> | null
         description?: string | null
-        implementationGuidance?: Array<any> | null
-        exampleEvidence?: Array<any> | null
-        controlQuestions?: Array<string> | null
-        assessmentMethods?: Array<any> | null
-        assessmentObjectives?: Array<any> | null
-        createdBy?: string | null
-        updatedBy?: string | null
-        updatedAt?: any | null
-        createdAt?: any | null
-        controlObjectives: {
-          __typename?: 'ControlObjectiveConnection'
-          edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; status?: string | null; desiredOutcome?: string | null; name: string } | null } | null> | null
-        }
-        controlImplementations: {
-          __typename?: 'ControlImplementationConnection'
-          edges?: Array<{
-            __typename?: 'ControlImplementationEdge'
-            node?: { __typename?: 'ControlImplementation'; details?: string | null; status?: ControlImplementationDocumentStatus | null; verificationDate?: any | null } | null
-          } | null> | null
-        }
-        evidence: {
-          __typename?: 'EvidenceConnection'
-          edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; displayID: string; name: string; creationDate: any } | null } | null> | null
-        }
-        subcontrols: {
-          __typename?: 'SubcontrolConnection'
-          totalCount: number
-          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; refCode: string; description?: string | null } | null } | null> | null
-        }
-        internalPolicies: {
-          __typename?: 'InternalPolicyConnection'
-          totalCount: number
-          edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
-        }
-        procedures: {
-          __typename?: 'ProcedureConnection'
-          totalCount: number
-          edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null
-        }
-        tasks: { __typename?: 'TaskConnection'; totalCount: number; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null }
-        programs: {
-          __typename?: 'ProgramConnection'
-          totalCount: number
-          edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string } | null } | null> | null
-        }
-        risks: { __typename?: 'RiskConnection'; totalCount: number; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
-        delegate?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
+        status?: ControlControlStatus | null
+        category?: string | null
+        subcategory?: string | null
+        tags?: Array<string> | null
+        mappedCategories?: Array<string> | null
+        subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
         controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
-        owner?: { __typename?: 'Organization'; users?: Array<{ __typename?: 'User'; avatarRemoteURL?: string | null; firstName?: string | null; lastName?: string | null }> | null } | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; hasPreviousPage: boolean; endCursor?: any | null; startCursor?: any | null }
@@ -31013,13 +31003,13 @@ export type GetControlByIdQuery = {
     controlQuestions?: Array<string> | null
     assessmentMethods?: Array<any> | null
     assessmentObjectives?: Array<any> | null
-    createdBy?: string | null
-    updatedBy?: string | null
-    updatedAt?: any | null
-    createdAt?: any | null
+    displayID: string
     controlObjectives: {
       __typename?: 'ControlObjectiveConnection'
-      edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; status?: string | null; desiredOutcome?: string | null; name: string } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'ControlObjectiveEdge'
+        node?: { __typename?: 'ControlObjective'; id: string; status?: string | null; desiredOutcome?: string | null; name: string; displayID: string } | null
+      } | null> | null
     }
     controlImplementations: {
       __typename?: 'ControlImplementationConnection'
@@ -31035,24 +31025,35 @@ export type GetControlByIdQuery = {
     subcontrols: {
       __typename?: 'SubcontrolConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; refCode: string; description?: string | null } | null } | null> | null
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; description?: string | null } | null } | null> | null
     }
     internalPolicies: {
       __typename?: 'InternalPolicyConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; displayID: string } | null } | null> | null
     }
     procedures: {
       __typename?: 'ProcedureConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string } | null } | null> | null
     }
-    tasks: { __typename?: 'TaskConnection'; totalCount: number; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null }
-    programs: { __typename?: 'ProgramConnection'; totalCount: number; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string } | null } | null> | null }
-    risks: { __typename?: 'RiskConnection'; totalCount: number; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
+    tasks: {
+      __typename?: 'TaskConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string; displayID: string } | null } | null> | null
+    }
+    programs: {
+      __typename?: 'ProgramConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string; displayID: string } | null } | null> | null
+    }
+    risks: {
+      __typename?: 'RiskConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string; displayID: string } | null } | null> | null
+    }
     delegate?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
     controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
-    owner?: { __typename?: 'Organization'; users?: Array<{ __typename?: 'User'; avatarRemoteURL?: string | null; firstName?: string | null; lastName?: string | null }> | null } | null
   }
 }
 
@@ -32195,7 +32196,7 @@ export type TaskQuery = {
     details?: string | null
     assignee?: { __typename?: 'User'; displayName: string; firstName?: string | null; lastName?: string | null; avatarRemoteURL?: string | null; id: string } | null
     assigner?: { __typename?: 'User'; avatarRemoteURL?: string | null; lastName?: string | null; firstName?: string | null; displayName: string; id: string } | null
-    subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string } | null } | null> | null }
+    subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null }
     programs: { __typename?: 'ProgramConnection'; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string } | null } | null> | null }
     procedures: { __typename?: 'ProcedureConnection'; edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; displayID: string } | null } | null> | null }
     internalPolicies: {

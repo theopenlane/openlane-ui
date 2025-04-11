@@ -5,17 +5,23 @@ import { format } from 'date-fns'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/table'
 import EvidenceCreateFormDialog from '@/components/pages/protected/evidence/evidence-create-form-dialog'
 import { EvidenceEdge } from '@repo/codegen/src/schema'
+import { TFormEvidenceData } from '../evidence/types/TFormEvidenceData'
+import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 
 type Props = {
   evidences?: (EvidenceEdge | null)[]
+  control: TFormEvidenceData
 }
 
-const ControlEvidenceTable = ({ evidences }: Props) => {
+const ControlEvidenceTable = ({ evidences, control }: Props) => {
   return (
     <div className="mt-8 space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold">Control Evidence</h2>
-        <EvidenceCreateFormDialog />
+        <EvidenceCreateFormDialog
+          formData={control}
+          excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.RISK, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.GROUP, ObjectTypeObjects.INTERNAL_POLICY]}
+        />
       </div>
 
       <div className="rounded-md border border-border overflow-hidden bg-card">
