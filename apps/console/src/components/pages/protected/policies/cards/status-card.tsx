@@ -8,7 +8,6 @@ import { Controller, UseFormReturn } from 'react-hook-form'
 import { CreatePolicyFormData } from '@/components/pages/protected/policies/hooks/use-form-schema.ts'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
-import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { Input } from '@repo/ui/input'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 
@@ -86,19 +85,11 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form }) => {
               control={form.control}
               render={({ field }) => (
                 <>
-                  <Select
-                    value={field.value.toString()}
-                    onValueChange={(value) => {
-                      field.onChange(value === 'unassigned' ? null : value || undefined)
-                    }}
-                  >
-                    <SelectTrigger className="w-full">{form.getValues('approvalRequired').toString()}</SelectTrigger>
+                  <Select value={field.value.toString()} onValueChange={(value) => field.onChange(value === 'true')}>
+                    <SelectTrigger className="w-full">{field.value.toString()}</SelectTrigger>
                     <SelectContent>
-                      {booleanOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
+                      <SelectItem value="true">True</SelectItem>
+                      <SelectItem value="false">False</SelectItem>
                     </SelectContent>
                   </Select>
                   {form.formState.errors.approvalRequired && <p className="text-red-500 text-sm">{form.formState.errors.approvalRequired.message}</p>}
@@ -118,7 +109,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form }) => {
           <div className="flex gap-2"></div>
         </div>
 
-        {/* Reviewing Frequency */}
+        {/* Review Frequency */}
         <div className="grid grid-cols-[1fr_auto] items-center gap-2">
           <div className="flex gap-2 items-center">
             <ClockArrowUp size={16} className="text-brand" />
@@ -127,7 +118,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form }) => {
 
           <div className="w-48">
             <Controller
-              name="reviewingFrequency"
+              name="reviewFrequency"
               control={form.control}
               render={({ field }) => (
                 <>
@@ -137,7 +128,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form }) => {
                       field.onChange(value === 'unassigned' ? null : value || undefined)
                     }}
                   >
-                    <SelectTrigger className="w-full">{form.getValues('reviewingFrequency').toString()}</SelectTrigger>
+                    <SelectTrigger className="w-full">{form.getValues('reviewFrequency').toString()}</SelectTrigger>
                     <SelectContent>
                       {reviewFrequencyOptions.map((option) => (
                         <SelectItem key={option.value} value={option.value}>
@@ -146,7 +137,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form }) => {
                       ))}
                     </SelectContent>
                   </Select>
-                  {form.formState.errors.reviewingFrequency && <p className="text-red-500 text-sm">{form.formState.errors.reviewingFrequency.message}</p>}
+                  {form.formState.errors.reviewFrequency && <p className="text-red-500 text-sm">{form.formState.errors.reviewFrequency.message}</p>}
                 </>
               )}
             />

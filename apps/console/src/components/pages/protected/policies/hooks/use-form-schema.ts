@@ -14,7 +14,7 @@ const formSchema = z.object({
     })
     .default(InternalPolicyDocumentStatus.DRAFT),
   approvalRequired: z.boolean(),
-  reviewingFrequency: z
+  reviewFrequency: z
     .nativeEnum(InternalPolicyFrequency, {
       errorMap: () => ({ message: 'Invalid status' }),
     })
@@ -35,7 +35,7 @@ const useFormSchema = () => {
         name: '',
         approvalRequired: true,
         status: InternalPolicyDocumentStatus.DRAFT,
-        reviewingFrequency: InternalPolicyFrequency.YEARLY,
+        reviewFrequency: InternalPolicyFrequency.YEARLY,
         tags: [],
       },
     }),

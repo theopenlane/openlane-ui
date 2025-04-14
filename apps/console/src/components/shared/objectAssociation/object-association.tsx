@@ -13,12 +13,13 @@ import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { TObjectAssociationMap } from './types/TObjectAssociationMap'
 
 type Props = {
-  onIdChange: (updatedMap: TObjectAssociationMap) => void
+  onIdChange: (updatedMap: TObjectAssociationMap, refCodes?: any) => void
   excludeObjectTypes?: ObjectTypeObjects[]
   initialData?: TObjectAssociationMap
+  refCodeInitialData?: TObjectAssociationMap
 }
 
-const ObjectAssociation: React.FC<Props> = ({ onIdChange, excludeObjectTypes, initialData }) => {
+const ObjectAssociation: React.FC<Props> = ({ onIdChange, excludeObjectTypes, initialData, refCodeInitialData }) => {
   const { client } = useGraphQLClient()
   const [selectedObject, setSelectedObject] = useState<ObjectTypeObjects | null>(null)
   const [searchValue, setSearchValue] = useState('')
@@ -56,6 +57,7 @@ const ObjectAssociation: React.FC<Props> = ({ onIdChange, excludeObjectTypes, in
           name: item?.node?.[objectName] || '',
           description: item?.node?.description || '',
           inputName: inputName || '',
+          refCode: item?.node?.refCode ?? item?.node?.displayID ?? '',
         })) || []
       setTableData(updatedData)
     }
@@ -97,7 +99,7 @@ const ObjectAssociation: React.FC<Props> = ({ onIdChange, excludeObjectTypes, in
         </div>
       </div>
       {selectedObject ? (
-        <ObjectAssociationTable data={TableData} onIDsChange={onIdChange} initialData={initialData} />
+        <ObjectAssociationTable data={TableData} onIDsChange={onIdChange} initialData={initialData} refCodeInitialData={refCodeInitialData} />
       ) : (
         <div className="flex items-center justify-center w-full">
           <ObjectAssociationPlaceholder />
