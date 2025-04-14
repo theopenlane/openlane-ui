@@ -84,6 +84,17 @@ export const INTERNAL_POLICY_BY_ID = gql`
     policyType
     displayID
     details
+    reviewDue
+    reviewFrequency
+    approvalRequired
+    narratives {
+      edges {
+        node {
+          id
+          displayID
+        }
+      }
+    }
     procedures {
       edges {
         node {
@@ -91,6 +102,13 @@ export const INTERNAL_POLICY_BY_ID = gql`
           name
         }
       }
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      totalCount
     }
     controls {
       edges {
@@ -100,6 +118,13 @@ export const INTERNAL_POLICY_BY_ID = gql`
           refCode
         }
       }
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      totalCount
     }
     programs {
       edges {
@@ -108,6 +133,13 @@ export const INTERNAL_POLICY_BY_ID = gql`
           displayID
         }
       }
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      totalCount
     }
     tasks {
       edges {
@@ -116,6 +148,13 @@ export const INTERNAL_POLICY_BY_ID = gql`
           displayID
         }
       }
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      totalCount
     }
     controlObjectives {
       edges {
@@ -124,6 +163,13 @@ export const INTERNAL_POLICY_BY_ID = gql`
           displayID
         }
       }
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      totalCount
     }
   }
 `

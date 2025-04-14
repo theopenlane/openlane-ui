@@ -3,19 +3,22 @@
 import React from 'react'
 import { InternalPolicyDocumentStatus, InternalPolicyFrequency } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
-import { Binoculars, ScanEye, Stamp, ClockArrowUp, FileStack, ScrollText, Calendar, InfoIcon } from 'lucide-react'
+import { Binoculars, ScanEye, Stamp, ClockArrowUp, FileStack, ScrollText, Calendar, InfoIcon, CalendarCheck2, CalendarClock } from 'lucide-react'
 import { Controller, UseFormReturn } from 'react-hook-form'
 import { CreatePolicyFormData } from '@/components/pages/protected/policies/hooks/use-form-schema.ts'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
+import { TMetadata } from '@/components/pages/protected/policies/form/create-policy-form.tsx'
+import { format } from 'date-fns'
 
 type TStatusCardProps = {
   form: UseFormReturn<CreatePolicyFormData>
+  metadata?: TMetadata
 }
 
-const StatusCard: React.FC<TStatusCardProps> = ({ form }) => {
+const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
   const statusOptions = Object.values(InternalPolicyDocumentStatus).map((value) => ({
     label: value.charAt(0) + value.slice(1).toLowerCase(),
     value,
@@ -176,6 +179,30 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form }) => {
             />
           </div>
         </div>
+
+        {/* Created At */}
+        {metadata && (
+          <div className="grid grid-cols-[1fr_auto] items-center gap-2">
+            <div className="flex gap-2 items-center">
+              <CalendarCheck2 size={16} className="text-brand" />
+              <span>Created At</span>
+            </div>
+
+            <div className="w-48">{format(new Date(metadata.createdAt), 'h:mm a. MMMM d, yyyy')}</div>
+          </div>
+        )}
+
+        {/* Updated At */}
+        {metadata && (
+          <div className="grid grid-cols-[1fr_auto] items-center gap-2">
+            <div className="flex gap-2 items-center">
+              <CalendarClock size={16} className="text-brand" />
+              <span>Updated At</span>
+            </div>
+
+            <div className="w-48">{format(new Date(metadata.updatedAt), 'h:mm a. MMMM d, yyyy')}</div>
+          </div>
+        )}
 
         {/* Due date */}
         <div className="grid grid-cols-[1fr_auto] items-center gap-2">

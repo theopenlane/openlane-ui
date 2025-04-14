@@ -14900,6 +14900,7 @@ export interface MutationUpdateTaskArgs {
 export interface MutationUpdateTaskCommentArgs {
   id: Scalars['ID']['input']
   input: UpdateNoteInput
+  noteFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
 }
 
 export interface MutationUpdateTemplateArgs {
@@ -17292,7 +17293,7 @@ export interface Organization extends Node {
   /** groups that are allowed to create internal_policys */
   internalPolicyCreators?: Maybe<Array<Group>>
   invites: InviteConnection
-  members?: Maybe<Array<OrgMembership>>
+  members: OrgMembershipConnection
   /** the name of the organization */
   name: Scalars['String']['output']
   /** groups that are allowed to create narratives */
@@ -17326,7 +17327,7 @@ export interface Organization extends Node {
   templates: TemplateConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
-  users?: Maybe<Array<User>>
+  users: UserConnection
 }
 
 export interface OrganizationActionPlansArgs {
@@ -17482,6 +17483,15 @@ export interface OrganizationInvitesArgs {
   where?: InputMaybe<InviteWhereInput>
 }
 
+export interface OrganizationMembersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<OrgMembershipOrder>>
+  where?: InputMaybe<OrgMembershipWhereInput>
+}
+
 export interface OrganizationNarrativesArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -17588,6 +17598,15 @@ export interface OrganizationTemplatesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<TemplateOrder>>
   where?: InputMaybe<TemplateWhereInput>
+}
+
+export interface OrganizationUsersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<UserOrder>>
+  where?: InputMaybe<UserWhereInput>
 }
 
 /** Return response for createBulkOrganization mutation */
@@ -31346,12 +31365,11 @@ export type GetAllOrganizationsQuery = {
       __typename?: 'OrganizationEdge'
       node?: {
         __typename?: 'Organization'
-        id: string
         name: string
         displayName: string
         avatarRemoteURL?: string | null
         personalOrg?: boolean | null
-        avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+        avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
       } | null
     } | null> | null
   }
@@ -31367,30 +31385,7 @@ export type GetSingleOrganizationMembersQueryVariables = Exact<{
   organizationId: Scalars['ID']['input']
 }>
 
-export type GetSingleOrganizationMembersQuery = {
-  __typename?: 'Query'
-  organization: {
-    __typename?: 'Organization'
-    members?: Array<{
-      __typename?: 'OrgMembership'
-      id: string
-      createdAt?: any | null
-      role: OrgMembershipRole
-      user: {
-        __typename?: 'User'
-        id: string
-        firstName?: string | null
-        lastName?: string | null
-        authProvider: UserAuthProvider
-        avatarRemoteURL?: string | null
-        email: string
-        role?: UserRole | null
-        createdAt?: any | null
-        avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
-      }
-    }> | null
-  }
-}
+export type GetSingleOrganizationMembersQuery = { __typename?: 'Query'; organization: { __typename?: 'Organization'; id: string } }
 
 export type GetAllOrganizationsWithMembersQueryVariables = Exact<{ [key: string]: never }>
 
@@ -31408,7 +31403,6 @@ export type GetAllOrganizationsWithMembersQuery = {
         name: string
         avatarRemoteURL?: string | null
         avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
-        members?: Array<{ __typename?: 'OrgMembership'; role: OrgMembershipRole }> | null
       } | null
     } | null> | null
   }
@@ -31425,7 +31419,7 @@ export type GetInvitesQuery = {
     __typename?: 'InviteConnection'
     edges?: Array<{
       __typename?: 'InviteEdge'
-      node?: { __typename?: 'Invite'; id: string; recipient: string; status: InviteInviteStatus; createdAt?: any | null; expires?: any | null; role: InviteRole; sendAttempts: number } | null
+      node?: { __typename?: 'Invite'; id: string; recipient: string; status: InviteInviteStatus; createdAt?: any | null; expires?: any | null; sendAttempts: number } | null
     } | null> | null
   }
 }
@@ -31595,7 +31589,37 @@ export type InternalPolicyByIdFragment = {
   status?: InternalPolicyDocumentStatus | null
   policyType?: string | null
   displayID: string
-  procedures: { __typename?: 'ProcedureConnection'; edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null }
+  narratives: { __typename?: 'NarrativeConnection'; edges?: Array<{ __typename?: 'NarrativeEdge'; node?: { __typename?: 'Narrative'; id: string; displayID: string } | null } | null> | null }
+  procedures: {
+    __typename?: 'ProcedureConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+  }
+  controls: {
+    __typename?: 'ControlConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+  }
+  programs: {
+    __typename?: 'ProgramConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string } | null } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+  }
+  tasks: {
+    __typename?: 'TaskConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string } | null } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+  }
+  controlObjectives: {
+    __typename?: 'ControlObjectiveConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string; displayID: string } | null } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+  }
 }
 
 export type GetInternalPolicyDetailsByIdQueryVariables = Exact<{
@@ -31618,7 +31642,37 @@ export type GetInternalPolicyDetailsByIdQuery = {
     status?: InternalPolicyDocumentStatus | null
     policyType?: string | null
     displayID: string
-    procedures: { __typename?: 'ProcedureConnection'; edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null }
+    narratives: { __typename?: 'NarrativeConnection'; edges?: Array<{ __typename?: 'NarrativeEdge'; node?: { __typename?: 'Narrative'; id: string; displayID: string } | null } | null> | null }
+    procedures: {
+      __typename?: 'ProcedureConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+    }
+    controls: {
+      __typename?: 'ControlConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+    }
+    programs: {
+      __typename?: 'ProgramConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string } | null } | null> | null
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+    }
+    tasks: {
+      __typename?: 'TaskConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string } | null } | null> | null
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+    }
+    controlObjectives: {
+      __typename?: 'ControlObjectiveConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string; displayID: string } | null } | null> | null
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+    }
   }
 }
 
