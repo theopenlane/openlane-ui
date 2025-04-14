@@ -68,7 +68,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
         approvalRequired: policy?.approvalRequired ?? true,
         status: policy.status ?? InternalPolicyDocumentStatus.DRAFT,
         policyType: policy.policyType ?? '',
-        reviewDue: policy.reviewDue,
+        reviewDue: policy.reviewDue ? new Date(policy.reviewDue as string) : undefined,
         reviewFrequency: policy.reviewFrequency ?? InternalPolicyFrequency.YEARLY,
       })
 
