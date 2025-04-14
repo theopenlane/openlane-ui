@@ -24,12 +24,12 @@ const AddMembersDialog = () => {
   const { data: membersData } = useGetSingleOrganizationMembers(session?.user.activeOrganizationId)
   const { mutateAsync: updateGroup } = useUpdateGroup()
 
-  const membersOptions = membersData?.organization?.members
-    ?.filter((member) => member.user.id != session?.user.userId)
+  const membersOptions = membersData?.organization?.members?.edges
+    ?.filter((member) => member?.node?.user?.id != session?.user.userId)
     .map((member) => ({
-      value: member.user.id,
-      label: `${member.user.firstName} ${member.user.lastName}`,
-      membershipId: member.id,
+      value: member?.node?.user?.id,
+      label: `${member?.node?.user?.firstName} ${member?.node?.user?.lastName}`,
+      membershipId: member?.node?.user?.id,
     }))
 
   const handleMemberChange = (newSelected: Option[]) => {
@@ -88,7 +88,8 @@ const AddMembersDialog = () => {
 
         <div className="space-y-2">
           <p className="font-medium">Group member(s)</p>
-          {membersOptions && <MultipleSelector defaultOptions={membersOptions} value={selectedMembers} onChange={handleMemberChange} />}
+          {/* mateo todo: fix type error and remove as Option[] */}
+          {membersOptions && <MultipleSelector defaultOptions={membersOptions as Option[]} value={selectedMembers} onChange={handleMemberChange} />}
         </div>
 
         <DialogFooter className="flex justify-center pt-4">
