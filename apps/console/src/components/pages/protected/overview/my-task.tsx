@@ -24,7 +24,7 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
     hasProgramWith: programId ? [{ id: programId }] : undefined,
   }
 
-  const { data } = useTasksWithFilter(where)
+  const { data } = useTasksWithFilter({ where })
 
   const router = useRouter()
 

@@ -119,9 +119,7 @@ export const OrganizationSelector = () => {
               />
             </div>
             {filteredOrgs.map((org) => {
-              const role = org?.node?.members?.[0]?.role ?? 'Owner'
-              const image = org?.node?.avatarFile?.presignedURL || org?.node?.avatarRemoteURL
-
+              const role = org?.node?.members?.edges?.[0]?.node?.role ?? 'Owner'
               return (
                 <div key={org?.node?.id} className={`${orgWrapper()} group`}>
                   <div>
