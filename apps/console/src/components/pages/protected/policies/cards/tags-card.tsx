@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Card } from '@repo/ui/cardpanel'
 import { Tag } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
@@ -15,26 +15,40 @@ type TTagsCardProps = {
 
 const TagsCard: React.FC<TTagsCardProps> = ({ form }) => {
   const [tagValues, setTagValues] = useState<Option[]>([])
+
+  useEffect(() => {
+    if (form.getValues('tags')) {
+      const tags = form.getValues('tags').map((item) => {
+        return {
+          value: item,
+          label: item,
+        } as Option
+      })
+      setTagValues(tags)
+    }
+  }, [])
+
   return (
     <Card className="p-4">
       <div className="flex flex-col gap-4">
         {/* Tags */}
-        <div className="flex justify-between items-center">
+        <div className="grid grid-cols-[1fr_auto] items-center gap-2">
           <div className="flex gap-2 items-center">
             <Tag size={16} className="text-brand" />
             <span>Tags</span>
           </div>
-
-          <div className="flex gap-2">
-            {/* Tags Field */}
+        </div>
+        <div className="grid w-full items-center gap-2">
+          <div className="flex gap-2 items-center">
             <InputRow className="w-full">
               <FormField
                 control={form.control}
                 name="tags"
                 render={({ field }) => (
-                  <FormItem className="w-full">
+                  <>
                     <FormControl>
                       <MultipleSelector
+                        className="w-full"
                         placeholder="Add tag..."
                         creatable
                         value={tagValues}
@@ -50,11 +64,10 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form }) => {
                             }),
                           )
                         }}
-                        className="w-full"
                       />
                     </FormControl>
                     {form.formState.errors.tags && <p className="text-red-500 text-sm">{form.formState.errors.tags.message}</p>}
-                  </FormItem>
+                  </>
                 )}
               />
             </InputRow>

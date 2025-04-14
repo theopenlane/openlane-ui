@@ -31,7 +31,6 @@ export type TMetadata = {
 const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   const { form } = useFormSchema()
   const router = useRouter()
-  const usePlateEditorHelper = usePlateEditor()
   const { mutateAsync: createPolicy, isPending: isCreating } = useCreateInternalPolicy()
   const { mutateAsync: updatePolicy, isPending: isSaving } = useUpdateInternalPolicy()
   const isSubmitting = isCreating || isSaving
