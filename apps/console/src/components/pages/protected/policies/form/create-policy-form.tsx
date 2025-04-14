@@ -18,6 +18,7 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { usePolicy } from '@/components/pages/protected/policies/hooks/use-policy.tsx'
 import { useRouter } from 'next/navigation'
+import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
 
 type TCreatePolicyFormProps = {
   policy?: InternalPolicyByIdFragment
@@ -37,11 +38,29 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   const plateEditorHelper = usePlateEditor()
   const { successNotification, errorNotification } = useNotification()
   const associationsState = usePolicy((state) => state.associations)
+  const policyState = usePolicy()
   const [metadata, setMetadata] = useState<TMetadata>()
   const isEditable = !!policy
+  const [initialAssociations, setInitialAssociations] = useState<TObjectAssociationMap>({})
 
   useEffect(() => {
     if (policy) {
+      const policyAssociations: TObjectAssociationMap = {
+        controlIDs: policy?.controls?.edges?.map((item) => item?.node?.id!) || [],
+        procedureIDs: policy?.procedures?.edges?.map((item) => item?.node?.id!) || [],
+        programIDs: policy?.programs?.edges?.map((item) => item?.node?.id!) || [],
+        controlObjectiveIDs: policy?.controlObjectives?.edges?.map((item) => item?.node?.id!) || [],
+        taskIDs: policy?.tasks?.edges?.map((item) => item?.node?.id!) || [],
+      }
+
+      const policyAssociationsRefCodes: TObjectAssociationMap = {
+        controlIDs: policy?.controls?.edges?.map((item) => item?.node?.refCode!) || [],
+        procedureIDs: policy?.procedures?.edges?.map((item) => item?.node?.refCode!) || [],
+        programIDs: policy?.programs?.edges?.map((item) => item?.node?.displayID!) || [],
+        controlObjectiveIDs: policy?.controlObjectives?.edges?.map((item) => item?.node?.displayID!) || [],
+        taskIDs: policy?.tasks?.edges?.map((item) => item?.node?.displayID!) || [],
+      }
+
       form.reset({
         tags: policy.tags ?? [],
         details: policy?.details ?? '',
@@ -57,6 +76,10 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
         createdAt: policy.createdAt,
         updatedAt: policy.updatedAt,
       })
+
+      setInitialAssociations(policyAssociations)
+      policyState.setAssociations(policyAssociations)
+      policyState.setAssociationRefCodes(policyAssociationsRefCodes)
     }
   }, [])
 
@@ -94,12 +117,62 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
     }
   }
 
+  function getAssociationDiffs(initial: TObjectAssociationMap, current: TObjectAssociationMap): { added: TObjectAssociationMap; removed: TObjectAssociationMap } {
+    const added: TObjectAssociationMap = {}
+    const removed: TObjectAssociationMap = {}
+
+    const allKeys = new Set([...Object.keys(initial), ...Object.keys(current)])
+
+    for (const key of allKeys) {
+      const initialSet = new Set(initial[key] ?? [])
+      const currentSet = new Set(current[key] ?? [])
+
+      const addedItems = [...currentSet].filter((id) => !initialSet.has(id))
+      const removedItems = [...initialSet].filter((id) => !currentSet.has(id))
+
+      if (addedItems.length > 0) {
+        added[key] = addedItems
+      }
+      if (removedItems.length > 0) {
+        removed[key] = removedItems
+      }
+    }
+
+    return { added, removed }
+  }
+
   const onSaveHandler = async (data: EditPolicyFormData) => {
     try {
       let detailsField = data?.details
 
       if (detailsField) {
         detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
+      }
+
+      const { added, removed } = getAssociationDiffs(initialAssociations, associationsState)
+
+      const buildMutationKey = (prefix: string, key: string) => `${prefix}${key.charAt(0).toUpperCase()}${key.slice(1)}`
+
+      const associationInputs = {
+        ...Object.entries(added).reduce(
+          (acc, [key, ids]) => {
+            if (ids && ids.length > 0) {
+              acc[buildMutationKey('add', key)] = ids
+            }
+            return acc
+          },
+          {} as Record<string, string[]>,
+        ),
+
+        ...Object.entries(removed).reduce(
+          (acc, [key, ids]) => {
+            if (ids && ids.length > 0) {
+              acc[buildMutationKey('remove', key)] = ids
+            }
+            return acc
+          },
+          {} as Record<string, string[]>,
+        ),
       }
 
       const formData: {
@@ -111,7 +184,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
           ...data,
           details: detailsField,
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
-          ...associationsState,
+          ...associationInputs,
         },
       }
 
