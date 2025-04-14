@@ -297,7 +297,7 @@ const renderSearchResultField = ({ node, searchType }: SearchGroupProps) => {
   return (
     <CommandItem className={item()} key={node.id} onSelect={() => (window.location.href = `/${nodeType}/${node.id}`)}>
       <Link href={`/${nodeType}/${node.id}`}>
-        <div>{node.name || node.refCode || 'Unnamed'}</div>
+        <div>{node.name || node.refCode || node.title || 'Unnamed'}</div>
       </Link>
     </CommandItem>
   )
