@@ -12,7 +12,7 @@ import { Input } from '@repo/ui/input'
 import { SearchIcon } from 'lucide-react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useSearch } from '@/lib/graphql-hooks/search'
-import { ControlEdge, ControlObjectiveEdge, GroupEdge, Organization, OrganizationEdge, ProgramEdge, RiskEdge, SearchqueryQuery, SubcontrolEdge, TaskEdge } from '@repo/codegen/src/schema'
+import { SearchQuery } from '@repo/codegen/src/schema'
 import { Avatar } from '../avatar/avatar'
 
 export const GlobalSearch = () => {
@@ -147,7 +147,7 @@ const renderNoResults = () => {
 }
 
 interface SearchProps {
-  data: SearchqueryQuery
+  data: SearchQuery
   handleOrganizationSwitch?: (orgId?: string) => Promise<void>
   setQuery?: React.Dispatch<React.SetStateAction<string>>
 }

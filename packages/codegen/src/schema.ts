@@ -32146,11 +32146,11 @@ export type UpdateRiskMutationVariables = Exact<{
 
 export type UpdateRiskMutation = { __typename?: 'Mutation'; updateRisk: { __typename?: 'RiskUpdatePayload'; risk: { __typename?: 'Risk'; id: string } } }
 
-export type SearchqueryQueryVariables = Exact<{
+export type SearchQueryVariables = Exact<{
   query: Scalars['String']['input']
 }>
 
-export type SearchqueryQuery = {
+export type SearchQuery = {
   __typename?: 'Query'
   search?: {
     __typename?: 'SearchResults'

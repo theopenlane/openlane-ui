@@ -1,7 +1,7 @@
 import { gql } from 'graphql-request'
 
 export const SEARCH = gql`
-  query Searchquery($query: String!) {
+  query Search($query: String!) {
     search(query: $query) {
       programs {
         edges {
