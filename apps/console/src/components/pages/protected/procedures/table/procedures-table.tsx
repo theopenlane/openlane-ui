@@ -8,11 +8,14 @@ import { GetAllProceduresQueryVariables, OrderDirection, ProcedureOrderField } f
 import ProcedureDataTableToolbar from '@/components/pages/protected/procedures/table/procedures-table-toolbar.tsx'
 import { proceduresColumns } from '@/components/pages/protected/procedures/table/columns.tsx'
 import { PROCEDURE_SORTABLE_FIELDS } from '@/components/pages/protected/procedures/table/table-config.ts'
+import { TPagination } from '@repo/ui/pagination-types'
+import { DEFAULT_PAGINATION } from '@/constants/pagination'
 
 const ProceduresTable: React.FC = () => {
   const router = useRouter()
 
   const { isPending: creating, mutateAsync: createProcedure } = useCreateProcedure()
+  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
 
   const [searchTerm, setSearchTerm] = useState('')
   const [filters, setFilters] = useState<Record<string, any>>({})
@@ -27,7 +30,7 @@ const ProceduresTable: React.FC = () => {
     return orderBy || undefined
   }, [orderBy])
 
-  const { procedures, isLoading: fetching } = useFilteredProcedures(searchTerm, filters, orderByFilter)
+  const { procedures, isLoading: fetching, paginationMeta } = useFilteredProcedures({ where: filters, search: searchTerm, orderBy: orderByFilter, pagination })
 
   const handleCreateNew = async () => {
     try {
@@ -46,8 +49,26 @@ const ProceduresTable: React.FC = () => {
 
   return (
     <>
-      <ProcedureDataTableToolbar className="my-5" creating={creating} handleCreateNew={handleCreateNew} setFilters={setFilters} searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-      <DataTable sortFields={PROCEDURE_SORTABLE_FIELDS} onSortChange={setOrderBy} columns={proceduresColumns} data={procedures} />
+      <ProcedureDataTableToolbar
+        className="my-5"
+        creating={creating}
+        handleCreateNew={handleCreateNew}
+        setFilters={setFilters}
+        searchTerm={searchTerm}
+        setSearchTerm={(inputVal) => {
+          setSearchTerm(inputVal)
+          setPagination(DEFAULT_PAGINATION)
+        }}
+      />
+      <DataTable
+        sortFields={PROCEDURE_SORTABLE_FIELDS}
+        onSortChange={setOrderBy}
+        columns={proceduresColumns}
+        data={procedures}
+        pagination={pagination}
+        onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
+        paginationMeta={paginationMeta}
+      />
     </>
   )
 }

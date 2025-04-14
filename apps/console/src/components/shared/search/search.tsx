@@ -12,7 +12,7 @@ import { Input } from '@repo/ui/input'
 import { SearchIcon } from 'lucide-react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useSearch } from '@/lib/graphql-hooks/search'
-import { SearchQuery } from '@repo/codegen/src/schema'
+import { ControlEdge, ControlObjectiveEdge, GroupEdge, Organization, OrganizationEdge, ProgramEdge, RiskEdge, SearchqueryQuery, SubcontrolEdge, TaskEdge } from '@repo/codegen/src/schema'
 import { Avatar } from '../avatar/avatar'
 
 export const GlobalSearch = () => {
@@ -84,7 +84,7 @@ export const GlobalSearch = () => {
 
     if (data && data.search) {
       setOpen(true)
-      setHasResults(data.search.totalCount > 0)
+      setHasResults(Object.values(data.search).some((val) => val !== null))
     } else {
       setHasResults(false)
       setOpen(false)
@@ -147,43 +147,75 @@ const renderNoResults = () => {
 }
 
 interface SearchProps {
-  data: SearchQuery
+  data: SearchqueryQuery
   handleOrganizationSwitch?: (orgId?: string) => Promise<void>
   setQuery?: React.Dispatch<React.SetStateAction<string>>
 }
 
 const renderSearchResults = ({ data, handleOrganizationSwitch, setQuery }: SearchProps) => {
+  if (!data?.search) return null
+
+  const { search } = data
+
   return (
-    <CommandList key="search-results" className="max-h-[600px]">
-      {data?.search?.nodes?.map((node) => {
-        // render the organization search results differently, and first
-        switch (node?.__typename) {
-          case 'OrganizationSearchResult':
-            return renderOrgGroupResults({ searchType: 'Organization', node: node.organizations, handleOrganizationSwitch, setQuery })
-          default:
-            return null
-        }
-      })}
-      {data?.search?.nodes?.map((node) => {
-        switch (node?.__typename) {
-          case 'ProgramSearchResult':
-            return renderGroupResults({ searchType: 'Program', node: node.programs })
-          case 'GroupSearchResult':
-            return renderGroupResults({ searchType: 'Group', node: node.groups })
-          case 'TaskSearchResult':
-            return renderGroupResults({ searchType: 'Task', node: node.tasks })
-          case 'ControlObjectiveSearchResult':
-            return renderGroupResults({ searchType: 'ControlObjective', node: node.controlObjectives })
-          case 'ControlSearchResult':
-            return renderGroupResults({ searchType: 'Control', node: node.controls })
-          case 'SubcontrolSearchResult':
-            return renderGroupResults({ searchType: 'Subcontrol', node: node.subcontrols })
-          case 'RiskSearchResult':
-            return renderGroupResults({ searchType: 'Risk', node: node.risks })
-          default:
-            return null
-        }
-      })}
+    <CommandList key="search-results" className="max-h-[600px] overflow-auto">
+      {/* Organizations */}
+      {!!search?.organizations?.edges?.length &&
+        renderOrgGroupResults({
+          searchType: 'Organization',
+          node: search.organizations?.edges?.map((edge) => edge?.node!) ?? [],
+          handleOrganizationSwitch,
+          setQuery,
+        })}
+
+      {/* Programs */}
+      {!!search.programs?.edges?.length &&
+        renderGroupResults({
+          searchType: 'Program',
+          node: (search.programs.edges ?? []).map((edge) => edge?.node!) ?? [],
+        })}
+
+      {/* Groups */}
+      {!!search.groups?.edges?.length &&
+        renderGroupResults({
+          searchType: 'Group',
+          node: (search.groups.edges ?? []).map((edge) => edge?.node!) ?? [],
+        })}
+
+      {/* Tasks */}
+      {!!search.tasks?.edges?.length &&
+        renderGroupResults({
+          searchType: 'Task',
+          node: (search.tasks.edges ?? []).map((edge) => edge?.node!) ?? [],
+        })}
+
+      {/* Control Objectives */}
+      {!!search.controlObjectives?.edges?.length &&
+        renderGroupResults({
+          searchType: 'ControlObjective',
+          node: (search.controlObjectives.edges ?? []).map((edge) => edge?.node!) ?? [],
+        })}
+
+      {/* Controls */}
+      {!!search.controls?.edges?.length &&
+        renderGroupResults({
+          searchType: 'Control',
+          node: (search.controls.edges ?? []).map((edge) => edge?.node!) ?? [],
+        })}
+
+      {/* Subcontrols */}
+      {!!search.subcontrols?.edges?.length &&
+        renderGroupResults({
+          searchType: 'Subcontrol',
+          node: (search.subcontrols.edges ?? []).map((edge) => edge?.node!) ?? [],
+        })}
+
+      {/* Risks */}
+      {!!search.risks?.edges?.length &&
+        renderGroupResults({
+          searchType: 'Risk',
+          node: (search.risks.edges ?? []).map((edge) => edge?.node!) ?? [],
+        })}
     </CommandList>
   )
 }
@@ -200,7 +232,7 @@ const renderGroupResults = ({ searchType, node }: SearchNodeProps) => {
   const groupKey = `${searchType.toLowerCase()}s`
   return (
     <CommandGroup key={groupKey} heading={`${searchType}s`}>
-      {node.map((searchNode: any) => renderSearchResultField({ node: searchNode }))}
+      {node.map((searchNode: any) => renderSearchResultField({ node: searchNode, searchType }))}
     </CommandGroup>
   )
 }
@@ -220,7 +252,7 @@ const renderOrgGroupResults = ({ searchType, node, handleOrganizationSwitch, set
   const groupKey = `${searchType.toLowerCase()}s`
   return (
     <CommandGroup key={groupKey} heading={`${searchType}s`}>
-      {node.map((searchNode: any) => renderOrgSearchResultField({ node: searchNode, handleOrganizationSwitch, setQuery }))}
+      {node.map((searchNode: any) => renderOrgSearchResultField({ node: searchNode, handleOrganizationSwitch, setQuery, searchType }))}
     </CommandGroup>
   )
 }
@@ -232,7 +264,6 @@ const renderOrgSearchResultField = ({ node, handleOrganizationSwitch, setQuery }
   }
 
   const { item, avatarRow } = searchStyles()
-  const image = node?.avatarFile?.presignedURL || node?.avatarRemoteURL
 
   return (
     <CommandItem
@@ -254,15 +285,19 @@ const renderOrgSearchResultField = ({ node, handleOrganizationSwitch, setQuery }
 }
 
 // renderSearchResultField is a generic function to render search result for any type of entity
-const renderSearchResultField = ({ node }: SearchGroupProps) => {
-  const { item } = searchStyles()
+interface SearchGroupProps {
+  node: any
+  searchType: string
+}
 
-  const nodeType = node.__typename.toLowerCase()
+const renderSearchResultField = ({ node, searchType }: SearchGroupProps) => {
+  const { item } = searchStyles()
+  const nodeType = searchType.toLowerCase()
 
   return (
     <CommandItem className={item()} key={node.id} onSelect={() => (window.location.href = `/${nodeType}/${node.id}`)}>
       <Link href={`/${nodeType}/${node.id}`}>
-        <div>{node.name}</div>
+        <div>{node.name || node.refCode || 'Unnamed'}</div>
       </Link>
     </CommandItem>
   )

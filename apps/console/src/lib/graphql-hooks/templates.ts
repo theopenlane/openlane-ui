@@ -40,32 +40,54 @@ type UseFilteredTemplatesArgs = {
 
 export const useFilteredTemplates = ({ search, where, orderBy, pagination }: UseFilteredTemplatesArgs) => {
   const debouncedSearchTerm = useDebounce(search, 300)
-  const { templates: allTemplates, isLoading: isFetchingAll, ...allQueryRest } = useFilterTemplates({ where, orderBy, pagination })
-  const { templates: searchTemplatesRaw, isLoading: isSearching, ...searchQueryRest } = useSearchTemplates(debouncedSearchTerm)
+
+  const { templates: allTemplates, isLoading: isFetchingAll, data: allData, ...allQueryRest } = useFilterTemplates({ where, orderBy, pagination })
+
+  const { templates: searchTemplatesRaw, isLoading: isSearching, data: searchData, ...searchQueryRest } = useSearchTemplates({ search: debouncedSearchTerm, pagination })
+
   const showSearch = !!debouncedSearchTerm
-  const filteredAndOrderedTemplates = showSearch ? allTemplates?.filter((proc) => searchTemplatesRaw?.some((searchProc) => searchProc.id === proc.id)) : allTemplates
   const isLoading = showSearch ? isSearching : isFetchingAll
+
+  const filteredAndOrderedTemplates = showSearch ? allTemplates?.filter((template) => searchTemplatesRaw?.some((searchTemplate) => searchTemplate.id === template.id)) : allTemplates
+
+  const paginationMeta = () => {
+    if (!showSearch) {
+      return {
+        totalCount: allData?.templates?.totalCount ?? 0,
+        pageInfo: allData?.templates?.pageInfo,
+        isLoading,
+      }
+    }
+
+    return {
+      totalCount: searchData?.templateSearch?.totalCount ?? 0,
+      pageInfo: searchData?.templateSearch?.pageInfo,
+      isLoading,
+    }
+  }
 
   return {
     templates: filteredAndOrderedTemplates,
     isLoading,
+    paginationMeta: paginationMeta(),
     ...(showSearch ? searchQueryRest : allQueryRest),
   }
 }
 
-export function useSearchTemplates(searchQuery: string) {
+export function useSearchTemplates({ search, pagination }: { search: string; pagination?: TPagination }) {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<SearchTemplatesQuery, unknown>({
-    queryKey: ['searchTemplates', searchQuery],
+    queryKey: ['searchTemplates', search, pagination?.pageSize, pagination?.page],
     queryFn: async () =>
       client.request<SearchTemplatesQuery, SearchTemplatesQueryVariables>(SEARCH_TEMPLATE, {
-        query: searchQuery,
+        query: search,
+        ...pagination?.query,
       }),
-    enabled: !!searchQuery,
+    enabled: !!search,
   })
 
-  const templates = (queryResult.data?.templateSearch?.templates ?? []) as Template[]
+  const templates = (queryResult.data?.templateSearch ?? []) as Template[]
 
   return { ...queryResult, templates }
 }

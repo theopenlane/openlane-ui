@@ -35,15 +35,36 @@ type UseFilteredInternalPoliciesArgs = {
 
 export const useFilteredInternalPolicies = ({ search, where, orderBy, pagination }: UseFilteredInternalPoliciesArgs) => {
   const debouncedSearchTerm = useDebounce(search, 300)
-  const { policies: allPolicies, isLoading: isFetchingAll, ...allQueryRest } = useGetInternalPoliciesList({ where, orderBy, pagination })
-  const { policies: searchPoliciesRaw, isLoading: isSearching, ...searchQueryRest } = useSearchInternalPolicies({ search: debouncedSearchTerm, pagination })
+
+  const { policies: allPolicies, isLoading: isFetchingAll, data: allData, ...allQueryRest } = useGetInternalPoliciesList({ where, orderBy, pagination })
+
+  const { policies: searchPoliciesRaw, isLoading: isSearching, data: searchData, ...searchQueryRest } = useSearchInternalPolicies({ search: debouncedSearchTerm, pagination })
+
   const showSearch = !!debouncedSearchTerm
-  const filteredAndOrderedPolicies = showSearch ? allPolicies?.filter((policy) => searchPoliciesRaw?.some((searchPolicy) => searchPolicy.id === policy.id)) : allPolicies
   const isLoading = showSearch ? isSearching : isFetchingAll
+
+  const filteredAndOrderedPolicies = showSearch ? allPolicies?.filter((policy) => searchPoliciesRaw?.some((searchPolicy) => searchPolicy.id === policy.id)) : allPolicies
+
+  const paginationMeta = () => {
+    if (!showSearch) {
+      return {
+        totalCount: allData?.internalPolicies?.totalCount ?? 0,
+        pageInfo: allData?.internalPolicies?.pageInfo,
+        isLoading,
+      }
+    }
+
+    return {
+      totalCount: searchData?.internalPolicySearch?.totalCount ?? 0,
+      pageInfo: searchData?.internalPolicySearch?.pageInfo,
+      isLoading,
+    }
+  }
 
   return {
     policies: filteredAndOrderedPolicies,
     isLoading,
+    paginationMeta: paginationMeta(),
     ...(showSearch ? searchQueryRest : allQueryRest),
   }
 }
@@ -116,7 +137,7 @@ export const useSearchInternalPolicies = ({ search, pagination }: searchInternal
     enabled: !!search,
   })
 
-  const policies = (queryResult.data?.internalPolicySearch?.internalPolicies ?? []) as InternalPolicy[]
+  const policies = (queryResult.data?.internalPolicySearch ?? []) as InternalPolicy[]
 
   return { ...queryResult, policies }
 }

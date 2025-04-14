@@ -8,16 +8,18 @@ import { TPagination } from '@repo/ui/pagination-types'
 type UseGetAllControlsArgs = {
   where?: GetAllControlsQueryVariables['where']
   pagination?: TPagination | null
+  orderBy?: GetAllControlsQueryVariables['orderBy']
 }
 
-export const useGetAllControls = ({ where, pagination }: UseGetAllControlsArgs) => {
+export const useGetAllControls = ({ where, pagination, orderBy }: UseGetAllControlsArgs) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetAllControlsQuery, unknown>({
-    queryKey: ['controls', where, pagination?.page, pagination?.pageSize],
+    queryKey: ['controls', where, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: async () =>
       client.request(GET_ALL_CONTROLS, {
         where,
+        orderBy,
         ...pagination?.query,
       }),
     enabled: where !== undefined,

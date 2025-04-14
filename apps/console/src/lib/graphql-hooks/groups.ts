@@ -70,7 +70,7 @@ export function useSearchGroups(searchQuery: string) {
     enabled: !!searchQuery,
   })
 
-  const groups = (queryResult.data?.groupSearch?.groups ?? []) as Group[]
+  const groups = (queryResult.data?.groupSearch ?? []) as Group[]
 
   return { ...queryResult, groups }
 }

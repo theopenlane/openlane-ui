@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { DataTable } from '@repo/ui/data-table'
 import React, { useState, useMemo } from 'react'
 import { useCreateInternalPolicy, useFilteredInternalPolicies } from '@/lib/graphql-hooks/policy'
-import { GetInternalPoliciesListQueryVariables, InternalPolicyOrderField, OrderDirection } from '@repo/codegen/src/schema'
+import { GetInternalPoliciesListQueryVariables, InternalPolicyOrderField, OrderDirection, SearchInternalPoliciesQuery } from '@repo/codegen/src/schema'
 import { policiesColumns } from '@/components/pages/protected/policies/table/columns.tsx'
 import PoliciesTableToolbar from '@/components/pages/protected/policies/table/policies-table-toolbar.tsx'
 import { INTERNAL_POLICIES_SORTABLE_FIELDS } from '@/components/pages/protected/policies/table/table-config.ts'
@@ -36,7 +36,7 @@ export const PoliciesTable = () => {
 
   const { isPending: creating, mutateAsync: createPolicy } = useCreateInternalPolicy()
   const [searchTerm, setSearchTerm] = useState('')
-  const { policies, isLoading: fetching, isFetching, data } = useFilteredInternalPolicies({ where: whereFilter, search: searchTerm, orderBy: orderByFilter, pagination })
+  const { policies, isLoading: fetching, isFetching, paginationMeta } = useFilteredInternalPolicies({ where: whereFilter, search: searchTerm, orderBy: orderByFilter, pagination })
 
   const handleCreateNew = async () => {
     const data = await createPolicy({
@@ -59,7 +59,18 @@ export const PoliciesTable = () => {
 
   return (
     <>
-      <PoliciesTableToolbar className="my-5" creating={creating} searching={fetching} handleCreateNew={handleCreateNew} setFilters={setFilters} searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      <PoliciesTableToolbar
+        className="my-5"
+        creating={creating}
+        searching={fetching}
+        handleCreateNew={handleCreateNew}
+        setFilters={setFilters}
+        searchTerm={searchTerm}
+        setSearchTerm={(inputVal) => {
+          setSearchTerm(inputVal)
+          setPagination(DEFAULT_PAGINATION)
+        }}
+      />
 
       <DataTable
         sortFields={INTERNAL_POLICIES_SORTABLE_FIELDS}
@@ -69,7 +80,7 @@ export const PoliciesTable = () => {
         loading={fetching}
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
-        // paginationMeta={{ totalCount: data. , pageInfo: data?.tasks?.pageInfo, isLoading: isFetching }}
+        paginationMeta={paginationMeta}
       />
     </>
   )

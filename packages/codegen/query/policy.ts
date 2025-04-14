@@ -113,19 +113,26 @@ export const GET_INTERNAL_POLICY_DETAILS_BY_ID = gql`
 export const SEARCH_INTERNAL_POLICIES = gql`
   query SearchInternalPolicies($query: String!) {
     internalPolicySearch(query: $query) {
-      internalPolicies {
-        id
-        name
-        displayID
-        status
-        revision
-        updatedAt
-        updatedBy
-        createdAt
-        createdBy
-        tags
-        details
+      edges {
+        node {
+          id
+          name
+          displayID
+          status
+          revision
+          updatedAt
+          updatedBy
+          createdAt
+          createdBy
+          tags
+          details
+        }
       }
+      pageInfo {
+        startCursor
+        endCursor
+      }
+      totalCount
     }
   }
 `

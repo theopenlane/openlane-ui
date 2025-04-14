@@ -1,6 +1,6 @@
 'use client'
 
-import { GetSingleOrganizationMembersQuery, User, UserAuthProvider } from '@repo/codegen/src/schema'
+import { GetSingleOrganizationMembersQuery, OrgMembership, User, UserAuthProvider } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import { pageStyles } from './page.styles'
 import { useState, useEffect, Dispatch, SetStateAction } from 'react'
@@ -16,22 +16,23 @@ import { MemberActions } from './actions/member-actions'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
 import { Avatar } from '@/components/shared/avatar/avatar'
+import { TPagination } from '@repo/ui/pagination-types'
+import { DEFAULT_PAGINATION } from '@/constants/pagination'
 
 type MembersTableProps = {
   setActiveTab: Dispatch<SetStateAction<string>>
 }
 
-type Member = NonNullable<NonNullable<GetSingleOrganizationMembersQuery['organization']>['members']>[number]
-
 export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
   const { membersSearchRow, membersSearchField, membersButtons, nameRow, copyIcon } = pageStyles()
   const { data: session } = useSession()
-  const [filteredMembers, setFilteredMembers] = useState<Member[]>([])
+  const [filteredMembers, setFilteredMembers] = useState<OrgMembership[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [copiedText, copyToClipboard] = useCopyToClipboard()
   const { successNotification } = useNotification()
+  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
 
-  const { data, isPending, isError } = useGetSingleOrganizationMembers(session?.user.activeOrganizationId)
+  const { data, isPending, isError, isFetching } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId, pagination })
 
   useEffect(() => {
     if (copiedText) {
@@ -43,8 +44,9 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
   }, [copiedText])
 
   useEffect(() => {
-    if (data?.organization?.members) {
-      setFilteredMembers(data.organization.members)
+    if (data?.organization?.members?.edges) {
+      const memberNodes = data.organization.members.edges.map((edge) => edge?.node).filter(Boolean)
+      setFilteredMembers(memberNodes as OrgMembership[])
     }
   }, [data])
 
@@ -53,13 +55,17 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const searchValue = e.target.value.toLowerCase()
     setSearchTerm(searchValue)
+    setPagination(DEFAULT_PAGINATION)
 
-    if (data?.organization?.members) {
-      const filtered = data.organization.members.filter(({ user: { firstName, lastName } }) => {
-        const fullName = `${firstName?.toLowerCase() ?? ''} ${lastName?.toLowerCase() ?? ''}`
+    if (data?.organization?.members?.edges) {
+      const memberNodes = data.organization.members.edges.map((edge) => edge?.node).filter(Boolean) as OrgMembership[]
+
+      const filtered = memberNodes.filter(({ user }) => {
+        const fullName = `${user?.firstName?.toLowerCase() ?? ''} ${user?.lastName?.toLowerCase() ?? ''}`
         return fullName.includes(searchValue)
       })
-      setFilteredMembers(filtered)
+
+      setFilteredMembers(filtered as OrgMembership[])
     }
   }
 
@@ -74,7 +80,7 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
     }
   }
 
-  const columns: ColumnDef<Member>[] = [
+  const columns: ColumnDef<OrgMembership>[] = [
     {
       accessorKey: 'user.id',
       header: '',
@@ -138,7 +144,13 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
           </Button>
         </div>
       </div>
-      <DataTable columns={columns} data={filteredMembers} />
+      <DataTable
+        columns={columns}
+        data={filteredMembers}
+        pagination={pagination}
+        onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
+        paginationMeta={{ totalCount: data?.organization?.members?.totalCount, pageInfo: data.organization.members.pageInfo, isLoading: isFetching }}
+      />
     </div>
   )
 }

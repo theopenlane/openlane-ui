@@ -7,17 +7,26 @@ import { Button } from '@repo/ui/button'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import { DownloadIcon } from 'lucide-react'
-import { ControlListFieldsFragment, Group } from '@repo/codegen/src/schema'
+import { ControlListFieldsFragment, ControlOrderField, GetAllControlsQueryVariables, Group, OrderDirection } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useRouter } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Value } from '@udecode/plate-common'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
+import ControlsTableToolbar from './table/controls-table-toolbar'
+import { CONTROLS_SORT_FIELDS } from './table/table-config'
 
 const ControlsTable: React.FC = () => {
   const { push } = useRouter()
   const plateEditorHelper = usePlateEditor()
+  const [filters, setFilters] = useState<Record<string, any>>({})
+  const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>([
+    {
+      field: ControlOrderField.ref_code,
+      direction: OrderDirection.DESC,
+    },
+  ])
 
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
 
@@ -28,6 +37,7 @@ const ControlsTable: React.FC = () => {
     isFetching,
   } = useGetAllControls({
     where: { ownerIDNEQ: '' },
+    orderBy,
     pagination,
   })
 
@@ -136,6 +146,7 @@ const ControlsTable: React.FC = () => {
           Export
         </Button>
       </div>
+      <ControlsTableToolbar onFilterChange={setFilters} />
       <DataTable
         columns={columns}
         data={tableData}
@@ -143,6 +154,8 @@ const ControlsTable: React.FC = () => {
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
         paginationMeta={{ totalCount: controlsData?.controls.totalCount, pageInfo: controlsData?.controls.pageInfo, isLoading: isFetching }}
+        sortFields={CONTROLS_SORT_FIELDS}
+        onSortChange={setOrderBy}
       />
     </div>
   )

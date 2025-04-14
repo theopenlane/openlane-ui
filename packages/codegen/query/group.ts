@@ -35,6 +35,11 @@ export const GET_ALL_GROUPS = gql`
           }
         }
       }
+      pageInfo {
+        endCursor
+        startCursor
+      }
+      totalCount
     }
   }
 `
@@ -130,36 +135,43 @@ export const GET_GROUP_PERMISSIONS = gql`
 export const SEARCH_GROUPS = gql`
   query SearchGroups($query: String!) {
     groupSearch(query: $query) {
-      groups {
-        id
-        name
-        description
-        displayName
-        logoURL
-        isManaged
-        tags
-        members {
+      edges {
+        node {
           id
-          role
-          user {
+          name
+          description
+          displayName
+          logoURL
+          isManaged
+          tags
+          members {
             id
-            firstName
-            lastName
-            avatarFile {
-              presignedURL
-            }
-            avatarRemoteURL
             role
+            user {
+              id
+              firstName
+              lastName
+              avatarFile {
+                presignedURL
+              }
+              avatarRemoteURL
+              role
+            }
+          }
+          setting {
+            visibility
+            joinPolicy
+            syncToSlack
+            syncToGithub
+            id
           }
         }
-        setting {
-          visibility
-          joinPolicy
-          syncToSlack
-          syncToGithub
-          id
-        }
       }
+      pageInfo {
+        endCursor
+        startCursor
+      }
+      totalCount
     }
   }
 `

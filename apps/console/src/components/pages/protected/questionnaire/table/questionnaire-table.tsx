@@ -34,7 +34,7 @@ export const QuestionnairesTable = () => {
     templates,
     isLoading: fetching,
     isFetching,
-    data,
+    paginationMeta,
   } = useFilteredTemplates({
     search: searchTerm,
     where: whereFilter,
@@ -43,7 +43,15 @@ export const QuestionnairesTable = () => {
   })
   return (
     <div>
-      <QuestionnaireTableToolbar creating={fetching} searchTerm={searchTerm} setSearchTerm={setSearchTerm} setFilters={setFilters} />
+      <QuestionnaireTableToolbar
+        creating={fetching}
+        searchTerm={searchTerm}
+        setSearchTerm={(inputVal) => {
+          setSearchTerm(inputVal)
+          setPagination(DEFAULT_PAGINATION)
+        }}
+        setFilters={setFilters}
+      />
       <DataTable
         sortFields={QUESTIONNAIRE_SORT_FIELDS}
         onSortChange={setOrderBy}
@@ -52,7 +60,7 @@ export const QuestionnairesTable = () => {
         loading={fetching}
         pagination={pagination}
         onPaginationChange={setPagination}
-        // paginationMeta={{ totalCount: data, pageInfo: data?.pageInfo, isLoading: isFetching }}
+        paginationMeta={paginationMeta}
       />
     </div>
   )

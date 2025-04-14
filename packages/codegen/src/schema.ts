@@ -143,11 +143,6 @@ export enum ApiTokenOrderField {
   updated_at = 'updated_at',
 }
 
-export interface ApiTokenSearchResult {
-  __typename?: 'APITokenSearchResult'
-  apiTokens?: Maybe<Array<ApiToken>>
-}
-
 /** Return response for updateAPIToken mutation */
 export interface ApiTokenUpdatePayload {
   __typename?: 'APITokenUpdatePayload'
@@ -958,11 +953,6 @@ export enum ActionPlanPriority {
   MEDIUM = 'MEDIUM',
 }
 
-export interface ActionPlanSearchResult {
-  __typename?: 'ActionPlanSearchResult'
-  actionPlans?: Maybe<Array<ActionPlan>>
-}
-
 /** Return response for updateActionPlan mutation */
 export interface ActionPlanUpdatePayload {
   __typename?: 'ActionPlanUpdatePayload'
@@ -1758,11 +1748,6 @@ export enum ContactOrderField {
   full_name = 'full_name',
   title = 'title',
   updated_at = 'updated_at',
-}
-
-export interface ContactSearchResult {
-  __typename?: 'ContactSearchResult'
-  contacts?: Maybe<Array<Contact>>
 }
 
 /** Return response for updateContact mutation */
@@ -3131,11 +3116,6 @@ export enum ControlImplementationOrderField {
   verified = 'verified',
 }
 
-export interface ControlImplementationSearchResult {
-  __typename?: 'ControlImplementationSearchResult'
-  controlImplementations?: Maybe<Array<ControlImplementation>>
-}
-
 /** Return response for updateControlImplementation mutation */
 export interface ControlImplementationUpdatePayload {
   __typename?: 'ControlImplementationUpdatePayload'
@@ -3891,11 +3871,6 @@ export enum ControlObjectiveOrderField {
   updated_at = 'updated_at',
 }
 
-export interface ControlObjectiveSearchResult {
-  __typename?: 'ControlObjectiveSearchResult'
-  controlObjectives?: Maybe<Array<ControlObjective>>
-}
-
 /** Return response for updateControlObjective mutation */
 export interface ControlObjectiveUpdatePayload {
   __typename?: 'ControlObjectiveUpdatePayload'
@@ -4209,11 +4184,6 @@ export enum ControlOrderField {
   ref_code = 'ref_code',
   subcategory = 'subcategory',
   updated_at = 'updated_at',
-}
-
-export interface ControlSearchResult {
-  __typename?: 'ControlSearchResult'
-  controls?: Maybe<Array<Control>>
 }
 
 /** Return response for updateControl mutation */
@@ -6032,11 +6002,6 @@ export enum DocumentDataOrderField {
   updated_at = 'updated_at',
 }
 
-export interface DocumentDataSearchResult {
-  __typename?: 'DocumentDataSearchResult'
-  documentData?: Maybe<Array<DocumentData>>
-}
-
 /** Return response for updateDocumentData mutation */
 export interface DocumentDataUpdatePayload {
   __typename?: 'DocumentDataUpdatePayload'
@@ -6601,11 +6566,6 @@ export enum EntityOrderField {
   updated_at = 'updated_at',
 }
 
-export interface EntitySearchResult {
-  __typename?: 'EntitySearchResult'
-  entities?: Maybe<Array<Entity>>
-}
-
 export interface EntityType extends Node {
   __typename?: 'EntityType'
   createdAt?: Maybe<Scalars['Time']['output']>
@@ -6912,11 +6872,6 @@ export enum EntityTypeOrderField {
   created_at = 'created_at',
   name = 'name',
   updated_at = 'updated_at',
-}
-
-export interface EntityTypeSearchResult {
-  __typename?: 'EntityTypeSearchResult'
-  entityTypes?: Maybe<Array<EntityType>>
 }
 
 /** Return response for updateEntityType mutation */
@@ -7671,11 +7626,6 @@ export enum EventOrderField {
   updated_at = 'updated_at',
 }
 
-export interface EventSearchResult {
-  __typename?: 'EventSearchResult'
-  events?: Maybe<Array<Event>>
-}
-
 /** Return response for updateEvent mutation */
 export interface EventUpdatePayload {
   __typename?: 'EventUpdatePayload'
@@ -8366,11 +8316,6 @@ export enum EvidenceOrderField {
   name = 'name',
   renewal_date = 'renewal_date',
   updated_at = 'updated_at',
-}
-
-export interface EvidenceSearchResult {
-  __typename?: 'EvidenceSearchResult'
-  evidences?: Maybe<Array<Evidence>>
 }
 
 /** Return response for updateEvidence mutation */
@@ -9157,11 +9102,6 @@ export interface FileOrder {
 export enum FileOrderField {
   created_at = 'created_at',
   updated_at = 'updated_at',
-}
-
-export interface FileSearchResult {
-  __typename?: 'FileSearchResult'
-  files?: Maybe<Array<File>>
 }
 
 /**
@@ -10370,11 +10310,6 @@ export interface GroupPermissions {
   name?: Maybe<Scalars['String']['output']>
   objectType: Scalars['String']['output']
   permissions: Permission
-}
-
-export interface GroupSearchResult {
-  __typename?: 'GroupSearchResult'
-  groups?: Maybe<Array<Group>>
 }
 
 export interface GroupSetting extends Node {
@@ -11998,11 +11933,6 @@ export enum IntegrationOrderField {
   updated_at = 'updated_at',
 }
 
-export interface IntegrationSearchResult {
-  __typename?: 'IntegrationSearchResult'
-  integrations?: Maybe<Array<Integration>>
-}
-
 /** Return response for updateIntegration mutation */
 export interface IntegrationUpdatePayload {
   __typename?: 'IntegrationUpdatePayload'
@@ -12737,11 +12667,6 @@ export enum InternalPolicyOrderField {
   review_due = 'review_due',
   revision = 'revision',
   updated_at = 'updated_at',
-}
-
-export interface InternalPolicySearchResult {
-  __typename?: 'InternalPolicySearchResult'
-  internalPolicies?: Maybe<Array<InternalPolicy>>
 }
 
 /** Return response for updateInternalPolicy mutation */
@@ -13655,11 +13580,6 @@ export enum MappedControlOrderField {
   created_at = 'created_at',
   mapping_type = 'mapping_type',
   updated_at = 'updated_at',
-}
-
-export interface MappedControlSearchResult {
-  __typename?: 'MappedControlSearchResult'
-  mappedControls?: Maybe<Array<MappedControl>>
 }
 
 /** Return response for updateMappedControl mutation */
@@ -14900,6 +14820,7 @@ export interface MutationUpdateTaskArgs {
 export interface MutationUpdateTaskCommentArgs {
   id: Scalars['ID']['input']
   input: UpdateNoteInput
+  noteFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
 }
 
 export interface MutationUpdateTemplateArgs {
@@ -15298,11 +15219,6 @@ export enum NarrativeOrderField {
   created_at = 'created_at',
   name = 'name',
   updated_at = 'updated_at',
-}
-
-export interface NarrativeSearchResult {
-  __typename?: 'NarrativeSearchResult'
-  narratives?: Maybe<Array<Narrative>>
 }
 
 /** Return response for updateNarrative mutation */
@@ -16992,11 +16908,6 @@ export enum OrgSubscriptionOrderField {
   updated_at = 'updated_at',
 }
 
-export interface OrgSubscriptionSearchResult {
-  __typename?: 'OrgSubscriptionSearchResult'
-  orgSubscriptions?: Maybe<Array<OrgSubscription>>
-}
-
 /**
  * OrgSubscriptionWhereInput is used for filtering OrgSubscription objects.
  * Input was generated by ent.
@@ -17292,7 +17203,7 @@ export interface Organization extends Node {
   /** groups that are allowed to create internal_policys */
   internalPolicyCreators?: Maybe<Array<Group>>
   invites: InviteConnection
-  members?: Maybe<Array<OrgMembership>>
+  members: OrgMembershipConnection
   /** the name of the organization */
   name: Scalars['String']['output']
   /** groups that are allowed to create narratives */
@@ -17326,7 +17237,7 @@ export interface Organization extends Node {
   templates: TemplateConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
-  users?: Maybe<Array<User>>
+  users: UserConnection
 }
 
 export interface OrganizationActionPlansArgs {
@@ -17482,6 +17393,15 @@ export interface OrganizationInvitesArgs {
   where?: InputMaybe<InviteWhereInput>
 }
 
+export interface OrganizationMembersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<OrgMembershipOrder>>
+  where?: InputMaybe<OrgMembershipWhereInput>
+}
+
 export interface OrganizationNarrativesArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -17588,6 +17508,15 @@ export interface OrganizationTemplatesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<TemplateOrder>>
   where?: InputMaybe<TemplateWhereInput>
+}
+
+export interface OrganizationUsersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<UserOrder>>
+  where?: InputMaybe<UserWhereInput>
 }
 
 /** Return response for createBulkOrganization mutation */
@@ -17930,11 +17859,6 @@ export enum OrganizationOrderField {
   display_name = 'display_name',
   name = 'name',
   updated_at = 'updated_at',
-}
-
-export interface OrganizationSearchResult {
-  __typename?: 'OrganizationSearchResult'
-  organizations?: Maybe<Array<Organization>>
 }
 
 export interface OrganizationSetting extends Node {
@@ -18347,11 +18271,6 @@ export enum OrganizationSettingRegion {
   AMER = 'AMER',
   APAC = 'APAC',
   EMEA = 'EMEA',
-}
-
-export interface OrganizationSettingSearchResult {
-  __typename?: 'OrganizationSettingSearchResult'
-  organizationSettings?: Maybe<Array<OrganizationSetting>>
 }
 
 /** Return response for updateOrganizationSetting mutation */
@@ -19010,11 +18929,6 @@ export enum PersonalAccessTokenOrderField {
   last_used_at = 'last_used_at',
   name = 'name',
   updated_at = 'updated_at',
-}
-
-export interface PersonalAccessTokenSearchResult {
-  __typename?: 'PersonalAccessTokenSearchResult'
-  personalAccessTokens?: Maybe<Array<PersonalAccessToken>>
 }
 
 /** Return response for updatePersonalAccessToken mutation */
@@ -19789,11 +19703,6 @@ export enum ProcedureOrderField {
   review_due = 'review_due',
   revision = 'revision',
   updated_at = 'updated_at',
-}
-
-export interface ProcedureSearchResult {
-  __typename?: 'ProcedureSearchResult'
-  procedures?: Maybe<Array<Procedure>>
 }
 
 /** Return response for updateProcedure mutation */
@@ -21082,11 +20991,6 @@ export enum ProgramProgramStatus {
   READY_FOR_AUDITOR = 'READY_FOR_AUDITOR',
 }
 
-export interface ProgramSearchResult {
-  __typename?: 'ProgramSearchResult'
-  programs?: Maybe<Array<Program>>
-}
-
 /** Return response for updateProgram mutation */
 export interface ProgramUpdatePayload {
   __typename?: 'ProgramUpdatePayload'
@@ -21352,83 +21256,85 @@ export interface Query {
   actionPlan: ActionPlan
   actionPlanHistories: ActionPlanHistoryConnection
   /** Search across ActionPlan objects */
-  actionPlanSearch?: Maybe<ActionPlanSearchResult>
+  actionPlanSearch?: Maybe<ActionPlanConnection>
   actionPlans: ActionPlanConnection
   /** Search across APIToken objects */
-  adminAPITokenSearch?: Maybe<ApiTokenSearchResult>
+  adminAPITokenSearch?: Maybe<ApiTokenConnection>
   /** Search across ActionPlan objects */
-  adminActionPlanSearch?: Maybe<ActionPlanSearchResult>
+  adminActionPlanSearch?: Maybe<ActionPlanConnection>
   /** Search across Contact objects */
-  adminContactSearch?: Maybe<ContactSearchResult>
+  adminContactSearch?: Maybe<ContactConnection>
   /** Search across ControlImplementation objects */
-  adminControlImplementationSearch?: Maybe<ControlImplementationSearchResult>
+  adminControlImplementationSearch?: Maybe<ControlImplementationConnection>
   /** Search across ControlObjective objects */
-  adminControlObjectiveSearch?: Maybe<ControlObjectiveSearchResult>
+  adminControlObjectiveSearch?: Maybe<ControlObjectiveConnection>
   /** Search across Control objects */
-  adminControlSearch?: Maybe<ControlSearchResult>
+  adminControlSearch?: Maybe<ControlConnection>
   /** Search across DocumentData objects */
-  adminDocumentDataSearch?: Maybe<DocumentDataSearchResult>
+  adminDocumentDataSearch?: Maybe<DocumentDataConnection>
   /** Search across Entity objects */
-  adminEntitySearch?: Maybe<EntitySearchResult>
+  adminEntitySearch?: Maybe<EntityConnection>
   /** Search across EntityType objects */
-  adminEntityTypeSearch?: Maybe<EntityTypeSearchResult>
+  adminEntityTypeSearch?: Maybe<EntityTypeConnection>
   /** Search across Event objects */
-  adminEventSearch?: Maybe<EventSearchResult>
+  adminEventSearch?: Maybe<EventConnection>
   /** Search across Evidence objects */
-  adminEvidenceSearch?: Maybe<EvidenceSearchResult>
+  adminEvidenceSearch?: Maybe<EvidenceConnection>
   /** Search across File objects */
-  adminFileSearch?: Maybe<FileSearchResult>
+  adminFileSearch?: Maybe<FileConnection>
   /** Search across Group objects */
-  adminGroupSearch?: Maybe<GroupSearchResult>
+  adminGroupSearch?: Maybe<GroupConnection>
   /** Search across Integration objects */
-  adminIntegrationSearch?: Maybe<IntegrationSearchResult>
+  adminIntegrationSearch?: Maybe<IntegrationConnection>
   /** Search across InternalPolicy objects */
-  adminInternalPolicySearch?: Maybe<InternalPolicySearchResult>
+  adminInternalPolicySearch?: Maybe<InternalPolicyConnection>
+  /** Search across Invite objects */
+  adminInviteSearch?: Maybe<InviteConnection>
   /** Search across MappedControl objects */
-  adminMappedControlSearch?: Maybe<MappedControlSearchResult>
+  adminMappedControlSearch?: Maybe<MappedControlConnection>
   /** Search across Narrative objects */
-  adminNarrativeSearch?: Maybe<NarrativeSearchResult>
+  adminNarrativeSearch?: Maybe<NarrativeConnection>
   /** Search across OrgSubscription objects */
-  adminOrgSubscriptionSearch?: Maybe<OrgSubscriptionSearchResult>
+  adminOrgSubscriptionSearch?: Maybe<OrgSubscriptionConnection>
   /** Search across Organization objects */
-  adminOrganizationSearch?: Maybe<OrganizationSearchResult>
+  adminOrganizationSearch?: Maybe<OrganizationConnection>
   /** Search across OrganizationSetting objects */
-  adminOrganizationSettingSearch?: Maybe<OrganizationSettingSearchResult>
+  adminOrganizationSettingSearch?: Maybe<OrganizationSettingConnection>
   /** Search across PersonalAccessToken objects */
-  adminPersonalAccessTokenSearch?: Maybe<PersonalAccessTokenSearchResult>
+  adminPersonalAccessTokenSearch?: Maybe<PersonalAccessTokenConnection>
   /** Search across Procedure objects */
-  adminProcedureSearch?: Maybe<ProcedureSearchResult>
+  adminProcedureSearch?: Maybe<ProcedureConnection>
   /** Search across Program objects */
-  adminProgramSearch?: Maybe<ProgramSearchResult>
+  adminProgramSearch?: Maybe<ProgramConnection>
   /** Search across Risk objects */
-  adminRiskSearch?: Maybe<RiskSearchResult>
+  adminRiskSearch?: Maybe<RiskConnection>
   /** Admin search across all objects */
-  adminSearch?: Maybe<SearchResultConnection>
+  adminSearch?: Maybe<SearchResults>
   /** Search across Standard objects */
-  adminStandardSearch?: Maybe<StandardSearchResult>
+  adminStandardSearch?: Maybe<StandardConnection>
   /** Search across Subcontrol objects */
-  adminSubcontrolSearch?: Maybe<SubcontrolSearchResult>
+  adminSubcontrolSearch?: Maybe<SubcontrolConnection>
   /** Search across Subscriber objects */
-  adminSubscriberSearch?: Maybe<SubscriberSearchResult>
+  adminSubscriberSearch?: Maybe<SubscriberConnection>
   /** Search across Task objects */
-  adminTaskSearch?: Maybe<TaskSearchResult>
+  adminTaskSearch?: Maybe<TaskConnection>
   /** Search across Template objects */
-  adminTemplateSearch?: Maybe<TemplateSearchResult>
+  adminTemplateSearch?: Maybe<TemplateConnection>
   /** Search across User objects */
-  adminUserSearch?: Maybe<UserSearchResult>
+  adminUserSearch?: Maybe<UserConnection>
   /** Search across UserSetting objects */
-  adminUserSettingSearch?: Maybe<UserSettingSearchResult>
+  adminUserSettingSearch?: Maybe<UserSettingConnection>
   /** Look up apiToken by ID */
   apiToken: ApiToken
   /** Search across APIToken objects */
-  apiTokenSearch?: Maybe<ApiTokenSearchResult>
+  apiTokenSearch?: Maybe<ApiTokenConnection>
   apiTokens: ApiTokenConnection
   auditLogs: AuditLogConnection
   /** Look up contact by ID */
   contact: Contact
   contactHistories: ContactHistoryConnection
   /** Search across Contact objects */
-  contactSearch?: Maybe<ContactSearchResult>
+  contactSearch?: Maybe<ContactConnection>
   contacts: ContactConnection
   /** Look up control by ID */
   control: Control
@@ -21437,52 +21343,52 @@ export interface Query {
   controlImplementation: ControlImplementation
   controlImplementationHistories: ControlImplementationHistoryConnection
   /** Search across ControlImplementation objects */
-  controlImplementationSearch?: Maybe<ControlImplementationSearchResult>
+  controlImplementationSearch?: Maybe<ControlImplementationConnection>
   controlImplementations: ControlImplementationConnection
   /** Look up controlObjective by ID */
   controlObjective: ControlObjective
   controlObjectiveHistories: ControlObjectiveHistoryConnection
   /** Search across ControlObjective objects */
-  controlObjectiveSearch?: Maybe<ControlObjectiveSearchResult>
+  controlObjectiveSearch?: Maybe<ControlObjectiveConnection>
   controlObjectives: ControlObjectiveConnection
   /** Search across Control objects */
-  controlSearch?: Maybe<ControlSearchResult>
+  controlSearch?: Maybe<ControlConnection>
   controls: ControlConnection
   /** Look up documentData by ID */
   documentData: DocumentData
   documentDataHistories: DocumentDataHistoryConnection
   /** Search across DocumentData objects */
-  documentDataSearch?: Maybe<DocumentDataSearchResult>
+  documentDataSearch?: Maybe<DocumentDataConnection>
   documentDataSlice: DocumentDataConnection
   entities: EntityConnection
   /** Look up entity by ID */
   entity: Entity
   entityHistories: EntityHistoryConnection
   /** Search across Entity objects */
-  entitySearch?: Maybe<EntitySearchResult>
+  entitySearch?: Maybe<EntityConnection>
   /** Look up entityType by ID */
   entityType: EntityType
   entityTypeHistories: EntityTypeHistoryConnection
   /** Search across EntityType objects */
-  entityTypeSearch?: Maybe<EntityTypeSearchResult>
+  entityTypeSearch?: Maybe<EntityTypeConnection>
   entityTypes: EntityTypeConnection
   /** Look up event by ID */
   event: Event
   eventHistories: EventHistoryConnection
   /** Search across Event objects */
-  eventSearch?: Maybe<EventSearchResult>
+  eventSearch?: Maybe<EventConnection>
   events: EventConnection
   /** Look up evidence by ID */
   evidence: Evidence
   evidenceHistories: EvidenceHistoryConnection
   /** Search across Evidence objects */
-  evidenceSearch?: Maybe<EvidenceSearchResult>
+  evidenceSearch?: Maybe<EvidenceConnection>
   evidences: EvidenceConnection
   /** Look up file by ID */
   file: File
   fileHistories: FileHistoryConnection
   /** Search across File objects */
-  fileSearch?: Maybe<FileSearchResult>
+  fileSearch?: Maybe<FileConnection>
   files: FileConnection
   /** Look up group by ID */
   group: Group
@@ -21492,7 +21398,7 @@ export interface Query {
   groupMembershipHistories: GroupMembershipHistoryConnection
   groupMemberships: GroupMembershipConnection
   /** Search across Group objects */
-  groupSearch?: Maybe<GroupSearchResult>
+  groupSearch?: Maybe<GroupConnection>
   /** Look up groupSetting by ID */
   groupSetting: GroupSetting
   groupSettingHistories: GroupSettingHistoryConnection
@@ -21506,28 +21412,30 @@ export interface Query {
   integration: Integration
   integrationHistories: IntegrationHistoryConnection
   /** Search across Integration objects */
-  integrationSearch?: Maybe<IntegrationSearchResult>
+  integrationSearch?: Maybe<IntegrationConnection>
   integrations: IntegrationConnection
   internalPolicies: InternalPolicyConnection
   /** Look up internalPolicy by ID */
   internalPolicy: InternalPolicy
   internalPolicyHistories: InternalPolicyHistoryConnection
   /** Search across InternalPolicy objects */
-  internalPolicySearch?: Maybe<InternalPolicySearchResult>
+  internalPolicySearch?: Maybe<InternalPolicyConnection>
   /** Look up invite by ID */
   invite: Invite
+  /** Search across Invite objects */
+  inviteSearch?: Maybe<InviteConnection>
   invites: InviteConnection
   /** Look up mappedControl by ID */
   mappedControl: MappedControl
   mappedControlHistories: MappedControlHistoryConnection
   /** Search across MappedControl objects */
-  mappedControlSearch?: Maybe<MappedControlSearchResult>
+  mappedControlSearch?: Maybe<MappedControlConnection>
   mappedControls: MappedControlConnection
   /** Look up narrative by ID */
   narrative: Narrative
   narrativeHistories: NarrativeHistoryConnection
   /** Search across Narrative objects */
-  narrativeSearch?: Maybe<NarrativeSearchResult>
+  narrativeSearch?: Maybe<NarrativeConnection>
   narratives: NarrativeConnection
   /** Fetches an object given its ID. */
   node?: Maybe<Node>
@@ -21545,30 +21453,30 @@ export interface Query {
   orgSubscription: OrgSubscription
   orgSubscriptionHistories: OrgSubscriptionHistoryConnection
   /** Search across OrgSubscription objects */
-  orgSubscriptionSearch?: Maybe<OrgSubscriptionSearchResult>
+  orgSubscriptionSearch?: Maybe<OrgSubscriptionConnection>
   orgSubscriptions: OrgSubscriptionConnection
   /** Look up organization by ID */
   organization: Organization
   organizationHistories: OrganizationHistoryConnection
   /** Search across Organization objects */
-  organizationSearch?: Maybe<OrganizationSearchResult>
+  organizationSearch?: Maybe<OrganizationConnection>
   /** Look up organizationSetting by ID */
   organizationSetting: OrganizationSetting
   organizationSettingHistories: OrganizationSettingHistoryConnection
   /** Search across OrganizationSetting objects */
-  organizationSettingSearch?: Maybe<OrganizationSettingSearchResult>
+  organizationSettingSearch?: Maybe<OrganizationSettingConnection>
   organizationSettings: OrganizationSettingConnection
   organizations: OrganizationConnection
   /** Look up personalAccessToken by ID */
   personalAccessToken: PersonalAccessToken
   /** Search across PersonalAccessToken objects */
-  personalAccessTokenSearch?: Maybe<PersonalAccessTokenSearchResult>
+  personalAccessTokenSearch?: Maybe<PersonalAccessTokenConnection>
   personalAccessTokens: PersonalAccessTokenConnection
   /** Look up procedure by ID */
   procedure: Procedure
   procedureHistories: ProcedureHistoryConnection
   /** Search across Procedure objects */
-  procedureSearch?: Maybe<ProcedureSearchResult>
+  procedureSearch?: Maybe<ProcedureConnection>
   procedures: ProcedureConnection
   /** Look up program by ID */
   program: Program
@@ -21578,46 +21486,46 @@ export interface Query {
   programMembershipHistories: ProgramMembershipHistoryConnection
   programMemberships: ProgramMembershipConnection
   /** Search across Program objects */
-  programSearch?: Maybe<ProgramSearchResult>
+  programSearch?: Maybe<ProgramConnection>
   programs: ProgramConnection
   /** Look up risk by ID */
   risk: Risk
   riskHistories: RiskHistoryConnection
   /** Search across Risk objects */
-  riskSearch?: Maybe<RiskSearchResult>
+  riskSearch?: Maybe<RiskConnection>
   risks: RiskConnection
   /** Search across all objects */
-  search?: Maybe<SearchResultConnection>
+  search?: Maybe<SearchResults>
   /** Look up user authorized user */
   self: User
   /** Look up standard by ID */
   standard: Standard
   standardHistories: StandardHistoryConnection
   /** Search across Standard objects */
-  standardSearch?: Maybe<StandardSearchResult>
+  standardSearch?: Maybe<StandardConnection>
   standards: StandardConnection
   /** Look up subcontrol by ID */
   subcontrol: Subcontrol
   subcontrolHistories: SubcontrolHistoryConnection
   /** Search across Subcontrol objects */
-  subcontrolSearch?: Maybe<SubcontrolSearchResult>
+  subcontrolSearch?: Maybe<SubcontrolConnection>
   subcontrols: SubcontrolConnection
   /** Look up subscriber by Email */
   subscriber: Subscriber
   /** Search across Subscriber objects */
-  subscriberSearch?: Maybe<SubscriberSearchResult>
+  subscriberSearch?: Maybe<SubscriberConnection>
   subscribers: SubscriberConnection
   /** Look up task by ID */
   task: Task
   taskHistories: TaskHistoryConnection
   /** Search across Task objects */
-  taskSearch?: Maybe<TaskSearchResult>
+  taskSearch?: Maybe<TaskConnection>
   tasks: TaskConnection
   /** Look up template by ID */
   template: Template
   templateHistories: TemplateHistoryConnection
   /** Search across Template objects */
-  templateSearch?: Maybe<TemplateSearchResult>
+  templateSearch?: Maybe<TemplateConnection>
   templates: TemplateConnection
   /** Look up tfaSetting for the current user */
   tfaSetting: TfaSetting
@@ -21626,12 +21534,12 @@ export interface Query {
   user: User
   userHistories: UserHistoryConnection
   /** Search across User objects */
-  userSearch?: Maybe<UserSearchResult>
+  userSearch?: Maybe<UserConnection>
   /** Look up userSetting by ID */
   userSetting: UserSetting
   userSettingHistories: UserSettingHistoryConnection
   /** Search across UserSetting objects */
-  userSettingSearch?: Maybe<UserSettingSearchResult>
+  userSettingSearch?: Maybe<UserSettingConnection>
   userSettings: UserSettingConnection
   users: UserConnection
 }
@@ -21650,6 +21558,10 @@ export interface QueryActionPlanHistoriesArgs {
 }
 
 export interface QueryActionPlanSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -21663,130 +21575,266 @@ export interface QueryActionPlansArgs {
 }
 
 export interface QueryAdminApiTokenSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminActionPlanSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminContactSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminControlImplementationSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminControlObjectiveSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminControlSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminDocumentDataSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminEntitySearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminEntityTypeSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminEventSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminEvidenceSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminFileSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminGroupSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminIntegrationSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminInternalPolicySearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  query: Scalars['String']['input']
+}
+
+export interface QueryAdminInviteSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminMappedControlSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminNarrativeSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminOrgSubscriptionSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminOrganizationSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminOrganizationSettingSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminPersonalAccessTokenSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminProcedureSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminProgramSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminRiskSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminStandardSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminSubcontrolSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminSubscriberSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminTaskSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminTemplateSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminUserSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryAdminUserSettingSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -21795,6 +21843,10 @@ export interface QueryApiTokenArgs {
 }
 
 export interface QueryApiTokenSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -21829,6 +21881,10 @@ export interface QueryContactHistoriesArgs {
 }
 
 export interface QueryContactSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -21868,6 +21924,10 @@ export interface QueryControlImplementationHistoriesArgs {
 }
 
 export interface QueryControlImplementationSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -21894,6 +21954,10 @@ export interface QueryControlObjectiveHistoriesArgs {
 }
 
 export interface QueryControlObjectiveSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -21907,6 +21971,10 @@ export interface QueryControlObjectivesArgs {
 }
 
 export interface QueryControlSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -21933,6 +22001,10 @@ export interface QueryDocumentDataHistoriesArgs {
 }
 
 export interface QueryDocumentDataSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -21968,6 +22040,10 @@ export interface QueryEntityHistoriesArgs {
 }
 
 export interface QueryEntitySearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -21985,6 +22061,10 @@ export interface QueryEntityTypeHistoriesArgs {
 }
 
 export interface QueryEntityTypeSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -22011,6 +22091,10 @@ export interface QueryEventHistoriesArgs {
 }
 
 export interface QueryEventSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -22037,6 +22121,10 @@ export interface QueryEvidenceHistoriesArgs {
 }
 
 export interface QueryEvidenceSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -22063,6 +22151,10 @@ export interface QueryFileHistoriesArgs {
 }
 
 export interface QueryFileSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -22111,6 +22203,10 @@ export interface QueryGroupMembershipsArgs {
 }
 
 export interface QueryGroupSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -22181,6 +22277,10 @@ export interface QueryIntegrationHistoriesArgs {
 }
 
 export interface QueryIntegrationSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -22216,11 +22316,23 @@ export interface QueryInternalPolicyHistoriesArgs {
 }
 
 export interface QueryInternalPolicySearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
 export interface QueryInviteArgs {
   id: Scalars['ID']['input']
+}
+
+export interface QueryInviteSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  query: Scalars['String']['input']
 }
 
 export interface QueryInvitesArgs {
@@ -22246,6 +22358,10 @@ export interface QueryMappedControlHistoriesArgs {
 }
 
 export interface QueryMappedControlSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -22272,6 +22388,10 @@ export interface QueryNarrativeHistoriesArgs {
 }
 
 export interface QueryNarrativeSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -22350,6 +22470,10 @@ export interface QueryOrgSubscriptionHistoriesArgs {
 }
 
 export interface QueryOrgSubscriptionSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -22376,6 +22500,10 @@ export interface QueryOrganizationHistoriesArgs {
 }
 
 export interface QueryOrganizationSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -22393,6 +22521,10 @@ export interface QueryOrganizationSettingHistoriesArgs {
 }
 
 export interface QueryOrganizationSettingSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -22419,6 +22551,10 @@ export interface QueryPersonalAccessTokenArgs {
 }
 
 export interface QueryPersonalAccessTokenSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -22445,6 +22581,10 @@ export interface QueryProcedureHistoriesArgs {
 }
 
 export interface QueryProcedureSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -22493,6 +22633,10 @@ export interface QueryProgramMembershipsArgs {
 }
 
 export interface QueryProgramSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -22519,6 +22663,10 @@ export interface QueryRiskHistoriesArgs {
 }
 
 export interface QueryRiskSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -22532,6 +22680,10 @@ export interface QueryRisksArgs {
 }
 
 export interface QuerySearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -22549,6 +22701,10 @@ export interface QueryStandardHistoriesArgs {
 }
 
 export interface QueryStandardSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -22575,6 +22731,10 @@ export interface QuerySubcontrolHistoriesArgs {
 }
 
 export interface QuerySubcontrolSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -22592,6 +22752,10 @@ export interface QuerySubscriberArgs {
 }
 
 export interface QuerySubscriberSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -22618,6 +22782,10 @@ export interface QueryTaskHistoriesArgs {
 }
 
 export interface QueryTaskSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -22644,6 +22812,10 @@ export interface QueryTemplateHistoriesArgs {
 }
 
 export interface QueryTemplateSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -22683,6 +22855,10 @@ export interface QueryUserHistoriesArgs {
 }
 
 export interface QueryUserSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -22700,6 +22876,10 @@ export interface QueryUserSettingHistoriesArgs {
 }
 
 export interface QueryUserSettingSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
   query: Scalars['String']['input']
 }
 
@@ -23337,11 +23517,6 @@ export enum RiskRiskStatus {
   OPEN = 'OPEN',
 }
 
-export interface RiskSearchResult {
-  __typename?: 'RiskSearchResult'
-  risks?: Maybe<Array<Risk>>
-}
-
 /** Return response for updateRisk mutation */
 export interface RiskUpdatePayload {
   __typename?: 'RiskUpdatePayload'
@@ -23669,47 +23844,44 @@ export interface RiskWhereInput {
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
-export type SearchResult =
-  | ApiTokenSearchResult
-  | ActionPlanSearchResult
-  | ContactSearchResult
-  | ControlImplementationSearchResult
-  | ControlObjectiveSearchResult
-  | ControlSearchResult
-  | DocumentDataSearchResult
-  | EntitySearchResult
-  | EntityTypeSearchResult
-  | EventSearchResult
-  | EvidenceSearchResult
-  | FileSearchResult
-  | GroupSearchResult
-  | IntegrationSearchResult
-  | InternalPolicySearchResult
-  | MappedControlSearchResult
-  | NarrativeSearchResult
-  | OrgSubscriptionSearchResult
-  | OrganizationSearchResult
-  | OrganizationSettingSearchResult
-  | PersonalAccessTokenSearchResult
-  | ProcedureSearchResult
-  | ProgramSearchResult
-  | RiskSearchResult
-  | StandardSearchResult
-  | SubcontrolSearchResult
-  | SubscriberSearchResult
-  | TaskSearchResult
-  | TemplateSearchResult
-  | UserSearchResult
-  | UserSettingSearchResult
-
-export interface SearchResultConnection {
-  __typename?: 'SearchResultConnection'
-  /** A list of nodes with results. */
-  nodes: Array<SearchResult>
+export interface SearchResults {
+  __typename?: 'SearchResults'
+  actionPlans?: Maybe<ActionPlanConnection>
+  apiTokens?: Maybe<ApiTokenConnection>
+  contacts?: Maybe<ContactConnection>
+  controlImplementations?: Maybe<ControlImplementationConnection>
+  controlObjectives?: Maybe<ControlObjectiveConnection>
+  controls?: Maybe<ControlConnection>
+  documentData?: Maybe<DocumentDataConnection>
+  entities?: Maybe<EntityConnection>
+  entityTypes?: Maybe<EntityTypeConnection>
+  events?: Maybe<EventConnection>
+  evidences?: Maybe<EvidenceConnection>
+  files?: Maybe<FileConnection>
+  groups?: Maybe<GroupConnection>
+  integrations?: Maybe<IntegrationConnection>
+  internalPolicies?: Maybe<InternalPolicyConnection>
+  invites?: Maybe<InviteConnection>
+  mappedControls?: Maybe<MappedControlConnection>
+  narratives?: Maybe<NarrativeConnection>
+  orgSubscriptions?: Maybe<OrgSubscriptionConnection>
+  organizationSettings?: Maybe<OrganizationSettingConnection>
+  organizations?: Maybe<OrganizationConnection>
   /** Information to aid in pagination. */
   page: PageInfo
+  personalAccessTokens?: Maybe<PersonalAccessTokenConnection>
+  procedures?: Maybe<ProcedureConnection>
+  programs?: Maybe<ProgramConnection>
+  risks?: Maybe<RiskConnection>
+  standards?: Maybe<StandardConnection>
+  subcontrols?: Maybe<SubcontrolConnection>
+  subscribers?: Maybe<SubscriberConnection>
+  tasks?: Maybe<TaskConnection>
+  templates?: Maybe<TemplateConnection>
   /** Identifies the total count of items in the connection. */
   totalCount: Scalars['Int']['output']
+  userSettings?: Maybe<UserSettingConnection>
+  users?: Maybe<UserConnection>
 }
 
 export interface Standard extends Node {
@@ -24259,11 +24431,6 @@ export enum StandardOrderField {
   short_name = 'short_name',
   standard_type = 'standard_type',
   updated_at = 'updated_at',
-}
-
-export interface StandardSearchResult {
-  __typename?: 'StandardSearchResult'
-  standards?: Maybe<Array<Standard>>
 }
 
 /** StandardStandardStatus is enum for the field status */
@@ -25306,11 +25473,6 @@ export enum SubcontrolOrderField {
   updated_at = 'updated_at',
 }
 
-export interface SubcontrolSearchResult {
-  __typename?: 'SubcontrolSearchResult'
-  subcontrols?: Maybe<Array<Subcontrol>>
-}
-
 /** Return response for updateSubcontrol mutation */
 export interface SubcontrolUpdatePayload {
   __typename?: 'SubcontrolUpdatePayload'
@@ -25766,11 +25928,6 @@ export enum SubscriberOrderField {
   send_attempts = 'send_attempts',
   unsubscribed = 'unsubscribed',
   updated_at = 'updated_at',
-}
-
-export interface SubscriberSearchResult {
-  __typename?: 'SubscriberSearchResult'
-  subscribers?: Maybe<Array<Subscriber>>
 }
 
 /** Return response for updateSubscriber mutation */
@@ -26701,11 +26858,6 @@ export enum TaskOrderField {
   updated_at = 'updated_at',
 }
 
-export interface TaskSearchResult {
-  __typename?: 'TaskSearchResult'
-  tasks?: Maybe<Array<Task>>
-}
-
 /** TaskTaskStatus is enum for the field status */
 export enum TaskTaskStatus {
   COMPLETED = 'COMPLETED',
@@ -27378,11 +27530,6 @@ export enum TemplateOrderField {
   created_at = 'created_at',
   name = 'name',
   updated_at = 'updated_at',
-}
-
-export interface TemplateSearchResult {
-  __typename?: 'TemplateSearchResult'
-  templates?: Maybe<Array<Template>>
 }
 
 /** Return response for updateTemplate mutation */
@@ -29985,11 +30132,6 @@ export enum UserRole {
   USER = 'USER',
 }
 
-export interface UserSearchResult {
-  __typename?: 'UserSearchResult'
-  users?: Maybe<Array<User>>
-}
-
 export interface UserSetting extends Node {
   __typename?: 'UserSetting'
   createdAt?: Maybe<Scalars['Time']['output']>
@@ -30349,11 +30491,6 @@ export interface UserSettingOrder {
 export enum UserSettingOrderField {
   created_at = 'created_at',
   updated_at = 'updated_at',
-}
-
-export interface UserSettingSearchResult {
-  __typename?: 'UserSettingSearchResult'
-  userSettings?: Maybe<Array<UserSetting>>
 }
 
 /** Return response for updateUserSetting mutation */
@@ -31138,6 +31275,7 @@ export type GetAllGroupsQuery = {
   __typename?: 'Query'
   groups: {
     __typename?: 'GroupConnection'
+    totalCount: number
     edges?: Array<{
       __typename?: 'GroupEdge'
       node?: {
@@ -31173,6 +31311,7 @@ export type GetAllGroupsQuery = {
         } | null
       } | null
     } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
   }
 }
 
@@ -31258,32 +31397,44 @@ export type SearchGroupsQueryVariables = Exact<{
 export type SearchGroupsQuery = {
   __typename?: 'Query'
   groupSearch?: {
-    __typename?: 'GroupSearchResult'
-    groups?: Array<{
-      __typename?: 'Group'
-      id: string
-      name: string
-      description?: string | null
-      displayName: string
-      logoURL?: string | null
-      isManaged?: boolean | null
-      tags?: Array<string> | null
-      members?: Array<{
-        __typename?: 'GroupMembership'
+    __typename?: 'GroupConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'GroupEdge'
+      node?: {
+        __typename?: 'Group'
         id: string
-        role: GroupMembershipRole
-        user: {
-          __typename?: 'User'
+        name: string
+        description?: string | null
+        displayName: string
+        logoURL?: string | null
+        isManaged?: boolean | null
+        tags?: Array<string> | null
+        members?: Array<{
+          __typename?: 'GroupMembership'
           id: string
-          firstName?: string | null
-          lastName?: string | null
-          avatarRemoteURL?: string | null
-          role?: UserRole | null
-          avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
-        }
-      }> | null
-      setting?: { __typename?: 'GroupSetting'; visibility: GroupSettingVisibility; joinPolicy: GroupSettingJoinPolicy; syncToSlack?: boolean | null; syncToGithub?: boolean | null; id: string } | null
-    }> | null
+          role: GroupMembershipRole
+          user: {
+            __typename?: 'User'
+            id: string
+            firstName?: string | null
+            lastName?: string | null
+            avatarRemoteURL?: string | null
+            role?: UserRole | null
+            avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+          }
+        }> | null
+        setting?: {
+          __typename?: 'GroupSetting'
+          visibility: GroupSettingVisibility
+          joinPolicy: GroupSettingJoinPolicy
+          syncToSlack?: boolean | null
+          syncToGithub?: boolean | null
+          id: string
+        } | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
   } | null
 }
 
@@ -31365,30 +31516,40 @@ export type GetOrganizationNameByIdQuery = { __typename?: 'Query'; organization:
 
 export type GetSingleOrganizationMembersQueryVariables = Exact<{
   organizationId: Scalars['ID']['input']
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type GetSingleOrganizationMembersQuery = {
   __typename?: 'Query'
   organization: {
     __typename?: 'Organization'
-    members?: Array<{
-      __typename?: 'OrgMembership'
-      id: string
-      createdAt?: any | null
-      role: OrgMembershipRole
-      user: {
-        __typename?: 'User'
-        id: string
-        firstName?: string | null
-        lastName?: string | null
-        authProvider: UserAuthProvider
-        avatarRemoteURL?: string | null
-        email: string
-        role?: UserRole | null
-        createdAt?: any | null
-        avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
-      }
-    }> | null
+    members: {
+      __typename?: 'OrgMembershipConnection'
+      totalCount: number
+      edges?: Array<{
+        __typename?: 'OrgMembershipEdge'
+        node?: {
+          __typename?: 'OrgMembership'
+          id: string
+          createdAt?: any | null
+          role: OrgMembershipRole
+          user: {
+            __typename?: 'User'
+            id: string
+            firstName?: string | null
+            lastName?: string | null
+            authProvider: UserAuthProvider
+            avatarRemoteURL?: string | null
+            email: string
+            role?: UserRole | null
+            createdAt?: any | null
+            avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+          }
+        } | null
+      } | null> | null
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
+    }
   }
 }
 
@@ -31408,7 +31569,7 @@ export type GetAllOrganizationsWithMembersQuery = {
         name: string
         avatarRemoteURL?: string | null
         avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
-        members?: Array<{ __typename?: 'OrgMembership'; role: OrgMembershipRole }> | null
+        members: { __typename?: 'OrgMembershipConnection'; edges?: Array<{ __typename?: 'OrgMembershipEdge'; node?: { __typename?: 'OrgMembership'; role: OrgMembershipRole } | null } | null> | null }
       } | null
     } | null> | null
   }
@@ -31423,10 +31584,12 @@ export type GetInvitesQuery = {
   __typename?: 'Query'
   invites: {
     __typename?: 'InviteConnection'
+    totalCount: number
     edges?: Array<{
       __typename?: 'InviteEdge'
       node?: { __typename?: 'Invite'; id: string; recipient: string; status: InviteInviteStatus; createdAt?: any | null; expires?: any | null; role: InviteRole; sendAttempts: number } | null
     } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; startCursor?: any | null; endCursor?: any | null }
   }
 }
 
@@ -31633,21 +31796,26 @@ export type SearchInternalPoliciesQueryVariables = Exact<{
 export type SearchInternalPoliciesQuery = {
   __typename?: 'Query'
   internalPolicySearch?: {
-    __typename?: 'InternalPolicySearchResult'
-    internalPolicies?: Array<{
-      __typename?: 'InternalPolicy'
-      id: string
-      name: string
-      displayID: string
-      status?: InternalPolicyDocumentStatus | null
-      revision?: string | null
-      updatedAt?: any | null
-      updatedBy?: string | null
-      createdAt?: any | null
-      createdBy?: string | null
-      tags?: Array<string> | null
-      details?: string | null
-    }> | null
+    __typename?: 'InternalPolicyConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'InternalPolicyEdge'
+      node?: {
+        __typename?: 'InternalPolicy'
+        id: string
+        name: string
+        displayID: string
+        status?: InternalPolicyDocumentStatus | null
+        revision?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        tags?: Array<string> | null
+        details?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; startCursor?: any | null; endCursor?: any | null }
   } | null
 }
 
@@ -31763,21 +31931,26 @@ export type SearchProceduresQueryVariables = Exact<{
 export type SearchProceduresQuery = {
   __typename?: 'Query'
   procedureSearch?: {
-    __typename?: 'ProcedureSearchResult'
-    procedures?: Array<{
-      __typename?: 'Procedure'
-      id: string
-      name: string
-      details?: string | null
-      displayID: string
-      status?: ProcedureDocumentStatus | null
-      revision?: string | null
-      updatedAt?: any | null
-      updatedBy?: string | null
-      createdAt?: any | null
-      createdBy?: string | null
-      tags?: Array<string> | null
-    }> | null
+    __typename?: 'ProcedureConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'ProcedureEdge'
+      node?: {
+        __typename?: 'Procedure'
+        id: string
+        name: string
+        details?: string | null
+        displayID: string
+        status?: ProcedureDocumentStatus | null
+        revision?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        tags?: Array<string> | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
   } | null
 }
 
@@ -31973,48 +32146,62 @@ export type UpdateRiskMutationVariables = Exact<{
 
 export type UpdateRiskMutation = { __typename?: 'Mutation'; updateRisk: { __typename?: 'RiskUpdatePayload'; risk: { __typename?: 'Risk'; id: string } } }
 
-export type SearchQueryVariables = Exact<{
+export type SearchqueryQueryVariables = Exact<{
   query: Scalars['String']['input']
 }>
 
-export type SearchQuery = {
+export type SearchqueryQuery = {
   __typename?: 'Query'
   search?: {
-    __typename?: 'SearchResultConnection'
-    totalCount: number
-    nodes: Array<
-      | { __typename?: 'APITokenSearchResult' }
-      | { __typename?: 'ActionPlanSearchResult' }
-      | { __typename?: 'ContactSearchResult' }
-      | { __typename?: 'ControlImplementationSearchResult' }
-      | { __typename?: 'ControlObjectiveSearchResult'; controlObjectives?: Array<{ __typename?: 'ControlObjective'; id: string; name: string }> | null }
-      | { __typename?: 'ControlSearchResult'; controls?: Array<{ __typename?: 'Control'; id: string; refCode: string }> | null }
-      | { __typename?: 'DocumentDataSearchResult' }
-      | { __typename?: 'EntitySearchResult' }
-      | { __typename?: 'EntityTypeSearchResult' }
-      | { __typename?: 'EventSearchResult' }
-      | { __typename?: 'EvidenceSearchResult' }
-      | { __typename?: 'FileSearchResult' }
-      | { __typename?: 'GroupSearchResult'; groups?: Array<{ __typename?: 'Group'; id: string; name: string }> | null }
-      | { __typename?: 'IntegrationSearchResult' }
-      | { __typename?: 'InternalPolicySearchResult' }
-      | { __typename?: 'MappedControlSearchResult' }
-      | { __typename?: 'NarrativeSearchResult' }
-      | { __typename?: 'OrgSubscriptionSearchResult' }
-      | { __typename?: 'OrganizationSearchResult'; organizations?: Array<{ __typename?: 'Organization'; id: string; name: string; displayName: string; avatarRemoteURL?: string | null }> | null }
-      | { __typename?: 'OrganizationSettingSearchResult' }
-      | { __typename?: 'PersonalAccessTokenSearchResult' }
-      | { __typename?: 'ProcedureSearchResult' }
-      | { __typename?: 'ProgramSearchResult'; programs?: Array<{ __typename?: 'Program'; id: string; name: string }> | null }
-      | { __typename?: 'RiskSearchResult'; risks?: Array<{ __typename?: 'Risk'; id: string; name: string }> | null }
-      | { __typename?: 'StandardSearchResult' }
-      | { __typename?: 'SubcontrolSearchResult'; subcontrols?: Array<{ __typename?: 'Subcontrol'; id: string; refCode: string }> | null }
-      | { __typename?: 'SubscriberSearchResult' }
-      | { __typename?: 'TaskSearchResult'; tasks?: Array<{ __typename?: 'Task'; id: string; title: string }> | null }
-      | { __typename?: 'TemplateSearchResult' }
-      | { __typename?: 'UserSearchResult' }
-      | { __typename?: 'UserSettingSearchResult' }
-    >
+    __typename?: 'SearchResults'
+    programs?: {
+      __typename?: 'ProgramConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string } | null } | null> | null
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
+    } | null
+    organizations?: {
+      __typename?: 'OrganizationConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'OrganizationEdge'; node?: { __typename?: 'Organization'; id: string; name: string; displayName: string; avatarRemoteURL?: string | null } | null } | null> | null
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
+    } | null
+    controlObjectives?: {
+      __typename?: 'ControlObjectiveConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string; name: string } | null } | null> | null
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
+    } | null
+    controls?: {
+      __typename?: 'ControlConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
+    } | null
+    subcontrols?: {
+      __typename?: 'SubcontrolConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
+    } | null
+    risks?: {
+      __typename?: 'RiskConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
+    } | null
+    groups?: {
+      __typename?: 'GroupConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; id: string; name: string } | null } | null> | null
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
+    } | null
+    tasks?: {
+      __typename?: 'TaskConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
+    } | null
   } | null
 }
 
@@ -32097,7 +32284,9 @@ export type GetAllSubscribersQuery = {
   __typename?: 'Query'
   subscribers: {
     __typename?: 'SubscriberConnection'
+    totalCount: number
     edges?: Array<{ __typename?: 'SubscriberEdge'; node?: { __typename?: 'Subscriber'; active: boolean; email: string; id: string; verifiedEmail: boolean } | null } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
   }
 }
 
@@ -32120,7 +32309,12 @@ export type SearchSubscribersQueryVariables = Exact<{
 
 export type SearchSubscribersQuery = {
   __typename?: 'Query'
-  subscriberSearch?: { __typename?: 'SubscriberSearchResult'; subscribers?: Array<{ __typename?: 'Subscriber'; active: boolean; email: string; id: string; verifiedEmail: boolean }> | null } | null
+  subscriberSearch?: {
+    __typename?: 'SubscriberConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'SubscriberEdge'; node?: { __typename?: 'Subscriber'; active: boolean; email: string; id: string; verifiedEmail: boolean } | null } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
+  } | null
 }
 
 export type TasksWithFilterQueryVariables = Exact<{
@@ -32371,18 +32565,23 @@ export type SearchTemplatesQueryVariables = Exact<{
 export type SearchTemplatesQuery = {
   __typename?: 'Query'
   templateSearch?: {
-    __typename?: 'TemplateSearchResult'
-    templates?: Array<{
-      __typename?: 'Template'
-      id: string
-      name: string
-      templateType: TemplateDocumentType
-      description?: string | null
-      jsonconfig: any
-      uischema?: any | null
-      createdAt?: any | null
-      updatedAt?: any | null
-    }> | null
+    __typename?: 'TemplateConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'TemplateEdge'
+      node?: {
+        __typename?: 'Template'
+        id: string
+        name: string
+        templateType: TemplateDocumentType
+        description?: string | null
+        jsonconfig: any
+        uischema?: any | null
+        createdAt?: any | null
+        updatedAt?: any | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
   } | null
 }
 
@@ -32450,6 +32649,7 @@ export type GetPersonalAccessTokensQuery = {
   __typename?: 'Query'
   personalAccessTokens: {
     __typename?: 'PersonalAccessTokenConnection'
+    totalCount: number
     edges?: Array<{
       __typename?: 'PersonalAccessTokenEdge'
       node?: {
@@ -32464,6 +32664,7 @@ export type GetPersonalAccessTokensQuery = {
         }
       } | null
     } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; startCursor?: any | null; endCursor?: any | null }
   }
 }
 
@@ -32488,10 +32689,12 @@ export type GetApiTokensQuery = {
   __typename?: 'Query'
   apiTokens: {
     __typename?: 'APITokenConnection'
+    totalCount: number
     edges?: Array<{
       __typename?: 'APITokenEdge'
       node?: { __typename?: 'APIToken'; id: string; name: string; description?: string | null; scopes?: Array<string> | null; expiresAt?: any | null } | null
     } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; startCursor?: any | null; endCursor?: any | null }
   }
 }
 

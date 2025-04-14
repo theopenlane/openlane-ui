@@ -45,6 +45,7 @@ import {
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Variables } from 'graphql-request'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
+import { TPagination } from '@repo/ui/pagination-types'
 
 export const useGetAllOrganizations = () => {
   const { client } = useGraphQLClient()
@@ -65,12 +66,12 @@ export const useGetOrganizationNameById = (organizationId: string) => {
   })
 }
 
-export const useGetSingleOrganizationMembers = (organizationId?: string) => {
+export const useGetSingleOrganizationMembers = ({ organizationId, pagination }: { organizationId?: string; pagination?: TPagination }) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetSingleOrganizationMembersQuery, GetSingleOrganizationMembersQueryVariables>({
-    queryKey: ['organizationsWithMembers', organizationId],
-    queryFn: async () => client.request(GET_SINGLE_ORGANIZATION_MEMBERS, { organizationId }),
+    queryKey: ['organizationsWithMembers', organizationId, pagination?.pageSize, pagination?.page],
+    queryFn: async () => client.request(GET_SINGLE_ORGANIZATION_MEMBERS, { organizationId, ...pagination?.query }),
     enabled: !!organizationId,
   })
 }
@@ -84,12 +85,18 @@ export const useGetAllOrganizationsWithMembers = () => {
   })
 }
 
-export const useGetInvites = (where?: GetInvitesQueryVariables['where'], orderBy?: GetInvitesQueryVariables['orderBy']) => {
+type useGetInvitesProp = {
+  where: GetInvitesQueryVariables['where']
+  orderBy?: GetInvitesQueryVariables['orderBy']
+  pagination?: TPagination
+}
+
+export const useGetInvites = ({ where, orderBy, pagination }: useGetInvitesProp) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetInvitesQuery>({
-    queryKey: ['invites', { where, orderBy }],
-    queryFn: async () => client.request(GET_INVITES, { where, orderBy }),
+    queryKey: ['invites', where, orderBy, pagination?.pageSize, pagination?.page],
+    queryFn: async () => client.request(GET_INVITES, { where, orderBy, ...pagination?.query }),
   })
 }
 
