@@ -2,12 +2,12 @@
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import React, { useEffect, useState } from 'react'
 import { FileUp, Trash2, File, Link } from 'lucide-react'
-import { Tooltip } from '@nextui-org/react'
 import UploadTab from '@/components/pages/protected/evidence/upload/upload-tab'
 import DirectLinkTab from '@/components/pages/protected/evidence/upload/direct-link-tab'
 import { UseFormReturn } from 'react-hook-form'
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import ExistingFilesTab from '@/components/pages/protected/evidence/upload/existing-files-tab'
+import { Tooltip } from '@repo/ui/tooltip'
 
 type TProps = {
   evidenceFiles: (uploadedFiles: TUploadedFile[]) => void
