@@ -63,6 +63,11 @@ export const GET_ALL_PROCEDURES = gql`
           tags
         }
       }
+      pageInfo {
+        endCursor
+        startCursor
+      }
+      totalCount
     }
   }
 `
@@ -104,22 +109,28 @@ export const DELETE_PROCEDURE = gql`
 `
 
 export const SEARCH_PROCEDURES = gql`
-  query SearchProcedures($query: String!) {
-    procedureSearch(query: $query) {
-      procedures {
-        id
-        name
-        details
-        displayID
-
-        status
-        revision
-        updatedAt
-        updatedBy
-        createdAt
-        createdBy
-        tags
+  query SearchProcedures($query: String!, $first: Int, $after: Cursor) {
+    procedureSearch(query: $query, first: $first, after: $after) {
+      edges {
+        node {
+          id
+          name
+          details
+          displayID
+          status
+          revision
+          updatedAt
+          updatedBy
+          createdAt
+          createdBy
+          tags
+        }
       }
+      pageInfo {
+        endCursor
+        startCursor
+      }
+      totalCount
     }
   }
 `

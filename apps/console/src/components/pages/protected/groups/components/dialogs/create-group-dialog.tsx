@@ -39,11 +39,12 @@ const CreateGroupDialog = ({ triggerText }: MyGroupsDialogProps) => {
   const { successNotification, errorNotification } = useNotification()
 
   const { data: membersData } = useGetSingleOrganizationMembers(session?.user.activeOrganizationId)
-  const membersOptions = membersData?.organization?.members
-    ?.filter((member) => member.user.id !== session?.user.userId)
+  const membersOptions = membersData?.organization?.members?.edges
+    ?.filter((member) => member?.node?.user?.id != session?.user.userId)
     .map((member) => ({
-      value: member.user.id,
-      label: `${member.user.firstName} ${member.user.lastName}`,
+      value: member?.node?.user?.id,
+      label: `${member?.node?.user?.firstName} ${member?.node?.user?.lastName}`,
+      membershipId: member?.node?.user?.id,
     }))
 
   const {
@@ -125,6 +126,7 @@ const CreateGroupDialog = ({ triggerText }: MyGroupsDialogProps) => {
               Assign member(s) to the group:
             </Label>
             <MultipleSelector
+              //  @ts-ignore todo mateo: fix type
               defaultOptions={membersOptions}
               onChange={(selected) =>
                 setValue(

@@ -28,7 +28,7 @@ export const TemplateList = () => {
     templateType: TemplateDocumentType.ROOTTEMPLATE,
   }
 
-  const { data: allTemplates, isLoading, isError } = useFilterTemplates(whereFilter)
+  const { data: allTemplates, isLoading, isError } = useFilterTemplates({ where: whereFilter })
 
   const formSchema = z.object({
     templateId: z.string(),

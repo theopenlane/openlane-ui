@@ -19,13 +19,21 @@ import {
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task.ts'
+import { TPagination } from '@repo/ui/pagination-types'
+import Pagination from '@repo/ui/pagination'
 
-export const useTasksWithFilter = (where?: TasksWithFilterQueryVariables['where'], orderBy?: TasksWithFilterQueryVariables['orderBy']) => {
+type GetAllTasksArgs = {
+  where?: TasksWithFilterQueryVariables['where']
+  orderBy?: TasksWithFilterQueryVariables['orderBy']
+  pagination?: TPagination
+}
+
+export const useTasksWithFilter = ({ where, orderBy, pagination }: GetAllTasksArgs) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<TasksWithFilterQuery, unknown>({
-    queryKey: ['tasks', { where, orderBy }],
-    queryFn: async () => client.request(TASKS_WITH_FILTER, { where, orderBy }),
+    queryKey: ['tasks', where, orderBy, pagination?.page, pagination?.pageSize],
+    queryFn: async () => client.request(TASKS_WITH_FILTER, { where, orderBy, ...pagination?.query }),
     enabled: Boolean(where || orderBy),
   })
 

@@ -21,6 +21,11 @@ export const GET_ALL_SUBSCRIBERS = gql`
           verifiedEmail
         }
       }
+      pageInfo {
+        endCursor
+        startCursor
+      }
+      totalCount
     }
   }
 `
@@ -46,12 +51,19 @@ export const UNSUBSCRIBE_MUTATION = gql`
 export const SEARCH_SUBSCRIBERS = gql`
   query SearchSubscribers($query: String!) {
     subscriberSearch(query: $query) {
-      subscribers {
-        active
-        email
-        id
-        verifiedEmail
+      edges {
+        node {
+          active
+          email
+          id
+          verifiedEmail
+        }
       }
+      pageInfo {
+        endCursor
+        startCursor
+      }
+      totalCount
     }
   }
 `

@@ -15,12 +15,24 @@ import {
   GetApiTokensQueryVariables,
   GetPersonalAccessTokensQueryVariables,
 } from '@repo/codegen/src/schema'
+import { TPagination } from '@repo/ui/pagination-types'
 
-export const useGetPersonalAccessTokens = (where?: GetPersonalAccessTokensQueryVariables['where'], orderBy?: GetPersonalAccessTokensQueryVariables['orderBy']) => {
+type UseGetPersonalAccessTokensArgs = {
+  where?: GetPersonalAccessTokensQueryVariables['where']
+  orderBy?: GetPersonalAccessTokensQueryVariables['orderBy']
+  pagination?: TPagination
+}
+
+export const useGetPersonalAccessTokens = ({ where, orderBy, pagination }: UseGetPersonalAccessTokensArgs) => {
   const { client } = useGraphQLClient()
-  return useQuery<GetPersonalAccessTokensQuery, unknown>({
-    queryKey: ['personalAccessTokens', { where, orderBy }],
-    queryFn: async () => client.request(GET_PERSONAL_ACCESS_TOKENS, { where, orderBy }),
+  return useQuery<GetPersonalAccessTokensQuery>({
+    queryKey: ['personalAccessTokens', where, orderBy, pagination?.pageSize, pagination?.page],
+    queryFn: async () =>
+      client.request(GET_PERSONAL_ACCESS_TOKENS, {
+        where,
+        orderBy,
+        ...pagination?.query,
+      }),
   })
 }
 
@@ -44,11 +56,22 @@ export const useDeletePersonalAccessToken = () => {
   })
 }
 
-export const useGetApiTokens = (where?: GetApiTokensQueryVariables['where'], orderBy?: GetApiTokensQueryVariables['orderBy']) => {
+type UseGetApiTokensArgs = {
+  where?: GetApiTokensQueryVariables['where']
+  orderBy?: GetApiTokensQueryVariables['orderBy']
+  pagination?: TPagination
+}
+
+export const useGetApiTokens = ({ where, orderBy, pagination }: UseGetApiTokensArgs) => {
   const { client } = useGraphQLClient()
-  return useQuery<GetApiTokensQuery, unknown>({
-    queryKey: ['apiTokens', { where, orderBy }],
-    queryFn: async () => client.request(GET_API_TOKENS, { where, orderBy }),
+  return useQuery<GetApiTokensQuery>({
+    queryKey: ['apiTokens', where, orderBy, pagination?.pageSize, pagination?.page],
+    queryFn: async () =>
+      client.request(GET_API_TOKENS, {
+        where,
+        orderBy,
+        ...pagination?.query,
+      }),
   })
 }
 

@@ -1,6 +1,6 @@
 import React from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
-import ControlsTable from '@/components/pages/protected/controls/controls-table'
+import ControlsTable from '@/components/pages/protected/controls/table/controls-table'
 
 const Page: React.FC = () => {
   return (

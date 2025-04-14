@@ -22,12 +22,12 @@ const Page: React.FC = () => {
   }, [searchParams, setSelectedTask])
 
   useEffect(() => {
-    const members = membersData?.organization?.members?.map(
+    const members = membersData?.organization?.members?.edges?.map(
       (member) =>
         ({
-          value: member.user.id,
-          label: `${member.user.firstName} ${member.user.lastName}`,
-          membershipId: member.id,
+          value: member?.node?.user?.id,
+          label: `${member?.node?.user?.firstName} ${member?.node?.user?.lastName}`,
+          membershipId: member?.node?.user.id,
         }) as TOrgMembers,
     )
     setOrgMembers(members)

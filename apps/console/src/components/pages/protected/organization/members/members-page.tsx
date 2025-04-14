@@ -15,7 +15,7 @@ const MembersPage: React.FC = () => {
   const defaultTab = 'members'
   const [activeTab, setActiveTab] = useState(defaultTab)
   const { data: session } = useSession()
-  const { data } = useGetInvites()
+  const { data } = useGetInvites({ where: {} })
 
   // Check if the user can invite admins or only members
   const { data: inviteAdminPermissions, error } = useUserCanInviteAdmins(session)

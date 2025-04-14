@@ -20,6 +20,7 @@ import {
   Template,
 } from '@repo/codegen/src/schema'
 import { useDebounce } from '../../../../../packages/ui/src/hooks/use-debounce'
+import { TPagination } from '@repo/ui/pagination-types'
 
 export const useGetAllTemplates = () => {
   const { client } = useGraphQLClient()
@@ -30,44 +31,79 @@ export const useGetAllTemplates = () => {
   })
 }
 
-export const useFilteredTemplates = (searchQuery: string, where?: FilterTemplatesQueryVariables['where'], orderBy?: FilterTemplatesQueryVariables['orderBy']) => {
-  const debouncedSearchTerm = useDebounce(searchQuery, 300)
-  const { templates: allTemplates, isLoading: isFetchingAll, ...allQueryRest } = useFilterTemplates(where, orderBy)
-  const { templates: searchTemplatesRaw, isLoading: isSearching, ...searchQueryRest } = useSearchTemplates(debouncedSearchTerm)
+type UseFilteredTemplatesArgs = {
+  search: string
+  where?: FilterTemplatesQueryVariables['where']
+  orderBy?: FilterTemplatesQueryVariables['orderBy']
+  pagination?: TPagination
+}
+
+export const useFilteredTemplates = ({ search, where, orderBy, pagination }: UseFilteredTemplatesArgs) => {
+  const debouncedSearchTerm = useDebounce(search, 300)
+
+  const { templates: allTemplates, isLoading: isFetchingAll, data: allData, ...allQueryRest } = useFilterTemplates({ where, orderBy, pagination })
+
+  const { templates: searchTemplatesRaw, isLoading: isSearching, data: searchData, ...searchQueryRest } = useSearchTemplates({ search: debouncedSearchTerm, pagination })
+
   const showSearch = !!debouncedSearchTerm
-  const filteredAndOrderedTemplates = showSearch ? allTemplates?.filter((proc) => searchTemplatesRaw?.some((searchProc) => searchProc.id === proc.id)) : allTemplates
   const isLoading = showSearch ? isSearching : isFetchingAll
+
+  const filteredAndOrderedTemplates = showSearch ? allTemplates?.filter((template) => searchTemplatesRaw?.some((searchTemplate) => searchTemplate.id === template.id)) : allTemplates
+
+  const paginationMeta = () => {
+    if (!showSearch) {
+      return {
+        totalCount: allData?.templates?.totalCount ?? 0,
+        pageInfo: allData?.templates?.pageInfo,
+        isLoading,
+      }
+    }
+
+    return {
+      totalCount: searchData?.templateSearch?.totalCount ?? 0,
+      pageInfo: searchData?.templateSearch?.pageInfo,
+      isLoading,
+    }
+  }
 
   return {
     templates: filteredAndOrderedTemplates,
     isLoading,
+    paginationMeta: paginationMeta(),
     ...(showSearch ? searchQueryRest : allQueryRest),
   }
 }
 
-export function useSearchTemplates(searchQuery: string) {
+export function useSearchTemplates({ search, pagination }: { search: string; pagination?: TPagination }) {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<SearchTemplatesQuery, unknown>({
-    queryKey: ['searchTemplates', searchQuery],
+    queryKey: ['searchTemplates', search, pagination?.pageSize, pagination?.page],
     queryFn: async () =>
       client.request<SearchTemplatesQuery, SearchTemplatesQueryVariables>(SEARCH_TEMPLATE, {
-        query: searchQuery,
+        query: search,
+        ...pagination?.query,
       }),
-    enabled: !!searchQuery,
+    enabled: !!search,
   })
 
-  const templates = (queryResult.data?.templateSearch?.templates ?? []) as Template[]
+  const templates = (queryResult.data?.templateSearch ?? []) as Template[]
 
   return { ...queryResult, templates }
 }
 
-export const useFilterTemplates = (where?: FilterTemplatesQueryVariables['where'], orderBy?: FilterTemplatesQueryVariables['orderBy']) => {
+type useFilterTemplatesArgs = {
+  where?: FilterTemplatesQueryVariables['where']
+  orderBy?: FilterTemplatesQueryVariables['orderBy']
+  pagination?: TPagination
+}
+
+export const useFilterTemplates = ({ where, orderBy, pagination }: useFilterTemplatesArgs) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<FilterTemplatesQuery>({
-    queryKey: ['templates', 'filter', { where, orderBy }],
-    queryFn: () => client.request(FILTER_TEMPLATES, { where, orderBy }),
+    queryKey: ['templates', where, orderBy, pagination?.pageSize, pagination?.page],
+    queryFn: () => client.request(FILTER_TEMPLATES, { where, orderBy, ...pagination?.query }),
     enabled: where !== undefined,
   })
 

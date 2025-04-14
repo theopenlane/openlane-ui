@@ -35,8 +35,9 @@ export const DELETE_INTERNAL_POLICY = gql`
 `
 
 export const GET_INTERNAL_POLICIES_LIST = gql`
-  query GetInternalPoliciesList($orderBy: [InternalPolicyOrder!], $where: InternalPolicyWhereInput) {
-    internalPolicies(where: $where, orderBy: $orderBy) {
+  query GetInternalPoliciesList($orderBy: [InternalPolicyOrder!], $where: InternalPolicyWhereInput, $first: Int, $after: Cursor) {
+    internalPolicies(where: $where, orderBy: $orderBy, first: $first, after: $after) {
+      totalCount
       edges {
         node {
           id
@@ -52,6 +53,11 @@ export const GET_INTERNAL_POLICIES_LIST = gql`
           details
         }
       }
+      pageInfo {
+        startCursor
+        endCursor
+      }
+      totalCount
     }
   }
 `
@@ -107,19 +113,26 @@ export const GET_INTERNAL_POLICY_DETAILS_BY_ID = gql`
 export const SEARCH_INTERNAL_POLICIES = gql`
   query SearchInternalPolicies($query: String!) {
     internalPolicySearch(query: $query) {
-      internalPolicies {
-        id
-        name
-        displayID
-        status
-        revision
-        updatedAt
-        updatedBy
-        createdAt
-        createdBy
-        tags
-        details
+      edges {
+        node {
+          id
+          name
+          displayID
+          status
+          revision
+          updatedAt
+          updatedBy
+          createdAt
+          createdBy
+          tags
+          details
+        }
       }
+      pageInfo {
+        startCursor
+        endCursor
+      }
+      totalCount
     }
   }
 `

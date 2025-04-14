@@ -7,8 +7,8 @@ export type TPagination = {
 }
 
 export type TPageInfo = {
-  hasNextPage: boolean
-  hasPreviousPage: boolean
   endCursor?: any | null
   startCursor?: any | null
 }
+
+export type TPaginationMeta = { totalCount?: number; pageInfo?: TPageInfo; isLoading?: boolean }

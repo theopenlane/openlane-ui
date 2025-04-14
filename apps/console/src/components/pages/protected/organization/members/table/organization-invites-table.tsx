@@ -7,6 +7,8 @@ import { invitesColumns } from '@/components/pages/protected/organization/member
 import OrganizationInvitesTableToolbar from '@/components/pages/protected/organization/members/table/organization-invites-table-toolbar.tsx'
 import { useMemo, useState } from 'react'
 import { INVITES_SORT_FIELDS } from '@/components/pages/protected/organization/members/table/table-config.ts'
+import { TPagination } from '@repo/ui/pagination-types'
+import { DEFAULT_PAGINATION } from '@/constants/pagination'
 
 type InviteNode = {
   __typename?: 'Invite' | undefined
@@ -20,6 +22,8 @@ type InviteNode = {
 
 export const OrganizationInvitesTable = () => {
   const [filters, setFilters] = useState<Record<string, any>>({})
+  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+
   const [orderBy, setOrderBy] = useState<GetInvitesQueryVariables['orderBy']>([
     {
       field: InviteOrderField.created_at,
@@ -39,7 +43,7 @@ export const OrganizationInvitesTable = () => {
     return orderBy || undefined
   }, [orderBy])
 
-  const { data, isLoading, isError } = useGetInvites(whereFilter, orderByFilter)
+  const { data, isLoading, isError, isFetching } = useGetInvites({ where: whereFilter, orderBy: orderByFilter, pagination })
 
   if (isLoading) return <p>Loading...</p>
   if (isError || !data) return null
@@ -49,7 +53,16 @@ export const OrganizationInvitesTable = () => {
   return (
     <>
       <OrganizationInvitesTableToolbar onFilterChange={setFilters} />
-      <DataTable sortFields={INVITES_SORT_FIELDS} onSortChange={setOrderBy} columns={invitesColumns} data={invites} noResultsText="No invites found" />
+      <DataTable
+        sortFields={INVITES_SORT_FIELDS}
+        onSortChange={setOrderBy}
+        columns={invitesColumns}
+        data={invites}
+        noResultsText="No invites found"
+        pagination={pagination}
+        onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
+        paginationMeta={{ totalCount: data?.invites.totalCount, pageInfo: data.invites?.pageInfo, isLoading: isFetching }}
+      />
     </>
   )
 }

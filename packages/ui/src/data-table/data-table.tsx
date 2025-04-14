@@ -10,7 +10,7 @@ import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMe
 import { ArrowDown, ArrowUp, ArrowUpDown, EyeIcon } from 'lucide-react'
 import { OrderDirection } from '@repo/codegen/src/schema.ts'
 import Pagination from '../pagination/pagination'
-import { TPagination, TPageInfo } from '../pagination/types'
+import { TPagination, TPaginationMeta } from '../pagination/types'
 
 type CustomColumnDef<TData, TValue> = ColumnDef<TData, TValue> & {
   meta?: {
@@ -31,9 +31,7 @@ interface DataTableProps<TData, TValue> {
   onSortChange?: (sortCondition: any[]) => void
   pagination?: TPagination | null
   onPaginationChange?: (arg: TPagination) => void
-  totalCount?: number
-  pageInfo?: TPageInfo
-  isLoading?: boolean
+  paginationMeta?: TPaginationMeta
 }
 
 export function DataTable<TData, TValue>({
@@ -49,9 +47,7 @@ export function DataTable<TData, TValue>({
   onSortChange,
   pagination,
   onPaginationChange,
-  totalCount,
-  pageInfo,
-  isLoading,
+  paginationMeta,
 }: DataTableProps<TData, TValue>) {
   const [sortConditions, setSortConditions] = useState<{ field: string; direction?: OrderDirection }[]>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -60,6 +56,8 @@ export function DataTable<TData, TValue>({
 
   const currentPage = pagination?.page || 1
   const currentPageSize = pagination?.pageSize || 10
+
+  const { totalCount, pageInfo, isLoading } = paginationMeta || {}
 
   const totalPages = useMemo(() => {
     return totalCount ? Math.ceil(totalCount / currentPageSize) : 1
