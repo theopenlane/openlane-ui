@@ -1,12 +1,12 @@
 'use client'
 
 import { NextPage } from 'next'
-import { PolicyPage } from '@/components/pages/protected/policies/policy-page'
 import { useParams } from 'next/navigation'
+import EditPolicyPage from '@/components/pages/protected/policies/edit-policy-page.tsx'
 
-export const Page: NextPage = () => {
+const Page: NextPage = () => {
   const { id } = useParams()
-  return <PolicyPage policyId={id as string} />
+  return <EditPolicyPage policyId={id as string} />
 }
 
 export default Page

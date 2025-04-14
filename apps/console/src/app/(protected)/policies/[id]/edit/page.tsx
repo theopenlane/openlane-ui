@@ -2,11 +2,11 @@
 
 import { NextPage } from 'next'
 import { useParams } from 'next/navigation'
-import EditPolicy from '@/components/pages/protected/policies/edit-policy.tsx'
+import EditPolicyPage from '@/components/pages/protected/policies/edit-policy-page.tsx'
 
-export const Page: NextPage = () => {
+const Page: NextPage = () => {
   const { id } = useParams()
-  return <EditPolicy policyId={id as string} />
+  return <EditPolicyPage policyId={id as string} />
 }
 
 export default Page

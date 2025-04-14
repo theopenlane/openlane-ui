@@ -3,7 +3,7 @@ import { Input, InputRow } from '@repo/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { Info, InfoIcon } from 'lucide-react'
-import React from 'react'
+import React, { useEffect } from 'react'
 import useFormSchema, { CreatePolicyFormData } from '@/components/pages/protected/policies/hooks/use-form-schema.ts'
 import StatusCard from '@/components/pages/protected/policies/cards/status-card.tsx'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
@@ -13,19 +13,40 @@ import TagsCard from '@/components/pages/protected/policies/cards/tags-card.tsx'
 import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
 import { Button } from '@repo/ui/button'
 import { useCreateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
-import { CreateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
+import { CreateInternalPolicyInput, InternalPolicy, InternalPolicyDocumentStatus, InternalPolicyFrequency } from '@repo/codegen/src/schema.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { usePolicy } from '@/components/pages/protected/policies/hooks/use-policy.tsx'
 import { useRouter } from 'next/navigation'
 
-const CreatePolicyForm = () => {
+type TCreatePolicyFormProps = {
+  policy?: InternalPolicy
+}
+
+const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   const { form } = useFormSchema()
   const router = useRouter()
   const { mutateAsync: createPolicy, isPending: isSubmitting } = useCreateInternalPolicy()
   const plateEditorHelper = usePlateEditor()
   const { successNotification, errorNotification } = useNotification()
   const associationsState = usePolicy((state) => state.associations)
+  const isEditable = !!policy
+
+  useEffect(() => {
+    console.log(policy)
+    if (policy) {
+      form.reset({
+        tags: policy.tags ?? [],
+        details: policy?.details ?? '',
+        name: policy.name,
+        approvalRequired: policy?.approvalRequired ?? true,
+        status: policy.status ?? InternalPolicyDocumentStatus.DRAFT,
+        policyType: policy.policyType ?? '',
+        reviewDue: policy.reviewDue,
+        reviewFrequency: policy.reviewFrequency ?? InternalPolicyFrequency.YEARLY,
+      })
+    }
+  }, [])
 
   const onSubmitHandler = async (data: CreatePolicyFormData) => {
     try {

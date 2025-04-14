@@ -92,6 +92,39 @@ export const INTERNAL_POLICY_BY_ID = gql`
         }
       }
     }
+    controls {
+      edges {
+        node {
+          id
+          displayID
+          refCode
+        }
+      }
+    }
+    programs {
+      edges {
+        node {
+          id
+          displayID
+        }
+      }
+    }
+    tasks {
+      edges {
+        node {
+          id
+          displayID
+        }
+      }
+    }
+    controlObjectives {
+      edges {
+        node {
+          id
+          displayID
+        }
+      }
+    }
   }
 `
 
