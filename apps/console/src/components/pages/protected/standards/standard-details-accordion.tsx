@@ -12,7 +12,7 @@ import { Input } from '@repo/ui/input'
 import { useGetAllControls } from '@/lib/graphql-hooks/controls'
 import { useParams } from 'next/navigation'
 import { useDebounce } from '@uidotdev/usehooks'
-import { ControlFieldsFragment } from '@repo/codegen/src/schema'
+import { ControlListFieldsFragment } from '@repo/codegen/src/schema'
 import { useGetAllPrograms } from '@/lib/graphql-hooks/programs'
 
 const generateWhere = (id: string, searchValue: string) => ({
@@ -42,7 +42,7 @@ const StandardDetailsAccordion: FC = () => {
   const groupedControls = useMemo(() => {
     if (!data?.controls?.edges) return {}
 
-    return data.controls.edges.reduce<Record<string, ControlFieldsFragment[]>>((acc, edge) => {
+    return data.controls.edges.reduce<Record<string, ControlListFieldsFragment[]>>((acc, edge) => {
       const control = edge?.node
       if (!control) return acc
 

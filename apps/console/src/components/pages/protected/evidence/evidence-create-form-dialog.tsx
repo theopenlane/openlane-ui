@@ -11,6 +11,7 @@ import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-
 
 type TProps = {
   formData?: TFormEvidenceData
+  excludeObjectTypes?: ObjectTypeObjects[]
 }
 
 const EvidenceCreateFormDialog: React.FC<TProps> = (props: TProps) => {
@@ -28,20 +29,10 @@ const EvidenceCreateFormDialog: React.FC<TProps> = (props: TProps) => {
   }
 
   const config = useMemo(() => {
-    if (path.startsWith('/controls')) {
-      return {
-        button: (
-          <Button className="h-8 !px-2" onClick={() => setIsOpen(true)}>
-            Upload Evidence
-          </Button>
-        ),
-        title: `Submit Evidence for Control ${controlData?.control?.refCode}`,
-      }
-    }
     if (props.formData) {
       return {
         button: (
-          <Button icon={<FilePlus />} iconPosition="left" onClick={() => setIsOpen(true)}>
+          <Button className="h-8 !px-2" icon={<FilePlus />} iconPosition="left" onClick={() => setIsOpen(true)}>
             Upload File
           </Button>
         ),
@@ -65,11 +56,7 @@ const EvidenceCreateFormDialog: React.FC<TProps> = (props: TProps) => {
           <DialogTitle>{config.title}</DialogTitle>
         </DialogHeader>
         <div className={formInput()}>
-          <EvidenceCreateForm
-            formData={props.formData}
-            onEvidenceCreateSuccess={handleSuccess}
-            excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.RISK, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.GROUP, ObjectTypeObjects.INTERNAL_POLICY]}
-          />
+          <EvidenceCreateForm formData={props.formData} onEvidenceCreateSuccess={handleSuccess} excludeObjectTypes={props.excludeObjectTypes ?? []} />
         </div>
       </DialogContent>
     </Dialog>
