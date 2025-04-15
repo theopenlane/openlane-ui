@@ -8,7 +8,6 @@ type TEditPolicyPage = {
 
 const EditPolicyPage: React.FC<TEditPolicyPage> = ({ policyId }) => {
   const { data, isLoading, isError } = useGetInternalPolicyDetailsById(policyId)
-  console.log(data)
 
   return (
     <>

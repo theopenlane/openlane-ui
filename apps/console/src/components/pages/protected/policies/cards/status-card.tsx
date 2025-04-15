@@ -48,10 +48,10 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
                   <Select
                     value={field.value}
                     onValueChange={(value) => {
-                      field.onChange(value)
+                      value && field.onChange(value)
                     }}
                   >
-                    <SelectTrigger className="w-full">{statusOptions.find((item) => item.value === form.getValues('status'))?.label || 'Select status'}</SelectTrigger>
+                    <SelectTrigger className="w-full">{statusOptions.find((item) => item.value === field.value)?.label}</SelectTrigger>
                     <SelectContent>
                       {statusOptions.map((option) => (
                         <SelectItem key={option.value} value={option.value}>
@@ -120,10 +120,10 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
                   <Select
                     value={field.value.toString()}
                     onValueChange={(value) => {
-                      field.onChange(value)
+                      value && field.onChange(value)
                     }}
                   >
-                    <SelectTrigger className="w-full">{form.getValues('reviewFrequency')?.toString()}</SelectTrigger>
+                    <SelectTrigger className="w-full">{reviewFrequencyOptions.find((item) => item.value === field.value)?.label}</SelectTrigger>
                     <SelectContent>
                       {reviewFrequencyOptions.map((option) => (
                         <SelectItem key={option.value} value={option.value}>
