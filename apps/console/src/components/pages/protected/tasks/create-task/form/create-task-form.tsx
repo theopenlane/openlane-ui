@@ -34,7 +34,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
   const { successNotification, errorNotification } = useNotification()
   const taskTypeOptions = Object.values(TaskTypes)
   const { mutateAsync: createTask, isPending: isSubmitting } = useCreateTask()
-  const { data: membersData } = useGetSingleOrganizationMembers(session?.user.activeOrganizationId)
+  const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
 
   const membersOptions = membersData?.organization?.members?.edges?.map((member) => ({
     value: member?.node?.user?.id,
