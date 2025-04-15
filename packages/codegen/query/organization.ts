@@ -5,11 +5,13 @@ export const GET_ALL_ORGANIZATIONS = gql`
     organizations {
       edges {
         node {
+          id
           name
           displayName
           avatarRemoteURL
           personalOrg
           avatarFile {
+            id
             presignedURL
           }
         }
@@ -30,7 +32,25 @@ export const GET_ORGANIZATION_NAME_BY_ID = gql`
 export const GET_SINGLE_ORGANIZATION_MEMBERS = gql`
   query GetSingleOrganizationMembers($organizationId: ID!) {
     organization(id: $organizationId) {
-      id
+      members {
+        id
+        createdAt
+        role
+        user {
+          id
+          firstName
+          lastName
+          authProvider
+          avatarRemoteURL
+          email
+          role
+          createdAt
+          avatarFile {
+            id
+            presignedURL
+          }
+        }
+      }
     }
   }
 `
@@ -49,6 +69,9 @@ export const GET_ALL_ORGANIZATIONS_WITH_MEMBERS = gql`
             id
             presignedURL
           }
+          members {
+            role
+          }
         }
       }
     }
@@ -65,6 +88,7 @@ export const GET_INVITES = gql`
           status
           createdAt
           expires
+          role
           sendAttempts
         }
       }
