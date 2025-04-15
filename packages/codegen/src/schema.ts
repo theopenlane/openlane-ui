@@ -32725,6 +32725,7 @@ export type GetUserProfileQuery = {
       status: UserSettingUserStatus
       tags?: Array<string> | null
       isTfaEnabled?: boolean | null
+      isWebauthnAllowed?: boolean | null
       defaultOrg?: { __typename?: 'Organization'; id: string; displayName: string } | null
     }
   }

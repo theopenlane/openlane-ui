@@ -1,4 +1,5 @@
 'use client'
+
 import React, { Suspense, useMemo, useState } from 'react'
 import { ProfileNameForm } from './profile-name-form'
 import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
@@ -6,7 +7,6 @@ import { useSession } from 'next-auth/react'
 import { useNotification } from '@/hooks/useNotification'
 import DefaultOrgForm from './default-org-form'
 import { Loader } from 'lucide-react'
-
 import QRCodeDialog from './qrcode-dialog'
 import { Button } from '@repo/ui/button'
 import { Panel, PanelHeader } from '@repo/ui/panel'
@@ -128,7 +128,65 @@ const ProfilePage = () => {
     setRegeneratedCodes(resp?.updateTFASetting?.recoveryCodes || null)
   }
 
-  const config = useMemo(() => {
+  const twoFAConfig = useMemo(() => {
+    if (!tfaSettings || !isVerified) {
+      return {
+        badge: <Badge variant="secondary">Recommend</Badge>,
+        text: <p className="text-sm">A TOTP method has not been setup for your account.</p>,
+        buttons: [
+          <Button key={0} className="mx-10 w-24" onClick={handleConfigure}>
+            Configure
+          </Button>,
+        ],
+      }
+    }
+
+    if (userData?.user.setting.isTfaEnabled) {
+      return {
+        badge: <Badge variant="default">Enabled</Badge>,
+        text: (
+          <p className="text-sm">
+            A TOTP method has been added for your account. Ensure you have your recovery codes stored, or{' '}
+            <span className="text-blue-400 cursor-pointer" onClick={regenerateCodes}>
+              regenerate&nbsp;
+            </span>
+            them now.
+          </p>
+        ),
+        buttons: [
+          <Button key={0} className="mx-10 w-24" onClick={() => handleTfaChange(false)}>
+            Disable
+          </Button>,
+          <Button key={1} variant="redOutline" className="mx-10 w-24" onClick={removeTfa}>
+            Remove
+          </Button>,
+        ],
+      }
+    }
+
+    return {
+      badge: <Badge variant="destructive">Disabled</Badge>,
+      text: (
+        <p className="text-sm">
+          A TOTP method has been added for your account. Ensure you have your recovery codes stored, or{' '}
+          <span className="text-blue-400 cursor-pointer" onClick={regenerateCodes}>
+            regenerate&nbsp;
+          </span>
+          them now.
+        </p>
+      ),
+      buttons: [
+        <Button key={0} className="mx-10 w-24" onClick={() => handleTfaChange(true)}>
+          Enable
+        </Button>,
+        <Button key={1} variant="redOutline" className="mx-10 w-24" onClick={removeTfa}>
+          Remove
+        </Button>,
+      ],
+    }
+  }, [tfaSettings, isVerified, userData?.user.setting.isTfaEnabled])
+
+  const passKeyConfig = useMemo(() => {
     if (!tfaSettings || !isVerified) {
       return {
         badge: <Badge variant="secondary">Recommend</Badge>,
@@ -202,13 +260,13 @@ const ProfilePage = () => {
               <div className="flex flex-col gap-2">
                 <div className="flex gap-2">
                   <h2 className="text-lg">Mobile App Authentication</h2>
-                  {config?.badge}
+                  {twoFAConfig?.badge}
                 </div>
-                {config?.text}
+                {twoFAConfig?.text}
               </div>
             </div>
           </div>
-          <div className="rounded-r-lg bg-card border flex items-center justify-center flex-col p-3 gap-2">{config?.buttons}</div>
+          <div className="rounded-r-lg bg-card border flex items-center justify-center flex-col p-3 gap-2">{twoFAConfig?.buttons}</div>
         </div>
       </Panel>
 
@@ -225,6 +283,25 @@ const ProfilePage = () => {
           regeneratedCodes={regeneratedCodes}
         />
       )}
+
+      <Panel>
+        <PanelHeader heading="Passkeys and security keys" noBorder />
+        <div className="flex w-full justify-between">
+          <div className="rounded-l-lg bg-card border flex-1">
+            <div className="flex p-3 justify-between items-center">
+              <div className="flex flex-col gap-2">
+                <div className="flex gap-2">
+                  <h2 className="text-lg">Mobile App Authentication</h2>
+                  {passKeyConfig?.badge}
+                </div>
+                {passKeyConfig?.text}
+              </div>
+            </div>
+          </div>
+          <div className="rounded-r-lg bg-card border flex items-center justify-center flex-col p-3 gap-2">{passKeyConfig?.buttons}</div>
+        </div>
+      </Panel>
+
       <Suspense fallback={<Loader />}>
         <DefaultOrgForm />
       </Suspense>
