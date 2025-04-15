@@ -12,7 +12,7 @@ const Page: React.FC = () => {
   const { setSelectedTask, setOrgMembers } = useTaskStore()
   const searchParams = useSearchParams()
   const { data: session } = useSession()
-  const { data: membersData } = useGetSingleOrganizationMembers(session?.user.activeOrganizationId)
+  const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
 
   useEffect(() => {
     const taskId = searchParams.get('taskId')
