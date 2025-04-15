@@ -22,7 +22,7 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
 
   const where = {
     assigneeID: userId,
-    dueLTE: dueSoonLimit,
+    dueLTE: upcomingUpper,
     hasProgramWith: programId ? [{ id: programId }] : undefined,
   }
 
@@ -34,7 +34,6 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
 
   const dueSoonTasks = tasks.filter((task) => isAfter(new Date(task.due), now) && isBefore(new Date(task.due), dueSoonLimit))
   const upcomingTasks = tasks.filter((task) => isAfter(new Date(task.due), dueSoonLimit) && isBefore(new Date(task.due), upcomingUpper))
-
   dueSoonTasks.sort((a, b) => new Date(a.due).getTime() - new Date(b.due).getTime())
   upcomingTasks.sort((a, b) => new Date(a.due).getTime() - new Date(b.due).getTime())
 
