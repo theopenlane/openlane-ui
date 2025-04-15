@@ -4,7 +4,7 @@ import React from 'react'
 import { Card } from '@repo/ui/cardpanel'
 import { ArrowUpDown } from 'lucide-react'
 import SetObjectAssociationDialog from '@/components/pages/protected/policies/modal/set-object-association-modal.tsx'
-import AssociatedObjectsAccordion from '@/components/pages/protected/policies/associated-objects-accordion.tsx'
+import AssociatedObjectsAccordion from '@/components/pages/protected/policies/accordion/associated-objects-accordion.tsx'
 
 const AssociationCard: React.FC = () => {
   return (

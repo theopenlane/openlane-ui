@@ -3,8 +3,8 @@
 import React, { Fragment, useState } from 'react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { ChevronDown } from 'lucide-react'
-import { usePolicy } from '@/components/pages/protected/policies/hooks/use-policy.tsx'
 import { Badge } from '@repo/ui/badge'
+import { usePolicy } from '@/components/pages/protected/policies/create/hooks/use-policy.tsx'
 
 const AssociatedObjectsAccordion: React.FC = () => {
   const [expandedItems, setExpandedItems] = useState<string[]>(['controls'])

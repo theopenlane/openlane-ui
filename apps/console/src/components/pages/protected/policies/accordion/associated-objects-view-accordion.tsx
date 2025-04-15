@@ -75,10 +75,10 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
         <h2 className="text-lg font-semibold whitespace-nowrap">Associated Objects</h2>
         <div className="flex justify-between w-full">
           <div className="flex gap-2.5 items-center">
-            <Button className="h-8 !px-2" variant="outline" onClick={() => toggleAll(false)} icon={<ChevronsDownUp />} iconPosition="left">
+            <Button className="h-8 !px-2" variant="outline" type="button" onClick={() => toggleAll(false)} icon={<ChevronsDownUp />} iconPosition="left">
               Collapse all
             </Button>
-            <Button className="h-8 !px-2" variant="outline" onClick={() => toggleAll(true)} icon={<ChevronsUpDown />} iconPosition="left">
+            <Button className="h-8 !px-2" variant="outline" type="button" onClick={() => toggleAll(true)} icon={<ChevronsUpDown />} iconPosition="left">
               Expand all
             </Button>
           </div>

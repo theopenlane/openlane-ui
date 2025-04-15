@@ -1,10 +1,9 @@
 import { ColumnDef } from '@tanstack/react-table'
-import Link from 'next/link'
 import { format } from 'date-fns'
 import React from 'react'
-import { Actions } from '@/components/pages/protected/policies/actions/actions.tsx'
 import { InternalPolicy } from '@repo/codegen/src/schema.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
+import { Actions } from '@/components/pages/protected/policies/table/actions/actions.tsx'
 
 export const policiesColumns: ColumnDef<InternalPolicy>[] = [
   {
@@ -27,7 +26,7 @@ export const policiesColumns: ColumnDef<InternalPolicy>[] = [
     cell: ({ cell }) => {
       const plateEditorHelper = usePlateEditor()
 
-      return <div>{plateEditorHelper.convertToReadOnly(cell.getValue() as string, 0)}</div>
+      return <div className="line-clamp-4">{plateEditorHelper.convertToReadOnly(cell.getValue() as string, 0)}</div>
     },
   },
   {

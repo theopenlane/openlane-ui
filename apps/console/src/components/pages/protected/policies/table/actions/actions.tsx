@@ -2,12 +2,12 @@
 
 import { Edit, MoreHorizontal, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
-import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useDeleteInternalPolicy } from '@/lib/graphql-hooks/policy'
+import { pageStyles } from '@/components/pages/protected/policies/page.styles.tsx'
 
 type PolicyActionsProps = {
   policyId: string

@@ -5,14 +5,14 @@ import { InternalPolicyByIdFragment, InternalPolicyDocumentStatus } from '@repo/
 import { Card } from '@repo/ui/cardpanel'
 import { Binoculars, Calendar, FileStack, ScrollText, Stamp } from 'lucide-react'
 import { Controller, UseFormReturn } from 'react-hook-form'
-import { CreatePolicyFormData } from '@/components/pages/protected/policies/hooks/use-form-schema.ts'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { FormControl, FormField, FormItem } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { format } from 'date-fns'
+import { EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 
 type TPropertiesCardProps = {
-  form: UseFormReturn<CreatePolicyFormData>
+  form: UseFormReturn<EditPolicyMetadataFormData>
   policy: InternalPolicyByIdFragment
   isEditing: boolean
 }
@@ -64,7 +64,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, polic
 
             {!isEditing && (
               <div className="flex gap-2">
-                <span>{policy.status}</span>
+                <span>{statusOptions.find((item) => item.value === policy.status)?.label}</span>
               </div>
             )}
           </div>

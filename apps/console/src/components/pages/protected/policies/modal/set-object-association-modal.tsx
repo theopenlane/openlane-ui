@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import { useState } from 'react'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
-import { usePolicy } from '@/components/pages/protected/policies/hooks/use-policy.tsx'
+import { usePolicy } from '@/components/pages/protected/policies/create/hooks/use-policy.tsx'
 
 const SetObjectAssociationDialog: React.FC = () => {
   const policyState = usePolicy()

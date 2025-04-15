@@ -2,7 +2,6 @@ import { Loading } from '@/components/shared/loading/loading'
 import { useGetInternalPolicyDetailsById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
 import React, { useEffect, useState } from 'react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
-import AssociatedObjectsViewAccordion from '@/components/pages/protected/policies/associated-objects-view-accordion.tsx'
 import useFormSchema, { EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import { Form } from '@repo/ui/form'
 import DetailsField from '@/components/pages/protected/policies/view/fields/details-field.tsx'
@@ -14,12 +13,13 @@ import PropertiesCard from '@/components/pages/protected/policies/view/cards/pro
 import { InternalPolicyDocumentStatus, InternalPolicyFrequency, UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
 import HistoricalCard from '@/components/pages/protected/policies/view/cards/historical-card.tsx'
 import TagsCard from '@/components/pages/protected/policies/view/cards/tags-card.tsx'
-import AssociationCard from '@/components/pages/protected/policies/cards/association-card.tsx'
-import { usePolicy } from '@/components/pages/protected/policies/hooks/use-policy.tsx'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
 import { Value } from '@udecode/plate-common'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification.tsx'
+import { usePolicy } from '@/components/pages/protected/policies/create/hooks/use-policy.tsx'
+import AssociatedObjectsViewAccordion from '@/components/pages/protected/policies/accordion/associated-objects-view-accordion.tsx'
+import AssociationCard from '@/components/pages/protected/policies/create/cards/association-card.tsx'
 
 type TViewPolicyPage = {
   policyId: string
@@ -194,8 +194,8 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
                   <Button className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
                     Cancel
                   </Button>
-                  <Button type="submit" iconPosition="left" className="h-8 !px-2" icon={<SaveIcon />}>
-                    Save
+                  <Button type="submit" iconPosition="left" className="h-8 !px-2" icon={<SaveIcon />} disabled={isSaving}>
+                    {isSaving ? 'Saving' : 'Save'}
                   </Button>
                 </div>
               ) : (

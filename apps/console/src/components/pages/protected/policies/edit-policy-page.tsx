@@ -1,6 +1,6 @@
-import CreatePolicyForm from '@/components/pages/protected/policies/form/create-policy-form.tsx'
 import { Loading } from '@/components/shared/loading/loading'
 import { useGetInternalPolicyDetailsById } from '@/lib/graphql-hooks/policy.ts'
+import CreatePolicyForm from './create/form/create-policy-form'
 
 type TEditPolicyPage = {
   policyId: string
