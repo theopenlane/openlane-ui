@@ -7,7 +7,7 @@ import { Button } from '@repo/ui/button'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import { DownloadIcon } from 'lucide-react'
-import { ControlListFieldsFragment, ControlOrderField, GetAllControlsQueryVariables, Group, OrderDirection } from '@repo/codegen/src/schema'
+import { ControlControlStatus, ControlListFieldsFragment, ControlOrderField, GetAllControlsQueryVariables, Group, OrderDirection } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useRouter } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -74,7 +74,13 @@ const ControlsTable: React.FC = () => {
       {
         header: 'Status',
         accessorKey: 'status',
-        cell: ({ row }) => <span className="flex items-center gap-2">{row.getValue('status')}</span>,
+        cell: ({ row }) => {
+          let value: ControlControlStatus | '-' = row.getValue('status')
+          if (value === ControlControlStatus.NULL) {
+            value = '-'
+          }
+          return <span className="flex items-center gap-2">{value}</span>
+        },
       },
       {
         header: 'Owner',
