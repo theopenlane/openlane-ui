@@ -92,6 +92,7 @@ import { CodeLineElementStatic } from '../plate-ui/code-line-element-static'
 import { CodeSyntaxLeafStatic } from '../plate-ui/code-syntax-leaf-static'
 import { ColumnElementStatic } from '../plate-ui/column-element-static'
 import { ColumnGroupElementStatic } from '../plate-ui/column-group-element-static'
+import { HeadingElementStatic } from '../plate-ui/heading-element-static.tsx'
 
 export const viewComponents = {
   [AudioPlugin.key]: MediaAudioElement,
@@ -154,12 +155,12 @@ export const staticViewComponents = {
   [EquationPlugin.key]: EquationElementStatic,
   //[ExcalidrawPlugin.key]: ExcalidrawElementStatic,
   [FilePlugin.key]: MediaFileElementStatic,
-  [HEADING_KEYS.h1]: withProps(HeadingElement, { variant: 'h1' }),
-  [HEADING_KEYS.h2]: withProps(HeadingElement, { variant: 'h2' }),
-  [HEADING_KEYS.h3]: withProps(HeadingElement, { variant: 'h3' }),
-  [HEADING_KEYS.h4]: withProps(HeadingElement, { variant: 'h4' }),
-  [HEADING_KEYS.h5]: withProps(HeadingElement, { variant: 'h5' }),
-  [HEADING_KEYS.h6]: withProps(HeadingElement, { variant: 'h6' }),
+  [HEADING_KEYS.h1]: withProps(HeadingElementStatic, { variant: 'h1' }),
+  [HEADING_KEYS.h2]: withProps(HeadingElementStatic, { variant: 'h2' }),
+  [HEADING_KEYS.h3]: withProps(HeadingElementStatic, { variant: 'h3' }),
+  [HEADING_KEYS.h4]: withProps(HeadingElementStatic, { variant: 'h4' }),
+  [HEADING_KEYS.h5]: withProps(HeadingElementStatic, { variant: 'h5' }),
+  [HEADING_KEYS.h6]: withProps(HeadingElementStatic, { variant: 'h6' }),
   [HighlightPlugin.key]: HighlightLeafStatic,
   [HorizontalRulePlugin.key]: HrElementStatic,
   [ImagePlugin.key]: ImageElementStatic,
