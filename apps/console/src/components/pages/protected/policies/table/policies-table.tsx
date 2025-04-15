@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { DataTable } from '@repo/ui/data-table'
 import React, { useState, useMemo } from 'react'
-import { useCreateInternalPolicy, useFilteredInternalPolicies } from '@/lib/graphql-hooks/policy'
+import { useFilteredInternalPolicies } from '@/lib/graphql-hooks/policy'
 import { GetInternalPoliciesListQueryVariables, InternalPolicyOrderField, OrderDirection } from '@repo/codegen/src/schema'
 import { policiesColumns } from '@/components/pages/protected/policies/table/columns.tsx'
 import PoliciesTableToolbar from '@/components/pages/protected/policies/table/policies-table-toolbar.tsx'
@@ -32,7 +32,6 @@ export const PoliciesTable = () => {
     return orderBy || undefined
   }, [orderBy])
 
-  const { isPending: creating, mutateAsync: createPolicy } = useCreateInternalPolicy()
   const [searchTerm, setSearchTerm] = useState('')
   const { policies, isLoading: fetching } = useFilteredInternalPolicies(searchTerm, whereFilter, orderByFilter)
 
@@ -40,13 +39,9 @@ export const PoliciesTable = () => {
     router.push(`/policies/create`)
   }
 
-  const editPolicy = (policyId: string) => {
-    router.push(`/policies/${policyId}/edit`)
-  }
-
   return (
     <>
-      <PoliciesTableToolbar className="my-5" creating={creating} searching={fetching} handleCreateNew={handleCreateNew} setFilters={setFilters} searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      <PoliciesTableToolbar className="my-5" searching={fetching} handleCreateNew={handleCreateNew} setFilters={setFilters} searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
       <DataTable sortFields={INTERNAL_POLICIES_SORTABLE_FIELDS} onSortChange={setOrderBy} columns={policiesColumns} data={policies} loading={fetching} />
     </>

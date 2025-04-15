@@ -29,14 +29,6 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
     value,
   }))
 
-  const booleanOptions = [
-    {
-      label: 'True',
-      value: 'true',
-    },
-    { label: 'False', value: 'false' },
-  ]
-
   return (
     <Card className="p-4">
       <div className="flex flex-col gap-4">
@@ -128,10 +120,10 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
                   <Select
                     value={field.value.toString()}
                     onValueChange={(value) => {
-                      field.onChange(value === 'unassigned' ? null : value || undefined)
+                      field.onChange(value)
                     }}
                   >
-                    <SelectTrigger className="w-full">{form.getValues('reviewFrequency').toString()}</SelectTrigger>
+                    <SelectTrigger className="w-full">{form.getValues('reviewFrequency')?.toString()}</SelectTrigger>
                     <SelectContent>
                       {reviewFrequencyOptions.map((option) => (
                         <SelectItem key={option.value} value={option.value}>

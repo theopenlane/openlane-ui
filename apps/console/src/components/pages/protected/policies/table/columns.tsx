@@ -18,11 +18,7 @@ export const policiesColumns: ColumnDef<InternalPolicy>[] = [
     accessorKey: 'name',
     header: 'Name',
     cell: ({ cell, row }) => {
-      return (
-        <Link href={'/policies/' + row.original.id} className="underline">
-          {cell.getValue() as string}
-        </Link>
-      )
+      return <div>{cell.getValue() as string}</div>
     },
   },
   {

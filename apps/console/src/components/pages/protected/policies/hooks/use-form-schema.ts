@@ -42,6 +42,7 @@ const useFormSchema = () => {
         status: InternalPolicyDocumentStatus.DRAFT,
         reviewFrequency: InternalPolicyFrequency.YEARLY,
         tags: [],
+        policyType: '',
       },
     }),
   }

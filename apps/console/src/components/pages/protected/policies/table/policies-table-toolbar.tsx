@@ -9,7 +9,6 @@ import { useDebounce } from '@uidotdev/usehooks'
 
 type TPoliciesTableToolbarProps = {
   className?: string
-  creating: boolean
   searching?: boolean
   searchTerm: string
   setSearchTerm: (searchTerm: string) => void
@@ -17,7 +16,7 @@ type TPoliciesTableToolbarProps = {
   handleCreateNew: () => void
 }
 
-const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({ className, creating, searching, searchTerm, handleCreateNew, setFilters, setSearchTerm }) => {
+const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({ className, searching, searchTerm, handleCreateNew, setFilters, setSearchTerm }) => {
   const isSearching = useDebounce(searching, 200)
 
   return (
@@ -34,7 +33,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({ className,
       </div>
 
       <div className="grow flex flex-row items-center gap-2 justify-end">
-        <Button icon={<PlusCircle />} iconPosition="left" onClick={handleCreateNew} disabled={creating}>
+        <Button icon={<PlusCircle />} iconPosition="left" onClick={handleCreateNew}>
           Create new
         </Button>
       </div>
