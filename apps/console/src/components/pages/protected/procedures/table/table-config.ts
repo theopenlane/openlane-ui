@@ -1,23 +1,21 @@
 import { FilterField } from '@/types'
 import { OrderDirection } from '@repo/codegen/src/schema.ts'
 
-export const PROCEDURE_FILTERABLE_FIELDS: FilterField[] = [
+export const PROCEDURES_FILTERABLE_FIELDS: FilterField[] = [
   { key: 'background', label: 'Background', type: 'text' },
+  { key: 'name', label: 'Name', type: 'text' },
   { key: 'description', label: 'Description', type: 'text' },
   { key: 'displayID', label: 'Display ID', type: 'text' },
   { key: 'hasBlockedGroups', label: 'Has Blocked Groups', type: 'boolean' },
+  { key: 'hasControlObjectives', label: 'Has Control Objectives', type: 'boolean' },
   { key: 'hasControls', label: 'Has Controls', type: 'boolean' },
   { key: 'hasEditors', label: 'Has Editors', type: 'boolean' },
-  { key: 'hasInternalPolicies', label: 'Has Internal Policies', type: 'boolean' },
   { key: 'hasNarratives', label: 'Has Narratives', type: 'boolean' },
+  { key: 'hasProcedures', label: 'Has Procedures', type: 'boolean' },
   { key: 'hasPrograms', label: 'Has Programs', type: 'boolean' },
-  { key: 'hasRisks', label: 'Has Risks', type: 'boolean' },
-  { key: 'hasTasks', label: 'Has Tasks', type: 'boolean' },
-  { key: 'name', label: 'Name', type: 'text' },
   { key: 'procedureType', label: 'Type', type: 'text' },
   { key: 'purposeAndScope', label: 'Purpose and Scope', type: 'text' },
   { key: 'reviewDue', label: 'Review Due', type: 'date' },
-  { key: 'satisfies', label: 'Satisfies', type: 'date' },
   { key: 'status', label: 'Status', type: 'text' },
   { key: 'version', label: 'Version', type: 'text' },
 
@@ -27,7 +25,7 @@ export const PROCEDURE_FILTERABLE_FIELDS: FilterField[] = [
   { key: 'updatedBy', label: 'Updated By', type: 'text' },
 ]
 
-export const PROCEDURE_SORTABLE_FIELDS = [
+export const PROCEDURES_SORTABLE_FIELDS = [
   { key: 'REVIEW_FREQUENCY', label: 'Review Frequency' },
   { key: 'STATUS', label: 'Status' },
   {

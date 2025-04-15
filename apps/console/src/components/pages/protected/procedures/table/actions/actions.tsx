@@ -2,12 +2,12 @@
 
 import { Edit, MoreHorizontal, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
-import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { useDeleteProcedure } from '@/lib/graphql-hooks/procedures'
+import { pageStyles } from '@/components/pages/protected/procedures/page.styles.tsx'
+import { useDeleteProcedure } from '@/lib/graphql-hooks/procedures.ts'
 
 type ProcedureActionsProps = {
   procedureId: string
@@ -32,10 +32,10 @@ export const Actions = ({ procedureId: procedureId }: ProcedureActionsProps) => 
     try {
       await deleteProcedure({ deleteProcedureId: procedureId })
       successNotification({
-        title: 'Questionnaire deleted successfully',
+        title: 'Procedure deleted successfully',
       })
-    } catch {
-      errorNotification({ title: 'Error deleting procedure' }) //gqlError: error TODO: update notification
+    } catch (error) {
+      errorNotification({ title: 'Error deleting procedure' })
     }
   }
 
@@ -47,14 +47,21 @@ export const Actions = ({ procedureId: procedureId }: ProcedureActionsProps) => 
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-10">
           <DropdownMenuGroup>
-            <DropdownMenuItem onSelect={handleEditProcedure} className="cursor-pointer">
+            <DropdownMenuItem
+              onSelect={(event) => {
+                event.stopPropagation()
+                handleEditProcedure()
+              }}
+              className="cursor-pointer"
+            >
               <Edit width={ICON_SIZE} /> Edit
             </DropdownMenuItem>
             <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={() => {
+              onSelect={(event) => {
+                event.stopPropagation()
                 setIsDeleteDialogOpen(true)
               }}
+              className="cursor-pointer"
             >
               <Trash2 width={ICON_SIZE} /> Delete
             </DropdownMenuItem>

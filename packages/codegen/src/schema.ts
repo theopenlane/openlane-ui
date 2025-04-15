@@ -31968,6 +31968,86 @@ export type GetAllProceduresQuery = {
   }
 }
 
+export type GetProceduresListQueryVariables = Exact<{
+  orderBy?: InputMaybe<Array<ProcedureOrder> | ProcedureOrder>
+  where?: InputMaybe<ProcedureWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type GetProceduresListQuery = {
+  __typename?: 'Query'
+  procedures: {
+    __typename?: 'ProcedureConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'ProcedureEdge'
+      node?: {
+        __typename?: 'Procedure'
+        id: string
+        name: string
+        displayID: string
+        status?: ProcedureDocumentStatus | null
+        revision?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        tags?: Array<string> | null
+        details?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; startCursor?: any | null; endCursor?: any | null }
+  }
+}
+
+export type ProcedureByIdFragment = {
+  __typename?: 'Procedure'
+  id: string
+  name: string
+  details?: string | null
+  createdAt?: any | null
+  createdBy?: string | null
+  updatedAt?: any | null
+  updatedBy?: string | null
+  tags?: Array<string> | null
+  revision?: string | null
+  status?: ProcedureDocumentStatus | null
+  displayID: string
+  reviewDue?: any | null
+  reviewFrequency?: ProcedureFrequency | null
+  approvalRequired?: boolean | null
+  procedureType?: string | null
+  approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+  delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+  narratives: { __typename?: 'NarrativeConnection'; edges?: Array<{ __typename?: 'NarrativeEdge'; node?: { __typename?: 'Narrative'; id: string; displayID: string } | null } | null> | null }
+  risks: {
+    __typename?: 'RiskConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string; displayID: string } | null } | null> | null
+  }
+  internalPolicies: {
+    __typename?: 'InternalPolicyConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; displayID: string } | null } | null> | null
+  }
+  controls: {
+    __typename?: 'ControlConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
+  }
+  programs: {
+    __typename?: 'ProgramConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string } | null } | null> | null
+  }
+  tasks: {
+    __typename?: 'TaskConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string } | null } | null> | null
+  }
+}
+
 export type GetProcedureDetailsByIdQueryVariables = Exact<{
   procedureId: Scalars['ID']['input']
 }>
@@ -31986,11 +32066,38 @@ export type GetProcedureDetailsByIdQuery = {
     tags?: Array<string> | null
     revision?: string | null
     status?: ProcedureDocumentStatus | null
-    procedureType?: string | null
     displayID: string
+    reviewDue?: any | null
+    reviewFrequency?: ProcedureFrequency | null
+    approvalRequired?: boolean | null
+    procedureType?: string | null
+    approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+    delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+    narratives: { __typename?: 'NarrativeConnection'; edges?: Array<{ __typename?: 'NarrativeEdge'; node?: { __typename?: 'Narrative'; id: string; displayID: string } | null } | null> | null }
+    risks: {
+      __typename?: 'RiskConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string; displayID: string } | null } | null> | null
+    }
     internalPolicies: {
       __typename?: 'InternalPolicyConnection'
-      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
+      totalCount: number
+      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; displayID: string } | null } | null> | null
+    }
+    controls: {
+      __typename?: 'ControlConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
+    }
+    programs: {
+      __typename?: 'ProgramConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string } | null } | null> | null
+    }
+    tasks: {
+      __typename?: 'TaskConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string } | null } | null> | null
     }
   }
 }
@@ -32031,6 +32138,15 @@ export type SearchProceduresQuery = {
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
   } | null
+}
+
+export type CreateBulkCsvProcedureMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvProcedureMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVProcedure: { __typename?: 'ProcedureBulkCreatePayload'; procedures?: Array<{ __typename?: 'Procedure'; id: string }> | null }
 }
 
 export type CreateProgramWithMembersMutationVariables = Exact<{
