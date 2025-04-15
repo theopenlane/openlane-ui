@@ -31783,19 +31783,19 @@ export type InternalPolicyByIdFragment = {
   programs: {
     __typename?: 'ProgramConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string } | null } | null> | null
+    edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string } | null } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
   }
   tasks: {
     __typename?: 'TaskConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string } | null } | null> | null
+    edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string } | null } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
   }
   controlObjectives: {
     __typename?: 'ControlObjectiveConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string; displayID: string } | null } | null> | null
+    edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string; displayID: string; name: string } | null } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
   }
 }
@@ -31841,19 +31841,19 @@ export type GetInternalPolicyDetailsByIdQuery = {
     programs: {
       __typename?: 'ProgramConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string } | null } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     tasks: {
       __typename?: 'TaskConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string } | null } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     controlObjectives: {
       __typename?: 'ControlObjectiveConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string; displayID: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string; displayID: string; name: string } | null } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
   }

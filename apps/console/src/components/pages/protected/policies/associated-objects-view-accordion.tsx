@@ -20,12 +20,12 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
     setExpandedItems(expand ? ['procedures', 'controls', 'controlObjectives', 'tasks', 'programs'] : [])
   }
 
-  const renderTable = (rows: { id: string; name?: string; title?: string; details?: string }[]) => (
+  const renderTable = (rows: { displayID: string; refCode?: string; name?: string; title?: string; details?: string }[]) => (
     <div className="mt-4 rounded-md border border-border overflow-hidden bg-card">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="px-4 py-2">ID</TableHead>
+            <TableHead className="px-4 py-2">Display ID</TableHead>
             <TableHead className="px-4 py-2">Name</TableHead>
             <TableHead className="px-4 py-2">Description</TableHead>
           </TableRow>
@@ -33,9 +33,9 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
         <TableBody>
           {rows.length > 0 ? (
             rows.map((row) => (
-              <TableRow key={row.id}>
+              <TableRow key={row?.refCode ?? row.displayID}>
                 <TableCell className="px-4 py-2 text-primary">
-                  <Link href={`/objects/${row.id}`}>{row.id}</Link>
+                  <Link href={`/objects/${row?.refCode ?? row.displayID}`}>{row?.refCode ?? row.displayID}</Link>
                 </TableCell>
                 <TableCell className="px-4 py-2">{row.name || row.title || '-'}</TableCell>
                 <TableCell className="px-4 py-2">{row?.details && plateEditorHelper.convertToReadOnly(row.details)}</TableCell>
@@ -85,28 +85,28 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
         </div>
       </div>
       <Accordion type="multiple" value={expandedItems} onValueChange={(values) => setExpandedItems(values)} className="w-full">
-        <AccordionItem value="policies">
-          <SectionTrigger label="Policies" count={policy.procedures.totalCount} />
+        <AccordionItem value="procedures">
+          <SectionTrigger label="Procedures" count={policy.procedures.totalCount} />
           {!!policy.procedures.edges?.length && <AccordionContent>{renderTable(extractNodes(policy.procedures.edges))}</AccordionContent>}
         </AccordionItem>
 
-        <AccordionItem value="procedures">
-          <SectionTrigger label="Procedures" count={policy.controls.totalCount} />
+        <AccordionItem value="controls">
+          <SectionTrigger label="Controls" count={policy.controls.totalCount} />
           {!!policy.controls.edges?.length && <AccordionContent>{renderTable(extractNodes(policy.controls.edges))}</AccordionContent>}
         </AccordionItem>
 
-        <AccordionItem value="tasks">
-          <SectionTrigger label="Tasks" count={policy.controlObjectives.totalCount} />
+        <AccordionItem value="controlObjectives">
+          <SectionTrigger label="Control Objectives" count={policy.controlObjectives.totalCount} />
           {!!policy.controlObjectives.edges?.length && <AccordionContent>{renderTable(extractNodes(policy.controlObjectives.edges))}</AccordionContent>}
         </AccordionItem>
 
-        <AccordionItem value="programs">
-          <SectionTrigger label="Programs" count={policy.tasks.totalCount} />
+        <AccordionItem value="tasks">
+          <SectionTrigger label="Tasks" count={policy.tasks.totalCount} />
           {!!policy.tasks.edges?.length && <AccordionContent>{renderTable(extractNodes(policy.tasks.edges))}</AccordionContent>}
         </AccordionItem>
 
-        <AccordionItem value="risks">
-          <SectionTrigger label="Risks" count={policy.programs.totalCount} />
+        <AccordionItem value="programs">
+          <SectionTrigger label="Programs" count={policy.programs.totalCount} />
           {!!policy.programs.edges?.length && <AccordionContent>{renderTable(extractNodes(policy.programs.edges))}</AccordionContent>}
         </AccordionItem>
       </Accordion>

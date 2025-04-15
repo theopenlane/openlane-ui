@@ -29,7 +29,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
       <div className="flex flex-col gap-4">
         {/* Approver */}
         <div className="flex justify-between items-center">
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-2 w-[200px] items-center">
             <Stamp size={16} className="text-brand" />
             <span>Approver</span>
           </div>
@@ -38,7 +38,6 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
             <SearchableSingleSelect
               form={form}
               fieldName="approverID"
-              formLabel="Approver"
               placeholder="Select approver"
               options={groups.map((g) => ({
                 label: g.displayName,
@@ -48,16 +47,18 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
           )}
 
           {!isEditing && (
-            <div className="flex gap-2">
-              <Avatar entity={delegate as Group} variant="small" />
-              <span>{delegate?.displayName || 'No Delegate'}</span>
+            <div className="w-[200px]">
+              <div className="flex gap-2">
+                <Avatar entity={approver as Group} variant="small" />
+                <span>{approver?.displayName || 'No Approver'}</span>
+              </div>
             </div>
           )}
         </div>
 
         {/* Delegate */}
         <div className="flex justify-between items-center">
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-2 w-[200px] items-center">
             <CircleArrowRight size={16} className="text-brand" />
             <span>Delegate</span>
           </div>
@@ -66,7 +67,6 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
             <SearchableSingleSelect
               form={form}
               fieldName="delegateID"
-              formLabel="Delegate"
               placeholder="Select delegate"
               options={groups.map((g) => ({
                 label: g.displayName,
@@ -76,9 +76,11 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
           )}
 
           {!isEditing && (
-            <div className="flex gap-2">
-              <Avatar entity={delegate as Group} variant="small" />
-              <span>{delegate?.displayName || 'No Delegate'}</span>
+            <div className="w-[200px]">
+              <div className="flex gap-2">
+                <Avatar entity={delegate as Group} variant="small" />
+                <span>{delegate?.displayName || 'No Delegate'}</span>
+              </div>
             </div>
           )}
         </div>
@@ -89,13 +91,12 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
 
 interface SearchableSingleSelectProps {
   fieldName: keyof EditPolicyMetadataFormData
-  formLabel: string
   placeholder?: string
   form: UseFormReturn<EditPolicyMetadataFormData>
   options: Option[]
 }
 
-export const SearchableSingleSelect: React.FC<SearchableSingleSelectProps> = ({ fieldName, form, formLabel, placeholder = 'Select an option...', options }) => {
+export const SearchableSingleSelect: React.FC<SearchableSingleSelectProps> = ({ fieldName, form, placeholder = 'Select an option...', options }) => {
   const [open, setOpen] = React.useState(false)
 
   return (

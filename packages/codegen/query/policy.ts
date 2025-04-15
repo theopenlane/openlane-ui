@@ -150,6 +150,7 @@ export const INTERNAL_POLICY_BY_ID = gql`
         node {
           id
           displayID
+          name
         }
       }
       pageInfo {
@@ -165,6 +166,7 @@ export const INTERNAL_POLICY_BY_ID = gql`
         node {
           id
           displayID
+          title
         }
       }
       pageInfo {
@@ -180,6 +182,7 @@ export const INTERNAL_POLICY_BY_ID = gql`
         node {
           id
           displayID
+          name
         }
       }
       pageInfo {
