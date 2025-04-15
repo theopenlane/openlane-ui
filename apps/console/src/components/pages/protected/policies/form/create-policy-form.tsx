@@ -22,6 +22,7 @@ import { TObjectAssociationMap } from '@/components/shared/objectAssociation/typ
 
 type TCreatePolicyFormProps = {
   policy?: InternalPolicyByIdFragment
+  readonly?: boolean
 }
 
 export type TMetadata = {
@@ -29,7 +30,7 @@ export type TMetadata = {
   updatedAt: string
 }
 
-const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
+const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy, readonly }) => {
   const { form } = useFormSchema()
   const router = useRouter()
   const { mutateAsync: createPolicy, isPending: isCreating } = useCreateInternalPolicy()
@@ -55,7 +56,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
 
       const policyAssociationsRefCodes: TObjectAssociationMap = {
         controlIDs: policy?.controls?.edges?.map((item) => item?.node?.refCode!) || [],
-        procedureIDs: policy?.procedures?.edges?.map((item) => item?.node?.refCode!) || [],
+        procedureIDs: policy?.procedures?.edges?.map((item) => item?.node?.displayID!) || [],
         programIDs: policy?.programs?.edges?.map((item) => item?.node?.displayID!) || [],
         controlObjectiveIDs: policy?.controlObjectives?.edges?.map((item) => item?.node?.displayID!) || [],
         taskIDs: policy?.tasks?.edges?.map((item) => item?.node?.displayID!) || [],
@@ -269,7 +270,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
                     icon={<InfoIcon size={14} className="mx-1 mt-1" />}
                     content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
                   />
-                  <PlateEditor onChange={handleDetailsChange} variant="basic" initialValue={policy?.details} />
+                  <PlateEditor onChange={handleDetailsChange} variant="basic" initialValue={policy?.details ?? undefined} />
                   {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
                 </FormItem>
               )}

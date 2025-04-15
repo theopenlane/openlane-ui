@@ -6,7 +6,7 @@ import EditPolicyPage from '@/components/pages/protected/policies/edit-policy-pa
 
 const Page: NextPage = () => {
   const { id } = useParams()
-  return <EditPolicyPage policyId={id as string} />
+  return <EditPolicyPage policyId={id as string} readonly={true} />
 }
 
 export default Page

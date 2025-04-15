@@ -4,15 +4,16 @@ import { useGetInternalPolicyDetailsById } from '@/lib/graphql-hooks/policy.ts'
 
 type TEditPolicyPage = {
   policyId: string
+  readonly?: boolean
 }
 
-const EditPolicyPage: React.FC<TEditPolicyPage> = ({ policyId }) => {
-  const { data, isLoading, isError } = useGetInternalPolicyDetailsById(policyId)
+const EditPolicyPage: React.FC<TEditPolicyPage> = ({ policyId, readonly }) => {
+  const { data, isLoading } = useGetInternalPolicyDetailsById(policyId)
 
   return (
     <>
       {isLoading && <Loading />}
-      {!isLoading && data?.internalPolicy && <CreatePolicyForm policy={data.internalPolicy!} />}
+      {!isLoading && data?.internalPolicy && <CreatePolicyForm readonly={readonly} policy={data.internalPolicy!} />}
     </>
   )
 }

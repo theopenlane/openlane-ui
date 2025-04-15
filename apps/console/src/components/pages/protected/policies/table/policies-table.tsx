@@ -3,8 +3,8 @@
 import { useRouter } from 'next/navigation'
 import { DataTable } from '@repo/ui/data-table'
 import React, { useState, useMemo } from 'react'
-import { useCreateInternalPolicy, useFilteredInternalPolicies } from '@/lib/graphql-hooks/policy'
-import { GetInternalPoliciesListQueryVariables, InternalPolicyOrderField, OrderDirection, SearchInternalPoliciesQuery } from '@repo/codegen/src/schema'
+import { useFilteredInternalPolicies } from '@/lib/graphql-hooks/policy'
+import { GetInternalPoliciesListQueryVariables, InternalPolicy, InternalPolicyOrderField, OrderDirection, SearchInternalPoliciesQuery } from '@repo/codegen/src/schema'
 import { policiesColumns } from '@/components/pages/protected/policies/table/columns.tsx'
 import PoliciesTableToolbar from '@/components/pages/protected/policies/table/policies-table-toolbar.tsx'
 import { INTERNAL_POLICIES_SORTABLE_FIELDS } from '@/components/pages/protected/policies/table/table-config.ts'
@@ -35,10 +35,14 @@ export const PoliciesTable = () => {
   }, [orderBy])
 
   const [searchTerm, setSearchTerm] = useState('')
-  const { policies, isLoading: fetching, isFetching, paginationMeta } = useFilteredInternalPolicies({ where: whereFilter, search: searchTerm, orderBy: orderByFilter, pagination })
+  const { policies, isLoading: fetching, paginationMeta } = useFilteredInternalPolicies({ where: whereFilter, search: searchTerm, orderBy: orderByFilter, pagination })
 
   const handleCreateNew = async () => {
     router.push(`/policies/create`)
+  }
+
+  const handleRowClick = (rowData: InternalPolicy) => {
+    router.push(`/policies/${rowData.id}/view`)
   }
 
   return (
@@ -60,6 +64,7 @@ export const PoliciesTable = () => {
         onSortChange={setOrderBy}
         columns={policiesColumns}
         data={policies}
+        onRowClick={handleRowClick}
         loading={fetching}
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
