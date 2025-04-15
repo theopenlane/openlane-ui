@@ -288,7 +288,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
         </div>
         <div className="space-y-4">
           <StatusCard form={form} metadata={metadata} />
-          <AssociationCard />
+          <AssociationCard isEditable={true} />
           <TagsCard form={form} />
         </div>
       </form>

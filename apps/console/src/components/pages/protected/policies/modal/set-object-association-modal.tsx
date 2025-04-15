@@ -8,7 +8,11 @@ import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 import { usePolicy } from '@/components/pages/protected/policies/create/hooks/use-policy.tsx'
 
-const SetObjectAssociationDialog: React.FC = () => {
+type TSetObjectAssociationDialog = {
+  isEditable: boolean
+}
+
+const SetObjectAssociationDialog: React.FC<TSetObjectAssociationDialog> = ({ isEditable }) => {
   const policyState = usePolicy()
   const associationsState = usePolicy((state) => state.associations)
   const refCodeAssociationsState = usePolicy((state) => state.associationRefCodes)
@@ -40,7 +44,9 @@ const SetObjectAssociationDialog: React.FC = () => {
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogTrigger asChild>
-        <Button className="h-8 !px-2">Set object association</Button>
+        <Button className="h-8 !px-2" disabled={!isEditable}>
+          Set object association
+        </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl p-6 space-y-4">
         <DialogHeader>

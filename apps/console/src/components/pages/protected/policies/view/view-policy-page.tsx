@@ -209,7 +209,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
               <PropertiesCard form={form} isEditing={isEditing} policy={policy} />
               <HistoricalCard policy={policy} />
               <TagsCard form={form} policy={policy} isEditing={isEditing} />
-              <AssociationCard />
+              <AssociationCard isEditable={isEditing} />
             </div>
           </form>
         </Form>
