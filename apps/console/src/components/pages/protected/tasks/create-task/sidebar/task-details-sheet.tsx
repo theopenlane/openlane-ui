@@ -220,7 +220,7 @@ const TaskDetailsSheet = () => {
         input: formData,
       })
 
-      queryClient.invalidateQueries({ queryKey: ['task'] })
+      queryClient.invalidateQueries({ queryKey: ['tasks'] })
       successNotification({
         title: 'Task Updated',
         description: 'The task has been successfully updated.',
@@ -244,7 +244,7 @@ const TaskDetailsSheet = () => {
         },
       })
 
-      queryClient.invalidateQueries({ queryKey: ['task'] })
+      queryClient.invalidateQueries({ queryKey: ['tasks'] })
       successNotification({
         title: 'Task Updated',
         description: 'The task has been successfully marked as complete.',
@@ -292,7 +292,7 @@ const TaskDetailsSheet = () => {
         },
       })
 
-      queryClient.invalidateQueries({ queryKey: ['task'] })
+      queryClient.invalidateQueries({ queryKey: ['tasks'] })
     } catch (error) {
       errorNotification({
         title: 'Error',

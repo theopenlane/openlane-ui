@@ -36,22 +36,19 @@ const StandardDetailsAccordion: FC = () => {
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
 
   const where = generateWhere(id, debouncedSearchQuery)
-  const { data } = useGetAllControls({ where })
+  const { controls } = useGetAllControls({ where })
   const { data: programsData } = useGetAllPrograms()
 
   const groupedControls = useMemo(() => {
-    if (!data?.controls?.edges) return {}
+    if (!controls || controls.length === 0) return {}
 
-    return data.controls.edges.reduce<Record<string, ControlListFieldsFragment[]>>((acc, edge) => {
-      const control = edge?.node
-      if (!control) return acc
-
+    return controls.reduce<Record<string, ControlListFieldsFragment[]>>((acc, control) => {
       const category = control.category || 'Uncategorized'
       if (!acc[category]) acc[category] = []
       acc[category].push(control)
       return acc
     }, {})
-  }, [data])
+  }, [controls])
 
   const programs = useMemo(() => {
     return programsData?.programs?.edges?.map((edge) => edge?.node) || []

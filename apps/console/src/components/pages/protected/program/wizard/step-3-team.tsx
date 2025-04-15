@@ -7,6 +7,7 @@ import { InfoIcon } from 'lucide-react'
 import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { Node } from '../nodes'
 import MultipleSelector from '@repo/ui/multiple-selector'
+import { useSession } from 'next-auth/react'
 
 export const programInviteSchema = z.object({
   programAdmins: z.array(z.string()).optional(),
@@ -75,7 +76,8 @@ export const InviteComponent: React.FC<ProgramInviteProps> = ({ users, groups })
   )
 }
 
-const AddMemberDropdown: React.FC<{ values: Node[]; fieldName: keyof ProgramInviteValues; fieldType: 'group' | 'user'; formLabel: string }> = ({ values, fieldName, fieldType, formLabel }) => {
+const AddMemberDropdown = ({ values, fieldName, fieldType, formLabel }: { values: Node[]; fieldName: keyof ProgramInviteValues; fieldType: 'group' | 'user'; formLabel: string }) => {
+  const { data: session } = useSession()
   const {
     register,
     control,
@@ -83,7 +85,15 @@ const AddMemberDropdown: React.FC<{ values: Node[]; fieldName: keyof ProgramInvi
   } = useFormContext<ProgramInviteValues>()
 
   const placeholder = `Search ${fieldType}(s) ...`
-  const options = values.map((item) => ({ label: item.node.name, value: item.node.id }))
+
+  const filteredValues = values.filter((item) => {
+    return item.node.id !== session?.user?.userId
+  })
+
+  const options = filteredValues.map((item) => ({
+    label: item.node.name,
+    value: item.node.id,
+  }))
 
   return (
     <FormField
@@ -108,9 +118,9 @@ const AddMemberDropdown: React.FC<{ values: Node[]; fieldName: keyof ProgramInvi
             <MultipleSelector
               placeholder={placeholder}
               defaultOptions={options}
-              value={options.filter((option) => field.value?.includes(option.value))} // Ensure selected values are displayed
+              value={options.filter((option) => field.value?.includes(option.value))}
               onChange={(selectedOptions) => {
-                const selectedIds = selectedOptions.map((option) => option.value) // Extract selected IDs
+                const selectedIds = selectedOptions.map((option) => option.value)
                 field.onChange(selectedIds)
               }}
             />

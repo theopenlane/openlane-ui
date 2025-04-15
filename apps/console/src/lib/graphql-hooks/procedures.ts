@@ -114,7 +114,7 @@ export const useGetProcedureDetailsById = (procedureId?: string) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetProcedureDetailsByIdQuery, GetProcedureDetailsByIdQueryVariables>({
-    queryKey: ['procedure', procedureId],
+    queryKey: ['procedures', procedureId],
     queryFn: () => client.request(GET_PROCEDURE_DETAILS_BY_ID, { procedureId }),
     enabled: !!procedureId,
   })

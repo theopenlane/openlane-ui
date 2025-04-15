@@ -65,7 +65,7 @@ const GroupsPermissionsTable = () => {
           [getPermissionKey(newRole, 'add', objectType)]: [id],
         },
       })
-      queryClient.invalidateQueries({ queryKey: ['group', selectedGroup] })
+      queryClient.invalidateQueries({ queryKey: ['groups', selectedGroup] })
 
       successNotification({ title: 'Permissions updated successfully' })
     } catch (error) {
@@ -82,7 +82,7 @@ const GroupsPermissionsTable = () => {
         updateGroupId: selectedGroup,
         input: { [getPermissionKey(role, 'remove', objectType)]: [id] },
       })
-      queryClient.invalidateQueries({ queryKey: ['group', selectedGroup] })
+      queryClient.invalidateQueries({ queryKey: ['groups', selectedGroup] })
 
       successNotification({ title: 'Permission removed successfully' })
     } catch (error) {

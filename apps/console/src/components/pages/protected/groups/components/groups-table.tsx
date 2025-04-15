@@ -11,6 +11,7 @@ import { TableCell, TableRow } from '@repo/ui/table'
 import { groupsTableStyles } from './groups-table-styles'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { GROUP_SORT_FIELDS } from '@/components/pages/protected/groups/table/table-config.ts'
+import { TPagination, TPaginationMeta } from '@repo/ui/pagination-types'
 
 const columns: ColumnDef<Group>[] = [
   {
@@ -99,9 +100,12 @@ interface Props {
   groups: Group[]
   isError: boolean
   onSortChange?: (sortCondition: any[]) => void
+  pagination: TPagination
+  onPaginationChange: (pagination: TPagination) => void
+  paginationMeta: TPaginationMeta
 }
 
-const GroupsTable = ({ groups, isError, onSortChange }: Props) => {
+const GroupsTable = ({ groups, isError, onSortChange, pagination, onPaginationChange, paginationMeta }: Props) => {
   const { setSelectedGroup } = useGroupsStore()
 
   const { tableRow, keyIcon, message } = groupsTableStyles()
@@ -130,6 +134,9 @@ const GroupsTable = ({ groups, isError, onSortChange }: Props) => {
             </TableCell>
           </TableRow>
         }
+        pagination={pagination}
+        onPaginationChange={(pagination: TPagination) => onPaginationChange(pagination)}
+        paginationMeta={paginationMeta}
       />
     </div>
   )
