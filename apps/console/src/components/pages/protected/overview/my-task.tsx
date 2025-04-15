@@ -5,14 +5,16 @@ import Image from 'next/image'
 import CalendarArrow from '@/assets/CalendarArrow'
 import SquareArrow from '@/assets/SquareArrow'
 import { useSession } from 'next-auth/react'
-import { addDays, formatDistanceToNowStrict, isBefore, parseISO } from 'date-fns'
+import { addDays, formatDistanceToNowStrict, isAfter, isBefore, parseISO } from 'date-fns'
 import { useTasksWithFilter } from '@/lib/graphql-hooks/tasks'
 import { Task } from '@repo/codegen/src/schema'
 import clsx from 'clsx'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
-const dueSoonLimit = addDays(new Date(), 7)
+const now = new Date()
+const dueSoonLimit = addDays(now, 7)
+const upcomingUpper = addDays(now, 30)
 
 const MyTaskContent = ({ userId }: { userId: string }) => {
   const searchParams = useSearchParams()
@@ -30,8 +32,8 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
 
   const tasks = data?.tasks?.edges?.map((edge) => edge?.node ?? ({} as Task)) || []
 
-  const dueSoonTasks = tasks.filter((task) => isBefore(new Date(task.due), dueSoonLimit))
-  const upcomingTasks = tasks.filter((task) => !isBefore(new Date(task.due), dueSoonLimit))
+  const dueSoonTasks = tasks.filter((task) => isAfter(new Date(task.due), now) && isBefore(new Date(task.due), dueSoonLimit))
+  const upcomingTasks = tasks.filter((task) => isAfter(new Date(task.due), dueSoonLimit) && isBefore(new Date(task.due), upcomingUpper))
 
   dueSoonTasks.sort((a, b) => new Date(a.due).getTime() - new Date(b.due).getTime())
   upcomingTasks.sort((a, b) => new Date(a.due).getTime() - new Date(b.due).getTime())
