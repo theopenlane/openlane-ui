@@ -5,6 +5,7 @@ import { FormControl, FormItem, FormLabel } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import { Input } from '@repo/ui/input'
+import { PageHeading } from '@repo/ui/page-heading'
 
 type TTitleFieldProps = {
   isEditing: boolean
@@ -14,9 +15,6 @@ type TTitleFieldProps = {
 const TitleField: React.FC<TTitleFieldProps> = ({ isEditing, form }) => {
   return isEditing ? (
     <div className="w-full">
-      <label htmlFor="policy" className="block text-sm font-medium text-muted-foreground mb-1">
-        Policy
-      </label>
       <Controller
         control={form.control}
         name="name"
@@ -35,7 +33,7 @@ const TitleField: React.FC<TTitleFieldProps> = ({ isEditing, form }) => {
       />
     </div>
   ) : (
-    <h1 className="text-3xl font-semibold">{form.getValues('name')}</h1>
+    <PageHeading heading={form.getValues('name')} />
   )
 }
 

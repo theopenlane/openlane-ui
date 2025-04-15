@@ -28,6 +28,7 @@ type TCreatePolicyFormProps = {
 export type TMetadata = {
   createdAt: string
   updatedAt: string
+  revision: string
 }
 
 const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
@@ -77,6 +78,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
       setMetadata({
         createdAt: policy.createdAt,
         updatedAt: policy.updatedAt,
+        revision: policy?.revision ?? '',
       })
 
       setInitialAssociations(policyAssociations)

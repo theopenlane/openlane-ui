@@ -6,7 +6,7 @@ import CreatePolicyForm from '@/components/pages/protected/policies/create/form/
 const Page: React.FC = () => {
   return (
     <>
-      <PageHeading heading="Internal Policies" />
+      <PageHeading heading="Create a new policy" />
       <CreatePolicyForm />
     </>
   )
