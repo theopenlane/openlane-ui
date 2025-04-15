@@ -22,57 +22,104 @@ import {
   Group,
 } from '@repo/codegen/src/schema'
 import { useDebounce } from '../../../../../packages/ui/src/hooks/use-debounce'
+import { TPagination } from '@repo/ui/pagination-types'
 
-type UseGetAllGroupsArgs = {
+type GroupsArgs = {
   where?: GetAllGroupsQueryVariables['where']
   orderBy?: GetAllGroupsQueryVariables['orderBy']
   enabled?: boolean
+  pagination?: TPagination
+  search?: string
 }
 
-export const useFilteredGroups = (searchQuery: string, where?: GetAllGroupsQueryVariables['where'], orderBy?: GetAllGroupsQueryVariables['orderBy'], enabled = true) => {
-  const debouncedSearchTerm = useDebounce(searchQuery, 300)
-  const { groups: allGroups, isLoading: isFetchingAll, ...allQueryRest } = useGetAllGroups({ where, orderBy, enabled })
-  const { data: searchGroupsRaw, isLoading: isSearching, ...searchQueryRest } = useSearchGroups(debouncedSearchTerm)
+export const useFilteredGroups = ({ where, enabled, orderBy, pagination, search = '' }: GroupsArgs) => {
+  const debouncedSearchTerm = useDebounce(search, 300)
+
+  const { groups: allGroups, isLoading: isFetchingAll, data: allData, ...allQueryRest } = useGetAllGroups({ where, orderBy, pagination, enabled })
+
+  const { groups: searchGroupsRaw, isLoading: isSearching, data: searchData, ...searchQueryRest } = useSearchGroups({ search: debouncedSearchTerm, pagination })
+
   const showSearch = !!debouncedSearchTerm
-  const filteredAndOrderedGroups = showSearch ? allGroups?.filter((proc) => searchGroupsRaw?.groupSearch?.edges?.some((searchProc) => searchProc?.node?.id === proc.id)) : allGroups
   const isLoading = showSearch ? isSearching : isFetchingAll
 
+  const filteredAndOrderedGroups = showSearch ? allGroups?.filter((group) => searchGroupsRaw?.some((searchGroup) => searchGroup.id === group.id)) : allGroups
+
+  const paginationMeta = () => {
+    if (!showSearch) {
+      return {
+        totalCount: allData?.groups?.totalCount ?? 0,
+        pageInfo: allData?.groups?.pageInfo,
+        isLoading,
+      }
+    }
+
+    return {
+      totalCount: searchData?.groupSearch?.totalCount ?? 0,
+      pageInfo: searchData?.groupSearch?.pageInfo,
+      isLoading,
+    }
+  }
+
   return {
-    ...(showSearch ? searchQueryRest : allQueryRest),
-    isLoading,
     groups: filteredAndOrderedGroups,
+    isLoading,
+    paginationMeta: paginationMeta(),
+    ...(showSearch ? searchQueryRest : allQueryRest),
   }
 }
 
-export const useGetAllGroups = ({ where, orderBy, enabled = true }: UseGetAllGroupsArgs) => {
+export const useGetAllGroups = ({ where, orderBy, pagination, enabled = true }: GroupsArgs) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<GetAllGroupsQuery>({
-    queryKey: ['groups', { where, orderBy }],
-    queryFn: () => client.request<GetAllGroupsQuery, GetAllGroupsQueryVariables>(GET_ALL_GROUPS, { where, orderBy }),
+    queryKey: ['groups', where, orderBy, pagination?.page, pagination?.pageSize],
+    queryFn: () =>
+      client.request(GET_ALL_GROUPS, {
+        where,
+        orderBy,
+        ...pagination?.query,
+      }),
     enabled,
   })
 
   const groups = (queryResult.data?.groups?.edges?.map((edge) => edge?.node) ?? []) as Group[]
 
-  return { ...queryResult, groups }
+  return {
+    ...queryResult,
+    groups,
+    pageInfo: queryResult.data?.groups?.pageInfo,
+    totalCount: queryResult.data?.groups?.totalCount ?? 0,
+  }
 }
 
-export function useSearchGroups(searchQuery: string) {
+type UseSearchGroupsArgs = {
+  search: string
+  pagination?: TPagination
+}
+
+export function useSearchGroups({ search, pagination }: UseSearchGroupsArgs) {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<SearchGroupsQuery, unknown>({
-    queryKey: ['searchGroups', searchQuery],
+    queryKey: ['searchGroups', search, pagination?.page, pagination?.pageSize],
     queryFn: async () =>
       client.request<SearchGroupsQuery, SearchGroupsQueryVariables>(SEARCH_GROUPS, {
-        query: searchQuery,
+        query: search,
+        ...pagination?.query,
       }),
-    enabled: !!searchQuery,
+    enabled: !!search,
   })
 
-  const groups = (queryResult.data?.groupSearch ?? []) as Group[]
+  const groups = (queryResult.data?.groupSearch?.edges?.map((edge) => edge?.node) ?? []) as Group[]
+  const pageInfo = queryResult.data?.groupSearch?.pageInfo
+  const totalCount = queryResult.data?.groupSearch?.totalCount ?? 0
 
-  return { ...queryResult, groups }
+  return {
+    ...queryResult,
+    groups,
+    pageInfo,
+    totalCount,
+  }
 }
 
 export const useGetGroupDetails = (groupId: string | null) => {
