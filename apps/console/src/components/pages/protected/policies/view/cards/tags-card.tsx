@@ -4,12 +4,12 @@ import React, { Fragment, useEffect, useState } from 'react'
 import { Card } from '@repo/ui/cardpanel'
 import { Tag } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
-import { CreatePolicyFormData } from '@/components/pages/protected/policies/hooks/use-form-schema.ts'
 import { InputRow } from '@repo/ui/input'
 import { FormControl, FormField } from '@repo/ui/form'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import { InternalPolicyByIdFragment } from '@repo/codegen/src/schema.ts'
 import { Badge } from '@repo/ui/badge'
+import { CreatePolicyFormData } from '@/components/pages/protected/policies/create/hooks/use-form-schema.ts'
 
 type TTagsCardProps = {
   form: UseFormReturn<CreatePolicyFormData>

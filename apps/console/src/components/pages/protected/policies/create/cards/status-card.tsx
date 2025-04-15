@@ -3,15 +3,15 @@
 import React from 'react'
 import { InternalPolicyDocumentStatus, InternalPolicyFrequency } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
-import { Binoculars, ScanEye, Stamp, ClockArrowUp, FileStack, ScrollText, Calendar, InfoIcon, CalendarCheck2, CalendarClock } from 'lucide-react'
+import { Binoculars, ScanEye, Stamp, ClockArrowUp, FileStack, ScrollText, Calendar, CalendarCheck2, CalendarClock } from 'lucide-react'
 import { Controller, UseFormReturn } from 'react-hook-form'
-import { CreatePolicyFormData } from '@/components/pages/protected/policies/hooks/use-form-schema.ts'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
-import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
+import { FormControl, FormField, FormItem } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
-import { TMetadata } from '@/components/pages/protected/policies/form/create-policy-form.tsx'
 import { format } from 'date-fns'
+import { CreatePolicyFormData } from '@/components/pages/protected/policies/create/hooks/use-form-schema.ts'
+import { TMetadata } from '@/components/pages/protected/policies/create/form/create-policy-form.tsx'
 
 type TStatusCardProps = {
   form: UseFormReturn<CreatePolicyFormData>
