@@ -19,10 +19,10 @@ import { useNotification } from '@/hooks/useNotification.tsx'
 import { usePolicy } from '@/components/pages/protected/policies/hooks/use-policy.tsx'
 import { useRouter } from 'next/navigation'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
+import { useQueryClient } from '@tanstack/react-query'
 
 type TCreatePolicyFormProps = {
   policy?: InternalPolicyByIdFragment
-  readonly?: boolean
 }
 
 export type TMetadata = {
@@ -30,9 +30,10 @@ export type TMetadata = {
   updatedAt: string
 }
 
-const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy, readonly }) => {
+const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   const { form } = useFormSchema()
   const router = useRouter()
+  const queryClient = useQueryClient()
   const { mutateAsync: createPolicy, isPending: isCreating } = useCreateInternalPolicy()
   const { mutateAsync: updatePolicy, isPending: isSaving } = useUpdateInternalPolicy()
   const isSubmitting = isCreating || isSaving
@@ -197,6 +198,8 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy, readonly }
       })
 
       form.reset()
+      queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+      queryClient.invalidateQueries({ queryKey: ['internalPolicy', policy?.id!] })
       router.push(`/policies`)
     } catch (error) {
       errorNotification({

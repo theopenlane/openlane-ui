@@ -93,6 +93,18 @@ export const INTERNAL_POLICY_BY_ID = gql`
     reviewDue
     reviewFrequency
     approvalRequired
+    approver {
+      id
+      displayName
+      gravatarLogoURL
+      logoURL
+    }
+    delegate {
+      id
+      displayName
+      gravatarLogoURL
+      logoURL
+    }
     narratives {
       edges {
         node {

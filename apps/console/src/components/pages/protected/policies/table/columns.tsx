@@ -43,7 +43,11 @@ export const policiesColumns: ColumnDef<InternalPolicy>[] = [
   {
     accessorKey: 'id',
     header: '',
-    cell: ({ cell }) => <Actions policyId={cell.getValue() as string} />,
+    cell: ({ cell }) => (
+      <div onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
+        <Actions policyId={cell.getValue() as string} />
+      </div>
+    ),
     size: 40,
   },
 ]

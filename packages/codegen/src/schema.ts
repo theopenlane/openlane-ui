@@ -31765,6 +31765,8 @@ export type InternalPolicyByIdFragment = {
   reviewDue?: any | null
   reviewFrequency?: InternalPolicyFrequency | null
   approvalRequired?: boolean | null
+  approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+  delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
   narratives: { __typename?: 'NarrativeConnection'; edges?: Array<{ __typename?: 'NarrativeEdge'; node?: { __typename?: 'Narrative'; id: string; displayID: string } | null } | null> | null }
   procedures: {
     __typename?: 'ProcedureConnection'
@@ -31821,6 +31823,8 @@ export type GetInternalPolicyDetailsByIdQuery = {
     reviewDue?: any | null
     reviewFrequency?: InternalPolicyFrequency | null
     approvalRequired?: boolean | null
+    approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+    delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
     narratives: { __typename?: 'NarrativeConnection'; edges?: Array<{ __typename?: 'NarrativeEdge'; node?: { __typename?: 'Narrative'; id: string; displayID: string } | null } | null> | null }
     procedures: {
       __typename?: 'ProcedureConnection'

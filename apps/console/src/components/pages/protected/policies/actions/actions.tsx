@@ -47,14 +47,21 @@ export const Actions = ({ policyId: policyId }: PolicyActionsProps) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-10">
           <DropdownMenuGroup>
-            <DropdownMenuItem onSelect={handleEditPolicy} className="cursor-pointer">
+            <DropdownMenuItem
+              onSelect={(event) => {
+                event.stopPropagation()
+                handleEditPolicy()
+              }}
+              className="cursor-pointer"
+            >
               <Edit width={ICON_SIZE} /> Edit
             </DropdownMenuItem>
             <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={() => {
+              onSelect={(event) => {
+                event.stopPropagation()
                 setIsDeleteDialogOpen(true)
               }}
+              className="cursor-pointer"
             >
               <Trash2 width={ICON_SIZE} /> Delete
             </DropdownMenuItem>
