@@ -112,11 +112,6 @@ const ControlsTable: React.FC = () => {
     [plateEditorHelper],
   )
 
-  // const tableData = useMemo(() => {
-  //   const edges = controlsData?.controls?.edges || []
-  //   return edges.map((edge) => edge?.node).filter((node): node is ControlListFieldsFragment => !!node)
-  // }, [controlsData])
-
   const handleRowClick = (row: ControlListFieldsFragment) => {
     push(`/controls/${row.id}`)
   }
