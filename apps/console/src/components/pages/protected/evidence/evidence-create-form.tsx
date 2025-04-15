@@ -25,6 +25,7 @@ import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Card } from '@repo/ui/cardpanel'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { Badge } from '@repo/ui/badge'
+import { useQueryClient } from '@tanstack/react-query'
 
 type TProps = {
   formData?: TFormEvidenceData
@@ -40,6 +41,7 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
   const [evidenceObjectTypes, setEvidenceObjectTypes] = useState<TObjectAssociationMap>()
   const { data: sessionData } = useSession()
   const { mutateAsync: createEvidence, isPending } = useCreateEvidence()
+  const queryClient = useQueryClient()
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
     const formData = {
@@ -65,6 +67,13 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
         title: 'Evidence Created',
         description: `Evidence has been successfully created`,
       })
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const key = query.queryKey[0]
+          return ['controls', 'programs', 'tasks', 'subcontrols', 'controlObjectives'].includes(key as string)
+        },
+      })
+
       onEvidenceCreateSuccess && onEvidenceCreateSuccess()
     } catch {
       errorNotification({
