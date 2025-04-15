@@ -32,7 +32,7 @@ export const Actions = ({ policyId: policyId }: PolicyActionsProps) => {
     try {
       await deletePolicy({ deleteInternalPolicyId: policyId })
       successNotification({
-        title: 'Questionnaire deleted successfully',
+        title: 'Policy deleted successfully',
       })
     } catch (error) {
       errorNotification({ title: 'Error deleting policy' })
