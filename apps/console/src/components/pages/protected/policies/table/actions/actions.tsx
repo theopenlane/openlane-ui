@@ -2,12 +2,12 @@
 
 import { Edit, MoreHorizontal, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
-import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useDeleteInternalPolicy } from '@/lib/graphql-hooks/policy'
+import { pageStyles } from '@/components/pages/protected/policies/page.styles.tsx'
 
 type PolicyActionsProps = {
   policyId: string
@@ -32,7 +32,7 @@ export const Actions = ({ policyId: policyId }: PolicyActionsProps) => {
     try {
       await deletePolicy({ deleteInternalPolicyId: policyId })
       successNotification({
-        title: 'Questionnaire deleted successfully',
+        title: 'Policy deleted successfully',
       })
     } catch (error) {
       errorNotification({ title: 'Error deleting policy' })
@@ -47,14 +47,21 @@ export const Actions = ({ policyId: policyId }: PolicyActionsProps) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-10">
           <DropdownMenuGroup>
-            <DropdownMenuItem onSelect={handleEditPolicy} className="cursor-pointer">
+            <DropdownMenuItem
+              onSelect={(event) => {
+                event.stopPropagation()
+                handleEditPolicy()
+              }}
+              className="cursor-pointer"
+            >
               <Edit width={ICON_SIZE} /> Edit
             </DropdownMenuItem>
             <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={() => {
+              onSelect={(event) => {
+                event.stopPropagation()
                 setIsDeleteDialogOpen(true)
               }}
+              className="cursor-pointer"
             >
               <Trash2 width={ICON_SIZE} /> Delete
             </DropdownMenuItem>

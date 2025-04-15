@@ -33,11 +33,15 @@ const editorContainerVariants = cva(
   },
 )
 
-export const EditorContainer = ({ className, variant, ...props }: React.HTMLAttributes<HTMLDivElement> & VariantProps<typeof editorContainerVariants>) => {
+type TEditorContainerProps = {
+  isScrollable?: boolean
+}
+
+export const EditorContainer = ({ className, variant, isScrollable, ...props }: React.HTMLAttributes<HTMLDivElement> & VariantProps<typeof editorContainerVariants> & TEditorContainerProps) => {
   const editor = useEditorRef()
   const containerRef = useEditorContainerRef()
 
-  return <div id={editor.uid} ref={containerRef} className={cn('ignore-click-outside/toolbar', editorContainerVariants({ variant }), className)} {...props} />
+  return <div id={editor.uid} ref={containerRef} className={cn('ignore-click-outside/toolbar', editorContainerVariants({ variant }), className, isScrollable ? 'overflow-y-auto' : '')} {...props} />
 }
 
 EditorContainer.displayName = 'EditorContainer'

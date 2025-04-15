@@ -3,4 +3,5 @@ type TObjectAssociationColumn = {
   name: string
   description: string
   inputName: string
+  refCode: string
 }
