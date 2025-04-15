@@ -70,6 +70,11 @@ export const FILTER_TEMPLATES = gql`
           updatedAt
         }
       }
+      pageInfo {
+        endCursor
+        startCursor
+      }
+      totalCount
     }
   }
 `
@@ -98,16 +103,23 @@ export const DELETE_TEMPLATE = gql`
 export const SEARCH_TEMPLATE = gql`
   query SearchTemplates($query: String!) {
     templateSearch(query: $query) {
-      templates {
-        id
-        name
-        templateType
-        description
-        jsonconfig
-        uischema
-        createdAt
-        updatedAt
+      edges {
+        node {
+          id
+          name
+          templateType
+          description
+          jsonconfig
+          uischema
+          createdAt
+          updatedAt
+        }
       }
+      pageInfo {
+        endCursor
+        startCursor
+      }
+      totalCount
     }
   }
 `

@@ -29,6 +29,11 @@ export const GET_PERSONAL_ACCESS_TOKENS = gql`
           }
         }
       }
+      pageInfo {
+        startCursor
+        endCursor
+      }
+      totalCount
     }
   }
 `
@@ -63,6 +68,11 @@ export const GET_API_TOKENS = gql`
           expiresAt
         }
       }
+      pageInfo {
+        startCursor
+        endCursor
+      }
+      totalCount
     }
   }
 `

@@ -30,26 +30,35 @@ export const GET_ORGANIZATION_NAME_BY_ID = gql`
 `
 
 export const GET_SINGLE_ORGANIZATION_MEMBERS = gql`
-  query GetSingleOrganizationMembers($organizationId: ID!) {
+  query GetSingleOrganizationMembers($organizationId: ID!, $first: Int, $after: Cursor) {
     organization(id: $organizationId) {
-      members {
-        id
-        createdAt
-        role
-        user {
-          id
-          firstName
-          lastName
-          authProvider
-          avatarRemoteURL
-          email
-          role
-          createdAt
-          avatarFile {
+      members(first: $first, after: $after) {
+        edges {
+          node {
             id
-            presignedURL
+            createdAt
+            role
+            user {
+              id
+              firstName
+              lastName
+              authProvider
+              avatarRemoteURL
+              email
+              role
+              createdAt
+              avatarFile {
+                id
+                presignedURL
+              }
+            }
           }
         }
+        pageInfo {
+          endCursor
+          startCursor
+        }
+        totalCount
       }
     }
   }
@@ -70,7 +79,11 @@ export const GET_ALL_ORGANIZATIONS_WITH_MEMBERS = gql`
             presignedURL
           }
           members {
-            role
+            edges {
+              node {
+                role
+              }
+            }
           }
         }
       }
@@ -92,6 +105,11 @@ export const GET_INVITES = gql`
           sendAttempts
         }
       }
+      pageInfo {
+        startCursor
+        endCursor
+      }
+      totalCount
     }
   }
 `

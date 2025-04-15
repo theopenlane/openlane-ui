@@ -21,6 +21,8 @@ import { personalAccessTokenTableStyles } from '../personal-access-tokens-table-
 import { TokenAction } from '@/components/pages/protected/developers/actions/pat-actions.tsx'
 import PersonalApiKeyDialog from '../personal-access-token-create-dialog'
 import { TOKEN_SORT_FIELDS } from '@/components/pages/protected/developers/table/table-config.ts'
+import { TPagination } from '@repo/ui/pagination-types'
+import { DEFAULT_PAGINATION } from '@/constants/pagination'
 
 type TokenNode = {
   id: string
@@ -34,6 +36,7 @@ type TokenNode = {
 export const PersonalAccessTokenTable = () => {
   const path = usePathname()
   const isOrg = path.includes('/organization-settings')
+  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
 
   const { tableRow, keyIcon, message } = personalAccessTokenTableStyles()
 
@@ -60,9 +63,27 @@ export const PersonalAccessTokenTable = () => {
     return orderBy.length > 0 ? orderBy : undefined
   }, [orderBy])
 
-  const { data, isError } = isOrg
-    ? useGetApiTokens(whereFilter, orderByFilter as GetApiTokensQueryVariables['orderBy'])
-    : useGetPersonalAccessTokens(whereFilter, orderByFilter as GetPersonalAccessTokensQueryVariables['orderBy'])
+  const { data, isError, isFetching } = isOrg
+    ? useGetApiTokens({
+        where: whereFilter,
+        orderBy: orderByFilter as GetApiTokensQueryVariables['orderBy'],
+        pagination,
+      })
+    : useGetPersonalAccessTokens({
+        where: whereFilter,
+        orderBy: orderByFilter as GetPersonalAccessTokensQueryVariables['orderBy'],
+        pagination,
+      })
+
+  const paginationMeta = useMemo(() => {
+    const source = isOrg ? (data as GetApiTokensQuery)?.apiTokens : (data as GetPersonalAccessTokensQuery)?.personalAccessTokens
+
+    return {
+      totalCount: source?.totalCount ?? 0,
+      pageInfo: source?.pageInfo,
+      isLoading: isFetching,
+    }
+  }, [data, isOrg, isFetching])
 
   if (isError || !data) return null
 
@@ -112,11 +133,7 @@ export const PersonalAccessTokenTable = () => {
             return value?.length ? value.map((org) => org.name).join(', ') : '-'
           },
         },
-    {
-      accessorKey: 'id',
-      header: '',
-      cell: ({ cell }) => <TokenAction tokenId={cell.getValue() as string} />,
-    },
+
     {
       accessorKey: 'expiresAt',
       header: 'Expires',
@@ -124,6 +141,11 @@ export const PersonalAccessTokenTable = () => {
         const value = cell.getValue() as string | null
         return value ? format(new Date(value), 'd MMM yyyy') : 'Never'
       },
+    },
+    {
+      accessorKey: 'id',
+      header: '',
+      cell: ({ cell }) => <TokenAction tokenId={cell.getValue() as string} />,
     },
   ]
 
@@ -136,6 +158,9 @@ export const PersonalAccessTokenTable = () => {
         sortFields={TOKEN_SORT_FIELDS}
         onSortChange={setOrderBy}
         noResultsText="No tokens found"
+        pagination={pagination}
+        onPaginationChange={setPagination}
+        paginationMeta={paginationMeta}
         noDataMarkup={
           <TableRow className={tableRow()}>
             <TableCell colSpan={columns.length}>

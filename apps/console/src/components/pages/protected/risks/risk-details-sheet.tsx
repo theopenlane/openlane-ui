@@ -99,7 +99,6 @@ const RiskDetailsSheet = () => {
   }
 
   const onSubmit = async (values: z.infer<typeof riskFormSchema>) => {
-    console.log(values)
     if (!risk?.id) return
 
     try {

@@ -27,6 +27,7 @@ import {
   Procedure,
 } from '@repo/codegen/src/schema'
 import { useDebounce } from '../../../../../packages/ui/src/hooks/use-debounce'
+import { TPagination } from '@repo/ui/pagination-types'
 
 export const useGetAllProceduresWithDetails = () => {
   const { client } = useGraphQLClient()
@@ -37,27 +38,65 @@ export const useGetAllProceduresWithDetails = () => {
   })
 }
 
-export const useFilteredProcedures = (searchQuery: string, where?: GetAllProceduresQueryVariables['where'], orderBy?: GetAllProceduresQueryVariables['orderBy']) => {
-  const debouncedSearchTerm = useDebounce(searchQuery, 300)
-  const { procedures: allProcedures, isLoading: isFetchingAll, ...allQueryRest } = useGetAllProcedures(where, orderBy)
-  const { procedures: searchProceduresRaw, isLoading: isSearching, ...searchQueryRest } = useSearchProcedures(debouncedSearchTerm)
+type UseFilteredProceduresArgs = {
+  where?: GetAllProceduresQueryVariables['where']
+  orderBy?: GetAllProceduresQueryVariables['orderBy']
+  pagination?: TPagination
+  search: string
+}
+
+export const useFilteredProcedures = ({ where, search, orderBy, pagination }: UseFilteredProceduresArgs) => {
+  const debouncedSearchTerm = useDebounce(search, 300)
+  const { procedures: allProcedures, isLoading: isFetchingAll, ...allQueryRest } = useGetAllProcedures({ where, orderBy, pagination })
+  const { procedures: searchProceduresRaw, isLoading: isSearching, ...searchQueryRest } = useSearchProcedures({ search: debouncedSearchTerm, pagination })
   const showSearch = !!debouncedSearchTerm
   const filteredAndOrderedProcedures = showSearch ? allProcedures?.filter((proc) => searchProceduresRaw?.some((searchProc) => searchProc.id === proc.id)) : allProcedures
   const isLoading = showSearch ? isSearching : isFetchingAll
 
+  const paginationMeta = () => {
+    if (!showSearch) {
+      return {
+        totalCount: allQueryRest?.data?.procedures.totalCount ?? 0,
+        pageInfo: allQueryRest?.data?.procedures.pageInfo,
+        isLoading,
+      }
+    }
+
+    if (showSearch) {
+      return {
+        totalCount: searchQueryRest.data?.procedureSearch?.totalCount ?? 0,
+        pageInfo: searchQueryRest.data?.procedureSearch?.pageInfo,
+        isLoading,
+      }
+    }
+
+    return {
+      totalCount: 0,
+      pageInfo: undefined,
+      isLoading,
+    }
+  }
+
   return {
     procedures: filteredAndOrderedProcedures,
     isLoading,
+    paginationMeta: paginationMeta(),
     ...(showSearch ? searchQueryRest : allQueryRest),
   }
 }
 
-export const useGetAllProcedures = (where?: GetAllProceduresQueryVariables['where'], orderBy?: GetAllProceduresQueryVariables['orderBy']) => {
+type GetInternalPoliciesListArgs = {
+  where?: GetAllProceduresQueryVariables['where']
+  orderBy?: GetAllProceduresQueryVariables['orderBy']
+  pagination?: TPagination
+}
+
+export const useGetAllProcedures = ({ where, orderBy, pagination }: GetInternalPoliciesListArgs) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<GetAllProceduresQuery>({
-    queryKey: ['procedures', { where, orderBy }],
-    queryFn: () => client.request(GET_ALL_PROCEDURES, { where, orderBy }),
+    queryKey: ['procedures', where, orderBy, pagination?.pageSize, pagination?.page],
+    queryFn: () => client.request(GET_ALL_PROCEDURES, { where, orderBy, ...pagination?.query }),
     enabled: where !== undefined,
   })
 
@@ -102,19 +141,25 @@ export const useDeleteProcedure = () => {
   })
 }
 
-export function useSearchProcedures(searchQuery: string) {
+type searchInternalPoliciesArgs = {
+  search: string
+  pagination?: TPagination
+}
+
+export function useSearchProcedures({ search, pagination }: searchInternalPoliciesArgs) {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<SearchProceduresQuery, unknown>({
-    queryKey: ['searchProcedures', searchQuery],
+    queryKey: ['searchProcedures', search, pagination?.pageSize, pagination?.page],
     queryFn: async () =>
       client.request<SearchProceduresQuery, SearchProceduresQueryVariables>(SEARCH_PROCEDURES, {
-        query: searchQuery,
+        query: search,
+        ...pagination?.query,
       }),
-    enabled: !!searchQuery,
+    enabled: !!search,
   })
 
-  const procedures = (queryResult.data?.procedureSearch?.procedures ?? []) as Procedure[]
+  const procedures = (queryResult.data?.procedureSearch ?? []) as Procedure[]
 
   return { ...queryResult, procedures }
 }

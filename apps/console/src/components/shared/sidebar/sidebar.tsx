@@ -31,7 +31,7 @@ export default function Sidebar({ className }: SidebarProps) {
     hasAssigneeWith: [userWhere],
   }
 
-  const { data } = useTasksWithFilter(whereFilter)
+  const { data } = useTasksWithFilter({ where: whereFilter })
   const userTaskCount = data?.tasks?.edges?.length || 0
 
   const activeOrg = allOrgs.filter((org) => org?.node?.id === currentOrgId).map((org) => org?.node)[0]

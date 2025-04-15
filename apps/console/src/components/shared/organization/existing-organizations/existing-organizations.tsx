@@ -56,7 +56,7 @@ export const ExistingOrganizations = () => {
       <Panel>
         <PanelHeader heading="Existing organizations" />
         {orgs.map((org) => {
-          const role = org?.node?.members?.[0]?.role ?? 'Owner'
+          const role = org?.node?.members?.edges?.[0]?.node?.role ?? 'Owner'
           return (
             <div key={org?.node?.id} className={`${orgWrapper()} group`}>
               <div>

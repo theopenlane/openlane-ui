@@ -34,12 +34,12 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
   const { successNotification, errorNotification } = useNotification()
   const taskTypeOptions = Object.values(TaskTypes)
   const { mutateAsync: createTask, isPending: isSubmitting } = useCreateTask()
-  const { data: membersData } = useGetSingleOrganizationMembers(session?.user.activeOrganizationId)
+  const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
 
-  const membersOptions = membersData?.organization?.members?.map((member) => ({
-    value: member.user.id,
-    label: `${member.user.firstName} ${member.user.lastName}`,
-    membershipId: member.id,
+  const membersOptions = membersData?.organization?.members?.edges?.map((member) => ({
+    value: member?.node?.user?.id,
+    label: `${member?.node?.user?.firstName} ${member?.node?.user?.lastName}`,
+    membershipId: member?.node?.id,
   }))
 
   const onSubmitHandler = async (data: CreateTaskFormData) => {
@@ -226,6 +226,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                                 {membersOptions &&
                                   membersOptions.length > 0 &&
                                   membersOptions.map((option) => (
+                                    // @ts-ignore todo mateo: fix type
                                     <SelectItem key={option.value} value={option.value}>
                                       {option.label}
                                     </SelectItem>

@@ -3,58 +3,118 @@ import { gql } from 'graphql-request'
 export const SEARCH = gql`
   query Search($query: String!) {
     search(query: $query) {
-      totalCount
-      nodes {
-        ... on ProgramSearchResult {
-          programs {
+      programs {
+        edges {
+          node {
             id
             name
           }
         }
-        ... on OrganizationSearchResult {
-          organizations {
+        pageInfo {
+          endCursor
+          startCursor
+        }
+        totalCount
+      }
+
+      organizations {
+        edges {
+          node {
             id
             name
             displayName
             avatarRemoteURL
           }
         }
-        ... on ControlObjectiveSearchResult {
-          controlObjectives {
+        pageInfo {
+          endCursor
+          startCursor
+        }
+        totalCount
+      }
+
+      controlObjectives {
+        edges {
+          node {
             id
             name
           }
         }
-        ... on ControlSearchResult {
-          controls {
+        pageInfo {
+          endCursor
+          startCursor
+        }
+        totalCount
+      }
+
+      controls {
+        edges {
+          node {
             id
             refCode
           }
         }
-        ... on SubcontrolSearchResult {
-          subcontrols {
+        pageInfo {
+          endCursor
+          startCursor
+        }
+        totalCount
+      }
+
+      subcontrols {
+        edges {
+          node {
             id
             refCode
           }
         }
-        ... on RiskSearchResult {
-          risks {
+        pageInfo {
+          endCursor
+          startCursor
+        }
+        totalCount
+      }
+
+      risks {
+        edges {
+          node {
             id
             name
           }
         }
-        ... on GroupSearchResult {
-          groups {
+        pageInfo {
+          endCursor
+          startCursor
+        }
+        totalCount
+      }
+
+      groups {
+        edges {
+          node {
             id
             name
           }
         }
-        ... on TaskSearchResult {
-          tasks {
+        pageInfo {
+          endCursor
+          startCursor
+        }
+        totalCount
+      }
+
+      tasks {
+        edges {
+          node {
             id
             title
           }
         }
+        pageInfo {
+          endCursor
+          startCursor
+        }
+        totalCount
       }
     }
   }
