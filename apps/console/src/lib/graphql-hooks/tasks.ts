@@ -87,7 +87,7 @@ export const useTask = (taskId?: TaskQueryVariables['taskId']) => {
   const { client } = useGraphQLClient()
 
   return useQuery<TaskQuery, unknown>({
-    queryKey: ['task', taskId],
+    queryKey: ['tasks', taskId],
     queryFn: async () => client.request(TASK, { taskId }),
     enabled: !!taskId,
   })

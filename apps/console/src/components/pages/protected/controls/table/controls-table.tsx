@@ -27,18 +27,15 @@ const ControlsTable: React.FC = () => {
       direction: OrderDirection.DESC,
     },
   ])
+  const [searchTerm, setSearchTerm] = useState('')
 
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
 
-  const {
-    data: controlsData,
-    isLoading,
-    isError,
-    isFetching,
-  } = useGetAllControls({
+  const { controls, isLoading, isError, paginationMeta } = useGetAllControls({
     where: { ownerIDNEQ: '' },
     orderBy,
     pagination,
+    search: searchTerm,
   })
 
   const columns: ColumnDef<ControlListFieldsFragment>[] = useMemo(
@@ -115,11 +112,6 @@ const ControlsTable: React.FC = () => {
     [plateEditorHelper],
   )
 
-  const tableData = useMemo(() => {
-    const edges = controlsData?.controls?.edges || []
-    return edges.map((edge) => edge?.node).filter((node): node is ControlListFieldsFragment => !!node)
-  }, [controlsData])
-
   const handleRowClick = (row: ControlListFieldsFragment) => {
     push(`/controls/${row.id}`)
   }
@@ -142,24 +134,30 @@ const ControlsTable: React.FC = () => {
     URL.revokeObjectURL(url)
   }
 
-  if (isLoading) return <div>Loading Controls...</div>
   if (isError) return <div>Failed to load Controls</div>
 
   return (
     <div>
       <div className="flex justify-end items-center mb-4 w-full">
-        <Button onClick={() => exportToCSV(tableData, 'control_list')} icon={<DownloadIcon />} iconPosition="left">
+        <Button onClick={() => exportToCSV(controls, 'control_list')} icon={<DownloadIcon />} iconPosition="left">
           Export
         </Button>
       </div>
-      <ControlsTableToolbar onFilterChange={setFilters} />
+      <ControlsTableToolbar
+        onFilterChange={setFilters}
+        searchTerm={searchTerm}
+        setSearchTerm={(inputVal) => {
+          setSearchTerm(inputVal)
+          setPagination(DEFAULT_PAGINATION)
+        }}
+      />
       <DataTable
         columns={columns}
-        data={tableData}
+        data={controls}
         onRowClick={handleRowClick}
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
-        paginationMeta={{ totalCount: controlsData?.controls.totalCount, pageInfo: controlsData?.controls.pageInfo, isLoading: isFetching }}
+        paginationMeta={paginationMeta}
         sortFields={CONTROLS_SORT_FIELDS}
         onSortChange={setOrderBy}
       />

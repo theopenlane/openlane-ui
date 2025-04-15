@@ -57,7 +57,7 @@ const AddMembersDialog = () => {
       },
     })
 
-    queryClient.invalidateQueries({ queryKey: ['group', selectedGroup] })
+    queryClient.invalidateQueries({ queryKey: ['groups', selectedGroup] })
     successNotification({ title: 'Members updated successfully' })
     setIsOpen(false)
   }
