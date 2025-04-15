@@ -31201,6 +31201,20 @@ export type UpdateControlMutationVariables = Exact<{
 
 export type UpdateControlMutation = { __typename?: 'Mutation'; updateControl: { __typename?: 'ControlUpdatePayload'; control: { __typename?: 'Control'; id: string } } }
 
+export type SearchControlsQueryVariables = Exact<{
+  query: Scalars['String']['input']
+}>
+
+export type SearchControlsQuery = {
+  __typename?: 'Query'
+  controlSearch?: {
+    __typename?: 'ControlConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string } | null } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
+  } | null
+}
+
 export type GetDashboardDataQueryVariables = Exact<{
   where?: InputMaybe<TaskWhereInput>
 }>

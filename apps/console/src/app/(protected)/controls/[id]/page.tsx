@@ -164,7 +164,7 @@ const ControlDetailsPage: React.FC = () => {
                   ...((control?.tasks?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
                   ...((control?.subcontrols?.edges?.map((e) => e?.node?.refCode).filter(Boolean) as string[]) ?? []),
                   ...((control?.controlObjectives?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
-                  ...(id ? [id] : []),
+                  ...(control.refCode ? [control.refCode] : []),
                 ],
               }}
               evidences={control.evidence?.edges?.filter((e): e is EvidenceEdge => !!e && !!e.node) || []}

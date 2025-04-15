@@ -60,7 +60,7 @@ export const useGetOrganizationNameById = (organizationId: string) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetOrganizationNameByIdQuery, GetOrganizationNameByIdQueryVariables>({
-    queryKey: ['organization', organizationId],
+    queryKey: ['organizations', organizationId],
     queryFn: async () => client.request(GET_ORGANIZATION_NAME_BY_ID, { organizationId }),
     enabled: !!organizationId,
   })
