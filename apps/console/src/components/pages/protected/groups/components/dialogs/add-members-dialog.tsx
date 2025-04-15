@@ -21,7 +21,7 @@ const AddMembersDialog = () => {
   const { data } = useGetGroupDetails(selectedGroup)
   const { members, isManaged, id } = data?.group || {}
 
-  const { data: membersData } = useGetSingleOrganizationMembers(session?.user.activeOrganizationId)
+  const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const { mutateAsync: updateGroup } = useUpdateGroup()
 
   const membersOptions = membersData?.organization?.members?.edges
