@@ -231,3 +231,13 @@ export const SEARCH_INTERNAL_POLICIES = gql`
     }
   }
 `
+
+export const CREATE_CSV_BULK_INTERNAL_POLICY = gql`
+  mutation CreateBulkCSVInternalPolicy($input: Upload!) {
+    createBulkCSVInternalPolicy(input: $input) {
+      internalPolicies {
+        id
+      }
+    }
+  }
+`

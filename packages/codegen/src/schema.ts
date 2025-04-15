@@ -31889,6 +31889,15 @@ export type SearchInternalPoliciesQuery = {
   } | null
 }
 
+export type CreateBulkCsvInternalPolicyMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvInternalPolicyMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVInternalPolicy: { __typename?: 'InternalPolicyBulkCreatePayload'; internalPolicies?: Array<{ __typename?: 'InternalPolicy'; id: string }> | null }
+}
+
 export type CreateProcedureMutationVariables = Exact<{
   input: CreateProcedureInput
 }>

@@ -6,6 +6,7 @@ import { LoaderCircle, PlusCircle, SearchIcon } from 'lucide-react'
 import { INTERNAL_POLICIES_FILTERABLE_FIELDS } from '@/components/pages/protected/policies/table/table-config.ts'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
+import BulkCSVCreatePolicyDialog from '@/components/pages/protected/policies/create/form/bulk-csv-create-policy-dialog.tsx'
 
 type TPoliciesTableToolbarProps = {
   className?: string
@@ -36,6 +37,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({ className,
         <Button icon={<PlusCircle />} iconPosition="left" onClick={handleCreateNew}>
           Create new
         </Button>
+        <BulkCSVCreatePolicyDialog />
       </div>
     </div>
   )
