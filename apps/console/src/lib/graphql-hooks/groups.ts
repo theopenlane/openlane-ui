@@ -32,15 +32,15 @@ type UseGetAllGroupsArgs = {
 export const useFilteredGroups = (searchQuery: string, where?: GetAllGroupsQueryVariables['where'], orderBy?: GetAllGroupsQueryVariables['orderBy'], enabled = true) => {
   const debouncedSearchTerm = useDebounce(searchQuery, 300)
   const { groups: allGroups, isLoading: isFetchingAll, ...allQueryRest } = useGetAllGroups({ where, orderBy, enabled })
-  const { groups: searchGroupsRaw, isLoading: isSearching, ...searchQueryRest } = useSearchGroups(debouncedSearchTerm)
+  const { data: searchGroupsRaw, isLoading: isSearching, ...searchQueryRest } = useSearchGroups(debouncedSearchTerm)
   const showSearch = !!debouncedSearchTerm
-  const filteredAndOrderedGroups = showSearch ? allGroups?.filter((proc) => searchGroupsRaw?.some((searchProc) => searchProc.id === proc.id)) : allGroups
+  const filteredAndOrderedGroups = showSearch ? allGroups?.filter((proc) => searchGroupsRaw?.groupSearch?.edges?.some((searchProc) => searchProc?.node?.id === proc.id)) : allGroups
   const isLoading = showSearch ? isSearching : isFetchingAll
 
   return {
-    groups: filteredAndOrderedGroups,
-    isLoading,
     ...(showSearch ? searchQueryRest : allQueryRest),
+    isLoading,
+    groups: filteredAndOrderedGroups,
   }
 }
 
