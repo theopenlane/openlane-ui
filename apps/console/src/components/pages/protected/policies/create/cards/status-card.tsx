@@ -146,7 +146,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
             <span>Version</span>
           </div>
 
-          <div className="flex gap-2">{metadata?.revision}</div>
+          <div className="w-48">{metadata?.revision}</div>
         </div>
 
         {/* Policy type */}
