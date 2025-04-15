@@ -12,7 +12,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { PlusCircle } from 'lucide-react'
 import { GroupSettingVisibility } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
-import MultipleSelector from '@repo/ui/multiple-selector'
+import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import { useCreateGroupWithMembers } from '@/lib/graphql-hooks/groups'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
@@ -125,7 +125,7 @@ const CreateGroupDialog = ({ triggerText }: MyGroupsDialogProps) => {
               Assign member(s) to the group:
             </Label>
             <MultipleSelector
-              defaultOptions={membersOptions}
+              defaultOptions={membersOptions as Option[]}
               onChange={(selected) =>
                 setValue(
                   'members',
