@@ -126,7 +126,7 @@ export const useGetGroupDetails = (groupId: string | null) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetGroupDetailsQuery, GetGroupDetailsQueryVariables>({
-    queryKey: ['group', groupId],
+    queryKey: ['groups', groupId],
     queryFn: () => client.request(GET_GROUP_DETAILS, { groupId }),
     enabled: !!groupId,
   })
@@ -136,7 +136,7 @@ export const useGetGroupPermissions = (groupId?: string | null) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetGroupPermissionsQuery, GetGroupPermissionsQueryVariables>({
-    queryKey: ['group', groupId, 'permissions'],
+    queryKey: ['groups', groupId, 'permissions'],
     queryFn: () => client.request(GET_GROUP_PERMISSIONS, { groupId }),
     enabled: !!groupId,
   })

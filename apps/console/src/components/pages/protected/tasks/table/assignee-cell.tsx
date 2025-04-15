@@ -40,7 +40,7 @@ const AssigneeCell: React.FC<TProps> = (props: TProps) => {
         },
       })
 
-      queryClient.invalidateQueries({ queryKey: ['task'] })
+      queryClient.invalidateQueries({ queryKey: ['tasks'] })
       successNotification({
         title: 'Task Updated',
         description: 'The task assignee has been successfully updated.',

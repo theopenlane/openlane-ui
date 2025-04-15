@@ -58,7 +58,7 @@ const GroupsMembersTable = () => {
         role: newRole,
       },
     })
-    queryClient.invalidateQueries({ queryKey: ['group', id] })
+    queryClient.invalidateQueries({ queryKey: ['groups', id] })
   }
 
   const handleDelete = (id: string) => {
