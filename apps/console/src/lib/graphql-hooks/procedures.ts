@@ -8,6 +8,8 @@ import {
   GET_PROCEDURE_DETAILS_BY_ID,
   DELETE_PROCEDURE,
   SEARCH_PROCEDURES,
+  CREATE_CSV_BULK_PROCEDURE,
+  GET_PROCEDURES_LIST,
 } from '@repo/codegen/query/procedure' // Update import path as needed
 
 import {
@@ -25,9 +27,13 @@ import {
   SearchProceduresQuery,
   SearchProceduresQueryVariables,
   Procedure,
+  CreateBulkCsvProcedureMutation,
+  CreateBulkCsvProcedureMutationVariables,
+  GetProceduresListQuery,
 } from '@repo/codegen/src/schema'
 import { useDebounce } from '../../../../../packages/ui/src/hooks/use-debounce'
 import { TPagination } from '@repo/ui/pagination-types'
+import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
 
 export const useGetAllProceduresWithDetails = () => {
   const { client } = useGraphQLClient()
@@ -47,7 +53,7 @@ type UseFilteredProceduresArgs = {
 
 export const useFilteredProcedures = ({ where, search, orderBy, pagination }: UseFilteredProceduresArgs) => {
   const debouncedSearchTerm = useDebounce(search, 300)
-  const { procedures: allProcedures, isLoading: isFetchingAll, ...allQueryRest } = useGetAllProcedures({ where, orderBy, pagination })
+  const { procedures: allProcedures, isLoading: isFetchingAll, ...allQueryRest } = useGetProceduresList({ where, orderBy, pagination })
   const { procedures: searchProceduresRaw, isLoading: isSearching, ...searchQueryRest } = useSearchProcedures({ search: debouncedSearchTerm, pagination })
   const showSearch = !!debouncedSearchTerm
   const filteredAndOrderedProcedures = showSearch ? allProcedures?.filter((proc) => searchProceduresRaw?.some((searchProc) => searchProc.id === proc.id)) : allProcedures
@@ -85,19 +91,18 @@ export const useFilteredProcedures = ({ where, search, orderBy, pagination }: Us
   }
 }
 
-type GetInternalPoliciesListArgs = {
+type GetProceduresListArgs = {
   where?: GetAllProceduresQueryVariables['where']
   orderBy?: GetAllProceduresQueryVariables['orderBy']
   pagination?: TPagination
 }
 
-export const useGetAllProcedures = ({ where, orderBy, pagination }: GetInternalPoliciesListArgs) => {
+export const useGetProceduresList = ({ where, orderBy, pagination }: GetProceduresListArgs) => {
   const { client } = useGraphQLClient()
 
-  const queryResult = useQuery<GetAllProceduresQuery>({
-    queryKey: ['procedures', where, orderBy, pagination?.pageSize, pagination?.page],
-    queryFn: () => client.request(GET_ALL_PROCEDURES, { where, orderBy, ...pagination?.query }),
-    enabled: where !== undefined,
+  const queryResult = useQuery<GetProceduresListQuery>({
+    queryKey: ['procedures', where, orderBy, pagination?.page, pagination?.pageSize],
+    queryFn: async () => client.request(GET_PROCEDURES_LIST, { where, orderBy, ...pagination?.query }),
   })
 
   const procedures = (queryResult.data?.procedures?.edges?.map((edge) => edge?.node) ?? []) as Procedure[]
@@ -141,12 +146,12 @@ export const useDeleteProcedure = () => {
   })
 }
 
-type searchInternalPoliciesArgs = {
+type TSearchProceduresArgs = {
   search: string
   pagination?: TPagination
 }
 
-export function useSearchProcedures({ search, pagination }: searchInternalPoliciesArgs) {
+export function useSearchProcedures({ search, pagination }: TSearchProceduresArgs) {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<SearchProceduresQuery, unknown>({
@@ -162,4 +167,15 @@ export function useSearchProcedures({ search, pagination }: searchInternalPolici
   const procedures = (queryResult.data?.procedureSearch ?? []) as Procedure[]
 
   return { ...queryResult, procedures }
+}
+
+export const useCreateBulkCSVProcedure = () => {
+  const { queryClient } = useGraphQLClient()
+
+  return useMutation<CreateBulkCsvProcedureMutation, unknown, CreateBulkCsvProcedureMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_PROCEDURE, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['procedures'] })
+    },
+  })
 }
