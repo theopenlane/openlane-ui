@@ -103,7 +103,7 @@ const StandardDetailsAccordion: FC = () => {
   }, [groupedControls, hasInitialized])
 
   return (
-    <>
+    <div className="relative">
       <Accordion type="multiple" value={openSections} onValueChange={setOpenSections} className="w-full">
         <div className="flex justify-between w-full items-center mb-4">
           <div className="flex gap-2.5 items-center">
@@ -217,7 +217,7 @@ const StandardDetailsAccordion: FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   )
 }
 
