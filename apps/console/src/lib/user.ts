@@ -17,7 +17,7 @@ export interface ResendVerificationEmail {
 
 export interface PasskeyRegOptionsInput {
   email: string
-  name: string
+  name?: string
 }
 
 export interface PasskeySignInOptionsInput {
