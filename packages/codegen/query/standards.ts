@@ -44,3 +44,13 @@ export const GET_STANDARD_DETAILS = gql`
     }
   }
 `
+
+export const CREATE_CONTROLS_BY_CLONE = gql`
+  mutation CreateControlsByClone($input: CloneControlInput!) {
+    createControlsByClone(input: $input) {
+      controls {
+        id
+      }
+    }
+  }
+`

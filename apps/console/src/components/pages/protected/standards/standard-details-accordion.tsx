@@ -14,6 +14,8 @@ import { useParams } from 'next/navigation'
 import { useDebounce } from '@uidotdev/usehooks'
 import { ControlListFieldsFragment } from '@repo/codegen/src/schema'
 import { useGetAllPrograms } from '@/lib/graphql-hooks/programs'
+import { useCloneControls } from '@/lib/graphql-hooks/standards'
+import { useNotification } from '@/hooks/useNotification'
 
 const generateWhere = (id: string, searchValue: string) => ({
   and: [
@@ -25,6 +27,8 @@ const generateWhere = (id: string, searchValue: string) => ({
 })
 
 const StandardDetailsAccordion: FC = () => {
+  const { successNotification, errorNotification } = useNotification()
+
   const params = useParams()
   const id = typeof params?.id === 'string' ? params.id : ''
 
@@ -34,6 +38,8 @@ const StandardDetailsAccordion: FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedProgram, setSelectedProgram] = useState<string | null>(null)
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
+
+  const { mutateAsync: cloneControls, isPending } = useCloneControls()
 
   const where = generateWhere(id, debouncedSearchQuery)
   const { controls } = useGetAllControls({ where })
@@ -58,8 +64,23 @@ const StandardDetailsAccordion: FC = () => {
     setSelectedControls((prev) => (prev.includes(controlId) ? prev.filter((id) => id !== controlId) : [...prev, controlId]))
   }
 
-  const toggleSection = (section: string) => {
-    setOpenSections((prev) => (prev.includes(section) ? prev.filter((s) => s !== section) : [...prev, section]))
+  const handleAddToProgram = async () => {
+    if (!selectedProgram || selectedControls.length === 0) return
+
+    try {
+      await cloneControls({
+        input: {
+          programID: selectedProgram,
+          controlIDs: selectedControls,
+        },
+      })
+
+      successNotification({ title: 'Controls added to program successfully!' })
+      setIsDialogOpen(false)
+      setSelectedControls([])
+    } catch (error) {
+      errorNotification({ title: 'Failed to add controls to the program.' })
+    }
   }
 
   useEffect(() => {
@@ -163,9 +184,9 @@ const StandardDetailsAccordion: FC = () => {
             </SelectContent>
           </Select>
           <DialogFooter>
-            <Button onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-            {/* <Button onClick={() => console.log(selectedControls, selectedProgram)}>Add</Button> */}
-            <Button>Add</Button>
+            <Button disabled={!selectedProgram || isPending} onClick={handleAddToProgram}>
+              {isPending ? 'Adding...' : 'Add'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
