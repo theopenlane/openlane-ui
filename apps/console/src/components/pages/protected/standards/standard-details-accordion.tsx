@@ -105,33 +105,31 @@ const StandardDetailsAccordion: FC = () => {
   return (
     <div className="relative">
       <Accordion type="multiple" value={openSections} onValueChange={setOpenSections} className="w-full">
-        <div className="flex justify-between w-full items-center mb-4">
-          <div className="flex gap-2.5 items-center">
-            <Button
-              className="h-8 !px-2"
-              variant="outline"
-              onClick={() => {
-                setOpenSections([])
-              }}
-              icon={<ChevronsDownUp />}
-              iconPosition="left"
-            >
-              Collapse all
-            </Button>
+        <div className="flex gap-2.5 items-center absolute right-0 mt-2">
+          <Button
+            className="h-8 !px-2"
+            variant="outline"
+            onClick={() => {
+              setOpenSections([])
+            }}
+            icon={<ChevronsDownUp />}
+            iconPosition="left"
+          >
+            Collapse all
+          </Button>
 
-            <Button
-              className="h-8 !px-2"
-              variant="outline"
-              onClick={() => {
-                const all = Object.keys(groupedControls)
-                setOpenSections(all)
-              }}
-              icon={<ChevronsUpDown />}
-              iconPosition="left"
-            >
-              Expand all
-            </Button>
-          </div>
+          <Button
+            className="h-8 !px-2"
+            variant="outline"
+            onClick={() => {
+              const all = Object.keys(groupedControls)
+              setOpenSections(all)
+            }}
+            icon={<ChevronsUpDown />}
+            iconPosition="left"
+          >
+            Expand all
+          </Button>
         </div>
         {Object.entries(groupedControls).map(([category, controls]) => {
           const isOpen = openSections.includes(category)
