@@ -25,7 +25,11 @@ const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefine
         email: userData?.user.email as string,
       })
 
-      const attestationResponse = await startRegistration(options.publicKey)
+      const attestationResponse = await startRegistration({
+        useAutoRegister: true,
+        optionsJSON: options.publicKey,
+      })
+
       const verificationResult = await verifyRegistration({
         attestationResponse,
       })
@@ -46,9 +50,16 @@ const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefine
 
       // queryClient.invalidateQueries({ queryKey: ['tfaSettings'] })
       // queryClient.invalidateQueries({ queryKey: ['userTFASettings'] })
-    } catch (error) {
+    } catch (err: any) {
       setLoading(false)
-      console.error('Error during passkey creation:', error)
+      console.error('Error during passkey creation:', err)
+
+      if (err.name === 'AbortError' || err.name === 'NotAllowedError') {
+        console.log('User canceled registration')
+        errorNotification({ title: 'User canceled setting up Passkeys' })
+        return
+      }
+
       errorNotification({ title: 'An error occurred while setting up your passkey' })
     }
   }
@@ -65,7 +76,7 @@ const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefine
         badge: <Badge variant="secondary">Recommended</Badge>,
         text: <p className="text-sm">With Passkeys, you can securely sign into your account using just your fingerprint, face, screen lock, or security key</p>,
         buttons: [
-          <Button key={0} className="mx-10 w-24" onClick={handleConfigure} loading={loading}>
+          <Button key={0} className="mx-10 w-24" onClick={handleConfigure} loading={loading} disabled={loading}>
             Configure
           </Button>,
         ],
