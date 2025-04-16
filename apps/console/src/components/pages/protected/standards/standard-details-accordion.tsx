@@ -106,6 +106,16 @@ const StandardDetailsAccordion: FC = () => {
     <div className="relative">
       <Accordion type="multiple" value={openSections} onValueChange={setOpenSections} className="w-full">
         <div className="flex gap-2.5 items-center absolute right-0 mt-2">
+          <Input
+            value={searchQuery}
+            name="standardSearch"
+            placeholder="Search ..."
+            onChange={(e) => setSearchQuery(e.target.value)}
+            icon={<SearchIcon size={16} />}
+            iconPosition="left"
+            variant="searchTable"
+            className="!border-brand"
+          />
           <Button
             className="h-8 !px-2"
             variant="outline"
