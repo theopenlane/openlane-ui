@@ -32466,6 +32466,30 @@ export type GetStandardDetailsQuery = {
   }
 }
 
+export type CreateControlsByCloneMutationVariables = Exact<{
+  input: CloneControlInput
+}>
+
+export type CreateControlsByCloneMutation = {
+  __typename?: 'Mutation'
+  createControlsByClone: {
+    __typename?: 'ControlBulkCreatePayload'
+    controls?: Array<{
+      __typename?: 'Control'
+      id: string
+      refCode: string
+      description?: string | null
+      standardID?: string | null
+      standard?: { __typename?: 'Standard'; id: string; name: string; shortName?: string | null; description?: string | null } | null
+      subcontrols: {
+        __typename?: 'SubcontrolConnection'
+        totalCount: number
+        edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; description?: string | null } | null } | null> | null
+      }
+    }> | null
+  }
+}
+
 export type GetAllSubcontrolsQueryVariables = Exact<{
   where?: InputMaybe<SubcontrolWhereInput>
 }>
