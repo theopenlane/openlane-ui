@@ -7,7 +7,7 @@ import { Checkbox } from '@repo/ui/checkbox'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { ChevronDown, ChevronRight, SearchIcon, ShieldPlus } from 'lucide-react'
+import { ChevronDown, ChevronRight, ChevronsDownUp, ChevronsUpDown, SearchIcon, ShieldPlus } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { useGetAllControls } from '@/lib/graphql-hooks/controls'
 import { useParams } from 'next/navigation'
@@ -32,7 +32,7 @@ const StandardDetailsAccordion: FC = () => {
 
   const params = useParams()
   const id = typeof params?.id === 'string' ? params.id : ''
-
+  const [hasInitialized, setHasInitialized] = useState(false)
   const [selectedControls, setSelectedControls] = useState<string[]>([])
   const [openSections, setOpenSections] = useState<string[]>([])
   const [searchQuery, setSearchQuery] = useState<string>('')
@@ -93,27 +93,43 @@ const StandardDetailsAccordion: FC = () => {
   }
 
   useEffect(() => {
+    if (hasInitialized) return
+
     const firstCategory = Object.keys(groupedControls)[0]
-    if (firstCategory && openSections.length === 0) {
+    if (firstCategory) {
       setOpenSections([firstCategory])
+      setHasInitialized(true)
     }
-  }, [groupedControls])
+  }, [groupedControls, hasInitialized])
 
   return (
-    <>
+    <div className="relative">
       <Accordion type="multiple" value={openSections} onValueChange={setOpenSections} className="w-full">
-        <div className="flex justify-between">
-          <h2 className="text-2xl">Domains</h2>
-          <Input
-            value={searchQuery}
-            name="standardSearch"
-            placeholder="Search ..."
-            onChange={(e) => setSearchQuery(e.target.value)}
-            icon={<SearchIcon size={16} />}
+        <div className="flex gap-2.5 items-center absolute right-0 mt-2">
+          <Button
+            className="h-8 !px-2"
+            variant="outline"
+            onClick={() => {
+              setOpenSections([])
+            }}
+            icon={<ChevronsDownUp />}
             iconPosition="left"
-            variant="searchTable"
-            className="!border-brand"
-          />
+          >
+            Collapse all
+          </Button>
+
+          <Button
+            className="h-8 !px-2"
+            variant="outline"
+            onClick={() => {
+              const all = Object.keys(groupedControls)
+              setOpenSections(all)
+            }}
+            icon={<ChevronsUpDown />}
+            iconPosition="left"
+          >
+            Expand all
+          </Button>
         </div>
         {Object.entries(groupedControls).map(([category, controls]) => {
           const isOpen = openSections.includes(category)
@@ -199,7 +215,7 @@ const StandardDetailsAccordion: FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   )
 }
 
