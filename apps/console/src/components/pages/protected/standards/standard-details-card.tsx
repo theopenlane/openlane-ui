@@ -56,7 +56,7 @@ const StandardDetailsCard = () => {
                 Link
               </TableCell>
               <TableCell className={valueCell()}>
-                <a href={standard?.link ?? '#'} className="flex items-center gap-1 text-blue-500">
+                <a href={standard?.link ?? '#'} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-blue-500">
                   View <ExternalLink size={16} />
                 </a>
               </TableCell>
