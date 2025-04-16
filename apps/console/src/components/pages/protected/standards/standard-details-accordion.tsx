@@ -16,6 +16,7 @@ import { ControlListFieldsFragment } from '@repo/codegen/src/schema'
 import { useGetAllPrograms } from '@/lib/graphql-hooks/programs'
 import { useCloneControls } from '@/lib/graphql-hooks/standards'
 import { useNotification } from '@/hooks/useNotification'
+import { useQueryClient } from '@tanstack/react-query'
 
 const generateWhere = (id: string, searchValue: string) => ({
   and: [
@@ -38,6 +39,7 @@ const StandardDetailsAccordion: FC = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedProgram, setSelectedProgram] = useState<string | null>(null)
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
+  const queryClient = useQueryClient()
 
   const { mutateAsync: cloneControls, isPending } = useCloneControls()
 
@@ -72,6 +74,13 @@ const StandardDetailsAccordion: FC = () => {
         input: {
           programID: selectedProgram,
           controlIDs: selectedControls,
+        },
+      })
+
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const [firstKey, maybeId] = query.queryKey as [string, string?]
+          return firstKey === 'control' && typeof maybeId === 'string' && selectedControls.includes(maybeId)
         },
       })
 
