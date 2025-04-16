@@ -1,12 +1,20 @@
 'use client'
 
 import { NextPage } from 'next'
-import { ProcedureEditPage } from '@/components/pages/protected/procedures/procedure-edit-page'
 import { useParams } from 'next/navigation'
+import { PageHeading } from '@repo/ui/page-heading'
+import React from 'react'
+import EditProcedurePage from '@/components/pages/protected/procedures/edit-procedure-page.tsx'
 
-export const Page: NextPage = () => {
+const Page: NextPage = () => {
   const { id } = useParams()
-  return <ProcedureEditPage procedureId={id as string} />
+
+  return (
+    <>
+      <PageHeading heading="Edit procedure" />
+      <EditProcedurePage procedureId={id as string} />
+    </>
+  )
 }
 
 export default Page

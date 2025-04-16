@@ -7,22 +7,27 @@ import { TObjectAssociationMap } from './types/TObjectAssociationMap'
 
 type Props = {
   data: TObjectAssociationColumn[]
-  onIDsChange: (objectIds: TObjectAssociationMap) => void
+  onIDsChange: (updatedMap: TObjectAssociationMap, refCodes?: any) => void
   initialData?: TObjectAssociationMap
+  refCodeInitialData?: TObjectAssociationMap
 }
 
-const ObjectAssociationTable = ({ data, onIDsChange, initialData }: Props) => {
+const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitialData }: Props) => {
   const [selectedIdsMap, setSelectedIdsMap] = useState<TObjectAssociationMap>({})
+  const [selectedRefCodeMap, setSelectedRefCodeMap] = useState<TObjectAssociationMap>({})
 
   useEffect(() => {
     if (initialData) {
       setSelectedIdsMap(initialData)
     }
+    if (refCodeInitialData) {
+      setSelectedRefCodeMap(refCodeInitialData)
+    }
   }, [initialData])
 
   useEffect(() => {
-    onIDsChange(selectedIdsMap)
-  }, [selectedIdsMap, onIDsChange])
+    onIDsChange(selectedIdsMap, selectedRefCodeMap)
+  }, [selectedIdsMap, data])
 
   const columns: ColumnDef<TObjectAssociationColumn>[] = [
     {
@@ -30,12 +35,24 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData }: Props) => {
       header: 'Name',
       cell: ({ row }) => {
         const id = row.original.id!
+        const refCode = row.original.refCode
         const name = row.original.name
         const inputName = row.original.inputName
 
         const checked = selectedIdsMap[inputName]?.includes(id) ?? false
 
         const toggleChecked = (isChecked: boolean) => {
+          setSelectedRefCodeMap((prev) => {
+            const currentList = prev[inputName] ?? []
+
+            if (isChecked) {
+              if (currentList.includes(refCode)) return prev
+              return { ...prev, [inputName]: [...currentList, refCode] }
+            } else {
+              const updatedList = currentList.filter((i) => i !== refCode)
+              return { ...prev, [inputName]: updatedList }
+            }
+          })
           setSelectedIdsMap((prev) => {
             const currentList = prev[inputName] ?? []
 
@@ -44,8 +61,7 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData }: Props) => {
               return { ...prev, [inputName]: [...currentList, id] }
             } else {
               const updatedList = currentList.filter((i) => i !== id)
-              const next = { ...prev, [inputName]: updatedList }
-              return next
+              return { ...prev, [inputName]: updatedList }
             }
           })
         }

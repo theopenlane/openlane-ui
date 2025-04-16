@@ -1,10 +1,9 @@
 import { ColumnDef } from '@tanstack/react-table'
-import Link from 'next/link'
 import { format } from 'date-fns'
 import React from 'react'
-import { Actions } from '@/components/pages/protected/policies/actions/actions.tsx'
 import { InternalPolicy } from '@repo/codegen/src/schema.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
+import { Actions } from '@/components/pages/protected/policies/table/actions/actions.tsx'
 
 export const policiesColumns: ColumnDef<InternalPolicy>[] = [
   {
@@ -18,16 +17,8 @@ export const policiesColumns: ColumnDef<InternalPolicy>[] = [
     accessorKey: 'name',
     header: 'Name',
     cell: ({ cell, row }) => {
-      return (
-        <Link href={'/policies/' + row.original.id} className="underline">
-          {cell.getValue() as string}
-        </Link>
-      )
+      return <div>{cell.getValue() as string}</div>
     },
-  },
-  {
-    accessorKey: 'policyType',
-    header: 'Type',
   },
   {
     accessorKey: 'details',
@@ -35,7 +26,7 @@ export const policiesColumns: ColumnDef<InternalPolicy>[] = [
     cell: ({ cell }) => {
       const plateEditorHelper = usePlateEditor()
 
-      return <div>{plateEditorHelper.convertToReadOnly(cell.getValue() as string, 0)}</div>
+      return <div className="line-clamp-4">{plateEditorHelper.convertToReadOnly(cell.getValue() as string, 0)}</div>
     },
   },
   {
@@ -51,7 +42,11 @@ export const policiesColumns: ColumnDef<InternalPolicy>[] = [
   {
     accessorKey: 'id',
     header: '',
-    cell: ({ cell }) => <Actions policyId={cell.getValue() as string} />,
+    cell: ({ cell }) => (
+      <div onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
+        <Actions policyId={cell.getValue() as string} />
+      </div>
+    ),
     size: 40,
   },
 ]

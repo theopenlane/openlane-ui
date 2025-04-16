@@ -6,10 +6,10 @@ import { LoaderCircle, PlusCircle, SearchIcon } from 'lucide-react'
 import { INTERNAL_POLICIES_FILTERABLE_FIELDS } from '@/components/pages/protected/policies/table/table-config.ts'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
+import BulkCSVCreatePolicyDialog from '@/components/pages/protected/policies/create/form/bulk-csv-create-policy-dialog.tsx'
 
 type TPoliciesTableToolbarProps = {
   className?: string
-  creating: boolean
   searching?: boolean
   searchTerm: string
   setSearchTerm: (searchTerm: string) => void
@@ -17,7 +17,7 @@ type TPoliciesTableToolbarProps = {
   handleCreateNew: () => void
 }
 
-const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({ className, creating, searching, searchTerm, handleCreateNew, setFilters, setSearchTerm }) => {
+const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({ className, searching, searchTerm, handleCreateNew, setFilters, setSearchTerm }) => {
   const isSearching = useDebounce(searching, 200)
 
   return (
@@ -34,9 +34,10 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({ className,
       </div>
 
       <div className="grow flex flex-row items-center gap-2 justify-end">
-        <Button icon={<PlusCircle />} iconPosition="left" onClick={handleCreateNew} disabled={creating}>
+        <Button icon={<PlusCircle />} iconPosition="left" onClick={handleCreateNew}>
           Create new
         </Button>
+        <BulkCSVCreatePolicyDialog />
       </div>
     </div>
   )

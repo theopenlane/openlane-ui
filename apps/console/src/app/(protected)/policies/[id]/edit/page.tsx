@@ -1,12 +1,20 @@
 'use client'
 
 import { NextPage } from 'next'
-import { PolicyEditPage } from '@/components/pages/protected/policies/policy-edit-page'
 import { useParams } from 'next/navigation'
+import EditPolicyPage from '@/components/pages/protected/policies/edit-policy-page.tsx'
+import { PageHeading } from '@repo/ui/page-heading'
+import React from 'react'
 
-export const Page: NextPage = () => {
+const Page: NextPage = () => {
   const { id } = useParams()
-  return <PolicyEditPage policyId={id as string} />
+
+  return (
+    <>
+      <PageHeading heading="Edit policy" />
+      <EditPolicyPage policyId={id as string} />
+    </>
+  )
 }
 
 export default Page
