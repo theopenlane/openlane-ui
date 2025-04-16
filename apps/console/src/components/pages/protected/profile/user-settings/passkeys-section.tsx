@@ -132,15 +132,16 @@ const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefine
               <DialogContent className="sm:max-w-[455px]">
                 <DialogHeader>
                   <DialogTitle className="text-2xl font-semibold">Remove your Passkeys</DialogTitle>
-                  <DialogDescription />
+                  <DialogDescription className="pt-2">
+                    Are you sure you want to remove your passkeys? You'll need to use your password to sign in, and you'll need to set up your passkeys again if you want to use them later.
+                  </DialogDescription>
                 </DialogHeader>
-                <div className="flex">
-                  <DialogClose>
-                    <Button variant="filled">Close</Button>
+                <div className="flex justify-end space-x-4 pt-4">
+                  <DialogClose asChild>
+                    <Button variant="outline">Cancel</Button>
                   </DialogClose>
-
-                  <Button key={1} variant="redOutline" className="mx-10 w-24" onClick={removePasskeys} loading={updatingUser} disabled={updatingUser}>
-                    Remove
+                  <Button variant="destructive" onClick={removePasskeys} loading={updatingUser} disabled={updatingUser}>
+                    Remove Passkeys
                   </Button>
                 </div>
               </DialogContent>
