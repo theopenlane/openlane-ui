@@ -146,7 +146,7 @@ export async function verifyRegistration<T>(arg: RegistrationVerificationInput) 
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(arg),
+    body: JSON.stringify(arg.attestationResponse),
     credentials: 'include',
   })
   try {

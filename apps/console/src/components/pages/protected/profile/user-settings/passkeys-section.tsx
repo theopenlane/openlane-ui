@@ -1,6 +1,7 @@
 'use client'
 
 import { useNotification } from '@/hooks/useNotification'
+import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
 import { getPasskeyRegOptions, verifyRegistration } from '@/lib/user'
 import { GetUserProfileQuery } from '@repo/codegen/src/schema'
 import { Badge } from '@repo/ui/badge'
@@ -25,6 +26,8 @@ const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefine
         email: userData?.user.email as string,
       })
 
+      setSessionCookie(options.session)
+
       const attestationResponse = await startRegistration({
         useAutoRegister: true,
         optionsJSON: options.publicKey,
@@ -41,22 +44,20 @@ const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefine
         return
       }
 
+      queryClient.invalidateQueries({ queryKey: ['user'] })
+
       successNotification({
         title: 'Passkeys successfully setup',
         description: 'You can now sign in with your passkey',
       })
 
       setLoading(false)
-
-      // queryClient.invalidateQueries({ queryKey: ['tfaSettings'] })
-      // queryClient.invalidateQueries({ queryKey: ['userTFASettings'] })
     } catch (err: any) {
       setLoading(false)
       console.error('Error during passkey creation:', err)
 
       if (err.name === 'AbortError' || err.name === 'NotAllowedError') {
-        console.log('User canceled registration')
-        errorNotification({ title: 'User canceled setting up Passkeys' })
+        errorNotification({ title: 'User canceled setting up Passkeys set up' })
         return
       }
 
