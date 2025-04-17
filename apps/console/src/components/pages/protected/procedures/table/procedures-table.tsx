@@ -3,39 +3,37 @@
 import { useRouter } from 'next/navigation'
 import { DataTable } from '@repo/ui/data-table'
 import React, { useState, useMemo } from 'react'
-import { GetAllProceduresQueryVariables, OrderDirection, Procedure, ProcedureOrderField } from '@repo/codegen/src/schema'
+import { GetProceduresListQueryVariables, OrderDirection, Procedure, ProcedureOrderField } from '@repo/codegen/src/schema'
 import { proceduresColumns } from '@/components/pages/protected/procedures/table/columns.tsx'
 import ProceduresTableToolbar from '@/components/pages/protected/procedures/table/procedures-table-toolbar.tsx'
 import { PROCEDURES_SORTABLE_FIELDS } from '@/components/pages/protected/procedures/table/table-config.ts'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { useFilteredProcedures } from '@/lib/graphql-hooks/procedures.ts'
+import { useProcedures } from '@/lib/graphql-hooks/procedures'
+import { useDebounce } from '@uidotdev/usehooks'
 
 export const ProceduresTable = () => {
   const router = useRouter()
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<Record<string, any>>({})
-  const [orderBy, setOrderBy] = useState<GetAllProceduresQueryVariables['orderBy']>([
+  const [searchTerm, setSearchTerm] = useState('')
+  const [orderBy, setOrderBy] = useState<GetProceduresListQueryVariables['orderBy']>([
     {
       field: ProcedureOrderField.name,
       direction: OrderDirection.DESC,
     },
   ])
 
+  const debouncedSearch = useDebounce(searchTerm, 300)
+
   const whereFilter = useMemo(() => {
-    const conditions: Record<string, any> = {
+    return {
       ...filters,
+      nameContainsFold: debouncedSearch,
     }
+  }, [filters, debouncedSearch])
 
-    return conditions
-  }, [filters])
-
-  const orderByFilter = useMemo(() => {
-    return orderBy || undefined
-  }, [orderBy])
-
-  const [searchTerm, setSearchTerm] = useState('')
-  const { procedures, isLoading: fetching, paginationMeta } = useFilteredProcedures({ where: whereFilter, search: searchTerm, orderBy: orderByFilter, pagination })
+  const { procedures, isLoading: fetching, paginationMeta } = useProcedures({ where: whereFilter, orderBy, pagination })
 
   const handleCreateNew = async () => {
     router.push(`/procedures/create`)

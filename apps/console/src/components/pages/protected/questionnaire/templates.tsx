@@ -10,7 +10,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { pageStyles } from './page.styles'
 import { AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from '@repo/ui/alert-dialog'
 import { Button } from '@repo/ui/button'
-import { useFilterTemplates } from '@/lib/graphql-hooks/templates'
+import { useTemplates } from '@/lib/graphql-hooks/templates'
 
 const ICON_SIZE = 12
 
@@ -28,7 +28,7 @@ export const TemplateList = () => {
     templateType: TemplateDocumentType.ROOTTEMPLATE,
   }
 
-  const { data: allTemplates, isLoading, isError } = useFilterTemplates({ where: whereFilter })
+  const { data: allTemplates, isLoading, isError } = useTemplates({ where: whereFilter })
 
   const formSchema = z.object({
     templateId: z.string(),

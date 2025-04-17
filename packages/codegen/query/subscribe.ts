@@ -47,23 +47,3 @@ export const UNSUBSCRIBE_MUTATION = gql`
     }
   }
 `
-
-export const SEARCH_SUBSCRIBERS = gql`
-  query SearchSubscribers($query: String!) {
-    subscriberSearch(query: $query) {
-      edges {
-        node {
-          active
-          email
-          id
-          verifiedEmail
-        }
-      }
-      pageInfo {
-        endCursor
-        startCursor
-      }
-      totalCount
-    }
-  }
-`

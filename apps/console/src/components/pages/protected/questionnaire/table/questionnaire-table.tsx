@@ -2,13 +2,14 @@
 
 import { useState, useMemo } from 'react'
 import { DataTable } from '@repo/ui/data-table'
-import { useFilteredTemplates } from '@/lib/graphql-hooks/templates'
 import { questionnaireColumns } from '@/components/pages/protected/questionnaire/table/columns.tsx'
 import QuestionnaireTableToolbar from '@/components/pages/protected/questionnaire/table/questionnaire-table-toolbar.tsx'
 import { QUESTIONNAIRE_SORT_FIELDS } from '@/components/pages/protected/questionnaire/table/table-config.ts'
 import { FilterTemplatesQueryVariables, OrderDirection, TemplateDocumentType, TemplateOrderField } from '@repo/codegen/src/schema.ts'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
+import { useDebounce } from '@uidotdev/usehooks'
+import { useTemplates } from '@/lib/graphql-hooks/templates'
 
 export const QuestionnairesTable = () => {
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
@@ -19,28 +20,30 @@ export const QuestionnairesTable = () => {
       direction: OrderDirection.DESC,
     },
   ])
+
+  const orderByFilter = useMemo(() => orderBy || undefined, [orderBy])
+
   const [searchTerm, setSearchTerm] = useState('')
+  const debouncedSearch = useDebounce(searchTerm, 300)
 
   const whereFilter = useMemo(() => {
     return {
       templateType: TemplateDocumentType.DOCUMENT,
+      nameContainsFold: debouncedSearch,
       ...filters,
     }
-  }, [filters])
-
-  const orderByFilter = useMemo(() => orderBy || undefined, [orderBy])
+  }, [filters, debouncedSearch])
 
   const {
     templates,
     isLoading: fetching,
-    isFetching,
     paginationMeta,
-  } = useFilteredTemplates({
-    search: searchTerm,
+  } = useTemplates({
     where: whereFilter,
     orderBy: orderByFilter,
     pagination,
   })
+
   return (
     <div>
       <QuestionnaireTableToolbar
