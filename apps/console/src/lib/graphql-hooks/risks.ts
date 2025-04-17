@@ -34,32 +34,28 @@ type UseRisksWithFilterProps = {
 export const useRisksWithFilter = ({ where, pagination, orderBy }: UseRisksWithFilterProps) => {
   const { client } = useGraphQLClient()
 
-  return useQuery({
+  const queryResult = useQuery({
     queryKey: ['risks', { where, pagination, orderBy }],
-    queryFn: async () => {
-      const response = await client.request<GetAllRisksQuery>(GET_ALL_RISKS, {
+    queryFn: async () =>
+      await client.request<GetAllRisksQuery>(GET_ALL_RISKS, {
         where,
         pagination,
         orderBy,
-      })
-
-      const risks = response?.risks?.edges?.map((edge) => edge?.node as RiskFieldsFragment) as Risk[]
-
-      const paginationMeta = {
-        totalCount: response?.risks?.totalCount ?? 0,
-        pageInfo: response?.risks?.pageInfo,
-      }
-
-      return {
-        ...response,
-        risks,
-        paginationMeta,
-      }
-    },
-    select: (data) => ({
-      ...data,
-    }),
+      }),
   })
+
+  const risks = queryResult?.data?.risks?.edges?.map((edge) => edge?.node as RiskFieldsFragment) as Risk[]
+
+  const paginationMeta = {
+    totalCount: queryResult.data?.risks?.totalCount ?? 0,
+    pageInfo: queryResult?.data?.risks?.pageInfo,
+  }
+
+  return {
+    ...queryResult,
+    risks,
+    paginationMeta,
+  }
 }
 
 export const useGetRiskById = (riskId: string | null) => {

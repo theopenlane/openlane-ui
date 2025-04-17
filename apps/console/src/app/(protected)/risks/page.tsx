@@ -44,14 +44,11 @@ const RiskTablePage: React.FC = () => {
     return Array.isArray(orderBy) ? orderBy : [orderBy]
   }, [orderBy])
 
-  const { data, isLoading, isError } = useRisksWithFilter({
+  const { risks, paginationMeta, isLoading, isError } = useRisksWithFilter({
     where,
     orderBy: orderByFilter,
     pagination,
   })
-
-  const risks = data?.risks ?? []
-  const paginationMeta = data?.paginationMeta
 
   if (isError || !risks) return null
 
@@ -104,7 +101,7 @@ const RiskTablePage: React.FC = () => {
         columns={columns}
         data={risks}
         onRowClick={(row) => replace(`/risks?id=${row.id}`)}
-        loading={!data && !isError}
+        loading={!risks && !isError}
         pagination={pagination}
         onPaginationChange={setPagination}
         paginationMeta={paginationMeta}

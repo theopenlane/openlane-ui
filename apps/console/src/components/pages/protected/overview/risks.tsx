@@ -63,9 +63,9 @@ const Risks = () => {
     hasProgramsWith: programId ? [{ id: programId }] : undefined,
   }
 
-  const { data } = useRisksWithFilter(where)
+  const { risks } = useRisksWithFilter({ where })
 
-  const hasData = !!data?.risks?.edges?.length
+  const hasData = risks.length
 
   return (
     <Card className="shadow-md rounded-lg flex-1 ">
