@@ -5,7 +5,6 @@ import { Label } from '@repo/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Input } from '@repo/ui/input'
 import { AllQueriesData, TASK_OBJECT_TASK_CONFIG, TaskObjectTypes } from '@/components/pages/protected/tasks/util/task'
-import debounce from 'lodash.debounce'
 import { TFormDataResponse } from '@/components/pages/protected/tasks/create-task/form/types/TFormDataResponse'
 import { UseFormReturn } from 'react-hook-form'
 import { CreateTaskFormData } from '@/components/pages/protected/tasks/hooks/use-form-schema'
@@ -14,8 +13,8 @@ import { TTaskObjectType } from '@/components/pages/protected/tasks/create-task/
 import { useQuery } from '@tanstack/react-query'
 import { GET_ALL_CONTROLS } from '@repo/codegen/query/control'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import ObjectAssociationCircle from '@/assets/ObjectAssociationCircle.tsx'
 import ObjectAssociationPlaceholder from '@/components/shared/object-association/object-association-placeholder.tsx'
+import { useDebounce } from '@uidotdev/usehooks'
 
 type TProps = {
   form: UseFormReturn<CreateTaskFormData>
@@ -27,11 +26,8 @@ const ControlObjectTaskForm: React.FC<TProps> = (props: TProps) => {
   const [searchValue, setSearchValue] = useState('')
   const [formData, setFormData] = useState<TFormDataResponse[]>([])
   const options = Object.values(TaskObjectTypes)
-  const [debouncedSearchValue, setDebouncedSearchValue] = useState('')
-  const debouncedSetSearchValue = useCallback(
-    debounce((value) => setDebouncedSearchValue(value), 300),
-    [],
-  )
+  const debouncedSearchValue = useDebounce(searchValue, 300)
+
   const selectedConfig = selectedObject ? TASK_OBJECT_TASK_CONFIG[selectedObject] : null
   const selectedQuery = selectedConfig?.queryDocument
   const objectKey = selectedConfig?.responseObjectKey
@@ -74,11 +70,9 @@ const ControlObjectTaskForm: React.FC<TProps> = (props: TProps) => {
 
   const resetState = () => {
     setSearchValue('')
-    setDebouncedSearchValue('')
   }
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    debouncedSetSearchValue(event.target.value)
     setSearchValue(event.target.value)
   }
 
