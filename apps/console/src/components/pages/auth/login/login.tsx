@@ -208,6 +208,18 @@ export const LoginPage = () => {
   return (
     <>
       <div className="flex flex-col mt-8 justify-start">
+        <div className={buttons()}>
+          <Button variant="outlineLight" size="md" icon={<GoogleIcon />} iconPosition="left" onClick={() => google()} disabled={isPasskeyLoading || isCheckingLoginMethods || signInLoading}>
+            Google
+          </Button>
+
+          <Button variant="outlineLight" size="md" icon={<GithubIcon />} iconPosition="left" onClick={() => github()} disabled={isPasskeyLoading || isCheckingLoginMethods || signInLoading}>
+            GitHub
+          </Button>
+        </div>
+
+        <Separator label="or" className={separator()} />
+
         <SimpleForm
           classNames={form()}
           onSubmit={(e: any) => {
@@ -271,17 +283,6 @@ export const LoginPage = () => {
             </button>
           )}
         </SimpleForm>
-
-        <Separator label="or" className={separator()} />
-        <div className={buttons()}>
-          <Button variant="outlineLight" size="md" icon={<GoogleIcon />} iconPosition="left" onClick={() => google()} disabled={isPasskeyLoading || isCheckingLoginMethods || signInLoading}>
-            Google
-          </Button>
-
-          <Button variant="outlineLight" size="md" icon={<GithubIcon />} iconPosition="left" onClick={() => github()} disabled={isPasskeyLoading || isCheckingLoginMethods || signInLoading}>
-            GitHub
-          </Button>
-        </div>
 
         {isCheckingLoginMethods && <p className="text-sm text-gray-600 mt-2 text-center">Checking available login methods...</p>}
 
