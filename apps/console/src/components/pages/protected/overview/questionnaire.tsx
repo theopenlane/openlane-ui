@@ -6,9 +6,9 @@ import { Badge } from '@repo/ui/badge'
 import { Cog, FileQuestion, SquareCheck, SquareX } from 'lucide-react'
 import { ColumnDef } from '@tanstack/table-core'
 import { ProgressCircle } from '@repo/ui/progress-circle'
-import { useGetAllTemplates } from '@/lib/graphql-hooks/templates'
 import { format } from 'date-fns'
 import { Template } from '@repo/codegen/src/schema'
+import { useTemplates } from '@/lib/graphql-hooks/templates'
 
 const columns: ColumnDef<Template>[] = [
   {
@@ -53,7 +53,7 @@ const columns: ColumnDef<Template>[] = [
 ]
 
 const Questionnaire = () => {
-  const { data } = useGetAllTemplates()
+  const { data } = useTemplates({})
   const templates = (data?.templates?.edges?.map((edge) => edge?.node) as Template[]) || []
   const hasData = !!templates.length
 

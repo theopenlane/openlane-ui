@@ -17,13 +17,11 @@ const statusOptions = Object.values(ControlControlStatus)
     value: status,
   }))
 export const CONTROLS_FILTER_FIELDS: FilterField[] = [
-  { key: 'name', label: 'Name', type: 'text' },
-  { key: 'ref', label: 'Ref', type: 'text' },
+  { key: 'refCode', label: 'RefCode', type: 'text' },
   {
     key: 'status',
     label: 'Status',
     type: 'select',
-    //@todo for Bruno
     options: statusOptions,
   } as SelectFilterField,
 ]
