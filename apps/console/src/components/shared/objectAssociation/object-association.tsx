@@ -6,11 +6,11 @@ import { Input } from '@repo/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { AllObjectQueriesData, OBJECT_QUERY_CONFIG, ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { useQuery } from '@tanstack/react-query'
-import debounce from 'lodash.debounce'
 import ObjectAssociationTable from '@/components/shared/objectAssociation/object-association-table'
 import ObjectAssociationPlaceholder from '@/components/shared/object-association/object-association-placeholder'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { TObjectAssociationMap } from './types/TObjectAssociationMap'
+import { useDebounce } from '@uidotdev/usehooks'
 
 type Props = {
   onIdChange: (updatedMap: TObjectAssociationMap, refCodes?: any) => void
@@ -23,13 +23,9 @@ const ObjectAssociation: React.FC<Props> = ({ onIdChange, excludeObjectTypes, in
   const { client } = useGraphQLClient()
   const [selectedObject, setSelectedObject] = useState<ObjectTypeObjects | null>(null)
   const [searchValue, setSearchValue] = useState('')
-  const [debouncedSearchValue, setDebouncedSearchValue] = useState('')
   const [TableData, setTableData] = useState<any[]>([])
 
-  const debouncedSetSearchValue = useCallback(
-    debounce((value) => setDebouncedSearchValue(value), 300),
-    [],
-  )
+  const debouncedSearchValue = useDebounce(searchValue, 300)
 
   const selectedConfig = selectedObject ? OBJECT_QUERY_CONFIG[selectedObject] : null
   const selectedQuery = selectedConfig?.queryDocument
@@ -66,7 +62,6 @@ const ObjectAssociation: React.FC<Props> = ({ onIdChange, excludeObjectTypes, in
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value
     setSearchValue(value)
-    debouncedSetSearchValue(value)
   }
 
   return (
