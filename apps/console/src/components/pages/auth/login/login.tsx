@@ -7,7 +7,7 @@ import SimpleForm from '@repo/ui/simple-form'
 import { ArrowUpRight, KeyRoundIcon } from 'lucide-react'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Separator } from '@repo/ui/separator'
 import { loginStyles } from './login.styles'
 import { GoogleIcon } from '@repo/ui/icons/google'
@@ -36,6 +36,8 @@ export const LoginPage = () => {
   const [isPasswordActive, setIsPasswordActive] = useState(false)
   const [isPasskeyLoading, setIsPasskeyLoading] = useState(false)
   const [passkeyStatus, setPasskeyStatus] = useState('')
+  const [isCheckingLoginMethods, setIsCheckingLoginMethods] = useState(false)
+  const debounceTimeout = useRef<NodeJS.Timeout>()
 
   const { successNotification, errorNotification } = useNotification()
 
@@ -43,7 +45,14 @@ export const LoginPage = () => {
   const token = searchParams?.get('token')
 
   const checkLoginMethods = async (email: string) => {
+    if (!email) {
+      setLoginMethods([])
+      setIsPasswordActive(false)
+      return
+    }
+
     try {
+      setIsCheckingLoginMethods(true)
       const response = await fetch('/api/auth/login-methods', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -66,8 +75,25 @@ export const LoginPage = () => {
         title: 'Could not fetch available auth methods',
         description: 'Please verify you have provided an email that has an account',
       })
+    } finally {
+      setIsCheckingLoginMethods(false)
     }
   }
+
+  const debouncedCheckLoginMethods = (email: string) => {
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current)
+    }
+    debounceTimeout.current = setTimeout(() => checkLoginMethods(email), 500)
+  }
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimeout.current) {
+        clearTimeout(debounceTimeout.current)
+      }
+    }
+  }, [])
 
   const submit = async (payload: LoginUser) => {
     setSignInLoading(true)
@@ -191,7 +217,7 @@ export const LoginPage = () => {
           }}
           onChange={(e: any) => {
             if (e.username.length > 0) {
-              checkLoginMethods(e.username)
+              debouncedCheckLoginMethods(e.username)
             } else {
               setIsPasswordActive(false)
               setLoginMethods([])
@@ -214,7 +240,7 @@ export const LoginPage = () => {
                 iconPosition="left"
                 onClick={() => passKeySignIn()}
                 className="mt-2 w-full"
-                disabled={isPasskeyLoading}
+                disabled={isPasskeyLoading || signInLoading}
               >
                 {isPasskeyLoading ? 'Authenticating...' : 'Continue with PassKey'}
               </Button>
@@ -239,9 +265,9 @@ export const LoginPage = () => {
           {loginMethods.includes('WEBAUTHN') && loginMethods.includes('CREDENTIALS') && (
             <button
               type="button"
-              className={`text-sm text-blue-500 mt-2 hover:underline ${isPasskeyLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`text-sm text-blue-500 mt-2 hover:underline ${isPasskeyLoading || signInLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
               onClick={() => setUsePasswordLogin(!usePasswordLogin)}
-              disabled={isPasskeyLoading}
+              disabled={isPasskeyLoading || signInLoading}
             >
               {usePasswordLogin ? 'Use PassKey instead' : 'Use password instead'}
             </button>
@@ -250,32 +276,16 @@ export const LoginPage = () => {
 
         <Separator label="or" className={separator()} />
         <div className={buttons()}>
-          <Button
-            variant="outlineLight"
-            size="md"
-            icon={<GoogleIcon />}
-            iconPosition="left"
-            onClick={() => {
-              google()
-            }}
-            disabled={isPasskeyLoading}
-          >
+          <Button variant="outlineLight" size="md" icon={<GoogleIcon />} iconPosition="left" onClick={() => google()} disabled={isPasskeyLoading || isCheckingLoginMethods || signInLoading}>
             Google
           </Button>
 
-          <Button
-            variant="outlineLight"
-            size="md"
-            icon={<GithubIcon />}
-            iconPosition="left"
-            onClick={() => {
-              github()
-            }}
-            disabled={isPasskeyLoading}
-          >
+          <Button variant="outlineLight" size="md" icon={<GithubIcon />} iconPosition="left" onClick={() => github()} disabled={isPasskeyLoading || isCheckingLoginMethods || signInLoading}>
             GitHub
           </Button>
         </div>
+
+        {isCheckingLoginMethods && <p className="text-sm text-gray-600 mt-2 text-center">Checking available login methods...</p>}
 
         <Link href="https://www.theopenlane.io/legal/privacy" className="text-xs text-gray-500 mt-8 text-center">
           Privacy Policy
