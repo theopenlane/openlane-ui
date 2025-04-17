@@ -7,8 +7,13 @@ import {
   UPDATE_INTERNAL_POLICY,
   SEARCH_INTERNAL_POLICIES,
   DELETE_INTERNAL_POLICY,
+  CREATE_CSV_BULK_INTERNAL_POLICY,
 } from '@repo/codegen/query/policy'
 import {
+  CreateBulkCsvInternalPolicyMutation,
+  CreateBulkCsvInternalPolicyMutationVariables,
+  CreateBulkCsvTaskMutation,
+  CreateBulkCsvTaskMutationVariables,
   CreateInternalPolicyMutation,
   CreateInternalPolicyMutationVariables,
   DeleteInternalPolicyMutation,
@@ -25,6 +30,8 @@ import {
 } from '@repo/codegen/src/schema'
 import { useDebounce } from '../../../../../packages/ui/src/hooks/use-debounce'
 import { TPagination } from '@repo/ui/pagination-types'
+import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
+import { CREATE_CSV_BULK_TASK } from '@repo/codegen/query/tasks.ts'
 
 type UseFilteredInternalPoliciesArgs = {
   where?: GetInternalPoliciesListQueryVariables['where']
@@ -92,7 +99,7 @@ export const useGetInternalPolicyDetailsById = (internalPolicyId: string | null)
   const { client } = useGraphQLClient()
 
   return useQuery<GetInternalPolicyDetailsByIdQuery, GetInternalPolicyDetailsByIdQueryVariables>({
-    queryKey: ['internalPolicy', internalPolicyId],
+    queryKey: ['internalPolicies', internalPolicyId],
     queryFn: async () => client.request(GET_INTERNAL_POLICY_DETAILS_BY_ID, { internalPolicyId }),
     enabled: !!internalPolicyId,
   })
@@ -150,5 +157,16 @@ export const useDeleteInternalPolicy = () => {
       return client.request(DELETE_INTERNAL_POLICY, variables)
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['internalPolicies'] }),
+  })
+}
+
+export const useCreateBulkCSVInternalPolicy = () => {
+  const { queryClient } = useGraphQLClient()
+
+  return useMutation<CreateBulkCsvInternalPolicyMutation, unknown, CreateBulkCsvInternalPolicyMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_INTERNAL_POLICY, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+    },
   })
 }

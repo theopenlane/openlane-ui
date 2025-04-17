@@ -38,7 +38,7 @@ export const useGetProgramDetailsById = (programId: string | null) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetProgramDetailsByIdQuery, GetProgramDetailsByIdQueryVariables>({
-    queryKey: ['program', programId],
+    queryKey: ['programs', programId],
     queryFn: async () => client.request(GET_PROGRAM_DETAILS_BY_ID, { programId }),
     enabled: !!programId,
   })

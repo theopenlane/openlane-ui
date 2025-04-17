@@ -7,13 +7,16 @@ import { Checkbox } from '@repo/ui/checkbox'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { ChevronDown, ChevronRight, SearchIcon, ShieldPlus } from 'lucide-react'
+import { ChevronDown, ChevronRight, ChevronsDownUp, ChevronsUpDown, SearchIcon, ShieldPlus } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { useGetAllControls } from '@/lib/graphql-hooks/controls'
 import { useParams } from 'next/navigation'
 import { useDebounce } from '@uidotdev/usehooks'
 import { ControlListFieldsFragment } from '@repo/codegen/src/schema'
 import { useGetAllPrograms } from '@/lib/graphql-hooks/programs'
+import { useCloneControls } from '@/lib/graphql-hooks/standards'
+import { useNotification } from '@/hooks/useNotification'
+import { useQueryClient } from '@tanstack/react-query'
 
 const generateWhere = (id: string, searchValue: string) => ({
   and: [
@@ -25,33 +28,35 @@ const generateWhere = (id: string, searchValue: string) => ({
 })
 
 const StandardDetailsAccordion: FC = () => {
+  const { successNotification, errorNotification } = useNotification()
+
   const params = useParams()
   const id = typeof params?.id === 'string' ? params.id : ''
-
+  const [hasInitialized, setHasInitialized] = useState(false)
   const [selectedControls, setSelectedControls] = useState<string[]>([])
   const [openSections, setOpenSections] = useState<string[]>([])
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedProgram, setSelectedProgram] = useState<string | null>(null)
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
+  const queryClient = useQueryClient()
+
+  const { mutateAsync: cloneControls, isPending } = useCloneControls()
 
   const where = generateWhere(id, debouncedSearchQuery)
-  const { data } = useGetAllControls({ where })
+  const { controls } = useGetAllControls({ where })
   const { data: programsData } = useGetAllPrograms()
 
   const groupedControls = useMemo(() => {
-    if (!data?.controls?.edges) return {}
+    if (!controls || controls.length === 0) return {}
 
-    return data.controls.edges.reduce<Record<string, ControlListFieldsFragment[]>>((acc, edge) => {
-      const control = edge?.node
-      if (!control) return acc
-
+    return controls.reduce<Record<string, ControlListFieldsFragment[]>>((acc, control) => {
       const category = control.category || 'Uncategorized'
       if (!acc[category]) acc[category] = []
       acc[category].push(control)
       return acc
     }, {})
-  }, [data])
+  }, [controls])
 
   const programs = useMemo(() => {
     return programsData?.programs?.edges?.map((edge) => edge?.node) || []
@@ -61,22 +66,46 @@ const StandardDetailsAccordion: FC = () => {
     setSelectedControls((prev) => (prev.includes(controlId) ? prev.filter((id) => id !== controlId) : [...prev, controlId]))
   }
 
-  const toggleSection = (section: string) => {
-    setOpenSections((prev) => (prev.includes(section) ? prev.filter((s) => s !== section) : [...prev, section]))
+  const handleAddToProgram = async () => {
+    if (!selectedProgram || selectedControls.length === 0) return
+
+    try {
+      await cloneControls({
+        input: {
+          programID: selectedProgram,
+          controlIDs: selectedControls,
+        },
+      })
+
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const [firstKey, maybeId] = query.queryKey as [string, string?]
+          return firstKey === 'control' && typeof maybeId === 'string' && selectedControls.includes(maybeId)
+        },
+      })
+
+      successNotification({ title: 'Controls added to program successfully!' })
+      setIsDialogOpen(false)
+      setSelectedControls([])
+    } catch (error) {
+      errorNotification({ title: 'Failed to add controls to the program.' })
+    }
   }
 
   useEffect(() => {
+    if (hasInitialized) return
+
     const firstCategory = Object.keys(groupedControls)[0]
-    if (firstCategory && openSections.length === 0) {
+    if (firstCategory) {
       setOpenSections([firstCategory])
+      setHasInitialized(true)
     }
-  }, [groupedControls])
+  }, [groupedControls, hasInitialized])
 
   return (
-    <>
+    <div className="relative">
       <Accordion type="multiple" value={openSections} onValueChange={setOpenSections} className="w-full">
-        <div className="flex justify-between">
-          <h2 className="text-2xl">Domains</h2>
+        <div className="flex gap-2.5 items-center absolute right-0 mt-2">
           <Input
             value={searchQuery}
             name="standardSearch"
@@ -87,6 +116,30 @@ const StandardDetailsAccordion: FC = () => {
             variant="searchTable"
             className="!border-brand"
           />
+          <Button
+            className="h-8 !px-2"
+            variant="outline"
+            onClick={() => {
+              setOpenSections([])
+            }}
+            icon={<ChevronsDownUp />}
+            iconPosition="left"
+          >
+            Collapse all
+          </Button>
+
+          <Button
+            className="h-8 !px-2"
+            variant="outline"
+            onClick={() => {
+              const all = Object.keys(groupedControls)
+              setOpenSections(all)
+            }}
+            icon={<ChevronsUpDown />}
+            iconPosition="left"
+          >
+            Expand all
+          </Button>
         </div>
         {Object.entries(groupedControls).map(([category, controls]) => {
           const isOpen = openSections.includes(category)
@@ -166,13 +219,13 @@ const StandardDetailsAccordion: FC = () => {
             </SelectContent>
           </Select>
           <DialogFooter>
-            <Button onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-            {/* <Button onClick={() => console.log(selectedControls, selectedProgram)}>Add</Button> */}
-            <Button>Add</Button>
+            <Button disabled={!selectedProgram || isPending} onClick={handleAddToProgram}>
+              {isPending ? 'Adding...' : 'Add'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   )
 }
 

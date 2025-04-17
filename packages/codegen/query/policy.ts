@@ -90,13 +90,108 @@ export const INTERNAL_POLICY_BY_ID = gql`
     policyType
     displayID
     details
+    reviewDue
+    reviewFrequency
+    approvalRequired
+    approver {
+      id
+      displayName
+      gravatarLogoURL
+      logoURL
+    }
+    delegate {
+      id
+      displayName
+      gravatarLogoURL
+      logoURL
+    }
+    narratives {
+      edges {
+        node {
+          id
+          displayID
+        }
+      }
+    }
     procedures {
       edges {
         node {
           id
           name
+          displayID
         }
       }
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      totalCount
+    }
+    controls {
+      edges {
+        node {
+          id
+          displayID
+          refCode
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      totalCount
+    }
+    programs {
+      edges {
+        node {
+          id
+          displayID
+          name
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      totalCount
+    }
+    tasks {
+      edges {
+        node {
+          id
+          displayID
+          title
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      totalCount
+    }
+    controlObjectives {
+      edges {
+        node {
+          id
+          displayID
+          name
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      totalCount
     }
   }
 `
@@ -133,6 +228,16 @@ export const SEARCH_INTERNAL_POLICIES = gql`
         endCursor
       }
       totalCount
+    }
+  }
+`
+
+export const CREATE_CSV_BULK_INTERNAL_POLICY = gql`
+  mutation CreateBulkCSVInternalPolicy($input: Upload!) {
+    createBulkCSVInternalPolicy(input: $input) {
+      internalPolicies {
+        id
+      }
     }
   }
 `

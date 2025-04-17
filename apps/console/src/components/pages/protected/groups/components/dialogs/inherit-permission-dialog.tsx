@@ -53,7 +53,7 @@ const InheritPermissionDialog = () => {
         },
       })
 
-      queryClient.invalidateQueries({ queryKey: ['group', selectedGroup] })
+      queryClient.invalidateQueries({ queryKey: ['groups', selectedGroup] })
 
       successNotification({
         description: `Permissions successfully inherited from ${groups.find((g) => g.id === group)?.name || 'selected group'}.`,

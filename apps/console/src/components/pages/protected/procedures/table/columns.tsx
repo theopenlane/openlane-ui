@@ -1,9 +1,9 @@
 import { ColumnDef } from '@tanstack/react-table'
-import Link from 'next/link'
 import { format } from 'date-fns'
-import { Actions } from '@/components/pages/protected/procedures/actions/actions.tsx'
 import React from 'react'
-import { Procedure } from '@repo/codegen/src/schema'
+import { Procedure } from '@repo/codegen/src/schema.ts'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
+import { Actions } from '@/components/pages/protected/procedures/table/actions/actions.tsx'
 
 export const proceduresColumns: ColumnDef<Procedure>[] = [
   {
@@ -17,20 +17,17 @@ export const proceduresColumns: ColumnDef<Procedure>[] = [
     accessorKey: 'name',
     header: 'Name',
     cell: ({ cell, row }) => {
-      return (
-        <Link href={'/procedures/' + row.original.id} className="underline">
-          {cell.getValue() as string}
-        </Link>
-      )
+      return <div>{cell.getValue() as string}</div>
     },
   },
   {
-    accessorKey: 'procedureType',
-    header: 'Type',
-  },
-  {
-    accessorKey: 'description',
-    header: 'Description',
+    accessorKey: 'details',
+    header: 'Details',
+    cell: ({ cell }) => {
+      const plateEditorHelper = usePlateEditor()
+
+      return <div className="line-clamp-4">{plateEditorHelper.convertToReadOnly(cell.getValue() as string, 0)}</div>
+    },
   },
   {
     accessorKey: 'updatedAt',
@@ -45,7 +42,11 @@ export const proceduresColumns: ColumnDef<Procedure>[] = [
   {
     accessorKey: 'id',
     header: '',
-    cell: ({ cell }) => <Actions procedureId={cell.getValue() as string} />,
+    cell: ({ cell }) => (
+      <div onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
+        <Actions procedureId={cell.getValue() as string} />
+      </div>
+    ),
     size: 40,
   },
 ]
