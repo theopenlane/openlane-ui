@@ -12,6 +12,7 @@ import { cookies, type UnsafeUnwrappedCookies } from 'next/headers'
 import { sessionCookieName, allowedLoginDomains } from '@repo/dally/auth'
 import { fetchNewAccessToken } from './utils/refresh-token'
 import { getDashboardData } from '@/app/api/getDashboardData/route'
+import { passKeyProvider } from './providers/passkey'
 
 export const config = {
   pages: {
@@ -34,7 +35,7 @@ export const config = {
       checks: isDevelopment ? ['none'] : undefined,
     }),
     credentialsProvider,
-    // passKeyProvider,
+    passKeyProvider,
   ],
   events: {
     async signOut() {
