@@ -16,6 +16,7 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import ControlsTableToolbar from './controls-table-toolbar'
 import { CONTROLS_SORT_FIELDS } from './table-config'
+import { useDebounce } from '@uidotdev/usehooks'
 
 const ControlsTable: React.FC = () => {
   const { push } = useRouter()
@@ -28,14 +29,13 @@ const ControlsTable: React.FC = () => {
     },
   ])
   const [searchTerm, setSearchTerm] = useState('')
-
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const debouncedSearch = useDebounce(searchTerm, 300)
 
-  const { controls, isLoading, isError, paginationMeta } = useGetAllControls({
-    where: { ownerIDNEQ: '' },
+  const { controls, isError, paginationMeta } = useGetAllControls({
+    where: { ownerIDNEQ: '', refCodeContainsFold: debouncedSearch, ...filters },
     orderBy,
     pagination,
-    search: searchTerm,
   })
 
   const columns: ColumnDef<ControlListFieldsFragment>[] = useMemo(

@@ -180,19 +180,3 @@ export const UPDATE_CONTROL = gql`
     }
   }
 `
-export const SEARCH_CONTROLS = gql`
-  query SearchControls($query: String!) {
-    controlSearch(query: $query) {
-      edges {
-        node {
-          id
-        }
-      }
-      pageInfo {
-        endCursor
-        startCursor
-      }
-      totalCount
-    }
-  }
-`
