@@ -20,6 +20,7 @@ import { startAuthentication } from '@simplewebauthn/browser'
 import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
 import Link from 'next/link'
 import { recaptchaSiteKey } from '@repo/dally/auth'
+import { useNotification } from '@/hooks/useNotification'
 
 const TEMP_PASSKEY_EMAIL = 'tempuser@test.com'
 const TEMP_PASSKEY_NAME = 'Temp User'
@@ -35,6 +36,8 @@ export const LoginPage = () => {
   const [usePasswordLogin, setUsePasswordLogin] = useState(false)
   const [isPasswordActive, setIsPasswordActive] = useState(false)
 
+  const { successNotification, errorNotification } = useNotification()
+
   const searchParams = useSearchParams()
   const token = searchParams?.get('token')
 
@@ -48,14 +51,20 @@ export const LoginPage = () => {
       const data = await response.json()
       if (data.success) {
         setLoginMethods(data.methods)
-        if (data.methods.includes('WEBAUTHN') && !usePasswordLogin) {
-          setIsPasswordActive(false)
-        } else if (data.methods.includes('CREDENTIALS')) {
+
+        // show password input if user prefers password login or if CREDENTIALS is the only option
+        if (data.methods.includes('CREDENTIALS') && (!data.methods.includes('WEBAUTHN') || usePasswordLogin)) {
           setIsPasswordActive(true)
+        } else {
+          setIsPasswordActive(false)
         }
       }
     } catch (error) {
       console.error('Failed to fetch login methods:', error)
+      errorNotification({
+        title: 'Could not fetch available auth methods',
+        description: 'Please verify you have provided an email that has an account',
+      })
     }
   }
 
@@ -183,7 +192,7 @@ export const LoginPage = () => {
             </Button>
           )}
 
-          {isPasswordActive && loginMethods.includes('CREDENTIALS') && (
+          {loginMethods.includes('CREDENTIALS') && (usePasswordLogin || !loginMethods.includes('WEBAUTHN')) && (
             <>
               <div className={input()}>
                 <Label className="text-text-dark" htmlFor="password">
