@@ -35,7 +35,7 @@ export const LoginPage = () => {
   const [isPasskeyLoading, setIsPasskeyLoading] = useState(false)
   const [passkeyStatus, setPasskeyStatus] = useState('')
   const [isCheckingLoginMethods, setIsCheckingLoginMethods] = useState(false)
-  const debounceTimeout = useRef<NodeJS.Timeout>()
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null)
 
   const { successNotification, errorNotification } = useNotification()
 
@@ -179,7 +179,7 @@ export const LoginPage = () => {
         setPasskeyStatus('Authentication successful, redirecting...')
         await signIn('passkey', {
           callbackUrl: '/dashboard',
-          email: document.querySelector('input[name="username"]')?.value || '',
+          email: (document.querySelector('input[name="username"]') as HTMLInputElement)?.value || '',
           session: verificationResult.session,
           accessToken: verificationResult.access_token,
           refreshToken: verificationResult.refresh_token,
