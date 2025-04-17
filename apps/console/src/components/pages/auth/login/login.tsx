@@ -237,7 +237,12 @@ export const LoginPage = () => {
           )}
 
           {loginMethods.includes('WEBAUTHN') && loginMethods.includes('CREDENTIALS') && (
-            <button type="button" className="text-sm text-blue-500 mt-2 hover:underline" onClick={() => setUsePasswordLogin(!usePasswordLogin)}>
+            <button
+              type="button"
+              className={`text-sm text-blue-500 mt-2 hover:underline ${isPasskeyLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={() => setUsePasswordLogin(!usePasswordLogin)}
+              disabled={isPasskeyLoading}
+            >
               {usePasswordLogin ? 'Use PassKey instead' : 'Use password instead'}
             </button>
           )}
@@ -253,6 +258,7 @@ export const LoginPage = () => {
             onClick={() => {
               google()
             }}
+            disabled={isPasskeyLoading}
           >
             Google
           </Button>
@@ -265,6 +271,7 @@ export const LoginPage = () => {
             onClick={() => {
               github()
             }}
+            disabled={isPasskeyLoading}
           >
             GitHub
           </Button>
