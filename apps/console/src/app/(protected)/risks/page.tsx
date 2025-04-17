@@ -6,7 +6,7 @@ import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { PageHeading } from '@repo/ui/page-heading'
 import { TableCell, TableRow } from '@repo/ui/table'
-import { GetAllRisksQueryVariables, OrderDirection, RiskFieldsFragment, RiskOrderField } from '@repo/codegen/src/schema'
+import { GetAllRisksQueryVariables, OrderDirection, RiskFieldsFragment, RiskOrder, RiskOrderField } from '@repo/codegen/src/schema'
 import RiskDetailsSheet from '@/components/pages/protected/risks/risk-details-sheet'
 import { useRouter } from 'next/navigation'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -39,7 +39,10 @@ const RiskTablePage: React.FC = () => {
     }
   }, [filters, debouncedSearch])
 
-  const orderByFilter = useMemo(() => orderBy || undefined, [orderBy])
+  const orderByFilter: RiskOrder[] | undefined = useMemo(() => {
+    if (!orderBy) return undefined
+    return Array.isArray(orderBy) ? orderBy : [orderBy]
+  }, [orderBy])
 
   const { data, isLoading, isError } = useRisksWithFilter({
     where,
