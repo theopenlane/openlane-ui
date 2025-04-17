@@ -22,8 +22,7 @@ import Link from 'next/link'
 import { recaptchaSiteKey } from '@repo/dally/auth'
 import { useNotification } from '@/hooks/useNotification'
 
-const TEMP_PASSKEY_EMAIL = 'tempuser@test.com'
-const TEMP_PASSKEY_NAME = 'Temp User'
+const TEMP_PASSKEY_EMAIL = 'mitb@theopenlane.io'
 
 export const LoginPage = () => {
   const { separator, buttons, keyIcon, form, input } = loginStyles()
@@ -135,7 +134,10 @@ export const LoginPage = () => {
       })
       setSessionCookie(options.session)
 
-      const assertionResponse = await startAuthentication(options.publicKey)
+      const assertionResponse = await startAuthentication({
+        optionsJSON: options.publicKey,
+      })
+
       const verificationResult = await verifyAuthentication({
         assertionResponse,
       })
@@ -144,7 +146,6 @@ export const LoginPage = () => {
         await signIn('passkey', {
           callbackUrl: '/dashboard',
           email: TEMP_PASSKEY_EMAIL,
-          name: TEMP_PASSKEY_NAME,
           session: verificationResult.session,
           accessToken: verificationResult.access_token,
           refreshToken: verificationResult.refresh_token,
@@ -157,7 +158,13 @@ export const LoginPage = () => {
       }
 
       return verificationResult
-    } catch (error) {
+    } catch (err: any) {
+      if (err.name === 'AbortError' || err.name === 'NotAllowedError') {
+        console.error('Error during passkey login:', err)
+        errorNotification({ title: 'User canceled the passkey login request' })
+        return
+      }
+
       setSignInError(true)
     }
   }
