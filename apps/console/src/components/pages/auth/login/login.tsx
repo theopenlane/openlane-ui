@@ -246,7 +246,7 @@ export const LoginPage = () => {
 
           {loginMethods.includes('WEBAUTHN') && !usePasswordLogin && (
             <>
-              <Button onClick={() => passKeySignIn()} className="md" variant="outlineLight" disabled={isPasskeyLoading || signInLoading} icon={<KeyRoundIcon />}>
+              <Button onClick={() => passKeySignIn()} className="md" variant="outlineLight" disabled={isPasskeyLoading || signInLoading || isCheckingLoginMethods}>
                 Continue with PassKey
               </Button>
               {isPasskeyLoading && passkeyStatus && <p className="text-sm text-gray-600 mt-2 text-center">{passkeyStatus}</p>}
@@ -255,13 +255,28 @@ export const LoginPage = () => {
 
           {loginMethods.includes('CREDENTIALS') && (usePasswordLogin || !loginMethods.includes('WEBAUTHN')) && (
             <>
-              <div className={input()}>
+              <div className={input()} style={{ opacity: isCheckingLoginMethods ? 0.5 : 1 }}>
                 <Label className="text-text-dark" htmlFor="password">
                   Password
                 </Label>
-                <PasswordInput variant="light" name="password" placeholder="password" autoComplete="current-password" className="!border-neutral-300 dark:!border-neutral-300" />
+                <PasswordInput
+                  variant="light"
+                  name="password"
+                  placeholder="password"
+                  autoComplete="current-password"
+                  className="!border-neutral-300 dark:!border-neutral-300"
+                  disabled={isCheckingLoginMethods}
+                />
               </div>
-              <Button variant="filled" className="mr-auto mt-2 w-full" icon={<ArrowUpRight />} size="md" type="submit" iconAnimated>
+              <Button
+                variant="filled"
+                className="mr-auto mt-2 w-full"
+                icon={<ArrowUpRight />}
+                size="md"
+                type="submit"
+                iconAnimated
+                disabled={isPasskeyLoading || signInLoading || isCheckingLoginMethods}
+              >
                 Login
               </Button>
             </>
