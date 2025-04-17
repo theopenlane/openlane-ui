@@ -4,8 +4,8 @@ import { LoginUser } from '@repo/dally/user'
 import { Button } from '@repo/ui/button'
 import MessageBox from '@repo/ui/message-box'
 import SimpleForm from '@repo/ui/simple-form'
-import { ArrowUpRight } from 'lucide-react'
-import { signIn, useSession } from 'next-auth/react'
+import { ArrowUpRight, KeyRoundIcon } from 'lucide-react'
+import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { Separator } from '@repo/ui/separator'
@@ -23,7 +23,6 @@ import { recaptchaSiteKey } from '@repo/dally/auth'
 
 const TEMP_PASSKEY_EMAIL = 'tempuser@test.com'
 const TEMP_PASSKEY_NAME = 'Temp User'
-import react from 'react'
 
 export const LoginPage = () => {
   const { separator, buttons, keyIcon, form, input } = loginStyles()
@@ -32,10 +31,33 @@ export const LoginPage = () => {
   const [signInErrorMessage, setSignInErrorMessage] = useState('There was an error. Please try again.')
   const [signInLoading, setSignInLoading] = useState(false)
   const showLoginError = !signInLoading && signInError
+  const [loginMethods, setLoginMethods] = useState<string[]>([])
+  const [usePasswordLogin, setUsePasswordLogin] = useState(false)
   const [isPasswordActive, setIsPasswordActive] = useState(false)
 
   const searchParams = useSearchParams()
   const token = searchParams?.get('token')
+
+  const checkLoginMethods = async (email: string) => {
+    try {
+      const response = await fetch('/api/auth/login-methods', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      const data = await response.json()
+      if (data.success) {
+        setLoginMethods(data.methods)
+        if (data.methods.includes('WEBAUTHN') && !usePasswordLogin) {
+          setIsPasswordActive(false)
+        } else if (data.methods.includes('CREDENTIALS')) {
+          setIsPasswordActive(true)
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch login methods:', error)
+    }
+  }
 
   const submit = async (payload: LoginUser) => {
     setSignInLoading(true)
@@ -134,6 +156,55 @@ export const LoginPage = () => {
   return (
     <>
       <div className="flex flex-col mt-8 justify-start">
+        <SimpleForm
+          classNames={form()}
+          onSubmit={(e: any) => {
+            submit(e)
+          }}
+          onChange={(e: any) => {
+            if (e.username.length > 0) {
+              checkLoginMethods(e.username)
+            } else {
+              setIsPasswordActive(false)
+              setLoginMethods([])
+            }
+          }}
+        >
+          <div className={input()}>
+            <Label className="text-text-dark" htmlFor="username">
+              Email
+            </Label>
+            <Input variant="light" name="username" placeholder="email@domain.com" className="!border-neutral-300 dark:!border-neutral-300" />
+          </div>
+
+          {loginMethods.includes('WEBAUTHN') && !usePasswordLogin && (
+            <Button variant="outlineLight" size="md" icon={<KeyRoundIcon className={keyIcon()} />} iconPosition="left" onClick={() => passKeySignIn()} className="mt-2 w-full">
+              Continue with PassKey
+            </Button>
+          )}
+
+          {isPasswordActive && loginMethods.includes('CREDENTIALS') && (
+            <>
+              <div className={input()}>
+                <Label className="text-text-dark" htmlFor="password">
+                  Password
+                </Label>
+                <PasswordInput variant="light" name="password" placeholder="password" autoComplete="current-password" className="!border-neutral-300 dark:!border-neutral-300" />
+              </div>
+              <Button variant="filled" className="mr-auto mt-2 w-full" icon={<ArrowUpRight />} size="md" type="submit" iconAnimated>
+                Login
+              </Button>
+            </>
+          )}
+
+          {loginMethods.includes('WEBAUTHN') && loginMethods.includes('CREDENTIALS') && (
+            <button type="button" className="text-sm text-blue-500 mt-2 hover:underline" onClick={() => setUsePasswordLogin(!usePasswordLogin)}>
+              {usePasswordLogin ? 'Use PassKey instead' : 'Use password instead'}
+            </button>
+          )}
+        </SimpleForm>
+
+        <Separator label="or" className={separator()} />
         <div className={buttons()}>
           <Button
             variant="outlineLight"
@@ -158,52 +229,8 @@ export const LoginPage = () => {
           >
             GitHub
           </Button>
-
-          {/* <Button
-            variant="outlineLight"
-            size="md"
-            icon={<KeyRoundIcon className={keyIcon()} />}
-            iconPosition="left"
-            onClick={() => {
-              passKeySignIn()
-            }}
-          >
-            PassKey
-          </Button> */}
         </div>
-        <Separator label="or" className={separator()} />
-        <SimpleForm
-          classNames={form()}
-          onSubmit={(e: any) => {
-            submit(e)
-          }}
-          onChange={(e: any) => {
-            if (e.username.length > 0) {
-              setIsPasswordActive(true)
-            } else {
-              setIsPasswordActive(false)
-            }
-          }}
-        >
-          <div className={input()}>
-            <Label className="text-text-dark" htmlFor="username">
-              Email
-            </Label>
-            <Input variant="light" name="username" placeholder="email@domain.com" className="!border-neutral-300 dark:!border-neutral-300" />
-          </div>
-          {isPasswordActive && (
-            <div className={input()}>
-              <Label className="text-text-dark" htmlFor="password">
-                Password
-              </Label>
-              <PasswordInput variant="light" name="password" placeholder="password" autoComplete="current-password" className="!border-neutral-300 dark:!border-neutral-300" />
-            </div>
-          )}
 
-          <Button variant="filled" className="  mr-auto mt-2 w-full" icon={<ArrowUpRight />} size="md" type="submit" iconAnimated>
-            Login
-          </Button>
-        </SimpleForm>
         <Link href="https://www.theopenlane.io/legal/privacy" className="text-xs text-gray-500 mt-8 text-center">
           Privacy Policy
         </Link>
