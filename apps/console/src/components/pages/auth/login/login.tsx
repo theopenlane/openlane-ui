@@ -34,6 +34,8 @@ export const LoginPage = () => {
   const [loginMethods, setLoginMethods] = useState<string[]>([])
   const [usePasswordLogin, setUsePasswordLogin] = useState(false)
   const [isPasswordActive, setIsPasswordActive] = useState(false)
+  const [isPasskeyLoading, setIsPasskeyLoading] = useState(false)
+  const [passkeyStatus, setPasskeyStatus] = useState('')
 
   const { successNotification, errorNotification } = useNotification()
 
@@ -129,20 +131,28 @@ export const LoginPage = () => {
    */
   async function passKeySignIn() {
     try {
+      setIsPasskeyLoading(true)
+      setSignInError(false)
+      setSignInErrorMessage('')
+      setPasskeyStatus('Initializing passkey authentication...')
+
       const options = await getPasskeySignInOptions({
         email: TEMP_PASSKEY_EMAIL,
       })
       setSessionCookie(options.session)
+      setPasskeyStatus('Waiting for your passkey...')
 
       const assertionResponse = await startAuthentication({
         optionsJSON: options.publicKey,
       })
 
+      setPasskeyStatus('Verifying your passkey...')
       const verificationResult = await verifyAuthentication({
         assertionResponse,
       })
 
       if (verificationResult.success) {
+        setPasskeyStatus('Authentication successful, redirecting...')
         await signIn('passkey', {
           callbackUrl: '/dashboard',
           email: TEMP_PASSKEY_EMAIL,
@@ -150,9 +160,7 @@ export const LoginPage = () => {
           accessToken: verificationResult.access_token,
           refreshToken: verificationResult.refresh_token,
         })
-      }
-
-      if (!verificationResult.success) {
+      } else {
         setSignInError(true)
         setSignInErrorMessage(`Error: ${verificationResult.error}`)
       }
@@ -166,6 +174,10 @@ export const LoginPage = () => {
       }
 
       setSignInError(true)
+      setSignInErrorMessage('An unexpected error occurred during passkey login')
+    } finally {
+      setIsPasskeyLoading(false)
+      setPasskeyStatus('')
     }
   }
 
@@ -194,9 +206,20 @@ export const LoginPage = () => {
           </div>
 
           {loginMethods.includes('WEBAUTHN') && !usePasswordLogin && (
-            <Button variant="outlineLight" size="md" icon={<KeyRoundIcon className={keyIcon()} />} iconPosition="left" onClick={() => passKeySignIn()} className="mt-2 w-full">
-              Continue with PassKey
-            </Button>
+            <>
+              <Button
+                variant="outlineLight"
+                size="md"
+                icon={<KeyRoundIcon className={keyIcon()} />}
+                iconPosition="left"
+                onClick={() => passKeySignIn()}
+                className="mt-2 w-full"
+                disabled={isPasskeyLoading}
+              >
+                {isPasskeyLoading ? 'Authenticating...' : 'Continue with PassKey'}
+              </Button>
+              {isPasskeyLoading && passkeyStatus && <p className="text-sm text-gray-600 mt-2 text-center">{passkeyStatus}</p>}
+            </>
           )}
 
           {loginMethods.includes('CREDENTIALS') && (usePasswordLogin || !loginMethods.includes('WEBAUTHN')) && (
