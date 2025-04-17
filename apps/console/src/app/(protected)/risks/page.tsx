@@ -44,7 +44,7 @@ const RiskTablePage: React.FC = () => {
     return Array.isArray(orderBy) ? orderBy : [orderBy]
   }, [orderBy])
 
-  const { risks, paginationMeta, isLoading, isError } = useRisksWithFilter({
+  const { risks, paginationMeta, isError } = useRisksWithFilter({
     where,
     orderBy: orderByFilter,
     pagination,
