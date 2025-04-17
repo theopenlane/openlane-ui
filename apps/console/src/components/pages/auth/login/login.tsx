@@ -22,8 +22,6 @@ import Link from 'next/link'
 import { recaptchaSiteKey } from '@repo/dally/auth'
 import { useNotification } from '@/hooks/useNotification'
 
-const TEMP_PASSKEY_EMAIL = 'mitb@theopenlane.io'
-
 export const LoginPage = () => {
   const { separator, buttons, keyIcon, form, input } = loginStyles()
   const router = useRouter()
@@ -163,7 +161,7 @@ export const LoginPage = () => {
       setPasskeyStatus('Initializing passkey authentication...')
 
       const options = await getPasskeySignInOptions({
-        email: TEMP_PASSKEY_EMAIL,
+        email: (document.querySelector('input[name="username"]') as HTMLInputElement)?.value || '',
       })
       setSessionCookie(options.session)
       setPasskeyStatus('Waiting for your passkey...')
@@ -181,7 +179,7 @@ export const LoginPage = () => {
         setPasskeyStatus('Authentication successful, redirecting...')
         await signIn('passkey', {
           callbackUrl: '/dashboard',
-          email: TEMP_PASSKEY_EMAIL,
+          email: document.querySelector('input[name="username"]')?.value || '',
           session: verificationResult.session,
           accessToken: verificationResult.access_token,
           refreshToken: verificationResult.refresh_token,
