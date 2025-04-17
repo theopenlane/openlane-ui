@@ -35,6 +35,7 @@ export const LoginPage = () => {
   const [isPasskeyLoading, setIsPasskeyLoading] = useState(false)
   const [passkeyStatus, setPasskeyStatus] = useState('')
   const [isCheckingLoginMethods, setIsCheckingLoginMethods] = useState(false)
+  const [email, setEmail] = useState('')
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null)
 
   const { successNotification, errorNotification } = useNotification()
@@ -161,7 +162,7 @@ export const LoginPage = () => {
       setPasskeyStatus('Initializing passkey authentication...')
 
       const options = await getPasskeySignInOptions({
-        email: (document.querySelector('input[name="username"]') as HTMLInputElement)?.value || '',
+        email: email || '',
       })
       setSessionCookie(options.session)
       setPasskeyStatus('Waiting for your passkey...')
@@ -179,7 +180,7 @@ export const LoginPage = () => {
         setPasskeyStatus('Authentication successful, redirecting...')
         await signIn('passkey', {
           callbackUrl: '/dashboard',
-          email: (document.querySelector('input[name="username"]') as HTMLInputElement)?.value || '',
+          email: email || '',
           session: verificationResult.session,
           accessToken: verificationResult.access_token,
           refreshToken: verificationResult.refresh_token,
@@ -227,8 +228,10 @@ export const LoginPage = () => {
           }}
           onChange={(e: any) => {
             if (e.username.length > 0) {
+              setEmail(e.username)
               debouncedCheckLoginMethods(e.username)
             } else {
+              setEmail('')
               setIsPasswordActive(false)
               setLoginMethods([])
             }
@@ -243,16 +246,8 @@ export const LoginPage = () => {
 
           {loginMethods.includes('WEBAUTHN') && !usePasswordLogin && (
             <>
-              <Button
-                variant="outlineLight"
-                size="md"
-                icon={<KeyRoundIcon className={keyIcon()} />}
-                iconPosition="left"
-                onClick={() => passKeySignIn()}
-                className="mt-2 w-full"
-                disabled={isPasskeyLoading || signInLoading}
-              >
-                {isPasskeyLoading ? 'Authenticating...' : 'Continue with PassKey'}
+              <Button onClick={() => passKeySignIn()} className="md" variant="outlineLight" disabled={isPasskeyLoading || signInLoading} icon={<KeyRoundIcon />}>
+                Continue with PassKey
               </Button>
               {isPasskeyLoading && passkeyStatus && <p className="text-sm text-gray-600 mt-2 text-center">{passkeyStatus}</p>}
             </>
@@ -273,14 +268,13 @@ export const LoginPage = () => {
           )}
 
           {loginMethods.includes('WEBAUTHN') && loginMethods.includes('CREDENTIALS') && (
-            <button
-              type="button"
-              className={`text-sm text-blue-500 mt-2 hover:underline ${isPasskeyLoading || signInLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-              onClick={() => setUsePasswordLogin(!usePasswordLogin)}
-              disabled={isPasskeyLoading || signInLoading}
+            <span
+              onClick={() => !isPasskeyLoading && !signInLoading && setUsePasswordLogin(!usePasswordLogin)}
+              className="text-sm text-gray-600 hover:text-gray-800 mt-2 mx-auto block cursor-pointer select-none"
+              style={{ opacity: isPasskeyLoading || signInLoading ? 0.5 : 1 }}
             >
               {usePasswordLogin ? 'Use PassKey instead' : 'Use password instead'}
-            </button>
+            </span>
           )}
         </SimpleForm>
 
