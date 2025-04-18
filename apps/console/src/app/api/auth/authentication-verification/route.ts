@@ -11,7 +11,7 @@ export async function POST(request: Request) {
     headers['cookie'] = cookies
   }
 
-  const fData = await fetch(`${process.env.API_REST_URL}/v1/authentication/verification`, {
+  const fData = await fetch(`${process.env.API_REST_URL}/authentication/verification`, {
     method: 'POST',
     headers,
     body: JSON.stringify(bodyData),
