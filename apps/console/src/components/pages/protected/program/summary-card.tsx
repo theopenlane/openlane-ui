@@ -41,12 +41,19 @@ interface SummaryCardProps {
 }
 
 export const SummaryCard = ({ formData, stepper }: SummaryCardProps) => {
+  const programTypeLabels: Record<string, string> = {
+    framework: 'Framework',
+    gap_analysis: 'Gap Analysis',
+    risk_assessment: 'Risk Assessment',
+    other: 'Other - Please Specify',
+  }
+
   const updatedAccordionItems = [
     {
       value: 'program-type',
       label: 'Program type chosen',
       icon: formData?.programType ? <CheckIcon className="text-green-400" size={16} /> : <XCircle className="text-red-600" size={16} />,
-      description: formData?.programType ? `Selected program type: ${formData.programType}` : 'A program type must be selected to create the program.',
+      description: formData?.programType ? `Selected program type: ${programTypeLabels[formData.programType] ?? formData.programType}` : 'A program type must be selected to create the program.',
       link: !formData?.programType ? 'Take me there.' : null,
     },
     ...(formData?.programType === 'framework'
