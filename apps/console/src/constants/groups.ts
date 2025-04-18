@@ -9,7 +9,6 @@ import { GET_ALL_RISKS } from '@repo/codegen/query/risks'
 export enum ObjectTypes {
   PROGRAM = 'Program',
   RISK = 'Risk',
-  CONTROL = 'Control',
   CONTROL_OBJECTIVE = 'Control Objective',
   NARRATIVE = 'Narrative',
   INTERNAL_POLICY = 'Internal Policy',
@@ -27,9 +26,6 @@ export type AllQueriesData = {
   }
   risks?: {
     edges?: Array<{ node: Risk }>
-  }
-  controls?: {
-    edges?: Array<{ node: Control }>
   }
   controlObjectives?: {
     edges?: Array<{ node: ControlObjective }>
@@ -64,11 +60,6 @@ export const OBJECT_TYPE_CONFIG: Record<
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'risks',
     queryDocument: GET_ALL_RISKS,
-  },
-  [ObjectTypes.CONTROL]: {
-    roleOptions: ['View', 'Edit', 'Blocked'],
-    responseObjectKey: 'controls',
-    queryDocument: GET_ALL_CONTROLS,
   },
   [ObjectTypes.CONTROL_OBJECTIVE]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
