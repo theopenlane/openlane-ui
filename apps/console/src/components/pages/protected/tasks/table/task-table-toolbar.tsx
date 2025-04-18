@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { TASK_FILTER_FIELDS } from '@/components/pages/protected/tasks/table/table-config'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import { SelectFilterField } from '@/types'
-import { TOrgMembers } from '@/components/pages/protected/tasks/hooks/useTaskStore'
+import { TOrgMembers, useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
 import { CreditCard as CardIcon, Table as TableIcon } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
 import { BulkCSVCreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/bulk-csv-create-task-dialog'
@@ -18,6 +18,7 @@ type TProps = {
 const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
   const [showCompletedTasks, setShowCompletedTasks] = useState<boolean>(false)
+  const { orgMembers } = useTaskStore()
 
   const filterFields = [
     ...TASK_FILTER_FIELDS,
@@ -26,6 +27,12 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
       label: 'Assigner',
       type: 'select',
       options: props.members,
+    } as SelectFilterField,
+    {
+      key: 'assigneeID',
+      label: 'Assignee',
+      type: 'select',
+      options: orgMembers,
     } as SelectFilterField,
   ]
 
