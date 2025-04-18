@@ -5,7 +5,7 @@ import { Button } from '@repo/ui/button'
 import MessageBox from '@repo/ui/message-box'
 import SimpleForm from '@repo/ui/simple-form'
 import { ArrowUpRight } from 'lucide-react'
-import { signIn, useSession } from 'next-auth/react'
+import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { Separator } from '@repo/ui/separator'
@@ -23,10 +23,10 @@ import { recaptchaSiteKey } from '@repo/dally/auth'
 
 const TEMP_PASSKEY_EMAIL = 'tempuser@test.com'
 const TEMP_PASSKEY_NAME = 'Temp User'
-import react from 'react'
 
 export const LoginPage = () => {
-  const { separator, buttons, keyIcon, form, input } = loginStyles()
+  const { separator, buttons, form, input } = loginStyles()
+
   const router = useRouter()
   const [signInError, setSignInError] = useState(false)
   const [signInErrorMessage, setSignInErrorMessage] = useState('There was an error. Please try again.')
@@ -209,6 +209,9 @@ export const LoginPage = () => {
               Email
             </Label>
             <Input type="email" variant="light" name="username" placeholder="email@domain.com" className="!border-neutral-300 dark:!border-neutral-300" />
+            <Link href="/forgot-password" className="text-sm text-blue-500 underline mt-2 ml-auto mb-4 hover:opacity-80 transition">
+              Forgot password?
+            </Link>
           </div>
           {isPasswordActive && (
             <div className={input()}>
