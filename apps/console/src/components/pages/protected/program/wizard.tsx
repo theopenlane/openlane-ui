@@ -21,6 +21,8 @@ import { mapToNode } from './nodes'
 import { Check } from 'lucide-react'
 import { SummaryCard } from './summary-card'
 import { useCreateProgramWithMembers, useGetProgramEdgesForWizard } from '@/lib/graphql-hooks/programs'
+import { useNavigationGuard } from 'next-navigation-guard'
+import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 
 export type FormFields = z.infer<typeof initProgramSchema & typeof programDetailSchema & typeof programInviteSchema & typeof programObjectAssociationSchema>
 
@@ -32,7 +34,13 @@ const { useStepper, steps } = defineStepper(
 )
 const today = new Date()
 
-const ProgramWizard = () => {
+interface ProgramWizardProps {
+  onSuccess?: () => void
+  requestClose?: () => void
+  blockClose?: (trigger: () => void) => void
+}
+
+const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardProps) => {
   const { successNotification, errorNotification } = useNotification()
   // styles
   const { linkItem, formInput, buttonRow } = dialogStyles()
@@ -58,7 +66,7 @@ const ProgramWizard = () => {
 
   const { handleSubmit, getValues, setValue } = form
 
-  const { isValid } = useFormState({ control: form.control })
+  const { isValid, isDirty } = useFormState({ control: form.control })
   const { isValid: isFullFormValid } = useFormState({ control: fullForm.control })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -77,14 +85,18 @@ const ProgramWizard = () => {
 
   const currentIndex = stepper.all.findIndex((item) => item.id === stepper.current.id)
 
-  // set values from the form when page in stepper is changed
+  const [showPrompt, setShowPrompt] = useState(false)
+
+  const navGuard = useNavigationGuard({
+    enabled: fullForm.formState.isDirty,
+  })
+
   const handleChange = (data: zInfer<typeof stepper.current.schema>) => {
     Object.entries(data).forEach(([key, value]) => {
       setValue(`${key}`, value)
     })
   }
 
-  // handle the form submission for each page in the stepper
   const onSubmit = (data: zInfer<typeof stepper.current.schema>) => {
     if (stepper.isLast) {
       return
@@ -93,23 +105,23 @@ const ProgramWizard = () => {
     handleChange(data)
   }
 
-  // use the mutation to create a new program
   const createProgram = async (input: CreateProgramWithMembersInput) => {
-    const resp = await createNewProgram({
-      input: input,
-    })
-    if (isError) {
+    try {
+      const resp = await createNewProgram({ input })
+
+      successNotification({
+        title: 'Program Created',
+        description: `Your program, ${resp?.createProgramWithMembers?.program?.name}, has been successfully created`,
+      })
+
+      fullForm.reset(getValues())
+      router.push(`/programs?id=${resp?.createProgramWithMembers.program.id}`)
+    } catch (error) {
       errorNotification({
         title: 'Error',
         description: 'There was an error creating the program. Please try again.',
       })
-      return
     }
-    successNotification({
-      title: 'Program Created',
-      description: `Your program, ${resp?.createProgramWithMembers?.program?.name}, has been successfully created`,
-    })
-    router.push(`/programs?id=${resp?.createProgramWithMembers.program.id}`)
   }
 
   const handleSkip = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -198,8 +210,28 @@ const ProgramWizard = () => {
     setValue('endDate', today)
   }, [setValue])
 
+  useEffect(() => {
+    if (blockClose) {
+      blockClose(() => {
+        if (isDirty) {
+          setShowPrompt(true)
+        } else {
+          requestClose?.()
+        }
+      })
+    }
+  }, [blockClose, isDirty, requestClose])
+
   return (
     <div className="flex flex-col">
+      <CancelDialog
+        isOpen={showPrompt}
+        onConfirm={() => {
+          setShowPrompt(false)
+          requestClose?.()
+        }}
+        onCancel={() => setShowPrompt(false)}
+      />
       <FormProvider {...form}>
         <div className="flex border-b border-t items-center justify-between">
           <ul className="flex py-2.5">
