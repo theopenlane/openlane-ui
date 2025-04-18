@@ -65,7 +65,7 @@ const Risks = () => {
 
   const { risks } = useRisksWithFilter({ where })
 
-  const hasData = risks.length
+  const hasData = !!risks?.length
 
   return (
     <Card className="shadow-md rounded-lg flex-1 ">
