@@ -13,8 +13,7 @@ import { initProgramSchema, ProgramInitComponent } from './wizard/step-1-init'
 import { programDetailSchema, ProgramDetailsComponent } from './wizard/step-2-details'
 import { ProgramInviteComponent, programInviteSchema } from './wizard/step-3-team'
 import { ProgramObjectAssociationComponent, programObjectAssociationSchema } from './wizard/step-4-associate'
-import { CreateProgramWithMembersInput, ProgramMembershipRole } from '@repo/codegen/src/schema'
-import { useSession } from 'next-auth/react'
+import { CreateProgramWithMembersInput, ProgramMembershipRole, ProgramProgramStatus } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { useRouter } from 'next/navigation'
 import { dialogStyles } from './dialog.styles'
@@ -33,6 +32,7 @@ const { useStepper, steps } = defineStepper(
   { id: 'invite', label: 'Add team members', schema: programInviteSchema },
   { id: 'link', label: 'Associate existing objects', schema: programObjectAssociationSchema },
 )
+const today = new Date()
 
 interface ProgramWizardProps {
   onSuccess?: () => void
@@ -204,6 +204,11 @@ const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardPro
     }
     return !form.programType || !form.name
   }
+
+  useEffect(() => {
+    setValue('startDate', today)
+    setValue('endDate', today)
+  }, [setValue])
 
   useEffect(() => {
     if (blockClose) {
