@@ -254,7 +254,7 @@ const AssignPermissionsDialog = () => {
                     setSearchValue('')
                   }}
                 >
-                  <SelectTrigger className="border-brand w-[150px]">{selectedObject || 'Select object'}</SelectTrigger>
+                  <SelectTrigger className="border-brand w-[180px]">{selectedObject || 'Select object'}</SelectTrigger>
                   <SelectContent>
                     {options.map((option) => (
                       <SelectItem key={option} value={option}>
