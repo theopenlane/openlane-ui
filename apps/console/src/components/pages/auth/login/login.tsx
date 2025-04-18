@@ -29,70 +29,14 @@ export const LoginPage = () => {
   const [signInErrorMessage, setSignInErrorMessage] = useState('There was an error. Please try again.')
   const [signInLoading, setSignInLoading] = useState(false)
   const showLoginError = !signInLoading && signInError
-  const [loginMethods, setLoginMethods] = useState<string[]>([])
   const [usePasswordLogin, setUsePasswordLogin] = useState(false)
-  const [isPasswordActive, setIsPasswordActive] = useState(false)
   const [isPasskeyLoading, setIsPasskeyLoading] = useState(false)
   const [passkeyStatus, setPasskeyStatus] = useState('')
-  const [isCheckingLoginMethods, setIsCheckingLoginMethods] = useState(false)
   const [email, setEmail] = useState('')
-  const debounceTimeout = useRef<NodeJS.Timeout | null>(null)
 
   const { successNotification, errorNotification } = useNotification()
-
   const searchParams = useSearchParams()
   const token = searchParams?.get('token')
-
-  const checkLoginMethods = async (email: string) => {
-    if (!email) {
-      setLoginMethods([])
-      setIsPasswordActive(false)
-      return
-    }
-
-    try {
-      setIsCheckingLoginMethods(true)
-      const response = await fetch('/api/auth/login-methods', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      })
-      const data = await response.json()
-      if (data.success) {
-        setLoginMethods(data.methods)
-
-        // show password input if user prefers password login or if CREDENTIALS is the only option
-        if (data.methods.includes('CREDENTIALS') && (!data.methods.includes('WEBAUTHN') || usePasswordLogin)) {
-          setIsPasswordActive(true)
-        } else {
-          setIsPasswordActive(false)
-        }
-      }
-    } catch (error) {
-      console.error('Failed to fetch login methods:', error)
-      errorNotification({
-        title: 'Could not fetch available auth methods',
-        description: 'Please verify you have provided an email that has an account',
-      })
-    } finally {
-      setIsCheckingLoginMethods(false)
-    }
-  }
-
-  const debouncedCheckLoginMethods = (email: string) => {
-    if (debounceTimeout.current) {
-      clearTimeout(debounceTimeout.current)
-    }
-    debounceTimeout.current = setTimeout(() => checkLoginMethods(email), 500)
-  }
-
-  useEffect(() => {
-    return () => {
-      if (debounceTimeout.current) {
-        clearTimeout(debounceTimeout.current)
-      }
-    }
-  }, [])
 
   const submit = async (payload: LoginUser) => {
     setSignInLoading(true)
@@ -210,11 +154,11 @@ export const LoginPage = () => {
     <>
       <div className="flex flex-col mt-8 justify-start">
         <div className={buttons()}>
-          <Button variant="outlineLight" size="md" icon={<GoogleIcon />} iconPosition="left" onClick={() => google()} disabled={isPasskeyLoading || isCheckingLoginMethods || signInLoading}>
+          <Button variant="outlineLight" size="md" icon={<GoogleIcon />} iconPosition="left" onClick={() => google()} disabled={isPasskeyLoading || signInLoading}>
             Google
           </Button>
 
-          <Button variant="outlineLight" size="md" icon={<GithubIcon />} iconPosition="left" onClick={() => github()} disabled={isPasskeyLoading || isCheckingLoginMethods || signInLoading}>
+          <Button variant="outlineLight" size="md" icon={<GithubIcon />} iconPosition="left" onClick={() => github()} disabled={isPasskeyLoading || signInLoading}>
             GitHub
           </Button>
         </div>
@@ -227,14 +171,7 @@ export const LoginPage = () => {
             submit(e)
           }}
           onChange={(e: any) => {
-            if (e.username.length > 0) {
-              setEmail(e.username)
-              debouncedCheckLoginMethods(e.username)
-            } else {
-              setEmail('')
-              setIsPasswordActive(false)
-              setLoginMethods([])
-            }
+            setEmail(e.username)
           }}
         >
           <div className={input()}>
@@ -244,56 +181,41 @@ export const LoginPage = () => {
             <Input variant="light" name="username" placeholder="email@domain.com" className="!border-neutral-300 dark:!border-neutral-300" />
           </div>
 
-          {loginMethods.includes('WEBAUTHN') && !usePasswordLogin && (
+          {email && (
             <>
-              <Button onClick={() => passKeySignIn()} className="md" variant="outlineLight" disabled={isPasskeyLoading || signInLoading || isCheckingLoginMethods}>
-                Continue with PassKey
-              </Button>
-              {isPasskeyLoading && passkeyStatus && <p className="text-sm text-gray-600 mt-2 text-center">{passkeyStatus}</p>}
-            </>
-          )}
+              {!usePasswordLogin && (
+                <>
+                  <Button onClick={() => passKeySignIn()} className="md" variant="outlineLight" disabled={isPasskeyLoading || signInLoading}>
+                    Continue with PassKey
+                  </Button>
+                  {isPasskeyLoading && passkeyStatus && <p className="text-sm text-gray-600 mt-2 text-center">{passkeyStatus}</p>}
+                </>
+              )}
 
-          {loginMethods.includes('CREDENTIALS') && (usePasswordLogin || !loginMethods.includes('WEBAUTHN')) && (
-            <>
-              <div className={input()} style={{ opacity: isCheckingLoginMethods ? 0.5 : 1 }}>
-                <Label className="text-text-dark" htmlFor="password">
-                  Password
-                </Label>
-                <PasswordInput
-                  variant="light"
-                  name="password"
-                  placeholder="password"
-                  autoComplete="current-password"
-                  className="!border-neutral-300 dark:!border-neutral-300"
-                  disabled={isCheckingLoginMethods}
-                />
-              </div>
-              <Button
-                variant="filled"
-                className="mr-auto mt-2 w-full"
-                icon={<ArrowUpRight />}
-                size="md"
-                type="submit"
-                iconAnimated
-                disabled={isPasskeyLoading || signInLoading || isCheckingLoginMethods}
+              {usePasswordLogin && (
+                <>
+                  <div className={input()}>
+                    <Label className="text-text-dark" htmlFor="password">
+                      Password
+                    </Label>
+                    <PasswordInput variant="light" name="password" placeholder="password" autoComplete="current-password" className="!border-neutral-300 dark:!border-neutral-300" />
+                  </div>
+                  <Button variant="filled" className="mr-auto mt-2 w-full" icon={<ArrowUpRight />} size="md" type="submit" iconAnimated disabled={isPasskeyLoading || signInLoading}>
+                    Login
+                  </Button>
+                </>
+              )}
+
+              <span
+                onClick={() => !isPasskeyLoading && !signInLoading && setUsePasswordLogin(!usePasswordLogin)}
+                className="text-sm text-gray-600 hover:text-gray-800 mt-2 mx-auto block cursor-pointer select-none"
+                style={{ opacity: isPasskeyLoading || signInLoading ? 0.5 : 1 }}
               >
-                Login
-              </Button>
+                {usePasswordLogin ? 'Use PassKey instead' : 'Use password instead'}
+              </span>
             </>
-          )}
-
-          {loginMethods.includes('WEBAUTHN') && loginMethods.includes('CREDENTIALS') && (
-            <span
-              onClick={() => !isPasskeyLoading && !signInLoading && setUsePasswordLogin(!usePasswordLogin)}
-              className="text-sm text-gray-600 hover:text-gray-800 mt-2 mx-auto block cursor-pointer select-none"
-              style={{ opacity: isPasskeyLoading || signInLoading ? 0.5 : 1 }}
-            >
-              {usePasswordLogin ? 'Use PassKey instead' : 'Use password instead'}
-            </span>
           )}
         </SimpleForm>
-
-        {isCheckingLoginMethods && <p className="text-sm text-gray-600 mt-2 text-center">Checking available login methods...</p>}
 
         <Link href="https://www.theopenlane.io/legal/privacy" className="text-xs text-gray-500 mt-8 text-center">
           Privacy Policy
