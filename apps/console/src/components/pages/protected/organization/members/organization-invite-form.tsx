@@ -82,9 +82,19 @@ const OrganizationInviteForm = ({ inviteAdmins }: { inviteAdmins: boolean }) => 
 
   const handleBlur = () => {
     if (isValidEmail(currentValue)) {
-      const newTag = { id: currentValue, text: currentValue }
-      setEmails((prev) => [...prev, newTag])
-      setValue('emails', [...emails.map((tag) => tag.text), currentValue])
+      const trimmed = currentValue.trim()
+      const existing = emails.find((tag) => tag.text.toLowerCase() === trimmed.toLowerCase())
+
+      if (!existing) {
+        const newTag = { id: trimmed, text: trimmed }
+        const updatedTags = [...emails, newTag]
+        setEmails(updatedTags)
+        setValue(
+          'emails',
+          updatedTags.map((tag) => tag.text),
+        )
+      }
+
       setCurrentValue('')
     }
   }
