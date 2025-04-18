@@ -51,6 +51,7 @@ const OrganizationInviteForm = ({ inviteAdmins }: { inviteAdmins: boolean }) => 
   const [emails, setEmails] = useState<Tag[]>([])
   const [activeTagIndex, setActiveTagIndex] = useState<number | null>(null)
   const [currentValue, setCurrentValue] = useState('')
+  const [invalidEmail, setInvalidEmail] = useState(false)
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     const inviteInput: InputMaybe<Array<CreateInviteInput> | CreateInviteInput> = data.emails.map((email) => ({
@@ -103,6 +104,11 @@ const OrganizationInviteForm = ({ inviteAdmins }: { inviteAdmins: boolean }) => 
                   <TagInput
                     {...field}
                     tags={emails}
+                    validateTag={(tag: any) => {
+                      const isValid = isValidEmail(tag)
+                      setInvalidEmail(!isValid)
+                      return isValid
+                    }}
                     setTags={(newTags: Tag[]) => {
                       const emailTags = newTags.map((tag) => tag.text)
                       setEmails(newTags)
@@ -115,7 +121,7 @@ const OrganizationInviteForm = ({ inviteAdmins }: { inviteAdmins: boolean }) => 
                     onBlur={handleBlur}
                   />
                 </FormControl>
-                {errorMessage && <FormMessage>{errorMessage}</FormMessage>}
+                {(errorMessage || invalidEmail) && <FormMessage>{errorMessage ?? 'Your email is invalid.'}</FormMessage>}
               </FormItem>
             )}
           />
