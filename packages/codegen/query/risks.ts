@@ -36,12 +36,12 @@ export const GET_RISK_BY_ID = gql`
 `
 
 export const GET_ALL_RISKS = gql`
-  query GetAllRisks {
-    risks {
+  query GetAllRisks($where: RiskWhereInput, $orderBy: [RiskOrder!]) {
+    risks(where: $where, orderBy: $orderBy) {
       totalCount
       pageInfo {
-        hasNextPage
-        hasPreviousPage
+        endCursor
+        startCursor
       }
       edges {
         node {
@@ -50,6 +50,7 @@ export const GET_ALL_RISKS = gql`
       }
     }
   }
+
   ${RISK_FIELDS}
 `
 
