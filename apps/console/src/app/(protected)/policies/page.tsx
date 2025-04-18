@@ -5,7 +5,7 @@ import { PoliciesTable } from '@/components/pages/protected/policies/table/polic
 const Page: React.FC = () => {
   return (
     <>
-      <PageHeading eyebrow="Policies & Procedures" heading="Internal Policies" />
+      <PageHeading heading="Internal Policies" />
 
       <PoliciesTable />
     </>
