@@ -13,6 +13,16 @@ import { sessionCookieName, allowedLoginDomains } from '@repo/dally/auth'
 import { fetchNewAccessToken } from './utils/refresh-token'
 import { getDashboardData } from '@/app/api/getDashboardData/route'
 
+import { CredentialsSignin } from 'next-auth'
+
+export class InvalidLoginError extends CredentialsSignin {
+  code = 'Invalid login'
+  constructor(message: string) {
+    super(message)
+    this.code = message
+  }
+}
+
 export const config = {
   pages: {
     signIn: '/login',
@@ -46,6 +56,9 @@ export const config = {
   },
   callbacks: {
     async signIn({ user, account, profile }) {
+      if ((user as any)?.error) {
+        throw new InvalidLoginError((user as any).error)
+      }
       let email = profile?.email || user?.email || ''
 
       // Allow only specific domains if configured
