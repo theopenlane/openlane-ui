@@ -55,22 +55,41 @@ export const LoginPage = () => {
         const validationResponse = await recaptchaValidation.json()
 
         if (!validationResponse.success) {
-          setSignInError(true)
-          setSignInLoading(false)
           setSignInErrorMessage('reCAPTCHA validation failed.')
+          setSignInLoading(false)
+          setSignInError(true)
           return
         }
       }
 
-      const res: any = await signIn('credentials', { redirect: false, ...payload })
+      const res: any = await signIn('credentials', {
+        redirect: false,
+        ...payload,
+      })
+
       if (res.ok && !res.error) {
         token ? router.push(`/invite?token=${token}`) : router.push(`/`)
       } else {
+        let errMsg = 'There was an error. Please try again.'
+
+        if (res?.code) {
+          try {
+            const parsed = JSON.parse(res.code)
+            if (parsed?.error) {
+              errMsg = parsed.error
+            }
+          } catch (e) {
+            console.warn('Failed to parse signIn error code:', e)
+          }
+        }
+
+        setSignInErrorMessage(errMsg)
         setSignInLoading(false)
         setSignInError(true)
       }
     } catch (error) {
       console.error('Login error:', error)
+      setSignInErrorMessage('An unexpected error occurred.')
       setSignInLoading(false)
       setSignInError(true)
     }
