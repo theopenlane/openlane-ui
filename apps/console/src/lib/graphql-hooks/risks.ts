@@ -3,18 +3,7 @@ import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
 import { GET_ALL_RISKS, GET_RISK_BY_ID, UPDATE_RISK } from '@repo/codegen/query/risks'
 
-import {
-  GetAllRisksQuery,
-  GetRiskByIdQuery,
-  GetRiskByIdQueryVariables,
-  Risk,
-  RiskFieldsFragment,
-  RiskOrder,
-  RiskWhereInput,
-  UpdateRiskMutation,
-  UpdateRiskMutationVariables,
-} from '@repo/codegen/src/schema'
-import { TPagination } from '@repo/ui/pagination-types'
+import { GetAllRisksQuery, GetRiskByIdQuery, GetRiskByIdQueryVariables, RiskWhereInput, UpdateRiskMutation, UpdateRiskMutationVariables } from '@repo/codegen/src/schema'
 
 export const useGetAllRisks = () => {
   const { client } = useGraphQLClient()
@@ -25,37 +14,15 @@ export const useGetAllRisks = () => {
   })
 }
 
-type UseRisksWithFilterProps = {
-  where?: RiskWhereInput
-  pagination?: TPagination
-  orderBy?: RiskOrder[]
-}
-
-export const useRisksWithFilter = ({ where, pagination, orderBy }: UseRisksWithFilterProps) => {
+export const useRisksWithFilter = (where: RiskWhereInput) => {
   const { client } = useGraphQLClient()
 
-  const queryResult = useQuery({
-    queryKey: ['risks', { where, pagination, orderBy }],
-    queryFn: async () =>
-      await client.request<GetAllRisksQuery>(GET_ALL_RISKS, {
-        where,
-        pagination,
-        orderBy,
-      }),
+  return useQuery<GetAllRisksQuery, unknown>({
+    queryKey: ['risks', where],
+    queryFn: async () => {
+      return client.request<GetAllRisksQuery>(GET_ALL_RISKS, { where })
+    },
   })
-
-  const risks = queryResult?.data?.risks?.edges?.map((edge) => edge?.node as RiskFieldsFragment) as Risk[]
-
-  const paginationMeta = {
-    totalCount: queryResult.data?.risks?.totalCount ?? 0,
-    pageInfo: queryResult?.data?.risks?.pageInfo,
-  }
-
-  return {
-    ...queryResult,
-    risks,
-    paginationMeta,
-  }
 }
 
 export const useGetRiskById = (riskId: string | null) => {
