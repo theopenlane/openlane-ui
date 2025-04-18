@@ -10,13 +10,13 @@ import { Label } from '@repo/ui/label'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
-import debounce from 'lodash.debounce'
 import { AllQueriesData, OBJECT_TYPE_CONFIG, ObjectTypes } from '@/constants/groups'
 import { useUpdateGroup } from '@/lib/graphql-hooks/groups'
 import { useQuery } from '@tanstack/react-query'
 import { GET_ALL_RISKS } from '@repo/codegen/query/risks'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { useNotification } from '@/hooks/useNotification'
+import { useDebounce } from '@uidotdev/usehooks'
 
 type TableDataItem = {
   id: string
@@ -72,10 +72,7 @@ const AssignPermissionsDialog = () => {
   const [roles, setRoles] = useState<Record<string, string>>({})
   const [searchValue, setSearchValue] = useState('')
   const [debouncedSearchValue, setDebouncedSearchValue] = useState('')
-  const debouncedSetSearchValue = useCallback(
-    debounce((value) => setDebouncedSearchValue(value), 300),
-    [],
-  )
+  const debouncedSetSearchValue = useDebounce(searchValue, 300)
 
   const { mutateAsync: updateGroup } = useUpdateGroup()
 
@@ -190,7 +187,6 @@ const AssignPermissionsDialog = () => {
   })
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    debouncedSetSearchValue(event.target.value)
     setSearchValue(event.target.value)
   }
 
@@ -258,7 +254,7 @@ const AssignPermissionsDialog = () => {
                     setSearchValue('')
                   }}
                 >
-                  <SelectTrigger className="border-brand w-[150px]">{selectedObject || 'Select object'}</SelectTrigger>
+                  <SelectTrigger className="border-brand w-[180px]">{selectedObject || 'Select object'}</SelectTrigger>
                   <SelectContent>
                     {options.map((option) => (
                       <SelectItem key={option} value={option}>

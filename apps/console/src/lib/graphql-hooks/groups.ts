@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { GET_ALL_GROUPS, GET_GROUP_DETAILS, GET_GROUP_PERMISSIONS, CREATE_GROUP_WITH_MEMBERS, UPDATE_GROUP, DELETE_GROUP, UPDATE_GROUP_MEMBERSHIP, SEARCH_GROUPS } from '@repo/codegen/query/group' // adjust path as needed
+import { GET_ALL_GROUPS, GET_GROUP_DETAILS, GET_GROUP_PERMISSIONS, CREATE_GROUP_WITH_MEMBERS, UPDATE_GROUP, DELETE_GROUP, UPDATE_GROUP_MEMBERSHIP } from '@repo/codegen/query/group' // adjust path as needed
 
 import {
   GetAllGroupsQuery,
@@ -17,11 +17,8 @@ import {
   DeleteGroupMutationVariables,
   UpdateGroupMembershipMutation,
   UpdateGroupMembershipMutationVariables,
-  SearchGroupsQuery,
-  SearchGroupsQueryVariables,
   Group,
 } from '@repo/codegen/src/schema'
-import { useDebounce } from '../../../../../packages/ui/src/hooks/use-debounce'
 import { TPagination } from '@repo/ui/pagination-types'
 
 type GroupsArgs = {
@@ -30,42 +27,6 @@ type GroupsArgs = {
   enabled?: boolean
   pagination?: TPagination
   search?: string
-}
-
-export const useFilteredGroups = ({ where, enabled, orderBy, pagination, search = '' }: GroupsArgs) => {
-  const debouncedSearchTerm = useDebounce(search, 300)
-
-  const { groups: allGroups, isLoading: isFetchingAll, data: allData, ...allQueryRest } = useGetAllGroups({ where, orderBy, pagination, enabled })
-
-  const { groups: searchGroupsRaw, isLoading: isSearching, data: searchData, ...searchQueryRest } = useSearchGroups({ search: debouncedSearchTerm, pagination })
-
-  const showSearch = !!debouncedSearchTerm
-  const isLoading = showSearch ? isSearching : isFetchingAll
-
-  const filteredAndOrderedGroups = showSearch ? allGroups?.filter((group) => searchGroupsRaw?.some((searchGroup) => searchGroup.id === group.id)) : allGroups
-
-  const paginationMeta = () => {
-    if (!showSearch) {
-      return {
-        totalCount: allData?.groups?.totalCount ?? 0,
-        pageInfo: allData?.groups?.pageInfo,
-        isLoading,
-      }
-    }
-
-    return {
-      totalCount: searchData?.groupSearch?.totalCount ?? 0,
-      pageInfo: searchData?.groupSearch?.pageInfo,
-      isLoading,
-    }
-  }
-
-  return {
-    groups: filteredAndOrderedGroups,
-    isLoading,
-    paginationMeta: paginationMeta(),
-    ...(showSearch ? searchQueryRest : allQueryRest),
-  }
 }
 
 export const useGetAllGroups = ({ where, orderBy, pagination, enabled = true }: GroupsArgs) => {
@@ -84,41 +45,15 @@ export const useGetAllGroups = ({ where, orderBy, pagination, enabled = true }: 
 
   const groups = (queryResult.data?.groups?.edges?.map((edge) => edge?.node) ?? []) as Group[]
 
-  return {
-    ...queryResult,
-    groups,
-    pageInfo: queryResult.data?.groups?.pageInfo,
+  const paginationMeta = {
     totalCount: queryResult.data?.groups?.totalCount ?? 0,
+    pageInfo: queryResult.data?.groups?.pageInfo,
+    isLoading: queryResult.isFetching,
   }
-}
-
-type UseSearchGroupsArgs = {
-  search: string
-  pagination?: TPagination
-}
-
-export function useSearchGroups({ search, pagination }: UseSearchGroupsArgs) {
-  const { client } = useGraphQLClient()
-
-  const queryResult = useQuery<SearchGroupsQuery, unknown>({
-    queryKey: ['searchGroups', search, pagination?.page, pagination?.pageSize],
-    queryFn: async () =>
-      client.request<SearchGroupsQuery, SearchGroupsQueryVariables>(SEARCH_GROUPS, {
-        query: search,
-        ...pagination?.query,
-      }),
-    enabled: !!search,
-  })
-
-  const groups = (queryResult.data?.groupSearch?.edges?.map((edge) => edge?.node) ?? []) as Group[]
-  const pageInfo = queryResult.data?.groupSearch?.pageInfo
-  const totalCount = queryResult.data?.groupSearch?.totalCount ?? 0
-
   return {
     ...queryResult,
     groups,
-    pageInfo,
-    totalCount,
+    paginationMeta,
   }
 }
 

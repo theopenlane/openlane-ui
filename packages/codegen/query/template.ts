@@ -37,27 +37,8 @@ export const UPDATE_TEMPLATE = gql`
 `
 
 export const GET_ALL_TEMPLATES = gql`
-  query GetAllTemplates {
-    templates {
-      edges {
-        node {
-          id
-          name
-          templateType
-          description
-          jsonconfig
-          uischema
-          createdAt
-          updatedAt
-        }
-      }
-    }
-  }
-`
-
-export const FILTER_TEMPLATES = gql`
-  query FilterTemplates($where: TemplateWhereInput, $orderBy: [TemplateOrder!]) {
-    templates(where: $where, orderBy: $orderBy) {
+  query FilterTemplates($where: TemplateWhereInput, $orderBy: [TemplateOrder!], $first: Int, $after: Cursor) {
+    templates(where: $where, orderBy: $orderBy, first: $first, after: $after) {
       edges {
         node {
           id
@@ -71,8 +52,8 @@ export const FILTER_TEMPLATES = gql`
         }
       }
       pageInfo {
-        endCursor
         startCursor
+        endCursor
       }
       totalCount
     }

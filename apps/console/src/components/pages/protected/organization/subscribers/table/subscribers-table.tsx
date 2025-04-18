@@ -1,18 +1,20 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
-import { useFilteredSubscribers } from '@/lib/graphql-hooks/subscribes'
+import { useGetAllSubscribers } from '@/lib/graphql-hooks/subscribes'
 import { subscribersColumns } from '@/components/pages/protected/organization/subscribers/table/columns.tsx'
 import SubscribersTableToolbar from '@/components/pages/protected/organization/subscribers/table/subscribers-table-toolbar.tsx'
 import { GetAllSubscribersQueryVariables, OrderDirection, SubscriberOrderField } from '@repo/codegen/src/schema.ts'
 import { SUBSCRIBERS_SORT_FIELDS } from '@/components/pages/protected/organization/subscribers/table/table-config.ts'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TPagination } from '@repo/ui/pagination-types'
+import { useDebounce } from '@uidotdev/usehooks'
 
 export const SubscribersTable = () => {
   const [filters, setFilters] = useState<Record<string, any>>({})
   const [searchTerm, setSearchTerm] = useState('')
+  const debouncedSearch = useDebounce(searchTerm, 300)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [orderBy, setOrderBy] = useState<GetAllSubscribersQueryVariables['orderBy']>([
     {
@@ -22,14 +24,17 @@ export const SubscribersTable = () => {
   ])
 
   const whereFilter = useMemo(() => {
-    const conditions: Record<string, any> = {
+    return {
       ...filters,
+      emailContainsFold: debouncedSearch,
     }
+  }, [filters, debouncedSearch])
 
-    return conditions
-  }, [filters])
-
-  const { subscribers, isLoading, paginationMeta } = useFilteredSubscribers({ search: searchTerm, where: whereFilter, orderBy, pagination })
+  const { subscribers, isLoading, paginationMeta } = useGetAllSubscribers({
+    where: whereFilter,
+    orderBy,
+    pagination,
+  })
 
   return (
     <div>

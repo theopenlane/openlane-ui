@@ -2,6 +2,7 @@ import { openlaneAPIUrl } from '@repo/dally/auth'
 import Credentials from 'next-auth/providers/credentials'
 import { setSessionCookie } from '../utils/set-session-cookie'
 import { getDashboardData } from '@/app/api/getDashboardData/route'
+import { CredentialsSignin } from 'next-auth'
 
 // Standard username and password credentials provider
 export const credentialsProvider = Credentials({
@@ -34,9 +35,8 @@ export const credentialsProvider = Credentials({
 
         if (fData.status !== 200) {
           const errorText = await fData.text()
-          throw new Error(errorText) //TODO: Sentry logging
+          return { error: errorText }
         }
-
         if (fData.ok) {
           const data = await fData.json()
 
@@ -68,7 +68,6 @@ export const credentialsProvider = Credentials({
       return {
         isTfaEnabled,
         isOnboarding: dashboardData.organizations?.edges?.length === 1,
-
         accessToken,
         refreshToken,
         ...data,

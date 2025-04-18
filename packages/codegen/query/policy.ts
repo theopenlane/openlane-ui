@@ -205,33 +205,6 @@ export const GET_INTERNAL_POLICY_DETAILS_BY_ID = gql`
   ${INTERNAL_POLICY_BY_ID}
 `
 
-export const SEARCH_INTERNAL_POLICIES = gql`
-  query SearchInternalPolicies($query: String!) {
-    internalPolicySearch(query: $query) {
-      edges {
-        node {
-          id
-          name
-          displayID
-          status
-          revision
-          updatedAt
-          updatedBy
-          createdAt
-          createdBy
-          tags
-          details
-        }
-      }
-      pageInfo {
-        startCursor
-        endCursor
-      }
-      totalCount
-    }
-  }
-`
-
 export const CREATE_CSV_BULK_INTERNAL_POLICY = gql`
   mutation CreateBulkCSVInternalPolicy($input: Upload!) {
     createBulkCSVInternalPolicy(input: $input) {

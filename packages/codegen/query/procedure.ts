@@ -44,35 +44,6 @@ export const GET_ALL_PROCEDURES_WITH_DETAILS = gql`
 `
 
 export const GET_ALL_PROCEDURES = gql`
-  query GetAllProcedures($where: ProcedureWhereInput, $orderBy: [ProcedureOrder!]) {
-    procedures(where: $where, orderBy: $orderBy) {
-      edges {
-        node {
-          id
-          name
-          displayID
-          id
-          name
-          displayID
-          status
-          revision
-          updatedAt
-          updatedBy
-          createdAt
-          createdBy
-          tags
-        }
-      }
-      pageInfo {
-        endCursor
-        startCursor
-      }
-      totalCount
-    }
-  }
-`
-
-export const GET_PROCEDURES_LIST = gql`
   query GetProceduresList($orderBy: [ProcedureOrder!], $where: ProcedureWhereInput, $first: Int, $after: Cursor) {
     procedures(where: $where, orderBy: $orderBy, first: $first, after: $after) {
       totalCount
@@ -95,7 +66,6 @@ export const GET_PROCEDURES_LIST = gql`
         startCursor
         endCursor
       }
-      totalCount
     }
   }
 `
@@ -214,33 +184,6 @@ export const DELETE_PROCEDURE = gql`
   mutation DeleteProcedure($deleteProcedureId: ID!) {
     deleteProcedure(id: $deleteProcedureId) {
       deletedID
-    }
-  }
-`
-
-export const SEARCH_PROCEDURES = gql`
-  query SearchProcedures($query: String!, $first: Int, $after: Cursor) {
-    procedureSearch(query: $query, first: $first, after: $after) {
-      edges {
-        node {
-          id
-          name
-          details
-          displayID
-          status
-          revision
-          updatedAt
-          updatedBy
-          createdAt
-          createdBy
-          tags
-        }
-      }
-      pageInfo {
-        endCursor
-        startCursor
-      }
-      totalCount
     }
   }
 `

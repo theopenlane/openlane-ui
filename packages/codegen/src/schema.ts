@@ -31201,20 +31201,6 @@ export type UpdateControlMutationVariables = Exact<{
 
 export type UpdateControlMutation = { __typename?: 'Mutation'; updateControl: { __typename?: 'ControlUpdatePayload'; control: { __typename?: 'Control'; id: string } } }
 
-export type SearchControlsQueryVariables = Exact<{
-  query: Scalars['String']['input']
-}>
-
-export type SearchControlsQuery = {
-  __typename?: 'Query'
-  controlSearch?: {
-    __typename?: 'ControlConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string } | null } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
-  } | null
-}
-
 export type GetDashboardDataQueryVariables = Exact<{
   where?: InputMaybe<TaskWhereInput>
 }>
@@ -31402,54 +31388,6 @@ export type GetGroupPermissionsQuery = {
     __typename?: 'Group'
     permissions?: Array<{ __typename?: 'GroupPermissions'; displayID?: string | null; id?: string | null; name?: string | null; objectType: string; permissions: Permission }> | null
   }
-}
-
-export type SearchGroupsQueryVariables = Exact<{
-  query: Scalars['String']['input']
-}>
-
-export type SearchGroupsQuery = {
-  __typename?: 'Query'
-  groupSearch?: {
-    __typename?: 'GroupConnection'
-    totalCount: number
-    edges?: Array<{
-      __typename?: 'GroupEdge'
-      node?: {
-        __typename?: 'Group'
-        id: string
-        name: string
-        description?: string | null
-        displayName: string
-        logoURL?: string | null
-        isManaged?: boolean | null
-        tags?: Array<string> | null
-        members?: Array<{
-          __typename?: 'GroupMembership'
-          id: string
-          role: GroupMembershipRole
-          user: {
-            __typename?: 'User'
-            id: string
-            firstName?: string | null
-            lastName?: string | null
-            avatarRemoteURL?: string | null
-            role?: UserRole | null
-            avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
-          }
-        }> | null
-        setting?: {
-          __typename?: 'GroupSetting'
-          visibility: GroupSettingVisibility
-          joinPolicy: GroupSettingJoinPolicy
-          syncToSlack?: boolean | null
-          syncToGithub?: boolean | null
-          id: string
-        } | null
-      } | null
-    } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
-  } | null
 }
 
 export type UpdateUserRoleInOrgMutationVariables = Exact<{
@@ -31873,36 +31811,6 @@ export type GetInternalPolicyDetailsByIdQuery = {
   }
 }
 
-export type SearchInternalPoliciesQueryVariables = Exact<{
-  query: Scalars['String']['input']
-}>
-
-export type SearchInternalPoliciesQuery = {
-  __typename?: 'Query'
-  internalPolicySearch?: {
-    __typename?: 'InternalPolicyConnection'
-    totalCount: number
-    edges?: Array<{
-      __typename?: 'InternalPolicyEdge'
-      node?: {
-        __typename?: 'InternalPolicy'
-        id: string
-        name: string
-        displayID: string
-        status?: InternalPolicyDocumentStatus | null
-        revision?: string | null
-        updatedAt?: any | null
-        updatedBy?: string | null
-        createdAt?: any | null
-        createdBy?: string | null
-        tags?: Array<string> | null
-        details?: string | null
-      } | null
-    } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; startCursor?: any | null; endCursor?: any | null }
-  } | null
-}
-
 export type CreateBulkCsvInternalPolicyMutationVariables = Exact<{
   input: Scalars['Upload']['input']
 }>
@@ -31949,36 +31857,6 @@ export type GetAllProceduresWithDetailsQuery = {
         tags?: Array<string> | null
       } | null
     } | null> | null
-  }
-}
-
-export type GetAllProceduresQueryVariables = Exact<{
-  where?: InputMaybe<ProcedureWhereInput>
-  orderBy?: InputMaybe<Array<ProcedureOrder> | ProcedureOrder>
-}>
-
-export type GetAllProceduresQuery = {
-  __typename?: 'Query'
-  procedures: {
-    __typename?: 'ProcedureConnection'
-    totalCount: number
-    edges?: Array<{
-      __typename?: 'ProcedureEdge'
-      node?: {
-        __typename?: 'Procedure'
-        id: string
-        name: string
-        displayID: string
-        status?: ProcedureDocumentStatus | null
-        revision?: string | null
-        updatedAt?: any | null
-        updatedBy?: string | null
-        createdAt?: any | null
-        createdBy?: string | null
-        tags?: Array<string> | null
-      } | null
-    } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
   }
 }
 
@@ -32121,38 +31999,6 @@ export type DeleteProcedureMutationVariables = Exact<{
 }>
 
 export type DeleteProcedureMutation = { __typename?: 'Mutation'; deleteProcedure: { __typename?: 'ProcedureDeletePayload'; deletedID: string } }
-
-export type SearchProceduresQueryVariables = Exact<{
-  query: Scalars['String']['input']
-  first?: InputMaybe<Scalars['Int']['input']>
-  after?: InputMaybe<Scalars['Cursor']['input']>
-}>
-
-export type SearchProceduresQuery = {
-  __typename?: 'Query'
-  procedureSearch?: {
-    __typename?: 'ProcedureConnection'
-    totalCount: number
-    edges?: Array<{
-      __typename?: 'ProcedureEdge'
-      node?: {
-        __typename?: 'Procedure'
-        id: string
-        name: string
-        details?: string | null
-        displayID: string
-        status?: ProcedureDocumentStatus | null
-        revision?: string | null
-        updatedAt?: any | null
-        updatedBy?: string | null
-        createdAt?: any | null
-        createdBy?: string | null
-        tags?: Array<string> | null
-      } | null
-    } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
-  } | null
-}
 
 export type CreateBulkCsvProcedureMutationVariables = Exact<{
   input: Scalars['Upload']['input']
@@ -32317,14 +32163,17 @@ export type GetRiskByIdQuery = {
   }
 }
 
-export type GetAllRisksQueryVariables = Exact<{ [key: string]: never }>
+export type GetAllRisksQueryVariables = Exact<{
+  where?: InputMaybe<RiskWhereInput>
+  orderBy?: InputMaybe<Array<RiskOrder> | RiskOrder>
+}>
 
 export type GetAllRisksQuery = {
   __typename?: 'Query'
   risks: {
     __typename?: 'RiskConnection'
     totalCount: number
-    pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; hasPreviousPage: boolean }
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
     edges?: Array<{
       __typename?: 'RiskEdge'
       node?: {
@@ -32472,22 +32321,7 @@ export type CreateControlsByCloneMutationVariables = Exact<{
 
 export type CreateControlsByCloneMutation = {
   __typename?: 'Mutation'
-  createControlsByClone: {
-    __typename?: 'ControlBulkCreatePayload'
-    controls?: Array<{
-      __typename?: 'Control'
-      id: string
-      refCode: string
-      description?: string | null
-      standardID?: string | null
-      standard?: { __typename?: 'Standard'; id: string; name: string; shortName?: string | null; description?: string | null } | null
-      subcontrols: {
-        __typename?: 'SubcontrolConnection'
-        totalCount: number
-        edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; description?: string | null } | null } | null> | null
-      }
-    }> | null
-  }
+  createControlsByClone: { __typename?: 'ControlBulkCreatePayload'; controls?: Array<{ __typename?: 'Control'; id: string }> | null }
 }
 
 export type GetAllSubcontrolsQueryVariables = Exact<{
@@ -32535,20 +32369,6 @@ export type UpdateSubscriberMutationVariables = Exact<{
 }>
 
 export type UpdateSubscriberMutation = { __typename?: 'Mutation'; updateSubscriber: { __typename?: 'SubscriberUpdatePayload'; subscriber: { __typename?: 'Subscriber'; id: string } } }
-
-export type SearchSubscribersQueryVariables = Exact<{
-  query: Scalars['String']['input']
-}>
-
-export type SearchSubscribersQuery = {
-  __typename?: 'Query'
-  subscriberSearch?: {
-    __typename?: 'SubscriberConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'SubscriberEdge'; node?: { __typename?: 'Subscriber'; active: boolean; email: string; id: string; verifiedEmail: boolean } | null } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
-  } | null
-}
 
 export type TasksWithFilterQueryVariables = Exact<{
   where?: InputMaybe<TaskWhereInput>
@@ -32725,32 +32545,11 @@ export type UpdateTemplateMutation = {
   }
 }
 
-export type GetAllTemplatesQueryVariables = Exact<{ [key: string]: never }>
-
-export type GetAllTemplatesQuery = {
-  __typename?: 'Query'
-  templates: {
-    __typename?: 'TemplateConnection'
-    edges?: Array<{
-      __typename?: 'TemplateEdge'
-      node?: {
-        __typename?: 'Template'
-        id: string
-        name: string
-        templateType: TemplateDocumentType
-        description?: string | null
-        jsonconfig: any
-        uischema?: any | null
-        createdAt?: any | null
-        updatedAt?: any | null
-      } | null
-    } | null> | null
-  }
-}
-
 export type FilterTemplatesQueryVariables = Exact<{
   where?: InputMaybe<TemplateWhereInput>
   orderBy?: InputMaybe<Array<TemplateOrder> | TemplateOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type FilterTemplatesQuery = {
@@ -32772,7 +32571,7 @@ export type FilterTemplatesQuery = {
         updatedAt?: any | null
       } | null
     } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
+    pageInfo: { __typename?: 'PageInfo'; startCursor?: any | null; endCursor?: any | null }
   }
 }
 
