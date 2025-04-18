@@ -32163,14 +32163,17 @@ export type GetRiskByIdQuery = {
   }
 }
 
-export type GetAllRisksQueryVariables = Exact<{ [key: string]: never }>
+export type GetAllRisksQueryVariables = Exact<{
+  where?: InputMaybe<RiskWhereInput>
+  orderBy?: InputMaybe<Array<RiskOrder> | RiskOrder>
+}>
 
 export type GetAllRisksQuery = {
   __typename?: 'Query'
   risks: {
     __typename?: 'RiskConnection'
     totalCount: number
-    pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; hasPreviousPage: boolean }
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
     edges?: Array<{
       __typename?: 'RiskEdge'
       node?: {
