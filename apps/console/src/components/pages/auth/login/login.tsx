@@ -208,7 +208,7 @@ export const LoginPage = () => {
             <Label className="text-text-dark" htmlFor="username">
               Email
             </Label>
-            <Input variant="light" name="username" placeholder="email@domain.com" className="!border-neutral-300 dark:!border-neutral-300" />
+            <Input type="email" variant="light" name="username" placeholder="email@domain.com" className="!border-neutral-300 dark:!border-neutral-300" />
           </div>
           {isPasswordActive && (
             <div className={input()}>
