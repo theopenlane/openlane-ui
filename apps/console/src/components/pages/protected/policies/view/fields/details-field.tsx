@@ -27,9 +27,6 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy })
     </div>
   ) : (
     <>
-      <div className="flex">
-        <h2 className="text-lg font-semibold">Policy</h2>
-      </div>
       <div className="!mt-4">{policy?.details && plateEditorHelper.convertToReadOnly(policy.details as string, 0)}</div>
     </>
   )
