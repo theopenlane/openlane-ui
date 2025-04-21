@@ -205,7 +205,7 @@ const TaskDetailsSheet = () => {
 
     const formData = {
       category: data?.category,
-      due: data?.due,
+      due: data?.due ? data.due.toISOString() : undefined,
       title: data?.title,
       details: detailsField,
       assigneeID: data?.assigneeID,
