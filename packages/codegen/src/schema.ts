@@ -31613,6 +31613,8 @@ export type GetOrganizationBillingQuery = {
       productTier?: string | null
       productPrice?: any | null
       features?: Array<string> | null
+      managePaymentMethods?: string | null
+      cancellation?: string | null
     }> | null
   }
 }
