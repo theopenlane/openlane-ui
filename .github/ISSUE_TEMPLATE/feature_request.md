@@ -6,8 +6,24 @@ labels: enhancement
 assignees: matoszz
 ---
 
-**Describe how the feature might make your life easier or solve a problem**
+**What problem are you trying to solve?**
 
-**Describe the solution you'd like to see with any relevant context**
+_Describe how this feature would improve your experience or solve a real-world use case._
 
-**Describe any alternatives you've considered or if there are short-tern vs. long-term options**
+---
+
+**Describe the solution you'd like to see**
+
+_Give a brief overview of the feature or functionality you'd like added. Include any relevant context, user flows, or UI ideas._
+
+---
+
+**Have you considered any alternatives or workarounds?**
+
+_If you've thought about other approaches — short-term vs. long-term, manual steps, etc. — share them here._
+
+---
+
+**Additional notes or mockups**
+
+_Optional: Add links, screenshots, diagrams, or anything that helps clarify your idea._
