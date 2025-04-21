@@ -33,11 +33,13 @@ export const proceduresColumns: ColumnDef<Procedure>[] = [
     accessorKey: 'updatedAt',
     header: 'Updated At',
     cell: ({ cell }) => <span className="whitespace-nowrap">{format(new Date(cell.getValue() as string), 'MMM dd, yyyy')}</span>,
+    size: 140,
   },
   {
     accessorKey: 'createdAt',
     header: 'Created At',
     cell: ({ cell }) => <span className="whitespace-nowrap">{format(new Date(cell.getValue() as string), 'MMM dd, yyyy')}</span>,
+    size: 140,
   },
   {
     accessorKey: 'id',

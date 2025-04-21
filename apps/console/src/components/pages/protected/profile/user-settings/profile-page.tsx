@@ -1,4 +1,5 @@
 'use client'
+
 import React, { Suspense, useMemo, useState } from 'react'
 import { ProfileNameForm } from './profile-name-form'
 import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
@@ -6,13 +7,13 @@ import { useSession } from 'next-auth/react'
 import { useNotification } from '@/hooks/useNotification'
 import DefaultOrgForm from './default-org-form'
 import { Loader } from 'lucide-react'
-
 import QRCodeDialog from './qrcode-dialog'
 import { Button } from '@repo/ui/button'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Badge } from '@repo/ui/badge'
 import { useGetCurrentUser, useUpdateUserAvatar, useUpdateUserSetting } from '@/lib/graphql-hooks/user'
 import { useCreateTfaSetting, useGetUserTFASettings, useUpdateTfaSetting } from '@/lib/graphql-hooks/tfa'
+import PasskeySection from './passkeys-section'
 
 const ProfilePage = () => {
   const { data: sessionData } = useSession()
@@ -128,10 +129,10 @@ const ProfilePage = () => {
     setRegeneratedCodes(resp?.updateTFASetting?.recoveryCodes || null)
   }
 
-  const config = useMemo(() => {
+  const twoFAConfig = useMemo(() => {
     if (!tfaSettings || !isVerified) {
       return {
-        badge: <Badge variant="secondary">Recommend</Badge>,
+        badge: <Badge variant="secondary">Recommended</Badge>,
         text: <p className="text-sm">A TOTP method has not been setup for your account.</p>,
         buttons: [
           <Button key={0} className="mx-10 w-24" onClick={handleConfigure}>
@@ -202,13 +203,13 @@ const ProfilePage = () => {
               <div className="flex flex-col gap-2">
                 <div className="flex gap-2">
                   <h2 className="text-lg">Mobile App Authentication</h2>
-                  {config?.badge}
+                  {twoFAConfig?.badge}
                 </div>
-                {config?.text}
+                {twoFAConfig?.text}
               </div>
             </div>
           </div>
-          <div className="rounded-r-lg bg-card border flex items-center justify-center flex-col p-3 gap-2">{config?.buttons}</div>
+          <div className="rounded-r-lg bg-card border flex items-center justify-center flex-col p-3 gap-2">{twoFAConfig?.buttons}</div>
         </div>
       </Panel>
 
@@ -225,6 +226,9 @@ const ProfilePage = () => {
           regeneratedCodes={regeneratedCodes}
         />
       )}
+
+      <PasskeySection userData={userData} />
+
       <Suspense fallback={<Loader />}>
         <DefaultOrgForm />
       </Suspense>

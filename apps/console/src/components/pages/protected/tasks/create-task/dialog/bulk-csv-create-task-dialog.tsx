@@ -26,6 +26,7 @@ const BulkCSVCreateTaskDialog = () => {
         title: 'Tasks Created',
         description: `Tasks has been successfully created`,
       })
+      setIsOpen(false)
     } catch (error) {
       errorNotification({
         title: 'Error',
