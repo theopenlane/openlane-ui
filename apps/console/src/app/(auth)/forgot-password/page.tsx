@@ -85,7 +85,9 @@ export default function ForgotPasswordPage() {
         <form onSubmit={handleSubmit} className={form()}>
           <p className="text-xl text-logo-dark text-border font-semibold mb-4 text-center">Reset your password</p>
           <div className={input()}>
-            <Label htmlFor="email">Email address</Label>
+            <Label htmlFor="email  " className="text-text-dark">
+              Email address
+            </Label>
             <Input
               type="email"
               name="email"
