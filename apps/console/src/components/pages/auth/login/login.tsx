@@ -199,9 +199,6 @@ export const LoginPage = () => {
               Email
             </Label>
             <Input type="email" variant="light" name="username" placeholder="email@domain.com" className="!border-neutral-300 dark:!border-neutral-300" />
-            <Link href="/forgot-password" className="text-sm text-blue-500 underline mt-2 ml-auto mb-4 hover:opacity-80 transition">
-              Forgot password?
-            </Link>
           </div>
 
           {email && (
@@ -236,6 +233,9 @@ export const LoginPage = () => {
               >
                 {usePasswordLogin ? 'Use PassKey instead' : 'Use password instead'}
               </span>
+              <Link href="/forgot-password" className="text-sm text-blue-500 underline mt-2 text-center mb-4 hover:opacity-80 transition">
+                Forgot password?
+              </Link>
             </>
           )}
         </SimpleForm>
