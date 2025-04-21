@@ -23,7 +23,8 @@ import { recaptchaSiteKey } from '@repo/dally/auth'
 import { useNotification } from '@/hooks/useNotification'
 
 export const LoginPage = () => {
-  const { separator, buttons, keyIcon, form, input } = loginStyles()
+  const { separator, buttons, form, input } = loginStyles()
+
   const router = useRouter()
   const [signInError, setSignInError] = useState(false)
   const [signInErrorMessage, setSignInErrorMessage] = useState('There was an error. Please try again.')
@@ -198,6 +199,9 @@ export const LoginPage = () => {
               Email
             </Label>
             <Input type="email" variant="light" name="username" placeholder="email@domain.com" className="!border-neutral-300 dark:!border-neutral-300" />
+            <Link href="/forgot-password" className="text-sm text-blue-500 underline mt-2 ml-auto mb-4 hover:opacity-80 transition">
+              Forgot password?
+            </Link>
           </div>
 
           {email && (

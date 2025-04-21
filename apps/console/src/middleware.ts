@@ -1,14 +1,12 @@
 import { NextResponse } from 'next/server'
 import { auth } from './lib/auth/auth'
-import { cookies } from 'next/headers'
-import { sessionCookieName } from '@repo/dally/auth'
 
 export default auth(async (req) => {
   // Attach `next-url` header for client-side route metadata
   req.headers.append('next-url', req.nextUrl.toString())
 
   //IF YOU ADD PUBLIC PAGE, ITS REQUIRED TO CHANGE IT IN Providers.tsx
-  const publicPages = ['/login', '/tfa', '/invite', '/subscriber-verify', '/verify', '/resend-verify', '/waitlist', '/unsubscribe']
+  const publicPages = ['/login', '/tfa', '/invite', '/subscriber-verify', '/verify', '/resend-verify', '/waitlist', '/unsubscribe', '/forgot-password', '/password-reset']
 
   const path = req.nextUrl.pathname
   const isPublicPage = publicPages.includes(path)
