@@ -22,7 +22,7 @@ const generateWhere = (id: string, searchValue: string) => ({
   and: [
     { standardID: id },
     {
-      or: [{ refCodeContains: searchValue }, { categoryContains: searchValue }, { subcategoryContains: searchValue }, { descriptionContains: searchValue }],
+      or: [{ refCodeContainsFold: searchValue }, { categoryContainsFold: searchValue }, { subcategoryContainsFold: searchValue }, { descriptionContainsFold: searchValue }],
     },
   ],
 })

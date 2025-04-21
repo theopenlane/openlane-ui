@@ -22,7 +22,7 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
 
   const where = {
     assigneeID: userId,
-    dueLTE: upcomingUpper,
+    dueLTE: upcomingUpper.toISOString(),
     hasProgramWith: programId ? [{ id: programId }] : undefined,
   }
 
@@ -32,10 +32,13 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
 
   const tasks = data?.tasks?.edges?.map((edge) => edge?.node ?? ({} as Task)) || []
 
-  const dueSoonTasks = tasks.filter((task) => isAfter(new Date(task.due), now) && isBefore(new Date(task.due), dueSoonLimit))
-  const upcomingTasks = tasks.filter((task) => isAfter(new Date(task.due), dueSoonLimit) && isBefore(new Date(task.due), upcomingUpper))
-  dueSoonTasks.sort((a, b) => new Date(a.due).getTime() - new Date(b.due).getTime())
-  upcomingTasks.sort((a, b) => new Date(a.due).getTime() - new Date(b.due).getTime())
+  const dueSoonTasks = tasks
+    .filter((task) => task.due && isAfter(new Date(task.due), now) && isBefore(new Date(task.due), dueSoonLimit))
+    .sort((a, b) => new Date(a.due!).getTime() - new Date(b.due!).getTime())
+
+  const upcomingTasks = tasks
+    .filter((task) => task.due && isAfter(new Date(task.due), dueSoonLimit) && isBefore(new Date(task.due), upcomingUpper))
+    .sort((a, b) => new Date(b.due!).getTime() - new Date(a.due!).getTime())
 
   const displayedTasks = [...dueSoonTasks, ...upcomingTasks].slice(0, 3)
 
@@ -87,7 +90,7 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
         </div>
         <div className="space-y-3">
           {displayedTasks.map((task) => {
-            const dueDate = parseISO(task.due)
+            const dueDate = parseISO(task.due ?? new Date().toISOString())
             const distance = formatDistanceToNowStrict(dueDate)
             const isDue = isBefore(dueDate, new Date())
 
