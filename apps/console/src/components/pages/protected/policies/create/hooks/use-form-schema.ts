@@ -49,53 +49,48 @@ const useFormSchema = () => {
             <div class="slate-editor" data-slate-editor="true" data-slate-node="value">
               <div data-slate-node="element" class="slate-p m-0 px-0 py-1" data-slate-type="p" style="position:relative">
                 <span data-slate-node="text">
-                  <span data-slate-leaf="true" class="" style="font-size:14px" data-slate-font-size="14px">
-                    <span data-slate-string="true">#Purpose and Scope</span>
+                  <span data-slate-leaf="true" class="" style="font-size:18px" data-slate-font-size="18px">
+                    <span data-slate-string="true">Purpose and Scope</span>
                   </span>
                 </span>
               </div>
               <div data-slate-node="element" class="slate-p m-0 px-0 py-1" data-slate-type="p" style="position:relative">
                 <span data-slate-node="text">
                   <span data-slate-leaf="true" class="" style="font-size:12px" data-slate-font-size="12px">
-                    <span data-slate-string="true">&lt; Why the policy exists and the scope it covers &gt;</span>
+                    <span data-slate-string="true">< Why the policy exists and the scope it covers >  </span>
                   </span>
                 </span>
               </div>
               <div data-slate-node="element" class="slate-p m-0 px-0 py-1" data-slate-type="p" style="position:relative">
                 <span data-slate-node="text">
-                  <span data-slate-leaf="true" class="" style="font-size:14px" data-slate-font-size="14px">
-                    <span data-slate-string="true">#Background</span>
-                  </span>
-                </span>
-              </div>
-              <div data-slate-node="element" class="slate-p m-0 px-0 py-1" data-slate-type="p" style="position:relative">
-                <span data-slate-node="text">
-                  <span data-slate-leaf="true" class="" style="font-size:12px" data-slate-font-size="12px">
-                    <span data-slate-string="true">&lt; Any relevant background of the policy &gt;</span>
-                  </span>
-                </span>
-                <span data-slate-node="text">
-                  <span data-slate-leaf="true" class="">
-                    <span data-slate-string="true">\n</span>
-                  </span>
-                </span>
-              </div>
-              <div data-slate-node="element" class="slate-p m-0 px-0 py-1" data-slate-type="p" style="position:relative">
-                <span data-slate-node="text">
-                  <span data-slate-leaf="true" class="" style="font-size:14px" data-slate-font-size="14px">
-                    <span data-slate-string="true">#Policy</span>
+                  <span data-slate-leaf="true" class="" style="font-size:18px" data-slate-font-size="18px">
+                    <span data-slate-string="true">Background</span>
                   </span>
                 </span>
               </div>
               <div data-slate-node="element" class="slate-p m-0 px-0 py-1" data-slate-type="p" style="position:relative">
                 <span data-slate-node="text">
                   <span data-slate-leaf="true" class="" style="font-size:12px" data-slate-font-size="12px">
-                    <span data-slate-string="true">&lt; Details of the policy &gt;</span>
+                    <span data-slate-string="true">< Any relevant background of the policy >     </span>
+                  </span>
+                </span>
+              </div>
+              <div data-slate-node="element" class="slate-p m-0 px-0 py-1" data-slate-type="p" style="position:relative">
+                <span data-slate-node="text">
+                  <span data-slate-leaf="true" class="" style="font-size:18px" data-slate-font-size="18px">
+                    <span data-slate-string="true">Policy</span>
+                  </span>
+                </span>
+              </div>
+              <div data-slate-node="element" class="slate-p m-0 px-0 py-1" data-slate-type="p" style="position:relative">
+                <span data-slate-node="text">
+                  <span data-slate-leaf="true" class="" style="font-size:12px" data-slate-font-size="12px">
+                    <span data-slate-string="true">< Details of the policy >  </span>
                   </span>
                 </span>
               </div>
             </div>
-      `,
+          `,
       },
     }),
   }
