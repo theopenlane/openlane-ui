@@ -10,15 +10,6 @@ body:
         🐛 **Thanks for taking the time to report a bug!**
         Please fill out the form below so we can better understand the issue.
 
-  - type: input
-    id: contact
-    attributes:
-      label: Contact Details (optional)
-      description: How can we get in touch with you if we need more info?
-      placeholder: '@your-github-username'
-    validations:
-      required: false
-
   - type: textarea
     id: what-happened
     attributes:
@@ -37,6 +28,15 @@ body:
         1. Go to '...'
         2. Click on '...'
         3. See the error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: What did you expect to happen?
+      description: Describe the correct or expected behavior.
+      placeholder: The expected behavior is...
     validations:
       required: true
 
