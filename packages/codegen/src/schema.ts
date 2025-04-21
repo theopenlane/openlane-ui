@@ -28,6 +28,8 @@ export interface Scalars {
    * https://relay.dev/graphql/connections.htm#sec-Cursor
    */
   Cursor: { input: any; output: any }
+  /** DateTime allows clients to use multiple time/date formats ( 2006-01-10 or 2025-04-28T04:00:00Z )  */
+  DateTime: { input: string; output: string }
   /** The `ExampleEvidence` scalar type represents example evidence that can be used to satisfy the control */
   ExampleEvidence: { input: any; output: any }
   /** The `ImplementationGuidance` scalar type that represents steps to take to implement a control; they can come directly from the control source or pulled from external sources */
@@ -3336,7 +3338,7 @@ export interface ControlObjective extends Node {
   /** source of the control, e.g. framework, template, custom, etc. */
   source?: Maybe<ControlObjectiveControlSource>
   /** status of the control objective */
-  status?: Maybe<Scalars['String']['output']>
+  status?: Maybe<ControlObjectiveObjectiveStatus>
   /** subcategory of the control */
   subcategory?: Maybe<Scalars['String']['output']>
   subcontrols: SubcontrolConnection
@@ -3506,7 +3508,7 @@ export interface ControlObjectiveHistory extends Node {
   /** source of the control, e.g. framework, template, custom, etc. */
   source?: Maybe<ControlObjectiveHistoryControlSource>
   /** status of the control objective */
-  status?: Maybe<Scalars['String']['output']>
+  status?: Maybe<ControlObjectiveHistoryObjectiveStatus>
   /** subcategory of the control */
   subcategory?: Maybe<Scalars['String']['output']>
   /** tags associated with the object */
@@ -3541,6 +3543,13 @@ export interface ControlObjectiveHistoryEdge {
   cursor: Scalars['Cursor']['output']
   /** The item at the end of the edge. */
   node?: Maybe<ControlObjectiveHistory>
+}
+
+/** ControlObjectiveHistoryObjectiveStatus is enum for the field status */
+export enum ControlObjectiveHistoryObjectiveStatus {
+  ACTIVE = 'ACTIVE',
+  ARCHIVED = 'ARCHIVED',
+  DRAFT = 'DRAFT',
 }
 
 /** ControlObjectiveHistoryOpType is enum for the field operation */
@@ -3790,20 +3799,11 @@ export interface ControlObjectiveHistoryWhereInput {
   sourceNotIn?: InputMaybe<Array<ControlObjectiveHistoryControlSource>>
   sourceNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** status field predicates */
-  status?: InputMaybe<Scalars['String']['input']>
-  statusContains?: InputMaybe<Scalars['String']['input']>
-  statusContainsFold?: InputMaybe<Scalars['String']['input']>
-  statusEqualFold?: InputMaybe<Scalars['String']['input']>
-  statusGT?: InputMaybe<Scalars['String']['input']>
-  statusGTE?: InputMaybe<Scalars['String']['input']>
-  statusHasPrefix?: InputMaybe<Scalars['String']['input']>
-  statusHasSuffix?: InputMaybe<Scalars['String']['input']>
-  statusIn?: InputMaybe<Array<Scalars['String']['input']>>
+  status?: InputMaybe<ControlObjectiveHistoryObjectiveStatus>
+  statusIn?: InputMaybe<Array<ControlObjectiveHistoryObjectiveStatus>>
   statusIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  statusLT?: InputMaybe<Scalars['String']['input']>
-  statusLTE?: InputMaybe<Scalars['String']['input']>
-  statusNEQ?: InputMaybe<Scalars['String']['input']>
-  statusNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  statusNEQ?: InputMaybe<ControlObjectiveHistoryObjectiveStatus>
+  statusNotIn?: InputMaybe<Array<ControlObjectiveHistoryObjectiveStatus>>
   statusNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** subcategory field predicates */
   subcategory?: InputMaybe<Scalars['String']['input']>
@@ -3848,6 +3848,13 @@ export interface ControlObjectiveHistoryWhereInput {
   updatedByNEQ?: InputMaybe<Scalars['String']['input']>
   updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+/** ControlObjectiveObjectiveStatus is enum for the field status */
+export enum ControlObjectiveObjectiveStatus {
+  ACTIVE = 'ACTIVE',
+  ARCHIVED = 'ARCHIVED',
+  DRAFT = 'DRAFT',
 }
 
 /** Ordering options for ControlObjective connections */
@@ -4106,20 +4113,11 @@ export interface ControlObjectiveWhereInput {
   sourceNotIn?: InputMaybe<Array<ControlObjectiveControlSource>>
   sourceNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** status field predicates */
-  status?: InputMaybe<Scalars['String']['input']>
-  statusContains?: InputMaybe<Scalars['String']['input']>
-  statusContainsFold?: InputMaybe<Scalars['String']['input']>
-  statusEqualFold?: InputMaybe<Scalars['String']['input']>
-  statusGT?: InputMaybe<Scalars['String']['input']>
-  statusGTE?: InputMaybe<Scalars['String']['input']>
-  statusHasPrefix?: InputMaybe<Scalars['String']['input']>
-  statusHasSuffix?: InputMaybe<Scalars['String']['input']>
-  statusIn?: InputMaybe<Array<Scalars['String']['input']>>
+  status?: InputMaybe<ControlObjectiveObjectiveStatus>
+  statusIn?: InputMaybe<Array<ControlObjectiveObjectiveStatus>>
   statusIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  statusLT?: InputMaybe<Scalars['String']['input']>
-  statusLTE?: InputMaybe<Scalars['String']['input']>
-  statusNEQ?: InputMaybe<Scalars['String']['input']>
-  statusNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  statusNEQ?: InputMaybe<ControlObjectiveObjectiveStatus>
+  statusNotIn?: InputMaybe<Array<ControlObjectiveObjectiveStatus>>
   statusNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** subcategory field predicates */
   subcategory?: InputMaybe<Scalars['String']['input']>
@@ -4763,7 +4761,7 @@ export interface CreateControlObjectiveInput {
   /** source of the control, e.g. framework, template, custom, etc. */
   source?: InputMaybe<ControlObjectiveControlSource>
   /** status of the control objective */
-  status?: InputMaybe<Scalars['String']['input']>
+  status?: InputMaybe<ControlObjectiveObjectiveStatus>
   /** subcategory of the control */
   subcategory?: InputMaybe<Scalars['String']['input']>
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -5080,6 +5078,7 @@ export interface CreateInternalPolicyInput {
   reviewFrequency?: InputMaybe<InternalPolicyFrequency>
   /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
   revision?: InputMaybe<Scalars['String']['input']>
+  riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** status of the policy, e.g. draft, published, archived, etc. */
   status?: InputMaybe<InternalPolicyDocumentStatus>
   /** tags associated with the object */
@@ -5414,6 +5413,7 @@ export interface CreateRiskInput {
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** impact of the risk -critical, high, medium, low */
   impact?: InputMaybe<RiskRiskImpact>
+  internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** likelihood of the risk occurring; unlikely, likely, highly likely */
   likelihood?: InputMaybe<RiskRiskLikelihood>
   /** mitigation for the risk */
@@ -5430,6 +5430,7 @@ export interface CreateRiskInput {
   stakeholderID?: InputMaybe<Scalars['ID']['input']>
   /** status of the risk - open, mitigated, ongoing, in-progress, and archived. */
   status?: InputMaybe<RiskRiskStatus>
+  subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -5565,7 +5566,7 @@ export interface CreateTaskInput {
   category?: InputMaybe<Scalars['String']['input']>
   commentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the completion date of the task */
-  completed?: InputMaybe<Scalars['Time']['input']>
+  completed?: InputMaybe<Scalars['DateTime']['input']>
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the description of the task */
@@ -5573,7 +5574,7 @@ export interface CreateTaskInput {
   /** the details of the task */
   details?: InputMaybe<Scalars['String']['input']>
   /** the due date of the task */
-  due?: InputMaybe<Scalars['Time']['input']>
+  due?: InputMaybe<Scalars['DateTime']['input']>
   evidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -12140,6 +12141,7 @@ export interface InternalPolicy extends Node {
   reviewFrequency?: Maybe<InternalPolicyFrequency>
   /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
   revision?: Maybe<Scalars['String']['output']>
+  risks: RiskConnection
   /** status of the policy, e.g. draft, published, archived, etc. */
   status?: Maybe<InternalPolicyDocumentStatus>
   /** tags associated with the object */
@@ -12192,6 +12194,15 @@ export interface InternalPolicyProgramsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ProgramOrder>>
   where?: InputMaybe<ProgramWhereInput>
+}
+
+export interface InternalPolicyRisksArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<RiskOrder>>
+  where?: InputMaybe<RiskWhereInput>
 }
 
 export interface InternalPolicyTasksArgs {
@@ -12833,6 +12844,9 @@ export interface InternalPolicyWhereInput {
   /** programs edge predicates */
   hasPrograms?: InputMaybe<Scalars['Boolean']['input']>
   hasProgramsWith?: InputMaybe<Array<ProgramWhereInput>>
+  /** risks edge predicates */
+  hasRisks?: InputMaybe<Scalars['Boolean']['input']>
+  hasRisksWith?: InputMaybe<Array<RiskWhereInput>>
   /** tasks edge predicates */
   hasTasks?: InputMaybe<Scalars['Boolean']['input']>
   hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
@@ -16399,6 +16413,7 @@ export interface OrgMembershipWhereInput {
   deletedByNEQ?: InputMaybe<Scalars['String']['input']>
   deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  hasUserWith?: InputMaybe<Array<UserWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -22928,6 +22943,7 @@ export interface Risk extends Node {
   id: Scalars['ID']['output']
   /** impact of the risk -critical, high, medium, low */
   impact?: Maybe<RiskRiskImpact>
+  internalPolicies: InternalPolicyConnection
   /** likelihood of the risk occurring; unlikely, likely, highly likely */
   likelihood?: Maybe<RiskRiskLikelihood>
   /** mitigation for the risk */
@@ -22949,6 +22965,7 @@ export interface Risk extends Node {
   stakeholderID?: Maybe<Scalars['ID']['output']>
   /** status of the risk - open, mitigated, ongoing, in-progress, and archived. */
   status?: Maybe<RiskRiskStatus>
+  subcontrols: SubcontrolConnection
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
@@ -22975,6 +22992,15 @@ export interface RiskControlsArgs {
   where?: InputMaybe<ControlWhereInput>
 }
 
+export interface RiskInternalPoliciesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<InternalPolicyOrder>>
+  where?: InputMaybe<InternalPolicyWhereInput>
+}
+
 export interface RiskProceduresArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -22991,6 +23017,15 @@ export interface RiskProgramsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ProgramOrder>>
   where?: InputMaybe<ProgramWhereInput>
+}
+
+export interface RiskSubcontrolsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<SubcontrolOrder>>
+  where?: InputMaybe<SubcontrolWhereInput>
 }
 
 /** Return response for createBulkRisk mutation */
@@ -23677,6 +23712,9 @@ export interface RiskWhereInput {
   /** editors edge predicates */
   hasEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** internal_policies edge predicates */
+  hasInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalPoliciesWith?: InputMaybe<Array<InternalPolicyWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
@@ -23689,6 +23727,9 @@ export interface RiskWhereInput {
   /** stakeholder edge predicates */
   hasStakeholder?: InputMaybe<Scalars['Boolean']['input']>
   hasStakeholderWith?: InputMaybe<Array<GroupWhereInput>>
+  /** subcontrols edge predicates */
+  hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
   /** viewers edge predicates */
   hasViewers?: InputMaybe<Scalars['Boolean']['input']>
   hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
@@ -26306,7 +26347,7 @@ export interface Task extends Node {
   category?: Maybe<Scalars['String']['output']>
   comments: NoteConnection
   /** the completion date of the task */
-  completed?: Maybe<Scalars['Time']['output']>
+  completed?: Maybe<Scalars['DateTime']['output']>
   controlObjectives: ControlObjectiveConnection
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
@@ -26320,7 +26361,7 @@ export interface Task extends Node {
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   /** the due date of the task */
-  due?: Maybe<Scalars['Time']['output']>
+  due?: Maybe<Scalars['DateTime']['output']>
   evidence: EvidenceConnection
   groups: GroupConnection
   id: Scalars['ID']['output']
@@ -26472,7 +26513,7 @@ export interface TaskHistory extends Node {
   /** the category of the task, e.g. evidence upload, risk review, policy review, etc. */
   category?: Maybe<Scalars['String']['output']>
   /** the completion date of the task */
-  completed?: Maybe<Scalars['Time']['output']>
+  completed?: Maybe<Scalars['DateTime']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   deletedAt?: Maybe<Scalars['Time']['output']>
@@ -26484,7 +26525,7 @@ export interface TaskHistory extends Node {
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   /** the due date of the task */
-  due?: Maybe<Scalars['Time']['output']>
+  due?: Maybe<Scalars['DateTime']['output']>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
   operation: TaskHistoryOpType
@@ -26611,15 +26652,15 @@ export interface TaskHistoryWhereInput {
   categoryNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   categoryNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** completed field predicates */
-  completed?: InputMaybe<Scalars['Time']['input']>
-  completedGT?: InputMaybe<Scalars['Time']['input']>
-  completedGTE?: InputMaybe<Scalars['Time']['input']>
-  completedIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  completed?: InputMaybe<Scalars['DateTime']['input']>
+  completedGT?: InputMaybe<Scalars['DateTime']['input']>
+  completedGTE?: InputMaybe<Scalars['DateTime']['input']>
+  completedIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
   completedIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  completedLT?: InputMaybe<Scalars['Time']['input']>
-  completedLTE?: InputMaybe<Scalars['Time']['input']>
-  completedNEQ?: InputMaybe<Scalars['Time']['input']>
-  completedNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  completedLT?: InputMaybe<Scalars['DateTime']['input']>
+  completedLTE?: InputMaybe<Scalars['DateTime']['input']>
+  completedNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  completedNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
   completedNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
@@ -26722,15 +26763,15 @@ export interface TaskHistoryWhereInput {
   displayIDNEQ?: InputMaybe<Scalars['String']['input']>
   displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   /** due field predicates */
-  due?: InputMaybe<Scalars['Time']['input']>
-  dueGT?: InputMaybe<Scalars['Time']['input']>
-  dueGTE?: InputMaybe<Scalars['Time']['input']>
-  dueIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  due?: InputMaybe<Scalars['DateTime']['input']>
+  dueGT?: InputMaybe<Scalars['DateTime']['input']>
+  dueGTE?: InputMaybe<Scalars['DateTime']['input']>
+  dueIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
   dueIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  dueLT?: InputMaybe<Scalars['Time']['input']>
-  dueLTE?: InputMaybe<Scalars['Time']['input']>
-  dueNEQ?: InputMaybe<Scalars['Time']['input']>
-  dueNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  dueLT?: InputMaybe<Scalars['DateTime']['input']>
+  dueLTE?: InputMaybe<Scalars['DateTime']['input']>
+  dueNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  dueNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
   dueNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** history_time field predicates */
   historyTime?: InputMaybe<Scalars['Time']['input']>
@@ -26929,15 +26970,15 @@ export interface TaskWhereInput {
   categoryNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   categoryNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** completed field predicates */
-  completed?: InputMaybe<Scalars['Time']['input']>
-  completedGT?: InputMaybe<Scalars['Time']['input']>
-  completedGTE?: InputMaybe<Scalars['Time']['input']>
-  completedIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  completed?: InputMaybe<Scalars['DateTime']['input']>
+  completedGT?: InputMaybe<Scalars['DateTime']['input']>
+  completedGTE?: InputMaybe<Scalars['DateTime']['input']>
+  completedIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
   completedIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  completedLT?: InputMaybe<Scalars['Time']['input']>
-  completedLTE?: InputMaybe<Scalars['Time']['input']>
-  completedNEQ?: InputMaybe<Scalars['Time']['input']>
-  completedNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  completedLT?: InputMaybe<Scalars['DateTime']['input']>
+  completedLTE?: InputMaybe<Scalars['DateTime']['input']>
+  completedNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  completedNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
   completedNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
@@ -27040,15 +27081,15 @@ export interface TaskWhereInput {
   displayIDNEQ?: InputMaybe<Scalars['String']['input']>
   displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   /** due field predicates */
-  due?: InputMaybe<Scalars['Time']['input']>
-  dueGT?: InputMaybe<Scalars['Time']['input']>
-  dueGTE?: InputMaybe<Scalars['Time']['input']>
-  dueIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  due?: InputMaybe<Scalars['DateTime']['input']>
+  dueGT?: InputMaybe<Scalars['DateTime']['input']>
+  dueGTE?: InputMaybe<Scalars['DateTime']['input']>
+  dueIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
   dueIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  dueLT?: InputMaybe<Scalars['Time']['input']>
-  dueLTE?: InputMaybe<Scalars['Time']['input']>
-  dueNEQ?: InputMaybe<Scalars['Time']['input']>
-  dueNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  dueLT?: InputMaybe<Scalars['DateTime']['input']>
+  dueLTE?: InputMaybe<Scalars['DateTime']['input']>
+  dueNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  dueNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
   dueNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** assignee edge predicates */
   hasAssignee?: InputMaybe<Scalars['Boolean']['input']>
@@ -28051,7 +28092,7 @@ export interface UpdateControlObjectiveInput {
   /** source of the control, e.g. framework, template, custom, etc. */
   source?: InputMaybe<ControlObjectiveControlSource>
   /** status of the control objective */
-  status?: InputMaybe<Scalars['String']['input']>
+  status?: InputMaybe<ControlObjectiveObjectiveStatus>
   /** subcategory of the control */
   subcategory?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
@@ -28518,6 +28559,7 @@ export interface UpdateInternalPolicyInput {
   addNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   /** whether approval is required for edits to the policy */
@@ -28539,6 +28581,7 @@ export interface UpdateInternalPolicyInput {
   clearReviewDue?: InputMaybe<Scalars['Boolean']['input']>
   clearReviewFrequency?: InputMaybe<Scalars['Boolean']['input']>
   clearRevision?: InputMaybe<Scalars['Boolean']['input']>
+  clearRisks?: InputMaybe<Scalars['Boolean']['input']>
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
@@ -28557,6 +28600,7 @@ export interface UpdateInternalPolicyInput {
   removeNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the date the policy should be reviewed, calculated based on the review_frequency if not directly set */
   reviewDue?: InputMaybe<Scalars['Time']['input']>
@@ -29052,8 +29096,10 @@ export interface UpdateRiskInput {
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   /** business costs associated with the risk */
@@ -29069,6 +29115,7 @@ export interface UpdateRiskInput {
   clearDetails?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearImpact?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearLikelihood?: InputMaybe<Scalars['Boolean']['input']>
   clearMitigation?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
@@ -29077,6 +29124,7 @@ export interface UpdateRiskInput {
   clearScore?: InputMaybe<Scalars['Boolean']['input']>
   clearStakeholder?: InputMaybe<Scalars['Boolean']['input']>
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
+  clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
   delegateID?: InputMaybe<Scalars['ID']['input']>
@@ -29094,8 +29142,10 @@ export interface UpdateRiskInput {
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** type of the risk, e.g. strategic, operational, financial, external, etc. */
   riskType?: InputMaybe<Scalars['String']['input']>
@@ -29342,14 +29392,14 @@ export interface UpdateTaskInput {
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   /** the completion date of the task */
-  completed?: InputMaybe<Scalars['Time']['input']>
+  completed?: InputMaybe<Scalars['DateTime']['input']>
   deleteComment?: InputMaybe<Scalars['ID']['input']>
   /** the description of the task */
   description?: InputMaybe<Scalars['String']['input']>
   /** the details of the task */
   details?: InputMaybe<Scalars['String']['input']>
   /** the due date of the task */
-  due?: InputMaybe<Scalars['Time']['input']>
+  due?: InputMaybe<Scalars['DateTime']['input']>
   removeCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -31038,7 +31088,7 @@ export type ControlDetailsFieldsFragment = {
     __typename?: 'ControlObjectiveConnection'
     edges?: Array<{
       __typename?: 'ControlObjectiveEdge'
-      node?: { __typename?: 'ControlObjective'; id: string; status?: string | null; desiredOutcome?: string | null; name: string; displayID: string } | null
+      node?: { __typename?: 'ControlObjective'; id: string; status?: ControlObjectiveObjectiveStatus | null; desiredOutcome?: string | null; name: string; displayID: string } | null
     } | null> | null
   }
   controlImplementations: {
@@ -31145,7 +31195,7 @@ export type GetControlByIdQuery = {
       __typename?: 'ControlObjectiveConnection'
       edges?: Array<{
         __typename?: 'ControlObjectiveEdge'
-        node?: { __typename?: 'ControlObjective'; id: string; status?: string | null; desiredOutcome?: string | null; name: string; displayID: string } | null
+        node?: { __typename?: 'ControlObjective'; id: string; status?: ControlObjectiveObjectiveStatus | null; desiredOutcome?: string | null; name: string; displayID: string } | null
       } | null> | null
     }
     controlImplementations: {
@@ -31221,7 +31271,7 @@ export type GetDashboardDataQuery = {
           __typename?: 'TaskConnection'
           edges?: Array<{
             __typename?: 'TaskEdge'
-            node?: { __typename?: 'Task'; id: string; title: string; status: TaskTaskStatus; description?: string | null; due?: any | null } | null
+            node?: { __typename?: 'Task'; id: string; title: string; status: TaskTaskStatus; description?: string | null; due?: string | null } | null
           } | null> | null
         }
       } | null
@@ -31229,7 +31279,7 @@ export type GetDashboardDataQuery = {
   }
   tasks: {
     __typename?: 'TaskConnection'
-    edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string; status: TaskTaskStatus; due?: any | null; tags?: Array<string> | null } | null } | null> | null
+    edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string; status: TaskTaskStatus; due?: string | null; tags?: Array<string> | null } | null } | null> | null
   }
   organizations: { __typename?: 'OrganizationConnection'; edges?: Array<{ __typename?: 'OrganizationEdge'; node?: { __typename?: 'Organization'; id: string; name: string } | null } | null> | null }
 }
@@ -31563,6 +31613,8 @@ export type GetOrganizationBillingQuery = {
       productTier?: string | null
       productPrice?: any | null
       features?: Array<string> | null
+      managePaymentMethods?: string | null
+      cancellation?: string | null
     }> | null
   }
 }
@@ -32098,7 +32150,7 @@ export type GetProgramDetailsByIdQuery = {
           id: string
           title: string
           status: TaskTaskStatus
-          due?: any | null
+          due?: string | null
           details?: string | null
           assignee?: { __typename?: 'User'; id: string; firstName?: string | null; lastName?: string | null; email: string } | null
           assigner?: { __typename?: 'User'; id: string; firstName?: string | null; lastName?: string | null; email: string } | null
@@ -32393,7 +32445,7 @@ export type TasksWithFilterQuery = {
         status: TaskTaskStatus
         tags?: Array<string> | null
         details?: string | null
-        due?: any | null
+        due?: string | null
         displayID: string
         category?: string | null
         assigner?: {
@@ -32449,7 +32501,7 @@ export type TaskQuery = {
     category?: string | null
     title: string
     status: TaskTaskStatus
-    due?: any | null
+    due?: string | null
     displayID: string
     description?: string | null
     details?: string | null
@@ -32498,7 +32550,7 @@ export type UserTasksQuery = {
   __typename?: 'Query'
   tasks: {
     __typename?: 'TaskConnection'
-    edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; due?: any | null } | null } | null> | null
+    edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; due?: string | null } | null } | null> | null
   }
 }
 

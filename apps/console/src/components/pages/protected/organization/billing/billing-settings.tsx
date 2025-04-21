@@ -7,12 +7,14 @@ import BillingContactDialog from './billing-contract-dialog'
 import { useOrganization } from '@/hooks/useOrganization'
 import { billingSettingsStyles } from './billing-settings.styles'
 import { cn } from '@repo/ui/lib/utils'
-import { useGetOrganizationSetting, useUpdateOrganization } from '@/lib/graphql-hooks/organization'
+import { useGetOrganizationBilling, useGetOrganizationSetting, useUpdateOrganization } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
+import { ExternalLink } from 'lucide-react'
 
 const BillingSettings: React.FC = () => {
   const { panel, section, sectionContent, sectionTitle, emailText, paragraph, switchContainer, text } = billingSettingsStyles()
   const { currentOrgId } = useOrganization()
+  const { data } = useGetOrganizationBilling(currentOrgId)
   const { data: settingData } = useGetOrganizationSetting(currentOrgId)
   const { isPending, mutateAsync: updateOrg } = useUpdateOrganization()
   const billingAddress = settingData?.organization.setting?.billingAddress
@@ -91,6 +93,17 @@ const BillingSettings: React.FC = () => {
           <div className={cn(switchContainer())}>
             <p className={cn(text())}>Set up automated billing alerts to receive emails when a specified usage amount is reached for spend across your entire team.</p>
             <Switch checked={notificationsEnabled} onCheckedChange={onToggleNotifications} disabled={isPending} />
+          </div>
+        </div>
+      </div>
+      <div className={cn(section())}>
+        <div className="flex gap-10 w-full items-start">
+          <h3 className={cn(sectionTitle())}>Cancel Subscription</h3>
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-3 w-full">
+            <p className={cn(text())}>Doppio sweet and milk cup saucer mocha instant filter. Blue qui cultivar frappuccino in french viennese extraction carajillo eu.</p>
+            <a href={data?.organization?.orgSubscriptions?.[0].cancellation ?? '#'} target="_blank" rel="noopener noreferrer" className="text-brand inline-flex items-center">
+              Cancel <ExternalLink size={16} className="ml-1" />
+            </a>
           </div>
         </div>
       </div>

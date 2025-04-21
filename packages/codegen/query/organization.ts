@@ -126,6 +126,8 @@ export const GET_ORGANIZATION_BILLING = gql`
         productTier
         productPrice
         features
+        managePaymentMethods
+        cancellation
       }
     }
   }

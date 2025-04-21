@@ -8,13 +8,14 @@ import { CircleCheck, ExternalLink } from 'lucide-react'
 import { useOrganization } from '@/hooks/useOrganization'
 import { Card } from '@repo/ui/cardpanel'
 import { useGetOrganizationBilling } from '@/lib/graphql-hooks/organization'
+import { OrgSubscription } from '@repo/codegen/src/schema'
 
 const PricingPlan = () => {
   const { currentOrgId } = useOrganization()
 
   const { data } = useGetOrganizationBilling(currentOrgId)
 
-  const subscription = data?.organization.orgSubscriptions?.[0] ?? {}
+  const subscription = data?.organization.orgSubscriptions?.[0] ?? ({} as OrgSubscription)
 
   // @ts-ignore TODO: MISSING TYPES FROM CODEGEN
   const { expiresAt, subscriptionURL, active, productTier, stripeSubscriptionStatus, productPrice = {}, features = [] } = subscription
@@ -48,22 +49,14 @@ const PricingPlan = () => {
     }
   }, [expiresAt, active])
 
-  const handleSubscriptionChange = () => {
-    if (subscriptionURL) {
-      window.open(subscriptionURL, '_blank', 'noopener,noreferrer')
-    } else {
-      console.warn('No subscription URL available')
-    }
-  }
-
   return (
-    <div className="p-6 w-1/3 2xl:w-1/4">
+    <div className="">
       <h2 className="text-2xl">Pricing Plan</h2>
       <div className="mt-4 flex items-center justify-between">
         <div className="flex gap-10 w-full">
           <div className="w-full">
             <div className="flex flex-col text-gray-700">
-              <Card className="shadow-md max-w-96">
+              <Card className="shadow-md ">
                 <div className="flex flex-col   ">
                   <div className="p-4">
                     <div className="flex gap-3 items-center ">
@@ -79,9 +72,25 @@ const PricingPlan = () => {
                 <div className=" border-t"></div>
                 <div className="p-4 flex justify-center">
                   {' '}
-                  <Button className=" flex  items-center gap-10 max-w-60" icon={<ExternalLink />} onClick={handleSubscriptionChange}>
-                    Change Subscription
-                  </Button>
+                  <div className="p-4 flex flex items-center gap-3">
+                    <Button
+                      className="flex items-center gap-2 max-w-60"
+                      icon={<ExternalLink />}
+                      onClick={() => window.open(subscriptionURL ?? undefined, '_blank', 'noopener,noreferrer')}
+                      disabled={!subscriptionURL}
+                    >
+                      Change Subscription
+                    </Button>
+
+                    <Button
+                      className="flex items-center gap-2 max-w-60"
+                      icon={<ExternalLink />}
+                      onClick={() => window.open(subscription.managePaymentMethods ?? undefined, '_blank', 'noopener,noreferrer')}
+                      disabled={!subscription.managePaymentMethods}
+                    >
+                      Add Payment Method
+                    </Button>
+                  </div>
                 </div>
               </Card>
             </div>
@@ -89,7 +98,11 @@ const PricingPlan = () => {
             {/* Features List */}
             <h4 className="mt-7 text-lg font-medium text-text-header mb-5">Features in this plan</h4>
             <ul className="mt-2 flex flex-col gap-y-2 text-gray-700">
-              {features?.length > 0 ? features.map((feature: string, index: number) => <FeatureItem key={index} feature={feature} />) : <p className="text-gray-500">No features listed.</p>}
+              {features && features?.length > 0 ? (
+                features?.map((feature: string, index: number) => <FeatureItem key={index} feature={feature} />)
+              ) : (
+                <p className="text-gray-500">No features listed.</p>
+              )}
             </ul>
           </div>
         </div>
