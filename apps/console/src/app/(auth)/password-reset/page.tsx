@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
@@ -23,7 +23,7 @@ export default function PasswordResetPage() {
   const router = useRouter()
   const { form, input } = loginStyles()
   const { content, logo } = pageStyles()
-  const { successNotification } = useNotification()
+  const { successNotification, errorNotification } = useNotification()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -62,6 +62,15 @@ export default function PasswordResetPage() {
       setIsSubmitting(false)
     }
   }
+  useEffect(() => {
+    if (!token) {
+      requestAnimationFrame(() => {
+        errorNotification({
+          title: 'Reset link is invalid or expired',
+        })
+      })
+    }
+  }, [token])
 
   return (
     <div className={content()}>
