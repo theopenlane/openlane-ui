@@ -10,15 +10,6 @@ body:
         ✨ **Thanks for helping us improve Openlane!**
         Please share your idea using the form below.
 
-  - type: input
-    id: contact
-    attributes:
-      label: Contact Details (optional)
-      description: How can we reach you if we have questions?
-      placeholder: '@your-github-username'
-    validations:
-      required: false
-
   - type: dropdown
     id: request-type
     attributes:
