@@ -1,0 +1,69 @@
+name: Feature Request
+description: Suggest an idea or improvement
+title: '[Feature Request]: '
+labels: ['enhancement', 'triage']
+assignees: ['matoszz']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ✨ **Thanks for helping us improve Openlane!**
+        Please share your idea using the form below.
+
+  - type: input
+    id: contact
+    attributes:
+      label: Contact Details (optional)
+      description: How can we reach you if we have questions?
+      placeholder: '@your-github-username'
+    validations:
+      required: false
+
+  - type: dropdown
+    id: request-type
+    attributes:
+      label: Type of Request
+      description: What kind of request is this?
+      options:
+        - Feature
+        - Usability
+        - Integration
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: Describe how this feature would improve your experience or address a need.
+      placeholder: It's hard to...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Describe the solution you’d like
+      description: What would the ideal feature or improvement look like?
+      placeholder: I’d love to see...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Have you considered any alternatives?
+      description: Describe any workarounds or alternative ideas you’ve explored.
+      placeholder: I’ve also thought about...
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Add links, mockups, diagrams, or anything else that might help explain the feature.
+      placeholder: (Optional)
+    validations:
+      required: false
