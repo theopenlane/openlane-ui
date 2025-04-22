@@ -124,7 +124,14 @@ const Risks = () => {
           </Button>
         </div>
 
-        <Tabs value={tab} onValueChange={(v) => setTab(v as 'created' | 'assigned')} className="px-6">
+        <Tabs
+          value={tab}
+          onValueChange={(v) => {
+            setTab(v as 'created' | 'assigned')
+            setPagination(DEFAULT_PAGINATION)
+          }}
+          className="px-6"
+        >
           <TabsList>
             <TabsTrigger value="created">Risks I've Created</TabsTrigger>
             <TabsTrigger value="assigned">Risks Assigned to Me</TabsTrigger>
