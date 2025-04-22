@@ -19,7 +19,7 @@ export interface NavHeading {
 }
 
 // Define allowed filter types
-export type FilterType = 'text' | 'number' | 'select' | 'date' | 'boolean'
+export type FilterType = 'text' | 'number' | 'select' | 'date' | 'boolean' | 'containsText'
 
 // Define a common interface for filter fields
 export interface FilterFieldBase {
