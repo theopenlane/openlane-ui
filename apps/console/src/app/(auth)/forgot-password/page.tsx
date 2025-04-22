@@ -81,12 +81,16 @@ export default function ForgotPasswordPage() {
       <div className={logo()}>
         <Logo width={300} theme="light" />
       </div>
-      <div className="flex flex-col mt-8 max-w-md mx-auto">
+      <div className="flex flex-col mt-2 justify-start">
         <form onSubmit={handleSubmit} className={form()}>
-          <p className="text-xl text-logo-dark text-border font-semibold mb-4 text-center">Reset your password</p>
+          <hr />
+          <span>
+            <p className="text-xl text-logo-dark text-border font-medium mb-2 text-left">Reset your password</p>
+            <p className="text-sm text-text-dark text-left mb-4">Enter your email address and we will send you a link to reset your password.</p>
+          </span>
           <div className={input()}>
             <Label htmlFor="email  " className="text-text-dark">
-              Email address
+              Email*
             </Label>
             <Input
               type="email"
