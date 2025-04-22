@@ -22,7 +22,7 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, procedure
       <Controller
         control={form.control}
         name="details"
-        render={({ field }) => <PlateEditor initialValue={field.value as string} onChange={field.onChange} isScrollable={true} variant="basic" placeholder="Write your control description" />}
+        render={({ field }) => <PlateEditor initialValue={field.value as string} onChange={field.onChange} variant="basic" placeholder="Write your control description" />}
       />
     </div>
   ) : (
