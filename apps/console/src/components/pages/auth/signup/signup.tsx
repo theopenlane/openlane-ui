@@ -61,7 +61,7 @@ export const SignupPage = () => {
   /**
    * Setup PassKey Registration
    */
-  async function registerPassKey() {
+  async function registerPasskey() {
     try {
       const options = await getPasskeyRegOptions({
         email: TEMP_PASSKEY_EMAIL,
@@ -125,9 +125,9 @@ export const SignupPage = () => {
           size="md"
           icon={<KeyRoundIcon className={keyIcon()} />}
           iconPosition="left"
-          onClick={registerPassKey}
+          onClick={registerPasskey}
         >
-          PassKey
+          Passkey
         </Button> */}
       </div>
 

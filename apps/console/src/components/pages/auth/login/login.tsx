@@ -116,7 +116,7 @@ export const LoginPage = () => {
   }
 
   /**
-   * Setup PassKey SignIn
+   * Setup Passkey SignIn
    */
   async function passKeySignIn() {
     try {
@@ -203,36 +203,39 @@ export const LoginPage = () => {
 
           {email && (
             <>
-              {!usePasswordLogin && (
-                <>
-                  <Button onClick={() => passKeySignIn()} className="md" variant="outlineLight" disabled={isPasskeyLoading || signInLoading}>
-                    Continue with PassKey
-                  </Button>
-                  {isPasskeyLoading && passkeyStatus && <p className="text-sm text-gray-600 mt-2 text-center">{passkeyStatus}</p>}
-                </>
-              )}
+              <div className="flex flex-col mt-2">
+                {!usePasswordLogin && (
+                  <>
+                    <Button onClick={() => passKeySignIn()} className="md" variant="outlineLight" disabled={isPasskeyLoading || signInLoading}>
+                      Continue with passkey
+                    </Button>
+                    {isPasskeyLoading && passkeyStatus && <p className="text-sm text-gray-600 mt-2 text-center">{passkeyStatus}</p>}
+                  </>
+                )}
 
-              {usePasswordLogin && (
-                <>
-                  <div className={input()}>
-                    <Label className="text-text-dark" htmlFor="password">
-                      Password
-                    </Label>
-                    <PasswordInput variant="light" name="password" placeholder="password" autoComplete="current-password" className="!border-neutral-300 dark:!border-neutral-300" />
-                  </div>
-                  <Button variant="filled" className="mr-auto mt-2 w-full" icon={<ArrowUpRight />} size="md" type="submit" iconAnimated disabled={isPasskeyLoading || signInLoading}>
-                    Login
-                  </Button>
-                </>
-              )}
+                {usePasswordLogin && (
+                  <>
+                    <div className={input()}>
+                      <Label className="text-text-dark" htmlFor="password">
+                        Password
+                      </Label>
+                      <PasswordInput variant="light" name="password" placeholder="password" autoComplete="current-password" className="!border-neutral-300 dark:!border-neutral-300" />
+                    </div>
+                    <Button variant="filled" className="mr-auto mt-2 w-full" icon={<ArrowUpRight />} size="md" type="submit" iconAnimated disabled={isPasskeyLoading || signInLoading}>
+                      Login
+                    </Button>
+                  </>
+                )}
 
-              <span
-                onClick={() => !isPasskeyLoading && !signInLoading && setUsePasswordLogin(!usePasswordLogin)}
-                className="text-sm text-gray-600 hover:text-gray-800 mt-2 mx-auto block cursor-pointer select-none"
-                style={{ opacity: isPasskeyLoading || signInLoading ? 0.5 : 1 }}
-              >
-                {usePasswordLogin ? 'Use PassKey instead' : 'Use password instead'}
-              </span>
+                <span
+                  onClick={() => !isPasskeyLoading && !signInLoading && setUsePasswordLogin(!usePasswordLogin)}
+                  className="text-sm text-gray-600 hover:text-gray-800 mt-2 mx-auto block cursor-pointer select-none"
+                  style={{ opacity: isPasskeyLoading || signInLoading ? 0.5 : 1 }}
+                >
+                  <p className="text-gray-500 text-center text-bold tx-xs">or</p>
+                  {usePasswordLogin ? 'Use passkey instead' : 'Use password instead'}
+                </span>
+              </div>
               <Link href="/forgot-password" className="text-sm text-blue-500 underline mt-2 text-center mb-4 hover:opacity-80 transition">
                 Forgot password?
               </Link>
