@@ -184,6 +184,7 @@ export const config: Partial<Config> = {
         },
         input: {
           background: 'var(--color-input-background)',
+          text: 'var(--color-input-text)',
         },
         note: {
           DEFAULT: 'var(--color-warning-muted-more)',
