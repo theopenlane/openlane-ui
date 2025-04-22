@@ -10,11 +10,7 @@ import { useSidebar } from '@/hooks/useSidebar'
 import { useState } from 'react'
 import { PanelLeft } from 'lucide-react'
 import { usePathname } from 'next/navigation'
-import { useSession } from 'next-auth/react'
-
 export default function Header() {
-  const { data: session } = useSession()
-
   const { isOpen, toggle } = useSidebar()
   const [status, setStatus] = useState(false)
 
@@ -49,31 +45,33 @@ export default function Header() {
   }
 
   return (
-    <div className={header()}>
-      <nav className={nav()}>
-        <div className="flex justify-start items-center">
-          <OrganizationSelector />
+    <>
+      <div className={header()}>
+        <nav className={nav()}>
+          <div className="flex justify-start items-center">
+            <OrganizationSelector />
 
-          <div className={expandNav({ isOpen: !isOpen })} onClick={handleToggle}>
-            <PanelLeft height={16} width={16} />
+            <div className={expandNav({ isOpen: !isOpen })} onClick={handleToggle}>
+              <PanelLeft height={16} width={16} />
+            </div>
+
+            <div className={mobileSidebar()}>
+              <>MobileSidebar</>
+            </div>
+
+            <div className="pl-10">
+              <BreadcrumbNavigation />
+            </div>
           </div>
 
-          <div className={mobileSidebar()}>
-            <>MobileSidebar</>
+          <div className={userNav()}>
+            <GlobalSearch />
+            <Link href="mailto:support@theopenlane.io">Feedback</Link>
+            <Link href="https://docs.theopenlane.io">Docs</Link>
+            <UserMenu />
           </div>
-
-          <div className="pl-10">
-            <BreadcrumbNavigation />
-          </div>
-        </div>
-
-        <div className={userNav()}>
-          <GlobalSearch />
-          <Link href="mailto:support@theopenlane.io">Feedback</Link>
-          <Link href="https://docs.theopenlane.io">Docs</Link>
-          <UserMenu />
-        </div>
-      </nav>
-    </div>
+        </nav>
+      </div>
+    </>
   )
 }

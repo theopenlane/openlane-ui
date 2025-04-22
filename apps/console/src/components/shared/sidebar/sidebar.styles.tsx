@@ -2,7 +2,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 
 const sidebarStyles = tv({
   slots: {
-    nav: 'relative h-[calc(100vh-4rem)] md:block w-[57px] transition-all   no-scrollbar',
+    nav: 'relative h-full md:block w-[57px] transition-all   no-scrollbar',
     navInner: 'relative',
     expandNav: 'relative ml-10 cursor-pointer',
     sideNav:
