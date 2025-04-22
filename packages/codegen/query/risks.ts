@@ -15,7 +15,20 @@ const RISK_FIELDS = gql`
     likelihood
     impact
     mitigation
+    stakeholder {
+      displayName
+      logoURL
+      gravatarLogoURL
+    }
     controls {
+      edges {
+        node {
+          id
+          refCode
+        }
+      }
+    }
+    subcontrols {
       edges {
         node {
           id
