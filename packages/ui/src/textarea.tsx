@@ -2,7 +2,7 @@ import * as React from 'react'
 import { cn } from '@repo/ui/lib/utils'
 
 const textareaStyles = cn(
-  'flex min-h-[80px] w-full rounded-md border border-border-light dark:border-border-dark bg-input-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none  disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
+  'flex min-h-[80px] w-full rounded-md border bg-input-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none  disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
 )
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, React.ComponentProps<'textarea'>>(({ className, ...props }, ref) => {

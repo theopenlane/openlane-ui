@@ -22,7 +22,7 @@ const editorContainerVariants = cva(
           'rounded-md border-[1.5px] border-transparent bg-transparent',
           'has-aria-disabled:border-input has-aria-disabled:bg-muted',
         ),
-        default: 'min-h-[300px] h-auto border border-border-light dark:border-border-dark',
+        default: 'min-h-[300px] h-auto border',
         demo: 'h-[650px]',
         select: cn(
           'group rounded-md border border-input ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
