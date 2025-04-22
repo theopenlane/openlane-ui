@@ -247,7 +247,7 @@ export function DataTable<TData, TValue>({
                     return (
                       <TableHead key={`${header.id}-${index}`} style={{ width: columnWidth, cursor: 'pointer' }} onClick={() => handleSortChange(sortField.key)}>
                         {header.isPlaceholder ? null : (
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-1" style={{ width: columnWidth }}>
                             {flexRender(header.column.columnDef.header, header.getContext())}
                             {sorting === OrderDirection.ASC ? <ArrowUp size={16} /> : sorting === OrderDirection.DESC ? <ArrowDown size={16} /> : <ArrowUpDown size={16} className="text-gray-400" />}
                           </div>

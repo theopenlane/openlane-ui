@@ -110,12 +110,12 @@ export const SearchableSingleSelect: React.FC<SearchableSingleSelectProps> = ({ 
           <div className="w-[200px]">
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild className="flex">
-                <div className="w-full flex text-sm h-10 px-3 !py-0 justify-between border-brand border bg-input-background  rounded-md items-center cursor-pointer ">
+                <div className="w-full flex text-sm h-10 px-3 !py-0 justify-between border-border-light dark:border-border-dark border bg-input-background  rounded-md items-center cursor-pointer ">
                   <span>{selected?.label || placeholder}</span>
                   <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </div>
               </PopoverTrigger>
-              <PopoverContent className="w-[200px] p-0 !bg-input-background border-brand">
+              <PopoverContent className="w-[200px] p-0 !bg-input-background border-border-light dark:border-border-dark">
                 <Command>
                   <CommandInput placeholder="Search..." />
                   <CommandList>
