@@ -38,9 +38,27 @@ const ControlsTable: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const debouncedSearch = useDebounce(searchTerm, 300)
+  const whereFilter = useMemo(() => {
+    const conditions: Record<string, any> = {}
+    Object.entries(filters).forEach(([key, value]) => {
+      if (!value) {
+        return
+      }
+
+      if (key === 'programContains') {
+        conditions.hasProgramsWith = [{ nameContainsFold: value }]
+      } else if (key === 'standardContains') {
+        conditions.hasStandardWith = [{ nameContainsFold: value }]
+      } else {
+        conditions[key] = value
+      }
+    })
+
+    return conditions
+  }, [filters])
 
   const { controls, isError, paginationMeta } = useGetAllControls({
-    where: { ownerIDNEQ: '', refCodeContainsFold: debouncedSearch, ...filters },
+    where: { ownerIDNEQ: '', refCodeContainsFold: debouncedSearch, ...whereFilter },
     orderBy,
     pagination,
   })
