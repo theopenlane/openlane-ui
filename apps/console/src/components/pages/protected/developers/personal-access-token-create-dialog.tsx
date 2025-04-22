@@ -358,7 +358,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
             </div>
           </DialogHeader>
           <div onClick={handleCopyToken} className=" flex items-center justify-between w-full cursor-pointer">
-            <Input className=" truncate text-sm border-brand bg-background py-0 h-9 " icon={<CopyIcon className="h-4 w-4" />} readOnly value={token} maxWidth />
+            <Input className=" truncate text-sm bg-background py-0 h-9 " icon={<CopyIcon className="h-4 w-4" />} readOnly value={token} maxWidth />
           </div>
           <div className="flex items-center mt-4">
             <Checkbox id="confirmation" onCheckedChange={(checked: boolean) => setConfirmationChecked(checked)} />

@@ -10,7 +10,7 @@ import { PlateContent, useEditorContainerRef, useEditorRef } from '@udecode/plat
 import { cva } from 'class-variance-authority'
 
 const editorContainerVariants = cva(
-  'relative w-full cursor-text overflow-hidden caret-primary select-text bg-input-background selection:bg-brand/25 focus-visible:outline-none [&_.slate-selection-area]:z-50 [&_.slate-selection-area]:border [&_.slate-selection-area]:border-brand/25 [&_.slate-selection-area]:bg-brand/15',
+  'relative w-full cursor-text overflow-hidden caret-primary select-text bg-input-background selection:bg-brand/25 focus-visible:outline-none [&_.slate-selection-area]:z-50 [&_.slate-selection-area]:border [&_.slate-selection-area]:border/25 [&_.slate-selection-area]:bg-brand/15',
   {
     defaultVariants: {
       variant: 'default',
@@ -22,7 +22,7 @@ const editorContainerVariants = cva(
           'rounded-md border-[1.5px] border-transparent bg-transparent',
           'has-aria-disabled:border-input has-aria-disabled:bg-muted',
         ),
-        default: 'min-h-[300px] h-auto border border-neutral-300 dark:border-brand',
+        default: 'min-h-[300px] h-auto border',
         demo: 'h-[650px]',
         select: cn(
           'group rounded-md border border-input ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',

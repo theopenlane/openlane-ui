@@ -63,7 +63,7 @@ const CalendarPopover = <T extends FieldValues>({ field, defaultToday, required,
         <Button
           className={
             buttonClassName ??
-            'bg-input-background  w-full flex justify-between items-center border border-neutral-300 border-input dark:border-brand !p-1  text-base rounded-md focus-visible:outline-none  disabled:cursor-not-allowed disabled:opacity-50'
+            'bg-input-background  w-full flex justify-between items-center border border-input !p-1  text-base rounded-md focus-visible:outline-none  disabled:cursor-not-allowed disabled:opacity-50'
           }
           variant="outlineInput"
           childFull
