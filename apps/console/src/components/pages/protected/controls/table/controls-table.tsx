@@ -1,12 +1,10 @@
 'use client'
 
-import React, { Fragment, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useGetAllControls } from '@/lib/graphql-hooks/controls'
 import { Badge } from '@repo/ui/badge'
-import { Button } from '@repo/ui/button'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
-import { DownloadIcon } from 'lucide-react'
 import { ControlControlStatus, ControlListFieldsFragment, ControlOrderField, GetAllControlsQueryVariables, Group, OrderDirection } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useRouter } from 'next/navigation'
@@ -17,6 +15,15 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import ControlsTableToolbar from './controls-table-toolbar'
 import { CONTROLS_SORT_FIELDS } from './table-config'
 import { useDebounce } from '@uidotdev/usehooks'
+
+export const ControlStatusLabels: Record<ControlControlStatus, string> = {
+  [ControlControlStatus.APPROVED]: 'Approved',
+  [ControlControlStatus.ARCHIVED]: 'Archived',
+  [ControlControlStatus.CHANGES_REQUESTED]: 'Changes Requested',
+  [ControlControlStatus.NEEDS_APPROVAL]: 'Needs Approval',
+  [ControlControlStatus.NULL]: '-',
+  [ControlControlStatus.PREPARING]: 'Preparing',
+}
 
 const ControlsTable: React.FC = () => {
   const { push } = useRouter()
@@ -31,9 +38,27 @@ const ControlsTable: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const debouncedSearch = useDebounce(searchTerm, 300)
+  const whereFilter = useMemo(() => {
+    const conditions: Record<string, any> = {}
+    Object.entries(filters).forEach(([key, value]) => {
+      if (!value) {
+        return
+      }
+
+      if (key === 'programContains') {
+        conditions.hasProgramsWith = [{ nameContainsFold: value }]
+      } else if (key === 'standardContains') {
+        conditions.hasStandardWith = [{ nameContainsFold: value }]
+      } else {
+        conditions[key] = value
+      }
+    })
+
+    return conditions
+  }, [filters])
 
   const { controls, isError, paginationMeta } = useGetAllControls({
-    where: { ownerIDNEQ: '', refCodeContainsFold: debouncedSearch, ...filters },
+    where: { ownerIDNEQ: '', refCodeContainsFold: debouncedSearch, ...whereFilter },
     orderBy,
     pagination,
   })
@@ -72,11 +97,10 @@ const ControlsTable: React.FC = () => {
         header: 'Status',
         accessorKey: 'status',
         cell: ({ row }) => {
-          let value: ControlControlStatus | '-' = row.getValue('status')
-          if (value === ControlControlStatus.NULL) {
-            value = '-'
-          }
-          return <span className="flex items-center gap-2">{value}</span>
+          const value: ControlControlStatus = row.getValue('status')
+          const label = ControlStatusLabels[value] ?? value
+
+          return <span className="flex items-center gap-2">{label}</span>
         },
       },
       {
@@ -138,12 +162,8 @@ const ControlsTable: React.FC = () => {
 
   return (
     <div>
-      <div className="flex justify-end items-center mb-4 w-full">
-        <Button onClick={() => exportToCSV(controls, 'control_list')} icon={<DownloadIcon />} iconPosition="left">
-          Export
-        </Button>
-      </div>
       <ControlsTableToolbar
+        exportToCSV={(data) => exportToCSV(controls, data)}
         onFilterChange={setFilters}
         searchTerm={searchTerm}
         setSearchTerm={(inputVal) => {
