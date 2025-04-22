@@ -21,7 +21,7 @@ export function useSubscriptionBanner() {
   if (isTrial && !paymentMethodAdded && isExpiringSoon) {
     bannerText = 'Your 30-day free trial ends soon, and there is no payment method on file'
   } else if (!isTrial && isExpiringSoon) {
-    bannerText = 'Your subscription ends soon, and there is no payment method on file'
+    bannerText = 'Your subscription ends in soon, update your plan to avoid losing access'
   }
 
   return {
