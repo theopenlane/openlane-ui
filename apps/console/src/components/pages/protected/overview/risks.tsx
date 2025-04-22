@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
 import { DataTable } from '@repo/ui/data-table'
 import { Button } from '@repo/ui/button'
@@ -11,6 +11,9 @@ import { Avatar } from '@/components/shared/avatar/avatar'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
+import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
+import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 
 type Stakeholder = {
   id: string
@@ -67,14 +70,31 @@ const columns: ColumnDef<FormattedRisk>[] = [
 ]
 
 const Risks = () => {
+  const { data: session } = useSession()
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
 
-  const where: RiskWhereInput = {
-    statusNEQ: RiskRiskStatus.MITIGATED,
-    hasProgramsWith: programId ? [{ id: programId }] : undefined,
-  }
+  const { groups } = useGetAllGroups(session?.user.userId)
+  const [tab, setTab] = useState<'created' | 'assigned'>('created')
+
+  const stakeholderGroupIds = groups?.map((group) => group.id) ?? []
+
+  const where: RiskWhereInput = useMemo(() => {
+    if (tab === 'assigned') {
+      return {
+        stakeholderIDIn: stakeholderGroupIds,
+        statusNEQ: RiskRiskStatus.MITIGATED,
+        hasProgramsWith: programId ? [{ id: programId }] : undefined,
+      }
+    }
+
+    return {
+      createdBy: session?.user.userId!,
+      statusNEQ: RiskRiskStatus.MITIGATED,
+      hasProgramsWith: programId ? [{ id: programId }] : undefined,
+    }
+  }, [tab, session?.user.userId, stakeholderGroupIds, programId])
 
   const { risks, paginationMeta } = useRisksWithFilter({ where })
 
@@ -96,25 +116,35 @@ const Risks = () => {
 
   return (
     <Card className="shadow-md rounded-lg flex-1">
-      <div className="flex justify-between items-center">
-        <CardTitle className="text-lg font-semibold">Risks</CardTitle>
-        <Button variant="outline" className="flex items-center gap-2 mr-7" icon={<Cog size={16} />} iconPosition="left">
-          Edit
-        </Button>
+      <div className="flex flex-col gap-2">
+        <div className="flex justify-between items-center px-6 pt-6">
+          <CardTitle className="text-lg font-semibold">Risks</CardTitle>
+          <Button variant="outline" className="flex items-center gap-2" icon={<Cog size={16} />} iconPosition="left">
+            Edit
+          </Button>
+        </div>
+
+        <Tabs value={tab} onValueChange={(v) => setTab(v as 'created' | 'assigned')} className="px-6">
+          <TabsList>
+            <TabsTrigger value="created">Risks I've Created</TabsTrigger>
+            <TabsTrigger value="assigned">Risks Assigned to Me</TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        <CardContent>
+          {hasData ? (
+            <DataTable columns={columns} data={formattedRisks} pagination={pagination} onPaginationChange={setPagination} paginationMeta={paginationMeta} />
+          ) : (
+            <div className="flex flex-col items-center justify-center text-center py-16">
+              <AlertTriangle size={89} strokeWidth={1} className="text-border mb-4" />
+              <h2 className="text-lg font-semibold">You have no risks</h2>
+              <a href="https://console.theopenlane.io/risks" target="_blank" rel="noopener noreferrer" className="mt-4">
+                <Button variant="outline">Take me there</Button>
+              </a>
+            </div>
+          )}
+        </CardContent>
       </div>
-      <CardContent>
-        {hasData ? (
-          <DataTable columns={columns} data={formattedRisks} pagination={pagination} onPaginationChange={setPagination} paginationMeta={paginationMeta} />
-        ) : (
-          <div className="flex flex-col items-center justify-center text-center py-16">
-            <AlertTriangle size={89} strokeWidth={1} className="text-border mb-4" />
-            <h2 className="text-lg font-semibold">You have no risks</h2>
-            <a href="https://console.theopenlane.io/risks" target="_blank" rel="noopener noreferrer" className="mt-4">
-              <Button variant="outline">Take me there</Button>
-            </a>
-          </div>
-        )}
-      </CardContent>
     </Card>
   )
 }
