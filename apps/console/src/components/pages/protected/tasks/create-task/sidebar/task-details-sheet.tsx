@@ -211,6 +211,7 @@ const TaskDetailsSheet = () => {
       assigneeID: data?.assigneeID,
       status: data?.status,
       clearAssignee: !data?.assigneeID,
+      clearDue: !data?.due,
       ...taskObjectPayload,
     }
 
@@ -483,7 +484,7 @@ const TaskDetailsSheet = () => {
                       )}
                     />
                   ) : (
-                    <p className="text-sm">{taskData?.due ? format(new Date(taskData.due as string), 'd MMM, yyyy') : ''}</p>
+                    <p className="text-sm">{taskData?.due ? format(new Date(taskData.due as string), 'MMMM d, yyyy') : ''}</p>
                   )}
                 </div>
 
