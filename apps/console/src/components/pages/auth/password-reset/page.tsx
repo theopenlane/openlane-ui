@@ -11,6 +11,7 @@ import { openlaneAPIUrl } from '@repo/dally/auth'
 import { useNotification } from '@/hooks/useNotification'
 import { loginStyles } from '@/components/pages/auth/login/login.styles'
 import { pageStyles } from '@/app/(auth)/login/page.styles'
+import { PasswordInput } from '@repo/ui/password-input'
 
 export default function PasswordResetPage() {
   const [password, setPassword] = useState('')
@@ -77,22 +78,41 @@ export default function PasswordResetPage() {
       <div className={logo()}>
         <Logo width={300} theme="light" />
       </div>
-      <div className="flex flex-col mt-8 max-w-md mx-auto">
+      <div className="flex flex-col mt-2 justify-start">
         <form onSubmit={handleSubmit} className={form()}>
-          <p className="text-xl text-logo-dark text-border font-semibold mb-4 text-center">Choose a new password</p>
-
+          <hr />
+          <span>
+            <p className="text-xl text-logo-dark text-border font-medium mb-4 text-left">Choose a new password</p>
+            <p className="text-sm text-text-dark text-left mb-4">Please enter a new password for your account.</p>
+          </span>
           <div className={input()}>
             <Label htmlFor="password" className="text-text-dark">
-              New password
+              New password*
             </Label>
-            <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required variant="light" className="!border-neutral-300 dark:!border-neutral-300" />
+            <PasswordInput
+              name="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              variant="light"
+              placeholder="password"
+              className="!border-neutral-300 dark:!border-neutral-300"
+            />
           </div>
 
           <div className={input()}>
             <Label htmlFor="confirmPassword" className="text-text-dark">
-              Confirm password
+              Confirm password*
             </Label>
-            <Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required variant="light" className="!border-neutral-300 dark:!border-neutral-300" />
+            <PasswordInput
+              name="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              variant="light"
+              placeholder="confirm password"
+              className="!border-neutral-300 dark:!border-neutral-300"
+            />
           </div>
 
           <Button type="submit" className="mt-2 w-full" disabled={isSubmitting}>

@@ -146,15 +146,7 @@ const CommandEmpty = forwardRef<HTMLDivElement, React.ComponentProps<typeof Comm
 
   if (!render) return null
 
-  return (
-    <div
-      ref={forwardedRef}
-      className={cn('py-6 text-center text-sm rounded-md border border-neutral-300 dark:border-brand bg-input-background shadow-md', className)}
-      cmdk-empty=""
-      role="presentation"
-      {...props}
-    />
-  )
+  return <div ref={forwardedRef} className={cn('py-6 text-center text-sm rounded-md border bg-input-background shadow-md', className)} cmdk-empty="" role="presentation" {...props} />
 })
 
 CommandEmpty.displayName = 'CommandEmpty'
@@ -418,7 +410,7 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
       >
         <div
           className={cn(
-            'min-h-10 rounded-md border border-neutral-300 dark:border-brand bg-input-background text-base md:text-sm px-3 py-2',
+            'min-h-10 rounded-md border bg-input-background text-base md:text-sm px-3 py-2',
             {
               'cursor-text': !disabled && selected.length !== 0,
             },

@@ -91,7 +91,7 @@ const GroupsMembersTable = () => {
         const user = row.original
         return (
           <Select value={user.role} onValueChange={(value) => handleRoleChange(user.id, value as GroupMembershipRole)}>
-            <SelectTrigger disabled={!!isManaged || !isAdmin} className="w-28 border border-brand ">
+            <SelectTrigger disabled={!!isManaged || !isAdmin} className="w-28">
               <SelectValue placeholder="Select role" />
             </SelectTrigger>
             <SelectContent>

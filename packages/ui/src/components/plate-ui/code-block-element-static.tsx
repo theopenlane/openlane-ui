@@ -29,9 +29,9 @@ export const CodeBlockElementStatic = ({ children, className, ...props }: SlateE
       {...props}
     >
       <div className="relative rounded-md bg-muted/50">
-        <pre className="overflow-x-auto p-8 pr-4 font-mono text-sm leading-[normal] [tab-size:2] print:break-inside-avoid">
+        <div className="overflow-x-auto p-8 pr-4 font-mono text-sm leading-[normal] [tab-size:2] print:break-inside-avoid">
           <code>{children}</code>
-        </pre>
+        </div>
       </div>
     </SlateElement>
   )

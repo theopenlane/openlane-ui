@@ -51,7 +51,7 @@ const OrganizationInviteForm = ({ inviteAdmins }: { inviteAdmins: boolean }) => 
   const [emails, setEmails] = useState<Tag[]>([])
   const [activeTagIndex, setActiveTagIndex] = useState<number | null>(null)
   const [currentValue, setCurrentValue] = useState('')
-  const [invalidEmail, setInvalidEmail] = useState(false)
+  const [invalidEmail, setInvalidEmail] = useState<string | null>(null)
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     const inviteInput: InputMaybe<Array<CreateInviteInput> | CreateInviteInput> = data.emails.map((email) => ({
@@ -116,13 +116,26 @@ const OrganizationInviteForm = ({ inviteAdmins }: { inviteAdmins: boolean }) => 
                     tags={emails}
                     validateTag={(tag: any) => {
                       const isValid = isValidEmail(tag)
-                      setInvalidEmail(!isValid)
-                      return isValid
+                      const isDuplicate = emails.some((email) => email.text === tag)
+
+                      if (!isValid) {
+                        setInvalidEmail('Your email is invalid.')
+                        return false
+                      }
+
+                      if (isDuplicate) {
+                        setInvalidEmail('This email is already added.')
+                        return false
+                      }
+
+                      setInvalidEmail(null)
+                      return true
                     }}
                     setTags={(newTags: Tag[]) => {
                       const emailTags = newTags.map((tag) => tag.text)
                       setEmails(newTags)
                       setValue('emails', emailTags)
+                      setCurrentValue('')
                     }}
                     activeTagIndex={activeTagIndex}
                     setActiveTagIndex={setActiveTagIndex}
@@ -131,7 +144,7 @@ const OrganizationInviteForm = ({ inviteAdmins }: { inviteAdmins: boolean }) => 
                     onBlur={handleBlur}
                   />
                 </FormControl>
-                {(errorMessage || invalidEmail) && <FormMessage>{errorMessage ?? 'Your email is invalid.'}</FormMessage>}
+                {(errorMessage || invalidEmail) && <FormMessage>{errorMessage ?? invalidEmail}</FormMessage>}
               </FormItem>
             )}
           />

@@ -18,6 +18,8 @@ const statusOptions = Object.values(ControlControlStatus)
   }))
 export const CONTROLS_FILTER_FIELDS: FilterField[] = [
   { key: 'refCode', label: 'RefCode', type: 'text' },
+  { key: 'program', label: 'Program', type: 'containsText' },
+  { key: 'standard', label: 'Standard', type: 'containsText' },
   {
     key: 'status',
     label: 'Status',

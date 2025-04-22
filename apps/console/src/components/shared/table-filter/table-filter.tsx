@@ -12,6 +12,7 @@ import { format, startOfDay, addDays } from 'date-fns'
 
 const getOperatorsForType = (type: Filter['type']) => {
   const operatorMap = {
+    containsText: [{ value: 'Contains', label: 'Contains' }],
     text: [
       { value: 'EQ', label: 'Is' },
       { value: 'Contains', label: 'Contains' },
@@ -129,6 +130,7 @@ export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilter
     switch (filter.type) {
       case 'text':
       case 'number':
+      case 'containsText':
         return <Input className={value()} type={filter.type} placeholder="Enter a value..." value={filter.value} onChange={(e) => handleFilterChange(index, { value: e.target.value })} />
       case 'select':
         return (
