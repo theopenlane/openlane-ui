@@ -13,7 +13,7 @@ const TagInput = forwardRef<HTMLDivElement, TagInputProps>(({ className, ...prop
       setTags={props.setTags}
       activeTagIndex={props.activeTagIndex}
       setActiveTagIndex={props.setActiveTagIndex}
-      delimiterList={[' ', ',', 'Enter']}
+      delimiterList={[' ', ',', 'Enter', 'Tab']}
       inputRef={ref}
       styleClasses={{
         tag: {
