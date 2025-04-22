@@ -211,6 +211,7 @@ const TaskDetailsSheet = () => {
       assigneeID: data?.assigneeID,
       status: data?.status,
       clearAssignee: !data?.assigneeID,
+      clearDue: !data?.due,
       ...taskObjectPayload,
     }
 
