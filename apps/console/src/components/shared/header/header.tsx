@@ -8,18 +8,9 @@ import { GlobalSearch } from '@/components/shared/search/search'
 import { sidebarStyles } from '../sidebar/sidebar.styles'
 import { useSidebar } from '@/hooks/useSidebar'
 import { useState } from 'react'
-import { CreditCard, PanelLeft } from 'lucide-react'
+import { PanelLeft } from 'lucide-react'
 import { usePathname } from 'next/navigation'
-import { useSession } from 'next-auth/react'
-import { useOrganization } from '@/hooks/useOrganization'
-import { useGetOrganizationBilling } from '@/lib/graphql-hooks/organization'
-
 export default function Header() {
-  const { data: session } = useSession()
-
-  const { currentOrgId } = useOrganization()
-  const { data, isLoading } = useGetOrganizationBilling(currentOrgId)
-
   const { isOpen, toggle } = useSidebar()
   const [status, setStatus] = useState(false)
 
@@ -55,15 +46,6 @@ export default function Header() {
 
   return (
     <>
-      {/* Banner 1 – Dark brown background */}
-      <div className="bg-note text-sm text-input-text flex justify-center items-center px-4 py-1 w-full">
-        <span>Your 30-day free trial ends soon, and there is no payment method on file</span>
-        <Link href="/billing" className="ml-4 bg-[#e6b422] hover:bg-[#d4a319] text-black font-medium px-3 py-1 rounded transition-colors duration-200 flex items-center flex gap-2">
-          <CreditCard size={9} />
-          <span className="text-xs">Add payment method</span>
-        </Link>
-      </div>
-
       <div className={header()}>
         <nav className={nav()}>
           <div className="flex justify-start items-center">

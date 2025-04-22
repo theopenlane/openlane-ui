@@ -150,6 +150,8 @@
   /* notes */
   --color-warning-muted-more: #fff1da;
 
+  --color-warning-banner: #d8ae3f;
+
   /* JSON Editor */
   .svc-json-editor-tab__content-area {
     background-color: var(--color-bg);
@@ -261,6 +263,8 @@
 
   /* notes */
   --color-warning-muted-more: #514024;
+
+  --color-warning-banner: #d8ae3f;
 
   /* JSON Editor */
   .svc-json-editor-tab__content-area {

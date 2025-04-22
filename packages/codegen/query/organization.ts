@@ -128,6 +128,7 @@ export const GET_ORGANIZATION_BILLING = gql`
         features
         managePaymentMethods
         cancellation
+        paymentMethodAdded
       }
     }
   }

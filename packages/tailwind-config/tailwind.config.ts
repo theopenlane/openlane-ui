@@ -189,6 +189,9 @@ export const config: Partial<Config> = {
         note: {
           DEFAULT: 'var(--color-warning-muted-more)',
         },
+        banner: {
+          DEFAULT: 'var(--color-warning-banner)',
+        },
         'task-complete': '#2CCBAB',
         'task-in-progress': '#EAB308',
         'task-in-review': '#EAB308',
