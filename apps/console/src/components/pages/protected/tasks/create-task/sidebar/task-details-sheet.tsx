@@ -483,7 +483,7 @@ const TaskDetailsSheet = () => {
                       )}
                     />
                   ) : (
-                    <p className="text-sm">{taskData?.due ? format(new Date(taskData.due as string), 'd MMM, yyyy') : ''}</p>
+                    <p className="text-sm">{taskData?.due ? format(new Date(taskData.due as string), 'MMMM d, yyyy') : ''}</p>
                   )}
                 </div>
 
