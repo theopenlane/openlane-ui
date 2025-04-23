@@ -7,6 +7,7 @@ import EvidenceCreateFormDialog from '@/components/pages/protected/evidence/evid
 import { EvidenceEdge } from '@repo/codegen/src/schema'
 import { TFormEvidenceData } from '../evidence/types/TFormEvidenceData'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
+import { usePathname } from 'next/navigation'
 
 type Props = {
   evidences?: (EvidenceEdge | null)[]
@@ -14,10 +15,14 @@ type Props = {
 }
 
 const ControlEvidenceTable = ({ evidences, control }: Props) => {
+  const pathname = usePathname()
+  const isSubcontrol = pathname.includes('/subcontrols')
+  const title = isSubcontrol ? 'Subcontrol Evidence' : 'Control Evidence'
+
   return (
     <div className="mt-8 space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold">Control Evidence</h2>
+        <h2 className="text-lg font-semibold">{title}</h2>
         <EvidenceCreateFormDialog
           formData={control}
           excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.RISK, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.GROUP, ObjectTypeObjects.INTERNAL_POLICY]}
@@ -52,7 +57,7 @@ const ControlEvidenceTable = ({ evidences, control }: Props) => {
             ) : (
               <TableRow>
                 <TableCell colSpan={3} className="px-4 py-4 text-center text-muted-foreground">
-                  No evidence linked to this control yet.
+                  No evidence linked to this {isSubcontrol ? 'subcontrol' : 'control'} yet.
                 </TableCell>
               </TableRow>
             )}

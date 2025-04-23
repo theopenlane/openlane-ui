@@ -178,7 +178,7 @@ const ControlDetailsPage: React.FC = () => {
             ) : (
               <div className="flex gap-2 justify-end">
                 <Button className="h-8 !px-2" icon={<PencilIcon />} iconPosition="left" onClick={handleEdit}>
-                  Edit Control
+                  Edit Subontrol
                 </Button>
               </div>
             )}
