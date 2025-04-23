@@ -184,9 +184,13 @@ export const config: Partial<Config> = {
         },
         input: {
           background: 'var(--color-input-background)',
+          text: 'var(--color-input-text)',
         },
         note: {
           DEFAULT: 'var(--color-warning-muted-more)',
+        },
+        banner: {
+          DEFAULT: 'var(--color-warning-banner)',
         },
         'task-complete': '#2CCBAB',
         'task-in-progress': '#EAB308',
