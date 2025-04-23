@@ -97,7 +97,7 @@ const RiskTablePage: React.FC = () => {
           const value = risk[key]
 
           if (key === 'details') {
-            return (value as string)?.split('\n')[0] ?? ''
+            return (value as string) ?? ''
           }
 
           if (key === 'score') {

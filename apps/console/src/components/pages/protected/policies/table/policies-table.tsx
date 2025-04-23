@@ -71,7 +71,7 @@ export const PoliciesTable = () => {
             }
 
             if (key === 'details') {
-              return (value as string)?.split('\n')[0] ?? ''
+              return (value as string) ?? ''
             }
 
             return typeof value === 'string' || typeof value === 'number' ? value : ''
