@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { useParams, useRouter, usePathname } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { useGetControlById, useUpdateControl } from '@/lib/graphql-hooks/controls'
 import { useForm, FormProvider } from 'react-hook-form'
 import { Value } from '@udecode/plate-common'
@@ -51,8 +51,6 @@ const initialDataObj = {
 
 const ControlDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
-  const router = useRouter()
-  const pathname = usePathname()
   const { data, isLoading, isError } = useGetControlById(id)
   const [isEditing, setIsEditing] = useState(false)
   const [showSheet, setShowSheet] = useState<boolean>(false)

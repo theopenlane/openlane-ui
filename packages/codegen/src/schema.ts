@@ -5081,6 +5081,7 @@ export interface CreateInternalPolicyInput {
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** status of the policy, e.g. draft, published, archived, etc. */
   status?: InputMaybe<InternalPolicyDocumentStatus>
+  subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -5137,9 +5138,11 @@ export interface CreateNarrativeInput {
   /** text data for the narrative document */
   details?: InputMaybe<Scalars['String']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the name of the narrative */
   name: Scalars['String']['input']
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  procedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   satisfyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** tags associated with the object */
@@ -5334,6 +5337,7 @@ export interface CreateProcedureInput {
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** status of the procedure, e.g. draft, published, archived, etc. */
   status?: InputMaybe<ProcedureDocumentStatus>
+  subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -5635,6 +5639,8 @@ export interface CreateUserInput {
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   firstName?: InputMaybe<Scalars['String']['input']>
   groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the last auth provider used to login */
+  lastLoginProvider?: InputMaybe<UserAuthProvider>
   lastName?: InputMaybe<Scalars['String']['input']>
   /** the time the user was last seen */
   lastSeen?: InputMaybe<Scalars['Time']['input']>
@@ -12144,6 +12150,7 @@ export interface InternalPolicy extends Node {
   risks: RiskConnection
   /** status of the policy, e.g. draft, published, archived, etc. */
   status?: Maybe<InternalPolicyDocumentStatus>
+  subcontrols: SubcontrolConnection
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   tasks: TaskConnection
@@ -12203,6 +12210,15 @@ export interface InternalPolicyRisksArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<RiskOrder>>
   where?: InputMaybe<RiskWhereInput>
+}
+
+export interface InternalPolicySubcontrolsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<SubcontrolOrder>>
+  where?: InputMaybe<SubcontrolWhereInput>
 }
 
 export interface InternalPolicyTasksArgs {
@@ -12847,6 +12863,9 @@ export interface InternalPolicyWhereInput {
   /** risks edge predicates */
   hasRisks?: InputMaybe<Scalars['Boolean']['input']>
   hasRisksWith?: InputMaybe<Array<RiskWhereInput>>
+  /** subcontrols edge predicates */
+  hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
   /** tasks edge predicates */
   hasTasks?: InputMaybe<Scalars['Boolean']['input']>
   hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
@@ -14870,11 +14889,13 @@ export interface Narrative extends Node {
   /** provides edit access to the risk to members of the group */
   editors?: Maybe<Array<Group>>
   id: Scalars['ID']['output']
+  internalPolicies: InternalPolicyConnection
   /** the name of the narrative */
   name: Scalars['String']['output']
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  procedures: ProcedureConnection
   programs: ProgramConnection
   satisfies: ControlConnection
   /** tags associated with the object */
@@ -14883,6 +14904,24 @@ export interface Narrative extends Node {
   updatedBy?: Maybe<Scalars['String']['output']>
   /** provides view access to the risk to members of the group */
   viewers?: Maybe<Array<Group>>
+}
+
+export interface NarrativeInternalPoliciesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<InternalPolicyOrder>>
+  where?: InputMaybe<InternalPolicyWhereInput>
+}
+
+export interface NarrativeProceduresArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ProcedureOrder>>
+  where?: InputMaybe<ProcedureWhereInput>
 }
 
 export interface NarrativeProgramsArgs {
@@ -15354,9 +15393,15 @@ export interface NarrativeWhereInput {
   /** editors edge predicates */
   hasEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** internal_policies edge predicates */
+  hasInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalPoliciesWith?: InputMaybe<Array<InternalPolicyWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** procedures edge predicates */
+  hasProcedures?: InputMaybe<Scalars['Boolean']['input']>
+  hasProceduresWith?: InputMaybe<Array<ProcedureWhereInput>>
   /** programs edge predicates */
   hasPrograms?: InputMaybe<Scalars['Boolean']['input']>
   hasProgramsWith?: InputMaybe<Array<ProgramWhereInput>>
@@ -19193,6 +19238,7 @@ export interface Procedure extends Node {
   risks: RiskConnection
   /** status of the procedure, e.g. draft, published, archived, etc. */
   status?: Maybe<ProcedureDocumentStatus>
+  subcontrols: SubcontrolConnection
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   tasks: TaskConnection
@@ -19243,6 +19289,15 @@ export interface ProcedureRisksArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<RiskOrder>>
   where?: InputMaybe<RiskWhereInput>
+}
+
+export interface ProcedureSubcontrolsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<SubcontrolOrder>>
+  where?: InputMaybe<SubcontrolWhereInput>
 }
 
 export interface ProcedureTasksArgs {
@@ -19884,6 +19939,9 @@ export interface ProcedureWhereInput {
   /** risks edge predicates */
   hasRisks?: InputMaybe<Scalars['Boolean']['input']>
   hasRisksWith?: InputMaybe<Array<RiskWhereInput>>
+  /** subcontrols edge predicates */
+  hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
   /** tasks edge predicates */
   hasTasks?: InputMaybe<Scalars['Boolean']['input']>
   hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
@@ -28560,6 +28618,7 @@ export interface UpdateInternalPolicyInput {
   addProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   /** whether approval is required for edits to the policy */
@@ -28583,6 +28642,7 @@ export interface UpdateInternalPolicyInput {
   clearRevision?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
+  clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   delegateID?: InputMaybe<Scalars['ID']['input']>
@@ -28601,6 +28661,7 @@ export interface UpdateInternalPolicyInput {
   removeProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the date the policy should be reviewed, calculated based on the review_frequency if not directly set */
   reviewDue?: InputMaybe<Scalars['Time']['input']>
@@ -28664,6 +28725,8 @@ export interface UpdateMappedControlInput {
 export interface UpdateNarrativeInput {
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSatisfyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -28672,6 +28735,8 @@ export interface UpdateNarrativeInput {
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearDetails?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
+  clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
   clearSatisfies?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
@@ -28684,6 +28749,8 @@ export interface UpdateNarrativeInput {
   name?: InputMaybe<Scalars['String']['input']>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSatisfyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -28948,6 +29015,7 @@ export interface UpdateProcedureInput {
   addNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   /** whether approval is required for edits to the procedure */
@@ -28970,6 +29038,7 @@ export interface UpdateProcedureInput {
   clearRevision?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
+  clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   delegateID?: InputMaybe<Scalars['ID']['input']>
@@ -28987,6 +29056,7 @@ export interface UpdateProcedureInput {
   removeNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the date the procedure should be reviewed, calculated based on the review_frequency if not directly set */
   reviewDue?: InputMaybe<Scalars['Time']['input']>
@@ -29486,6 +29556,7 @@ export interface UpdateUserInput {
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearFirstName?: InputMaybe<Scalars['Boolean']['input']>
   clearGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearLastLoginProvider?: InputMaybe<Scalars['Boolean']['input']>
   clearLastName?: InputMaybe<Scalars['Boolean']['input']>
   clearLastSeen?: InputMaybe<Scalars['Boolean']['input']>
   clearOrganizations?: InputMaybe<Scalars['Boolean']['input']>
@@ -29503,6 +29574,8 @@ export interface UpdateUserInput {
   displayName?: InputMaybe<Scalars['String']['input']>
   email?: InputMaybe<Scalars['String']['input']>
   firstName?: InputMaybe<Scalars['String']['input']>
+  /** the last auth provider used to login */
+  lastLoginProvider?: InputMaybe<UserAuthProvider>
   lastName?: InputMaybe<Scalars['String']['input']>
   /** the time the user was last seen */
   lastSeen?: InputMaybe<Scalars['Time']['input']>
@@ -29596,6 +29669,8 @@ export interface User extends Node {
   groupMemberships: GroupMembershipConnection
   groups: GroupConnection
   id: Scalars['ID']['output']
+  /** the last auth provider used to login */
+  lastLoginProvider?: Maybe<UserAuthProvider>
   lastName?: Maybe<Scalars['String']['output']>
   /** the time the user was last seen */
   lastSeen?: Maybe<Scalars['Time']['output']>
@@ -29725,7 +29800,7 @@ export interface UserTfaSettingsArgs {
   where?: InputMaybe<TfaSettingWhereInput>
 }
 
-/** UserAuthProvider is enum for the field auth_provider */
+/** UserAuthProvider is enum for the field last_login_provider */
 export enum UserAuthProvider {
   CREDENTIALS = 'CREDENTIALS',
   GITHUB = 'GITHUB',
@@ -29796,6 +29871,8 @@ export interface UserHistory extends Node {
   firstName?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
+  /** the last auth provider used to login */
+  lastLoginProvider?: Maybe<UserHistoryAuthProvider>
   lastName?: Maybe<Scalars['String']['output']>
   /** the time the user was last seen */
   lastSeen?: Maybe<Scalars['Time']['output']>
@@ -29811,7 +29888,7 @@ export interface UserHistory extends Node {
   updatedBy?: Maybe<Scalars['String']['output']>
 }
 
-/** UserHistoryAuthProvider is enum for the field auth_provider */
+/** UserHistoryAuthProvider is enum for the field last_login_provider */
 export enum UserHistoryAuthProvider {
   CREDENTIALS = 'CREDENTIALS',
   GITHUB = 'GITHUB',
@@ -30056,6 +30133,13 @@ export interface UserHistoryWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** last_login_provider field predicates */
+  lastLoginProvider?: InputMaybe<UserHistoryAuthProvider>
+  lastLoginProviderIn?: InputMaybe<Array<UserHistoryAuthProvider>>
+  lastLoginProviderIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  lastLoginProviderNEQ?: InputMaybe<UserHistoryAuthProvider>
+  lastLoginProviderNotIn?: InputMaybe<Array<UserHistoryAuthProvider>>
+  lastLoginProviderNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** last_name field predicates */
   lastName?: InputMaybe<Scalars['String']['input']>
   lastNameContains?: InputMaybe<Scalars['String']['input']>
@@ -30961,6 +31045,13 @@ export interface UserWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** last_login_provider field predicates */
+  lastLoginProvider?: InputMaybe<UserAuthProvider>
+  lastLoginProviderIn?: InputMaybe<Array<UserAuthProvider>>
+  lastLoginProviderIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  lastLoginProviderNEQ?: InputMaybe<UserAuthProvider>
+  lastLoginProviderNotIn?: InputMaybe<Array<UserAuthProvider>>
+  lastLoginProviderNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** last_name field predicates */
   lastName?: InputMaybe<Scalars['String']['input']>
   lastNameContains?: InputMaybe<Scalars['String']['input']>
@@ -32387,6 +32478,79 @@ export type GetAllSubcontrolsQuery = {
     edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; description?: string | null } | null } | null> | null
   }
 }
+
+export type GetSubcontrolByIdQueryVariables = Exact<{
+  subcontrolId: Scalars['ID']['input']
+}>
+
+export type GetSubcontrolByIdQuery = {
+  __typename?: 'Query'
+  subcontrol: {
+    __typename?: 'Subcontrol'
+    id: string
+    category?: string | null
+    refCode: string
+    subcategory?: string | null
+    mappedCategories?: Array<string> | null
+    status?: SubcontrolControlStatus | null
+    tags?: Array<string> | null
+    description?: string | null
+    implementationGuidance?: Array<any> | null
+    exampleEvidence?: Array<any> | null
+    controlQuestions?: Array<string> | null
+    assessmentMethods?: Array<any> | null
+    assessmentObjectives?: Array<any> | null
+    displayID: string
+    control: { __typename?: 'Control'; refCode: string; id: string }
+    controlObjectives: {
+      __typename?: 'ControlObjectiveConnection'
+      edges?: Array<{
+        __typename?: 'ControlObjectiveEdge'
+        node?: { __typename?: 'ControlObjective'; id: string; status?: ControlObjectiveObjectiveStatus | null; desiredOutcome?: string | null; name: string; displayID: string } | null
+      } | null> | null
+    }
+    controlImplementations: {
+      __typename?: 'ControlImplementationConnection'
+      edges?: Array<{
+        __typename?: 'ControlImplementationEdge'
+        node?: { __typename?: 'ControlImplementation'; details?: string | null; status?: ControlImplementationDocumentStatus | null; verificationDate?: any | null } | null
+      } | null> | null
+    }
+    evidence: {
+      __typename?: 'EvidenceConnection'
+      edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; displayID: string; name: string; creationDate: any } | null } | null> | null
+    }
+    internalPolicies: {
+      __typename?: 'InternalPolicyConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; displayID: string } | null } | null> | null
+    }
+    procedures: {
+      __typename?: 'ProcedureConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string } | null } | null> | null
+    }
+    tasks: {
+      __typename?: 'TaskConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string; displayID: string } | null } | null> | null
+    }
+    risks: {
+      __typename?: 'RiskConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string; displayID: string } | null } | null> | null
+    }
+    delegate?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
+    controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
+  }
+}
+
+export type UpdateSubcontrolMutationVariables = Exact<{
+  updateSubcontrolId: Scalars['ID']['input']
+  input: UpdateSubcontrolInput
+}>
+
+export type UpdateSubcontrolMutation = { __typename?: 'Mutation'; updateSubcontrol: { __typename?: 'SubcontrolUpdatePayload'; subcontrol: { __typename?: 'Subcontrol'; id: string } } }
 
 export type CreateSubscriberMutationVariables = Exact<{
   input: CreateSubscriberInput

@@ -9,6 +9,7 @@ type Props = {
     node?: {
       refCode: string
       description?: string | null
+      id: string
     } | null
   } | null)[]
   totalCount: number
@@ -31,13 +32,19 @@ const SubcontrolsTable: React.FC<Props> = ({ subcontrols, totalCount }) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {subcontrols.filter((edge): edge is { node: { refCode: string; description?: string | null } } => !!edge?.node).length > 0 ? (
+            {subcontrols.filter(
+              (edge): edge is { node: { id: string; refCode: string; description?: string | null } } => !!edge?.node && typeof edge.node.id === 'string' && typeof edge.node.refCode === 'string',
+            ).length > 0 ? (
               subcontrols
-                .filter((edge): edge is { node: { refCode: string; description?: string | null } } => !!edge?.node)
+                .filter(
+                  (edge): edge is { node: { id: string; refCode: string; description?: string | null } } => !!edge?.node && typeof edge.node.id === 'string' && typeof edge.node.refCode === 'string',
+                )
                 .map(({ node }) => (
-                  <TableRow key={node.refCode}>
+                  <TableRow key={node.id}>
                     <TableCell className="px-4 py-2 text-primary">
-                      <p className="text-blue-500">{node.refCode}</p>
+                      <Link href={`/subcontrols/${node.id}`} className="text-blue-500 hover:underline">
+                        {node.refCode}
+                      </Link>
                     </TableCell>
                     <TableCell className="px-4 py-2 max-w-[700px] truncate text-ellipsis overflow-hidden">{node.description || '-'}</TableCell>
                   </TableRow>
