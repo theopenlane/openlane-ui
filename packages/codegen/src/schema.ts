@@ -32279,7 +32279,9 @@ export type RiskFieldsFragment = {
   likelihood?: RiskRiskLikelihood | null
   impact?: RiskRiskImpact | null
   mitigation?: string | null
+  stakeholder?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
   controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
+  subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null }
 }
 
 export type GetRiskByIdQueryVariables = Exact<{
@@ -32303,7 +32305,9 @@ export type GetRiskByIdQuery = {
     likelihood?: RiskRiskLikelihood | null
     impact?: RiskRiskImpact | null
     mitigation?: string | null
+    stakeholder?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
     controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
+    subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null }
   }
 }
 
@@ -32335,7 +32339,9 @@ export type GetAllRisksQuery = {
         likelihood?: RiskRiskLikelihood | null
         impact?: RiskRiskImpact | null
         mitigation?: string | null
+        stakeholder?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
         controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
+        subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null }
       } | null
     } | null> | null
   }

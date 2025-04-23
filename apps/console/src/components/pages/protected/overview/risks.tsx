@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo, useState } from 'react'
 import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
 import { DataTable } from '@repo/ui/data-table'
 import { Button } from '@repo/ui/button'
@@ -6,47 +6,62 @@ import { Cog, AlertTriangle } from 'lucide-react'
 import { ColumnDef } from '@tanstack/table-core'
 import { useRisksWithFilter } from '@/lib/graphql-hooks/risks'
 import { useSearchParams } from 'next/navigation'
-import { RiskRiskStatus, RiskWhereInput } from '@repo/codegen/src/schema'
+import { Group, RiskRiskStatus, RiskWhereInput } from '@repo/codegen/src/schema'
+import { Avatar } from '@/components/shared/avatar/avatar'
+import { TPagination } from '@repo/ui/pagination-types'
+import { DEFAULT_PAGINATION } from '@/constants/pagination'
+import Link from 'next/link'
+import { useSession } from 'next-auth/react'
+import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
+import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 
-const risksData = [
-  {
-    name: 'Percolator cappuccino percolator java as grinder and espresso...',
-    for: 'CCI 1.2, CCI 2.2, System ABC, OKR 2025',
-    assigner: 'Karen Henderson',
-    score: 3,
-  },
-  {
-    name: 'Wings cup in lait panna filter origin irish cortado.',
-    for: 'CCI 1.2, CCI 2.2, System ABC, OKR 2025',
-    assigner: 'Karen Henderson',
-    score: 3,
-  },
-]
+type Stakeholder = {
+  id: string
+  displayName: string
+  avatarUrl?: string
+}
 
-const columns: ColumnDef<any>[] = [
+type FormattedRisk = {
+  id: string
+  name: string
+  for: string[]
+  score: number | null
+  stakeholder?: Stakeholder | null
+}
+
+const columns: ColumnDef<FormattedRisk>[] = [
   {
     header: 'Name',
     accessorKey: 'name',
-    cell: ({ row }) => (
-      <a href="#" className="text-blue-600 hover:underline">
-        {row.getValue('name')}
-      </a>
-    ),
+    cell: ({ row }) => {
+      const id = row.original.id
+      const name: string = row.getValue('name')
+
+      return (
+        <Link href={`/risks/${id}`} className="text-blue-600 hover:underline">
+          {name}
+        </Link>
+      )
+    },
   },
   {
     header: 'For',
     accessorKey: 'for',
+    cell: ({ row }) => row.original.for?.join(', ') || '—',
   },
   {
     header: 'Assigner',
-    accessorKey: 'assigner',
-    cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-        {/* <Avatar className="w-6 h-6"> add entity when have data
-        </Avatar> */}
-        {row.getValue('assigner')}
-      </div>
-    ),
+    accessorKey: 'stakeholder',
+    cell: ({ row }) => {
+      const stakeholder = row.getValue('stakeholder') as Stakeholder | null
+
+      return (
+        <div className="flex items-center gap-2">
+          {stakeholder && <Avatar entity={stakeholder as Group} />}
+          {stakeholder?.displayName || '—'}
+        </div>
+      )
+    },
   },
   {
     header: 'Score',
@@ -55,39 +70,88 @@ const columns: ColumnDef<any>[] = [
 ]
 
 const Risks = () => {
+  const { data: session } = useSession()
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
+  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
 
-  const where: RiskWhereInput = {
-    statusNEQ: RiskRiskStatus.MITIGATED,
-    hasProgramsWith: programId ? [{ id: programId }] : undefined,
-  }
+  const { groups } = useGetAllGroups(session?.user.userId)
+  const [tab, setTab] = useState<'created' | 'assigned'>('created')
 
-  const { risks } = useRisksWithFilter({ where })
+  const stakeholderGroupIds = groups?.map((group) => group.id) ?? []
 
-  const hasData = !!risks?.length
+  const where: RiskWhereInput = useMemo(() => {
+    if (tab === 'assigned') {
+      return {
+        stakeholderIDIn: stakeholderGroupIds,
+        statusNEQ: RiskRiskStatus.MITIGATED,
+        hasProgramsWith: programId ? [{ id: programId }] : undefined,
+      }
+    }
+
+    return {
+      createdBy: session?.user.userId!,
+      statusNEQ: RiskRiskStatus.MITIGATED,
+      hasProgramsWith: programId ? [{ id: programId }] : undefined,
+    }
+  }, [tab, session?.user.userId, stakeholderGroupIds, programId])
+
+  const { risks, paginationMeta } = useRisksWithFilter({ where })
+
+  const formattedRisks: FormattedRisk[] =
+    risks?.map((risk) => {
+      const controls = risk.controls?.edges?.flatMap((edge) => (edge?.node?.refCode ? [edge.node.refCode] : [])) ?? []
+      const subcontrols = risk.subcontrols?.edges?.flatMap((edge) => (edge?.node?.refCode ? [edge.node.refCode] : [])) ?? []
+
+      return {
+        id: risk.id,
+        name: risk.name,
+        for: [...controls, ...subcontrols],
+        score: risk.score ?? null,
+        stakeholder: risk?.stakeholder,
+      }
+    }) || []
+
+  const hasData = formattedRisks.length > 0
 
   return (
-    <Card className="shadow-md rounded-lg flex-1 ">
-      <div className="flex justify-between items-center  ">
-        <CardTitle className="text-lg font-semibold">Risks</CardTitle>
-        <Button variant="outline" className="flex items-center gap-2 mr-7" icon={<Cog size={16} />} iconPosition="left">
-          Edit
-        </Button>
+    <Card className="shadow-md rounded-lg flex-1">
+      <div className="flex flex-col gap-2">
+        <div className="flex justify-between items-center px-6 pt-6">
+          <CardTitle className="text-lg font-semibold">Risks</CardTitle>
+          <Button variant="outline" className="flex items-center gap-2" icon={<Cog size={16} />} iconPosition="left">
+            Edit
+          </Button>
+        </div>
+
+        <Tabs
+          value={tab}
+          onValueChange={(v) => {
+            setTab(v as 'created' | 'assigned')
+            setPagination(DEFAULT_PAGINATION)
+          }}
+          className="px-6"
+        >
+          <TabsList>
+            <TabsTrigger value="created">Risks I've Created</TabsTrigger>
+            <TabsTrigger value="assigned">Risks Assigned to Me</TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        <CardContent>
+          {hasData ? (
+            <DataTable columns={columns} data={formattedRisks} pagination={pagination} onPaginationChange={setPagination} paginationMeta={paginationMeta} />
+          ) : (
+            <div className="flex flex-col items-center justify-center text-center py-16">
+              <AlertTriangle size={89} strokeWidth={1} className="text-border mb-4" />
+              <h2 className="text-lg font-semibold">You have no risks</h2>
+              <a href="https://console.theopenlane.io/risks" target="_blank" rel="noopener noreferrer" className="mt-4">
+                <Button variant="outline">Take me there</Button>
+              </a>
+            </div>
+          )}
+        </CardContent>
       </div>
-      <CardContent>
-        {hasData ? (
-          <DataTable columns={columns} data={risksData} />
-        ) : (
-          <div className="flex flex-col items-center justify-center text-center py-16">
-            <AlertTriangle size={89} strokeWidth={1} className="text-border mb-4" />
-            <h2 className="text-lg font-semibold">You have no risks</h2>
-            <Button variant="outline" className="mt-4">
-              Take me there
-            </Button>
-          </div>
-        )}
-      </CardContent>
     </Card>
   )
 }
