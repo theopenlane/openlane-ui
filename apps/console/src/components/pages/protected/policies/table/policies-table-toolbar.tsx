@@ -2,7 +2,7 @@ import React from 'react'
 import { cn } from '@repo/ui/lib/utils'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
 import { Button } from '@repo/ui/button'
-import { LoaderCircle, PlusCircle, SearchIcon } from 'lucide-react'
+import { DownloadIcon, LoaderCircle, PlusCircle, SearchIcon } from 'lucide-react'
 import { INTERNAL_POLICIES_FILTERABLE_FIELDS } from '@/components/pages/protected/policies/table/table-config.ts'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -15,9 +15,10 @@ type TPoliciesTableToolbarProps = {
   setSearchTerm: (searchTerm: string) => void
   setFilters: (filters: Record<string, any>) => void
   handleCreateNew: () => void
+  handleExport: () => void
 }
 
-const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({ className, searching, searchTerm, handleCreateNew, setFilters, setSearchTerm }) => {
+const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({ className, searching, searchTerm, handleCreateNew, setFilters, setSearchTerm, handleExport }) => {
   const isSearching = useDebounce(searching, 200)
 
   return (
@@ -39,6 +40,9 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({ className,
         </Button>
         <BulkCSVCreatePolicyDialog />
       </div>
+      <Button onClick={handleExport} icon={<DownloadIcon />} iconPosition="left">
+        Export
+      </Button>
     </div>
   )
 }

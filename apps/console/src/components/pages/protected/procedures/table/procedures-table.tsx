@@ -11,6 +11,9 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useProcedures } from '@/lib/graphql-hooks/procedures'
 import { useDebounce } from '@uidotdev/usehooks'
+import { ColumnDef } from '@tanstack/react-table'
+import { format } from 'date-fns'
+import { exportToCSV } from '@/utils/exportToCSV'
 
 export const ProceduresTable = () => {
   const router = useRouter()
@@ -43,6 +46,38 @@ export const ProceduresTable = () => {
     router.push(`/procedures/${rowData.id}/view`)
   }
 
+  function isAccessorKeyColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
+    return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string'
+  }
+
+  const handleExport = () => {
+    const exportableColumns = proceduresColumns
+      .filter((col): col is ColumnDef<Procedure> & { accessorKey: string; header: string } => isAccessorKeyColumn(col))
+      .map((col) => {
+        const key = col.accessorKey as keyof Procedure
+        const label = col.header
+
+        return {
+          label,
+          accessor: (procedure: Procedure) => {
+            const value = procedure[key]
+
+            if ((key === 'updatedAt' || key === 'createdAt') && value) {
+              return format(new Date(value as string), 'yyyy-MM-dd')
+            }
+
+            if (key === 'details') {
+              return (value as string) ?? ''
+            }
+
+            return typeof value === 'string' || typeof value === 'number' ? value : ''
+          },
+        }
+      })
+
+    exportToCSV(procedures, exportableColumns, 'procedures')
+  }
+
   return (
     <>
       <ProceduresTableToolbar
@@ -55,6 +90,7 @@ export const ProceduresTable = () => {
           setSearchTerm(inputVal)
           setPagination(DEFAULT_PAGINATION)
         }}
+        handleExport={handleExport}
       />
 
       <DataTable

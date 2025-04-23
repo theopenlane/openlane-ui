@@ -11,6 +11,9 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useInternalPolicies } from '@/lib/graphql-hooks/policy'
+import { exportToCSV } from '@/utils/exportToCSV'
+import { ColumnDef } from '@tanstack/react-table'
+import { format } from 'date-fns'
 
 export const PoliciesTable = () => {
   const router = useRouter()
@@ -48,6 +51,37 @@ export const PoliciesTable = () => {
     router.push(`/policies/${rowData.id}/view`)
   }
 
+  const handleExport = () => {
+    const exportableColumns = policiesColumns
+      .filter(
+        (col): col is ColumnDef<InternalPolicy> & { accessorKey: string; header: string } =>
+          'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && col.accessorKey !== 'id', // ✅ skip the action column
+      )
+      .map((col) => {
+        const key = col.accessorKey as keyof InternalPolicy
+        const label = col.header
+
+        return {
+          label,
+          accessor: (policy: InternalPolicy) => {
+            const value = policy[key]
+
+            if (key === 'updatedAt' || key === 'createdAt') {
+              return value ? format(new Date(value as string), 'yyyy-MM-dd') : ''
+            }
+
+            if (key === 'details') {
+              return (value as string) ?? ''
+            }
+
+            return typeof value === 'string' || typeof value === 'number' ? value : ''
+          },
+        }
+      })
+
+    exportToCSV(policies, exportableColumns, 'internal_policies')
+  }
+
   return (
     <>
       <PoliciesTableToolbar
@@ -60,6 +94,7 @@ export const PoliciesTable = () => {
           setSearchTerm(inputVal)
           setPagination(DEFAULT_PAGINATION)
         }}
+        handleExport={handleExport}
       />
 
       <DataTable
