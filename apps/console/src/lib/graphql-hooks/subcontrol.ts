@@ -37,6 +37,6 @@ export const useUpdateSubcontrol = () => {
 
   return useMutation<UpdateSubcontrolMutation, unknown, UpdateSubcontrolMutationVariables>({
     mutationFn: async (variables) => client.request(UPDATE_SUBCONTROL, variables),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['controls'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['subcontrols'] }),
   })
 }

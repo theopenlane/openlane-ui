@@ -133,8 +133,8 @@ const ControlDetailsPage: React.FC = () => {
 
   if (isLoading) return <div className="p-4 text-muted-foreground">Loading...</div>
   if (isError || !data?.subcontrol) return <div className="p-4 text-red-500">Control not found</div>
-  const control = data?.subcontrol
-  const hasInfoData = control.implementationGuidance || control.exampleEvidence || control.controlQuestions || control.assessmentMethods || control.assessmentObjectives
+  const subcontrol = data?.subcontrol
+  const hasInfoData = subcontrol.implementationGuidance || subcontrol.exampleEvidence || subcontrol.controlQuestions || subcontrol.assessmentMethods || subcontrol.assessmentObjectives
 
   return (
     <>
@@ -148,26 +148,22 @@ const ControlDetailsPage: React.FC = () => {
             <DescriptionField isEditing={isEditing} initialValue={initialValues.description} />
             <ControlEvidenceTable
               control={{
-                displayID: control?.refCode,
-                tags: control.tags ?? [],
+                displayID: subcontrol?.refCode,
+                tags: subcontrol.tags ?? [],
                 objectAssociations: {
-                  controlIDs: [control?.id],
-                  // programIDs: (control?.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                  taskIDs: (control?.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                  // subcontrolIDs: (control?.subcontrols?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                  controlObjectiveIDs: (control?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                  controlIDs: [subcontrol?.id],
+                  taskIDs: (subcontrol?.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                  controlObjectiveIDs: (subcontrol?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
                 },
                 objectAssociationsDisplayIDs: [
-                  // ...((control?.programs?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
-                  ...((control?.tasks?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
-                  // ...((control?.subcontrols?.edges?.map((e) => e?.node?.refCode).filter(Boolean) as string[]) ?? []),
-                  ...((control?.controlObjectives?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
-                  ...(control.refCode ? [control.refCode] : []),
+                  ...((subcontrol?.tasks?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
+                  ...((subcontrol?.controlObjectives?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
+                  ...(subcontrol.refCode ? [subcontrol.refCode] : []),
                 ],
               }}
-              evidences={control.evidence?.edges?.filter((e): e is EvidenceEdge => !!e && !!e.node) || []}
+              evidences={subcontrol.evidence?.edges?.filter((e): e is EvidenceEdge => !!e && !!e.node) || []}
             />
-            <AssociatedObjectsAccordion policies={control.internalPolicies} procedures={control.procedures} tasks={control.tasks} risks={control.risks} />
+            <AssociatedObjectsAccordion policies={subcontrol.internalPolicies} procedures={subcontrol.procedures} tasks={subcontrol.tasks} risks={subcontrol.risks} />
           </div>
           <div className="space-y-4">
             {isEditing ? (
@@ -186,23 +182,23 @@ const ControlDetailsPage: React.FC = () => {
                 </Button>
               </div>
             )}
-            <AuthorityCard controlOwner={control.controlOwner} delegate={control.delegate} isEditing={isEditing} />
+            <AuthorityCard controlOwner={subcontrol.controlOwner} delegate={subcontrol.delegate} isEditing={isEditing} />
             <PropertiesCard
-              controlData={control.control as Control}
-              category={control.category}
-              subcategory={control.subcategory}
-              status={control.status}
-              mappedCategories={control.mappedCategories}
+              controlData={subcontrol.control as Control}
+              category={subcontrol.category}
+              subcategory={subcontrol.subcategory}
+              status={subcontrol.status}
+              mappedCategories={subcontrol.mappedCategories}
               isEditing={isEditing}
             />
             <ImplementationDetailsCard isEditing={isEditing} />
             {hasInfoData && (
               <InfoCard
-                implementationGuidance={control.implementationGuidance}
-                exampleEvidence={control.exampleEvidence}
-                controlQuestions={control.controlQuestions}
-                assessmentMethods={control.assessmentMethods}
-                assessmentObjectives={control.assessmentObjectives}
+                implementationGuidance={subcontrol.implementationGuidance}
+                exampleEvidence={subcontrol.exampleEvidence}
+                controlQuestions={subcontrol.controlQuestions}
+                assessmentMethods={subcontrol.assessmentMethods}
+                assessmentObjectives={subcontrol.assessmentObjectives}
                 showInfoDetails={showInfoDetails}
               />
             )}
