@@ -61,10 +61,9 @@ const CalendarPopover = <T extends FieldValues>({ field, defaultToday, required,
     <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
       <PopoverTrigger asChild>
         <Button
-          className={
-            buttonClassName ??
-            'bg-input-background  w-full flex justify-between items-center border border-input !p-1  text-base rounded-md focus-visible:outline-none  disabled:cursor-not-allowed disabled:opacity-50'
-          }
+          className={`bg-input-background border border-input focus-visible:outline-none disabled:cursor-not-allowed !p-1 text-base rounded-md disabled:opacity-50 ${
+            buttonClassName ?? 'w-full flex justify-between items-center'
+          }`}
           variant="outlineInput"
           childFull
         >
