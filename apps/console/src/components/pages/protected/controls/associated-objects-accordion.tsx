@@ -13,7 +13,7 @@ type AssociatedObjectsAccordionProps = {
   policies: ControlDetailsFieldsFragment['internalPolicies']
   procedures: ControlDetailsFieldsFragment['procedures']
   tasks: ControlDetailsFieldsFragment['tasks']
-  programs: ControlDetailsFieldsFragment['programs']
+  programs?: ControlDetailsFieldsFragment['programs']
   risks: ControlDetailsFieldsFragment['risks']
 }
 
@@ -104,10 +104,12 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
           {!!tasks.edges?.length && <AccordionContent>{renderTable(extractNodes(tasks.edges))}</AccordionContent>}
         </AccordionItem>
 
-        <AccordionItem value="programs">
-          <SectionTrigger label="Programs" count={programs.totalCount} />
-          {!!programs.edges?.length && <AccordionContent>{renderTable(extractNodes(programs.edges))}</AccordionContent>}
-        </AccordionItem>
+        {!!programs && (
+          <AccordionItem value="programs">
+            <SectionTrigger label="Programs" count={programs.totalCount} />
+            {!!programs.edges?.length && <AccordionContent>{renderTable(extractNodes(programs.edges))}</AccordionContent>}
+          </AccordionItem>
+        )}
 
         <AccordionItem value="risks">
           <SectionTrigger label="Risks" count={risks.totalCount} />

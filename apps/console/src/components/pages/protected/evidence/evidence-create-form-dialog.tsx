@@ -6,7 +6,6 @@ import { FilePlus } from 'lucide-react'
 import { dialogStyles } from '@/components/pages/protected/program/dialog.styles.tsx'
 import { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
 import { useParams, usePathname } from 'next/navigation'
-import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
 
 type TProps = {
@@ -18,11 +17,6 @@ const EvidenceCreateFormDialog: React.FC<TProps> = (props: TProps) => {
   const path = usePathname()
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const { formInput } = dialogStyles()
-
-  const isControl = path.startsWith('/controls')
-
-  const { id } = useParams<{ id: string }>()
-  const { data: controlData } = useGetControlById(isControl ? id : null)
 
   const handleSuccess = () => {
     setIsOpen(false)

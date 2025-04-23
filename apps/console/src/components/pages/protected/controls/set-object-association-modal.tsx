@@ -5,15 +5,24 @@ import ObjectAssociation from '@/components/shared/objectAssociation/object-asso
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { useMemo, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 import { useNotification } from '@/hooks/useNotification'
+import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
+import { useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol'
 
 export function SetObjectAssociationDialog() {
-  const { id } = useParams<{ id: string }>()
+  const { id, subcontrolId } = useParams<{ id: string; subcontrolId: string }>()
+  const pathname = usePathname()
+  const isControl = pathname.startsWith('/controls')
+  const isSubcontrol = !!subcontrolId
+
+  const { data: controlData } = useGetControlById(isControl ? id : null)
+  const { data: subcontrolData } = useGetSubcontrolById(isSubcontrol ? id : null)
   const { mutateAsync: updateControl } = useUpdateControl()
-  const { data: controlData } = useGetControlById(id)
+  const { mutateAsync: updateSubcontrol } = useUpdateSubcontrol()
+
   const [associations, setAssociations] = useState<TObjectAssociationMap>({})
   const [isSaving, setIsSaving] = useState(false)
   const [open, setOpen] = useState(false)
@@ -22,14 +31,27 @@ export function SetObjectAssociationDialog() {
   const { errorNotification, successNotification } = useNotification()
 
   const initialData: TObjectAssociationMap = useMemo(() => {
-    return {
-      programIDs: (controlData?.control?.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      taskIDs: (controlData?.control?.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      riskIDs: (controlData?.control?.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      procedureIDs: (controlData?.control?.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      internalPolicyIDs: (controlData?.control?.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+    if (isControl && controlData?.control) {
+      return {
+        programIDs: (controlData.control.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        taskIDs: (controlData.control.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        riskIDs: (controlData.control.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        procedureIDs: (controlData.control.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        internalPolicyIDs: (controlData.control.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      }
     }
-  }, [controlData])
+
+    if (!isControl && subcontrolData?.subcontrol) {
+      return {
+        taskIDs: (subcontrolData.subcontrol.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        riskIDs: (subcontrolData.subcontrol.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        procedureIDs: (subcontrolData.subcontrol.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        internalPolicyIDs: (subcontrolData.subcontrol.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      }
+    }
+
+    return {}
+  }, [isControl, controlData, subcontrolData])
 
   function getAssociationDiffs(initial: TObjectAssociationMap, current: TObjectAssociationMap): { added: TObjectAssociationMap; removed: TObjectAssociationMap } {
     const added: TObjectAssociationMap = {}
@@ -84,15 +106,22 @@ export function SetObjectAssociationDialog() {
         ),
       }
 
-      await updateControl({
-        updateControlId: id!,
-        input: associationInputs,
-      })
+      if (isControl) {
+        await updateControl({
+          updateControlId: id!,
+          input: associationInputs,
+        })
+      } else {
+        await updateSubcontrol({
+          updateSubcontrolId: id!,
+          input: associationInputs,
+        })
+      }
 
-      successNotification({ title: 'Control updated' })
+      successNotification({ title: `${isControl ? 'Control' : 'Subcontrol'} updated` })
       setOpen(false)
     } catch (error) {
-      errorNotification({ title: 'Could not update Control, please try again later' })
+      errorNotification({ title: `Could not update ${isControl ? 'Control' : 'Subcontrol'}, please try again later` })
     } finally {
       setIsSaving(false)
     }
@@ -121,7 +150,14 @@ export function SetObjectAssociationDialog() {
             setAssociations(updatedMap)
           }}
           initialData={initialData}
-          excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.CONTROL, ObjectTypeObjects.CONTROL_OBJECTIVE, ObjectTypeObjects.GROUP]}
+          excludeObjectTypes={[
+            ObjectTypeObjects.EVIDENCE,
+            ObjectTypeObjects.SUB_CONTROL,
+            ObjectTypeObjects.CONTROL,
+            ObjectTypeObjects.CONTROL_OBJECTIVE,
+            ObjectTypeObjects.GROUP,
+            ...(isSubcontrol ? [ObjectTypeObjects.PROGRAM] : []),
+          ]}
         />
         <DialogFooter>
           <Button onClick={onSave} disabled={isSaving || saveEnabled}>

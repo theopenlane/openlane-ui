@@ -2,25 +2,26 @@
 
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { useGetControlById, useUpdateControl } from '@/lib/graphql-hooks/controls'
 import { useForm, FormProvider } from 'react-hook-form'
 import { Value } from '@udecode/plate-common'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { ArrowRight, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
-import AssociatedObjectsAccordion from '../../../../components/pages/protected/controls/associated-objects-accordion.tsx'
-import TitleField from '../../../../components/pages/protected/controls/form-fields/title-field.tsx'
-import DescriptionField from '../../../../components/pages/protected/controls/form-fields/description-field.tsx'
-import AuthorityCard from '../../../../components/pages/protected/controls/authority-card.tsx'
-import PropertiesCard from '../../../../components/pages/protected/controls/properties-card.tsx'
-import ImplementationDetailsCard from '../../../../components/pages/protected/controls/implementation-details-card.tsx'
-import InfoCard from '../../../../components/pages/protected/controls/info-card.tsx'
+
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
-import { ControlControlStatus, EvidenceEdge } from '@repo/codegen/src/schema.ts'
+import { Control, ControlControlStatus, EvidenceEdge, SubcontrolControlStatus } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import SubcontrolsTable from '@/components/pages/protected/controls/subcontrols-table.tsx'
 import ControlEvidenceTable from '@/components/pages/protected/controls/control-evidence-table.tsx'
+import { useGetSubcontrolById, useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol.ts'
+import TitleField from '@/components/pages/protected/controls/form-fields/title-field'
+import DescriptionField from '@/components/pages/protected/controls/form-fields/description-field'
+import AssociatedObjectsAccordion from '@/components/pages/protected/controls/associated-objects-accordion'
+import AuthorityCard from '@/components/pages/protected/controls/authority-card'
+import PropertiesCard from '@/components/pages/protected/controls/properties-card'
+import ImplementationDetailsCard from '@/components/pages/protected/controls/implementation-details-card'
+import InfoCardWithSheet from '@/components/pages/protected/controls/info-card'
 
 interface FormValues {
   refCode: string
@@ -29,7 +30,7 @@ interface FormValues {
   controlOwnerID: string
   category?: string
   subcategory?: string
-  status: ControlControlStatus
+  status: SubcontrolControlStatus
   mappedCategories: string[]
 }
 
@@ -45,19 +46,19 @@ const initialDataObj = {
   controlOwnerID: '',
   category: '',
   subcategory: '',
-  status: ControlControlStatus.NULL,
+  status: SubcontrolControlStatus.NULL,
   mappedCategories: [],
 }
 
 const ControlDetailsPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>()
-  const { data, isLoading, isError } = useGetControlById(id)
+  const { subcontrolId } = useParams<{ subcontrolId: string }>()
+  const { data, isLoading, isError } = useGetSubcontrolById(subcontrolId)
   const [isEditing, setIsEditing] = useState(false)
   const [showSheet, setShowSheet] = useState<boolean>(false)
   const [sheetData, setSheetData] = useState<SheetData | null>(null)
   const [initialValues, setInitialValues] = useState<FormValues>(initialDataObj)
 
-  const { mutateAsync: updateControl } = useUpdateControl()
+  const { mutateAsync: updateSubcontrol } = useUpdateSubcontrol()
   const plateEditorHelper = usePlateEditor()
 
   const form = useForm<FormValues>({
@@ -72,8 +73,8 @@ const ControlDetailsPage: React.FC = () => {
     try {
       const description = await plateEditorHelper.convertToHtml(values.description as Value | any)
 
-      await updateControl({
-        updateControlId: id!,
+      await updateSubcontrol({
+        updateSubcontrolId: subcontrolId!,
         input: {
           ...values,
           description,
@@ -114,27 +115,27 @@ const ControlDetailsPage: React.FC = () => {
   }
 
   useEffect(() => {
-    if (data?.control) {
+    if (data?.subcontrol) {
       const newValues: FormValues = {
-        refCode: data.control.refCode || '',
-        description: data.control.description || '',
-        delegateID: data.control.delegate?.id || '',
-        controlOwnerID: data.control.controlOwner?.id || '',
-        category: data.control.category || '',
-        subcategory: data.control.subcategory || '',
-        status: data.control.status || ControlControlStatus.NULL,
-        mappedCategories: data.control.mappedCategories || [],
+        refCode: data?.subcontrol?.refCode || '',
+        description: data?.subcontrol?.description || '',
+        delegateID: data?.subcontrol?.delegate?.id || '',
+        controlOwnerID: data?.subcontrol?.controlOwner?.id || '',
+        category: data?.subcontrol?.category || '',
+        subcategory: data?.subcontrol?.subcategory || '',
+        status: data?.subcontrol?.status || SubcontrolControlStatus.NULL,
+        mappedCategories: data?.subcontrol?.mappedCategories || [],
       }
 
       form.reset(newValues)
       setInitialValues(newValues)
     }
-  }, [data?.control, form])
+  }, [data?.subcontrol, form])
 
   if (isLoading) return <div className="p-4 text-muted-foreground">Loading...</div>
-  if (isError || !data?.control) return <div className="p-4 text-red-500">Control not found</div>
-  const control = data?.control
-  const hasInfoData = control.implementationGuidance || control.exampleEvidence || control.controlQuestions || control.assessmentMethods || control.assessmentObjectives
+  if (isError || !data?.subcontrol) return <div className="p-4 text-red-500">Control not found</div>
+  const subcontrol = data?.subcontrol
+  const hasInfoData = subcontrol.implementationGuidance || subcontrol.exampleEvidence || subcontrol.controlQuestions || subcontrol.assessmentMethods || subcontrol.assessmentObjectives
 
   return (
     <>
@@ -148,27 +149,22 @@ const ControlDetailsPage: React.FC = () => {
             <DescriptionField isEditing={isEditing} initialValue={initialValues.description} />
             <ControlEvidenceTable
               control={{
-                displayID: control?.refCode,
-                tags: control.tags ?? [],
+                displayID: subcontrol?.refCode,
+                tags: subcontrol.tags ?? [],
                 objectAssociations: {
-                  controlIDs: [control?.id],
-                  programIDs: (control?.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                  taskIDs: (control?.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                  subcontrolIDs: (control?.subcontrols?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                  controlObjectiveIDs: (control?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                  controlIDs: [subcontrol?.id],
+                  taskIDs: (subcontrol?.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                  controlObjectiveIDs: (subcontrol?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
                 },
                 objectAssociationsDisplayIDs: [
-                  ...((control?.programs?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
-                  ...((control?.tasks?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
-                  ...((control?.subcontrols?.edges?.map((e) => e?.node?.refCode).filter(Boolean) as string[]) ?? []),
-                  ...((control?.controlObjectives?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
-                  ...(control.refCode ? [control.refCode] : []),
+                  ...((subcontrol?.tasks?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
+                  ...((subcontrol?.controlObjectives?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
+                  ...(subcontrol.refCode ? [subcontrol.refCode] : []),
                 ],
               }}
-              evidences={control.evidence?.edges?.filter((e): e is EvidenceEdge => !!e && !!e.node) || []}
+              evidences={subcontrol.evidence?.edges?.filter((e): e is EvidenceEdge => !!e && !!e.node) || []}
             />
-            <SubcontrolsTable subcontrols={control.subcontrols?.edges || []} totalCount={control.subcontrols.totalCount} />
-            <AssociatedObjectsAccordion policies={control.internalPolicies} procedures={control.procedures} tasks={control.tasks} programs={control.programs} risks={control.risks} />
+            <AssociatedObjectsAccordion policies={subcontrol.internalPolicies} procedures={subcontrol.procedures} tasks={subcontrol.tasks} risks={subcontrol.risks} />
           </div>
           <div className="space-y-4">
             {isEditing ? (
@@ -183,20 +179,27 @@ const ControlDetailsPage: React.FC = () => {
             ) : (
               <div className="flex gap-2 justify-end">
                 <Button className="h-8 !px-2" icon={<PencilIcon />} iconPosition="left" onClick={handleEdit}>
-                  Edit Control
+                  Edit Subontrol
                 </Button>
               </div>
             )}
-            <AuthorityCard controlOwner={control.controlOwner} delegate={control.delegate} isEditing={isEditing} />
-            <PropertiesCard category={control.category} subcategory={control.subcategory} status={control.status} mappedCategories={control.mappedCategories} isEditing={isEditing} />
+            <AuthorityCard controlOwner={subcontrol.controlOwner} delegate={subcontrol.delegate} isEditing={isEditing} />
+            <PropertiesCard
+              controlData={subcontrol.control as Control}
+              category={subcontrol.category}
+              subcategory={subcontrol.subcategory}
+              status={subcontrol.status}
+              mappedCategories={subcontrol.mappedCategories}
+              isEditing={isEditing}
+            />
             <ImplementationDetailsCard isEditing={isEditing} />
             {hasInfoData && (
-              <InfoCard
-                implementationGuidance={control.implementationGuidance}
-                exampleEvidence={control.exampleEvidence}
-                controlQuestions={control.controlQuestions}
-                assessmentMethods={control.assessmentMethods}
-                assessmentObjectives={control.assessmentObjectives}
+              <InfoCardWithSheet
+                implementationGuidance={subcontrol.implementationGuidance}
+                exampleEvidence={subcontrol.exampleEvidence}
+                controlQuestions={subcontrol.controlQuestions}
+                assessmentMethods={subcontrol.assessmentMethods}
+                assessmentObjectives={subcontrol.assessmentObjectives}
                 showInfoDetails={showInfoDetails}
               />
             )}

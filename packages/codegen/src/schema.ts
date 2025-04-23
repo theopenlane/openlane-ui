@@ -32486,6 +32486,79 @@ export type GetAllSubcontrolsQuery = {
   }
 }
 
+export type GetSubcontrolByIdQueryVariables = Exact<{
+  subcontrolId: Scalars['ID']['input']
+}>
+
+export type GetSubcontrolByIdQuery = {
+  __typename?: 'Query'
+  subcontrol: {
+    __typename?: 'Subcontrol'
+    id: string
+    category?: string | null
+    refCode: string
+    subcategory?: string | null
+    mappedCategories?: Array<string> | null
+    status?: SubcontrolControlStatus | null
+    tags?: Array<string> | null
+    description?: string | null
+    implementationGuidance?: Array<any> | null
+    exampleEvidence?: Array<any> | null
+    controlQuestions?: Array<string> | null
+    assessmentMethods?: Array<any> | null
+    assessmentObjectives?: Array<any> | null
+    displayID: string
+    control: { __typename?: 'Control'; refCode: string; id: string }
+    controlObjectives: {
+      __typename?: 'ControlObjectiveConnection'
+      edges?: Array<{
+        __typename?: 'ControlObjectiveEdge'
+        node?: { __typename?: 'ControlObjective'; id: string; status?: ControlObjectiveObjectiveStatus | null; desiredOutcome?: string | null; name: string; displayID: string } | null
+      } | null> | null
+    }
+    controlImplementations: {
+      __typename?: 'ControlImplementationConnection'
+      edges?: Array<{
+        __typename?: 'ControlImplementationEdge'
+        node?: { __typename?: 'ControlImplementation'; details?: string | null; status?: ControlImplementationDocumentStatus | null; verificationDate?: any | null } | null
+      } | null> | null
+    }
+    evidence: {
+      __typename?: 'EvidenceConnection'
+      edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; displayID: string; name: string; creationDate: any } | null } | null> | null
+    }
+    internalPolicies: {
+      __typename?: 'InternalPolicyConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; displayID: string } | null } | null> | null
+    }
+    procedures: {
+      __typename?: 'ProcedureConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string } | null } | null> | null
+    }
+    tasks: {
+      __typename?: 'TaskConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string; displayID: string } | null } | null> | null
+    }
+    risks: {
+      __typename?: 'RiskConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string; displayID: string } | null } | null> | null
+    }
+    delegate?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
+    controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
+  }
+}
+
+export type UpdateSubcontrolMutationVariables = Exact<{
+  updateSubcontrolId: Scalars['ID']['input']
+  input: UpdateSubcontrolInput
+}>
+
+export type UpdateSubcontrolMutation = { __typename?: 'Mutation'; updateSubcontrol: { __typename?: 'SubcontrolUpdatePayload'; subcontrol: { __typename?: 'Subcontrol'; id: string } } }
+
 export type CreateSubscriberMutationVariables = Exact<{
   input: CreateSubscriberInput
 }>

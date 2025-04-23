@@ -6,15 +6,17 @@ import { Card } from '@repo/ui/cardpanel'
 import { Input } from '@repo/ui/input'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@repo/ui/select'
 import { FolderIcon, BinocularsIcon } from 'lucide-react'
-import { ControlControlStatus } from '@repo/codegen/src/schema'
+import { Control, ControlControlStatus, SubcontrolControlStatus } from '@repo/codegen/src/schema'
 import MappedCategoriesDialog from './mapped-categories-dialog'
+import Link from 'next/link'
 
 interface PropertiesCardProps {
   category?: string | null
   subcategory?: string | null
-  status?: ControlControlStatus | null
+  status?: ControlControlStatus | SubcontrolControlStatus | null
   mappedCategories?: string[] | null
   isEditing: boolean
+  controlData?: Control
 }
 
 const statusLabels: Record<ControlControlStatus, string> = {
@@ -35,13 +37,14 @@ const iconsMap: Record<string, React.ReactNode> = {
   'Mapped categories': <FolderIcon size={16} className="text-brand" />,
 }
 
-const PropertiesCard: React.FC<PropertiesCardProps> = ({ category, subcategory, status, mappedCategories, isEditing }) => {
+const PropertiesCard: React.FC<PropertiesCardProps> = ({ category, subcategory, status, mappedCategories, isEditing, controlData }) => {
   const { control } = useFormContext()
 
   return (
     <Card className="p-4 bg-muted rounded-xl shadow-sm">
       <h3 className="text-lg font-medium mb-4">Properties</h3>
       <div className="space-y-3">
+        {controlData && <LinkedProperty label="Control" href={`/controls/${controlData.id}`} value={controlData.refCode} icon={<FolderIcon size={16} className="text-brand" />} />}
         <EditableProperty label="Category" icon={iconsMap.Category} isEditing={isEditing} name="category" defaultValue={category} />
         <EditableProperty label="Subcategory" icon={iconsMap.Subcategory} isEditing={isEditing} name="subcategory" defaultValue={subcategory} />
         <div className="grid grid-cols-[110px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
@@ -61,7 +64,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ category, subcategory, 
                     </SelectTrigger>
                     <SelectContent>
                       {statusOptions
-                        .filter((status) => status !== 'NULL') // omit NULL from selectable options
+                        .filter((status) => status !== 'NULL')
                         .map((status) => (
                           <SelectItem key={status} value={status}>
                             {statusLabels[status]}
@@ -110,5 +113,19 @@ const Property = ({ label, value }: { label: string; value?: string | null }) =>
       <div className="text-sm">{label}</div>
     </div>
     <div className="text-sm whitespace-pre-line">{value || '-'}</div>
+  </div>
+)
+
+const LinkedProperty = ({ label, href, value, icon }: { label: string; href: string; value: string; icon: React.ReactNode }) => (
+  <div className="grid grid-cols-[110px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
+    <div className="flex items-start gap-2">
+      <div className="pt-0.5">{icon}</div>
+      <div className="text-sm">{label}</div>
+    </div>
+    <div className="text-sm">
+      <Link href={href} className="text-blue-500 hover:underline">
+        {value}
+      </Link>
+    </div>
   </div>
 )

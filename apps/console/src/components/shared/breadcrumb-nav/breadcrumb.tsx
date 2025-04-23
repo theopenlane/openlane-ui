@@ -8,6 +8,7 @@ import { useParams, usePathname } from 'next/navigation'
 import { useGetInternalPolicyDetailsById } from '@/lib/graphql-hooks/policy'
 import { useGetStandardDetails } from '@/lib/graphql-hooks/standards'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
+import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 
 type TBreadCrumbProps = {
   homeElement?: string
@@ -18,18 +19,17 @@ export const BreadcrumbNavigation = ({ homeElement = 'Home' }: TBreadCrumbProps)
   const params = useParams()
   const pathNames = pathname.split('/').filter(Boolean)
 
-  const isPolicy = pathNames.includes('policies')
-  const policyId = isPolicy ? (params.id as string) : null
-  const isStandard = pathNames.includes('standards')
-  const standardId = isStandard ? (params.id as string) : null
-  const isControl = pathNames.includes('controls')
-  const controlId = isControl ? (params.id as string) : null
+  const policyId = pathNames.includes('policies') ? (params.id as string) : null
+  const standardId = pathNames.includes('standards') ? (params.id as string) : null
+  const controlId = pathNames.includes('controls') ? (params.id as string) : null
+  const subcontrolId = params.subcontrolId as string | undefined
 
   const { data, isLoading: isLoadingPolicy } = useGetInternalPolicyDetailsById(policyId)
   const { data: standardData, isLoading: isLoadingStandard } = useGetStandardDetails(standardId)
   const { data: controlData, isLoading: isLoadingControl } = useGetControlById(controlId)
+  const { data: subcontrolData, isLoading: isLoadingSubcontrol } = useGetSubcontrolById(subcontrolId)
 
-  const isLoading = isLoadingPolicy || isLoadingStandard || isLoadingControl
+  const isLoading = isLoadingPolicy || isLoadingStandard || isLoadingControl || isLoadingSubcontrol
 
   return (
     <Breadcrumb>
@@ -42,12 +42,15 @@ export const BreadcrumbNavigation = ({ homeElement = 'Home' }: TBreadCrumbProps)
           const href = `/${pathNames.slice(0, index + 1).join('/')}`
           let itemLink = toTitleCase(link.replaceAll('-', ' '))
 
-          if (policyId && link === policyId && data?.internalPolicy) {
+          // Show dynamic names based on matched segments
+          if (link === policyId && data?.internalPolicy) {
             itemLink = data.internalPolicy.name
-          } else if (standardId && link === standardId && standardData?.standard) {
+          } else if (link === standardId && standardData?.standard) {
             itemLink = standardData.standard.shortName ?? 'Unknown'
-          } else if (controlId && link === controlId && controlData?.control) {
+          } else if (link === controlId && controlData?.control) {
             itemLink = controlData.control.refCode
+          } else if (link === subcontrolId && subcontrolData?.subcontrol) {
+            itemLink = subcontrolData.subcontrol.refCode
           }
 
           if (index === pathNames.length - 1 && isLoading) {
