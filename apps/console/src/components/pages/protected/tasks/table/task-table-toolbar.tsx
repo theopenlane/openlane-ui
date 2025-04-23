@@ -4,15 +4,17 @@ import { TASK_FILTER_FIELDS } from '@/components/pages/protected/tasks/table/tab
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import { SelectFilterField } from '@/types'
 import { TOrgMembers, useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
-import { CreditCard as CardIcon, Table as TableIcon } from 'lucide-react'
+import { CreditCard as CardIcon, DownloadIcon, Table as TableIcon } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
 import { BulkCSVCreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/bulk-csv-create-task-dialog'
+import { Button } from '@repo/ui/button'
 
 type TProps = {
   onFilterChange: (filters: Record<string, any>) => void
   members: TOrgMembers[] | undefined
   onTabChange: (tab: 'table' | 'card') => void
   onShowCompletedTasksChange: (val: boolean) => void
+  handleExport: () => void
 }
 
 const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
@@ -68,6 +70,9 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
         <BulkCSVCreateTaskDialog />
         <CreateTaskDialog />
       </div>
+      <Button onClick={props.handleExport} icon={<DownloadIcon />} iconPosition="left">
+        Export
+      </Button>
     </div>
   )
 }

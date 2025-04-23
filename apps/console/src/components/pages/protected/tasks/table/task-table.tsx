@@ -10,6 +10,9 @@ import { taskColumns } from '@/components/pages/protected/tasks/table/columns.ts
 import { TASK_SORT_FIELDS } from '@/components/pages/protected/tasks/table/table-config.ts'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
+import { exportToCSV } from '@/utils/exportToCSV'
+import { format } from 'date-fns'
+import { ColumnDef } from '@tanstack/react-table'
 
 const TaskTable: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
@@ -53,9 +56,45 @@ const TaskTable: React.FC = () => {
     setShowCompletedTasks(val)
   }
 
+  function isAccessorKeyColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
+    return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string'
+  }
+
+  const handleExport = () => {
+    const exportableColumns = taskColumns.filter(isAccessorKeyColumn).map((col) => {
+      const key = col.accessorKey as keyof Task
+      const label = col.header
+
+      return {
+        label,
+        accessor: (task: Task) => {
+          const value = task[key]
+
+          if (key === 'due' && value) {
+            return format(new Date(value as string), 'yyyy-MM-dd')
+          }
+
+          if (key === 'assignee') {
+            return task.assignee?.displayName || '-'
+          }
+
+          if (key === 'assigner') {
+            const firstName = task.assigner?.firstName
+            const lastName = task.assigner?.lastName
+            return !firstName && !lastName ? task.assigner?.displayName : `${firstName ?? ''} ${lastName ?? ''}`.trim()
+          }
+
+          return typeof value === 'string' || typeof value === 'number' ? value : ''
+        },
+      }
+    })
+
+    exportToCSV(tasks, exportableColumns, 'task_list')
+  }
+
   return (
     <>
-      <TaskTableToolbar onFilterChange={setFilters} members={orgMembers} onTabChange={handleTabChange} onShowCompletedTasksChange={handleShowCompletedTasks} />
+      <TaskTableToolbar onFilterChange={setFilters} members={orgMembers} onTabChange={handleTabChange} onShowCompletedTasksChange={handleShowCompletedTasks} handleExport={handleExport} />
       {activeTab === 'table' ? (
         <DataTable
           columns={taskColumns}

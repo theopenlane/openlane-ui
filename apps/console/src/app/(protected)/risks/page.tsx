@@ -15,6 +15,7 @@ import { Badge } from 'lucide-react'
 import { RISKS_SORT_FIELDS } from './table/table-config'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
+import { exportToCSV } from '@/utils/exportToCSV'
 
 const RiskTablePage: React.FC = () => {
   const { replace } = useRouter()
@@ -81,6 +82,36 @@ const RiskTablePage: React.FC = () => {
     { accessorKey: 'status', header: 'Status' },
   ]
 
+  function isAccessorKeyColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
+    return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string'
+  }
+
+  const handleExport = () => {
+    const exportableColumns = columns.filter(isAccessorKeyColumn).map((col) => {
+      const key = col.accessorKey as keyof RiskFieldsFragment
+      const label = col.header
+
+      return {
+        label,
+        accessor: (risk: RiskFieldsFragment) => {
+          const value = risk[key]
+
+          if (key === 'details') {
+            return (value as string)?.split('\n')[0] ?? ''
+          }
+
+          if (key === 'score') {
+            return typeof value === 'number' ? value.toFixed(2) : ''
+          }
+
+          return typeof value === 'string' || typeof value === 'number' ? value : ''
+        },
+      }
+    })
+
+    exportToCSV(risks, exportableColumns, 'risk_list')
+  }
+
   return (
     <div className="space-y-6">
       <PageHeading heading="Risks" />
@@ -93,6 +124,7 @@ const RiskTablePage: React.FC = () => {
         }}
         searching={searching}
         onFilterChange={setFilters}
+        handleExport={handleExport}
       />
 
       <DataTable
