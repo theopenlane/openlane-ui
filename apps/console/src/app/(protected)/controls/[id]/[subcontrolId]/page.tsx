@@ -7,13 +7,7 @@ import { Value } from '@udecode/plate-common'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { ArrowRight, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
-import AssociatedObjectsAccordion from '../../../../components/pages/protected/controls/associated-objects-accordion.tsx'
-import TitleField from '../../../../components/pages/protected/controls/form-fields/title-field.tsx'
-import DescriptionField from '../../../../components/pages/protected/controls/form-fields/description-field.tsx'
-import AuthorityCard from '../../../../components/pages/protected/controls/authority-card.tsx'
-import PropertiesCard from '../../../../components/pages/protected/controls/properties-card.tsx'
-import ImplementationDetailsCard from '../../../../components/pages/protected/controls/implementation-details-card.tsx'
-import InfoCard from '../../../../components/pages/protected/controls/info-card.tsx'
+
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { Control, ControlControlStatus, EvidenceEdge, SubcontrolControlStatus } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
@@ -21,6 +15,13 @@ import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import SubcontrolsTable from '@/components/pages/protected/controls/subcontrols-table.tsx'
 import ControlEvidenceTable from '@/components/pages/protected/controls/control-evidence-table.tsx'
 import { useGetSubcontrolById, useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol.ts'
+import TitleField from '@/components/pages/protected/controls/form-fields/title-field'
+import DescriptionField from '@/components/pages/protected/controls/form-fields/description-field'
+import AssociatedObjectsAccordion from '@/components/pages/protected/controls/associated-objects-accordion'
+import AuthorityCard from '@/components/pages/protected/controls/authority-card'
+import PropertiesCard from '@/components/pages/protected/controls/properties-card'
+import ImplementationDetailsCard from '@/components/pages/protected/controls/implementation-details-card'
+import InfoCardWithSheet from '@/components/pages/protected/controls/info-card'
 
 interface FormValues {
   refCode: string
@@ -50,8 +51,8 @@ const initialDataObj = {
 }
 
 const ControlDetailsPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>()
-  const { data, isLoading, isError } = useGetSubcontrolById(id)
+  const { subcontrolId } = useParams<{ subcontrolId: string }>()
+  const { data, isLoading, isError } = useGetSubcontrolById(subcontrolId)
   const [isEditing, setIsEditing] = useState(false)
   const [showSheet, setShowSheet] = useState<boolean>(false)
   const [sheetData, setSheetData] = useState<SheetData | null>(null)
@@ -73,7 +74,7 @@ const ControlDetailsPage: React.FC = () => {
       const description = await plateEditorHelper.convertToHtml(values.description as Value | any)
 
       await updateSubcontrol({
-        updateSubcontrolId: id!,
+        updateSubcontrolId: subcontrolId!,
         input: {
           ...values,
           description,
@@ -193,7 +194,7 @@ const ControlDetailsPage: React.FC = () => {
             />
             <ImplementationDetailsCard isEditing={isEditing} />
             {hasInfoData && (
-              <InfoCard
+              <InfoCardWithSheet
                 implementationGuidance={subcontrol.implementationGuidance}
                 exampleEvidence={subcontrol.exampleEvidence}
                 controlQuestions={subcontrol.controlQuestions}

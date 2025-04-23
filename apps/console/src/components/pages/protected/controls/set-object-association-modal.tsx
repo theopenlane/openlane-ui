@@ -13,10 +13,10 @@ import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol'
 
 export function SetObjectAssociationDialog() {
-  const { id } = useParams<{ id: string }>()
+  const { id, subcontrolId } = useParams<{ id: string; subcontrolId: string }>()
   const pathname = usePathname()
   const isControl = pathname.startsWith('/controls')
-  const isSubcontrol = pathname.startsWith('/subcontrols')
+  const isSubcontrol = !!subcontrolId
 
   const { data: controlData } = useGetControlById(isControl ? id : null)
   const { data: subcontrolData } = useGetSubcontrolById(isSubcontrol ? id : null)

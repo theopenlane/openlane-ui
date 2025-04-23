@@ -7,7 +7,7 @@ import EvidenceCreateFormDialog from '@/components/pages/protected/evidence/evid
 import { EvidenceEdge } from '@repo/codegen/src/schema'
 import { TFormEvidenceData } from '../evidence/types/TFormEvidenceData'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
-import { usePathname } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
 
 type Props = {
   evidences?: (EvidenceEdge | null)[]
@@ -16,7 +16,8 @@ type Props = {
 
 const ControlEvidenceTable = ({ evidences, control }: Props) => {
   const pathname = usePathname()
-  const isSubcontrol = pathname.includes('/subcontrols')
+  const { subcontrolId } = useParams()
+  const isSubcontrol = !!subcontrolId
   const title = isSubcontrol ? 'Subcontrol Evidence' : 'Control Evidence'
 
   return (

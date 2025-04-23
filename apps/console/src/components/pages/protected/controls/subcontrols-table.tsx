@@ -3,6 +3,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/table'
+import { useParams } from 'next/navigation'
 
 type Props = {
   subcontrols: ({
@@ -16,6 +17,7 @@ type Props = {
 }
 
 const SubcontrolsTable: React.FC<Props> = ({ subcontrols, totalCount }) => {
+  const { id } = useParams()
   return (
     <div className="mt-8 space-y-4">
       <div className="flex gap-2">
@@ -42,7 +44,7 @@ const SubcontrolsTable: React.FC<Props> = ({ subcontrols, totalCount }) => {
                 .map(({ node }) => (
                   <TableRow key={node.id}>
                     <TableCell className="px-4 py-2 text-primary">
-                      <Link href={`/subcontrols/${node.id}`} className="text-blue-500 hover:underline">
+                      <Link href={`/controls/${id}/${node.id}`} className="text-blue-500 hover:underline">
                         {node.refCode}
                       </Link>
                     </TableCell>
