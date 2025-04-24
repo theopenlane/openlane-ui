@@ -12,7 +12,6 @@ export const TASKS_WITH_FILTER = gql`
         node {
           id
           title
-          description
           status
           tags
           details
@@ -144,7 +143,6 @@ export const TASK = gql`
       }
       due
       displayID
-      description
       details
       controlObjectives {
         edges {

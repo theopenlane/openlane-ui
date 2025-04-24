@@ -24,7 +24,6 @@ const ObjectAssociation: React.FC<Props> = ({ onIdChange, excludeObjectTypes, in
   const [selectedObject, setSelectedObject] = useState<ObjectTypeObjects | null>(null)
   const [searchValue, setSearchValue] = useState('')
   const [TableData, setTableData] = useState<any[]>([])
-
   const debouncedSearchValue = useDebounce(searchValue, 300)
 
   const selectedConfig = selectedObject ? OBJECT_QUERY_CONFIG[selectedObject] : null
@@ -54,6 +53,7 @@ const ObjectAssociation: React.FC<Props> = ({ onIdChange, excludeObjectTypes, in
           description: item?.node?.description || '',
           inputName: inputName || '',
           refCode: item?.node?.refCode ?? item?.node?.displayID ?? '',
+          details: item?.node?.details || '',
         })) || []
       setTableData(updatedData)
     }
