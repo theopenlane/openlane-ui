@@ -31762,8 +31762,20 @@ export type GetOrganizationBillingQuery = {
       features?: Array<string> | null
       managePaymentMethods?: string | null
       cancellation?: string | null
-      paymentMethodAdded?: boolean | null
     }> | null
+  }
+}
+
+export type GetOrganizationBillingBannerQueryVariables = Exact<{
+  organizationId: Scalars['ID']['input']
+}>
+
+export type GetOrganizationBillingBannerQuery = {
+  __typename?: 'Query'
+  organization: {
+    __typename?: 'Organization'
+    personalOrg?: boolean | null
+    orgSubscriptions?: Array<{ __typename?: 'OrgSubscription'; expiresAt?: any | null; stripeSubscriptionStatus?: string | null; paymentMethodAdded?: boolean | null }> | null
   }
 }
 
@@ -32629,7 +32641,7 @@ export type GetSubcontrolByIdQuery = {
     risks: {
       __typename?: 'RiskConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string; displayID: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string; displayID: string; details?: string | null } | null } | null> | null
     }
     delegate?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
     controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null

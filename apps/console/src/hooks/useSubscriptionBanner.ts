@@ -1,10 +1,10 @@
-import { useGetOrganizationBilling } from '@/lib/graphql-hooks/organization'
+import { useGetBillingBanner } from '@/lib/graphql-hooks/organization'
 import { parseISO, differenceInDays, isValid } from 'date-fns'
 import { useOrganization } from '@/hooks/useOrganization'
 
 export function useSubscriptionBanner() {
   const { currentOrgId } = useOrganization()
-  const { data } = useGetOrganizationBilling(currentOrgId)
+  const { data } = useGetBillingBanner(currentOrgId)
 
   const subscription = data?.organization?.orgSubscriptions?.[0]
   const expiresAt = subscription?.expiresAt

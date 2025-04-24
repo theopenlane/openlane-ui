@@ -15,6 +15,7 @@ import {
   DELETE_ORGANIZATION_INVITE,
   DELETE_ORGANIZATION,
   UPDATE_ORGANIZATION,
+  GET_ORGANIZATION_BILLING_BANNER,
 } from '@repo/codegen/query/organization'
 import {
   GetAllOrganizationsQuery,
@@ -41,6 +42,8 @@ import {
   GetOrganizationNameByIdQuery,
   GetOrganizationNameByIdQueryVariables,
   GetInvitesQueryVariables,
+  GetOrganizationBillingBannerQuery,
+  GetOrganizationBillingBannerQueryVariables,
 } from '@repo/codegen/src/schema'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Variables } from 'graphql-request'
@@ -106,6 +109,16 @@ export const useGetOrganizationBilling = (organizationId: string | undefined) =>
   return useQuery<GetOrganizationBillingQuery, GetOrganizationBillingQueryVariables>({
     queryKey: ['organizationBilling', organizationId],
     queryFn: async () => client.request(GET_ORGANIZATION_BILLING, { organizationId }),
+    enabled: !!organizationId,
+  })
+}
+
+export const useGetBillingBanner = (organizationId: string | undefined) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetOrganizationBillingBannerQuery, GetOrganizationBillingBannerQueryVariables>({
+    queryKey: ['organizationBilling', 'banner', organizationId],
+    queryFn: async () => client.request(GET_ORGANIZATION_BILLING_BANNER, { organizationId }),
     enabled: !!organizationId,
   })
 }
