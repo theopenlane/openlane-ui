@@ -19,7 +19,6 @@ const AuthLogin: React.FC = () => {
             <Logo width={300} theme="light" />
           </div>
           <Tabs
-            className="dark"
             variant="underline"
             defaultValue={defaultTab}
             onValueChange={(value) => {
