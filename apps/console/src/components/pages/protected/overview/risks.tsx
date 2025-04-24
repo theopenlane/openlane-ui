@@ -50,7 +50,7 @@ const columns: ColumnDef<FormattedRisk>[] = [
     cell: ({ row }) => row.original.for?.join(', ') || '—',
   },
   {
-    header: 'Assigner',
+    header: 'Stakeholder',
     accessorKey: 'stakeholder',
     cell: ({ row }) => {
       const stakeholder = row.getValue('stakeholder') as Stakeholder | null
@@ -73,7 +73,7 @@ const Risks = () => {
   const { data: session } = useSession()
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
-  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const [pagination, setPagination] = useState<TPagination>({ ...DEFAULT_PAGINATION, pageSize: 5 })
 
   const { groups } = useGetAllGroups(session?.user.userId)
   const [tab, setTab] = useState<'created' | 'assigned'>('created')
@@ -125,6 +125,7 @@ const Risks = () => {
         </div>
 
         <Tabs
+          variant="underline"
           value={tab}
           onValueChange={(v) => {
             setTab(v as 'created' | 'assigned')
@@ -145,9 +146,9 @@ const Risks = () => {
             <div className="flex flex-col items-center justify-center text-center py-16">
               <AlertTriangle size={89} strokeWidth={1} className="text-border mb-4" />
               <h2 className="text-lg font-semibold">You have no risks</h2>
-              <a href="https://console.theopenlane.io/risks" target="_blank" rel="noopener noreferrer" className="mt-4">
+              <Link href="/risks" className="mt-4">
                 <Button variant="outline">Take me there</Button>
-              </a>
+              </Link>
             </div>
           )}
         </CardContent>
