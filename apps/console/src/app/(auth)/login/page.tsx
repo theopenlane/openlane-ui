@@ -19,6 +19,7 @@ const AuthLogin: React.FC = () => {
             <Logo width={300} theme="light" />
           </div>
           <Tabs
+            className="dark"
             variant="underline"
             defaultValue={defaultTab}
             onValueChange={(value) => {
@@ -26,10 +27,10 @@ const AuthLogin: React.FC = () => {
             }}
           >
             <TabsList>
-              <TabsTrigger className="text-text-dark" value="login">
+              <TabsTrigger className="text-text-dark shadow-[inset_0_-1px_0_0_var(--color-border-light)]" value="login">
                 Login
               </TabsTrigger>
-              <TabsTrigger value="signup" className="text-text-dark">
+              <TabsTrigger value="signup" className="text-text-dark shadow-[inset_0_-1px_0_0_var(--color-border-light)]">
                 Signup
               </TabsTrigger>
             </TabsList>
