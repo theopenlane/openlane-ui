@@ -26,8 +26,12 @@ const AuthLogin: React.FC = () => {
             }}
           >
             <TabsList>
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="signup">Signup</TabsTrigger>
+              <TabsTrigger className="text-text-dark" value="login">
+                Login
+              </TabsTrigger>
+              <TabsTrigger value="signup" className="text-text-dark">
+                Signup
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="login">
               <LoginPage />
