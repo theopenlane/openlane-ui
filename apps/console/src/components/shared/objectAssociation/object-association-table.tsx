@@ -77,7 +77,7 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
     {
       accessorKey: 'description',
       header: 'Description',
-      cell: ({ row }) => <span className="line-clamp-2 overflow-hidden">{row.original.description}</span>,
+      cell: ({ row }) => <span className="line-clamp-2 overflow-hidden">{row.original.description || row.original.details}</span>,
     },
   ]
 

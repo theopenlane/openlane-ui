@@ -5365,6 +5365,8 @@ export interface CreateProgramInput {
   endDate?: InputMaybe<Scalars['Time']['input']>
   evidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the short name of the compliance standard the program is based on, only used for framework type programs */
+  frameworkName?: InputMaybe<Scalars['String']['input']>
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the name of the program */
   name: Scalars['String']['input']
@@ -5372,6 +5374,8 @@ export interface CreateProgramInput {
   noteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   procedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the type of the program */
+  programType?: InputMaybe<ProgramProgramType>
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the start date of the period */
   startDate?: InputMaybe<Scalars['Time']['input']>
@@ -5573,8 +5577,6 @@ export interface CreateTaskInput {
   completed?: InputMaybe<Scalars['DateTime']['input']>
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  /** the description of the task */
-  description?: InputMaybe<Scalars['String']['input']>
   /** the details of the task */
   details?: InputMaybe<Scalars['String']['input']>
   /** the due date of the task */
@@ -20101,6 +20103,8 @@ export interface Program extends Node {
   endDate?: Maybe<Scalars['Time']['output']>
   evidence: EvidenceConnection
   files: FileConnection
+  /** the short name of the compliance standard the program is based on, only used for framework type programs */
+  frameworkName?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
   internalPolicies: InternalPolicyConnection
   members: ProgramMembershipConnection
@@ -20112,6 +20116,8 @@ export interface Program extends Node {
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
   procedures: ProcedureConnection
+  /** the type of the program */
+  programType: ProgramProgramType
   risks: RiskConnection
   /** the start date of the period */
   startDate?: Maybe<Scalars['Time']['output']>
@@ -20313,6 +20319,8 @@ export interface ProgramHistory extends Node {
   displayID: Scalars['String']['output']
   /** the end date of the period */
   endDate?: Maybe<Scalars['Time']['output']>
+  /** the short name of the compliance standard the program is based on, only used for framework type programs */
+  frameworkName?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
   /** the name of the program */
@@ -20320,6 +20328,8 @@ export interface ProgramHistory extends Node {
   operation: ProgramHistoryOpType
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['String']['output']>
+  /** the type of the program */
+  programType: ProgramHistoryProgramType
   ref?: Maybe<Scalars['String']['output']>
   /** the start date of the period */
   startDate?: Maybe<Scalars['Time']['output']>
@@ -20368,9 +20378,11 @@ export interface ProgramHistoryOrder {
 
 /** Properties by which ProgramHistory connections can be ordered. */
 export enum ProgramHistoryOrderField {
+  PROGRAM_TYPE = 'PROGRAM_TYPE',
   STATUS = 'STATUS',
   created_at = 'created_at',
   end_date = 'end_date',
+  framework = 'framework',
   name = 'name',
   start_date = 'start_date',
   updated_at = 'updated_at',
@@ -20383,6 +20395,14 @@ export enum ProgramHistoryProgramStatus {
   IN_PROGRESS = 'IN_PROGRESS',
   NOT_STARTED = 'NOT_STARTED',
   READY_FOR_AUDITOR = 'READY_FOR_AUDITOR',
+}
+
+/** ProgramHistoryProgramType is enum for the field program_type */
+export enum ProgramHistoryProgramType {
+  FRAMEWORK = 'FRAMEWORK',
+  GAP_ANALYSIS = 'GAP_ANALYSIS',
+  OTHER = 'OTHER',
+  RISK_ASSESSMENT = 'RISK_ASSESSMENT',
 }
 
 /**
@@ -20495,6 +20515,22 @@ export interface ProgramHistoryWhereInput {
   endDateNEQ?: InputMaybe<Scalars['Time']['input']>
   endDateNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
   endDateNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** framework_name field predicates */
+  frameworkName?: InputMaybe<Scalars['String']['input']>
+  frameworkNameContains?: InputMaybe<Scalars['String']['input']>
+  frameworkNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  frameworkNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  frameworkNameGT?: InputMaybe<Scalars['String']['input']>
+  frameworkNameGTE?: InputMaybe<Scalars['String']['input']>
+  frameworkNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  frameworkNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  frameworkNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  frameworkNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  frameworkNameLT?: InputMaybe<Scalars['String']['input']>
+  frameworkNameLTE?: InputMaybe<Scalars['String']['input']>
+  frameworkNameNEQ?: InputMaybe<Scalars['String']['input']>
+  frameworkNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  frameworkNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** history_time field predicates */
   historyTime?: InputMaybe<Scalars['Time']['input']>
   historyTimeGT?: InputMaybe<Scalars['Time']['input']>
@@ -20552,6 +20588,11 @@ export interface ProgramHistoryWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** program_type field predicates */
+  programType?: InputMaybe<ProgramHistoryProgramType>
+  programTypeIn?: InputMaybe<Array<ProgramHistoryProgramType>>
+  programTypeNEQ?: InputMaybe<ProgramHistoryProgramType>
+  programTypeNotIn?: InputMaybe<Array<ProgramHistoryProgramType>>
   /** ref field predicates */
   ref?: InputMaybe<Scalars['String']['input']>
   refContains?: InputMaybe<Scalars['String']['input']>
@@ -21047,9 +21088,11 @@ export interface ProgramOrder {
 
 /** Properties by which Program connections can be ordered. */
 export enum ProgramOrderField {
+  PROGRAM_TYPE = 'PROGRAM_TYPE',
   STATUS = 'STATUS',
   created_at = 'created_at',
   end_date = 'end_date',
+  framework = 'framework',
   name = 'name',
   start_date = 'start_date',
   updated_at = 'updated_at',
@@ -21062,6 +21105,14 @@ export enum ProgramProgramStatus {
   IN_PROGRESS = 'IN_PROGRESS',
   NOT_STARTED = 'NOT_STARTED',
   READY_FOR_AUDITOR = 'READY_FOR_AUDITOR',
+}
+
+/** ProgramProgramType is enum for the field program_type */
+export enum ProgramProgramType {
+  FRAMEWORK = 'FRAMEWORK',
+  GAP_ANALYSIS = 'GAP_ANALYSIS',
+  OTHER = 'OTHER',
+  RISK_ASSESSMENT = 'RISK_ASSESSMENT',
 }
 
 /** Return response for updateProgram mutation */
@@ -21181,6 +21232,22 @@ export interface ProgramWhereInput {
   endDateNEQ?: InputMaybe<Scalars['Time']['input']>
   endDateNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
   endDateNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** framework_name field predicates */
+  frameworkName?: InputMaybe<Scalars['String']['input']>
+  frameworkNameContains?: InputMaybe<Scalars['String']['input']>
+  frameworkNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  frameworkNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  frameworkNameGT?: InputMaybe<Scalars['String']['input']>
+  frameworkNameGTE?: InputMaybe<Scalars['String']['input']>
+  frameworkNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  frameworkNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  frameworkNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  frameworkNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  frameworkNameLT?: InputMaybe<Scalars['String']['input']>
+  frameworkNameLTE?: InputMaybe<Scalars['String']['input']>
+  frameworkNameNEQ?: InputMaybe<Scalars['String']['input']>
+  frameworkNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  frameworkNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** action_plans edge predicates */
   hasActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   hasActionPlansWith?: InputMaybe<Array<ActionPlanWhereInput>>
@@ -21278,6 +21345,11 @@ export interface ProgramWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** program_type field predicates */
+  programType?: InputMaybe<ProgramProgramType>
+  programTypeIn?: InputMaybe<Array<ProgramProgramType>>
+  programTypeNEQ?: InputMaybe<ProgramProgramType>
+  programTypeNotIn?: InputMaybe<Array<ProgramProgramType>>
   /** start_date field predicates */
   startDate?: InputMaybe<Scalars['Time']['input']>
   startDateGT?: InputMaybe<Scalars['Time']['input']>
@@ -26412,8 +26484,6 @@ export interface Task extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   deletedAt?: Maybe<Scalars['Time']['output']>
   deletedBy?: Maybe<Scalars['String']['output']>
-  /** the description of the task */
-  description?: Maybe<Scalars['String']['output']>
   /** the details of the task */
   details?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -26576,8 +26646,6 @@ export interface TaskHistory extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   deletedAt?: Maybe<Scalars['Time']['output']>
   deletedBy?: Maybe<Scalars['String']['output']>
-  /** the description of the task */
-  description?: Maybe<Scalars['String']['output']>
   /** the details of the task */
   details?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -26774,22 +26842,6 @@ export interface TaskHistoryWhereInput {
   deletedByNEQ?: InputMaybe<Scalars['String']['input']>
   deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** description field predicates */
-  description?: InputMaybe<Scalars['String']['input']>
-  descriptionContains?: InputMaybe<Scalars['String']['input']>
-  descriptionContainsFold?: InputMaybe<Scalars['String']['input']>
-  descriptionEqualFold?: InputMaybe<Scalars['String']['input']>
-  descriptionGT?: InputMaybe<Scalars['String']['input']>
-  descriptionGTE?: InputMaybe<Scalars['String']['input']>
-  descriptionHasPrefix?: InputMaybe<Scalars['String']['input']>
-  descriptionHasSuffix?: InputMaybe<Scalars['String']['input']>
-  descriptionIn?: InputMaybe<Array<Scalars['String']['input']>>
-  descriptionIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  descriptionLT?: InputMaybe<Scalars['String']['input']>
-  descriptionLTE?: InputMaybe<Scalars['String']['input']>
-  descriptionNEQ?: InputMaybe<Scalars['String']['input']>
-  descriptionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  descriptionNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** details field predicates */
   details?: InputMaybe<Scalars['String']['input']>
   detailsContains?: InputMaybe<Scalars['String']['input']>
@@ -27092,22 +27144,6 @@ export interface TaskWhereInput {
   deletedByNEQ?: InputMaybe<Scalars['String']['input']>
   deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** description field predicates */
-  description?: InputMaybe<Scalars['String']['input']>
-  descriptionContains?: InputMaybe<Scalars['String']['input']>
-  descriptionContainsFold?: InputMaybe<Scalars['String']['input']>
-  descriptionEqualFold?: InputMaybe<Scalars['String']['input']>
-  descriptionGT?: InputMaybe<Scalars['String']['input']>
-  descriptionGTE?: InputMaybe<Scalars['String']['input']>
-  descriptionHasPrefix?: InputMaybe<Scalars['String']['input']>
-  descriptionHasSuffix?: InputMaybe<Scalars['String']['input']>
-  descriptionIn?: InputMaybe<Array<Scalars['String']['input']>>
-  descriptionIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  descriptionLT?: InputMaybe<Scalars['String']['input']>
-  descriptionLTE?: InputMaybe<Scalars['String']['input']>
-  descriptionNEQ?: InputMaybe<Scalars['String']['input']>
-  descriptionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  descriptionNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** details field predicates */
   details?: InputMaybe<Scalars['String']['input']>
   detailsContains?: InputMaybe<Scalars['String']['input']>
@@ -29107,6 +29143,7 @@ export interface UpdateProgramInput {
   clearEndDate?: InputMaybe<Scalars['Boolean']['input']>
   clearEvidence?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
+  clearFrameworkName?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
   clearNotes?: InputMaybe<Scalars['Boolean']['input']>
@@ -29122,9 +29159,13 @@ export interface UpdateProgramInput {
   description?: InputMaybe<Scalars['String']['input']>
   /** the end date of the period */
   endDate?: InputMaybe<Scalars['Time']['input']>
+  /** the short name of the compliance standard the program is based on, only used for framework type programs */
+  frameworkName?: InputMaybe<Scalars['String']['input']>
   /** the name of the program */
   name?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** the type of the program */
+  programType?: InputMaybe<ProgramProgramType>
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -29451,7 +29492,6 @@ export interface UpdateTaskInput {
   clearCompleted?: InputMaybe<Scalars['Boolean']['input']>
   clearControlObjectives?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
-  clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearDetails?: InputMaybe<Scalars['Boolean']['input']>
   clearDue?: InputMaybe<Scalars['Boolean']['input']>
   clearEvidence?: InputMaybe<Scalars['Boolean']['input']>
@@ -29464,8 +29504,6 @@ export interface UpdateTaskInput {
   /** the completion date of the task */
   completed?: InputMaybe<Scalars['DateTime']['input']>
   deleteComment?: InputMaybe<Scalars['ID']['input']>
-  /** the description of the task */
-  description?: InputMaybe<Scalars['String']['input']>
   /** the details of the task */
   details?: InputMaybe<Scalars['String']['input']>
   /** the due date of the task */
@@ -31398,39 +31436,6 @@ export type UpdateControlMutationVariables = Exact<{
 
 export type UpdateControlMutation = { __typename?: 'Mutation'; updateControl: { __typename?: 'ControlUpdatePayload'; control: { __typename?: 'Control'; id: string } } }
 
-export type GetDashboardDataQueryVariables = Exact<{
-  where?: InputMaybe<TaskWhereInput>
-}>
-
-export type GetDashboardDataQuery = {
-  __typename?: 'Query'
-  programs: {
-    __typename?: 'ProgramConnection'
-    edges?: Array<{
-      __typename?: 'ProgramEdge'
-      node?: {
-        __typename?: 'Program'
-        id: string
-        name: string
-        description?: string | null
-        controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string } | null } | null> | null }
-        tasks: {
-          __typename?: 'TaskConnection'
-          edges?: Array<{
-            __typename?: 'TaskEdge'
-            node?: { __typename?: 'Task'; id: string; title: string; status: TaskTaskStatus; description?: string | null; due?: string | null } | null
-          } | null> | null
-        }
-      } | null
-    } | null> | null
-  }
-  tasks: {
-    __typename?: 'TaskConnection'
-    edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string; status: TaskTaskStatus; due?: string | null; tags?: Array<string> | null } | null } | null> | null
-  }
-  organizations: { __typename?: 'OrganizationConnection'; edges?: Array<{ __typename?: 'OrganizationEdge'; node?: { __typename?: 'Organization'; id: string; name: string } | null } | null> | null }
-}
-
 export type CreateEvidenceMutationVariables = Exact<{
   input: CreateEvidenceInput
   evidenceFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
@@ -32629,7 +32634,7 @@ export type GetSubcontrolByIdQuery = {
     risks: {
       __typename?: 'RiskConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string; displayID: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string; displayID: string; details?: string | null } | null } | null> | null
     }
     delegate?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
     controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
@@ -32696,7 +32701,6 @@ export type TasksWithFilterQuery = {
         __typename?: 'Task'
         id: string
         title: string
-        description?: string | null
         status: TaskTaskStatus
         tags?: Array<string> | null
         details?: string | null
@@ -32758,7 +32762,6 @@ export type TaskQuery = {
     status: TaskTaskStatus
     due?: string | null
     displayID: string
-    description?: string | null
     details?: string | null
     assignee?: { __typename?: 'User'; displayName: string; firstName?: string | null; lastName?: string | null; avatarRemoteURL?: string | null; id: string } | null
     assigner?: { __typename?: 'User'; avatarRemoteURL?: string | null; lastName?: string | null; firstName?: string | null; displayName: string; id: string } | null
