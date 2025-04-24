@@ -85,6 +85,11 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
           id
           name
           displayID
+          approver {
+            gravatarLogoURL
+            logoURL
+            displayName
+          }
         }
       }
     }
@@ -95,6 +100,11 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
           id
           name
           displayID
+          approver {
+            gravatarLogoURL
+            logoURL
+            displayName
+          }
         }
       }
     }
@@ -105,6 +115,14 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
           id
           title
           displayID
+          details
+          assignee {
+            displayName
+            avatarFile {
+              presignedURL
+            }
+            avatarRemoteURL
+          }
         }
       }
     }
@@ -115,6 +133,7 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
           id
           name
           displayID
+          status
         }
       }
     }
@@ -125,6 +144,7 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
           id
           name
           displayID
+          details
         }
       }
     }
