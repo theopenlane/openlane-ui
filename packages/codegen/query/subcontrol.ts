@@ -74,6 +74,11 @@ export const GET_SUBCONTROL_BY_ID = gql`
             id
             name
             displayID
+            approver {
+              gravatarLogoURL
+              logoURL
+              displayName
+            }
           }
         }
       }
@@ -85,6 +90,11 @@ export const GET_SUBCONTROL_BY_ID = gql`
             id
             name
             displayID
+            approver {
+              gravatarLogoURL
+              logoURL
+              displayName
+            }
           }
         }
       }
@@ -96,6 +106,14 @@ export const GET_SUBCONTROL_BY_ID = gql`
             id
             title
             displayID
+            details
+            assignee {
+              displayName
+              avatarFile {
+                presignedURL
+              }
+              avatarRemoteURL
+            }
           }
         }
       }
@@ -107,6 +125,7 @@ export const GET_SUBCONTROL_BY_ID = gql`
             id
             name
             displayID
+            details
           }
         }
       }
