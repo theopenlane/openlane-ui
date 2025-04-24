@@ -11,11 +11,11 @@ import RiskDetailsSheet from '@/components/pages/protected/risks/risk-details-sh
 import { useRouter } from 'next/navigation'
 import { useDebounce } from '@uidotdev/usehooks'
 import RisksTableToolbar from './table/risks-table-toolbar'
-import { Badge } from 'lucide-react'
 import { RISKS_SORT_FIELDS } from './table/table-config'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { exportToCSV } from '@/utils/exportToCSV'
+import { Badge } from '@repo/ui/badge'
 
 const RiskTablePage: React.FC = () => {
   const { replace } = useRouter()
