@@ -85,7 +85,7 @@ export const Subscribe = () => {
     <>
       {submitted ? (
         <div className="flex items-center gap-4 px-4 py-3 border rounded-lg  max-w-xl mx-auto bg-card">
-          <div className="flex items-center justify-center w-7 h-7 rounded-full border border-mint-400">
+          <div className="flex items-center justify-center w-7 h-7 rounded-full border ">
             <CheckCircle className="text-brand" size={37} />
           </div>
           <p className="text-sm leading-snug">
