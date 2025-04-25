@@ -11,6 +11,7 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
   maxWidth?: boolean
   iconPosition?: 'right' | 'left'
   variant?: 'medium' | 'light' | 'searchTable'
+  suffix?: string
 }
 
 interface InputRowProps extends InputRowVariants {
@@ -18,7 +19,7 @@ interface InputRowProps extends InputRowVariants {
   children: ReactNode
 }
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type, icon, prefix, variant, onIconClick, maxWidth, iconPosition = 'right', ...props }, ref) => {
+const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type, icon, prefix, suffix, variant, onIconClick, maxWidth, iconPosition = 'right', ...props }, ref) => {
   const { input, inputWrapper, iconWrapper, prefixWrapper } = inputStyles({
     variant,
   })
@@ -53,6 +54,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type,
           {icon}
         </div>
       )}
+      {suffix && <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-sm bg-background-secondary border rounded-md px-1.5 py-0.5 font-medium">{suffix}</div>}
     </div>
   )
 })
