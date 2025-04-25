@@ -107,21 +107,25 @@ export const GlobalSearch = () => {
     <div className="relative w-72">
       <Popover key={'search-results'} open={open} onOpenChange={setOpen}>
         <PopoverAnchor>
-          <Input
-            ref={inputRef}
-            placeholder="Search..."
-            icon={<SearchIcon size={16} />}
-            value={query}
-            onChange={(e) => {
-              e.stopPropagation()
-              e.preventDefault()
-
-              setQuery(e.currentTarget.value)
-            }}
-            onKeyDown={relayInputKeyDownToCommand}
-            className="!border-none !h-9"
-            iconPosition="left"
-          />
+          <div className="relative flex items-center">
+            <Input
+              ref={inputRef}
+              placeholder="Search..."
+              icon={<SearchIcon size={16} />}
+              value={query}
+              onChange={(e) => {
+                e.stopPropagation()
+                e.preventDefault()
+                setQuery(e.currentTarget.value)
+              }}
+              onKeyDown={relayInputKeyDownToCommand}
+              className="!border-none !h-9 pr-14"
+              iconPosition="left"
+            />
+            <div className="absolute right-2 flex items-center space-x-1 pointer-events-none text-sm bg-background-secondary border rounded-lg pt-[1px] pb-[1px] pr-[5px] pl-[5px] font-medium">
+              ⌘ /
+            </div>
+          </div>
         </PopoverAnchor>
         <PopoverTrigger asChild>
           <div />
