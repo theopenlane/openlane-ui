@@ -1,13 +1,14 @@
 'use client'
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { Import, Info } from 'lucide-react'
+import { Info, Upload } from 'lucide-react'
 import React, { useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { Card } from '@repo/ui/cardpanel'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useCreateBulkCSVTask } from '@/lib/graphql-hooks/tasks'
 import { useNotification } from '@/hooks/useNotification'
+import { exportCSV } from '@/lib/export'
 
 const BulkCSVCreateTaskDialog = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
@@ -39,10 +40,14 @@ const BulkCSVCreateTaskDialog = () => {
     setUploadedFile(uploadedFile)
   }
 
+  const handleCSVExport = async () => {
+    const data = await exportCSV({ filename: 'task' })
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button icon={<Import />} iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
+        <Button icon={<Upload />} iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
           Bulk Upload
         </Button>
       </DialogTrigger>
@@ -59,7 +64,11 @@ const BulkCSVCreateTaskDialog = () => {
               <a href="https://docs.theopenlane.io/docs/api/graph-api/objects#task" target="_blank" className="text-brand hover:underline">
                 documentation
               </a>{' '}
-              for column format. We also provide a <span className="text-brand hover:underline">template csv file</span> for you to fill out.
+              for column format. We also provide a{' '}
+              <span className="text-brand hover:underline cursor-pointer" onClick={() => handleCSVExport()}>
+                template csv file
+              </span>{' '}
+              for you to fill out.
             </p>
           </div>
         </Card>
