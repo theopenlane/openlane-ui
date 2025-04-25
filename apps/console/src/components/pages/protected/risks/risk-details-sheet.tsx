@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
-import { Pencil, Check, ArrowRight } from 'lucide-react'
+import { Pencil, Check, ArrowRight, Folder, Gauge, CircleAlert, CircleHelp, Binoculars, Tag } from 'lucide-react'
 import { Circle } from 'lucide-react'
 import { useGetRiskById, useUpdateRisk } from '@/lib/graphql-hooks/risks'
 import { Risk, RiskFieldsFragment } from '@repo/codegen/src/schema'
@@ -256,12 +256,33 @@ const RiskDetailsSheet = () => {
 
 export default RiskDetailsSheet
 
-const FieldRow = ({ label, children }: { label: string; children?: React.ReactNode }) => (
-  <>
-    <div className="flex gap-1 items-center">
-      <Circle className="text-brand" size={16} />
-      <div className="text-muted-foreground">{label}</div>
-    </div>
-    <div className="flex gap-1 text-sm">{children}</div>
-  </>
-)
+const FieldRow = ({ label, children }: { label: string; children?: React.ReactNode }) => {
+  const getFieldIcon = (label: string) => {
+    switch (label.toLowerCase()) {
+      case 'type':
+      case 'category':
+        return <Folder size={16} className="text-brand" />
+      case 'score':
+        return <Gauge size={16} className="text-brand" />
+      case 'impact':
+        return <CircleAlert size={16} className="text-brand" />
+      case 'likelihood':
+        return <CircleHelp size={16} className="text-brand" />
+      case 'status':
+        return <Binoculars size={16} className="text-brand" />
+      case 'tags':
+        return <Tag size={16} className="text-brand" />
+      default:
+        return <Circle size={16} className="text-brand" />
+    }
+  }
+  return (
+    <>
+      <div className="flex gap-1 items-center">
+        {getFieldIcon(label)}
+        <div className="text-muted-foreground">{label}</div>
+      </div>
+      <div className="flex gap-1 text-sm">{children}</div>
+    </>
+  )
+}
