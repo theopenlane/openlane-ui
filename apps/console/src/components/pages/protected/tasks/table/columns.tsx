@@ -7,16 +7,25 @@ import { Task } from '@repo/codegen/src/schema.ts'
 
 export const taskColumns: ColumnDef<Task>[] = [
   {
-    accessorKey: 'displayID',
-    header: 'Task',
+    accessorKey: 'title',
+    header: 'Title',
   },
   {
     accessorKey: 'category',
     header: 'Type',
   },
   {
-    accessorKey: 'title',
-    header: 'Title',
+    accessorKey: 'status',
+    header: 'Status',
+    cell: ({ cell, row }) => {
+      const status = row.original.status!
+      return (
+        <div className="flex items-center space-x-2">
+          {TaskStatusIconMapper[status]}
+          <p>{status}</p>
+        </div>
+      )
+    },
   },
   {
     accessorKey: 'assigner',
@@ -46,20 +55,7 @@ export const taskColumns: ColumnDef<Task>[] = [
     header: 'Due Date',
     cell: ({ cell }) => {
       const value = cell.getValue() as string | null
-      return value ? format(new Date(value), 'MMMM d, yyyy') : null
-    },
-  },
-  {
-    accessorKey: 'status',
-    header: 'Status',
-    cell: ({ cell, row }) => {
-      const status = row.original.status!
-      return (
-        <div className="flex items-center space-x-2">
-          {TaskStatusIconMapper[status]}
-          <p>{status}</p>
-        </div>
-      )
+      return value ? format(new Date(value), 'MMMM d, yyyy') : 'no due date'
     },
   },
 ]
