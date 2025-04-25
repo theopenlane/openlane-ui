@@ -31767,8 +31767,20 @@ export type GetOrganizationBillingQuery = {
       features?: Array<string> | null
       managePaymentMethods?: string | null
       cancellation?: string | null
-      paymentMethodAdded?: boolean | null
     }> | null
+  }
+}
+
+export type GetOrganizationBillingBannerQueryVariables = Exact<{
+  organizationId: Scalars['ID']['input']
+}>
+
+export type GetOrganizationBillingBannerQuery = {
+  __typename?: 'Query'
+  organization: {
+    __typename?: 'Organization'
+    personalOrg?: boolean | null
+    orgSubscriptions?: Array<{ __typename?: 'OrgSubscription'; expiresAt?: any | null; stripeSubscriptionStatus?: string | null; paymentMethodAdded?: boolean | null }> | null
   }
 }
 

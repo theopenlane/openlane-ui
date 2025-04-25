@@ -10,6 +10,7 @@ import { useSidebar } from '@/hooks/useSidebar'
 import { useState } from 'react'
 import { PanelLeft } from 'lucide-react'
 import { usePathname } from 'next/navigation'
+
 export default function Header() {
   const { isOpen, toggle } = useSidebar()
   const [status, setStatus] = useState(false)

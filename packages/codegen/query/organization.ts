@@ -128,6 +128,18 @@ export const GET_ORGANIZATION_BILLING = gql`
         features
         managePaymentMethods
         cancellation
+      }
+    }
+  }
+`
+
+export const GET_ORGANIZATION_BILLING_BANNER = gql`
+  query GetOrganizationBillingBanner($organizationId: ID!) {
+    organization(id: $organizationId) {
+      personalOrg
+      orgSubscriptions {
+        expiresAt
+        stripeSubscriptionStatus
         paymentMethodAdded
       }
     }
