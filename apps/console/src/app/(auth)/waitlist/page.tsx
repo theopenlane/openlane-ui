@@ -25,7 +25,7 @@ const Waitlist: React.FC = () => {
             <a href="https://github.com/theopenlane" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-2.5 py-1.5 rounded-lg border border bg-border w-60">
               <img src="/icons/github.svg" alt="GitHub" />
               <div className="flex flex-col text-left text-sm leading-tight gap-1 ">
-                <span className="text-white">GitHub</span>
+                <span>GitHub</span>
                 <span className="text-blue-500">@theopenlane</span>
               </div>
             </a>
@@ -34,7 +34,7 @@ const Waitlist: React.FC = () => {
             <a href="https://discord.gg/4fq2sxDk7D" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-2.5 py-1.5 rounded-lg bg-border border  w-60">
               <img src="/icons/discord.svg" alt="Discord" />
               <div className="flex flex-col text-left text-sm leading-tight gap-1">
-                <span className="text-white">Discord</span>
+                <span>Discord</span>
                 <span className="text-blue-500">Join community</span>
               </div>
             </a>
@@ -43,7 +43,7 @@ const Waitlist: React.FC = () => {
             <a href="https://www.linkedin.com/company/theopenlane" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-2.5 py-1.5 rounded-lg bg-border border  w-60">
               <img src="/icons/linkedin.svg" alt="LinkedIn" />
               <div className="flex flex-col text-left text-sm leading-tight gap-1">
-                <span className="text-white">LinkedIn</span>
+                <span>LinkedIn</span>
                 <span className="text-blue-500">@theopenlane</span>
               </div>
             </a>
