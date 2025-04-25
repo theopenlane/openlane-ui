@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { LoaderCircle, MailCheck } from 'lucide-react'
+import { CheckCircle, CircleArrowRight, LoaderCircle, MailCheck } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { Button } from '@repo/ui/button'
@@ -84,12 +84,16 @@ export const Subscribe = () => {
   return (
     <>
       {submitted ? (
-        <div className={success()}>
-          <MailCheck size={24} className={successIcon()} />
-          <span className={successMessage()}>Thank you for subscribing. Please check your email and click on the verification link to receive updates.</span>
+        <div className="flex items-center gap-4 px-4 py-3 border rounded-lg  max-w-xl mx-auto bg-card">
+          <div className="flex items-center justify-center w-7 h-7 rounded-full border ">
+            <CheckCircle className="text-brand" size={37} />
+          </div>
+          <p className="text-sm leading-snug">
+            We’ve added <span className="underline">{form.getValues('email')}</span> to our waitlist. We’ll let you know when Openlane is ready.
+          </p>
         </div>
       ) : (
-        <div className="flex justify-center">
+        <div className="flex ">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className={wrapper()}>
               <FormField
@@ -104,10 +108,13 @@ export const Subscribe = () => {
                   </>
                 )}
               />
-              <Button type="submit" className={button()} disabled={isPending}>
-                {isPending && <LoaderCircle className="animate-spin mr-2" size={20} />}
-                {isPending ? 'Loading' : 'Subscribe for updates'}
-              </Button>
+              <button type="submit" className={button()} disabled={isPending}>
+                <div>
+                  {isPending && <LoaderCircle className="animate-spin mr-2" size={20} />}
+                  <span>{isPending ? 'Loading' : 'Join the waitlist'}</span>
+                </div>
+                <CircleArrowRight className="text-[#BCD9E1]" size={16} />
+              </button>
             </form>
           </Form>
         </div>

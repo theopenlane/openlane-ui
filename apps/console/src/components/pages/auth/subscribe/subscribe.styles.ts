@@ -2,8 +2,8 @@ import { tv, type VariantProps } from 'tailwind-variants'
 
 const newsletterStyles = tv({
   slots: {
-    wrapper: 'relative w-72 mt-14 flex flex-col gap-5 md:flex-row',
-    button: 'absolute w-[50%] h-10 text-md md:relative md:text-md md:top-0 md:h-14',
+    wrapper: 'relative w-72 flex flex-col gap-3 ',
+    button: ' p-4 text-button-text bg-brand justify-between items-center rounded-md text-sm h-10 font-bold flex',
     errorMessage: 'text-text-light mt-14',
     success: 'mt-14 text-center bg-oxford-blue-900 bg-opacity-20 p-5 rounded-md text-white flex gap-3',
     successMessage: 'flex-1',
