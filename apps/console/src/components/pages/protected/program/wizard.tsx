@@ -106,23 +106,22 @@ const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardPro
   }
 
   const createProgram = async (input: CreateProgramWithMembersInput) => {
-    console.log('input', input)
-    // try {
-    //   const resp = await createNewProgram({ input })
+    try {
+      const resp = await createNewProgram({ input })
 
-    //   successNotification({
-    //     title: 'Program Created',
-    //     description: `Your program, ${resp?.createProgramWithMembers?.program?.name}, has been successfully created`,
-    //   })
+      successNotification({
+        title: 'Program Created',
+        description: `Your program, ${resp?.createProgramWithMembers?.program?.name}, has been successfully created`,
+      })
 
-    //   fullForm.reset(getValues())
-    //   router.push(`/programs?id=${resp?.createProgramWithMembers.program.id}`)
-    // } catch (error) {
-    //   errorNotification({
-    //     title: 'Error',
-    //     description: 'There was an error creating the program. Please try again.',
-    //   })
-    // }
+      fullForm.reset(getValues())
+      router.push(`/programs?id=${resp?.createProgramWithMembers.program.id}`)
+    } catch (error) {
+      errorNotification({
+        title: 'Error',
+        description: 'There was an error creating the program. Please try again.',
+      })
+    }
   }
 
   const handleSkip = (e: React.MouseEvent<HTMLButtonElement>) => {
