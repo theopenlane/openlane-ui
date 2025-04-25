@@ -104,7 +104,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
         },
       }
 
-      await createPolicy(formData)
+      const createdPolicy = await createPolicy(formData)
 
       successNotification({
         title: 'Policy Created',
@@ -112,7 +112,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
       })
 
       form.reset()
-      router.push(`/policies`)
+      router.push(`/policies/${createdPolicy.createInternalPolicy.internalPolicy.id}/view`)
     } catch (error) {
       errorNotification({
         title: 'Error',

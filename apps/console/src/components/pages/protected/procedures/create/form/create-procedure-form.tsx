@@ -104,7 +104,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
         },
       }
 
-      await createProcedure(formData)
+      const createdProcedure = await createProcedure(formData)
 
       successNotification({
         title: 'Procedure Created',
@@ -112,7 +112,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
       })
 
       form.reset()
-      router.push(`/procedures`)
+      router.push(`/procedures/${createdProcedure.createProcedure.procedure.id}/view`)
     } catch (error) {
       errorNotification({
         title: 'Error',
