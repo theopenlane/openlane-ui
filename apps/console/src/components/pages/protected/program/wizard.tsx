@@ -174,21 +174,6 @@ const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardPro
         role: ProgramMembershipRole.ADMIN,
       })) || []
 
-    const mapProgramType = (type: string): ProgramProgramType => {
-      switch (type) {
-        case 'framework':
-          return ProgramProgramType.FRAMEWORK
-        case 'gap_analysis':
-          return ProgramProgramType.GAP_ANALYSIS
-        case 'risk_assessment':
-          return ProgramProgramType.RISK_ASSESSMENT
-        case 'other':
-          return ProgramProgramType.OTHER
-        default:
-          return ProgramProgramType.OTHER
-      }
-    }
-
     const input: CreateProgramWithMembersInput = {
       program: {
         name: values.name,
@@ -205,7 +190,7 @@ const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardPro
         viewerIDs: values.viewers,
         editorIDs: values.editors,
         frameworkName: values.framework,
-        programType: mapProgramType(values.programType),
+        programType: values.programType,
       },
       members: [...programMembers, ...programAdmins],
     }

@@ -1,4 +1,4 @@
-import { ProgramProgramStatus, Standard } from '@repo/codegen/src/schema'
+import { ProgramProgramStatus, ProgramProgramType, Standard } from '@repo/codegen/src/schema'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
@@ -78,10 +78,10 @@ export function ProgramInitComponent() {
 
 const ProgramTypeSelect = () => {
   const programTypes = [
-    { value: 'framework', label: 'Framework' },
-    { value: 'gap_analysis', label: 'Gap Analysis' },
-    { value: 'risk_assessment', label: 'Risk Assessment' },
-    { value: 'other', label: 'Other - Please Specify' },
+    { value: ProgramProgramType.FRAMEWORK, label: 'Framework' },
+    { value: ProgramProgramType.GAP_ANALYSIS, label: 'Gap Analysis' },
+    { value: ProgramProgramType.RISK_ASSESSMENT, label: 'Risk Assessment' },
+    { value: ProgramProgramType.OTHER, label: 'Other - Please Specify' },
   ]
 
   const [customProgram, setCustomProgram] = useState('')
@@ -94,7 +94,7 @@ const ProgramTypeSelect = () => {
     watch,
   } = useFormContext()
 
-  const selectedProgramType = watch('programType') || 'framework' // Default to 'Framework'
+  const selectedProgramType = watch('programType') || ProgramProgramType.FRAMEWORK
   const { inputRow } = wizardStyles()
 
   return (
@@ -123,7 +123,7 @@ const ProgramTypeSelect = () => {
                 field.onChange(value)
                 setValue('programType', value)
                 trigger('programType')
-                if (value === 'risk_assessment' || value === 'gap_analysis') {
+                if (value === ProgramProgramType.RISK_ASSESSMENT || value === ProgramProgramType.GAP_ANALYSIS) {
                   const selectedLabel = programTypes.find((type) => type.value === value)?.label
                   setValue('name', `${selectedLabel} - ${currentYear}`)
                 }
