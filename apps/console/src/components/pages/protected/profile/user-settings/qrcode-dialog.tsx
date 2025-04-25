@@ -53,12 +53,18 @@ const QRCodeDialog = ({ qrcode, secret, refetch, onClose, regeneratedCodes }: QR
 
       if (response.ok) {
         successNotification({ title: 'OTP validated successfully' })
-        await updateTfaSetting({
+        const resp = await updateTfaSetting({
           input: {
             verified: true,
           },
         })
-        setRecoveryCodes(data?.updateTFASetting.recoveryCodes || null)
+
+        // ensure recovery codes are available
+        if (!resp?.updateTFASetting?.recoveryCodes) {
+          errorNotification({ title: 'Failed to retrieve recovery codes' })
+        }
+
+        setRecoveryCodes(resp?.updateTFASetting?.recoveryCodes || null)
         setModalClosable(false)
 
         queryClient.invalidateQueries({ queryKey: ['tfaSettings'] })
