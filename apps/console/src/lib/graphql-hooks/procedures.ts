@@ -73,7 +73,7 @@ export const useProcedures = ({ where, orderBy, pagination }: UseProceduresArgs)
   }
 }
 
-export const useGetProcedureDetailsById = (procedureId?: string) => {
+export const useGetProcedureDetailsById = (procedureId: string | null) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetProcedureDetailsByIdQuery, GetProcedureDetailsByIdQueryVariables>({
