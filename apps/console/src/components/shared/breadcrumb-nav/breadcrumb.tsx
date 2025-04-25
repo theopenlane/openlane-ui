@@ -9,6 +9,7 @@ import { useGetInternalPolicyDetailsById } from '@/lib/graphql-hooks/policy'
 import { useGetStandardDetails } from '@/lib/graphql-hooks/standards'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
+import { useGetProcedureDetailsById } from '@/lib/graphql-hooks/procedures.ts'
 
 type TBreadCrumbProps = {
   homeElement?: string
@@ -22,14 +23,16 @@ export const BreadcrumbNavigation = ({ homeElement = 'Home' }: TBreadCrumbProps)
   const policyId = pathNames.includes('policies') ? (params.id as string) : null
   const standardId = pathNames.includes('standards') ? (params.id as string) : null
   const controlId = pathNames.includes('controls') ? (params.id as string) : null
+  const procedureId = pathNames.includes('procedures') ? (params.id as string) : null
   const subcontrolId = params.subcontrolId as string | undefined
 
   const { data, isLoading: isLoadingPolicy } = useGetInternalPolicyDetailsById(policyId)
+  const { data: procedureData, isLoading: isLoadingProcedure } = useGetProcedureDetailsById(procedureId)
   const { data: standardData, isLoading: isLoadingStandard } = useGetStandardDetails(standardId)
   const { data: controlData, isLoading: isLoadingControl } = useGetControlById(controlId)
   const { data: subcontrolData, isLoading: isLoadingSubcontrol } = useGetSubcontrolById(subcontrolId)
 
-  const isLoading = isLoadingPolicy || isLoadingStandard || isLoadingControl || isLoadingSubcontrol
+  const isLoading = isLoadingPolicy || isLoadingStandard || isLoadingControl || isLoadingSubcontrol || isLoadingProcedure
 
   return (
     <Breadcrumb>
@@ -51,6 +54,8 @@ export const BreadcrumbNavigation = ({ homeElement = 'Home' }: TBreadCrumbProps)
             itemLink = controlData.control.refCode
           } else if (link === subcontrolId && subcontrolData?.subcontrol) {
             itemLink = subcontrolData.subcontrol.refCode
+          } else if (link === procedureId && procedureData?.procedure) {
+            itemLink = procedureData.procedure.name
           }
 
           if (index === pathNames.length - 1 && isLoading) {
