@@ -13,7 +13,7 @@ import { initProgramSchema, ProgramInitComponent } from './wizard/step-1-init'
 import { programDetailSchema, ProgramDetailsComponent } from './wizard/step-2-details'
 import { ProgramInviteComponent, programInviteSchema } from './wizard/step-3-team'
 import { ProgramObjectAssociationComponent, programObjectAssociationSchema } from './wizard/step-4-associate'
-import { CreateProgramWithMembersInput, ProgramMembershipRole, ProgramProgramStatus } from '@repo/codegen/src/schema'
+import { CreateProgramWithMembersInput, ProgramMembershipRole, ProgramProgramStatus, ProgramProgramType } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { useRouter } from 'next/navigation'
 import { dialogStyles } from './dialog.styles'
@@ -106,22 +106,23 @@ const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardPro
   }
 
   const createProgram = async (input: CreateProgramWithMembersInput) => {
-    try {
-      const resp = await createNewProgram({ input })
+    console.log('input', input)
+    // try {
+    //   const resp = await createNewProgram({ input })
 
-      successNotification({
-        title: 'Program Created',
-        description: `Your program, ${resp?.createProgramWithMembers?.program?.name}, has been successfully created`,
-      })
+    //   successNotification({
+    //     title: 'Program Created',
+    //     description: `Your program, ${resp?.createProgramWithMembers?.program?.name}, has been successfully created`,
+    //   })
 
-      fullForm.reset(getValues())
-      router.push(`/programs?id=${resp?.createProgramWithMembers.program.id}`)
-    } catch (error) {
-      errorNotification({
-        title: 'Error',
-        description: 'There was an error creating the program. Please try again.',
-      })
-    }
+    //   fullForm.reset(getValues())
+    //   router.push(`/programs?id=${resp?.createProgramWithMembers.program.id}`)
+    // } catch (error) {
+    //   errorNotification({
+    //     title: 'Error',
+    //     description: 'There was an error creating the program. Please try again.',
+    //   })
+    // }
   }
 
   const handleSkip = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -160,33 +161,52 @@ const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardPro
       return
     }
 
-    let programMembers =
-      getValues().programMembers?.map((userId: string) => ({
+    const values = getValues()
+
+    const programMembers =
+      values.programMembers?.map((userId: string) => ({
         userID: userId,
         role: ProgramMembershipRole.MEMBER,
       })) || []
 
-    let programAdmins =
-      getValues().programAdmins?.map((userId: string) => ({
+    const programAdmins =
+      values.programAdmins?.map((userId: string) => ({
         userID: userId,
         role: ProgramMembershipRole.ADMIN,
       })) || []
 
+    const mapProgramType = (type: string): ProgramProgramType => {
+      switch (type) {
+        case 'framework':
+          return ProgramProgramType.FRAMEWORK
+        case 'gap_analysis':
+          return ProgramProgramType.GAP_ANALYSIS
+        case 'risk_assessment':
+          return ProgramProgramType.RISK_ASSESSMENT
+        case 'other':
+          return ProgramProgramType.OTHER
+        default:
+          return ProgramProgramType.OTHER
+      }
+    }
+
     const input: CreateProgramWithMembersInput = {
       program: {
-        name: getValues().name,
-        description: getValues().description,
-        status: getValues().status,
-        startDate: getValues().startDate,
-        endDate: getValues().endDate,
-        internalPolicyIDs: getValues().policies,
-        procedureIDs: getValues().procedures,
-        riskIDs: getValues().risks,
-        auditorReadComments: getValues().auditorReadComments,
-        auditorWriteComments: getValues().auditorWriteComments,
-        auditorReady: getValues().auditorReady,
-        viewerIDs: getValues().viewers,
-        editorIDs: getValues().editors,
+        name: values.name,
+        description: values.description,
+        status: values.status,
+        startDate: values.startDate,
+        endDate: values.endDate,
+        internalPolicyIDs: values.policies,
+        procedureIDs: values.procedures,
+        riskIDs: values.risks,
+        auditorReadComments: values.auditorReadComments,
+        auditorWriteComments: values.auditorWriteComments,
+        auditorReady: values.auditorReady,
+        viewerIDs: values.viewers,
+        editorIDs: values.editors,
+        frameworkName: values.framework,
+        programType: mapProgramType(values.programType),
       },
       members: [...programMembers, ...programAdmins],
     }
