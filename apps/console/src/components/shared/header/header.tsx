@@ -36,8 +36,6 @@ export default function Header() {
             <OrganizationSelector />
           </div>
           <div className={userNav()}>
-            <Link href="mailto:support@theopenlane.io">Feedback</Link>
-            <Link href="https://docs.theopenlane.io">Docs</Link>
             <UserMenu />
           </div>
         </nav>
@@ -67,8 +65,7 @@ export default function Header() {
 
           <div className={userNav()}>
             <GlobalSearch />
-            <Link href="mailto:support@theopenlane.io">Feedback</Link>
-            <Link href="https://docs.theopenlane.io">Docs</Link>
+
             <UserMenu />
           </div>
         </nav>

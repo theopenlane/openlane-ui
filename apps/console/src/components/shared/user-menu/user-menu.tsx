@@ -12,6 +12,7 @@ import { useTheme } from 'next-themes'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
 import { Avatar } from '../avatar/avatar'
 import { User } from '@repo/codegen/src/schema'
+import { BookText, BriefcaseBusiness, Keyboard, LogOut, NotebookPen, UserRoundCog } from 'lucide-react'
 
 export const UserMenu = () => {
   const { setTheme, theme } = useTheme()
@@ -28,39 +29,28 @@ export const UserMenu = () => {
           <ChevronDown />
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="min-w-64">
+      <DropdownMenuContent className="min-w-64 border shadow-md">
+        <div className="text-sm">
+          {`${data?.user.firstName} ${data?.user.lastName}`}
+          <br />
+          <div className={email()}>{data?.user.email}</div>
+        </div>
+        <DropdownMenuSeparator spacing="md" className="border-b" />
         <DropdownMenuItem asChild>
-          <div>
-            <div>
-              <div>
-                {`${data?.user.firstName} ${data?.user.lastName}`}
-                <br />
-                <div className={email()}>{data?.user.email}</div>
-              </div>
-              <div>
-                <Link href="/user-settings/profile" className={userSettingsLink()}>
-                  User Settings
-                </Link>
-              </div>
-            </div>
-          </div>
+          <Link href="/user-settings/profile" className={userSettingsLink()}>
+            <UserRoundCog className="text-input-text" size={12} />
+            User Settings
+          </Link>
         </DropdownMenuItem>
-        <DropdownMenuSeparator spacing="md" />
-        <div className={commandRow()}>
-          <p>Command menu</p>
-          <div className={commands()}>
-            <Kbd text="⌘" size="small" />
-            <Kbd text="K" size="small" />
-          </div>
-        </div>
-        <div className={commandRow()}>
-          <p>Search menu</p>
-          <div className={commands()}>
-            <Kbd text="⌘" size="small" />
-            <Kbd text="/" size="small" />
-          </div>
-        </div>
-        <DropdownMenuSeparator spacing="md" />
+        <DropdownMenuItem asChild>
+          <Link href="/organization" className={userSettingsLink()}>
+            <BriefcaseBusiness className="text-input-text" size={12} />
+            My Organizations
+          </Link>
+        </DropdownMenuItem>
+
+        <DropdownMenuSeparator spacing="md" className="border-b" />
+
         <div className={themeRow()}>
           <p>Theme</p>
           <Select onValueChange={(value) => setTheme(value)} value={theme}>
@@ -76,16 +66,40 @@ export const UserMenu = () => {
             </SelectContent>
           </Select>
         </div>
-        <DropdownMenuSeparator spacing="md" />
-        <DropdownMenuItem>
-          <div>
-            <Link href="/organization" className={userSettingsLink()}>
-              My organizations
-            </Link>
-          </div>
+        <DropdownMenuSeparator spacing="md" className="border-b" />
+
+        <DropdownMenuItem asChild>
+          <Link href="mailto:support@theopenlane.io" className={userSettingsLink()}>
+            <NotebookPen className="text-input-text" size={12} />
+            Feedback
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="https://docs.theopenlane.io" target="_blank" rel="noopener noreferrer" className={userSettingsLink()}>
+            <BookText className="text-input-text" size={12} />
+            Docs
+          </Link>
         </DropdownMenuItem>
 
-        <DropdownMenuSeparator spacing="md" />
+        <DropdownMenuSeparator spacing="md" className="border-b" />
+        <div className={commandRow()}>
+          <Keyboard size={12} />
+          <p>Command menu</p>
+          <div className={commands()}>
+            <span className="text-[10px]">⌘</span>
+            <span>K</span>
+          </div>
+        </div>
+        <div className={commandRow()}>
+          <Keyboard size={12} />
+          <p>Search menu</p>
+          <div className={commands()}>
+            <span className="text-[10px]">⌘</span>
+            <span>/</span>
+          </div>
+        </div>
+        <DropdownMenuSeparator spacing="md" className="border-b" />
+
         <DropdownMenuItem>
           <Button
             size="md"
@@ -95,7 +109,10 @@ export const UserMenu = () => {
               signOut()
             }}
           >
-            Log out
+            <div className="flex gap-1 items-center">
+              <LogOut size={16} />
+              <span>Log out</span>
+            </div>
           </Button>
         </DropdownMenuItem>
       </DropdownMenuContent>
