@@ -11,7 +11,7 @@
     "dev": "turbo dev --parallel",
     "type-check": "turbo type-check",
     "clean": "rm -rf node_modules/** && rm -rf ./apps/console/.next && rm -rf ./apps/console/node_modules && rm -rf ./apps/storybook/.next && rm -rf ./apps/storybook/node_modules && turbo clean",
-    "lint": "turbo lint",
+    "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
