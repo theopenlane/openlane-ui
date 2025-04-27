@@ -1,9 +1,12 @@
+'use client'
+
 import { GraphQLClient } from 'graphql-request'
 import type { Session } from 'next-auth'
 import { sessionCookieName } from '@repo/dally/auth'
 import { getCookie } from './auth/utils/getCookie'
 import { signOut } from 'next-auth/react'
 import { fetchNewAccessToken, Tokens } from './auth/utils/refresh-token'
+import { toast } from '@repo/ui/use-toast'
 
 const GRAPHQL_ENDPOINT = process.env.NEXT_PUBLIC_API_GQL_URL!
 
@@ -14,7 +17,7 @@ export function getGraphQLClient(session: Session) {
   const fetchWithRetry = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
     const requestUrl = typeof input === 'string' || input instanceof URL ? input.toString() : input
 
-    let accessToken = session.user?.accessToken
+    const accessToken = session.user?.accessToken
     const refreshToken = session.user?.refreshToken
 
     const headers = new Headers(init?.headers || {})
@@ -55,6 +58,12 @@ export function getGraphQLClient(session: Session) {
       } catch (e) {
         refreshPromise = null
         console.error('Token refresh failed:', e)
+        toast({
+          title: 'Session expired',
+          description: 'Logging you out... Please log in again.',
+          variant: 'destructive',
+        })
+
         await signOut()
       }
     }
