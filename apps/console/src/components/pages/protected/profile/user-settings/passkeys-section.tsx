@@ -2,9 +2,8 @@
 
 import { useNotification } from '@/hooks/useNotification'
 import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
-import { useUpdateUserSetting } from '@/lib/graphql-hooks/user'
 import { getPasskeyRegOptions, verifyRegistration } from '@/lib/user'
-import { GetUserProfileQuery } from '@repo/codegen/src/schema'
+import { GetUserProfileQuery, Webauthn, WebauthnEdge } from '@repo/codegen/src/schema'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Panel, PanelHeader } from '@repo/ui/panel'
@@ -12,13 +11,14 @@ import { startRegistration } from '@simplewebauthn/browser'
 import { useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
+import { useGetPasskeys } from '@/lib/graphql-hooks/passkeys'
 
 const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefined }) => {
   const { successNotification, errorNotification } = useNotification()
 
   const [loading, setLoading] = useState<boolean>(false)
 
-  const { isPending: updatingUser, mutateAsync: updateUserSetting } = useUpdateUserSetting()
+  const { data: passkeys } = useGetPasskeys(userData?.user?.id)
 
   const queryClient = useQueryClient()
 
@@ -69,26 +69,6 @@ const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefine
     }
   }
 
-  const removePasskeys = async () => {
-    try {
-      await updateUserSetting({
-        updateUserSettingId: userData?.user?.setting?.id ?? '',
-        input: {
-          isWebauthnAllowed: false,
-        },
-      })
-
-      successNotification({
-        title: `Your passkeys have been removed. You will only be able to sign in with your passwords now`,
-      })
-    } catch (error) {
-      console.error('Error updating user settings:', error)
-      errorNotification({
-        title: 'Failed to disable passkeys authentication',
-      })
-    }
-  }
-
   const passKeyConfig = useMemo(() => {
     if (!userData?.user.setting.isWebauthnAllowed) {
       return {
@@ -109,51 +89,81 @@ const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefine
     <Panel>
       <PanelHeader heading="Passkeys and security keys" noBorder />
       <div className="flex w-full justify-between">
-        <div className="rounded-l-lg bg-card border flex-1">
-          <div className="flex p-3 justify-between items-center">
-            <div className="flex flex-col gap-2">
-              <div className="flex gap-2">
+        <div className="rounded-lg bg-card border flex-1">
+          <div className="flex flex-col">
+            <div className="p-3 border-b">
+              <div className="flex gap-2 items-center mb-2">
                 <h2 className="text-lg">Passkeys</h2>
                 {passKeyConfig?.badge}
               </div>
               {passKeyConfig?.text}
             </div>
-          </div>
-        </div>
-
-        <div className="rounded-r-lg bg-card border flex items-center justify-center flex-col p-3 gap-2">
-          {userData?.user.setting.isWebauthnAllowed ? (
-            <Dialog>
-              <DialogTrigger>
-                <Button variant="redOutline" className="mx-10 w-24">
-                  Remove
+            {userData?.user.setting.isWebauthnAllowed ? (
+              <div className="divide-y">
+                {passkeys?.user?.webauthns?.edges?.map((passkey) => {
+                  const key = passkey?.node as Webauthn
+                  return <PasskeyItem passkey={key} key={key.id} />
+                })}
+              </div>
+            ) : (
+              <div className="p-3">
+                <Button onClick={handleConfigure} loading={loading} disabled={loading}>
+                  Configure Passkey
                 </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[455px]">
-                <DialogHeader>
-                  <DialogTitle className="text-2xl font-semibold">Remove your Passkeys</DialogTitle>
-                  <DialogDescription className="pt-2">
-                    Are you sure you want to remove your passkeys? You'll need to use your password to sign in, and you'll need to set up your passkeys again if you want to use them later.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="flex justify-end space-x-4 pt-4">
-                  <DialogClose asChild>
-                    <Button variant="outline">Cancel</Button>
-                  </DialogClose>
-                  <Button variant="destructive" onClick={removePasskeys} loading={updatingUser} disabled={updatingUser}>
-                    Remove Passkeys
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-          ) : (
-            <Button key={0} className="mx-10 w-24" onClick={handleConfigure} loading={loading} disabled={loading}>
-              Configure
-            </Button>
-          )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </Panel>
+  )
+}
+
+const PasskeyItem = ({ passkey }: { passkey: Webauthn }) => {
+  const { successNotification, errorNotification } = useNotification()
+
+  const removePasskeys = async () => {
+    try {
+      successNotification({
+        title: `Your passkeys have been removed. You will only be able to sign in with your passwords now`,
+      })
+    } catch (error) {
+      console.error('Error updating user settings:', error)
+      errorNotification({
+        title: 'Failed to disable passkeys authentication',
+      })
+    }
+  }
+  return (
+    <div className="flex items-center justify-between p-3 border-b last:border-b-0">
+      <div>
+        <p className="font-medium">{'Unnamed Passkey'}</p>
+        <p className="text-sm text-muted-foreground">Added on {new Date(passkey.createdAt).toLocaleDateString()}</p>
+      </div>
+      <Dialog>
+        <DialogTrigger>
+          <Button variant="redOutline" size="sm">
+            Remove
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[455px]">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-semibold">Remove your Passkey</DialogTitle>
+            <DialogDescription className="pt-2">
+              Are you sure you want to remove this passkey? You'll need to use your password to sign in, and you'll need to set up your passkeys again if you want to use them later.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end space-x-4 pt-4">
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button variant="destructive" onClick={removePasskeys}>
+              Remove Passkey
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
   )
 }
 
