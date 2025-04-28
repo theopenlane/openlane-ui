@@ -20,7 +20,7 @@ export const GET_PASSKEYS = gql`
 `
 
 export const DELETE_PASSKEY = gql`
-  mutation DeleteWebauthn($deleteWebauthnId: ID!) {
+  mutation DeletePasskey($deleteWebauthnId: ID!) {
     deleteWebauthn(id: $deleteWebauthnId) {
       deletedID
     }

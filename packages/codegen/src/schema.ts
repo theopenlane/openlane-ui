@@ -32235,11 +32235,11 @@ export type GetPasskeysQuery = {
   }
 }
 
-export type DeleteWebauthnMutationVariables = Exact<{
+export type DeletePasskeyMutationVariables = Exact<{
   deleteWebauthnId: Scalars['ID']['input']
 }>
 
-export type DeleteWebauthnMutation = { __typename?: 'Mutation'; deleteWebauthn: { __typename?: 'WebauthnDeletePayload'; deletedID: string } }
+export type DeletePasskeyMutation = { __typename?: 'Mutation'; deleteWebauthn: { __typename?: 'WebauthnDeletePayload'; deletedID: string } }
 
 export type CreateInternalPolicyMutationVariables = Exact<{
   input: CreateInternalPolicyInput

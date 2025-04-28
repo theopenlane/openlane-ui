@@ -11,7 +11,7 @@ import { startRegistration } from '@simplewebauthn/browser'
 import { useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { useGetPasskeys } from '@/lib/graphql-hooks/passkeys'
+import { useDeletePasskey, useGetPasskeys } from '@/lib/graphql-hooks/passkeys'
 import rawData from '@/lib/passkeys.json' assert { type: 'json' }
 
 type PasskeyEntry = {
@@ -69,7 +69,7 @@ const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefine
         return
       }
 
-      queryClient.invalidateQueries({ queryKey: ['user'] })
+      queryClient.invalidateQueries({ queryKey: ['passkeys'] })
 
       successNotification({
         title: 'Passkeys successfully setup',
@@ -144,14 +144,17 @@ const PasskeyItem = ({ passkey }: { passkey: Webauthn }) => {
   const { successNotification, errorNotification } = useNotification()
   const passkeyData = getPasskeyData(passkey.aaguid)
 
+  const { mutateAsync: deletePasskey } = useDeletePasskey()
+
   const removePasskeys = async () => {
     try {
+      await deletePasskey({ deleteWebauthnId: passkey.id })
       successNotification({
         title: `Your passkeys have been removed`,
       })
     } catch (error) {
       errorNotification({
-        title: 'Failed to disable passkeys authentication',
+        title: 'Failed to delete your passkey device',
       })
     }
   }
