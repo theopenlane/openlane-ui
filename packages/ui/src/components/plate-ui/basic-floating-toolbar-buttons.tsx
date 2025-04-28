@@ -10,9 +10,11 @@ import { LinkToolbarButton } from './link-toolbar-button'
 import { MarkToolbarButton } from './mark-toolbar-button'
 import { ToolbarGroup } from './toolbar'
 import { TurnIntoDropdownMenu } from './turn-into-dropdown-menu'
+import { useShortcutSuffix } from 'console/src/components/shared/shortcut-suffix/shortcut-suffix.tsx'
 
 export function BasicFloatingToolbarButtons() {
   const readOnly = useEditorReadOnly()
+  const { suffix } = useShortcutSuffix()
 
   return (
     <>
@@ -21,19 +23,19 @@ export function BasicFloatingToolbarButtons() {
           <ToolbarGroup>
             <TurnIntoDropdownMenu variant="basic" />
 
-            <MarkToolbarButton nodeType={BoldPlugin.key} tooltip="Bold (⌘+B)">
+            <MarkToolbarButton nodeType={BoldPlugin.key} tooltip={`Bold (${suffix}+B)`}>
               <BoldIcon />
             </MarkToolbarButton>
 
-            <MarkToolbarButton nodeType={ItalicPlugin.key} tooltip="Italic (⌘+I)">
+            <MarkToolbarButton nodeType={ItalicPlugin.key} tooltip={`Italic (${suffix}+I)`}>
               <ItalicIcon />
             </MarkToolbarButton>
 
-            <MarkToolbarButton nodeType={UnderlinePlugin.key} tooltip="Underline (⌘+U)">
+            <MarkToolbarButton nodeType={UnderlinePlugin.key} tooltip={`Underline (${suffix}+U)`}>
               <UnderlineIcon />
             </MarkToolbarButton>
 
-            <MarkToolbarButton nodeType={CodePlugin.key} tooltip="Code (⌘+E)">
+            <MarkToolbarButton nodeType={CodePlugin.key} tooltip={`Code (${suffix}+E)`}>
               <Code2Icon />
             </MarkToolbarButton>
           </ToolbarGroup>
