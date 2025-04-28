@@ -12,6 +12,7 @@ import { useTheme } from 'next-themes'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
 import { Avatar } from '../avatar/avatar'
 import { User } from '@repo/codegen/src/schema'
+import { useShortcutSuffix } from '@/components/shared/shortcut-suffix/shortcut-suffix.tsx'
 
 export const UserMenu = () => {
   const { setTheme, theme } = useTheme()
@@ -19,6 +20,7 @@ export const UserMenu = () => {
   const { trigger, email, userSettingsLink, themeRow, themeDropdown, commandRow, commands } = userMenuStyles()
   const userId = sessionData?.user.userId
   const { data } = useGetCurrentUser(userId)
+  const { suffix, sign } = useShortcutSuffix()
 
   return (
     <DropdownMenu>
@@ -49,15 +51,15 @@ export const UserMenu = () => {
         <div className={commandRow()}>
           <p>Command menu</p>
           <div className={commands()}>
-            <Kbd text="⌘" size="small" />
-            <Kbd text="K" size="small" />
+            <Kbd text={suffix} size="small" padding="pl-3 pr-3" />
+            <Kbd text={sign} size="small" />
           </div>
         </div>
         <div className={commandRow()}>
           <p>Search menu</p>
           <div className={commands()}>
-            <Kbd text="⌘" size="small" />
-            <Kbd text="/" size="small" />
+            <Kbd text={suffix} size="small" padding="pl-3 pr-3" />
+            <Kbd text={sign} size="small" />
           </div>
         </div>
         <DropdownMenuSeparator spacing="md" />
