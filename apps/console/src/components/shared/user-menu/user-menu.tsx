@@ -12,7 +12,7 @@ import { useTheme } from 'next-themes'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
 import { Avatar } from '../avatar/avatar'
 import { User } from '@repo/codegen/src/schema'
-import { BookText, BriefcaseBusiness, Keyboard, LogOut, NotebookPen, UserRoundCog } from 'lucide-react'
+import { BookText, BriefcaseBusiness, Keyboard, LogOut, NotebookPen, Paintbrush, UserRoundCog } from 'lucide-react'
 
 export const UserMenu = () => {
   const { setTheme, theme } = useTheme()
@@ -38,21 +38,24 @@ export const UserMenu = () => {
         <DropdownMenuSeparator spacing="md" className="border-b" />
         <DropdownMenuItem asChild>
           <Link href="/user-settings/profile" className={userSettingsLink()}>
-            <UserRoundCog className="text-input-text" size={12} />
-            User Settings
+            <UserRoundCog className="text-input-text" size={14} />
+            <p>User Settings</p>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="/organization" className={userSettingsLink()}>
-            <BriefcaseBusiness className="text-input-text" size={12} />
-            My Organizations
+            <BriefcaseBusiness className="text-input-text" size={14} />
+            <p>My Organizations</p>
           </Link>
         </DropdownMenuItem>
 
         <DropdownMenuSeparator spacing="md" className="border-b" />
 
         <div className={themeRow()}>
-          <p>Theme</p>
+          <div className={userSettingsLink()}>
+            <Paintbrush size={14} />
+            <p>Theme</p>
+          </div>
           <Select onValueChange={(value) => setTheme(value)} value={theme}>
             <SelectTrigger className={themeDropdown()}>
               <SelectValue placeholder="Select theme" />
@@ -70,20 +73,20 @@ export const UserMenu = () => {
 
         <DropdownMenuItem asChild>
           <Link href="mailto:support@theopenlane.io" className={userSettingsLink()}>
-            <NotebookPen className="text-input-text" size={12} />
+            <NotebookPen className="text-input-text" size={14} />
             Feedback
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href="https://docs.theopenlane.io" target="_blank" rel="noopener noreferrer" className={userSettingsLink()}>
-            <BookText className="text-input-text" size={12} />
+            <BookText className="text-input-text" size={14} />
             Docs
           </Link>
         </DropdownMenuItem>
 
         <DropdownMenuSeparator spacing="md" className="border-b" />
         <div className={commandRow()}>
-          <Keyboard size={12} />
+          <Keyboard size={14} />
           <p>Command menu</p>
           <div className={commands()}>
             <span className="text-[10px]">⌘</span>
@@ -91,7 +94,7 @@ export const UserMenu = () => {
           </div>
         </div>
         <div className={commandRow()}>
-          <Keyboard size={12} />
+          <Keyboard size={14} />
           <p>Search menu</p>
           <div className={commands()}>
             <span className="text-[10px]">⌘</span>
