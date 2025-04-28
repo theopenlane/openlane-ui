@@ -110,29 +110,29 @@ const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefine
     <Panel>
       <PanelHeader heading="Passkeys and security keys" noBorder />
       <div className="flex w-full justify-between">
-        <div className="rounded-lg bg-card border flex-1">
-          <div className="flex flex-col">
-            <div className="p-3 border-b">
-              <div className="flex gap-2 items-center mb-2">
-                <h2 className="text-lg">Passkeys</h2>
-                {passKeyConfig?.badge}
+        <div className="flex w-full justify-between">
+          <div className="rounded-lg bg-card border flex-1">
+            <div className="flex flex-col">
+              <div className="p-3 border-b">
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="text-lg">Passkeys {passKeyConfig?.badge}</h2>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>{passKeyConfig?.text}</span>
+                  <Button onClick={handleConfigure} loading={loading} disabled={loading}>
+                    Add another Passkey
+                  </Button>
+                </div>
               </div>
-              {passKeyConfig?.text}
+              {userData?.user.setting.isWebauthnAllowed && (
+                <div className="divide-y">
+                  {passkeys?.user?.webauthns?.edges?.map((passkey) => {
+                    const key = passkey?.node as Webauthn
+                    return <PasskeyItem passkey={key} key={key.id} />
+                  })}
+                </div>
+              )}
             </div>
-            {userData?.user.setting.isWebauthnAllowed ? (
-              <div className="divide-y">
-                {passkeys?.user?.webauthns?.edges?.map((passkey) => {
-                  const key = passkey?.node as Webauthn
-                  return <PasskeyItem passkey={key} key={key.id} />
-                })}
-              </div>
-            ) : (
-              <div className="p-3">
-                <Button onClick={handleConfigure} loading={loading} disabled={loading}>
-                  Configure Passkey
-                </Button>
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -160,7 +160,7 @@ const PasskeyItem = ({ passkey }: { passkey: Webauthn }) => {
       <div className="flex items-center gap-2">
         {passkeyData.icon_dark && <img src={passkeyData.icon_dark} alt="Passkey icon" className="w-5 h-5" />}
         <div>
-          <p className="font-medium">{passkeyData.name || 'Unnamed Passkey'}</p>
+          <p className="font-medium">{passkeyData.name || 'Unrecognized Passkey device'}</p>
           <p className="text-sm text-muted-foreground">Added on {new Date(passkey.createdAt).toLocaleDateString()}</p>
         </div>
       </div>
