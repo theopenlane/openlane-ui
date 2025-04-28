@@ -177,3 +177,18 @@ export const GET_PROGRAM_DETAILS_BY_ID = gql`
     }
   }
 `
+
+export const GET_PROGRAM_BASIC_INFO = gql`
+  query GetProgramBasicInfo($programId: ID!) {
+    program(id: $programId) {
+      name
+      startDate
+      endDate
+      description
+      auditFirm
+      auditor
+      auditorEmail
+      auditorReady
+    }
+  }
+`
