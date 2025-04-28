@@ -36,8 +36,7 @@ export default function Header() {
             <OrganizationSelector />
           </div>
           <div className={userNav()}>
-            <Link href="mailto:support@theopenlane.io">Feedback</Link>
-            <Link href="https://docs.theopenlane.io">Docs</Link>
+            <SupportLinks />
             <UserMenu />
           </div>
         </nav>
@@ -66,19 +65,26 @@ export default function Header() {
           </div>
 
           <div className={userNav()}>
-            <GlobalSearch />
-            <Link href="mailto:support@theopenlane.io" className="flex gap-2 items-center">
-              <NotebookPen className="text-input-text" size={16} />
-              <p>Feedback</p>
-            </Link>
-            <Link href="https://docs.theopenlane.io" className="flex gap-2 items-center">
-              <BookText className="text-input-text" size={16} />
-              <p>Docs</p>
-            </Link>
+            <SupportLinks />
             <UserMenu />
           </div>
         </nav>
       </div>
+    </>
+  )
+}
+
+function SupportLinks() {
+  return (
+    <>
+      <Link href="mailto:support@theopenlane.io" className="flex gap-2 items-center">
+        <NotebookPen className="text-input-text" size={16} />
+        <p>Feedback</p>
+      </Link>
+      <Link href="https://docs.theopenlane.io" className="flex gap-2 items-center">
+        <BookText className="text-input-text" size={16} />
+        <p>Docs</p>
+      </Link>
     </>
   )
 }
