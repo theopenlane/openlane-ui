@@ -30,7 +30,7 @@ export const UserMenu = () => {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="min-w-64 border shadow-md">
-        <div className="text-sm">
+        <div className="text-sm px-2">
           {`${data?.user.firstName} ${data?.user.lastName}`}
           <br />
           <div className={email()}>{data?.user.email}</div>
