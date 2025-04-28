@@ -126,7 +126,7 @@ const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefine
                 <div className="flex items-center justify-between">
                   <span>{passKeyConfig?.text}</span>
                   <Button onClick={handleConfigure} loading={loading} disabled={loading}>
-                    Add another Passkey
+                    {passkeys?.user?.webauthns?.edges?.length ? 'Add another Passkey' : 'Add passkey'}
                   </Button>
                 </div>
               </div>
@@ -172,7 +172,7 @@ const PasskeyItem = ({ passkey }: { passkey: Webauthn }) => {
       <div className="flex items-center gap-2">
         {iconSrc && <img src={iconSrc} alt="Passkey icon" className="w-5 h-5" />}
         <div>
-          <p className="font-medium">{passkeyData.name || 'Unrecognized Passkey device'}</p>
+          <p className="font-medium">{passkeyData.name || 'Passkey device'}</p>
           <p className="text-sm text-muted-foreground">Added on {new Date(passkey.createdAt).toLocaleDateString()}</p>
         </div>
       </div>
