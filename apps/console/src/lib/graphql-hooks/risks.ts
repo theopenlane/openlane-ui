@@ -39,7 +39,7 @@ export const useRisksWithFilter = ({ where, pagination, orderBy }: UseRisksWithF
     queryFn: async () =>
       await client.request<GetAllRisksQuery>(GET_ALL_RISKS, {
         where,
-        pagination,
+        ...pagination?.query,
         orderBy,
       }),
   })
