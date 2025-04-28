@@ -9,13 +9,11 @@ import PendingActions from '@/components/pages/protected/overview/pending-action
 import Risks from '@/components/pages/protected/overview/risks'
 import Questionnaire from '@/components/pages/protected/overview/questionnaire'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
-import { useGetAllPrograms, useGetProgramBasicInfo } from '@/lib/graphql-hooks/programs'
+import { useGetAllPrograms } from '@/lib/graphql-hooks/programs'
 import StatsCards from '@/components/shared/stats-cards/stats-cards'
 import { NewUserLanding } from '@/components/pages/protected/dashboard/dashboard'
 import { Loading } from '@/components/shared/loading/loading'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
-import BasicInformation from '@/components/pages/protected/dashboard/basic-info'
-import ProgramAuditor from '@/components/pages/protected/dashboard/program-auditor'
 
 const Page: React.FC = () => {
   const router = useRouter()
@@ -25,9 +23,6 @@ const Page: React.FC = () => {
   const { data, isLoading } = useGetAllPrograms({
     statusNEQ: ProgramProgramStatus.COMPLETED,
   })
-
-  const programId = searchParams.get('id')
-  const { data: basicInfoData, isLoading: isBasicInfoLoading } = useGetProgramBasicInfo(programId)
 
   const programMap = useMemo(() => {
     const map: Record<string, string> = {}
@@ -100,26 +95,6 @@ const Page: React.FC = () => {
       />
 
       <div className="flex flex-col gap-7">
-        {selectedProgram !== 'All programs' && (
-          <div className="flex gap-7 w-full">
-            {isBasicInfoLoading ? (
-              <Loading />
-            ) : basicInfoData?.program ? (
-              <>
-                <BasicInformation
-                  name={basicInfoData.program.name}
-                  startDate={basicInfoData.program.startDate}
-                  endDate={basicInfoData.program.endDate}
-                  description={basicInfoData.program.description}
-                />
-                <ProgramAuditor firm={basicInfoData.program.auditFirm} name={basicInfoData.program.auditor} email={basicInfoData.program.auditorEmail} isReady={!!basicInfoData.program.auditorReady} />
-              </>
-            ) : (
-              <div>No program info available</div>
-            )}
-          </div>
-        )}
-
         <div className="flex flex-wrap gap-7">
           <MyTask />
           <PendingActions />
