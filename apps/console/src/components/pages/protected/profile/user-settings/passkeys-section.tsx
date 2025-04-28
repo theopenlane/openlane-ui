@@ -1,5 +1,6 @@
 'use client'
 
+import { useTheme } from 'next-themes'
 import { useNotification } from '@/hooks/useNotification'
 import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
 import { getPasskeyRegOptions, verifyRegistration } from '@/lib/user'
@@ -143,6 +144,9 @@ const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefine
 const PasskeyItem = ({ passkey }: { passkey: Webauthn }) => {
   const { successNotification, errorNotification } = useNotification()
   const passkeyData = getPasskeyData(passkey.aaguid)
+  const { resolvedTheme } = useTheme()
+
+  const iconSrc = resolvedTheme === 'dark' ? passkeyData.icon_dark : passkeyData.icon_light
 
   const { mutateAsync: deletePasskey } = useDeletePasskey()
 
@@ -161,7 +165,7 @@ const PasskeyItem = ({ passkey }: { passkey: Webauthn }) => {
   return (
     <div className="flex items-center justify-between p-3 border-b last:border-b-0">
       <div className="flex items-center gap-2">
-        {passkeyData.icon_dark && <img src={passkeyData.icon_dark} alt="Passkey icon" className="w-5 h-5" />}
+        {iconSrc && <img src={iconSrc} alt="Passkey icon" className="w-5 h-5" />}
         <div>
           <p className="font-medium">{passkeyData.name || 'Unrecognized Passkey device'}</p>
           <p className="text-sm text-muted-foreground">Added on {new Date(passkey.createdAt).toLocaleDateString()}</p>
