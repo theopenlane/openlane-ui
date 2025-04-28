@@ -7,12 +7,11 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import Link from 'next/link'
 import { ChevronDown } from '@repo/ui/icons/chevron-down'
-import { Kbd } from '@repo/ui/kbd'
 import { useTheme } from 'next-themes'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
 import { Avatar } from '../avatar/avatar'
 import { User } from '@repo/codegen/src/schema'
-import { useShortcutSuffix } from '@/components/shared/shortcut-suffix/shortcut-suffix.tsx'
+import { BookText, BriefcaseBusiness, Keyboard, LogOut, NotebookPen, Paintbrush, UserRoundCog } from 'lucide-react'
 
 export const UserMenu = () => {
   const { setTheme, theme } = useTheme()
@@ -20,7 +19,6 @@ export const UserMenu = () => {
   const { trigger, email, userSettingsLink, themeRow, themeDropdown, commandRow, commands } = userMenuStyles()
   const userId = sessionData?.user.userId
   const { data } = useGetCurrentUser(userId)
-  const { suffix, sign } = useShortcutSuffix()
 
   return (
     <DropdownMenu>
@@ -30,41 +28,33 @@ export const UserMenu = () => {
           <ChevronDown />
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="min-w-64">
+      <DropdownMenuContent className="min-w-64 border shadow-md">
+        <div className="text-sm px-2">
+          {`${data?.user.firstName} ${data?.user.lastName}`}
+          <br />
+          <div className={email()}>{data?.user.email}</div>
+        </div>
+        <DropdownMenuSeparator spacing="md" className="border-b" />
         <DropdownMenuItem asChild>
-          <div>
-            <div>
-              <div>
-                {`${data?.user.firstName} ${data?.user.lastName}`}
-                <br />
-                <div className={email()}>{data?.user.email}</div>
-              </div>
-              <div>
-                <Link href="/user-settings/profile" className={userSettingsLink()}>
-                  User Settings
-                </Link>
-              </div>
-            </div>
-          </div>
+          <Link href="/user-settings/profile" className={userSettingsLink()}>
+            <UserRoundCog className="text-input-text" size={14} />
+            <p>User Settings</p>
+          </Link>
         </DropdownMenuItem>
-        <DropdownMenuSeparator spacing="md" />
-        <div className={commandRow()}>
-          <p>Command menu</p>
-          <div className={commands()}>
-            <Kbd text={suffix} size="small" padding="pl-3 pr-3" />
-            <Kbd text={sign} size="small" />
-          </div>
-        </div>
-        <div className={commandRow()}>
-          <p>Search menu</p>
-          <div className={commands()}>
-            <Kbd text={suffix} size="small" padding="pl-3 pr-3" />
-            <Kbd text={sign} size="small" />
-          </div>
-        </div>
-        <DropdownMenuSeparator spacing="md" />
+        <DropdownMenuItem asChild>
+          <Link href="/organization" className={userSettingsLink()}>
+            <BriefcaseBusiness className="text-input-text" size={14} />
+            <p>My Organizations</p>
+          </Link>
+        </DropdownMenuItem>
+
+        <DropdownMenuSeparator spacing="md" className="border-b" />
+
         <div className={themeRow()}>
-          <p>Theme</p>
+          <div className={userSettingsLink()}>
+            <Paintbrush size={14} />
+            <p>Theme</p>
+          </div>
           <Select onValueChange={(value) => setTheme(value)} value={theme}>
             <SelectTrigger className={themeDropdown()}>
               <SelectValue placeholder="Select theme" />
@@ -78,16 +68,40 @@ export const UserMenu = () => {
             </SelectContent>
           </Select>
         </div>
-        <DropdownMenuSeparator spacing="md" />
-        <DropdownMenuItem>
-          <div>
-            <Link href="/organization" className={userSettingsLink()}>
-              My organizations
-            </Link>
-          </div>
+        <DropdownMenuSeparator spacing="md" className="border-b" />
+
+        <DropdownMenuItem asChild>
+          <Link href="mailto:support@theopenlane.io" className={userSettingsLink()}>
+            <NotebookPen className="text-input-text" size={14} />
+            Feedback
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="https://docs.theopenlane.io" target="_blank" rel="noopener noreferrer" className={userSettingsLink()}>
+            <BookText className="text-input-text" size={14} />
+            Docs
+          </Link>
         </DropdownMenuItem>
 
-        <DropdownMenuSeparator spacing="md" />
+        <DropdownMenuSeparator spacing="md" className="border-b" />
+        <div className={commandRow()}>
+          <Keyboard size={14} />
+          <p>Command menu</p>
+          <div className={commands()}>
+            <span className="text-[10px]">⌘</span>
+            <span>K</span>
+          </div>
+        </div>
+        <div className={commandRow()}>
+          <Keyboard size={14} />
+          <p>Search menu</p>
+          <div className={commands()}>
+            <span className="text-[10px]">⌘</span>
+            <span>/</span>
+          </div>
+        </div>
+        <DropdownMenuSeparator spacing="md" className="border-b" />
+
         <DropdownMenuItem>
           <Button
             size="md"
@@ -97,7 +111,10 @@ export const UserMenu = () => {
               signOut()
             }}
           >
-            Log out
+            <div className="flex gap-1 items-center">
+              <LogOut size={16} />
+              <span>Log out</span>
+            </div>
           </Button>
         </DropdownMenuItem>
       </DropdownMenuContent>
