@@ -7,8 +7,9 @@ import { BreadcrumbNavigation } from '@/components/shared/breadcrumb-nav/breadcr
 import { sidebarStyles } from '../sidebar/sidebar.styles'
 import { useSidebar } from '@/hooks/useSidebar'
 import { useState } from 'react'
-import { BookText, NotebookPen, PanelLeft } from 'lucide-react'
+import { BookText, PanelLeft } from 'lucide-react'
 import { usePathname } from 'next/navigation'
+import { GlobalSearch } from '../search/search'
 
 export default function Header() {
   const { isOpen, toggle } = useSidebar()
@@ -64,6 +65,7 @@ export default function Header() {
           </div>
 
           <div className={userNav()}>
+            <GlobalSearch />
             <SupportLinks />
             <UserMenu />
           </div>
