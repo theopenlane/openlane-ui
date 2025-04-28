@@ -58,7 +58,6 @@ export const OrganizationInvitesTable = () => {
         onSortChange={setOrderBy}
         columns={invitesColumns}
         data={invites}
-        noResultsText="No invites found"
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
         paginationMeta={{ totalCount: data?.invites.totalCount, pageInfo: data.invites?.pageInfo, isLoading: isFetching }}

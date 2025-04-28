@@ -15,9 +15,11 @@ import { LineHeightDropdownMenu } from './line-height-dropdown-menu'
 import { LinkToolbarButton } from './link-toolbar-button'
 import { MarkToolbarButton } from './mark-toolbar-button'
 import { ToolbarGroup } from './toolbar'
+import { useShortcutSuffix } from 'console/src/components/shared/shortcut-suffix/shortcut-suffix.tsx'
 
 export function MinimalFixedToolbarButtons() {
   const readOnly = useEditorReadOnly()
+  const { suffix } = useShortcutSuffix()
 
   return (
     <div className="flex w-full">
@@ -28,11 +30,11 @@ export function MinimalFixedToolbarButtons() {
           </ToolbarGroup>
 
           <ToolbarGroup>
-            <MarkToolbarButton nodeType={BoldPlugin.key} tooltip="Bold (⌘+B)">
+            <MarkToolbarButton nodeType={BoldPlugin.key} tooltip={`Bold (${suffix}+B)`}>
               <BoldIcon />
             </MarkToolbarButton>
 
-            <MarkToolbarButton nodeType={ItalicPlugin.key} tooltip="Italic (⌘+I)">
+            <MarkToolbarButton nodeType={ItalicPlugin.key} tooltip={`Italic (${suffix}+I)`}>
               <ItalicIcon />
             </MarkToolbarButton>
           </ToolbarGroup>

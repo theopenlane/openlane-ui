@@ -14,6 +14,7 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { useSearch } from '@/lib/graphql-hooks/search'
 import { SearchQuery } from '@repo/codegen/src/schema'
 import { Avatar } from '../avatar/avatar'
+import { useShortcutSuffix } from '@/components/shared/shortcut-suffix/shortcut-suffix.tsx'
 
 export const GlobalSearch = () => {
   const { popover } = searchStyles()
@@ -22,6 +23,7 @@ export const GlobalSearch = () => {
   const [hasResults, setHasResults] = useState(false)
   const cmdInputRef = useRef<HTMLInputElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const { fullSuffix } = useShortcutSuffix()
 
   const { data: sessionData, update: updateSession } = useSession()
   const { push } = useRouter()
@@ -112,7 +114,7 @@ export const GlobalSearch = () => {
               ref={inputRef}
               placeholder="Search..."
               icon={<SearchIcon size={16} />}
-              suffix="⌘ /"
+              suffix={fullSuffix}
               value={query}
               onChange={(e) => {
                 e.stopPropagation()
