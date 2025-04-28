@@ -16,7 +16,7 @@ import MessageBox from '@repo/ui/message-box'
 const setAuditorSchema = z.object({
   auditorName: z.string().min(1, 'Name is required'),
   auditorEmail: z.string().email('Invalid email address'),
-  auditFirm: z.string().min(1, 'Firm is required'), // added here
+  auditFirm: z.string().optional(),
   auditorReadComments: z.boolean().default(false),
   auditorWriteComments: z.boolean().default(false),
   auditorReady: z.boolean().default(false),
@@ -51,7 +51,7 @@ export const SetAuditorDialog = () => {
       input: {
         auditor: values.auditorName,
         auditorEmail: values.auditorEmail,
-        auditFirm: values.auditFirm, // include auditFirm when updating
+        auditFirm: values.auditFirm,
         auditorReadComments: values.auditorReadComments,
         auditorWriteComments: values.auditorWriteComments,
         auditorReady: values.auditorReady,
@@ -75,15 +75,11 @@ export const SetAuditorDialog = () => {
         </DialogHeader>
 
         <div className="flex flex-col gap-4 mt-4 w-80">
-          {/* Show Zod validation errors if there are any */}
           {errorMessages.length > 0 && <MessageBox className="p-4 ml-1" message={errorMessages.join(', ')} variant="error" />}
-
-          {/* Inputs */}
           <Input {...form.register('auditorName')} placeholder="Name" />
           <Input {...form.register('auditorEmail')} placeholder="Email" />
           <Input {...form.register('auditFirm')} placeholder="Firm" />
 
-          {/* Switches Section */}
           <div className="flex flex-col gap-4 mt-6">
             <div className="flex items-center gap-2">
               <span className="text-sm">Auditor can read comments</span>
