@@ -125,7 +125,7 @@ const GroupsMembersTable = () => {
     },
   ]
 
-  return <DataTable columns={columns} data={users} noResultsText="No users found" />
+  return <DataTable columns={columns} data={users} />
 }
 
 export default GroupsMembersTable

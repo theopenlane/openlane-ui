@@ -15,9 +15,11 @@ import { MoreDropdownMenu } from './more-dropdown-menu'
 import { SuggestionToolbarButton } from './suggestion-toolbar-button'
 import { ToolbarGroup } from './toolbar'
 import { TurnIntoDropdownMenu } from './turn-into-dropdown-menu'
+import { useShortcutSuffix } from 'console/src/components/shared/shortcut-suffix/shortcut-suffix.tsx'
 
 export function AdvancedFloatingToolbarButtons() {
   const readOnly = useEditorReadOnly()
+  const { suffix } = useShortcutSuffix()
 
   return (
     <>
@@ -33,23 +35,23 @@ export function AdvancedFloatingToolbarButtons() {
           <ToolbarGroup>
             <TurnIntoDropdownMenu variant="advanced" />
 
-            <MarkToolbarButton nodeType={BoldPlugin.key} tooltip="Bold (⌘+B)">
+            <MarkToolbarButton nodeType={BoldPlugin.key} tooltip={`Bold (${suffix}+B)`}>
               <BoldIcon />
             </MarkToolbarButton>
 
-            <MarkToolbarButton nodeType={ItalicPlugin.key} tooltip="Italic (⌘+I)">
+            <MarkToolbarButton nodeType={ItalicPlugin.key} tooltip={`Italic (${suffix}+I)`}>
               <ItalicIcon />
             </MarkToolbarButton>
 
-            <MarkToolbarButton nodeType={UnderlinePlugin.key} tooltip="Underline (⌘+U)">
+            <MarkToolbarButton nodeType={UnderlinePlugin.key} tooltip={`Underline (${suffix}+U)`}>
               <UnderlineIcon />
             </MarkToolbarButton>
 
-            <MarkToolbarButton nodeType={StrikethroughPlugin.key} tooltip="Strikethrough (⌘+⇧+M)">
+            <MarkToolbarButton nodeType={StrikethroughPlugin.key} tooltip={`Strikethrough (${suffix}+⇧+M)`}>
               <StrikethroughIcon />
             </MarkToolbarButton>
 
-            <MarkToolbarButton nodeType={CodePlugin.key} tooltip="Code (⌘+E)">
+            <MarkToolbarButton nodeType={CodePlugin.key} tooltip={`Code (${suffix}+E)`}>
               <Code2Icon />
             </MarkToolbarButton>
 
