@@ -3,11 +3,10 @@
 import { Badge } from '@repo/ui/badge'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
-import { GlobeIcon, LockIcon, StarsIcon, Users2Icon } from 'lucide-react'
+import { GlobeIcon, LockIcon, StarsIcon } from 'lucide-react'
 import React from 'react'
-import { Group, GroupSettingVisibility } from '@repo/codegen/src/schema'
+import { Group } from '@repo/codegen/src/schema'
 import AvatarList from '@/components/shared/avatar-list/avatar-list'
-import { TableCell, TableRow } from '@repo/ui/table'
 import { groupsTableStyles } from './groups-table-styles'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { GROUP_SORT_FIELDS } from '@/components/pages/protected/groups/table/table-config.ts'
@@ -124,16 +123,6 @@ const GroupsTable = ({ groups, isError, onSortChange, pagination, onPaginationCh
         onRowClick={handleRowClick}
         sortFields={GROUP_SORT_FIELDS}
         onSortChange={onSortChange}
-        noDataMarkup={
-          <TableRow className={tableRow()}>
-            <TableCell colSpan={columns.length}>
-              <div className="flex flex-col justify-center items-center">
-                <Users2Icon height={89} width={89} className={keyIcon()} strokeWidth={1} color="#DAE3E7" />
-                <p className={message()}>You're not part of any group.</p>
-              </div>
-            </TableCell>
-          </TableRow>
-        }
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => onPaginationChange(pagination)}
         paginationMeta={paginationMeta}
