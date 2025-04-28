@@ -11,15 +11,11 @@ import {
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
-import { KeyRound } from 'lucide-react'
 import { usePathname } from 'next/navigation'
-import { TableCell, TableRow } from '@repo/ui/table'
 import { useGetApiTokens, useGetPersonalAccessTokens } from '@/lib/graphql-hooks/tokens'
 import PersonalAccessTokensTableToolbar from '@/components/pages/protected/developers/table/personal-access-tokens-table-toolbar.tsx'
 import { useMemo, useState } from 'react'
-import { personalAccessTokenTableStyles } from '../personal-access-tokens-table-styles'
 import { TokenAction } from '@/components/pages/protected/developers/actions/pat-actions.tsx'
-import PersonalApiKeyDialog from '../personal-access-token-create-dialog'
 import { TOKEN_SORT_FIELDS } from '@/components/pages/protected/developers/table/table-config.ts'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
@@ -37,8 +33,6 @@ export const PersonalAccessTokenTable = () => {
   const path = usePathname()
   const isOrg = path.includes('/organization-settings')
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
-
-  const { tableRow, keyIcon, message } = personalAccessTokenTableStyles()
 
   type CommonWhereType = GetPersonalAccessTokensQueryVariables['where'] | GetApiTokensQueryVariables['where']
 
@@ -152,26 +146,7 @@ export const PersonalAccessTokenTable = () => {
   return (
     <>
       <PersonalAccessTokensTableToolbar onFilterChange={setFilters} />
-      <DataTable
-        columns={columns}
-        data={tokens}
-        sortFields={TOKEN_SORT_FIELDS}
-        onSortChange={setOrderBy}
-        pagination={pagination}
-        onPaginationChange={setPagination}
-        paginationMeta={paginationMeta}
-        noDataMarkup={
-          <TableRow className={tableRow()}>
-            <TableCell colSpan={columns.length}>
-              <div className="flex flex-col justify-center items-center">
-                <KeyRound height={89} width={89} className={keyIcon()} strokeWidth={1} color="#DAE3E7" />
-                <p className={message()}> No tokens found</p>
-                <PersonalApiKeyDialog triggerText />
-              </div>
-            </TableCell>
-          </TableRow>
-        }
-      />
+      <DataTable columns={columns} data={tokens} sortFields={TOKEN_SORT_FIELDS} onSortChange={setOrderBy} pagination={pagination} onPaginationChange={setPagination} paginationMeta={paginationMeta} />
     </>
   )
 }
