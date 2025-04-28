@@ -5349,6 +5349,12 @@ export interface CreateProcedureInput {
  */
 export interface CreateProgramInput {
   actionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the name of the audit firm conducting the audit */
+  auditFirm?: InputMaybe<Scalars['String']['input']>
+  /** the full name of the auditor conducting the audit */
+  auditor?: InputMaybe<Scalars['String']['input']>
+  /** the email of the auditor conducting the audit */
+  auditorEmail?: InputMaybe<Scalars['String']['input']>
   /** can the auditor read comments */
   auditorReadComments?: InputMaybe<Scalars['Boolean']['input']>
   /** is the program ready for the auditor */
@@ -20079,6 +20085,12 @@ export interface ProcedureWhereInput {
 export interface Program extends Node {
   __typename?: 'Program'
   actionPlans: ActionPlanConnection
+  /** the name of the audit firm conducting the audit */
+  auditFirm?: Maybe<Scalars['String']['output']>
+  /** the full name of the auditor conducting the audit */
+  auditor?: Maybe<Scalars['String']['output']>
+  /** the email of the auditor conducting the audit */
+  auditorEmail?: Maybe<Scalars['String']['output']>
   /** can the auditor read comments */
   auditorReadComments: Scalars['Boolean']['output']
   /** is the program ready for the auditor */
@@ -20303,6 +20315,12 @@ export interface ProgramEdge {
 
 export interface ProgramHistory extends Node {
   __typename?: 'ProgramHistory'
+  /** the name of the audit firm conducting the audit */
+  auditFirm?: Maybe<Scalars['String']['output']>
+  /** the full name of the auditor conducting the audit */
+  auditor?: Maybe<Scalars['String']['output']>
+  /** the email of the auditor conducting the audit */
+  auditorEmail?: Maybe<Scalars['String']['output']>
   /** can the auditor read comments */
   auditorReadComments: Scalars['Boolean']['output']
   /** is the program ready for the auditor */
@@ -20411,6 +20429,54 @@ export enum ProgramHistoryProgramType {
  */
 export interface ProgramHistoryWhereInput {
   and?: InputMaybe<Array<ProgramHistoryWhereInput>>
+  /** audit_firm field predicates */
+  auditFirm?: InputMaybe<Scalars['String']['input']>
+  auditFirmContains?: InputMaybe<Scalars['String']['input']>
+  auditFirmContainsFold?: InputMaybe<Scalars['String']['input']>
+  auditFirmEqualFold?: InputMaybe<Scalars['String']['input']>
+  auditFirmGT?: InputMaybe<Scalars['String']['input']>
+  auditFirmGTE?: InputMaybe<Scalars['String']['input']>
+  auditFirmHasPrefix?: InputMaybe<Scalars['String']['input']>
+  auditFirmHasSuffix?: InputMaybe<Scalars['String']['input']>
+  auditFirmIn?: InputMaybe<Array<Scalars['String']['input']>>
+  auditFirmIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  auditFirmLT?: InputMaybe<Scalars['String']['input']>
+  auditFirmLTE?: InputMaybe<Scalars['String']['input']>
+  auditFirmNEQ?: InputMaybe<Scalars['String']['input']>
+  auditFirmNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  auditFirmNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** auditor field predicates */
+  auditor?: InputMaybe<Scalars['String']['input']>
+  auditorContains?: InputMaybe<Scalars['String']['input']>
+  auditorContainsFold?: InputMaybe<Scalars['String']['input']>
+  /** auditor_email field predicates */
+  auditorEmail?: InputMaybe<Scalars['String']['input']>
+  auditorEmailContains?: InputMaybe<Scalars['String']['input']>
+  auditorEmailContainsFold?: InputMaybe<Scalars['String']['input']>
+  auditorEmailEqualFold?: InputMaybe<Scalars['String']['input']>
+  auditorEmailGT?: InputMaybe<Scalars['String']['input']>
+  auditorEmailGTE?: InputMaybe<Scalars['String']['input']>
+  auditorEmailHasPrefix?: InputMaybe<Scalars['String']['input']>
+  auditorEmailHasSuffix?: InputMaybe<Scalars['String']['input']>
+  auditorEmailIn?: InputMaybe<Array<Scalars['String']['input']>>
+  auditorEmailIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  auditorEmailLT?: InputMaybe<Scalars['String']['input']>
+  auditorEmailLTE?: InputMaybe<Scalars['String']['input']>
+  auditorEmailNEQ?: InputMaybe<Scalars['String']['input']>
+  auditorEmailNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  auditorEmailNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  auditorEqualFold?: InputMaybe<Scalars['String']['input']>
+  auditorGT?: InputMaybe<Scalars['String']['input']>
+  auditorGTE?: InputMaybe<Scalars['String']['input']>
+  auditorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  auditorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  auditorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  auditorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  auditorLT?: InputMaybe<Scalars['String']['input']>
+  auditorLTE?: InputMaybe<Scalars['String']['input']>
+  auditorNEQ?: InputMaybe<Scalars['String']['input']>
+  auditorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  auditorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** auditor_read_comments field predicates */
   auditorReadComments?: InputMaybe<Scalars['Boolean']['input']>
   auditorReadCommentsNEQ?: InputMaybe<Scalars['Boolean']['input']>
@@ -21128,6 +21194,54 @@ export interface ProgramUpdatePayload {
  */
 export interface ProgramWhereInput {
   and?: InputMaybe<Array<ProgramWhereInput>>
+  /** audit_firm field predicates */
+  auditFirm?: InputMaybe<Scalars['String']['input']>
+  auditFirmContains?: InputMaybe<Scalars['String']['input']>
+  auditFirmContainsFold?: InputMaybe<Scalars['String']['input']>
+  auditFirmEqualFold?: InputMaybe<Scalars['String']['input']>
+  auditFirmGT?: InputMaybe<Scalars['String']['input']>
+  auditFirmGTE?: InputMaybe<Scalars['String']['input']>
+  auditFirmHasPrefix?: InputMaybe<Scalars['String']['input']>
+  auditFirmHasSuffix?: InputMaybe<Scalars['String']['input']>
+  auditFirmIn?: InputMaybe<Array<Scalars['String']['input']>>
+  auditFirmIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  auditFirmLT?: InputMaybe<Scalars['String']['input']>
+  auditFirmLTE?: InputMaybe<Scalars['String']['input']>
+  auditFirmNEQ?: InputMaybe<Scalars['String']['input']>
+  auditFirmNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  auditFirmNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** auditor field predicates */
+  auditor?: InputMaybe<Scalars['String']['input']>
+  auditorContains?: InputMaybe<Scalars['String']['input']>
+  auditorContainsFold?: InputMaybe<Scalars['String']['input']>
+  /** auditor_email field predicates */
+  auditorEmail?: InputMaybe<Scalars['String']['input']>
+  auditorEmailContains?: InputMaybe<Scalars['String']['input']>
+  auditorEmailContainsFold?: InputMaybe<Scalars['String']['input']>
+  auditorEmailEqualFold?: InputMaybe<Scalars['String']['input']>
+  auditorEmailGT?: InputMaybe<Scalars['String']['input']>
+  auditorEmailGTE?: InputMaybe<Scalars['String']['input']>
+  auditorEmailHasPrefix?: InputMaybe<Scalars['String']['input']>
+  auditorEmailHasSuffix?: InputMaybe<Scalars['String']['input']>
+  auditorEmailIn?: InputMaybe<Array<Scalars['String']['input']>>
+  auditorEmailIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  auditorEmailLT?: InputMaybe<Scalars['String']['input']>
+  auditorEmailLTE?: InputMaybe<Scalars['String']['input']>
+  auditorEmailNEQ?: InputMaybe<Scalars['String']['input']>
+  auditorEmailNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  auditorEmailNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  auditorEqualFold?: InputMaybe<Scalars['String']['input']>
+  auditorGT?: InputMaybe<Scalars['String']['input']>
+  auditorGTE?: InputMaybe<Scalars['String']['input']>
+  auditorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  auditorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  auditorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  auditorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  auditorLT?: InputMaybe<Scalars['String']['input']>
+  auditorLTE?: InputMaybe<Scalars['String']['input']>
+  auditorNEQ?: InputMaybe<Scalars['String']['input']>
+  auditorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  auditorNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** auditor_read_comments field predicates */
   auditorReadComments?: InputMaybe<Scalars['Boolean']['input']>
   auditorReadCommentsNEQ?: InputMaybe<Scalars['Boolean']['input']>
@@ -29128,6 +29242,12 @@ export interface UpdateProgramInput {
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  /** the name of the audit firm conducting the audit */
+  auditFirm?: InputMaybe<Scalars['String']['input']>
+  /** the full name of the auditor conducting the audit */
+  auditor?: InputMaybe<Scalars['String']['input']>
+  /** the email of the auditor conducting the audit */
+  auditorEmail?: InputMaybe<Scalars['String']['input']>
   /** can the auditor read comments */
   auditorReadComments?: InputMaybe<Scalars['Boolean']['input']>
   /** is the program ready for the auditor */
@@ -29135,6 +29255,9 @@ export interface UpdateProgramInput {
   /** can the auditor write comments */
   auditorWriteComments?: InputMaybe<Scalars['Boolean']['input']>
   clearActionPlans?: InputMaybe<Scalars['Boolean']['input']>
+  clearAuditFirm?: InputMaybe<Scalars['Boolean']['input']>
+  clearAuditor?: InputMaybe<Scalars['Boolean']['input']>
+  clearAuditorEmail?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearControlObjectives?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>

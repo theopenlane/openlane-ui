@@ -4,11 +4,10 @@ import { headerStyles } from './header.styles'
 import { UserMenu } from '@/components/shared/user-menu/user-menu'
 import { OrganizationSelector } from '@/components/shared/organization-selector/organization-selector'
 import { BreadcrumbNavigation } from '@/components/shared/breadcrumb-nav/breadcrumb'
-import { GlobalSearch } from '@/components/shared/search/search'
 import { sidebarStyles } from '../sidebar/sidebar.styles'
 import { useSidebar } from '@/hooks/useSidebar'
 import { useState } from 'react'
-import { PanelLeft } from 'lucide-react'
+import { BookText, NotebookPen, PanelLeft } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 
 export default function Header() {
@@ -36,6 +35,7 @@ export default function Header() {
             <OrganizationSelector />
           </div>
           <div className={userNav()}>
+            <SupportLinks />
             <UserMenu />
           </div>
         </nav>
@@ -64,12 +64,20 @@ export default function Header() {
           </div>
 
           <div className={userNav()}>
-            <GlobalSearch />
-
+            <SupportLinks />
             <UserMenu />
           </div>
         </nav>
       </div>
     </>
+  )
+}
+
+function SupportLinks() {
+  return (
+    <Link href="https://docs.theopenlane.io" className="flex gap-2 items-center">
+      <BookText className="text-input-text" size={16} />
+      <p>Docs</p>
+    </Link>
   )
 }
