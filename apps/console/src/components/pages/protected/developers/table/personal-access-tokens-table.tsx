@@ -157,7 +157,6 @@ export const PersonalAccessTokenTable = () => {
         data={tokens}
         sortFields={TOKEN_SORT_FIELDS}
         onSortChange={setOrderBy}
-        noResultsText="No tokens found"
         pagination={pagination}
         onPaginationChange={setPagination}
         paginationMeta={paginationMeta}

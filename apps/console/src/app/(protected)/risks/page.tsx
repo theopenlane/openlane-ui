@@ -137,7 +137,6 @@ const RiskTablePage: React.FC = () => {
         pagination={pagination}
         onPaginationChange={setPagination}
         paginationMeta={paginationMeta}
-        noResultsText="No risks found"
         noDataMarkup={
           <TableRow>
             <TableCell colSpan={columns.length}>
