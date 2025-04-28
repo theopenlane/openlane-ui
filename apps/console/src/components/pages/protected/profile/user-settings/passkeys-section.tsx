@@ -87,6 +87,11 @@ const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefine
         return
       }
 
+      if (err.name === 'InvalidStateError') {
+        errorNotification({ title: 'You have previously added a passkey using this device' })
+        return
+      }
+
       errorNotification({ title: 'An error occurred while setting up your passkey' })
     }
   }
