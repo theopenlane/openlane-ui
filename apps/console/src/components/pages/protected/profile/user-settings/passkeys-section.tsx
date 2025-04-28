@@ -3,7 +3,7 @@
 import { useNotification } from '@/hooks/useNotification'
 import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
 import { getPasskeyRegOptions, verifyRegistration } from '@/lib/user'
-import { GetUserProfileQuery, Webauthn, WebauthnEdge } from '@repo/codegen/src/schema'
+import { GetUserProfileQuery, Webauthn } from '@repo/codegen/src/schema'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Panel, PanelHeader } from '@repo/ui/panel'
@@ -12,6 +12,27 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { useGetPasskeys } from '@/lib/graphql-hooks/passkeys'
+import rawData from '@/lib/passkeys.json' assert { type: 'json' }
+
+type PasskeyEntry = {
+  name?: string
+  icon_dark?: string
+  icon_light?: string
+}
+
+type PasskeysData = Record<string, PasskeyEntry>
+
+const passkeysData = rawData as PasskeysData
+
+const getPasskeyData = (id: string): PasskeyEntry => {
+  const passkey = passkeysData[id]
+
+  return {
+    name: passkey?.name || '',
+    icon_dark: passkey?.icon_dark || '',
+    icon_light: passkey?.icon_light || '',
+  }
+}
 
 const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefined }) => {
   const { successNotification, errorNotification } = useNotification()
@@ -121,14 +142,14 @@ const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefine
 
 const PasskeyItem = ({ passkey }: { passkey: Webauthn }) => {
   const { successNotification, errorNotification } = useNotification()
+  const passkeyData = getPasskeyData(passkey.aaguid)
 
   const removePasskeys = async () => {
     try {
       successNotification({
-        title: `Your passkeys have been removed. You will only be able to sign in with your passwords now`,
+        title: `Your passkeys have been removed`,
       })
     } catch (error) {
-      console.error('Error updating user settings:', error)
       errorNotification({
         title: 'Failed to disable passkeys authentication',
       })
@@ -136,21 +157,22 @@ const PasskeyItem = ({ passkey }: { passkey: Webauthn }) => {
   }
   return (
     <div className="flex items-center justify-between p-3 border-b last:border-b-0">
-      <div>
-        <p className="font-medium">{'Unnamed Passkey'}</p>
-        <p className="text-sm text-muted-foreground">Added on {new Date(passkey.createdAt).toLocaleDateString()}</p>
+      <div className="flex items-center gap-2">
+        {passkeyData.icon_dark && <img src={passkeyData.icon_dark} alt="Passkey icon" className="w-5 h-5" />}
+        <div>
+          <p className="font-medium">{passkeyData.name || 'Unnamed Passkey'}</p>
+          <p className="text-sm text-muted-foreground">Added on {new Date(passkey.createdAt).toLocaleDateString()}</p>
+        </div>
       </div>
       <Dialog>
         <DialogTrigger>
-          <Button variant="redOutline" size="sm">
-            Remove
-          </Button>
+          <Button variant="redOutline">Remove</Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[455px]">
           <DialogHeader>
             <DialogTitle className="text-2xl font-semibold">Remove your Passkey</DialogTitle>
             <DialogDescription className="pt-2">
-              Are you sure you want to remove this passkey? You'll need to use your password to sign in, and you'll need to set up your passkeys again if you want to use them later.
+              Are you sure you want to remove this passkey? You will no longer be able to use this passkey to authenticate anymore as this operation cannot be reversed
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end space-x-4 pt-4">

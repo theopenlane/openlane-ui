@@ -11,6 +11,7 @@ export const GET_PASSKEYS = gql`
             backupEligible
             createdAt
             tags
+            aaguid
           }
         }
       }

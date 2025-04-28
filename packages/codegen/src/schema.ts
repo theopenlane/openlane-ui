@@ -5682,8 +5682,6 @@ export interface CreateUserSettingInput {
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** whether the user has two factor authentication enabled */
   isTfaEnabled?: InputMaybe<Scalars['Boolean']['input']>
-  /** specifies a user may complete authentication by verifying a WebAuthn capable device */
-  isWebauthnAllowed?: InputMaybe<Scalars['Boolean']['input']>
   /** user account is locked if unconfirmed or explicitly locked */
   locked?: InputMaybe<Scalars['Boolean']['input']>
   /** The time notifications regarding the user were silenced */
@@ -29853,7 +29851,6 @@ export interface UpdateUserSettingInput {
   clearDefaultOrg?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearIsTfaEnabled?: InputMaybe<Scalars['Boolean']['input']>
-  clearIsWebauthnAllowed?: InputMaybe<Scalars['Boolean']['input']>
   clearSilencedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearSuspendedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
@@ -29863,8 +29860,6 @@ export interface UpdateUserSettingInput {
   emailConfirmed?: InputMaybe<Scalars['Boolean']['input']>
   /** whether the user has two factor authentication enabled */
   isTfaEnabled?: InputMaybe<Scalars['Boolean']['input']>
-  /** specifies a user may complete authentication by verifying a WebAuthn capable device */
-  isWebauthnAllowed?: InputMaybe<Scalars['Boolean']['input']>
   /** user account is locked if unconfirmed or explicitly locked */
   locked?: InputMaybe<Scalars['Boolean']['input']>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -30770,11 +30765,6 @@ export interface UserSettingHistoryWhereInput {
   isTfaEnabledIsNil?: InputMaybe<Scalars['Boolean']['input']>
   isTfaEnabledNEQ?: InputMaybe<Scalars['Boolean']['input']>
   isTfaEnabledNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** is_webauthn_allowed field predicates */
-  isWebauthnAllowed?: InputMaybe<Scalars['Boolean']['input']>
-  isWebauthnAllowedIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  isWebauthnAllowedNEQ?: InputMaybe<Scalars['Boolean']['input']>
-  isWebauthnAllowedNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** locked field predicates */
   locked?: InputMaybe<Scalars['Boolean']['input']>
   lockedNEQ?: InputMaybe<Scalars['Boolean']['input']>
@@ -30991,11 +30981,6 @@ export interface UserSettingWhereInput {
   isTfaEnabledIsNil?: InputMaybe<Scalars['Boolean']['input']>
   isTfaEnabledNEQ?: InputMaybe<Scalars['Boolean']['input']>
   isTfaEnabledNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** is_webauthn_allowed field predicates */
-  isWebauthnAllowed?: InputMaybe<Scalars['Boolean']['input']>
-  isWebauthnAllowedIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  isWebauthnAllowedNEQ?: InputMaybe<Scalars['Boolean']['input']>
-  isWebauthnAllowedNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** locked field predicates */
   locked?: InputMaybe<Scalars['Boolean']['input']>
   lockedNEQ?: InputMaybe<Scalars['Boolean']['input']>
@@ -32244,7 +32229,7 @@ export type GetPasskeysQuery = {
       __typename?: 'WebauthnConnection'
       edges?: Array<{
         __typename?: 'WebauthnEdge'
-        node?: { __typename?: 'Webauthn'; id: string; backupState: boolean; backupEligible: boolean; createdAt?: any | null; tags?: Array<string> | null } | null
+        node?: { __typename?: 'Webauthn'; id: string; backupState: boolean; backupEligible: boolean; createdAt?: any | null; tags?: Array<string> | null; aaguid: any } | null
       } | null> | null
     }
   }
