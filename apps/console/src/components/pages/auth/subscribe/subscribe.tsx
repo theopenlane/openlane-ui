@@ -113,7 +113,7 @@ export const Subscribe = () => {
                   {isPending && <LoaderCircle className="animate-spin mr-2" size={20} />}
                   <span>{isPending ? 'Loading' : 'Join the waitlist'}</span>
                 </div>
-                <CircleArrowRight className="text-[#BCD9E1]" size={16} />
+                <CircleArrowRight size={16} />
               </button>
             </form>
           </Form>
