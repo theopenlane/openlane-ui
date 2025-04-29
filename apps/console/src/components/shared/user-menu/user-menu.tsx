@@ -102,21 +102,19 @@ export const UserMenu = () => {
         </div>
         <DropdownMenuSeparator spacing="md" className="border-b" />
 
-        <DropdownMenuItem>
-          <Button
-            size="md"
-            variant="outline"
-            full
-            onClick={() => {
-              signOut()
-            }}
-          >
-            <div className="flex gap-1 items-center">
-              <LogOut size={16} />
-              <span>Log out</span>
-            </div>
-          </Button>
-        </DropdownMenuItem>
+        <Button
+          size="md"
+          variant="outline"
+          full
+          onClick={() => {
+            signOut()
+          }}
+        >
+          <div className="flex gap-1 items-center">
+            <LogOut size={16} />
+            <span>Log out</span>
+          </div>
+        </Button>
       </DropdownMenuContent>
     </DropdownMenu>
   )
