@@ -23,8 +23,8 @@ export const UPDATE_PROGRAM = gql`
 `
 
 export const GET_ALL_PROGRAMS = gql`
-  query GetAllPrograms($where: ProgramWhereInput) {
-    programs(where: $where) {
+  query GetAllPrograms($where: ProgramWhereInput, $orderBy: [ProgramOrder!]) {
+    programs(where: $where, orderBy: $orderBy) {
       edges {
         node {
           id

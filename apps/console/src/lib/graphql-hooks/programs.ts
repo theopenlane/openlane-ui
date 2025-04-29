@@ -17,12 +17,17 @@ import {
   GetProgramBasicInfoQueryVariables,
 } from '@repo/codegen/src/schema'
 
-export const useGetAllPrograms = (where?: GetAllProgramsQueryVariables['where']) => {
+interface UseGetAllProgramsArgs {
+  where?: GetAllProgramsQueryVariables['where']
+  orderBy?: GetAllProgramsQueryVariables['orderBy']
+}
+
+export const useGetAllPrograms = ({ where, orderBy }: UseGetAllProgramsArgs = {}) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetAllProgramsQuery, GetAllProgramsQueryVariables>({
-    queryKey: ['programs', { where }],
-    queryFn: async () => client.request(GET_ALL_PROGRAMS, { where }),
+    queryKey: ['programs', { where, orderBy }],
+    queryFn: async () => client.request(GET_ALL_PROGRAMS, { where, orderBy }),
     enabled: true,
   })
 }

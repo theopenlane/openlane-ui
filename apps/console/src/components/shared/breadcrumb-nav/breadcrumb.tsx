@@ -4,12 +4,13 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbS
 import { ChevronRight, Loader } from 'lucide-react'
 import React from 'react'
 import { toTitleCase } from '@/components/shared/lib/strings'
-import { useParams, usePathname } from 'next/navigation'
+import { useParams, usePathname, useSearchParams } from 'next/navigation'
 import { useGetInternalPolicyDetailsById } from '@/lib/graphql-hooks/policy'
 import { useGetStandardDetails } from '@/lib/graphql-hooks/standards'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
-import { useGetProcedureDetailsById } from '@/lib/graphql-hooks/procedures.ts'
+import { useGetProcedureDetailsById } from '@/lib/graphql-hooks/procedures'
+import { useGetProgramBasicInfo } from '@/lib/graphql-hooks/programs'
 
 type TBreadCrumbProps = {
   homeElement?: string
@@ -17,7 +18,9 @@ type TBreadCrumbProps = {
 
 export const BreadcrumbNavigation = ({ homeElement = 'Home' }: TBreadCrumbProps) => {
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const params = useParams()
+
   const pathNames = pathname.split('/').filter(Boolean)
 
   const policyId = pathNames.includes('policies') ? (params.id as string) : null
@@ -25,54 +28,99 @@ export const BreadcrumbNavigation = ({ homeElement = 'Home' }: TBreadCrumbProps)
   const controlId = pathNames.includes('controls') ? (params.id as string) : null
   const procedureId = pathNames.includes('procedures') ? (params.id as string) : null
   const subcontrolId = params.subcontrolId as string | undefined
+  const programId = pathname.startsWith('/programs') ? searchParams.get('id') : null
 
-  const { data, isLoading: isLoadingPolicy } = useGetInternalPolicyDetailsById(policyId)
+  const { data: policyData, isLoading: isLoadingPolicy } = useGetInternalPolicyDetailsById(policyId)
   const { data: procedureData, isLoading: isLoadingProcedure } = useGetProcedureDetailsById(procedureId)
   const { data: standardData, isLoading: isLoadingStandard } = useGetStandardDetails(standardId)
   const { data: controlData, isLoading: isLoadingControl } = useGetControlById(controlId)
   const { data: subcontrolData, isLoading: isLoadingSubcontrol } = useGetSubcontrolById(subcontrolId)
+  const { data: programData, isLoading: isLoadingProgram } = useGetProgramBasicInfo(programId || null)
+  console.log('controlData', controlData)
+  const isLoading = isLoadingPolicy || isLoadingStandard || isLoadingControl || isLoadingSubcontrol || isLoadingProcedure || isLoadingProgram
 
-  const isLoading = isLoadingPolicy || isLoadingStandard || isLoadingControl || isLoadingSubcontrol || isLoadingProcedure
+  const breadcrumbs: { name: string; url?: string }[] = [{ name: homeElement, url: '/dashboard' }]
+
+  if (pathname.startsWith('/programs')) {
+    breadcrumbs.push({ name: 'Programs', url: '/programs' })
+
+    if (programData) {
+      breadcrumbs.push({
+        name: programData.program?.name ?? 'Unknown Program',
+      })
+    }
+  } else if (pathname.startsWith('/policies')) {
+    breadcrumbs.push({ name: 'Policies', url: '/policies' })
+
+    if (policyData?.internalPolicy) {
+      breadcrumbs.push({
+        name: policyData.internalPolicy.name,
+      })
+    }
+  } else if (pathname.startsWith('/standards')) {
+    breadcrumbs.push({ name: 'Standards', url: '/standards' })
+
+    if (standardData?.standard) {
+      breadcrumbs.push({
+        name: standardData.standard.shortName ?? 'Unknown Standard',
+      })
+    }
+  } else if (pathname.startsWith('/controls')) {
+    breadcrumbs.push({ name: 'Controls', url: '/controls' })
+
+    if (controlData?.control) {
+      breadcrumbs.push({
+        name: controlData.control.refCode,
+        url: `/controls/${controlData.control.id}`,
+      })
+    }
+    if (subcontrolData) {
+      breadcrumbs.push({
+        name: subcontrolData.subcontrol.refCode,
+      })
+    }
+  } else if (pathname.startsWith('/procedures')) {
+    breadcrumbs.push({ name: 'Procedures', url: '/procedures' })
+
+    if (procedureData?.procedure) {
+      breadcrumbs.push({
+        name: procedureData.procedure.name,
+      })
+    }
+  } else {
+    pathNames.forEach((link, index) => {
+      const href = `/${pathNames.slice(0, index + 1).join('/')}`
+      const exists = breadcrumbs.find((crumb) => crumb.url === href)
+      if (!exists) {
+        breadcrumbs.push({ name: toTitleCase(link.replaceAll('-', ' ')), url: href })
+      }
+    })
+  }
 
   return (
     <Breadcrumb>
       <BreadcrumbList>
-        <BreadcrumbItem>
-          <BreadcrumbLink href="/dashboard">{homeElement}</BreadcrumbLink>
-        </BreadcrumbItem>
-
-        {pathNames.map((link, index) => {
-          const href = `/${pathNames.slice(0, index + 1).join('/')}`
-          let itemLink = toTitleCase(link.replaceAll('-', ' '))
-
-          // Show dynamic names based on matched segments
-          if (link === policyId && data?.internalPolicy) {
-            itemLink = data.internalPolicy.name
-          } else if (link === standardId && standardData?.standard) {
-            itemLink = standardData.standard.shortName ?? 'Unknown'
-          } else if (link === controlId && controlData?.control) {
-            itemLink = controlData.control.refCode
-          } else if (link === subcontrolId && subcontrolData?.subcontrol) {
-            itemLink = subcontrolData.subcontrol.refCode
-          } else if (link === procedureId && procedureData?.procedure) {
-            itemLink = procedureData.procedure.name
-          }
-
-          if (index === pathNames.length - 1 && isLoading) {
-            return (
-              <BreadcrumbSeparator key="loading">
-                <Loader size={16} className="animate-spin" />
-              </BreadcrumbSeparator>
-            )
-          }
+        {breadcrumbs.map((crumb, index) => {
+          const isLast = index === breadcrumbs.length - 1
 
           return (
-            <React.Fragment key={href}>
-              <BreadcrumbSeparator>
-                <ChevronRight size={16} />
-              </BreadcrumbSeparator>
+            <React.Fragment key={index}>
+              {index !== 0 && (
+                <BreadcrumbSeparator>
+                  <ChevronRight size={16} />
+                </BreadcrumbSeparator>
+              )}
               <BreadcrumbItem>
-                <BreadcrumbLink href={href}>{itemLink}</BreadcrumbLink>
+                {isLast && isLoading ? (
+                  <div className="flex items-center gap-2">
+                    <Loader size={16} className="animate-spin" />
+                    <span className="font-medium text-muted-foreground">Loading...</span>
+                  </div>
+                ) : isLast || !crumb.url ? (
+                  <span className="font-medium text-foreground">{crumb.name}</span>
+                ) : (
+                  <BreadcrumbLink href={crumb.url}>{crumb.name}</BreadcrumbLink>
+                )}
               </BreadcrumbItem>
             </React.Fragment>
           )
