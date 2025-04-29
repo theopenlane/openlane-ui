@@ -31732,6 +31732,18 @@ export type UpdateControlMutationVariables = Exact<{
 
 export type UpdateControlMutation = { __typename?: 'Mutation'; updateControl: { __typename?: 'ControlUpdatePayload'; control: { __typename?: 'Control'; id: string } } }
 
+export type GetControlCountsByStatusQueryVariables = Exact<{
+  programId: Scalars['ID']['input']
+}>
+
+export type GetControlCountsByStatusQuery = {
+  __typename?: 'Query'
+  preparing: { __typename?: 'ControlConnection'; totalCount: number }
+  needsApproval: { __typename?: 'ControlConnection'; totalCount: number }
+  changesRequested: { __typename?: 'ControlConnection'; totalCount: number }
+  approved: { __typename?: 'ControlConnection'; totalCount: number }
+}
+
 export type CreateEvidenceMutationVariables = Exact<{
   input: CreateEvidenceInput
   evidenceFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>

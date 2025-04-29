@@ -21,7 +21,9 @@ const Page: React.FC = () => {
   const [selectedProgram, setSelectedProgram] = useState<string>('All programs')
 
   const { data, isLoading } = useGetAllPrograms({
-    statusNEQ: ProgramProgramStatus.COMPLETED,
+    where: {
+      statusNEQ: ProgramProgramStatus.COMPLETED,
+    },
   })
 
   const programMap = useMemo(() => {

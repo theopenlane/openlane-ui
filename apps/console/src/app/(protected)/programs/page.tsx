@@ -14,6 +14,7 @@ import { OrderDirection, ProgramOrderField, ProgramProgramStatus } from '@repo/c
 import BasicInformation from '@/components/pages/protected/dashboard/basic-info'
 import ProgramAuditor from '@/components/pages/protected/dashboard/program-auditor'
 import ProgramsTaskTable from '@/components/pages/programs/programs-tasks-table'
+import { ControlsSummaryCard } from '@/components/pages/protected/programs/controls-summary-card'
 
 const Page: React.FC = () => {
   const router = useRouter()
@@ -113,6 +114,7 @@ const Page: React.FC = () => {
 
         <StatsCards />
         <ProgramsTaskTable />
+        <ControlsSummaryCard />
       </div>
     </>
   )

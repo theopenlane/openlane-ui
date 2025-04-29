@@ -36,7 +36,6 @@ export const BreadcrumbNavigation = ({ homeElement = 'Home' }: TBreadCrumbProps)
   const { data: controlData, isLoading: isLoadingControl } = useGetControlById(controlId)
   const { data: subcontrolData, isLoading: isLoadingSubcontrol } = useGetSubcontrolById(subcontrolId)
   const { data: programData, isLoading: isLoadingProgram } = useGetProgramBasicInfo(programId || null)
-  console.log('controlData', controlData)
   const isLoading = isLoadingPolicy || isLoadingStandard || isLoadingControl || isLoadingSubcontrol || isLoadingProcedure || isLoadingProgram
 
   const breadcrumbs: { name: string; url?: string }[] = [{ name: homeElement, url: '/dashboard' }]
@@ -114,7 +113,6 @@ export const BreadcrumbNavigation = ({ homeElement = 'Home' }: TBreadCrumbProps)
                 {isLast && isLoading ? (
                   <div className="flex items-center gap-2">
                     <Loader size={16} className="animate-spin" />
-                    <span className="font-medium text-muted-foreground">Loading...</span>
                   </div>
                 ) : isLast || !crumb.url ? (
                   <span className="font-medium text-foreground">{crumb.name}</span>

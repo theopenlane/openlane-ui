@@ -16,6 +16,7 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TaskStatusIconMapper } from '../protected/tasks/table/columns'
 import { TASK_SORT_FIELDS } from '../protected/tasks/table/table-config'
 import { useSearchParams } from 'next/navigation'
+import Frame from '@/assets/Frame'
 
 type FormattedTask = {
   id: string
@@ -111,8 +112,8 @@ const TasksTable = () => {
     <div className="p-6 bg-muted rounded-lg">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Outstanding tasks</h2>
-        <Link href="/tasks">
-          <Button variant="outline" className="text-sm">
+        <Link href={`/tasks?programId=${programId}`}>
+          <Button icon={<Frame size={16} />} iconPosition="left">
             View Tasks
           </Button>
         </Link>
