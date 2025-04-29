@@ -25,7 +25,7 @@ const Waitlist: React.FC = () => {
 
           <div className="flex flex-col md:flex-row gap-3 mt-10">
             {/* GitHub */}
-            <a href="https://github.com/theopenlane" target="_blank" rel="noopener noreferrer" className="bg-card flex items-center gap-3 px-2.5 py-1.5 rounded-lg border w-full md:w-60">
+            <a href="https://github.com/theopenlane" target="_blank" rel="noopener noreferrer" className="bg-card flex items-center gap-3 px-2.5 py-1.5 rounded-lg border w-[162px] ">
               <Github size={30} />
               <div className="flex flex-col text-left text-sm leading-tight gap-1">
                 <span>GitHub</span>
@@ -34,7 +34,7 @@ const Waitlist: React.FC = () => {
             </a>
 
             {/* Discord */}
-            <a href="https://discord.gg/4fq2sxDk7D" target="_blank" rel="noopener noreferrer" className="bg-card flex items-center gap-3 px-2.5 py-1.5 rounded-lg border w-full md:w-60">
+            <a href="https://discord.gg/4fq2sxDk7D" target="_blank" rel="noopener noreferrer" className="bg-card flex items-center gap-3 px-2.5 py-1.5 rounded-lg border w-[162px] ">
               <Discord size={30} />
               <div className="flex flex-col text-left text-sm leading-tight gap-1">
                 <span>Discord</span>
@@ -43,7 +43,7 @@ const Waitlist: React.FC = () => {
             </a>
 
             {/* LinkedIn */}
-            <a href="https://www.linkedin.com/company/theopenlane" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-2.5 py-1.5 rounded-lg border bg-card w-full md:w-60">
+            <a href="https://www.linkedin.com/company/theopenlane" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 px-2.5 py-1.5 rounded-lg border bg-card w-[162px] ">
               <Linkedin size={30} />
               <div className="flex flex-col text-left text-sm leading-tight gap-1">
                 <span>LinkedIn</span>
