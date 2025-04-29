@@ -109,11 +109,11 @@ export const Subscribe = () => {
                 )}
               />
               <button type="submit" className={button()} disabled={isPending}>
-                <div>
-                  {isPending && <LoaderCircle className="animate-spin mr-2" size={20} />}
-                  <span>{isPending ? 'Loading' : 'Join the waitlist'}</span>
+                <div className="flex items-center">
+                  {isPending && <LoaderCircle className="animate-spin mr-2" size={16} />}
+                  <span>{isPending ? 'Joining...' : 'Join the waitlist'}</span>
                 </div>
-                <CircleArrowRight className="text-[#BCD9E1]" size={16} />
+                <CircleArrowRight size={16} />
               </button>
             </form>
           </Form>
