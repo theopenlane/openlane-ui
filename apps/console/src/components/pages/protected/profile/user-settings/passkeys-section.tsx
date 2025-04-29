@@ -40,7 +40,7 @@ const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefine
 
   const [loading, setLoading] = useState<boolean>(false)
 
-  const { data: passkeys } = useGetPasskeys(userData?.user?.id)
+  const { data: passkeys } = useGetPasskeys()
 
   const queryClient = useQueryClient()
 
@@ -126,13 +126,13 @@ const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefine
                 <div className="flex items-center justify-between">
                   <span>{passKeyConfig?.text}</span>
                   <Button onClick={handleConfigure} loading={loading} disabled={loading}>
-                    {passkeys?.user?.webauthns?.edges?.length ? 'Add another Passkey' : 'Add passkey'}
+                    {passkeys?.webauthns?.edges?.length ? 'Add another Passkey' : 'Add passkey'}
                   </Button>
                 </div>
               </div>
               {userData?.user.setting.isWebauthnAllowed && (
                 <div className="divide-y">
-                  {passkeys?.user?.webauthns?.edges?.map((passkey) => {
+                  {passkeys?.webauthns?.edges?.map((passkey) => {
                     const key = passkey?.node as Webauthn
                     return <PasskeyItem passkey={key} key={key.id} />
                   })}

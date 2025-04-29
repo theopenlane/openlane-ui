@@ -32217,21 +32217,16 @@ export type DeleteOrganizationMutationVariables = Exact<{
 
 export type DeleteOrganizationMutation = { __typename?: 'Mutation'; deleteOrganization: { __typename?: 'OrganizationDeletePayload'; deletedID: string } }
 
-export type GetPasskeysQueryVariables = Exact<{
-  userId: Scalars['ID']['input']
-}>
+export type GetPasskeysQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetPasskeysQuery = {
   __typename?: 'Query'
-  user: {
-    __typename?: 'User'
-    webauthns: {
-      __typename?: 'WebauthnConnection'
-      edges?: Array<{
-        __typename?: 'WebauthnEdge'
-        node?: { __typename?: 'Webauthn'; id: string; backupState: boolean; backupEligible: boolean; createdAt?: any | null; tags?: Array<string> | null; aaguid: any } | null
-      } | null> | null
-    }
+  webauthns: {
+    __typename?: 'WebauthnConnection'
+    edges?: Array<{
+      __typename?: 'WebauthnEdge'
+      node?: { __typename?: 'Webauthn'; id: string; backupState: boolean; backupEligible: boolean; createdAt?: any | null; tags?: Array<string> | null; aaguid: any } | null
+    } | null> | null
   }
 }
 

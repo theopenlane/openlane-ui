@@ -3,11 +3,11 @@ import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { DeletePasskeyMutation, DeletePasskeyMutationVariables, GetPasskeysQuery } from '@repo/codegen/src/schema'
 import { DELETE_PASSKEY, GET_PASSKEYS } from '@repo/codegen/query/passkey'
 
-export const useGetPasskeys = (userId?: string | null) => {
+export const useGetPasskeys = () => {
   const { client } = useGraphQLClient()
   return useQuery<GetPasskeysQuery, unknown>({
     queryKey: ['passkeys'],
-    queryFn: async () => client.request(GET_PASSKEYS, { userId }),
+    queryFn: async () => client.request(GET_PASSKEYS),
   })
 }
 
