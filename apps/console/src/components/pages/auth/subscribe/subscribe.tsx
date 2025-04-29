@@ -110,7 +110,7 @@ export const Subscribe = () => {
               />
               <button type="submit" className={button()} disabled={isPending}>
                 <div>
-                  {isPending && <LoaderCircle className="animate-spin mr-2" size={20} />}
+                  {isPending && <LoaderCircle className="animate-spin mr-2" size={16} />}
                   <span>{isPending ? 'Joining...' : 'Join the waitlist'}</span>
                 </div>
                 <CircleArrowRight size={16} />
