@@ -82,8 +82,7 @@ const columns: ColumnDef<Group>[] = [
                 id: user.user.id,
                 imageUrl: user.user.avatarFile?.presignedURL ?? user.user.avatarRemoteURL ?? undefined,
                 fallback: user.user.firstName?.substring(0, 2) ?? undefined,
-                firstName: user.user.firstName ?? undefined,
-                lastName: user.user.lastName ?? undefined,
+                displayName: user.user?.displayName ?? undefined,
               }))}
             />
           ) : (

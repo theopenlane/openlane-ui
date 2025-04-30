@@ -31808,6 +31808,7 @@ export type GetAllGroupsQuery = {
             id: string
             firstName?: string | null
             lastName?: string | null
+            displayName: string
             avatarRemoteURL?: string | null
             role?: UserRole | null
             avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null

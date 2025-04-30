@@ -22,6 +22,7 @@ export const GET_ALL_GROUPS = gql`
               avatarFile {
                 presignedURL
               }
+              displayName
               avatarRemoteURL
               role
             }
