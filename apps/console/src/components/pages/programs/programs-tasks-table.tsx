@@ -34,7 +34,7 @@ const columns: ColumnDef<FormattedTask>[] = [
     cell: ({ row }) => {
       const task = row.original
       return (
-        <Link href={`/tasks/${task.id}`} className="text-blue-500 hover:underline">
+        <Link href={`/tasks?taskId=${task.id}`} className="text-blue-500 hover:underline">
           {task.title}
         </Link>
       )
