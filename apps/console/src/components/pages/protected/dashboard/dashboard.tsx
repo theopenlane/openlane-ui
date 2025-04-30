@@ -33,7 +33,7 @@ export const DefaultLanding: React.FC<DashboardProps> = ({ programs, tasks }) =>
               {programs && programs.edges?.length > 0 ? (
                 programs.edges.slice(0, 2).map((program, i) => (
                   <React.Fragment key={i}>
-                    <Link href={`/programs//programs/${program.node.id}`} key={program.node.id} className="text-lg font-medium text-gray-900 dark:text-gray-50">
+                    <Link href={`/programs/programs/${program.node.id}`} key={program.node.id} className="text-lg font-medium text-gray-900 dark:text-gray-50">
                       {program.node.name}
                     </Link>
                     {/* TODO (sfunk): This are just stubbed progress bars; Update them with data */}
