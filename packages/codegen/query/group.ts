@@ -1,8 +1,8 @@
 import { gql } from 'graphql-request'
 
 export const GET_ALL_GROUPS = gql`
-  query GetAllGroups($where: GroupWhereInput, $orderBy: [GroupOrder!]) {
-    groups(where: $where, orderBy: $orderBy) {
+  query GetAllGroups($where: GroupWhereInput, $orderBy: [GroupOrder!], $first: Int, $after: Cursor) {
+    groups(where: $where, orderBy: $orderBy, first: $first, after: $after) {
       edges {
         node {
           id
@@ -38,6 +38,8 @@ export const GET_ALL_GROUPS = gql`
       pageInfo {
         endCursor
         startCursor
+        hasPreviousPage
+        hasNextPage
       }
       totalCount
     }
