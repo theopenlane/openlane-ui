@@ -15,6 +15,7 @@ import BasicInformation from '@/components/pages/protected/dashboard/basic-info'
 import ProgramAuditor from '@/components/pages/protected/dashboard/program-auditor'
 import ProgramsTaskTable from '@/components/pages/programs/programs-tasks-table'
 import { ControlsSummaryCard } from '@/components/pages/protected/programs/controls-summary-card'
+import { ArrowRight, ShieldCheck } from 'lucide-react'
 
 const Page: React.FC = () => {
   const router = useRouter()
@@ -62,9 +63,49 @@ const Page: React.FC = () => {
   if (isLoading) {
     return <Loading />
   }
-
   if (!data?.programs.edges?.length) {
-    return <NewUserLanding />
+    return (
+      <>
+        <PageHeading heading="Programs" />
+        <div className="flex flex-col items-center justify-center mt-16 gap-6">
+          <div className="max-w-3xl p-4 border rounded-lg  text-sm text-muted-foreground">
+            <div className="flex items-start gap-2">
+              <span className="text-primary">
+                <svg width="20" height="20" fill="currentColor">
+                  <circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="2" fill="none" />
+                  <circle cx="10" cy="10" r="1.5" />
+                </svg>
+              </span>
+              <div>
+                <p className="text-base">What is Programs?</p>
+                <p className="mt-2 text-sm">
+                  Within Openlane, Programs are a centerpiece for managing compliance and regulatory requirements. Think of a program as a large, high-level grouping of work; it represents a
+                  significant body of work that can be broken down into smaller, more manageable tasks. Essentially, it’s a big picture initiative that can span months or possibly a year+, and can
+                  encompass work across different teams.
+                  <a href="https://docs.theopenlane.io" target="_blank" rel="noopener noreferrer" className="ml-1 text-blue-500">
+                    Learn more at Docs.
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center gap-2">
+            <ShieldCheck className="text-border" size={89} strokeWidth={1} />
+
+            <p className="text-sm text-muted-foreground">No programs found</p>
+            <p className="text-sm text-muted-foreground">Ready to get started?</p>
+            <ProgramCreate
+              trigger={
+                <div className="text-blue-500 flex items-center gap-1">
+                  <p className="text-blue-500">Create a new one</p> <ArrowRight className="mt-0.5" size={16} />
+                </div>
+              }
+            />
+          </div>
+        </div>
+      </>
+    )
   }
 
   return (
