@@ -16,6 +16,7 @@ import {
   DELETE_ORGANIZATION,
   UPDATE_ORGANIZATION,
   GET_ORGANIZATION_BILLING_BANNER,
+  GET_LOGS,
 } from '@repo/codegen/query/organization'
 import {
   GetAllOrganizationsQuery,
@@ -44,6 +45,9 @@ import {
   GetInvitesQueryVariables,
   GetOrganizationBillingBannerQuery,
   GetOrganizationBillingBannerQueryVariables,
+  GetLogsQueryVariables,
+  GetLogsQuery,
+  AuditLog,
 } from '@repo/codegen/src/schema'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Variables } from 'graphql-request'
@@ -202,4 +206,33 @@ export const useUpdateOrgAvatar = () => {
       queryClient.invalidateQueries({ queryKey: ['user'] })
     },
   })
+}
+
+type TGetAuditLogsProp = {
+  where: GetLogsQueryVariables['where']
+  pagination?: TPagination
+}
+
+export const useGetAuditLogs = ({ where, pagination }: TGetAuditLogsProp) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetLogsQuery>({
+    queryKey: ['auditLogs', where, pagination?.pageSize, pagination?.page],
+    queryFn: async () => client.request(GET_LOGS, { where, ...pagination?.query }),
+  })
+
+  const logs = (queryResult.data?.auditLogs?.edges ?? []).map((edge) => edge?.node) as AuditLog[]
+
+  const paginationMeta = {
+    totalCount: queryResult.data?.auditLogs?.totalCount ?? 0,
+    pageInfo: queryResult.data?.auditLogs?.pageInfo,
+    isLoading: queryResult.isFetching,
+  }
+
+  return {
+    ...queryResult,
+    logs,
+    paginationMeta,
+    isLoading: queryResult.isFetching,
+  }
 }

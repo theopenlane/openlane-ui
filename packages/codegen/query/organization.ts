@@ -223,3 +223,27 @@ export const DELETE_ORGANIZATION = gql`
     }
   }
 `
+
+export const GET_LOGS = gql`
+  query getLogs($where: AuditLogWhereInput) {
+    auditLogs(where: $where) {
+      edges {
+        node {
+          changes
+          id
+          operation
+          table
+          time
+          updatedBy
+        }
+      }
+      pageInfo {
+        startCursor
+        hasPreviousPage
+        hasNextPage
+        endCursor
+      }
+      totalCount
+    }
+  }
+`
