@@ -66,7 +66,7 @@ const columns: ColumnDef<FormattedTask>[] = [
     accessorKey: 'due',
     cell: ({ row }) => {
       const due = row.original.due
-      return due ? format(new Date(due), 'PP') : '—'
+      return due ? format(new Date(due), 'MMMM d, yyyy') : '—'
     },
   },
   {
