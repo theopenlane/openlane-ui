@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react'
-import { TPagination, TPaginationMeta } from '@/pagination/types.ts'
+import { TPagination, TPaginationMeta } from '../pagination/types.ts'
 
 type TInfiniteScrollProps = {
   pagination: TPagination
