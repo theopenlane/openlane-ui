@@ -13,8 +13,8 @@ const Waitlist: React.FC = () => {
       <div className="mb-8 flex">
         <Logo width={180} /> {/* Slightly smaller logo on mobile */}
       </div>
-      <div className="flex flex-col md:flex-row relative">
-        <div className="relative z-10 w-full md:max-w-lg">
+      <div className="flex flex-col md:flex-row relative gap-5 items-center">
+        <div className="relative z-10 w-full md:max-w-lg self-start">
           <h1 className="text-4xl md:text-5xl font-normal leading-tight mb-4">
             Compliance should be <br className="hidden md:block" /> built-in, not bolted on
           </h1>
@@ -57,8 +57,9 @@ const Waitlist: React.FC = () => {
             <Link href="https://www.theopenlane.io/legal/terms-of-service">Terms of Service</Link>
           </div>
         </div>
-
-        <img className="hidden md:block absolute right-0 top-0 max-h-full" src="/icons/settings-bg.svg" alt="Background pattern" />
+        <div className="max-w-xxl">
+          <img className="hidden md:block " src="/icons/settings-bg.svg" alt="Background pattern" />
+        </div>
       </div>
     </main>
   )
