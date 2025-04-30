@@ -2,8 +2,8 @@ import React from 'react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { ArrowUpRight, ArrowDownRight, Hourglass } from 'lucide-react'
 import { statCardStyles } from './stats-cards-styles'
-import { useGetAllEvidences } from '@/lib/graphql-hooks/evidence'
-import { useSearchParams } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
+import { useGlobalEvidenceStats, useProgramEvidenceStats } from '@/lib/graphql-hooks/programs'
 
 interface Stat {
   title: string
@@ -14,36 +14,6 @@ interface Stat {
   trendType: 'up' | 'down'
   color: 'green' | 'red' | 'yellow'
 }
-
-const stats: Stat[] = [
-  {
-    title: 'Evidence submitted',
-    percentage: 88,
-    count: 178,
-    total: 250,
-    trend: 5.97,
-    trendType: 'up',
-    color: 'green',
-  },
-  {
-    title: 'Evidence accepted',
-    percentage: 8,
-    count: 12,
-    total: 250,
-    trend: 5.97,
-    trendType: 'down',
-    color: 'red',
-  },
-  {
-    title: 'Evidence overdue',
-    percentage: 29,
-    count: 35,
-    total: 250,
-    trend: 5.97,
-    trendType: 'up',
-    color: 'yellow',
-  },
-]
 
 const StatCard: React.FC<{ stat: Stat; hasData: boolean }> = ({ stat, hasData }) => {
   const { title, percentage, count, total, trend, trendType, color } = stat
@@ -61,17 +31,15 @@ const StatCard: React.FC<{ stat: Stat; hasData: boolean }> = ({ stat, hasData })
         ) : (
           <>
             <div className="flex justify-between items-center">
-              <div className={trendBadge()}>
+              {/* <div className={trendBadge()}>
                 {trendType === 'up' ? <ArrowUpRight size={12} className="mr-1" /> : <ArrowDownRight size={12} className="mr-1" />}
                 {trend}%
-              </div>
+              </div> */}
             </div>
             <div className={percentageClass()}>{percentage}%</div>
             <div className={statDetails()}>
-              <div>
-                {percentage}% ({count})
-              </div>
-              <div>{total} Controls</div>
+              <p className="text-base">{`${percentage}% (${count})`}</p>
+              <p className="text-base">{`${total} Controls`}</p>
             </div>
             <div className={progressWrapper()}>
               <div className={progressBar()} style={{ width: `${percentage}%` }}></div>
@@ -85,15 +53,50 @@ const StatCard: React.FC<{ stat: Stat; hasData: boolean }> = ({ stat, hasData })
 
 const StatsCards: React.FC = () => {
   const searchParams = useSearchParams()
+  const path = usePathname()
   const programId = searchParams.get('id') as string
 
-  const { data: data, isLoading, error } = useGetAllEvidences({ hasProgramsWith: programId ? [{ id: programId }] : undefined })
-  const hasData = !!data?.evidences.edges?.length
+  const programStats = useProgramEvidenceStats(programId)
+  const globalStats = useGlobalEvidenceStats({ enabled: !path.startsWith('/programs') })
+
+  const data = programId ? programStats.data : globalStats.data
+
+  const total = data?.total ?? 0
+
+  const dynamicStats: Stat[] = [
+    {
+      title: 'Evidence submitted',
+      percentage: total ? Math.round(((data?.submitted ?? 0) / total) * 100) : 0,
+      count: data?.submitted ?? 0,
+      total,
+      trend: 0,
+      trendType: 'up',
+      color: 'green',
+    },
+    {
+      title: 'Evidence accepted',
+      percentage: total ? Math.round(((data?.accepted ?? 0) / total) * 100) : 0,
+      count: data?.accepted ?? 0,
+      total,
+      trend: 0,
+      trendType: 'down',
+      color: 'red',
+    },
+    {
+      title: 'Evidence overdue',
+      percentage: total ? Math.round(((data?.overdue ?? 0) / total) * 100) : 0,
+      count: data?.overdue ?? 0,
+      total,
+      trend: 0,
+      trendType: 'up',
+      color: 'yellow',
+    },
+  ]
 
   return (
     <div className="flex gap-8 justify-center">
-      {stats.map((stat, index) => (
-        <StatCard key={index} stat={stat} hasData={hasData} />
+      {dynamicStats.map((stat, index) => (
+        <StatCard key={index} stat={stat} hasData={total > 0} />
       ))}
     </div>
   )

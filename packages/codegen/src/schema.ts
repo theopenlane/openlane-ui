@@ -32684,6 +32684,28 @@ export type GetProgramBasicInfoQuery = {
   }
 }
 
+export type GetEvidenceStatsQueryVariables = Exact<{
+  programId: Scalars['ID']['input']
+}>
+
+export type GetEvidenceStatsQuery = {
+  __typename?: 'Query'
+  totalControls: { __typename?: 'ControlConnection'; totalCount: number }
+  submitted: { __typename?: 'ControlConnection'; totalCount: number }
+  accepted: { __typename?: 'ControlConnection'; totalCount: number }
+  overdue: { __typename?: 'ControlConnection'; totalCount: number }
+}
+
+export type GetGlobalEvidenceStatsQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetGlobalEvidenceStatsQuery = {
+  __typename?: 'Query'
+  totalControls: { __typename?: 'ControlConnection'; totalCount: number }
+  submitted: { __typename?: 'ControlConnection'; totalCount: number }
+  accepted: { __typename?: 'ControlConnection'; totalCount: number }
+  overdue: { __typename?: 'ControlConnection'; totalCount: number }
+}
+
 export type RiskFieldsFragment = {
   __typename?: 'Risk'
   id: string
