@@ -1,28 +1,24 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Badge } from '@repo/ui/badge'
 import { GlobeIcon, LockIcon } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
 import { Group, User } from '@repo/codegen/src/schema'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { Avatar } from '@/components/shared/avatar/avatar'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 
 interface Props {
   groups: Group[]
-  isPending: boolean
   isError: boolean
 }
 
-const MyGroupsCard = ({ groups, isPending, isError }: Props) => {
+const MyGroupsCard = ({ groups, isError }: Props) => {
   const { setSelectedGroup } = useGroupsStore()
 
   const handleRowClick = (group: Group) => {
     setSelectedGroup(group.id)
-  }
-
-  if (isPending) {
-    return <p>Loading groups...</p>
   }
 
   if (isError) {
@@ -52,11 +48,31 @@ const MyGroupsCard = ({ groups, isPending, isError }: Props) => {
                   ))}
                 </div>
               )}
-              {group.members && group?.members?.length > 0 ? (
+              {group.members && group.members.length > 0 ? (
                 <div className="flex items-center gap-2">
-                  {group.members.map((member: any, index: number) => {
-                    return <Avatar key={index} className="h-8 w-8" entity={member.user as User} />
-                  })}
+                  {group.members.slice(0, 9).map((member: any, index: number) => (
+                    <Avatar key={index} className="h-8 w-8" entity={member.user as User} />
+                  ))}
+
+                  {group.members.length > 9 && (
+                    <TooltipProvider disableHoverableContent={false}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="h-8 w-8 flex items-center justify-center text-sm rounded-full bg-muted text-muted-foreground border">+{group.members.length - 9}</div>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" className="text-sm max-h-[300px] overflow-y-auto" avoidCollisions={false}>
+                          <div className="flex flex-col gap-1">
+                            {group.members.slice(9).map((member: any, idx: number) => (
+                              <div key={idx} className="flex items-center gap-2 border-b h-11">
+                                <Avatar className="h-8 w-8" entity={member.user as User} />
+                                <p>{member?.user?.firstName + ' ' + member?.user?.lastName}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
                 </div>
               ) : (
                 <p className="">No members</p>

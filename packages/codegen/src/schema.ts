@@ -31779,6 +31779,8 @@ export type GetAllEvidencesQuery = {
 export type GetAllGroupsQueryVariables = Exact<{
   where?: InputMaybe<GroupWhereInput>
   orderBy?: InputMaybe<Array<GroupOrder> | GroupOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type GetAllGroupsQuery = {
@@ -31806,6 +31808,7 @@ export type GetAllGroupsQuery = {
             id: string
             firstName?: string | null
             lastName?: string | null
+            displayName: string
             avatarRemoteURL?: string | null
             role?: UserRole | null
             avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
@@ -31821,7 +31824,7 @@ export type GetAllGroupsQuery = {
         } | null
       } | null
     } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
 

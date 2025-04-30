@@ -3,3 +3,9 @@ export const DEFAULT_PAGINATION = {
   pageSize: 10,
   query: { first: 10 },
 }
+
+export const CARD_DEFAULT_PAGINATION = {
+  page: 1,
+  pageSize: 30,
+  query: { first: 30 },
+}
