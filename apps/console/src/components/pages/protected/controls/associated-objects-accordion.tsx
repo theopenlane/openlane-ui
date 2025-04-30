@@ -156,7 +156,7 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
             rows.map((program) => (
               <TableRow key={program.id}>
                 <TableCell className="px-4 py-2 whitespace-nowrap">
-                  <Link href={`/programs/${program.id}`} className="text-blue-500 hover:underline">
+                  <Link href={`/programs?id=${program.id}`} className="text-blue-500 hover:underline">
                     {program.name}
                   </Link>
                 </TableCell>
