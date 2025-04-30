@@ -24,7 +24,6 @@ export const Default: Story = {
     const [open, setOpen] = useState(false)
 
     const handleConfirm = () => {
-      console.log('Confirmed!')
       setOpen(false)
     }
 

@@ -1,8 +1,16 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { GET_ALL_CONTROLS, GET_CONTROL_BY_ID, UPDATE_CONTROL } from '@repo/codegen/query/control'
+import { GET_ALL_CONTROLS, GET_CONTROL_BY_ID, GET_CONTROL_COUNTS_BY_STATUS, UPDATE_CONTROL } from '@repo/codegen/query/control'
 
-import { Control, GetAllControlsQuery, GetAllControlsQueryVariables, GetControlByIdQuery, UpdateControlMutation, UpdateControlMutationVariables } from '@repo/codegen/src/schema'
+import {
+  Control,
+  GetAllControlsQuery,
+  GetAllControlsQueryVariables,
+  GetControlByIdQuery,
+  GetControlCountsByStatusQuery,
+  UpdateControlMutation,
+  UpdateControlMutationVariables,
+} from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 
 type UseGetAllControlsArgs = {
@@ -57,5 +65,15 @@ export const useUpdateControl = () => {
   return useMutation<UpdateControlMutation, unknown, UpdateControlMutationVariables>({
     mutationFn: async (variables) => client.request(UPDATE_CONTROL, variables),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['controls'] }),
+  })
+}
+
+export const useGetControlCountsByStatus = (programId?: string | null) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetControlCountsByStatusQuery, unknown>({
+    queryKey: ['controls', 'counts', programId],
+    queryFn: async () => client.request(GET_CONTROL_COUNTS_BY_STATUS, { programId }),
+    enabled: !!programId,
   })
 }

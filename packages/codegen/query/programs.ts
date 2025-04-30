@@ -23,8 +23,8 @@ export const UPDATE_PROGRAM = gql`
 `
 
 export const GET_ALL_PROGRAMS = gql`
-  query GetAllPrograms($where: ProgramWhereInput) {
-    programs(where: $where) {
+  query GetAllPrograms($where: ProgramWhereInput, $orderBy: [ProgramOrder!]) {
+    programs(where: $where, orderBy: $orderBy) {
       edges {
         node {
           id
@@ -174,6 +174,55 @@ export const GET_PROGRAM_DETAILS_BY_ID = gql`
           }
         }
       }
+    }
+  }
+`
+
+export const GET_PROGRAM_BASIC_INFO = gql`
+  query GetProgramBasicInfo($programId: ID!) {
+    program(id: $programId) {
+      name
+      startDate
+      endDate
+      description
+      auditFirm
+      auditor
+      auditorEmail
+      auditorReady
+    }
+  }
+`
+
+export const GET_EVIDENCE_STATS = gql`
+  query GetEvidenceStats($programId: ID!) {
+    totalControls: controls(where: { hasProgramsWith: [{ id: $programId }] }) {
+      totalCount
+    }
+    submitted: controls(where: { hasProgramsWith: [{ id: $programId }], hasEvidenceWith: [{ statusIn: READY }] }) {
+      totalCount
+    }
+    accepted: controls(where: { hasProgramsWith: [{ id: $programId }], hasEvidenceWith: [{ statusIn: APPROVED }] }) {
+      totalCount
+    }
+    overdue: controls(where: { hasProgramsWith: [{ id: $programId }], hasEvidenceWith: [{ statusNotIn: [APPROVED, READY] }], statusNotIn: [ARCHIVED, APPROVED] }) {
+      totalCount
+    }
+  }
+`
+
+export const GET_GLOBAL_EVIDENCE_STATS = gql`
+  query GetGlobalEvidenceStats {
+    totalControls: controls(where: {}) {
+      totalCount
+    }
+    submitted: controls(where: { hasEvidenceWith: [{ statusIn: READY }] }) {
+      totalCount
+    }
+    accepted: controls(where: { hasEvidenceWith: [{ statusIn: APPROVED }] }) {
+      totalCount
+    }
+    overdue: controls(where: { hasEvidenceWith: [{ statusNotIn: [APPROVED, READY] }], statusNotIn: [ARCHIVED, APPROVED] }) {
+      totalCount
     }
   }
 `

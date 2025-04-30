@@ -16,6 +16,7 @@ export const programDetailSchema = z.object({
   auditorReady: z.boolean().optional().default(false),
   auditPartnerName: z.string().optional(),
   auditPartnerEmail: z.string().email({ message: 'Invalid email address' }).optional(),
+  auditFirm: z.string().optional(),
 })
 
 type ProgramDetailValues = zInfer<typeof programDetailSchema>
@@ -200,6 +201,41 @@ const AuditPartner = () => {
                   className={inputRow()}
                   variant="medium"
                   type="string"
+                  {...field}
+                  value={field.value || ''}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+      </div>
+      <div className={formRow()}>
+        <FormField
+          control={control}
+          name={register('auditFirm').name}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                Audit Firm
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <InfoIcon size={14} className="mx-1" />
+                    </TooltipTrigger>
+                    <TooltipContent side="right">
+                      <p>The auditing firm assigned to the program</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </FormLabel>
+              <FormControl>
+                <Input
+                  onInput={() => {
+                    trigger('auditFirm')
+                  }}
+                  className={inputRow()}
+                  variant="medium"
+                  type="text"
                   {...field}
                   value={field.value || ''}
                 />

@@ -13,7 +13,7 @@ import { initProgramSchema, ProgramInitComponent } from './wizard/step-1-init'
 import { programDetailSchema, ProgramDetailsComponent } from './wizard/step-2-details'
 import { ProgramInviteComponent, programInviteSchema } from './wizard/step-3-team'
 import { ProgramObjectAssociationComponent, programObjectAssociationSchema } from './wizard/step-4-associate'
-import { CreateProgramWithMembersInput, ProgramMembershipRole, ProgramProgramStatus, ProgramProgramType } from '@repo/codegen/src/schema'
+import { CreateProgramWithMembersInput, ProgramMembershipRole } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { useRouter } from 'next/navigation'
 import { dialogStyles } from './dialog.styles'
@@ -21,7 +21,6 @@ import { mapToNode } from './nodes'
 import { Check } from 'lucide-react'
 import { SummaryCard } from './summary-card'
 import { useCreateProgramWithMembers, useGetProgramEdgesForWizard } from '@/lib/graphql-hooks/programs'
-import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 
 export type FormFields = z.infer<typeof initProgramSchema & typeof programDetailSchema & typeof programInviteSchema & typeof programObjectAssociationSchema>
@@ -51,7 +50,7 @@ const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardPro
   // form and stepper
   const stepper = useStepper()
 
-  const { mutateAsync: createNewProgram, isError } = useCreateProgramWithMembers()
+  const { mutateAsync: createNewProgram } = useCreateProgramWithMembers()
   const { data: edgeData } = useGetProgramEdgesForWizard()
 
   const form = useForm({
@@ -87,10 +86,6 @@ const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardPro
 
   const [showPrompt, setShowPrompt] = useState(false)
 
-  const navGuard = useNavigationGuard({
-    enabled: fullForm.formState.isDirty,
-  })
-
   const handleChange = (data: zInfer<typeof stepper.current.schema>) => {
     Object.entries(data).forEach(([key, value]) => {
       setValue(`${key}`, value)
@@ -116,6 +111,7 @@ const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardPro
 
       fullForm.reset(getValues())
       router.push(`/programs?id=${resp?.createProgramWithMembers.program.id}`)
+      onSuccess?.()
     } catch (error) {
       errorNotification({
         title: 'Error',
@@ -184,9 +180,12 @@ const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardPro
         internalPolicyIDs: values.policies,
         procedureIDs: values.procedures,
         riskIDs: values.risks,
+        auditor: values.auditPartnerName,
+        auditorEmail: values.auditPartnerEmail,
         auditorReadComments: values.auditorReadComments,
         auditorWriteComments: values.auditorWriteComments,
         auditorReady: values.auditorReady,
+        auditFirm: values.auditFirm,
         viewerIDs: values.viewers,
         editorIDs: values.editors,
         frameworkName: values.framework,

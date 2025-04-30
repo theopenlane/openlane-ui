@@ -8,8 +8,8 @@ export const statCardStyles = tv({
     trendBadge: 'text-xs flex items-center px-2 py-1 rounded-full',
     percentage: 'text-3xl font-semibold',
     statDetails: 'flex justify-between text-xs',
-    progressWrapper: 'w-full h-1.5 rounded-full',
-    progressBar: 'h-1.5 rounded-full',
+    progressWrapper: 'w-full h-2 rounded-full',
+    progressBar: 'h-2 rounded-full',
   },
   variants: {
     color: {

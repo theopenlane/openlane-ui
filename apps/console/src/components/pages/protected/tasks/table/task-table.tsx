@@ -13,8 +13,11 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { format } from 'date-fns'
 import { ColumnDef } from '@tanstack/react-table'
+import { useSearchParams } from 'next/navigation'
 
 const TaskTable: React.FC = () => {
+  const searchParams = useSearchParams()
+  const programId = searchParams.get('programId')
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
   const [showCompletedTasks, setShowCompletedTasks] = useState<boolean>(false)
   const { setSelectedTask, orgMembers } = useTaskStore()

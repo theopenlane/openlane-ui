@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { TASKS_WITH_FILTER, CREATE_TASK, UPDATE_TASK, DELETE_TASK, TASK, USER_TASKS, CREATE_CSV_BULK_TASK } from '@repo/codegen/query/tasks'
+import { TASKS_WITH_FILTER, CREATE_TASK, UPDATE_TASK, DELETE_TASK, TASK, CREATE_CSV_BULK_TASK } from '@repo/codegen/query/tasks'
 import {
   TasksWithFilterQuery,
   TasksWithFilterQueryVariables,
@@ -20,21 +20,21 @@ import {
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task.ts'
 import { TPagination } from '@repo/ui/pagination-types'
-import Pagination from '@repo/ui/pagination'
 
 type GetAllTasksArgs = {
   where?: TasksWithFilterQueryVariables['where']
   orderBy?: TasksWithFilterQueryVariables['orderBy']
   pagination?: TPagination
+  enabled?: boolean
 }
 
-export const useTasksWithFilter = ({ where, orderBy, pagination }: GetAllTasksArgs) => {
+export const useTasksWithFilter = ({ where, orderBy, pagination, enabled = true }: GetAllTasksArgs) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<TasksWithFilterQuery, unknown>({
     queryKey: ['tasks', where, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: async () => client.request(TASKS_WITH_FILTER, { where, orderBy, ...pagination?.query }),
-    enabled: Boolean(where || orderBy),
+    enabled,
   })
 
   const tasks = (queryResult.data?.tasks?.edges?.map((edge) => {

@@ -31732,6 +31732,18 @@ export type UpdateControlMutationVariables = Exact<{
 
 export type UpdateControlMutation = { __typename?: 'Mutation'; updateControl: { __typename?: 'ControlUpdatePayload'; control: { __typename?: 'Control'; id: string } } }
 
+export type GetControlCountsByStatusQueryVariables = Exact<{
+  programId: Scalars['ID']['input']
+}>
+
+export type GetControlCountsByStatusQuery = {
+  __typename?: 'Query'
+  preparing: { __typename?: 'ControlConnection'; totalCount: number }
+  needsApproval: { __typename?: 'ControlConnection'; totalCount: number }
+  changesRequested: { __typename?: 'ControlConnection'; totalCount: number }
+  approved: { __typename?: 'ControlConnection'; totalCount: number }
+}
+
 export type CreateEvidenceMutationVariables = Exact<{
   input: CreateEvidenceInput
   evidenceFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
@@ -32578,6 +32590,7 @@ export type UpdateProgramMutation = { __typename?: 'Mutation'; updateProgram: { 
 
 export type GetAllProgramsQueryVariables = Exact<{
   where?: InputMaybe<ProgramWhereInput>
+  orderBy?: InputMaybe<Array<ProgramOrder> | ProgramOrder>
 }>
 
 export type GetAllProgramsQuery = {
@@ -32669,6 +32682,47 @@ export type GetProgramDetailsByIdQuery = {
     }
     procedures: { __typename?: 'ProcedureConnection'; edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null }
   }
+}
+
+export type GetProgramBasicInfoQueryVariables = Exact<{
+  programId: Scalars['ID']['input']
+}>
+
+export type GetProgramBasicInfoQuery = {
+  __typename?: 'Query'
+  program: {
+    __typename?: 'Program'
+    name: string
+    startDate?: any | null
+    endDate?: any | null
+    description?: string | null
+    auditFirm?: string | null
+    auditor?: string | null
+    auditorEmail?: string | null
+    auditorReady: boolean
+  }
+}
+
+export type GetEvidenceStatsQueryVariables = Exact<{
+  programId: Scalars['ID']['input']
+}>
+
+export type GetEvidenceStatsQuery = {
+  __typename?: 'Query'
+  totalControls: { __typename?: 'ControlConnection'; totalCount: number }
+  submitted: { __typename?: 'ControlConnection'; totalCount: number }
+  accepted: { __typename?: 'ControlConnection'; totalCount: number }
+  overdue: { __typename?: 'ControlConnection'; totalCount: number }
+}
+
+export type GetGlobalEvidenceStatsQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetGlobalEvidenceStatsQuery = {
+  __typename?: 'Query'
+  totalControls: { __typename?: 'ControlConnection'; totalCount: number }
+  submitted: { __typename?: 'ControlConnection'; totalCount: number }
+  accepted: { __typename?: 'ControlConnection'; totalCount: number }
+  overdue: { __typename?: 'ControlConnection'; totalCount: number }
 }
 
 export type RiskFieldsFragment = {

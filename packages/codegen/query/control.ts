@@ -200,3 +200,20 @@ export const UPDATE_CONTROL = gql`
     }
   }
 `
+
+export const GET_CONTROL_COUNTS_BY_STATUS = gql`
+  query GetControlCountsByStatus($programId: ID!) {
+    preparing: controls(where: { status: PREPARING, hasProgramsWith: [{ id: $programId }] }) {
+      totalCount
+    }
+    needsApproval: controls(where: { status: NEEDS_APPROVAL, hasProgramsWith: [{ id: $programId }] }) {
+      totalCount
+    }
+    changesRequested: controls(where: { status: CHANGES_REQUESTED, hasProgramsWith: [{ id: $programId }] }) {
+      totalCount
+    }
+    approved: controls(where: { status: APPROVED, hasProgramsWith: [{ id: $programId }] }) {
+      totalCount
+    }
+  }
+`
