@@ -15,15 +15,11 @@ interface Props {
 }
 
 const MyGroupsCard = ({ groups, isError }: Props) => {
-  const { setSelectedGroup, setGroups, groups: data } = useGroupsStore()
+  const { setSelectedGroup } = useGroupsStore()
 
   const handleRowClick = (group: Group) => {
     setSelectedGroup(group.id)
   }
-
-  useEffect(() => {
-    setGroups(groups)
-  }, [groups])
 
   if (isError) {
     return <p className="text-red-500">Error loading groups</p>
@@ -31,8 +27,8 @@ const MyGroupsCard = ({ groups, isError }: Props) => {
 
   return (
     <div className="mt-5 flex flex-wrap gap-7">
-      {data.length > 0 ? (
-        data.map((group) => (
+      {groups.length > 0 ? (
+        groups.map((group) => (
           <Card key={group.id} className="w-full max-w-md cursor-pointer" onClick={() => handleRowClick(group as Group)}>
             <div className="flex py-1.5 px-4 justify-between items-center mb-2 border-b gap-2">
               <h3 className="font-semibold truncate">{group.name}</h3>

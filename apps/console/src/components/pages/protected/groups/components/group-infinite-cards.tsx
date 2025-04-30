@@ -1,26 +1,37 @@
 import GroupsCard from '@/components/pages/protected/groups/components/groups-cards.tsx'
 import InfiniteScroll from '@repo/ui/infinite-scroll'
-import React from 'react'
-import { useGetAllGroups } from '@/lib/graphql-hooks/groups.ts'
+import React, { useEffect, useState } from 'react'
+import { useGetAllGroupsInfinite } from '@/lib/graphql-hooks/groups.ts'
 import { TPagination } from '@repo/ui/pagination-types'
 import { GroupOrder } from '@repo/codegen/src/schema.ts'
+import { CARD_DEFAULT_PAGINATION } from '@/constants/pagination.ts'
 
 type TGroupInfiniteCardsProps = {
-  pagination: TPagination
-  onPaginationChange: (pagination: TPagination) => void
   whereFilter: Record<string, any>
   orderByFilter: GroupOrder[] | GroupOrder | undefined
 }
 
-const GroupInfiniteCards = ({ pagination, onPaginationChange, whereFilter, orderByFilter }: TGroupInfiniteCardsProps) => {
-  const { groups, isError, paginationMeta } = useGetAllGroups({
+const GroupInfiniteCards = ({ whereFilter, orderByFilter }: TGroupInfiniteCardsProps) => {
+  const [cardPagination, setCardPagination] = useState<TPagination>(CARD_DEFAULT_PAGINATION)
+  const { groups, isError, paginationMeta, fetchNextPage } = useGetAllGroupsInfinite({
     where: whereFilter,
     orderBy: orderByFilter,
-    pagination: pagination,
+    pagination: cardPagination,
   })
 
+  const handlePaginationChange = (pagination: TPagination) => {
+    setCardPagination(pagination)
+  }
+
+  useEffect(() => {
+    if (cardPagination.page === 1) {
+      return
+    }
+    fetchNextPage()
+  }, [cardPagination])
+
   return (
-    <InfiniteScroll pagination={pagination} onPaginationChange={onPaginationChange} paginationMeta={paginationMeta} key="card">
+    <InfiniteScroll pagination={cardPagination} onPaginationChange={handlePaginationChange} paginationMeta={paginationMeta} key="card">
       <GroupsCard isError={isError} groups={groups} />
     </InfiniteScroll>
   )
