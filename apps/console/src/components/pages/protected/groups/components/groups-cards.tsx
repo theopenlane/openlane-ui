@@ -64,7 +64,7 @@ const MyGroupsCard = ({ groups, isError }: Props) => {
                         <TooltipTrigger asChild>
                           <div className="h-8 w-8 flex items-center justify-center text-sm rounded-full bg-muted text-muted-foreground border">+{group.members.length - 9}</div>
                         </TooltipTrigger>
-                        <TooltipContent side="bottom" className="text-sm max-h-[300px] overflow-y-auto">
+                        <TooltipContent side="bottom" className="text-sm max-h-[300px] overflow-y-auto" avoidCollisions={false}>
                           <div className="flex flex-col gap-1">
                             {group.members.slice(9).map((member: any, idx: number) => (
                               <div key={idx} className="flex items-center gap-2 border-b h-11">
