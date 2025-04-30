@@ -90,6 +90,10 @@ export const SetAuditorDialog = () => {
         </div>
         <div className="flex flex-col gap-4 mt-4">
           {errorMessages.length > 0 && <MessageBox className="p-4 ml-1" message={errorMessages.join(', ')} variant="error" />}
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="auditFirm">Firm</Label>
+            <Input id="auditFirm" {...form.register('auditFirm')} placeholder="Firm" />
+          </div>
 
           <div className="flex flex-col gap-2">
             <Label htmlFor="auditorName">Name</Label>
@@ -99,11 +103,6 @@ export const SetAuditorDialog = () => {
           <div className="flex flex-col gap-2">
             <Label htmlFor="auditorEmail">Email</Label>
             <Input id="auditorEmail" {...form.register('auditorEmail')} placeholder="Email" />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="auditFirm">Firm</Label>
-            <Input id="auditFirm" {...form.register('auditFirm')} placeholder="Firm" />
           </div>
         </div>
 
