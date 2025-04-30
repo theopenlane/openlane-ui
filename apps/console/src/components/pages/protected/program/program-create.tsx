@@ -2,7 +2,7 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { ProgramWizard } from './wizard'
-import { ArrowUpRightIcon, InfoIcon, ShieldPlus } from 'lucide-react'
+import { InfoIcon, ShieldPlus } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { dialogStyles } from './dialog.styles'
 import { useRef, useState } from 'react'
@@ -45,11 +45,17 @@ const ProgramCreate = () => {
             </DialogTitle>
           </DialogHeader>
           <ProgramWizard
-            onSuccess={() => setOpen(false)}
+            onSuccess={() => {
+              setOpen(false)
+              console.log('onSuccess')
+            }}
             requestClose={() => {
+              console.log('requestClose')
               setOpen(false)
             }}
             blockClose={(callback) => {
+              console.log('blockClose')
+
               pendingCloseRef.current = callback
             }}
           />

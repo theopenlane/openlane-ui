@@ -12,6 +12,8 @@ import { useUpdateProgram } from '@/lib/graphql-hooks/programs'
 import { useSearchParams } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
 import MessageBox from '@repo/ui/message-box'
+import { Label } from '@repo/ui/label'
+import { Info } from 'lucide-react'
 
 const setAuditorSchema = z.object({
   auditorName: z.string().min(1, 'Name is required'),
@@ -69,30 +71,39 @@ export const SetAuditorDialog = () => {
         <Button className="w-fit">Set auditor</Button>
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent className="max-w-[497px]">
         <DialogHeader>
           <DialogTitle>Set auditor</DialogTitle>
         </DialogHeader>
-
-        <div className="flex flex-col gap-4 mt-4 w-80">
+        <div className="flex items-start gap-2 rounded-md border border-border bg-input-background p-4 ">
+          <Info className="mt-1" size={16} />
+          <div className="text-sm">
+            <p className="text-base ">Need help finding an auditor?</p>
+            <p>
+              Head over to our{' '}
+              <a href="#" className="text-blue-500 text-sm">
+                partners list
+              </a>
+              .
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-col gap-4 mt-4">
           {errorMessages.length > 0 && <MessageBox className="p-4 ml-1" message={errorMessages.join(', ')} variant="error" />}
-          <Input {...form.register('auditorName')} placeholder="Name" />
-          <Input {...form.register('auditorEmail')} placeholder="Email" />
-          <Input {...form.register('auditFirm')} placeholder="Firm" />
 
-          <div className="flex flex-col gap-4 mt-6">
-            <div className="flex items-center gap-2">
-              <span className="text-sm">Auditor can read comments</span>
-              <Switch checked={form.watch('auditorReadComments')} onCheckedChange={(checked) => form.setValue('auditorReadComments', checked)} />
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm">Auditor can write comments</span>
-              <Switch checked={form.watch('auditorWriteComments')} onCheckedChange={(checked) => form.setValue('auditorWriteComments', checked)} />
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm">Auditor ready</span>
-              <Switch checked={form.watch('auditorReady')} onCheckedChange={(checked) => form.setValue('auditorReady', checked)} />
-            </div>
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="auditorName">Name</Label>
+            <Input id="auditorName" {...form.register('auditorName')} placeholder="Name" />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="auditorEmail">Email</Label>
+            <Input id="auditorEmail" {...form.register('auditorEmail')} placeholder="Email" />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="auditFirm">Firm</Label>
+            <Input id="auditFirm" {...form.register('auditFirm')} placeholder="Firm" />
           </div>
         </div>
 
