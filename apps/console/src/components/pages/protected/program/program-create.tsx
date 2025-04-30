@@ -47,15 +47,11 @@ const ProgramCreate = () => {
           <ProgramWizard
             onSuccess={() => {
               setOpen(false)
-              console.log('onSuccess')
             }}
             requestClose={() => {
-              console.log('requestClose')
               setOpen(false)
             }}
             blockClose={(callback) => {
-              console.log('blockClose')
-
               pendingCloseRef.current = callback
             }}
           />
