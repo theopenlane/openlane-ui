@@ -38,7 +38,7 @@ export function ControlsSummaryCard() {
   return (
     <Card className="p-6">
       <div className="flex justify-between items-center">
-        <p className="text-lg">Controls complete</p>
+        <p className="text-lg">Control status</p>
         <Link href="/controls">
           <Button iconPosition="left" icon={<Settings2 size={16} />}>
             Go to controls
