@@ -32159,23 +32159,6 @@ export type DeleteOrganizationMutationVariables = Exact<{
 
 export type DeleteOrganizationMutation = { __typename?: 'Mutation'; deleteOrganization: { __typename?: 'OrganizationDeletePayload'; deletedID: string } }
 
-export type GetLogsQueryVariables = Exact<{
-  where?: InputMaybe<AuditLogWhereInput>
-}>
-
-export type GetLogsQuery = {
-  __typename?: 'Query'
-  auditLogs: {
-    __typename?: 'AuditLogConnection'
-    totalCount: number
-    edges?: Array<{
-      __typename?: 'AuditLogEdge'
-      node?: { __typename?: 'AuditLog'; changes?: Array<string> | null; id: string; operation?: string | null; table?: string | null; time?: any | null; updatedBy?: string | null } | null
-    } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean; endCursor?: any | null }
-  }
-}
-
 export type GetPasskeysQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetPasskeysQuery = {
