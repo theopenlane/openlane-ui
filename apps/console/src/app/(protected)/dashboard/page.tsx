@@ -13,13 +13,18 @@ import { useGetAllPrograms } from '@/lib/graphql-hooks/programs'
 import StatsCards from '@/components/shared/stats-cards/stats-cards'
 import { NewUserLanding } from '@/components/pages/protected/dashboard/dashboard'
 import { Loading } from '@/components/shared/loading/loading'
+import { ProgramProgramStatus } from '@repo/codegen/src/schema'
 
 const Page: React.FC = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [selectedObject, setSelectedObject] = useState<string>('All programs')
+  const [selectedProgram, setSelectedProgram] = useState<string>('All programs')
 
-  const { data, isLoading } = useGetAllPrograms()
+  const { data, isLoading } = useGetAllPrograms({
+    where: {
+      statusNEQ: ProgramProgramStatus.COMPLETED,
+    },
+  })
 
   const programMap = useMemo(() => {
     const map: Record<string, string> = {}
@@ -35,20 +40,20 @@ const Page: React.FC = () => {
     const programId = searchParams.get('id')
 
     if (!programId) {
-      setSelectedObject('All programs')
+      setSelectedProgram('All programs')
     } else {
       const programName = programMap[programId] ?? 'Unknown Program'
-      setSelectedObject(programName)
+      setSelectedProgram(programName)
     }
   }, [searchParams, programMap])
 
   const handleSelectChange = (val: string) => {
     if (val === 'All programs') {
-      setSelectedObject('All programs')
+      setSelectedProgram('All programs')
       router.push('/dashboard')
     } else {
       const programName = programMap[val] ?? 'Unknown Program'
-      setSelectedObject(programName)
+      setSelectedProgram(programName)
       router.push(`/dashboard?id=${val}`)
     }
   }
@@ -69,7 +74,7 @@ const Page: React.FC = () => {
             <h1>Overview</h1>
             <div className="flex gap-2.5">
               <Select onValueChange={handleSelectChange}>
-                <SelectTrigger className="w-48 border rounded-md px-3 py-2 flex items-center justify-between">{selectedObject}</SelectTrigger>
+                <SelectTrigger className="w-48 border rounded-md px-3 py-2 flex items-center justify-between">{selectedProgram}</SelectTrigger>
                 <SelectContent className="border rounded-md shadow-md">
                   <SelectItem value="All programs">All programs</SelectItem>
                   {data?.programs?.edges?.map((edge) => {

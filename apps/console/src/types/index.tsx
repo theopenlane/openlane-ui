@@ -19,7 +19,7 @@ export interface NavHeading {
 }
 
 // Define allowed filter types
-export type FilterType = 'text' | 'number' | 'select' | 'date' | 'boolean' | 'containsText'
+export type FilterType = 'text' | 'number' | 'select' | 'selectIs' | 'date' | 'boolean' | 'containsText'
 
 // Define a common interface for filter fields
 export interface FilterFieldBase {
@@ -34,6 +34,11 @@ export interface SelectFilterField extends FilterFieldBase {
   options: { value: string; label: string }[]
 }
 
+export interface SelectIsFilterField extends FilterFieldBase {
+  type: 'selectIs'
+  options: { value: string; label: string }[]
+}
+
 // General interface for other field types (text, number, date, boolean)
 export interface StandardFilterField extends FilterFieldBase {
   type: Exclude<FilterType, 'select'>
@@ -41,7 +46,7 @@ export interface StandardFilterField extends FilterFieldBase {
 }
 
 // Union type for all possible filter fields
-export type FilterField = SelectFilterField | StandardFilterField
+export type FilterField = SelectFilterField | StandardFilterField | SelectIsFilterField
 
 // Filter definition
 export type Filter = {

@@ -27,6 +27,7 @@ const getOperatorsForType = (type: Filter['type']) => {
       { value: 'EQ', label: 'Is' },
       { value: 'NEQ', label: 'Is Not' },
     ],
+    selectIs: [{ value: 'EQ', label: 'Is' }],
     number: [
       { value: 'EQ', label: 'Is' },
       { value: 'GT', label: 'Greater Than' },
@@ -63,14 +64,17 @@ export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilter
     const conditions = filters
       .filter(({ value }) => value !== '')
       .flatMap(({ field, type, operator, value }) => {
-        const operatorMapping = getOperatorsForType(type).find((op) => op.value === operator)
+        if (field === 'hasProgramsWith') {
+          return [{ hasProgramsWith: [{ id: value }] }]
+        }
 
+        const operatorMapping = getOperatorsForType(type).find((op) => op.value === operator)
         if (!operatorMapping) return []
 
         if (type === 'date' && operator === 'EQ') {
-          //since we are using timestamp, we need to check the day, not just the exact time.
           return handleDateEQOperator(value, field)
         }
+
         const queryField = operatorMapping.value !== 'EQ' ? `${field}${operatorMapping.value}` : field
         return [{ [queryField]: value }]
       })
@@ -132,6 +136,7 @@ export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilter
       case 'number':
       case 'containsText':
         return <Input className={value()} type={filter.type} placeholder="Enter a value..." value={filter.value} onChange={(e) => handleFilterChange(index, { value: e.target.value })} />
+      case 'selectIs':
       case 'select':
         return (
           <Select value={filter.value} onValueChange={(value) => handleFilterChange(index, { value })}>
@@ -139,7 +144,7 @@ export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilter
               <SelectValue placeholder="Select an option..." />
             </SelectTrigger>
             <SelectContent>
-              {filterField.options?.map((option) => (
+              {filterField.options?.map((option: any) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>

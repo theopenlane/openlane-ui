@@ -23,8 +23,8 @@ export const UPDATE_PROGRAM = gql`
 `
 
 export const GET_ALL_PROGRAMS = gql`
-  query GetAllPrograms($where: ProgramWhereInput) {
-    programs(where: $where) {
+  query GetAllPrograms($where: ProgramWhereInput, $orderBy: [ProgramOrder!]) {
+    programs(where: $where, orderBy: $orderBy) {
       edges {
         node {
           id
@@ -174,6 +174,21 @@ export const GET_PROGRAM_DETAILS_BY_ID = gql`
           }
         }
       }
+    }
+  }
+`
+
+export const GET_PROGRAM_BASIC_INFO = gql`
+  query GetProgramBasicInfo($programId: ID!) {
+    program(id: $programId) {
+      name
+      startDate
+      endDate
+      description
+      auditFirm
+      auditor
+      auditorEmail
+      auditorReady
     }
   }
 `
