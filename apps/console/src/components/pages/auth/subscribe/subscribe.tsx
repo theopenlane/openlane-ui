@@ -89,7 +89,7 @@ export const Subscribe = () => {
             <CheckCircle className="text-brand" size={37} />
           </div>
           <p className="text-sm leading-snug">
-            We’ve added <span className="underline">{form.getValues('email')}</span> to our waitlist. We’ll let you know when Openlane is ready.
+          You're on the list! We just sent a confirmation to <span className="underline">{form.getValues('email')}</span>. Hang tight — we'll be in touch when it's your turn to try the beta.
           </p>
         </div>
       ) : (
