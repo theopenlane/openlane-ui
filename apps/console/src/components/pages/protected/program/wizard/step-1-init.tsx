@@ -51,7 +51,7 @@ export function ProgramInitComponent() {
           <GridCell className={formRow()}>
             <ProgramTypeSelect />
           </GridCell>
-          {programType === 'framework' && (
+          {programType === ProgramProgramType.FRAMEWORK && (
             <GridCell className={formRow()}>
               <FrameworkSelect />
             </GridCell>
