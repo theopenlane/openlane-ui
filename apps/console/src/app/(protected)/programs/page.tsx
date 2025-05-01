@@ -77,7 +77,7 @@ const Page: React.FC = () => {
                 </svg>
               </span>
               <div>
-                <p className="text-base">What is Programs?</p>
+                <p className="text-base">What are Programs?</p>
                 <p className="mt-2 text-sm">
                   Within Openlane, Programs are a centerpiece for managing compliance and regulatory requirements. Think of a program as a large, high-level grouping of work; it represents a
                   significant body of work that can be broken down into smaller, more manageable tasks. Essentially, it’s a big picture initiative that can span months or possibly a year+, and can
