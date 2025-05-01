@@ -31594,6 +31594,8 @@ export type GetAllControlsQueryVariables = Exact<{
   orderBy?: InputMaybe<Array<ControlOrder> | ControlOrder>
   first?: InputMaybe<Scalars['Int']['input']>
   after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type GetAllControlsQuery = {
@@ -31618,7 +31620,7 @@ export type GetAllControlsQuery = {
         controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
       } | null
     } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
 
@@ -31781,6 +31783,8 @@ export type GetAllGroupsQueryVariables = Exact<{
   orderBy?: InputMaybe<Array<GroupOrder> | GroupOrder>
   first?: InputMaybe<Scalars['Int']['input']>
   after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type GetAllGroupsQuery = {
@@ -31983,6 +31987,8 @@ export type GetSingleOrganizationMembersQueryVariables = Exact<{
   organizationId: Scalars['ID']['input']
   first?: InputMaybe<Scalars['Int']['input']>
   after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type GetSingleOrganizationMembersQuery = {
@@ -32013,7 +32019,7 @@ export type GetSingleOrganizationMembersQuery = {
           }
         } | null
       } | null> | null
-      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
     }
   }
 }
@@ -32209,6 +32215,8 @@ export type GetInternalPoliciesListQueryVariables = Exact<{
   where?: InputMaybe<InternalPolicyWhereInput>
   first?: InputMaybe<Scalars['Int']['input']>
   after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type GetInternalPoliciesListQuery = {
@@ -32233,7 +32241,7 @@ export type GetInternalPoliciesListQuery = {
         details?: string | null
       } | null
     } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; startCursor?: any | null; endCursor?: any | null }
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
 
@@ -32412,6 +32420,8 @@ export type GetProceduresListQueryVariables = Exact<{
   where?: InputMaybe<ProcedureWhereInput>
   first?: InputMaybe<Scalars['Int']['input']>
   after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type GetProceduresListQuery = {
@@ -32436,7 +32446,7 @@ export type GetProceduresListQuery = {
         details?: string | null
       } | null
     } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; startCursor?: any | null; endCursor?: any | null }
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
 
@@ -33071,6 +33081,8 @@ export type TasksWithFilterQueryVariables = Exact<{
   orderBy?: InputMaybe<Array<TaskOrder> | TaskOrder>
   first?: InputMaybe<Scalars['Int']['input']>
   after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type TasksWithFilterQuery = {
@@ -33078,7 +33090,7 @@ export type TasksWithFilterQuery = {
   tasks: {
     __typename?: 'TaskConnection'
     totalCount: number
-    pageInfo: { __typename?: 'PageInfo'; startCursor?: any | null; endCursor?: any | null }
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
     edges?: Array<{
       __typename?: 'TaskEdge'
       node?: {
@@ -33244,6 +33256,8 @@ export type FilterTemplatesQueryVariables = Exact<{
   orderBy?: InputMaybe<Array<TemplateOrder> | TemplateOrder>
   first?: InputMaybe<Scalars['Int']['input']>
   after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type FilterTemplatesQuery = {
@@ -33265,7 +33279,7 @@ export type FilterTemplatesQuery = {
         updatedAt?: any | null
       } | null
     } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; startCursor?: any | null; endCursor?: any | null }
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
 
