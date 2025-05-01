@@ -9,20 +9,20 @@ import { Avatar } from '@/components/shared/avatar/avatar'
 import { TaskStatusIconMapper } from '../table/columns'
 import { Task } from '@repo/codegen/src/schema.ts'
 
-interface TProps {
+type TTaskCardsProps = {
   tasks: Task[]
-  loading: boolean
+  isError: boolean
 }
 
-const TaskCards: React.FC<TProps> = (props: TProps) => {
+const TaskCards: React.FC<TTaskCardsProps> = (props: TTaskCardsProps) => {
   const { setSelectedTask } = useTaskStore()
 
   const handleRowClick = (task: Task) => {
     setSelectedTask(task.id ?? null)
   }
 
-  if (props.loading) {
-    return <p>Loading tasks...</p>
+  if (props.isError) {
+    return <p className="text-red-500">Error loading tasks</p>
   }
 
   return (

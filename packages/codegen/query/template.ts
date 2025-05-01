@@ -37,8 +37,8 @@ export const UPDATE_TEMPLATE = gql`
 `
 
 export const GET_ALL_TEMPLATES = gql`
-  query FilterTemplates($where: TemplateWhereInput, $orderBy: [TemplateOrder!], $first: Int, $after: Cursor) {
-    templates(where: $where, orderBy: $orderBy, first: $first, after: $after) {
+  query FilterTemplates($where: TemplateWhereInput, $orderBy: [TemplateOrder!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    templates(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
       edges {
         node {
           id
@@ -52,8 +52,10 @@ export const GET_ALL_TEMPLATES = gql`
         }
       }
       pageInfo {
-        startCursor
         endCursor
+        startCursor
+        hasPreviousPage
+        hasNextPage
       }
       totalCount
     }

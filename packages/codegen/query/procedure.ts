@@ -44,8 +44,8 @@ export const GET_ALL_PROCEDURES_WITH_DETAILS = gql`
 `
 
 export const GET_ALL_PROCEDURES = gql`
-  query GetProceduresList($orderBy: [ProcedureOrder!], $where: ProcedureWhereInput, $first: Int, $after: Cursor) {
-    procedures(where: $where, orderBy: $orderBy, first: $first, after: $after) {
+  query GetProceduresList($orderBy: [ProcedureOrder!], $where: ProcedureWhereInput, $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    procedures(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
       totalCount
       edges {
         node {
@@ -63,8 +63,10 @@ export const GET_ALL_PROCEDURES = gql`
         }
       }
       pageInfo {
-        startCursor
         endCursor
+        startCursor
+        hasPreviousPage
+        hasNextPage
       }
     }
   }

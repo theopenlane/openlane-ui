@@ -1,26 +1,22 @@
 'use client'
-import React, { useMemo, useState } from 'react'
-import { DataTable } from '@repo/ui/data-table'
+import React, { useMemo, useRef, useState } from 'react'
 import TaskTableToolbar from '@/components/pages/protected/tasks/table/task-table-toolbar'
 import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
-import TaskCards from '@/components/pages/protected/tasks/cards/task-cards'
-import { useTasksWithFilter } from '@/lib/graphql-hooks/tasks'
 import { OrderDirection, Task, TaskOrderField, TasksWithFilterQueryVariables, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { taskColumns } from '@/components/pages/protected/tasks/table/columns.tsx'
-import { TASK_SORT_FIELDS } from '@/components/pages/protected/tasks/table/table-config.ts'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { format } from 'date-fns'
 import { ColumnDef } from '@tanstack/react-table'
-import { useSearchParams } from 'next/navigation'
+import TaskInfiniteCards from '@/components/pages/protected/tasks/cards/task-infinite-cards.tsx'
+import TasksTable from '@/components/pages/protected/tasks/table/tasks-table.tsx'
 
-const TaskTable: React.FC = () => {
-  const searchParams = useSearchParams()
-  const programId = searchParams.get('programId')
+const TasksPage: React.FC = () => {
+  const { orgMembers } = useTaskStore()
+  const tableRef = useRef<{ exportData: () => Task[] }>(null)
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
   const [showCompletedTasks, setShowCompletedTasks] = useState<boolean>(false)
-  const { setSelectedTask, orgMembers } = useTaskStore()
   const [filters, setFilters] = useState<Record<string, any>>({})
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [orderBy, setOrderBy] = useState<TasksWithFilterQueryVariables['orderBy']>([
@@ -45,12 +41,6 @@ const TaskTable: React.FC = () => {
     return orderBy || undefined
   }, [orderBy])
 
-  const { tasks, isLoading: fetching, data, isFetching } = useTasksWithFilter({ where: whereFilter, orderBy: orderByFilter, pagination })
-
-  const handleRowClick = (task: Task) => {
-    setSelectedTask(task.id ?? null)
-  }
-
   const handleTabChange = (tab: 'table' | 'card') => {
     setActiveTab(tab)
   }
@@ -64,6 +54,8 @@ const TaskTable: React.FC = () => {
   }
 
   const handleExport = () => {
+    const tasks = tableRef.current?.exportData?.() ?? []
+
     const exportableColumns = taskColumns.filter(isAccessorKeyColumn).map((col) => {
       const key = col.accessorKey as keyof Task
       const label = col.header
@@ -99,22 +91,12 @@ const TaskTable: React.FC = () => {
     <>
       <TaskTableToolbar onFilterChange={setFilters} members={orgMembers} onTabChange={handleTabChange} onShowCompletedTasksChange={handleShowCompletedTasks} handleExport={handleExport} />
       {activeTab === 'table' ? (
-        <DataTable
-          columns={taskColumns}
-          sortFields={TASK_SORT_FIELDS}
-          onSortChange={setOrderBy}
-          data={tasks}
-          loading={fetching}
-          onRowClick={handleRowClick}
-          pagination={pagination}
-          onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
-          paginationMeta={{ totalCount: data?.tasks.totalCount, pageInfo: data?.tasks?.pageInfo, isLoading: isFetching }}
-        />
+        <TasksTable ref={tableRef} orderByFilter={orderByFilter} pagination={pagination} onPaginationChange={setPagination} whereFilter={whereFilter} onSortChange={setOrderBy} />
       ) : (
-        <TaskCards tasks={tasks} loading={fetching} />
+        <TaskInfiniteCards ref={tableRef} whereFilter={whereFilter} orderByFilter={orderByFilter} />
       )}
     </>
   )
 }
 
-export default TaskTable
+export default TasksPage

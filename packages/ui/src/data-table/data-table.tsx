@@ -2,7 +2,7 @@
 
 import { ColumnDef, ColumnFiltersState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable, VisibilityState } from '@tanstack/react-table'
 
-import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from '../table/table'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../table/table'
 import { Button } from '../button/button'
 import { ReactElement, useEffect, useMemo, useState } from 'react'
 import { Input } from '../input/input'
@@ -104,8 +104,6 @@ export function DataTable<TData, TValue>({
     },
   })
 
-  //PAGINATION
-
   const setNewPagination = (newPage: number, query: TPagination['query']) => {
     if (!pagination) {
       return
@@ -137,10 +135,24 @@ export function DataTable<TData, TValue>({
   }
 
   const goToLastPage = () => {
-    setNewPagination(totalPages, { last: currentPageSize })
+    if (!pagination || !totalCount) return
+
+    const totalPages = Math.ceil(totalCount / currentPageSize)
+    const itemsBeforeLastPage = currentPageSize * (totalPages - 1)
+    const remainingItems = totalCount - itemsBeforeLastPage
+
+    const query = {
+      last: remainingItems,
+    }
+
+    setNewPagination(totalPages, query)
   }
 
   const handlePageChange = (newPage: number) => {
+    if (!pagination || !totalCount) return
+
+    const totalPages = Math.ceil(totalCount / currentPageSize)
+
     if (newPage === 1) {
       goToFirstPage()
       return
@@ -152,8 +164,8 @@ export function DataTable<TData, TValue>({
     }
 
     const isForward = newPage > currentPage
-    const query = isForward ? { first: currentPageSize, after: pageInfo?.endCursor ?? null } : { last: currentPageSize, before: pageInfo?.startCursor ?? null }
 
+    const query = isForward ? { first: currentPageSize, after: pageInfo?.endCursor ?? null } : { last: currentPageSize, before: pageInfo?.startCursor ?? null }
     setNewPagination(newPage, query)
   }
 
