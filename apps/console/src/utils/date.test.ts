@@ -5,10 +5,18 @@ describe('formatTimeSince', () => {
     jest.clearAllMocks()
   })
 
-  it('should return "0 days ago" if the date is today', () => {
-    const today = new Date()
-    const result = formatTimeSince(today.toString())
-    expect(result).toBe('0 days ago')
+  it('should return "5 minutes ago" if the date is 5 minutes ago', () => {
+    const fiveMinutesAgo = new Date()
+    fiveMinutesAgo.setMinutes(fiveMinutesAgo.getMinutes() - 5)
+    const result = formatTimeSince(fiveMinutesAgo.toString())
+    expect(result).toBe('5 minutes ago')
+  })
+
+  it('should return "2 hours ago" if the date is 2 hours ago', () => {
+    const twoHoursAgo = new Date()
+    twoHoursAgo.setHours(twoHoursAgo.getHours() - 2)
+    const result = formatTimeSince(twoHoursAgo.toString())
+    expect(result).toBe('2 hours ago')
   })
 
   it('should return "5 days ago" if the date is 5 days ago', () => {
@@ -49,11 +57,25 @@ describe('formatDateSince', () => {
   beforeEach(() => {
     jest.clearAllMocks()
   })
+  it('should return "15 minutes ago" if the date is 15 minutes ago', () => {
+    const fifteenMinutesAgo = new Date()
+    fifteenMinutesAgo.setMinutes(fifteenMinutesAgo.getMinutes() - 15)
+    const result = formatDateSince(fifteenMinutesAgo.toString())
+    expect(result).toBe('15 minutes ago')
+  })
 
-  it('should return "0 days ago" if the date is today', () => {
-    const today = new Date()
-    const result = formatDateSince(today.toString())
-    expect(result).toBe('0 days ago')
+  it('should return "1 hour ago" if the date is 1 hour ago', () => {
+    const oneHourAgo = new Date()
+    oneHourAgo.setHours(oneHourAgo.getHours() - 1)
+    const result = formatDateSince(oneHourAgo.toString())
+    expect(result).toBe('1 hours ago')
+  })
+
+  it('should return "23 hours ago" if the date is 23 hours ago', () => {
+    const twentyThreeHoursAgo = new Date()
+    twentyThreeHoursAgo.setHours(twentyThreeHoursAgo.getHours() - 23)
+    const result = formatDateSince(twentyThreeHoursAgo.toString())
+    expect(result).toBe('23 hours ago')
   })
 
   it('should return "5 days ago" if the date is 5 days ago', () => {

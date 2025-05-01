@@ -49,6 +49,15 @@ const formatTimeSince = (date: string | null | undefined): string => {
   const diffInMs = now.getTime() - dateObj.getTime()
   const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24))
 
+  if (diffInDays <= 0) {
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60))
+    if (diffInHours <= 0) {
+      const diffInMinutes = Math.floor(diffInMs / (1000 * 60))
+      return `${diffInMinutes} minutes ago`
+    }
+    return `${diffInHours} hours ago`
+  }
+
   if (diffInDays <= 30) {
     return `${diffInDays} days ago`
   } else {
@@ -73,6 +82,15 @@ const formatDateSince = (date: string | null | undefined): string => {
   const dateObj = new Date(date)
   const diffInMs = now.getTime() - dateObj.getTime()
   const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24))
+
+  if (diffInDays <= 0) {
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60))
+    if (diffInHours <= 0) {
+      const diffInMinutes = Math.floor(diffInMs / (1000 * 60))
+      return `${diffInMinutes} minutes ago`
+    }
+    return `${diffInHours} hours ago`
+  }
 
   if (diffInDays <= 30) {
     return `${diffInDays} days ago`
