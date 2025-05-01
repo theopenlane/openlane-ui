@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
-import TaskTable from '@/components/pages/protected/tasks/table/task-table'
+import TasksPage from '@/components/pages/protected/tasks/table/tasks-page.tsx'
 import TaskDetailsSheet from '@/components/pages/protected/tasks/create-task/sidebar/task-details-sheet'
 import { TOrgMembers, useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
 import { useSearchParams } from 'next/navigation'
@@ -36,7 +36,7 @@ const Page: React.FC = () => {
   return (
     <>
       <PageHeading heading="Tasks" />
-      <TaskTable />
+      <TasksPage />
       <TaskDetailsSheet />
     </>
   )
