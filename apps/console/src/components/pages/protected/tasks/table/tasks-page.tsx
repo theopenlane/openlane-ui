@@ -11,6 +11,7 @@ import { format } from 'date-fns'
 import { ColumnDef } from '@tanstack/react-table'
 import TaskInfiniteCards from '@/components/pages/protected/tasks/cards/task-infinite-cards.tsx'
 import TasksTable from '@/components/pages/protected/tasks/table/tasks-table.tsx'
+import { formatDate } from '@/utils/date'
 
 const TasksPage: React.FC = () => {
   const { orgMembers } = useTaskStore()
@@ -66,7 +67,7 @@ const TasksPage: React.FC = () => {
           const value = task[key]
 
           if (key === 'due' && value) {
-            return format(new Date(value as string), 'yyyy-MM-dd')
+            return formatDate(value)
           }
 
           if (key === 'assignee') {

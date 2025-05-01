@@ -13,7 +13,7 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { useInternalPolicies } from '@/lib/graphql-hooks/policy'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { ColumnDef } from '@tanstack/react-table'
-import { format } from 'date-fns'
+import { formatDateTime } from '@/utils/date'
 
 export const PoliciesTable = () => {
   const router = useRouter()
@@ -67,7 +67,7 @@ export const PoliciesTable = () => {
             const value = policy[key]
 
             if (key === 'updatedAt' || key === 'createdAt') {
-              return value ? format(new Date(value as string), 'yyyy-MM-dd') : ''
+              return formatDateTime(value as string)
             }
 
             if (key === 'details') {

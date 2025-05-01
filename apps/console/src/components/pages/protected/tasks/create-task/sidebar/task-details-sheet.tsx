@@ -13,7 +13,6 @@ import useFormSchema, { EditTaskFormData } from '@/components/pages/protected/ta
 import { Loading } from '@/components/shared/loading/loading'
 import { Controller } from 'react-hook-form'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
-import { format } from 'date-fns'
 import { Badge } from '@repo/ui/badge'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
@@ -36,6 +35,7 @@ import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { TaskStatusIconMapper } from '../../table/columns'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
+import { formatDate } from '@/utils/date'
 
 const TaskDetailsSheet = () => {
   const [isEditing, setIsEditing] = useState(false)
@@ -484,7 +484,7 @@ const TaskDetailsSheet = () => {
                       )}
                     />
                   ) : (
-                    <p className="text-sm">{taskData?.due ? format(new Date(taskData.due as string), 'MMMM d, yyyy') : ''}</p>
+                    <p className="text-sm">{formatDate(taskData?.due)}</p>
                   )}
                 </div>
 

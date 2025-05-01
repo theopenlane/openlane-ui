@@ -8,7 +8,6 @@ import { ProgramCreate } from '@/components/pages/protected/program/program-crea
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import { useGetAllPrograms, useGetProgramBasicInfo } from '@/lib/graphql-hooks/programs'
 import StatsCards from '@/components/shared/stats-cards/stats-cards'
-import { NewUserLanding } from '@/components/pages/protected/dashboard/dashboard'
 import { Loading } from '@/components/shared/loading/loading'
 import { OrderDirection, ProgramOrderField, ProgramProgramStatus } from '@repo/codegen/src/schema'
 import BasicInformation from '@/components/pages/protected/dashboard/basic-info'

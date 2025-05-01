@@ -1,8 +1,8 @@
 import React from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
-import { format } from 'date-fns'
 import { TCommentData } from '@/components/shared/comments/types/TCommentData'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
+import { formatDateTime } from '@/utils/date'
 
 type TProps = {
   comments: TCommentData[]
@@ -23,7 +23,7 @@ const CommentList: React.FC<TProps> = (props: TProps) => {
             <div className="flex flex-col w-full">
               <div className="flex items-baseline space-x-2">
                 <p className="font-semibold leading-none mb-0">{item.userName}</p>
-                <p className="text-sm text-gray-500">{format(new Date(item.createdAt), 'MMMM dd, yyyy - hh:mm a')}</p>
+                <p className="text-sm text-gray-500">{formatDateTime(item.createdAt)}</p>
               </div>
               <div className="mt-1 border rounded-lg ">{plateEditorHelper.convertToReadOnly(item.comment)}</div>
             </div>

@@ -1,9 +1,9 @@
 import { ColumnDef } from '@tanstack/react-table'
-import { format } from 'date-fns'
 import { CircleCheck, CircleX, ListTodo, Timer, View } from 'lucide-react'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import AssigneeCell from '@/components/pages/protected/tasks/table/assignee-cell.tsx'
 import { Task } from '@repo/codegen/src/schema.ts'
+import { formatDate } from '@/utils/date'
 
 export const taskColumns: ColumnDef<Task>[] = [
   {
@@ -55,7 +55,7 @@ export const taskColumns: ColumnDef<Task>[] = [
     header: 'Due Date',
     cell: ({ cell }) => {
       const value = cell.getValue() as string | null
-      return value ? format(new Date(value), 'MMMM d, yyyy') : 'no due date'
+      return formatDate(value)
     },
   },
 ]

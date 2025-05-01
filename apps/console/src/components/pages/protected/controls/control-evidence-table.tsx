@@ -1,13 +1,13 @@
 'use client'
 
 import React from 'react'
-import { format } from 'date-fns'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/table'
 import EvidenceCreateFormDialog from '@/components/pages/protected/evidence/evidence-create-form-dialog'
 import { EvidenceEdge } from '@repo/codegen/src/schema'
 import { TFormEvidenceData } from '../evidence/types/TFormEvidenceData'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { useParams, usePathname } from 'next/navigation'
+import { formatDateSince } from '@/utils/date'
 
 type Props = {
   evidences?: (EvidenceEdge | null)[]
@@ -51,7 +51,7 @@ const ControlEvidenceTable = ({ evidences, control }: Props) => {
                       <p className="text-blue-500">{node.displayID}</p>
                     </TableCell>
                     <TableCell className="px-4 py-2">{node.name}</TableCell>
-                    <TableCell className="px-4 py-2">{node.creationDate ? format(new Date(node.creationDate), 'MMM d, yyyy') : '—'}</TableCell>
+                    <TableCell className="px-4 py-2">{formatDateSince(node.creationDate)}</TableCell>
                   </TableRow>
                 )
               })
