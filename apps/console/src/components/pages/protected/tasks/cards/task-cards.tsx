@@ -4,25 +4,25 @@ import React from 'react'
 import { Calendar, CircleUser, ListChecks } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
 import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
-import { format } from 'date-fns'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { TaskStatusIconMapper } from '../table/columns'
 import { Task } from '@repo/codegen/src/schema.ts'
+import { formatDate } from '@/utils/date'
 
-interface TProps {
+type TTaskCardsProps = {
   tasks: Task[]
-  loading: boolean
+  isError: boolean
 }
 
-const TaskCards: React.FC<TProps> = (props: TProps) => {
+const TaskCards: React.FC<TTaskCardsProps> = (props: TTaskCardsProps) => {
   const { setSelectedTask } = useTaskStore()
 
   const handleRowClick = (task: Task) => {
     setSelectedTask(task.id ?? null)
   }
 
-  if (props.loading) {
-    return <p>Loading tasks...</p>
+  if (props.isError) {
+    return <p className="text-red-500">Error loading tasks</p>
   }
 
   return (
@@ -54,7 +54,7 @@ const TaskCards: React.FC<TProps> = (props: TProps) => {
                 </div>
                 <div className="flex items-center space-x-2 p-1">
                   <Calendar height={16} width={16} />
-                  <p className="pr-10 text-sm">{task?.due ? format(new Date(task.due as string), 'MMMM d, yyyy') : 'no due date'}</p>
+                  <p className="pr-10 text-sm">{formatDate(task.due)}</p>
                   <div className="flex items-center space-x-1">
                     {TaskStatusIconMapper[task.status!]}
                     <p>{task.status}</p>

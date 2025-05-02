@@ -33,7 +33,7 @@ export const formatCommentDate = (date: Date) => {
     return `${diffDays}d`
   }
 
-  return format(date, 'MM/dd/yyyy')
+  return format(date, 'MMMM d, yyyy')
 }
 
 export interface TComment {

@@ -66,7 +66,9 @@
     "./lib/chartUtils": "./lib/chartUtils.tsx",
     "./pagination": "./src/pagination/pagination.tsx",
     "./pagination-types": "./src/pagination/types.ts",
-    "./components/*": "./src/components/*"
+    "./components/*": "./src/components/*",
+    "./donut-chart": "./src/chart/donut-chart.tsx",
+    "./infinite-scroll": "./src/infinite-scroll/infinite-scroll.tsx"
   },
   "scripts": {
     "build": "tailwindcss -i ./src/styles.css -o dist/index.css",

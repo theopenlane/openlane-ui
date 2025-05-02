@@ -57,6 +57,44 @@ export const useGetAllGroups = ({ where, orderBy, pagination, enabled = true }: 
   }
 }
 
+import { useInfiniteQuery } from '@tanstack/react-query'
+
+export const useGetAllGroupsInfinite = ({ where, orderBy, pagination, enabled = true }: GroupsArgs) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useInfiniteQuery({
+    initialData: undefined,
+    initialPageParam: 1,
+    queryKey: ['groupsInfinite', where, orderBy],
+    queryFn: () =>
+      client.request(GET_ALL_GROUPS, {
+        where,
+        orderBy,
+        ...pagination?.query,
+      }),
+    getNextPageParam(lastPage: any, allPages) {
+      return lastPage?.groups?.pageInfo?.hasNextPage ? allPages.length + 1 : undefined
+    },
+    staleTime: Infinity,
+    enabled,
+  })
+
+  const groups = (queryResult.data?.pages.flatMap((page: any) => page?.groups?.edges?.map((edge: any) => edge?.node) ?? []) ?? []) as Group[]
+
+  const lastPage: any = queryResult.data?.pages[queryResult.data.pages.length - 1]
+  const paginationMeta = {
+    totalCount: lastPage?.groups?.totalCount ?? 0,
+    pageInfo: lastPage?.groups?.pageInfo,
+    isLoading: queryResult.isFetching,
+  }
+
+  return {
+    ...queryResult,
+    groups,
+    paginationMeta,
+  }
+}
+
 export const useGetGroupDetails = (groupId: string | null) => {
   const { client } = useGraphQLClient()
 

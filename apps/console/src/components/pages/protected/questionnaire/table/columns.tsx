@@ -1,7 +1,7 @@
 import { ColumnDef } from '@tanstack/react-table'
-import { format } from 'date-fns'
 import { Actions } from '@/components/pages/protected/questionnaire/actions/actions.tsx'
 import { Template } from '@repo/codegen/src/schema'
+import { formatTimeSince } from '@/utils/date'
 
 export const questionnaireColumns: ColumnDef<Template>[] = [
   {
@@ -15,12 +15,12 @@ export const questionnaireColumns: ColumnDef<Template>[] = [
   {
     accessorKey: 'updatedAt',
     header: 'Updated At',
-    cell: ({ cell }) => format(new Date(cell.getValue() as string), 'dd MMM yyyy'),
+    cell: ({ cell }) => formatTimeSince(cell.getValue() as string),
   },
   {
     accessorKey: 'createdAt',
     header: 'Created At',
-    cell: ({ cell }) => format(new Date(cell.getValue() as string), 'dd MMM yyyy'),
+    cell: ({ cell }) => formatTimeSince(cell.getValue() as string),
   },
   {
     accessorKey: 'id',

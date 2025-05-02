@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { TabsContent } from '@repo/ui/tabs'
 import { ColumnDef } from '@tanstack/react-table'
 import { DataTable } from '@repo/ui/data-table'
-import { format } from 'date-fns'
 import { PlusCircle } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { useGetEvidenceFiles } from '@/lib/graphql-hooks/evidence'
+import { formatDateSince } from '@/utils/date'
 
 type TProps = {
   evidenceFiles: TUploadedFile[]
@@ -48,7 +48,7 @@ const ExistingFilesTab: React.FC<TProps> = (props: TProps) => {
       type: 'existingFile',
       id: data.id,
       category: data.categoryType,
-      createdAt: format(new Date(data.createdAt as string), 'd MMM, yyyy'),
+      createdAt: formatDateSince(data.createdAt),
     }
     props.existingFile(newFile)
   }
@@ -69,7 +69,7 @@ const ExistingFilesTab: React.FC<TProps> = (props: TProps) => {
         const column = row.original
         return (
           <div className="flex items-center justify-between w-full">
-            <span>{format(new Date(cell.getValue() as string), 'd MMM, yyyy')}</span>
+            <span>{formatDateSince(cell.getValue() as string)}</span>
             <PlusCircle className="w-5 h-5 text-primary cursor-pointer hover:scale-105 transition-transform" onClick={() => handleAdd(column)} />
           </div>
         )

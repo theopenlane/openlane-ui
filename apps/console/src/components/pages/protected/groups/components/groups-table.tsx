@@ -5,12 +5,12 @@ import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import { GlobeIcon, LockIcon, StarsIcon } from 'lucide-react'
 import React from 'react'
-import { Group } from '@repo/codegen/src/schema'
+import { Group, GroupOrder } from '@repo/codegen/src/schema'
 import AvatarList from '@/components/shared/avatar-list/avatar-list'
-import { groupsTableStyles } from './groups-table-styles'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { GROUP_SORT_FIELDS } from '@/components/pages/protected/groups/table/table-config.ts'
-import { TPagination, TPaginationMeta } from '@repo/ui/pagination-types'
+import { TPagination } from '@repo/ui/pagination-types'
+import { useGetAllGroups } from '@/lib/graphql-hooks/groups.ts'
 
 const columns: ColumnDef<Group>[] = [
   {
@@ -82,8 +82,7 @@ const columns: ColumnDef<Group>[] = [
                 id: user.user.id,
                 imageUrl: user.user.avatarFile?.presignedURL ?? user.user.avatarRemoteURL ?? undefined,
                 fallback: user.user.firstName?.substring(0, 2) ?? undefined,
-                firstName: user.user.firstName ?? undefined,
-                lastName: user.user.lastName ?? undefined,
+                displayName: user.user?.displayName ?? undefined,
               }))}
             />
           ) : (
@@ -95,25 +94,29 @@ const columns: ColumnDef<Group>[] = [
   },
 ]
 
-interface Props {
-  groups: Group[]
-  isError: boolean
+type TGroupsTableProps = {
   onSortChange?: (sortCondition: any[]) => void
   pagination: TPagination
   onPaginationChange: (pagination: TPagination) => void
-  paginationMeta: TPaginationMeta
+  whereFilter: Record<string, any>
+  orderByFilter: GroupOrder[] | GroupOrder | undefined
 }
 
-const GroupsTable = ({ groups, isError, onSortChange, pagination, onPaginationChange, paginationMeta }: Props) => {
+const GroupsTable = ({ onSortChange, pagination, onPaginationChange, whereFilter, orderByFilter }: TGroupsTableProps) => {
+  const { groups, isError, paginationMeta } = useGetAllGroups({
+    where: whereFilter,
+    orderBy: orderByFilter,
+    pagination: pagination,
+  })
   const { setSelectedGroup } = useGroupsStore()
-
-  const { tableRow, keyIcon, message } = groupsTableStyles()
 
   const handleRowClick = (group: Group) => {
     setSelectedGroup(group.id)
   }
 
-  if (isError) return <p className="text-red-500">Error loading groups</p>
+  if (isError) {
+    return <p className="text-red-500">Error loading groups</p>
+  }
 
   return (
     <div className="mt-5">

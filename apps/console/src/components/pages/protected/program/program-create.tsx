@@ -2,12 +2,12 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { ProgramWizard } from './wizard'
-import { ArrowUpRightIcon, InfoIcon, ShieldPlus } from 'lucide-react'
+import { InfoIcon, ShieldPlus } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { dialogStyles } from './dialog.styles'
-import { useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 
-const ProgramCreate = () => {
+const ProgramCreate = ({ trigger }: { trigger?: React.ReactElement }) => {
   const [open, setOpen] = useState(false)
   const pendingCloseRef = useRef<() => void>(null)
 
@@ -24,10 +24,14 @@ const ProgramCreate = () => {
   return (
     <>
       <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogTrigger className={dialogTrigger()}>
-          <ShieldPlus size={16} strokeWidth={2} />
-          Create Program
-        </DialogTrigger>
+        {trigger ? (
+          <DialogTrigger>{trigger}</DialogTrigger>
+        ) : (
+          <DialogTrigger className={dialogTrigger()}>
+            <ShieldPlus size={16} strokeWidth={2} />
+            Create Program
+          </DialogTrigger>
+        )}
         <DialogContent className={dialogContent()}>
           <DialogHeader>
             <DialogTitle className={title()}>
@@ -45,7 +49,9 @@ const ProgramCreate = () => {
             </DialogTitle>
           </DialogHeader>
           <ProgramWizard
-            onSuccess={() => setOpen(false)}
+            onSuccess={() => {
+              setOpen(false)
+            }}
             requestClose={() => {
               setOpen(false)
             }}

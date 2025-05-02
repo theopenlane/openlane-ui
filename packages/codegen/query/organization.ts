@@ -30,9 +30,9 @@ export const GET_ORGANIZATION_NAME_BY_ID = gql`
 `
 
 export const GET_SINGLE_ORGANIZATION_MEMBERS = gql`
-  query GetSingleOrganizationMembers($organizationId: ID!, $first: Int, $after: Cursor) {
+  query GetSingleOrganizationMembers($organizationId: ID!, $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
     organization(id: $organizationId) {
-      members(first: $first, after: $after) {
+      members(first: $first, after: $after, last: $last, before: $before) {
         edges {
           node {
             id
@@ -57,6 +57,8 @@ export const GET_SINGLE_ORGANIZATION_MEMBERS = gql`
         pageInfo {
           endCursor
           startCursor
+          hasPreviousPage
+          hasNextPage
         }
         totalCount
       }

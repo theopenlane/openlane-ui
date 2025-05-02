@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import { Button } from '@repo/ui/button'
 import { MessageBox } from '@repo/ui/message-box'

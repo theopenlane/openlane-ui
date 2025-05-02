@@ -1,8 +1,8 @@
 import { ColumnDef } from '@tanstack/react-table'
 import { InviteInviteStatus, InviteRole } from '@repo/codegen/src/schema.ts'
 import { Tag } from '@repo/ui/tag'
-import { format } from 'date-fns'
 import { InviteActions } from '../actions/invite-actions'
+import { formatDateSince } from '@/utils/date'
 
 export type InviteNode = {
   __typename?: 'Invite' | undefined
@@ -49,7 +49,7 @@ export const invitesColumns: ColumnDef<InviteNode>[] = [
   {
     accessorKey: 'createdAt',
     header: 'Sent',
-    cell: ({ cell }) => format(new Date(cell.getValue() as string), 'd MMM yyyy'),
+    cell: ({ cell }) => formatDateSince(cell.getValue() as string),
   },
   {
     accessorKey: 'role',

@@ -12,8 +12,8 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useProcedures } from '@/lib/graphql-hooks/procedures'
 import { useDebounce } from '@uidotdev/usehooks'
 import { ColumnDef } from '@tanstack/react-table'
-import { format } from 'date-fns'
 import { exportToCSV } from '@/utils/exportToCSV'
+import { formatDateTime } from '@/utils/date'
 
 export const ProceduresTable = () => {
   const router = useRouter()
@@ -63,7 +63,7 @@ export const ProceduresTable = () => {
             const value = procedure[key]
 
             if ((key === 'updatedAt' || key === 'createdAt') && value) {
-              return format(new Date(value as string), 'yyyy-MM-dd')
+              return formatDateTime(value as string)
             }
 
             if (key === 'details') {

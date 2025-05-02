@@ -2,12 +2,13 @@ import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React, { useState } from 'react'
 import { TASK_FILTER_FIELDS } from '@/components/pages/protected/tasks/table/table-config'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
-import { SelectFilterField } from '@/types'
+import { SelectFilterField, SelectIsFilterField } from '@/types'
 import { TOrgMembers, useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
 import { CreditCard as CardIcon, DownloadIcon, Table as TableIcon } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
 import { BulkCSVCreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/bulk-csv-create-task-dialog'
 import { Button } from '@repo/ui/button'
+import { useGetAllPrograms } from '@/lib/graphql-hooks/programs'
 
 type TProps = {
   onFilterChange: (filters: Record<string, any>) => void
@@ -21,6 +22,13 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
   const [showCompletedTasks, setShowCompletedTasks] = useState<boolean>(false)
   const { orgMembers } = useTaskStore()
+  const { data } = useGetAllPrograms({})
+
+  const programOptions =
+    data?.programs?.edges?.map((edge) => ({
+      label: edge?.node?.name,
+      value: edge?.node?.id,
+    })) || []
 
   const filterFields = [
     ...TASK_FILTER_FIELDS,
@@ -36,6 +44,12 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
       type: 'select',
       options: orgMembers,
     } as SelectFilterField,
+    {
+      key: 'hasProgramsWith',
+      label: 'Program Name',
+      type: 'selectIs',
+      options: programOptions,
+    } as SelectIsFilterField,
   ]
 
   const handleTabChange = (tab: 'table' | 'card') => {

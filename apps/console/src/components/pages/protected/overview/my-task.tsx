@@ -23,7 +23,7 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
   const where = {
     assigneeID: userId,
     dueLTE: upcomingUpper.toISOString(),
-    hasProgramWith: programId ? [{ id: programId }] : undefined,
+    hasProgramsWith: programId ? [{ id: programId }] : undefined,
   }
 
   const { data } = useTasksWithFilter({ where })

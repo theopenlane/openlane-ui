@@ -48,6 +48,11 @@ tasks:
       - task: clean
       - task: install
 
+  test:
+    desc: run all tests
+    cmds:
+      - bun test
+
   clean:
     desc: clean all apps and package
     cmd: bun run clean

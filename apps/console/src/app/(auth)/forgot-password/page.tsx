@@ -63,8 +63,6 @@ export default function ForgotPasswordPage() {
         body: JSON.stringify({ email }),
       })
 
-      console.log(res)
-
       if (!res.ok) {
         setError('Something went wrong. Please try again.')
       } else {

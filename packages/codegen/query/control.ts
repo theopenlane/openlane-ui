@@ -165,8 +165,8 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
 
 export const GET_ALL_CONTROLS = gql`
   ${CONTROL_LIST_FIELDS_FRAGMENT}
-  query GetAllControls($where: ControlWhereInput, $orderBy: [ControlOrder!], $first: Int, $after: Cursor) {
-    controls(where: $where, orderBy: $orderBy, first: $first, after: $after) {
+  query GetAllControls($where: ControlWhereInput, $orderBy: [ControlOrder!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    controls(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
       edges {
         node {
           ...ControlListFields
@@ -176,6 +176,8 @@ export const GET_ALL_CONTROLS = gql`
       pageInfo {
         endCursor
         startCursor
+        hasPreviousPage
+        hasNextPage
       }
       totalCount
     }
@@ -197,6 +199,23 @@ export const UPDATE_CONTROL = gql`
       control {
         id
       }
+    }
+  }
+`
+
+export const GET_CONTROL_COUNTS_BY_STATUS = gql`
+  query GetControlCountsByStatus($programId: ID!) {
+    preparing: controls(where: { status: PREPARING, hasProgramsWith: [{ id: $programId }] }) {
+      totalCount
+    }
+    needsApproval: controls(where: { status: NEEDS_APPROVAL, hasProgramsWith: [{ id: $programId }] }) {
+      totalCount
+    }
+    changesRequested: controls(where: { status: CHANGES_REQUESTED, hasProgramsWith: [{ id: $programId }] }) {
+      totalCount
+    }
+    approved: controls(where: { status: APPROVED, hasProgramsWith: [{ id: $programId }] }) {
+      totalCount
     }
   }
 `

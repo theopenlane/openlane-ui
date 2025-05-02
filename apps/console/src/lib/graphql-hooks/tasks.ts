@@ -1,6 +1,6 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { TASKS_WITH_FILTER, CREATE_TASK, UPDATE_TASK, DELETE_TASK, TASK, USER_TASKS, CREATE_CSV_BULK_TASK } from '@repo/codegen/query/tasks'
+import { TASKS_WITH_FILTER, CREATE_TASK, UPDATE_TASK, DELETE_TASK, TASK, CREATE_CSV_BULK_TASK } from '@repo/codegen/query/tasks'
 import {
   TasksWithFilterQuery,
   TasksWithFilterQueryVariables,
@@ -20,21 +20,21 @@ import {
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task.ts'
 import { TPagination } from '@repo/ui/pagination-types'
-import Pagination from '@repo/ui/pagination'
 
 type GetAllTasksArgs = {
   where?: TasksWithFilterQueryVariables['where']
   orderBy?: TasksWithFilterQueryVariables['orderBy']
   pagination?: TPagination
+  enabled?: boolean
 }
 
-export const useTasksWithFilter = ({ where, orderBy, pagination }: GetAllTasksArgs) => {
+export const useTasksWithFilter = ({ where, orderBy, pagination, enabled = true }: GetAllTasksArgs) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<TasksWithFilterQuery, unknown>({
     queryKey: ['tasks', where, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: async () => client.request(TASKS_WITH_FILTER, { where, orderBy, ...pagination?.query }),
-    enabled: Boolean(where || orderBy),
+    enabled,
   })
 
   const tasks = (queryResult.data?.tasks?.edges?.map((edge) => {
@@ -45,6 +45,42 @@ export const useTasksWithFilter = ({ where, orderBy, pagination }: GetAllTasksAr
   }) ?? []) as Task[]
 
   return { ...queryResult, tasks }
+}
+
+export const useTasksWithFilterInfinite = ({ where, orderBy, pagination, enabled = true }: GetAllTasksArgs) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useInfiniteQuery({
+    initialData: undefined,
+    initialPageParam: 1,
+    queryKey: ['tasksInfinite', where, orderBy],
+    queryFn: () =>
+      client.request(TASKS_WITH_FILTER, {
+        where,
+        orderBy,
+        ...pagination?.query,
+      }),
+    getNextPageParam(lastPage: any, allPages) {
+      return lastPage?.tasks?.pageInfo?.hasNextPage ? allPages.length + 1 : undefined
+    },
+    staleTime: Infinity,
+    enabled,
+  })
+
+  const tasks = (queryResult.data?.pages.flatMap((page: any) => page?.tasks?.edges?.map((edge: any) => edge?.node) ?? []) ?? []) as Task[]
+
+  const lastPage: any = queryResult.data?.pages[queryResult.data.pages.length - 1]
+  const paginationMeta = {
+    totalCount: lastPage?.tasks?.totalCount ?? 0,
+    pageInfo: lastPage?.tasks?.pageInfo,
+    isLoading: queryResult.isFetching,
+  }
+
+  return {
+    ...queryResult,
+    tasks,
+    paginationMeta,
+  }
 }
 
 export const useCreateTask = () => {
