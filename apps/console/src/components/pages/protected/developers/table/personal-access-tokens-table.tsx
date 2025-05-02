@@ -10,7 +10,6 @@ import {
 } from '@repo/codegen/src/schema'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
-import { format } from 'date-fns'
 import { usePathname } from 'next/navigation'
 import { useGetApiTokens, useGetPersonalAccessTokens } from '@/lib/graphql-hooks/tokens'
 import PersonalAccessTokensTableToolbar from '@/components/pages/protected/developers/table/personal-access-tokens-table-toolbar.tsx'
@@ -19,6 +18,7 @@ import { TokenAction } from '@/components/pages/protected/developers/actions/pat
 import { TOKEN_SORT_FIELDS } from '@/components/pages/protected/developers/table/table-config.ts'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
+import { formatDate } from '@/utils/date'
 
 type TokenNode = {
   id: string
@@ -133,7 +133,7 @@ export const PersonalAccessTokenTable = () => {
       header: 'Expires',
       cell: ({ cell }) => {
         const value = cell.getValue() as string | null
-        return value ? format(new Date(value), 'd MMM yyyy') : 'Never'
+        return formatDate(value)
       },
     },
     {

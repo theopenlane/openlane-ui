@@ -6,7 +6,7 @@ import { Card } from '@repo/ui/cardpanel'
 import { CalendarCheck2, CalendarClock, UserRoundCheck, UserRoundPen } from 'lucide-react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
-import { format } from 'date-fns'
+import { formatTimeSince } from '@/utils/date'
 
 type TPropertiesCardProps = {
   policy: InternalPolicyByIdFragment
@@ -44,7 +44,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ policy }) => {
 
           <div className="w-[220px]">
             <div className="flex gap-2">
-              <span>{format(new Date(policy.createdAt), 'h:mm a. MMMM d, yyyy')}</span>
+              <span>{formatTimeSince(policy.createdAt)}</span>
             </div>
           </div>
         </div>
@@ -73,7 +73,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ policy }) => {
 
           <div className="w-[220px]">
             <div className="flex gap-2">
-              <span>{format(new Date(policy.updatedAt), 'h:mm a. MMMM d, yyyy')}</span>
+              <span>{formatTimeSince(policy.updatedAt)}</span>
             </div>
           </div>
         </div>

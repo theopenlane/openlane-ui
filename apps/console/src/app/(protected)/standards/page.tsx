@@ -12,8 +12,8 @@ import { Input } from '@repo/ui/input'
 import { FilterField } from '@/types'
 import { useDebounce } from '@uidotdev/usehooks'
 import { Loading } from '@/components/shared/loading/loading'
-import { format } from 'date-fns'
 import Link from 'next/link'
+import { formatDateSince } from '@/utils/date'
 
 const filterFields: FilterField[] = [
   { key: 'systemOwned', label: 'System Owned', type: 'boolean' },
@@ -83,7 +83,7 @@ const StandardsPage = () => {
                 <Settings2 className="text-brand" size={16} /> Controls: {standard?.node?.controls.totalCount}
               </p>
               <p className="flex items-center gap-1">
-                <CheckCircleIcon className="text-brand" size={16} /> Last updated: {format(new Date(standard?.node?.updatedAt), 'MMMM d, yyyy')}
+                <CheckCircleIcon className="text-brand" size={16} /> Last updated: {formatDateSince(standard?.node?.updatedAt)}
               </p>
             </div>
             <div className="border-t pt-3 mb-3 flex flex-wrap gap-2">

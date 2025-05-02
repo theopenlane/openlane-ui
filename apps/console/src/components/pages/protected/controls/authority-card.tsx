@@ -1,19 +1,15 @@
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
 import { ControlDetailsFieldsFragment, Group } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
 import { CircleUser, CircleArrowRight, ChevronsUpDown, Check, ChevronDown } from 'lucide-react'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useFormContext, Controller } from 'react-hook-form'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
-import { Input } from '@repo/ui/input'
+import { Option } from '@repo/ui/multiple-selector'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
-import { Button } from '@repo/ui/button'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
-import { cn } from '@repo/ui/lib/utils'
 
 interface AuthorityCardProps {
   controlOwner: ControlDetailsFieldsFragment['controlOwner']
@@ -23,7 +19,6 @@ interface AuthorityCardProps {
 
 const AuthorityCard: React.FC<AuthorityCardProps> = ({ controlOwner, delegate, isEditing }) => {
   const { data } = useGetAllGroups({ where: {}, enabled: !!isEditing })
-  const { control } = useFormContext()
 
   const groups = data?.groups?.edges?.map((edge) => edge?.node!) || []
 

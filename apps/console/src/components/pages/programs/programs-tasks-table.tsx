@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react'
 import Link from 'next/link'
-import { format } from 'date-fns'
+import { formatDate } from '@/utils/date'
 import { Users2Icon } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { DataTable } from '@repo/ui/data-table'
@@ -66,7 +66,7 @@ const columns: ColumnDef<FormattedTask>[] = [
     accessorKey: 'due',
     cell: ({ row }) => {
       const due = row.original.due
-      return due ? format(new Date(due), 'MMMM d, yyyy') : '—'
+      return formatDate(due)
     },
   },
   {

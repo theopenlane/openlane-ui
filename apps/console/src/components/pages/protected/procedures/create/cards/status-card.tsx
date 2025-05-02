@@ -9,9 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/selec
 import { FormControl, FormField, FormItem } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
-import { format } from 'date-fns'
 import { TMetadata } from '@/components/pages/protected/procedures/create/form/create-procedure-form.tsx'
 import { CreateProcedureFormData } from '@/components/pages/protected/procedures/create/hooks/use-form-schema.ts'
+import { formatTimeSince } from '@/utils/date'
 
 type TStatusCardProps = {
   form: UseFormReturn<CreateProcedureFormData>
@@ -180,7 +180,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
               <span>Created At</span>
             </div>
 
-            <div className="w-48">{format(new Date(metadata.createdAt), 'h:mm a. MMMM d, yyyy')}</div>
+            <div className="w-48">{formatTimeSince(metadata.createdAt)}</div>
           </div>
         )}
 
@@ -192,7 +192,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
               <span>Updated At</span>
             </div>
 
-            <div className="w-48">{format(new Date(metadata.updatedAt), 'h:mm a. MMMM d, yyyy')}</div>
+            <div className="w-48">{formatTimeSince(metadata.updatedAt)}</div>
           </div>
         )}
 

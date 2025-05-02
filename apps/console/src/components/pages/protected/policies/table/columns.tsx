@@ -1,9 +1,9 @@
 import { ColumnDef } from '@tanstack/react-table'
-import { format } from 'date-fns'
 import React from 'react'
 import { InternalPolicy } from '@repo/codegen/src/schema.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { Actions } from '@/components/pages/protected/policies/table/actions/actions.tsx'
+import { formatTimeSince } from '@/utils/date'
 
 export const policiesColumns: ColumnDef<InternalPolicy>[] = [
   {
@@ -32,13 +32,13 @@ export const policiesColumns: ColumnDef<InternalPolicy>[] = [
   {
     accessorKey: 'updatedAt',
     header: 'Updated At',
-    cell: ({ cell }) => <span className="whitespace-nowrap">{format(new Date(cell.getValue() as string), 'MMM dd, yyyy')}</span>,
+    cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
     size: 140,
   },
   {
     accessorKey: 'createdAt',
     header: 'Created At',
-    cell: ({ cell }) => <span className="whitespace-nowrap">{format(new Date(cell.getValue() as string), 'MMM dd, yyyy')}</span>,
+    cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
     size: 140,
   },
   {

@@ -1,7 +1,7 @@
 'use client'
 
+import { formatDate } from '@/utils/date'
 import { Card } from '@repo/ui/cardpanel'
-import { format } from 'date-fns'
 
 interface BasicInformationProps {
   name?: string | null
@@ -11,8 +11,8 @@ interface BasicInformationProps {
 }
 
 const BasicInformation = ({ name, startDate, endDate, description }: BasicInformationProps) => {
-  const formattedStartDate = startDate ? format(new Date(startDate), 'MMMM do, yyyy') : '—'
-  const formattedEndDate = endDate ? format(new Date(endDate), 'MMMM do, yyyy') : '—'
+  const formattedStartDate = formatDate(startDate)
+  const formattedEndDate = formatDate(endDate)
   return (
     <Card className="p-8 w-full">
       <h2 className="text-lg font-semibold mb-4">Basic information</h2>

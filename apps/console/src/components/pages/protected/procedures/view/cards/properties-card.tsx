@@ -8,8 +8,8 @@ import { Controller, UseFormReturn } from 'react-hook-form'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { FormControl, FormField, FormItem } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
-import { format } from 'date-fns'
 import { EditProcedureMetadataFormData } from '@/components/pages/protected/procedures/view/hooks/use-form-schema.ts'
+import { formatDate } from '@/utils/date'
 
 type TPropertiesCardProps = {
   form: UseFormReturn<EditProcedureMetadataFormData>
@@ -123,7 +123,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, proce
           </div>
 
           <div className="w-[200px]">
-            <span>{procedure?.reviewDue && format(new Date(procedure?.reviewDue), 'd MMM, yyyy')}</span>
+            <span>{formatDate(procedure?.reviewDue)}</span>
           </div>
         </div>
       </div>

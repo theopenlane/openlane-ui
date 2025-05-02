@@ -10,7 +10,6 @@ import { Copy, KeyRoundIcon, PlusIcon, Search } from 'lucide-react'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import Image from 'next/image'
-import { format } from 'date-fns'
 import { useCopyToClipboard } from '@uidotdev/usehooks'
 import { MemberActions } from './actions/member-actions'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
@@ -18,6 +17,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
+import { formatDateSince } from '@/utils/date'
 
 type MembersTableProps = {
   setActiveTab: Dispatch<SetStateAction<string>>
@@ -110,7 +110,7 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
     {
       accessorKey: 'createdAt',
       header: 'Joined',
-      cell: ({ cell }) => format(new Date(cell.getValue() as string), 'd MMM yyyy'),
+      cell: ({ cell }) => formatDateSince(cell.getValue() as string),
     },
     {
       accessorKey: 'user.authProvider',
