@@ -4,7 +4,7 @@ import { LoginUser } from '@repo/dally/user'
 import { Button } from '@repo/ui/button'
 import MessageBox from '@repo/ui/message-box'
 import SimpleForm from '@repo/ui/simple-form'
-import { ArrowUpRight, KeyRoundIcon } from 'lucide-react'
+import { ArrowUpRight, FingerprintIcon, KeyRoundIcon } from 'lucide-react'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState, useRef, useEffect } from 'react'
@@ -30,8 +30,6 @@ export const LoginPage = () => {
   const [signInErrorMessage, setSignInErrorMessage] = useState('There was an error. Please try again.')
   const [signInLoading, setSignInLoading] = useState(false)
   const showLoginError = !signInLoading && signInError
-  const [usePasswordLogin, setUsePasswordLogin] = useState(false)
-  const [isPasskeyLoading, setIsPasskeyLoading] = useState(false)
   const [passkeyStatus, setPasskeyStatus] = useState('')
   const [email, setEmail] = useState('')
 
@@ -120,7 +118,6 @@ export const LoginPage = () => {
    */
   async function passKeySignIn() {
     try {
-      setIsPasskeyLoading(true)
       setSignInError(false)
       setSignInErrorMessage('')
       setPasskeyStatus('Initializing passkey authentication...')
@@ -132,7 +129,11 @@ export const LoginPage = () => {
       setPasskeyStatus('Waiting for your passkey...')
 
       const assertionResponse = await startAuthentication({
-        optionsJSON: options.publicKey,
+        optionsJSON: {
+          challenge: options?.publicKey?.challenge,
+          rpId: options?.publicKey?.rpId,
+          userVerification: 'required',
+        },
       })
 
       setPasskeyStatus('Verifying your passkey...')
@@ -142,6 +143,7 @@ export const LoginPage = () => {
 
       if (verificationResult.success) {
         setPasskeyStatus('Authentication successful, redirecting...')
+
         await signIn('passkey', {
           callbackUrl: '/dashboard',
           email: email || '',
@@ -165,7 +167,6 @@ export const LoginPage = () => {
       setSignInError(true)
       setSignInErrorMessage('An unexpected error occurred during passkey login')
     } finally {
-      setIsPasskeyLoading(false)
       setPasskeyStatus('')
     }
   }
@@ -174,12 +175,16 @@ export const LoginPage = () => {
     <>
       <div className="flex flex-col mt-8 justify-start">
         <div className={buttons()}>
-          <Button variant="outlineLight" size="md" icon={<GoogleIcon />} iconPosition="left" onClick={() => google()} disabled={isPasskeyLoading || signInLoading}>
+          <Button variant="outlineLight" size="md" icon={<GoogleIcon />} iconPosition="left" onClick={() => google()} disabled={signInLoading}>
             Google
           </Button>
 
-          <Button variant="outlineLight" size="md" icon={<GithubIcon />} iconPosition="left" onClick={() => github()} disabled={isPasskeyLoading || signInLoading}>
+          <Button variant="outlineLight" size="md" icon={<GithubIcon />} iconPosition="left" onClick={() => github()} disabled={signInLoading}>
             GitHub
+          </Button>
+
+          <Button variant="outlineLight" className="md" icon={<FingerprintIcon />} iconPosition="left" onClick={() => passKeySignIn()} disabled={signInLoading}>
+            Passkey
           </Button>
         </div>
 
@@ -204,16 +209,7 @@ export const LoginPage = () => {
           {email && (
             <>
               <div className="flex flex-col mt-2">
-                {!usePasswordLogin && (
-                  <>
-                    <Button onClick={() => passKeySignIn()} className="md" variant="outlineLight" disabled={isPasskeyLoading || signInLoading}>
-                      Continue with passkey
-                    </Button>
-                    {isPasskeyLoading && passkeyStatus && <p className="text-sm text-gray-600 mt-2 text-center">{passkeyStatus}</p>}
-                  </>
-                )}
-
-                {usePasswordLogin && (
+                {
                   <>
                     <div className={input()}>
                       <Label className="text-text-dark" htmlFor="password">
@@ -221,20 +217,17 @@ export const LoginPage = () => {
                       </Label>
                       <PasswordInput variant="light" name="password" placeholder="password" autoComplete="current-password" className="!border-neutral-300 dark:!border-neutral-300" />
                     </div>
-                    <Button variant="filled" className="mr-auto mt-2 w-full" icon={<ArrowUpRight />} size="md" type="submit" iconAnimated disabled={isPasskeyLoading || signInLoading}>
+                    <Button variant="filled" className="mr-auto mt-2 w-full" icon={<ArrowUpRight />} size="md" type="submit" iconAnimated disabled={signInLoading}>
                       Login
                     </Button>
                   </>
-                )}
+                }
 
                 <span
-                  onClick={() => !isPasskeyLoading && !signInLoading && setUsePasswordLogin(!usePasswordLogin)}
+                  onClick={() => !signInLoading}
                   className="text-sm text-gray-600 hover:text-gray-800 mt-2 mx-auto block cursor-pointer select-none"
-                  style={{ opacity: isPasskeyLoading || signInLoading ? 0.5 : 1 }}
-                >
-                  <p className="text-gray-500 text-center text-bold tx-xs">or</p>
-                  {usePasswordLogin ? 'Use passkey instead' : 'Use password instead'}
-                </span>
+                  style={{ opacity: signInLoading ? 0.5 : 1 }}
+                ></span>
               </div>
               <Link href="/forgot-password" className="text-sm text-blue-500 underline mt-2 text-center mb-4 hover:opacity-80 transition">
                 Forgot password?
