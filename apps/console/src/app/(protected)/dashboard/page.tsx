@@ -71,8 +71,8 @@ const Page: React.FC = () => {
       <PageHeading
         heading={
           <div className="flex justify-between items-center">
-            <h1>Overview</h1>
-            <div className="flex gap-2.5">
+            <div className="flex gap-4 items-center">
+              <h1>Overview</h1>
               <Select onValueChange={handleSelectChange}>
                 <SelectTrigger className="w-48 border rounded-md px-3 py-2 flex items-center justify-between">{selectedProgram}</SelectTrigger>
                 <SelectContent className="border rounded-md shadow-md">
@@ -89,6 +89,8 @@ const Page: React.FC = () => {
                   })}
                 </SelectContent>
               </Select>
+            </div>
+            <div className="flex gap-2.5">
               <ProgramCreate />
               <CreateTaskDialog />
             </div>
