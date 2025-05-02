@@ -195,6 +195,9 @@ const ProfilePage = () => {
         uploadCallback={handleUploadAvatar || 'N/A'}
         placeholderImage={userData?.user.avatarFile?.presignedURL || sessionData?.user?.image}
       />
+      <Suspense fallback={<Loader />}>
+        <DefaultOrgForm />
+      </Suspense>
       <Panel>
         <PanelHeader heading="Two Factor Authentication" noBorder />
         <div className="flex w-full justify-between">
@@ -228,10 +231,6 @@ const ProfilePage = () => {
       )}
 
       <PasskeySection userData={userData} />
-
-      <Suspense fallback={<Loader />}>
-        <DefaultOrgForm />
-      </Suspense>
     </>
   )
 }

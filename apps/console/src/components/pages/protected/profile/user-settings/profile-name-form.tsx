@@ -1,6 +1,5 @@
 'use client'
 
-import { GetUserProfileQueryVariables } from '@repo/codegen/src/schema'
 import { Input, InputRow } from '@repo/ui/input'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { useSession } from 'next-auth/react'
@@ -97,7 +96,7 @@ const ProfileNameForm = () => {
       <PanelHeader heading="Your Profile" noBorder />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <InputRow className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <InputRow className="gap-8">
             <FormField
               control={form.control}
               name="firstName"
@@ -146,6 +145,8 @@ const ProfileNameForm = () => {
                 </FormItem>
               )}
             />
+          </InputRow>
+          <InputRow className="gap-8">
             <FormField
               control={form.control}
               name="displayName"

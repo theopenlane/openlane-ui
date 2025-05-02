@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { SimpleForm } from '@repo/ui/simple-form'
 import { MessageBox } from '@repo/ui/message-box'
 import { Button } from '@repo/ui/button'
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowUpRight, Fingerprint } from 'lucide-react'
 import { getPasskeyRegOptions, registerUser, verifyRegistration, type RegisterUser } from '@/lib/user'
 import { GoogleIcon } from '@repo/ui/icons/google'
 import { GithubIcon } from '@repo/ui/icons/github'
@@ -20,8 +20,7 @@ import { startRegistration } from '@simplewebauthn/browser'
 import Link from 'next/link'
 import { allowedLoginDomains, recaptchaSiteKey } from '@repo/dally/auth'
 
-const TEMP_PASSKEY_EMAIL = 'tempuser@test.com'
-const TEMP_PASSKEY_NAME = 'Temp User'
+const TEMP_PASSKEY_EMAIL = 'tempuser1@test.com'
 
 export const SignupPage = () => {
   const searchParams = useSearchParams()
@@ -65,7 +64,6 @@ export const SignupPage = () => {
     try {
       const options = await getPasskeyRegOptions({
         email: TEMP_PASSKEY_EMAIL,
-        name: TEMP_PASSKEY_NAME,
       })
       setSessionCookie(options.session)
       const attestationResponse = await startRegistration(options.publicKey)
@@ -76,7 +74,6 @@ export const SignupPage = () => {
       if (verificationResult.success) {
         await signIn('passkey', {
           email: TEMP_PASSKEY_EMAIL,
-          name: TEMP_PASSKEY_NAME,
           session: verificationResult.session,
           accessToken: verificationResult.access_token,
           refreshToken: verificationResult.refresh_token,
@@ -123,7 +120,7 @@ export const SignupPage = () => {
         {/* <Button
           variant="outlineLight"
           size="md"
-          icon={<KeyRoundIcon className={keyIcon()} />}
+          icon={<Fingerprint className={keyIcon()} />}
           iconPosition="left"
           onClick={registerPasskey}
         >
