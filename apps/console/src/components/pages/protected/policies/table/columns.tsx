@@ -25,7 +25,7 @@ export const policiesColumns: ColumnDef<InternalPolicy>[] = [
     header: 'Summary',
     cell: ({ cell }) => {
       const summary = cell.getValue() as string
-      return <div className="line-clamp-4">{summary ?? 'N/A'}</div>
+      return <div className="line-clamp-4">{summary === '' ? 'N/A' : summary}</div>
     },
   },
   {
