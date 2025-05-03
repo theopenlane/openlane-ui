@@ -66,7 +66,7 @@ export const ProceduresTable = () => {
               return formatDateTime(value as string)
             }
 
-            if (key === 'details') {
+            if (key === 'summary') {
               return (value as string) ?? ''
             }
 

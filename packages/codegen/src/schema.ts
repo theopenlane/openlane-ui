@@ -12158,6 +12158,7 @@ export interface InternalPolicy extends Node {
   /** status of the policy, e.g. draft, published, archived, etc. */
   status?: Maybe<InternalPolicyDocumentStatus>
   subcontrols: SubcontrolConnection
+  summary?: Maybe<Scalars['String']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   tasks: TaskConnection
@@ -12329,6 +12330,7 @@ export interface InternalPolicyHistory extends Node {
   revision?: Maybe<Scalars['String']['output']>
   /** status of the policy, e.g. draft, published, archived, etc. */
   status?: Maybe<InternalPolicyHistoryDocumentStatus>
+  summary?: Maybe<Scalars['String']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
@@ -19252,6 +19254,7 @@ export interface Procedure extends Node {
   /** status of the procedure, e.g. draft, published, archived, etc. */
   status?: Maybe<ProcedureDocumentStatus>
   subcontrols: SubcontrolConnection
+  summary?: Maybe<Scalars['String']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   tasks: TaskConnection
@@ -19414,6 +19417,7 @@ export interface ProcedureHistory extends Node {
   revision?: Maybe<Scalars['String']['output']>
   /** status of the procedure, e.g. draft, published, archived, etc. */
   status?: Maybe<ProcedureHistoryDocumentStatus>
+  summary?: Maybe<Scalars['String']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
@@ -32239,6 +32243,7 @@ export type GetInternalPoliciesListQuery = {
         createdBy?: string | null
         tags?: Array<string> | null
         details?: string | null
+        summary?: string | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -32444,6 +32449,7 @@ export type GetProceduresListQuery = {
         createdBy?: string | null
         tags?: Array<string> | null
         details?: string | null
+        summary?: string | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
