@@ -21,9 +21,10 @@ type UseGetPersonalAccessTokensArgs = {
   where?: GetPersonalAccessTokensQueryVariables['where']
   orderBy?: GetPersonalAccessTokensQueryVariables['orderBy']
   pagination?: TPagination
+  enabled?: boolean
 }
 
-export const useGetPersonalAccessTokens = ({ where, orderBy, pagination }: UseGetPersonalAccessTokensArgs) => {
+export const useGetPersonalAccessTokens = ({ where, orderBy, pagination, enabled = true }: UseGetPersonalAccessTokensArgs) => {
   const { client } = useGraphQLClient()
   return useQuery<GetPersonalAccessTokensQuery>({
     queryKey: ['personalAccessTokens', where, orderBy, pagination?.pageSize, pagination?.page],
@@ -33,6 +34,7 @@ export const useGetPersonalAccessTokens = ({ where, orderBy, pagination }: UseGe
         orderBy,
         ...pagination?.query,
       }),
+    enabled,
   })
 }
 
@@ -60,9 +62,10 @@ type UseGetApiTokensArgs = {
   where?: GetApiTokensQueryVariables['where']
   orderBy?: GetApiTokensQueryVariables['orderBy']
   pagination?: TPagination
+  enabled?: boolean
 }
 
-export const useGetApiTokens = ({ where, orderBy, pagination }: UseGetApiTokensArgs) => {
+export const useGetApiTokens = ({ where, orderBy, pagination, enabled = true }: UseGetApiTokensArgs) => {
   const { client } = useGraphQLClient()
   return useQuery<GetApiTokensQuery>({
     queryKey: ['apiTokens', where, orderBy, pagination?.pageSize, pagination?.page],
@@ -72,6 +75,7 @@ export const useGetApiTokens = ({ where, orderBy, pagination }: UseGetApiTokensA
         orderBy,
         ...pagination?.query,
       }),
+    enabled,
   })
 }
 

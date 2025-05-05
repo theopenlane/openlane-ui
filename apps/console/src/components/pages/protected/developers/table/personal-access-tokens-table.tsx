@@ -41,7 +41,7 @@ export const PersonalAccessTokenTable = () => {
     direction: OrderDirection
   }>
 
-  const [filters, setFilters] = useState<CommonWhereType>({})
+  const [filters, setFilters] = useState<CommonWhereType | null>(null)
   const [orderBy, setOrderBy] = useState<CommonOrderByType>([
     {
       field: PersonalAccessTokenOrderField.name,
@@ -62,11 +62,13 @@ export const PersonalAccessTokenTable = () => {
         where: whereFilter,
         orderBy: orderByFilter as GetApiTokensQueryVariables['orderBy'],
         pagination,
+        enabled: !!filters,
       })
     : useGetPersonalAccessTokens({
         where: whereFilter,
         orderBy: orderByFilter as GetPersonalAccessTokensQueryVariables['orderBy'],
         pagination,
+        enabled: !!filters,
       })
 
   const paginationMeta = useMemo(() => {
@@ -79,8 +81,6 @@ export const PersonalAccessTokenTable = () => {
     }
   }, [data, isOrg, isFetching])
 
-  if (isError || !data) return null
-
   const tokens: TokenNode[] = isOrg
     ? (data as GetApiTokensQuery).apiTokens?.edges?.map((edge) => ({
         id: edge?.node?.id!!,
@@ -89,7 +89,7 @@ export const PersonalAccessTokenTable = () => {
         expiresAt: edge?.node?.expiresAt!!,
         scopes: edge?.node?.scopes?.join(', ') || '-',
       })) || []
-    : (data as GetPersonalAccessTokensQuery).personalAccessTokens?.edges?.map((edge) => ({
+    : (data as GetPersonalAccessTokensQuery)?.personalAccessTokens?.edges?.map((edge) => ({
         id: edge?.node?.id!!,
         name: edge?.node?.name!!,
         description: edge?.node?.description!!,

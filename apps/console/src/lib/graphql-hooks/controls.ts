@@ -17,9 +17,10 @@ type UseGetAllControlsArgs = {
   where?: GetAllControlsQueryVariables['where']
   pagination?: TPagination | null
   orderBy?: GetAllControlsQueryVariables['orderBy']
+  enabled?: boolean
 }
 
-export const useGetAllControls = ({ where, pagination, orderBy }: UseGetAllControlsArgs) => {
+export const useGetAllControls = ({ where, pagination, orderBy, enabled = true }: UseGetAllControlsArgs) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<GetAllControlsQuery>({
@@ -30,7 +31,7 @@ export const useGetAllControls = ({ where, pagination, orderBy }: UseGetAllContr
         orderBy,
         ...pagination?.query,
       }),
-    enabled: where !== undefined,
+    enabled,
   })
 
   const edges = queryResult.data?.controls?.edges ?? []

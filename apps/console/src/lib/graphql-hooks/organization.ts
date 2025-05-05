@@ -92,14 +92,16 @@ type useGetInvitesProp = {
   where: GetInvitesQueryVariables['where']
   orderBy?: GetInvitesQueryVariables['orderBy']
   pagination?: TPagination
+  enabled?: boolean
 }
 
-export const useGetInvites = ({ where, orderBy, pagination }: useGetInvitesProp) => {
+export const useGetInvites = ({ where, orderBy, pagination, enabled = true }: useGetInvitesProp) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetInvitesQuery>({
     queryKey: ['invites', where, orderBy, pagination?.pageSize, pagination?.page],
     queryFn: async () => client.request(GET_INVITES, { where, orderBy, ...pagination?.query }),
+    enabled,
   })
 }
 

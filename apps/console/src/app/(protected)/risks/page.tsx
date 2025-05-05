@@ -21,7 +21,7 @@ const RiskTablePage: React.FC = () => {
   const { replace } = useRouter()
 
   const [searchQuery, setSearchQuery] = useState('')
-  const [filters, setFilters] = useState<Record<string, any>>({})
+  const [filters, setFilters] = useState<Record<string, any> | null>(null)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [orderBy, setOrderBy] = useState<GetAllRisksQueryVariables['orderBy']>([
     {
@@ -49,9 +49,8 @@ const RiskTablePage: React.FC = () => {
     where,
     orderBy: orderByFilter,
     pagination,
+    enabled: !!filters,
   })
-
-  if (isError || !risks) return null
 
   const columns: ColumnDef<RiskFieldsFragment>[] = [
     { accessorKey: 'displayID', header: 'Risk' },
@@ -131,7 +130,7 @@ const RiskTablePage: React.FC = () => {
         sortFields={RISKS_SORT_FIELDS}
         onSortChange={setOrderBy}
         columns={columns}
-        data={risks}
+        data={risks || []}
         onRowClick={(row) => replace(`/risks?id=${row.id}`)}
         loading={!risks && !isError}
         pagination={pagination}

@@ -98,7 +98,7 @@ type TGroupsTableProps = {
   onSortChange?: (sortCondition: any[]) => void
   pagination: TPagination
   onPaginationChange: (pagination: TPagination) => void
-  whereFilter: Record<string, any>
+  whereFilter: Record<string, any> | null
   orderByFilter: GroupOrder[] | GroupOrder | undefined
 }
 
@@ -107,6 +107,7 @@ const GroupsTable = ({ onSortChange, pagination, onPaginationChange, whereFilter
     where: whereFilter,
     orderBy: orderByFilter,
     pagination: pagination,
+    enabled: !!whereFilter,
   })
   const { setSelectedGroup } = useGroupsStore()
 

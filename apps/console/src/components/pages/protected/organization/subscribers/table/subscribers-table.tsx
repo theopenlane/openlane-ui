@@ -12,7 +12,7 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { useDebounce } from '@uidotdev/usehooks'
 
 export const SubscribersTable = () => {
-  const [filters, setFilters] = useState<Record<string, any>>({})
+  const [filters, setFilters] = useState<Record<string, any> | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const debouncedSearch = useDebounce(searchTerm, 300)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
@@ -34,6 +34,7 @@ export const SubscribersTable = () => {
     where: whereFilter,
     orderBy,
     pagination,
+    enabled: !!filters,
   })
 
   return (
