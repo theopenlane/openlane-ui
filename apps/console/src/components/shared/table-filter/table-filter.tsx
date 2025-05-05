@@ -9,7 +9,7 @@ import { tableFilterStyles } from '@/components/shared/table-filter/table-filter
 import { useDebounce } from '@uidotdev/usehooks'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { format, startOfDay, addDays } from 'date-fns'
-import { useSearchParams } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import { useRouter } from 'next/navigation'
 
 const getOperatorsForType = (type: Filter['type']) => {
@@ -51,6 +51,7 @@ interface TableFilterProps {
 
 export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilterChange }) => {
   const router = useRouter()
+  const pathname = usePathname()
   const searchParams = useSearchParams()
   const [filters, setFilters] = useState<Filter[] | null>(null)
   const [conjunction, setConjunction] = useState<'and' | 'or'>('and')
@@ -104,10 +105,10 @@ export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilter
   useEffect(() => {
     const hasFilters = Array.isArray(filters) && filters.length > 0
 
-    const url = hasFilters ? `/tasks?filters=${encodeURIComponent(JSON.stringify(filters))}` : `/tasks`
+    const url = hasFilters ? `${pathname}?filters=${encodeURIComponent(JSON.stringify(filters))}` : pathname
 
     router.replace(url)
-  }, [filters, router])
+  }, [filters, router, pathname])
 
   const updateFilters = (updatedFilters: Filter[]) => {
     setFilters(updatedFilters)
