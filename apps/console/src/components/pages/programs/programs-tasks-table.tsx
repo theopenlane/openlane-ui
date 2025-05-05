@@ -111,7 +111,6 @@ const TasksTable = () => {
 
   const filters = [
     {
-      id: '87b1a092-5f24-4e18-8609-e185368956e9',
       field: 'hasProgramsWith',
       value: programId,
       type: 'selectIs',

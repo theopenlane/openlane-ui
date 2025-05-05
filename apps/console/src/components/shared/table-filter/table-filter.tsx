@@ -120,7 +120,6 @@ export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilter
     updateFilters([
       ...(filters || []),
       {
-        id: crypto.randomUUID(),
         field: firstField.key,
         value: '',
         type: firstField.type,
@@ -134,7 +133,6 @@ export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilter
     const firstField = filterFields[0]
     setFilters([
       {
-        id: crypto.randomUUID(),
         field: firstField.key,
         value: '',
         type: firstField.type,
@@ -233,7 +231,7 @@ export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilter
             const operators = filterField ? getOperatorsForType(filterField.type) : []
 
             return (
-              <div key={filter.id} className="flex items-center gap-2">
+              <div key={index} className="flex items-center gap-2">
                 {index === 0 && <p className={prefixes()}>Where</p>}
                 {index === 1 && (
                   <Select value={conjunction} onValueChange={(val: 'and' | 'or') => setConjunction(val)}>
