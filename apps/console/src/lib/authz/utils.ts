@@ -116,3 +116,11 @@ export const useUserCanCreatePolicy = (session: Session | null) => {
 export const useUserCanEditPolicy = (session: Session | null) => {
   return useCheckPermissions(session, RELATION.EDIT, OBJECT.POLICY)
 }
+
+export const useUserCanCreateProcedure = (session: Session | null) => {
+  return useCheckPermissions(session, RELATION.VIEW, OBJECT.PROCEDURE)
+}
+
+export const useUserCanEditProcedure = (session: Session | null) => {
+  return useCheckPermissions(session, RELATION.EDIT, OBJECT.PROCEDURE)
+}

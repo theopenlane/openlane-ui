@@ -12,16 +12,17 @@ import ProtectedArea from '@/components/shared/protected-area/protected-area.tsx
 const Page: NextPage = () => {
   const { id } = useParams()
   const { data: session } = useSession()
-  const { data: canEditPolicy } = useUserCanEditPolicy(session)
-
-  if (!canEditPolicy) {
-    return <ProtectedArea />
-  }
+  const { data: canEditPolicy, isLoading } = useUserCanEditPolicy(session)
 
   return (
     <>
-      <PageHeading heading="Edit policy" />
-      <EditPolicyPage policyId={id as string} />
+      {!isLoading && !canEditPolicy && <ProtectedArea />}
+      {!isLoading && canEditPolicy && (
+        <>
+          <PageHeading heading="Edit policy" />
+          <EditPolicyPage policyId={id as string} />
+        </>
+      )}
     </>
   )
 }
