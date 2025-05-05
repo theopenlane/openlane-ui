@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { ListFilter, Trash2 } from 'lucide-react'
 import { Popover, PopoverTrigger, PopoverContent } from '@repo/ui/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
@@ -9,6 +9,8 @@ import { tableFilterStyles } from '@/components/shared/table-filter/table-filter
 import { useDebounce } from '@uidotdev/usehooks'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { format, startOfDay, addDays } from 'date-fns'
+import { usePathname, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 
 const getOperatorsForType = (type: Filter['type']) => {
   const operatorMap = {
@@ -48,9 +50,11 @@ interface TableFilterProps {
 }
 
 export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilterChange }) => {
-  const [filters, setFilters] = useState<Filter[]>([])
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const [filters, setFilters] = useState<Filter[] | null>(null)
   const [conjunction, setConjunction] = useState<'and' | 'or'>('and')
-
   const debouncedFilters = useDebounce(filters, 300)
   const { prefixes, columnName, operator, value } = tableFilterStyles()
 
@@ -60,9 +64,9 @@ export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilter
     return [{ [`${field}GTE`]: start }, { [`${field}LT`]: end }]
   }
 
-  const generateWhereCondition = (filters: Filter[], conjunction: 'and' | 'or') => {
+  const generateWhereCondition = useCallback((filters: Filter[], conjunction: 'and' | 'or') => {
     const conditions = filters
-      .filter(({ value }) => value !== '')
+      ?.filter(({ value }) => value !== '')
       .flatMap(({ field, type, operator, value }) => {
         if (field === 'hasProgramsWith') {
           return [{ hasProgramsWith: [{ id: value }] }]
@@ -80,11 +84,31 @@ export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilter
       })
 
     return conditions.length > 1 ? { [conjunction]: conditions } : conditions[0] || {}
-  }
+  }, [])
 
   useEffect(() => {
-    onFilterChange?.(generateWhereCondition(debouncedFilters, conjunction))
-  }, [debouncedFilters, conjunction, onFilterChange])
+    const filtersParam = searchParams.get('filters')
+    if (filtersParam) {
+      try {
+        const parsedFilters = JSON.parse(decodeURIComponent(filtersParam))
+        if (Array.isArray(parsedFilters)) {
+          setFilters(parsedFilters)
+        }
+      } catch (err) {
+        console.error('Invalid filters in URL', err)
+      }
+    } else {
+      setFilters([])
+    }
+  }, [searchParams])
+
+  useEffect(() => {
+    const hasFilters = Array.isArray(filters) && filters.length > 0
+
+    const url = hasFilters ? `${pathname}?filters=${encodeURIComponent(JSON.stringify(filters))}` : pathname
+
+    router.replace(url)
+  }, [filters, router, pathname])
 
   const updateFilters = (updatedFilters: Filter[]) => {
     setFilters(updatedFilters)
@@ -94,9 +118,8 @@ export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilter
     if (!filterFields.length) return
     const firstField = filterFields[0]
     updateFilters([
-      ...filters,
+      ...(filters || []),
       {
-        id: crypto.randomUUID(),
         field: firstField.key,
         value: '',
         type: firstField.type,
@@ -110,7 +133,6 @@ export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilter
     const firstField = filterFields[0]
     setFilters([
       {
-        id: crypto.randomUUID(),
         field: firstField.key,
         value: '',
         type: firstField.type,
@@ -119,12 +141,22 @@ export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilter
     ])
   }
 
+  useEffect(() => {
+    if (debouncedFilters) {
+      onFilterChange?.(generateWhereCondition(debouncedFilters, conjunction))
+    }
+  }, [debouncedFilters, conjunction, onFilterChange, generateWhereCondition])
+
   const handleFilterChange = (index: number, field: Partial<Filter>) => {
-    setFilters(filters.map((filter, i) => (i === index ? { ...filter, ...field } : filter)))
+    if (filters) {
+      setFilters(filters.map((filter, i) => (i === index ? { ...filter, ...field } : filter)))
+    }
   }
 
   const removeFilter = (index: number) => {
-    updateFilters(filters.filter((_, i) => i !== index))
+    if (filters) {
+      updateFilters(filters.filter((_, i) => i !== index))
+    }
   }
 
   const renderFilterInput = (filter: Filter, index: number) => {
@@ -183,23 +215,23 @@ export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilter
   }
 
   return (
-    <Popover onOpenChange={(open) => open && filters.length === 0 && addFilter()}>
+    <Popover onOpenChange={(open) => open && filters?.length === 0 && addFilter()}>
       <PopoverTrigger asChild>
         <button className="gap-2 flex items-center py-1.5 px-3 border rounded-lg">
           <ListFilter size={16} />
           <p className="text-sm whitespace-nowrap">Add Filter</p>
           <div className="border h-4" />
-          <p className="text-sm">{filters.filter((filter) => filter.value !== '').length}</p>
+          <p className="text-sm">{filters?.filter((filter) => filter.value !== '').length}</p>
         </button>
       </PopoverTrigger>
       <PopoverContent align="start" side="bottom" sideOffset={8} asChild className="size-fit p-4 ">
         <div className="flex flex-col gap-2">
-          {filters.map((filter, index) => {
+          {filters?.map((filter, index) => {
             const filterField = filterFields.find((f) => f.key === filter.field)
             const operators = filterField ? getOperatorsForType(filterField.type) : []
 
             return (
-              <div key={filter.id} className="flex items-center gap-2">
+              <div key={index} className="flex items-center gap-2">
                 {index === 0 && <p className={prefixes()}>Where</p>}
                 {index === 1 && (
                   <Select value={conjunction} onValueChange={(val: 'and' | 'or') => setConjunction(val)}>

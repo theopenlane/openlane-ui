@@ -50,7 +50,6 @@ export type FilterField = SelectFilterField | StandardFilterField | SelectIsFilt
 
 // Filter definition
 export type Filter = {
-  id: string
   field: string
   value: any
   type: FilterType
