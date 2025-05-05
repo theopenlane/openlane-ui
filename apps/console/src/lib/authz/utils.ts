@@ -21,13 +21,13 @@ export const featureObject = 'feature'
 /*
  * CheckTuple includes the payload required for the check access endpoint
  *
- * @objectId: the id of the object being checked, usually the organization id
- * @objectType: the type of the object being checked, usually organization
+ * @object_id: the id of the object being checked, usually the organization id
+ * @object+type: the type of the object being checked, usually organization
  * @relation: the relation being checked
  */
 export type CheckTuple = {
-  objectId: string
-  objectType: string
+  object_id: string
+  object_type: string
   relation: string
 }
 
@@ -48,8 +48,8 @@ export const useCheckPermissions = (session: Session | null, relation: string) =
 
   const payload = {
     relation,
-    objectType: 'organization',
-    objectId: currentOrgId,
+    object_type: 'organization',
+    object_id: currentOrgId,
   }
 
   const fetcher = async (url: string) => {
