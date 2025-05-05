@@ -27,18 +27,6 @@ type FormattedTask = {
   assignee?: User
 }
 
-const filters = [
-  {
-    id: '87b1a092-5f24-4e18-8609-e185368956e9',
-    field: 'hasProgramsWith',
-    value: '01JSFH8QSV2G0YTMHQYA3GAEQY',
-    type: 'selectIs',
-    operator: 'EQ',
-  },
-]
-
-const encodedFilters = encodeURIComponent(JSON.stringify(filters))
-
 const columns: ColumnDef<FormattedTask>[] = [
   {
     header: 'Title',
@@ -107,6 +95,7 @@ const TasksTable = () => {
       direction: OrderDirection.ASC,
     },
   ])
+
   const { data, tasks, isLoading, isFetching } = useTasksWithFilter({ where, pagination, orderBy, enabled: !!programId })
 
   const formattedTasks: FormattedTask[] = useMemo(() => {
@@ -119,6 +108,18 @@ const TasksTable = () => {
       assignee: task.assignee as User,
     }))
   }, [tasks])
+
+  const filters = [
+    {
+      id: '87b1a092-5f24-4e18-8609-e185368956e9',
+      field: 'hasProgramsWith',
+      value: programId,
+      type: 'selectIs',
+      operator: 'EQ',
+    },
+  ]
+
+  const encodedFilters = encodeURIComponent(JSON.stringify(filters))
 
   return (
     <div className="p-6 bg-muted rounded-lg">
