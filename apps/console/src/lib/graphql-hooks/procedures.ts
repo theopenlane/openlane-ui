@@ -42,9 +42,10 @@ type UseProceduresArgs = {
   where?: GetProceduresListQueryVariables['where']
   orderBy?: GetProceduresListQueryVariables['orderBy']
   pagination?: TPagination
+  enabled?: boolean
 }
 
-export const useProcedures = ({ where, orderBy, pagination }: UseProceduresArgs) => {
+export const useProcedures = ({ where, orderBy, pagination, enabled = true }: UseProceduresArgs) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<GetProceduresListQuery>({
@@ -55,6 +56,7 @@ export const useProcedures = ({ where, orderBy, pagination }: UseProceduresArgs)
         orderBy,
         ...pagination?.query,
       }),
+    enabled,
   })
 
   const procedures = (queryResult.data?.procedures?.edges ?? []).map((edge) => edge?.node) as Procedure[]

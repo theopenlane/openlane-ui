@@ -366,7 +366,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
               I have copied the access token and put it in a safe place
             </Label>
           </div>
-          <DialogClose disabled={!confirmationChecked}>
+          <DialogClose asChild disabled={!confirmationChecked}>
             <div className="flex">
               <Button disabled={!confirmationChecked} variant="filled">
                 Close

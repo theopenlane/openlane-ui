@@ -13,7 +13,7 @@ import { useTemplates } from '@/lib/graphql-hooks/templates'
 
 export const QuestionnairesTable = () => {
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
-  const [filters, setFilters] = useState<Record<string, any>>({})
+  const [filters, setFilters] = useState<Record<string, any> | null>(null)
   const [orderBy, setOrderBy] = useState<FilterTemplatesQueryVariables['orderBy']>([
     {
       field: TemplateOrderField.name,
@@ -42,6 +42,7 @@ export const QuestionnairesTable = () => {
     where: whereFilter,
     orderBy: orderByFilter,
     pagination,
+    enabled: !!filters,
   })
 
   return (

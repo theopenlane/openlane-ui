@@ -7,7 +7,6 @@ import { taskColumns } from '@/components/pages/protected/tasks/table/columns.ts
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { exportToCSV } from '@/utils/exportToCSV'
-import { format } from 'date-fns'
 import { ColumnDef } from '@tanstack/react-table'
 import TaskInfiniteCards from '@/components/pages/protected/tasks/cards/task-infinite-cards.tsx'
 import TasksTable from '@/components/pages/protected/tasks/table/tasks-table.tsx'
@@ -18,7 +17,7 @@ const TasksPage: React.FC = () => {
   const tableRef = useRef<{ exportData: () => Task[] }>(null)
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
   const [showCompletedTasks, setShowCompletedTasks] = useState<boolean>(false)
-  const [filters, setFilters] = useState<Record<string, any>>({})
+  const [filters, setFilters] = useState<Record<string, any> | null>(null)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [orderBy, setOrderBy] = useState<TasksWithFilterQueryVariables['orderBy']>([
     {
@@ -26,17 +25,20 @@ const TasksPage: React.FC = () => {
       direction: OrderDirection.ASC,
     },
   ])
-  const allStatuses = [TaskTaskStatus.COMPLETED, TaskTaskStatus.OPEN, TaskTaskStatus.IN_PROGRESS, TaskTaskStatus.IN_REVIEW, TaskTaskStatus.WONT_DO]
-  const statusesWithoutComplete = [TaskTaskStatus.OPEN, TaskTaskStatus.IN_PROGRESS, TaskTaskStatus.IN_REVIEW, TaskTaskStatus.WONT_DO]
+  const allStatuses = useMemo(() => [TaskTaskStatus.COMPLETED, TaskTaskStatus.OPEN, TaskTaskStatus.IN_PROGRESS, TaskTaskStatus.IN_REVIEW, TaskTaskStatus.WONT_DO], [])
+  const statusesWithoutComplete = useMemo(() => [TaskTaskStatus.OPEN, TaskTaskStatus.IN_PROGRESS, TaskTaskStatus.IN_REVIEW, TaskTaskStatus.WONT_DO], [])
 
   const whereFilter = useMemo(() => {
+    if (!filters) {
+      return null
+    }
     const conditions: Record<string, any> = {
       ...(showCompletedTasks ? { statusIn: allStatuses } : { statusIn: statusesWithoutComplete }),
       ...filters,
     }
 
     return conditions
-  }, [filters, showCompletedTasks])
+  }, [filters, showCompletedTasks, allStatuses, statusesWithoutComplete])
 
   const orderByFilter = useMemo(() => {
     return orderBy || undefined

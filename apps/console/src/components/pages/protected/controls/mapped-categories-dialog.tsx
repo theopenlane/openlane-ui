@@ -24,7 +24,7 @@ const MappedCategoriesDialog = () => {
   const { mutateAsync: updateControl, isPending } = useUpdateControl()
 
   const { setValue, getValues } = useFormContext()
-  const { data } = useGetStandards()
+  const { data } = useGetStandards({})
 
   const standards = useMemo(() => {
     return data?.standards?.edges?.map((edge) => edge?.node!) || []

@@ -60,6 +60,7 @@ export const GET_ALL_PROCEDURES = gql`
           createdBy
           tags
           details
+          summary
         }
       }
       pageInfo {

@@ -51,6 +51,7 @@ export const GET_INTERNAL_POLICIES_LIST = gql`
           createdBy
           tags
           details
+          summary
         }
       }
       pageInfo {

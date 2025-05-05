@@ -95,6 +95,7 @@ const TasksTable = () => {
       direction: OrderDirection.ASC,
     },
   ])
+
   const { data, tasks, isLoading, isFetching } = useTasksWithFilter({ where, pagination, orderBy, enabled: !!programId })
 
   const formattedTasks: FormattedTask[] = useMemo(() => {
@@ -108,11 +109,22 @@ const TasksTable = () => {
     }))
   }, [tasks])
 
+  const filters = [
+    {
+      field: 'hasProgramsWith',
+      value: programId,
+      type: 'selectIs',
+      operator: 'EQ',
+    },
+  ]
+
+  const encodedFilters = encodeURIComponent(JSON.stringify(filters))
+
   return (
     <div className="p-6 bg-muted rounded-lg">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Outstanding tasks</h2>
-        <Link href={`/tasks?programId=${programId}`}>
+        <Link href={`/tasks?filters=${encodedFilters}`}>
           <Button icon={<Frame size={16} />} iconPosition="left">
             View Tasks
           </Button>

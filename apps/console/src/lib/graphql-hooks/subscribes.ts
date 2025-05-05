@@ -9,9 +9,10 @@ type UseGetAllSubscribersArgs = {
   where?: GetAllSubscribersQueryVariables['where']
   orderBy?: GetAllSubscribersQueryVariables['orderBy']
   pagination?: TPagination
+  enabled?: boolean
 }
 
-export const useGetAllSubscribers = ({ where, orderBy, pagination }: UseGetAllSubscribersArgs) => {
+export const useGetAllSubscribers = ({ where, orderBy, pagination, enabled = true }: UseGetAllSubscribersArgs) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<GetAllSubscribersQuery>({
@@ -22,6 +23,7 @@ export const useGetAllSubscribers = ({ where, orderBy, pagination }: UseGetAllSu
         orderBy,
         ...pagination?.query,
       }),
+    enabled,
   })
 
   const subscribers = (queryResult.data?.subscribers?.edges ?? []).map((edge) => edge?.node) as Subscriber[]

@@ -18,7 +18,7 @@ import { formatDateTime } from '@/utils/date'
 export const PoliciesTable = () => {
   const router = useRouter()
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
-  const [filters, setFilters] = useState<Record<string, any>>({})
+  const [filters, setFilters] = useState<Record<string, any> | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [orderBy, setOrderBy] = useState<GetInternalPoliciesListQueryVariables['orderBy']>([
     {
@@ -41,7 +41,7 @@ export const PoliciesTable = () => {
     return orderBy || undefined
   }, [orderBy])
 
-  const { policies, isLoading: fetching, paginationMeta } = useInternalPolicies({ where, orderBy: orderByFilter, pagination })
+  const { policies, isLoading: fetching, paginationMeta } = useInternalPolicies({ where, orderBy: orderByFilter, pagination, enabled: !!filters })
 
   const handleCreateNew = async () => {
     router.push(`/policies/create`)
@@ -70,7 +70,7 @@ export const PoliciesTable = () => {
               return formatDateTime(value as string)
             }
 
-            if (key === 'details') {
+            if (key === 'summary') {
               return (value as string) ?? ''
             }
 

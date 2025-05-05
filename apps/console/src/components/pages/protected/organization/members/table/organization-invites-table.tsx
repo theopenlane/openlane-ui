@@ -21,7 +21,7 @@ type InviteNode = {
 }
 
 export const OrganizationInvitesTable = () => {
-  const [filters, setFilters] = useState<Record<string, any>>({})
+  const [filters, setFilters] = useState<Record<string, any> | null>(null)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
 
   const [orderBy, setOrderBy] = useState<GetInvitesQueryVariables['orderBy']>([
@@ -43,7 +43,7 @@ export const OrganizationInvitesTable = () => {
     return orderBy || undefined
   }, [orderBy])
 
-  const { data, isLoading, isError, isFetching } = useGetInvites({ where: whereFilter, orderBy: orderByFilter, pagination })
+  const { data, isLoading, isError, isFetching } = useGetInvites({ where: whereFilter, orderBy: orderByFilter, pagination, enabled: !!filters })
 
   if (isLoading) return <p>Loading...</p>
   if (isError || !data) return null

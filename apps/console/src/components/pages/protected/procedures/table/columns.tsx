@@ -21,12 +21,11 @@ export const proceduresColumns: ColumnDef<Procedure>[] = [
     },
   },
   {
-    accessorKey: 'details',
-    header: 'Details',
+    accessorKey: 'summary',
+    header: 'Summary',
     cell: ({ cell }) => {
-      const plateEditorHelper = usePlateEditor()
-
-      return <div className="line-clamp-4">{plateEditorHelper.convertToReadOnly(cell.getValue() as string, 0)}</div>
+      const summary = cell.getValue() as string
+      return <div className="line-clamp-4">{summary === '' ? 'N/A' : summary}</div>
     },
   },
   {

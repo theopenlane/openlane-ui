@@ -18,7 +18,7 @@ import { formatDateTime } from '@/utils/date'
 export const ProceduresTable = () => {
   const router = useRouter()
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
-  const [filters, setFilters] = useState<Record<string, any>>({})
+  const [filters, setFilters] = useState<Record<string, any> | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [orderBy, setOrderBy] = useState<GetProceduresListQueryVariables['orderBy']>([
     {
@@ -36,7 +36,7 @@ export const ProceduresTable = () => {
     }
   }, [filters, debouncedSearch])
 
-  const { procedures, isLoading: fetching, paginationMeta } = useProcedures({ where: whereFilter, orderBy, pagination })
+  const { procedures, isLoading: fetching, paginationMeta } = useProcedures({ where: whereFilter, orderBy, pagination, enabled: !!filters })
 
   const handleCreateNew = async () => {
     router.push(`/procedures/create`)
@@ -66,7 +66,7 @@ export const ProceduresTable = () => {
               return formatDateTime(value as string)
             }
 
-            if (key === 'details') {
+            if (key === 'summary') {
               return (value as string) ?? ''
             }
 

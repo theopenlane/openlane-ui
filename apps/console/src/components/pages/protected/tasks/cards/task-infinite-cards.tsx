@@ -7,7 +7,7 @@ import { useTasksWithFilterInfinite } from '@/lib/graphql-hooks/tasks.ts'
 import { TaskOrder } from '@repo/codegen/src/schema.ts'
 
 type TTaskInfiniteCardsProps = {
-  whereFilter: Record<string, any>
+  whereFilter: Record<string, any> | null
   orderByFilter: TaskOrder[] | TaskOrder | undefined
 }
 
@@ -17,6 +17,7 @@ const TaskInfiniteCards = forwardRef(({ whereFilter, orderByFilter }: TTaskInfin
     where: whereFilter,
     orderBy: orderByFilter,
     pagination: cardPagination,
+    enabled: !!whereFilter,
   })
 
   const handlePaginationChange = (pagination: TPagination) => {
@@ -32,7 +33,7 @@ const TaskInfiniteCards = forwardRef(({ whereFilter, orderByFilter }: TTaskInfin
       return
     }
     fetchNextPage()
-  }, [cardPagination])
+  }, [cardPagination, fetchNextPage])
 
   return (
     <InfiniteScroll pagination={cardPagination} onPaginationChange={handlePaginationChange} paginationMeta={paginationMeta} key="card">
@@ -40,5 +41,7 @@ const TaskInfiniteCards = forwardRef(({ whereFilter, orderByFilter }: TTaskInfin
     </InfiniteScroll>
   )
 })
+
+TaskInfiniteCards.displayName = 'TaskInfiniteCards'
 
 export default TaskInfiniteCards
