@@ -27,6 +27,18 @@ type FormattedTask = {
   assignee?: User
 }
 
+const filters = [
+  {
+    id: '87b1a092-5f24-4e18-8609-e185368956e9',
+    field: 'hasProgramsWith',
+    value: '01JSFH8QSV2G0YTMHQYA3GAEQY',
+    type: 'selectIs',
+    operator: 'EQ',
+  },
+]
+
+const encodedFilters = encodeURIComponent(JSON.stringify(filters))
+
 const columns: ColumnDef<FormattedTask>[] = [
   {
     header: 'Title',
@@ -112,7 +124,7 @@ const TasksTable = () => {
     <div className="p-6 bg-muted rounded-lg">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Outstanding tasks</h2>
-        <Link href={`/tasks?programId=${programId}`}>
+        <Link href={`/tasks?filters=${encodedFilters}`}>
           <Button icon={<Frame size={16} />} iconPosition="left">
             View Tasks
           </Button>

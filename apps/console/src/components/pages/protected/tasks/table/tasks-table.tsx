@@ -13,12 +13,11 @@ type TTasksTableProps = {
   onSortChange?: (sortCondition: any[]) => void
   pagination: TPagination
   onPaginationChange: (pagination: TPagination) => void
-  whereFilter: Record<string, any>
+  whereFilter: Record<string, any> | null
   orderByFilter: TaskOrder[] | TaskOrder | undefined
 }
-
 const TasksTable = forwardRef(({ onSortChange, pagination, onPaginationChange, whereFilter, orderByFilter }: TTasksTableProps, ref) => {
-  const { tasks, isLoading: fetching, data, isFetching, isError } = useTasksWithFilter({ where: whereFilter, orderBy: orderByFilter, pagination })
+  const { tasks, isLoading: fetching, data, isFetching, isError } = useTasksWithFilter({ where: whereFilter, orderBy: orderByFilter, pagination, enabled: !whereFilter })
   const { setSelectedTask } = useTaskStore()
 
   const handleRowClick = (task: Task) => {
@@ -49,5 +48,7 @@ const TasksTable = forwardRef(({ onSortChange, pagination, onPaginationChange, w
     </div>
   )
 })
+
+TasksTable.displayName = 'TasksTable'
 
 export default TasksTable
