@@ -6,10 +6,14 @@ import { InfoIcon, ShieldPlus } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { dialogStyles } from './dialog.styles'
 import React, { useRef, useState } from 'react'
+import { useSession } from 'next-auth/react'
+import { useUserCanCreateProgram } from '@/lib/authz/utils.ts'
 
 const ProgramCreate = ({ trigger }: { trigger?: React.ReactElement }) => {
   const [open, setOpen] = useState(false)
   const pendingCloseRef = useRef<() => void>(null)
+  const { data: session } = useSession()
+  const { data: canCreateProgram } = useUserCanCreateProgram(session)
 
   const { dialogContent, dialogTrigger, title } = dialogStyles()
 
@@ -19,6 +23,10 @@ const ProgramCreate = ({ trigger }: { trigger?: React.ReactElement }) => {
     } else {
       setOpen(nextOpen)
     }
+  }
+
+  if (!canCreateProgram) {
+    return
   }
 
   return (

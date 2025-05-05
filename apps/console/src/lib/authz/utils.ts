@@ -2,21 +2,21 @@ import { openlaneAPIUrl } from '@repo/dally/auth'
 import { Session } from 'next-auth'
 import useSWR from 'swr'
 
-// high level relation names
-export const canViewRelation = 'can_view'
-export const canEditRelation = 'can_edit'
-export const canDeleteRelation = 'can_delete'
-export const accessRelation = 'access'
+enum RELATION {
+  VIEW = 'can_view',
+  EDIT = 'can_edit',
+  DELETE = 'can_delete',
+  ADMIN_INVITE = 'can_invite_admins',
+}
 
-// fine grained relation names used in the check access endpoint
-export const canInviteAdminsRelation = 'can_invite_admins'
-export const inviteMembersRelation = 'can_invite_members'
-export const auditLogViewRelation = 'audit_log_viewer'
-
-// object types used in the check access endpoint
-export const organizationObject = 'organization'
-export const groupObject = 'group'
-export const featureObject = 'feature'
+enum OBJECT {
+  ORGANIZATION = 'organization',
+  PROGRAM = 'program',
+  TASK = 'task',
+  POLICY = 'internal_policy',
+  PROCEDURE = 'procedure',
+  GROUP = 'group',
+}
 
 /*
  * CheckTuple includes the payload required for the check access endpoint
@@ -37,7 +37,7 @@ export type CheckTuple = {
  * @param relation: the relation to check
  *
  */
-export const useCheckPermissions = (session: Session | null, relation: string) => {
+export const useCheckPermissions = (session: Session | null, relation: RELATION, objectType: OBJECT) => {
   const accessToken = session?.user?.accessToken
   const currentOrgId = session?.user?.activeOrganizationId
 
@@ -48,8 +48,9 @@ export const useCheckPermissions = (session: Session | null, relation: string) =
 
   const payload = {
     relation,
-    objectType: 'organization',
+    objectType: objectType,
     objectId: currentOrgId,
+    subjectType: 'user',
   }
 
   const fetcher = async (url: string) => {
@@ -81,7 +82,7 @@ export const useCheckPermissions = (session: Session | null, relation: string) =
  * @param session: the current user's session
 //  */
 export const useUserHasOrganizationEditPermissions = (session: Session | null) => {
-  return useCheckPermissions(session, canEditRelation)
+  return useCheckPermissions(session, RELATION.EDIT, OBJECT.ORGANIZATION)
 }
 
 /*
@@ -89,7 +90,7 @@ export const useUserHasOrganizationEditPermissions = (session: Session | null) =
  * @param session: the current user's session
  */
 export const useUserHasOrganizationDeletePermissions = (session: Session | null) => {
-  return useCheckPermissions(session, canDeleteRelation)
+  return useCheckPermissions(session, RELATION.DELETE, OBJECT.ORGANIZATION)
 }
 
 /*
@@ -97,5 +98,21 @@ export const useUserHasOrganizationDeletePermissions = (session: Session | null)
  * @param session: the current user's session
  */
 export const useUserCanInviteAdmins = (session: Session | null) => {
-  return useCheckPermissions(session, canInviteAdminsRelation)
+  return useCheckPermissions(session, RELATION.ADMIN_INVITE, OBJECT.ORGANIZATION)
+}
+
+export const useUserCanCreateProgram = (session: Session | null) => {
+  return useCheckPermissions(session, RELATION.VIEW, OBJECT.PROGRAM)
+}
+
+export const useUserCanDeleteTask = (session: Session | null) => {
+  return useCheckPermissions(session, RELATION.DELETE, OBJECT.TASK)
+}
+
+export const useUserCanCreatePolicy = (session: Session | null) => {
+  return useCheckPermissions(session, RELATION.VIEW, OBJECT.POLICY)
+}
+
+export const useUserCanEditPolicy = (session: Session | null) => {
+  return useCheckPermissions(session, RELATION.EDIT, OBJECT.POLICY)
 }

@@ -271,3 +271,13 @@
     background-color: var(--color-bg);
   }
 }
+
+@keyframes custom-pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-custom-pulse {
+  animation: custom-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
