@@ -5,12 +5,13 @@ import { CREATE_CONTROLS_BY_CLONE, GET_ALL_STANDARDS, GET_STANDARD_DETAILS } fro
 
 import { CloneControlInput, CreateControlsByCloneMutation, GetAllStandardsQuery, GetAllStandardsQueryVariables, GetStandardDetailsQuery } from '@repo/codegen/src/schema'
 
-export const useGetStandards = (where?: GetAllStandardsQueryVariables['where']) => {
+export const useGetStandards = ({ where, enabled = true }: { where?: GetAllStandardsQueryVariables['where']; enabled?: boolean }) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetAllStandardsQuery>({
     queryKey: ['standards', where],
     queryFn: () => client.request(GET_ALL_STANDARDS, { where }),
+    enabled,
   })
 }
 

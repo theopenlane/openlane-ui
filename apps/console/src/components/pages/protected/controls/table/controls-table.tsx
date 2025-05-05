@@ -28,7 +28,7 @@ export const ControlStatusLabels: Record<ControlControlStatus, string> = {
 const ControlsTable: React.FC = () => {
   const { push } = useRouter()
   const plateEditorHelper = usePlateEditor()
-  const [filters, setFilters] = useState<Record<string, any>>({})
+  const [filters, setFilters] = useState<Record<string, any> | null>(null)
   const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>([
     {
       field: ControlOrderField.ref_code,
@@ -40,7 +40,7 @@ const ControlsTable: React.FC = () => {
   const debouncedSearch = useDebounce(searchTerm, 300)
   const whereFilter = useMemo(() => {
     const conditions: Record<string, any> = {}
-    Object.entries(filters).forEach(([key, value]) => {
+    Object.entries(filters || {}).forEach(([key, value]) => {
       if (!value) {
         return
       }
@@ -61,6 +61,7 @@ const ControlsTable: React.FC = () => {
     where: { ownerIDNEQ: '', refCodeContainsFold: debouncedSearch, ...whereFilter },
     orderBy,
     pagination,
+    enabled: !!filters,
   })
 
   const columns: ColumnDef<ControlListFieldsFragment>[] = useMemo(

@@ -26,7 +26,7 @@ const filterFields: FilterField[] = [
 
 const StandardsPage = () => {
   const [searchQuery, setSearchQuery] = useState('')
-  const [filters, setFilters] = useState<Record<string, any>>({})
+  const [filters, setFilters] = useState<Record<string, any> | null>(null)
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
 
   const whereFilter = useMemo(() => {
@@ -38,7 +38,7 @@ const StandardsPage = () => {
     return conditions
   }, [debouncedSearchQuery, filters])
 
-  const { data, isLoading, isError } = useGetStandards(whereFilter)
+  const { data, isLoading, isError } = useGetStandards({ where: whereFilter, enabled: !!filters })
 
   if (isLoading) {
     return <Loading />

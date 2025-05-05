@@ -31,7 +31,7 @@ const filterFields: FilterField[] = [
 
 const GroupsPage = () => {
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
-  const [whereFilters, setWhereFilters] = useState<Record<string, any>>({})
+  const [whereFilters, setWhereFilters] = useState<Record<string, any> | null>(null)
   const [orderBy, setOrderBy] = useState<GetAllGroupsQueryVariables['orderBy']>()
   const [searchQuery, setSearchQuery] = useState('')
   const { data: session } = useSession()
@@ -41,6 +41,9 @@ const GroupsPage = () => {
 
   const IsMyGroups = false
   const whereFilter = useMemo(() => {
+    if (!whereFilters) {
+      return null
+    }
     const modifiedWhereFilters = { ...whereFilters }
 
     if ('visibility' in modifiedWhereFilters) {

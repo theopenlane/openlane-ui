@@ -29,9 +29,10 @@ type UseRisksWithFilterProps = {
   where?: RiskWhereInput
   pagination?: TPagination
   orderBy?: RiskOrder[]
+  enabled?: boolean
 }
 
-export const useRisksWithFilter = ({ where, pagination, orderBy }: UseRisksWithFilterProps) => {
+export const useRisksWithFilter = ({ where, pagination, orderBy, enabled = true }: UseRisksWithFilterProps) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery({
@@ -42,6 +43,7 @@ export const useRisksWithFilter = ({ where, pagination, orderBy }: UseRisksWithF
         ...pagination?.query,
         orderBy,
       }),
+    enabled,
   })
 
   const risks = queryResult?.data?.risks?.edges?.map((edge) => edge?.node as RiskFieldsFragment) as Risk[]

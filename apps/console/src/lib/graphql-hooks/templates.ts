@@ -22,9 +22,10 @@ type UseTemplatesArgs = {
   where?: FilterTemplatesQueryVariables['where']
   orderBy?: FilterTemplatesQueryVariables['orderBy']
   pagination?: TPagination
+  enabled?: boolean
 }
 
-export const useTemplates = ({ where, orderBy, pagination }: UseTemplatesArgs) => {
+export const useTemplates = ({ where, orderBy, pagination, enabled = true }: UseTemplatesArgs) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<FilterTemplatesQuery>({
@@ -35,6 +36,7 @@ export const useTemplates = ({ where, orderBy, pagination }: UseTemplatesArgs) =
         orderBy,
         ...pagination?.query,
       }),
+    enabled,
   })
 
   const templates = (queryResult.data?.templates?.edges ?? []).map((edge) => edge?.node) as Template[]

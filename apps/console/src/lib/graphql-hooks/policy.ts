@@ -30,9 +30,10 @@ type UseInternalPoliciesArgs = {
   where?: GetInternalPoliciesListQueryVariables['where']
   orderBy?: GetInternalPoliciesListQueryVariables['orderBy']
   pagination?: TPagination
+  enabled?: boolean
 }
 
-export const useInternalPolicies = ({ where, orderBy, pagination }: UseInternalPoliciesArgs) => {
+export const useInternalPolicies = ({ where, orderBy, pagination, enabled }: UseInternalPoliciesArgs) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<GetInternalPoliciesListQuery>({
@@ -43,6 +44,7 @@ export const useInternalPolicies = ({ where, orderBy, pagination }: UseInternalP
         orderBy,
         ...pagination?.query,
       }),
+    enabled,
   })
 
   const policies = (queryResult.data?.internalPolicies?.edges ?? []).map((edge) => edge?.node) as InternalPolicy[]

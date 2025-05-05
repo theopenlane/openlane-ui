@@ -25,7 +25,7 @@ export const subscribersColumns: ColumnDef<Subscriber>[] = [
     header: 'Verified Email',
   },
   {
-    accessorKey: 'email',
+    accessorKey: 'actions',
     header: '',
     cell: ({ cell }) => <SubscriberActions subscriberEmail={cell.getValue() as string} />,
     size: 40,
