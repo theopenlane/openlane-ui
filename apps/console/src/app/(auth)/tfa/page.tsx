@@ -115,7 +115,7 @@ const TfaPage: React.FC = () => {
   }
 
   return (
-    <>
+    <div className="flex flex-col self-center m-auto">
       <h1 className="text-3xl mb-20 text-text-light">Two-Factor Authentication</h1>
       <div className="flex flex-col items-center gap-4">
         <p className="text-sm text-text-light">{config.title}</p>
@@ -131,7 +131,7 @@ const TfaPage: React.FC = () => {
         <div className="flex ">{config.bottomText}</div>
         {isSubmitting && <p className="text-sm text-text-light">Validating OTP...</p>}
       </div>
-    </>
+    </div>
   )
 }
 
