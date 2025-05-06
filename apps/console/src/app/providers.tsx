@@ -12,7 +12,7 @@ interface ProvidersProps {
   children: ReactNode
 }
 
-const publicPages = ['/login', '/verify', '/resend-verify', '/invite', '/subscriber-verify', '/tfa', '/waitlist', '/unsubscribe', '/forgot-password', '/password-reset']
+const publicPages = ['/login', '/verify', '/resend-verify', '/invite', '/subscriber-verify', '/tfa', '/waitlist', '/unsubscribe', '/forgot-password', '/password-reset', '/signup']
 
 const Providers = ({ children }: ProvidersProps) => {
   const { data: session, status } = useSession()

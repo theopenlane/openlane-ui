@@ -228,14 +228,14 @@ export const LoginPage = () => {
                   style={{ opacity: signInLoading ? 0.5 : 1 }}
                 ></span>
               </div>
-              <div className="flex text-base">
-                <span>New to Openlane? &nbsp;</span>
-                <Link href="/signup" className=" text-base text-blue-500  hover:opacity-80 transition">
-                  Signup for an account
-                </Link>
-              </div>
             </>
           )}
+          <div className="flex text-base">
+            <span>New to Openlane? &nbsp;</span>
+            <Link href="/signup" className=" text-base text-blue-500  hover:opacity-80 transition">
+              Signup for an account
+            </Link>
+          </div>
         </SimpleForm>
         <div className="flex gap-6 mt-9">
           <Link href="https://www.theopenlane.io/legal/privacy" className="text-xs opacity-90">
