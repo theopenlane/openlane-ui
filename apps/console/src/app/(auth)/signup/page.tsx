@@ -11,8 +11,8 @@ const AuthLogin: React.FC = () => {
         <div className="flex h-full w-full min-h-screen gap-60">
           <AuthMarketingPanel>
             <h2 className="text-4xl font-normal">
-              Checkboxes don’t
-              <br /> build trust. We do.
+              Compliance you
+              <br /> can verify, not <br /> just report.
             </h2>
           </AuthMarketingPanel>{' '}
           <SignupPage />
