@@ -7,4 +7,5 @@ export enum ObjectEnum {
   GROUP = 'group',
   CONTROL = 'control',
   TEMPLATE = 'template',
+  STANDARD = 'standard',
 }

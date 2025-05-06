@@ -6,6 +6,10 @@ import BillingSettings from '@/components/pages/protected/organization/billing/b
 import { useOrganization } from '@/hooks/useOrganization'
 import { LoaderCircle } from 'lucide-react'
 import { useGetOrganizationBilling } from '@/lib/graphql-hooks/organization'
+import { useSession } from 'next-auth/react'
+import { useOrganizationRole } from '@/lib/authz/access-api.ts'
+import { canView } from '@/lib/authz/utils.ts'
+import ProtectedArea from '@/components/shared/protected-area/protected-area.tsx'
 
 const OrganizationContent = () => {
   const { currentOrgId } = useOrganization()
@@ -39,12 +43,20 @@ const OrganizationContent = () => {
 }
 
 const Page: React.FC = () => {
+  const { data: session } = useSession()
+  const { data: permission, isLoading } = useOrganizationRole(session)
+
   return (
     <>
-      <PageHeading heading="Billing" eyebrow="Organization Settings" />
-      <Suspense>
-        <OrganizationContent />
-      </Suspense>
+      {!isLoading && !canView(permission?.roles) && <ProtectedArea />}
+      {!isLoading && canView(permission?.roles) && (
+        <>
+          <PageHeading heading="Billing" eyebrow="Organization Settings" />
+          <Suspense>
+            <OrganizationContent />
+          </Suspense>
+        </>
+      )}
     </>
   )
 }

@@ -17,6 +17,10 @@ import { useGetAllPrograms } from '@/lib/graphql-hooks/programs'
 import { useCloneControls } from '@/lib/graphql-hooks/standards'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
+import { canEdit } from '@/lib/authz/utils.ts'
+import { useSession } from 'next-auth/react'
+import { useAccountRole } from '@/lib/authz/access-api.ts'
+import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
 
 const generateWhere = (id: string, searchValue: string) => ({
   and: [
@@ -46,6 +50,8 @@ const StandardDetailsAccordion: FC = () => {
   const where = generateWhere(id, debouncedSearchQuery)
   const { controls } = useGetAllControls({ where })
   const { data: programsData } = useGetAllPrograms()
+  const { data: session } = useSession()
+  const { data: permission } = useAccountRole(session, ObjectEnum.STANDARD, id)
 
   const groupedControls = useMemo(() => {
     if (!controls || controls.length === 0) return {}
@@ -186,7 +192,7 @@ const StandardDetailsAccordion: FC = () => {
                       ))}
                     </TableBody>
                   </Table>
-                  {selectedControls.length > 0 && (
+                  {canEdit(permission?.roles) && selectedControls.length > 0 && (
                     <div className="flex justify-between items-center mt-3 p-2 border-t">
                       <span>Add selected controls to an existing program</span>
                       <Button icon={<ShieldPlus />} iconPosition="left" onClick={() => setIsDialogOpen(true)}>
