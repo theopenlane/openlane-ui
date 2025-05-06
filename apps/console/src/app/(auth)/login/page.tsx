@@ -9,7 +9,12 @@ const AuthLogin: React.FC = () => {
     <>
       <Suspense>
         <div className="flex h-full w-full min-h-screen gap-60">
-          <AuthMarketingPanel />
+          <AuthMarketingPanel>
+            <h2 className="text-4xl font-normal">
+              Checkboxes don’t
+              <br /> build trust. We do.
+            </h2>
+          </AuthMarketingPanel>{' '}
           <LoginPage />
         </div>
       </Suspense>
