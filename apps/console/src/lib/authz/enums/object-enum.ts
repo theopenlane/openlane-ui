@@ -6,4 +6,5 @@ export enum ObjectEnum {
   PROCEDURE = 'procedure',
   GROUP = 'group',
   CONTROL = 'control',
+  TEMPLATE = 'template',
 }
