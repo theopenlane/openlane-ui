@@ -4,7 +4,7 @@ import { LoginUser } from '@repo/dally/user'
 import { Button } from '@repo/ui/button'
 import MessageBox from '@repo/ui/message-box'
 import SimpleForm from '@repo/ui/simple-form'
-import { ArrowUpRight, FingerprintIcon, KeyRoundIcon } from 'lucide-react'
+import { ArrowRightCircle, ArrowUpRight, FingerprintIcon, KeyRoundIcon } from 'lucide-react'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState, useRef, useEffect } from 'react'
@@ -21,6 +21,7 @@ import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
 import Link from 'next/link'
 import { recaptchaSiteKey } from '@repo/dally/auth'
 import { useNotification } from '@/hooks/useNotification'
+import Github from '@/assets/Github'
 
 export const LoginPage = () => {
   const { separator, buttons, form, input } = loginStyles()
@@ -173,22 +174,25 @@ export const LoginPage = () => {
 
   return (
     <>
-      <div className="flex flex-col mt-8 justify-start">
+      <div className="flex flex-col self-center">
+        <p className="text-2xl font-medium">Login to your account</p>
+        <p className="text-base mt-8">Connect to openlane with</p>
+
         <div className={buttons()}>
-          <Button variant="outlineLight" size="md" icon={<GoogleIcon />} iconPosition="left" onClick={() => google()} disabled={signInLoading}>
-            Google
+          <Button className="bg-card !px-3.5" variant="outlineLight" size="md" icon={<GoogleIcon />} iconPosition="left" onClick={() => google()} disabled={signInLoading}>
+            <p className="text-sm font-normal">Google</p>
           </Button>
 
-          <Button variant="outlineLight" size="md" icon={<GithubIcon />} iconPosition="left" onClick={() => github()} disabled={signInLoading}>
-            GitHub
+          <Button className="bg-card !px-3.5" variant="outlineLight" size="md" icon={<Github className="text-input-text" />} iconPosition="left" onClick={() => github()} disabled={signInLoading}>
+            <p className="text-sm font-normal">GitHub</p>
           </Button>
 
-          <Button variant="outlineLight" className="md" icon={<FingerprintIcon />} iconPosition="left" onClick={() => passKeySignIn()} disabled={signInLoading}>
-            Passkey
+          <Button className="bg-card !px-3.5" variant="outlineLight" icon={<KeyRoundIcon className="text-input-text" />} iconPosition="left" onClick={() => passKeySignIn()} disabled={signInLoading}>
+            <p className="text-sm font-normal">Passkey</p>
           </Button>
         </div>
 
-        <Separator label="or" className={separator()} />
+        <Separator label="or, login with your email" login className={separator()} />
 
         <SimpleForm
           classNames={form()}
@@ -200,26 +204,24 @@ export const LoginPage = () => {
           }}
         >
           <div className={input()}>
-            <Label className="text-text-dark" htmlFor="username">
-              Email
-            </Label>
-            <Input type="email" variant="light" name="username" placeholder="email@domain.com" className="!border-neutral-300 dark:!border-neutral-300" />
+            <Input type="email" variant="light" name="username" placeholder="Enter your email" className="bg-transparent !text-text" />
           </div>
 
           {email && (
             <>
-              <div className="flex flex-col mt-2">
+              <div className="flex flex-col">
                 {
                   <>
                     <div className={input()}>
-                      <Label className="text-text-dark" htmlFor="password">
-                        Password
-                      </Label>
-                      <PasswordInput variant="light" name="password" placeholder="password" autoComplete="current-password" className="!border-neutral-300 dark:!border-neutral-300" />
+                      <PasswordInput variant="light" name="password" placeholder="password" autoComplete="current-password" className="bg-transparent !text-text" />
                     </div>
-                    <Button variant="filled" className="mr-auto mt-2 w-full" icon={<ArrowUpRight />} size="md" type="submit" iconAnimated disabled={signInLoading}>
-                      Login
-                    </Button>
+                    <Link href="/forgot-password" className=" text-base text-xs text-blue-500 mt-1 mb-1 text-right  hover:opacity-80 transition">
+                      Forgot password?
+                    </Link>
+                    <button className="p-4 text-button-text bg-brand justify-between items-center rounded-md text-sm h-10 font-bold flex mt-2" type="submit" disabled={signInLoading}>
+                      <span>Login</span>
+                      <ArrowRightCircle size={16} />
+                    </button>
                   </>
                 }
 
@@ -229,30 +231,27 @@ export const LoginPage = () => {
                   style={{ opacity: signInLoading ? 0.5 : 1 }}
                 ></span>
               </div>
-              <Link href="/forgot-password" className="text-sm text-blue-500 underline mt-2 text-center mb-4 hover:opacity-80 transition">
-                Forgot password?
-              </Link>
             </>
           )}
+          <div className="flex text-base">
+            <span>New to Openlane? &nbsp;</span>
+            <Link href="/signup" className=" text-base text-blue-500  hover:opacity-80 transition">
+              Signup for an account
+            </Link>
+          </div>
         </SimpleForm>
-
-        <Link href="https://www.theopenlane.io/legal/privacy" className="text-xs text-gray-500 mt-8 text-center">
-          Privacy Policy
-        </Link>
-        <Link href="https://www.theopenlane.io/legal/terms-of-service" className="text-xs text-gray-500 mt-1 text-center">
-          Terms of Service
-        </Link>
-        <div className="text-[10px] text-gray-500 mt-5 text-center">
-          This site is protected by reCAPTCHA and the Google{' '}
-          <a className="text-blue-500 underline" href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
+        <div className="flex gap-6 mt-9">
+          <Link href="https://www.theopenlane.io/legal/privacy" className="text-xs opacity-90">
             Privacy Policy
-          </a>{' '}
-          and{' '}
-          <a className="text-blue-500 underline" href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">
+          </Link>
+          <Link href="https://www.theopenlane.io/legal/terms-of-service" className="text-xs opacity-90">
             Terms of Service
-          </a>{' '}
-          apply.
+          </Link>
         </div>
+        <p className="text-xs mt-5">
+          This site is protected by reCAPTCHA and the <br />
+          Google Privacy Policy and Terms of Service apply.
+        </p>
         {showLoginError && <MessageBox className={'p-4 ml-1'} message={signInErrorMessage} />}
       </div>
     </>

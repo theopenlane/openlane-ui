@@ -40,7 +40,7 @@
   --color-button-back: #e2efeb;
 
   /* Background */
-  --color-bg: #e9f1f5;
+  --color-bg: #f9fbfc;
   --color-bg-dark: #1c2630;
   --color-bg-light: #e9f1f5;
   --color-bg-primary: #2ccbab;
@@ -151,6 +151,10 @@
   --color-warning-muted-more: #fff1da;
 
   --color-warning-banner: #d8ae3f;
+
+  /* auth */
+
+  --color-background-auth: #eff4f7;
 
   /* JSON Editor */
   .svc-json-editor-tab__content-area {
@@ -265,6 +269,10 @@
   --color-warning-muted-more: #514024;
 
   --color-warning-banner: #d8ae3f;
+
+  /* auth */
+
+  --color-background-auth: #23282f;
 
   /* JSON Editor */
   .svc-json-editor-tab__content-area {

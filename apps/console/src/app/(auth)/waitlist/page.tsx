@@ -9,7 +9,7 @@ import Linkedin from '@/assets/Linkedin'
 
 const Waitlist: React.FC = () => {
   return (
-    <main className="bg-[var(--color-bg)] relative min-h-screen w-full flex flex-col p-6 md:p-20">
+    <main className=" relative min-h-screen  w-full flex flex-col p-6 md:p-20">
       <div className="mb-8 flex">
         <Logo width={180} /> {/* Slightly smaller logo on mobile */}
       </div>
