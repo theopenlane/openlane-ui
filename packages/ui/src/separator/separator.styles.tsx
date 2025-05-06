@@ -18,6 +18,13 @@ export const separatorStyles = tv({
         line: 'w-6 h-0.5 bg-separator bg-opacity-60 mx-0',
       },
     },
+    login: {
+      true: {
+        base: 'lowercase',
+        text: 'text-text opacity-100',
+        line: 'mx-0',
+      },
+    },
   },
 })
 
