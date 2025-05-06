@@ -5,4 +5,5 @@ export enum ObjectEnum {
   POLICY = 'internal_policy',
   PROCEDURE = 'procedure',
   GROUP = 'group',
+  CONTROL = 'control',
 }

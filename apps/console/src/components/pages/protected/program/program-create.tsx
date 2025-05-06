@@ -7,17 +7,15 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/
 import { dialogStyles } from './dialog.styles'
 import React, { useRef, useState } from 'react'
 import { useSession } from 'next-auth/react'
-import { useAccountRole } from '@/lib/authz/access-api.ts'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
 import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
-import ProtectedArea from '@/components/shared/protected-area/protected-area.tsx'
+import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 
 const ProgramCreate = ({ trigger }: { trigger?: React.ReactElement }) => {
   const [open, setOpen] = useState(false)
   const pendingCloseRef = useRef<() => void>(null)
   const { data: session } = useSession()
-  const { data } = useAccountRole(session, ObjectEnum.PROGRAM)
+  const { data } = useOrganizationRole(session)
 
   const { dialogContent, dialogTrigger, title } = dialogStyles()
 
@@ -29,8 +27,8 @@ const ProgramCreate = ({ trigger }: { trigger?: React.ReactElement }) => {
     }
   }
 
-  if (!canCreate(data, AccessEnum.CanCreateProgram)) {
-    return <ProtectedArea />
+  if (!canCreate(data?.roles, AccessEnum.CanCreateProgram)) {
+    return null
   }
 
   return (

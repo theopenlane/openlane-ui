@@ -8,7 +8,9 @@ import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import BulkCSVCreateProcedureDialog from '@/components/pages/protected/procedures/create/form/bulk-c-s-v-create-procedure-dialog.tsx'
 import { useSession } from 'next-auth/react'
-import { useUserCanCreateProcedure } from '@/lib/authz/utils.ts'
+import { useOrganizationRole } from '@/lib/authz/access-api.ts'
+import { canCreate } from '@/lib/authz/utils.ts'
+import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 
 type TProceduresTableToolbarProps = {
   className?: string
@@ -23,7 +25,7 @@ type TProceduresTableToolbarProps = {
 const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({ className, searching, searchTerm, handleCreateNew, setFilters, setSearchTerm, handleExport }) => {
   const isSearching = useDebounce(searching, 200)
   const { data: session } = useSession()
-  const { data: canCreateProcedure } = useUserCanCreateProcedure(session)
+  const { data: permission } = useOrganizationRole(session)
 
   return (
     <div className={cn('flex items-center gap-2', className)}>
@@ -39,7 +41,7 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({ classN
       </div>
 
       <div className="grow flex flex-row items-center gap-2 justify-end">
-        {canCreateProcedure && (
+        {canCreate(permission?.roles, AccessEnum.CanCreateProcedure) && (
           <>
             <Button icon={<PlusCircle />} iconPosition="left" onClick={handleCreateNew}>
               Create new

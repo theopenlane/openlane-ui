@@ -6,18 +6,20 @@ import EditPolicyPage from '@/components/pages/protected/policies/edit-policy-pa
 import { PageHeading } from '@repo/ui/page-heading'
 import React from 'react'
 import { useSession } from 'next-auth/react'
-import { useUserCanEditPolicy } from '@/lib/authz/utils.ts'
 import ProtectedArea from '@/components/shared/protected-area/protected-area.tsx'
+import { useAccountRole } from '@/lib/authz/access-api.ts'
+import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
+import { canEdit } from '@/lib/authz/utils.ts'
 
 const Page: NextPage = () => {
   const { id } = useParams()
   const { data: session } = useSession()
-  const { data: canEditPolicy, isLoading } = useUserCanEditPolicy(session)
+  const { data: permission, isLoading } = useAccountRole(session, ObjectEnum.POLICY, id! as string)
 
   return (
     <>
-      {!isLoading && !canEditPolicy && <ProtectedArea />}
-      {!isLoading && canEditPolicy && (
+      {!isLoading && !canEdit(permission?.roles) && <ProtectedArea />}
+      {!isLoading && canEdit(permission?.roles) && (
         <>
           <PageHeading heading="Edit policy" />
           <EditPolicyPage policyId={id as string} />

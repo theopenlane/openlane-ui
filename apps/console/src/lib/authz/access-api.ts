@@ -79,9 +79,8 @@ export const useAccessPermission = (session: Session | null, relation: RelationE
   }
 }
 
-export const useAccountRole = (session: Session | null, objectType: ObjectEnum) => {
+export const useAccountRole = (session: Session | null, objectType: ObjectEnum, objectID: string | number) => {
   const accessToken = session?.user?.accessToken
-  const currentOrgId = session?.user?.activeOrganizationId
 
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
@@ -90,7 +89,7 @@ export const useAccountRole = (session: Session | null, objectType: ObjectEnum) 
 
   const payload = {
     object_type: objectType,
-    object_id: currentOrgId,
+    object_id: objectID,
   }
 
   const fetcher = async (url: string) => {

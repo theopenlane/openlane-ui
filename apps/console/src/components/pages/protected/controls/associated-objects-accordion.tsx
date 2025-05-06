@@ -16,6 +16,7 @@ type AssociatedObjectsAccordionProps = {
   tasks: ControlDetailsFieldsFragment['tasks']
   programs?: ControlDetailsFieldsFragment['programs']
   risks: ControlDetailsFieldsFragment['risks']
+  canEdit?: boolean
 }
 
 type PolicyOrProcedure = {
@@ -37,7 +38,7 @@ const PROGRAM_STATUS_LABELS: Record<ProgramProgramStatus, string> = {
   [ProgramProgramStatus.READY_FOR_AUDITOR]: 'Ready for Auditor',
 }
 
-const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({ policies, procedures, tasks, programs, risks }) => {
+const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({ policies, procedures, tasks, programs, risks, canEdit }) => {
   const [expandedItems, setExpandedItems] = useState<string[]>(['policies'])
 
   const toggleAll = (expand: boolean) => {
@@ -223,7 +224,7 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
               Expand all
             </Button>
           </div>
-          <SetObjectAssociationDialog />
+          {canEdit && <SetObjectAssociationDialog />}
         </div>
       </div>
 
