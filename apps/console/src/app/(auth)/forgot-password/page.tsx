@@ -10,7 +10,6 @@ import { loginStyles } from '@/components/pages/auth/login/login.styles'
 import Link from 'next/link'
 import { openlaneAPIUrl, recaptchaSiteKey } from '@repo/dally/auth'
 import { useNotification } from '@/hooks/useNotification'
-import { pageStyles } from '../login/page.styles'
 import { Logo } from '@repo/ui/logo'
 
 export default function ForgotPasswordPage() {
@@ -19,7 +18,6 @@ export default function ForgotPasswordPage() {
   const [cooldown, setCooldown] = useState(0)
   const { form, input } = loginStyles()
   const { successNotification } = useNotification()
-  const { bg, content, logo } = pageStyles()
 
   useEffect(() => {
     if (cooldown > 0) {
@@ -75,8 +73,8 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className={content()}>
-      <div className={logo()}>
+    <div className={''}>
+      <div className={''}>
         <Logo width={300} theme="light" />
       </div>
       <div className="flex flex-col mt-2 justify-start">
