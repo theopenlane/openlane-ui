@@ -71,8 +71,8 @@ export default function PasswordResetPage() {
   }, [token])
 
   return (
-    <div className={}>
-      <div className={}>
+    <div className={''}>
+      <div className={''}>
         <Logo width={300} theme="light" />
       </div>
       <div className="flex flex-col mt-2 justify-start">
