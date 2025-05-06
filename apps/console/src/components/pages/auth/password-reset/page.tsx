@@ -9,6 +9,7 @@ import { Logo } from '@repo/ui/logo'
 import { openlaneAPIUrl } from '@repo/dally/auth'
 import { useNotification } from '@/hooks/useNotification'
 import { loginStyles } from '@/components/pages/auth/login/login.styles'
+import { pageStyles } from '@/app/(auth)/login/page.styles'
 import { PasswordInput } from '@repo/ui/password-input'
 
 export default function PasswordResetPage() {
@@ -21,6 +22,7 @@ export default function PasswordResetPage() {
   const token = searchParams.get('token')
   const router = useRouter()
   const { form, input } = loginStyles()
+  const { content, logo } = pageStyles()
   const { successNotification, errorNotification } = useNotification()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -71,8 +73,8 @@ export default function PasswordResetPage() {
   }, [token])
 
   return (
-    <div className={''}>
-      <div className={''}>
+    <div className={content()}>
+      <div className={logo()}>
         <Logo width={300} theme="light" />
       </div>
       <div className="flex flex-col mt-2 justify-start">
