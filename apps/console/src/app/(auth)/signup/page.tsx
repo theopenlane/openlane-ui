@@ -8,7 +8,7 @@ const AuthLogin: React.FC = () => {
   return (
     <>
       <Suspense>
-        <div className="flex h-full w-full min-h-screen gap-60">
+        <div className="flex h-full w-full min-h-screen gap-4 sm:gap-8 md:gap-12 lg:gap-20 xl:gap-60 justify-center lg:justify-start">
           <AuthMarketingPanel>
             <h2 className="text-4xl font-normal">
               Compliance you
