@@ -4,11 +4,12 @@ import { cn } from '../../lib/utils'
 
 export interface SeparatorProps extends SeparatorVariants, HTMLAttributes<HTMLDivElement> {
   label?: string
+  login?: boolean
 }
 
-export const Separator = ({ label, programStep, full, className, ...rest }: SeparatorProps) => {
+export const Separator = ({ label, programStep, full, className, login, ...rest }: SeparatorProps) => {
   // Apply variants to the styles
-  const { base, line, text } = separatorStyles({ programStep, full })
+  const { base, line, text } = separatorStyles({ programStep, full, login })
 
   if (label) {
     return (
