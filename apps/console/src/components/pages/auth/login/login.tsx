@@ -174,7 +174,7 @@ export const LoginPage = () => {
 
   return (
     <>
-      <div className="flex flex-col m-auto justify-start self-center">
+      <div className="flex flex-col self-center">
         <p className="text-2xl font-medium">Login to your account</p>
         <p className="text-base mt-8">Connect to openlane with</p>
 

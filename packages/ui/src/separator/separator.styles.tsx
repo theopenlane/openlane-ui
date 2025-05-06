@@ -20,7 +20,9 @@ export const separatorStyles = tv({
     },
     login: {
       true: {
+        base: 'lowercase',
         text: 'text-text opacity-100',
+        line: 'mx-0',
       },
     },
   },
