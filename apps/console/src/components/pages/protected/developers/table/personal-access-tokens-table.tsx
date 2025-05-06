@@ -82,7 +82,7 @@ export const PersonalAccessTokenTable = () => {
   }, [data, isOrg, isFetching])
 
   const tokens: TokenNode[] = isOrg
-    ? (data as GetApiTokensQuery).apiTokens?.edges?.map((edge) => ({
+    ? (data as GetApiTokensQuery)?.apiTokens?.edges?.map((edge) => ({
         id: edge?.node?.id!!,
         name: edge?.node?.name || 'Unnamed Token',
         description: edge?.node?.description!!,
