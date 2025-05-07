@@ -16,7 +16,7 @@ const AuthLogin: React.FC = () => {
             </h2>
             <p className="text-xl font-muted-foreground">
               Join us at Openlane,
-              <br/>Because compliance isn't just a checkbox.
+              <br/>because compliance isn't just a checkbox.
             </p>
           </AuthMarketingPanel>{' '}
           <SignupPage />
