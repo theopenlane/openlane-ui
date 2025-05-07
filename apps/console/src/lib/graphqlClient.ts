@@ -6,6 +6,7 @@ import { getCookie } from './auth/utils/getCookie'
 import { fetchNewAccessToken, Tokens } from './auth/utils/refresh-token'
 import { jwtDecode } from 'jwt-decode'
 import { useSession } from 'next-auth/react'
+import { Session } from 'next-auth'
 
 const GRAPHQL_ENDPOINT = process.env.NEXT_PUBLIC_API_GQL_URL!
 
@@ -16,10 +17,6 @@ let refreshAllowedAfter = Number.POSITIVE_INFINITY
 
 export function useGetGraphQLClient() {
   const { update, data: session } = useSession()
-  if (!session) {
-    handleSessionExpired()
-    return
-  }
 
   const fetchWithRetry = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
     if (isSessionInvalid) {
@@ -27,8 +24,8 @@ export function useGetGraphQLClient() {
     }
 
     const requestUrl = typeof input === 'string' || input instanceof URL ? input.toString() : input
-    const accessToken = session.user?.accessToken
-    const refreshToken = session.user?.refreshToken
+    const accessToken = session?.user?.accessToken
+    const refreshToken = session?.user?.refreshToken
 
     if (!accessToken || !refreshToken) {
       handleSessionExpired()
@@ -127,7 +124,7 @@ async function handleTokenRefresh({
   headers,
 }: {
   refreshToken: string
-  session: NonNullable<ReturnType<typeof useSession>['data']>
+  session: Session | null
   update: ReturnType<typeof useSession>['update']
   headers?: Headers
 }): Promise<{ accessToken: string; refreshToken: string } | null> {
@@ -143,8 +140,10 @@ async function handleTokenRefresh({
       throw new Error('Token refresh failed')
     }
 
-    session.user.accessToken = newTokens.accessToken
-    session.user.refreshToken = newTokens.refreshToken
+    if (session) {
+      session.user.accessToken = newTokens.accessToken
+      session.user.refreshToken = newTokens.refreshToken
+    }
 
     if (headers) {
       headers.set('Authorization', `Bearer ${newTokens.accessToken}`)
