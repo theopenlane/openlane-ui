@@ -14,11 +14,17 @@ import StatsCards from '@/components/shared/stats-cards/stats-cards'
 import { NewUserLanding } from '@/components/pages/protected/dashboard/dashboard'
 import { Loading } from '@/components/shared/loading/loading'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
+import { useSession } from 'next-auth/react'
+import { useOrganizationRole } from '@/lib/authz/access-api.ts'
+import { canCreate } from '@/lib/authz/utils.ts'
+import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 
 const Page: React.FC = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [selectedProgram, setSelectedProgram] = useState<string>('All programs')
+  const { data: session } = useSession()
+  const { data: permission } = useOrganizationRole(session)
 
   const { data, isLoading } = useGetAllPrograms({
     where: {
@@ -91,7 +97,7 @@ const Page: React.FC = () => {
               </Select>
             </div>
             <div className="flex gap-2.5">
-              <ProgramCreate />
+              {canCreate(permission?.roles, AccessEnum.CanCreateProgram) && <ProgramCreate />}
               <CreateTaskDialog />
             </div>
           </div>

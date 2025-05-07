@@ -15,6 +15,10 @@ import ProgramAuditor from '@/components/pages/protected/dashboard/program-audit
 import ProgramsTaskTable from '@/components/pages/programs/programs-tasks-table'
 import { ControlsSummaryCard } from '@/components/pages/protected/programs/controls-summary-card'
 import { ArrowRight, ShieldCheck } from 'lucide-react'
+import { useSession } from 'next-auth/react'
+import { useOrganizationRole } from '@/lib/authz/access-api.ts'
+import { canCreate } from '@/lib/authz/utils.ts'
+import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 
 const Page: React.FC = () => {
   const router = useRouter()
@@ -29,6 +33,8 @@ const Page: React.FC = () => {
   const [selectedProgram, setSelectedProgram] = useState<string>('')
 
   const { data: basicInfoData, isLoading: isBasicInfoLoading } = useGetProgramBasicInfo(programId)
+  const { data: session } = useSession()
+  const { data: permission } = useOrganizationRole(session)
 
   const programMap = useMemo(() => {
     const map: Record<string, string> = {}
@@ -93,14 +99,18 @@ const Page: React.FC = () => {
             <ShieldCheck className="text-border" size={89} strokeWidth={1} />
 
             <p className="text-sm text-muted-foreground">No programs found</p>
-            <p className="text-sm text-muted-foreground">Ready to get started?</p>
-            <ProgramCreate
-              trigger={
-                <div className="text-blue-500 flex items-center gap-1">
-                  <p className="text-blue-500">Create a new one</p> <ArrowRight className="mt-0.5" size={16} />
-                </div>
-              }
-            />
+            {canCreate(permission?.roles, AccessEnum.CanCreateProgram) && (
+              <>
+                <p className="text-sm text-muted-foreground">Ready to get started?</p>
+                <ProgramCreate
+                  trigger={
+                    <div className="text-blue-500 flex items-center gap-1">
+                      <p className="text-blue-500">Create a new one</p> <ArrowRight className="mt-0.5" size={16} />
+                    </div>
+                  }
+                />
+              </>
+            )}
           </div>
         </div>
       </>
