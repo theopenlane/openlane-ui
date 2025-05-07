@@ -17,8 +17,5 @@ export enum AccessEnum {
   CanCreateControlImplementation = 'can_create_control_implementation',
   CanView = 'can_view',
   CanEdit = 'can_edit',
-  Member = 'member',
-  Owner = 'owner',
-  Access = 'access',
   CanInviteAdmins = 'can_invite_admins',
 }

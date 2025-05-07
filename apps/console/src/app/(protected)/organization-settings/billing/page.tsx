@@ -8,7 +8,7 @@ import { LoaderCircle } from 'lucide-react'
 import { useGetOrganizationBilling } from '@/lib/graphql-hooks/organization'
 import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api.ts'
-import { canView } from '@/lib/authz/utils.ts'
+import { canEdit } from '@/lib/authz/utils.ts'
 import ProtectedArea from '@/components/shared/protected-area/protected-area.tsx'
 
 const OrganizationContent = () => {
@@ -48,8 +48,8 @@ const Page: React.FC = () => {
 
   return (
     <>
-      {!isLoading && !canView(permission?.roles) && <ProtectedArea />}
-      {!isLoading && canView(permission?.roles) && (
+      {!isLoading && !canEdit(permission?.roles) && <ProtectedArea />}
+      {!isLoading && canEdit(permission?.roles) && (
         <>
           <PageHeading heading="Billing" eyebrow="Organization Settings" />
           <Suspense>

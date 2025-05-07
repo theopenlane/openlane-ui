@@ -39,6 +39,9 @@
   --color-button-secondary: #d9ae40;
   --color-button-back: #e2efeb;
 
+  /* Assets */
+  --asset-color-bg: #DAE3E7;
+
   /* Background */
   --color-bg: #f9fbfc;
   --color-bg-dark: #1c2630;
@@ -170,6 +173,9 @@
   --color-button-text: #082930;
   --color-button-secondary: #b48f31;
   --color-button-back: #96a09d;
+
+  /* Assets */
+  --asset-color-bg: #374A52;
 
   /* Background */
   --color-bg: #0d1117;
