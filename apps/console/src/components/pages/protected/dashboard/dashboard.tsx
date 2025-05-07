@@ -13,6 +13,10 @@ import { LineChartExample } from '@repo/ui/line-chart-example'
 import Link from 'next/link'
 import { pageStyles } from './page.style'
 import { useRouter } from 'next/navigation'
+import { canCreate } from '@/lib/authz/utils.ts'
+import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
+import { useSession } from 'next-auth/react'
+import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 
 type DashboardProps = {
   programs?: { edges: any[] }
@@ -105,18 +109,23 @@ export const DefaultLanding: React.FC<DashboardProps> = ({ programs, tasks }) =>
 
 export const NewUserLanding: React.FC<DashboardProps> = () => {
   const { push } = useRouter()
+  const { data: session } = useSession()
+  const { data } = useOrganizationRole(session)
 
   return (
     <section>
       <PageHeading heading={<>Dashboard</>} />
       <Grid rows={2}>
         <GridRow columns={2}>
-          <GridCell>
-            <Panel align="center" justify="center" textAlign="center" className="min-h-[300px]">
-              <PanelHeader heading="Create a new program" subheading="Start your compliance journey by creating a new program." />
-              <ProgramCreate />
-            </Panel>
-          </GridCell>
+          {canCreate(data?.roles, AccessEnum.CanCreateProgram) && (
+            <GridCell>
+              <Panel align="center" justify="center" textAlign="center" className="min-h-[300px]">
+                <PanelHeader heading="Create a new program" subheading="Start your compliance journey by creating a new program." />
+                <ProgramCreate />
+              </Panel>
+            </GridCell>
+          )}
+
           <GridCell>
             <Panel align="center" justify="center" textAlign="center" className="min-h-[300px]">
               <PanelHeader

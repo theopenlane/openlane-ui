@@ -23,12 +23,13 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z, infer as zInfer } from 'zod'
 import { useSession } from 'next-auth/react'
-import { useUserHasOrganizationEditPermissions } from '@/lib/authz/utils'
 import { useQueryClient } from '@tanstack/react-query'
 import { OrgMembershipRole } from '@repo/codegen/src/schema'
 import { useRemoveUserFromOrg, useUpdateUserRoleInOrg } from '@/lib/graphql-hooks/members'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { useOrganizationRole } from '@/lib/authz/access-api.ts'
+import { canEdit } from '@/lib/authz/utils.ts'
 
 type MemberActionsProps = {
   memberId: string
@@ -39,14 +40,14 @@ const ICON_SIZE = 12
 
 export const MemberActions = ({ memberId, memberRole }: MemberActionsProps) => {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
-  const { actionIcon, roleRow, buttonRow } = pageStyles()
+  const { actionIcon, roleRow } = pageStyles()
   const { mutateAsync: deleteMember } = useRemoveUserFromOrg()
   const { data: sessionData } = useSession()
   const userId = sessionData?.user.userId
   const queryClient = useQueryClient()
   const { errorNotification, successNotification } = useNotification()
   const { data: userData } = useGetCurrentUser(userId)
-  const { data } = useUserHasOrganizationEditPermissions(sessionData)
+  const { data } = useOrganizationRole(sessionData)
 
   const handleDeleteMember = async () => {
     try {
@@ -113,7 +114,7 @@ export const MemberActions = ({ memberId, memberRole }: MemberActionsProps) => {
     return null
   }
 
-  if (!data?.allowed) {
+  if (!canEdit(data?.roles)) {
     //MEMBERS CANT EDIT ANYONE
     return null
   }

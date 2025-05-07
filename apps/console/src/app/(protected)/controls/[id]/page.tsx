@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useGetControlById, useUpdateControl } from '@/lib/graphql-hooks/controls'
-import { useForm, FormProvider } from 'react-hook-form'
+import { FormProvider, useForm } from 'react-hook-form'
 import { Value } from '@udecode/plate-common'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
@@ -21,6 +21,10 @@ import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import SubcontrolsTable from '@/components/pages/protected/controls/subcontrols-table.tsx'
 import ControlEvidenceTable from '@/components/pages/protected/controls/control-evidence-table.tsx'
+import { useAccountRole } from '@/lib/authz/access-api.ts'
+import { useSession } from 'next-auth/react'
+import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
+import { canEdit } from '@/lib/authz/utils.ts'
 
 interface FormValues {
   refCode: string
@@ -56,6 +60,8 @@ const ControlDetailsPage: React.FC = () => {
   const [showSheet, setShowSheet] = useState<boolean>(false)
   const [sheetData, setSheetData] = useState<SheetData | null>(null)
   const [initialValues, setInitialValues] = useState<FormValues>(initialDataObj)
+  const { data: session } = useSession()
+  const { data: permission } = useAccountRole(session, ObjectEnum.CONTROL, id!)
 
   const { mutateAsync: updateControl } = useUpdateControl()
   const plateEditorHelper = usePlateEditor()
@@ -147,6 +153,7 @@ const ControlDetailsPage: React.FC = () => {
             </div>
             <DescriptionField isEditing={isEditing} initialValue={initialValues.description} />
             <ControlEvidenceTable
+              canEdit={canEdit(permission?.roles)}
               control={{
                 displayID: control?.refCode,
                 tags: control.tags ?? [],
@@ -168,10 +175,17 @@ const ControlDetailsPage: React.FC = () => {
               evidences={control.evidence?.edges?.filter((e): e is EvidenceEdge => !!e && !!e.node) || []}
             />
             <SubcontrolsTable subcontrols={control.subcontrols?.edges || []} totalCount={control.subcontrols.totalCount} />
-            <AssociatedObjectsAccordion policies={control.internalPolicies} procedures={control.procedures} tasks={control.tasks} programs={control.programs} risks={control.risks} />
+            <AssociatedObjectsAccordion
+              policies={control.internalPolicies}
+              procedures={control.procedures}
+              tasks={control.tasks}
+              programs={control.programs}
+              risks={control.risks}
+              canEdit={canEdit(permission?.roles)}
+            />
           </div>
           <div className="space-y-4">
-            {isEditing ? (
+            {isEditing && (
               <div className="flex gap-2 justify-end">
                 <Button className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
                   Cancel
@@ -180,7 +194,8 @@ const ControlDetailsPage: React.FC = () => {
                   Save
                 </Button>
               </div>
-            ) : (
+            )}
+            {!isEditing && canEdit(permission?.roles) && (
               <div className="flex gap-2 justify-end">
                 <Button className="h-8 !px-2" icon={<PencilIcon />} iconPosition="left" onClick={handleEdit}>
                   Edit Control
