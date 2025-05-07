@@ -102,55 +102,71 @@ export const config = {
       return true
     },
     async jwt({ token, user, account, profile, trigger, session }) {
-      // Store user tokens on initial login
-      if (user) {
+      console.log('JWT CALLED', { trigger, session, token, user })
+
+      // Initial login: populate token from `user` or `account`
+      if (user?.accessToken) {
         Object.assign(token, {
           accessToken: user.accessToken,
           refreshToken: user.refreshToken,
-          expiresAt: Date.now() + 1000 * 60 * 15,
           isTfaEnabled: user.isTfaEnabled,
           isOnboarding: user.isOnboarding,
         })
-      } else if (account) {
+
+        try {
+          const decoded = jwtDecode<JwtPayload>(user.accessToken)
+          if (decoded.exp) {
+            token.expiresAt = decoded.exp * 1000 // Save as ms timestamp
+          }
+        } catch (err) {
+          console.error('❌ Failed to decode access token on login:', err)
+          return null
+        }
+      } else if (account?.access_token) {
         Object.assign(token, {
           accessToken: account.access_token,
           refreshToken: account.refresh_token,
-          expiresAt: Date.now() + 1000 * 60 * 15,
         })
+
+        try {
+          const decoded = jwtDecode<JwtPayload>(account.access_token)
+          if (decoded.exp) {
+            token.expiresAt = decoded.exp * 1000
+          }
+        } catch (err) {
+          console.error('❌ Failed to decode access token from account:', err)
+        }
       }
 
-      // Store profile data
       if (profile) {
-        Object.assign(token, {
-          name: profile.name ?? token.name,
-          email: profile.email ?? token.email,
-        })
+        token.name = profile.name ?? token.name
+        token.email = profile.email ?? token.email
       }
 
-      // Handle session updates
+      // Handle session update
       if (trigger === 'update') {
-        return { ...token, ...session.user }
+        return { ...token, ...session?.user }
       }
 
       return token
     },
     async session({ session, token }) {
       try {
-        if (session.user && typeof token.accessToken === 'string' && token.accessToken.trim() !== '') {
-          const decodedToken = jwtDecode<JwtPayload>(token.accessToken)
+        const decodedToken = typeof token.accessToken === 'string' ? jwtDecode<JwtPayload>(token.accessToken) : {}
 
-          Object.assign(session.user, {
-            accessToken: token.accessToken,
-            refreshToken: token.refreshToken,
-            activeOrganizationId: decodedToken?.org,
-            userId: decodedToken?.user_id,
-            isTfaEnabled: token.isTfaEnabled,
-            isOnboarding: token.isOnboarding,
-          })
+        session.user = {
+          ...session.user,
+          accessToken: token.accessToken ?? null,
+          refreshToken: token.refreshToken ?? null,
+          activeOrganizationId: decodedToken?.org ?? null,
+          userId: decodedToken?.user_id ?? null,
+          isTfaEnabled: token.isTfaEnabled ?? false,
+          isOnboarding: token.isOnboarding ?? false,
         }
       } catch (error) {
-        console.error('JWT decoding error:', error)
+        console.error('JWT decoding error in session callback:', error)
       }
+
       return session
     },
   },

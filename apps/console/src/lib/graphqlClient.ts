@@ -1,27 +1,38 @@
 'use client'
 
 import { GraphQLClient } from 'graphql-request'
-import type { Session } from 'next-auth'
 import { sessionCookieName } from '@repo/dally/auth'
 import { getCookie } from './auth/utils/getCookie'
 import { fetchNewAccessToken, Tokens } from './auth/utils/refresh-token'
+import { jwtDecode } from 'jwt-decode'
+import { useSession } from 'next-auth/react'
 
 const GRAPHQL_ENDPOINT = process.env.NEXT_PUBLIC_API_GQL_URL!
+
 let isSessionInvalid = false
-
-// Shared refresh promise to prevent duplicate refresh calls
 let refreshPromise: Promise<Tokens | null> | null = null
+let lastAccessToken = ''
+let refreshAllowedAfter = Number.POSITIVE_INFINITY
 
-export function getGraphQLClient(session: Session) {
+export function useGetGraphQLClient() {
+  const { update, data: session } = useSession()
+  if (!session) {
+    handleSessionExpired()
+    return
+  }
+
   const fetchWithRetry = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
     if (isSessionInvalid) {
-      console.warn('Blocked fetch due to invalid session')
       throw new Error('Session invalid')
     }
 
     const requestUrl = typeof input === 'string' || input instanceof URL ? input.toString() : input
     const accessToken = session.user?.accessToken
     const refreshToken = session.user?.refreshToken
+
+    if (!accessToken || !refreshToken) {
+      handleSessionExpired()
+    }
 
     const headers = new Headers(init?.headers || {})
     headers.set('Authorization', `Bearer ${accessToken}`)
@@ -30,6 +41,35 @@ export function getGraphQLClient(session: Session) {
     const sessionCookieValue = getCookie(sessionCookieName!)
     if (sessionCookieValue) {
       headers.set('Cookie', `${sessionCookieName}=${sessionCookieValue}`)
+    }
+
+    const now = Date.now()
+
+    const accessTokenChanged = accessToken !== lastAccessToken
+    if (accessTokenChanged) {
+      try {
+        updateRefreshSchedule(accessToken, refreshToken)
+      } catch (e) {
+        console.error('❌ Failed to decode refresh token:', e)
+        handleSessionExpired()
+      }
+    }
+
+    const refreshBeforeExpired = now >= refreshAllowedAfter
+
+    if (refreshBeforeExpired) {
+      try {
+        await handleTokenRefresh({
+          refreshToken,
+          session,
+          update,
+          headers,
+        })
+      } catch (e) {
+        console.error('❌ Token refresh failed:', e)
+        handleSessionExpired()
+        throw e
+      }
     }
 
     const makeRequest = () =>
@@ -41,29 +81,18 @@ export function getGraphQLClient(session: Session) {
 
     let response = await makeRequest()
 
-    if (response.status === 401 && refreshToken) {
+    if (response.status === 401 && refreshToken && !isSessionInvalid) {
       try {
-        if (!refreshPromise) {
-          refreshPromise = fetchNewAccessToken(refreshToken)
-        }
-
-        const newTokens = await refreshPromise
-        refreshPromise = null
-
-        if (!newTokens?.accessToken) throw new Error('Token refresh failed')
-
-        session.user.accessToken = newTokens.accessToken
-        session.user.refreshToken = newTokens.refreshToken
-
-        headers.set('Authorization', `Bearer ${newTokens.accessToken}`)
-
+        await handleTokenRefresh({
+          refreshToken,
+          session,
+          update,
+          headers,
+        })
         response = await makeRequest()
-      } catch (e) {
+      } catch {
         refreshPromise = null
-        isSessionInvalid = true // 🚫 prevent further requests
-
-        console.error('❌ Token refresh failed:', e)
-        window.dispatchEvent(new Event('session-expired'))
+        handleSessionExpired()
         throw new Error('Session expired')
       }
     }
@@ -75,4 +104,68 @@ export function getGraphQLClient(session: Session) {
     fetch: fetchWithRetry,
     credentials: 'include',
   })
+}
+
+//helpers:
+
+function handleSessionExpired() {
+  isSessionInvalid = true
+  window.dispatchEvent(new Event('session-expired'))
+}
+
+function updateRefreshSchedule(accessToken: string, refreshToken: string) {
+  const decoded: { nbf?: number } = jwtDecode(refreshToken)
+  const nbf = decoded.nbf ? decoded.nbf * 1000 : 0
+  refreshAllowedAfter = nbf
+  lastAccessToken = accessToken
+}
+
+async function handleTokenRefresh({
+  refreshToken,
+  session,
+  update,
+  headers,
+}: {
+  refreshToken: string
+  session: NonNullable<ReturnType<typeof useSession>['data']>
+  update: ReturnType<typeof useSession>['update']
+  headers?: Headers
+}): Promise<{ accessToken: string; refreshToken: string } | null> {
+  if (!refreshPromise) {
+    refreshPromise = fetchNewAccessToken(refreshToken)
+  }
+
+  try {
+    const newTokens = await refreshPromise
+    refreshPromise = null
+
+    if (!newTokens?.accessToken) {
+      throw new Error('Token refresh failed')
+    }
+
+    session.user.accessToken = newTokens.accessToken
+    session.user.refreshToken = newTokens.refreshToken
+
+    if (headers) {
+      headers.set('Authorization', `Bearer ${newTokens.accessToken}`)
+    }
+
+    await update({
+      ...session,
+      user: {
+        accessToken: newTokens.accessToken,
+        refreshToken: newTokens.refreshToken,
+      },
+    })
+
+    updateRefreshSchedule(newTokens.accessToken, newTokens.refreshToken)
+
+    return {
+      accessToken: newTokens.accessToken,
+      refreshToken: newTokens.refreshToken,
+    }
+  } catch (error) {
+    refreshPromise = null
+    throw error
+  }
 }
