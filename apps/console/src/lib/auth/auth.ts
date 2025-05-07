@@ -119,33 +119,6 @@ export const config = {
         })
       }
 
-      if (typeof token.accessToken === 'string') {
-        try {
-          const decoded = jwtDecode<JwtPayload>(token.accessToken)
-          if (decoded.exp) {
-            const expirationTime = decoded.exp * 1000 // Convert exp to milliseconds
-            const refreshTime = expirationTime - 15 * 60 * 1000 // Refresh 45 minutes before expiration
-            if (Date.now() >= refreshTime) {
-              const newToken = await fetchNewAccessToken(token.refreshToken as string)
-
-              if (!newToken) {
-                console.error('❌ Refresh token expired or invalid, logging out user')
-                return null
-              }
-
-              Object.assign(token, {
-                accessToken: newToken.accessToken,
-                refreshToken: newToken.refreshToken ?? token.refreshToken,
-                expiresAt: Date.now() + 60 * 60 * 1000, // Set new expiration for 1 hour
-              })
-            }
-          }
-        } catch (error) {
-          console.error('❌ Error decoding JWT:', error)
-          return null
-        }
-      }
-
       // Store profile data
       if (profile) {
         Object.assign(token, {
