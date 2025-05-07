@@ -102,8 +102,6 @@ export const config = {
       return true
     },
     async jwt({ token, user, account, profile, trigger, session }) {
-      console.log('JWT CALLED', { trigger, session, token, user })
-
       // Initial login: populate token from `user` or `account`
       if (user?.accessToken) {
         Object.assign(token, {
