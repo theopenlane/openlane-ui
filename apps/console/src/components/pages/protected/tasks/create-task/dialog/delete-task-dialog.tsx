@@ -7,11 +7,17 @@ import { useDeleteTask } from '@/lib/graphql-hooks/tasks'
 import { Trash2 } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { useSession } from 'next-auth/react'
+import { useAccountRole } from '@/lib/authz/access-api.ts'
+import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
+import { canDelete } from '@/lib/authz/utils.ts'
 
 const DeleteTaskDialog: React.FC<{ taskName: string }> = ({ taskName }) => {
   const { selectedTask, setSelectedTask } = useTaskStore()
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
+  const { data: session } = useSession()
+  const { data: permission } = useAccountRole(session, ObjectEnum.TASK, selectedTask!)
   const [isOpen, setIsOpen] = useState(false)
 
   const { mutateAsync: deleteTask } = useDeleteTask()
@@ -29,6 +35,10 @@ const DeleteTaskDialog: React.FC<{ taskName: string }> = ({ taskName }) => {
     } finally {
       setIsOpen(false)
     }
+  }
+
+  if (!canDelete(permission?.roles)) {
+    return null
   }
 
   return (

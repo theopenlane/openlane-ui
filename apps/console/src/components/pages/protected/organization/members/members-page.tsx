@@ -6,7 +6,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { MembersTable } from './members-table'
-import { useUserCanInviteAdmins } from '@/lib/authz/utils'
 import { useGetInvites } from '@/lib/graphql-hooks/organization'
 import { OrganizationInvitesTable } from './table/organization-invites-table'
 
@@ -16,9 +15,6 @@ const MembersPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState(defaultTab)
   const { data: session } = useSession()
   const { data } = useGetInvites({ where: {} })
-
-  // Check if the user can invite admins or only members
-  const { data: inviteAdminPermissions, error } = useUserCanInviteAdmins(session)
 
   const numInvites = Array.isArray(data?.invites.edges) ? data?.invites.edges.length : 0
 
@@ -45,7 +41,7 @@ const MembersPage: React.FC = () => {
         </TabsContent>
         <TabsContent value="invites">
           <div>
-            <OrganizationInviteForm inviteAdmins={inviteAdminPermissions?.allowed} />
+            <OrganizationInviteForm inviteAdmins={true} />
             <OrganizationInvitesTable />
           </div>
         </TabsContent>

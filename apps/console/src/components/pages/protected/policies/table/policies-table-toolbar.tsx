@@ -7,6 +7,10 @@ import { INTERNAL_POLICIES_FILTERABLE_FIELDS } from '@/components/pages/protecte
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import BulkCSVCreatePolicyDialog from '@/components/pages/protected/policies/create/form/bulk-csv-create-policy-dialog.tsx'
+import { useSession } from 'next-auth/react'
+import { useOrganizationRole } from '@/lib/authz/access-api.ts'
+import { canCreate } from '@/lib/authz/utils.ts'
+import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 
 type TPoliciesTableToolbarProps = {
   className?: string
@@ -20,6 +24,8 @@ type TPoliciesTableToolbarProps = {
 
 const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({ className, searching, searchTerm, handleCreateNew, setFilters, setSearchTerm, handleExport }) => {
   const isSearching = useDebounce(searching, 200)
+  const { data: session } = useSession()
+  const { data: permission } = useOrganizationRole(session)
 
   return (
     <div className={cn('flex items-center gap-2', className)}>
@@ -35,10 +41,14 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({ className,
       </div>
 
       <div className="grow flex flex-row items-center gap-2 justify-end">
-        <Button icon={<PlusCircle />} iconPosition="left" onClick={handleCreateNew}>
-          Create new
-        </Button>
-        <BulkCSVCreatePolicyDialog />
+        {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
+          <>
+            <Button icon={<PlusCircle />} iconPosition="left" onClick={handleCreateNew}>
+              Create new
+            </Button>
+            <BulkCSVCreatePolicyDialog />
+          </>
+        )}
       </div>
       <Button onClick={handleExport} icon={<DownloadIcon />} iconPosition="left">
         Export

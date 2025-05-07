@@ -192,6 +192,9 @@ export const config: Partial<Config> = {
         banner: {
           DEFAULT: 'var(--color-warning-banner)',
         },
+        auth: {
+          DEFAULT: 'var(--color-background-auth)',
+        },
         'task-complete': '#2CCBAB',
         'task-in-progress': '#EAB308',
         'task-in-review': '#EAB308',
