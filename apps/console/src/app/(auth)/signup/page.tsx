@@ -14,7 +14,7 @@ const AuthLogin: React.FC = () => {
               Built for Developers,
               <br/>Loved by Auditors
             </h2>
-            <p className="text-base font-muted-foreground">
+            <p className="text-xl font-muted-foreground">
               Join us at Openlane,
               <br/>Because compliance
               <br /> isn't just a checkbox.
