@@ -104,11 +104,9 @@ export const BreadcrumbNavigation = ({ homeElement = 'Home' }: TBreadCrumbProps)
 
           return (
             <React.Fragment key={index}>
-              {index !== 0 && (
-                <BreadcrumbSeparator>
-                  <ChevronRight size={16} />
-                </BreadcrumbSeparator>
-              )}
+              <BreadcrumbSeparator>
+                <ChevronRight size={16} />
+              </BreadcrumbSeparator>
               <BreadcrumbItem>
                 {isLast && isLoading ? (
                   <div className="flex items-center gap-2">
