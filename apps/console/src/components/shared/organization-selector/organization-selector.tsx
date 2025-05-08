@@ -117,7 +117,7 @@ export const OrganizationSelector = () => {
               <OrganizationItem
                 org={currentOrg as Organization}
                 isCurrent={true}
-                role={currentOrg?.members?.edges?.[0]?.node?.role ?? 'Owner'}
+                role={(currentOrg?.members?.edges ?? []).find((member) => member?.node?.user?.id === sessionData?.user.userId)?.node?.role ?? 'Owner'}
                 onClick={() => handleOrganizationSwitch(currentOrg?.id)}
               />
             )}
@@ -127,7 +127,7 @@ export const OrganizationSelector = () => {
                 key={org?.node?.id}
                 org={org?.node as Organization}
                 isCurrent={false}
-                role={org?.node?.members?.edges?.[0]?.node?.role ?? 'Owner'}
+                role={(org?.node?.members?.edges ?? []).find((member) => member?.node?.user?.id === sessionData?.user.userId)?.node?.role ?? 'Owner'}
                 onClick={() => handleOrganizationSwitch(org?.node?.id)}
               />
             ))}

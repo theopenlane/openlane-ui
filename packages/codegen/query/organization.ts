@@ -84,6 +84,9 @@ export const GET_ALL_ORGANIZATIONS_WITH_MEMBERS = gql`
             edges {
               node {
                 role
+                user {
+                  id
+                }
               }
             }
           }
