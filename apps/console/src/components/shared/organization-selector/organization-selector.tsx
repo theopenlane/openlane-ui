@@ -27,7 +27,7 @@ export const OrganizationSelector = () => {
 
   const { currentOrgId } = useOrganization()
 
-  const { data } = useGetAllOrganizationsWithMembers()
+  const { data } = useGetAllOrganizationsWithMembers({ userID: sessionData?.user.userId })
   const orgs = data?.organizations?.edges ?? []
   const currentOrg = orgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
   const { container, organizationDropdown, allOrganizationsLink, popoverContent, searchWrapper } = organizationSelectorStyles()
@@ -117,7 +117,7 @@ export const OrganizationSelector = () => {
               <OrganizationItem
                 org={currentOrg as Organization}
                 isCurrent={true}
-                role={(currentOrg?.members?.edges ?? []).find((member) => member?.node?.user?.id === sessionData?.user.userId)?.node?.role ?? 'Owner'}
+                role={(currentOrg?.members?.edges ?? []).find((member) => member?.node?.user?.id === sessionData?.user.userId)?.node?.role ?? 'Unknown'}
                 onClick={() => handleOrganizationSwitch(currentOrg?.id)}
               />
             )}
@@ -127,7 +127,7 @@ export const OrganizationSelector = () => {
                 key={org?.node?.id}
                 org={org?.node as Organization}
                 isCurrent={false}
-                role={(org?.node?.members?.edges ?? []).find((member) => member?.node?.user?.id === sessionData?.user.userId)?.node?.role ?? 'Owner'}
+                role={(org?.node?.members?.edges ?? []).find((member) => member?.node?.user?.id === sessionData?.user.userId)?.node?.role ?? 'Unknown'}
                 onClick={() => handleOrganizationSwitch(org?.node?.id)}
               />
             ))}
@@ -153,8 +153,10 @@ const OrganizationItem = ({ org, isCurrent, role, onClick }: { org: Organization
   return (
     <div key={org.id} className={`${orgWrapper()} group`} onClick={onClick}>
       <div className={orgInfo()}>
-        {isCurrent ? <Check size={16} /> : <Check size={16} className="opacity-0" />}
-        <div className={orgTitle()}>{org.displayName}</div>
+        <div className="flex items-center gap-1">
+          {isCurrent ? <Check size={16} /> : <Check size={16} className="opacity-0" />}
+          <div className={orgTitle()}>{org.displayName}</div>
+        </div>
         <Tag className="bg-transparent capitalize px-1.5 border rounded-lg text-sm">{role.toLowerCase()}</Tag>
       </div>
     </div>

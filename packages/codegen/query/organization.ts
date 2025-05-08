@@ -67,7 +67,7 @@ export const GET_SINGLE_ORGANIZATION_MEMBERS = gql`
 `
 
 export const GET_ALL_ORGANIZATIONS_WITH_MEMBERS = gql`
-  query GetAllOrganizationsWithMembers {
+  query GetAllOrganizationsWithMembers($membersWhere: OrgMembershipWhereInput) {
     organizations {
       edges {
         node {
@@ -80,7 +80,7 @@ export const GET_ALL_ORGANIZATIONS_WITH_MEMBERS = gql`
             id
             presignedURL
           }
-          members {
+          members(where: $membersWhere) {
             edges {
               node {
                 role

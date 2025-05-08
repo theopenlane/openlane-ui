@@ -33187,7 +33187,9 @@ export type GetSingleOrganizationMembersQuery = {
   }
 }
 
-export type GetAllOrganizationsWithMembersQueryVariables = Exact<{ [key: string]: never }>
+export type GetAllOrganizationsWithMembersQueryVariables = Exact<{
+  membersWhere?: InputMaybe<OrgMembershipWhereInput>
+}>
 
 export type GetAllOrganizationsWithMembersQuery = {
   __typename?: 'Query'
