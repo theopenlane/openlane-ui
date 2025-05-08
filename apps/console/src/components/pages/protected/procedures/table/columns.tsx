@@ -1,7 +1,6 @@
 import { ColumnDef } from '@tanstack/react-table'
 import React from 'react'
 import { Procedure } from '@repo/codegen/src/schema.ts'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { Actions } from '@/components/pages/protected/procedures/table/actions/actions.tsx'
 import { formatTimeSince } from '@/utils/date'
 
@@ -9,14 +8,14 @@ export const proceduresColumns: ColumnDef<Procedure>[] = [
   {
     accessorKey: 'displayID',
     header: 'Display ID',
-    cell: ({ cell, row }) => {
+    cell: ({ cell }) => {
       return <span className="whitespace-nowrap">{cell.getValue() as string}</span>
     },
   },
   {
     accessorKey: 'name',
     header: 'Name',
-    cell: ({ cell, row }) => {
+    cell: ({ cell }) => {
       return <div>{cell.getValue() as string}</div>
     },
   },

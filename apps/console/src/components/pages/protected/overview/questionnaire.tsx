@@ -6,7 +6,6 @@ import { Badge } from '@repo/ui/badge'
 import { Cog, FileQuestion, SquareCheck, SquareX } from 'lucide-react'
 import { ColumnDef } from '@tanstack/table-core'
 import { ProgressCircle } from '@repo/ui/progress-circle'
-import { format } from 'date-fns'
 import { Template } from '@repo/codegen/src/schema'
 import { useTemplates } from '@/lib/graphql-hooks/templates'
 

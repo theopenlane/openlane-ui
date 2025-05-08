@@ -1,9 +1,8 @@
 'use client'
 
-import { Edit, MoreHorizontal, Send, Trash2, View } from 'lucide-react'
+import { Edit, Trash2, Send } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { pageStyles } from '../page.styles'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from '@repo/ui/alert-dialog'
 import { Button } from '@repo/ui/button'
 import React, { useState } from 'react'
@@ -19,13 +18,14 @@ type TemplateActionsProps = {
   templateId: string
 }
 
-const ICON_SIZE = 12
+const ICON_SIZE = 16
 
-export const Actions = ({ templateId: templateId }: TemplateActionsProps) => {
+export const Actions = ({ templateId }: TemplateActionsProps) => {
   const router = useRouter()
-  const { actionIcon, emailRow } = pageStyles()
+  const { emailRow } = pageStyles()
   const { mutateAsync: deleteTemplate } = useDeleteTemplate()
   const { successNotification, errorNotification } = useNotification()
+
   const [isSendDialogOpen, setIsSendDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
@@ -33,8 +33,18 @@ export const Actions = ({ templateId: templateId }: TemplateActionsProps) => {
     router.push(`/questionnaires/questionnaire-editor?id=${templateId}`)
   }
 
-  const handleViewTemplate = () => {
-    router.push(`/questionnaires/questionnaire-viewer?id=${templateId}`)
+  const handleDeleteTemplate = async () => {
+    try {
+      await deleteTemplate({ deleteTemplateId: templateId })
+      successNotification({
+        title: 'Questionnaire deleted successfully',
+      })
+    } catch {
+      errorNotification({
+        title: 'Something went wrong while deleting the questionnaire',
+        variant: 'destructive',
+      })
+    }
   }
 
   const formSchema = z.object({
@@ -62,53 +72,37 @@ export const Actions = ({ templateId: templateId }: TemplateActionsProps) => {
     })
 
     form.reset()
-  }
-
-  const handleDeleteTemplate = async () => {
-    try {
-      await deleteTemplate({ deleteTemplateId: templateId })
-      successNotification({
-        title: 'Questionnaire deleted successfully',
-      })
-    } catch {
-      errorNotification({
-        title: 'Something went wrong while deleting the questionnaire',
-        variant: 'destructive',
-      })
-    }
+    setIsSendDialogOpen(false)
   }
 
   return (
     <>
-      <DropdownMenu modal={false}>
-        <DropdownMenuTrigger asChild>
-          <MoreHorizontal className={actionIcon()} />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-10">
-          <DropdownMenuGroup>
-            <DropdownMenuItem onSelect={handleEditTemplate}>
-              <Edit width={ICON_SIZE} /> Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={handleViewTemplate}>
-              <View width={ICON_SIZE} /> View
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => {
-                setIsSendDialogOpen(true)
-              }}
-            >
-              <Send width={ICON_SIZE} /> Send to Recipient
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => {
-                setIsDeleteDialogOpen(true)
-              }}
-            >
-              <Trash2 width={ICON_SIZE} /> Delete
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <div className="flex gap-2 items-center">
+        <Edit
+          size={ICON_SIZE}
+          onClick={(e) => {
+            e.stopPropagation()
+            handleEditTemplate()
+          }}
+          className="cursor-pointer"
+        />
+        <Send
+          size={ICON_SIZE}
+          onClick={(e) => {
+            e.stopPropagation()
+            setIsSendDialogOpen(true)
+          }}
+          className="cursor-pointer"
+        />
+        <Trash2
+          size={ICON_SIZE}
+          onClick={(e) => {
+            e.stopPropagation()
+            setIsDeleteDialogOpen(true)
+          }}
+          className="cursor-pointer"
+        />
+      </div>
 
       <AlertDialog open={isSendDialogOpen} onOpenChange={setIsSendDialogOpen}>
         <AlertDialogContent>
@@ -135,18 +129,19 @@ export const Actions = ({ templateId: templateId }: TemplateActionsProps) => {
           </div>
           <AlertDialogFooter>
             <AlertDialogCancel asChild>
-              <Button variant="outline" type="submit">
+              <Button variant="outline" type="button">
                 Cancel
               </Button>
             </AlertDialogCancel>
             <AlertDialogAction asChild>
-              <Button variant="filled" type="submit" onClick={handleSubmit((data) => handleSendForm(data))}>
+              <Button variant="filled" type="submit" onClick={handleSubmit(handleSendForm)}>
                 Send
               </Button>
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
