@@ -2,10 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { organizationSelectorStyles } from './organization-selector.styles'
-import { Logo } from '@repo/ui/logo'
 import { Button } from '@repo/ui/button'
-import { ArrowRight, BriefcaseBusiness, Check, ChevronsUpDown, SearchIcon } from 'lucide-react'
-import { ChevronDown } from '@repo/ui/icons/chevron-down'
+import { BriefcaseBusiness, Check, ChevronsUpDown, SearchIcon } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Input } from '@repo/ui/input'
 import { Tag } from '@repo/ui/tag'
@@ -17,7 +15,6 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { useGetAllOrganizationsWithMembers } from '@/lib/graphql-hooks/organization'
 import { useQueryClient } from '@tanstack/react-query'
 import { Organization } from '@repo/codegen/src/schema'
-import { Avatar } from '../avatar/avatar'
 
 export const OrganizationSelector = () => {
   const { data: sessionData, update: updateSession } = useSession()
@@ -34,7 +31,7 @@ export const OrganizationSelector = () => {
   const orgs = data?.organizations?.edges ?? []
   const currentOrg = orgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
   const { container, organizationDropdown, allOrganizationsLink, popoverContent, searchWrapper } = organizationSelectorStyles()
-
+  console.log(data)
   const filteredOrgs = orgs
     .filter((org) => {
       return org?.node?.name.toLowerCase().includes(orgData.organizationSearch.toLowerCase()) && org?.node?.id !== currentOrgId && !org?.node?.personalOrg
@@ -116,12 +113,14 @@ export const OrganizationSelector = () => {
               />
             </div>
             <div className="border-t border-boder my-2.5"></div>
-            <OrganizationItem
-              org={currentOrg as Organization}
-              isCurrent={true}
-              role={currentOrg?.members?.edges?.[0]?.node?.role ?? 'Owner'}
-              onClick={() => handleOrganizationSwitch(currentOrg?.id)}
-            />
+            {currentOrg?.name.includes(orgData.organizationSearch) && (
+              <OrganizationItem
+                org={currentOrg as Organization}
+                isCurrent={true}
+                role={currentOrg?.members?.edges?.[0]?.node?.role ?? 'Owner'}
+                onClick={() => handleOrganizationSwitch(currentOrg?.id)}
+              />
+            )}
 
             {filteredOrgs.map((org) => (
               <OrganizationItem
@@ -154,9 +153,9 @@ const OrganizationItem = ({ org, isCurrent, role, onClick }: { org: Organization
   return (
     <div key={org.id} className={`${orgWrapper()} group`} onClick={onClick}>
       <div className={orgInfo()}>
-        {isCurrent ? <Check size={12} /> : <Check size={12} className="opacity-0" />}
+        {isCurrent ? <Check size={16} /> : <Check size={16} className="opacity-0" />}
         <div className={orgTitle()}>{org.displayName}</div>
-        <Tag className="bg-transparent capitalize px-1.5 border rounded-lg text-xs">{role.toLowerCase()}</Tag>
+        <Tag className="bg-transparent capitalize px-1.5 border rounded-lg text-sm">{role.toLowerCase()}</Tag>
       </div>
     </div>
   )

@@ -10,6 +10,7 @@ import { useState } from 'react'
 import { BookText, ChevronRight, PanelLeft } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { GlobalSearch } from '../search/search'
+import { Logo } from '@repo/ui/logo'
 
 export default function Header() {
   const { isOpen, toggle } = useSidebar()
@@ -49,7 +50,10 @@ export default function Header() {
       <div className={header()}>
         <nav className={nav()}>
           <div className={expandNav({ isOpen: !isOpen })}>
-            <PanelLeft height={16} width={16} onClick={handleToggle} className="cursor-pointer" />
+            <Link href={'/dashboard'} className="">
+              <Logo width={160} />
+            </Link>
+            <PanelLeft height={16} width={16} onClick={handleToggle} className="cursor-pointer ml-14" />
             <div className="border-l h-4" />
             <div className="flex justify-start items-center">
               <OrganizationSelector />
