@@ -78,11 +78,6 @@ export const OrganizationSelector = () => {
 
   if (orgs.length < 2) {
     return null
-    // <div className={container()}>
-    //   <Link href={'/'} className={logoWrapper()}>
-    //     <Logo width={160} />
-    //   </Link>
-    // </div>
   }
 
   return (
@@ -100,7 +95,7 @@ export const OrganizationSelector = () => {
               <Input
                 value={orgData.organizationSearch}
                 name="organization"
-                placeholder="Search for a organization"
+                placeholder="Search for an organization"
                 onChange={(e) => {
                   setOrgData({
                     organizationSearch: e.currentTarget.value,

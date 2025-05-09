@@ -33,7 +33,7 @@ export const WithPlaceholder: Story = {
 
 export const WithIcon: Story = {
   args: {
-    placeholder: 'Search for a organization',
+    placeholder: 'Search for an organization',
     icon: <SearchIcon width={17} />,
   },
 }
