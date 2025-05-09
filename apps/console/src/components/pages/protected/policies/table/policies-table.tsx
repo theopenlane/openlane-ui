@@ -53,10 +53,7 @@ export const PoliciesTable = () => {
 
   const handleExport = () => {
     const exportableColumns = policiesColumns
-      .filter(
-        (col): col is ColumnDef<InternalPolicy> & { accessorKey: string; header: string } =>
-          'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && col.accessorKey !== 'id', // ✅ skip the action column
-      )
+      .filter((col): col is ColumnDef<InternalPolicy> & { accessorKey: string; header: string } => 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string')
       .map((col) => {
         const key = col.accessorKey as keyof InternalPolicy
         const label = col.header

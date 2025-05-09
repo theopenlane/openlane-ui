@@ -1,7 +1,6 @@
 import { ColumnDef } from '@tanstack/react-table'
 import React from 'react'
 import { Procedure } from '@repo/codegen/src/schema.ts'
-import { Actions } from '@/components/pages/protected/procedures/table/actions/actions.tsx'
 import { formatTimeSince } from '@/utils/date'
 
 export const proceduresColumns: ColumnDef<Procedure>[] = [
@@ -38,15 +37,5 @@ export const proceduresColumns: ColumnDef<Procedure>[] = [
     header: 'Created At',
     cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
     size: 140,
-  },
-  {
-    accessorKey: 'id',
-    header: '',
-    cell: ({ cell }) => (
-      <div onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
-        <Actions procedureId={cell.getValue() as string} />
-      </div>
-    ),
-    size: 40,
   },
 ]
