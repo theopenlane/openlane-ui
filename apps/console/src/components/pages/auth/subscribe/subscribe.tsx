@@ -62,7 +62,7 @@ export const Subscribe = () => {
         }),
       })
 
-      const alreadySubscribedError = await graphQlErrorMatcher(res, [GraphQlResponseError.AlreadyExistsErrorCode, GraphQlResponseError.MaxAttemptsErrorCode])
+      const alreadySubscribedError = await graphQlErrorMatcher(res, [GraphQlResponseError.AlreadyExistsErrorCode])
 
       if (alreadySubscribedError) {
         setIsAlreadySubscribed(true)
@@ -94,7 +94,7 @@ export const Subscribe = () => {
             <div className="flex items-center justify-center w-7 h-7 rounded-full border ">
               <CheckCircle className="text-brand" size={37} />
             </div>
-            <p className="text-sm leading-snug">Thank you for subscribing!</p>
+            <p className="text-sm leading-snug">You're on the list! Hang tight — we'll be in touch when it's your turn to try the beta.</p>
           </div>
         ) : (
           <div className="flex items-center gap-4 px-4 py-3 border rounded-lg  max-w-xl mx-auto bg-card">
