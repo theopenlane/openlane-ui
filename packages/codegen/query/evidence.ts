@@ -42,3 +42,34 @@ export const GET_ALL_EVIDENCES = gql`
     }
   }
 `
+
+export const GET_EVIDENCE = gql`
+  query GetEvidence($evidenceId: ID!) {
+    evidence(id: $evidenceId) {
+      id
+      name
+      createdAt
+      createdBy
+      updatedBy
+      updatedAt
+      tags
+      renewalDate
+      creationDate
+      status
+      source
+      description
+      displayID
+      files {
+        edges {
+          node {
+            providedFileName
+            providedFileSize
+            providedFileExtension
+            id
+            uri
+          }
+        }
+      }
+    }
+  }
+`

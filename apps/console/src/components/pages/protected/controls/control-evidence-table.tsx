@@ -19,7 +19,7 @@ const ControlEvidenceTable = ({ evidences, control, canEdit }: Props) => {
   const pathname = usePathname()
   const { subcontrolId } = useParams()
   const isSubcontrol = !!subcontrolId
-  const title = isSubcontrol ? 'Subcontrol Evidence' : 'Control Evidence'
+  const title = isSubcontrol ? 'Subcontrol Evidence' : 'Control Evidence12'
 
   return (
     <div className="mt-8 space-y-4">

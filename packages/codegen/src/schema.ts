@@ -32941,6 +32941,37 @@ export type GetAllEvidencesQuery = {
   }
 }
 
+export type GetEvidenceQueryVariables = Exact<{
+  evidenceId: Scalars['ID']['input']
+}>
+
+export type GetEvidenceQuery = {
+  __typename?: 'Query'
+  evidence: {
+    __typename?: 'Evidence'
+    id: string
+    name: string
+    createdAt?: any | null
+    createdBy?: string | null
+    updatedBy?: string | null
+    updatedAt?: any | null
+    tags?: Array<string> | null
+    renewalDate?: any | null
+    creationDate: any
+    status?: EvidenceEvidenceStatus | null
+    source?: string | null
+    description?: string | null
+    displayID: string
+    files: {
+      __typename?: 'FileConnection'
+      edges?: Array<{
+        __typename?: 'FileEdge'
+        node?: { __typename?: 'File'; providedFileName: string; providedFileSize?: number | null; providedFileExtension: string; id: string; uri?: string | null } | null
+      } | null> | null
+    }
+  }
+}
+
 export type GetAllGroupsQueryVariables = Exact<{
   where?: InputMaybe<GroupWhereInput>
   orderBy?: InputMaybe<Array<GroupOrder> | GroupOrder>
