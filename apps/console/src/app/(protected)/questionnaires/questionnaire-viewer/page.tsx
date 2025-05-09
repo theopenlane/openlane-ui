@@ -4,11 +4,9 @@ import React, { useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import dynamic from 'next/dynamic'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { View, Edit, Send, Trash2 } from 'lucide-react'
+import { Edit, Send, Trash2 } from 'lucide-react'
 import { useSession } from 'next-auth/react'
-import { useAccountRole } from '@/lib/authz/access-api'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
-import { canEdit, canDelete } from '@/lib/authz/utils'
+import { useOrganizationRole } from '@/lib/authz/access-api'
 import { useDeleteTemplate } from '@/lib/graphql-hooks/templates'
 import { useNotification } from '@/hooks/useNotification'
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@repo/ui/alert-dialog'
@@ -18,6 +16,7 @@ import { useForm, SubmitHandler } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Input } from '@repo/ui/input'
+import { canEdit } from '@/lib/authz/utils'
 
 const ViewQuestionnaire = dynamic(() => import('@/components/pages/protected/questionnaire/questionnaire-viewer'), {
   ssr: false,
@@ -29,9 +28,8 @@ const Page: React.FC = () => {
   const existingId = searchParams.get('id') as string
 
   const { data: session } = useSession()
-  const { data: permission, isLoading } = useAccountRole(session, ObjectEnum.TEMPLATE, existingId)
-  const editAllowed = existingId ? canEdit(permission?.roles) : true
-  const deleteAllowed = existingId ? canDelete(permission?.roles) : false
+  const { data: permission, isLoading } = useOrganizationRole(session)
+  const editAllowed = canEdit(permission?.roles)
 
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: deleteTemplate } = useDeleteTemplate()
@@ -79,15 +77,14 @@ const Page: React.FC = () => {
             </Button>
 
             {editAllowed && (
-              <Button type="button" className="h-8 px-3" icon={<Edit />} iconPosition="left" onClick={handleEdit}>
-                Edit
-              </Button>
-            )}
-
-            {deleteAllowed && (
-              <Button type="button" className="h-8 px-3" icon={<Trash2 />} iconPosition="left" onClick={() => setIsDeleteDialogOpen(true)}>
-                Delete
-              </Button>
+              <>
+                <Button type="button" className="h-8 px-3" icon={<Edit />} iconPosition="left" onClick={handleEdit}>
+                  Edit
+                </Button>
+                <Button type="button" className="h-8 px-3" icon={<Trash2 />} iconPosition="left" onClick={() => setIsDeleteDialogOpen(true)}>
+                  Delete
+                </Button>
+              </>
             )}
           </div>
         )}
