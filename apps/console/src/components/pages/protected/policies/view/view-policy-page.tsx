@@ -1,5 +1,5 @@
 import { Loading } from '@/components/shared/loading/loading'
-import { useGetInternalPolicyDetailsById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
+import { useDeleteInternalPolicy, useGetInternalPolicyDetailsById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
 import React, { useEffect, useState } from 'react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import useFormSchema, { EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
@@ -7,7 +7,7 @@ import { Form } from '@repo/ui/form'
 import DetailsField from '@/components/pages/protected/policies/view/fields/details-field.tsx'
 import TitleField from '@/components/pages/protected/policies/view/fields/title-field.tsx'
 import { Button } from '@repo/ui/button'
-import { PencilIcon, SaveIcon, XIcon } from 'lucide-react'
+import { PencilIcon, Router, SaveIcon, Trash2, XIcon } from 'lucide-react'
 import AuthorityCard from '@/components/pages/protected/policies/view/cards/authority-card.tsx'
 import PropertiesCard from '@/components/pages/protected/policies/view/cards/properties-card.tsx'
 import { InternalPolicyDocumentStatus, InternalPolicyFrequency, UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
@@ -20,6 +20,12 @@ import { useNotification } from '@/hooks/useNotification.tsx'
 import { usePolicy } from '@/components/pages/protected/policies/create/hooks/use-policy.tsx'
 import AssociatedObjectsViewAccordion from '@/components/pages/protected/policies/accordion/associated-objects-view-accordion.tsx'
 import AssociationCard from '@/components/pages/protected/policies/create/cards/association-card.tsx'
+import { canDelete } from '@/lib/authz/utils'
+import { useAccountRole } from '@/lib/authz/access-api'
+import { useSession } from 'next-auth/react'
+import { ObjectEnum } from '@/lib/authz/enums/object-enum'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { useRouter } from 'next/navigation'
 
 type TViewPolicyPage = {
   policyId: string
@@ -37,6 +43,12 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const [initialAssociations, setInitialAssociations] = useState<TObjectAssociationMap>({})
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
+  const { data: session } = useSession()
+  const { data: permission } = useAccountRole(session, ObjectEnum.POLICY, policyId)
+  const deleteAllowed = canDelete(permission?.roles)
+  const { mutateAsync: deletePolicy } = useDeleteInternalPolicy()
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     if (policy) {
@@ -84,6 +96,16 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
     setIsEditing(true)
+  }
+
+  const handleDeletePolicy = async () => {
+    try {
+      await deletePolicy({ deleteInternalPolicyId: policyId })
+      successNotification({ title: 'Policy deleted successfully' })
+      router.push('/policies')
+    } catch {
+      errorNotification({ title: 'Error deleting policy' })
+    }
   }
 
   function getAssociationDiffs(initial: TObjectAssociationMap, current: TObjectAssociationMap): { added: TObjectAssociationMap; removed: TObjectAssociationMap } {
@@ -200,8 +222,21 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
                 </div>
               ) : (
                 <div className="flex gap-2 justify-end">
+                  {deleteAllowed && (
+                    <>
+                      <Button type="button" className="h-8 !px-2" icon={<Trash2 />} iconPosition="left" onClick={() => setIsDeleteDialogOpen(true)}>
+                        Delete
+                      </Button>
+                      <ConfirmationDialog
+                        open={isDeleteDialogOpen}
+                        onOpenChange={setIsDeleteDialogOpen}
+                        onConfirm={handleDeletePolicy}
+                        description="This action cannot be undone. This will permanently remove the policy from the organization."
+                      />
+                    </>
+                  )}
                   <Button className="h-8 !px-2" icon={<PencilIcon />} iconPosition="left" onClick={handleEdit}>
-                    Edit Policy
+                    Edit
                   </Button>
                 </div>
               )}

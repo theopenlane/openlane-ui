@@ -21,6 +21,14 @@ import AssociationCard from '@/components/pages/protected/procedures/create/card
 import { useGetProcedureDetailsById } from '@/lib/graphql-hooks/procedures.ts'
 import { ProcedureDocumentStatus, ProcedureFrequency, UpdateProcedureInput } from '@repo/codegen/src/schema.ts'
 import { useProcedure } from '@/components/pages/protected/procedures/create/hooks/use-procedure.tsx'
+import { Trash2 } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { useSession } from 'next-auth/react'
+import { useAccountRole } from '@/lib/authz/access-api'
+import { ObjectEnum } from '@/lib/authz/enums/object-enum'
+import { canDelete } from '@/lib/authz/utils'
+import { useDeleteProcedure } from '@/lib/graphql-hooks/procedures'
 
 type TViewProcedurePage = {
   procedureId: string
@@ -38,6 +46,12 @@ const ViewProcedurePage: React.FC<TViewProcedurePage> = ({ procedureId }) => {
   const [initialAssociations, setInitialAssociations] = useState<TObjectAssociationMap>({})
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
+  const router = useRouter()
+  const { data: session } = useSession()
+  const { data: permission } = useAccountRole(session, ObjectEnum.PROCEDURE, procedureId)
+  const deleteAllowed = canDelete(permission?.roles)
+  const { mutateAsync: deleteProcedure } = useDeleteProcedure()
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   useEffect(() => {
     if (procedure) {
@@ -85,6 +99,16 @@ const ViewProcedurePage: React.FC<TViewProcedurePage> = ({ procedureId }) => {
   const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
     setIsEditing(true)
+  }
+
+  const handleDeleteProcedure = async () => {
+    try {
+      await deleteProcedure({ deleteProcedureId: procedureId })
+      successNotification({ title: 'Procedure deleted successfully' })
+      router.push('/procedures')
+    } catch {
+      errorNotification({ title: 'Error deleting procedure' })
+    }
   }
 
   function getAssociationDiffs(initial: TObjectAssociationMap, current: TObjectAssociationMap): { added: TObjectAssociationMap; removed: TObjectAssociationMap } {
@@ -190,22 +214,38 @@ const ViewProcedurePage: React.FC<TViewProcedurePage> = ({ procedureId }) => {
               <AssociatedObjectsViewAccordion procedure={procedure} />
             </div>
             <div className="space-y-4">
-              {isEditing ? (
-                <div className="flex gap-2 justify-end">
-                  <Button className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
-                    Cancel
-                  </Button>
-                  <Button type="submit" iconPosition="left" className="h-8 !px-2" icon={<SaveIcon />} disabled={isSaving}>
-                    {isSaving ? 'Saving' : 'Save'}
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex gap-2 justify-end">
-                  <Button className="h-8 !px-2" icon={<PencilIcon />} iconPosition="left" onClick={handleEdit}>
-                    Edit Procedure
-                  </Button>
-                </div>
-              )}
+              <div className="flex gap-2 justify-end">
+                {deleteAllowed && (
+                  <>
+                    <Button type="button" className="h-8 !px-2" icon={<Trash2 />} iconPosition="left" onClick={() => setIsDeleteDialogOpen(true)}>
+                      Delete
+                    </Button>
+                    <ConfirmationDialog
+                      open={isDeleteDialogOpen}
+                      onOpenChange={setIsDeleteDialogOpen}
+                      onConfirm={handleDeleteProcedure}
+                      description="This action cannot be undone. This will permanently remove the procedure from the organization."
+                    />
+                  </>
+                )}
+                {isEditing ? (
+                  <div className="flex gap-2 justify-end">
+                    <Button className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
+                      Cancel
+                    </Button>
+                    <Button type="submit" iconPosition="left" className="h-8 !px-2" icon={<SaveIcon />} disabled={isSaving}>
+                      {isSaving ? 'Saving' : 'Save'}
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2 justify-end">
+                    <Button className="h-8 !px-2" icon={<PencilIcon />} iconPosition="left" onClick={handleEdit}>
+                      Edit Procedure
+                    </Button>
+                  </div>
+                )}
+              </div>
+
               <AuthorityCard form={form} approver={procedure.approver} delegate={procedure.delegate} isEditing={isEditing} />
               <PropertiesCard form={form} isEditing={isEditing} procedure={procedure} />
               <HistoricalCard procedure={procedure} />
