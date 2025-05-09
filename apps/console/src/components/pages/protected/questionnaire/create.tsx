@@ -6,11 +6,17 @@ import { FilePlus, LayoutTemplate, PlusIcon } from 'lucide-react'
 import { TemplateList } from './templates'
 import { useState } from 'react'
 import { AlertDialog } from '@repo/ui/alert-dialog'
+import { useSession } from 'next-auth/react'
+import { useOrganizationRole } from '@/lib/authz/access-api.ts'
+import { canCreate } from '@/lib/authz/utils.ts'
+import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 
 const ICON_SIZE = 12
 
 export const CreateDropdown = () => {
   const router = useRouter()
+  const { data: session } = useSession()
+  const { data: permission } = useOrganizationRole(session)
 
   const [isTemplateDialogOpen, setTemplateDialogOpen] = useState(false)
 
@@ -24,9 +30,11 @@ export const CreateDropdown = () => {
     <div className={buttons()}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button icon={<PlusIcon />} iconPosition="left" onClick={handleCreateNew}>
-            Create New
-          </Button>
+          {canCreate(permission?.roles, AccessEnum.CanCreateTemplate) && (
+            <Button icon={<PlusIcon />} iconPosition="left" onClick={handleCreateNew}>
+              Create New
+            </Button>
+          )}
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuItem onSelect={handleCreateNew}>

@@ -34216,6 +34216,10 @@ export type CreateSubscriberMutation = { __typename?: 'Mutation'; createSubscrib
 export type GetAllSubscribersQueryVariables = Exact<{
   where?: InputMaybe<SubscriberWhereInput>
   orderBy?: InputMaybe<Array<SubscriberOrder> | SubscriberOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type GetAllSubscribersQuery = {

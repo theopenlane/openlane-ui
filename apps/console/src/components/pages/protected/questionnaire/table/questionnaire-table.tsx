@@ -10,8 +10,10 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useTemplates } from '@/lib/graphql-hooks/templates'
+import { useRouter } from 'next/navigation'
 
 export const QuestionnairesTable = () => {
+  const router = useRouter()
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<Record<string, any> | null>(null)
   const [orderBy, setOrderBy] = useState<FilterTemplatesQueryVariables['orderBy']>([
@@ -65,6 +67,7 @@ export const QuestionnairesTable = () => {
         pagination={pagination}
         onPaginationChange={setPagination}
         paginationMeta={paginationMeta}
+        onRowClick={(row) => router.push(`/questionnaires/questionnaire-viewer?id=${row.id}`)}
       />
     </div>
   )

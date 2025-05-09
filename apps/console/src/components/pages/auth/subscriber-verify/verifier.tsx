@@ -37,29 +37,29 @@ export const TokenVerifier = () => {
 
   if (!token) {
     return (
-      <>
+      <div className="flex flex-col m-auto self-center">
         <div className="mx-auto animate-pulse w-96">
           <Logo theme="dark" />
         </div>
         <div className={errorMessage()}>No token provided, please check your email for a verification link.</div>
-      </>
+      </div>
     )
   }
 
   if (error) {
     return (
-      <>
+      <div className="flex flex-col m-auto self-center">
         <div className="mx-auto animate-pulse w-96">
           <Logo theme="dark" />
         </div>
         <div className={errorMessage()}>{error}</div>
-      </>
+      </div>
     )
   }
 
   if (message) {
     return (
-      <>
+      <div className="flex flex-col m-auto self-center">
         <div className="mx-auto animate-pulse w-96">
           <Logo theme="dark" />
         </div>
@@ -67,12 +67,12 @@ export const TokenVerifier = () => {
           <SparklesIcon size={24} className={successIcon()} />
           <span className={successMessage()}>Thank you for subscribing. Your email is now verified.</span>
         </div>
-      </>
+      </div>
     )
   }
 
   return (
-    <>
+    <div className="flex flex-col m-auto self-center">
       <div className="mx-auto animate-pulse w-96">
         <Logo theme="dark" />
       </div>
@@ -80,6 +80,6 @@ export const TokenVerifier = () => {
         <LoaderCircle className="animate-spin" size={20} />
         <span className={successMessage()}>Verifying</span>
       </div>
-    </>
+    </div>
   )
 }
