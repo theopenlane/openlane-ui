@@ -11,3 +11,16 @@ export const graphQlErrorMatcher = async (response: Response, graphQlErrors: Gra
 
   return false
 }
+
+export const extractGraphQlResponseError = async (response: Response): Promise<GraphQlResponseError | null> => {
+  const json = await response.json()
+
+  if (json.errors?.length) {
+    const errorCode = json.errors?.[0].extensions?.code
+    if (errorCode) {
+      return errorCode as GraphQlResponseError
+    }
+  }
+
+  return null
+}
