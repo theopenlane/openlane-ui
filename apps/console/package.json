@@ -35,7 +35,7 @@
     "graphql-tag": "^2.12.6",
     "jest": "^29.7.0",
     "jwt-decode": "^4.0.0",
-    "lucide-react": "^0.482.0",
+    "lucide-react": "^0.509.0",
     "next": "15.2.4",
     "next-auth": "beta",
     "next-navigation-guard": "^0.1.2",
