@@ -5,18 +5,12 @@ import { formatTimeSince } from '@/utils/date'
 
 export const policiesColumns: ColumnDef<InternalPolicy>[] = [
   {
-    accessorKey: 'displayID',
-    header: 'Display ID',
-    cell: ({ cell }) => {
-      return <span className="whitespace-nowrap">{cell.getValue() as string}</span>
-    },
-  },
-  {
     accessorKey: 'name',
     header: 'Name',
     cell: ({ cell }) => {
       return <div>{cell.getValue() as string}</div>
     },
+    minSize: 180,
   },
   {
     accessorKey: 'summary',
@@ -30,12 +24,12 @@ export const policiesColumns: ColumnDef<InternalPolicy>[] = [
     accessorKey: 'updatedAt',
     header: 'Updated At',
     cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
-    size: 140,
+    size: 100,
   },
   {
     accessorKey: 'createdAt',
     header: 'Created At',
     cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
-    size: 140,
+    size: 100,
   },
 ]

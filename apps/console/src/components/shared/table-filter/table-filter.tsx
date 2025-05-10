@@ -231,7 +231,7 @@ export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilter
             const operators = filterField ? getOperatorsForType(filterField.type) : []
 
             return (
-              <div key={index} className="flex items-center gap-2">
+              <div key={index} className="flex items-center gap-2 text-align:left">
                 {index === 0 && <p className={prefixes()}>Where</p>}
                 {index === 1 && (
                   <Select value={conjunction} onValueChange={(val: 'and' | 'or') => setConjunction(val)}>
