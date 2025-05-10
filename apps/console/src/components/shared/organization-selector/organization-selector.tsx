@@ -31,7 +31,6 @@ export const OrganizationSelector = () => {
   const orgs = data?.organizations?.edges ?? []
   const currentOrg = orgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
   const { container, organizationDropdown, allOrganizationsLink, popoverContent, searchWrapper } = organizationSelectorStyles()
-  console.log(data)
   const filteredOrgs = orgs
     .filter((org) => {
       return org?.node?.name.toLowerCase().includes(orgData.organizationSearch.toLowerCase()) && org?.node?.id !== currentOrgId && !org?.node?.personalOrg
