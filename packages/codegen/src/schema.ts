@@ -33187,7 +33187,9 @@ export type GetSingleOrganizationMembersQuery = {
   }
 }
 
-export type GetAllOrganizationsWithMembersQueryVariables = Exact<{ [key: string]: never }>
+export type GetAllOrganizationsWithMembersQueryVariables = Exact<{
+  membersWhere?: InputMaybe<OrgMembershipWhereInput>
+}>
 
 export type GetAllOrganizationsWithMembersQuery = {
   __typename?: 'Query'
@@ -33203,7 +33205,10 @@ export type GetAllOrganizationsWithMembersQuery = {
         name: string
         avatarRemoteURL?: string | null
         avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
-        members: { __typename?: 'OrgMembershipConnection'; edges?: Array<{ __typename?: 'OrgMembershipEdge'; node?: { __typename?: 'OrgMembership'; role: OrgMembershipRole } | null } | null> | null }
+        members: {
+          __typename?: 'OrgMembershipConnection'
+          edges?: Array<{ __typename?: 'OrgMembershipEdge'; node?: { __typename?: 'OrgMembership'; role: OrgMembershipRole; user: { __typename?: 'User'; id: string } } | null } | null> | null
+        }
       } | null
     } | null> | null
   }

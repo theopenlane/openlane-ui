@@ -6,8 +6,8 @@ import { switchOrganization } from '@/lib/user'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useGetAllOrganizationsWithMembers } from '@/lib/graphql-hooks/organization'
-import { Avatar } from '../../avatar/avatar'
 import { Organization } from '@repo/codegen/src/schema'
+import { Avatar } from '@/components/shared/avatar/avatar'
 
 export const ExistingOrganizations = () => {
   const { data: sessionData, update: updateSession } = useSession()

@@ -7,9 +7,10 @@ import { BreadcrumbNavigation } from '@/components/shared/breadcrumb-nav/breadcr
 import { sidebarStyles } from '../sidebar/sidebar.styles'
 import { useSidebar } from '@/hooks/useSidebar'
 import { useState } from 'react'
-import { BookText, PanelLeft } from 'lucide-react'
+import { BookText, ChevronRight, PanelLeft } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { GlobalSearch } from '../search/search'
+import { Logo } from '@repo/ui/logo'
 
 export default function Header() {
   const { isOpen, toggle } = useSidebar()
@@ -48,19 +49,22 @@ export default function Header() {
     <>
       <div className={header()}>
         <nav className={nav()}>
-          <div className="flex justify-start items-center">
-            <OrganizationSelector />
+          <div className={expandNav({ isOpen: !isOpen })}>
+            <Link href={'/dashboard'} className="">
+              <Logo width={160} />
+            </Link>
+            <PanelLeft height={16} width={16} onClick={handleToggle} className="cursor-pointer ml-14" />
+            <div className="border-l h-4" />
+            <div className="flex justify-start items-center">
+              <OrganizationSelector />
 
-            <div className={expandNav({ isOpen: !isOpen })} onClick={handleToggle}>
-              <PanelLeft height={16} width={16} />
-            </div>
+              <div className={mobileSidebar()}>
+                <>MobileSidebar</>
+              </div>
 
-            <div className={mobileSidebar()}>
-              <>MobileSidebar</>
-            </div>
-
-            <div className="pl-10">
-              <BreadcrumbNavigation />
+              <div className="pl-2.5">
+                <BreadcrumbNavigation />
+              </div>
             </div>
           </div>
 
