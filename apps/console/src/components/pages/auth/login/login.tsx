@@ -176,7 +176,7 @@ export const LoginPage = () => {
     <>
       <div className="flex flex-col self-center">
         <p className="text-2xl font-medium">Login to your account</p>
-        <p className="text-base mt-8">Connect to openlane with</p>
+        <p className="text-base mt-8">Connect to Openlane with</p>
 
         <div className={buttons()}>
           <Button className="bg-card !px-3.5" variant="outlineLight" size="md" icon={<GoogleIcon />} iconPosition="left" onClick={() => google()} disabled={signInLoading}>
@@ -236,7 +236,7 @@ export const LoginPage = () => {
           <div className="flex text-base">
             <span>New to Openlane? &nbsp;</span>
             <Link href="/signup" className=" text-base text-blue-500  hover:opacity-80 transition">
-              Signup for an account
+              Sign up for an account
             </Link>
           </div>
         </SimpleForm>
