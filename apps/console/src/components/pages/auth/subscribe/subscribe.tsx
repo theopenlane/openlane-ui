@@ -11,6 +11,9 @@ import { Input } from '@repo/ui/input'
 import { newsletterStyles } from './subscribe.styles'
 import { recaptchaSiteKey } from '@repo/dally/auth'
 import { CREATE_SUBSCRIBER } from '@repo/codegen/query/subscribe'
+import { GraphQlResponseError } from '@/constants/graphQlResponseError'
+import { extractGraphQlResponseError } from '@/utils/graphQlErrorMatcher'
+import { error } from 'console'
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -21,6 +24,8 @@ export const Subscribe = () => {
 
   const [isPending, setIsPending] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [isAlreadySubscribed, setIsAlreadySubscribed] = useState(false)
+  const [maxAttemptsReached, setMaxAttemptsReached] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -58,9 +63,14 @@ export const Subscribe = () => {
         }),
       })
 
-      const json = await res.json()
-      if (json.errors?.length) {
-        throw new Error(json.errors.map((e: any) => e.message).join('\n'))
+      const graphQlCreateSubscriberError = await extractGraphQlResponseError(res)
+
+      if (graphQlCreateSubscriberError && graphQlCreateSubscriberError === GraphQlResponseError.AlreadyExistsErrorCode) {
+        setIsAlreadySubscribed(true)
+      }
+
+      if (graphQlCreateSubscriberError && graphQlCreateSubscriberError === GraphQlResponseError.MaxAttemptsErrorCode) {
+        setMaxAttemptsReached(true)
       }
 
       return { success: true }
@@ -84,14 +94,36 @@ export const Subscribe = () => {
   return (
     <>
       {submitted ? (
-        <div className="flex items-center gap-4 px-4 py-3 border rounded-lg  max-w-xl mx-auto bg-card">
-          <div className="flex items-center justify-center w-7 h-7 rounded-full border ">
-            <CheckCircle className="text-brand" size={37} />
+        isAlreadySubscribed ? (
+          <div className="flex items-center gap-4 px-4 py-3 border rounded-lg max-w-xl mx-auto bg-card">
+            <div className="flex items-center justify-center w-7 h-7 rounded-full border ">
+              <CheckCircle className="text-brand" size={37} />
+            </div>
+            <p className="text-sm leading-snug">You're on the list! Hang tight — we'll be in touch when it's your turn to try the beta.</p>
           </div>
-          <p className="text-sm leading-snug">
-            You're on the list! We just sent a confirmation to <span className="underline">{form.getValues('email')}</span>. Hang tight — we'll be in touch when it's your turn to try the beta.
-          </p>
-        </div>
+        ) : maxAttemptsReached ? (
+          <div className="flex items-center gap-4 px-4 py-3 border rounded-lg max-w-xl mx-auto bg-card">
+            <div className="flex items-center justify-center w-7 h-7 rounded-full border ">
+              <CheckCircle className="text-brand" size={37} />
+            </div>
+            <p className="text-sm leading-snug">
+              You're on the list! We previously sent a confirmation to <span className="underline">{form.getValues('email')}</span>. If you haven't received the email, please reach out to{' '}
+              <a href="mailto:support@theopenlane.io" className="underline">
+                support
+              </a>
+              .
+            </p>
+          </div>
+        ) : (
+          <div className="flex items-center gap-4 px-4 py-3 border rounded-lg max-w-xl mx-auto bg-card">
+            <div className="flex items-center justify-center w-7 h-7 rounded-full border ">
+              <CheckCircle className="text-brand" size={37} />
+            </div>
+            <p className="text-sm leading-snug">
+              You're on the list! We just sent a confirmation to <span className="underline">{form.getValues('email')}</span>. Hang tight — we'll be in touch when it's your turn to try the beta.
+            </p>
+          </div>
+        )
       ) : (
         <div className="flex ">
           <Form {...form}>

@@ -1,9 +1,7 @@
 'use client'
 
-import { MoreHorizontal, Trash2 } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
-import { pageStyles } from '../page.styles'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { useDeleteSubscriber } from '@/lib/graphql-hooks/subscribes'
 import { useState } from 'react'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
@@ -12,13 +10,11 @@ type SubscriberActionsProps = {
   subscriberEmail: string
 }
 
-const ICON_SIZE = 12
+const ICON_SIZE = 16
 
 export const SubscriberActions = ({ subscriberEmail }: SubscriberActionsProps) => {
-  const { actionIcon } = pageStyles()
   const { mutateAsync: deleteSubscriber } = useDeleteSubscriber()
   const { successNotification, errorNotification } = useNotification()
-
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   const handleDeleteSubscriber = async () => {
@@ -39,25 +35,17 @@ export const SubscriberActions = ({ subscriberEmail }: SubscriberActionsProps) =
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <MoreHorizontal className={actionIcon()} />
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-10">
-          <DropdownMenuGroup>
-            <DropdownMenuItem
-              onSelect={(e) => {
-                e.preventDefault()
-                setIsDeleteDialogOpen(true)
-              }}
-            >
-              <Trash2 width={ICON_SIZE} /> Delete Subscriber
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <div className="flex items-center gap-2">
+        <Trash2
+          size={ICON_SIZE}
+          onClick={(e) => {
+            e.stopPropagation()
+            setIsDeleteDialogOpen(true)
+          }}
+          className={`cursor-pointer`}
+        />
+      </div>
 
-      {/* Delete Subscriber Confirmation Dialog */}
       <ConfirmationDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
