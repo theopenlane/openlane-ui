@@ -1,17 +1,22 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { CREATE_EVIDENCE, GET_ALL_EVIDENCES, GET_EVIDENCE, GET_EVIDENCE_FILES, UPDATE_EVIDENCE } from '@repo/codegen/query/evidence'
+import { CREATE_EVIDENCE, GET_ALL_EVIDENCES, GET_EVIDENCE, GET_EVIDENCE_FILES, GET_EVIDENCE_FILES_PAGINATED, UPDATE_EVIDENCE } from '@repo/codegen/query/evidence'
 import {
+  File,
   CreateEvidenceMutation,
   CreateEvidenceMutationVariables,
   EvidenceWhereInput,
+  FileOrder,
   GetAllEvidencesQuery,
+  GetEvidenceFilesPaginatedQuery,
   GetEvidenceFilesQuery,
   GetEvidenceQuery,
+  InputMaybe,
   UpdateEvidenceMutation,
   UpdateEvidenceMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
+import { TPagination } from '@repo/ui/pagination-types'
 
 export function useCreateEvidence() {
   const { client, queryClient } = useGraphQLClient()
@@ -50,6 +55,40 @@ export const useGetEvidenceById = (evidenceId?: string | null) => {
   })
 }
 
+type EvidencePaginationArgs = {
+  evidenceId?: string | null
+  orderBy?: InputMaybe<Array<FileOrder> | FileOrder>
+  pagination?: TPagination
+}
+
+export const useGetEvidenceWithFilesPaginated = ({ evidenceId, orderBy, pagination }: EvidencePaginationArgs) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetEvidenceFilesPaginatedQuery, unknown>({
+    queryKey: ['evidenceFiles', evidenceId, orderBy, pagination?.page, pagination?.pageSize],
+    queryFn: async () =>
+      client.request(GET_EVIDENCE_FILES_PAGINATED, {
+        evidenceId,
+        orderBy,
+        ...pagination?.query,
+      }),
+    enabled: !!evidenceId,
+  })
+
+  const evidence = queryResult.data?.evidence
+  const files = evidence?.files?.edges?.map((edge) => edge?.node) ?? []
+  const pageInfo = evidence?.files?.pageInfo
+  const totalCount = evidence?.files?.totalCount
+
+  return {
+    ...queryResult,
+    evidence,
+    files,
+    pageInfo,
+    totalCount,
+  }
+}
+
 export const useUpdateEvidence = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
@@ -59,5 +98,14 @@ export const useUpdateEvidence = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['evidence'] })
     },
+  })
+}
+
+export function useUploadEvidenceFiles() {
+  const { queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateEvidenceMutation, unknown, UpdateEvidenceMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: UPDATE_EVIDENCE, variables }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['evidenceFiles'] }),
   })
 }

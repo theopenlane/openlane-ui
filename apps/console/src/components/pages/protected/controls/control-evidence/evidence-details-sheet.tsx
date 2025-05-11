@@ -3,7 +3,26 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
-import { ArrowRight, Binoculars, Calendar, CalendarCheck2, CalendarClock, CalendarSync, Check, CircuitBoard, InfoIcon, Link, Pencil, Tag, UserRoundCheck, UserRoundPen } from 'lucide-react'
+import {
+  ArrowRight,
+  Binoculars,
+  Calendar,
+  CalendarCheck2,
+  CalendarClock,
+  CalendarSync,
+  Check,
+  CircuitBoard,
+  Download,
+  Eye,
+  InfoIcon,
+  Link,
+  Pencil,
+  RefreshCw,
+  Tag,
+  Trash2,
+  UserRoundCheck,
+  UserRoundPen,
+} from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Input } from '@repo/ui/input'
 import { useNotification } from '@/hooks/useNotification'
@@ -40,7 +59,7 @@ const EvidenceDetailsSheet = () => {
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
 
   const { mutateAsync: updateEvidence } = useUpdateEvidence()
-  const { data, isLoading: fetching } = useGetEvidenceById(selectedControlEvidence as string)
+  const { data, isLoading: fetching } = useGetEvidenceById(selectedControlEvidence)
   const evidence = data?.evidence
   const { data: createdByUser } = useGetCurrentUser(evidence?.createdBy)
   const { data: updatedByUser } = useGetCurrentUser(evidence?.updatedBy)
@@ -110,7 +129,6 @@ const EvidenceDetailsSheet = () => {
   }
 
   const onSubmit = async (formData: EditEvidenceFormData) => {
-    console.log('yo')
     try {
       await updateEvidence({
         updateEvidenceId: selectedControlEvidence as string,
@@ -119,8 +137,8 @@ const EvidenceDetailsSheet = () => {
 
       queryClient.invalidateQueries({ queryKey: ['evidences'] })
       successNotification({
-        title: 'Task Updated',
-        description: 'The task has been successfully updated.',
+        title: 'Evidence Updated',
+        description: 'The evidence has been successfully updated.',
       })
 
       setIsEditing(false)
@@ -167,6 +185,12 @@ const EvidenceDetailsSheet = () => {
                       Edit
                     </Button>
                   )}
+                  <Button icon={<RefreshCw />} iconPosition="left" onClick={handleCopyLink}>
+                    Renew
+                  </Button>
+                  <Button icon={<Trash2 />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
+                    Delete
+                  </Button>
                 </div>
               </div>
             </SheetHeader>
@@ -406,10 +430,29 @@ const EvidenceDetailsSheet = () => {
                         </p>
                       </div>
                     </div>
+
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2 text-sm w-[180px]">
+                        <Link size={16} className="text-accent-secondary" />
+                        URL
+                      </div>
+                      <div className="text-sm text-left w-[200px]">
+                        <div className="flex items-center gap-4 cursor-pointer">
+                          <p className="flex items-center gap-1">
+                            <Eye size={16} />
+                            View
+                          </p>
+                          <p className="flex items-center gap-1">
+                            <Download size={16} />
+                            Download
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </form>
-              <ControlEvidenceFiles />
+              {selectedControlEvidence && <ControlEvidenceFiles controlEvidenceID={selectedControlEvidence} />}
             </Form>
           </>
         )}

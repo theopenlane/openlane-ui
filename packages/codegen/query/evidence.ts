@@ -44,7 +44,7 @@ export const GET_ALL_EVIDENCES = gql`
 `
 
 export const GET_EVIDENCE = gql`
-  query GetEvidence($evidenceId: ID!, $after: Cursor, $first: Int, $before: Cursor, $last: Int, $orderBy: [FileOrder!]) {
+  query GetEvidence($evidenceId: ID!) {
     evidence(id: $evidenceId) {
       id
       name
@@ -59,23 +59,30 @@ export const GET_EVIDENCE = gql`
       source
       description
       displayID
-        files(after: $after, first: $first, before: $before, last: $last, orderBy: $orderBy) {
-            pageInfo {
-                endCursor
-                hasNextPage
-                hasPreviousPage
-                startCursor
-            }
-            totalCount
-            edges {
-                node {
-                    providedFileName
-                    providedFileSize
-                    providedFileExtension
-                    id
-                    uri
-                }
-            }
+      url
+    }
+  }
+`
+
+export const GET_EVIDENCE_FILES_PAGINATED = gql`
+  query GetEvidenceFilesPaginated($evidenceId: ID!, $after: Cursor, $first: Int, $before: Cursor, $last: Int, $orderBy: [FileOrder!]) {
+    evidence(id: $evidenceId) {
+      files(after: $after, first: $first, before: $before, last: $last, orderBy: $orderBy) {
+        pageInfo {
+          endCursor
+          hasNextPage
+          hasPreviousPage
+          startCursor
+        }
+        totalCount
+        edges {
+          node {
+            providedFileName
+            providedFileSize
+            providedFileExtension
+            id
+            uri
+          }
         }
       }
     }
@@ -83,8 +90,8 @@ export const GET_EVIDENCE = gql`
 `
 
 export const UPDATE_EVIDENCE = gql`
-  mutation UpdateEvidence($updateEvidenceId: ID!, $input: UpdateEvidenceInput!) {
-    updateEvidence(id: $updateEvidenceId, input: $input) {
+  mutation UpdateEvidence($updateEvidenceId: ID!, $input: UpdateEvidenceInput!, $evidenceFiles: [Upload!]) {
+    updateEvidence(id: $updateEvidenceId, input: $input, evidenceFiles: $evidenceFiles) {
       evidence {
         id
       }
