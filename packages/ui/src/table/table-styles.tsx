@@ -13,6 +13,14 @@ export const tableStyles = tv({
     tableCaption: 'mt-4 text-sm text-muted-foreground',
   },
   variants: {
+    variant: {
+      default: {},
+      data: {
+        tableHead: 'px-6 py-4 font-bold',
+        tableRow: 'odd:bg-muted even:bg-muted/50',
+        tableCell: 'px-6 py-3 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
+      },
+    },
     striped: {
       true: {
         tableRow: 'odd:bg-muted even:bg-muted/50',

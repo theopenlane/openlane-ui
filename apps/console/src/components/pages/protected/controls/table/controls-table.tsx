@@ -69,11 +69,13 @@ const ControlsTable: React.FC = () => {
       {
         header: 'Name',
         accessorKey: 'refCode',
-        cell: ({ row }) => <div>{row.getValue('refCode')}</div>,
+        cell: ({ row }) => <div className="font-bold">{row.getValue('refCode')}</div>,
+        size: 100,
       },
       {
         header: 'Description',
         accessorKey: 'description',
+        size: 400,
         cell: ({ row }) => {
           const tags = row.original.tags
           const description = () => {
@@ -82,7 +84,7 @@ const ControlsTable: React.FC = () => {
 
           return (
             <div>
-              <div className="line-clamp-4">{description()}</div>
+              <div className="line-clamp-3 text-justify">{description()}</div>
               <div className="mt-2 border-t border-dotted pt-2 flex flex-wrap gap-2">
                 {tags?.map((tag, index) => (
                   <Badge key={index} variant="outline">
@@ -103,6 +105,7 @@ const ControlsTable: React.FC = () => {
 
           return <span className="flex items-center gap-2">{label}</span>
         },
+        size: 100,
       },
       {
         header: 'Owner',
@@ -117,21 +120,25 @@ const ControlsTable: React.FC = () => {
             </div>
           )
         },
+        size: 100,
       },
       {
         header: 'Type',
         accessorKey: 'type',
         cell: ({ row }) => <div>{row.getValue('type') || '-'}</div>,
+        size: 100,
       },
       {
         header: 'Category',
         accessorKey: 'category',
         cell: ({ row }) => <div>{row.getValue('category') || '-'}</div>,
+        size: 100,
       },
       {
         header: 'Subcategory',
         accessorKey: 'subcategory',
         cell: ({ row }) => <div>{row.getValue('subcategory') || '-'}</div>,
+        size: 100,
       },
     ],
     [plateEditorHelper],
