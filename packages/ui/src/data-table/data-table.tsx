@@ -1,6 +1,19 @@
 'use client'
 
-import { ColumnDef, ColumnFiltersState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable, VisibilityState } from '@tanstack/react-table'
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  ColumnResizeDirection,
+  ColumnResizeMode,
+  ColumnSizing,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+  VisibilityState,
+} from '@tanstack/react-table'
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../table/table'
 import { Button } from '../button/button'
@@ -57,7 +70,13 @@ export function DataTable<TData, TValue>({
   const currentPage = pagination?.page || 1
   const currentPageSize = pagination?.pageSize || 10
 
+  const [columnSizes, setColumnSizes] = useState<Record<string, number>>({})
+
   const { totalCount, pageInfo, isLoading } = paginationMeta || {}
+
+  const [columnResizeMode, setColumnResizeMode] = useState<ColumnResizeMode>('onChange')
+
+  const [columnResizeDirection, setColumnResizeDirection] = useState<ColumnResizeDirection>('ltr')
 
   const totalPages = useMemo(() => {
     return totalCount ? Math.ceil(totalCount / currentPageSize) : 1
@@ -90,10 +109,16 @@ export function DataTable<TData, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    onColumnSizingChange: setColumnSizes,
+    columnResizeMode,
+    columnResizeDirection,
+
+    enableColumnResizing: true,
     state: {
       columnFilters,
       columnVisibility,
       rowSelection,
+      columnSizing: columnSizes,
       pagination: {
         pageSize: pagination?.pageSize || 10,
         pageIndex: 0,
@@ -202,7 +227,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <>
-      <div className="overflow-hidden rounded-md border bg-background-secondary">
+      <div className="overflow-hidden rounded-lg border bg-background-secondary">
         {(showFilter || showVisibility) && (
           <div className="flex items-center py-4">
             {showFilter && (
@@ -238,30 +263,54 @@ export function DataTable<TData, TValue>({
 
         {/* Apply opacity and disable interactions while loading */}
         <div className={isLoading ? 'opacity-50 pointer-events-none transition-opacity duration-300' : 'transition-opacity duration-300'}>
-          <Table>
-            <TableHeader>
+          <Table variant="data">
+            <TableHeader variant="data">
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
+                <TableRow variant="data" key={headerGroup.id}>
                   {headerGroup.headers.map((header, index) => {
                     const normalizeKey = (key: string) => key.replace(/_/g, '').toLowerCase()
                     const sortField = sortFields?.find((sf) => normalizeKey(sf.key) === normalizeKey(header.column.id))
                     const columnWidth = header.getSize() === 20 ? 'auto' : `${header.getSize()}px`
 
-                    if (!sortField) {
-                      return (
-                        <TableHead key={`${header.id}-${index}`} style={{ width: columnWidth }}>
-                          {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                        </TableHead>
-                      )
-                    }
-
-                    const sorting = sortConditions.find((sc) => sc.field === sortField.key)?.direction
+                    const sorting = sortConditions.find((sc) => sc.field === sortField?.key)?.direction || undefined
                     return (
-                      <TableHead key={`${header.id}-${index}`} style={{ width: columnWidth, cursor: 'pointer' }} onClick={() => handleSortChange(sortField.key)}>
+                      <TableHead variant="data" key={`${header.id}-${index}`} style={{ position: 'relative', width: columnWidth }}>
                         {header.isPlaceholder ? null : (
                           <div className="flex items-center gap-1" style={{ width: columnWidth }}>
-                            {flexRender(header.column.columnDef.header, header.getContext())}
-                            {sorting === OrderDirection.ASC ? <ArrowUp size={16} /> : sorting === OrderDirection.DESC ? <ArrowDown size={16} /> : <ArrowUpDown size={16} className="text-gray-400" />}
+                            {/* Sorting Area */}
+                            <div onClick={() => sortField?.key && handleSortChange(sortField.key)} className="flex items-center gap-1 cursor-pointer select-none" style={{ flex: '1 1 auto' }}>
+                              {flexRender(header.column.columnDef.header, header.getContext())}
+                              {sortField &&
+                                (sorting === OrderDirection.ASC ? (
+                                  <ArrowUp size={16} />
+                                ) : sorting === OrderDirection.DESC ? (
+                                  <ArrowDown size={16} />
+                                ) : (
+                                  <ArrowUpDown size={16} className="text-gray-400" />
+                                ))}
+                            </div>
+
+                            {/* Resizing Area */}
+                            {index < headerGroup.headers.length - 1 && (
+                              <div
+                                {...{
+                                  onDoubleClick: () => header.column.resetSize(),
+                                  onMouseDown: header.getResizeHandler(),
+                                  onTouchStart: header.getResizeHandler(),
+                                  className: `resizer ${table.options.columnResizeDirection} ${header.column.getIsResizing() ? 'isResizing' : ''}`,
+                                  style: {
+                                    transform:
+                                      columnResizeMode === 'onEnd' && header.column.getIsResizing()
+                                        ? `translateX(${(table.options.columnResizeDirection === 'rtl' ? -1 : 1) * (table.getState().columnSizingInfo.deltaOffset ?? 0)}px)`
+                                        : '',
+                                  },
+                                }}
+                              >
+                                <div className="absolute right-0 top-0 bottom-0 cursor-col-resize w-[25%]">
+                                  <div className="absolute right-0 top-0 bottom-0 w-[0.25px] bg-[var(--color-border)]" />
+                                </div>
+                              </div>
+                            )}
                           </div>
                         )}
                       </TableHead>
@@ -270,10 +319,11 @@ export function DataTable<TData, TValue>({
                 </TableRow>
               ))}
             </TableHeader>
-            <TableBody>
+            <TableBody variant="data">
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
                   <TableRow
+                    variant="data"
                     onClick={() => onRowClick?.(row.original)}
                     className={`hover:bg-table-row-bg-hover ${onRowClick ? 'cursor-pointer' : ''}`}
                     key={row.id}
@@ -281,7 +331,7 @@ export function DataTable<TData, TValue>({
                   >
                     {row.getVisibleCells().map((cell) => (
                       // @ts-ignore
-                      <TableCell key={cell.id} className={cell.column.columnDef.meta?.className || ''}>
+                      <TableCell variant="data" key={cell.id} className={cell.column.columnDef.meta?.className || ''}>
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
@@ -318,8 +368,8 @@ const NoData = ({ loading, colLength, noDataMarkup, noResultsText }: NoDataProps
   }
 
   return (
-    <TableRow>
-      <TableCell colSpan={colLength} className="h-24 text-center">
+    <TableRow variant="data">
+      <TableCell variant="data" colSpan={colLength} className="h-24 text-center">
         {loading ? 'Loading' : noResultsText}
       </TableCell>
     </TableRow>
