@@ -242,7 +242,6 @@ const EvidenceDetailsSheet = () => {
                 )}
 
                 <div className="relative grid grid-cols-2 gap-8 p-4 border rounded-lg  mt-10">
-                  {/* Full-height vertical divider */}
                   <div className="absolute top-0 bottom-0 left-1/2 w-px border" />
 
                   {/* Left Column */}
