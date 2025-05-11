@@ -391,7 +391,7 @@ const TaskDetailsSheet = () => {
                     )}
                   />
                 ) : (
-                  <>{!!taskData?.details && <div>{plateEditorHelper.convertToReadOnly(taskData.details)}</div>}</>
+                  <>{!!taskData?.details && <div>{plateEditorHelper.convertToReadOnly(taskData.details, 0, { paddingTop: 16, paddingRight: 16, paddingBottom: 16, paddingLeft: 0 })}</div>}</>
                 )}
               </form>
             </Form>
