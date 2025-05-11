@@ -20,11 +20,12 @@ import { ControlControlStatus, EvidenceEdge } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import SubcontrolsTable from '@/components/pages/protected/controls/subcontrols-table.tsx'
-import ControlEvidenceTable from '@/components/pages/protected/controls/control-evidence-table.tsx'
 import { useAccountRole } from '@/lib/authz/access-api.ts'
 import { useSession } from 'next-auth/react'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
 import { canEdit } from '@/lib/authz/utils.ts'
+import EvidenceDetailsSheet from '@/components/pages/protected/controls/control-evidence/evidence-details-sheet.tsx'
+import ControlEvidenceTable from '@/components/pages/protected/controls/control-evidence/control-evidence-table.tsx'
 
 interface FormValues {
   refCode: string
@@ -228,6 +229,7 @@ const ControlDetailsPage: React.FC = () => {
           </SheetContent>
         </Sheet>
       </FormProvider>
+      <EvidenceDetailsSheet />
     </>
   )
 }

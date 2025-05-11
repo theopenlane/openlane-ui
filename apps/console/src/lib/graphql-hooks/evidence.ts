@@ -1,7 +1,16 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { CREATE_EVIDENCE, GET_ALL_EVIDENCES, GET_EVIDENCE, GET_EVIDENCE_FILES } from '@repo/codegen/query/evidence'
-import { CreateEvidenceMutation, CreateEvidenceMutationVariables, EvidenceWhereInput, GetAllEvidencesQuery, GetEvidenceFilesQuery, GetEvidenceQuery } from '@repo/codegen/src/schema'
+import { CREATE_EVIDENCE, GET_ALL_EVIDENCES, GET_EVIDENCE, GET_EVIDENCE_FILES, UPDATE_EVIDENCE } from '@repo/codegen/query/evidence'
+import {
+  CreateEvidenceMutation,
+  CreateEvidenceMutationVariables,
+  EvidenceWhereInput,
+  GetAllEvidencesQuery,
+  GetEvidenceFilesQuery,
+  GetEvidenceQuery,
+  UpdateEvidenceMutation,
+  UpdateEvidenceMutationVariables,
+} from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 
 export function useCreateEvidence() {
@@ -38,5 +47,17 @@ export const useGetEvidenceById = (evidenceId?: string | null) => {
     queryKey: ['evidence', evidenceId],
     queryFn: async () => client.request(GET_EVIDENCE, { evidenceId }),
     enabled: !!evidenceId,
+  })
+}
+
+export const useUpdateEvidence = () => {
+  const { client } = useGraphQLClient()
+  const queryClient = useQueryClient()
+
+  return useMutation<UpdateEvidenceMutation, unknown, UpdateEvidenceMutationVariables>({
+    mutationFn: async (variables) => client.request(UPDATE_EVIDENCE, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['evidence'] })
+    },
   })
 }

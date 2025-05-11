@@ -32688,7 +32688,7 @@ export type ControlDetailsFieldsFragment = {
   }
   evidence: {
     __typename?: 'EvidenceConnection'
-    edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; displayID: string; name: string; creationDate: any } | null } | null> | null
+    edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; displayID: string; name: string; creationDate: any } | null } | null> | null
   }
   subcontrols: {
     __typename?: 'SubcontrolConnection'
@@ -32825,7 +32825,7 @@ export type GetControlByIdQuery = {
     }
     evidence: {
       __typename?: 'EvidenceConnection'
-      edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; displayID: string; name: string; creationDate: any } | null } | null> | null
+      edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; displayID: string; name: string; creationDate: any } | null } | null> | null
     }
     subcontrols: {
       __typename?: 'SubcontrolConnection'
@@ -32907,69 +32907,6 @@ export type GetControlCountsByStatusQuery = {
   needsApproval: { __typename?: 'ControlConnection'; totalCount: number }
   changesRequested: { __typename?: 'ControlConnection'; totalCount: number }
   approved: { __typename?: 'ControlConnection'; totalCount: number }
-}
-
-export type CreateEvidenceMutationVariables = Exact<{
-  input: CreateEvidenceInput
-  evidenceFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
-}>
-
-export type CreateEvidenceMutation = { __typename?: 'Mutation'; createEvidence: { __typename?: 'EvidenceCreatePayload'; evidence: { __typename?: 'Evidence'; id: string } } }
-
-export type GetEvidenceFilesQueryVariables = Exact<{ [key: string]: never }>
-
-export type GetEvidenceFilesQuery = {
-  __typename?: 'Query'
-  files: {
-    __typename?: 'FileConnection'
-    edges?: Array<{
-      __typename?: 'FileEdge'
-      node?: { __typename?: 'File'; id: string; providedFileName: string; presignedURL?: string | null; providedFileExtension: string; categoryType?: string | null; createdAt?: any | null } | null
-    } | null> | null
-  }
-}
-
-export type GetAllEvidencesQueryVariables = Exact<{
-  where?: InputMaybe<EvidenceWhereInput>
-}>
-
-export type GetAllEvidencesQuery = {
-  __typename?: 'Query'
-  evidences: {
-    __typename?: 'EvidenceConnection'
-    edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string; displayID: string; description?: string | null } | null } | null> | null
-  }
-}
-
-export type GetEvidenceQueryVariables = Exact<{
-  evidenceId: Scalars['ID']['input']
-}>
-
-export type GetEvidenceQuery = {
-  __typename?: 'Query'
-  evidence: {
-    __typename?: 'Evidence'
-    id: string
-    name: string
-    createdAt?: any | null
-    createdBy?: string | null
-    updatedBy?: string | null
-    updatedAt?: any | null
-    tags?: Array<string> | null
-    renewalDate?: any | null
-    creationDate: any
-    status?: EvidenceEvidenceStatus | null
-    source?: string | null
-    description?: string | null
-    displayID: string
-    files: {
-      __typename?: 'FileConnection'
-      edges?: Array<{
-        __typename?: 'FileEdge'
-        node?: { __typename?: 'File'; providedFileName: string; providedFileSize?: number | null; providedFileExtension: string; id: string; uri?: string | null } | null
-      } | null> | null
-    }
-  }
 }
 
 export type GetAllGroupsQueryVariables = Exact<{

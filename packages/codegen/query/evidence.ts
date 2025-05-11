@@ -44,7 +44,7 @@ export const GET_ALL_EVIDENCES = gql`
 `
 
 export const GET_EVIDENCE = gql`
-  query GetEvidence($evidenceId: ID!) {
+  query GetEvidence($evidenceId: ID!, $after: Cursor, $first: Int, $before: Cursor, $last: Int, $orderBy: [FileOrder!]) {
     evidence(id: $evidenceId) {
       id
       name
@@ -59,16 +59,34 @@ export const GET_EVIDENCE = gql`
       source
       description
       displayID
-      files {
-        edges {
-          node {
-            providedFileName
-            providedFileSize
-            providedFileExtension
-            id
-            uri
-          }
+        files(after: $after, first: $first, before: $before, last: $last, orderBy: $orderBy) {
+            pageInfo {
+                endCursor
+                hasNextPage
+                hasPreviousPage
+                startCursor
+            }
+            totalCount
+            edges {
+                node {
+                    providedFileName
+                    providedFileSize
+                    providedFileExtension
+                    id
+                    uri
+                }
+            }
         }
+      }
+    }
+  }
+`
+
+export const UPDATE_EVIDENCE = gql`
+  mutation UpdateEvidence($updateEvidenceId: ID!, $input: UpdateEvidenceInput!) {
+    updateEvidence(id: $updateEvidenceId, input: $input) {
+      evidence {
+        id
       }
     }
   }

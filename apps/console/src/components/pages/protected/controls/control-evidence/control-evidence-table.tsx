@@ -4,10 +4,11 @@ import React from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/table'
 import EvidenceCreateFormDialog from '@/components/pages/protected/evidence/evidence-create-form-dialog'
 import { EvidenceEdge } from '@repo/codegen/src/schema'
-import { TFormEvidenceData } from '../evidence/types/TFormEvidenceData'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { useParams, usePathname } from 'next/navigation'
 import { formatDateSince } from '@/utils/date'
+import { useControlEvidenceStore } from '@/components/pages/protected/controls/hooks/useControlEvidenceStore.ts'
+import { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
 
 type Props = {
   evidences?: (EvidenceEdge | null)[]
@@ -18,8 +19,14 @@ type Props = {
 const ControlEvidenceTable = ({ evidences, control, canEdit }: Props) => {
   const pathname = usePathname()
   const { subcontrolId } = useParams()
+  const { setSelectedControlEvidence } = useControlEvidenceStore()
   const isSubcontrol = !!subcontrolId
   const title = isSubcontrol ? 'Subcontrol Evidence' : 'Control Evidence12'
+
+  const evidenceSheetHandler = (controlEvidenceID: string) => {
+    console.log(controlEvidenceID)
+    setSelectedControlEvidence(controlEvidenceID)
+  }
 
   return (
     <div className="mt-8 space-y-4">
@@ -51,7 +58,9 @@ const ControlEvidenceTable = ({ evidences, control, canEdit }: Props) => {
                 return (
                   <TableRow key={i}>
                     <TableCell className="px-4 py-2 text-primary">
-                      <p className="text-blue-500">{node.displayID}</p>
+                      <p className="text-blue-500 cursor-pointer" onClick={() => evidenceSheetHandler(node?.id)}>
+                        {node.displayID}
+                      </p>
                     </TableCell>
                     <TableCell className="px-4 py-2">{node.name}</TableCell>
                     <TableCell className="px-4 py-2">{formatDateSince(node.creationDate)}</TableCell>
