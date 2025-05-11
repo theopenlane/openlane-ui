@@ -31,9 +31,6 @@ const TaskCards: React.FC<TTaskCardsProps> = (props: TTaskCardsProps) => {
         props.tasks.map((task) => {
           const fullName = task.assignee?.displayName
 
-          console.log('task', task.status)
-          console.log('status', TaskStatusIconMapper[task.status!])
-
           return (
             <Card key={task.id} className="w-full max-w-md cursor-pointer" onClick={() => handleRowClick(task)}>
               <div className="flex py-1.5 px-4 justify-between items-center mb-2 border-b gap-2">
