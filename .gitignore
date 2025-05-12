@@ -47,4 +47,4 @@ dist/
 # bun lock file
 
 bun.lockb
-
+bun.lock
