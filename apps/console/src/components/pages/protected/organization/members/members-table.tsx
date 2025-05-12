@@ -94,6 +94,7 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
       header: 'Name',
       cell: ({ row }) => {
         const fullName = `${row.original.user.displayName}` || `${row.original.user.email}`
+        console.log('')
         return (
           <div className={nameRow()}>
             {fullName}
