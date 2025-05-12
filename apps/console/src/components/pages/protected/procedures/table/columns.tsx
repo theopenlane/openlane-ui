@@ -5,21 +5,16 @@ import { formatTimeSince } from '@/utils/date'
 
 export const proceduresColumns: ColumnDef<Procedure>[] = [
   {
-    accessorKey: 'displayID',
-    header: 'Display ID',
-    cell: ({ cell }) => {
-      return <span className="whitespace-nowrap">{cell.getValue() as string}</span>
-    },
-  },
-  {
     accessorKey: 'name',
     header: 'Name',
     cell: ({ cell }) => {
-      return <div>{cell.getValue() as string}</div>
+      return <div className="font-bold">{cell.getValue() as string}</div>
     },
+    size: 180,
   },
   {
     accessorKey: 'summary',
+    size: 300,
     header: 'Summary',
     cell: ({ cell }) => {
       const summary = cell.getValue() as string
@@ -30,12 +25,12 @@ export const proceduresColumns: ColumnDef<Procedure>[] = [
     accessorKey: 'updatedAt',
     header: 'Updated At',
     cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
-    size: 140,
+    size: 120,
   },
   {
     accessorKey: 'createdAt',
     header: 'Created At',
     cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
-    size: 140,
+    size: 120,
   },
 ]

@@ -5,8 +5,7 @@ import { useRisksWithFilter } from '@/lib/graphql-hooks/risks'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { PageHeading } from '@repo/ui/page-heading'
-import { TableCell, TableRow } from '@repo/ui/table'
-import { GetAllRisksQueryVariables, OrderDirection, RiskFieldsFragment, RiskOrder, RiskOrderField } from '@repo/codegen/src/schema'
+import { GetAllRisksQueryVariables, OrderDirection, RiskFieldsFragment, RiskOrder, RiskOrderField, RiskRiskStatus } from '@repo/codegen/src/schema'
 import RiskDetailsSheet from '@/components/pages/protected/risks/risk-details-sheet'
 import { useRouter } from 'next/navigation'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -16,6 +15,7 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { Badge } from '@repo/ui/badge'
+import RiskLabel from '@/components/pages/protected/risks/risk-label'
 
 const RiskTablePage: React.FC = () => {
   const { replace } = useRouter()
@@ -53,8 +53,14 @@ const RiskTablePage: React.FC = () => {
   })
 
   const columns: ColumnDef<RiskFieldsFragment>[] = [
-    { accessorKey: 'displayID', header: 'Risk' },
-    { accessorKey: 'name', header: 'Name' },
+    {
+      accessorKey: 'name',
+      header: 'Name',
+      cell: ({ cell }) => {
+        return <div className="font-bold">{cell.getValue() as string}</div>
+      },
+      size: 180,
+    },
     {
       accessorKey: 'details',
       header: 'Details',
@@ -78,7 +84,17 @@ const RiskTablePage: React.FC = () => {
     { accessorKey: 'riskType', header: 'Type' },
     { accessorKey: 'category', header: 'Category' },
     { accessorKey: 'score', header: 'Score' },
-    { accessorKey: 'status', header: 'Status' },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ cell }) => {
+        return (
+          <div className="flex items-center space-x-2">
+            <RiskLabel status={(cell.getValue() as RiskRiskStatus) || ''} isEditing={false} />
+          </div>
+        )
+      },
+    },
   ]
 
   function isAccessorKeyColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
