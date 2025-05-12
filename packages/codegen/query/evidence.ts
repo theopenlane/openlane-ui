@@ -82,6 +82,7 @@ export const GET_EVIDENCE_FILES_PAGINATED = gql`
             providedFileExtension
             id
             uri
+            presignedURL
           }
         }
       }
@@ -95,6 +96,13 @@ export const UPDATE_EVIDENCE = gql`
       evidence {
         id
       }
+    }
+  }
+`
+export const DELETE_EVIDENCE = gql`
+  mutation DeleteEvidence($deleteEvidenceId: ID!) {
+    deleteEvidence(id: $deleteEvidenceId) {
+      deletedID
     }
   }
 `

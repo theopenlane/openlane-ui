@@ -33,7 +33,7 @@ import { SystemTooltip } from '@repo/ui/system-tooltip'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { useControlEvidenceStore } from '@/components/pages/protected/controls/hooks/useControlEvidenceStore.ts'
-import { useGetEvidenceById, useUpdateEvidence } from '@/lib/graphql-hooks/evidence.ts'
+import { useDeleteEvidence, useGetEvidenceById, useUpdateEvidence } from '@/lib/graphql-hooks/evidence.ts'
 import { formatDate } from '@/utils/date.ts'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { EvidenceEvidenceStatus, User } from '@repo/codegen/src/schema.ts'
@@ -46,11 +46,18 @@ import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { useQueryClient } from '@tanstack/react-query'
 import { Textarea } from '@repo/ui/textarea'
 import ControlEvidenceFiles from '@/components/pages/protected/controls/control-evidence/control-evidence-files.tsx'
+import { fileDownload } from '@/components/shared/lib/export.ts'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
-const EvidenceDetailsSheet = () => {
+type TEvidenceDetailsSheet = {
+  controlId: string
+}
+
+const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) => {
   const [isEditing, setIsEditing] = useState(false)
   const [tagValues, setTagValues] = useState<Option[]>([])
   const queryClient = useQueryClient()
+  const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false)
 
   const { selectedControlEvidence, setSelectedControlEvidence } = useControlEvidenceStore()
   const searchParams = useSearchParams()
@@ -59,6 +66,7 @@ const EvidenceDetailsSheet = () => {
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
 
   const { mutateAsync: updateEvidence } = useUpdateEvidence()
+  const { mutateAsync: deleteEvidence } = useDeleteEvidence()
   const { data, isLoading: fetching } = useGetEvidenceById(selectedControlEvidence)
   const evidence = data?.evidence
   const { data: createdByUser } = useGetCurrentUser(evidence?.createdBy)
@@ -150,12 +158,22 @@ const EvidenceDetailsSheet = () => {
     }
   }
 
+  const handleDelete = async () => {
+    try {
+      await deleteEvidence({ deleteEvidenceId: selectedControlEvidence as string })
+      successNotification({ title: `Evidence "${evidence?.name}" deleted successfully` })
+      queryClient.invalidateQueries({ queryKey: ['controls', controlId] })
+      setSelectedControlEvidence(null)
+    } catch (error) {
+      errorNotification({ title: 'Failed to delete evidence.' })
+    }
+  }
+
   const handleTags = () => {
     return (
       <div className="flex flex-wrap gap-2">{evidence?.tags?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}</div>
     )
   }
-  console.log(form.formState.errors)
 
   return (
     <Sheet open={!!selectedControlEvidence} onOpenChange={handleSheetClose}>
@@ -188,9 +206,15 @@ const EvidenceDetailsSheet = () => {
                   <Button icon={<RefreshCw />} iconPosition="left" onClick={handleCopyLink}>
                     Renew
                   </Button>
-                  <Button icon={<Trash2 />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
+                  <Button icon={<Trash2 />} iconPosition="left" variant="outline" onClick={() => setDeleteDialogIsOpen(true)}>
                     Delete
                   </Button>
+                  <ConfirmationDialog
+                    open={deleteDialogIsOpen}
+                    onOpenChange={setDeleteDialogIsOpen}
+                    onConfirm={handleDelete}
+                    description={`This action cannot be undone, this will permanently remove the evidence from the control.`}
+                  />
                 </div>
               </div>
             </SheetHeader>
@@ -430,24 +454,26 @@ const EvidenceDetailsSheet = () => {
                       </div>
                     </div>
 
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-2 text-sm w-[180px]">
-                        <Link size={16} className="text-accent-secondary" />
-                        URL
-                      </div>
-                      <div className="text-sm text-left w-[200px]">
-                        <div className="flex items-center gap-4 cursor-pointer">
-                          <p className="flex items-center gap-1">
-                            <Eye size={16} />
-                            View
-                          </p>
-                          <p className="flex items-center gap-1">
-                            <Download size={16} />
-                            Download
-                          </p>
+                    {evidence?.url && (
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2 text-sm w-[180px]">
+                          <Link size={16} className="text-accent-secondary" />
+                          URL
+                        </div>
+                        <div className="text-sm text-left w-[200px]">
+                          <div className="flex items-center gap-4 cursor-pointer">
+                            <p className="flex items-center gap-1">
+                              <Eye size={16} />
+                              View
+                            </p>
+                            <p className="flex items-center gap-1" onClick={() => fileDownload(evidence.url!, 'customFileName', errorNotification)}>
+                              <Download size={16} />
+                              Download
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 </div>
               </form>

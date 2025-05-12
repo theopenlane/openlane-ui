@@ -21,7 +21,7 @@ const ControlEvidenceTable = ({ evidences, control, canEdit }: Props) => {
   const { subcontrolId } = useParams()
   const { setSelectedControlEvidence } = useControlEvidenceStore()
   const isSubcontrol = !!subcontrolId
-  const title = isSubcontrol ? 'Subcontrol Evidence' : 'Control Evidence12'
+  const title = isSubcontrol ? 'Subcontrol Evidence' : 'Control Evidence'
 
   const evidenceSheetHandler = (controlEvidenceID: string) => {
     setSelectedControlEvidence(controlEvidenceID)

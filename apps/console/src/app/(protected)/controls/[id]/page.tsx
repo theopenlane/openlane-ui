@@ -229,7 +229,7 @@ const ControlDetailsPage: React.FC = () => {
           </SheetContent>
         </Sheet>
       </FormProvider>
-      <EvidenceDetailsSheet />
+      <EvidenceDetailsSheet controlId={id} />
     </>
   )
 }

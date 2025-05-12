@@ -80,9 +80,12 @@ const ControlEvidenceUploadDialog: React.FC<TControlEvidenceUploadDialog> = ({ c
             <Trash2 className="hover:cursor-pointer" onClick={() => handleDelete(file)} />
           </div>
         ))}
-        <div className="flex">
-          <Button onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting}>
+        <div className="flex gap-2 justify-end">
+          <Button onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting || evidenceFiles?.length === 0}>
             {isSubmitting ? 'Uploading...' : 'Upload'}
+          </Button>
+          <Button onClick={() => setIsOpen(false)} variant="outline" disabled={isSubmitting}>
+            Cancel
           </Button>
         </div>
       </DialogContent>

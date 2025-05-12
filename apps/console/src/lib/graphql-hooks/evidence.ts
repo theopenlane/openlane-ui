@@ -1,8 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { CREATE_EVIDENCE, GET_ALL_EVIDENCES, GET_EVIDENCE, GET_EVIDENCE_FILES, GET_EVIDENCE_FILES_PAGINATED, UPDATE_EVIDENCE } from '@repo/codegen/query/evidence'
+import { CREATE_EVIDENCE, DELETE_EVIDENCE, GET_ALL_EVIDENCES, GET_EVIDENCE, GET_EVIDENCE_FILES, GET_EVIDENCE_FILES_PAGINATED, UPDATE_EVIDENCE } from '@repo/codegen/query/evidence'
 import {
-  File,
   CreateEvidenceMutation,
   CreateEvidenceMutationVariables,
   EvidenceWhereInput,
@@ -14,12 +13,14 @@ import {
   InputMaybe,
   UpdateEvidenceMutation,
   UpdateEvidenceMutationVariables,
+  DeleteEvidenceMutation,
+  DeleteEvidenceMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
 
 export function useCreateEvidence() {
-  const { client, queryClient } = useGraphQLClient()
+  const { queryClient } = useGraphQLClient()
 
   return useMutation<CreateEvidenceMutation, unknown, CreateEvidenceMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_EVIDENCE, variables }),
@@ -107,5 +108,17 @@ export function useUploadEvidenceFiles() {
   return useMutation<UpdateEvidenceMutation, unknown, UpdateEvidenceMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: UPDATE_EVIDENCE, variables }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['evidenceFiles'] }),
+  })
+}
+
+export const useDeleteEvidence = () => {
+  const { client } = useGraphQLClient()
+  const queryClient = useQueryClient()
+
+  return useMutation<DeleteEvidenceMutation, unknown, DeleteEvidenceMutationVariables>({
+    mutationFn: (variables) => client.request(DELETE_EVIDENCE, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['evidences'] })
+    },
   })
 }

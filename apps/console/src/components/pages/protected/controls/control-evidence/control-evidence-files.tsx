@@ -9,6 +9,8 @@ import { EVIDENCE_FILES_SORT_FIELDS } from '@/components/pages/protected/control
 import { ControlEvidenceUploadDialog } from '@/components/pages/protected/controls/control-evidence/control-evidence-upload-dialog.tsx'
 import { Download, Eye, Trash2 } from 'lucide-react'
 import { Button } from '@repo/ui/button'
+import { fileDownload } from '@/components/shared/lib/export.ts'
+import { useNotification } from '@/hooks/useNotification'
 
 type TControlEvidenceFiles = {
   controlEvidenceID: string
@@ -16,6 +18,7 @@ type TControlEvidenceFiles = {
 
 const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidenceID }) => {
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const { errorNotification } = useNotification()
   const [orderBy, setOrderBy] = useState<FileOrder[]>([
     {
       field: FileOrderField.created_at,
@@ -24,27 +27,38 @@ const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidence
   ])
   const { files, isLoading: fetching, isError, pageInfo, totalCount } = useGetEvidenceWithFilesPaginated({ evidenceId: controlEvidenceID, orderBy: orderBy, pagination: pagination })
 
+  const handleDownloadAll = async () => {
+    for (const file of files) {
+      if (file?.presignedURL) {
+        await fileDownload(file.presignedURL, file.providedFileName, errorNotification)
+      }
+    }
+  }
+
   const getAction = () => {
     return [
       {
         accessorKey: 'id',
         header: 'Action',
-        cell: ({ cell }: any) => (
-          <div onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()} className="flex gap-4">
-            <p className="flex items-center gap-1 cursor-pointer">
-              <Eye size={16} />
-              View
-            </p>
-            <p className="flex items-center gap-1 cursor-pointer">
-              <Download size={16} />
-              Download
-            </p>
-            <p className="flex items-center gap-1 cursor-pointer">
-              <Trash2 size={16} />
-              Delete
-            </p>
-          </div>
-        ),
+        cell: ({ cell, row }: any) => {
+          console.log(row.original)
+          return (
+            <div onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()} className="flex gap-4">
+              <p className="flex items-center gap-1 cursor-pointer">
+                <Eye size={16} />
+                View
+              </p>
+              <p className="flex items-center gap-1 cursor-pointer" onClick={() => fileDownload(row.original.presignedURL, row.original.providedFileName, errorNotification)}>
+                <Download size={16} />
+                Download
+              </p>
+              <p className="flex items-center gap-1 cursor-pointer">
+                <Trash2 size={16} />
+                Delete
+              </p>
+            </div>
+          )
+        },
         size: 40,
       },
     ]
@@ -62,7 +76,7 @@ const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidence
         <p className="text-lg">Provided files</p>
         <div className="flex items-center gap-2">
           <ControlEvidenceUploadDialog controlEvidenceID={controlEvidenceID} />
-          <Button icon={<Download />} iconPosition="left">
+          <Button icon={<Download />} iconPosition="left" onClick={() => handleDownloadAll()}>
             Download All
           </Button>
         </div>
