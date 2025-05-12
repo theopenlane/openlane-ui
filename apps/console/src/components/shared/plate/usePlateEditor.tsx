@@ -31,7 +31,7 @@ const usePlateEditor = () => {
 
       editor.children = editor.api.html.deserialize({ element: data }) as Value
 
-      const finalStyle = style ? style! : { ...(style || {}), padding }
+      const finalStyle = style ? style! : { padding }
 
       return <PlateStatic editor={editor} components={staticViewComponents} style={finalStyle} className="plate-static" />
     },
