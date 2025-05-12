@@ -41,7 +41,6 @@ const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidence
         accessorKey: 'id',
         header: 'Action',
         cell: ({ cell, row }: any) => {
-          console.log(row.original)
           return (
             <div onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()} className="flex gap-4">
               <p className="flex items-center gap-1 cursor-pointer">
