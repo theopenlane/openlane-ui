@@ -44,3 +44,7 @@ dist/
 # vscode
 .vscode/
 
+# bun lock file
+
+bun.lockb
+
