@@ -32630,6 +32630,8 @@ export interface WebauthnWhereInput {
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+export type ControlObjectiveFieldsFragment = { __typename?: 'ControlObjective'; id: string; name: string; displayID: string }
+
 export type GetAllControlObjectivesQueryVariables = Exact<{
   where?: InputMaybe<ControlObjectiveWhereInput>
 }>

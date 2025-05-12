@@ -13,7 +13,7 @@ import TitleField from '../../../../components/pages/protected/controls/form-fie
 import DescriptionField from '../../../../components/pages/protected/controls/form-fields/description-field.tsx'
 import AuthorityCard from '../../../../components/pages/protected/controls/authority-card.tsx'
 import PropertiesCard from '../../../../components/pages/protected/controls/properties-card.tsx'
-import ImplementationDetailsCard from '../../../../components/pages/protected/controls/implementation-details-card.tsx'
+import DetailsCard from '../../../../components/pages/protected/controls/details.tsx'
 import InfoCard from '../../../../components/pages/protected/controls/info-card.tsx'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { ControlControlStatus, EvidenceEdge } from '@repo/codegen/src/schema.ts'
@@ -204,7 +204,7 @@ const ControlDetailsPage: React.FC = () => {
             )}
             <AuthorityCard controlOwner={control.controlOwner} delegate={control.delegate} isEditing={isEditing} />
             <PropertiesCard category={control.category} subcategory={control.subcategory} status={control.status} mappedCategories={control.mappedCategories} isEditing={isEditing} />
-            <ImplementationDetailsCard isEditing={isEditing} />
+            <DetailsCard />
             {hasInfoData && (
               <InfoCard
                 implementationGuidance={control.implementationGuidance}
