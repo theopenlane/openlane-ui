@@ -33173,6 +33173,7 @@ export type GetSingleOrganizationMembersQuery = {
             id: string
             firstName?: string | null
             lastName?: string | null
+            displayName: string
             authProvider: UserAuthProvider
             avatarRemoteURL?: string | null
             email: string
