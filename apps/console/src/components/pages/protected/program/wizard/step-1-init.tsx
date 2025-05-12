@@ -24,6 +24,7 @@ export const initProgramSchema = z.object({
   name: z.string().min(1, { message: 'Name is required' }),
   description: z.string().optional(),
   framework: z.string(),
+  standardID: z.string(),
   status: z
     .nativeEnum(ProgramProgramStatus, {
       errorMap: () => ({ message: 'Invalid status' }),
@@ -245,8 +246,10 @@ const FrameworkSelect = () => {
             <Select
               value={field.value}
               onValueChange={(value) => {
+                const selectedFramework = frameworks.find((f) => f.shortName === value)
                 field.onChange(value)
                 setValue('name', `${value} - ${currentYear}`)
+                setValue('standardID', selectedFramework?.id ?? '')
                 trigger('name')
               }}
               required

@@ -4956,7 +4956,7 @@ export interface CreateFullProgramInput {
   procedures?: InputMaybe<Array<CreateProcedureInput>>
   program: CreateProgramInput
   risks?: InputMaybe<Array<CreateRiskInput>>
-  standardID: Scalars['ID']['input']
+  standardID?: InputMaybe<Scalars['ID']['input']>
 }
 
 /**
@@ -5437,6 +5437,7 @@ export interface CreateProgramMembershipInput {
 export interface CreateProgramWithMembersInput {
   members?: InputMaybe<Array<CreateMemberWithProgramInput>>
   program: CreateProgramInput
+  standardID?: InputMaybe<Scalars['ID']['input']>
 }
 
 /**

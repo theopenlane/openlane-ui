@@ -192,6 +192,7 @@ const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardPro
         programType: values.programType,
       },
       members: [...programMembers, ...programAdmins],
+      standardID: values.standardID,
     }
 
     createProgram(input)
