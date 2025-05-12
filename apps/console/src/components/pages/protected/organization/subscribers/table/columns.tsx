@@ -1,4 +1,4 @@
-import { ColumnDef, RowExpanding } from '@tanstack/react-table'
+import { ColumnDef } from '@tanstack/react-table'
 import { SubscriberActions } from '@/components/pages/protected/organization/subscribers/actions/subscriber-actions.tsx'
 import { GetAllSubscribersQuery } from '@repo/codegen/src/schema'
 import EmailCell from '@/components/pages/protected/organization/subscribers/table/email-cell.tsx'
