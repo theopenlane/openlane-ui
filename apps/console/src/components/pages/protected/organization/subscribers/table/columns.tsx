@@ -1,4 +1,4 @@
-import { ColumnDef } from '@tanstack/react-table'
+import { ColumnDef, RowExpanding } from '@tanstack/react-table'
 import { SubscriberActions } from '@/components/pages/protected/organization/subscribers/actions/subscriber-actions.tsx'
 import { GetAllSubscribersQuery } from '@repo/codegen/src/schema'
 import EmailCell from '@/components/pages/protected/organization/subscribers/table/email-cell.tsx'
@@ -27,7 +27,7 @@ export const subscribersColumns: ColumnDef<Subscriber>[] = [
   {
     accessorKey: 'actions',
     header: '',
-    cell: ({ cell }) => <SubscriberActions subscriberEmail={cell.getValue() as string} />,
+    cell: ({ cell }) => <SubscriberActions subscriberEmail={cell.row?.original?.email as string} />,
     size: 40,
   },
 ]
