@@ -12,15 +12,20 @@ import PlateEditor from '@/components/shared/plate/plate-editor'
 import { SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { ControlObjectiveControlSource, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import { useCreateControlObjective } from '@/lib/graphql-hooks/control-objectives'
+import { useParams } from 'next/navigation'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { Value } from '@udecode/plate-common'
 
 const schema = z.object({
   name: z.string().min(1, 'Name is required'),
-  desiredOutcome: z.string().optional(),
+  desiredOutcome: z.any().optional(),
   status: z.nativeEnum(ControlObjectiveObjectiveStatus),
   source: z.nativeEnum(ControlObjectiveControlSource),
-  type: z.string().optional(),
+  controlObjectiveType: z.string().optional(),
   category: z.string().optional(),
   subcategory: z.string().optional(),
+  controlIDs: z.array(z.string()).optional(),
+  subcontrolIDs: z.array(z.string()).optional(),
 })
 
 type FormData = z.infer<typeof schema>
@@ -32,6 +37,7 @@ const controlSourceLabels: Record<ControlObjectiveControlSource, string> = {
   [ControlObjectiveControlSource.USER_DEFINED]: 'User Defined',
 }
 export const CreateControlObjectiveForm = ({ onSuccess }: { onSuccess: () => void }) => {
+  const { id, subcontrolId } = useParams()
   const {
     register,
     handleSubmit,
@@ -41,27 +47,42 @@ export const CreateControlObjectiveForm = ({ onSuccess }: { onSuccess: () => voi
     resolver: zodResolver(schema),
   })
 
+  console.log('errors', errors)
+
+  const plateEditorHelper = usePlateEditor()
+
   const { mutate } = useCreateControlObjective()
 
-  const onSubmit = (data: FormData) => {
+  const onSubmit = async (data: FormData) => {
+    const desiredOutcome = await plateEditorHelper.convertToHtml(data.controlObjectiveType as Value | any)
+
     console.log(data)
-    mutate(data, {
-      onSuccess: () => {
-        onSuccess()
+    if (subcontrolId) {
+      data.subcontrolIDs = [subcontrolId as string]
+    } else {
+      data.controlIDs = [id as string]
+    }
+
+    mutate(
+      { ...data, desiredOutcome },
+      {
+        onSuccess: () => {
+          onSuccess()
+        },
+        onError: (err) => {
+          console.error('Create failed:', err)
+        },
       },
-      onError: (err) => {
-        console.error('Create failed:', err)
-      },
-    })
+    )
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="flex justify-end gap-2">
-        <Button type="button" onClick={onSuccess}>
+        <Button className="h-8 !px-2">Create</Button>
+        <Button variant="back" className="h-8 !px-2" type="button" onClick={onSuccess}>
           Cancel
         </Button>
-        <Button>Create</Button>
       </div>
       <SheetHeader>
         <SheetTitle className="text-left">Create Objective</SheetTitle>
@@ -127,45 +148,22 @@ export const CreateControlObjectiveForm = ({ onSuccess }: { onSuccess: () => voi
           />
           {errors.source && <p className="text-red-500 text-xs">{errors.source.message}</p>}
         </div>
-
         <div className="border-b flex items-center py-2.5">
           <Label className="min-w-36">Type</Label>
           <div>
-            <Input className="w-60" {...register('type')} />
+            <Input className="w-60" {...register('controlObjectiveType')} />
             <p className="text-xs mt-2">For example: compliance, financial, operational</p>
           </div>
         </div>
 
         <div className="border-b flex items-center py-2.5">
           <Label className="min-w-36">Category</Label>
-          <Controller
-            name="category"
-            control={control}
-            render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger className="w-60">
-                  <SelectValue placeholder="Administrative (inherit)" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Administrative">Administrative (inherit)</SelectItem>
-                  <SelectItem value="Technical">Technical</SelectItem>
-                </SelectContent>
-              </Select>
-            )}
-          />
+          <Input className="w-60" {...register('category')} />
         </div>
 
         <div className="border-b flex items-center py-2.5">
           <Label className="min-w-36">Subcategory</Label>
-          <Select {...register('subcategory')}>
-            <SelectTrigger className="w-60">
-              <SelectValue placeholder="Administrative (inherit)" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Administrative">Administrative (inherit)</SelectItem>
-              <SelectItem value="Technical">Technical</SelectItem>
-            </SelectContent>
-          </Select>
+          <Input className="w-60" {...register('subcategory')} />
         </div>
 
         <div className="flex items-center py-2.5">
