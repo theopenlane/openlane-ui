@@ -62,6 +62,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const { selectedControlEvidence, setSelectedControlEvidence } = useControlEvidenceStore()
   const searchParams = useSearchParams()
+  const controlEvidenceIdParam = searchParams?.get('controlEvidenceId')
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
@@ -75,6 +76,12 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const statusOptions = Object.values(EvidenceEvidenceStatus)
 
   const { form } = useFormSchema()
+
+  useEffect(() => {
+    if (controlEvidenceIdParam) {
+      setSelectedControlEvidence(controlEvidenceIdParam)
+    }
+  }, [controlEvidenceIdParam])
 
   useEffect(() => {
     if (evidence) {
