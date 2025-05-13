@@ -8,7 +8,11 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 
 const DetailsCard = () => {
-  const { id } = useParams<{ id: string }>()
+  const params = useParams()
+  const id = params?.id as string
+  const subcontrolId = params?.subcontrolId as string | undefined
+
+  const controlObjectivesPath = subcontrolId ? `/controls/${id}/${subcontrolId}/control-objectives` : `/controls/${id}/control-objectives`
 
   return (
     <Card className="p-4 bg-muted rounded-xl shadow-sm">
@@ -16,7 +20,7 @@ const DetailsCard = () => {
       <div className=" flex flex-col gap-2">
         <div className="flex justify-between pb-2.5  border-b items-center">
           <span className="text-sm ">Control objectives</span>
-          <Link href={`/controls/${id}/control-objectives`}>
+          <Link href={controlObjectivesPath}>
             <Button className="h-8 !p-2 size-fit" variant="outline" icon={<ChevronRight size={16} />}>
               View
             </Button>

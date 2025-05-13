@@ -32652,7 +32652,13 @@ export type ControlObjectiveFieldsFragment = {
   updatedAt?: any | null
   updatedBy?: string | null
   blockedGroups?: Array<{ __typename?: 'Group'; id: string; name: string }> | null
-  controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
+  controls: {
+    __typename?: 'ControlConnection'
+    edges?: Array<{
+      __typename?: 'ControlEdge'
+      node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; standard?: { __typename?: 'Standard'; shortName?: string | null } | null } | null
+    } | null> | null
+  }
   editors?: Array<{ __typename?: 'Group'; id: string; name: string }> | null
   evidence: { __typename?: 'EvidenceConnection'; edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string } | null } | null> | null }
   internalPolicies: {
@@ -32703,7 +32709,13 @@ export type GetAllControlObjectivesQuery = {
         updatedAt?: any | null
         updatedBy?: string | null
         blockedGroups?: Array<{ __typename?: 'Group'; id: string; name: string }> | null
-        controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
+        controls: {
+          __typename?: 'ControlConnection'
+          edges?: Array<{
+            __typename?: 'ControlEdge'
+            node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; standard?: { __typename?: 'Standard'; shortName?: string | null } | null } | null
+          } | null> | null
+        }
         editors?: Array<{ __typename?: 'Group'; id: string; name: string }> | null
         evidence: { __typename?: 'EvidenceConnection'; edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string } | null } | null> | null }
         internalPolicies: {

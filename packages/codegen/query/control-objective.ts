@@ -16,9 +16,9 @@ export const CONTROL_OBJECTIVE_FIELDS = gql`
         node {
           id
           refCode
+          description
           standard {
             shortName
-            description
           }
         }
       }
