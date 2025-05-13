@@ -9,11 +9,9 @@ import { Button } from '@repo/ui/button'
 import { ArrowRight, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
 
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
-import { Control, ControlControlStatus, EvidenceEdge, SubcontrolControlStatus } from '@repo/codegen/src/schema.ts'
+import { Control, EvidenceEdge, SubcontrolControlStatus } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
-import SubcontrolsTable from '@/components/pages/protected/controls/subcontrols-table.tsx'
-import ControlEvidenceTable from '@/components/pages/protected/controls/control-evidence-table.tsx'
 import { useGetSubcontrolById, useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol.ts'
 import TitleField from '@/components/pages/protected/controls/form-fields/title-field'
 import DescriptionField from '@/components/pages/protected/controls/form-fields/description-field'
@@ -22,6 +20,7 @@ import AuthorityCard from '@/components/pages/protected/controls/authority-card'
 import PropertiesCard from '@/components/pages/protected/controls/properties-card'
 import ImplementationDetailsCard from '@/components/pages/protected/controls/implementation-details-card'
 import InfoCardWithSheet from '@/components/pages/protected/controls/info-card'
+import ControlEvidenceTable from '@/components/pages/protected/controls/control-evidence/control-evidence-table.tsx'
 
 interface FormValues {
   refCode: string

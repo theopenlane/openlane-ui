@@ -183,7 +183,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
       {!isLoading && policy && (
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmitHandler)} className="grid grid-cols-1 lg:grid-cols-[1fr_336px] gap-6">
-            <div className="space-y-6">
+            <div className="space-y-6 w-full max-w-full overflow-hidden">
               <TitleField isEditing={isEditing} form={form} />
               <DetailsField isEditing={isEditing} form={form} policy={policy} />
               <AssociatedObjectsViewAccordion policy={policy} />

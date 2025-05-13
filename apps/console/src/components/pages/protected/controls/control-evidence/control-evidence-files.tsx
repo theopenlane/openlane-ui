@@ -79,15 +79,6 @@ const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidence
             <div onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()} className="flex gap-4">
               <SystemTooltip
                 icon={
-                  <p className="flex items-center gap-1 cursor-pointer">
-                    <Eye size={16} />
-                  </p>
-                }
-                content={<p>View</p>}
-              />
-
-              <SystemTooltip
-                icon={
                   <p className="flex items-center gap-1 cursor-pointer" onClick={() => fileDownload(row.original.presignedURL, row.original.providedFileName, errorNotification)}>
                     <Download size={16} />
                   </p>
