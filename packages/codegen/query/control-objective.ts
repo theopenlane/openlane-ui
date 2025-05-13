@@ -21,3 +21,13 @@ export const GET_ALL_CONTROL_OBJECTIVES = gql`
     }
   }
 `
+
+export const CREATE_CONTROL_OBJECTIVE = gql`
+  mutation CreateControlObjective($input: CreateControlObjectiveInput!) {
+    createControlObjective(input: $input) {
+      controlObjective {
+        id
+      }
+    }
+  }
+`

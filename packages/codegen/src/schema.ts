@@ -4956,7 +4956,7 @@ export interface CreateFullProgramInput {
   procedures?: InputMaybe<Array<CreateProcedureInput>>
   program: CreateProgramInput
   risks?: InputMaybe<Array<CreateRiskInput>>
-  standardID: Scalars['ID']['input']
+  standardID?: InputMaybe<Scalars['ID']['input']>
 }
 
 /**
@@ -5437,6 +5437,7 @@ export interface CreateProgramMembershipInput {
 export interface CreateProgramWithMembersInput {
   members?: InputMaybe<Array<CreateMemberWithProgramInput>>
   program: CreateProgramInput
+  standardID?: InputMaybe<Scalars['ID']['input']>
 }
 
 /**
@@ -32642,6 +32643,15 @@ export type GetAllControlObjectivesQuery = {
     __typename?: 'ControlObjectiveConnection'
     edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string; name: string; displayID: string } | null } | null> | null
   }
+}
+
+export type CreateControlObjectiveMutationVariables = Exact<{
+  input: CreateControlObjectiveInput
+}>
+
+export type CreateControlObjectiveMutation = {
+  __typename?: 'Mutation'
+  createControlObjective: { __typename?: 'ControlObjectiveCreatePayload'; controlObjective: { __typename?: 'ControlObjective'; id: string } }
 }
 
 export type ControlListFieldsFragment = {

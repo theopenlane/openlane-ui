@@ -4,8 +4,9 @@ import React, { useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useGetAllControlObjectives } from '@/lib/graphql-hooks/control-objectives'
 import { ControlObjectiveFieldsFragment } from '@repo/codegen/src/schema'
-import { Settings2, SlidersHorizontal } from 'lucide-react'
+import { Settings2 } from 'lucide-react'
 import Link from 'next/link'
+import CreateControlObjectiveSheet from '@/components/pages/protected/controls/control-objectives/create-control-objective-sheet'
 
 const Page = () => {
   const params = useParams()
@@ -20,13 +21,16 @@ const Page = () => {
 
   if (!edges?.length) {
     return (
-      <div className="flex flex-col items-center justify-center h-[60vh] text-center text-gray-300">
-        <Settings2 className="w-20 h-20 mb-4 text-border" strokeWidth={1} />
-        <p className="mb-2 text-sm">No Objective found for this Control.</p>
-        <Link href="/control-objectives/create" className="text-blue-500 text-sm hover:underline hover:text-blue-400">
-          Create a new one →
-        </Link>
-      </div>
+      <>
+        <CreateControlObjectiveSheet open={showCreateSheet} onOpenChange={setShowCreateSheet} />
+        <div className="flex flex-col items-center justify-center h-[60vh] text-center text-gray-300">
+          <Settings2 className="w-20 h-20 mb-4 text-border" strokeWidth={1} />
+          <p className="mb-2 text-sm">No Objective found for this Control.</p>
+          <p onClick={() => setShowCreateSheet(true)} className="cursor-pointer text-blue-500 text-sm hover:underline hover:text-blue-400">
+            Create a new one →
+          </p>
+        </div>
+      </>
     )
   }
 

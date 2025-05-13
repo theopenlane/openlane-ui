@@ -20,7 +20,7 @@ import DescriptionField from '@/components/pages/protected/controls/form-fields/
 import AssociatedObjectsAccordion from '@/components/pages/protected/controls/associated-objects-accordion'
 import AuthorityCard from '@/components/pages/protected/controls/authority-card'
 import PropertiesCard from '@/components/pages/protected/controls/properties-card'
-import ImplementationDetailsCard from '@/components/pages/protected/controls/details'
+import DetailsCard from '@/components/pages/protected/controls/details'
 import InfoCardWithSheet from '@/components/pages/protected/controls/info-card'
 
 interface FormValues {
@@ -192,7 +192,7 @@ const ControlDetailsPage: React.FC = () => {
               mappedCategories={subcontrol.mappedCategories}
               isEditing={isEditing}
             />
-            <ImplementationDetailsCard isEditing={isEditing} />
+            <DetailsCard />
             {hasInfoData && (
               <InfoCardWithSheet
                 implementationGuidance={subcontrol.implementationGuidance}
