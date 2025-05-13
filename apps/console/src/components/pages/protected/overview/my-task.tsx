@@ -40,10 +40,13 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
     .filter((task) => task.due && isAfter(new Date(task.due), dueSoonLimit) && isBefore(new Date(task.due), upcomingUpper))
     .sort((a, b) => new Date(b.due!).getTime() - new Date(a.due!).getTime())
 
-  const displayedTasks = [...dueSoonTasks, ...upcomingTasks].slice(0, 3)
+  const overdueTasks = tasks.filter((task) => task.due && isBefore(new Date(task.due), now)).sort((a, b) => new Date(b.due!).getTime() - new Date(a.due!).getTime())
+
+  const displayedTasks = [...overdueTasks, ...dueSoonTasks, ...upcomingTasks].slice(0, 3)
 
   const dueSoonCount = dueSoonTasks.length
   const upcomingCount = upcomingTasks.length
+  const overdueCount = overdueTasks.length
 
   if (dueSoonCount === 0 && upcomingCount === 0) {
     return (
@@ -76,7 +79,7 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
         <div className="grid grid-cols-2 gap-12 mb-7">
           <div className="flex flex-col items-center justify-center py-4 px-8 border rounded-lg relative">
             <span className="text-sm text-muted-foreground">Task due soon</span>
-            <span className="text-2xl font-bold">{dueSoonCount}</span>
+            <span className="text-2xl font-bold">{dueSoonCount + overdueCount}</span>
             {dueSoonCount > 0 && (
               <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs flex items-center justify-center rounded-full">
                 <Image src={'/icons/alert.svg'} alt="alert Icon" width={25} height={25} />
@@ -92,14 +95,26 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
           {displayedTasks.map((task) => {
             const dueDate = parseISO(task.due ?? new Date().toISOString())
             const distance = formatDistanceToNowStrict(dueDate)
+
             const isDue = isBefore(dueDate, new Date())
+            const isSoon = isBefore(new Date(dueDate), dueSoonLimit)
+            const isUpcoming = isAfter(new Date(dueDate), dueSoonLimit) && isBefore(new Date(dueDate), upcomingUpper)
 
             return (
               <Link key={task.id} href={`/tasks?taskId=${task.id}`} className="grid grid-cols-[120px_1fr] items-center gap-[20px] size-fit">
                 {' '}
-                <div className={clsx('flex items-center gap-2', isDue && 'text-destructive')}>
-                  {isDue ? <CalendarArrow /> : <Calendar strokeWidth={1} size={16} />}
-                  <span className="text-sm font-medium">{distance}</span>
+                <div className={clsx('flex items-center gap-2', ((isDue || isSoon) && 'text-destructive') || (isUpcoming && 'text-green-500'))}>
+                  {isDue ? (
+                    <>
+                      <CalendarArrow />
+                      <span className="text-sm font-medium">Overdue</span>
+                    </>
+                  ) : (
+                    <>
+                      <Calendar strokeWidth={1} size={16} />
+                      <span className="text-sm font-medium">{distance}</span>
+                    </>
+                  )}
                 </div>
                 <div className="flex items-center gap-2">
                   <SquareArrow className={clsx(!isDue && 'rotate-90 text-blue-500', isDue && 'text-yellow-500')} />
