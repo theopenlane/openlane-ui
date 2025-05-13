@@ -50,7 +50,7 @@ export const useGetEvidenceById = (evidenceId?: string | null) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetEvidenceQuery, unknown>({
-    queryKey: ['evidence', evidenceId],
+    queryKey: ['evidences', evidenceId],
     queryFn: async () => client.request(GET_EVIDENCE, { evidenceId }),
     enabled: !!evidenceId,
   })
