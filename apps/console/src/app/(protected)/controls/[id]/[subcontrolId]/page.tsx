@@ -21,6 +21,7 @@ import PropertiesCard from '@/components/pages/protected/controls/properties-car
 import ImplementationDetailsCard from '@/components/pages/protected/controls/implementation-details-card'
 import InfoCardWithSheet from '@/components/pages/protected/controls/info-card'
 import ControlEvidenceTable from '@/components/pages/protected/controls/control-evidence/control-evidence-table.tsx'
+import EvidenceDetailsSheet from '@/components/pages/protected/controls/control-evidence/evidence-details-sheet.tsx'
 
 interface FormValues {
   refCode: string
@@ -215,6 +216,7 @@ const ControlDetailsPage: React.FC = () => {
           </SheetContent>
         </Sheet>
       </FormProvider>
+      <EvidenceDetailsSheet controlId={subcontrolId} />
     </>
   )
 }

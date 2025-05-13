@@ -34,8 +34,8 @@ const ControlEvidenceUploadDialog: React.FC<TControlEvidenceUploadDialog> = ({ c
       await updateEvidence(formData)
       setIsOpen(false)
       successNotification({
-        title: 'Evidence File/s Uploaded',
-        description: `Evidence File/s has been successfully uploaded`,
+        title: 'Evidence file(s) uploaded',
+        description: `Evidence file(s) have been successfully uploaded`,
       })
     } catch {
       errorNotification({

@@ -10,7 +10,7 @@ export const fileColumns: ColumnDef<any>[] = [
     accessorKey: 'providedFileSize',
     header: 'Size',
     cell: ({ cell }) => {
-      return <div>{cell.getValue() as string}KB</div>
+      return <div>{(Number(cell.getValue()) / 1024).toFixed(2)} KB</div>
     },
   },
 ]

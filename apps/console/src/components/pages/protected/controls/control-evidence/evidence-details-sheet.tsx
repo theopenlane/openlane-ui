@@ -24,7 +24,7 @@ import {
   UserRoundPen,
 } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { Input } from '@repo/ui/input'
+import { Input, InputRow } from '@repo/ui/input'
 import { useNotification } from '@/hooks/useNotification'
 import { Loading } from '@/components/shared/loading/loading'
 import { Badge } from '@repo/ui/badge'
@@ -257,7 +257,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                     render={({ field }) => (
                       <FormItem className="w-full pt-4">
                         <div className="flex items-center">
-                          <FormLabel>Details</FormLabel>
+                          <FormLabel>Description</FormLabel>
                           <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a short description of what is contained in the files or linked URLs.</p>} />
                         </div>
                         <FormControl>
@@ -271,6 +271,27 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                   <>{!!evidence?.description && <div className="mt-5">{evidence.description}</div>}</>
                 )}
 
+                {isEditing ? (
+                  <FormField
+                    control={form.control}
+                    name="collectionProcedure"
+                    render={({ field }) => (
+                      <FormItem className="w-full pt-4">
+                        <div className="flex items-center">
+                          <FormLabel>Collection Procedure</FormLabel>
+                          <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Write down the steps that were taken to collect the evidence.</p>} />
+                        </div>
+                        <FormControl>
+                          <Textarea id="collectionProcedure" {...field} className="w-full" />
+                        </FormControl>
+                        {form.formState.errors.collectionProcedure && <p className="text-red-500 text-sm">{form.formState.errors.collectionProcedure.message}</p>}
+                      </FormItem>
+                    )}
+                  />
+                ) : (
+                  <>{!!evidence?.collectionProcedure && <div className="mt-5">{evidence.collectionProcedure}</div>}</>
+                )}
+
                 <div className="relative grid grid-cols-2 gap-8 p-4 border rounded-lg  mt-10">
                   <div className="absolute top-0 bottom-0 left-1/2 w-px border" />
 
@@ -282,7 +303,24 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                         Source
                       </div>
                       <div className="text-sm text-left w-[200px]">
-                        <p className="text-sm text-left">{evidence?.source}</p>
+                        {isEditing ? (
+                          <InputRow className="w-full">
+                            <FormField
+                              control={form.control}
+                              name="source"
+                              render={({ field }) => (
+                                <FormItem className="w-full">
+                                  <FormControl>
+                                    <Input variant="medium" {...field} className="w-full" />
+                                  </FormControl>
+                                  {form.formState.errors.source && <p className="text-red-500 text-sm">{form.formState.errors.source.message}</p>}
+                                </FormItem>
+                              )}
+                            />
+                          </InputRow>
+                        ) : (
+                          <p className="text-sm text-left">{evidence?.source}</p>
+                        )}
                       </div>
                     </div>
 
