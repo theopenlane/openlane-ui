@@ -60,6 +60,7 @@ export const GET_SUBCONTROL_BY_ID = gql`
       evidence {
         edges {
           node {
+            id
             displayID
             name
             creationDate
