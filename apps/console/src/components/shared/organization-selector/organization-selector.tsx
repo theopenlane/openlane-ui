@@ -2,10 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { organizationSelectorStyles } from './organization-selector.styles'
-import { Logo } from '@repo/ui/logo'
 import { Button } from '@repo/ui/button'
-import { ArrowRight, SearchIcon } from 'lucide-react'
-import { ChevronDown } from '@repo/ui/icons/chevron-down'
+import { BriefcaseBusiness, Check, ChevronsUpDown, SearchIcon } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Input } from '@repo/ui/input'
 import { Tag } from '@repo/ui/tag'
@@ -17,7 +15,6 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { useGetAllOrganizationsWithMembers } from '@/lib/graphql-hooks/organization'
 import { useQueryClient } from '@tanstack/react-query'
 import { Organization } from '@repo/codegen/src/schema'
-import { Avatar } from '../avatar/avatar'
 
 export const OrganizationSelector = () => {
   const { data: sessionData, update: updateSession } = useSession()
@@ -30,12 +27,10 @@ export const OrganizationSelector = () => {
 
   const { currentOrgId } = useOrganization()
 
-  const { data } = useGetAllOrganizationsWithMembers()
+  const { data } = useGetAllOrganizationsWithMembers({ userID: sessionData?.user.userId })
   const orgs = data?.organizations?.edges ?? []
   const currentOrg = orgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
-  const { container, logoWrapper, organizationLabel, organizationDropdown, allOrganizationsLink, popoverContent, searchWrapper, orgWrapper, orgInfo, orgTitle, orgSelect } =
-    organizationSelectorStyles()
-
+  const { container, organizationDropdown, allOrganizationsLink, popoverContent, searchWrapper } = organizationSelectorStyles()
   const filteredOrgs = orgs
     .filter((org) => {
       return org?.node?.name.toLowerCase().includes(orgData.organizationSearch.toLowerCase()) && org?.node?.id !== currentOrgId && !org?.node?.personalOrg
@@ -55,7 +50,7 @@ export const OrganizationSelector = () => {
   }, [currentOrg])
 
   const handleOrganizationSwitch = async (orgId?: string) => {
-    if (orgId) {
+    if (orgId && orgId !== currentOrgId) {
       const response = await switchOrganization({
         target_organization_id: orgId,
       })
@@ -81,25 +76,17 @@ export const OrganizationSelector = () => {
   if (!orgs) return <Loading />
 
   if (orgs.length < 2) {
-    return (
-      <div className={container()}>
-        <Link href={'/'} className={logoWrapper()}>
-          <Logo width={160} />
-        </Link>
-      </div>
-    )
+    return null
   }
 
   return (
     <div className={container()}>
-      <Logo width={32} asIcon={true} />
       <div>
-        <div className={organizationLabel()}>Organization</div>
         <Popover>
           <PopoverTrigger>
             <div className={organizationDropdown()}>
-              <span>{currentOrg?.displayName}</span>
-              <ChevronDown />
+              <span className="truncate">{currentOrg?.displayName}</span>
+              <ChevronsUpDown className="shrink-0" size={12} />
             </div>
           </PopoverTrigger>
           <PopoverContent align="start" className={popoverContent()}>
@@ -107,7 +94,7 @@ export const OrganizationSelector = () => {
               <Input
                 value={orgData.organizationSearch}
                 name="organization"
-                placeholder="Search for a organization"
+                placeholder="Search for an organization"
                 onChange={(e) => {
                   setOrgData({
                     organizationSearch: e.currentTarget.value,
@@ -116,35 +103,55 @@ export const OrganizationSelector = () => {
                   })
                 }}
                 icon={<SearchIcon width={17} />}
+                iconPosition="left"
               />
             </div>
-            {filteredOrgs.map((org) => {
-              const role = org?.node?.members?.edges?.[0]?.node?.role ?? 'Owner'
-              return (
-                <div key={org?.node?.id} className={`${orgWrapper()} group`}>
-                  <div>
-                    <Avatar entity={org?.node as Organization} />
-                  </div>
-                  <div className={orgInfo()}>
-                    <div className={orgTitle()}>{org?.node?.displayName}</div>
-                    <Tag>{role}</Tag>
-                  </div>
-                  <div className={orgSelect()}>
-                    <Button variant="filled" size="md" onClick={() => handleOrganizationSwitch(org?.node?.id)}>
-                      Select
-                    </Button>
-                  </div>
-                </div>
-              )
-            })}
+            <div className="border-t border-boder my-2.5"></div>
+            {currentOrg?.name.includes(orgData.organizationSearch) && (
+              <OrganizationItem
+                org={currentOrg as Organization}
+                isCurrent={true}
+                role={(currentOrg?.members?.edges ?? []).find((member) => member?.node?.user?.id === sessionData?.user.userId)?.node?.role ?? 'Unknown'}
+                onClick={() => handleOrganizationSwitch(currentOrg?.id)}
+              />
+            )}
+
+            {filteredOrgs.map((org) => (
+              <OrganizationItem
+                key={org?.node?.id}
+                org={org?.node as Organization}
+                isCurrent={false}
+                role={(org?.node?.members?.edges ?? []).find((member) => member?.node?.user?.id === sessionData?.user.userId)?.node?.role ?? 'Unknown'}
+                onClick={() => handleOrganizationSwitch(org?.node?.id)}
+              />
+            ))}
+            <div className="border-t border-boder my-2.5"></div>
+
             <div>
               <Link href="/organization" className={allOrganizationsLink()}>
-                View all {orgs.length - 1} organizations
-                <ArrowRight width={10} />
+                <Button className="w-full" icon={<BriefcaseBusiness size={16} />} iconPosition="left">
+                  View all organizations
+                </Button>
               </Link>
             </div>
           </PopoverContent>
         </Popover>
+      </div>
+    </div>
+  )
+}
+
+const OrganizationItem = ({ org, isCurrent, role, onClick }: { org: Organization; isCurrent: boolean; role: string; onClick: () => void }) => {
+  const { orgWrapper, orgInfo, orgTitle } = organizationSelectorStyles()
+
+  return (
+    <div key={org.id} className={`${orgWrapper()} group`} onClick={onClick}>
+      <div className={orgInfo()}>
+        <div className="flex items-center gap-1">
+          {isCurrent ? <Check size={16} /> : <Check size={16} className="opacity-0" />}
+          <div className={orgTitle()}>{org.displayName}</div>
+        </div>
+        <Tag className="bg-transparent capitalize px-1.5 border rounded-lg text-sm">{role.toLowerCase()}</Tag>
       </div>
     </div>
   )

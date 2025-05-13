@@ -1,10 +1,8 @@
-import { getGraphQLClient } from '@/lib/graphqlClient'
-import { useSession } from 'next-auth/react'
+import { useGetGraphQLClient } from '@/lib/graphqlClient'
 import { useQueryClient } from '@tanstack/react-query'
 
 export const useGraphQLClient = () => {
-  const { data: session } = useSession()
-  const client = getGraphQLClient(session!)
+  const client = useGetGraphQLClient()
   const queryClient = useQueryClient()
   return { client, queryClient }
 }

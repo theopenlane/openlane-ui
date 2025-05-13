@@ -1,47 +1,48 @@
 import * as React from 'react'
 import { cn } from '../../lib/utils'
-import { tableStyles } from './table-styles'
+import { tableStyles, type TableVariants } from './table-styles'
 
 const { container, table, tableHeader, tableBody, tableFooter, tableRow, tableHead, tableCell, tableCaption } = tableStyles()
 
-const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement>>(({ className, ...props }, ref) => (
+const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement> & TableVariants>(({ className, striped, compact, variant, ...props }, ref) => (
   <div className={cn(container())}>
-    <table ref={ref} className={cn(table(), className)} {...props} />
+    <table ref={ref} className={cn(table({ striped, compact, variant }), className)} {...props} />
   </div>
 ))
 Table.displayName = 'Table'
 
-const TableHeader = React.forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>(({ className, ...props }, ref) => (
-  <thead ref={ref} className={cn(tableHeader(), className)} {...props} />
+const TableHeader = React.forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement> & TableVariants>(({ className, striped, compact, variant, ...props }, ref) => (
+  <thead ref={ref} className={cn(tableHeader({ striped, compact, variant }), className)} {...props} />
+))
+
+const TableBody = React.forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement> & TableVariants>(({ className, striped, compact, variant, ...props }, ref) => (
+  <tbody ref={ref} className={cn(tableBody({ striped, compact, variant }), className)} {...props} />
 ))
 TableHeader.displayName = 'TableHeader'
 
-const TableBody = React.forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>(({ className, ...props }, ref) => (
-  <tbody ref={ref} className={cn(tableBody(), className)} {...props} />
-))
-TableBody.displayName = 'TableBody'
-
-const TableFooter = React.forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement>>(({ className, ...props }, ref) => (
-  <tfoot ref={ref} className={cn(tableFooter(), className)} {...props} />
+const TableFooter = React.forwardRef<HTMLTableSectionElement, React.HTMLAttributes<HTMLTableSectionElement> & TableVariants>(({ className, striped, compact, variant, ...props }, ref) => (
+  <tfoot ref={ref} className={cn(tableFooter({ striped, compact, variant }), className)} {...props} />
 ))
 TableFooter.displayName = 'TableFooter'
 
-const TableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTMLTableRowElement>>(({ className, ...props }, ref) => <tr ref={ref} className={cn(tableRow(), className)} {...props} />)
+const TableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTMLTableRowElement> & TableVariants>(({ className, striped, compact, variant, ...props }, ref) => (
+  <tr ref={ref} className={cn(tableRow({ striped, compact, variant }), className)} {...props} />
+))
 
 TableRow.displayName = 'TableRow'
 
-const TableHead = React.forwardRef<HTMLTableCellElement, React.ThHTMLAttributes<HTMLTableCellElement>>(({ className, ...props }, ref) => (
-  <th ref={ref} className={cn(tableHead(), className)} {...props} />
+const TableHead = React.forwardRef<HTMLTableCellElement, React.ThHTMLAttributes<HTMLTableCellElement> & TableVariants>(({ className, striped, compact, variant, ...props }, ref) => (
+  <th ref={ref} className={cn(tableHead({ striped, compact, variant }), className)} {...props} />
 ))
 TableHead.displayName = 'TableHead'
 
-const TableCell = React.forwardRef<HTMLTableCellElement, React.TdHTMLAttributes<HTMLTableCellElement>>(({ className, ...props }, ref) => (
-  <td ref={ref} className={cn(tableCell(), className)} {...props} />
+const TableCell = React.forwardRef<HTMLTableCellElement, React.TdHTMLAttributes<HTMLTableCellElement> & TableVariants>(({ className, striped, compact, variant, ...props }, ref) => (
+  <td ref={ref} className={cn(tableCell({ striped, compact, variant }), className)} {...props} />
 ))
 TableCell.displayName = 'TableCell'
 
-const TableCaption = React.forwardRef<HTMLTableCaptionElement, React.HTMLAttributes<HTMLTableCaptionElement>>(({ className, ...props }, ref) => (
-  <caption ref={ref} className={cn(tableCaption(), className)} {...props} />
+const TableCaption = React.forwardRef<HTMLTableCaptionElement, React.HTMLAttributes<HTMLTableCaptionElement> & TableVariants>(({ className, striped, compact, variant, ...props }, ref) => (
+  <caption ref={ref} className={cn(tableCaption({ striped, compact, variant }), className)} {...props} />
 ))
 TableCaption.displayName = 'TableCaption'
 

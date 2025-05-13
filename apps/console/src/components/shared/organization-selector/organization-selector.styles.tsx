@@ -2,17 +2,15 @@ import { tv, type VariantProps } from 'tailwind-variants'
 
 const organizationSelectorStyles = tv({
   slots: {
-    logoWrapper: 'hidden items-center justify-between gap-2 md:flex',
-    container: 'flex content-center gap-4 pb-2',
-    organizationLabel: 'uppercase font-sans text-sm font-semibold tracking-wide',
-    organizationDropdown: 'flex items-center gap-[6px] text-md cursor-pointer',
+    container: 'flex content-center gap-4 ',
+    organizationDropdown: 'flex items-center gap-[6px] text-md cursor-pointer w-[156px] border rounded-md px-2 py-0.5 justify-between',
     dropdownContent: 'p-0',
-    allOrganizationsLink: 'flex items-center gap-2 py-5 px-6 border-t border-border',
-    popoverContent: 'p-0 w-[400px]',
-    searchWrapper: 'py-5 px-6',
-    orgWrapper: 'transition-all duration-500 flex gap-3 items-center py-4 px-6 border-t border-border hover:bg-background cursor-pointer relative',
-    orgInfo: 'flex flex-col gap-1 items-start flex-1',
-    orgTitle: 'text-sm',
+    allOrganizationsLink: 'flex items-center gap-2  pb-3 px-4 ',
+    popoverContent: 'p-0 max-w-300',
+    searchWrapper: 'px-5 pt-3 pb-2.5',
+    orgWrapper: ' flex gap-3 items-center py-1 mx-3 px-1 cursor-pointer relative duration-300 transition-all hover:bg-muted rounded-md ',
+    orgInfo: 'flex col gap-1 items-center flex-1 justify-between',
+    orgTitle: 'text-sm truncate max-w-44 ',
     orgSelect: 'opacity-0 group-hover:opacity-100 transition-opacity duration-300',
   },
 })

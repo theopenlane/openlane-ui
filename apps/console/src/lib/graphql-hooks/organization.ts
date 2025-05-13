@@ -44,6 +44,7 @@ import {
   GetInvitesQueryVariables,
   GetOrganizationBillingBannerQuery,
   GetOrganizationBillingBannerQueryVariables,
+  OrgMembershipWhereInput,
 } from '@repo/codegen/src/schema'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Variables } from 'graphql-request'
@@ -79,12 +80,12 @@ export const useGetSingleOrganizationMembers = ({ organizationId, pagination }: 
   })
 }
 
-export const useGetAllOrganizationsWithMembers = () => {
+export const useGetAllOrganizationsWithMembers = (membersWhere: OrgMembershipWhereInput = {}) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetAllOrganizationsWithMembersQuery>({
-    queryKey: ['organizationsWithMembers'],
-    queryFn: async () => client.request(GET_ALL_ORGANIZATIONS_WITH_MEMBERS),
+    queryKey: ['organizationsWithMembers', membersWhere],
+    queryFn: async () => client.request(GET_ALL_ORGANIZATIONS_WITH_MEMBERS, { membersWhere }),
   })
 }
 

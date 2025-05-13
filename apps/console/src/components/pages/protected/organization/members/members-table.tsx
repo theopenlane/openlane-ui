@@ -90,14 +90,13 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
       size: 40,
     },
     {
-      accessorKey: 'user.firstname',
+      accessorKey: 'user.displayName',
       header: 'Name',
       cell: ({ row }) => {
-        const fullName = `${row.original.user.firstName} ${row.original.user.lastName}` || ''
-
+        const fullName = `${row.original.user.displayName}` || `${row.original.user.email}`
         return (
           <div className={nameRow()}>
-            {`${row.original.user.firstName} ${row.original.user.lastName}`}
+            {fullName}
             <Copy width={16} height={16} className={copyIcon()} onClick={() => copyToClipboard(fullName)} />
           </div>
         )
