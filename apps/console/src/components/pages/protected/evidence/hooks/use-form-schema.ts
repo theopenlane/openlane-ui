@@ -28,6 +28,7 @@ const formSchema = z.object({
   internalPolicyIDs: z.array(z.any()).optional().nullable(),
   procedureIDs: z.array(z.any()).optional().nullable(),
   riskIDs: z.array(z.any()).optional().nullable(),
+  ownerID: z.string().optional().nullable(),
   status: z
     .nativeEnum(EvidenceEvidenceStatus, {
       errorMap: () => ({ message: 'Invalid status' }),

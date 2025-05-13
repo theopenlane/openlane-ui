@@ -43,25 +43,69 @@ export const GET_ALL_EVIDENCES = gql`
   }
 `
 
+const EVIDENCE_FIELDS = gql`
+  fragment EvidenceFields on Evidence {
+    collectionProcedure
+    controlObjectives {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+    controls {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+    createdAt
+    createdBy
+    creationDate
+    description
+    displayID
+    id
+    name
+    ownerID
+    programs {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+    renewalDate
+    source
+    status
+    subcontrols {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+    tags
+    tasks {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+    url
+    updatedBy
+    updatedAt
+  }
+`
+
 export const GET_EVIDENCE = gql`
   query GetEvidence($evidenceId: ID!) {
     evidence(id: $evidenceId) {
-      id
-      name
-      createdAt
-      createdBy
-      updatedBy
-      updatedAt
-      tags
-      renewalDate
-      creationDate
-      status
-      source
-      description
-      displayID
-      url
+      ...EvidenceFields
     }
   }
+  ${EVIDENCE_FIELDS}
 `
 
 export const GET_EVIDENCE_FILES_PAGINATED = gql`

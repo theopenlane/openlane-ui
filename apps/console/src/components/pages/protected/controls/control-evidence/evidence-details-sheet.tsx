@@ -48,6 +48,7 @@ import { Textarea } from '@repo/ui/textarea'
 import ControlEvidenceFiles from '@/components/pages/protected/controls/control-evidence/control-evidence-files.tsx'
 import { fileDownload } from '@/components/shared/lib/export.ts'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { ControlEvidenceRenewDialog } from '@/components/pages/protected/controls/control-evidence/control-evidence-renew-dialog.tsx'
 
 type TEvidenceDetailsSheet = {
   controlId: string
@@ -203,9 +204,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                       Edit
                     </Button>
                   )}
-                  <Button icon={<RefreshCw />} iconPosition="left" onClick={handleCopyLink}>
-                    Renew
-                  </Button>
+                  {evidence && <ControlEvidenceRenewDialog evidence={evidence} controlId={controlId} />}
                   <Button icon={<Trash2 />} iconPosition="left" variant="outline" onClick={() => setDeleteDialogIsOpen(true)}>
                     Delete
                   </Button>
