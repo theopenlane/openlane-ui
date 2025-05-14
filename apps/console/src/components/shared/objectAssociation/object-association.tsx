@@ -17,11 +17,12 @@ type Props = {
   excludeObjectTypes?: ObjectTypeObjects[]
   initialData?: TObjectAssociationMap
   refCodeInitialData?: TObjectAssociationMap
+  defaultSelectedObject?: ObjectTypeObjects
 }
 
-const ObjectAssociation: React.FC<Props> = ({ onIdChange, excludeObjectTypes, initialData, refCodeInitialData }) => {
+const ObjectAssociation: React.FC<Props> = ({ onIdChange, excludeObjectTypes, initialData, refCodeInitialData, defaultSelectedObject }) => {
   const { client } = useGraphQLClient()
-  const [selectedObject, setSelectedObject] = useState<ObjectTypeObjects | null>(null)
+  const [selectedObject, setSelectedObject] = useState<ObjectTypeObjects | null>(defaultSelectedObject || null)
   const [searchValue, setSearchValue] = useState('')
   const [TableData, setTableData] = useState<any[]>([])
   const debouncedSearchValue = useDebounce(searchValue, 300)

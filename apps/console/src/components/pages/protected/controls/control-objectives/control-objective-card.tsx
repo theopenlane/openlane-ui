@@ -2,10 +2,10 @@
 
 import { useState } from 'react'
 import { Card } from '@repo/ui/cardpanel'
-import { Button } from '@repo/ui/button'
 import { ControlObjectiveControlSource, ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Archive, FilePenLineIcon, ThumbsUp } from 'lucide-react'
+import { LinkControlsModal } from './link-controls-modal'
 
 interface Props {
   obj: ControlObjectiveFieldsFragment
@@ -74,7 +74,7 @@ export const ControlObjectiveCard = ({ obj }: Props) => {
       <div className="w-[350px] flex-shrink-0">
         <div className="flex justify-between items-center mb-2">
           <p className="text-lg">Controls</p>
-          <Button className="h-8">Link Controls</Button>
+          <LinkControlsModal controlObjectiveData={obj} />
         </div>
 
         {!!obj.controls?.edges?.length && (
@@ -90,7 +90,7 @@ export const ControlObjectiveCard = ({ obj }: Props) => {
                   })
                 }
                 onMouseLeave={() => setHoveredControl(null)}
-                className="underline cursor-pointer text-blue-500"
+                className="underline cursor-pointer"
               >
                 {control?.node?.refCode}
               </span>
@@ -110,12 +110,12 @@ export const ControlObjectiveCard = ({ obj }: Props) => {
                   onMouseEnter={() =>
                     setHoveredSubcontrol({
                       id: subcontrol?.node?.id || '',
-                      parentRefCode: 'C12345',
-                      parentDescription: "The entity identifies and maintains confidential information to meet the entity's objectives related to confidentiality.", // Replace with actual data
+                      parentRefCode: subcontrol?.node?.control?.refCode || '—',
+                      parentDescription: subcontrol?.node?.control?.description || '—',
                     })
                   }
                   onMouseLeave={() => setHoveredSubcontrol(null)}
-                  className="underline cursor-pointer text-blue-500"
+                  className="underline cursor-pointer"
                 >
                   {subcontrol?.node?.refCode}
                 </span>
@@ -127,7 +127,7 @@ export const ControlObjectiveCard = ({ obj }: Props) => {
         {hoveredSubcontrol && (
           <div className="text-xs border border-border rounded-md p-4 grid grid-cols-[auto,1fr] gap-y-3 gap-x-5">
             <span className="font-medium text-foreground">Parent control</span>
-            <span className="text-blue-400 underline cursor-pointer">{hoveredSubcontrol.parentRefCode}</span>
+            <span className=" underline cursor-pointer">{hoveredSubcontrol.parentRefCode}</span>
 
             <span className="font-medium text-foreground">Details</span>
             <p className="text-muted-foreground leading-snug">{hoveredSubcontrol.parentDescription}</p>
@@ -137,7 +137,7 @@ export const ControlObjectiveCard = ({ obj }: Props) => {
         {hoveredControl && (
           <div className="text-xs border border-border rounded-md p-4 grid grid-cols-[auto,1fr] gap-y-3 gap-x-5">
             <span className="font-medium text-foreground">Standard</span>
-            <span className="text-blue-400 underline cursor-pointer">{hoveredControl.shortName}</span>
+            <span className=" underline cursor-pointer">{hoveredControl.shortName}</span>
 
             <span className="font-medium text-foreground">Details</span>
             <p className="text-muted-foreground leading-snug">{hoveredControl.description}</p>

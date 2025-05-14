@@ -93,7 +93,10 @@ export const CONTROL_OBJECTIVE_FIELDS = gql`
         node {
           id
           refCode
-          description
+          control {
+            refCode
+            description
+          }
         }
       }
     }
@@ -135,6 +138,23 @@ export const CREATE_CONTROL_OBJECTIVE = gql`
       controlObjective {
         id
       }
+    }
+  }
+`
+export const UPDATE_CONTROL_OBJECTIVE = gql`
+  mutation UpdateControlObjective($updateControlObjectiveId: ID!, $input: UpdateControlObjectiveInput!) {
+    updateControlObjective(id: $updateControlObjectiveId, input: $input) {
+      controlObjective {
+        id
+      }
+    }
+  }
+`
+
+export const DELETE_CONTROL_OBJECTIVE = gql`
+  mutation DeleteControlObjective($deleteControlObjectiveId: ID!) {
+    deleteControlObjective(id: $deleteControlObjectiveId) {
+      deletedID
     }
   }
 `

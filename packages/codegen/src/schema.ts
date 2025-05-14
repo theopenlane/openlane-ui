@@ -32672,7 +32672,10 @@ export type ControlObjectiveFieldsFragment = {
   risks: { __typename?: 'RiskConnection'; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
   subcontrols: {
     __typename?: 'SubcontrolConnection'
-    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; description?: string | null } | null } | null> | null
+    edges?: Array<{
+      __typename?: 'SubcontrolEdge'
+      node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; refCode: string; description?: string | null } } | null
+    } | null> | null
   }
   tasks: { __typename?: 'TaskConnection'; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null }
   viewers?: Array<{ __typename?: 'Group'; id: string; name: string }> | null
@@ -32729,7 +32732,10 @@ export type GetAllControlObjectivesQuery = {
         risks: { __typename?: 'RiskConnection'; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
         subcontrols: {
           __typename?: 'SubcontrolConnection'
-          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; description?: string | null } | null } | null> | null
+          edges?: Array<{
+            __typename?: 'SubcontrolEdge'
+            node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; refCode: string; description?: string | null } } | null
+          } | null> | null
         }
         tasks: { __typename?: 'TaskConnection'; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null }
         viewers?: Array<{ __typename?: 'Group'; id: string; name: string }> | null
@@ -32746,6 +32752,22 @@ export type CreateControlObjectiveMutation = {
   __typename?: 'Mutation'
   createControlObjective: { __typename?: 'ControlObjectiveCreatePayload'; controlObjective: { __typename?: 'ControlObjective'; id: string } }
 }
+
+export type UpdateControlObjectiveMutationVariables = Exact<{
+  updateControlObjectiveId: Scalars['ID']['input']
+  input: UpdateControlObjectiveInput
+}>
+
+export type UpdateControlObjectiveMutation = {
+  __typename?: 'Mutation'
+  updateControlObjective: { __typename?: 'ControlObjectiveUpdatePayload'; controlObjective: { __typename?: 'ControlObjective'; id: string } }
+}
+
+export type DeleteControlObjectiveMutationVariables = Exact<{
+  deleteControlObjectiveId: Scalars['ID']['input']
+}>
+
+export type DeleteControlObjectiveMutation = { __typename?: 'Mutation'; deleteControlObjective: { __typename?: 'ControlObjectiveDeletePayload'; deletedID: string } }
 
 export type ControlListFieldsFragment = {
   __typename?: 'Control'
