@@ -61,6 +61,7 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
     evidence {
       edges {
         node {
+          id
           displayID
           name
           creationDate

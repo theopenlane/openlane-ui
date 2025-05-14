@@ -104,11 +104,13 @@ export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilter
 
   useEffect(() => {
     const hasFilters = Array.isArray(filters) && filters.length > 0
+    const params = new URLSearchParams(searchParams.toString())
 
-    const url = hasFilters ? `${pathname}?filters=${encodeURIComponent(JSON.stringify(filters))}` : pathname
+    hasFilters ? params.set('filters', JSON.stringify(filters)) : params.delete('filters')
 
+    const url = `${pathname}?${params.toString()}`
     router.replace(url)
-  }, [filters, router, pathname])
+  }, [filters, router, pathname, searchParams])
 
   const updateFilters = (updatedFilters: Filter[]) => {
     setFilters(updatedFilters)

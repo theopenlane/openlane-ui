@@ -13,10 +13,11 @@ import { useEffect, useState } from 'react'
 import SessionExpiredModal from '@/components/shared/session-expired-modal/session-expired-modal'
 
 export interface DashboardLayoutProps {
-  children: React.ReactNode
+  children?: React.ReactNode
+  error?: React.ReactNode
 }
 
-export function DashboardLayout({ children }: DashboardLayoutProps) {
+export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const { bannerText } = useSubscriptionBanner()
   const { base, main } = dashboardStyles({ hasBanner: !!bannerText })
 
@@ -47,7 +48,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <Header />
         <div className={base()}>
           <Sidebar />
-          <main className={main()}>{children}</main>
+          <main className={main()}>{error ?? children}</main>
           <ChatBot />
           <CommandMenu items={NavItems} />
         </div>

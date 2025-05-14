@@ -32815,7 +32815,7 @@ export type ControlDetailsFieldsFragment = {
   }
   evidence: {
     __typename?: 'EvidenceConnection'
-    edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; displayID: string; name: string; creationDate: any } | null } | null> | null
+    edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; displayID: string; name: string; creationDate: any } | null } | null> | null
   }
   subcontrols: {
     __typename?: 'SubcontrolConnection'
@@ -32952,7 +32952,7 @@ export type GetControlByIdQuery = {
     }
     evidence: {
       __typename?: 'EvidenceConnection'
-      edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; displayID: string; name: string; creationDate: any } | null } | null> | null
+      edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; displayID: string; name: string; creationDate: any } | null } | null> | null
     }
     subcontrols: {
       __typename?: 'SubcontrolConnection'
@@ -33067,6 +33067,105 @@ export type GetAllEvidencesQuery = {
     edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string; displayID: string; description?: string | null } | null } | null> | null
   }
 }
+
+export type EvidenceFieldsFragment = {
+  __typename?: 'Evidence'
+  collectionProcedure?: string | null
+  createdAt?: any | null
+  createdBy?: string | null
+  creationDate: any
+  description?: string | null
+  displayID: string
+  id: string
+  name: string
+  ownerID?: string | null
+  renewalDate?: any | null
+  source?: string | null
+  status?: EvidenceEvidenceStatus | null
+  tags?: Array<string> | null
+  url?: string | null
+  updatedBy?: string | null
+  updatedAt?: any | null
+  controlObjectives: { __typename?: 'ControlObjectiveConnection'; edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string } | null } | null> | null }
+  controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string } | null } | null> | null }
+  programs: { __typename?: 'ProgramConnection'; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string } | null } | null> | null }
+  subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string } | null } | null> | null }
+  tasks: { __typename?: 'TaskConnection'; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string } | null } | null> | null }
+}
+
+export type GetEvidenceQueryVariables = Exact<{
+  evidenceId: Scalars['ID']['input']
+}>
+
+export type GetEvidenceQuery = {
+  __typename?: 'Query'
+  evidence: {
+    __typename?: 'Evidence'
+    collectionProcedure?: string | null
+    createdAt?: any | null
+    createdBy?: string | null
+    creationDate: any
+    description?: string | null
+    displayID: string
+    id: string
+    name: string
+    ownerID?: string | null
+    renewalDate?: any | null
+    source?: string | null
+    status?: EvidenceEvidenceStatus | null
+    tags?: Array<string> | null
+    url?: string | null
+    updatedBy?: string | null
+    updatedAt?: any | null
+    controlObjectives: {
+      __typename?: 'ControlObjectiveConnection'
+      edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string } | null } | null> | null
+    }
+    controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string } | null } | null> | null }
+    programs: { __typename?: 'ProgramConnection'; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string } | null } | null> | null }
+    subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string } | null } | null> | null }
+    tasks: { __typename?: 'TaskConnection'; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string } | null } | null> | null }
+  }
+}
+
+export type GetEvidenceFilesPaginatedQueryVariables = Exact<{
+  evidenceId: Scalars['ID']['input']
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<FileOrder> | FileOrder>
+}>
+
+export type GetEvidenceFilesPaginatedQuery = {
+  __typename?: 'Query'
+  evidence: {
+    __typename?: 'Evidence'
+    files: {
+      __typename?: 'FileConnection'
+      totalCount: number
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+      edges?: Array<{
+        __typename?: 'FileEdge'
+        node?: { __typename?: 'File'; providedFileName: string; providedFileSize?: number | null; providedFileExtension: string; id: string; uri?: string | null; presignedURL?: string | null } | null
+      } | null> | null
+    }
+  }
+}
+
+export type UpdateEvidenceMutationVariables = Exact<{
+  updateEvidenceId: Scalars['ID']['input']
+  input: UpdateEvidenceInput
+  evidenceFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
+}>
+
+export type UpdateEvidenceMutation = { __typename?: 'Mutation'; updateEvidence: { __typename?: 'EvidenceUpdatePayload'; evidence: { __typename?: 'Evidence'; id: string } } }
+
+export type DeleteEvidenceMutationVariables = Exact<{
+  deleteEvidenceId: Scalars['ID']['input']
+}>
+
+export type DeleteEvidenceMutation = { __typename?: 'Mutation'; deleteEvidence: { __typename?: 'EvidenceDeletePayload'; deletedID: string } }
 
 export type GetAllGroupsQueryVariables = Exact<{
   where?: InputMaybe<GroupWhereInput>
@@ -34278,7 +34377,7 @@ export type GetSubcontrolByIdQuery = {
     }
     evidence: {
       __typename?: 'EvidenceConnection'
-      edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; displayID: string; name: string; creationDate: any } | null } | null> | null
+      edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; displayID: string; name: string; creationDate: any } | null } | null> | null
     }
     internalPolicies: {
       __typename?: 'InternalPolicyConnection'

@@ -137,7 +137,7 @@ const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardPro
       return false
     }
 
-    if (formData.programType === 'framework' && (!formData.framework || formData.framework.trim() === '')) {
+    if (formData.programType === 'framework' && (!formData.framework || formData.framework.trim() === '') && (!formData.standardID || formData?.standardID?.trim() === '')) {
       return false
     }
     return true
@@ -192,6 +192,7 @@ const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardPro
         programType: values.programType,
       },
       members: [...programMembers, ...programAdmins],
+      standardID: values.standardID,
     }
 
     createProgram(input)

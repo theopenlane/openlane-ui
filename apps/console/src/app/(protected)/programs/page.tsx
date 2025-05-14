@@ -19,6 +19,7 @@ import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
+import { DOCS_URL } from '@/constants'
 
 const Page: React.FC = () => {
   const router = useRouter()
@@ -87,7 +88,7 @@ const Page: React.FC = () => {
                   Within Openlane, Programs are a centerpiece for managing compliance and regulatory requirements. Think of a program as a large, high-level grouping of work; it represents a
                   significant body of work that can be broken down into smaller, more manageable tasks. Essentially, it’s a big picture initiative that can span months or possibly a year+, and can
                   encompass work across different teams.
-                  <a href="https://docs.theopenlane.io" target="_blank" rel="noopener noreferrer" className="ml-1 text-blue-500">
+                  <a href={DOCS_URL} target="_blank" rel="noopener noreferrer" className="ml-1 text-blue-500">
                     See docs to learn more.
                   </a>
                 </p>

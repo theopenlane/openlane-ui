@@ -2,7 +2,7 @@
 
 import { ArrowLeft, X } from 'lucide-react'
 import Link from 'next/link'
-import { OPENLANE_WEBSITE_URL } from '../../../constants'
+import { OPENLANE_WEBSITE_URL } from '@/constants'
 import { authStyles } from './auth.styles'
 import { Button } from '@repo/ui/button'
 
