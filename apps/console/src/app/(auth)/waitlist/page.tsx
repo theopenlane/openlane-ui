@@ -6,6 +6,7 @@ import Link from 'next/link'
 import Github from '@/assets/Github'
 import Discord from '@/assets/Discord'
 import Linkedin from '@/assets/Linkedin'
+import { OPENLANE_WEBSITE_URL } from '@/constants'
 
 const Waitlist: React.FC = () => {
   return (
@@ -53,8 +54,8 @@ const Waitlist: React.FC = () => {
           </div>
 
           <div className="mt-8 md:mt-12 text-xs space-x-4 ">
-            <Link href="https://www.theopenlane.io/legal/privacy">Privacy Policy</Link>
-            <Link href="https://www.theopenlane.io/legal/terms-of-service">Terms of Service</Link>
+            <Link href={`${OPENLANE_WEBSITE_URL}/legal/privacy`}>Privacy Policy</Link>
+            <Link href={`${OPENLANE_WEBSITE_URL}/legal/terms-of-service`}>Terms of Service</Link>
           </div>
         </div>
         <div className="max-w-xxl">

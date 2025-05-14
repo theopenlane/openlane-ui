@@ -7,6 +7,7 @@ import { useSession } from 'next-auth/react'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization.ts'
 import { OrgMembershipRole } from '@repo/codegen/src/schema.ts'
 import { useRouter } from 'next/navigation'
+import { SUPPORT_EMAIL } from '@/constants'
 
 const ProtectedArea: React.FC = () => {
   const router = useRouter()
@@ -29,7 +30,7 @@ const ProtectedArea: React.FC = () => {
             reach out to your org owner
           </a>{' '}
           or{' '}
-          <a href="mailto:support@theopenlane.io" className="underline">
+          <a href={SUPPORT_EMAIL} className="underline">
             contact support
           </a>
           .

@@ -20,6 +20,7 @@ import { usePolicy } from '../hooks/use-policy'
 import StatusCard from '@/components/pages/protected/policies/create/cards/status-card.tsx'
 import AssociationCard from '@/components/pages/protected/policies/create/cards/association-card.tsx'
 import TagsCard from '@/components/pages/protected/policies/create/cards/tags-card.tsx'
+import { DOCS_URL } from '@/constants'
 
 type TCreatePolicyFormProps = {
   policy?: InternalPolicyByIdFragment
@@ -235,7 +236,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
               <AlertDescription>
                 <p>
                   For template library and help docs, please refer to our{' '}
-                  <a className="text-blue-600" href="https://docs.theopenlane.io/docs/category/policies-and-procedures" target="_blank">
+                  <a className="text-blue-600" href={`${DOCS_URL}/docs/category/policies-and-procedures`} target="_blank">
                     documentation
                   </a>
                   .

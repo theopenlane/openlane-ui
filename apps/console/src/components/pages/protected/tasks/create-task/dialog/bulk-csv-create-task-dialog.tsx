@@ -9,6 +9,7 @@ import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useCreateBulkCSVTask } from '@/lib/graphql-hooks/tasks'
 import { useNotification } from '@/hooks/useNotification'
 import { exportCSV } from '@/lib/export'
+import { DOCS_URL, GRAPHQL_OBJECT_DOCS } from '@/constants'
 
 const BulkCSVCreateTaskDialog = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
@@ -61,7 +62,7 @@ const BulkCSVCreateTaskDialog = () => {
             <p className="font-semibold">Column format</p>
             <p className="text-sm">
               You can upload a csv containing tasks. Please refer to our{' '}
-              <a href="https://docs.theopenlane.io/docs/api/graph-api/objects#task" target="_blank" className="text-brand hover:underline">
+              <a href={`${DOCS_URL}${GRAPHQL_OBJECT_DOCS}#task`} target="_blank" className="text-brand hover:underline">
                 documentation
               </a>{' '}
               for column format. We also provide a{' '}

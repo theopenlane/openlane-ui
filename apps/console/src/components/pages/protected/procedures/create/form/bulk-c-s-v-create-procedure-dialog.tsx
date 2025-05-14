@@ -8,6 +8,7 @@ import { Card } from '@repo/ui/cardpanel'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateBulkCSVProcedure } from '@/lib/graphql-hooks/procedures.ts'
+import { DOCS_URL, GRAPHQL_OBJECT_DOCS } from '@/constants'
 
 const BulkCSVCreateProcedureDialog = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
@@ -55,7 +56,7 @@ const BulkCSVCreateProcedureDialog = () => {
             <p className="font-semibold">Column format</p>
             <p className="text-sm">
               You can upload a csv containing procedures. Please refer to our{' '}
-              <a href="https://docs.theopenlane.io/docs/api/graph-api/objects#procedures" target="_blank" className="text-brand hover:underline">
+              <a href={`${DOCS_URL}${GRAPHQL_OBJECT_DOCS}#procedures`} target="_blank" className="text-brand hover:underline">
                 documentation
               </a>{' '}
               for column format. We also provide a <span className="text-brand hover:underline">template csv file</span> for you to fill out.

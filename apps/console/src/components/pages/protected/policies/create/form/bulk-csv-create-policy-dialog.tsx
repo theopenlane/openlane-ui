@@ -8,6 +8,7 @@ import { Card } from '@repo/ui/cardpanel'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateBulkCSVInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
+import { DOCS_URL, GRAPHQL_OBJECT_DOCS } from '@/constants'
 
 const BulkCSVCreatePolicyDialog = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
@@ -55,7 +56,7 @@ const BulkCSVCreatePolicyDialog = () => {
             <p className="font-semibold">Column format</p>
             <p className="text-sm">
               You can upload a csv containing policies. Please refer to our{' '}
-              <a href="https://docs.theopenlane.io/docs/api/graph-api/objects#policies" target="_blank" className="text-brand hover:underline">
+              <a href={`${DOCS_URL}${GRAPHQL_OBJECT_DOCS}#policies`} target="_blank" className="text-brand hover:underline">
                 documentation
               </a>{' '}
               for column format. We also provide a <span className="text-brand hover:underline">template csv file</span> for you to fill out.

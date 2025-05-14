@@ -22,6 +22,7 @@ import Link from 'next/link'
 import { recaptchaSiteKey } from '@repo/dally/auth'
 import { useNotification } from '@/hooks/useNotification'
 import Github from '@/assets/Github'
+import { OPENLANE_WEBSITE_URL } from '@/constants'
 
 export const LoginPage = () => {
   const { separator, buttons, form, input } = loginStyles()
@@ -241,10 +242,10 @@ export const LoginPage = () => {
           </div>
         </SimpleForm>
         <div className="flex gap-6 mt-9">
-          <Link href="https://www.theopenlane.io/legal/privacy" className="text-xs opacity-90">
+          <Link href={`${OPENLANE_WEBSITE_URL}/legal/privacy`} className="text-xs opacity-90">
             Privacy Policy
           </Link>
-          <Link href="https://www.theopenlane.io/legal/terms-of-service" className="text-xs opacity-90">
+          <Link href={`${OPENLANE_WEBSITE_URL}/legal/terms-of-service`} className="text-xs opacity-90">
             Terms of Service
           </Link>
         </div>

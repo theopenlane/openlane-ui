@@ -11,6 +11,7 @@ import { BookText, ChevronRight, PanelLeft } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { GlobalSearch } from '../search/search'
 import { Logo } from '@repo/ui/logo'
+import { DOCS_URL } from '@/constants'
 
 export default function Header() {
   const { isOpen, toggle } = useSidebar()
@@ -81,7 +82,7 @@ export default function Header() {
 
 function SupportLinks() {
   return (
-    <Link href="https://docs.theopenlane.io" target="_blank" rel="noopener noreferrer" className="flex gap-2 items-center">
+    <Link href={DOCS_URL} target="_blank" rel="noopener noreferrer" className="flex gap-2 items-center">
       <BookText className="text-input-text" size={16} />
       <p>Docs</p>
     </Link>
