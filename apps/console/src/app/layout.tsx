@@ -7,12 +7,34 @@ import './globals.css'
 import { pirschAnalyticsKey, recaptchaSiteKey } from '@repo/dally/auth'
 import Script from 'next/script'
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
+const imageWidth = '1200'
+const imageHeight = '630'
+const imageAlt = 'Openlane - Compliance Automation Reimagined'
+const imageUrl = `${siteUrl}/images/joinus.png`
+const description = "Because compliance isn't just a checkbox – it's your reputation. Discover Openlane's developer-first compliance platform."
+const title = 'Openlane | Streamlining Compliance, Securing Success'
+
 export const metadata: Metadata = {
   title: {
-    template: '%s | Openlane | Compliance made simple',
-    default: 'Console | Openlane | Compliance made simple',
+    template: `%s | ${title}`,
+    default: `${title}`,
   },
-  description: 'Accelerate your security and compliance programs with Openlane.',
+  description: `${description}`,
+  openGraph: {
+    title: `${title}`,
+    description: `${description}`,
+    url: 'https://www.theopenlane.io/',
+    type: 'website',
+    images: [
+      {
+        url: `${imageUrl}`,
+        width: `${imageWidth}`,
+        height: `${imageHeight}`,
+        alt: `${imageAlt}`,
+      },
+    ],
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }): React.ReactNode {
