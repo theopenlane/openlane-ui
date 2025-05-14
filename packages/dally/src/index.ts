@@ -11,3 +11,4 @@ export const pirschAnalyticsKey = process.env.NEXT_PUBLIC_PIRSCH_KEY
 export const isDevelopment = process.env.NODE_ENV === 'development'
 export const isVercelDev = process.env.VERCEL_ENV === 'development' || process.env.VERCEL_ENV === 'preview'
 export const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+export const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3001')

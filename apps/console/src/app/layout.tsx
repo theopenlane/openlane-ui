@@ -6,10 +6,10 @@ import Providers from './providers'
 import './globals.css'
 import { pirschAnalyticsKey, recaptchaSiteKey } from '@repo/dally/auth'
 import Script from 'next/script'
+import { siteUrl } from '@repo/dally/auth'
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
 const imageWidth = '1200'
-const imageHeight = '630'
+const imageHeight = '628'
 const imageAlt = 'Openlane - Compliance Automation Reimagined'
 const imageUrl = `${siteUrl}/images/joinus.png`
 const description = "Because compliance isn't just a checkbox – it's your reputation. Discover Openlane's developer-first compliance platform."
