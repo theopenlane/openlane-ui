@@ -20,6 +20,7 @@ import StatusCard from '@/components/pages/protected/procedures/create/cards/sta
 import AssociationCard from '@/components/pages/protected/procedures/create/cards/association-card.tsx'
 import TagsCard from '@/components/pages/protected/procedures/create/cards/tags-card.tsx'
 import { useCreateProcedure, useUpdateProcedure } from '@/lib/graphql-hooks/procedures.ts'
+import { DOCS_URL } from '@/constants/index.ts'
 
 type TCreateProcedureFormProps = {
   procedure?: ProcedureByIdFragment
@@ -235,7 +236,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
               <AlertDescription>
                 <p>
                   For template library and help docs, please refer to our{' '}
-                  <a className="text-blue-600" href="https://docs.theopenlane.io/docs/category/policies-and-procedures" target="_blank">
+                  <a className="text-blue-600" href={`${DOCS_URL}/docs/category/policies-and-procedures`} target="_blank">
                     documentation
                   </a>
                   .

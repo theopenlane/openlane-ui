@@ -2,10 +2,9 @@
 
 import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CheckCircle, CircleArrowRight, LoaderCircle, MailCheck } from 'lucide-react'
+import { CheckCircle, CircleArrowRight, LoaderCircle } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { Button } from '@repo/ui/button'
 import { Form, FormField, FormControl, FormMessage } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { newsletterStyles } from './subscribe.styles'
@@ -13,7 +12,7 @@ import { recaptchaSiteKey } from '@repo/dally/auth'
 import { CREATE_SUBSCRIBER } from '@repo/codegen/query/subscribe'
 import { GraphQlResponseError } from '@/constants/graphQlResponseError'
 import { extractGraphQlResponseError } from '@/utils/graphQlErrorMatcher'
-import { error } from 'console'
+import { SUPPORT_EMAIL } from '@/constants'
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -108,7 +107,7 @@ export const Subscribe = () => {
             </div>
             <p className="text-sm leading-snug">
               You're on the list! We previously sent a confirmation to <span className="underline">{form.getValues('email')}</span>. If you haven't received the email, please reach out to{' '}
-              <a href="mailto:support@theopenlane.io" className="underline">
+              <a href={SUPPORT_EMAIL} className="underline">
                 support
               </a>
               .

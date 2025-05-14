@@ -27,6 +27,7 @@ import { useSession } from 'next-auth/react'
 import { useGetGroupDetails, useUpdateGroup } from '@/lib/graphql-hooks/groups'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
+import { DOCS_URL } from '@/constants'
 
 const EditGroupSchema = z.object({
   groupName: z.string().min(1, 'Group name is required'),
@@ -244,7 +245,7 @@ const GroupDetailsSheet = () => {
                     <p className="font-semibold">Did you know?</p>
                     <p className="text-sm">
                       Groups can be used to assign specific access to objects within the system. Please refer to our{' '}
-                      <a href="https://docs.theopenlane.io/docs/docs/platform/security/authorization/permissions" target="_blank" className="text-brand hover:underline">
+                      <a href={`${DOCS_URL}/docs/docs/platform/security/authorization/permissions`} target="_blank" className="text-brand hover:underline">
                         documentation
                       </a>
                       .

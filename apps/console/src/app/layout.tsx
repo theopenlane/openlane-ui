@@ -7,6 +7,7 @@ import './globals.css'
 import { pirschAnalyticsKey, recaptchaSiteKey } from '@repo/dally/auth'
 import Script from 'next/script'
 import { siteUrl } from '@repo/dally/auth'
+import { OPENLANE_WEBSITE_URL } from '@/constants'
 
 const imageWidth = '1200'
 const imageHeight = '628'
@@ -24,7 +25,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: `${title}`,
     description: `${description}`,
-    url: 'https://www.theopenlane.io/',
+    url: `${OPENLANE_WEBSITE_URL}`,
     type: 'website',
     images: [
       {

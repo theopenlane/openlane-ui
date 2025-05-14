@@ -18,6 +18,7 @@ import Link from 'next/link'
 import { allowedLoginDomains, recaptchaSiteKey } from '@repo/dally/auth'
 import Github from '@/assets/Github'
 import { loginStyles } from '../login/login.styles'
+import { OPENLANE_WEBSITE_URL } from '@/constants'
 
 const TEMP_PASSKEY_EMAIL = 'tempuser1@test.com'
 
@@ -166,10 +167,10 @@ export const SignupPage = () => {
       </SimpleForm>
 
       <div className="flex gap-6 mt-9">
-        <Link href="https://www.theopenlane.io/legal/privacy" className="text-xs opacity-90">
+        <Link href={`${OPENLANE_WEBSITE_URL}/legal/privacy`} className="text-xs opacity-90">
           Privacy Policy
         </Link>
-        <Link href="https://www.theopenlane.io/legal/terms-of-service" className="text-xs opacity-90">
+        <Link href={`${OPENLANE_WEBSITE_URL}/legal/terms-of-service`} className="text-xs opacity-90">
           Terms of Service
         </Link>
       </div>

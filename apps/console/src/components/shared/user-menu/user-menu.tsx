@@ -12,6 +12,7 @@ import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
 import { Avatar } from '../avatar/avatar'
 import { User } from '@repo/codegen/src/schema'
 import { BookText, BriefcaseBusiness, Keyboard, LogOut, NotebookPen, Paintbrush, UserRoundCog } from 'lucide-react'
+import { DOCS_URL, SUPPORT_EMAIL } from '@/constants'
 
 export const UserMenu = () => {
   const { setTheme, theme } = useTheme()
@@ -71,13 +72,13 @@ export const UserMenu = () => {
         <DropdownMenuSeparator spacing="md" className="border-b" />
 
         <DropdownMenuItem asChild>
-          <Link href="mailto:support@theopenlane.io" className={userSettingsLink()}>
+          <Link href={SUPPORT_EMAIL} className={userSettingsLink()}>
             <NotebookPen className="text-input-text" size={14} />
             Feedback
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="https://docs.theopenlane.io" target="_blank" rel="noopener noreferrer" className={userSettingsLink()}>
+          <Link href={DOCS_URL} target="_blank" rel="noopener noreferrer" className={userSettingsLink()}>
             <BookText className="text-input-text" size={14} />
             Docs
           </Link>
