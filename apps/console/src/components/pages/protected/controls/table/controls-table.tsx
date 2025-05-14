@@ -70,7 +70,7 @@ const ControlsTable: React.FC = () => {
         header: 'Name',
         accessorKey: 'refCode',
         cell: ({ row }) => <div className="font-bold">{row.getValue('refCode')}</div>,
-        size: 70,
+        size: 50,
         maxSize: 90,
       },
       {

@@ -38,7 +38,7 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
 
   const upcomingTasks = tasks
     .filter((task) => task.due && isAfter(new Date(task.due), dueSoonLimit) && isBefore(new Date(task.due), upcomingUpper))
-    .sort((a, b) => new Date(b.due!).getTime() - new Date(a.due!).getTime())
+    .sort((a, b) => new Date(a.due!).getTime() - new Date(b.due!).getTime())
 
   const overdueTasks = tasks.filter((task) => task.due && isBefore(new Date(task.due), now)).sort((a, b) => new Date(b.due!).getTime() - new Date(a.due!).getTime())
 
