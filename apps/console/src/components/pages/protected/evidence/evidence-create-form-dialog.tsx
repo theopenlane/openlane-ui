@@ -50,7 +50,7 @@ const EvidenceCreateFormDialog: React.FC<TProps> = (props: TProps) => {
           <DialogTitle>{config.title}</DialogTitle>
         </DialogHeader>
         <div className={formInput()}>
-          <EvidenceCreateForm formData={props.formData} onEvidenceCreateSuccess={handleSuccess} excludeObjectTypes={props.excludeObjectTypes ?? []} />
+          <EvidenceCreateForm formData={props.formData} onEvidenceCreateSuccess={handleSuccess} excludeObjectTypes={props.excludeObjectTypes ?? []} defaultSelectedObject={ObjectTypeObjects.CONTROL} />
         </div>
       </DialogContent>
     </Dialog>
