@@ -11,7 +11,7 @@ const statusLabels: Record<ControlControlStatus, string> = {
 }
 
 const statusOptions = Object.values(ControlControlStatus)
-  .filter((status) => status !== 'NULL')
+  .filter((status) => status !== 'NOT_IMPLEMENTED')
   .map((status) => ({
     label: statusLabels[status],
     value: status,

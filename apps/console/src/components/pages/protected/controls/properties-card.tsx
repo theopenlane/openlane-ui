@@ -64,7 +64,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ category, subcategory, 
                     </SelectTrigger>
                     <SelectContent>
                       {statusOptions
-                        .filter((status) => status !== 'NULL')
+                        .filter((status) => status !== 'NOT_IMPLEMENTED')
                         .map((status) => (
                           <SelectItem key={status} value={status}>
                             {statusLabels[status]}
