@@ -32,7 +32,7 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
   const { successNotification } = useNotification()
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
 
-  const { data, isPending, isError, isFetching } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId, pagination })
+  const { data, isLoading, isError, isFetching } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId, pagination })
 
   useEffect(() => {
     if (copiedText) {
@@ -49,8 +49,6 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
       setFilteredMembers(memberNodes as OrgMembership[])
     }
   }, [data])
-
-  if (isError || isPending) return null
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const searchValue = e.target.value.toLowerCase()
@@ -144,11 +142,12 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
         </div>
       </div>
       <DataTable
+        loading={isLoading}
         columns={columns}
         data={filteredMembers}
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
-        paginationMeta={{ totalCount: data?.organization?.members?.totalCount, pageInfo: data.organization.members.pageInfo, isLoading: isFetching }}
+        paginationMeta={{ totalCount: data?.organization?.members?.totalCount, pageInfo: data?.organization?.members?.pageInfo, isLoading: isFetching }}
       />
     </div>
   )
