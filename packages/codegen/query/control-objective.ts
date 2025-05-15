@@ -4,13 +4,13 @@ export const CONTROL_OBJECTIVE_FIELDS = gql`
   fragment ControlObjectiveFields on ControlObjective {
     id
     name
-    displayID
-    blockedGroups {
-      id
-      name
-    }
-    category
+    status
     controlObjectiveType
+    source
+    category
+    revision
+    subcategory
+    desiredOutcome
     controls {
       edges {
         node {
@@ -23,71 +23,6 @@ export const CONTROL_OBJECTIVE_FIELDS = gql`
         }
       }
     }
-    createdAt
-    createdBy
-    deletedAt
-    deletedBy
-    desiredOutcome
-    editors {
-      id
-      name
-    }
-    evidence {
-      edges {
-        node {
-          id
-          name
-        }
-      }
-    }
-    internalPolicies {
-      edges {
-        node {
-          id
-          name
-        }
-      }
-    }
-    narratives {
-      edges {
-        node {
-          id
-        }
-      }
-    }
-    owner {
-      id
-      name
-    }
-    ownerID
-    procedures {
-      edges {
-        node {
-          id
-          name
-        }
-      }
-    }
-    programs {
-      edges {
-        node {
-          id
-          name
-        }
-      }
-    }
-    revision
-    risks {
-      edges {
-        node {
-          id
-          name
-        }
-      }
-    }
-    source
-    status
-    subcategory
     subcontrols {
       edges {
         node {
@@ -99,21 +34,6 @@ export const CONTROL_OBJECTIVE_FIELDS = gql`
           }
         }
       }
-    }
-    tags
-    tasks {
-      edges {
-        node {
-          id
-          title
-        }
-      }
-    }
-    updatedAt
-    updatedBy
-    viewers {
-      id
-      name
     }
   }
 `

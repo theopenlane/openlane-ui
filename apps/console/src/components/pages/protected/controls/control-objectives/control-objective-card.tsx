@@ -30,38 +30,38 @@ export const ControlObjectiveCard = ({ obj }: Props) => {
       <div className="flex-1">
         <div className="grid grid-cols-2 gap-y-2 text-sm">
           {/* Status */}
-          <div className="flex items-start border-b">
+          <div className="flex items-start border-b pb-2">
             <div className="min-w-32">Status</div>
             <div>{renderStatusIcon(obj?.status)}</div>
           </div>
 
           {/* Type */}
-          <div className="flex items-start border-b">
-            <div className="min-w-32 pl-5 border-l mb-2">Type</div>
+          <div className="flex items-start border-b pb-2">
+            <div className="min-w-32 pl-5 border-l h-full ">Type</div>
             <div>{obj.controlObjectiveType || '—'}</div>
           </div>
 
           {/* Source */}
-          <div className="flex items-start border-b">
+          <div className="flex items-start border-b pb-2">
             <div className="min-w-32">Source</div>
             <div>{renderSourceText(obj?.source)}</div>
           </div>
 
           {/* Category */}
-          <div className="flex items-start border-b">
-            <div className="min-w-32 pl-5 border-l mb-2">Category</div>
+          <div className="flex items-start border-b pb-2">
+            <div className="min-w-32 pl-5 border-l h-full ">Category</div>
             <div>{obj.category || '—'}</div>
           </div>
 
           {/* Revision */}
-          <div className="flex items-start border-b">
+          <div className="flex items-start border-b pb-2">
             <div className="min-w-32">Revision</div>
             <div>{obj.revision || 'v0.0.1'}</div>
           </div>
 
           {/* Subcategory */}
-          <div className="flex items-start border-b">
-            <div className="min-w-32 pl-5 border-l mb-2">Subcategory</div>
+          <div className="flex items-start border-b pb-2">
+            <div className="min-w-32 pl-5 border-l h-full ">Subcategory</div>
             <div>{obj.subcategory || '—'}</div>
           </div>
         </div>
@@ -72,7 +72,7 @@ export const ControlObjectiveCard = ({ obj }: Props) => {
       <div className="w-px bg-border self-stretch mx-6" />
 
       <div className="w-[350px] flex-shrink-0">
-        <div className="flex justify-between items-center mb-2">
+        <div className="flex justify-between items-center ">
           <p className="text-lg">Controls</p>
           <LinkControlsModal controlObjectiveData={obj} />
         </div>
@@ -85,8 +85,8 @@ export const ControlObjectiveCard = ({ obj }: Props) => {
                 onMouseEnter={() =>
                   setHoveredControl({
                     id: control?.node?.id || '',
-                    shortName: control?.node?.standard?.shortName ?? '',
-                    description: control?.node?.description ?? '',
+                    shortName: control?.node?.standard?.shortName || '-',
+                    description: control?.node?.description || '-',
                   })
                 }
                 onMouseLeave={() => setHoveredControl(null)}

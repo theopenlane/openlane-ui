@@ -1,10 +1,10 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useGetAllControlObjectives } from '@/lib/graphql-hooks/control-objectives'
 import { ControlObjectiveFieldsFragment } from '@repo/codegen/src/schema'
-import { ChevronRight, ChevronsDownUp, ChevronsUpDown, CirclePlus, Pencil, Settings2 } from 'lucide-react'
+import { ArrowRight, ChevronRight, ChevronsDownUp, ChevronsUpDown, CirclePlus, Pencil, Settings2 } from 'lucide-react'
 import CreateControlObjectiveSheet from '@/components/pages/protected/controls/control-objectives/create-control-objective-sheet'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Button } from '@repo/ui/button'
@@ -19,6 +19,7 @@ const ControlObjectivePage = () => {
   const subcontrolId = params?.subcontrolId as string | undefined
   const [showCreateSheet, setShowCreateSheet] = useState(false)
   const [expandedItems, setExpandedItems] = useState<string[]>([])
+  const [existingIds, setExistingIds] = useState<string[]>([])
   const [isInitialized, setIsInitialized] = useState(false)
   const [editData, setEditData] = useState<ControlObjectiveFieldsFragment | null>(null)
 
@@ -28,12 +29,38 @@ const ControlObjectivePage = () => {
 
   const edges = data?.controlObjectives?.edges?.filter((edge): edge is { node: ControlObjectiveFieldsFragment } => !!edge?.node)
 
-  useEffect(() => {
-    if (edges?.length && expandedItems.length === 0 && !isInitialized) {
-      setExpandedItems([edges[0].node.id])
-      setIsInitialized(true)
+  const expandFirstObjective = (ids: string[]) => {
+    if (ids.length > 0) {
+      setExpandedItems([ids[0]])
     }
-  }, [edges, expandedItems.length, isInitialized])
+  }
+
+  const detectAndExpandNewObjectives = (currentIds: string[], existingIds: string[]) => {
+    const newIds = currentIds.filter((id) => !existingIds.includes(id))
+    if (newIds.length > 0) {
+      setExistingIds(currentIds)
+      setExpandedItems((prev) => [...prev, ...newIds])
+    }
+  }
+
+  const handleControlObjectivesUpdate = useCallback(() => {
+    if (!edges?.length) return
+
+    const currentIds = edges.map((e) => e.node.id)
+
+    if (!isInitialized) {
+      setExistingIds(currentIds)
+      expandFirstObjective(currentIds)
+      setIsInitialized(true)
+      return
+    }
+
+    detectAndExpandNewObjectives(currentIds, existingIds)
+  }, [edges, existingIds, isInitialized])
+
+  useEffect(() => {
+    handleControlObjectivesUpdate()
+  }, [handleControlObjectivesUpdate])
 
   if (isLoading) {
     return <Loading />
@@ -46,9 +73,12 @@ const ControlObjectivePage = () => {
         <div className="flex flex-col items-center justify-center h-[60vh] text-center text-gray-300">
           <Settings2 className="w-20 h-20 mb-4 text-border" strokeWidth={1} />
           <p className="mb-2 text-sm">No Objective found for this Control.</p>
-          <p onClick={() => setShowCreateSheet(true)} className="cursor-pointer text-blue-500 text-sm hover:underline hover:text-blue-400">
-            Create a new one →
-          </p>
+          <div className="text-blue-500 flex items-center gap-1 cursor-pointer">
+            <p onClick={() => setShowCreateSheet(true)} className="text-blue-500">
+              Create a new one
+            </p>{' '}
+            <ArrowRight className="mt-0.5" size={16} />
+          </div>
         </div>
       </>
     )

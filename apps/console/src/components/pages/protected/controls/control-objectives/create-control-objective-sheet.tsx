@@ -2,8 +2,9 @@
 
 import { Sheet, SheetContent } from '@repo/ui/sheet'
 import React from 'react'
-import { CreateControlObjectiveForm } from './create-control-objective-form'
+import { CreateControlObjectiveForm } from './form/create-control-objective-form'
 import { ControlObjectiveControlSource, ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
+import { VersionBump } from './form/use-form-schema'
 
 type CreateControlObjectiveSheetProps = {
   open: boolean
@@ -12,6 +13,7 @@ type CreateControlObjectiveSheetProps = {
 }
 
 const CreateControlObjectiveSheet: React.FC<CreateControlObjectiveSheetProps> = ({ open, onOpenChange, editData }) => {
+  const RevisionBump: VersionBump | undefined = editData?.status === ControlObjectiveObjectiveStatus.DRAFT ? VersionBump.DRAFT : undefined
   const normalizedValues = editData
     ? {
         id: editData.id,
@@ -22,6 +24,8 @@ const CreateControlObjectiveSheet: React.FC<CreateControlObjectiveSheetProps> = 
         controlObjectiveType: editData.controlObjectiveType ?? '',
         category: editData.category ?? '',
         subcategory: editData.subcategory ?? '',
+        revision: editData.revision ?? '',
+        RevisionBump,
       }
     : undefined
 

@@ -1,9 +1,7 @@
 'use client'
 
-import React, { useEffect } from 'react'
-import { useForm, Controller } from 'react-hook-form'
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
+import React, { useEffect, useState } from 'react'
+import { Controller, Form } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Button } from '@repo/ui/button'
@@ -17,20 +15,9 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Value } from '@udecode/plate-common'
 import { Pencil, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
-
-const schema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  desiredOutcome: z.any().optional(),
-  status: z.nativeEnum(ControlObjectiveObjectiveStatus),
-  source: z.nativeEnum(ControlObjectiveControlSource),
-  controlObjectiveType: z.string().optional(),
-  category: z.string().optional(),
-  subcategory: z.string().optional(),
-  controlIDs: z.array(z.string()).optional(),
-  subcontrolIDs: z.array(z.string()).optional(),
-})
-
-type FormData = z.infer<typeof schema> & { id?: string }
+import useFormSchema, { TFormData, VersionBump } from './use-form-schema'
+import { useGetControlById } from '@/lib/graphql-hooks/controls'
+import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 
 const controlSourceLabels: Record<ControlObjectiveControlSource, string> = {
   [ControlObjectiveControlSource.FRAMEWORK]: 'Framework',
@@ -38,22 +25,24 @@ const controlSourceLabels: Record<ControlObjectiveControlSource, string> = {
   [ControlObjectiveControlSource.TEMPLATE]: 'Template',
   [ControlObjectiveControlSource.USER_DEFINED]: 'User Defined',
 }
-export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuccess: () => void; defaultValues?: Partial<FormData> }) => {
+export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuccess: () => void; defaultValues?: Partial<TFormData> }) => {
   const { id, subcontrolId } = useParams()
   const { successNotification, errorNotification } = useNotification()
   const isEditing = !!defaultValues
-
+  const isSubcontrol = !!subcontrolId
+  const { data: controlData, isLoading: isLoadingControl } = useGetControlById(isSubcontrol ? null : (id as string))
+  const { data: subcontrolData, isLoading } = useGetSubcontrolById((subcontrolId as string) || null)
+  const loading = isLoadingControl || isLoading
+  const [defaultValuesSet, setDefaultValuesSet] = useState(false)
+  const { convertToHtml } = usePlateEditor()
+  const { form } = useFormSchema()
   const {
     register,
     handleSubmit,
     control,
     reset,
     formState: { errors },
-  } = useForm<FormData>({
-    resolver: zodResolver(schema),
-  })
-
-  const { convertToHtml } = usePlateEditor()
+  } = form
 
   const { mutate: createObjective } = useCreateControlObjective()
   const { mutate: updateObjective } = useUpdateControlObjective()
@@ -76,7 +65,7 @@ export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuc
     }
   }
 
-  const onSubmit = async (data: FormData) => {
+  const onSubmit = async (data: TFormData) => {
     const desiredOutcome = await convertToHtml(data.desiredOutcome as Value)
 
     const basePayload = {
@@ -121,10 +110,18 @@ export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuc
   }
 
   useEffect(() => {
-    if (defaultValues) {
-      reset(defaultValues)
+    if (loading && defaultValuesSet) {
+      return
     }
-  }, [defaultValues, reset])
+    const createDefValues: Partial<TFormData> = {
+      ...defaultValues,
+      category: subcontrolData?.subcontrol?.category || controlData?.control?.category || '',
+      subcategory: subcontrolData?.subcontrol?.subcategory || controlData?.control?.subcategory || '',
+    }
+    const defValues = isEditing ? defaultValues : createDefValues
+    reset(defValues)
+    setDefaultValuesSet(true)
+  }, [defaultValues, reset, isEditing, controlData, subcontrolData, loading, defaultValuesSet])
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -150,9 +147,7 @@ export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuc
           </>
         )}
       </div>
-      <SheetHeader>
-        <SheetTitle className="text-left">Create Objective</SheetTitle>
-      </SheetHeader>
+      <SheetHeader>{!isEditing && <SheetTitle className="text-left">Create Objective</SheetTitle>}</SheetHeader>
       <div className="p-4 border rounded-lg">
         <div className="border-b flex items-center pb-2.5">
           <Label className="w-36">
@@ -176,21 +171,22 @@ export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuc
           <Controller
             name="status"
             control={control}
-            defaultValue={ControlObjectiveObjectiveStatus.DRAFT}
-            render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger className="w-60">
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(ControlObjectiveObjectiveStatus).map(([key, value]) => (
-                    <SelectItem key={key} value={value}>
-                      {value.charAt(0).toUpperCase() + value.slice(1).toLowerCase()}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
+            render={({ field }) => {
+              return (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className="w-60">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(ControlObjectiveObjectiveStatus).map(([key, val]) => (
+                      <SelectItem key={key} value={val}>
+                        {val.charAt(0).toUpperCase() + val.slice(1).toLowerCase()}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )
+            }}
           />
         </div>
 
@@ -199,7 +195,6 @@ export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuc
           <Controller
             name="source"
             control={control}
-            defaultValue={ControlObjectiveControlSource.USER_DEFINED}
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger className="w-60">
@@ -234,10 +229,38 @@ export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuc
           <Input className="w-60" {...register('subcategory')} />
         </div>
 
-        <div className="flex items-center py-2.5">
-          <Label className="min-w-36">Version</Label>
-          <Input disabled value="v0.0.1" />
-        </div>
+        {isEditing ? (
+          <div className="border-b flex items-center py-2.5">
+            <Label className="min-w-36">Revision</Label>
+            <div className="flex flex-col">
+              <Controller
+                defaultValue={'DRAFT'}
+                name="RevisionBump"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger className="w-60">
+                      <SelectValue placeholder="Select revision type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(VersionBump).map(([key, value]) => (
+                        <SelectItem key={key} value={value}>
+                          {value.charAt(0) + value.slice(1).toLowerCase()}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              <p className="text-xs mt-2">Current version: {defaultValues?.revision ?? 'v0.0.1'}</p>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center py-2.5">
+            <Label className="min-w-36">Version</Label>
+            <Input disabled value="v0.0.1" />
+          </div>
+        )}
       </div>
     </form>
   )

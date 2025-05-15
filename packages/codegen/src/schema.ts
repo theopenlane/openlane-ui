@@ -32635,23 +32635,13 @@ export type ControlObjectiveFieldsFragment = {
   __typename?: 'ControlObjective'
   id: string
   name: string
-  displayID: string
-  category?: string | null
-  controlObjectiveType?: string | null
-  createdAt?: any | null
-  createdBy?: string | null
-  deletedAt?: any | null
-  deletedBy?: string | null
-  desiredOutcome?: string | null
-  ownerID?: string | null
-  revision?: string | null
-  source?: ControlObjectiveControlSource | null
   status?: ControlObjectiveObjectiveStatus | null
+  controlObjectiveType?: string | null
+  source?: ControlObjectiveControlSource | null
+  category?: string | null
+  revision?: string | null
   subcategory?: string | null
-  tags?: Array<string> | null
-  updatedAt?: any | null
-  updatedBy?: string | null
-  blockedGroups?: Array<{ __typename?: 'Group'; id: string; name: string }> | null
+  desiredOutcome?: string | null
   controls: {
     __typename?: 'ControlConnection'
     edges?: Array<{
@@ -32659,17 +32649,6 @@ export type ControlObjectiveFieldsFragment = {
       node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; standard?: { __typename?: 'Standard'; shortName?: string | null } | null } | null
     } | null> | null
   }
-  editors?: Array<{ __typename?: 'Group'; id: string; name: string }> | null
-  evidence: { __typename?: 'EvidenceConnection'; edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string } | null } | null> | null }
-  internalPolicies: {
-    __typename?: 'InternalPolicyConnection'
-    edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
-  }
-  narratives: { __typename?: 'NarrativeConnection'; edges?: Array<{ __typename?: 'NarrativeEdge'; node?: { __typename?: 'Narrative'; id: string } | null } | null> | null }
-  owner?: { __typename?: 'Organization'; id: string; name: string } | null
-  procedures: { __typename?: 'ProcedureConnection'; edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null }
-  programs: { __typename?: 'ProgramConnection'; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string } | null } | null> | null }
-  risks: { __typename?: 'RiskConnection'; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
   subcontrols: {
     __typename?: 'SubcontrolConnection'
     edges?: Array<{
@@ -32677,8 +32656,6 @@ export type ControlObjectiveFieldsFragment = {
       node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; refCode: string; description?: string | null } } | null
     } | null> | null
   }
-  tasks: { __typename?: 'TaskConnection'; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null }
-  viewers?: Array<{ __typename?: 'Group'; id: string; name: string }> | null
 }
 
 export type GetAllControlObjectivesQueryVariables = Exact<{
@@ -32695,23 +32672,13 @@ export type GetAllControlObjectivesQuery = {
         __typename?: 'ControlObjective'
         id: string
         name: string
-        displayID: string
-        category?: string | null
-        controlObjectiveType?: string | null
-        createdAt?: any | null
-        createdBy?: string | null
-        deletedAt?: any | null
-        deletedBy?: string | null
-        desiredOutcome?: string | null
-        ownerID?: string | null
-        revision?: string | null
-        source?: ControlObjectiveControlSource | null
         status?: ControlObjectiveObjectiveStatus | null
+        controlObjectiveType?: string | null
+        source?: ControlObjectiveControlSource | null
+        category?: string | null
+        revision?: string | null
         subcategory?: string | null
-        tags?: Array<string> | null
-        updatedAt?: any | null
-        updatedBy?: string | null
-        blockedGroups?: Array<{ __typename?: 'Group'; id: string; name: string }> | null
+        desiredOutcome?: string | null
         controls: {
           __typename?: 'ControlConnection'
           edges?: Array<{
@@ -32719,17 +32686,6 @@ export type GetAllControlObjectivesQuery = {
             node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; standard?: { __typename?: 'Standard'; shortName?: string | null } | null } | null
           } | null> | null
         }
-        editors?: Array<{ __typename?: 'Group'; id: string; name: string }> | null
-        evidence: { __typename?: 'EvidenceConnection'; edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string } | null } | null> | null }
-        internalPolicies: {
-          __typename?: 'InternalPolicyConnection'
-          edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
-        }
-        narratives: { __typename?: 'NarrativeConnection'; edges?: Array<{ __typename?: 'NarrativeEdge'; node?: { __typename?: 'Narrative'; id: string } | null } | null> | null }
-        owner?: { __typename?: 'Organization'; id: string; name: string } | null
-        procedures: { __typename?: 'ProcedureConnection'; edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null }
-        programs: { __typename?: 'ProgramConnection'; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string } | null } | null> | null }
-        risks: { __typename?: 'RiskConnection'; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
         subcontrols: {
           __typename?: 'SubcontrolConnection'
           edges?: Array<{
@@ -32737,8 +32693,6 @@ export type GetAllControlObjectivesQuery = {
             node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; refCode: string; description?: string | null } } | null
           } | null> | null
         }
-        tasks: { __typename?: 'TaskConnection'; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null }
-        viewers?: Array<{ __typename?: 'Group'; id: string; name: string }> | null
       } | null
     } | null> | null
   }
