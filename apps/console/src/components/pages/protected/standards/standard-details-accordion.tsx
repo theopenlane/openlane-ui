@@ -19,8 +19,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
 import { canEdit } from '@/lib/authz/utils.ts'
 import { useSession } from 'next-auth/react'
-import { useAccountRole } from '@/lib/authz/access-api.ts'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
+import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 
 const generateWhere = (id: string, searchValue: string) => ({
   and: [
@@ -51,7 +50,7 @@ const StandardDetailsAccordion: FC = () => {
   const { controls } = useGetAllControls({ where })
   const { data: programsData } = useGetAllPrograms()
   const { data: session } = useSession()
-  const { data: permission } = useAccountRole(session, ObjectEnum.STANDARD, id)
+  const { data: permission } = useOrganizationRole(session)
 
   const groupedControls = useMemo(() => {
     if (!controls || controls.length === 0) return {}
