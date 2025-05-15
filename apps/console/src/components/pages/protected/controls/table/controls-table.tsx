@@ -21,7 +21,7 @@ export const ControlStatusLabels: Record<ControlControlStatus, string> = {
   [ControlControlStatus.ARCHIVED]: 'Archived',
   [ControlControlStatus.CHANGES_REQUESTED]: 'Changes Requested',
   [ControlControlStatus.NEEDS_APPROVAL]: 'Needs Approval',
-  [ControlControlStatus.NULL]: '-',
+  [ControlControlStatus.NOT_IMPLEMENTED]: 'Not Implemented',
   [ControlControlStatus.PREPARING]: 'Preparing',
 }
 
