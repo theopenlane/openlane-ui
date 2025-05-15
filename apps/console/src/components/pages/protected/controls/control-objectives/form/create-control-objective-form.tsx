@@ -150,11 +150,13 @@ export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuc
       <SheetHeader>{!isEditing && <SheetTitle className="text-left">Create Objective</SheetTitle>}</SheetHeader>
       <div className="p-4 border rounded-lg">
         <div className="border-b flex items-center pb-2.5">
-          <Label className="w-36">
+          <Label className="w-36 self-start">
             Name <span className="text-red-500">*</span>
           </Label>
-          <Input {...register('name')} />
-          {errors.name && <p className="text-red-500 text-xs">{errors.name.message}</p>}
+          <div className="flex flex-col">
+            <Input {...register('name')} />
+            {errors.name && <p className="text-red-500 mt-1 text-xs">{errors.name.message}</p>}
+          </div>
         </div>
 
         <div className="border-b flex items-center py-2.5">
