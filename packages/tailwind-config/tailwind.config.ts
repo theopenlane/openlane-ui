@@ -81,6 +81,7 @@ export const config: Partial<Config> = {
           light: 'var(--color-button-light)', // Button background always light
           text: 'var(--color-button-text)', // Button text
           secondary: 'var(--color-button-secondary)', // Secondary button background
+          back: 'var(--color-button-back)',
         },
         panel: {
           DEFAULT: 'var(--color-panel-bg)', // Panel background
