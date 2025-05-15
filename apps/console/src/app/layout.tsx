@@ -13,7 +13,7 @@ const imageWidth = '1200'
 const imageHeight = '628'
 const imageAlt = 'Openlane - Compliance Automation Reimagined'
 const imageUrl = `${siteUrl}/images/joinus.png`
-const description = "Because compliance isn't just a checkbox – it's your reputation. Discover Openlane's developer-first compliance platform."
+const description = "Compliance isn't just a checkbox—it's your reputation. Discover Openlane's developer-first compliance platform."
 const title = 'Openlane | Streamlining Compliance, Securing Success'
 
 export const metadata: Metadata = {

@@ -70,7 +70,8 @@ const ControlsTable: React.FC = () => {
         header: 'Name',
         accessorKey: 'refCode',
         cell: ({ row }) => <div className="font-bold">{row.getValue('refCode')}</div>,
-        size: 100,
+        size: 50,
+        maxSize: 90,
       },
       {
         header: 'Description',
@@ -108,6 +109,18 @@ const ControlsTable: React.FC = () => {
         size: 100,
       },
       {
+        header: 'Category',
+        accessorKey: 'category',
+        cell: ({ row }) => <div>{row.getValue('category') || '-'}</div>,
+        size: 120,
+      },
+      {
+        header: 'Subcategory',
+        accessorKey: 'subcategory',
+        cell: ({ row }) => <div>{row.getValue('subcategory') || '-'}</div>,
+        size: 120,
+      },
+      {
         header: 'Owner',
         accessorKey: 'controlOwner',
         cell: ({ row }) => {
@@ -120,24 +133,6 @@ const ControlsTable: React.FC = () => {
             </div>
           )
         },
-        size: 100,
-      },
-      {
-        header: 'Type',
-        accessorKey: 'type',
-        cell: ({ row }) => <div>{row.getValue('type') || '-'}</div>,
-        size: 100,
-      },
-      {
-        header: 'Category',
-        accessorKey: 'category',
-        cell: ({ row }) => <div>{row.getValue('category') || '-'}</div>,
-        size: 100,
-      },
-      {
-        header: 'Subcategory',
-        accessorKey: 'subcategory',
-        cell: ({ row }) => <div>{row.getValue('subcategory') || '-'}</div>,
         size: 100,
       },
     ],
