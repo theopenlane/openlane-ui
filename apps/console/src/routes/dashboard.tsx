@@ -93,24 +93,24 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
     href: '/groups',
     icon: UsersRoundIcon,
   },
-  {
-    title: 'Entities',
-    href: '/entities',
-    icon: Building,
-  },
-  {
-    title: 'Assets',
-    href: '/assets',
-    icon: ShapesIcon,
-  },
-  {
-    type: 'separator',
-  },
-  {
-    title: 'Reporting',
-    href: '/reporting',
-    icon: LineChart,
-  },
+  // {
+  //   title: 'Entities',
+  //   href: '/entities',
+  //   icon: Building,
+  // },
+  // {
+  //   title: 'Assets',
+  //   href: '/assets',
+  //   icon: ShapesIcon,
+  // },
+  // {
+  //   type: 'separator',
+  // },
+  // {
+  //   title: 'Reporting',
+  //   href: '/reporting',
+  //   icon: LineChart,
+  // },
   {
     type: 'separator',
   },
@@ -163,10 +163,10 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
         title: 'Developers',
         href: '/user-settings/developers',
       },
-      {
-        title: 'Alerts & Preferences',
-        href: '/user-settings/alerts-preferences',
-      },
+      // {
+      //   title: 'Alerts & Preferences',
+      //   href: '/user-settings/alerts-preferences',
+      // },
     ],
   },
 ]

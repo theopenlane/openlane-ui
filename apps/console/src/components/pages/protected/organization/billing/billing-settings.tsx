@@ -87,7 +87,7 @@ const BillingSettings: React.FC = () => {
       </div>
 
       {/* Billing Alert Section */}
-      <div className={cn(section())}>
+      {/* <div className={cn(section())}>
         <div className="flex gap-10 w-full">
           <h3 className={cn(sectionTitle())}>Billing Alert</h3>
           <div className={cn(switchContainer())}>
@@ -95,7 +95,9 @@ const BillingSettings: React.FC = () => {
             <Switch checked={notificationsEnabled} onCheckedChange={onToggleNotifications} disabled={isPending} />
           </div>
         </div>
-      </div>
+      </div> */}
+
+      {/* Cancel Section */}
       <div className={cn(section())}>
         <div className="flex gap-10 w-full items-start">
           <h3 className={cn(sectionTitle())}>Cancel Subscription</h3>

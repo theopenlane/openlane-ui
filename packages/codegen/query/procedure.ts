@@ -127,6 +127,7 @@ export const PROCEDURE_BY_ID = gql`
           id
           name
           displayID
+          summary
         }
       }
       totalCount

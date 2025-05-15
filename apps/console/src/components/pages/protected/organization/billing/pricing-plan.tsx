@@ -35,7 +35,7 @@ const PricingPlan = () => {
   }, [stripeSubscriptionStatus, active])
 
   const formattedExpiresDate = useMemo(() => {
-    if (!expiresAt && !active) return 'Expired'
+    if (!expiresAt || !active) return 'Expired'
 
     try {
       const expirationDate = parseISO(expiresAt)
@@ -59,7 +59,7 @@ const PricingPlan = () => {
               <Card className="shadow-md ">
                 <div className="flex flex-col   ">
                   <div className="p-4">
-                    <div className="flex gap-3 items-center ">
+                    <div className="flex pb-3 items-center ">
                       <p className="text-lg font-medium">{productTier ?? 'N/A'}</p>
                       <Badge variant={badge.variant} className="text-xs font-normal text-white">
                         {badge.text}

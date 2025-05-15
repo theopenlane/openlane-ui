@@ -51,7 +51,7 @@ const ObjectAssociation: React.FC<Props> = ({ onIdChange, excludeObjectTypes, in
         data[objectKey]?.edges?.map((item: any) => ({
           id: item?.node?.id || '',
           name: item?.node?.[objectName] || '',
-          description: item?.node?.description || '',
+          description: item?.node?.description || item.node.summary || '',
           inputName: inputName || '',
           refCode: item?.node?.refCode ?? item?.node?.displayID ?? '',
           details: item?.node?.details || '',

@@ -32631,33 +32631,6 @@ export interface WebauthnWhereInput {
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
-export type ControlObjectiveFieldsFragment = {
-  __typename?: 'ControlObjective'
-  id: string
-  name: string
-  status?: ControlObjectiveObjectiveStatus | null
-  controlObjectiveType?: string | null
-  source?: ControlObjectiveControlSource | null
-  category?: string | null
-  revision?: string | null
-  subcategory?: string | null
-  desiredOutcome?: string | null
-  controls: {
-    __typename?: 'ControlConnection'
-    edges?: Array<{
-      __typename?: 'ControlEdge'
-      node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; standard?: { __typename?: 'Standard'; shortName?: string | null } | null } | null
-    } | null> | null
-  }
-  subcontrols: {
-    __typename?: 'SubcontrolConnection'
-    edges?: Array<{
-      __typename?: 'SubcontrolEdge'
-      node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; refCode: string; description?: string | null } } | null
-    } | null> | null
-  }
-}
-
 export type GetAllControlObjectivesQueryVariables = Exact<{
   where?: InputMaybe<ControlObjectiveWhereInput>
 }>
@@ -32666,62 +32639,9 @@ export type GetAllControlObjectivesQuery = {
   __typename?: 'Query'
   controlObjectives: {
     __typename?: 'ControlObjectiveConnection'
-    edges?: Array<{
-      __typename?: 'ControlObjectiveEdge'
-      node?: {
-        __typename?: 'ControlObjective'
-        id: string
-        name: string
-        status?: ControlObjectiveObjectiveStatus | null
-        controlObjectiveType?: string | null
-        source?: ControlObjectiveControlSource | null
-        category?: string | null
-        revision?: string | null
-        subcategory?: string | null
-        desiredOutcome?: string | null
-        controls: {
-          __typename?: 'ControlConnection'
-          edges?: Array<{
-            __typename?: 'ControlEdge'
-            node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; standard?: { __typename?: 'Standard'; shortName?: string | null } | null } | null
-          } | null> | null
-        }
-        subcontrols: {
-          __typename?: 'SubcontrolConnection'
-          edges?: Array<{
-            __typename?: 'SubcontrolEdge'
-            node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; refCode: string; description?: string | null } } | null
-          } | null> | null
-        }
-      } | null
-    } | null> | null
+    edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string; name: string; displayID: string } | null } | null> | null
   }
 }
-
-export type CreateControlObjectiveMutationVariables = Exact<{
-  input: CreateControlObjectiveInput
-}>
-
-export type CreateControlObjectiveMutation = {
-  __typename?: 'Mutation'
-  createControlObjective: { __typename?: 'ControlObjectiveCreatePayload'; controlObjective: { __typename?: 'ControlObjective'; id: string } }
-}
-
-export type UpdateControlObjectiveMutationVariables = Exact<{
-  updateControlObjectiveId: Scalars['ID']['input']
-  input: UpdateControlObjectiveInput
-}>
-
-export type UpdateControlObjectiveMutation = {
-  __typename?: 'Mutation'
-  updateControlObjective: { __typename?: 'ControlObjectiveUpdatePayload'; controlObjective: { __typename?: 'ControlObjective'; id: string } }
-}
-
-export type DeleteControlObjectiveMutationVariables = Exact<{
-  deleteControlObjectiveId: Scalars['ID']['input']
-}>
-
-export type DeleteControlObjectiveMutation = { __typename?: 'Mutation'; deleteControlObjective: { __typename?: 'ControlObjectiveDeletePayload'; deletedID: string } }
 
 export type ControlListFieldsFragment = {
   __typename?: 'Control'
@@ -33628,7 +33548,7 @@ export type InternalPolicyByIdFragment = {
   procedures: {
     __typename?: 'ProcedureConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string } | null } | null> | null
+    edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string; summary?: string | null } | null } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
   }
   controls: {
@@ -33640,13 +33560,13 @@ export type InternalPolicyByIdFragment = {
   programs: {
     __typename?: 'ProgramConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string } | null } | null> | null
+    edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string; description?: string | null } | null } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
   }
   tasks: {
     __typename?: 'TaskConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string } | null } | null> | null
+    edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; details?: string | null } | null } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
   }
   controlObjectives: {
@@ -33686,7 +33606,7 @@ export type GetInternalPolicyDetailsByIdQuery = {
     procedures: {
       __typename?: 'ProcedureConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string; summary?: string | null } | null } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     controls: {
@@ -33698,13 +33618,13 @@ export type GetInternalPolicyDetailsByIdQuery = {
     programs: {
       __typename?: 'ProgramConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string; description?: string | null } | null } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     tasks: {
       __typename?: 'TaskConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; details?: string | null } | null } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     controlObjectives: {
@@ -33829,7 +33749,7 @@ export type ProcedureByIdFragment = {
   internalPolicies: {
     __typename?: 'InternalPolicyConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; displayID: string } | null } | null> | null
+    edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; displayID: string; summary?: string | null } | null } | null> | null
   }
   controls: {
     __typename?: 'ControlConnection'
@@ -33882,7 +33802,7 @@ export type GetProcedureDetailsByIdQuery = {
     internalPolicies: {
       __typename?: 'InternalPolicyConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; displayID: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; displayID: string; summary?: string | null } | null } | null> | null
     }
     controls: {
       __typename?: 'ControlConnection'

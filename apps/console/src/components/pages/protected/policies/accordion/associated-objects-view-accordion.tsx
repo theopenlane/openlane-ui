@@ -20,12 +20,15 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
     setExpandedItems(expand ? ['procedures', 'controls', 'controlObjectives', 'tasks', 'programs'] : [])
   }
 
-  const renderTable = (rows: { displayID: string; refCode?: string; name?: string; title?: string; details?: string }[]) => (
-    <div className="mt-4 rounded-md border border-border overflow-hidden bg-card">
+  const renderTable = (
+    kind: string,
+    rows: { id: string; displayID: string; refCode?: string | null; name?: string | null; title?: string | null; details?: string | null; description?: string | null; summary?: string | null }[],
+  ) => (
+    <div className="mt-4 rounded-md border border-border overflow-hidden bg-card w-full">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="px-4 py-2">Display ID</TableHead>
+            <TableHead className="px-4 py-2 max-w-[60px] font-bold">ID</TableHead>
             <TableHead className="px-4 py-2">Name</TableHead>
             <TableHead className="px-4 py-2">Description</TableHead>
           </TableRow>
@@ -33,12 +36,12 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
         <TableBody>
           {rows.length > 0 ? (
             rows.map((row) => (
-              <TableRow key={row?.refCode ?? row.displayID}>
-                <TableCell className="px-4 py-2 text-primary">
-                  <Link href={`/objects/${row?.refCode ?? row.displayID}`}>{row?.refCode ?? row.displayID}</Link>
+              <TableRow key={row?.id}>
+                <TableCell className="px-4 py-2 text-primary max-w-[60px] font-bold">
+                  <Link href={`/${kind}/${row?.id}`}>{row?.refCode ?? row.displayID}</Link>
                 </TableCell>
                 <TableCell className="px-4 py-2">{row.name || row.title || '-'}</TableCell>
-                <TableCell className="px-4 py-2">{row?.details && plateEditorHelper.convertToReadOnly(row.details)}</TableCell>
+                <TableCell className="px-4 py-2 max-w-96 truncate">{row?.summary || row?.description || (row?.details && plateEditorHelper.convertToReadOnly(row.details))}</TableCell>
               </TableRow>
             ))
           ) : (
@@ -87,27 +90,27 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
       <Accordion type="multiple" value={expandedItems} onValueChange={(values) => setExpandedItems(values)} className="w-full">
         <AccordionItem value="procedures">
           <SectionTrigger label="Procedures" count={policy.procedures.totalCount} />
-          {!!policy.procedures.edges?.length && <AccordionContent>{renderTable(extractNodes(policy.procedures.edges))}</AccordionContent>}
+          {!!policy.procedures.edges?.length && <AccordionContent>{renderTable('procedures', extractNodes(policy.procedures.edges))}</AccordionContent>}
         </AccordionItem>
 
         <AccordionItem value="controls">
           <SectionTrigger label="Controls" count={policy.controls.totalCount} />
-          {!!policy.controls.edges?.length && <AccordionContent>{renderTable(extractNodes(policy.controls.edges))}</AccordionContent>}
+          {!!policy.controls.edges?.length && <AccordionContent>{renderTable('controls', extractNodes(policy.controls.edges))}</AccordionContent>}
         </AccordionItem>
 
         <AccordionItem value="controlObjectives">
           <SectionTrigger label="Control Objectives" count={policy.controlObjectives.totalCount} />
-          {!!policy.controlObjectives.edges?.length && <AccordionContent>{renderTable(extractNodes(policy.controlObjectives.edges))}</AccordionContent>}
+          {!!policy.controlObjectives.edges?.length && <AccordionContent>{renderTable('control-objectives', extractNodes(policy.controlObjectives.edges))}</AccordionContent>}
         </AccordionItem>
 
         <AccordionItem value="tasks">
           <SectionTrigger label="Tasks" count={policy.tasks.totalCount} />
-          {!!policy.tasks.edges?.length && <AccordionContent>{renderTable(extractNodes(policy.tasks.edges))}</AccordionContent>}
+          {!!policy.tasks.edges?.length && <AccordionContent>{renderTable('tasks', extractNodes(policy.tasks.edges))}</AccordionContent>}
         </AccordionItem>
 
         <AccordionItem value="programs">
           <SectionTrigger label="Programs" count={policy.programs.totalCount} />
-          {!!policy.programs.edges?.length && <AccordionContent>{renderTable(extractNodes(policy.programs.edges))}</AccordionContent>}
+          {!!policy.programs.edges?.length && <AccordionContent>{renderTable('programs', extractNodes(policy.programs.edges))}</AccordionContent>}
         </AccordionItem>
       </Accordion>
     </div>
