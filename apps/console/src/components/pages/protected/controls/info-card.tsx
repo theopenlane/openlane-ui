@@ -5,12 +5,24 @@ import { Card } from '@repo/ui/cardpanel'
 import { PanelRightOpenIcon } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 
+interface AssessmentMethod {
+  id: string
+  type: string
+  method: string
+}
+
+interface AssessmentObjective {
+  id: string
+  class: string
+  objective: string
+}
+
 interface InfoCardWithSheetProps {
   implementationGuidance: { referenceId: string; guidance: string[] }[] | null | undefined
   exampleEvidence: string | string[] | null | undefined
   controlQuestions: string[] | null | undefined
-  assessmentMethods: string | string[] | null | undefined
-  assessmentObjectives: string | string[] | null | undefined
+  assessmentMethods: AssessmentMethod[] | string | string[] | null | undefined
+  assessmentObjectives: AssessmentObjective[] | string | string[] | null | undefined
   showInfoDetails: (title: string, content: React.ReactNode) => void
 }
 
@@ -71,11 +83,22 @@ const InfoCardWithSheet: React.FC<InfoCardWithSheetProps> = ({ implementationGui
       hasData: Array.isArray(assessmentMethods) ? assessmentMethods.length > 0 : !!assessmentMethods,
       render: () =>
         Array.isArray(assessmentMethods) ? (
-          <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-            {assessmentMethods.map((item, i) => (
-              <li key={i}>{item}</li>
-            ))}
-          </ul>
+          <div className="space-y-4">
+            {assessmentMethods.map((item, i) =>
+              typeof item === 'string' ? (
+                <ul key={i} className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                  <li>{item}</li>
+                </ul>
+              ) : (
+                <div key={item.id}>
+                  <p className="font-medium mb-1">{item.type}</p>
+                  <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                    {item.method.split(/<br\s*\/?>/i).map((line, idx) => line.trim() && <li key={idx}>{line.trim()}</li>)}
+                  </ul>
+                </div>
+              ),
+            )}
+          </div>
         ) : (
           <p className="text-sm text-muted-foreground">{assessmentMethods || 'No assessment methods provided.'}</p>
         ),
@@ -85,11 +108,22 @@ const InfoCardWithSheet: React.FC<InfoCardWithSheetProps> = ({ implementationGui
       hasData: Array.isArray(assessmentObjectives) ? assessmentObjectives.length > 0 : !!assessmentObjectives,
       render: () =>
         Array.isArray(assessmentObjectives) ? (
-          <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-            {assessmentObjectives.map((item, i) => (
-              <li key={i}>{item}</li>
-            ))}
-          </ul>
+          <div className="space-y-4">
+            {assessmentObjectives.map((item, i) =>
+              typeof item === 'string' ? (
+                <ul key={i} className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                  <li>{item}</li>
+                </ul>
+              ) : (
+                <div key={item.id}>
+                  <p className="font-medium mb-1">{item.id}</p>
+                  <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                    {item.objective.split(/<br\s*\/?>/i).map((line, idx) => line.trim() && <li key={idx}>{line.trim()}</li>)}
+                  </ul>
+                </div>
+              ),
+            )}
+          </div>
         ) : (
           <p className="text-sm text-muted-foreground">{assessmentObjectives || 'No assessment objectives provided.'}</p>
         ),

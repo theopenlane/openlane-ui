@@ -67,13 +67,13 @@ export const BreadcrumbNavigation = ({ homeElement = 'Home' }: TBreadCrumbProps)
   } else if (pathname.startsWith('/controls')) {
     breadcrumbs.push({ name: 'Controls', url: '/controls' })
 
-    if (controlData?.control) {
+    if (controlId && controlData?.control) {
       breadcrumbs.push({
         name: controlData.control.refCode,
         url: `/controls/${controlData.control.id}`,
       })
     }
-    if (subcontrolData && controlData) {
+    if (subcontrolId && subcontrolData && controlData) {
       breadcrumbs.push({
         name: subcontrolData.subcontrol.refCode,
         url: `/controls/${controlData.control.id}/${subcontrolData.subcontrol.id}`,
