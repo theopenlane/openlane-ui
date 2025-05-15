@@ -18,6 +18,7 @@ import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
+import DashboardSkeleton from '@/app/(protected)/dashboard/dashboard-skeleton.tsx'
 
 const Page: React.FC = () => {
   const router = useRouter()
@@ -65,7 +66,7 @@ const Page: React.FC = () => {
   }
 
   if (isLoading) {
-    return <Loading />
+    return <DashboardSkeleton />
   }
 
   if (!data?.programs.edges?.length) {
