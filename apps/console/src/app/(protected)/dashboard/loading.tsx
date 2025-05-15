@@ -1,8 +1,8 @@
-import { Loading } from '@/components/shared/loading/loading'
 import React from 'react'
+import DashboardSkeleton from '@/app/(protected)/dashboard/dashboard-skeleton.tsx'
 
 const Loader: React.FC = () => {
-  return <Loading />
+  return <DashboardSkeleton />
 }
 
 export default Loader
