@@ -41,9 +41,7 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
                     {row.name || row.refCode || row.title || '-'}
                   </Link>
                 </TableCell>
-                <TableCell className="px-4 py-2 line-clamp-1 overflow-hidden">
-                  {row?.summary || row?.description || (row?.details && plateEditorHelper.convertToReadOnly(row.details, 0, { padding: 0 }))}
-                </TableCell>
+                <TableCell className="px-4 py-2 line-clamp-1 overflow-hidden">{row?.summary || row?.description || (row?.details && plateEditorHelper.convertToReadOnly(row.details, 0))}</TableCell>
               </TableRow>
             ))
           ) : (
