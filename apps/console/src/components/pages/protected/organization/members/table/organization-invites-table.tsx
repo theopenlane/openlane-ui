@@ -45,22 +45,20 @@ export const OrganizationInvitesTable = () => {
 
   const { data, isLoading, isError, isFetching } = useGetInvites({ where: whereFilter, orderBy: orderByFilter, pagination, enabled: !!filters })
 
-  if (isLoading) return <p>Loading...</p>
-  if (isError || !data) return null
-
-  const invites: InviteNode[] = data.invites.edges?.filter((edge) => edge !== null && edge.node !== null).map((edge) => edge?.node as InviteNode) || []
+  const invites: InviteNode[] = data?.invites.edges?.filter((edge) => edge !== null && edge.node !== null).map((edge) => edge?.node as InviteNode) || []
 
   return (
     <>
       <OrganizationInvitesTableToolbar onFilterChange={setFilters} />
       <DataTable
+        loading={isLoading}
         sortFields={INVITES_SORT_FIELDS}
         onSortChange={setOrderBy}
         columns={invitesColumns}
         data={invites}
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
-        paginationMeta={{ totalCount: data?.invites.totalCount, pageInfo: data.invites?.pageInfo, isLoading: isFetching }}
+        paginationMeta={{ totalCount: data?.invites.totalCount, pageInfo: data?.invites?.pageInfo, isLoading: isFetching }}
       />
     </>
   )
