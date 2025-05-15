@@ -31,9 +31,10 @@ type TProps = {
   formData?: TFormEvidenceData
   onEvidenceCreateSuccess?: () => void
   excludeObjectTypes?: ObjectTypeObjects[]
+  defaultSelectedObject?: ObjectTypeObjects
 }
 
-const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSuccess, excludeObjectTypes }: TProps) => {
+const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSuccess, excludeObjectTypes, defaultSelectedObject }: TProps) => {
   const { form } = useFormSchema()
   const { successNotification, errorNotification } = useNotification()
   const [tagValues, setTagValues] = useState<Option[]>([])
@@ -330,7 +331,12 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
                     </div>
                   </Card>
                 )}
-                <ObjectAssociation onIdChange={handleEvidenceObjectIdsChange} excludeObjectTypes={excludeObjectTypes || []} initialData={formData?.objectAssociations} />
+                <ObjectAssociation
+                  onIdChange={handleEvidenceObjectIdsChange}
+                  excludeObjectTypes={excludeObjectTypes || []}
+                  initialData={formData?.objectAssociations}
+                  defaultSelectedObject={defaultSelectedObject}
+                />
               </Panel>
             </div>
           </div>
