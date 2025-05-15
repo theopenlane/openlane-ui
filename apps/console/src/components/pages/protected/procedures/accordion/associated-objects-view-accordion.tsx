@@ -28,7 +28,6 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="px-4 py-2 font-bold">ID</TableHead>
             <TableHead className="px-4 py-2">Name</TableHead>
             <TableHead className="px-4 py-2">Description</TableHead>
           </TableRow>
@@ -38,10 +37,11 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
             rows.map((row) => (
               <TableRow key={row?.refCode ?? row.displayID}>
                 <TableCell className="px-4 py-2 text-primary font-bold">
-                  <Link href={`/${kind}/${row?.id}`}>{row?.refCode ?? row.displayID}</Link>
+                  <Link href={`/${kind}/${row?.id}`} className="text-blue-500 hover:underline">
+                    {row.name || row.refCode || row.title || '-'}
+                  </Link>
                 </TableCell>
-                <TableCell className="px-4 py-2">{row.name || row.title || '-'}</TableCell>
-                <TableCell className="px-4 py-2 truncate  max-w-1/6">{row?.summary || row?.description || (row?.details && plateEditorHelper.convertToReadOnly(row.details))}</TableCell>
+                <TableCell className="px-4 py-2 line-clamp-1 overflow-hidden">{row?.summary || row?.description || (row?.details && plateEditorHelper.convertToReadOnly(row.details))}</TableCell>
               </TableRow>
             ))
           ) : (
@@ -110,7 +110,7 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
 
         <AccordionItem value="programs">
           <SectionTrigger label="Programs" count={procedure.programs.totalCount} />
-          {!!procedure.programs.edges?.length && <AccordionContent>{renderTable('prgraoms', extractNodes(procedure.programs.edges))}</AccordionContent>}
+          {!!procedure.programs.edges?.length && <AccordionContent>{renderTable('programs', extractNodes(procedure.programs.edges))}</AccordionContent>}
         </AccordionItem>
       </Accordion>
     </div>

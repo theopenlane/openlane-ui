@@ -28,8 +28,7 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="px-4 py-2 max-w-[60px] font-bold">ID</TableHead>
-            <TableHead className="px-4 py-2">Name</TableHead>
+            <TableHead className="px-4 py-2 min-w-[100px]">Name</TableHead>
             <TableHead className="px-4 py-2">Description</TableHead>
           </TableRow>
         </TableHeader>
@@ -37,11 +36,14 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
           {rows.length > 0 ? (
             rows.map((row) => (
               <TableRow key={row?.id}>
-                <TableCell className="px-4 py-2 text-primary max-w-[60px] font-bold">
-                  <Link href={`/${kind}/${row?.id}`}>{row?.refCode ?? row.displayID}</Link>
+                <TableCell className="px-4 py-2 text-primary font-bold min-w-[100px]">
+                  <Link href={`/${kind}/${row?.id}`} className="text-blue-500 hover:underline">
+                    {row.name || row.refCode || row.title || '-'}
+                  </Link>
                 </TableCell>
-                <TableCell className="px-4 py-2">{row.name || row.title || '-'}</TableCell>
-                <TableCell className="px-4 py-2 max-w-96 truncate">{row?.summary || row?.description || (row?.details && plateEditorHelper.convertToReadOnly(row.details))}</TableCell>
+                <TableCell className="px-4 py-2 line-clamp-1 overflow-hidden">
+                  {row?.summary || row?.description || (row?.details && plateEditorHelper.convertToReadOnly(row.details, 0, { padding: 0 }))}
+                </TableCell>
               </TableRow>
             ))
           ) : (
