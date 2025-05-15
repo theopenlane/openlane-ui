@@ -24,7 +24,7 @@ const statusLabels: Record<ControlControlStatus, string> = {
   ARCHIVED: 'Archived',
   CHANGES_REQUESTED: 'Changes requested',
   NEEDS_APPROVAL: 'Needs approval',
-  NULL: '-',
+  NOT_IMPLEMENTED: 'Not implemented',
   PREPARING: 'Preparing',
 }
 
@@ -64,7 +64,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ category, subcategory, 
                     </SelectTrigger>
                     <SelectContent>
                       {statusOptions
-                        .filter((status) => status !== 'NULL')
+                        .filter((status) => status !== 'NOT_IMPLEMENTED')
                         .map((status) => (
                           <SelectItem key={status} value={status}>
                             {statusLabels[status]}

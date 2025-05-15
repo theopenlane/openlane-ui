@@ -6,12 +6,12 @@ const statusLabels: Record<ControlControlStatus, string> = {
   ARCHIVED: 'Archived',
   CHANGES_REQUESTED: 'Changes requested',
   NEEDS_APPROVAL: 'Needs approval',
-  NULL: '-',
+  NOT_IMPLEMENTED: 'Not implemented',
   PREPARING: 'Preparing',
 }
 
 const statusOptions = Object.values(ControlControlStatus)
-  .filter((status) => status !== 'NULL')
+  .filter((status) => status !== 'NOT_IMPLEMENTED')
   .map((status) => ({
     label: statusLabels[status],
     value: status,

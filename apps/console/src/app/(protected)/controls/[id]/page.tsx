@@ -50,7 +50,7 @@ const initialDataObj = {
   controlOwnerID: '',
   category: '',
   subcategory: '',
-  status: ControlControlStatus.NULL,
+  status: ControlControlStatus.NOT_IMPLEMENTED,
   mappedCategories: [],
 }
 
@@ -129,7 +129,7 @@ const ControlDetailsPage: React.FC = () => {
         controlOwnerID: data.control.controlOwner?.id || '',
         category: data.control.category || '',
         subcategory: data.control.subcategory || '',
-        status: data.control.status || ControlControlStatus.NULL,
+        status: data.control.status || ControlControlStatus.NOT_IMPLEMENTED,
         mappedCategories: data.control.mappedCategories || [],
       }
 
