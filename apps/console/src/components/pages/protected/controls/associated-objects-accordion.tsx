@@ -148,7 +148,7 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="px-4 py-2 md:min-w-[100px]">Name</TableHead>
+            <TableHead className="px-4 py-2">Name</TableHead>
             <TableHead className="px-4 py-2">Status</TableHead>
           </TableRow>
         </TableHeader>
