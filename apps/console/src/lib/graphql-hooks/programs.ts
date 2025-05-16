@@ -140,3 +140,11 @@ export const useGlobalEvidenceStats = ({ enabled = true }) => {
     enabled,
   })
 }
+
+export const useProgramSelect = () => {
+  const { data, ...rest } = useGetAllPrograms({})
+
+  const programOptions = data?.programs?.edges?.flatMap((edge) => (edge?.node?.id && edge?.node?.name ? [{ label: edge.node.name, value: edge.node.id }] : [])) || []
+
+  return { programOptions, ...rest }
+}

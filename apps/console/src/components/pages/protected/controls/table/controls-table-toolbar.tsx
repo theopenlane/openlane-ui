@@ -1,10 +1,11 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React from 'react'
-import { SelectFilterField } from '@/types'
+import { SelectFilterField, SelectIsFilterField } from '@/types'
 import { DownloadIcon, LoaderCircle, SearchIcon } from 'lucide-react'
 import { CONTROLS_FILTER_FIELDS } from './table-config'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
+import { useGetAllPrograms, useProgramSelect } from '@/lib/graphql-hooks/programs'
 
 type TProps = {
   onFilterChange: (filters: Record<string, any>) => void
@@ -16,6 +17,8 @@ type TProps = {
 }
 
 const ControlsTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, searchTerm, setSearchTerm, owners, exportToCSV }: TProps) => {
+  const { programOptions } = useProgramSelect()
+
   const filterFields = [
     ...CONTROLS_FILTER_FIELDS,
     {
@@ -24,6 +27,12 @@ const ControlsTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, sea
       type: 'select',
       options: owners ?? [{ value: 'owner_1', label: 'Owner 1' }],
     } as SelectFilterField,
+    {
+      key: 'hasProgramsWith',
+      label: 'Program Name',
+      type: 'selectIs',
+      options: programOptions,
+    } as SelectIsFilterField,
   ]
 
   return (

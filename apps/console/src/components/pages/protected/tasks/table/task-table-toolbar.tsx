@@ -8,7 +8,7 @@ import { CreditCard as CardIcon, DownloadIcon, Table as TableIcon } from 'lucide
 import { Checkbox } from '@repo/ui/checkbox'
 import { BulkCSVCreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/bulk-csv-create-task-dialog'
 import { Button } from '@repo/ui/button'
-import { useGetAllPrograms } from '@/lib/graphql-hooks/programs'
+import { useProgramSelect } from '@/lib/graphql-hooks/programs'
 
 type TProps = {
   onFilterChange: (filters: Record<string, any>) => void
@@ -22,13 +22,7 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
   const [showCompletedTasks, setShowCompletedTasks] = useState<boolean>(false)
   const { orgMembers } = useTaskStore()
-  const { data } = useGetAllPrograms({})
-
-  const programOptions =
-    data?.programs?.edges?.map((edge) => ({
-      label: edge?.node?.name,
-      value: edge?.node?.id,
-    })) || []
+  const { programOptions } = useProgramSelect()
 
   const filterFields = [
     ...TASK_FILTER_FIELDS,
