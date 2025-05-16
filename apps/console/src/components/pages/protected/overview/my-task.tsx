@@ -48,6 +48,18 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
   const upcomingCount = upcomingTasks.length
   const overdueCount = overdueTasks.length
 
+  const filters = [
+    {
+      field: 'hasProgramsWith',
+      value: programId,
+      type: 'selectIs',
+      operator: 'EQ',
+    },
+  ]
+
+  const encodedFilters = encodeURIComponent(JSON.stringify(filters))
+  const tasksRedirectURL = programId ? `/tasks?filters=${encodedFilters}` : '/tasks'
+
   if (dueSoonCount === 0 && upcomingCount === 0) {
     return (
       //TODO: add size fit when we have pending actions, currently no api
@@ -125,7 +137,7 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
           })}
         </div>
 
-        <div onClick={() => router.push('/tasks')} className="mt-7 text-sm text-primary flex items-center cursor-pointer">
+        <div onClick={() => router.push(tasksRedirectURL)} className="mt-7 text-sm text-primary flex items-center cursor-pointer">
           Show more Tasks <ChevronRight size={16} className="ml-1" />
         </div>
       </CardContent>
