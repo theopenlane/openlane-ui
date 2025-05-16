@@ -20,20 +20,30 @@ const oneYearFromToday = addDays(new Date(), 365)
 
 const currentYear = getYear(new Date())
 
-export const initProgramSchema = z.object({
-  name: z.string().min(1, { message: 'Name is required' }),
-  description: z.string().optional(),
-  framework: z.string(),
-  standardID: z.string(),
-  status: z
-    .nativeEnum(ProgramProgramStatus, {
-      errorMap: () => ({ message: 'Invalid status' }),
-    })
-    .default(ProgramProgramStatus.NOT_STARTED),
-  startDate: z.date().min(new Date(), { message: 'Start date must be in the future' }).default(today),
-  endDate: z.date().min(new Date(), { message: 'End date must be after start date' }).default(oneYearFromToday),
-  programType: z.string().min(1, { message: 'Program type is required' }),
-})
+export const initProgramSchema = z
+  .object({
+    name: z.string().min(1, { message: 'Name is required' }),
+    description: z.string().optional(),
+    framework: z.string().optional(), // change to optional here
+    standardID: z.string().optional(), // also optional, since it is set together with framework
+    status: z
+      .nativeEnum(ProgramProgramStatus, {
+        errorMap: () => ({ message: 'Invalid status' }),
+      })
+      .default(ProgramProgramStatus.NOT_STARTED),
+    startDate: z.date().min(new Date(), { message: 'Start date must be in the future' }).default(today),
+    endDate: z.date().min(new Date(), { message: 'End date must be after start date' }).default(oneYearFromToday),
+    programType: z.string().min(1, { message: 'Program type is required' }),
+  })
+  .superRefine((data, ctx) => {
+    if (data.programType === ProgramProgramType.FRAMEWORK && !data.framework) {
+      ctx.addIssue({
+        path: ['framework'],
+        code: z.ZodIssueCode.custom,
+        message: 'Framework is required when program type is Framework',
+      })
+    }
+  })
 
 type InitProgramValues = zInfer<typeof initProgramSchema>
 
@@ -52,7 +62,7 @@ export function ProgramInitComponent() {
           <GridCell className={formRow()}>
             <ProgramTypeSelect />
           </GridCell>
-          {programType === ProgramProgramType.FRAMEWORK && (
+          {(programType === ProgramProgramType.FRAMEWORK || programType === ProgramProgramType.GAP_ANALYSIS) && (
             <GridCell className={formRow()}>
               <FrameworkSelect />
             </GridCell>
@@ -220,6 +230,7 @@ const FrameworkSelect = () => {
   const { inputRow } = wizardStyles()
   const { data, isLoading, isError } = useGetStandards({})
   const currentYear = new Date().getFullYear()
+  const programType = useWatch({ control, name: 'programType' })
 
   const frameworks = data?.standards?.edges?.map((edge) => edge?.node as Standard) || []
 
@@ -230,7 +241,7 @@ const FrameworkSelect = () => {
       render={({ field }) => (
         <FormItem>
           <FormLabel>
-            Framework<span className="text-red-500"> *</span>
+            Framework{programType === ProgramProgramType.FRAMEWORK && <span className="text-red-500"> *</span>}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>

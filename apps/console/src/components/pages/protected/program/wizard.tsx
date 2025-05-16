@@ -13,7 +13,7 @@ import { initProgramSchema, ProgramInitComponent } from './wizard/step-1-init'
 import { programDetailSchema, ProgramDetailsComponent } from './wizard/step-2-details'
 import { ProgramInviteComponent, programInviteSchema } from './wizard/step-3-team'
 import { ProgramObjectAssociationComponent, programObjectAssociationSchema } from './wizard/step-4-associate'
-import { CreateProgramWithMembersInput, ProgramMembershipRole } from '@repo/codegen/src/schema'
+import { CreateProgramWithMembersInput, ProgramMembershipRole, ProgramProgramType } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { useRouter } from 'next/navigation'
 import { dialogStyles } from './dialog.styles'
@@ -130,14 +130,26 @@ const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardPro
     const formData = getValues()
 
     if (!formData.programType || formData.programType.trim().length < 1) {
+      errorNotification({
+        title: 'Form Invalid',
+        description: 'Program Type is not selected.',
+      })
       return false
     }
 
     if (!formData.name || formData.name.trim().length < 1) {
+      errorNotification({
+        title: 'Form Invalid',
+        description: 'Name is required.',
+      })
       return false
     }
 
-    if (formData.programType === 'framework' && (!formData.framework || formData.framework.trim() === '') && (!formData.standardID || formData?.standardID?.trim() === '')) {
+    if (formData.programType === ProgramProgramType.FRAMEWORK && (!formData.framework || formData.framework.trim() === '') && (!formData.standardID || formData?.standardID?.trim() === '')) {
+      errorNotification({
+        title: 'Form Invalid',
+        description: 'Framework is not selected.',
+      })
       return false
     }
     return true
@@ -147,11 +159,6 @@ const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardPro
     setIsSubmitting(true)
 
     if (!isFormValid()) {
-      errorNotification({
-        title: 'Form Invalid',
-        description: 'Please fill out all required fields before submitting.',
-      })
-
       setIsSubmitting(false)
       return
     }
