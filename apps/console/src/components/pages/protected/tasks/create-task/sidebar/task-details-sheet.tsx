@@ -479,7 +479,7 @@ const TaskDetailsSheet = () => {
                       render={({ field }) => (
                         <>
                           <CalendarPopover field={field} disabledFrom={new Date()} buttonClassName="w-1/3 flex justify-between items-center" />
-                          {form.formState.errors.due && <p className="text-red-500 text-sm">{form.formState.errors.due.message}</p>}
+                          {form.formState.errors.due && <p className="text-red-500 text-sm">{form.formState.errors.due.message as string}</p>}
                         </>
                       )}
                     />

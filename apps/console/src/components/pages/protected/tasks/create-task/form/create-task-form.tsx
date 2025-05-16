@@ -250,7 +250,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                               <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Set the deadline by which the task must be completed.</p>} />
                             </FormLabel>
                             <CalendarPopover field={field} disabledFrom={new Date()} />
-                            {form.formState.errors.due && <p className="text-red-500 text-sm">{form.formState.errors.due.message}</p>}
+                            {form.formState.errors.due && <p className="text-red-500 text-sm">{form.formState.errors.due.message as string}</p>}
                           </FormItem>
                         )}
                       />
