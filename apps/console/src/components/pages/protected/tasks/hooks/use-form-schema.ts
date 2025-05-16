@@ -17,7 +17,7 @@ const formSchema = z.object({
   }),
   details: z.custom<Value | string>().optional(),
   assigneeID: z.string().optional().nullable(),
-  due: z.date().optional().nullable(),
+  due: z.string().optional().nullable(),
   taskObjects: z.array(z.any()).optional(),
   controlObjectiveIDs: z.array(z.any()).optional(),
   subcontrolIDs: z.array(z.any()).optional(),
@@ -26,7 +26,7 @@ const formSchema = z.object({
   internalPolicyIDs: z.array(z.any()).optional(),
   evidenceIDs: z.array(z.any()).optional(),
   groupIDs: z.array(z.any()).optional(),
-  tags: z.array(z.string().optional()),
+  tags: z.array(z.string()).optional(),
   status: z
     .nativeEnum(TaskTaskStatus, {
       errorMap: () => ({ message: 'Invalid status' }),

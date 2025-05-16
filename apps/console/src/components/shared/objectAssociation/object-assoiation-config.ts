@@ -10,6 +10,7 @@ import { GET_ALL_SUBCONTROLS } from '@repo/codegen/query/subcontrol'
 import { TASKS_WITH_FILTER } from '@repo/codegen/query/tasks'
 
 import { Control, Subcontrol, ControlObjective, Program, TaskEdge, Evidence, Group, InternalPolicy, Procedure } from '@repo/codegen/src/schema'
+import { useQueryClient } from '@tanstack/react-query'
 
 export type AllObjectQueriesData = {
   controls?: {
@@ -149,4 +150,16 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     searchAttribute: 'nameContainsFold',
     objectName: 'name',
   },
+}
+
+export const invalidateTaskAssociations = (payload: Record<string, any>, queryClient: ReturnType<typeof useQueryClient>) => {
+  // Always invalidate the general 'tasks' query
+  queryClient.invalidateQueries({ queryKey: ['tasks'] })
+
+  Object.values(OBJECT_QUERY_CONFIG).forEach((config) => {
+    const fieldValue = payload[config.inputName]
+    if (Array.isArray(fieldValue) && fieldValue.length > 0) {
+      queryClient.invalidateQueries({ queryKey: [config.responseObjectKey] })
+    }
+  })
 }

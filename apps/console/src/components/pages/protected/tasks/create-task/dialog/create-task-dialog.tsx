@@ -5,8 +5,16 @@ import { PlusCircle } from 'lucide-react'
 import CreateTaskForm from '@/components/pages/protected/tasks/create-task/form/create-task-form'
 import React, { useState } from 'react'
 import { Button } from '@repo/ui/button'
+import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
+import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 
-const CreateTaskDialog = () => {
+interface Props {
+  defaultSelectedObject?: ObjectTypeObjects
+  excludeObjectTypes?: ObjectTypeObjects[]
+  initialData?: TObjectAssociationMap
+}
+
+const CreateTaskDialog = ({ defaultSelectedObject, excludeObjectTypes, initialData }: Props) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
 
   const handleSuccess = () => {
@@ -16,15 +24,15 @@ const CreateTaskDialog = () => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button icon={<PlusCircle />} iconPosition="left" onClick={() => setIsOpen(true)}>
-          Create a new Task
+        <Button className="h-8 !px-2" icon={<PlusCircle />} iconPosition="left" onClick={() => setIsOpen(true)}>
+          Create Task
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create a new Task</DialogTitle>
         </DialogHeader>
-        <CreateTaskForm onSuccess={handleSuccess} />
+        <CreateTaskForm defaultSelectedObject={defaultSelectedObject} excludeObjectTypes={excludeObjectTypes} initialData={initialData} onSuccess={handleSuccess} />
       </DialogContent>
     </Dialog>
   )
