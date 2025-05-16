@@ -12,7 +12,6 @@ import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task
 import { useGetAllPrograms } from '@/lib/graphql-hooks/programs'
 import StatsCards from '@/components/shared/stats-cards/stats-cards'
 import { NewUserLanding } from '@/components/pages/protected/dashboard/dashboard'
-import { Loading } from '@/components/shared/loading/loading'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api.ts'
