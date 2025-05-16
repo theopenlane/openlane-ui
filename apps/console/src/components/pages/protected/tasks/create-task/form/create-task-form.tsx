@@ -12,7 +12,6 @@ import { CreateTaskInput } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { useNotification } from '@/hooks/useNotification'
-import ControlObjectTaskForm from '@/components/pages/protected/tasks/create-task/form/control-object-task-form'
 import { useCreateTask } from '@/lib/graphql-hooks/tasks'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 import PlateEditor from '@/components/shared/plate/plate-editor'
@@ -20,9 +19,16 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Value } from '@udecode/plate-common'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import { dialogStyles } from '@/components/pages/protected/program/dialog.styles.tsx'
+import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
+import { Panel, PanelHeader } from '@repo/ui/panel'
+import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
+import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 
 type TProps = {
   onSuccess: () => void
+  defaultSelectedObject?: ObjectTypeObjects
+  excludeObjectTypes?: ObjectTypeObjects[]
+  initialData?: TObjectAssociationMap
 }
 
 const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
@@ -35,6 +41,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
   const taskTypeOptions = Object.values(TaskTypes)
   const { mutateAsync: createTask, isPending: isSubmitting } = useCreateTask()
   const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
+  const [associations, setAssociations] = useState<TObjectAssociationMap>({})
 
   const membersOptions = membersData?.organization?.members?.edges?.map((member) => ({
     value: member?.node?.user?.id,
@@ -50,14 +57,6 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
         detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
       }
 
-      const taskObjects = (data?.taskObjects || []).reduce(
-        (acc, item) => {
-          acc[item.inputName] = item.objectIds
-          return acc
-        },
-        {} as Record<string, string[]>,
-      )
-
       const formData: { input: CreateTaskInput } = {
         input: {
           category: data?.category,
@@ -66,7 +65,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
           details: detailsField,
           assigneeID: data?.assigneeID,
           tags: data?.tags,
-          ...taskObjects,
+          ...associations,
         },
       }
 
@@ -251,7 +250,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                               <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Set the deadline by which the task must be completed.</p>} />
                             </FormLabel>
                             <CalendarPopover field={field} disabledFrom={new Date()} />
-                            {form.formState.errors.due && <p className="text-red-500 text-sm">{form.formState.errors.due.message}</p>}
+                            {form.formState.errors.due && <p className="text-red-500 text-sm">{form.formState.errors.due.message as string}</p>}
                           </FormItem>
                         )}
                       />
@@ -260,7 +259,17 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                 </Form>
               </div>
               <div className="col-span-1">
-                <ControlObjectTaskForm form={form} />
+                <Panel>
+                  <PanelHeader heading="Object association" noBorder />
+                  <p>Associating objects will allow users with access to the object to see the created task.</p>
+                  {/* <ControlObjectTaskForm form={form} /> */}
+                  <ObjectAssociation
+                    defaultSelectedObject={props.defaultSelectedObject}
+                    excludeObjectTypes={props.excludeObjectTypes}
+                    initialData={props.initialData}
+                    onIdChange={(updatedMap) => setAssociations(updatedMap)}
+                  />
+                </Panel>
               </div>
             </div>
           </GridCell>

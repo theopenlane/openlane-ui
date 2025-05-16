@@ -20,6 +20,7 @@ import {
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task.ts'
 import { TPagination } from '@repo/ui/pagination-types'
+import { invalidateTaskAssociations } from '@/components/shared/objectAssociation/object-assoiation-config'
 
 type GetAllTasksArgs = {
   where?: TasksWithFilterQueryVariables['where']
@@ -89,8 +90,8 @@ export const useCreateTask = () => {
 
   return useMutation<CreateTaskMutation, unknown, CreateTaskMutationVariables>({
     mutationFn: async (variables) => client.request(CREATE_TASK, variables),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] })
+    onSuccess: (_, variables) => {
+      invalidateTaskAssociations(variables.input, queryClient)
     },
   })
 }

@@ -22,6 +22,8 @@ import DetailsCard from '@/components/pages/protected/controls/details'
 import InfoCardWithSheet from '@/components/pages/protected/controls/info-card'
 import ControlEvidenceTable from '@/components/pages/protected/controls/control-evidence/control-evidence-table.tsx'
 import EvidenceDetailsSheet from '@/components/pages/protected/controls/control-evidence/evidence-details-sheet.tsx'
+import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
+import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 
 interface FormValues {
   refCode: string
@@ -178,6 +180,17 @@ const ControlDetailsPage: React.FC = () => {
               </div>
             ) : (
               <div className="flex gap-2 justify-end">
+                <CreateTaskDialog
+                  defaultSelectedObject={ObjectTypeObjects.SUB_CONTROL}
+                  excludeObjectTypes={[ObjectTypeObjects.TASK, ObjectTypeObjects.GROUP, ObjectTypeObjects.EVIDENCE]}
+                  initialData={{
+                    procedureIDs: (subcontrol.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                    internalPolicyIDs: (subcontrol.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                    controlObjectiveIDs: (subcontrol.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                    riskIDs: (subcontrol.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                    subcontrolIDs: [subcontrolId],
+                  }}
+                />
                 <Button className="h-8 !px-2" icon={<PencilIcon />} iconPosition="left" onClick={handleEdit}>
                   Edit Subontrol
                 </Button>

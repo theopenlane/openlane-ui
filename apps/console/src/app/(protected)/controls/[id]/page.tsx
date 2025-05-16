@@ -26,6 +26,8 @@ import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
 import { canEdit } from '@/lib/authz/utils.ts'
 import EvidenceDetailsSheet from '@/components/pages/protected/controls/control-evidence/evidence-details-sheet.tsx'
 import ControlEvidenceTable from '@/components/pages/protected/controls/control-evidence/control-evidence-table.tsx'
+import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog.tsx'
+import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
 
 interface FormValues {
   refCode: string
@@ -198,6 +200,18 @@ const ControlDetailsPage: React.FC = () => {
             )}
             {!isEditing && canEdit(permission?.roles) && (
               <div className="flex gap-2 justify-end">
+                <CreateTaskDialog
+                  defaultSelectedObject={ObjectTypeObjects.CONTROL}
+                  excludeObjectTypes={[ObjectTypeObjects.TASK, ObjectTypeObjects.GROUP, ObjectTypeObjects.EVIDENCE]}
+                  initialData={{
+                    programIDs: (control.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                    procedureIDs: (control.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                    internalPolicyIDs: (control.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                    controlObjectiveIDs: (control.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                    riskIDs: (control.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                    controlIDs: [id],
+                  }}
+                />
                 <Button className="h-8 !px-2" icon={<PencilIcon />} iconPosition="left" onClick={handleEdit}>
                   Edit Control
                 </Button>
