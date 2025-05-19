@@ -10,7 +10,7 @@ import { TableCell, TableRow } from '@repo/ui/table'
 import { ColumnDef } from '@tanstack/table-core'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useTasksWithFilter } from '@/lib/graphql-hooks/tasks'
-import { OrderDirection, TaskOrderField, TasksWithFilterQueryVariables, TaskWhereInput, User } from '@repo/codegen/src/schema'
+import { OrderDirection, TaskOrderField, TasksWithFilterQueryVariables, TaskWhereInput, User, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TaskStatusIconMapper } from '../protected/tasks/table/columns'
@@ -88,7 +88,12 @@ const TasksTable = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
   const [pagination, setPagination] = useState<TPagination>({ ...DEFAULT_PAGINATION, pageSize: 5 })
-  const where: TaskWhereInput = programId ? { hasProgramsWith: [{ id: programId }] } : {}
+  const where: TaskWhereInput = programId
+    ? {
+        hasProgramsWith: [{ id: programId }],
+        statusNotIn: [TaskTaskStatus.COMPLETED, TaskTaskStatus.WONT_DO],
+      }
+    : {}
   const [orderBy, setOrderBy] = useState<TasksWithFilterQueryVariables['orderBy']>([
     {
       field: TaskOrderField.due,
