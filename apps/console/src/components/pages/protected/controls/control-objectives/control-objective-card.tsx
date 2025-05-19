@@ -25,6 +25,8 @@ export const ControlObjectiveCard = ({ obj }: Props) => {
     parentDescription: string
   } | null>(null)
 
+  const { convertToReadOnly } = usePlateEditor()
+
   return (
     <Card className="p-4 flex">
       <div className="flex-1">
@@ -130,7 +132,7 @@ export const ControlObjectiveCard = ({ obj }: Props) => {
             <span className=" underline cursor-pointer">{hoveredSubcontrol.parentRefCode}</span>
 
             <span className="font-medium text-foreground">Details</span>
-            <p className="text-muted-foreground leading-snug">{hoveredSubcontrol.parentDescription}</p>
+            <div>{convertToReadOnly(hoveredSubcontrol.parentDescription, 0)}</div>
           </div>
         )}
 
@@ -140,7 +142,7 @@ export const ControlObjectiveCard = ({ obj }: Props) => {
             <span className=" underline cursor-pointer">{hoveredControl.shortName}</span>
 
             <span className="font-medium text-foreground">Details</span>
-            <p className="text-muted-foreground leading-snug">{hoveredControl.description}</p>
+            <div>{convertToReadOnly(hoveredControl.description, 0)}</div>
           </div>
         )}
       </div>
