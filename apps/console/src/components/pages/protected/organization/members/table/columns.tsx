@@ -3,6 +3,8 @@ import { InviteInviteStatus, InviteRole } from '@repo/codegen/src/schema.ts'
 import { Tag } from '@repo/ui/tag'
 import { InviteActions } from '../actions/invite-actions'
 import { formatDateSince } from '@/utils/date'
+import { InvitationIconMapper } from '@/components/shared/icon-enum/invitation-enum.tsx'
+import { UserRoleIconMapper } from '@/components/shared/icon-enum/user-role-enum.tsx'
 
 export type InviteNode = {
   __typename?: 'Invite' | undefined
@@ -41,7 +43,10 @@ export const invitesColumns: ColumnDef<InviteNode>[] = [
       }
       return (
         <Tag>
-          <>{statusLabel}</>
+          <div className="flex gap-2 items-center">
+            {InvitationIconMapper[status]}
+            {statusLabel}
+          </div>
         </Tag>
       )
     },
@@ -54,6 +59,16 @@ export const invitesColumns: ColumnDef<InviteNode>[] = [
   {
     accessorKey: 'role',
     header: 'Role',
+    cell: ({ cell }) => {
+      const role = cell.getValue() as InviteRole
+
+      return (
+        <div className="flex gap-2 items-center">
+          {UserRoleIconMapper[role]}
+          {role}
+        </div>
+      )
+    },
   },
   {
     accessorKey: 'sendAttempts',

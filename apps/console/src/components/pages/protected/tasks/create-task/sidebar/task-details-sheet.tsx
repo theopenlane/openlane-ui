@@ -33,9 +33,9 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import EvidenceCreateFormDialog from '../../../evidence/evidence-create-form-dialog'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
-import { TaskStatusIconMapper } from '../../table/columns'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
 import { formatDate } from '@/utils/date'
+import { TaskStatusIconMapper } from '@/components/shared/icon-enum/task-enum.tsx'
 
 const TaskDetailsSheet = () => {
   const [isEditing, setIsEditing] = useState(false)
@@ -419,7 +419,7 @@ const TaskDetailsSheet = () => {
                     excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.RISK, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.GROUP, ObjectTypeObjects.INTERNAL_POLICY]}
                   />
                 )}
-                <Button disabled={taskData?.status === TaskTaskStatus.COMPLETED} icon={<Check />} iconPosition="left" variant="outline" onClick={() => handleMarkAsComplete()}>
+                <Button className="h-8 !px-2" disabled={taskData?.status === TaskTaskStatus.COMPLETED} icon={<Check />} iconPosition="left" variant="outline" onClick={() => handleMarkAsComplete()}>
                   Mark as complete
                 </Button>
               </div>
@@ -515,8 +515,8 @@ const TaskDetailsSheet = () => {
                     />
                   ) : (
                     <div className="flex items-center space-x-2">
-                      {taskData?.status && TaskStatusIconMapper[TaskStatusMapper[taskData?.status as TaskTaskStatus]]}
-                      <p className="text-sm">{TaskStatusMapper[taskData?.status as TaskTaskStatus]}</p>
+                      {taskData?.status && TaskStatusIconMapper[taskData.status]}
+                      {taskData?.status && <p className="text-sm">{TaskStatusMapper[taskData.status]}</p>}
                     </div>
                   )}
                 </div>

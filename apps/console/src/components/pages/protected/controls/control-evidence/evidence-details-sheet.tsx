@@ -17,7 +17,6 @@ import {
   InfoIcon,
   Link,
   Pencil,
-  RefreshCw,
   Tag,
   Trash2,
   UserRoundCheck,
@@ -49,6 +48,7 @@ import ControlEvidenceFiles from '@/components/pages/protected/controls/control-
 import { fileDownload } from '@/components/shared/lib/export.ts'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { ControlEvidenceRenewDialog } from '@/components/pages/protected/controls/control-evidence/control-evidence-renew-dialog.tsx'
+import { EvidenceIconMapper } from '@/components/shared/icon-enum/evidence-enum.tsx'
 
 type TEvidenceDetailsSheet = {
   controlId: string
@@ -353,7 +353,10 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             }}
                           />
                         ) : (
-                          <p className="text-sm text-left">{EvidenceStatusMapper[evidence?.status as EvidenceEvidenceStatus]}</p>
+                          <div className="flex items-center space-x-2">
+                            {EvidenceIconMapper[evidence?.status as EvidenceEvidenceStatus]}
+                            <p>{EvidenceStatusMapper[evidence?.status as EvidenceEvidenceStatus]}</p>
+                          </div>
                         )}
                       </div>
                     </div>
