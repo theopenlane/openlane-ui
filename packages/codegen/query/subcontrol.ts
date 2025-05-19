@@ -8,6 +8,7 @@ export const GET_ALL_SUBCONTROLS = gql`
           id
           displayID
           description
+          refCode
         }
       }
     }

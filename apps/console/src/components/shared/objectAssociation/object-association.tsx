@@ -11,6 +11,8 @@ import ObjectAssociationPlaceholder from '@/components/shared/object-association
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { TObjectAssociationMap } from './types/TObjectAssociationMap'
 import { useDebounce } from '@uidotdev/usehooks'
+import { TPagination } from '@repo/ui/pagination-types'
+import { DEFAULT_PAGINATION } from '@/constants/pagination'
 
 type Props = {
   onIdChange: (updatedMap: TObjectAssociationMap, refCodes?: any) => void
@@ -25,6 +27,7 @@ const ObjectAssociation: React.FC<Props> = ({ onIdChange, excludeObjectTypes, in
   const [selectedObject, setSelectedObject] = useState<ObjectTypeObjects | null>(defaultSelectedObject || null)
   const [searchValue, setSearchValue] = useState('')
   const [TableData, setTableData] = useState<any[]>([])
+  const [pagination, setPagination] = useState<TPagination>({ ...DEFAULT_PAGINATION, pageSize: 5, query: { first: 5 } })
   const debouncedSearchValue = useDebounce(searchValue, 300)
 
   const selectedConfig = selectedObject ? OBJECT_QUERY_CONFIG[selectedObject] : null
@@ -40,11 +43,14 @@ const ObjectAssociation: React.FC<Props> = ({ onIdChange, excludeObjectTypes, in
     ...(searchAttribute && debouncedSearchValue ? { [searchAttribute]: debouncedSearchValue } : {}),
   }
 
-  const { data } = useQuery<AllObjectQueriesData>({
-    queryKey: ['assignPermission', selectedObject, whereFilter],
-    queryFn: async () => client.request(selectedQuery, { where: whereFilter }),
+  const { data, isLoading } = useQuery<AllObjectQueriesData>({
+    queryKey: [objectKey, whereFilter, pagination.page, pagination.pageSize],
+    queryFn: async () => client.request(selectedQuery, { where: whereFilter, ...pagination?.query }),
     enabled: !!selectedQuery,
   })
+
+  const pageInfo = objectKey ? data?.[objectKey]?.pageInfo : undefined
+  const totalCount = objectKey ? data?.[objectKey]?.totalCount : undefined
 
   useEffect(() => {
     if (objectKey && data) {
@@ -96,7 +102,15 @@ const ObjectAssociation: React.FC<Props> = ({ onIdChange, excludeObjectTypes, in
         </div>
       </div>
       {selectedObject ? (
-        <ObjectAssociationTable data={TableData} onIDsChange={onIdChange} initialData={initialData} refCodeInitialData={refCodeInitialData} />
+        <ObjectAssociationTable
+          onPaginationChange={setPagination}
+          pagination={pagination}
+          paginationMeta={{ totalCount, pageInfo, isLoading }}
+          data={TableData}
+          onIDsChange={onIdChange}
+          initialData={initialData}
+          refCodeInitialData={refCodeInitialData}
+        />
       ) : (
         <div className="flex items-center justify-center w-full">
           <ObjectAssociationPlaceholder />
