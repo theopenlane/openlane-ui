@@ -44,7 +44,7 @@ const ObjectAssociation: React.FC<Props> = ({ onIdChange, excludeObjectTypes, in
   }
 
   const { data, isLoading } = useQuery<AllObjectQueriesData>({
-    queryKey: [objectKey, whereFilter, pagination.page, pagination.pageSize],
+    queryKey: [objectKey, 'objectAssociation', whereFilter, pagination.page, pagination.pageSize],
     queryFn: async () => client.request(selectedQuery, { where: whereFilter, ...pagination?.query }),
     enabled: !!selectedQuery,
   })
