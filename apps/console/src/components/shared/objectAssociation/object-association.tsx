@@ -36,6 +36,7 @@ const ObjectAssociation: React.FC<Props> = ({ onIdChange, excludeObjectTypes, in
   const objectName = selectedConfig?.objectName!
 
   const whereFilter = {
+    ...(selectedConfig?.defaultWhere || {}),
     ...(searchAttribute && debouncedSearchValue ? { [searchAttribute]: debouncedSearchValue } : {}),
   }
 
