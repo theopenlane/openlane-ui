@@ -24,6 +24,7 @@ import { ArrowDown, ArrowUp, ArrowUpDown, EyeIcon } from 'lucide-react'
 import { OrderDirection } from '@repo/codegen/src/schema.ts'
 import Pagination from '../pagination/pagination'
 import { TPagination, TPaginationMeta } from '../pagination/types'
+import { cn } from '../../lib/utils'
 
 type CustomColumnDef<TData, TValue> = ColumnDef<TData, TValue> & {
   meta?: {
@@ -45,6 +46,7 @@ interface DataTableProps<TData, TValue> {
   pagination?: TPagination | null
   onPaginationChange?: (arg: TPagination) => void
   paginationMeta?: TPaginationMeta
+  wrapperClass?: string
 }
 
 export function DataTable<TData, TValue>({
@@ -61,6 +63,7 @@ export function DataTable<TData, TValue>({
   pagination,
   onPaginationChange,
   paginationMeta,
+  wrapperClass,
 }: DataTableProps<TData, TValue>) {
   const [sortConditions, setSortConditions] = useState<{ field: string; direction?: OrderDirection }[]>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -262,7 +265,7 @@ export function DataTable<TData, TValue>({
         )}
 
         {/* Apply opacity and disable interactions while loading */}
-        <div className={isLoading ? 'opacity-50 pointer-events-none transition-opacity duration-300' : 'transition-opacity duration-300'}>
+        <div className={cn(isLoading ? 'opacity-50 pointer-events-none transition-opacity duration-300' : 'transition-opacity duration-300', wrapperClass)}>
           <Table variant="data">
             <TableHeader variant="data">
               {table.getHeaderGroups().map((headerGroup) => (

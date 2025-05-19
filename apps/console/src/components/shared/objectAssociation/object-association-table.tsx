@@ -4,15 +4,19 @@ import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { Checkbox } from '@repo/ui/checkbox'
 import { TObjectAssociationMap } from './types/TObjectAssociationMap'
+import { TPagination, TPaginationMeta } from '@repo/ui/pagination-types'
 
 type Props = {
   data: TObjectAssociationColumn[]
   onIDsChange: (updatedMap: TObjectAssociationMap, refCodes?: any) => void
   initialData?: TObjectAssociationMap
   refCodeInitialData?: TObjectAssociationMap
+  pagination?: TPagination | null
+  onPaginationChange?: (arg: TPagination) => void
+  paginationMeta?: TPaginationMeta
 }
 
-const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitialData }: Props) => {
+const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitialData, onPaginationChange, pagination, paginationMeta }: Props) => {
   const [selectedIdsMap, setSelectedIdsMap] = useState<TObjectAssociationMap>({})
   const [selectedRefCodeMap, setSelectedRefCodeMap] = useState<TObjectAssociationMap>({})
 
@@ -81,7 +85,7 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
     },
   ]
 
-  return <DataTable columns={columns} data={data} />
+  return <DataTable onPaginationChange={onPaginationChange} pagination={pagination} paginationMeta={paginationMeta} columns={columns} data={data} wrapperClass="max-h-96" />
 }
 
 export default ObjectAssociationTable
