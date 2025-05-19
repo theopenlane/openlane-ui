@@ -1,9 +1,10 @@
 import { ColumnDef } from '@tanstack/react-table'
-import { CircleCheck, CircleX, ListTodo, Timer, View } from 'lucide-react'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import AssigneeCell from '@/components/pages/protected/tasks/table/assignee-cell.tsx'
 import { Task } from '@repo/codegen/src/schema.ts'
 import { formatDate } from '@/utils/date'
+import { TaskStatusIconMapper } from '@/components/shared/icon-enum/task-enum.tsx'
+import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task.ts'
 
 export const taskColumns: ColumnDef<Task>[] = [
   {
@@ -28,7 +29,7 @@ export const taskColumns: ColumnDef<Task>[] = [
       return (
         <div className="flex items-center space-x-2">
           {TaskStatusIconMapper[status]}
-          <p>{status}</p>
+          <p>{TaskStatusMapper[status]}</p>
         </div>
       )
     },
@@ -67,11 +68,3 @@ export const taskColumns: ColumnDef<Task>[] = [
     size: 100,
   },
 ]
-
-export const TaskStatusIconMapper: Record<string, React.ReactNode> = {
-  ['Completed']: <CircleCheck height={16} width={16} className="text-task-complete" />,
-  ['In progress']: <Timer height={16} width={16} className="text-task-in-progress" />,
-  ['In review']: <View height={16} width={16} className="text-task-in-review" />,
-  ['Open']: <ListTodo height={16} width={16} className="text-task-open" />,
-  ["Won't do"]: <CircleX height={16} width={16} className="text-task-wont-do" />,
-}

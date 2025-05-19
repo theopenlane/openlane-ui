@@ -1,6 +1,6 @@
 'use client'
 
-import { GetSingleOrganizationMembersQuery, OrgMembership, User, UserAuthProvider } from '@repo/codegen/src/schema'
+import { OrgMembership, OrgMembershipRole, User, UserAuthProvider } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import { pageStyles } from './page.styles'
 import { useState, useEffect, Dispatch, SetStateAction } from 'react'
@@ -18,6 +18,7 @@ import { Avatar } from '@/components/shared/avatar/avatar'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { formatDateSince } from '@/utils/date'
+import { UserRoleIconMapper } from '@/components/shared/icon-enum/user-role-enum.tsx'
 
 type MembersTableProps = {
   setActiveTab: Dispatch<SetStateAction<string>>
@@ -117,13 +118,22 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
     {
       accessorKey: 'role',
       header: 'Role',
-      cell: ({ cell }) => <>{cell.getValue() as React.ReactNode}</>,
+      cell: ({ cell }) => {
+        const role = cell.getValue() as OrgMembershipRole
+
+        return (
+          <div className="flex gap-2 items-center">
+            {UserRoleIconMapper[role]}
+            {role}
+          </div>
+        )
+      },
     },
     {
       accessorKey: 'id',
       header: '',
       cell: ({ cell }) => {
-        return <MemberActions memberId={cell.getValue() as string} memberRole={cell.row.original.role} />
+        return <MemberActions memberId={cell.getValue() as string} memberUserId={cell.row.original.user?.id} memberRole={cell.row.original.role} />
       },
       size: 40,
     },
