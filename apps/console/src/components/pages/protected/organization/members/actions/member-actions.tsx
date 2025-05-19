@@ -33,12 +33,13 @@ import { canEdit } from '@/lib/authz/utils.ts'
 
 type MemberActionsProps = {
   memberId: string
+  memberUserId: string
   memberRole: OrgMembershipRole
 }
 
 const ICON_SIZE = 12
 
-export const MemberActions = ({ memberId, memberRole }: MemberActionsProps) => {
+export const MemberActions = ({ memberId, memberUserId, memberRole }: MemberActionsProps) => {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
   const { actionIcon, roleRow } = pageStyles()
   const { mutateAsync: deleteMember } = useRemoveUserFromOrg()
@@ -109,7 +110,8 @@ export const MemberActions = ({ memberId, memberRole }: MemberActionsProps) => {
     //CANT EDIT OWNER
     return null
   }
-  if (memberId === userData?.user.id) {
+
+  if (memberUserId === userData?.user.id) {
     //CANT EDIT YOURSELF
     return null
   }
