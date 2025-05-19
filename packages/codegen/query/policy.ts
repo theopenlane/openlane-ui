@@ -66,8 +66,8 @@ export const GET_INTERNAL_POLICIES_LIST = gql`
 `
 
 export const GET_ALL_INTERNAL_POLICIES = gql`
-  query GetAllInternalPolicies {
-    internalPolicies {
+  query GetAllInternalPolicies($where: InternalPolicyWhereInput, $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    internalPolicies(where: $where, first: $first, after: $after, last: $last, before: $before) {
       edges {
         node {
           id
