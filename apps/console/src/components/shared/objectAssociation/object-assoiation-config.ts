@@ -67,6 +67,7 @@ type ObjectQueryConfig = {
   placeholder: string
   searchAttribute: string
   objectName: string
+  defaultWhere?: Record<string, any>
 }
 
 export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> = {
@@ -77,6 +78,9 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     queryDocument: GET_ALL_CONTROLS,
     searchAttribute: 'refCode',
     objectName: 'refCode',
+    defaultWhere: {
+      ownerIDNEQ: '',
+    },
   },
   [ObjectTypeObjects.SUB_CONTROL]: {
     responseObjectKey: 'subcontrols',
@@ -85,6 +89,9 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     queryDocument: GET_ALL_SUBCONTROLS,
     searchAttribute: 'refCode',
     objectName: 'refCode',
+    defaultWhere: {
+      ownerIDNEQ: '',
+    },
   },
   [ObjectTypeObjects.CONTROL_OBJECTIVE]: {
     responseObjectKey: 'controlObjectives',
