@@ -7,7 +7,7 @@ import SquareArrow from '@/assets/SquareArrow'
 import { useSession } from 'next-auth/react'
 import { addDays, formatDistanceToNowStrict, isAfter, isBefore, parseISO } from 'date-fns'
 import { useTasksWithFilter } from '@/lib/graphql-hooks/tasks'
-import { Task } from '@repo/codegen/src/schema'
+import { Task, TaskTaskStatus } from '@repo/codegen/src/schema'
 import clsx from 'clsx'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -24,6 +24,7 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
     assigneeID: userId,
     dueLTE: upcomingUpper.toISOString(),
     hasProgramsWith: programId ? [{ id: programId }] : undefined,
+    statusNotIn: [TaskTaskStatus.COMPLETED, TaskTaskStatus.WONT_DO],
   }
 
   const { data } = useTasksWithFilter({ where })
@@ -60,7 +61,7 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
   const encodedFilters = encodeURIComponent(JSON.stringify(filters))
   const tasksRedirectURL = programId ? `/tasks?filters=${encodedFilters}` : '/tasks'
 
-  if (dueSoonCount === 0 && upcomingCount === 0) {
+  if (dueSoonCount === 0 && upcomingCount === 0 && overdueCount === 0) {
     return (
       //TODO: add size fit when we have pending actions, currently no api
       <Card>

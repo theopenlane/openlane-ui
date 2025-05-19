@@ -88,7 +88,12 @@ const TasksTable = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
   const [pagination, setPagination] = useState<TPagination>({ ...DEFAULT_PAGINATION, pageSize: 5 })
-  const where: TaskWhereInput = programId ? { hasProgramsWith: [{ id: programId }] } : {}
+  const where: TaskWhereInput = programId
+    ? {
+        hasProgramsWith: [{ id: programId }],
+        statusNotIn: [TaskTaskStatus.COMPLETED, TaskTaskStatus.WONT_DO],
+      }
+    : {}
   const [orderBy, setOrderBy] = useState<TasksWithFilterQueryVariables['orderBy']>([
     {
       field: TaskOrderField.due,
