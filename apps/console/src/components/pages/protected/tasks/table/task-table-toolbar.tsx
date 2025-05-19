@@ -78,7 +78,7 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
         <BulkCSVCreateTaskDialog />
         <CreateTaskDialog />
       </div>
-      <Button onClick={props.handleExport} icon={<DownloadIcon />} iconPosition="left">
+      <Button className="h-8 !px-2" onClick={props.handleExport} icon={<DownloadIcon />} iconPosition="left">
         Export
       </Button>
     </div>

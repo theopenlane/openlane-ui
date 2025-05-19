@@ -10,19 +10,19 @@ import { TableCell, TableRow } from '@repo/ui/table'
 import { ColumnDef } from '@tanstack/table-core'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useTasksWithFilter } from '@/lib/graphql-hooks/tasks'
-import { OrderDirection, TaskOrderField, TasksWithFilterQueryVariables, TaskWhereInput, User } from '@repo/codegen/src/schema'
+import { OrderDirection, TaskOrderField, TasksWithFilterQueryVariables, TaskTaskStatus, TaskWhereInput, User } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { TaskStatusIconMapper } from '../protected/tasks/table/columns'
 import { TASK_SORT_FIELDS } from '../protected/tasks/table/table-config'
 import { useSearchParams } from 'next/navigation'
 import Frame from '@/assets/Frame'
+import { TaskStatusIconMapper } from '@/components/shared/icon-enum/task-enum.tsx'
 
 type FormattedTask = {
   id: string
   title: string
   category: string
-  status: string
+  status: TaskTaskStatus
   due?: string
   assignee?: User
 }

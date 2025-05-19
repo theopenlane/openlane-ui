@@ -15,6 +15,7 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import ControlsTableToolbar from './controls-table-toolbar'
 import { CONTROLS_SORT_FIELDS } from './table-config'
 import { useDebounce } from '@uidotdev/usehooks'
+import { ControlIconMapper } from '@/components/shared/icon-enum/control-enum.tsx'
 
 export const ControlStatusLabels: Record<ControlControlStatus, string> = {
   [ControlControlStatus.APPROVED]: 'Approved',
@@ -104,7 +105,12 @@ const ControlsTable: React.FC = () => {
           const value: ControlControlStatus = row.getValue('status')
           const label = ControlStatusLabels[value] ?? value
 
-          return <span className="flex items-center gap-2">{label}</span>
+          return (
+            <div className="flex items-center space-x-2">
+              {ControlIconMapper[value]}
+              <p>{label}</p>
+            </div>
+          )
         },
         size: 100,
       },

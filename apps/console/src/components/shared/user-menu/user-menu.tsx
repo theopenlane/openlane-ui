@@ -13,6 +13,7 @@ import { Avatar } from '../avatar/avatar'
 import { User } from '@repo/codegen/src/schema'
 import { BookText, BriefcaseBusiness, Keyboard, LogOut, NotebookPen, Paintbrush, UserRoundCog } from 'lucide-react'
 import { DOCS_URL, SUPPORT_EMAIL } from '@/constants'
+import { useShortcutSuffix } from '@/components/shared/shortcut-suffix/shortcut-suffix.tsx'
 
 export const UserMenu = () => {
   const { setTheme, theme } = useTheme()
@@ -20,6 +21,7 @@ export const UserMenu = () => {
   const { trigger, email, userSettingsLink, themeRow, themeDropdown, commandRow, commands } = userMenuStyles()
   const userId = sessionData?.user.userId
   const { data } = useGetCurrentUser(userId)
+  const { suffix } = useShortcutSuffix()
 
   return (
     <DropdownMenu>
@@ -89,7 +91,7 @@ export const UserMenu = () => {
           <Keyboard size={14} />
           <p>Command menu</p>
           <div className={commands()}>
-            <span className="text-[10px]">⌘</span>
+            <span className="text-[10px]">{suffix}</span>
             <span>K</span>
           </div>
         </div>
@@ -97,7 +99,7 @@ export const UserMenu = () => {
           <Keyboard size={14} />
           <p>Search menu</p>
           <div className={commands()}>
-            <span className="text-[10px]">⌘</span>
+            <span className="text-[10px]">{suffix}</span>
             <span>/</span>
           </div>
         </div>
