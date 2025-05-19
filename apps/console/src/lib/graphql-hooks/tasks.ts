@@ -41,7 +41,6 @@ export const useTasksWithFilter = ({ where, orderBy, pagination, enabled = true 
   const tasks = (queryResult.data?.tasks?.edges?.map((edge) => {
     return {
       ...edge?.node,
-      status: TaskStatusMapper[edge?.node?.status as TaskTaskStatus],
     }
   }) ?? []) as Task[]
 

@@ -5,10 +5,10 @@ import { Calendar, CircleUser, ListChecks } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
 import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
 import { Avatar } from '@/components/shared/avatar/avatar'
-import { TaskStatusIconMapper } from '../table/columns'
 import { Task } from '@repo/codegen/src/schema.ts'
 import { formatDate } from '@/utils/date'
 import { TaskStatusMapper } from '../util/task'
+import { TaskStatusIconMapper } from '@/components/shared/icon-enum/task-enum.tsx'
 
 type TTaskCardsProps = {
   tasks: Task[]
@@ -54,7 +54,7 @@ const TaskCards: React.FC<TTaskCardsProps> = (props: TTaskCardsProps) => {
                   <Calendar height={16} width={16} />
                   <p className="pr-10 text-sm">{formatDate(task.due)}</p>
                   <div className="flex items-center space-x-1">
-                    {TaskStatusIconMapper[TaskStatusMapper[task.status!]]}
+                    {TaskStatusIconMapper[task.status!]}
                     <p>{TaskStatusMapper[task.status!]}</p>
                   </div>
                 </div>

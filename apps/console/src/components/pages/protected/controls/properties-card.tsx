@@ -9,6 +9,7 @@ import { FolderIcon, BinocularsIcon } from 'lucide-react'
 import { Control, ControlControlStatus, SubcontrolControlStatus } from '@repo/codegen/src/schema'
 import MappedCategoriesDialog from './mapped-categories-dialog'
 import Link from 'next/link'
+import { ControlIconMapper } from '@/components/shared/icon-enum/control-enum.tsx'
 
 interface PropertiesCardProps {
   category?: string | null
@@ -75,7 +76,10 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ category, subcategory, 
                 )}
               />
             ) : (
-              statusLabels[status as ControlControlStatus] || '-'
+              <div className="flex items-center space-x-2">
+                {ControlIconMapper[status as ControlControlStatus]}
+                <p>{statusLabels[status as ControlControlStatus] || '-'}</p>
+              </div>
             )}
           </div>
         </div>
