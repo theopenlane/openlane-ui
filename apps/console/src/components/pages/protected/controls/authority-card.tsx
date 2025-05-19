@@ -10,6 +10,7 @@ import { useFormContext, Controller } from 'react-hook-form'
 import { Option } from '@repo/ui/multiple-selector'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 
 interface AuthorityCardProps {
   controlOwner: ControlDetailsFieldsFragment['controlOwner']
@@ -36,7 +37,6 @@ const AuthorityCard: React.FC<AuthorityCardProps> = ({ controlOwner, delegate, i
           {isEditing ? (
             <SearchableSingleSelect
               fieldName="controlOwnerID"
-              formLabel="Owner"
               placeholder="Select a group"
               options={groups.map((g) => ({
                 label: g.displayName,
@@ -44,13 +44,19 @@ const AuthorityCard: React.FC<AuthorityCardProps> = ({ controlOwner, delegate, i
               }))}
             />
           ) : (
-            <div className="flex gap-2">
-              <Avatar entity={controlOwner as Group} variant="small" />
-              <span>{controlOwner?.displayName || 'No Owner'}</span>
-            </div>
+            <TooltipProvider disableHoverableContent>
+              <Tooltip>
+                <Avatar entity={controlOwner as Group} variant="small" />
+                <TooltipTrigger className="w-[200px] cursor-default">
+                  <div className="flex gap-2">
+                    <span className="truncate">{controlOwner?.displayName || 'No Owner'} </span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{controlOwner?.displayName || 'No Owner'}</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
         </div>
-
         {/* Delegate */}
         <div className="flex justify-between items-center">
           <div className="flex gap-2 items-center">
@@ -61,7 +67,6 @@ const AuthorityCard: React.FC<AuthorityCardProps> = ({ controlOwner, delegate, i
           {isEditing ? (
             <SearchableSingleSelect
               fieldName="delegateID"
-              formLabel="Delegate"
               placeholder="Select a group"
               options={groups.map((g) => ({
                 label: g.displayName,
@@ -69,10 +74,17 @@ const AuthorityCard: React.FC<AuthorityCardProps> = ({ controlOwner, delegate, i
               }))}
             />
           ) : (
-            <div className="flex gap-2">
-              <Avatar entity={delegate as Group} variant="small" />
-              <span>{delegate?.displayName || 'No Delegate'}</span>
-            </div>
+            <TooltipProvider disableHoverableContent>
+              <Tooltip>
+                <Avatar entity={delegate as Group} variant="small" />
+                <TooltipTrigger className="w-[200px] cursor-default">
+                  <div className="flex gap-2">
+                    <span className="truncate">{delegate?.displayName || 'No Delegate'} </span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{delegate?.displayName || 'No Delegate'}</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
         </div>
       </div>
@@ -84,7 +96,7 @@ export default AuthorityCard
 
 interface SearchableSingleSelectProps {
   fieldName: string
-  formLabel: string
+  formLabel?: string
   placeholder?: string
   options: Option[]
 }
@@ -102,11 +114,11 @@ export const SearchableSingleSelect: React.FC<SearchableSingleSelectProps> = ({ 
 
         return (
           <div className="w-[200px]">
-            <label className="text-sm font-medium block mb-1">{formLabel}</label>
+            {formLabel && <label className="text-sm font-medium block mb-1">{formLabel}</label>}
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild className="flex">
                 <div className="w-full flex text-sm h-10 px-3 !py-0 justify-between border bg-input-background rounded-md items-center cursor-pointer ">
-                  <span>{selected?.label || placeholder}</span>
+                  <span className="truncate">{selected?.label || placeholder}</span>
                   <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </div>
               </PopoverTrigger>
