@@ -1,6 +1,9 @@
 export const fileDownload = async (presignedURL: string, fileName: string, errorNotification: (args: { title: string; variant: 'destructive' | 'default' }) => void) => {
   try {
-    const response = await fetch(presignedURL)
+    const response = await fetch(presignedURL, {
+      mode: 'cors',
+      credentials: 'omit',
+    })
     const blob = await response.blob()
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
