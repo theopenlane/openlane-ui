@@ -3,13 +3,16 @@ import { TObjectAssociationMap } from '@/components/shared/objectAssociation/typ
 
 type TPolicyState = {
   associations: TObjectAssociationMap
+  initialAssociations: TObjectAssociationMap
   associationRefCodes: TObjectAssociationMap
   setAssociations: (associations: TObjectAssociationMap) => void
+  setInitialAssociations: (associations: TObjectAssociationMap) => void
   setAssociationRefCodes: (associationRefCodes: TObjectAssociationMap) => void
 }
 
 export const usePolicy = create<TPolicyState>((set) => ({
   associations: {},
+  initialAssociations: {},
   associationRefCodes: {
     taskIDs: [],
     controlObjectiveIDs: [],
@@ -17,6 +20,7 @@ export const usePolicy = create<TPolicyState>((set) => ({
     procedureIDs: [],
     programIDs: [],
   },
+  setInitialAssociations: (initialAssociations) => set({ initialAssociations }),
   setAssociations: (associations) => set({ associations }),
   setAssociationRefCodes: (newAssociationRefCodes) => {
     const defaultKeys: (keyof TObjectAssociationMap)[] = ['taskIDs', 'controlObjectiveIDs', 'controlIDs', 'procedureIDs', 'programIDs']

@@ -6,11 +6,7 @@ import { ArrowUpDown } from 'lucide-react'
 import SetObjectAssociationDialog from '@/components/pages/protected/policies/modal/set-object-association-modal.tsx'
 import AssociatedObjectsAccordion from '@/components/pages/protected/policies/accordion/associated-objects-accordion.tsx'
 
-type TAssociationCard = {
-  isEditable: boolean
-}
-
-const AssociationCard: React.FC<TAssociationCard> = ({ isEditable }) => {
+const AssociationCard: React.FC = () => {
   return (
     <Card className="p-4">
       <div className="flex flex-col gap-4">
@@ -22,7 +18,7 @@ const AssociationCard: React.FC<TAssociationCard> = ({ isEditable }) => {
           </div>
 
           <div className="flex gap-2">
-            <SetObjectAssociationDialog isEditable={isEditable} />
+            <SetObjectAssociationDialog />
           </div>
         </div>
         <AssociatedObjectsAccordion />
