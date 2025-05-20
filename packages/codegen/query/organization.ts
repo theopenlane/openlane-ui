@@ -144,6 +144,7 @@ export const GET_ORGANIZATION_BILLING_BANNER = gql`
     organization(id: $organizationId) {
       personalOrg
       orgSubscriptions {
+        trialExpiresAt
         expiresAt
         stripeSubscriptionStatus
         paymentMethodAdded

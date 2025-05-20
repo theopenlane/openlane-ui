@@ -34827,7 +34827,13 @@ export type GetOrganizationBillingBannerQuery = {
   organization: {
     __typename?: 'Organization'
     personalOrg?: boolean | null
-    orgSubscriptions?: Array<{ __typename?: 'OrgSubscription'; expiresAt?: any | null; stripeSubscriptionStatus?: string | null; paymentMethodAdded?: boolean | null }> | null
+    orgSubscriptions?: Array<{
+      __typename?: 'OrgSubscription'
+      trialExpiresAt?: any | null
+      expiresAt?: any | null
+      stripeSubscriptionStatus?: string | null
+      paymentMethodAdded?: boolean | null
+    }> | null
   }
 }
 
