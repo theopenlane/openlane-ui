@@ -17,8 +17,7 @@ const formSchema = z.object({
   }),
   details: z.custom<Value | string>().optional(),
   assigneeID: z.string().optional().nullable(),
-  due: z.any(), //todo fix type and 2 related forms
-  taskObjects: z.array(z.any()).optional(),
+  due: z.any(),
   controlObjectiveIDs: z.array(z.any()).optional(),
   subcontrolIDs: z.array(z.any()).optional(),
   programIDs: z.array(z.any()).optional(),
@@ -43,7 +42,6 @@ const useFormSchema = () => {
       resolver: zodResolver(formSchema),
       defaultValues: {
         title: '',
-        taskObjects: [],
         tags: [],
       },
     }),
