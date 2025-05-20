@@ -35432,6 +35432,7 @@ export type GetProgramBasicInfoQuery = {
     auditor?: string | null
     auditorEmail?: string | null
     auditorReady: boolean
+    displayID: string
   }
 }
 

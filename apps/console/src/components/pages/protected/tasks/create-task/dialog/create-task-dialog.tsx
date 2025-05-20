@@ -12,9 +12,10 @@ interface Props {
   defaultSelectedObject?: ObjectTypeObjects
   excludeObjectTypes?: ObjectTypeObjects[]
   initialData?: TObjectAssociationMap
+  objectAssociationsDisplayIDs?: string[]
 }
 
-const CreateTaskDialog = ({ defaultSelectedObject, excludeObjectTypes, initialData }: Props) => {
+const CreateTaskDialog = ({ defaultSelectedObject, excludeObjectTypes, initialData, objectAssociationsDisplayIDs }: Props) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
 
   const handleSuccess = () => {
@@ -32,7 +33,13 @@ const CreateTaskDialog = ({ defaultSelectedObject, excludeObjectTypes, initialDa
         <DialogHeader>
           <DialogTitle>Create a new Task</DialogTitle>
         </DialogHeader>
-        <CreateTaskForm defaultSelectedObject={defaultSelectedObject} excludeObjectTypes={excludeObjectTypes} initialData={initialData} onSuccess={handleSuccess} />
+        <CreateTaskForm
+          defaultSelectedObject={defaultSelectedObject}
+          excludeObjectTypes={excludeObjectTypes}
+          initialData={initialData}
+          objectAssociationsDisplayIDs={objectAssociationsDisplayIDs}
+          onSuccess={handleSuccess}
+        />
       </DialogContent>
     </Dialog>
   )

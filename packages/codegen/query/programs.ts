@@ -189,6 +189,7 @@ export const GET_PROGRAM_BASIC_INFO = gql`
       auditor
       auditorEmail
       auditorReady
+      displayID
     }
   }
 `

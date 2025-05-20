@@ -20,6 +20,7 @@ import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import { DOCS_URL } from '@/constants'
+import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 
 const Page: React.FC = () => {
   const router = useRouter()
@@ -46,6 +47,12 @@ const Page: React.FC = () => {
     })
     return map
   }, [data])
+
+  const initialData: TObjectAssociationMap = useMemo(() => {
+    return {
+      programIDs: programId ? [programId] : [],
+    }
+  }, [programId])
 
   useEffect(() => {
     if (!data?.programs?.edges?.length) return
@@ -143,7 +150,7 @@ const Page: React.FC = () => {
             </div>
             <div className="flex gap-2.5">
               <ProgramCreate />
-              <CreateTaskDialog />
+              <CreateTaskDialog initialData={initialData} objectAssociationsDisplayIDs={basicInfoData?.program.displayID ? [basicInfoData?.program.displayID] : []} />
             </div>
           </div>
         }
