@@ -262,7 +262,6 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                 <Panel>
                   <PanelHeader heading="Object association" noBorder />
                   <p>Associating objects will allow users with access to the object to see the created task.</p>
-                  {/* <ControlObjectTaskForm form={form} /> */}
                   <ObjectAssociation
                     defaultSelectedObject={props.defaultSelectedObject}
                     excludeObjectTypes={props.excludeObjectTypes}

@@ -98,8 +98,23 @@ export const TASK = gql`
         edges {
           node {
             id
-
             refCode
+          }
+        }
+      }
+      controls {
+        edges {
+          node {
+            id
+            refCode
+          }
+        }
+      }
+      risks {
+        edges {
+          node {
+            id
+            name
           }
         }
       }
