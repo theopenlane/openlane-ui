@@ -78,7 +78,6 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         delegateID: policy.delegate?.id,
       })
 
-      console.log(policyAssociations)
       policyState.setInitialAssociations(policyAssociations)
       policyState.setAssociations(policyAssociations)
       policyState.setAssociationRefCodes(policyAssociationsRefCodes)

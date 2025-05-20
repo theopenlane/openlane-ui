@@ -32,7 +32,6 @@ const SetObjectAssociationDialog: React.FC<TSetObjectAssociationDialogProps> = (
   })
   const [open, setOpen] = useState(false)
   const { mutateAsync: updatePolicy, isPending: isSaving } = useUpdateInternalPolicy()
-  console.log(initialAssociationsState)
 
   const handleSave = () => {
     policyState.setAssociations(associations.associations)
