@@ -202,7 +202,6 @@ const ControlDetailsPage: React.FC = () => {
               <div className="flex gap-2 justify-end">
                 <CreateTaskDialog
                   defaultSelectedObject={ObjectTypeObjects.CONTROL}
-                  excludeObjectTypes={[ObjectTypeObjects.TASK, ObjectTypeObjects.GROUP, ObjectTypeObjects.EVIDENCE]}
                   initialData={{
                     programIDs: (control.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
                     procedureIDs: (control.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],

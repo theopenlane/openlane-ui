@@ -10,12 +10,11 @@ import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-
 
 interface Props {
   defaultSelectedObject?: ObjectTypeObjects
-  excludeObjectTypes?: ObjectTypeObjects[]
   initialData?: TObjectAssociationMap
   objectAssociationsDisplayIDs?: string[]
 }
 
-const CreateTaskDialog = ({ defaultSelectedObject, excludeObjectTypes, initialData, objectAssociationsDisplayIDs }: Props) => {
+const CreateTaskDialog = ({ defaultSelectedObject, initialData, objectAssociationsDisplayIDs }: Props) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
 
   const handleSuccess = () => {
@@ -35,7 +34,7 @@ const CreateTaskDialog = ({ defaultSelectedObject, excludeObjectTypes, initialDa
         </DialogHeader>
         <CreateTaskForm
           defaultSelectedObject={defaultSelectedObject}
-          excludeObjectTypes={excludeObjectTypes}
+          excludeObjectTypes={[ObjectTypeObjects.TASK, ObjectTypeObjects.GROUP, ObjectTypeObjects.EVIDENCE]}
           initialData={initialData}
           objectAssociationsDisplayIDs={objectAssociationsDisplayIDs}
           onSuccess={handleSuccess}

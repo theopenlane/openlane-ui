@@ -1,6 +1,6 @@
 'use client'
 
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { ArrowDownUp, ArrowUpDown, ArrowRight, BookText, CalendarCheck2, Check, Circle, CircleUser, Folder, InfoIcon, Link, Pencil, Tag, UserRoundPen } from 'lucide-react'
@@ -18,7 +18,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { TaskStatusMapper, TaskTypes } from '@/components/pages/protected/tasks/util/task'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
-import ControlObjectTaskForm from '@/components/pages/protected/tasks/create-task/form/control-object-task-form'
 import DeleteTaskDialog from '@/components/pages/protected/tasks/create-task/dialog/delete-task-dialog'
 import { useTask, useUpdateTask } from '@/lib/graphql-hooks/tasks'
 import { useQueryClient } from '@tanstack/react-query'
@@ -36,6 +35,9 @@ import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
 import { formatDate } from '@/utils/date'
 import { TaskStatusIconMapper } from '@/components/shared/icon-enum/task-enum.tsx'
+import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
+import { Panel, PanelHeader } from '@repo/ui/panel'
+import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 
 const TaskDetailsSheet = () => {
   const [isEditing, setIsEditing] = useState(false)
@@ -51,7 +53,7 @@ const TaskDetailsSheet = () => {
   const { successNotification, errorNotification } = useNotification()
   const [comments, setComments] = useState<TCommentData[]>([])
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
-
+  const [associations, setAssociations] = useState<TObjectAssociationMap>({})
   const { mutateAsync: updateTask } = useUpdateTask()
   const { data, isLoading: fetching } = useTask(selectedTask as string)
 
@@ -59,6 +61,20 @@ const TaskDetailsSheet = () => {
   const { form } = useFormSchema()
   const where = taskData?.comments ? { idIn: taskData?.comments?.edges?.map((item) => item?.node?.createdBy!) } : undefined
   const { data: userData } = useGetUsers(where)
+
+  const initialAssociations = useMemo(
+    () => ({
+      programIDs: (taskData?.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      procedureIDs: (taskData?.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      internalPolicyIDs: (taskData?.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      controlObjectiveIDs: (taskData?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      groupIDs: (taskData?.groups?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
+      subcontrolIDs: (taskData?.subcontrols?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
+      controlIDs: (taskData?.controls?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
+      riskIDs: (taskData?.risks?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
+    }),
+    [taskData],
+  )
 
   useEffect(() => {
     if (taskData) {
@@ -68,13 +84,6 @@ const TaskDetailsSheet = () => {
         due: taskData.due ? new Date(taskData.due as string) : undefined,
         assigneeID: taskData.assignee?.id,
         category: taskData?.category ? Object.values(TaskTypes).find((type) => type === taskData?.category) : undefined,
-        controlObjectiveIDs: taskData?.controlObjectives?.edges?.map((item) => item?.node?.id) || [],
-        subcontrolIDs: taskData?.subcontrols?.edges?.map((item) => item?.node?.id) || [],
-        programIDs: taskData?.programs?.edges?.map((item) => item?.node?.id) || [],
-        procedureIDs: taskData?.procedures?.edges?.map((item) => item?.node?.id) || [],
-        internalPolicyIDs: taskData?.internalPolicies?.edges?.map((item) => item?.node?.id) || [],
-        evidenceIDs: taskData?.evidence?.edges?.map((item) => item?.node?.id) || [],
-        groupIDs: taskData?.groups?.edges?.map((item) => item?.node?.id) || [],
         status: taskData?.status ? Object.values(TaskTaskStatus).find((type) => type === taskData?.status) : undefined,
         tags: taskData?.tags ?? [],
       })
@@ -155,54 +164,9 @@ const TaskDetailsSheet = () => {
       detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
     }
 
-    const taskObjects = data?.taskObjects?.reduce(
-      (acc, item) => {
-        acc[item.inputName] = item.objectIds
-        return acc
-      },
-      {} as Record<string, string[]>,
-    )
+    const associationPayload = generateAssociationPayload(initialAssociations, associations)
 
-    const generatePayload = (existing: Record<string, string[]>, newValues: Record<string, string[]>) => {
-      const payload: Record<string, string[]> = {}
-
-      Object.keys(newValues).forEach((key) => {
-        const newIds = newValues[key] || []
-        const existingIds = existing[key] || []
-
-        const addIds = newIds.filter((id) => !existingIds.includes(id))
-
-        const removeIds = existingIds.filter((id) => !newIds.includes(id))
-
-        if (addIds.length > 0) payload[`add${capitalizeFirstLetter(key)}`] = addIds
-        if (removeIds.length > 0) payload[`remove${capitalizeFirstLetter(key)}`] = removeIds
-      })
-
-      return payload
-    }
-
-    const capitalizeFirstLetter = (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
-
-    const existingTaskObjectsData = [
-      ...[{ inputName: 'controlObjectiveIDs', objectIds: data.controlObjectiveIDs ?? [] }],
-      ...[{ inputName: 'subcontrolIDs', objectIds: data.subcontrolIDs ?? [] }],
-      ...[{ inputName: 'programIDs', objectIds: data.programIDs ?? [] }],
-      ...[{ inputName: 'procedureIDs', objectIds: data.procedureIDs ?? [] }],
-      ...[{ inputName: 'internalPolicyIDs', objectIds: data.internalPolicyIDs ?? [] }],
-      ...[{ inputName: 'evidenceIDs', objectIds: data.evidenceIDs ?? [] }],
-      ...[{ inputName: 'groupIDs', objectIds: data.groupIDs ?? [] }],
-    ]
-
-    const existingTaskObjects = existingTaskObjectsData?.reduce(
-      (acc, item) => {
-        acc[item.inputName] = item.objectIds
-        return acc
-      },
-      {} as Record<string, string[]>,
-    )
-
-    const taskObjectPayload = generatePayload(existingTaskObjects, taskObjects ?? {})
-
+    // 2. Build main payload
     const formData = {
       category: data?.category,
       due: data?.due ? data.due.toISOString() : undefined,
@@ -212,7 +176,7 @@ const TaskDetailsSheet = () => {
       status: data?.status,
       clearAssignee: !data?.assigneeID,
       clearDue: !data?.due,
-      ...taskObjectPayload,
+      ...associationPayload,
     }
 
     try {
@@ -601,7 +565,17 @@ const TaskDetailsSheet = () => {
               </div>
             </div>
 
-            {isEditing && <ControlObjectTaskForm form={form} />}
+            {isEditing && (
+              <Panel>
+                <PanelHeader heading="Object association" noBorder />
+                <p>Associating objects will allow users with access to the object to see the created task.</p>
+                <ObjectAssociation
+                  initialData={initialAssociations}
+                  onIdChange={(updatedMap) => setAssociations(updatedMap)}
+                  excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.TASK]}
+                />
+              </Panel>
+            )}
           </>
         )}
         {!isEditing && (
@@ -634,3 +608,24 @@ const TaskDetailsSheet = () => {
 }
 
 export default TaskDetailsSheet
+
+const capitalizeFirstLetter = (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
+
+const generateAssociationPayload = (original: TObjectAssociationMap, updated: TObjectAssociationMap) => {
+  const payload: Record<string, string[]> = {}
+
+  const allKeys = new Set([...Object.keys(original), ...Object.keys(updated)])
+
+  allKeys.forEach((key) => {
+    const prev = original[key] ?? []
+    const next = updated[key] ?? []
+
+    const add = next.filter((id) => !prev.includes(id))
+    const remove = prev.filter((id) => !next.includes(id))
+
+    if (add.length > 0) payload[`add${capitalizeFirstLetter(key)}`] = add
+    if (remove.length > 0) payload[`remove${capitalizeFirstLetter(key)}`] = remove
+  })
+
+  return payload
+}
