@@ -18,13 +18,6 @@ const formSchema = z.object({
   details: z.custom<Value | string>().optional(),
   assigneeID: z.string().optional().nullable(),
   due: z.any(),
-  controlObjectiveIDs: z.array(z.any()).optional(),
-  subcontrolIDs: z.array(z.any()).optional(),
-  programIDs: z.array(z.any()).optional(),
-  procedureIDs: z.array(z.any()).optional(),
-  internalPolicyIDs: z.array(z.any()).optional(),
-  evidenceIDs: z.array(z.any()).optional(),
-  groupIDs: z.array(z.any()).optional(),
   tags: z.array(z.string()).optional(),
   status: z
     .nativeEnum(TaskTaskStatus, {
