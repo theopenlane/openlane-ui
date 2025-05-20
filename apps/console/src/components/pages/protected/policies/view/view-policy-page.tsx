@@ -19,7 +19,6 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { usePolicy } from '@/components/pages/protected/policies/create/hooks/use-policy.tsx'
 import AssociatedObjectsViewAccordion from '@/components/pages/protected/policies/accordion/associated-objects-view-accordion.tsx'
-import AssociationCard from '@/components/pages/protected/policies/create/cards/association-card.tsx'
 import { canDelete } from '@/lib/authz/utils'
 import { useAccountRole } from '@/lib/authz/access-api'
 import { useSession } from 'next-auth/react'
@@ -35,12 +34,10 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const { data, isLoading } = useGetInternalPolicyDetailsById(policyId)
   const plateEditorHelper = usePlateEditor()
   const { mutateAsync: updatePolicy, isPending: isSaving } = useUpdateInternalPolicy()
-  const associationsState = usePolicy((state) => state.associations)
   const policyState = usePolicy()
   const policy = data?.internalPolicy
   const { form } = useFormSchema()
   const [isEditing, setIsEditing] = useState(false)
-  const [initialAssociations, setInitialAssociations] = useState<TObjectAssociationMap>({})
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
   const { data: session } = useSession()
@@ -81,7 +78,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         delegateID: policy.delegate?.id,
       })
 
-      setInitialAssociations(policyAssociations)
+      policyState.setInitialAssociations(policyAssociations)
       policyState.setAssociations(policyAssociations)
       policyState.setAssociationRefCodes(policyAssociationsRefCodes)
     }
@@ -108,62 +105,12 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     }
   }
 
-  function getAssociationDiffs(initial: TObjectAssociationMap, current: TObjectAssociationMap): { added: TObjectAssociationMap; removed: TObjectAssociationMap } {
-    const added: TObjectAssociationMap = {}
-    const removed: TObjectAssociationMap = {}
-
-    const allKeys = new Set([...Object.keys(initial), ...Object.keys(current)])
-
-    for (const key of allKeys) {
-      const initialSet = new Set(initial[key] ?? [])
-      const currentSet = new Set(current[key] ?? [])
-
-      const addedItems = [...currentSet].filter((id) => !initialSet.has(id))
-      const removedItems = [...initialSet].filter((id) => !currentSet.has(id))
-
-      if (addedItems.length > 0) {
-        added[key] = addedItems
-      }
-      if (removedItems.length > 0) {
-        removed[key] = removedItems
-      }
-    }
-
-    return { added, removed }
-  }
-
   const onSubmitHandler = async (data: EditPolicyMetadataFormData) => {
     try {
       let detailsField = data?.details
 
       if (detailsField) {
         detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
-      }
-
-      const { added, removed } = getAssociationDiffs(initialAssociations, associationsState)
-
-      const buildMutationKey = (prefix: string, key: string) => `${prefix}${key.charAt(0).toUpperCase()}${key.slice(1)}`
-
-      const associationInputs = {
-        ...Object.entries(added).reduce(
-          (acc, [key, ids]) => {
-            if (ids && ids.length > 0) {
-              acc[buildMutationKey('add', key)] = ids
-            }
-            return acc
-          },
-          {} as Record<string, string[]>,
-        ),
-
-        ...Object.entries(removed).reduce(
-          (acc, [key, ids]) => {
-            if (ids && ids.length > 0) {
-              acc[buildMutationKey('remove', key)] = ids
-            }
-            return acc
-          },
-          {} as Record<string, string[]>,
-        ),
       }
 
       const formData: {
@@ -177,7 +124,6 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           approverID: data.approverID || undefined,
           delegateID: data.delegateID || undefined,
-          ...associationInputs,
         },
       }
 
@@ -244,7 +190,6 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
               <PropertiesCard form={form} isEditing={isEditing} policy={policy} />
               <HistoricalCard policy={policy} />
               <TagsCard form={form} policy={policy} isEditing={isEditing} />
-              <AssociationCard isEditable={isEditing} />
             </div>
           </form>
         </Form>

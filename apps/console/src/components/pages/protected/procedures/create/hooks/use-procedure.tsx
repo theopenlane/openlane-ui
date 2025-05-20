@@ -3,13 +3,16 @@ import { TObjectAssociationMap } from '@/components/shared/objectAssociation/typ
 
 type TProcedureState = {
   associations: TObjectAssociationMap
+  initialAssociations: TObjectAssociationMap
   associationRefCodes: TObjectAssociationMap
+  setInitialAssociations: (associations: TObjectAssociationMap) => void
   setAssociations: (associations: TObjectAssociationMap) => void
   setAssociationRefCodes: (associationRefCodes: TObjectAssociationMap) => void
 }
 
 export const useProcedure = create<TProcedureState>((set) => ({
   associations: {},
+  initialAssociations: {},
   associationRefCodes: {
     taskIDs: [],
     controlIDs: [],
@@ -17,6 +20,7 @@ export const useProcedure = create<TProcedureState>((set) => ({
     programIDs: [],
     riskIDs: [],
   },
+  setInitialAssociations: (initialAssociations) => set({ initialAssociations }),
   setAssociations: (associations) => set({ associations }),
   setAssociationRefCodes: (newAssociationRefCodes) => {
     const defaultKeys: (keyof TObjectAssociationMap)[] = ['taskIDs', 'controlIDs', 'internalPolicyIDs', 'programIDs', 'riskIDs']

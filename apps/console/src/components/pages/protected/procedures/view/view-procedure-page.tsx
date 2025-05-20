@@ -17,7 +17,6 @@ import { Value } from '@udecode/plate-common'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import AssociatedObjectsViewAccordion from '@/components/pages/protected/procedures/accordion/associated-objects-view-accordion.tsx'
-import AssociationCard from '@/components/pages/protected/procedures/create/cards/association-card.tsx'
 import { useGetProcedureDetailsById } from '@/lib/graphql-hooks/procedures.ts'
 import { ProcedureDocumentStatus, ProcedureFrequency, UpdateProcedureInput } from '@repo/codegen/src/schema.ts'
 import { useProcedure } from '@/components/pages/protected/procedures/create/hooks/use-procedure.tsx'
@@ -38,12 +37,10 @@ const ViewProcedurePage: React.FC<TViewProcedurePage> = ({ procedureId }) => {
   const { data, isLoading } = useGetProcedureDetailsById(procedureId)
   const plateEditorHelper = usePlateEditor()
   const { mutateAsync: updateProcedure, isPending: isSaving } = useUpdateProcedure()
-  const associationsState = useProcedure((state) => state.associations)
   const procedureState = useProcedure()
   const procedure = data?.procedure
   const { form } = useFormSchema()
   const [isEditing, setIsEditing] = useState(false)
-  const [initialAssociations, setInitialAssociations] = useState<TObjectAssociationMap>({})
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
   const router = useRouter()
@@ -84,7 +81,7 @@ const ViewProcedurePage: React.FC<TViewProcedurePage> = ({ procedureId }) => {
         delegateID: procedure.delegate?.id,
       })
 
-      setInitialAssociations(procedureAssociations)
+      procedureState.setInitialAssociations(procedureAssociations)
       procedureState.setAssociations(procedureAssociations)
       procedureState.setAssociationRefCodes(procedureAssociationsRefCodes)
     }
@@ -111,62 +108,12 @@ const ViewProcedurePage: React.FC<TViewProcedurePage> = ({ procedureId }) => {
     }
   }
 
-  function getAssociationDiffs(initial: TObjectAssociationMap, current: TObjectAssociationMap): { added: TObjectAssociationMap; removed: TObjectAssociationMap } {
-    const added: TObjectAssociationMap = {}
-    const removed: TObjectAssociationMap = {}
-
-    const allKeys = new Set([...Object.keys(initial), ...Object.keys(current)])
-
-    for (const key of allKeys) {
-      const initialSet = new Set(initial[key] ?? [])
-      const currentSet = new Set(current[key] ?? [])
-
-      const addedItems = [...currentSet].filter((id) => !initialSet.has(id))
-      const removedItems = [...initialSet].filter((id) => !currentSet.has(id))
-
-      if (addedItems.length > 0) {
-        added[key] = addedItems
-      }
-      if (removedItems.length > 0) {
-        removed[key] = removedItems
-      }
-    }
-
-    return { added, removed }
-  }
-
   const onSubmitHandler = async (data: EditProcedureMetadataFormData) => {
     try {
       let detailsField = data?.details
 
       if (detailsField) {
         detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
-      }
-
-      const { added, removed } = getAssociationDiffs(initialAssociations, associationsState)
-
-      const buildMutationKey = (prefix: string, key: string) => `${prefix}${key.charAt(0).toUpperCase()}${key.slice(1)}`
-
-      const associationInputs = {
-        ...Object.entries(added).reduce(
-          (acc, [key, ids]) => {
-            if (ids && ids.length > 0) {
-              acc[buildMutationKey('add', key)] = ids
-            }
-            return acc
-          },
-          {} as Record<string, string[]>,
-        ),
-
-        ...Object.entries(removed).reduce(
-          (acc, [key, ids]) => {
-            if (ids && ids.length > 0) {
-              acc[buildMutationKey('remove', key)] = ids
-            }
-            return acc
-          },
-          {} as Record<string, string[]>,
-        ),
       }
 
       const formData: {
@@ -180,7 +127,6 @@ const ViewProcedurePage: React.FC<TViewProcedurePage> = ({ procedureId }) => {
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           approverID: data.approverID || undefined,
           delegateID: data.delegateID || undefined,
-          ...associationInputs,
         },
       }
 
@@ -250,7 +196,6 @@ const ViewProcedurePage: React.FC<TViewProcedurePage> = ({ procedureId }) => {
               <PropertiesCard form={form} isEditing={isEditing} procedure={procedure} />
               <HistoricalCard procedure={procedure} />
               <TagsCard form={form} procedure={procedure} isEditing={isEditing} />
-              <AssociationCard isEditable={isEditing} />
             </div>
           </form>
         </Form>

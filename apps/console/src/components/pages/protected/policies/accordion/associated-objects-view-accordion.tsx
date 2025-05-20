@@ -8,6 +8,7 @@ import { Button } from '@repo/ui/button'
 import { ChevronDown, ChevronsDownUp, ChevronsUpDown } from 'lucide-react'
 import { InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
+import SetObjectAssociationDialog from '@/components/pages/protected/policies/modal/set-object-association-modal.tsx'
 
 type AssociatedObjectsAccordionProps = {
   policy: InternalPolicyByIdFragment
@@ -76,7 +77,7 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
     <div className="mt-10 space-y-4">
       <div className="flex items-center gap-2.5">
         <h2 className="text-lg font-semibold whitespace-nowrap">Associated Objects</h2>
-        <div className="flex justify-between w-full">
+        <div className="flex justify-between w-full items-center">
           <div className="flex gap-2.5 items-center">
             <Button className="h-8 !px-2" variant="outline" type="button" onClick={() => toggleAll(false)} icon={<ChevronsDownUp />} iconPosition="left">
               Collapse all
@@ -84,6 +85,9 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
             <Button className="h-8 !px-2" variant="outline" type="button" onClick={() => toggleAll(true)} icon={<ChevronsUpDown />} iconPosition="left">
               Expand all
             </Button>
+          </div>
+          <div className="ml-auto">
+            <SetObjectAssociationDialog policyId={policy?.id} />
           </div>
         </div>
       </div>
