@@ -266,7 +266,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                   <p>Associating objects will allow users with access to the object to see the created task.</p>
                   {props.objectAssociationsDisplayIDs && (
                     <HeadsUpDisplay
-                      accordionLabel={'Show tasks linked to this program'}
+                      accordionLabel={'Show programs linked to this task'}
                       descriptionText={'This requested task you are creating will be automatically linked to the associated program. We have pre-selected the object association below'}
                       displayIDs={props.objectAssociationsDisplayIDs}
                     ></HeadsUpDisplay>

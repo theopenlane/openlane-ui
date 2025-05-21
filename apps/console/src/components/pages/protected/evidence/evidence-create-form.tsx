@@ -302,7 +302,13 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
             <div className="col-span-1">
               <Panel>
                 <PanelHeader heading="Object association" noBorder />
-                {formData && formData?.objectAssociationsDisplayIDs && <HeadsUpDisplay displayIDs={formData?.objectAssociationsDisplayIDs}></HeadsUpDisplay>}
+                {formData && formData?.objectAssociationsDisplayIDs && (
+                  <HeadsUpDisplay
+                    accordionLabel={'Show objects linked to this evidence'}
+                    descriptionText={'This requested evidence you are submitting will also be used by other tasks, controls. We have pre-selected the object association below.'}
+                    displayIDs={formData?.objectAssociationsDisplayIDs}
+                  ></HeadsUpDisplay>
+                )}
                 <ObjectAssociation
                   onIdChange={handleEvidenceObjectIdsChange}
                   excludeObjectTypes={excludeObjectTypes || []}
