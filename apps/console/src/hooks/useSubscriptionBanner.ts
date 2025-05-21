@@ -7,7 +7,6 @@ export function useSubscriptionBanner() {
   const { data } = useGetBillingBanner(currentOrgId)
 
   const subscription = data?.organization?.orgSubscriptions?.[0]
-  console.log('subscription', subscription)
   const { expiresAt, trialExpiresAt, stripeSubscriptionStatus: stripeStatus, paymentMethodAdded } = subscription || {}
 
   const safeParseDate = (date?: string) => (date && isValid(parseISO(date)) ? parseISO(date) : null)
