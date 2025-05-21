@@ -15,6 +15,15 @@ export enum ObjectTypes {
   PROCEDURE = 'Procedure',
 }
 
+export const objectTypeInputToEnumMap: Record<string, ObjectTypes> = {
+  Program: ObjectTypes.PROGRAM,
+  Risk: ObjectTypes.RISK,
+  ControlObjective: ObjectTypes.CONTROL_OBJECTIVE,
+  Narrative: ObjectTypes.NARRATIVE,
+  InternalPolicy: ObjectTypes.INTERNAL_POLICY,
+  Procedure: ObjectTypes.PROCEDURE,
+}
+
 import { Program, Risk, Control, ControlObjective, NarrativeEdge, InternalPolicy, Procedure } from '@repo/codegen/src/schema'
 
 /**

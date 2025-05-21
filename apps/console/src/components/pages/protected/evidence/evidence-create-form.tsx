@@ -26,6 +26,7 @@ import { Card } from '@repo/ui/cardpanel'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { Badge } from '@repo/ui/badge'
 import { useQueryClient } from '@tanstack/react-query'
+import HeadsUpDisplay from '@/components/shared/heads-up/heads-up'
 
 type TProps = {
   formData?: TFormEvidenceData
@@ -302,34 +303,11 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
               <Panel>
                 <PanelHeader heading="Object association" noBorder />
                 {formData && formData?.objectAssociationsDisplayIDs && (
-                  <Card className="p-4 flex gap-3 bg-note">
-                    <div>
-                      <p className="font-semibold">Heads up!</p>
-                      <p className="text-sm ">This requested evidence you are submitting will also be used by other tasks, controls. We have pre-selected the object association below.</p>
-                      <div className="w-3/5 pt-3">
-                        <Accordion type="single" collapsible className="w-full">
-                          <AccordionItem value="objects">
-                            <AccordionTrigger className="py-2 w-full flex justify-between items-center gap-2 group border p-3 bg-background-secondary">
-                              <span className="text-sm">Show objects linked to this evidence</span>
-                              <ChevronDown className="h-4 w-4 group-data-[state=open]:rotate-180" />
-                            </AccordionTrigger>
-                            <AccordionContent className="my-3">
-                              {formData?.objectAssociationsDisplayIDs &&
-                                formData?.objectAssociationsDisplayIDs.map((item, index) => (
-                                  <Fragment key={index}>
-                                    {item && (
-                                      <Badge className="bg-background-secondary mr-1" variant="outline">
-                                        {item}
-                                      </Badge>
-                                    )}
-                                  </Fragment>
-                                ))}
-                            </AccordionContent>
-                          </AccordionItem>
-                        </Accordion>
-                      </div>
-                    </div>
-                  </Card>
+                  <HeadsUpDisplay
+                    accordionLabel={'Show objects linked to this evidence'}
+                    descriptionText={'This requested evidence you are submitting will also be used by other tasks, controls. We have pre-selected the object association below.'}
+                    displayIDs={formData?.objectAssociationsDisplayIDs}
+                  ></HeadsUpDisplay>
                 )}
                 <ObjectAssociation
                   onIdChange={handleEvidenceObjectIdsChange}
