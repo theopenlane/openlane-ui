@@ -18,7 +18,7 @@ const PricingPlan = () => {
   const subscription = data?.organization.orgSubscriptions?.[0] ?? ({} as OrgSubscription)
 
   // @ts-ignore TODO: MISSING TYPES FROM CODEGEN
-  const { expiresAt, subscriptionURL, active, productTier, stripeSubscriptionStatus, productPrice = {}, features = [] } = subscription
+  const { expiresAt, subscriptionURL, active, productTier, stripeSubscriptionStatus, trialExpiresAt, productPrice = {}, features = [] } = subscription
   const { amount: price, interval: priceInterval } = productPrice
 
   const badge: { text: string; variant: 'default' | 'secondary' | 'outline' | 'gold' | 'destructive' } = useMemo(() => {
@@ -38,7 +38,12 @@ const PricingPlan = () => {
     if (!expiresAt || !active) return 'Expired'
 
     try {
+      if (stripeSubscriptionStatus === 'trialing') {
+        const expirationDate = parseISO(trialExpiresAt)
+        return `Expires in ${formatDistanceToNowStrict(expirationDate, { addSuffix: false })}`
+      }
       const expirationDate = parseISO(expiresAt)
+
       if (isBefore(expirationDate, new Date())) {
         return 'Expired'
       }
@@ -47,7 +52,7 @@ const PricingPlan = () => {
       console.error('Error parsing expiration date:', error)
       return 'N/A'
     }
-  }, [expiresAt, active])
+  }, [expiresAt, active, stripeSubscriptionStatus, trialExpiresAt])
 
   return (
     <div className="">

@@ -34814,6 +34814,7 @@ export type GetOrganizationBillingQuery = {
       features?: Array<string> | null
       managePaymentMethods?: string | null
       cancellation?: string | null
+      trialExpiresAt?: any | null
     }> | null
   }
 }
