@@ -34647,6 +34647,44 @@ export type RemoveUserFromOrgMutationVariables = Exact<{
 
 export type RemoveUserFromOrgMutation = { __typename?: 'Mutation'; deleteOrgMembership: { __typename?: 'OrgMembershipDeletePayload'; deletedID: string } }
 
+export type OrgMembershipsQueryVariables = Exact<{
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+}>
+
+export type OrgMembershipsQuery = {
+  __typename?: 'Query'
+  orgMemberships: {
+    __typename?: 'OrgMembershipConnection'
+    totalCount: number
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+    edges?: Array<{
+      __typename?: 'OrgMembershipEdge'
+      node?: {
+        __typename?: 'OrgMembership'
+        id: string
+        createdAt?: any | null
+        role: OrgMembershipRole
+        user: {
+          __typename?: 'User'
+          id: string
+          firstName?: string | null
+          lastName?: string | null
+          displayName: string
+          authProvider: UserAuthProvider
+          avatarRemoteURL?: string | null
+          email: string
+          role?: UserRole | null
+          createdAt?: any | null
+          avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
 export type GetAllNarrativesQueryVariables = Exact<{
   where?: InputMaybe<NarrativeWhereInput>
 }>
@@ -34779,6 +34817,10 @@ export type GetAllOrganizationsWithMembersQuery = {
 export type GetInvitesQueryVariables = Exact<{
   where?: InputMaybe<InviteWhereInput>
   orderBy?: InputMaybe<Array<InviteOrder> | InviteOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type GetInvitesQuery = {
@@ -34814,6 +34856,7 @@ export type GetOrganizationBillingQuery = {
       features?: Array<string> | null
       managePaymentMethods?: string | null
       cancellation?: string | null
+      trialExpiresAt?: any | null
     }> | null
   }
 }
@@ -34827,7 +34870,13 @@ export type GetOrganizationBillingBannerQuery = {
   organization: {
     __typename?: 'Organization'
     personalOrg?: boolean | null
-    orgSubscriptions?: Array<{ __typename?: 'OrgSubscription'; expiresAt?: any | null; stripeSubscriptionStatus?: string | null; paymentMethodAdded?: boolean | null }> | null
+    orgSubscriptions?: Array<{
+      __typename?: 'OrgSubscription'
+      trialExpiresAt?: any | null
+      expiresAt?: any | null
+      stripeSubscriptionStatus?: string | null
+      paymentMethodAdded?: boolean | null
+    }> | null
   }
 }
 
