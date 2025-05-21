@@ -35099,7 +35099,7 @@ export type GetProgramBasicInfoQueryVariables = Exact<{
 }>;
 
 
-export type GetProgramBasicInfoQuery = { __typename?: 'Query', program: { __typename?: 'Program', name: string, startDate?: any | null, endDate?: any | null, description?: string | null, auditFirm?: string | null, auditor?: string | null, auditorEmail?: string | null, auditorReady: boolean } };
+export type GetProgramBasicInfoQuery = { __typename?: 'Query', program: { __typename?: 'Program', name: string, startDate?: any | null, endDate?: any | null, description?: string | null, auditFirm?: string | null, auditor?: string | null, auditorEmail?: string | null, auditorReady: boolean, displayID: string } };
 
 export type GetEvidenceStatsQueryVariables = Exact<{
   programId: Scalars['ID']['input'];

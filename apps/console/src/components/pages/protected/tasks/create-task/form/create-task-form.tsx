@@ -23,12 +23,14 @@ import ObjectAssociation from '@/components/shared/objectAssociation/object-asso
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
+import HeadsUpDisplay from '@/components/shared/heads-up/heads-up'
 
 type TProps = {
   onSuccess: () => void
   defaultSelectedObject?: ObjectTypeObjects
   excludeObjectTypes?: ObjectTypeObjects[]
   initialData?: TObjectAssociationMap
+  objectAssociationsDisplayIDs?: string[]
 }
 
 const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
@@ -262,6 +264,14 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                 <Panel>
                   <PanelHeader heading="Object association" noBorder />
                   <p>Associating objects will allow users with access to the object to see the created task.</p>
+                  {props.objectAssociationsDisplayIDs && (
+                    <HeadsUpDisplay
+                      accordionLabel={'Show programs linked to this task'}
+                      descriptionText={'This requested task you are creating will be automatically linked to the associated program. We have pre-selected the object association below'}
+                      displayIDs={props.objectAssociationsDisplayIDs}
+                    ></HeadsUpDisplay>
+                  )}
+                  {/* <ControlObjectTaskForm form={form} /> */}
                   <ObjectAssociation
                     defaultSelectedObject={props.defaultSelectedObject}
                     excludeObjectTypes={props.excludeObjectTypes}
