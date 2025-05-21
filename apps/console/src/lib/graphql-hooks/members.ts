@@ -1,9 +1,17 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
-import { UPDATE_USER_ROLE_IN_ORG, REMOVE_USER_FROM_ORG } from '@repo/codegen/query/member'
+import { UPDATE_USER_ROLE_IN_ORG, REMOVE_USER_FROM_ORG, GET_ORG_MEMBERSHIPS } from '@repo/codegen/query/member'
 
-import { UpdateUserRoleInOrgMutation, UpdateUserRoleInOrgMutationVariables, RemoveUserFromOrgMutation, RemoveUserFromOrgMutationVariables } from '@repo/codegen/src/schema'
+import {
+  UpdateUserRoleInOrgMutation,
+  UpdateUserRoleInOrgMutationVariables,
+  RemoveUserFromOrgMutation,
+  RemoveUserFromOrgMutationVariables,
+  OrgMembershipsQuery,
+  OrgMembershipsQueryVariables,
+} from '@repo/codegen/src/schema'
+import { TPagination } from '@repo/ui/pagination-types'
 
 export const useUpdateUserRoleInOrg = () => {
   const { client } = useGraphQLClient()
@@ -18,5 +26,15 @@ export const useRemoveUserFromOrg = () => {
 
   return useMutation<RemoveUserFromOrgMutation, unknown, RemoveUserFromOrgMutationVariables>({
     mutationFn: (variables) => client.request(REMOVE_USER_FROM_ORG, variables),
+  })
+}
+
+export const useGetOrgMemberships = ({ pagination }: { pagination?: TPagination }) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<OrgMembershipsQuery, OrgMembershipsQueryVariables>({
+    queryKey: ['memberships', pagination?.pageSize, pagination?.page],
+    queryFn: async () => client.request(GET_ORG_MEMBERSHIPS, pagination?.query),
+    enabled: true,
   })
 }
