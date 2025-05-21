@@ -80,7 +80,7 @@ const Page: React.FC = () => {
             <div className="flex gap-4 items-center">
               <h1>Overview</h1>
               <Select onValueChange={handleSelectChange}>
-                <SelectTrigger className="max-w-64 min-w-48 rounded-md px-3 py-2 flex items-center">
+                <SelectTrigger className="max-w-64 min-w-48 rounded-md px-3 py-2 flex items-center justify-between">
                   <div className="truncate">{selectedProgram}</div>
                 </SelectTrigger>
                 <SelectContent className="border rounded-md shadow-md">
