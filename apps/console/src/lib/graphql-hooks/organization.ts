@@ -45,6 +45,7 @@ import {
   GetOrganizationBillingBannerQuery,
   GetOrganizationBillingBannerQueryVariables,
   OrgMembershipWhereInput,
+  Control,
 } from '@repo/codegen/src/schema'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Variables } from 'graphql-request'
