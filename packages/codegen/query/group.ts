@@ -134,3 +134,10 @@ export const GET_GROUP_PERMISSIONS = gql`
     }
   }
 `
+export const DELETE_GROUP_MEMBERSHIP = gql`
+  mutation DeleteGroupMembership($deleteGroupMembershipId: ID!) {
+    deleteGroupMembership(id: $deleteGroupMembershipId) {
+      deletedID
+    }
+  }
+`

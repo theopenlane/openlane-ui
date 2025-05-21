@@ -120,7 +120,7 @@ const GroupsPermissionsTable = () => {
     {
       id: 'actions',
       cell: ({ row }) => (
-        <button className="text-brand flex justify-self-end " onClick={() => handleDelete(row.original.id, row.original.objectType, row.original.role)}>
+        <button type="button" className="text-brand flex justify-self-end " onClick={() => handleDelete(row.original.id, row.original.objectType, row.original.role)}>
           <Trash2 className="h-4 w-4" />
         </button>
       ),
