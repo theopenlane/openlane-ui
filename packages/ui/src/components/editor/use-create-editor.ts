@@ -203,6 +203,7 @@ const minimalComponents = {
 }
 
 const basicComponents = {
+  ...viewComponents,
   [BlockquotePlugin.key]: BlockquoteElement,
   [BoldPlugin.key]: withProps(PlateLeaf, { as: 'strong' }),
   [CodeBlockPlugin.key]: CodeBlockElement,
@@ -225,6 +226,13 @@ const basicComponents = {
   [ParagraphPlugin.key]: ParagraphElement,
   [TogglePlugin.key]: ToggleElement,
   [UnderlinePlugin.key]: withProps(PlateLeaf, { as: 'u' }),
+  [TableCellHeaderPlugin.key]: TableCellHeaderElement,
+  [TableCellPlugin.key]: TableCellElement,
+  [TablePlugin.key]: TableElement,
+  [TableRowPlugin.key]: TableRowElement,
+  [TocPlugin.key]: TocElement,
+  [ColumnItemPlugin.key]: ColumnElement,
+  [ColumnPlugin.key]: ColumnGroupElement,
 }
 
 const standardComponents = {
@@ -334,20 +342,22 @@ export const useCreateEditor = (
     override,
     readOnly,
     variant = 'standard',
+    withPlaceHolders,
     ...options
   }: {
     components?: Record<string, any>
     plugins?: any[]
     readOnly?: boolean
     variant?: TPlateEditorVariants
+    withPlaceHolders?: boolean
   } & Omit<CreatePlateEditorOptions, 'plugins'> = {},
   deps: any[] = [],
 ) => {
   const componentVariants = {
-    minimal: withPlaceholders(minimalComponents),
-    basic: withPlaceholders(basicComponents),
-    standard: withPlaceholders(standardComponents),
-    advanced: withPlaceholders(advancedComponents),
+    minimal: withPlaceHolders ? withPlaceholders(minimalComponents) : minimalComponents,
+    basic: withPlaceHolders ? withPlaceholders(basicComponents) : basicComponents,
+    standard: withPlaceHolders ? withPlaceholders(standardComponents) : standardComponents,
+    advanced: withPlaceHolders ? withPlaceholders(advancedComponents) : advancedComponents,
   }
 
   const pluginVariants = {
