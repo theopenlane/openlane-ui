@@ -3,17 +3,23 @@ import { Button } from '@repo/ui/button'
 import React from 'react'
 import Cat from '@/assets/Cat'
 import Plot from '@/assets/Plot.tsx'
-import { useSession } from 'next-auth/react'
-import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization.ts'
 import { OrgMembershipRole } from '@repo/codegen/src/schema.ts'
 import { useRouter } from 'next/navigation'
 import { SUPPORT_EMAIL } from '@/constants'
+import Link from 'next/link'
 
 const ProtectedArea: React.FC = () => {
   const router = useRouter()
-  const { data: session } = useSession()
-  const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
-  const ownerEmail = membersData?.organization?.members?.edges?.find((item) => item?.node?.role === OrgMembershipRole.OWNER)?.node?.user?.email
+  const filters = [
+    {
+      field: 'role',
+      value: OrgMembershipRole.OWNER,
+      type: 'select',
+      operator: 'EQ',
+    },
+  ]
+
+  const encodedFilters = encodeURIComponent(JSON.stringify(filters))
 
   return (
     <div className="flex m-[146px]">
@@ -26,9 +32,9 @@ const ProtectedArea: React.FC = () => {
         <p className="text-3xl font-semibold mb-3 leading-9">This page is part of a protected area, and it looks like your account doesn't have permission to enter right meow.</p>
         <p className="text-sm mb-6">
           If you think this is a mistake,{' '}
-          <a href={`mailto:${ownerEmail}`} className="underline">
+          <Link href={`/organization-settings/members?filters=${encodedFilters}`} className="underline">
             reach out to your org owner
-          </a>{' '}
+          </Link>{' '}
           or{' '}
           <a href={SUPPORT_EMAIL} className="underline">
             contact support

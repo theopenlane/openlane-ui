@@ -2,14 +2,12 @@
 
 import { OrgMembership, OrgMembershipRole, User, UserAuthProvider } from '@repo/codegen/src/schema'
 import { pageStyles } from './page.styles'
-import { useState, useEffect, Dispatch, SetStateAction } from 'react'
-import { Input } from '@repo/ui/input'
-import { Button } from '@repo/ui/button'
-import { Copy, KeyRoundIcon, PlusIcon, Search } from 'lucide-react'
+import React, { useState, useEffect, Dispatch, SetStateAction, useMemo } from 'react'
+import { Copy, KeyRoundIcon } from 'lucide-react'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import Image from 'next/image'
-import { useCopyToClipboard } from '@uidotdev/usehooks'
+import { useCopyToClipboard, useDebounce } from '@uidotdev/usehooks'
 import { MemberActions } from './actions/member-actions'
 import { useNotification } from '@/hooks/useNotification'
 import { Avatar } from '@/components/shared/avatar/avatar'
@@ -18,19 +16,44 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { formatDateSince } from '@/utils/date'
 import { UserRoleIconMapper } from '@/components/shared/icon-enum/user-role-enum.tsx'
 import { useGetOrgMemberships } from '@/lib/graphql-hooks/members.ts'
+import MembersTableToolbar from '@/components/pages/protected/organization/members/members-table-toolbar.tsx'
 
 type MembersTableProps = {
   setActiveTab: Dispatch<SetStateAction<string>>
 }
 
 export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
-  const { membersSearchRow, membersSearchField, membersButtons, nameRow, copyIcon } = pageStyles()
-  const [filteredMembers, setFilteredMembers] = useState<OrgMembership[]>([])
+  const { nameRow, copyIcon } = pageStyles()
+  const [filters, setFilters] = useState<Record<string, any> | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [copiedText, copyToClipboard] = useCopyToClipboard()
   const { successNotification } = useNotification()
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
-  const { data, isLoading, isFetching } = useGetOrgMemberships({ pagination })
+  const debouncedSearch = useDebounce(searchTerm, 300)
+  const whereFilters = useMemo(() => {
+    if (!filters) {
+      return null
+    }
+
+    const modifiedWhereFilters = { ...filters }
+    const hasUserWithConditions: Record<string, any> = {
+      displayNameContainsFold: debouncedSearch,
+    }
+
+    if ('providers' in modifiedWhereFilters) {
+      hasUserWithConditions.authProviderIn = [modifiedWhereFilters.providers]
+      delete modifiedWhereFilters.providers
+    }
+
+    const conditions: Record<string, any> = {
+      ...modifiedWhereFilters,
+      hasUserWith: [hasUserWithConditions],
+    }
+
+    return conditions
+  }, [filters, debouncedSearch])
+
+  const { members, isLoading, paginationMeta } = useGetOrgMemberships({ where: whereFilters, pagination, enabled: !!filters })
 
   useEffect(() => {
     if (copiedText) {
@@ -40,30 +63,6 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
       })
     }
   }, [copiedText])
-
-  useEffect(() => {
-    if (data?.orgMemberships?.edges) {
-      const memberNodes = data.orgMemberships.edges.map((edge) => edge?.node).filter(Boolean)
-      setFilteredMembers(memberNodes as OrgMembership[])
-    }
-  }, [data])
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const searchValue = e.target.value.toLowerCase()
-    setSearchTerm(searchValue)
-    setPagination(DEFAULT_PAGINATION)
-
-    if (data?.orgMemberships?.edges) {
-      const memberNodes = data.orgMemberships.edges.map((edge) => edge?.node).filter(Boolean) as OrgMembership[]
-
-      const filtered = memberNodes.filter(({ user }) => {
-        const fullName = `${user?.firstName?.toLowerCase() ?? ''} ${user?.lastName?.toLowerCase() ?? ''}`
-        return fullName.includes(searchValue)
-      })
-
-      setFilteredMembers(filtered as OrgMembership[])
-    }
-  }
 
   const providerIcon = (provider: UserAuthProvider) => {
     switch (provider) {
@@ -138,23 +137,25 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
 
   return (
     <div>
-      <div className={membersSearchRow()}>
-        <div className={membersSearchField()}>
-          <Input variant="searchTable" icon={<Search size={16} />} iconPosition="left" placeholder="Search for user" value={searchTerm} onChange={handleSearch} />
-        </div>
-        <div className={membersButtons()}>
-          <Button size="md" icon={<PlusIcon />} iconPosition="left" onClick={() => setActiveTab('invites')}>
-            Send an invite
-          </Button>
-        </div>
-      </div>
+      <MembersTableToolbar
+        className="my-5"
+        searching={isLoading}
+        setFilters={setFilters}
+        searchTerm={searchTerm}
+        setSearchTerm={(inputVal) => {
+          setSearchTerm(inputVal)
+          setPagination(DEFAULT_PAGINATION)
+        }}
+        onSetActiveTab={setActiveTab}
+      />
+
       <DataTable
         loading={isLoading}
         columns={columns}
-        data={filteredMembers}
+        data={members}
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
-        paginationMeta={{ totalCount: data?.orgMemberships?.totalCount ?? 0, pageInfo: data?.orgMemberships?.pageInfo, isLoading: isFetching }}
+        paginationMeta={paginationMeta}
       />
     </div>
   )
