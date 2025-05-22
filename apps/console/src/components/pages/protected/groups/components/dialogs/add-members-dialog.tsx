@@ -21,14 +21,27 @@ const AddMembersDialog = () => {
   const queryClient = useQueryClient()
   const { data } = useGetGroupDetails(selectedGroup)
   const { members: membersGroupData, isManaged, id } = data?.group || {}
+  const [hasInitialized, setHasInitialized] = useState(false)
 
-  const members = membersGroupData?.edges?.map((user) => user?.node?.user as User) || []
+  const members =
+    membersGroupData?.edges
+      ?.filter((member) => {
+        return member?.node?.user?.id != session?.user.userId
+      })
+      .map((user) => {
+        return {
+          user: user?.node?.user as User,
+          groupID: user?.node?.id || '',
+        }
+      }) || []
 
   const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const { mutateAsync: updateGroup } = useUpdateGroup()
 
   const membersOptions = membersData?.organization?.members?.edges
-    ?.filter((member) => member?.node?.user?.id != session?.user.userId)
+    ?.filter((member) => {
+      return member?.node?.user?.id != session?.user.userId
+    })
     .map((member) => ({
       value: member?.node?.user?.id,
       label: `${member?.node?.user?.firstName} ${member?.node?.user?.lastName}`,
@@ -42,14 +55,17 @@ const AddMembersDialog = () => {
   const handleSave = async () => {
     if (!selectedGroup || !id) return
 
-    const originalMembersMap = new Map(members?.map((member) => [member.id, member.id || '']))
+    const originalMembersMap = new Map(members?.map((member) => [member.user.id, member]))
+
     const newMemberIds = new Set(selectedMembers.map((member) => member.value))
-    const removeGroupMembers = [...originalMembersMap.entries()].filter(([userId]) => !newMemberIds.has(userId)).map(([, membershipId]) => membershipId) // Extract membership ID
-    const addGroupMembers = [...newMemberIds]
-      .filter((userId) => !originalMembersMap.has(userId))
-      .map((userId) => ({
+
+    const removeGroupMembers = members?.filter((member) => !newMemberIds.has(member.user.id)).map((member) => member.groupID)
+
+    const addGroupMembers = selectedMembers
+      .filter((selected) => !originalMembersMap.has(selected.value))
+      .map((selected) => ({
         groupID: id,
-        userID: userId,
+        userID: selected.value,
       }))
 
     await updateGroup({
@@ -66,16 +82,18 @@ const AddMembersDialog = () => {
   }
 
   useEffect(() => {
-    if (members) {
-      const selectedMembersOptions = members
-        .filter((member) => member.id != session?.user.userId)
+    if (!hasInitialized && members.length > 0 && session?.user.userId) {
+      const initialSelected = members
+        .filter((member) => member.user.id !== session.user.userId)
         .map((member) => ({
-          value: member.id,
-          label: `${member.firstName} ${member.lastName}`,
+          value: member.user.id,
+          label: `${member.user.firstName} ${member.user.lastName}`,
         }))
-      setSelectedMembers(selectedMembersOptions)
+
+      setSelectedMembers(initialSelected)
+      setHasInitialized(true)
     }
-  }, [members])
+  }, [members, session?.user.userId, hasInitialized])
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
