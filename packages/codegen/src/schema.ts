@@ -35436,6 +35436,39 @@ export type GetProgramBasicInfoQuery = {
   }
 }
 
+export type GetProgramSettingsQueryVariables = Exact<{
+  programId: Scalars['ID']['input']
+}>
+
+export type GetProgramSettingsQuery = {
+  __typename?: 'Query'
+  program: {
+    __typename?: 'Program'
+    viewers?: Array<{ __typename?: 'Group'; id: string; displayName: string }> | null
+    editors?: Array<{ __typename?: 'Group'; id: string; displayName: string }> | null
+    members: {
+      __typename?: 'ProgramMembershipConnection'
+      totalCount: number
+      edges?: Array<{
+        __typename?: 'ProgramMembershipEdge'
+        node?: {
+          __typename?: 'ProgramMembership'
+          id: string
+          role: ProgramMembershipRole
+          user: {
+            __typename?: 'User'
+            email: string
+            id: string
+            displayName: string
+            avatarRemoteURL?: string | null
+            avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+          }
+        } | null
+      } | null> | null
+    }
+  }
+}
+
 export type GetEvidenceStatsQueryVariables = Exact<{
   programId: Scalars['ID']['input']
 }>

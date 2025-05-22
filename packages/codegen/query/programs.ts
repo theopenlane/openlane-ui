@@ -194,6 +194,44 @@ export const GET_PROGRAM_BASIC_INFO = gql`
   }
 `
 
+export const GET_PROGRAM_SETTINGS = gql`
+  query GetProgramSettings($programId: ID!) {
+    program(id: $programId) {
+      viewers {
+        id
+        displayName
+        gravatarLogoURL
+        logoURL
+      }
+      editors {
+        id
+        displayName
+        gravatarLogoURL
+        logoURL
+      }
+      members {
+        totalCount
+        edges {
+          node {
+            id
+            role
+            user {
+              email
+              id
+              displayName
+              avatarRemoteURL
+              avatarFile {
+                id
+                presignedURL
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
 export const GET_EVIDENCE_STATS = gql`
   query GetEvidenceStats($programId: ID!) {
     totalControls: controls(where: { hasProgramsWith: [{ id: $programId }] }) {

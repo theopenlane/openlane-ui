@@ -1,36 +1,39 @@
 'use client'
 
+import React from 'react'
 import { Button } from '@repo/ui/button'
 import { DataTable } from '@repo/ui/data-table'
-import { MoreHorizontal } from 'lucide-react'
+import { EllipsisVertical } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { ColumnDef } from '@tanstack/react-table'
-import React from 'react'
+import { useGetProgramSettings } from '@/lib/graphql-hooks/programs'
+import { Avatar } from '@/components/shared/avatar/avatar'
+import { ProgramMembershipRole, User } from '@repo/codegen/src/schema'
+import { ProgramSettingsAssignUserDialog } from './program-settings-assign-user-dialog'
 
-type User = {
+// Define the type for the member that the table will use
+type MemberRow = {
   id: string
-  name: string
-  email: string
-  role: string
+  role: 'Edit' | 'View'
+  user: User
 }
 
-// todo: role part will data will be admin/member and we need to render edit/view so make an enum
-
-const users: User[] = [
-  { id: '1', name: 'Sally Roberts', email: 'sally.roberts@gmail.com', role: 'Edit' },
-  { id: '2', name: 'Sandy Ross', email: 'sandy.ross.uk92@gmail.com', role: 'View' },
-]
-
-const userColumns: ColumnDef<User>[] = [
+const userColumns: ColumnDef<MemberRow>[] = [
   {
     accessorKey: 'name',
     header: 'Users',
-    cell: ({ row }) => (
-      <div>
-        <div className="font-medium">{row.original.name}</div>
-        <div className="text-muted-foreground text-sm">{row.original.email}</div>
-      </div>
-    ),
+    cell: ({ row }) => {
+      const user = row.original.user
+      return (
+        <div className="flex items-center gap-2">
+          <Avatar className="h-8 w-8" entity={user} />
+          <div>
+            <p>{user.displayName}</p>
+            <div className="text-sm">{user.email}</div>
+          </div>
+        </div>
+      )
+    },
   },
   {
     accessorKey: 'role',
@@ -42,8 +45,8 @@ const userColumns: ColumnDef<User>[] = [
     cell: () => (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button>
-            <MoreHorizontal />
+          <Button variant="outline" className="w-8 h-7 !p-0">
+            <EllipsisVertical />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
@@ -55,21 +58,30 @@ const userColumns: ColumnDef<User>[] = [
   },
 ]
 
-export const ProgramSettingsUsers = () => {
+export const ProgramSettingsUsers = ({ programId }: { programId: string }) => {
+  const { data, isLoading } = useGetProgramSettings(programId)
+
+  const users: MemberRow[] =
+    (data?.program?.members?.edges?.map((edge) => ({
+      id: edge?.node?.user.id,
+      role: edge?.node?.role === ProgramMembershipRole.ADMIN ? 'Edit' : 'View',
+      user: edge?.node?.user,
+    })) as MemberRow[]) ?? []
+
   return (
     <section className="flex gap-14">
-      <div className="max-w-48">
-        <h3 className=" text-xl mb-2">Users</h3>
-        <p className="text-base">Assign users as admins or members to the program</p>
+      <div className="w-48 shrink-0">
+        <h3 className="text-xl mb-2">Users</h3>
+        <p className="text-sm">Assign users as admins or members to the program</p>
       </div>
 
-      <div className="space-y-2 w-full">
+      <div className="space-y-2 w-full max-w-[847px]">
         <div className="flex items-center justify-between">
           <h2 className="text-lg">Assigned users</h2>
-          <Button className="h-8 !px-2">Assign</Button>
+          <ProgramSettingsAssignUserDialog />
         </div>
 
-        <DataTable wrapperClass="min-w-[847px]" columns={userColumns} data={users} />
+        <DataTable columns={userColumns} data={users} loading={isLoading} />
       </div>
     </section>
   )
