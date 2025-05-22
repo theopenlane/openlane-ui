@@ -13,7 +13,6 @@ import { Checkbox } from '@repo/ui/checkbox'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { ProgramMembershipRole, User } from '@repo/codegen/src/schema'
-import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
 
 type UserRow = {

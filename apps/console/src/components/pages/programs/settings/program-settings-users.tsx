@@ -43,21 +43,21 @@ export const ProgramSettingsUsers = () => {
 
   const { mutateAsync: updateProgram, isPending: isRemoving } = useUpdateProgram()
 
-  const handleRemove = async (userID: string) => {
+  const handleRemove = async (id: string) => {
     if (!programId) return
 
     try {
       await updateProgram({
         updateProgramId: programId,
         input: {
-          removeProgramMembers: [],
+          removeProgramMembers: [id],
         },
       })
 
       queryClient.invalidateQueries({
         predicate: (query) => {
           const [resource, id, sub] = query.queryKey
-          return resource === 'memberships' || (resource === 'programs' && id === programId)
+          return resource === 'memberships' || resource === 'programMemberships'
         },
       })
 
@@ -69,11 +69,11 @@ export const ProgramSettingsUsers = () => {
   }
 
   const users: MemberRow[] =
-    data?.programMemberships?.edges?.map((edge) => ({
+    (data?.programMemberships?.edges?.map((edge) => ({
       id: edge?.node?.id,
       role: edge?.node?.role === ProgramMembershipRole.ADMIN ? 'Edit' : 'View',
       user: edge?.node?.user,
-    })) ?? []
+    })) as MemberRow[]) ?? []
 
   const userColumns: ColumnDef<MemberRow>[] = [
     {
@@ -108,7 +108,7 @@ export const ProgramSettingsUsers = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem>Edit role</DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive" onClick={() => handleRemove(row.original.user.id)} disabled={isRemoving}>
+            <DropdownMenuItem className="text-destructive" onClick={() => handleRemove(row.original.id)} disabled={isRemoving}>
               Remove user
             </DropdownMenuItem>
           </DropdownMenuContent>

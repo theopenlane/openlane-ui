@@ -31,6 +31,8 @@ import {
   GetProgramSettingsQuery,
   GetProgramSettingsQueryVariables,
   ProgramMembershipWhereInput,
+  GetProgramMembersQuery,
+  GetProgramMembersQueryVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 
@@ -168,7 +170,7 @@ export const useGetProgramSettings = (programId: string | null) => {
 export const useGetProgramMembers = ({ pagination, where, enabled = true }: { pagination?: TPagination; where?: ProgramMembershipWhereInput; enabled?: boolean }) => {
   const { client } = useGraphQLClient()
 
-  return useQuery<ProgramMembershipsQuery, ProgramMembershipsQueryVariables>({
+  return useQuery<GetProgramMembersQuery, GetProgramMembersQueryVariables>({
     queryKey: ['programMemberships', pagination?.pageSize, pagination?.page, where],
     queryFn: () => client.request(GET_PROGRAM_MEMBERS, { ...pagination?.query, where }),
     enabled,

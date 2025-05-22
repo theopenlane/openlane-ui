@@ -34685,6 +34685,7 @@ export type OrgMembershipsQueryVariables = Exact<{
   first?: InputMaybe<Scalars['Int']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
   last?: InputMaybe<Scalars['Int']['input']>
+  where?: InputMaybe<OrgMembershipWhereInput>
 }>
 
 export type OrgMembershipsQuery = {
@@ -35526,8 +35527,8 @@ export type GetProgramSettingsQuery = {
   __typename?: 'Query'
   program: {
     __typename?: 'Program'
-    viewers?: Array<{ __typename?: 'Group'; id: string; displayName: string }> | null
-    editors?: Array<{ __typename?: 'Group'; id: string; displayName: string }> | null
+    viewers?: Array<{ __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null }> | null
+    editors?: Array<{ __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null }> | null
     members: {
       __typename?: 'ProgramMembershipConnection'
       totalCount: number
@@ -35548,6 +35549,32 @@ export type GetProgramSettingsQuery = {
         } | null
       } | null> | null
     }
+  }
+}
+
+export type GetProgramMembersQueryVariables = Exact<{
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  where?: InputMaybe<ProgramMembershipWhereInput>
+}>
+
+export type GetProgramMembersQuery = {
+  __typename?: 'Query'
+  programMemberships: {
+    __typename?: 'ProgramMembershipConnection'
+    totalCount: number
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+    edges?: Array<{
+      __typename?: 'ProgramMembershipEdge'
+      node?: {
+        __typename?: 'ProgramMembership'
+        id: string
+        role: ProgramMembershipRole
+        user: { __typename?: 'User'; displayName: string; email: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null }
+      } | null
+    } | null> | null
   }
 }
 

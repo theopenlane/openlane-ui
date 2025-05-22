@@ -232,11 +232,19 @@ export const GET_PROGRAM_SETTINGS = gql`
   }
 `
 export const GET_PROGRAM_MEMBERS = gql`
-  query ProgramMembers($after: Cursor, $first: Int, $before: Cursor, $last: Int, $where: ProgramMembershipWhereInput) {
+  query GetProgramMembers($after: Cursor, $first: Int, $before: Cursor, $last: Int, $where: ProgramMembershipWhereInput) {
     programMemberships(after: $after, first: $first, before: $before, last: $last, where: $where) {
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      totalCount
       edges {
         node {
           id
+          role
           user {
             displayName
             email
