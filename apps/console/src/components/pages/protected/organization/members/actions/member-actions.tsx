@@ -56,7 +56,10 @@ export const MemberActions = ({ memberId, memberUserId, memberRole }: MemberActi
       successNotification({
         title: 'Member deleted successfully',
       })
-      queryClient.invalidateQueries({ queryKey: ['memberships'] })
+
+      queryClient.invalidateQueries({
+        predicate: (query) => ['memberships', 'organizationsWithMembers'].includes(query.queryKey[0] as string),
+      })
     } catch {
       errorNotification({
         title: 'There was a problem deleting the member, please try again',
@@ -73,7 +76,9 @@ export const MemberActions = ({ memberId, memberUserId, memberRole }: MemberActi
         variant: 'success',
       })
 
-      queryClient.invalidateQueries({ queryKey: ['memberships'] })
+      queryClient.invalidateQueries({
+        predicate: (query) => ['memberships', 'organizationsWithMembers'].includes(query.queryKey[0] as string),
+      })
     } catch (error) {
       errorNotification({
         title: 'There was a problem updating the member, please try again',
