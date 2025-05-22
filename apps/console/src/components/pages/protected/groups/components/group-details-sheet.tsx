@@ -213,7 +213,7 @@ const GroupDetailsSheet = () => {
                   <div className="flex items-center gap-4">
                     <User height={16} width={16} color="#2CCBAB" />
                     <p className="text-sm">Members:</p>
-                    <p className="text-sm">{members?.length}</p>
+                    <p className="text-sm">{members?.edges?.length}</p>
                   </div>
 
                   <div className="flex items-center gap-4">
