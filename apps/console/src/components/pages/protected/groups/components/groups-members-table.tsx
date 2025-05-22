@@ -6,7 +6,7 @@ import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { Trash2 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { GroupMembershipRole } from '@repo/codegen/src/schema'
+import { GroupMembershipRole, User } from '@repo/codegen/src/schema'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { useSession } from 'next-auth/react'
 import { useDeleteGroupMembership, useGetGroupDetails, useUpdateGroupMembership } from '@/lib/graphql-hooks/groups'
@@ -34,14 +34,19 @@ const GroupsMembersTable = () => {
 
   useEffect(() => {
     if (selectedGroup) {
-      const membersList = members || []
+      const membersList =
+        members?.edges?.map((edge) => ({
+          user: edge?.node?.user as User,
+          role: edge?.node?.role,
+          membershipID: edge?.node?.id,
+        })) || []
 
       const sortedMembers = membersList
         .filter((member) => member.user.id !== session?.user.userId)
         .map((member) => ({
-          id: member.id,
+          id: member.membershipID || '',
           name: member.user.firstName || 'Unknown Member',
-          role: member.role,
+          role: member.role as GroupMembershipRole,
           avatar: member.user.avatarFile?.presignedURL || member.user.avatarRemoteURL || '',
         }))
         .sort((a, b) => {

@@ -5,7 +5,7 @@ import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import { GlobeIcon, LockIcon, StarsIcon } from 'lucide-react'
 import React from 'react'
-import { Group, GroupOrder } from '@repo/codegen/src/schema'
+import { Group, GroupOrder, User } from '@repo/codegen/src/schema'
 import AvatarList from '@/components/shared/avatar-list/avatar-list'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { GROUP_SORT_FIELDS } from '@/components/pages/protected/groups/table/table-config.ts'
@@ -71,7 +71,7 @@ const columns: ColumnDef<Group>[] = [
     header: 'Members',
     accessorKey: 'members',
     cell: ({ row }) => {
-      const members = row.original.members || []
+      const members = row.original.members.edges?.map((user) => user?.node?.user as User) || []
 
       return (
         <div className="flex items-center gap-2">
@@ -79,10 +79,10 @@ const columns: ColumnDef<Group>[] = [
             <AvatarList
               max={10}
               data={members.map((user) => ({
-                id: user.user.id,
-                imageUrl: user.user.avatarFile?.presignedURL ?? user.user.avatarRemoteURL ?? undefined,
-                fallback: user.user.firstName?.substring(0, 2) ?? undefined,
-                displayName: user.user?.displayName ?? undefined,
+                id: user.id,
+                imageUrl: user.avatarFile?.presignedURL ?? user.avatarRemoteURL ?? undefined,
+                fallback: user.firstName?.substring(0, 2) ?? undefined,
+                displayName: user?.displayName ?? undefined,
               }))}
             />
           ) : (
