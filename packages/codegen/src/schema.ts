@@ -34563,6 +34563,14 @@ export type GetAllGroupsQuery = {
             } | null
           } | null> | null
         }
+        setting?: {
+          __typename?: 'GroupSetting'
+          visibility: GroupSettingVisibility
+          joinPolicy: GroupSettingJoinPolicy
+          syncToSlack?: boolean | null
+          syncToGithub?: boolean | null
+          id: string
+        } | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }

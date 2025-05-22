@@ -28,6 +28,13 @@ export const GET_ALL_GROUPS = gql`
               }
             }
           }
+          setting {
+            visibility
+            joinPolicy
+            syncToSlack
+            syncToGithub
+            id
+          }
         }
       }
       pageInfo {
