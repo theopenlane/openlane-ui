@@ -10,6 +10,7 @@ import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { useGetGroupDetails, useUpdateGroup } from '@/lib/graphql-hooks/groups'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 import { useQueryClient } from '@tanstack/react-query'
+import { User } from '@repo/codegen/src/schema'
 
 const AddMembersDialog = () => {
   const { selectedGroup, isAdmin } = useGroupsStore()
@@ -19,7 +20,9 @@ const AddMembersDialog = () => {
   const [selectedMembers, setSelectedMembers] = useState<Option[]>([])
   const queryClient = useQueryClient()
   const { data } = useGetGroupDetails(selectedGroup)
-  const { members, isManaged, id } = data?.group || {}
+  const { members: membersGroupData, isManaged, id } = data?.group || {}
+
+  const members = membersGroupData?.edges?.map((user) => user?.node?.user as User) || []
 
   const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const { mutateAsync: updateGroup } = useUpdateGroup()
@@ -39,7 +42,7 @@ const AddMembersDialog = () => {
   const handleSave = async () => {
     if (!selectedGroup || !id) return
 
-    const originalMembersMap = new Map(members?.map((member) => [member.user.id, member.id || '']))
+    const originalMembersMap = new Map(members?.map((member) => [member.id, member.id || '']))
     const newMemberIds = new Set(selectedMembers.map((member) => member.value))
     const removeGroupMembers = [...originalMembersMap.entries()].filter(([userId]) => !newMemberIds.has(userId)).map(([, membershipId]) => membershipId) // Extract membership ID
     const addGroupMembers = [...newMemberIds]
@@ -65,10 +68,10 @@ const AddMembersDialog = () => {
   useEffect(() => {
     if (members) {
       const selectedMembersOptions = members
-        .filter((member) => member.user.id != session?.user.userId)
+        .filter((member) => member.id != session?.user.userId)
         .map((member) => ({
-          value: member.user.id,
-          label: `${member.user.firstName} ${member.user.lastName}`,
+          value: member.id,
+          label: `${member.firstName} ${member.lastName}`,
         }))
       setSelectedMembers(selectedMembersOptions)
     }
