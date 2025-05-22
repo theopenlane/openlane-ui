@@ -133,7 +133,7 @@ const GroupDetailsSheet = () => {
         visibility: setting?.visibility === GroupSettingVisibility.PUBLIC ? 'Public' : 'Private',
         tags: tags?.map((tag) => ({ value: tag, label: tag })) || [],
       })
-      const userRole = data.group.members?.find((membership) => membership.user.id === sessionData?.user.userId)?.role
+      const userRole = data.group.members?.edges?.find((membership) => membership?.node?.user.id === sessionData?.user.userId)?.node?.role
       if (userRole) {
         setIsAdmin(userRole === GroupMembershipRole.ADMIN)
       }
