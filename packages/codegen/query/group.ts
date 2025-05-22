@@ -9,30 +9,24 @@ export const GET_ALL_GROUPS = gql`
           name
           description
           displayName
-          logoURL
-          isManaged
-          tags
           members {
-            id
-            role
-            user {
-              id
-              firstName
-              lastName
-              avatarFile {
-                presignedURL
+            edges {
+              node {
+                id
+                role
+                user {
+                  id
+                  firstName
+                  lastName
+                  avatarFile {
+                    presignedURL
+                  }
+                  displayName
+                  avatarRemoteURL
+                  role
+                }
               }
-              displayName
-              avatarRemoteURL
-              role
             }
-          }
-          setting {
-            visibility
-            joinPolicy
-            syncToSlack
-            syncToGithub
-            id
           }
         }
       }
@@ -87,17 +81,21 @@ export const GET_GROUP_DETAILS = gql`
       isManaged
       tags
       members {
-        id
-        role
-        user {
-          id
-          firstName
-          lastName
-          avatarFile {
-            presignedURL
+        edges {
+          node {
+            id
+            role
+            user {
+              id
+              firstName
+              lastName
+              avatarFile {
+                presignedURL
+              }
+              avatarRemoteURL
+              role
+            }
           }
-          avatarRemoteURL
-          role
         }
       }
       setting {
