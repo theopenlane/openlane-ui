@@ -231,6 +231,25 @@ export const GET_PROGRAM_SETTINGS = gql`
     }
   }
 `
+export const GET_PROGRAM_MEMBERS = gql`
+  query ProgramMembers($after: Cursor, $first: Int, $before: Cursor, $last: Int, $where: ProgramMembershipWhereInput) {
+    programMemberships(after: $after, first: $first, before: $before, last: $last, where: $where) {
+      edges {
+        node {
+          id
+          user {
+            displayName
+            email
+            avatarFile {
+              presignedURL
+            }
+            avatarRemoteURL
+          }
+        }
+      }
+    }
+  }
+`
 
 export const GET_EVIDENCE_STATS = gql`
   query GetEvidenceStats($programId: ID!) {

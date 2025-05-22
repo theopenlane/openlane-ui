@@ -9,6 +9,7 @@ import { ColumnDef } from '@tanstack/react-table'
 import { useGetProgramSettings } from '@/lib/graphql-hooks/programs'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { Group as GroupType } from '@repo/codegen/src/schema'
+import { useSearchParams } from 'next/navigation'
 
 type GroupRow = {
   id: string
@@ -58,7 +59,9 @@ const groupColumns: ColumnDef<GroupRow>[] = [
   },
 ]
 
-export const ProgramSettingsGroups = ({ programId }: { programId: string }) => {
+export const ProgramSettingsGroups = () => {
+  const searchParams = useSearchParams()
+  const programId = searchParams.get('id')
   const { data, isLoading } = useGetProgramSettings(programId)
 
   const groups: GroupRow[] = [

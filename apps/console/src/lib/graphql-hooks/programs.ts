@@ -11,6 +11,7 @@ import {
   GET_EVIDENCE_STATS,
   GET_GLOBAL_EVIDENCE_STATS,
   GET_PROGRAM_SETTINGS,
+  GET_PROGRAM_MEMBERS,
 } from '@repo/codegen/query/programs'
 
 import {
@@ -29,7 +30,9 @@ import {
   GetGlobalEvidenceStatsQuery,
   GetProgramSettingsQuery,
   GetProgramSettingsQueryVariables,
+  ProgramMembershipWhereInput,
 } from '@repo/codegen/src/schema'
+import { TPagination } from '@repo/ui/pagination-types'
 
 interface UseGetAllProgramsArgs {
   where?: GetAllProgramsQueryVariables['where']
@@ -159,5 +162,15 @@ export const useGetProgramSettings = (programId: string | null) => {
     queryKey: ['programs', programId, 'settings'],
     queryFn: async () => client.request(GET_PROGRAM_SETTINGS, { programId }),
     enabled: !!programId,
+  })
+}
+
+export const useGetProgramMembers = ({ pagination, where, enabled = true }: { pagination?: TPagination; where?: ProgramMembershipWhereInput; enabled?: boolean }) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<ProgramMembershipsQuery, ProgramMembershipsQueryVariables>({
+    queryKey: ['programMemberships', pagination?.pageSize, pagination?.page, where],
+    queryFn: () => client.request(GET_PROGRAM_MEMBERS, { ...pagination?.query, where }),
+    enabled,
   })
 }

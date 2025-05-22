@@ -10,6 +10,7 @@ import {
   RemoveUserFromOrgMutationVariables,
   OrgMembershipsQuery,
   OrgMembershipsQueryVariables,
+  OrgMembershipWhereInput,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 
@@ -29,12 +30,12 @@ export const useRemoveUserFromOrg = () => {
   })
 }
 
-export const useGetOrgMemberships = ({ pagination }: { pagination?: TPagination }) => {
+export const useGetOrgMemberships = ({ pagination, where, enabled = true }: { pagination?: TPagination; where?: OrgMembershipWhereInput; enabled?: boolean }) => {
   const { client } = useGraphQLClient()
 
   return useQuery<OrgMembershipsQuery, OrgMembershipsQueryVariables>({
     queryKey: ['memberships', pagination?.pageSize, pagination?.page],
-    queryFn: async () => client.request(GET_ORG_MEMBERSHIPS, pagination?.query),
-    enabled: true,
+    queryFn: async () => client.request(GET_ORG_MEMBERSHIPS, { where, ...pagination?.query }),
+    enabled,
   })
 }
