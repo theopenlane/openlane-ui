@@ -58,7 +58,7 @@ export const MemberActions = ({ memberId, memberUserId, memberRole }: MemberActi
       })
 
       queryClient.invalidateQueries({
-        predicate: (query) => ['memberships', 'organizationsWithMembers'].includes(query.queryKey[0] as string),
+        predicate: (query) => ['memberships', 'organizationsWithMembers', 'groups'].includes(query.queryKey[0] as string),
       })
     } catch {
       errorNotification({
@@ -77,7 +77,7 @@ export const MemberActions = ({ memberId, memberUserId, memberRole }: MemberActi
       })
 
       queryClient.invalidateQueries({
-        predicate: (query) => ['memberships', 'organizationsWithMembers'].includes(query.queryKey[0] as string),
+        predicate: (query) => ['memberships', 'organizationsWithMembers', 'groups'].includes(query.queryKey[0] as string),
       })
     } catch (error) {
       errorNotification({
