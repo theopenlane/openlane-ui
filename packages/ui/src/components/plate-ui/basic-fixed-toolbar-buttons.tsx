@@ -16,6 +16,7 @@ import { LinkToolbarButton } from './link-toolbar-button'
 import { MarkToolbarButton } from './mark-toolbar-button'
 import { ToolbarGroup } from './toolbar'
 import { useShortcutSuffix } from 'console/src/components/shared/shortcut-suffix/shortcut-suffix.tsx'
+import { TableDropdownMenu } from './table-dropdown-menu'
 
 export function BasicFixedToolbarButtons() {
   const readOnly = useEditorReadOnly()
@@ -53,6 +54,7 @@ export function BasicFixedToolbarButtons() {
 
           <ToolbarGroup>
             <LinkToolbarButton />
+            <TableDropdownMenu />
           </ToolbarGroup>
 
           <LineHeightDropdownMenu />

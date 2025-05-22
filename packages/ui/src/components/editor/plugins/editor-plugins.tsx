@@ -75,6 +75,7 @@ import { StandardFixedToolbarPlugin } from '../../editor/plugins/standard-fixed-
 import { StandardFloatingToolbarPlugin } from '../../editor/plugins/standard-floating-toolbar-plugin'
 import { MinimalFixedToolbarPlugin } from '../../editor/plugins/minimal-fixed-toolbar-plugin.tsx'
 import { MinimalFloatingToolbarPlugin } from '../../editor/plugins/minimal-floating-toolbar-plugin.tsx'
+import { NodeIdPlugin } from '@udecode/plate-node-id'
 
 const lowlight = createLowlight(all)
 
@@ -191,7 +192,9 @@ export const advancedPlugins = [
   //...aiPlugins,
 
   // Nodes
+  ...basicNodesPlugins,
   ...viewPlugins,
+  NodeIdPlugin,
 
   // Functionality
   SlashPlugin.extend({
@@ -230,6 +233,8 @@ export const basicPlugins = [
 
   // Nodes
   ...basicNodesPlugins,
+  ...viewPlugins,
+  NodeIdPlugin,
   HorizontalRulePlugin,
   linkPlugin,
   tocPlugin,
@@ -284,6 +289,8 @@ export const standardPlugins = [
 
   // Nodes
   ...basicNodesPlugins,
+  ...viewPlugins,
+  NodeIdPlugin,
   HorizontalRulePlugin,
   linkPlugin,
   tocPlugin,

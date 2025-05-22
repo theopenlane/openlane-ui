@@ -98,8 +98,8 @@ export const GET_ALL_ORGANIZATIONS_WITH_MEMBERS = gql`
 `
 
 export const GET_INVITES = gql`
-  query GetInvites($where: InviteWhereInput, $orderBy: [InviteOrder!]) {
-    invites(where: $where, orderBy: $orderBy) {
+  query GetInvites($where: InviteWhereInput, $orderBy: [InviteOrder!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    invites(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
       edges {
         node {
           id
@@ -134,6 +134,7 @@ export const GET_ORGANIZATION_BILLING = gql`
         features
         managePaymentMethods
         cancellation
+        trialExpiresAt
       }
     }
   }
@@ -144,6 +145,7 @@ export const GET_ORGANIZATION_BILLING_BANNER = gql`
     organization(id: $organizationId) {
       personalOrg
       orgSubscriptions {
+        trialExpiresAt
         expiresAt
         stripeSubscriptionStatus
         paymentMethodAdded

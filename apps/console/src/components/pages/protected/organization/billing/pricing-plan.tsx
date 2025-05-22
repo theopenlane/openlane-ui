@@ -18,8 +18,11 @@ const PricingPlan = () => {
   const subscription = data?.organization.orgSubscriptions?.[0] ?? ({} as OrgSubscription)
 
   // @ts-ignore TODO: MISSING TYPES FROM CODEGEN
-  const { expiresAt, subscriptionURL, active, productTier, stripeSubscriptionStatus, productPrice = {}, features = [] } = subscription
+  const { expiresAt, subscriptionURL, active, productTier, stripeSubscriptionStatus, trialExpiresAt, productPrice = {}, features = [] } = subscription
   const { amount: price, interval: priceInterval } = productPrice
+
+  const trialExpirationDate = trialExpiresAt ? parseISO(trialExpiresAt) : null
+  const trialEnded = trialExpirationDate ? isBefore(trialExpirationDate, new Date()) : false
 
   const badge: { text: string; variant: 'default' | 'secondary' | 'outline' | 'gold' | 'destructive' } = useMemo(() => {
     if (stripeSubscriptionStatus === 'trialing') {
@@ -35,19 +38,28 @@ const PricingPlan = () => {
   }, [stripeSubscriptionStatus, active])
 
   const formattedExpiresDate = useMemo(() => {
-    if (!expiresAt || !active) return 'Expired'
-
     try {
+      if (stripeSubscriptionStatus === 'trialing') {
+        const expirationDate = parseISO(trialExpiresAt)
+        return `Expires in ${formatDistanceToNowStrict(expirationDate, { addSuffix: false })}`
+      }
+
+      if (!expiresAt && trialEnded) {
+        return 'Expired'
+      }
+
       const expirationDate = parseISO(expiresAt)
+
       if (isBefore(expirationDate, new Date())) {
         return 'Expired'
       }
+
       return `Expires in ${formatDistanceToNowStrict(expirationDate, { addSuffix: false })}`
     } catch (error) {
       console.error('Error parsing expiration date:', error)
       return 'N/A'
     }
-  }, [expiresAt, active])
+  }, [expiresAt, stripeSubscriptionStatus, trialExpiresAt, trialEnded])
 
   return (
     <div className="">
@@ -59,14 +71,14 @@ const PricingPlan = () => {
               <Card className="shadow-md ">
                 <div className="flex flex-col   ">
                   <div className="p-4">
-                    <div className="flex pb-3 items-center ">
+                    <div className="flex pb-3 items-center gap-2 ">
                       <p className="text-lg font-medium">{productTier ?? 'N/A'}</p>
                       <Badge variant={badge.variant} className="text-xs font-normal text-white">
                         {badge.text}
                       </Badge>
                     </div>
                     {price && <p className="text-sm">{`$${price} / ${priceInterval}`}</p>}
-                    <p className=" text-sm  ">{formattedExpiresDate}</p>
+                    <p className="text-sm">{formattedExpiresDate}</p>
                   </div>
                 </div>
                 <div className=" border-t"></div>

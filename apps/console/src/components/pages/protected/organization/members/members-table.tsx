@@ -1,7 +1,6 @@
 'use client'
 
 import { OrgMembership, OrgMembershipRole, User, UserAuthProvider } from '@repo/codegen/src/schema'
-import { useSession } from 'next-auth/react'
 import { pageStyles } from './page.styles'
 import { useState, useEffect, Dispatch, SetStateAction } from 'react'
 import { Input } from '@repo/ui/input'
@@ -12,13 +11,13 @@ import { ColumnDef } from '@tanstack/react-table'
 import Image from 'next/image'
 import { useCopyToClipboard } from '@uidotdev/usehooks'
 import { MemberActions } from './actions/member-actions'
-import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { formatDateSince } from '@/utils/date'
 import { UserRoleIconMapper } from '@/components/shared/icon-enum/user-role-enum.tsx'
+import { useGetOrgMemberships } from '@/lib/graphql-hooks/members.ts'
 
 type MembersTableProps = {
   setActiveTab: Dispatch<SetStateAction<string>>
@@ -26,14 +25,12 @@ type MembersTableProps = {
 
 export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
   const { membersSearchRow, membersSearchField, membersButtons, nameRow, copyIcon } = pageStyles()
-  const { data: session } = useSession()
   const [filteredMembers, setFilteredMembers] = useState<OrgMembership[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [copiedText, copyToClipboard] = useCopyToClipboard()
   const { successNotification } = useNotification()
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
-
-  const { data, isLoading, isError, isFetching } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId, pagination })
+  const { data, isLoading, isFetching } = useGetOrgMemberships({ pagination })
 
   useEffect(() => {
     if (copiedText) {
@@ -45,8 +42,8 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
   }, [copiedText])
 
   useEffect(() => {
-    if (data?.organization?.members?.edges) {
-      const memberNodes = data.organization.members.edges.map((edge) => edge?.node).filter(Boolean)
+    if (data?.orgMemberships?.edges) {
+      const memberNodes = data.orgMemberships.edges.map((edge) => edge?.node).filter(Boolean)
       setFilteredMembers(memberNodes as OrgMembership[])
     }
   }, [data])
@@ -56,8 +53,8 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
     setSearchTerm(searchValue)
     setPagination(DEFAULT_PAGINATION)
 
-    if (data?.organization?.members?.edges) {
-      const memberNodes = data.organization.members.edges.map((edge) => edge?.node).filter(Boolean) as OrgMembership[]
+    if (data?.orgMemberships?.edges) {
+      const memberNodes = data.orgMemberships.edges.map((edge) => edge?.node).filter(Boolean) as OrgMembership[]
 
       const filtered = memberNodes.filter(({ user }) => {
         const fullName = `${user?.firstName?.toLowerCase() ?? ''} ${user?.lastName?.toLowerCase() ?? ''}`
@@ -157,7 +154,7 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
         data={filteredMembers}
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
-        paginationMeta={{ totalCount: data?.organization?.members?.totalCount, pageInfo: data?.organization?.members?.pageInfo, isLoading: isFetching }}
+        paginationMeta={{ totalCount: data?.orgMemberships?.totalCount ?? 0, pageInfo: data?.orgMemberships?.pageInfo, isLoading: isFetching }}
       />
     </div>
   )
