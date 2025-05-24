@@ -11,7 +11,8 @@ import { Checkbox } from '@repo/ui/checkbox'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useQueryClient } from '@tanstack/react-query'
-import { useGetAllGroups } from '@/lib/graphql-hooks/groups' // Your provided hook
+import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
+import { useNotification } from '@/hooks/useNotification'
 
 type GroupRow = {
   id: string
@@ -23,6 +24,7 @@ export const ProgramSettingsAssignGroupDialog = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
   const queryClient = useQueryClient()
+
   const [selectedGroupIds, setSelectedGroupIds] = useState<string[]>([])
   const [rows, setRows] = useState<GroupRow[]>([])
   const [pagination, setPagination] = useState<TPagination>({
@@ -32,21 +34,14 @@ export const ProgramSettingsAssignGroupDialog = () => {
   })
 
   const { mutateAsync: updateProgram, isPending } = useUpdateProgram()
+  const { successNotification, errorNotification } = useNotification()
 
   const where = {
     not: {
       or: [
         {
-          hasProgramEditorsWith: [
-            {
-              id: programId,
-            },
-          ],
-          hasProgramViewersWith: [
-            {
-              id: programId,
-            },
-          ],
+          hasProgramEditorsWith: [{ id: programId }],
+          hasProgramViewersWith: [{ id: programId }],
         },
       ],
     },
@@ -61,13 +56,12 @@ export const ProgramSettingsAssignGroupDialog = () => {
   const groups = useMemo(() => data?.groups?.edges?.map((edge) => edge?.node), [data])
 
   useEffect(() => {
-    if (!!groups && !!groups.length) {
-      const groupRows: GroupRow[] =
-        (groups.map((group) => ({
-          id: group?.id,
-          name: group?.displayName || group?.name,
-          description: group?.description,
-        })) as GroupRow[]) || []
+    if (!!groups && groups?.length) {
+      const groupRows: GroupRow[] = groups.map((group) => ({
+        id: group?.id,
+        name: group?.displayName || group?.name,
+        description: group?.description,
+      })) as GroupRow[]
       setRows(groupRows)
     }
   }, [groups])
@@ -96,21 +90,34 @@ export const ProgramSettingsAssignGroupDialog = () => {
   ]
 
   const handleAssign = async () => {
-    if (!programId) return
-
-    const groupIDs = selectedGroupIds
+    if (!programId) {
+      errorNotification({
+        title: 'Missing Program ID',
+        description: 'Cannot assign groups without a valid program ID.',
+      })
+      return
+    }
 
     try {
       await updateProgram({
         updateProgramId: programId,
         input: {
-          addBlockedGroupIDs: groupIDs.map((groupID) => groupID),
+          addBlockedGroupIDs: selectedGroupIds,
         },
       })
 
       queryClient.invalidateQueries({ queryKey: ['programGroups'] })
-    } catch (error) {
-      console.error('Error assigning groups:', error)
+
+      successNotification({
+        title: 'Groups Assigned',
+        description: `${selectedGroupIds.length} group(s) successfully assigned to the program.`,
+      })
+
+      setSelectedGroupIds([])
+    } catch (err) {
+      errorNotification({
+        title: 'Failed to Assign Groups',
+      })
     }
   }
 

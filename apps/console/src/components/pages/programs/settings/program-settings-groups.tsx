@@ -12,9 +12,9 @@ import { Group as GroupType } from '@repo/codegen/src/schema'
 import { useSearchParams } from 'next/navigation'
 import { ProgramSettingsAssignGroupDialog } from './program-settings-assign-groups-dialog'
 import { useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
 import { EditGroupRoleDialog } from './program-settings-edit-role-dialog'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { useNotification } from '@/hooks/useNotification'
 
 type GroupRow = {
   id: string
@@ -28,11 +28,13 @@ export const ProgramSettingsGroups = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
   const queryClient = useQueryClient()
+
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedGroup, setSelectedGroup] = useState<GroupRow | null>(null)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   const { mutateAsync: updateProgram, isPending: isRemoving } = useUpdateProgram()
+  const { successNotification, errorNotification } = useNotification()
 
   const { data, isLoading } = useGetProgramGroups(programId ?? null)
 
@@ -66,10 +68,14 @@ export const ProgramSettingsGroups = () => {
         },
       })
 
-      toast.success('Group removed from program.')
-    } catch (error) {
-      console.error(error)
-      toast.error('Failed to remove group.')
+      successNotification({
+        title: 'Group removed',
+        description: 'The group has been successfully removed from the program.',
+      })
+    } catch {
+      errorNotification({
+        title: 'Failed to remove group',
+      })
     }
   }
 
@@ -112,7 +118,7 @@ export const ProgramSettingsGroups = () => {
               }}
             >
               Edit role
-            </DropdownMenuItem>{' '}
+            </DropdownMenuItem>
             <DropdownMenuItem
               className="text-destructive"
               onSelect={() => {
@@ -140,8 +146,10 @@ export const ProgramSettingsGroups = () => {
             onSubmit={async (newRole) => {
               // TODO: Replace with your real mutation call
               // await updateProgram({ ... })
-
-              toast.success(`Role updated to ${newRole}`)
+              successNotification({
+                title: 'Role Updated',
+                description: `Role updated to ${newRole}`,
+              })
               setIsDialogOpen(false)
             }}
           />

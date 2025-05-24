@@ -14,6 +14,7 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { ProgramMembershipRole, User } from '@repo/codegen/src/schema'
 import { useQueryClient } from '@tanstack/react-query'
+import { useNotification } from '@/hooks/useNotification'
 
 type UserRow = {
   id: string
@@ -26,11 +27,13 @@ export const ProgramSettingsAssignUserDialog = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
   const queryClient = useQueryClient()
+
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
   const [rows, setRows] = useState<UserRow[]>([])
   const [pagination, setPagination] = useState<TPagination>({ ...DEFAULT_PAGINATION, pageSize: 5, query: { first: 5 } })
 
   const { mutateAsync: updateProgram, isPending } = useUpdateProgram()
+  const { successNotification, errorNotification } = useNotification()
 
   const where = {
     hasUserWith: [
@@ -105,7 +108,13 @@ export const ProgramSettingsAssignUserDialog = () => {
   ]
 
   const handleAssign = async () => {
-    if (!programId) return
+    if (!programId) {
+      errorNotification({
+        title: 'Missing Program ID',
+        description: 'Cannot assign users without a valid program ID.',
+      })
+      return
+    }
 
     const selectedUsers = rows.filter((row) => selectedUserIds.includes(row.id))
 
@@ -124,7 +133,18 @@ export const ProgramSettingsAssignUserDialog = () => {
       })
 
       queryClient.invalidateQueries({ queryKey: ['programMemberships'] })
-    } catch (error) {}
+
+      successNotification({
+        title: 'Users Assigned',
+        description: `${selectedUsers.length} user(s) successfully assigned to the program.`,
+      })
+
+      setSelectedUserIds([])
+    } catch {
+      errorNotification({
+        title: 'Failed to Assign Users',
+      })
+    }
   }
 
   return (
