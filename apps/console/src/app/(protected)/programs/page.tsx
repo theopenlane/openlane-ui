@@ -14,13 +14,15 @@ import BasicInformation from '@/components/pages/protected/dashboard/basic-info'
 import ProgramAuditor from '@/components/pages/protected/dashboard/program-auditor'
 import ProgramsTaskTable from '@/components/pages/programs/programs-tasks-table'
 import { ControlsSummaryCard } from '@/components/pages/protected/programs/controls-summary-card'
-import { ArrowRight, ShieldCheck } from 'lucide-react'
+import { ArrowRight, Cog, ShieldCheck } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import { DOCS_URL } from '@/constants'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
+import { Button } from '@repo/ui/button'
+import Link from 'next/link'
 
 const Page: React.FC = () => {
   const router = useRouter()
@@ -150,9 +152,14 @@ const Page: React.FC = () => {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex gap-2.5">
+            <div className="flex gap-2.5 items-center">
               <ProgramCreate />
               <CreateTaskDialog initialData={initialData} objectAssociationsDisplayIDs={basicInfoData?.program.displayID ? [basicInfoData?.program.displayID] : []} />
+              <Link className=" flex" href={`/programs/settings?id=${programId}`}>
+                <Button icon={<Cog />} className="h-8 !px-2" iconPosition="left" variant="outline">
+                  Program Settings
+                </Button>
+              </Link>
             </div>
           </div>
         }

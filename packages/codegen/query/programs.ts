@@ -194,6 +194,98 @@ export const GET_PROGRAM_BASIC_INFO = gql`
   }
 `
 
+export const GET_PROGRAM_SETTINGS = gql`
+  query GetProgramSettings($programId: ID!) {
+    program(id: $programId) {
+      viewers {
+        id
+        displayName
+        gravatarLogoURL
+        logoURL
+      }
+      editors {
+        id
+        displayName
+        gravatarLogoURL
+        logoURL
+      }
+      members {
+        totalCount
+        edges {
+          node {
+            id
+            role
+            user {
+              email
+              id
+              displayName
+              avatarRemoteURL
+              avatarFile {
+                id
+                presignedURL
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+export const GET_PROGRAM_MEMBERS = gql`
+  query GetProgramMembers($after: Cursor, $first: Int, $before: Cursor, $last: Int, $where: ProgramMembershipWhereInput) {
+    programMemberships(after: $after, first: $first, before: $before, last: $last, where: $where) {
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      totalCount
+      edges {
+        node {
+          id
+          role
+          user {
+            displayName
+            email
+            avatarFile {
+              presignedURL
+            }
+            avatarRemoteURL
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_PROGRAM_GROUPS = gql`
+  query GetProgramGroups($programId: ID!) {
+    program(id: $programId) {
+      blockedGroups {
+        id
+        displayName
+        gravatarLogoURL
+        logoURL
+        members {
+          totalCount
+        }
+        permissions {
+          permissions
+        }
+      }
+    }
+  }
+`
+
+export const DELETE_PROGRAM = gql`
+  mutation DeleteProgram($deleteProgramId: ID!) {
+    deleteProgram(id: $deleteProgramId) {
+      deletedID
+    }
+  }
+`
+
 export const GET_EVIDENCE_STATS = gql`
   query GetEvidenceStats($programId: ID!) {
     totalControls: controls(where: { hasProgramsWith: [{ id: $programId }] }) {

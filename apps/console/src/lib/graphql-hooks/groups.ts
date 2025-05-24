@@ -31,6 +31,7 @@ import {
   DeleteGroupMembershipMutationVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
+import { useInfiniteQuery } from '@tanstack/react-query'
 
 type GroupsArgs = {
   where?: GetAllGroupsQueryVariables['where']
@@ -67,8 +68,6 @@ export const useGetAllGroups = ({ where, orderBy, pagination, enabled = true }: 
     paginationMeta,
   }
 }
-
-import { useInfiniteQuery } from '@tanstack/react-query'
 
 export const useGetAllGroupsInfinite = ({ where, orderBy, pagination, enabled = true }: GroupsArgs) => {
   const { client } = useGraphQLClient()
