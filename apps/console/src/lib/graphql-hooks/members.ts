@@ -11,6 +11,7 @@ import {
   OrgMembershipsQuery,
   OrgMembershipsQueryVariables,
   OrgMembershipWhereInput,
+  OrgMembership,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 
@@ -30,12 +31,33 @@ export const useRemoveUserFromOrg = () => {
   })
 }
 
-export const useGetOrgMemberships = ({ pagination, where, enabled = true }: { pagination?: TPagination; where?: OrgMembershipWhereInput; enabled?: boolean }) => {
+type TUseGetOrgMemberships = {
+  where?: OrgMembershipWhereInput
+  pagination?: TPagination
+  enabled?: boolean
+}
+
+export const useGetOrgMemberships = ({ where, pagination, enabled }: TUseGetOrgMemberships) => {
   const { client } = useGraphQLClient()
 
-  return useQuery<OrgMembershipsQuery, OrgMembershipsQueryVariables>({
-    queryKey: ['memberships', pagination?.pageSize, pagination?.page],
-    queryFn: async () => client.request(GET_ORG_MEMBERSHIPS, { where, ...pagination?.query }),
+  const queryResult = useQuery<OrgMembershipsQuery, OrgMembershipsQueryVariables>({
+    queryKey: ['memberships', where, pagination?.pageSize, pagination?.page],
+    queryFn: () => client.request(GET_ORG_MEMBERSHIPS, { where, ...pagination?.query }),
     enabled,
   })
+
+  const members = (queryResult.data?.orgMemberships?.edges ?? []).map((edge) => edge?.node) as OrgMembership[]
+
+  const paginationMeta = {
+    totalCount: queryResult.data?.orgMemberships?.totalCount ?? 0,
+    pageInfo: queryResult.data?.orgMemberships?.pageInfo,
+    isLoading: queryResult.isFetching,
+  }
+
+  return {
+    ...queryResult,
+    members,
+    paginationMeta,
+    isLoading: queryResult.isFetching,
+  }
 }
