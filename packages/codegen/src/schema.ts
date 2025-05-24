@@ -33278,6 +33278,12 @@ export type GetProgramGroupsQuery = {
   }
 }
 
+export type DeleteProgramMutationVariables = Exact<{
+  deleteProgramId: Scalars['ID']['input']
+}>
+
+export type DeleteProgramMutation = { __typename?: 'Mutation'; deleteProgram: { __typename?: 'ProgramDeletePayload'; deletedID: string } }
+
 export type GetEvidenceStatsQueryVariables = Exact<{
   programId: Scalars['ID']['input']
 }>

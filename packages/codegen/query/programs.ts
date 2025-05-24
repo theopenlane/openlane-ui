@@ -278,6 +278,14 @@ export const GET_PROGRAM_GROUPS = gql`
   }
 `
 
+export const DELETE_PROGRAM = gql`
+  mutation DeleteProgram($deleteProgramId: ID!) {
+    deleteProgram(id: $deleteProgramId) {
+      deletedID
+    }
+  }
+`
+
 export const GET_EVIDENCE_STATS = gql`
   query GetEvidenceStats($programId: ID!) {
     totalControls: controls(where: { hasProgramsWith: [{ id: $programId }] }) {

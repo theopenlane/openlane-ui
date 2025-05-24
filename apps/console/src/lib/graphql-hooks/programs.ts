@@ -13,6 +13,7 @@ import {
   GET_PROGRAM_SETTINGS,
   GET_PROGRAM_MEMBERS,
   GET_PROGRAM_GROUPS,
+  DELETE_PROGRAM,
 } from '@repo/codegen/query/programs'
 
 import {
@@ -36,6 +37,7 @@ import {
   GetProgramMembersQueryVariables,
   GetProgramGroupsQuery,
   GetProgramGroupsQueryVariables,
+  DeleteProgramMutationVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 
@@ -187,5 +189,14 @@ export const useGetProgramGroups = (programId: string | null) => {
     queryKey: ['programs', programId, 'groups'],
     queryFn: () => client.request(GET_PROGRAM_GROUPS, { programId }),
     enabled: !!programId,
+  })
+}
+
+export const useDeleteProgram = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<void, Error, DeleteProgramMutationVariables>({
+    mutationFn: ({ deleteProgramId }) => client.request(DELETE_PROGRAM, { deleteProgramId }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['programs'] }),
   })
 }
