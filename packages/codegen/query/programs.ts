@@ -259,6 +259,25 @@ export const GET_PROGRAM_MEMBERS = gql`
   }
 `
 
+export const GET_PROGRAM_GROUPS = gql`
+  query GetProgramGroups($programId: ID!) {
+    program(id: $programId) {
+      blockedGroups {
+        id
+        displayName
+        gravatarLogoURL
+        logoURL
+        members {
+          totalCount
+        }
+        permissions {
+          permissions
+        }
+      }
+    }
+  }
+`
+
 export const GET_EVIDENCE_STATS = gql`
   query GetEvidenceStats($programId: ID!) {
     totalControls: controls(where: { hasProgramsWith: [{ id: $programId }] }) {

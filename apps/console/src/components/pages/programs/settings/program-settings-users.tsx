@@ -15,6 +15,8 @@ import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
+import { EditGroupRoleDialog } from './program-settings-edit-role-dialog' // You can reuse for users
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
 type MemberRow = {
   id: string
@@ -33,6 +35,12 @@ export const ProgramSettingsUsers = () => {
     query: { first: 5 },
   })
 
+  const [selectedUser, setSelectedUser] = useState<MemberRow | null>(null)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+
+  const { mutateAsync: updateProgram, isPending: isUpdating } = useUpdateProgram()
+
   const where = { programID: programId || undefined }
 
   const { data, isLoading, isFetching } = useGetProgramMembers({
@@ -41,22 +49,20 @@ export const ProgramSettingsUsers = () => {
     enabled: !!programId,
   })
 
-  const { mutateAsync: updateProgram, isPending: isRemoving } = useUpdateProgram()
-
-  const handleRemove = async (id: string) => {
-    if (!programId) return
+  const handleRemove = async () => {
+    if (!programId || !selectedUser) return
 
     try {
       await updateProgram({
         updateProgramId: programId,
         input: {
-          removeProgramMembers: [id],
+          removeProgramMembers: [selectedUser.id],
         },
       })
 
       queryClient.invalidateQueries({
         predicate: (query) => {
-          const [resource, id, sub] = query.queryKey
+          const [resource] = query.queryKey
           return resource === 'memberships' || resource === 'programMemberships'
         },
       })
@@ -65,7 +71,33 @@ export const ProgramSettingsUsers = () => {
     } catch (error) {
       console.error(error)
       toast.error('Failed to remove user.')
+    } finally {
+      setIsDeleteDialogOpen(false)
     }
+  }
+
+  const handleRoleChange = async (newRole: 'Edit' | 'View') => {
+    // if (!programId || !selectedUser) return
+    // try {
+    //   await updateProgram({
+    //     updateProgramId: programId,
+    //     input: {
+    //       updateProgramMembers: [
+    //         {
+    //           programMemberID: selectedUser.id,
+    //           role: newRole === 'Edit' ? ProgramMembershipRole.ADMIN : ProgramMembershipRole.MEMBER,
+    //         },
+    //       ],
+    //     },
+    //   })
+    //   toast.success('User role updated.')
+    //   queryClient.invalidateQueries({ queryKey: ['programMemberships'] })
+    // } catch (error) {
+    //   console.error(error)
+    //   toast.error('Failed to update user role.')
+    // } finally {
+    //   setIsEditDialogOpen(false)
+    // }
   }
 
   const users: MemberRow[] =
@@ -107,8 +139,22 @@ export const ProgramSettingsUsers = () => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem>Edit role</DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive" onClick={() => handleRemove(row.original.id)} disabled={isRemoving}>
+            <DropdownMenuItem
+              onSelect={() => {
+                setSelectedUser(row.original)
+                setIsEditDialogOpen(true)
+              }}
+            >
+              Edit role
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="text-destructive"
+              onSelect={() => {
+                setSelectedUser(row.original)
+                setIsDeleteDialogOpen(true)
+              }}
+              disabled={isUpdating}
+            >
               Remove user
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -118,31 +164,49 @@ export const ProgramSettingsUsers = () => {
   ]
 
   return (
-    <section className="flex gap-14">
-      <div className="w-48 shrink-0">
-        <h3 className="text-xl mb-2">Users</h3>
-        <p className="text-sm">Assign users as admins or members to the program</p>
-      </div>
+    <>
+      {selectedUser && (
+        <>
+          <EditGroupRoleDialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen} groupName={selectedUser.user.displayName} currentRole={selectedUser.role} onSubmit={handleRoleChange} />
 
-      <div className="space-y-2 w-full max-w-[847px]">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg">Assigned users</h2>
-          <ProgramSettingsAssignUserDialog />
+          <ConfirmationDialog
+            open={isDeleteDialogOpen}
+            onOpenChange={setIsDeleteDialogOpen}
+            title="Remove user"
+            description={`Are you sure you want to remove ${selectedUser.user.displayName} from the program?`}
+            confirmationText="Remove user"
+            confirmationTextVariant="destructive"
+            onConfirm={handleRemove}
+          />
+        </>
+      )}
+
+      <section className="flex gap-14">
+        <div className="w-48 shrink-0">
+          <h3 className="text-xl mb-2">Users</h3>
+          <p className="text-sm">Assign users as admins or members to the program</p>
         </div>
 
-        <DataTable
-          columns={userColumns}
-          data={users}
-          loading={isLoading}
-          pagination={pagination}
-          onPaginationChange={setPagination}
-          paginationMeta={{
-            totalCount: data?.programMemberships?.totalCount ?? 0,
-            pageInfo: data?.programMemberships?.pageInfo,
-            isLoading: isFetching,
-          }}
-        />
-      </div>
-    </section>
+        <div className="space-y-2 w-full max-w-[847px]">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg">Assigned users</h2>
+            <ProgramSettingsAssignUserDialog />
+          </div>
+
+          <DataTable
+            columns={userColumns}
+            data={users}
+            loading={isLoading}
+            pagination={pagination}
+            onPaginationChange={setPagination}
+            paginationMeta={{
+              totalCount: data?.programMemberships?.totalCount ?? 0,
+              pageInfo: data?.programMemberships?.pageInfo,
+              isLoading: isFetching,
+            }}
+          />
+        </div>
+      </section>
+    </>
   )
 }

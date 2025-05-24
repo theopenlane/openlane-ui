@@ -58,8 +58,6 @@ export interface ApiToken extends Node {
   __typename?: 'APIToken'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** a description of the token's purpose */
   description?: Maybe<Scalars['String']['output']>
   /** when the token expires */
@@ -186,33 +184,6 @@ export interface ApiTokenWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** expires_at field predicates */
   expiresAt?: InputMaybe<Scalars['Time']['input']>
   expiresAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -375,8 +346,6 @@ export interface ActionPlan extends Node {
   delegate?: Maybe<Group>
   /** the id of the group responsible for approving the action_plan */
   delegateID?: Maybe<Scalars['ID']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** details of the action_plan */
   details?: Maybe<Scalars['String']['output']>
   /** due date of the action plan */
@@ -515,8 +484,6 @@ export interface ActionPlanHistory extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** the id of the group responsible for approving the action_plan */
   delegateID?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** details of the action_plan */
   details?: Maybe<Scalars['String']['output']>
   /** due date of the action plan */
@@ -708,33 +675,6 @@ export interface ActionPlanHistoryWhereInput {
   delegateIDNEQ?: InputMaybe<Scalars['String']['input']>
   delegateIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   delegateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** details field predicates */
   details?: InputMaybe<Scalars['String']['input']>
   detailsContains?: InputMaybe<Scalars['String']['input']>
@@ -1051,33 +991,6 @@ export interface ActionPlanWhereInput {
   delegateIDNEQ?: InputMaybe<Scalars['ID']['input']>
   delegateIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   delegateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** details field predicates */
   details?: InputMaybe<Scalars['String']['input']>
   detailsContains?: InputMaybe<Scalars['String']['input']>
@@ -1319,8 +1232,6 @@ export interface Contact extends Node {
   company?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the email of the contact */
   email?: Maybe<Scalars['String']['output']>
   entities: EntityConnection
@@ -1410,8 +1321,6 @@ export interface ContactHistory extends Node {
   company?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the email of the contact */
   email?: Maybe<Scalars['String']['output']>
   /** the full name of the contact */
@@ -1554,33 +1463,6 @@ export interface ContactHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** email field predicates */
   email?: InputMaybe<Scalars['String']['input']>
   emailContains?: InputMaybe<Scalars['String']['input']>
@@ -1836,33 +1718,6 @@ export interface ContactWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** email field predicates */
   email?: InputMaybe<Scalars['String']['input']>
   emailContains?: InputMaybe<Scalars['String']['input']>
@@ -2028,8 +1883,6 @@ export interface Control extends Node {
   delegate?: Maybe<Group>
   /** the id of the group that is temporarily delegated to own the control */
   delegateID?: Maybe<Scalars['ID']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** description of what the control is supposed to accomplish */
   description?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -2275,8 +2128,6 @@ export interface ControlHistory extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** the id of the group that is temporarily delegated to own the control */
   delegateID?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** description of what the control is supposed to accomplish */
   description?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -2506,33 +2357,6 @@ export interface ControlHistoryWhereInput {
   delegateIDNEQ?: InputMaybe<Scalars['String']['input']>
   delegateIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   delegateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -2732,8 +2556,6 @@ export interface ControlImplementation extends Node {
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** details of the control implementation */
   details?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
@@ -2827,8 +2649,6 @@ export interface ControlImplementationHistory extends Node {
   __typename?: 'ControlImplementationHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** details of the control implementation */
   details?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
@@ -2938,33 +2758,6 @@ export interface ControlImplementationHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** details field predicates */
   details?: InputMaybe<Scalars['String']['input']>
   detailsContains?: InputMaybe<Scalars['String']['input']>
@@ -3161,33 +2954,6 @@ export interface ControlImplementationWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** details field predicates */
   details?: InputMaybe<Scalars['String']['input']>
   detailsContains?: InputMaybe<Scalars['String']['input']>
@@ -3316,8 +3082,6 @@ export interface ControlObjective extends Node {
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the desired outcome or target of the control objective */
   desiredOutcome?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -3492,8 +3256,6 @@ export interface ControlObjectiveHistory extends Node {
   controlObjectiveType?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the desired outcome or target of the control objective */
   desiredOutcome?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -3648,33 +3410,6 @@ export interface ControlObjectiveHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** desired_outcome field predicates */
   desiredOutcome?: InputMaybe<Scalars['String']['input']>
   desiredOutcomeContains?: InputMaybe<Scalars['String']['input']>
@@ -3953,33 +3688,6 @@ export interface ControlObjectiveWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** desired_outcome field predicates */
   desiredOutcome?: InputMaybe<Scalars['String']['input']>
   desiredOutcomeContains?: InputMaybe<Scalars['String']['input']>
@@ -4314,33 +4022,6 @@ export interface ControlWhereInput {
   delegateIDNEQ?: InputMaybe<Scalars['ID']['input']>
   delegateIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   delegateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -5786,8 +5467,6 @@ export interface CustomDomain extends Node {
   cnameRecord: Scalars['String']['output']
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
   mappableDomain: MappableDomain
   /** The mappable domain id that this custom domain maps to */
@@ -5848,8 +5527,6 @@ export interface CustomDomainHistory extends Node {
   cnameRecord: Scalars['String']['output']
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
   /** The mappable domain id that this custom domain maps to */
@@ -5953,33 +5630,6 @@ export interface CustomDomainHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** history_time field predicates */
   historyTime?: InputMaybe<Scalars['Time']['input']>
   historyTimeGT?: InputMaybe<Scalars['Time']['input']>
@@ -6151,33 +5801,6 @@ export interface CustomDomainWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** mappable_domain edge predicates */
   hasMappableDomain?: InputMaybe<Scalars['Boolean']['input']>
   hasMappableDomainWith?: InputMaybe<Array<MappableDomainWhereInput>>
@@ -6262,8 +5885,6 @@ export interface DocumentData extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** the json data of the document */
   data: Scalars['Map']['output']
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   entities: EntityConnection
   files: FileConnection
   id: Scalars['ID']['output']
@@ -6344,8 +5965,6 @@ export interface DocumentDataHistory extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** the json data of the document */
   data: Scalars['Map']['output']
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
   operation: DocumentDataHistoryOpType
@@ -6434,33 +6053,6 @@ export interface DocumentDataHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** history_time field predicates */
   historyTime?: InputMaybe<Scalars['Time']['input']>
   historyTimeGT?: InputMaybe<Scalars['Time']['input']>
@@ -6617,33 +6209,6 @@ export interface DocumentDataWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** entities edge predicates */
   hasEntities?: InputMaybe<Scalars['Boolean']['input']>
   hasEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
@@ -6733,8 +6298,6 @@ export interface Entity extends Node {
   contacts: ContactConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** An optional description of the entity */
   description?: Maybe<Scalars['String']['output']>
   /** The entity's displayed 'friendly' name */
@@ -6842,8 +6405,6 @@ export interface EntityHistory extends Node {
   __typename?: 'EntityHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** An optional description of the entity */
   description?: Maybe<Scalars['String']['output']>
   /** The entity's displayed 'friendly' name */
@@ -6945,33 +6506,6 @@ export interface EntityHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_name field predicates */
   displayName?: InputMaybe<Scalars['String']['input']>
   displayNameContains?: InputMaybe<Scalars['String']['input']>
@@ -7145,8 +6679,6 @@ export interface EntityType extends Node {
   __typename?: 'EntityType'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   entities: EntityConnection
   id: Scalars['ID']['output']
   /** the name of the entity */
@@ -7214,8 +6746,6 @@ export interface EntityTypeHistory extends Node {
   __typename?: 'EntityTypeHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
   /** the name of the entity */
@@ -7305,33 +6835,6 @@ export interface EntityTypeHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** history_time field predicates */
   historyTime?: InputMaybe<Scalars['Time']['input']>
   historyTimeGT?: InputMaybe<Scalars['Time']['input']>
@@ -7489,33 +6992,6 @@ export interface EntityTypeWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** entities edge predicates */
   hasEntities?: InputMaybe<Scalars['Boolean']['input']>
   hasEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
@@ -7634,33 +7110,6 @@ export interface EntityWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_name field predicates */
   displayName?: InputMaybe<Scalars['String']['input']>
   displayNameContains?: InputMaybe<Scalars['String']['input']>
@@ -8375,8 +7824,6 @@ export interface Evidence extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** the date the evidence was retrieved */
   creationDate: Scalars['Time']['output']
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the description of the evidence, what is contained in the uploaded file(s) or url(s) */
   description?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -8519,8 +7966,6 @@ export interface EvidenceHistory extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** the date the evidence was retrieved */
   creationDate: Scalars['Time']['output']
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the description of the evidence, what is contained in the uploaded file(s) or url(s) */
   description?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -8661,33 +8106,6 @@ export interface EvidenceHistoryWhereInput {
   creationDateLTE?: InputMaybe<Scalars['Time']['input']>
   creationDateNEQ?: InputMaybe<Scalars['Time']['input']>
   creationDateNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -8958,33 +8376,6 @@ export interface EvidenceWhereInput {
   creationDateLTE?: InputMaybe<Scalars['Time']['input']>
   creationDateNEQ?: InputMaybe<Scalars['Time']['input']>
   creationDateNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -9170,8 +8561,6 @@ export interface File extends Node {
   contact?: Maybe<Array<Contact>>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the content type of the HTTP request - may be different than MIME type as multipart-form can transmit multiple files and different types */
   detectedContentType: Scalars['String']['output']
   /** the mime type detected by the system */
@@ -9265,8 +8654,6 @@ export interface FileHistory extends Node {
   categoryType?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the content type of the HTTP request - may be different than MIME type as multipart-form can transmit multiple files and different types */
   detectedContentType: Scalars['String']['output']
   /** the mime type detected by the system */
@@ -9390,33 +8777,6 @@ export interface FileHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** detected_content_type field predicates */
   detectedContentType?: InputMaybe<Scalars['String']['input']>
   detectedContentTypeContains?: InputMaybe<Scalars['String']['input']>
@@ -9728,33 +9088,6 @@ export interface FileWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** detected_content_type field predicates */
   detectedContentType?: InputMaybe<Scalars['String']['input']>
   detectedContentTypeContains?: InputMaybe<Scalars['String']['input']>
@@ -10019,8 +9352,6 @@ export interface Group extends Node {
   controlViewers?: Maybe<Array<Control>>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the groups description */
   description?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -10166,8 +9497,6 @@ export interface GroupHistory extends Node {
   __typename?: 'GroupHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the groups description */
   description?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -10270,33 +9599,6 @@ export interface GroupHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_id field predicates */
   displayID?: InputMaybe<Scalars['String']['input']>
   displayIDContains?: InputMaybe<Scalars['String']['input']>
@@ -10445,8 +9747,6 @@ export interface GroupMembership extends Node {
   __typename?: 'GroupMembership'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   events: EventConnection
   group: Group
   groupID: Scalars['ID']['output']
@@ -10512,8 +9812,6 @@ export interface GroupMembershipHistory extends Node {
   __typename?: 'GroupMembershipHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   groupID: Scalars['String']['output']
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
@@ -10606,33 +9904,6 @@ export interface GroupMembershipHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** group_id field predicates */
   groupID?: InputMaybe<Scalars['String']['input']>
   groupIDContains?: InputMaybe<Scalars['String']['input']>
@@ -10799,33 +10070,6 @@ export interface GroupMembershipWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   groupID?: InputMaybe<Scalars['String']['input']>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
@@ -10909,8 +10153,6 @@ export interface GroupSetting extends Node {
   __typename?: 'GroupSetting'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   group?: Maybe<Group>
   /** the group id associated with the settings */
   groupID?: Maybe<Scalars['ID']['output']>
@@ -10972,8 +10214,6 @@ export interface GroupSettingHistory extends Node {
   __typename?: 'GroupSettingHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the group id associated with the settings */
   groupID?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
@@ -11080,33 +10320,6 @@ export interface GroupSettingHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** group_id field predicates */
   groupID?: InputMaybe<Scalars['String']['input']>
   groupIDContains?: InputMaybe<Scalars['String']['input']>
@@ -11283,33 +10496,6 @@ export interface GroupSettingWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** group_id field predicates */
   groupID?: InputMaybe<Scalars['ID']['input']>
   groupIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -11431,33 +10617,6 @@ export interface GroupWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_id field predicates */
   displayID?: InputMaybe<Scalars['String']['input']>
   displayIDContains?: InputMaybe<Scalars['String']['input']>
@@ -11648,8 +10807,6 @@ export interface Hush extends Node {
   __typename?: 'Hush'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** a description of the hush value or purpose, such as github PAT */
   description?: Maybe<Scalars['String']['output']>
   events: EventConnection
@@ -11731,8 +10888,6 @@ export interface HushHistory extends Node {
   __typename?: 'HushHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** a description of the hush value or purpose, such as github PAT */
   description?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
@@ -11827,33 +10982,6 @@ export interface HushHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** history_time field predicates */
   historyTime?: InputMaybe<Scalars['Time']['input']>
   historyTimeGT?: InputMaybe<Scalars['Time']['input']>
@@ -12044,33 +11172,6 @@ export interface HushWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** events edge predicates */
   hasEvents?: InputMaybe<Scalars['Boolean']['input']>
   hasEventsWith?: InputMaybe<Array<EventWhereInput>>
@@ -12188,8 +11289,6 @@ export interface Integration extends Node {
   __typename?: 'Integration'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** a description of the integration */
   description?: Maybe<Scalars['String']['output']>
   events: EventConnection
@@ -12270,8 +11369,6 @@ export interface IntegrationHistory extends Node {
   __typename?: 'IntegrationHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** a description of the integration */
   description?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
@@ -12365,33 +11462,6 @@ export interface IntegrationHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** history_time field predicates */
   historyTime?: InputMaybe<Scalars['Time']['input']>
   historyTimeGT?: InputMaybe<Scalars['Time']['input']>
@@ -12566,33 +11636,6 @@ export interface IntegrationWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** events edge predicates */
   hasEvents?: InputMaybe<Scalars['Boolean']['input']>
   hasEventsWith?: InputMaybe<Array<EventWhereInput>>
@@ -12708,8 +11751,6 @@ export interface InternalPolicy extends Node {
   delegate?: Maybe<Group>
   /** the id of the group responsible for approving the policy */
   delegateID?: Maybe<Scalars['ID']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** details of the policy */
   details?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -12885,8 +11926,6 @@ export interface InternalPolicyHistory extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** the id of the group responsible for approving the policy */
   delegateID?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** details of the policy */
   details?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -13049,33 +12088,6 @@ export interface InternalPolicyHistoryWhereInput {
   delegateIDNEQ?: InputMaybe<Scalars['String']['input']>
   delegateIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   delegateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** details field predicates */
   details?: InputMaybe<Scalars['String']['input']>
   detailsContains?: InputMaybe<Scalars['String']['input']>
@@ -13361,33 +12373,6 @@ export interface InternalPolicyWhereInput {
   delegateIDNEQ?: InputMaybe<Scalars['ID']['input']>
   delegateIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   delegateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** details field predicates */
   details?: InputMaybe<Scalars['String']['input']>
   detailsContains?: InputMaybe<Scalars['String']['input']>
@@ -13590,8 +12575,6 @@ export interface Invite extends Node {
   __typename?: 'Invite'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   events: EventConnection
   /** the expiration date of the invitation token which defaults to 14 days in the future from creation */
   expires?: Maybe<Scalars['Time']['output']>
@@ -13733,33 +12716,6 @@ export interface InviteWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** expires field predicates */
   expires?: InputMaybe<Scalars['Time']['input']>
   expiresGT?: InputMaybe<Scalars['Time']['input']>
@@ -13888,8 +12844,6 @@ export interface JobRunner extends Node {
   __typename?: 'JobRunner'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   id: Scalars['ID']['output']
@@ -13951,8 +12905,6 @@ export interface JobRunnerHistory extends Node {
   __typename?: 'JobRunnerHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   historyTime: Scalars['Time']['output']
@@ -14056,33 +13008,6 @@ export interface JobRunnerHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_id field predicates */
   displayID?: InputMaybe<Scalars['String']['input']>
   displayIDContains?: InputMaybe<Scalars['String']['input']>
@@ -14248,8 +13173,6 @@ export interface JobRunnerRegistrationToken extends Node {
   __typename?: 'JobRunnerRegistrationToken'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** when the token expires */
   expiresAt: Scalars['Time']['output']
   id: Scalars['ID']['output']
@@ -14356,33 +13279,6 @@ export interface JobRunnerRegistrationTokenWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** job_runner edge predicates */
   hasJobRunner?: InputMaybe<Scalars['Boolean']['input']>
   hasJobRunnerWith?: InputMaybe<Array<JobRunnerWhereInput>>
@@ -14478,8 +13374,6 @@ export interface JobRunnerToken extends Node {
   __typename?: 'JobRunnerToken'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** when the token expires */
   expiresAt?: Maybe<Scalars['Time']['output']>
   id: Scalars['ID']['output']
@@ -14602,33 +13496,6 @@ export interface JobRunnerTokenWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** expires_at field predicates */
   expiresAt?: InputMaybe<Scalars['Time']['input']>
   expiresAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -14803,33 +13670,6 @@ export interface JobRunnerWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_id field predicates */
   displayID?: InputMaybe<Scalars['String']['input']>
   displayIDContains?: InputMaybe<Scalars['String']['input']>
@@ -14951,8 +13791,6 @@ export interface MappableDomain extends Node {
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   customDomains: CustomDomainConnection
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
   /** Name of the mappable domain */
   name: Scalars['String']['output']
@@ -15016,8 +13854,6 @@ export interface MappableDomainHistory extends Node {
   __typename?: 'MappableDomainHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
   /** Name of the mappable domain */
@@ -15105,33 +13941,6 @@ export interface MappableDomainHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** history_time field predicates */
   historyTime?: InputMaybe<Scalars['Time']['input']>
   historyTimeGT?: InputMaybe<Scalars['Time']['input']>
@@ -15273,33 +14082,6 @@ export interface MappableDomainWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** custom_domains edge predicates */
   hasCustomDomains?: InputMaybe<Scalars['Boolean']['input']>
   hasCustomDomainsWith?: InputMaybe<Array<CustomDomainWhereInput>>
@@ -15364,8 +14146,6 @@ export interface MappedControl extends Node {
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
   /** the type of mapping between the two controls, e.g. subset, intersect, equal, superset */
   mappingType?: Maybe<Scalars['String']['output']>
@@ -15441,8 +14221,6 @@ export interface MappedControlHistory extends Node {
   __typename?: 'MappedControlHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
   /** the type of mapping between the two controls, e.g. subset, intersect, equal, superset */
@@ -15532,33 +14310,6 @@ export interface MappedControlHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** history_time field predicates */
   historyTime?: InputMaybe<Scalars['Time']['input']>
   historyTimeGT?: InputMaybe<Scalars['Time']['input']>
@@ -15718,33 +14469,6 @@ export interface MappedControlWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** controls edge predicates */
   hasControls?: InputMaybe<Scalars['Boolean']['input']>
   hasControlsWith?: InputMaybe<Array<ControlWhereInput>>
@@ -17046,8 +15770,6 @@ export interface Narrative extends Node {
   blockedGroups?: Maybe<Array<Group>>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the description of the narrative */
   description?: Maybe<Scalars['String']['output']>
   /** text data for the narrative document */
@@ -17155,8 +15877,6 @@ export interface NarrativeHistory extends Node {
   __typename?: 'NarrativeHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the description of the narrative */
   description?: Maybe<Scalars['String']['output']>
   /** text data for the narrative document */
@@ -17252,33 +15972,6 @@ export interface NarrativeHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -17482,33 +16175,6 @@ export interface NarrativeWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -17664,8 +16330,6 @@ export interface Note extends Node {
   __typename?: 'Note'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   files: FileConnection
@@ -17713,8 +16377,6 @@ export interface NoteHistory extends Node {
   __typename?: 'NoteHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   historyTime: Scalars['Time']['output']
@@ -17803,33 +16465,6 @@ export interface NoteHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_id field predicates */
   displayID?: InputMaybe<Scalars['String']['input']>
   displayIDContains?: InputMaybe<Scalars['String']['input']>
@@ -17993,33 +16628,6 @@ export interface NoteWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_id field predicates */
   displayID?: InputMaybe<Scalars['String']['input']>
   displayIDContains?: InputMaybe<Scalars['String']['input']>
@@ -18123,8 +16731,6 @@ export interface Onboarding extends Node {
   companyName: Scalars['String']['output']
   /** details given about the compliance requirements during the onboarding process, such as coming with existing policies, controls, risk assessments, etc */
   compliance?: Maybe<Scalars['Map']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** domains associated with the company */
   domains?: Maybe<Array<Scalars['String']['output']>>
   id: Scalars['ID']['output']
@@ -18161,33 +16767,6 @@ export interface OnboardingWhereInput {
   companyNameLTE?: InputMaybe<Scalars['String']['input']>
   companyNameNEQ?: InputMaybe<Scalars['String']['input']>
   companyNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** organization edge predicates */
   hasOrganization?: InputMaybe<Scalars['Boolean']['input']>
   hasOrganizationWith?: InputMaybe<Array<OrganizationWhereInput>>
@@ -18243,8 +16822,6 @@ export interface OrgMembership extends Node {
   __typename?: 'OrgMembership'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   events: EventConnection
   id: Scalars['ID']['output']
   organization: Organization
@@ -18310,8 +16887,6 @@ export interface OrgMembershipHistory extends Node {
   __typename?: 'OrgMembershipHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
   operation: OrgMembershipHistoryOpType
@@ -18405,33 +16980,6 @@ export interface OrgMembershipHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** history_time field predicates */
   historyTime?: InputMaybe<Scalars['Time']['input']>
   historyTimeGT?: InputMaybe<Scalars['Time']['input']>
@@ -18599,33 +17147,6 @@ export interface OrgMembershipWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   hasUserWith?: InputMaybe<Array<UserWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
@@ -18685,8 +17206,6 @@ export interface OrgSubscription extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** number of days until there is a due payment */
   daysUntilDue?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   events: EventConnection
   /** the time the subscription is set to expire; only populated if subscription is cancelled */
   expiresAt?: Maybe<Scalars['Time']['output']>
@@ -18759,8 +17278,6 @@ export interface OrgSubscriptionHistory extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** number of days until there is a due payment */
   daysUntilDue?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the time the subscription is set to expire; only populated if subscription is cancelled */
   expiresAt?: Maybe<Scalars['Time']['output']>
   /** the feature lookup keys associated with the subscription */
@@ -18894,33 +17411,6 @@ export interface OrgSubscriptionHistoryWhereInput {
   daysUntilDueNEQ?: InputMaybe<Scalars['String']['input']>
   daysUntilDueNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   daysUntilDueNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** expires_at field predicates */
   expiresAt?: InputMaybe<Scalars['Time']['input']>
   expiresAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -19188,33 +17678,6 @@ export interface OrgSubscriptionWhereInput {
   daysUntilDueNEQ?: InputMaybe<Scalars['String']['input']>
   daysUntilDueNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   daysUntilDueNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** expires_at field predicates */
   expiresAt?: InputMaybe<Scalars['Time']['input']>
   expiresAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -19411,8 +17874,6 @@ export interface Organization extends Node {
   customDomains: CustomDomainConnection
   /** Whether the organization has a dedicated database */
   dedicatedDb: Scalars['Boolean']['output']
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** An optional description of the organization */
   description?: Maybe<Scalars['String']['output']>
   /** The organization's displayed 'friendly' name */
@@ -19840,8 +18301,6 @@ export interface OrganizationHistory extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** Whether the organization has a dedicated database */
   dedicatedDb: Scalars['Boolean']['output']
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** An optional description of the organization */
   description?: Maybe<Scalars['String']['output']>
   /** The organization's displayed 'friendly' name */
@@ -19979,33 +18438,6 @@ export interface OrganizationHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_name field predicates */
   displayName?: InputMaybe<Scalars['String']['input']>
   displayNameContains?: InputMaybe<Scalars['String']['input']>
@@ -20145,8 +18577,6 @@ export interface OrganizationSetting extends Node {
   billingPhone?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** domains associated with the organization */
   domains?: Maybe<Array<Scalars['String']['output']>>
   files: FileConnection
@@ -20230,8 +18660,6 @@ export interface OrganizationSettingHistory extends Node {
   billingPhone?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** domains associated with the organization */
   domains?: Maybe<Array<Scalars['String']['output']>>
   /** geographical location of the organization */
@@ -20382,33 +18810,6 @@ export interface OrganizationSettingHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** geo_location field predicates */
   geoLocation?: InputMaybe<OrganizationSettingHistoryRegion>
   geoLocationIn?: InputMaybe<Array<OrganizationSettingHistoryRegion>>
@@ -20632,33 +19033,6 @@ export interface OrganizationSettingWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** geo_location field predicates */
   geoLocation?: InputMaybe<OrganizationSettingRegion>
   geoLocationIn?: InputMaybe<Array<OrganizationSettingRegion>>
@@ -20829,33 +19203,6 @@ export interface OrganizationWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_name field predicates */
   displayName?: InputMaybe<Scalars['String']['input']>
   displayNameContains?: InputMaybe<Scalars['String']['input']>
@@ -21105,8 +19452,6 @@ export interface PersonalAccessToken extends Node {
   __typename?: 'PersonalAccessToken'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** a description of the token's purpose */
   description?: Maybe<Scalars['String']['output']>
   events: EventConnection
@@ -21251,33 +19596,6 @@ export interface PersonalAccessTokenWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** expires_at field predicates */
   expiresAt?: InputMaybe<Scalars['Time']['input']>
   expiresAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -21430,8 +19748,6 @@ export interface Procedure extends Node {
   delegate?: Maybe<Group>
   /** the id of the group responsible for approving the procedure */
   delegateID?: Maybe<Scalars['ID']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** details of the procedure */
   details?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -21598,8 +19914,6 @@ export interface ProcedureHistory extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** the id of the group responsible for approving the procedure */
   delegateID?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** details of the procedure */
   details?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -21762,33 +20076,6 @@ export interface ProcedureHistoryWhereInput {
   delegateIDNEQ?: InputMaybe<Scalars['String']['input']>
   delegateIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   delegateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** details field predicates */
   details?: InputMaybe<Scalars['String']['input']>
   detailsContains?: InputMaybe<Scalars['String']['input']>
@@ -22074,33 +20361,6 @@ export interface ProcedureWhereInput {
   delegateIDNEQ?: InputMaybe<Scalars['ID']['input']>
   delegateIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   delegateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** details field predicates */
   details?: InputMaybe<Scalars['String']['input']>
   detailsContains?: InputMaybe<Scalars['String']['input']>
@@ -22317,8 +20577,6 @@ export interface Program extends Node {
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the description of the program */
   description?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -22543,8 +20801,6 @@ export interface ProgramHistory extends Node {
   auditorWriteComments: Scalars['Boolean']['output']
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the description of the program */
   description?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -22727,33 +20983,6 @@ export interface ProgramHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -22938,8 +21167,6 @@ export interface ProgramMembership extends Node {
   __typename?: 'ProgramMembership'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
   program: Program
   programID: Scalars['ID']['output']
@@ -22995,8 +21222,6 @@ export interface ProgramMembershipHistory extends Node {
   __typename?: 'ProgramMembershipHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
   operation: ProgramMembershipHistoryOpType
@@ -23089,33 +21314,6 @@ export interface ProgramMembershipHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** history_time field predicates */
   historyTime?: InputMaybe<Scalars['Time']['input']>
   historyTimeGT?: InputMaybe<Scalars['Time']['input']>
@@ -23282,33 +21480,6 @@ export interface ProgramMembershipWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -23492,33 +21663,6 @@ export interface ProgramWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -25630,8 +23774,6 @@ export interface Risk extends Node {
   delegate?: Maybe<Group>
   /** the id of the group responsible for risk oversight on behalf of the stakeholder */
   delegateID?: Maybe<Scalars['ID']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** details of the risk */
   details?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -25787,8 +23929,6 @@ export interface RiskHistory extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** the id of the group responsible for risk oversight on behalf of the stakeholder */
   delegateID?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** details of the risk */
   details?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -25975,33 +24115,6 @@ export interface RiskHistoryWhereInput {
   delegateIDNEQ?: InputMaybe<Scalars['String']['input']>
   delegateIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   delegateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** details field predicates */
   details?: InputMaybe<Scalars['String']['input']>
   detailsContains?: InputMaybe<Scalars['String']['input']>
@@ -26348,33 +24461,6 @@ export interface RiskWhereInput {
   delegateIDNEQ?: InputMaybe<Scalars['ID']['input']>
   delegateIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   delegateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** details field predicates */
   details?: InputMaybe<Scalars['String']['input']>
   detailsContains?: InputMaybe<Scalars['String']['input']>
@@ -26647,8 +24733,6 @@ export interface Standard extends Node {
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** long description of the standard with details of what is covered */
   description?: Maybe<Scalars['String']['output']>
   /** domains the standard covers, e.g. availability, confidentiality, etc. */
@@ -26743,8 +24827,6 @@ export interface StandardHistory extends Node {
   __typename?: 'StandardHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** long description of the standard with details of what is covered */
   description?: Maybe<Scalars['String']['output']>
   /** domains the standard covers, e.g. availability, confidentiality, etc. */
@@ -26875,33 +24957,6 @@ export interface StandardHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -27238,33 +25293,6 @@ export interface StandardWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -27541,8 +25569,6 @@ export interface Subcontrol extends Node {
   delegate?: Maybe<Group>
   /** the id of the group that is temporarily delegated to own the control */
   delegateID?: Maybe<Scalars['ID']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** description of what the control is supposed to accomplish */
   description?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -27763,8 +25789,6 @@ export interface SubcontrolHistory extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** the id of the group that is temporarily delegated to own the control */
   delegateID?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** description of what the control is supposed to accomplish */
   description?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -28006,33 +26030,6 @@ export interface SubcontrolHistoryWhereInput {
   delegateIDNEQ?: InputMaybe<Scalars['String']['input']>
   delegateIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   delegateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -28372,33 +26369,6 @@ export interface SubcontrolWhereInput {
   delegateIDNEQ?: InputMaybe<Scalars['ID']['input']>
   delegateIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   delegateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -28595,8 +26565,6 @@ export interface Subscriber extends Node {
   active: Scalars['Boolean']['output']
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** email address of the subscriber */
   email: Scalars['String']['output']
   events: EventConnection
@@ -28731,33 +26699,6 @@ export interface SubscriberWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** email field predicates */
   email?: InputMaybe<Scalars['String']['input']>
   emailContains?: InputMaybe<Scalars['String']['input']>
@@ -28874,8 +26815,6 @@ export interface TfaSetting extends Node {
   __typename?: 'TFASetting'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
   owner?: Maybe<User>
   /** specifies a user may complete authentication by verifying a TOTP code delivered through an authenticator app */
@@ -28972,33 +26911,6 @@ export interface TfaSettingWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<UserWhereInput>>
@@ -29069,8 +26981,6 @@ export interface Task extends Node {
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the details of the task */
   details?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -29241,8 +27151,6 @@ export interface TaskHistory extends Node {
   completed?: Maybe<Scalars['DateTime']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the details of the task */
   details?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -29412,33 +27320,6 @@ export interface TaskHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** details field predicates */
   details?: InputMaybe<Scalars['String']['input']>
   detailsContains?: InputMaybe<Scalars['String']['input']>
@@ -29714,33 +27595,6 @@ export interface TaskWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** details field predicates */
   details?: InputMaybe<Scalars['String']['input']>
   detailsContains?: InputMaybe<Scalars['String']['input']>
@@ -29902,8 +27756,6 @@ export interface Template extends Node {
   __typename?: 'Template'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the description of the template */
   description?: Maybe<Scalars['String']['output']>
   documents: DocumentDataConnection
@@ -29995,8 +27847,6 @@ export interface TemplateHistory extends Node {
   __typename?: 'TemplateHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the description of the template */
   description?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
@@ -30101,33 +27951,6 @@ export interface TemplateHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -30307,33 +28130,6 @@ export interface TemplateWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -32413,8 +30209,6 @@ export interface User extends Node {
   avatarUpdatedAt?: Maybe<Scalars['Time']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   /** The user's displayed 'friendly' name */
@@ -32628,8 +30422,6 @@ export interface UserHistory extends Node {
   avatarUpdatedAt?: Maybe<Scalars['Time']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   /** The user's displayed 'friendly' name */
@@ -32795,33 +30587,6 @@ export interface UserHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_id field predicates */
   displayID?: InputMaybe<Scalars['String']['input']>
   displayIDContains?: InputMaybe<Scalars['String']['input']>
@@ -33039,8 +30804,6 @@ export interface UserSetting extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** organization to load on user login */
   defaultOrg?: Maybe<Organization>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** whether the user has confirmed their email address */
   emailConfirmed: Scalars['Boolean']['output']
   files: FileConnection
@@ -33112,8 +30875,6 @@ export interface UserSettingHistory extends Node {
   __typename?: 'UserSettingHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** whether the user has confirmed their email address */
   emailConfirmed: Scalars['Boolean']['output']
   historyTime: Scalars['Time']['output']
@@ -33222,33 +30983,6 @@ export interface UserSettingHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** email_confirmed field predicates */
   emailConfirmed?: InputMaybe<Scalars['Boolean']['input']>
   emailConfirmedNEQ?: InputMaybe<Scalars['Boolean']['input']>
@@ -33438,33 +31172,6 @@ export interface UserSettingWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** email_confirmed field predicates */
   emailConfirmed?: InputMaybe<Scalars['Boolean']['input']>
   emailConfirmedNEQ?: InputMaybe<Scalars['Boolean']['input']>
@@ -33658,33 +31365,6 @@ export interface UserWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_id field predicates */
   displayID?: InputMaybe<Scalars['String']['input']>
   displayIDContains?: InputMaybe<Scalars['String']['input']>
@@ -35575,6 +33255,26 @@ export type GetProgramMembersQuery = {
         user: { __typename?: 'User'; displayName: string; email: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null }
       } | null
     } | null> | null
+  }
+}
+
+export type GetProgramGroupsQueryVariables = Exact<{
+  programId: Scalars['ID']['input']
+}>
+
+export type GetProgramGroupsQuery = {
+  __typename?: 'Query'
+  program: {
+    __typename?: 'Program'
+    blockedGroups?: Array<{
+      __typename?: 'Group'
+      id: string
+      displayName: string
+      gravatarLogoURL?: string | null
+      logoURL?: string | null
+      members: { __typename?: 'GroupMembershipConnection'; totalCount: number }
+      permissions?: Array<{ __typename?: 'GroupPermissions'; permissions: Permission }> | null
+    }> | null
   }
 }
 
