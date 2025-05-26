@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/table'
 import { Button } from '@repo/ui/button'
-import { ChevronDown, ChevronsDownUp, ChevronsUpDown } from 'lucide-react'
+import { ChevronDown, ChevronsDownUp, List } from 'lucide-react'
 import { InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import SetObjectAssociationDialog from '@/components/pages/protected/policies/modal/set-object-association-modal.tsx'
@@ -17,8 +17,10 @@ type AssociatedObjectsAccordionProps = {
 const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> = ({ policy }) => {
   const plateEditorHelper = usePlateEditor()
   const [expandedItems, setExpandedItems] = useState<string[]>(['procedures'])
-  const toggleAll = (expand: boolean) => {
-    setExpandedItems(expand ? ['procedures', 'controls', 'controlObjectives', 'tasks', 'programs'] : [])
+  const toggleAll = () => {
+    const allSections = ['controls', 'procedures', 'tasks', 'controlObjectives', 'programs']
+    const hasAllExpanded = allSections.every((section) => expandedItems.includes(section))
+    setExpandedItems(hasAllExpanded ? [] : allSections)
   }
 
   const renderTable = (
@@ -79,15 +81,15 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
         <h2 className="text-lg font-semibold whitespace-nowrap">Associated Objects</h2>
         <div className="flex justify-between w-full items-center">
           <div className="flex gap-2.5 items-center">
-            <Button className="h-8 !px-2" variant="outline" type="button" onClick={() => toggleAll(false)} icon={<ChevronsDownUp />} iconPosition="left">
-              Collapse all
+            <div className="ml-auto">
+              <SetObjectAssociationDialog policyId={policy?.id} />
+            </div>
+            <Button type="button" className="h-8 !px-2" variant="outline" onClick={toggleAll}>
+              <div className="flex">
+                <List size={16} />
+                <ChevronsDownUp size={16} />
+              </div>
             </Button>
-            <Button className="h-8 !px-2" variant="outline" type="button" onClick={() => toggleAll(true)} icon={<ChevronsUpDown />} iconPosition="left">
-              Expand all
-            </Button>
-          </div>
-          <div className="ml-auto">
-            <SetObjectAssociationDialog policyId={policy?.id} />
           </div>
         </div>
       </div>
