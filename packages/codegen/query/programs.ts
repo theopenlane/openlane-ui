@@ -198,16 +198,24 @@ export const GET_PROGRAM_SETTINGS = gql`
   query GetProgramSettings($programId: ID!) {
     program(id: $programId) {
       viewers {
-        id
-        displayName
-        gravatarLogoURL
-        logoURL
+        edges {
+          node {
+            id
+            displayName
+            gravatarLogoURL
+            logoURL
+          }
+        }
       }
       editors {
-        id
-        displayName
-        gravatarLogoURL
-        logoURL
+        edges {
+          node {
+            id
+            displayName
+            gravatarLogoURL
+            logoURL
+          }
+        }
       }
       members {
         totalCount
@@ -260,18 +268,33 @@ export const GET_PROGRAM_MEMBERS = gql`
 `
 
 export const GET_PROGRAM_GROUPS = gql`
-  query GetProgramGroups($programId: ID!) {
+  query GetProgramGroups($programId: ID!, $after: Cursor, $first: Int, $before: Cursor, $last: Int) {
     program(id: $programId) {
-      blockedGroups {
-        id
-        displayName
-        gravatarLogoURL
-        logoURL
-        members {
-          totalCount
+      blockedGroups(after: $after, first: $first, before: $before, last: $last) {
+        pageInfo {
+          endCursor
+          hasNextPage
+          hasPreviousPage
+          startCursor
         }
-        permissions {
-          permissions
+        totalCount
+        edges {
+          node {
+            id
+            displayName
+            gravatarLogoURL
+            logoURL
+            members {
+              totalCount
+            }
+            permissions {
+              edges {
+                node {
+                  permissions
+                }
+              }
+            }
+          }
         }
       }
     }

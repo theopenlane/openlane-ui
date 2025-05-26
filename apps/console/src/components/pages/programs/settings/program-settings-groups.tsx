@@ -15,6 +15,8 @@ import { useQueryClient } from '@tanstack/react-query'
 import { EditGroupRoleDialog } from './program-settings-edit-role-dialog'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
+import { TPagination } from '@repo/ui/pagination-types'
+import { DEFAULT_PAGINATION } from '@/constants/pagination'
 
 type GroupRow = {
   id: string
@@ -28,6 +30,11 @@ export const ProgramSettingsGroups = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
   const queryClient = useQueryClient()
+  const [pagination, setPagination] = useState<TPagination>({
+    ...DEFAULT_PAGINATION,
+    pageSize: 5,
+    query: { first: 5 },
+  })
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedGroup, setSelectedGroup] = useState<GroupRow | null>(null)
@@ -36,19 +43,22 @@ export const ProgramSettingsGroups = () => {
   const { mutateAsync: updateProgram, isPending: isRemoving } = useUpdateProgram()
   const { successNotification, errorNotification } = useNotification()
 
-  const { data, isLoading } = useGetProgramGroups(programId ?? null)
-
-  const blockedGroups = data?.program?.blockedGroups ?? []
-
-  const groups: GroupRow[] = blockedGroups.map((group) => {
-    return {
-      id: group?.id,
-      name: group?.displayName,
-      membersCount: group?.members?.totalCount ?? 0,
-      role: 'TODO', // replace this with derived logic from `permissions` if needed
-      group,
-    } as GroupRow
+  const { data, isLoading, isFetching } = useGetProgramGroups({
+    programId: programId ?? null,
+    pagination,
   })
+  const blockedGroups = data?.program?.blockedGroups
+
+  const groups =
+    (blockedGroups?.edges?.map((edge) => {
+      return {
+        id: edge?.node?.id,
+        name: edge?.node?.displayName,
+        membersCount: edge?.node?.members?.totalCount ?? 0,
+        role: 'TODO', // replace this with derived logic from `permissions` if needed
+        group: edge?.node,
+      }
+    }) as GroupRow[]) || []
 
   const handleRemove = async (groupId: string) => {
     if (!programId) return
@@ -176,7 +186,18 @@ export const ProgramSettingsGroups = () => {
             <ProgramSettingsAssignGroupDialog />
           </div>
 
-          <DataTable columns={groupColumns} data={groups} loading={isLoading} />
+          <DataTable
+            columns={groupColumns}
+            data={groups}
+            loading={isLoading}
+            pagination={pagination}
+            onPaginationChange={setPagination}
+            paginationMeta={{
+              totalCount: blockedGroups?.totalCount ?? 0,
+              pageInfo: blockedGroups?.pageInfo,
+              isLoading: isFetching,
+            }}
+          />
         </div>
       </section>
     </>

@@ -182,13 +182,17 @@ export const useGetProgramMembers = ({ pagination, where, enabled = true }: { pa
   })
 }
 
-export const useGetProgramGroups = (programId: string | null) => {
+export const useGetProgramGroups = ({ programId, pagination, enabled = true }: { programId: string | null; pagination?: TPagination; enabled?: boolean }) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetProgramGroupsQuery, GetProgramGroupsQueryVariables>({
-    queryKey: ['programs', programId, 'groups'],
-    queryFn: () => client.request(GET_PROGRAM_GROUPS, { programId }),
-    enabled: !!programId,
+    queryKey: ['programs', programId, 'groups', pagination?.pageSize, pagination?.page],
+    queryFn: () =>
+      client.request(GET_PROGRAM_GROUPS, {
+        programId,
+        ...pagination?.query,
+      }),
+    enabled: enabled && !!programId,
   })
 }
 

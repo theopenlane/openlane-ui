@@ -121,7 +121,6 @@ export const ProgramSettingsAssignUserDialog = () => {
     const addProgramMembers = selectedUsers.map((user) => ({
       userID: user.user.id,
       role: user.role === 'Edit' ? ProgramMembershipRole.ADMIN : ProgramMembershipRole.MEMBER,
-      programID: programId,
     }))
 
     try {

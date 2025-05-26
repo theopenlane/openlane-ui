@@ -40,8 +40,8 @@ export const ProgramSettingsAssignGroupDialog = () => {
     not: {
       or: [
         {
-          hasProgramEditorsWith: [{ id: programId }],
-          hasProgramViewersWith: [{ id: programId }],
+          hasProgramEditorsWith: [{ idIn: [programId!] }],
+          hasProgramViewersWith: [{ idIn: [programId!] }],
         },
       ],
     },
@@ -53,15 +53,16 @@ export const ProgramSettingsAssignGroupDialog = () => {
     enabled: !!programId,
   })
 
-  const groups = useMemo(() => data?.groups?.edges?.map((edge) => edge?.node), [data])
-
+  const groups = useMemo(() => data?.groups?.edges?.map((edge) => edge?.node) || [], [data])
+  console.log('groups', groups)
   useEffect(() => {
     if (!!groups && groups?.length) {
-      const groupRows: GroupRow[] = groups.map((group) => ({
-        id: group?.id,
-        name: group?.displayName || group?.name,
-        description: group?.description,
-      })) as GroupRow[]
+      const groupRows: GroupRow[] =
+        (groups.map((group) => ({
+          id: group?.id,
+          name: group?.displayName || group?.name,
+          description: group?.description,
+        })) as GroupRow[]) || []
       setRows(groupRows)
     }
   }, [groups])
@@ -120,6 +121,9 @@ export const ProgramSettingsAssignGroupDialog = () => {
       })
     }
   }
+
+  console.log('rows', rows)
+  console.log('groupColumns', groupColumns)
 
   return (
     <Dialog>

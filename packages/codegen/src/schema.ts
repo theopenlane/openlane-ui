@@ -1175,6 +1175,12 @@ export interface ActionPlanWhereInput {
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+/** AddProgramMembershipInput is used for create ProgramMembership object under an existing program */
+export interface AddProgramMembershipInput {
+  role?: InputMaybe<ProgramMembershipRole>
+  userID: Scalars['ID']['input']
+}
+
 export interface AuditLog extends Node {
   __typename?: 'AuditLog'
   changes?: Maybe<Array<Scalars['String']['output']>>
@@ -1861,8 +1867,7 @@ export interface Control extends Node {
   assessmentObjectives?: Maybe<Array<Scalars['AssessmentObjective']['output']>>
   /** external auditor id of the control, can be used to map to external audit partner mappings */
   auditorReferenceID?: Maybe<Scalars['String']['output']>
-  /** groups that are blocked from viewing or editing the risk */
-  blockedGroups?: Maybe<Array<Group>>
+  blockedGroups: GroupConnection
   /** category of the control */
   category?: Maybe<Scalars['String']['output']>
   /** category id of the control */
@@ -1887,8 +1892,7 @@ export interface Control extends Node {
   description?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
-  /** provides edit access to the risk to members of the group */
-  editors?: Maybe<Array<Group>>
+  editors: GroupConnection
   evidence: EvidenceConnection
   /** examples of evidence for the control */
   exampleEvidence?: Maybe<Array<Scalars['ExampleEvidence']['output']>>
@@ -1927,8 +1931,7 @@ export interface Control extends Node {
   tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
-  /** provides view access to the risk to members of the group */
-  viewers?: Maybe<Array<Group>>
+  viewers: GroupConnection
 }
 
 export interface ControlActionPlansArgs {
@@ -1938,6 +1941,15 @@ export interface ControlActionPlansArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ActionPlanOrder>>
   where?: InputMaybe<ActionPlanWhereInput>
+}
+
+export interface ControlBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface ControlControlImplementationsArgs {
@@ -1956,6 +1968,15 @@ export interface ControlControlObjectivesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ControlObjectiveOrder>>
   where?: InputMaybe<ControlObjectiveWhereInput>
+}
+
+export interface ControlEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface ControlEvidenceArgs {
@@ -2037,6 +2058,15 @@ export interface ControlTasksArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<TaskOrder>>
   where?: InputMaybe<TaskWhereInput>
+}
+
+export interface ControlViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 /** Return response for createBulkControl mutation */
@@ -3073,8 +3103,7 @@ export interface ControlImplementationWhereInput {
 
 export interface ControlObjective extends Node {
   __typename?: 'ControlObjective'
-  /** groups that are blocked from viewing or editing the risk */
-  blockedGroups?: Maybe<Array<Group>>
+  blockedGroups: GroupConnection
   /** category of the control */
   category?: Maybe<Scalars['String']['output']>
   /** type of the control objective e.g. compliance, financial, operational, etc. */
@@ -3086,8 +3115,7 @@ export interface ControlObjective extends Node {
   desiredOutcome?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
-  /** provides edit access to the risk to members of the group */
-  editors?: Maybe<Array<Group>>
+  editors: GroupConnection
   evidence: EvidenceConnection
   id: Scalars['ID']['output']
   internalPolicies: InternalPolicyConnection
@@ -3114,8 +3142,16 @@ export interface ControlObjective extends Node {
   tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
-  /** provides view access to the risk to members of the group */
-  viewers?: Maybe<Array<Group>>
+  viewers: GroupConnection
+}
+
+export interface ControlObjectiveBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface ControlObjectiveControlsArgs {
@@ -3125,6 +3161,15 @@ export interface ControlObjectiveControlsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ControlOrder>>
   where?: InputMaybe<ControlWhereInput>
+}
+
+export interface ControlObjectiveEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface ControlObjectiveEvidenceArgs {
@@ -3197,6 +3242,15 @@ export interface ControlObjectiveTasksArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<TaskOrder>>
   where?: InputMaybe<TaskWhereInput>
+}
+
+export interface ControlObjectiveViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 /** Return response for createBulkControlObjective mutation */
@@ -4467,7 +4521,35 @@ export interface CreateControlWithSubcontrolsInput {
 export interface CreateCustomDomainInput {
   /** the name of the custom domain */
   cnameRecord: Scalars['String']['input']
+  dnsVerificationID?: InputMaybe<Scalars['ID']['input']>
   mappableDomainID: Scalars['ID']['input']
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+}
+
+/**
+ * CreateDNSVerificationInput is used for create DNSVerification object.
+ * Input was generated by ent.
+ */
+export interface CreateDnsVerificationInput {
+  /** Path under /.well-known/acme-challenge/ to serve the ACME challenge */
+  acmeChallengePath?: InputMaybe<Scalars['String']['input']>
+  /** Status of the ACME challenge validation */
+  acmeChallengeStatus?: InputMaybe<DnsVerificationCustomDomainStatus>
+  /** The ID of the custom domain in cloudflare */
+  cloudflareHostnameID: Scalars['String']['input']
+  customDomainIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the name of the dns txt record */
+  dnsTxtRecord: Scalars['String']['input']
+  /** the expected value of the dns txt record */
+  dnsTxtValue: Scalars['String']['input']
+  /** Status of the domain verification */
+  dnsVerificationStatus?: InputMaybe<DnsVerificationCustomDomainStatus>
+  /** Reason of the dns verification status, for giving the user diagnostic info */
+  dnsVerificationStatusReason?: InputMaybe<Scalars['String']['input']>
+  /** the expected value of the acme challenge record */
+  expectedAcmeChallengeValue?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
@@ -4864,6 +4946,8 @@ export interface CreateMappableDomainInput {
   name: Scalars['String']['input']
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
+  /** DNS Zone ID of the mappable domain. */
+  zoneID: Scalars['String']['input']
 }
 
 /**
@@ -4976,6 +5060,7 @@ export interface CreateOrganizationInput {
   description?: InputMaybe<Scalars['String']['input']>
   /** The organization's displayed 'friendly' name */
   displayName?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   documentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   entityTypeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -5467,6 +5552,9 @@ export interface CustomDomain extends Node {
   cnameRecord: Scalars['String']['output']
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
+  dnsVerification?: Maybe<DnsVerification>
+  /** The ID of the dns verification record */
+  dnsVerificationID?: Maybe<Scalars['ID']['output']>
   id: Scalars['ID']['output']
   mappableDomain: MappableDomain
   /** The mappable domain id that this custom domain maps to */
@@ -5527,6 +5615,8 @@ export interface CustomDomainHistory extends Node {
   cnameRecord: Scalars['String']['output']
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
+  /** The ID of the dns verification record */
+  dnsVerificationID?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
   /** The mappable domain id that this custom domain maps to */
@@ -5630,6 +5720,22 @@ export interface CustomDomainHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** dns_verification_id field predicates */
+  dnsVerificationID?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationIDContains?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationIDGT?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationIDGTE?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  dnsVerificationIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  dnsVerificationIDLT?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationIDLTE?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationIDNEQ?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  dnsVerificationIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** history_time field predicates */
   historyTime?: InputMaybe<Scalars['Time']['input']>
   historyTimeGT?: InputMaybe<Scalars['Time']['input']>
@@ -5801,6 +5907,25 @@ export interface CustomDomainWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** dns_verification_id field predicates */
+  dnsVerificationID?: InputMaybe<Scalars['ID']['input']>
+  dnsVerificationIDContains?: InputMaybe<Scalars['ID']['input']>
+  dnsVerificationIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  dnsVerificationIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  dnsVerificationIDGT?: InputMaybe<Scalars['ID']['input']>
+  dnsVerificationIDGTE?: InputMaybe<Scalars['ID']['input']>
+  dnsVerificationIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  dnsVerificationIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  dnsVerificationIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  dnsVerificationIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  dnsVerificationIDLT?: InputMaybe<Scalars['ID']['input']>
+  dnsVerificationIDLTE?: InputMaybe<Scalars['ID']['input']>
+  dnsVerificationIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  dnsVerificationIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  dnsVerificationIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** dns_verification edge predicates */
+  hasDNSVerification?: InputMaybe<Scalars['Boolean']['input']>
+  hasDNSVerificationWith?: InputMaybe<Array<DnsVerificationWhereInput>>
   /** mappable_domain edge predicates */
   hasMappableDomain?: InputMaybe<Scalars['Boolean']['input']>
   hasMappableDomainWith?: InputMaybe<Array<MappableDomainWhereInput>>
@@ -5834,6 +5959,651 @@ export interface CustomDomainWhereInput {
   mappableDomainIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   not?: InputMaybe<CustomDomainWhereInput>
   or?: InputMaybe<Array<CustomDomainWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContains?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+export interface DnsVerification extends Node {
+  __typename?: 'DNSVerification'
+  /** Path under /.well-known/acme-challenge/ to serve the ACME challenge */
+  acmeChallengePath?: Maybe<Scalars['String']['output']>
+  /** Status of the ACME challenge validation */
+  acmeChallengeStatus: DnsVerificationCustomDomainStatus
+  /** Reason of the ACME status, for giving the user diagnostic info */
+  acmeChallengeStatusReason?: Maybe<Scalars['String']['output']>
+  /** The ID of the custom domain in cloudflare */
+  cloudflareHostnameID: Scalars['String']['output']
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  customDomains: CustomDomainConnection
+  /** the name of the dns txt record */
+  dnsTxtRecord: Scalars['String']['output']
+  /** the expected value of the dns txt record */
+  dnsTxtValue: Scalars['String']['output']
+  /** Status of the domain verification */
+  dnsVerificationStatus: DnsVerificationCustomDomainStatus
+  /** Reason of the dns verification status, for giving the user diagnostic info */
+  dnsVerificationStatusReason?: Maybe<Scalars['String']['output']>
+  /** the expected value of the acme challenge record */
+  expectedAcmeChallengeValue?: Maybe<Scalars['String']['output']>
+  id: Scalars['ID']['output']
+  owner?: Maybe<Organization>
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['ID']['output']>
+  /** tags associated with the object */
+  tags?: Maybe<Array<Scalars['String']['output']>>
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+}
+
+export interface DnsVerificationCustomDomainsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<CustomDomainOrder>>
+  where?: InputMaybe<CustomDomainWhereInput>
+}
+
+/** Return response for createBulkDNSVerification mutation */
+export interface DnsVerificationBulkCreatePayload {
+  __typename?: 'DNSVerificationBulkCreatePayload'
+  /** Created dnsVerifications */
+  dnsVerifications?: Maybe<Array<DnsVerification>>
+}
+
+/** A connection to a list of items. */
+export interface DnsVerificationConnection {
+  __typename?: 'DNSVerificationConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<DnsVerificationEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** Return response for createDNSVerification mutation */
+export interface DnsVerificationCreatePayload {
+  __typename?: 'DNSVerificationCreatePayload'
+  /** Created dnsVerification */
+  dnsVerification: DnsVerification
+}
+
+/** DNSVerificationCustomDomainStatus is enum for the field dns_verification_status */
+export enum DnsVerificationCustomDomainStatus {
+  FAILED_VERIFY = 'FAILED_VERIFY',
+  INVALID = 'INVALID',
+  PENDING = 'PENDING',
+  VERIFIED = 'VERIFIED',
+}
+
+/** Return response for deleteDNSVerification mutation */
+export interface DnsVerificationDeletePayload {
+  __typename?: 'DNSVerificationDeletePayload'
+  /** Deleted dnsVerification ID */
+  deletedID: Scalars['ID']['output']
+}
+
+/** An edge in a connection. */
+export interface DnsVerificationEdge {
+  __typename?: 'DNSVerificationEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<DnsVerification>
+}
+
+export interface DnsVerificationHistory extends Node {
+  __typename?: 'DNSVerificationHistory'
+  /** Path under /.well-known/acme-challenge/ to serve the ACME challenge */
+  acmeChallengePath?: Maybe<Scalars['String']['output']>
+  /** Status of the ACME challenge validation */
+  acmeChallengeStatus: DnsVerificationHistoryCustomDomainStatus
+  /** Reason of the ACME status, for giving the user diagnostic info */
+  acmeChallengeStatusReason?: Maybe<Scalars['String']['output']>
+  /** The ID of the custom domain in cloudflare */
+  cloudflareHostnameID: Scalars['String']['output']
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  /** the name of the dns txt record */
+  dnsTxtRecord: Scalars['String']['output']
+  /** the expected value of the dns txt record */
+  dnsTxtValue: Scalars['String']['output']
+  /** Status of the domain verification */
+  dnsVerificationStatus: DnsVerificationHistoryCustomDomainStatus
+  /** Reason of the dns verification status, for giving the user diagnostic info */
+  dnsVerificationStatusReason?: Maybe<Scalars['String']['output']>
+  /** the expected value of the acme challenge record */
+  expectedAcmeChallengeValue?: Maybe<Scalars['String']['output']>
+  historyTime: Scalars['Time']['output']
+  id: Scalars['ID']['output']
+  operation: DnsVerificationHistoryOpType
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['String']['output']>
+  ref?: Maybe<Scalars['String']['output']>
+  /** tags associated with the object */
+  tags?: Maybe<Array<Scalars['String']['output']>>
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+}
+
+/** A connection to a list of items. */
+export interface DnsVerificationHistoryConnection {
+  __typename?: 'DNSVerificationHistoryConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<DnsVerificationHistoryEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** DNSVerificationHistoryCustomDomainStatus is enum for the field dns_verification_status */
+export enum DnsVerificationHistoryCustomDomainStatus {
+  FAILED_VERIFY = 'FAILED_VERIFY',
+  INVALID = 'INVALID',
+  PENDING = 'PENDING',
+  VERIFIED = 'VERIFIED',
+}
+
+/** An edge in a connection. */
+export interface DnsVerificationHistoryEdge {
+  __typename?: 'DNSVerificationHistoryEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<DnsVerificationHistory>
+}
+
+/** DNSVerificationHistoryOpType is enum for the field operation */
+export enum DnsVerificationHistoryOpType {
+  DELETE = 'DELETE',
+  INSERT = 'INSERT',
+  UPDATE = 'UPDATE',
+}
+
+/** Ordering options for DNSVerificationHistory connections */
+export interface DnsVerificationHistoryOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order DNSVerificationHistories. */
+  field: DnsVerificationHistoryOrderField
+}
+
+/** Properties by which DNSVerificationHistory connections can be ordered. */
+export enum DnsVerificationHistoryOrderField {
+  created_at = 'created_at',
+  updated_at = 'updated_at',
+}
+
+/**
+ * DNSVerificationHistoryWhereInput is used for filtering DNSVerificationHistory objects.
+ * Input was generated by ent.
+ */
+export interface DnsVerificationHistoryWhereInput {
+  /** acme_challenge_path field predicates */
+  acmeChallengePath?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathContains?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathContainsFold?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathEqualFold?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathGT?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathGTE?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathHasPrefix?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathHasSuffix?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathIn?: InputMaybe<Array<Scalars['String']['input']>>
+  acmeChallengePathIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  acmeChallengePathLT?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathLTE?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathNEQ?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  acmeChallengePathNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** acme_challenge_status field predicates */
+  acmeChallengeStatus?: InputMaybe<DnsVerificationHistoryCustomDomainStatus>
+  acmeChallengeStatusIn?: InputMaybe<Array<DnsVerificationHistoryCustomDomainStatus>>
+  acmeChallengeStatusNEQ?: InputMaybe<DnsVerificationHistoryCustomDomainStatus>
+  acmeChallengeStatusNotIn?: InputMaybe<Array<DnsVerificationHistoryCustomDomainStatus>>
+  /** acme_challenge_status_reason field predicates */
+  acmeChallengeStatusReason?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonContains?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonContainsFold?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonEqualFold?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonGT?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonGTE?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonHasPrefix?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonHasSuffix?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonIn?: InputMaybe<Array<Scalars['String']['input']>>
+  acmeChallengeStatusReasonIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  acmeChallengeStatusReasonLT?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonLTE?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonNEQ?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  acmeChallengeStatusReasonNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  and?: InputMaybe<Array<DnsVerificationHistoryWhereInput>>
+  /** cloudflare_hostname_id field predicates */
+  cloudflareHostnameID?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDContains?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDGT?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDGTE?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  cloudflareHostnameIDLT?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDLTE?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDNEQ?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** dns_txt_record field predicates */
+  dnsTxtRecord?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordContains?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordContainsFold?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordEqualFold?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordGT?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordGTE?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordHasPrefix?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordHasSuffix?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordIn?: InputMaybe<Array<Scalars['String']['input']>>
+  dnsTxtRecordLT?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordLTE?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordNEQ?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** dns_txt_value field predicates */
+  dnsTxtValue?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueContains?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueContainsFold?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueEqualFold?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueGT?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueGTE?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueHasPrefix?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueHasSuffix?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueIn?: InputMaybe<Array<Scalars['String']['input']>>
+  dnsTxtValueLT?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueLTE?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueNEQ?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** dns_verification_status field predicates */
+  dnsVerificationStatus?: InputMaybe<DnsVerificationHistoryCustomDomainStatus>
+  dnsVerificationStatusIn?: InputMaybe<Array<DnsVerificationHistoryCustomDomainStatus>>
+  dnsVerificationStatusNEQ?: InputMaybe<DnsVerificationHistoryCustomDomainStatus>
+  dnsVerificationStatusNotIn?: InputMaybe<Array<DnsVerificationHistoryCustomDomainStatus>>
+  /** dns_verification_status_reason field predicates */
+  dnsVerificationStatusReason?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonContains?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonContainsFold?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonEqualFold?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonGT?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonGTE?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonHasPrefix?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonHasSuffix?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonIn?: InputMaybe<Array<Scalars['String']['input']>>
+  dnsVerificationStatusReasonIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  dnsVerificationStatusReasonLT?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonLTE?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonNEQ?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  dnsVerificationStatusReasonNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** expected_acme_challenge_value field predicates */
+  expectedAcmeChallengeValue?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueContains?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueContainsFold?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueEqualFold?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueGT?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueGTE?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueHasPrefix?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueHasSuffix?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueIn?: InputMaybe<Array<Scalars['String']['input']>>
+  expectedAcmeChallengeValueIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  expectedAcmeChallengeValueLT?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueLTE?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueNEQ?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  expectedAcmeChallengeValueNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** history_time field predicates */
+  historyTime?: InputMaybe<Scalars['Time']['input']>
+  historyTimeGT?: InputMaybe<Scalars['Time']['input']>
+  historyTimeGTE?: InputMaybe<Scalars['Time']['input']>
+  historyTimeIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  historyTimeLT?: InputMaybe<Scalars['Time']['input']>
+  historyTimeLTE?: InputMaybe<Scalars['Time']['input']>
+  historyTimeNEQ?: InputMaybe<Scalars['Time']['input']>
+  historyTimeNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  not?: InputMaybe<DnsVerificationHistoryWhereInput>
+  /** operation field predicates */
+  operation?: InputMaybe<DnsVerificationHistoryOpType>
+  operationIn?: InputMaybe<Array<DnsVerificationHistoryOpType>>
+  operationNEQ?: InputMaybe<DnsVerificationHistoryOpType>
+  operationNotIn?: InputMaybe<Array<DnsVerificationHistoryOpType>>
+  or?: InputMaybe<Array<DnsVerificationHistoryWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['String']['input']>
+  ownerIDContains?: InputMaybe<Scalars['String']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  ownerIDGT?: InputMaybe<Scalars['String']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['String']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['String']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['String']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** ref field predicates */
+  ref?: InputMaybe<Scalars['String']['input']>
+  refContains?: InputMaybe<Scalars['String']['input']>
+  refContainsFold?: InputMaybe<Scalars['String']['input']>
+  refEqualFold?: InputMaybe<Scalars['String']['input']>
+  refGT?: InputMaybe<Scalars['String']['input']>
+  refGTE?: InputMaybe<Scalars['String']['input']>
+  refHasPrefix?: InputMaybe<Scalars['String']['input']>
+  refHasSuffix?: InputMaybe<Scalars['String']['input']>
+  refIn?: InputMaybe<Array<Scalars['String']['input']>>
+  refIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  refLT?: InputMaybe<Scalars['String']['input']>
+  refLTE?: InputMaybe<Scalars['String']['input']>
+  refNEQ?: InputMaybe<Scalars['String']['input']>
+  refNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  refNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+/** Ordering options for DNSVerification connections */
+export interface DnsVerificationOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order DNSVerifications. */
+  field: DnsVerificationOrderField
+}
+
+/** Properties by which DNSVerification connections can be ordered. */
+export enum DnsVerificationOrderField {
+  created_at = 'created_at',
+  updated_at = 'updated_at',
+}
+
+/** Return response for updateDNSVerification mutation */
+export interface DnsVerificationUpdatePayload {
+  __typename?: 'DNSVerificationUpdatePayload'
+  /** Updated dnsVerification */
+  dnsVerification: DnsVerification
+}
+
+/**
+ * DNSVerificationWhereInput is used for filtering DNSVerification objects.
+ * Input was generated by ent.
+ */
+export interface DnsVerificationWhereInput {
+  /** acme_challenge_path field predicates */
+  acmeChallengePath?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathContains?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathContainsFold?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathEqualFold?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathGT?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathGTE?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathHasPrefix?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathHasSuffix?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathIn?: InputMaybe<Array<Scalars['String']['input']>>
+  acmeChallengePathIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  acmeChallengePathLT?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathLTE?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathNEQ?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  acmeChallengePathNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** acme_challenge_status field predicates */
+  acmeChallengeStatus?: InputMaybe<DnsVerificationCustomDomainStatus>
+  acmeChallengeStatusIn?: InputMaybe<Array<DnsVerificationCustomDomainStatus>>
+  acmeChallengeStatusNEQ?: InputMaybe<DnsVerificationCustomDomainStatus>
+  acmeChallengeStatusNotIn?: InputMaybe<Array<DnsVerificationCustomDomainStatus>>
+  /** acme_challenge_status_reason field predicates */
+  acmeChallengeStatusReason?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonContains?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonContainsFold?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonEqualFold?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonGT?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonGTE?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonHasPrefix?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonHasSuffix?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonIn?: InputMaybe<Array<Scalars['String']['input']>>
+  acmeChallengeStatusReasonIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  acmeChallengeStatusReasonLT?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonLTE?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonNEQ?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  acmeChallengeStatusReasonNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  and?: InputMaybe<Array<DnsVerificationWhereInput>>
+  /** cloudflare_hostname_id field predicates */
+  cloudflareHostnameID?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDContains?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDGT?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDGTE?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  cloudflareHostnameIDLT?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDLTE?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDNEQ?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** dns_txt_record field predicates */
+  dnsTxtRecord?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordContains?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordContainsFold?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordEqualFold?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordGT?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordGTE?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordHasPrefix?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordHasSuffix?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordIn?: InputMaybe<Array<Scalars['String']['input']>>
+  dnsTxtRecordLT?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordLTE?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordNEQ?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** dns_txt_value field predicates */
+  dnsTxtValue?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueContains?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueContainsFold?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueEqualFold?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueGT?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueGTE?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueHasPrefix?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueHasSuffix?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueIn?: InputMaybe<Array<Scalars['String']['input']>>
+  dnsTxtValueLT?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueLTE?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueNEQ?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** dns_verification_status field predicates */
+  dnsVerificationStatus?: InputMaybe<DnsVerificationCustomDomainStatus>
+  dnsVerificationStatusIn?: InputMaybe<Array<DnsVerificationCustomDomainStatus>>
+  dnsVerificationStatusNEQ?: InputMaybe<DnsVerificationCustomDomainStatus>
+  dnsVerificationStatusNotIn?: InputMaybe<Array<DnsVerificationCustomDomainStatus>>
+  /** dns_verification_status_reason field predicates */
+  dnsVerificationStatusReason?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonContains?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonContainsFold?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonEqualFold?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonGT?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonGTE?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonHasPrefix?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonHasSuffix?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonIn?: InputMaybe<Array<Scalars['String']['input']>>
+  dnsVerificationStatusReasonIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  dnsVerificationStatusReasonLT?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonLTE?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonNEQ?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  dnsVerificationStatusReasonNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** expected_acme_challenge_value field predicates */
+  expectedAcmeChallengeValue?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueContains?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueContainsFold?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueEqualFold?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueGT?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueGTE?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueHasPrefix?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueHasSuffix?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueIn?: InputMaybe<Array<Scalars['String']['input']>>
+  expectedAcmeChallengeValueIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  expectedAcmeChallengeValueLT?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueLTE?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueNEQ?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  expectedAcmeChallengeValueNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** custom_domains edge predicates */
+  hasCustomDomains?: InputMaybe<Scalars['Boolean']['input']>
+  hasCustomDomainsWith?: InputMaybe<Array<CustomDomainWhereInput>>
+  /** owner edge predicates */
+  hasOwner?: InputMaybe<Scalars['Boolean']['input']>
+  hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  not?: InputMaybe<DnsVerificationWhereInput>
+  or?: InputMaybe<Array<DnsVerificationWhereInput>>
   /** owner_id field predicates */
   ownerID?: InputMaybe<Scalars['ID']['input']>
   ownerIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -9344,12 +10114,12 @@ export interface FileWhereInput {
 
 export interface Group extends Node {
   __typename?: 'Group'
-  controlBlockedGroups?: Maybe<Array<Control>>
-  controlEditors?: Maybe<Array<Control>>
-  controlObjectiveBlockedGroups?: Maybe<Array<ControlObjective>>
-  controlObjectiveEditors?: Maybe<Array<ControlObjective>>
-  controlObjectiveViewers?: Maybe<Array<ControlObjective>>
-  controlViewers?: Maybe<Array<Control>>
+  controlBlockedGroups: ControlConnection
+  controlEditors: ControlConnection
+  controlObjectiveBlockedGroups: ControlObjectiveConnection
+  controlObjectiveEditors: ControlObjectiveConnection
+  controlObjectiveViewers: ControlObjectiveConnection
+  controlViewers: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** the groups description */
@@ -9364,8 +10134,8 @@ export interface Group extends Node {
   gravatarLogoURL?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
   integrations: IntegrationConnection
-  internalPolicyBlockedGroups?: Maybe<Array<InternalPolicy>>
-  internalPolicyEditors?: Maybe<Array<InternalPolicy>>
+  internalPolicyBlockedGroups: InternalPolicyConnection
+  internalPolicyEditors: InternalPolicyConnection
   /** whether the group is managed by the system */
   isManaged?: Maybe<Scalars['Boolean']['output']>
   /** the URL to an image uploaded by the customer for the groups avatar image */
@@ -9373,22 +10143,22 @@ export interface Group extends Node {
   members: GroupMembershipConnection
   /** the name of the group - must be unique within the organization */
   name: Scalars['String']['output']
-  narrativeBlockedGroups?: Maybe<Array<Narrative>>
-  narrativeEditors?: Maybe<Array<Narrative>>
-  narrativeViewers?: Maybe<Array<Narrative>>
+  narrativeBlockedGroups: NarrativeConnection
+  narrativeEditors: NarrativeConnection
+  narrativeViewers: NarrativeConnection
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
   /** permissions the group provides */
-  permissions?: Maybe<Array<GroupPermissions>>
-  procedureBlockedGroups?: Maybe<Array<Procedure>>
-  procedureEditors?: Maybe<Array<Procedure>>
-  programBlockedGroups?: Maybe<Array<Program>>
-  programEditors?: Maybe<Array<Program>>
-  programViewers?: Maybe<Array<Program>>
-  riskBlockedGroups?: Maybe<Array<Risk>>
-  riskEditors?: Maybe<Array<Risk>>
-  riskViewers?: Maybe<Array<Risk>>
+  permissions: GroupPermissionConnection
+  procedureBlockedGroups: ProcedureConnection
+  procedureEditors: ProcedureConnection
+  programBlockedGroups: ProgramConnection
+  programEditors: ProgramConnection
+  programViewers: ProgramConnection
+  riskBlockedGroups: RiskConnection
+  riskEditors: RiskConnection
+  riskViewers: RiskConnection
   setting?: Maybe<GroupSetting>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
@@ -9396,6 +10166,60 @@ export interface Group extends Node {
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   users: UserConnection
+}
+
+export interface GroupControlBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlOrder>>
+  where?: InputMaybe<ControlWhereInput>
+}
+
+export interface GroupControlEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlOrder>>
+  where?: InputMaybe<ControlWhereInput>
+}
+
+export interface GroupControlObjectiveBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlObjectiveOrder>>
+  where?: InputMaybe<ControlObjectiveWhereInput>
+}
+
+export interface GroupControlObjectiveEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlObjectiveOrder>>
+  where?: InputMaybe<ControlObjectiveWhereInput>
+}
+
+export interface GroupControlObjectiveViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlObjectiveOrder>>
+  where?: InputMaybe<ControlObjectiveWhereInput>
+}
+
+export interface GroupControlViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlOrder>>
+  where?: InputMaybe<ControlWhereInput>
 }
 
 export interface GroupEventsArgs {
@@ -9425,6 +10249,24 @@ export interface GroupIntegrationsArgs {
   where?: InputMaybe<IntegrationWhereInput>
 }
 
+export interface GroupInternalPolicyBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<InternalPolicyOrder>>
+  where?: InputMaybe<InternalPolicyWhereInput>
+}
+
+export interface GroupInternalPolicyEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<InternalPolicyOrder>>
+  where?: InputMaybe<InternalPolicyWhereInput>
+}
+
 export interface GroupMembersArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -9432,6 +10274,112 @@ export interface GroupMembersArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<GroupMembershipOrder>>
   where?: InputMaybe<GroupMembershipWhereInput>
+}
+
+export interface GroupNarrativeBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<NarrativeOrder>>
+  where?: InputMaybe<NarrativeWhereInput>
+}
+
+export interface GroupNarrativeEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<NarrativeOrder>>
+  where?: InputMaybe<NarrativeWhereInput>
+}
+
+export interface GroupNarrativeViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<NarrativeOrder>>
+  where?: InputMaybe<NarrativeWhereInput>
+}
+
+export interface GroupPermissionsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+}
+
+export interface GroupProcedureBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ProcedureOrder>>
+  where?: InputMaybe<ProcedureWhereInput>
+}
+
+export interface GroupProcedureEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ProcedureOrder>>
+  where?: InputMaybe<ProcedureWhereInput>
+}
+
+export interface GroupProgramBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ProgramOrder>>
+  where?: InputMaybe<ProgramWhereInput>
+}
+
+export interface GroupProgramEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ProgramOrder>>
+  where?: InputMaybe<ProgramWhereInput>
+}
+
+export interface GroupProgramViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ProgramOrder>>
+  where?: InputMaybe<ProgramWhereInput>
+}
+
+export interface GroupRiskBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<RiskOrder>>
+  where?: InputMaybe<RiskWhereInput>
+}
+
+export interface GroupRiskEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<RiskOrder>>
+  where?: InputMaybe<RiskWhereInput>
+}
+
+export interface GroupRiskViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<RiskOrder>>
+  where?: InputMaybe<RiskWhereInput>
 }
 
 export interface GroupTasksArgs {
@@ -10136,17 +11084,110 @@ export enum GroupOrderField {
 }
 
 /**
- * GroupPermissions contains details for the related object and the permissions
+ * GroupPermission contains details for the related object and the permissions
  * the group provides (or removes in the case of blocked) to the object within the
  * organization
  */
-export interface GroupPermissions {
-  __typename?: 'GroupPermissions'
+export interface GroupPermission extends Node {
+  __typename?: 'GroupPermission'
+  /** the displayID of the object the group was given permissions to */
   displayID?: Maybe<Scalars['String']['output']>
-  id?: Maybe<Scalars['ID']['output']>
+  /** the ID of the object the group was given permissions to */
+  id: Scalars['ID']['output']
+  /** the  name of the object the group was given permissions to */
   name?: Maybe<Scalars['String']['output']>
+  /** the type of object the permissions are for, e.g. Program, Control, etc. */
   objectType: Scalars['String']['output']
+  /** the permissions the group has in relation to the object, e.g. EDITOR, VIEWER, BLOCKED */
   permissions: Permission
+}
+
+/** A connection to a list of items. */
+export interface GroupPermissionConnection {
+  __typename?: 'GroupPermissionConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<GroupPermissionEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** An edge in a connection. */
+export interface GroupPermissionEdge {
+  __typename?: 'GroupPermissionEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<GroupPermission>
+}
+
+/** Ordering options for GroupPermission connections */
+export interface GroupPermissionOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order GroupPermission. */
+  field: GroupPermissionOrderField
+}
+
+/** Properties by which GroupPermission connections can be ordered. */
+export enum GroupPermissionOrderField {
+  name = 'name',
+  objectType = 'objectType',
+  permission = 'permission',
+}
+
+/** GroupPermissionWhereInput is used for filtering GroupPermission objects. */
+export interface GroupPermissionWhereInput {
+  and?: InputMaybe<Array<GroupPermissionWhereInput>>
+  /** name field predicates */
+  name?: InputMaybe<Scalars['String']['input']>
+  nameContains?: InputMaybe<Scalars['String']['input']>
+  nameContainsFold?: InputMaybe<Scalars['String']['input']>
+  nameEqualFold?: InputMaybe<Scalars['String']['input']>
+  nameGT?: InputMaybe<Scalars['String']['input']>
+  nameGTE?: InputMaybe<Scalars['String']['input']>
+  nameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  nameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  nameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  nameLT?: InputMaybe<Scalars['String']['input']>
+  nameLTE?: InputMaybe<Scalars['String']['input']>
+  nameNEQ?: InputMaybe<Scalars['String']['input']>
+  nameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  not?: InputMaybe<GroupPermissionWhereInput>
+  /** objectType field predicates */
+  objectType?: InputMaybe<Scalars['String']['input']>
+  objectTypeContains?: InputMaybe<Scalars['String']['input']>
+  objectTypeContainsFold?: InputMaybe<Scalars['String']['input']>
+  objectTypeEqualFold?: InputMaybe<Scalars['String']['input']>
+  objectTypeGT?: InputMaybe<Scalars['String']['input']>
+  objectTypeGTE?: InputMaybe<Scalars['String']['input']>
+  objectTypeHasPrefix?: InputMaybe<Scalars['String']['input']>
+  objectTypeHasSuffix?: InputMaybe<Scalars['String']['input']>
+  objectTypeIn?: InputMaybe<Array<Scalars['String']['input']>>
+  objectTypeIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  objectTypeLT?: InputMaybe<Scalars['String']['input']>
+  objectTypeLTE?: InputMaybe<Scalars['String']['input']>
+  objectTypeNEQ?: InputMaybe<Scalars['String']['input']>
+  objectTypeNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  objectTypeNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  or?: InputMaybe<Array<GroupPermissionWhereInput>>
+  /** permission field predicates */
+  permission?: InputMaybe<Scalars['String']['input']>
+  permissionContains?: InputMaybe<Scalars['String']['input']>
+  permissionContainsFold?: InputMaybe<Scalars['String']['input']>
+  permissionEqualFold?: InputMaybe<Scalars['String']['input']>
+  permissionGT?: InputMaybe<Scalars['String']['input']>
+  permissionGTE?: InputMaybe<Scalars['String']['input']>
+  permissionHasPrefix?: InputMaybe<Scalars['String']['input']>
+  permissionHasSuffix?: InputMaybe<Scalars['String']['input']>
+  permissionIn?: InputMaybe<Array<Scalars['String']['input']>>
+  permissionIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  permissionLT?: InputMaybe<Scalars['String']['input']>
+  permissionLTE?: InputMaybe<Scalars['String']['input']>
+  permissionNEQ?: InputMaybe<Scalars['String']['input']>
+  permissionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  permissionNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 export interface GroupSetting extends Node {
@@ -11741,8 +12782,7 @@ export interface InternalPolicy extends Node {
   approver?: Maybe<Group>
   /** the id of the group responsible for approving the policy */
   approverID?: Maybe<Scalars['ID']['output']>
-  /** groups that are blocked from viewing or editing the risk */
-  blockedGroups?: Maybe<Array<Group>>
+  blockedGroups: GroupConnection
   controlObjectives: ControlObjectiveConnection
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
@@ -11755,8 +12795,7 @@ export interface InternalPolicy extends Node {
   details?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
-  /** provides edit access to the risk to members of the group */
-  editors?: Maybe<Array<Group>>
+  editors: GroupConnection
   id: Scalars['ID']['output']
   /** the name of the policy */
   name: Scalars['String']['output']
@@ -11786,6 +12825,15 @@ export interface InternalPolicy extends Node {
   updatedBy?: Maybe<Scalars['String']['output']>
 }
 
+export interface InternalPolicyBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface InternalPolicyControlObjectivesArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -11802,6 +12850,15 @@ export interface InternalPolicyControlsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ControlOrder>>
   where?: InputMaybe<ControlWhereInput>
+}
+
+export interface InternalPolicyEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface InternalPolicyNarrativesArgs {
@@ -13798,6 +14855,8 @@ export interface MappableDomain extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** DNS Zone ID of the mappable domain. */
+  zoneID: Scalars['String']['output']
 }
 
 export interface MappableDomainCustomDomainsArgs {
@@ -13864,6 +14923,8 @@ export interface MappableDomainHistory extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  /** DNS Zone ID of the mappable domain. */
+  zoneID: Scalars['String']['output']
 }
 
 /** A connection to a list of items. */
@@ -14025,6 +15086,20 @@ export interface MappableDomainHistoryWhereInput {
   updatedByNEQ?: InputMaybe<Scalars['String']['input']>
   updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** zone_id field predicates */
+  zoneID?: InputMaybe<Scalars['String']['input']>
+  zoneIDContains?: InputMaybe<Scalars['String']['input']>
+  zoneIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  zoneIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  zoneIDGT?: InputMaybe<Scalars['String']['input']>
+  zoneIDGTE?: InputMaybe<Scalars['String']['input']>
+  zoneIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  zoneIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  zoneIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  zoneIDLT?: InputMaybe<Scalars['String']['input']>
+  zoneIDLTE?: InputMaybe<Scalars['String']['input']>
+  zoneIDNEQ?: InputMaybe<Scalars['String']['input']>
+  zoneIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
 }
 
 /** Ordering options for MappableDomain connections */
@@ -14139,6 +15214,20 @@ export interface MappableDomainWhereInput {
   updatedByNEQ?: InputMaybe<Scalars['String']['input']>
   updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** zone_id field predicates */
+  zoneID?: InputMaybe<Scalars['String']['input']>
+  zoneIDContains?: InputMaybe<Scalars['String']['input']>
+  zoneIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  zoneIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  zoneIDGT?: InputMaybe<Scalars['String']['input']>
+  zoneIDGTE?: InputMaybe<Scalars['String']['input']>
+  zoneIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  zoneIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  zoneIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  zoneIDLT?: InputMaybe<Scalars['String']['input']>
+  zoneIDLTE?: InputMaybe<Scalars['String']['input']>
+  zoneIDNEQ?: InputMaybe<Scalars['String']['input']>
+  zoneIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
 }
 
 export interface MappedControl extends Node {
@@ -14573,6 +15662,8 @@ export interface Mutation {
   createBulkCSVControlObjective: ControlObjectiveBulkCreatePayload
   /** Create multiple new customDomains via file upload */
   createBulkCSVCustomDomain: CustomDomainBulkCreatePayload
+  /** Create multiple new dnsVerifications via file upload */
+  createBulkCSVDNSVerification: DnsVerificationBulkCreatePayload
   /** Create multiple new documentData via file upload */
   createBulkCSVDocumentData: DocumentDataBulkCreatePayload
   /** Create multiple new entities via file upload */
@@ -14633,6 +15724,8 @@ export interface Mutation {
   createBulkControlObjective: ControlObjectiveBulkCreatePayload
   /** Create multiple new customDomains */
   createBulkCustomDomain: CustomDomainBulkCreatePayload
+  /** Create multiple new dnsVerifications */
+  createBulkDNSVerification: DnsVerificationBulkCreatePayload
   /** Create multiple new documentData */
   createBulkDocumentData: DocumentDataBulkCreatePayload
   /** Create multiple new entities */
@@ -14697,6 +15790,8 @@ export interface Mutation {
   createControlsByClone: ControlBulkCreatePayload
   /** Create a new customDomain */
   createCustomDomain: CustomDomainCreatePayload
+  /** Create a new dnsVerification */
+  createDNSVerification: DnsVerificationCreatePayload
   /** Create a new documentData */
   createDocumentData: DocumentDataCreatePayload
   /** Create a new entity */
@@ -14789,6 +15884,8 @@ export interface Mutation {
   deleteControlObjective: ControlObjectiveDeletePayload
   /** Delete an existing customDomain */
   deleteCustomDomain: CustomDomainDeletePayload
+  /** Delete an existing dnsVerification */
+  deleteDNSVerification: DnsVerificationDeletePayload
   /** Delete an existing documentData */
   deleteDocumentData: DocumentDataDeletePayload
   /** Delete an existing entity */
@@ -14871,6 +15968,8 @@ export interface Mutation {
   updateControlObjective: ControlObjectiveUpdatePayload
   /** Update an existing customDomain */
   updateCustomDomain: CustomDomainUpdatePayload
+  /** Update an existing dnsVerification */
+  updateDNSVerification: DnsVerificationUpdatePayload
   /** Update an existing documentData */
   updateDocumentData: DocumentDataUpdatePayload
   /** Update an existing entity */
@@ -14980,6 +16079,10 @@ export interface MutationCreateBulkCsvControlObjectiveArgs {
 }
 
 export interface MutationCreateBulkCsvCustomDomainArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationCreateBulkCsvdnsVerificationArgs {
   input: Scalars['Upload']['input']
 }
 
@@ -15101,6 +16204,10 @@ export interface MutationCreateBulkControlObjectiveArgs {
 
 export interface MutationCreateBulkCustomDomainArgs {
   input?: InputMaybe<Array<CreateCustomDomainInput>>
+}
+
+export interface MutationCreateBulkDnsVerificationArgs {
+  input?: InputMaybe<Array<CreateDnsVerificationInput>>
 }
 
 export interface MutationCreateBulkDocumentDataArgs {
@@ -15229,6 +16336,10 @@ export interface MutationCreateControlsByCloneArgs {
 
 export interface MutationCreateCustomDomainArgs {
   input: CreateCustomDomainInput
+}
+
+export interface MutationCreateDnsVerificationArgs {
+  input: CreateDnsVerificationInput
 }
 
 export interface MutationCreateDocumentDataArgs {
@@ -15424,6 +16535,10 @@ export interface MutationDeleteCustomDomainArgs {
   id: Scalars['ID']['input']
 }
 
+export interface MutationDeleteDnsVerificationArgs {
+  id: Scalars['ID']['input']
+}
+
 export interface MutationDeleteDocumentDataArgs {
   id: Scalars['ID']['input']
 }
@@ -15596,6 +16711,11 @@ export interface MutationUpdateCustomDomainArgs {
   input: UpdateCustomDomainInput
 }
 
+export interface MutationUpdateDnsVerificationArgs {
+  id: Scalars['ID']['input']
+  input: UpdateDnsVerificationInput
+}
+
 export interface MutationUpdateDocumentDataArgs {
   id: Scalars['ID']['input']
   input: UpdateDocumentDataInput
@@ -15766,8 +16886,7 @@ export interface MutationUpdateUserSettingArgs {
 
 export interface Narrative extends Node {
   __typename?: 'Narrative'
-  /** groups that are blocked from viewing or editing the risk */
-  blockedGroups?: Maybe<Array<Group>>
+  blockedGroups: GroupConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** the description of the narrative */
@@ -15776,8 +16895,7 @@ export interface Narrative extends Node {
   details?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
-  /** provides edit access to the risk to members of the group */
-  editors?: Maybe<Array<Group>>
+  editors: GroupConnection
   id: Scalars['ID']['output']
   internalPolicies: InternalPolicyConnection
   /** the name of the narrative */
@@ -15792,8 +16910,25 @@ export interface Narrative extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
-  /** provides view access to the risk to members of the group */
-  viewers?: Maybe<Array<Group>>
+  viewers: GroupConnection
+}
+
+export interface NarrativeBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface NarrativeEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface NarrativeInternalPoliciesArgs {
@@ -15830,6 +16965,15 @@ export interface NarrativeSatisfiesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ControlOrder>>
   where?: InputMaybe<ControlWhereInput>
+}
+
+export interface NarrativeViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 /** Return response for createBulkNarrative mutation */
@@ -17862,11 +19006,9 @@ export interface Organization extends Node {
   avatarUpdatedAt?: Maybe<Scalars['Time']['output']>
   children: OrganizationConnection
   contacts: ContactConnection
-  /** groups that are allowed to create controls */
-  controlCreators?: Maybe<Array<Group>>
+  controlCreators: GroupConnection
   controlImplementations: ControlImplementationConnection
-  /** groups that are allowed to create control_objectives */
-  controlObjectiveCreators?: Maybe<Array<Group>>
+  controlObjectiveCreators: GroupConnection
   controlObjectives: ControlObjectiveConnection
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
@@ -17878,20 +19020,19 @@ export interface Organization extends Node {
   description?: Maybe<Scalars['String']['output']>
   /** The organization's displayed 'friendly' name */
   displayName: Scalars['String']['output']
+  dnsVerifications: DnsVerificationConnection
   documents: DocumentDataConnection
   entities: EntityConnection
   entityTypes: EntityTypeConnection
   events: EventConnection
   evidence: EvidenceConnection
   files: FileConnection
-  /** groups that are allowed to create groups */
-  groupCreators?: Maybe<Array<Group>>
+  groupCreators: GroupConnection
   groups: GroupConnection
   id: Scalars['ID']['output']
   integrations: IntegrationConnection
   internalPolicies: InternalPolicyConnection
-  /** groups that are allowed to create internal_policys */
-  internalPolicyCreators?: Maybe<Array<Group>>
+  internalPolicyCreators: GroupConnection
   invites: InviteConnection
   jobRunnerRegistrationTokens: JobRunnerRegistrationTokenConnection
   jobRunnerTokens: JobRunnerTokenConnection
@@ -17899,8 +19040,7 @@ export interface Organization extends Node {
   members: OrgMembershipConnection
   /** the name of the organization */
   name: Scalars['String']['output']
-  /** groups that are allowed to create narratives */
-  narrativeCreators?: Maybe<Array<Group>>
+  narrativeCreators: GroupConnection
   narratives: NarrativeConnection
   notes: NoteConnection
   orgSubscriptions?: Maybe<Array<OrgSubscription>>
@@ -17908,14 +19048,11 @@ export interface Organization extends Node {
   personalAccessTokens: PersonalAccessTokenConnection
   /** orgs directly associated with a user */
   personalOrg?: Maybe<Scalars['Boolean']['output']>
-  /** groups that are allowed to create procedures */
-  procedureCreators?: Maybe<Array<Group>>
+  procedureCreators: GroupConnection
   procedures: ProcedureConnection
-  /** groups that are allowed to create programs */
-  programCreators?: Maybe<Array<Group>>
+  programCreators: GroupConnection
   programs: ProgramConnection
-  /** groups that are allowed to create risks */
-  riskCreators?: Maybe<Array<Group>>
+  riskCreators: GroupConnection
   risks: RiskConnection
   secrets: HushConnection
   setting?: Maybe<OrganizationSetting>
@@ -17925,8 +19062,7 @@ export interface Organization extends Node {
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   tasks: TaskConnection
-  /** groups that are allowed to create templates */
-  templateCreators?: Maybe<Array<Group>>
+  templateCreators: GroupConnection
   templates: TemplateConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
@@ -17969,6 +19105,15 @@ export interface OrganizationContactsArgs {
   where?: InputMaybe<ContactWhereInput>
 }
 
+export interface OrganizationControlCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationControlImplementationsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -17976,6 +19121,15 @@ export interface OrganizationControlImplementationsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ControlImplementationOrder>>
   where?: InputMaybe<ControlImplementationWhereInput>
+}
+
+export interface OrganizationControlObjectiveCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationControlObjectivesArgs {
@@ -18003,6 +19157,15 @@ export interface OrganizationCustomDomainsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<CustomDomainOrder>>
   where?: InputMaybe<CustomDomainWhereInput>
+}
+
+export interface OrganizationDnsVerificationsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<DnsVerificationOrder>>
+  where?: InputMaybe<DnsVerificationWhereInput>
 }
 
 export interface OrganizationDocumentsArgs {
@@ -18059,6 +19222,15 @@ export interface OrganizationFilesArgs {
   where?: InputMaybe<FileWhereInput>
 }
 
+export interface OrganizationGroupCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationGroupsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -18084,6 +19256,15 @@ export interface OrganizationInternalPoliciesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<InternalPolicyOrder>>
   where?: InputMaybe<InternalPolicyWhereInput>
+}
+
+export interface OrganizationInternalPolicyCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationInvitesArgs {
@@ -18131,6 +19312,15 @@ export interface OrganizationMembersArgs {
   where?: InputMaybe<OrgMembershipWhereInput>
 }
 
+export interface OrganizationNarrativeCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationNarrativesArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -18158,6 +19348,15 @@ export interface OrganizationPersonalAccessTokensArgs {
   where?: InputMaybe<PersonalAccessTokenWhereInput>
 }
 
+export interface OrganizationProcedureCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationProceduresArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -18167,6 +19366,15 @@ export interface OrganizationProceduresArgs {
   where?: InputMaybe<ProcedureWhereInput>
 }
 
+export interface OrganizationProgramCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationProgramsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -18174,6 +19382,15 @@ export interface OrganizationProgramsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ProgramOrder>>
   where?: InputMaybe<ProgramWhereInput>
+}
+
+export interface OrganizationRiskCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationRisksArgs {
@@ -18228,6 +19445,15 @@ export interface OrganizationTasksArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<TaskOrder>>
   where?: InputMaybe<TaskWhereInput>
+}
+
+export interface OrganizationTemplateCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationTemplatesArgs {
@@ -19250,6 +20476,9 @@ export interface OrganizationWhereInput {
   /** custom_domains edge predicates */
   hasCustomDomains?: InputMaybe<Scalars['Boolean']['input']>
   hasCustomDomainsWith?: InputMaybe<Array<CustomDomainWhereInput>>
+  /** dns_verifications edge predicates */
+  hasDNSVerifications?: InputMaybe<Scalars['Boolean']['input']>
+  hasDNSVerificationsWith?: InputMaybe<Array<DnsVerificationWhereInput>>
   /** documents edge predicates */
   hasDocuments?: InputMaybe<Scalars['Boolean']['input']>
   hasDocumentsWith?: InputMaybe<Array<DocumentDataWhereInput>>
@@ -19739,8 +20968,7 @@ export interface Procedure extends Node {
   approver?: Maybe<Group>
   /** the id of the group responsible for approving the procedure */
   approverID?: Maybe<Scalars['ID']['output']>
-  /** groups that are blocked from viewing or editing the risk */
-  blockedGroups?: Maybe<Array<Group>>
+  blockedGroups: GroupConnection
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
@@ -19752,8 +20980,7 @@ export interface Procedure extends Node {
   details?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
-  /** provides edit access to the risk to members of the group */
-  editors?: Maybe<Array<Group>>
+  editors: GroupConnection
   id: Scalars['ID']['output']
   internalPolicies: InternalPolicyConnection
   /** the name of the procedure */
@@ -19783,6 +21010,15 @@ export interface Procedure extends Node {
   updatedBy?: Maybe<Scalars['String']['output']>
 }
 
+export interface ProcedureBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface ProcedureControlsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -19790,6 +21026,15 @@ export interface ProcedureControlsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ControlOrder>>
   where?: InputMaybe<ControlWhereInput>
+}
+
+export interface ProcedureEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface ProcedureInternalPoliciesArgs {
@@ -20571,8 +21816,7 @@ export interface Program extends Node {
   auditorReady: Scalars['Boolean']['output']
   /** can the auditor write comments */
   auditorWriteComments: Scalars['Boolean']['output']
-  /** groups that are blocked from viewing or editing the risk */
-  blockedGroups?: Maybe<Array<Group>>
+  blockedGroups: GroupConnection
   controlObjectives: ControlObjectiveConnection
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
@@ -20581,8 +21825,7 @@ export interface Program extends Node {
   description?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
-  /** provides edit access to the risk to members of the group */
-  editors?: Maybe<Array<Group>>
+  editors: GroupConnection
   /** the end date of the period */
   endDate?: Maybe<Scalars['Time']['output']>
   evidence: EvidenceConnection
@@ -20614,8 +21857,7 @@ export interface Program extends Node {
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   users: UserConnection
-  /** provides view access to the risk to members of the group */
-  viewers?: Maybe<Array<Group>>
+  viewers: GroupConnection
 }
 
 export interface ProgramActionPlansArgs {
@@ -20625,6 +21867,15 @@ export interface ProgramActionPlansArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ActionPlanOrder>>
   where?: InputMaybe<ActionPlanWhereInput>
+}
+
+export interface ProgramBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface ProgramControlObjectivesArgs {
@@ -20643,6 +21894,15 @@ export interface ProgramControlsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ControlOrder>>
   where?: InputMaybe<ControlWhereInput>
+}
+
+export interface ProgramEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface ProgramEvidenceArgs {
@@ -20742,6 +22002,15 @@ export interface ProgramUsersArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<UserOrder>>
   where?: InputMaybe<UserWhereInput>
+}
+
+export interface ProgramViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 /** Return response for createBulkProgram mutation */
@@ -21889,6 +23158,8 @@ export interface Query {
   adminControlSearch?: Maybe<ControlConnection>
   /** Search across CustomDomain objects */
   adminCustomDomainSearch?: Maybe<CustomDomainConnection>
+  /** Search across DNSVerification objects */
+  adminDNSVerificationSearch?: Maybe<DnsVerificationConnection>
   /** Search across DocumentData objects */
   adminDocumentDataSearch?: Maybe<DocumentDataConnection>
   /** Search across Entity objects */
@@ -21989,6 +23260,12 @@ export interface Query {
   /** Search across CustomDomain objects */
   customDomainSearch?: Maybe<CustomDomainConnection>
   customDomains: CustomDomainConnection
+  /** Look up dnsVerification by ID */
+  dnsVerification: DnsVerification
+  dnsVerificationHistories: DnsVerificationHistoryConnection
+  /** Search across DNSVerification objects */
+  dnsVerificationSearch?: Maybe<DnsVerificationConnection>
+  dnsVerifications: DnsVerificationConnection
   /** Look up documentData by ID */
   documentData: DocumentData
   documentDataHistories: DocumentDataHistoryConnection
@@ -22283,6 +23560,14 @@ export interface QueryAdminControlSearchArgs {
 }
 
 export interface QueryAdminCustomDomainSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  query: Scalars['String']['input']
+}
+
+export interface QueryAdminDnsVerificationSearchArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
   first?: InputMaybe<Scalars['Int']['input']>
@@ -22723,6 +24008,36 @@ export interface QueryCustomDomainsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<CustomDomainOrder>>
   where?: InputMaybe<CustomDomainWhereInput>
+}
+
+export interface QueryDnsVerificationArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface QueryDnsVerificationHistoriesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<DnsVerificationHistoryOrder>
+  where?: InputMaybe<DnsVerificationHistoryWhereInput>
+}
+
+export interface QueryDnsVerificationSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  query: Scalars['String']['input']
+}
+
+export interface QueryDnsVerificationsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<DnsVerificationOrder>>
+  where?: InputMaybe<DnsVerificationWhereInput>
 }
 
 export interface QueryDocumentDataArgs {
@@ -23761,8 +25076,7 @@ export interface QueryWebauthnsArgs {
 export interface Risk extends Node {
   __typename?: 'Risk'
   actionPlans: ActionPlanConnection
-  /** groups that are blocked from viewing or editing the risk */
-  blockedGroups?: Maybe<Array<Group>>
+  blockedGroups: GroupConnection
   /** business costs associated with the risk */
   businessCosts?: Maybe<Scalars['String']['output']>
   /** category of the risk, e.g. human resources, operations, IT, etc. */
@@ -23778,8 +25092,7 @@ export interface Risk extends Node {
   details?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
-  /** provides edit access to the risk to members of the group */
-  editors?: Maybe<Array<Group>>
+  editors: GroupConnection
   id: Scalars['ID']['output']
   /** impact of the risk -critical, high, medium, low */
   impact?: Maybe<RiskRiskImpact>
@@ -23811,8 +25124,7 @@ export interface Risk extends Node {
   tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
-  /** provides view access to the risk to members of the group */
-  viewers?: Maybe<Array<Group>>
+  viewers: GroupConnection
 }
 
 export interface RiskActionPlansArgs {
@@ -23824,6 +25136,15 @@ export interface RiskActionPlansArgs {
   where?: InputMaybe<ActionPlanWhereInput>
 }
 
+export interface RiskBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface RiskControlsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -23831,6 +25152,15 @@ export interface RiskControlsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ControlOrder>>
   where?: InputMaybe<ControlWhereInput>
+}
+
+export interface RiskEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface RiskInternalPoliciesArgs {
@@ -23876,6 +25206,15 @@ export interface RiskTasksArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<TaskOrder>>
   where?: InputMaybe<TaskWhereInput>
+}
+
+export interface RiskViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 /** Return response for createBulkRisk mutation */
@@ -24691,6 +26030,7 @@ export interface SearchResults {
   controlObjectives?: Maybe<ControlObjectiveConnection>
   controls?: Maybe<ControlConnection>
   customDomains?: Maybe<CustomDomainConnection>
+  dnsVerifications?: Maybe<DnsVerificationConnection>
   documentData?: Maybe<DocumentDataConnection>
   entities?: Maybe<EntityConnection>
   entityTypes?: Maybe<EntityTypeConnection>
@@ -28595,9 +29935,47 @@ export interface UpdateControlObjectiveInput {
  */
 export interface UpdateCustomDomainInput {
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  clearDNSVerification?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  dnsVerificationID?: InputMaybe<Scalars['ID']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+}
+
+/**
+ * UpdateDNSVerificationInput is used for update DNSVerification object.
+ * Input was generated by ent.
+ */
+export interface UpdateDnsVerificationInput {
+  /** Path under /.well-known/acme-challenge/ to serve the ACME challenge */
+  acmeChallengePath?: InputMaybe<Scalars['String']['input']>
+  /** Status of the ACME challenge validation */
+  acmeChallengeStatus?: InputMaybe<DnsVerificationCustomDomainStatus>
+  /** Reason of the ACME status, for giving the user diagnostic info */
+  acmeChallengeStatusReason?: InputMaybe<Scalars['String']['input']>
+  addCustomDomainIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  clearAcmeChallengePath?: InputMaybe<Scalars['Boolean']['input']>
+  clearAcmeChallengeStatusReason?: InputMaybe<Scalars['Boolean']['input']>
+  clearCustomDomains?: InputMaybe<Scalars['Boolean']['input']>
+  clearDNSVerificationStatusReason?: InputMaybe<Scalars['Boolean']['input']>
+  clearExpectedAcmeChallengeValue?: InputMaybe<Scalars['Boolean']['input']>
+  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  /** the name of the dns txt record */
+  dnsTxtRecord?: InputMaybe<Scalars['String']['input']>
+  /** the expected value of the dns txt record */
+  dnsTxtValue?: InputMaybe<Scalars['String']['input']>
+  /** Status of the domain verification */
+  dnsVerificationStatus?: InputMaybe<DnsVerificationCustomDomainStatus>
+  /** Reason of the dns verification status, for giving the user diagnostic info */
+  dnsVerificationStatusReason?: InputMaybe<Scalars['String']['input']>
+  /** the expected value of the acme challenge record */
+  expectedAcmeChallengeValue?: InputMaybe<Scalars['String']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  removeCustomDomainIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
 }
@@ -29321,6 +30699,7 @@ export interface UpdateOrganizationInput {
   addControlObjectiveCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addCustomDomainIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addDNSVerificationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addDocumentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEntityTypeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -29373,6 +30752,7 @@ export interface UpdateOrganizationInput {
   clearControlObjectives?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
   clearCustomDomains?: InputMaybe<Scalars['Boolean']['input']>
+  clearDNSVerifications?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearDocuments?: InputMaybe<Scalars['Boolean']['input']>
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
@@ -29424,6 +30804,7 @@ export interface UpdateOrganizationInput {
   removeControlObjectiveCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCustomDomainIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeDNSVerificationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeDocumentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEntityTypeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -29622,7 +31003,7 @@ export interface UpdateProgramInput {
   addNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNoteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addProgramMembers?: InputMaybe<Array<CreateProgramMembershipInput>>
+  addProgramMembers?: InputMaybe<Array<AddProgramMembershipInput>>
   addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -30228,8 +31609,8 @@ export interface User extends Node {
   orgMemberships: OrgMembershipConnection
   organizations: OrganizationConnection
   personalAccessTokens: PersonalAccessTokenConnection
-  programMemberships?: Maybe<Array<ProgramMembership>>
-  programs?: Maybe<Array<Program>>
+  programMemberships: ProgramMembershipConnection
+  programs: ProgramConnection
   /** the user's role */
   role?: Maybe<UserRole>
   setting: UserSetting
@@ -30332,6 +31713,24 @@ export interface UserPersonalAccessTokensArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<PersonalAccessTokenOrder>>
   where?: InputMaybe<PersonalAccessTokenWhereInput>
+}
+
+export interface UserProgramMembershipsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ProgramMembershipOrder>>
+  where?: InputMaybe<ProgramMembershipWhereInput>
+}
+
+export interface UserProgramsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ProgramOrder>>
+  where?: InputMaybe<ProgramWhereInput>
 }
 
 export interface UserSubcontrolsArgs {
@@ -32334,7 +33733,13 @@ export type GetGroupPermissionsQuery = {
   __typename?: 'Query'
   group: {
     __typename?: 'Group'
-    permissions?: Array<{ __typename?: 'GroupPermissions'; displayID?: string | null; id?: string | null; name?: string | null; objectType: string; permissions: Permission }> | null
+    permissions: {
+      __typename?: 'GroupPermissionConnection'
+      edges?: Array<{
+        __typename?: 'GroupPermissionEdge'
+        node?: { __typename?: 'GroupPermission'; displayID?: string | null; id: string; name?: string | null; objectType: string; permissions: Permission } | null
+      } | null> | null
+    }
   }
 }
 
@@ -33207,8 +34612,14 @@ export type GetProgramSettingsQuery = {
   __typename?: 'Query'
   program: {
     __typename?: 'Program'
-    viewers?: Array<{ __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null }> | null
-    editors?: Array<{ __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null }> | null
+    viewers: {
+      __typename?: 'GroupConnection'
+      edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null } | null> | null
+    }
+    editors: {
+      __typename?: 'GroupConnection'
+      edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null } | null> | null
+    }
     members: {
       __typename?: 'ProgramMembershipConnection'
       totalCount: number
@@ -33260,21 +34671,36 @@ export type GetProgramMembersQuery = {
 
 export type GetProgramGroupsQueryVariables = Exact<{
   programId: Scalars['ID']['input']
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
 }>
 
 export type GetProgramGroupsQuery = {
   __typename?: 'Query'
   program: {
     __typename?: 'Program'
-    blockedGroups?: Array<{
-      __typename?: 'Group'
-      id: string
-      displayName: string
-      gravatarLogoURL?: string | null
-      logoURL?: string | null
-      members: { __typename?: 'GroupMembershipConnection'; totalCount: number }
-      permissions?: Array<{ __typename?: 'GroupPermissions'; permissions: Permission }> | null
-    }> | null
+    blockedGroups: {
+      __typename?: 'GroupConnection'
+      totalCount: number
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+      edges?: Array<{
+        __typename?: 'GroupEdge'
+        node?: {
+          __typename?: 'Group'
+          id: string
+          displayName: string
+          gravatarLogoURL?: string | null
+          logoURL?: string | null
+          members: { __typename?: 'GroupMembershipConnection'; totalCount: number }
+          permissions: {
+            __typename?: 'GroupPermissionConnection'
+            edges?: Array<{ __typename?: 'GroupPermissionEdge'; node?: { __typename?: 'GroupPermission'; permissions: Permission } | null } | null> | null
+          }
+        } | null
+      } | null> | null
+    }
   }
 }
 
