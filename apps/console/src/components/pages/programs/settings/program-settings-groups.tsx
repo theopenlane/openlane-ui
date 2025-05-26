@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { DataTable } from '@repo/ui/data-table'
 import { EllipsisVertical } from 'lucide-react'
@@ -8,7 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { ColumnDef } from '@tanstack/react-table'
 import { useGetProgramGroups, useUpdateProgram } from '@/lib/graphql-hooks/programs'
 import { Avatar } from '@/components/shared/avatar/avatar'
-import { Group as GroupType } from '@repo/codegen/src/schema'
+import { Group as GroupType, UpdateProgramInput } from '@repo/codegen/src/schema'
 import { useSearchParams } from 'next/navigation'
 import { ProgramSettingsAssignGroupDialog } from './program-settings-assign-groups-dialog'
 import { useQueryClient } from '@tanstack/react-query'
@@ -17,12 +17,13 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
+import Pagination from '@repo/ui/pagination'
 
 type GroupRow = {
   id: string
   name: string
   membersCount?: number
-  role: string
+  role: 'Viewer' | 'Editor'
   group: GroupType
 }
 
@@ -33,50 +34,81 @@ export const ProgramSettingsGroups = () => {
   const [pagination, setPagination] = useState<TPagination>({
     ...DEFAULT_PAGINATION,
     pageSize: 5,
-    query: { first: 5 },
+    page: 1,
+    query: {},
   })
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedGroup, setSelectedGroup] = useState<GroupRow | null>(null)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
-  const { mutateAsync: updateProgram, isPending: isRemoving } = useUpdateProgram()
+  const { mutateAsync: updateProgram } = useUpdateProgram()
   const { successNotification, errorNotification } = useNotification()
 
-  const { data, isLoading, isFetching } = useGetProgramGroups({
+  const { data, isLoading } = useGetProgramGroups({
     programId: programId ?? null,
-    pagination,
   })
-  const blockedGroups = data?.program?.blockedGroups
 
-  const groups =
-    (blockedGroups?.edges?.map((edge) => {
-      return {
+  const groups: GroupRow[] = useMemo(() => {
+    const viewers = data?.program?.viewers?.edges ?? []
+    const editors = data?.program?.editors?.edges ?? []
+
+    return [
+      ...((viewers.map((edge) => ({
         id: edge?.node?.id,
         name: edge?.node?.displayName,
-        membersCount: edge?.node?.members?.totalCount ?? 0,
-        role: 'TODO', // replace this with derived logic from `permissions` if needed
+        membersCount: data?.program?.viewers.totalCount,
+        role: 'Viewer',
         group: edge?.node,
-      }
-    }) as GroupRow[]) || []
+      })) as GroupRow[]) || []),
+      ...((editors.map((edge) => ({
+        id: edge?.node?.id,
+        name: edge?.node?.displayName,
+        membersCount: data?.program?.editors.totalCount,
+        role: 'Editor',
+        group: edge?.node,
+      })) as GroupRow[]) || []),
+    ]
+  }, [data])
 
-  const handleRemove = async (groupId: string) => {
+  const paginatedGroups = useMemo(() => {
+    const start = (pagination.page - 1) * pagination.pageSize
+    const end = start + pagination.pageSize
+    return groups.slice(start, end)
+  }, [groups, pagination])
+
+  const handleRemove = async (groupId: string, role: GroupRow['role']) => {
     if (!programId) return
+
+    const input: UpdateProgramInput = {}
+
+    if (role === 'Viewer') {
+      input.removeViewerIDs = [groupId]
+    } else if (role === 'Editor') {
+      input.removeEditorIDs = [groupId]
+    }
 
     try {
       await updateProgram({
         updateProgramId: programId,
-        input: {
-          removeBlockedGroupIDs: [groupId],
-        },
+        input,
       })
 
-      queryClient.invalidateQueries({
-        predicate: (query) => {
-          const [resource] = query.queryKey
-          return resource === 'programGroups'
+      const whereForInvalidation = {
+        not: {
+          or: [
+            {
+              hasProgramEditorsWith: [{ idIn: [programId!] }],
+            },
+            {
+              hasProgramViewersWith: [{ idIn: [programId!] }],
+            },
+          ],
         },
-      })
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['programs', programId, 'groups'] })
+      queryClient.invalidateQueries({ queryKey: ['groups', whereForInvalidation] })
 
       successNotification({
         title: 'Group removed',
@@ -85,6 +117,48 @@ export const ProgramSettingsGroups = () => {
     } catch {
       errorNotification({
         title: 'Failed to remove group',
+      })
+    }
+  }
+
+  const handleRoleChange = async (newRole: 'Viewer' | 'Editor') => {
+    if (!programId || !selectedGroup) return
+    if (newRole === selectedGroup.role) {
+      setIsDialogOpen(false)
+      return
+    }
+
+    try {
+      const input: UpdateProgramInput = {}
+
+      if (selectedGroup.role === 'Viewer') {
+        input.removeViewerIDs = [selectedGroup.id]
+      } else if (selectedGroup.role === 'Editor') {
+        input.removeEditorIDs = [selectedGroup.id]
+      }
+
+      if (newRole === 'Viewer') {
+        input.addViewerIDs = [selectedGroup.id]
+      } else if (newRole === 'Editor') {
+        input.addEditorIDs = [selectedGroup.id]
+      }
+
+      await updateProgram({
+        updateProgramId: programId,
+        input,
+      })
+
+      queryClient.invalidateQueries({ queryKey: ['programs', programId, 'groups'] })
+
+      successNotification({
+        title: 'Role Updated',
+        description: `Role updated to ${newRole}`,
+      })
+
+      setIsDialogOpen(false)
+    } catch {
+      errorNotification({
+        title: 'Failed to update role',
       })
     }
   }
@@ -148,21 +222,7 @@ export const ProgramSettingsGroups = () => {
     <>
       {selectedGroup && (
         <>
-          <EditGroupRoleDialog
-            open={isDialogOpen}
-            onOpenChange={setIsDialogOpen}
-            groupName={selectedGroup.name}
-            currentRole={selectedGroup.role}
-            onSubmit={async (newRole) => {
-              // TODO: Replace with your real mutation call
-              // await updateProgram({ ... })
-              successNotification({
-                title: 'Role Updated',
-                description: `Role updated to ${newRole}`,
-              })
-              setIsDialogOpen(false)
-            }}
-          />
+          <EditGroupRoleDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} groupName={selectedGroup.name} currentRole={selectedGroup.role} onSubmit={handleRoleChange} />
           <ConfirmationDialog
             open={isDeleteDialogOpen}
             onOpenChange={setIsDeleteDialogOpen}
@@ -170,10 +230,11 @@ export const ProgramSettingsGroups = () => {
             description={`Are you sure you want to remove ${selectedGroup.name} from the program?`}
             confirmationText="Remove group"
             confirmationTextVariant="destructive"
-            onConfirm={() => handleRemove(selectedGroup.id)}
+            onConfirm={() => handleRemove(selectedGroup.id, selectedGroup.role)}
           />
         </>
       )}
+
       <section className="flex gap-14">
         <div className="w-48 shrink-0">
           <h3 className="font-medium text-xl mb-2">Groups</h3>
@@ -186,17 +247,13 @@ export const ProgramSettingsGroups = () => {
             <ProgramSettingsAssignGroupDialog />
           </div>
 
-          <DataTable
-            columns={groupColumns}
-            data={groups}
-            loading={isLoading}
-            pagination={pagination}
-            onPaginationChange={setPagination}
-            paginationMeta={{
-              totalCount: blockedGroups?.totalCount ?? 0,
-              pageInfo: blockedGroups?.pageInfo,
-              isLoading: isFetching,
-            }}
+          <DataTable columns={groupColumns} data={paginatedGroups} loading={isLoading} />
+          <Pagination
+            currentPage={pagination.page}
+            totalPages={Math.ceil(groups.length / pagination.pageSize)}
+            pageSize={pagination.pageSize}
+            onPageChange={(page) => setPagination((prev) => ({ ...prev, page }))}
+            onPageSizeChange={(size) => setPagination({ page: 1, pageSize: size, query: {} })}
           />
         </div>
       </section>

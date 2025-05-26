@@ -1,20 +1,27 @@
 'use client'
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 type Props = {
   open: boolean
   onOpenChange: (open: boolean) => void
   groupName: string
-  currentRole: string
-  onSubmit: (newRole: string) => void
+  currentRole: 'Viewer' | 'Editor'
+  onSubmit: (newRole: 'Viewer' | 'Editor') => void
 }
 
 export const EditGroupRoleDialog = ({ open, onOpenChange, groupName, currentRole, onSubmit }: Props) => {
-  const [role, setRole] = useState(currentRole)
+  const [role, setRole] = useState<'Viewer' | 'Editor'>(currentRole)
+  useEffect(() => {
+    if (open) {
+      setRole(currentRole)
+    }
+
+    return () => {}
+  }, [open, currentRole])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -29,13 +36,13 @@ export const EditGroupRoleDialog = ({ open, onOpenChange, groupName, currentRole
 
         <div className="space-y-1">
           <label className="text-sm font-medium">Role</label>
-          <Select value={role} onValueChange={setRole}>
+          <Select key={currentRole} value={role} onValueChange={(val) => setRole(val as 'Viewer' | 'Editor')}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Admin">Admin</SelectItem>
-              <SelectItem value="Member">Member</SelectItem>
+              <SelectItem value="Viewer">Viewer</SelectItem>
+              <SelectItem value="Editor">Editor</SelectItem>
             </SelectContent>
           </Select>
         </div>

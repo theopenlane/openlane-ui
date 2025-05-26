@@ -268,32 +268,28 @@ export const GET_PROGRAM_MEMBERS = gql`
 `
 
 export const GET_PROGRAM_GROUPS = gql`
-  query GetProgramGroups($programId: ID!, $after: Cursor, $first: Int, $before: Cursor, $last: Int) {
+  query GetProgramGroups($programId: ID!) {
     program(id: $programId) {
-      blockedGroups(after: $after, first: $first, before: $before, last: $last) {
-        pageInfo {
-          endCursor
-          hasNextPage
-          hasPreviousPage
-          startCursor
-        }
+      id
+      viewers {
         totalCount
         edges {
           node {
-            id
             displayName
+            id
             gravatarLogoURL
             logoURL
-            members {
-              totalCount
-            }
-            permissions {
-              edges {
-                node {
-                  permissions
-                }
-              }
-            }
+          }
+        }
+      }
+      editors {
+        totalCount
+        edges {
+          node {
+            displayName
+            id
+            gravatarLogoURL
+            logoURL
           }
         }
       }
@@ -305,6 +301,16 @@ export const DELETE_PROGRAM = gql`
   mutation DeleteProgram($deleteProgramId: ID!) {
     deleteProgram(id: $deleteProgramId) {
       deletedID
+    }
+  }
+`
+
+export const UPDATE_PROGRAM_MEMBERSHIP = gql`
+  mutation UpdateProgramMembership($updateProgramMembershipId: ID!, $input: UpdateProgramMembershipInput!) {
+    updateProgramMembership(id: $updateProgramMembershipId, input: $input) {
+      programMembership {
+        id
+      }
     }
   }
 `

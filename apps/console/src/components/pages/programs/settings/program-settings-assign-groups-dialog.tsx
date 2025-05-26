@@ -13,13 +13,14 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useQueryClient } from '@tanstack/react-query'
 import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
 import { useNotification } from '@/hooks/useNotification'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 
 type GroupRow = {
   id: string
   name: string
   description?: string
+  role: 'View' | 'Edit'
 }
-
 export const ProgramSettingsAssignGroupDialog = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
@@ -40,8 +41,18 @@ export const ProgramSettingsAssignGroupDialog = () => {
     not: {
       or: [
         {
-          hasProgramEditorsWith: [{ idIn: [programId!] }],
-          hasProgramViewersWith: [{ idIn: [programId!] }],
+          hasProgramEditorsWith: [
+            {
+              idIn: [programId!],
+            },
+          ],
+        },
+        {
+          hasProgramViewersWith: [
+            {
+              idIn: [programId!],
+            },
+          ],
         },
       ],
     },
@@ -54,7 +65,6 @@ export const ProgramSettingsAssignGroupDialog = () => {
   })
 
   const groups = useMemo(() => data?.groups?.edges?.map((edge) => edge?.node) || [], [data])
-  console.log('groups', groups)
   useEffect(() => {
     if (!!groups && groups?.length) {
       const groupRows: GroupRow[] =
@@ -62,6 +72,7 @@ export const ProgramSettingsAssignGroupDialog = () => {
           id: group?.id,
           name: group?.displayName || group?.name,
           description: group?.description,
+          role: 'View',
         })) as GroupRow[]) || []
       setRows(groupRows)
     }
@@ -85,6 +96,31 @@ export const ProgramSettingsAssignGroupDialog = () => {
       header: 'Group Name',
     },
     {
+      accessorKey: 'role',
+      header: 'Role',
+      cell: ({ row }) => {
+        const groupId = row.original.id
+        const role = row.original.role
+
+        return (
+          <Select
+            value={role}
+            onValueChange={(val) => {
+              setRows((prev) => prev.map((r) => (r.id === groupId ? { ...r, role: val as 'View' | 'Edit' } : r)))
+            }}
+          >
+            <SelectTrigger className="w-[120px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="View">View</SelectItem>
+              <SelectItem value="Edit">Edit</SelectItem>
+            </SelectContent>
+          </Select>
+        )
+      },
+    },
+    {
       accessorKey: 'description',
       header: 'Description',
     },
@@ -99,31 +135,37 @@ export const ProgramSettingsAssignGroupDialog = () => {
       return
     }
 
+    const selectedGroups = rows.filter((row) => selectedGroupIds.includes(row.id))
+
+    const addEditorIDs = selectedGroups.filter((g) => g.role === 'Edit').map((g) => g.id)
+
+    const addViewerIDs = selectedGroups.filter((g) => g.role === 'View').map((g) => g.id)
+
     try {
       await updateProgram({
         updateProgramId: programId,
         input: {
           addBlockedGroupIDs: selectedGroupIds,
+          addEditorIDs,
+          addViewerIDs,
         },
       })
 
-      queryClient.invalidateQueries({ queryKey: ['programGroups'] })
+      queryClient.invalidateQueries({ queryKey: ['groups', where] })
+      queryClient.invalidateQueries({ queryKey: ['programs', programId, 'groups'] })
 
       successNotification({
         title: 'Groups Assigned',
-        description: `${selectedGroupIds.length} group(s) successfully assigned to the program.`,
+        description: `${selectedGroups.length} group(s) successfully assigned to the program.`,
       })
 
       setSelectedGroupIds([])
-    } catch (err) {
+    } catch {
       errorNotification({
         title: 'Failed to Assign Groups',
       })
     }
   }
-
-  console.log('rows', rows)
-  console.log('groupColumns', groupColumns)
 
   return (
     <Dialog>

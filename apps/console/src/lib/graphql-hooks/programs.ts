@@ -14,6 +14,7 @@ import {
   GET_PROGRAM_MEMBERS,
   GET_PROGRAM_GROUPS,
   DELETE_PROGRAM,
+  UPDATE_PROGRAM_MEMBERSHIP,
 } from '@repo/codegen/query/programs'
 
 import {
@@ -38,6 +39,8 @@ import {
   GetProgramGroupsQuery,
   GetProgramGroupsQueryVariables,
   DeleteProgramMutationVariables,
+  MutationUpdateProgramMembershipArgs,
+  UpdateProgramMembershipMutationVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 
@@ -182,15 +185,14 @@ export const useGetProgramMembers = ({ pagination, where, enabled = true }: { pa
   })
 }
 
-export const useGetProgramGroups = ({ programId, pagination, enabled = true }: { programId: string | null; pagination?: TPagination; enabled?: boolean }) => {
+export const useGetProgramGroups = ({ programId, enabled = true }: { programId: string | null; pagination?: TPagination; enabled?: boolean }) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetProgramGroupsQuery, GetProgramGroupsQueryVariables>({
-    queryKey: ['programs', programId, 'groups', pagination?.pageSize, pagination?.page],
+    queryKey: ['programs', programId, 'groups'],
     queryFn: () =>
       client.request(GET_PROGRAM_GROUPS, {
         programId,
-        ...pagination?.query,
       }),
     enabled: enabled && !!programId,
   })
@@ -202,5 +204,15 @@ export const useDeleteProgram = () => {
   return useMutation<void, Error, DeleteProgramMutationVariables>({
     mutationFn: ({ deleteProgramId }) => client.request(DELETE_PROGRAM, { deleteProgramId }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['programs'] }),
+  })
+}
+
+export const useUpdateProgramMembership = () => {
+  const { client } = useGraphQLClient()
+
+  return useMutation({
+    mutationFn: async (variables: UpdateProgramMembershipMutationVariables) => {
+      return client.request(UPDATE_PROGRAM_MEMBERSHIP, variables)
+    },
   })
 }

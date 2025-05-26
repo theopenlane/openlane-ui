@@ -7,7 +7,7 @@ import { DataTable } from '@repo/ui/data-table'
 import { EllipsisVertical } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { ColumnDef } from '@tanstack/react-table'
-import { useGetProgramMembers, useUpdateProgram } from '@/lib/graphql-hooks/programs'
+import { useGetProgramMembers, useUpdateProgram, useUpdateProgramMembership } from '@/lib/graphql-hooks/programs'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { ProgramMembershipRole, User } from '@repo/codegen/src/schema'
 import { ProgramSettingsAssignUserDialog } from './program-settings-assign-user-dialog'
@@ -20,7 +20,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
 type MemberRow = {
   id: string
-  role: 'Edit' | 'View'
+  role: 'Editor' | 'Viewer'
   user: User
 }
 
@@ -49,6 +49,8 @@ export const ProgramSettingsUsers = () => {
     enabled: !!programId,
   })
 
+  const { mutateAsync: updateProgramMembership } = useUpdateProgramMembership()
+
   const handleRemove = async () => {
     if (!programId || !selectedUser) return
 
@@ -76,34 +78,31 @@ export const ProgramSettingsUsers = () => {
     }
   }
 
-  const handleRoleChange = async (newRole: 'Edit' | 'View') => {
-    // if (!programId || !selectedUser) return
-    // try {
-    //   await updateProgram({
-    //     updateProgramId: programId,
-    //     input: {
-    //       updateProgramMembers: [
-    //         {
-    //           programMemberID: selectedUser.id,
-    //           role: newRole === 'Edit' ? ProgramMembershipRole.ADMIN : ProgramMembershipRole.MEMBER,
-    //         },
-    //       ],
-    //     },
-    //   })
-    //   toast.success('User role updated.')
-    //   queryClient.invalidateQueries({ queryKey: ['programMemberships'] })
-    // } catch (error) {
-    //   console.error(error)
-    //   toast.error('Failed to update user role.')
-    // } finally {
-    //   setIsEditDialogOpen(false)
-    // }
+  const handleRoleChange = async (newRole: 'Editor' | 'Viewer') => {
+    if (!selectedUser) return
+
+    try {
+      await updateProgramMembership({
+        updateProgramMembershipId: selectedUser.id,
+        input: {
+          role: newRole === 'Editor' ? ProgramMembershipRole.ADMIN : ProgramMembershipRole.MEMBER,
+        },
+      })
+
+      toast.success('User role updated.')
+      queryClient.invalidateQueries({ queryKey: ['programMemberships'] })
+    } catch (error) {
+      console.error(error)
+      toast.error('Failed to update user role.')
+    } finally {
+      setIsEditDialogOpen(false)
+    }
   }
 
   const users: MemberRow[] =
     (data?.programMemberships?.edges?.map((edge) => ({
       id: edge?.node?.id,
-      role: edge?.node?.role === ProgramMembershipRole.ADMIN ? 'Edit' : 'View',
+      role: edge?.node?.role === ProgramMembershipRole.ADMIN ? 'Editor' : 'Viewer',
       user: edge?.node?.user,
     })) as MemberRow[]) ?? []
 

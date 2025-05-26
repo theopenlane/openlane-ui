@@ -34671,35 +34671,22 @@ export type GetProgramMembersQuery = {
 
 export type GetProgramGroupsQueryVariables = Exact<{
   programId: Scalars['ID']['input']
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
 }>
 
 export type GetProgramGroupsQuery = {
   __typename?: 'Query'
   program: {
     __typename?: 'Program'
-    blockedGroups: {
+    id: string
+    viewers: {
       __typename?: 'GroupConnection'
       totalCount: number
-      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
-      edges?: Array<{
-        __typename?: 'GroupEdge'
-        node?: {
-          __typename?: 'Group'
-          id: string
-          displayName: string
-          gravatarLogoURL?: string | null
-          logoURL?: string | null
-          members: { __typename?: 'GroupMembershipConnection'; totalCount: number }
-          permissions: {
-            __typename?: 'GroupPermissionConnection'
-            edges?: Array<{ __typename?: 'GroupPermissionEdge'; node?: { __typename?: 'GroupPermission'; permissions: Permission } | null } | null> | null
-          }
-        } | null
-      } | null> | null
+      edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; displayName: string; id: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null } | null> | null
+    }
+    editors: {
+      __typename?: 'GroupConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; displayName: string; id: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null } | null> | null
     }
   }
 }
@@ -34709,6 +34696,16 @@ export type DeleteProgramMutationVariables = Exact<{
 }>
 
 export type DeleteProgramMutation = { __typename?: 'Mutation'; deleteProgram: { __typename?: 'ProgramDeletePayload'; deletedID: string } }
+
+export type UpdateProgramMembershipMutationVariables = Exact<{
+  updateProgramMembershipId: Scalars['ID']['input']
+  input: UpdateProgramMembershipInput
+}>
+
+export type UpdateProgramMembershipMutation = {
+  __typename?: 'Mutation'
+  updateProgramMembership: { __typename?: 'ProgramMembershipUpdatePayload'; programMembership: { __typename?: 'ProgramMembership'; id: string } }
+}
 
 export type GetEvidenceStatsQueryVariables = Exact<{
   programId: Scalars['ID']['input']
