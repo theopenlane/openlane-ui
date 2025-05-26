@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/table'
 import { Button } from '@repo/ui/button'
-import { ChevronDown, ChevronsDownUp, ChevronsUpDown } from 'lucide-react'
+import { ChevronDown, ChevronsDownUp, ChevronsUpDown, List } from 'lucide-react'
 import { SetObjectAssociationDialog } from './set-object-association-modal'
 import { ControlDetailsFieldsFragment, Group, InternalPolicy, InternalPolicyEdge, Organization, Procedure, ProcedureEdge, Program, ProgramProgramStatus, Task, User } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
@@ -41,8 +41,10 @@ const PROGRAM_STATUS_LABELS: Record<ProgramProgramStatus, string> = {
 const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({ policies, procedures, tasks, programs, risks, canEdit }) => {
   const [expandedItems, setExpandedItems] = useState<string[]>(['policies'])
 
-  const toggleAll = (expand: boolean) => {
-    setExpandedItems(expand ? ['policies', 'procedures', 'tasks', 'programs', 'risks'] : [])
+  const toggleAll = () => {
+    const allSections = ['policies', 'procedures', 'tasks', 'programs', 'risks']
+    const hasAllExpanded = allSections.every((section) => expandedItems.includes(section))
+    setExpandedItems(hasAllExpanded ? [] : allSections)
   }
 
   const extractNodes = <T extends { id: string }>(edges: Array<{ node?: T | null } | null> | null | undefined): T[] => {
@@ -217,14 +219,14 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
         <h2 className="text-lg font-semibold whitespace-nowrap">Associated Objects</h2>
         <div className="flex justify-between w-full">
           <div className="flex gap-2.5 items-center">
-            <Button className="h-8 !px-2" variant="outline" onClick={() => toggleAll(false)} icon={<ChevronsDownUp />} iconPosition="left">
-              Collapse all
-            </Button>
-            <Button className="h-8 !px-2" variant="outline" onClick={() => toggleAll(true)} icon={<ChevronsUpDown />} iconPosition="left">
-              Expand all
+            {canEdit && <SetObjectAssociationDialog />}
+            <Button type="button" className="h-8 !px-2" variant="outline" onClick={toggleAll}>
+              <div className="flex">
+                <List size={16} />
+                <ChevronsDownUp size={16} />
+              </div>
             </Button>
           </div>
-          {canEdit && <SetObjectAssociationDialog />}
         </div>
       </div>
 
