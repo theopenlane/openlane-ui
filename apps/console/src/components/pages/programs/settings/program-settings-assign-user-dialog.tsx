@@ -31,7 +31,7 @@ export const ProgramSettingsAssignUserDialog = () => {
   const programId = searchParams.get('id')
   const queryClient = useQueryClient()
 
-  const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
+  const [selectedUsers, setSelectedUsers] = useState<UserRow[]>([])
   const [rows, setRows] = useState<UserRow[]>([])
   const [pagination, setPagination] = useState<TPagination>(defaultPagination)
   const [searchValue, setSearchValue] = useState('')
@@ -78,9 +78,15 @@ export const ProgramSettingsAssignUserDialog = () => {
       header: '',
       cell: ({ row }) => (
         <Checkbox
-          checked={selectedUserIds.includes(row.original.id)}
+          checked={selectedUsers.some((u) => u.id === row.original.id)}
           onCheckedChange={(checked) => {
-            setSelectedUserIds((prev) => (checked ? [...prev, row.original.id] : prev.filter((id) => id !== row.original.id)))
+            setSelectedUsers((prev) => {
+              if (checked) {
+                return [...prev, row.original]
+              } else {
+                return prev.filter((u) => u.id !== row.original.id)
+              }
+            })
           }}
         />
       ),
@@ -93,14 +99,16 @@ export const ProgramSettingsAssignUserDialog = () => {
       accessorKey: 'role',
       header: 'Role',
       cell: ({ row }) => {
-        const userId = row.original.id
         const role = row.original.role
 
         return (
           <Select
             value={role}
             onValueChange={(val) => {
-              setRows((prev) => prev.map((r) => (r.id === userId ? { ...r, role: val as 'View' | 'Edit' } : r)))
+              const newRole = val as 'View' | 'Edit'
+              const userId = row.original.id
+              setRows((prev) => prev.map((r) => (r.id === userId ? { ...r, role: newRole } : r)))
+              setSelectedUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u)))
             }}
           >
             <SelectTrigger className="w-[120px]">
@@ -125,8 +133,6 @@ export const ProgramSettingsAssignUserDialog = () => {
       return
     }
 
-    const selectedUsers = rows.filter((row) => selectedUserIds.includes(row.id))
-
     const addProgramMembers = selectedUsers.map((user) => ({
       userID: user.user.id,
       role: user.role === 'Edit' ? ProgramMembershipRole.ADMIN : ProgramMembershipRole.MEMBER,
@@ -141,13 +147,14 @@ export const ProgramSettingsAssignUserDialog = () => {
       })
 
       queryClient.invalidateQueries({ queryKey: ['programMemberships'] })
+      queryClient.invalidateQueries({ queryKey: ['memberships'] })
 
       successNotification({
         title: 'Users Assigned',
         description: `${selectedUsers.length} user(s) successfully assigned to the program.`,
       })
 
-      setSelectedUserIds([])
+      setSelectedUsers([])
     } catch {
       errorNotification({
         title: 'Failed to Assign Users',
@@ -192,7 +199,7 @@ export const ProgramSettingsAssignUserDialog = () => {
           />
 
           <div className="flex gap-2 mt-4 justify-end">
-            <Button onClick={handleAssign} disabled={selectedUserIds.length === 0 || isPending}>
+            <Button onClick={handleAssign} disabled={selectedUsers.length === 0 || isPending}>
               {isPending ? 'Assigning...' : 'Assign'}
             </Button>
             <DialogTrigger asChild>
