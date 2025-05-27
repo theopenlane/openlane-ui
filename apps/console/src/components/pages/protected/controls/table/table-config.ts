@@ -10,12 +10,10 @@ const statusLabels: Record<ControlControlStatus, string> = {
   PREPARING: 'Preparing',
 }
 
-const statusOptions = Object.values(ControlControlStatus)
-  .filter((status) => status !== 'NOT_IMPLEMENTED')
-  .map((status) => ({
-    label: statusLabels[status],
-    value: status,
-  }))
+const statusOptions = Object.values(ControlControlStatus).map((status) => ({
+  label: statusLabels[status],
+  value: status,
+}))
 export const CONTROLS_FILTER_FIELDS: FilterField[] = [
   { key: 'refCode', label: 'RefCode', type: 'text' },
   { key: 'program', label: 'Program', type: 'containsText' },
