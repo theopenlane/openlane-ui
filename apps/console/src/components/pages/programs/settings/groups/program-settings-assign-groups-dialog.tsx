@@ -198,7 +198,7 @@ export const ProgramSettingsAssignGroupDialog = () => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTitle />
       <DialogTrigger asChild>
-        <Button className="h-8 !px-2">Assign Group</Button>
+        <Button className="h-8 !px-2">Assign</Button>
       </DialogTrigger>
 
       <DialogContent className="max-w-2xl p-6 rounded-xl">
