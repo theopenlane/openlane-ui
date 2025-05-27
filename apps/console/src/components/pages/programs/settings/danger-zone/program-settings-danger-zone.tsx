@@ -57,14 +57,14 @@ export const ProgramSettingsDangerZone = () => {
         </div>
 
         <div className="space-y-6 w-full">
-          <div>
+          {/* <div>
             <p className="text-base">
               Archiving a program will make it <strong>read-only</strong>. You can still view all content, but no changes or actions can be performed.
             </p>
             <Button variant="destructive" className="mt-2 h-8 !px-2">
               Archive
             </Button>
-          </div>
+          </div> */}
 
           <div>
             <p className="text-base">

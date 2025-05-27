@@ -202,7 +202,7 @@ export const ProgramSettingsAssignGroupDialog = () => {
       </DialogTrigger>
 
       <DialogContent className="max-w-2xl p-6 rounded-xl">
-        <h2 className="text-2xl font-semibold mb-4">Assign Group</h2>
+        <h2 className="text-2xl font-semibold mb-4">Assign</h2>
 
         <div className="space-y-4">
           <div className="flex justify-between items-end">
