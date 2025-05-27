@@ -15,6 +15,9 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { ProgramMembershipRole, User } from '@repo/codegen/src/schema'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
+import { Input } from '@repo/ui/input'
+import { Label } from '@repo/ui/label'
+import { useDebounce } from '@uidotdev/usehooks'
 
 type UserRow = {
   id: string
@@ -22,7 +25,7 @@ type UserRow = {
   role: 'View' | 'Edit'
   user: User
 }
-
+const defaultPagination = { ...DEFAULT_PAGINATION, pageSize: 5, query: { first: 5 } }
 export const ProgramSettingsAssignUserDialog = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
@@ -30,13 +33,19 @@ export const ProgramSettingsAssignUserDialog = () => {
 
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([])
   const [rows, setRows] = useState<UserRow[]>([])
-  const [pagination, setPagination] = useState<TPagination>({ ...DEFAULT_PAGINATION, pageSize: 5, query: { first: 5 } })
+  const [pagination, setPagination] = useState<TPagination>(defaultPagination)
+  const [searchValue, setSearchValue] = useState('')
 
   const { mutateAsync: updateProgram, isPending } = useUpdateProgram()
   const { successNotification, errorNotification } = useNotification()
 
+  const debouncedSearch = useDebounce(searchValue, 300)
+
   const where = {
     hasUserWith: [
+      {
+        displayNameContainsFold: debouncedSearch,
+      },
       {
         not: {
           hasProgramMembershipsWith: [
@@ -146,6 +155,11 @@ export const ProgramSettingsAssignUserDialog = () => {
     }
   }
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValue(e.target.value)
+    setPagination(defaultPagination)
+  }
+
   return (
     <Dialog>
       <DialogTitle />
@@ -155,9 +169,14 @@ export const ProgramSettingsAssignUserDialog = () => {
 
       <DialogContent className="max-w-2xl p-6 rounded-xl">
         <h2 className="text-2xl font-semibold mb-4">Assign User</h2>
-
         <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">Select one or more users to assign to this program.</p>
+          <div className="flex justify-between">
+            <div>
+              <Label>Search</Label>
+              <Input onChange={handleSearchChange} value={searchValue} placeholder="Type program name ..." className="h-10 w-[200px]" />
+            </div>
+            <p className="text-sm text-muted-foreground self-end">Select one or more users to assign to this program.</p>
+          </div>
 
           <DataTable
             columns={userColumns}
