@@ -32,7 +32,7 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
   const debouncedSearch = useDebounce(searchTerm, 300)
   const whereFilters = useMemo(() => {
     if (!filters) {
-      return null
+      return undefined
     }
 
     const modifiedWhereFilters = { ...filters }

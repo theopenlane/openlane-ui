@@ -18,11 +18,11 @@ const GroupDeletePermissionsTable: React.FC = () => {
   const { data } = useGetGroupPermissions(selectedGroup)
 
   const groupPermissions: GroupPermission[] =
-    data?.group?.permissions?.map((permission) => ({
-      id: permission.id ?? 'unknown-id',
-      displayId: permission.displayID || 'N/A',
-      objectType: permission.objectType || 'Unknown',
-      permissions: permission.permissions as Permission,
+    data?.group?.permissions?.edges?.map((edge) => ({
+      id: edge?.node?.id ?? 'unknown-id',
+      displayId: edge?.node?.displayID || 'N/A',
+      objectType: edge?.node?.objectType || 'Unknown',
+      permissions: edge?.node?.permissions as Permission,
     })) || []
 
   const columns: ColumnDef<GroupPermission>[] = [

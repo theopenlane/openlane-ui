@@ -39,12 +39,12 @@ const GroupsPermissionsTable = () => {
   }
 
   const permissions =
-    data?.group?.permissions?.map((perm) => ({
-      id: perm.id ?? 'unknown-id',
-      displayID: perm.displayID || 'N/A',
-      name: perm.name || 'Unknown',
-      objectType: perm.objectType || 'Unknown',
-      role: perm.permissions as Permission,
+    data?.group.permissions.edges?.map((edge) => ({
+      id: edge?.node?.id ?? 'unknown-id',
+      displayID: edge?.node?.displayID || 'N/A',
+      name: edge?.node?.name || 'Unknown',
+      objectType: edge?.node?.objectType || 'Unknown',
+      role: edge?.node?.permissions as Permission,
     })) || []
 
   const handleRoleChange = async (id: string, newRoleLabel: string, objectType: string) => {

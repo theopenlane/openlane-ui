@@ -194,6 +194,128 @@ export const GET_PROGRAM_BASIC_INFO = gql`
   }
 `
 
+export const GET_PROGRAM_SETTINGS = gql`
+  query GetProgramSettings($programId: ID!) {
+    program(id: $programId) {
+      viewers {
+        edges {
+          node {
+            id
+            displayName
+            gravatarLogoURL
+            logoURL
+          }
+        }
+      }
+      editors {
+        edges {
+          node {
+            id
+            displayName
+            gravatarLogoURL
+            logoURL
+          }
+        }
+      }
+      members {
+        totalCount
+        edges {
+          node {
+            id
+            role
+            user {
+              email
+              id
+              displayName
+              avatarRemoteURL
+              avatarFile {
+                id
+                presignedURL
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+export const GET_PROGRAM_MEMBERS = gql`
+  query GetProgramMembers($after: Cursor, $first: Int, $before: Cursor, $last: Int, $where: ProgramMembershipWhereInput) {
+    programMemberships(after: $after, first: $first, before: $before, last: $last, where: $where) {
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      totalCount
+      edges {
+        node {
+          id
+          role
+          user {
+            id
+            displayName
+            email
+            avatarFile {
+              presignedURL
+            }
+            avatarRemoteURL
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_PROGRAM_GROUPS = gql`
+  query GetProgramGroups($programId: ID!) {
+    program(id: $programId) {
+      id
+      viewers {
+        totalCount
+        edges {
+          node {
+            displayName
+            id
+            gravatarLogoURL
+            logoURL
+          }
+        }
+      }
+      editors {
+        totalCount
+        edges {
+          node {
+            displayName
+            id
+            gravatarLogoURL
+            logoURL
+          }
+        }
+      }
+    }
+  }
+`
+
+export const DELETE_PROGRAM = gql`
+  mutation DeleteProgram($deleteProgramId: ID!) {
+    deleteProgram(id: $deleteProgramId) {
+      deletedID
+    }
+  }
+`
+
+export const UPDATE_PROGRAM_MEMBERSHIP = gql`
+  mutation UpdateProgramMembership($updateProgramMembershipId: ID!, $input: UpdateProgramMembershipInput!) {
+    updateProgramMembership(id: $updateProgramMembershipId, input: $input) {
+      programMembership {
+        id
+      }
+    }
+  }
+`
+
 export const GET_EVIDENCE_STATS = gql`
   query GetEvidenceStats($programId: ID!) {
     totalControls: controls(where: { hasProgramsWith: [{ id: $programId }] }) {
