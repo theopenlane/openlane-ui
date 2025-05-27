@@ -135,7 +135,6 @@ export const ProgramSettingsUsers = () => {
       header: 'Action',
       cell: ({ row }) => {
         const user = row.original.user
-
         if (user.id === currentUserId) {
           return null
         }

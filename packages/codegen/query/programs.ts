@@ -254,6 +254,7 @@ export const GET_PROGRAM_MEMBERS = gql`
           id
           role
           user {
+            id
             displayName
             email
             avatarFile {
