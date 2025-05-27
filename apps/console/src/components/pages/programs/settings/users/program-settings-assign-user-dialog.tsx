@@ -62,8 +62,8 @@ export const ProgramSettingsAssignUserDialog = () => {
   const { data, isLoading, isFetching } = useGetOrgMemberships({ where, pagination, enabled: !!programId })
 
   useEffect(() => {
-    if (data?.orgMemberships?.edges) {
-      const userRows: UserRow[] = data.orgMemberships.edges.map((edge) => ({
+    if (data?.orgMemberships) {
+      const userRows: UserRow[] = data?.orgMemberships?.edges?.map((edge) => ({
         id: edge?.node?.id,
         displayName: edge?.node?.user?.displayName,
         role: 'View',
@@ -182,7 +182,7 @@ export const ProgramSettingsAssignUserDialog = () => {
           <div className="flex justify-between">
             <div>
               <Label>Search</Label>
-              <Input onChange={handleSearchChange} value={searchValue} placeholder="Type program name ..." className="h-10 w-[200px]" />
+              <Input onChange={handleSearchChange} value={searchValue} placeholder="Search users ..." className="h-10 w-[200px]" />
             </div>
             <p className="text-sm text-muted-foreground self-end">Select one or more users to assign to this program.</p>
           </div>

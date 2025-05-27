@@ -17,6 +17,7 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { EditGroupRoleDialog } from '../program-settings-edit-role-dialog' // You can reuse for users
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { useSession } from 'next-auth/react'
 
 type MemberRow = {
   id: string
@@ -25,6 +26,8 @@ type MemberRow = {
 }
 
 export const ProgramSettingsUsers = () => {
+  const { data: session } = useSession()
+  const currentUserId = session?.user.userId
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
   const queryClient = useQueryClient()
@@ -130,35 +133,42 @@ export const ProgramSettingsUsers = () => {
     {
       id: 'actions',
       header: 'Action',
-      cell: ({ row }) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-8 h-7 !p-0">
-              <EllipsisVertical />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem
-              onSelect={() => {
-                setSelectedUser(row.original)
-                setIsEditDialogOpen(true)
-              }}
-            >
-              Edit role
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="text-destructive"
-              onSelect={() => {
-                setSelectedUser(row.original)
-                setIsDeleteDialogOpen(true)
-              }}
-              disabled={isUpdating}
-            >
-              Remove user
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ),
+      cell: ({ row }) => {
+        const user = row.original.user
+
+        if (user.id === currentUserId) {
+          return null
+        }
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="w-8 h-7 !p-0">
+                <EllipsisVertical />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem
+                onSelect={() => {
+                  setSelectedUser(row.original)
+                  setIsEditDialogOpen(true)
+                }}
+              >
+                Edit role
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-destructive"
+                onSelect={() => {
+                  setSelectedUser(row.original)
+                  setIsDeleteDialogOpen(true)
+                }}
+                disabled={isUpdating}
+              >
+                Remove user
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )
+      },
     },
   ]
 

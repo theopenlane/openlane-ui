@@ -94,21 +94,8 @@ export const ProgramSettingsGroups = () => {
         input,
       })
 
-      const whereForInvalidation = {
-        not: {
-          or: [
-            {
-              hasProgramEditorsWith: [{ idIn: [programId!] }],
-            },
-            {
-              hasProgramViewersWith: [{ idIn: [programId!] }],
-            },
-          ],
-        },
-      }
-
       queryClient.invalidateQueries({ queryKey: ['programs', programId, 'groups'] })
-      queryClient.invalidateQueries({ queryKey: ['groups', whereForInvalidation] })
+      queryClient.invalidateQueries({ queryKey: ['groups'] })
 
       successNotification({
         title: 'Group removed',

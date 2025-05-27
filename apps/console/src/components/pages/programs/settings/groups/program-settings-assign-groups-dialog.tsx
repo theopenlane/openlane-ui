@@ -14,6 +14,9 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
 import { useNotification } from '@/hooks/useNotification'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { useDebounce } from '@uidotdev/usehooks'
+import { Label } from '@repo/ui/label'
+import { Input } from '@repo/ui/input'
 
 type GroupRow = {
   id: string
@@ -26,8 +29,8 @@ export const ProgramSettingsAssignGroupDialog = () => {
   const programId = searchParams.get('id')
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
-
-  const [selectedGroupIds, setSelectedGroupIds] = useState<string[]>([])
+  const [searchValue, setSearchValue] = useState('')
+  const [selectedGroups, setSelectedGroups] = useState<GroupRow[]>([])
   const [rows, setRows] = useState<GroupRow[]>([])
   const [pagination, setPagination] = useState<TPagination>({
     ...DEFAULT_PAGINATION,
@@ -35,28 +38,35 @@ export const ProgramSettingsAssignGroupDialog = () => {
     query: { first: 5 },
   })
 
+  const debouncedSearch = useDebounce(searchValue, 300)
+
   const { mutateAsync: updateProgram, isPending } = useUpdateProgram()
   const { successNotification, errorNotification } = useNotification()
 
   const where = {
-    not: {
-      or: [
-        {
-          hasProgramEditorsWith: [
+    and: [
+      { displayNameContainsFold: debouncedSearch },
+      {
+        not: {
+          or: [
             {
-              idIn: [programId!],
+              hasProgramEditorsWith: [
+                {
+                  idIn: [programId!],
+                },
+              ],
+            },
+            {
+              hasProgramViewersWith: [
+                {
+                  idIn: [programId!],
+                },
+              ],
             },
           ],
         },
-        {
-          hasProgramViewersWith: [
-            {
-              idIn: [programId!],
-            },
-          ],
-        },
-      ],
-    },
+      },
+    ],
   }
 
   const { data, paginationMeta, isLoading } = useGetAllGroups({
@@ -71,11 +81,13 @@ export const ProgramSettingsAssignGroupDialog = () => {
       const groupRows: GroupRow[] =
         (groups.map((group) => ({
           id: group?.id,
-          name: group?.displayName || group?.name,
+          name: group?.displayName,
           description: group?.description,
           role: 'View',
         })) as GroupRow[]) || []
       setRows(groupRows)
+    } else {
+      setRows([])
     }
   }, [groups])
 
@@ -85,9 +97,15 @@ export const ProgramSettingsAssignGroupDialog = () => {
       header: '',
       cell: ({ row }) => (
         <Checkbox
-          checked={selectedGroupIds.includes(row.original.id)}
+          checked={selectedGroups.some((g) => g.id === row.original.id)}
           onCheckedChange={(checked) => {
-            setSelectedGroupIds((prev) => (checked ? [...prev, row.original.id] : prev.filter((id) => id !== row.original.id)))
+            setSelectedGroups((prev) => {
+              if (checked) {
+                return [...prev, row.original]
+              } else {
+                return prev.filter((g) => g.id !== row.original.id)
+              }
+            })
           }}
         />
       ),
@@ -100,14 +118,17 @@ export const ProgramSettingsAssignGroupDialog = () => {
       accessorKey: 'role',
       header: 'Role',
       cell: ({ row }) => {
-        const groupId = row.original.id
         const role = row.original.role
 
         return (
           <Select
             value={role}
             onValueChange={(val) => {
-              setRows((prev) => prev.map((r) => (r.id === groupId ? { ...r, role: val as 'View' | 'Edit' } : r)))
+              const newRole = val as 'View' | 'Edit'
+              const groupId = row.original.id
+
+              setRows((prev) => prev.map((r) => (r.id === groupId ? { ...r, role: newRole } : r)))
+              setSelectedGroups((prev) => prev.map((g) => (g.id === groupId ? { ...g, role: newRole } : g)))
             }}
           >
             <SelectTrigger className="w-[120px]">
@@ -124,6 +145,7 @@ export const ProgramSettingsAssignGroupDialog = () => {
     {
       accessorKey: 'description',
       header: 'Description',
+      cell: ({ row }) => <div className="line-clamp-2 text-sm max-w-xs">{row.original.description}</div>,
     },
   ]
 
@@ -136,8 +158,6 @@ export const ProgramSettingsAssignGroupDialog = () => {
       return
     }
 
-    const selectedGroups = rows.filter((row) => selectedGroupIds.includes(row.id))
-
     const addEditorIDs = selectedGroups.filter((g) => g.role === 'Edit').map((g) => g.id)
 
     const addViewerIDs = selectedGroups.filter((g) => g.role === 'View').map((g) => g.id)
@@ -146,7 +166,7 @@ export const ProgramSettingsAssignGroupDialog = () => {
       await updateProgram({
         updateProgramId: programId,
         input: {
-          addBlockedGroupIDs: selectedGroupIds,
+          addBlockedGroupIDs: selectedGroups.map((g) => g.id),
           addEditorIDs,
           addViewerIDs,
         },
@@ -160,13 +180,18 @@ export const ProgramSettingsAssignGroupDialog = () => {
         description: `${selectedGroups.length} group(s) successfully assigned to the program.`,
       })
 
-      setSelectedGroupIds([])
+      setSelectedGroups([])
       setOpen(false)
     } catch {
       errorNotification({
         title: 'Failed to Assign Groups',
       })
     }
+  }
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValue(e.target.value)
+    setPagination((prev) => ({ ...prev, pageIndex: 0 })) // reset pagination on search
   }
 
   return (
@@ -180,12 +205,18 @@ export const ProgramSettingsAssignGroupDialog = () => {
         <h2 className="text-2xl font-semibold mb-4">Assign Group</h2>
 
         <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">Select one or more groups to assign to this program.</p>
+          <div className="flex justify-between items-end">
+            <div>
+              <Label>Search</Label>
+              <Input value={searchValue} onChange={handleSearchChange} placeholder="Search groups..." className="h-10 w-[200px]" />
+            </div>
+            <p className="text-sm">Select one or more groups to assign to this program.</p>
+          </div>
 
           <DataTable columns={groupColumns} data={rows} loading={isLoading} pagination={pagination} onPaginationChange={setPagination} paginationMeta={paginationMeta} />
 
           <div className="flex gap-2 mt-4 justify-end">
-            <Button onClick={handleAssign} disabled={selectedGroupIds.length === 0 || isPending}>
+            <Button onClick={handleAssign} disabled={selectedGroups.length === 0 || isPending}>
               {isPending ? 'Assigning...' : 'Assign'}
             </Button>
             <DialogTrigger asChild>
