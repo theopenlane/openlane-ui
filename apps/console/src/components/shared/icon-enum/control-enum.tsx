@@ -1,4 +1,4 @@
-import { Archive, Circle, Hourglass, RefreshCw, ScanEye, Stamp } from 'lucide-react'
+import { Archive, Circle, RefreshCw, RouteOff, ScanEye, Stamp } from 'lucide-react'
 import { ControlControlStatus } from '@repo/codegen/src/schema.ts'
 
 export const ControlIconMapper: Record<ControlControlStatus, React.ReactNode> = {
@@ -6,6 +6,6 @@ export const ControlIconMapper: Record<ControlControlStatus, React.ReactNode> = 
   [ControlControlStatus.NEEDS_APPROVAL]: <ScanEye height={16} width={16} />,
   [ControlControlStatus.CHANGES_REQUESTED]: <RefreshCw height={16} width={16} />,
   [ControlControlStatus.ARCHIVED]: <Archive height={16} width={16} />,
-  [ControlControlStatus.NOT_IMPLEMENTED]: <Hourglass height={16} width={16} />,
+  [ControlControlStatus.NOT_IMPLEMENTED]: <RouteOff height={16} width={16} />,
   [ControlControlStatus.PREPARING]: <Circle height={16} width={16} />,
 }
