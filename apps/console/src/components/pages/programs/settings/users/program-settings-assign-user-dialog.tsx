@@ -30,6 +30,7 @@ export const ProgramSettingsAssignUserDialog = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
   const queryClient = useQueryClient()
+  const [open, setOpen] = useState(false)
 
   const [selectedUsers, setSelectedUsers] = useState<UserRow[]>([])
   const [rows, setRows] = useState<UserRow[]>([])
@@ -155,6 +156,7 @@ export const ProgramSettingsAssignUserDialog = () => {
       })
 
       setSelectedUsers([])
+      setOpen(false)
     } catch {
       errorNotification({
         title: 'Failed to Assign Users',
@@ -168,7 +170,7 @@ export const ProgramSettingsAssignUserDialog = () => {
   }
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTitle />
       <DialogTrigger asChild>
         <Button className="h-8 !px-2">Assign</Button>

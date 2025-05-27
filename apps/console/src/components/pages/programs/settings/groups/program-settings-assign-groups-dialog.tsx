@@ -25,6 +25,7 @@ export const ProgramSettingsAssignGroupDialog = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
   const queryClient = useQueryClient()
+  const [open, setOpen] = useState(false)
 
   const [selectedGroupIds, setSelectedGroupIds] = useState<string[]>([])
   const [rows, setRows] = useState<GroupRow[]>([])
@@ -160,6 +161,7 @@ export const ProgramSettingsAssignGroupDialog = () => {
       })
 
       setSelectedGroupIds([])
+      setOpen(false)
     } catch {
       errorNotification({
         title: 'Failed to Assign Groups',
@@ -168,7 +170,7 @@ export const ProgramSettingsAssignGroupDialog = () => {
   }
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTitle />
       <DialogTrigger asChild>
         <Button className="h-8 !px-2">Assign Group</Button>
