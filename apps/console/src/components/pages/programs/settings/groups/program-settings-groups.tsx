@@ -12,7 +12,7 @@ import { Group as GroupType, UpdateProgramInput } from '@repo/codegen/src/schema
 import { useSearchParams } from 'next/navigation'
 import { ProgramSettingsAssignGroupDialog } from './program-settings-assign-groups-dialog'
 import { useQueryClient } from '@tanstack/react-query'
-import { EditGroupRoleDialog } from './program-settings-edit-role-dialog'
+import { EditGroupRoleDialog } from '../program-settings-edit-role-dialog'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
 import { TPagination } from '@repo/ui/pagination-types'

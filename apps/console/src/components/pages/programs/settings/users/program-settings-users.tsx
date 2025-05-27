@@ -15,7 +15,7 @@ import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { EditGroupRoleDialog } from './program-settings-edit-role-dialog' // You can reuse for users
+import { EditGroupRoleDialog } from '../program-settings-edit-role-dialog' // You can reuse for users
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
 type MemberRow = {
