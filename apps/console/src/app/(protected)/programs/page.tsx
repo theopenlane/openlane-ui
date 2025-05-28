@@ -25,6 +25,7 @@ import { Button } from '@repo/ui/button'
 import { TaskIconBtn } from '@/components/shared/icon-enum/task-enum.tsx'
 import Menu from '@/components/shared/menu/menu.tsx'
 import { ProgramCreateIconBtn, ProgramSettingsIconBtn } from '@/components/shared/icon-enum/program-enum.tsx'
+import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
 
 const Page: React.FC = () => {
   const router = useRouter()
@@ -156,11 +157,7 @@ const Page: React.FC = () => {
             </div>
             <div className="flex gap-2.5 items-center">
               <Menu
-                trigger={
-                  <Button className="h-8 !px-2" icon={<ChevronDown />}>
-                    Create
-                  </Button>
-                }
+                trigger={CreateBtn}
                 content={
                   <>
                     <ProgramCreate trigger={ProgramCreateIconBtn} />

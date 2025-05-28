@@ -11,6 +11,7 @@ import { Button } from '@repo/ui/button'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
 import Menu from '@/components/shared/menu/menu'
 import { TaskIconBtn } from '@/components/shared/icon-enum/task-enum.tsx'
+import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
 
 type TProps = {
   onFilterChange: (filters: Record<string, any>) => void
@@ -77,14 +78,7 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
       </div>
 
       <div className="grow flex flex-row items-center gap-2 justify-end">
-        <Menu
-          trigger={
-            <Button className="h-8 !px-2" icon={<ChevronDown />}>
-              Create
-            </Button>
-          }
-          content={<CreateTaskDialog trigger={TaskIconBtn} />}
-        />
+        <Menu trigger={CreateBtn} content={<CreateTaskDialog trigger={TaskIconBtn} />} />
         <Menu
           content={
             <>

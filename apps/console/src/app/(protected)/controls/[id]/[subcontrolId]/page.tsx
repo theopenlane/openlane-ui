@@ -27,6 +27,7 @@ import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-
 import Menu from '@/components/shared/menu/menu'
 import { TaskIconBtn } from '@/components/shared/icon-enum/task-enum.tsx'
 import DeleteSubcontrolDialog from '@/components/pages/protected/controls/delete-subcontrol-dialog.tsx'
+import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
 
 interface FormValues {
   refCode: string
@@ -184,11 +185,7 @@ const ControlDetailsPage: React.FC = () => {
             ) : (
               <div className="flex gap-2 justify-end">
                 <Menu
-                  trigger={
-                    <Button className="h-8 !px-2" icon={<ChevronDown />}>
-                      Create
-                    </Button>
-                  }
+                  trigger={CreateBtn}
                   content={
                     <>
                       <CreateTaskDialog

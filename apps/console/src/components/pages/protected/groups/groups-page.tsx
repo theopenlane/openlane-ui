@@ -16,6 +16,7 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import GroupInfiniteCards from '@/components/pages/protected/groups/components/group-infinite-cards.tsx'
 import Menu from '@/components/shared/menu/menu.tsx'
+import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
 
 const filterFields: FilterField[] = [
   { key: 'name', label: 'Name', type: 'text' },
@@ -95,6 +96,7 @@ const GroupsPage = () => {
           </div>
         </div>
         <Menu
+          trigger={CreateBtn}
           content={
             <CreateGroupDialog
               trigger={

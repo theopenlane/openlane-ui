@@ -31,6 +31,7 @@ import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-
 import { TaskIconBtn } from '@/components/shared/icon-enum/task-enum.tsx'
 import Menu from '@/components/shared/menu/menu.tsx'
 import DeleteControlDialog from '@/components/pages/protected/controls/delete-control-dialog.tsx'
+import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
 
 interface FormValues {
   refCode: string
@@ -204,11 +205,7 @@ const ControlDetailsPage: React.FC = () => {
             {!isEditing && canEdit(permission?.roles) && (
               <div className="flex gap-2 justify-end">
                 <Menu
-                  trigger={
-                    <Button className="h-8 !px-2" icon={<ChevronDown />}>
-                      Create
-                    </Button>
-                  }
+                  trigger={CreateBtn}
                   content={
                     <>
                       <CreateTaskDialog

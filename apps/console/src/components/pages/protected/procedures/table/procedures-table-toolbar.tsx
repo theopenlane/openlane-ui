@@ -12,6 +12,7 @@ import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Menu from '@/components/shared/menu/menu.tsx'
+import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
 
 type TProceduresTableToolbarProps = {
   className?: string
@@ -44,11 +45,7 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({ classN
       <div className="grow flex flex-row items-center gap-2 justify-end">
         {canCreate(permission?.roles, AccessEnum.CanCreateProcedure) && (
           <Menu
-            trigger={
-              <Button className="h-8 !px-2" icon={<ChevronDown />}>
-                Create
-              </Button>
-            }
+            trigger={CreateBtn}
             content={
               <div className="flex items-center space-x-2 cursor-pointer" onClick={handleCreateNew}>
                 <CirclePlus size={16} strokeWidth={2} />
