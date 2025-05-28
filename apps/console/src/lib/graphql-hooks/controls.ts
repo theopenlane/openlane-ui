@@ -1,9 +1,13 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { GET_ALL_CONTROLS, GET_CONTROL_BY_ID, GET_CONTROL_COUNTS_BY_STATUS, UPDATE_CONTROL } from '@repo/codegen/query/control'
+import { CREATE_CSV_BULK_CONTROL, DELETE_CONTROL, GET_ALL_CONTROLS, GET_CONTROL_BY_ID, GET_CONTROL_COUNTS_BY_STATUS, UPDATE_CONTROL } from '@repo/codegen/query/control'
 
 import {
   Control,
+  CreateBulkCsvControlMutation,
+  CreateBulkCsvControlMutationVariables,
+  DeleteControlMutation,
+  DeleteControlMutationVariables,
   GetAllControlsQuery,
   GetAllControlsQueryVariables,
   GetControlByIdQuery,
@@ -12,6 +16,7 @@ import {
   UpdateControlMutationVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
+import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
 
 type UseGetAllControlsArgs = {
   where?: GetAllControlsQueryVariables['where']
@@ -76,5 +81,28 @@ export const useGetControlCountsByStatus = (programId?: string | null) => {
     queryKey: ['controls', 'counts', programId],
     queryFn: async () => client.request(GET_CONTROL_COUNTS_BY_STATUS, { programId }),
     enabled: !!programId,
+  })
+}
+
+export const useCreateBulkCSVControl = () => {
+  const { queryClient } = useGraphQLClient()
+
+  return useMutation<CreateBulkCsvControlMutation, unknown, CreateBulkCsvControlMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_CONTROL, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['controls'] })
+    },
+  })
+}
+
+export const useDeleteControl = () => {
+  const { client } = useGraphQLClient()
+  const queryClient = useQueryClient()
+
+  return useMutation<DeleteControlMutation, unknown, DeleteControlMutationVariables>({
+    mutationFn: async (variables) => client.request(DELETE_CONTROL, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['controls'] })
+    },
   })
 }

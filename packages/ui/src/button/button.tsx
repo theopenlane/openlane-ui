@@ -20,10 +20,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(({ asChild = false, cl
       <span className={cn(childWrapper(), loading && loadingText())}>{rest.children}</span>
       {icon ? (
         <div className={iconOuter()}>
-          <div className={iconInner()}>
-            {icon}
-            {icon}
-          </div>
+          <div className={iconInner()}>{icon}</div>
         </div>
       ) : null}
       {variant === 'success' ? (

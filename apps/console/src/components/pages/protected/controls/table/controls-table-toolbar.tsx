@@ -1,11 +1,12 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React from 'react'
 import { SelectFilterField, SelectIsFilterField } from '@/types'
-import { DownloadIcon, LoaderCircle, SearchIcon } from 'lucide-react'
+import { DownloadIcon, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
 import { CONTROLS_FILTER_FIELDS } from './table-config'
 import { Input } from '@repo/ui/input'
-import { Button } from '@repo/ui/button'
-import { useGetAllPrograms, useProgramSelect } from '@/lib/graphql-hooks/programs'
+import { useProgramSelect } from '@/lib/graphql-hooks/programs'
+import Menu from '@/components/shared/menu/menu.tsx'
+import { BulkCSVCreateControlDialog } from '@/components/pages/protected/controls/bulk-csv-create-control-dialog.tsx'
 
 type TProps = {
   onFilterChange: (filters: Record<string, any>) => void
@@ -49,9 +50,24 @@ const ControlsTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, sea
       </div>
 
       <div className="grow flex flex-row items-center gap-2 justify-end">
-        <Button onClick={() => exportToCSV('control_list')} icon={<DownloadIcon />} iconPosition="left">
-          Export
-        </Button>
+        <Menu
+          content={
+            <>
+              <div className="flex items-center space-x-2 cursor-pointer" onClick={() => exportToCSV('control_list')}>
+                <DownloadIcon size={16} strokeWidth={2} />
+                <span>Export</span>
+              </div>
+              <BulkCSVCreateControlDialog
+                trigger={
+                  <div className="flex items-center space-x-2">
+                    <Upload size={16} strokeWidth={2} />
+                    <span>Bulk Upload</span>
+                  </div>
+                }
+              />
+            </>
+          }
+        ></Menu>
       </div>
     </div>
   )

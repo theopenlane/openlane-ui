@@ -4,11 +4,13 @@ import { TASK_FILTER_FIELDS } from '@/components/pages/protected/tasks/table/tab
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import { SelectFilterField, SelectIsFilterField } from '@/types'
 import { TOrgMembers, useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
-import { CreditCard as CardIcon, DownloadIcon, Table as TableIcon } from 'lucide-react'
+import { ChevronDown, CreditCard as CardIcon, DownloadIcon, ShieldPlus, Table as TableIcon, Upload } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
 import { BulkCSVCreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/bulk-csv-create-task-dialog'
 import { Button } from '@repo/ui/button'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
+import Menu from '@/components/shared/menu/menu'
+import { TaskIconBtn } from '@/components/shared/icon-enum/task-enum.tsx'
 
 type TProps = {
   onFilterChange: (filters: Record<string, any>) => void
@@ -75,12 +77,33 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
       </div>
 
       <div className="grow flex flex-row items-center gap-2 justify-end">
-        <BulkCSVCreateTaskDialog />
-        <CreateTaskDialog />
+        <Menu
+          trigger={
+            <Button className="h-8 !px-2" icon={<ChevronDown />}>
+              Create
+            </Button>
+          }
+          content={<CreateTaskDialog trigger={TaskIconBtn} />}
+        />
+        <Menu
+          content={
+            <>
+              <BulkCSVCreateTaskDialog
+                trigger={
+                  <div className="flex items-center space-x-2">
+                    <Upload size={16} strokeWidth={2} />
+                    <span>Bulk Upload</span>
+                  </div>
+                }
+              />
+              <div className="flex items-center space-x-2 cursor-pointer" onClick={props.handleExport}>
+                <DownloadIcon size={16} strokeWidth={2} />
+                <span>Export</span>
+              </div>
+            </>
+          }
+        />
       </div>
-      <Button className="h-8 !px-2" onClick={props.handleExport} icon={<DownloadIcon />} iconPosition="left">
-        Export
-      </Button>
     </div>
   )
 }

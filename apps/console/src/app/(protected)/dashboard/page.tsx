@@ -18,6 +18,11 @@ import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import DashboardSkeleton from '@/app/(protected)/dashboard/dashboard-skeleton.tsx'
+import Menu from '@/components/shared/menu/menu.tsx'
+import { ChevronDown, ShieldPlus } from 'lucide-react'
+import { Button } from '@repo/ui/button'
+import { TaskIconBtn } from '@/components/shared/icon-enum/task-enum.tsx'
+import { ProgramCreateIconBtn } from '@/components/shared/icon-enum/program-enum.tsx'
 
 const Page: React.FC = () => {
   const router = useRouter()
@@ -99,8 +104,19 @@ const Page: React.FC = () => {
               </Select>
             </div>
             <div className="flex gap-2.5">
-              {canCreate(permission?.roles, AccessEnum.CanCreateProgram) && <ProgramCreate />}
-              <CreateTaskDialog />
+              <Menu
+                trigger={
+                  <Button className="h-8 !px-2" icon={<ChevronDown />}>
+                    Create
+                  </Button>
+                }
+                content={
+                  <>
+                    {canCreate(permission?.roles, AccessEnum.CanCreateProgram) && <ProgramCreate trigger={ProgramCreateIconBtn} />}
+                    <CreateTaskDialog trigger={TaskIconBtn} />
+                  </>
+                }
+              />
             </div>
           </div>
         }

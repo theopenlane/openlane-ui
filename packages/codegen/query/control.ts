@@ -220,3 +220,21 @@ export const GET_CONTROL_COUNTS_BY_STATUS = gql`
     }
   }
 `
+
+export const CREATE_CSV_BULK_CONTROL = gql`
+  mutation CreateBulkCSVControl($input: Upload!) {
+    createBulkCSVControl(input: $input) {
+      controls {
+        id
+      }
+    }
+  }
+`
+
+export const DELETE_CONTROL = gql`
+  mutation DeleteControl($deleteControlId: ID!) {
+    deleteControl(id: $deleteControlId) {
+      deletedID
+    }
+  }
+`

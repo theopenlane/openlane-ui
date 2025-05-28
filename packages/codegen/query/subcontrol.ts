@@ -158,3 +158,11 @@ export const UPDATE_SUBCONTROL = gql`
     }
   }
 `
+
+export const DELETE_SUBCONTROL = gql`
+  mutation DeleteSubcontrol($deleteSubcontrolId: ID!) {
+    deleteSubcontrol(id: $deleteSubcontrolId) {
+      deletedID
+    }
+  }
+`

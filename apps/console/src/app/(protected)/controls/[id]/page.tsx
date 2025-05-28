@@ -7,7 +7,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { Value } from '@udecode/plate-common'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import { ArrowRight, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
+import { ArrowRight, ChevronDown, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
 import AssociatedObjectsAccordion from '../../../../components/pages/protected/controls/associated-objects-accordion.tsx'
 import TitleField from '../../../../components/pages/protected/controls/form-fields/title-field.tsx'
 import DescriptionField from '../../../../components/pages/protected/controls/form-fields/description-field.tsx'
@@ -28,6 +28,9 @@ import EvidenceDetailsSheet from '@/components/pages/protected/controls/control-
 import ControlEvidenceTable from '@/components/pages/protected/controls/control-evidence/control-evidence-table.tsx'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog.tsx'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
+import { TaskIconBtn } from '@/components/shared/icon-enum/task-enum.tsx'
+import Menu from '@/components/shared/menu/menu.tsx'
+import DeleteControlDialog from '@/components/pages/protected/controls/delete-control-dialog.tsx'
 
 interface FormValues {
   refCode: string
@@ -117,7 +120,7 @@ const ControlDetailsPage: React.FC = () => {
     setIsEditing(false)
   }
 
-  const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleEdit = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault()
     setIsEditing(true)
   }
@@ -200,20 +203,40 @@ const ControlDetailsPage: React.FC = () => {
             )}
             {!isEditing && canEdit(permission?.roles) && (
               <div className="flex gap-2 justify-end">
-                <CreateTaskDialog
-                  defaultSelectedObject={ObjectTypeObjects.CONTROL}
-                  initialData={{
-                    programIDs: (control.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                    procedureIDs: (control.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                    internalPolicyIDs: (control.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                    controlObjectiveIDs: (control.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                    riskIDs: (control.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                    controlIDs: [id],
-                  }}
+                <Menu
+                  trigger={
+                    <Button className="h-8 !px-2" icon={<ChevronDown />}>
+                      Create
+                    </Button>
+                  }
+                  content={
+                    <>
+                      <CreateTaskDialog
+                        trigger={TaskIconBtn}
+                        defaultSelectedObject={ObjectTypeObjects.CONTROL}
+                        initialData={{
+                          programIDs: (control.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                          procedureIDs: (control.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                          internalPolicyIDs: (control.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                          controlObjectiveIDs: (control.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                          riskIDs: (control.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                          controlIDs: [id],
+                        }}
+                      />
+                    </>
+                  }
                 />
-                <Button className="h-8 !px-2" icon={<PencilIcon />} iconPosition="left" onClick={handleEdit}>
-                  Edit Control
-                </Button>
+                <Menu
+                  content={
+                    <>
+                      <div className="flex items-center space-x-2 cursor-pointer" onClick={(e) => handleEdit(e)}>
+                        <PencilIcon size={16} strokeWidth={2} />
+                        <span>Edit</span>
+                      </div>
+                      <DeleteControlDialog controlId={control.id} />
+                    </>
+                  }
+                />
               </div>
             )}
             <AuthorityCard controlOwner={control.controlOwner} delegate={control.delegate} isEditing={isEditing} />

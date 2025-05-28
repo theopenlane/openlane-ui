@@ -1,4 +1,3 @@
-import type { Metadata } from 'next'
 import { outfit, mincho, jetBrainsMono } from '../fonts'
 import { SessionProvider } from 'next-auth/react'
 import { Toaster } from '@repo/ui/toaster'
@@ -8,6 +7,7 @@ import { pirschAnalyticsKey, recaptchaSiteKey } from '@repo/dally/auth'
 import Script from 'next/script'
 import { siteUrl } from '@repo/dally/auth'
 import { OPENLANE_WEBSITE_URL } from '@/constants'
+import type { Metadata } from 'next'
 
 const imageWidth = '1200'
 const imageHeight = '628'
@@ -16,26 +16,28 @@ const imageUrl = `${siteUrl}/images/joinus.png`
 const description = "Compliance isn't just a checkbox—it's your reputation. Discover Openlane's developer-first compliance platform."
 const title = 'Openlane | Streamlining Compliance, Securing Success'
 
-export const metadata: Metadata = {
-  title: {
-    template: `%s | ${title}`,
-    default: `${title}`,
-  },
-  description: `${description}`,
-  openGraph: {
-    title: `${title}`,
-    description: `${description}`,
-    url: `${OPENLANE_WEBSITE_URL}`,
-    type: 'website',
-    images: [
-      {
-        url: `${imageUrl}`,
-        width: `${imageWidth}`,
-        height: `${imageHeight}`,
-        alt: `${imageAlt}`,
-      },
-    ],
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: {
+      template: `%s | ${title}`,
+      default: `${title}`,
+    },
+    description,
+    openGraph: {
+      title,
+      description,
+      url: OPENLANE_WEBSITE_URL,
+      type: 'website',
+      images: [
+        {
+          url: imageUrl,
+          width: imageWidth,
+          height: imageHeight,
+          alt: imageAlt,
+        },
+      ],
+    },
+  }
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }): React.ReactNode {
@@ -46,7 +48,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }):
         <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
         {pirschAnalyticsKey && <script defer src="https://api.pirsch.io/pa.js" id="pianjs" data-code={pirschAnalyticsKey}></script>}
       </head>
-      <body className={`${outfit.variable} ${mincho.variable} ${jetBrainsMono.variable} font-sans w-full  overscroll-none`}>
+      <body className={`${outfit.variable} ${mincho.variable} ${jetBrainsMono.variable} font-sans w-full overscroll-none`}>
         <SessionProvider refetchOnWindowFocus={false}>
           <Providers>{children}</Providers>
           <Toaster />
