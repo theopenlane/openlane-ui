@@ -2,14 +2,13 @@
 
 import React, { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { useGetAllControlObjectives } from '@/lib/graphql-hooks/control-objectives'
-import { ControlObjectiveFieldsFragment } from '@repo/codegen/src/schema'
+import { useGetAllControlImplementations } from '@/lib/graphql-hooks/control-implementations'
+import { ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
 import { ArrowRight, ChevronRight, ChevronsDownUp, ChevronsUpDown, CirclePlus, Pencil, Settings2 } from 'lucide-react'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Button } from '@repo/ui/button'
-
 import { Loading } from '@/components/shared/loading/loading'
-import { ControlObjectiveCard } from './control-implementation-card'
+import { ControlImplementationCard } from './control-implementation-card'
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@radix-ui/react-accordion'
 import CreateControlImplementationSheet from './create-control-implementation-sheet'
 
@@ -21,21 +20,21 @@ const ControlImplementationPage = () => {
   const [expandedItems, setExpandedItems] = useState<string[]>([])
   const [existingIds, setExistingIds] = useState<string[]>([])
   const [isInitialized, setIsInitialized] = useState(false)
-  const [editData, setEditData] = useState<ControlObjectiveFieldsFragment | null>(null)
+  const [editData, setEditData] = useState<ControlImplementationFieldsFragment | null>(null)
 
-  const { data, isLoading } = useGetAllControlObjectives({
+  const { data, isLoading } = useGetAllControlImplementations({
     ...(subcontrolId ? { hasSubcontrolsWith: [{ id: subcontrolId }] } : { hasControlsWith: [{ id }] }),
   })
 
-  const edges = data?.controlObjectives?.edges?.filter((edge): edge is { node: ControlObjectiveFieldsFragment } => !!edge?.node)
+  const edges = data?.controlImplementations?.edges?.filter((edge): edge is { node: ControlImplementationFieldsFragment } => !!edge?.node)
 
-  const expandFirstObjective = (ids: string[]) => {
+  const expandFirstImplementation = (ids: string[]) => {
     if (ids.length > 0) {
       setExpandedItems([ids[0]])
     }
   }
 
-  const detectAndExpandNewObjectives = (currentIds: string[], existingIds: string[]) => {
+  const detectAndExpandNewImplementations = (currentIds: string[], existingIds: string[]) => {
     const newIds = currentIds.filter((id) => !existingIds.includes(id))
     if (newIds.length > 0) {
       setExistingIds(currentIds)
@@ -43,24 +42,24 @@ const ControlImplementationPage = () => {
     }
   }
 
-  const handleControlObjectivesUpdate = useCallback(() => {
+  const handleImplementationsUpdate = useCallback(() => {
     if (!edges?.length) return
 
     const currentIds = edges.map((e) => e.node.id)
 
     if (!isInitialized) {
       setExistingIds(currentIds)
-      expandFirstObjective(currentIds)
+      expandFirstImplementation(currentIds)
       setIsInitialized(true)
       return
     }
 
-    detectAndExpandNewObjectives(currentIds, existingIds)
+    detectAndExpandNewImplementations(currentIds, existingIds)
   }, [edges, existingIds, isInitialized])
 
   useEffect(() => {
-    handleControlObjectivesUpdate()
-  }, [handleControlObjectivesUpdate])
+    handleImplementationsUpdate()
+  }, [handleImplementationsUpdate])
 
   if (isLoading) {
     return <Loading />
@@ -76,7 +75,7 @@ const ControlImplementationPage = () => {
           <div className="text-blue-500 flex items-center gap-1 cursor-pointer">
             <p onClick={() => setShowCreateSheet(true)} className="text-blue-500">
               Create a new one
-            </p>{' '}
+            </p>
             <ArrowRight className="mt-0.5" size={16} />
           </div>
         </div>
@@ -110,12 +109,12 @@ const ControlImplementationPage = () => {
       </div>
       <div className="space-y-4 mt-6">
         <Accordion type="multiple" value={expandedItems} onValueChange={setExpandedItems} className="w-full mt-6">
-          {edges.map((edge) => (
+          {edges.map((edge, i) => (
             <AccordionItem key={edge.node.id} value={edge.node.id}>
               <div className="flex justify-between items-center my-2">
                 <AccordionTrigger className="group flex items-center px-2 py-2 bg-background">
                   <ChevronRight size={22} className="mr-2 text-brand transition-transform group-data-[state=open]:rotate-90" />
-                  <span className="text-base font-medium ">{edge.node.name}</span>
+                  <span className="text-base font-medium ">{`Implementation ${i + 1}`}</span>
                 </AccordionTrigger>
                 <Button
                   className="h-8 !px-2"
@@ -131,7 +130,7 @@ const ControlImplementationPage = () => {
                 </Button>
               </div>
               <AccordionContent>
-                <ControlObjectiveCard obj={edge.node} />
+                <ControlImplementationCard obj={edge.node} />
               </AccordionContent>
             </AccordionItem>
           ))}

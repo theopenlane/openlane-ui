@@ -1,8 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { Controller, Form } from 'react-hook-form'
-import { Input } from '@repo/ui/input'
+import { Controller } from 'react-hook-form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Button } from '@repo/ui/button'
 import { Label } from '@repo/ui/label'
@@ -42,7 +41,6 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
     reset,
     formState: { errors },
   } = form
-
   const { mutate: createImplementation } = useCreateControlImplementation()
   const { mutate: updateImplementation } = useUpdateControlImplementation()
   const { mutate: deleteImplementation } = useDeleteControlImplementation()
@@ -68,11 +66,15 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
   }
 
   const onSubmit = async (data: TFormData) => {
-    const details = await convertToHtml(data.details as Value)
+    const details = data.details ? await convertToHtml(data.details as Value) : undefined
 
-    const creationPayload = {
+    const basePayload = {
       ...data,
       details,
+    }
+
+    const creationPayload = {
+      ...basePayload,
       ...associations,
     }
 
@@ -80,7 +82,7 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
       updateImplementation(
         {
           updateControlImplementationId: defaultValues.id || '',
-          input: creationPayload,
+          input: basePayload,
         },
         {
           onSuccess: () => {
@@ -116,7 +118,9 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
       return
     }
 
-    reset(defaultValues)
+    const defaultValuesCreate = { implementationDate: new Date() }
+
+    reset(isEditing ? defaultValues : defaultValuesCreate)
     setDefaultValuesSet(true)
   }, [defaultValues, reset, isEditing, controlData, subcontrolData, loading, defaultValuesSet])
 
@@ -183,10 +187,12 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
           </div>
         </div>
 
-        <div className="flex items-center py-2.5">
-          <Label className="min-w-36">ControlIDs</Label>
-          <SetObjectAssociationDialog initialData={initialAssociations} associations={associations} setAssociations={setAssociations} />
-        </div>
+        {!isEditing && (
+          <div className="flex items-center py-2.5">
+            <Label className="min-w-36">ControlIDs</Label>
+            <SetObjectAssociationDialog initialData={associations} setAssociations={setAssociations} />
+          </div>
+        )}
       </div>
     </form>
   )

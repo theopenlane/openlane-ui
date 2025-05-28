@@ -2,32 +2,25 @@
 
 import { Sheet, SheetContent } from '@repo/ui/sheet'
 import React from 'react'
-import { ControlObjectiveFieldsFragment } from '@repo/codegen/src/schema'
 import { CreateControlImplementationForm } from './form/create-control-implementation-form'
+import { ControlImplementationDocumentStatus, ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
 
 type CreateControlImplementationSheetProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  editData?: ControlObjectiveFieldsFragment | null
+  editData?: ControlImplementationFieldsFragment | null
 }
 
 const CreateControlImplementationSheet: React.FC<CreateControlImplementationSheetProps> = ({ open, onOpenChange, editData }) => {
-  const normalizedValues = undefined
-
-  // const normalizedValues = editData
-  //   ? {
-  //       id: editData.id,
-  //       name: editData.name ?? '',
-  //       desiredOutcome: editData.desiredOutcome ?? '',
-  //       status: editData.status ?? ControlObjectiveObjectiveStatus.DRAFT,
-  //       source: editData.source ?? ControlObjectiveControlSource.USER_DEFINED,
-  //       controlObjectiveType: editData.controlObjectiveType ?? '',
-  //       category: editData.category ?? '',
-  //       subcategory: editData.subcategory ?? '',
-  //       revision: editData.revision ?? '',
-  //       RevisionBump,
-  //     }
-  //   : undefined
+  const normalizedValues = editData
+    ? {
+        id: editData.id,
+        details: editData.details ?? '',
+        status: editData?.status as ControlImplementationDocumentStatus,
+        implementationDate: new Date(editData?.implementationDate),
+        verified: editData.verified ?? false,
+      }
+    : undefined
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>

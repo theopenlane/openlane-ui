@@ -3,35 +3,31 @@
 import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { useMemo, useState } from 'react'
+import React, { useState } from 'react'
+import { useParams } from 'next/navigation'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
+import { useUpdateControlImplementation } from '@/lib/graphql-hooks/control-implementations'
 import { useNotification } from '@/hooks/useNotification'
-import { useUpdateControlObjective } from '@/lib/graphql-hooks/control-objectives'
-import { ControlObjectiveFieldsFragment } from '@repo/codegen/src/schema'
-import { useParams } from 'next/navigation'
 
-export function LinkControlsModal({ controlObjectiveData }: { controlObjectiveData: ControlObjectiveFieldsFragment }) {
-  const params = useParams()
-  const isSubcontrol: string | undefined = params.subcontrolId as string
+interface Props {
+  initialData: TObjectAssociationMap
+  updateControlImplementationId: string
+}
 
-  const { mutateAsync: updateControlObjective } = useUpdateControlObjective()
+export function LinkControlsModal({ initialData, updateControlImplementationId }: Props) {
+  const { id, subcontrolId } = useParams<{ id: string; subcontrolId: string }>()
+  const isSubcontrol = !!subcontrolId
 
-  const [associations, setAssociations] = useState<TObjectAssociationMap>({})
-  const [isSaving, setIsSaving] = useState(false)
   const [open, setOpen] = useState(false)
   const [saveEnabled, setSaveEnabled] = useState(false)
+  const [associations, setAssociations] = useState(initialData)
+  const [isSaving, setIsSaving] = useState(false)
 
-  const { errorNotification, successNotification } = useNotification()
+  const { successNotification, errorNotification } = useNotification()
+  const { mutateAsync: update } = useUpdateControlImplementation()
 
-  const initialData: TObjectAssociationMap = useMemo(
-    () => ({
-      controlIDs: controlObjectiveData.controls?.edges?.flatMap((edge) => edge?.node?.id || []),
-      subcontrolIDs: controlObjectiveData.subcontrols?.edges?.flatMap((edge) => edge?.node?.id || []),
-    }),
-    [controlObjectiveData],
-  )
-  function getAssociationDiffs(initial: TObjectAssociationMap, current: TObjectAssociationMap): { added: TObjectAssociationMap; removed: TObjectAssociationMap } {
+  const getAssociationDiffs = (initial: TObjectAssociationMap, current: TObjectAssociationMap): { added: TObjectAssociationMap; removed: TObjectAssociationMap } => {
     const added: TObjectAssociationMap = {}
     const removed: TObjectAssociationMap = {}
 
@@ -44,30 +40,24 @@ export function LinkControlsModal({ controlObjectiveData }: { controlObjectiveDa
       const addedItems = [...currentSet].filter((id) => !initialSet.has(id))
       const removedItems = [...initialSet].filter((id) => !currentSet.has(id))
 
-      if (addedItems.length > 0) {
-        added[key] = addedItems
-      }
-      if (removedItems.length > 0) {
-        removed[key] = removedItems
-      }
+      if (addedItems.length > 0) added[key] = addedItems
+      if (removedItems.length > 0) removed[key] = removedItems
     }
 
     return { added, removed }
   }
+
+  const buildMutationKey = (prefix: string, key: string) => `${prefix}${key.charAt(0).toUpperCase()}${key.slice(1)}`
 
   const onSave = async () => {
     setIsSaving(true)
     try {
       const { added, removed } = getAssociationDiffs(initialData, associations)
 
-      const buildMutationKey = (prefix: string, key: string) => `${prefix}${key.charAt(0).toUpperCase()}${key.slice(1)}`
-
       const associationInputs = {
         ...Object.entries(added).reduce(
           (acc, [key, ids]) => {
-            if (ids && ids.length > 0) {
-              acc[buildMutationKey('add', key)] = ids
-            }
+            if (ids && ids.length > 0) acc[buildMutationKey('add', key)] = ids
             return acc
           },
           {} as Record<string, string[]>,
@@ -75,24 +65,25 @@ export function LinkControlsModal({ controlObjectiveData }: { controlObjectiveDa
 
         ...Object.entries(removed).reduce(
           (acc, [key, ids]) => {
-            if (ids && ids.length > 0) {
-              acc[buildMutationKey('remove', key)] = ids
-            }
+            if (ids && ids.length > 0) acc[buildMutationKey('remove', key)] = ids
             return acc
           },
           {} as Record<string, string[]>,
         ),
       }
 
-      await updateControlObjective({
-        updateControlObjectiveId: controlObjectiveData.id!,
+      await update({
+        updateControlImplementationId,
         input: associationInputs,
       })
 
-      successNotification({ title: 'Control Objective updated' })
+      successNotification({ title: 'Associations updated successfully.' })
       setOpen(false)
-    } catch (error) {
-      errorNotification({ title: `Could not update Control Objective, please try again later` })
+    } catch (err) {
+      errorNotification({
+        title: 'Failed to update associations',
+        description: 'Please try again later.',
+      })
     } finally {
       setIsSaving(false)
     }
@@ -100,7 +91,8 @@ export function LinkControlsModal({ controlObjectiveData }: { controlObjectiveDa
 
   const handleDialogChange = (isOpen: boolean) => {
     if (!isOpen) {
-      setAssociations({})
+      setAssociations(initialData)
+      setSaveEnabled(false)
     }
     setOpen(isOpen)
   }
@@ -108,7 +100,7 @@ export function LinkControlsModal({ controlObjectiveData }: { controlObjectiveDa
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogTrigger asChild>
-        <Button className="h-8">Link Controls</Button>
+        <Button className="h-8 !px-2">Set Association</Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl p-6 space-y-4">
         <DialogHeader>
@@ -118,23 +110,23 @@ export function LinkControlsModal({ controlObjectiveData }: { controlObjectiveDa
         <ObjectAssociation
           defaultSelectedObject={isSubcontrol ? ObjectTypeObjects.SUB_CONTROL : ObjectTypeObjects.CONTROL}
           onIdChange={(updatedMap) => {
-            setSaveEnabled(saveEnabled)
             setAssociations(updatedMap)
+            setSaveEnabled(true)
           }}
           initialData={initialData}
           excludeObjectTypes={[
+            ObjectTypeObjects.EVIDENCE,
+            ObjectTypeObjects.GROUP,
+            ObjectTypeObjects.CONTROL_OBJECTIVE,
             ObjectTypeObjects.PROGRAM,
-            ObjectTypeObjects.TASK,
             ObjectTypeObjects.INTERNAL_POLICY,
             ObjectTypeObjects.PROCEDURE,
             ObjectTypeObjects.RISK,
-            ObjectTypeObjects.EVIDENCE,
-            ObjectTypeObjects.CONTROL_OBJECTIVE,
-            ObjectTypeObjects.GROUP,
+            ObjectTypeObjects.TASK,
           ]}
         />
         <DialogFooter>
-          <Button onClick={onSave} disabled={isSaving || saveEnabled}>
+          <Button onClick={onSave} disabled={!saveEnabled || isSaving}>
             {isSaving ? 'Saving...' : 'Save'}
           </Button>
           <Button variant="outline" onClick={() => setOpen(false)}>

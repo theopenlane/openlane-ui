@@ -2,17 +2,19 @@
 
 import { useState } from 'react'
 import { Card } from '@repo/ui/cardpanel'
-import { ControlObjectiveControlSource, ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
+import { ControlImplementationDocumentStatus, ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { Archive, FilePenLineIcon, ThumbsUp } from 'lucide-react'
+import { Archive, CheckCircle, FilePenLineIcon, ThumbsUp, XCircle } from 'lucide-react'
 import { LinkControlsModal } from './link-controls-modal'
+import { formatDate } from '@/utils/date'
+import { ControlImplementationIconMap } from '@/components/shared/icon-enum/control-enum'
 
 interface Props {
-  obj: ControlObjectiveFieldsFragment
+  obj: ControlImplementationFieldsFragment
 }
 
-export const ControlObjectiveCard = ({ obj }: Props) => {
-  const plateEditorHelper = usePlateEditor()
+export const ControlImplementationCard = ({ obj }: Props) => {
+  const { convertToReadOnly } = usePlateEditor()
   const [hoveredControl, setHoveredControl] = useState<{
     id: string
     shortName: string
@@ -25,58 +27,54 @@ export const ControlObjectiveCard = ({ obj }: Props) => {
     parentDescription: string
   } | null>(null)
 
-  const { convertToReadOnly } = usePlateEditor()
-
   return (
-    <Card className="p-4 flex">
-      <div className="flex-1">
-        <div className="grid grid-cols-2 gap-y-2 text-sm">
-          {/* Status */}
-          <div className="flex items-start border-b pb-2">
-            <div className="min-w-32">Status</div>
-            <div>{renderStatusIcon(obj?.status)}</div>
-          </div>
+    <Card className="p-4 flex ">
+      <div className="flex-1 text-sm">
+        {/* Status */}
+        <div className="flex items-start border-b p-2">
+          <div className="min-w-48 ">Status</div>
+          <div>{renderStatusIcon(obj?.status)}</div>
+        </div>
 
-          {/* Type */}
-          <div className="flex items-start border-b pb-2">
-            <div className="min-w-32 pl-5 border-l h-full ">Type</div>
-            <div>{obj.controlObjectiveType || '—'}</div>
-          </div>
+        {/* Implementation Date */}
+        <div className="flex items-start border-b p-2">
+          <div className="min-w-48 ">Implementation Date</div>
+          <div className="flex items-center gap-1 text-muted-foreground">{obj.implementationDate ? formatDate(obj.implementationDate) : '—'}</div>
+        </div>
 
-          {/* Source */}
-          <div className="flex items-start border-b pb-2">
-            <div className="min-w-32">Source</div>
-            <div>{renderSourceText(obj?.source)}</div>
-          </div>
-
-          {/* Category */}
-          <div className="flex items-start border-b pb-2">
-            <div className="min-w-32 pl-5 border-l h-full ">Category</div>
-            <div>{obj.category || '—'}</div>
-          </div>
-
-          {/* Revision */}
-          <div className="flex items-start border-b pb-2">
-            <div className="min-w-32">Revision</div>
-            <div>{obj.revision || 'v0.0.1'}</div>
-          </div>
-
-          {/* Subcategory */}
-          <div className="flex items-start border-b pb-2">
-            <div className="min-w-32 pl-5 border-l h-full ">Subcategory</div>
-            <div>{obj.subcategory || '—'}</div>
+        {/* Verified */}
+        <div className="flex items-start border-b p-2">
+          <div className="min-w-48 ">Verified</div>
+          <div className="flex items-center gap-1 text-muted-foreground">
+            {obj.verified ? (
+              <>
+                <CheckCircle size={16} className="text-green-500 mt-0.5" />
+              </>
+            ) : (
+              <>
+                <XCircle size={16} className="text-destructive mt-0.5" />
+              </>
+            )}
           </div>
         </div>
 
-        <div className="mt-5">{plateEditorHelper.convertToReadOnly(obj.desiredOutcome || '', 0)}</div>
+        {/* Details */}
+        <div className="mt-5">{convertToReadOnly(obj.details || '', 0)}</div>
       </div>
 
       <div className="w-px bg-border self-stretch mx-6" />
 
+      {/* Controls/Subcontrols */}
       <div className="w-[350px] flex-shrink-0">
-        <div className="flex justify-between items-center ">
+        <div className="flex justify-between items-center mb-2">
           <p className="text-lg">Controls</p>
-          <LinkControlsModal controlObjectiveData={obj} />
+          <LinkControlsModal
+            updateControlImplementationId={obj.id}
+            initialData={{
+              controlIDs: obj.controls?.edges?.flatMap((edge) => edge?.node?.id || []),
+              subcontrolIDs: obj.subcontrols?.edges?.flatMap((edge) => edge?.node?.id || []),
+            }}
+          />
         </div>
 
         {!!obj.controls?.edges?.length && (
@@ -102,11 +100,8 @@ export const ControlObjectiveCard = ({ obj }: Props) => {
 
         {!!obj.subcontrols?.edges?.length && (
           <div className="flex flex-wrap gap-2 text-sm mb-3">
-            {obj.subcontrols.edges.map((subcontrol) => {
-              if (!subcontrol?.node) {
-                return null
-              }
-              return (
+            {obj.subcontrols.edges.map((subcontrol) =>
+              subcontrol?.node ? (
                 <span
                   key={subcontrol.node.id}
                   onMouseEnter={() =>
@@ -119,17 +114,18 @@ export const ControlObjectiveCard = ({ obj }: Props) => {
                   onMouseLeave={() => setHoveredSubcontrol(null)}
                   className="underline cursor-pointer"
                 >
-                  {subcontrol?.node?.refCode}
+                  {subcontrol.node.refCode}
                 </span>
-              )
-            })}
+              ) : null,
+            )}
           </div>
         )}
 
+        {/* Hover Cards */}
         {hoveredSubcontrol && (
           <div className="text-xs border border-border rounded-md p-4 grid grid-cols-[auto,1fr] gap-y-3 gap-x-5">
             <span className="font-medium text-foreground">Parent control</span>
-            <span className=" underline cursor-pointer">{hoveredSubcontrol.parentRefCode}</span>
+            <span className="underline cursor-pointer">{hoveredSubcontrol.parentRefCode}</span>
 
             <span className="font-medium text-foreground">Details</span>
             <div>{convertToReadOnly(hoveredSubcontrol.parentDescription, 0)}</div>
@@ -139,7 +135,7 @@ export const ControlObjectiveCard = ({ obj }: Props) => {
         {hoveredControl && (
           <div className="text-xs border border-border rounded-md p-4 grid grid-cols-[auto,1fr] gap-y-3 gap-x-5">
             <span className="font-medium text-foreground">Standard</span>
-            <span className=" underline cursor-pointer">{hoveredControl.shortName}</span>
+            <span className="underline cursor-pointer">{hoveredControl.shortName}</span>
 
             <span className="font-medium text-foreground">Details</span>
             <div>{convertToReadOnly(hoveredControl.description, 0)}</div>
@@ -150,45 +146,45 @@ export const ControlObjectiveCard = ({ obj }: Props) => {
   )
 }
 
-function renderSourceText(source?: ControlObjectiveControlSource | null) {
-  switch (source) {
-    case ControlObjectiveControlSource.FRAMEWORK:
-      return 'Framework'
-    case ControlObjectiveControlSource.IMPORTED:
-      return 'Imported'
-    case ControlObjectiveControlSource.TEMPLATE:
-      return 'Template'
-    case ControlObjectiveControlSource.USER_DEFINED:
-      return 'User Defined'
-    default:
-      return '—'
-  }
-}
-
-function renderStatusIcon(status?: ControlObjectiveObjectiveStatus | null) {
+function renderStatusIcon(status?: string | null) {
   switch (status) {
-    case ControlObjectiveObjectiveStatus.DRAFT:
+    case ControlImplementationDocumentStatus.DRAFT:
       return (
         <span className="inline-flex items-center gap-1 text-muted-foreground">
-          <FilePenLineIcon size={16} />
+          {ControlImplementationIconMap[status]}
           Draft
         </span>
       )
-    case ControlObjectiveObjectiveStatus.ACTIVE:
+    case ControlImplementationDocumentStatus.APPROVED:
       return (
         <span className="inline-flex items-center gap-1 text-muted-foreground">
-          <ThumbsUp size={16} />
-          Active
+          {ControlImplementationIconMap[status]}
+          Approved
         </span>
       )
-    case ControlObjectiveObjectiveStatus.ARCHIVED:
+    case ControlImplementationDocumentStatus.ARCHIVED:
       return (
         <span className="inline-flex items-center gap-1 text-muted-foreground">
-          <Archive size={16} />
+          {ControlImplementationIconMap[status]}
           Archived
         </span>
       )
+
+    case ControlImplementationDocumentStatus.NEEDS_APPROVAL:
+      return (
+        <span className="inline-flex items-center gap-1 text-muted-foreground">
+          {ControlImplementationIconMap[status]}
+          Needs Approval
+        </span>
+      )
+    case ControlImplementationDocumentStatus.PUBLISHED:
+      return (
+        <span className="inline-flex items-center gap-1 text-muted-foreground">
+          {ControlImplementationIconMap[status]}
+          Published
+        </span>
+      )
     default:
-      return null
+      return '—'
   }
 }
