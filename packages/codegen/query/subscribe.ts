@@ -47,3 +47,13 @@ export const UNSUBSCRIBE_MUTATION = gql`
     }
   }
 `
+
+export const CREATE_CSV_BULK_SUBSCRIBER = gql`
+  mutation CreateBulkCSVSubscriber($input: Upload!) {
+    createBulkCSVSubscriber(input: $input) {
+      subscribers {
+        id
+      }
+    }
+  }
+`

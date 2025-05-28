@@ -2,7 +2,7 @@
 import React, { useMemo, useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import GroupsTable from '@/components/pages/protected/groups/components/groups-table'
-import { CreditCard as CardIcon, SearchIcon, Table as TableIcon } from 'lucide-react'
+import { CirclePlus, CreditCard as CardIcon, SearchIcon, Table as TableIcon, Upload } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
 import { GetAllGroupsQueryVariables, GroupSettingVisibility } from '@repo/codegen/src/schema'
 import CreateGroupDialog from './components/dialogs/create-group-dialog'
@@ -15,6 +15,8 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import GroupInfiniteCards from '@/components/pages/protected/groups/components/group-infinite-cards.tsx'
+import Menu from '@/components/shared/menu/menu.tsx'
+import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
 
 const filterFields: FilterField[] = [
   { key: 'name', label: 'Name', type: 'text' },
@@ -93,7 +95,19 @@ const GroupsPage = () => {
             <p>Show auto generated group</p>
           </div>
         </div>
-        <CreateGroupDialog />
+        <Menu
+          trigger={CreateBtn}
+          content={
+            <CreateGroupDialog
+              trigger={
+                <div className="flex items-center space-x-2">
+                  <CirclePlus size={16} strokeWidth={2} />
+                  <span>Group</span>
+                </div>
+              }
+            />
+          }
+        />
       </div>
 
       {activeTab === 'table' ? (

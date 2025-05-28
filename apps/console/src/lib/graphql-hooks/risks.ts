@@ -1,9 +1,11 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
-import { GET_ALL_RISKS, GET_RISK_BY_ID, UPDATE_RISK } from '@repo/codegen/query/risks'
+import { CREATE_CSV_BULK_RISK, GET_ALL_RISKS, GET_RISK_BY_ID, UPDATE_RISK } from '@repo/codegen/query/risks'
 
 import {
+  CreateBulkCsvRiskMutation,
+  CreateBulkCsvRiskMutationVariables,
   GetAllRisksQuery,
   GetRiskByIdQuery,
   GetRiskByIdQueryVariables,
@@ -15,6 +17,7 @@ import {
   UpdateRiskMutationVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
+import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
 
 export const useGetAllRisks = () => {
   const { client } = useGraphQLClient()
@@ -80,6 +83,17 @@ export const useUpdateRisk = () => {
     mutationFn: (variables) => client.request(UPDATE_RISK, variables),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['risks', data.updateRisk.risk.id] })
+      queryClient.invalidateQueries({ queryKey: ['risks'] })
+    },
+  })
+}
+
+export const useCreateBulkCSVRisk = () => {
+  const { queryClient } = useGraphQLClient()
+
+  return useMutation<CreateBulkCsvRiskMutation, unknown, CreateBulkCsvRiskMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_RISK, variables }),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['risks'] })
     },
   })

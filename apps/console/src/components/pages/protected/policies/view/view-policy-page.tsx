@@ -25,6 +25,7 @@ import { useSession } from 'next-auth/react'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useRouter } from 'next/navigation'
+import Menu from '@/components/shared/menu/menu.tsx'
 
 type TViewPolicyPage = {
   policyId: string
@@ -90,7 +91,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     setIsEditing(false)
   }
 
-  const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleEdit = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault()
     setIsEditing(true)
   }
@@ -168,22 +169,30 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
                 </div>
               ) : (
                 <div className="flex gap-2 justify-end">
-                  {deleteAllowed && (
-                    <>
-                      <Button type="button" className="h-8 !px-2" icon={<Trash2 />} iconPosition="left" onClick={() => setIsDeleteDialogOpen(true)}>
-                        Delete
-                      </Button>
-                      <ConfirmationDialog
-                        open={isDeleteDialogOpen}
-                        onOpenChange={setIsDeleteDialogOpen}
-                        onConfirm={handleDeletePolicy}
-                        description="This action cannot be undone. This will permanently remove the policy from the organization."
-                      />
-                    </>
-                  )}
-                  <Button className="h-8 !px-2" icon={<PencilIcon />} iconPosition="left" onClick={handleEdit}>
-                    Edit
-                  </Button>
+                  <Menu
+                    content={
+                      <>
+                        <div className="flex items-center space-x-2 cursor-pointer" onClick={handleEdit}>
+                          <PencilIcon size={16} strokeWidth={2} />
+                          <span>Edit</span>
+                        </div>
+                        {deleteAllowed && (
+                          <>
+                            <div className="flex items-center space-x-2 cursor-pointer" onClick={() => setIsDeleteDialogOpen(true)}>
+                              <Trash2 size={16} strokeWidth={2} />
+                              <span>Delete</span>
+                            </div>
+                            <ConfirmationDialog
+                              open={isDeleteDialogOpen}
+                              onOpenChange={setIsDeleteDialogOpen}
+                              onConfirm={handleDeletePolicy}
+                              description="This action cannot be undone. This will permanently remove the policy from the organization."
+                            />
+                          </>
+                        )}
+                      </>
+                    }
+                  />
                 </div>
               )}
               <AuthorityCard form={form} approver={policy.approver} delegate={policy.delegate} isEditing={isEditing} />

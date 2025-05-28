@@ -6,6 +6,7 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { QUESTIONNAIRE_FILTER_FIELDS } from '@/components/pages/protected/questionnaire/table/table-config.ts'
 import { includeQuestionnaireCreation } from '@repo/dally/auth'
 import { CreateDropdown } from '@/components/pages/protected/questionnaire/create.tsx'
+import Menu from '@/components/shared/menu/menu.tsx'
 
 type TQuestionnaireTableToolbarProps = {
   creating: boolean
@@ -16,7 +17,7 @@ type TQuestionnaireTableToolbarProps = {
 }
 const createDropdown = () => {
   if (includeQuestionnaireCreation == 'true') {
-    return <CreateDropdown />
+    return <Menu content={<CreateDropdown />} />
   }
 }
 const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({ creating, searching, searchTerm, setFilters, setSearchTerm }) => {

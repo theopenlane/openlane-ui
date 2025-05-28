@@ -85,9 +85,9 @@ const DashboardSkeleton: React.FC = () => {
                 <h3 className="mt-4 text-lg font-semibold">
                   <Skeleton width={180} height={10} />
                 </h3>
-                <p className="text-sm text-muted-foreground mt-1 mb-3">
+                <span className="text-sm text-muted-foreground mt-1 mb-3">
                   <Skeleton width={500} height={10} />
-                </p>
+                </span>
                 <Skeleton width={110} height={30} />
               </div>
             </CardContent>
@@ -108,12 +108,12 @@ const DashboardSkeleton: React.FC = () => {
                 </div>
 
                 <div className={statDetails()}>
-                  <p className="text-base">
+                  <span className="text-base">
                     <Skeleton width={35} height={10} />
-                  </p>
-                  <p className="text-base">
+                  </span>
+                  <span className="text-base">
                     <Skeleton width={100} height={10} />
-                  </p>
+                  </span>
                 </div>
 
                 <div>

@@ -12,9 +12,10 @@ interface Props {
   defaultSelectedObject?: ObjectTypeObjects
   initialData?: TObjectAssociationMap
   objectAssociationsDisplayIDs?: string[]
+  trigger?: React.ReactElement
 }
 
-const CreateTaskDialog = ({ defaultSelectedObject, initialData, objectAssociationsDisplayIDs }: Props) => {
+const CreateTaskDialog = ({ defaultSelectedObject, initialData, objectAssociationsDisplayIDs, trigger }: Props) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
 
   const handleSuccess = () => {
@@ -23,11 +24,15 @@ const CreateTaskDialog = ({ defaultSelectedObject, initialData, objectAssociatio
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button className="h-8 !px-2" icon={<PlusCircle />} iconPosition="left" onClick={() => setIsOpen(true)}>
-          Create Task
-        </Button>
-      </DialogTrigger>
+      {trigger ? (
+        <DialogTrigger>{trigger}</DialogTrigger>
+      ) : (
+        <DialogTrigger asChild>
+          <Button className="h-8 !px-2" icon={<PlusCircle />} iconPosition="left" onClick={() => setIsOpen(true)}>
+            Create Task
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create a new Task</DialogTitle>

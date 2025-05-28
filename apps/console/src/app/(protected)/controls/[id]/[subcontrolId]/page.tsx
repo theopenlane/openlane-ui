@@ -6,7 +6,7 @@ import { useForm, FormProvider } from 'react-hook-form'
 import { Value } from '@udecode/plate-common'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import { ArrowRight, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
+import { ArrowRight, ChevronDown, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
 
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { Control, EvidenceEdge, SubcontrolControlStatus } from '@repo/codegen/src/schema.ts'
@@ -24,6 +24,10 @@ import ControlEvidenceTable from '@/components/pages/protected/controls/control-
 import EvidenceDetailsSheet from '@/components/pages/protected/controls/control-evidence/evidence-details-sheet.tsx'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
+import Menu from '@/components/shared/menu/menu'
+import { TaskIconBtn } from '@/components/shared/icon-enum/task-enum.tsx'
+import DeleteSubcontrolDialog from '@/components/pages/protected/controls/delete-subcontrol-dialog.tsx'
+import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
 
 interface FormValues {
   refCode: string
@@ -111,7 +115,7 @@ const ControlDetailsPage: React.FC = () => {
     setIsEditing(false)
   }
 
-  const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleEdit = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault()
     setIsEditing(true)
   }
@@ -180,19 +184,35 @@ const ControlDetailsPage: React.FC = () => {
               </div>
             ) : (
               <div className="flex gap-2 justify-end">
-                <CreateTaskDialog
-                  defaultSelectedObject={ObjectTypeObjects.SUB_CONTROL}
-                  initialData={{
-                    procedureIDs: (subcontrol.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                    internalPolicyIDs: (subcontrol.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                    controlObjectiveIDs: (subcontrol.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                    riskIDs: (subcontrol.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                    subcontrolIDs: [subcontrolId],
-                  }}
+                <Menu
+                  trigger={CreateBtn}
+                  content={
+                    <>
+                      <CreateTaskDialog
+                        trigger={TaskIconBtn}
+                        defaultSelectedObject={ObjectTypeObjects.SUB_CONTROL}
+                        initialData={{
+                          procedureIDs: (subcontrol.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                          internalPolicyIDs: (subcontrol.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                          controlObjectiveIDs: (subcontrol.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                          riskIDs: (subcontrol.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                          subcontrolIDs: [subcontrolId],
+                        }}
+                      />
+                    </>
+                  }
                 />
-                <Button className="h-8 !px-2" icon={<PencilIcon />} iconPosition="left" onClick={handleEdit}>
-                  Edit Subontrol
-                </Button>
+                <Menu
+                  content={
+                    <>
+                      <div className="flex items-center space-x-2 cursor-pointer" onClick={(e) => handleEdit(e)}>
+                        <PencilIcon size={16} strokeWidth={2} />
+                        <span>Edit</span>
+                      </div>
+                      <DeleteSubcontrolDialog subcontrolId={subcontrolId} controlId={subcontrol.control.id} />
+                    </>
+                  }
+                />
               </div>
             )}
             <AuthorityCard controlOwner={subcontrol.controlOwner} delegate={subcontrol.delegate} isEditing={isEditing} />
