@@ -5,13 +5,13 @@ import { useParams } from 'next/navigation'
 import { useGetAllControlObjectives } from '@/lib/graphql-hooks/control-objectives'
 import { ControlObjectiveFieldsFragment } from '@repo/codegen/src/schema'
 import { ArrowRight, ChevronRight, ChevronsDownUp, ChevronsUpDown, CirclePlus, Pencil, Settings2 } from 'lucide-react'
-import CreateControlObjectiveSheet from '@/components/pages/protected/controls/control-objectives/create-control-objective-sheet'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Button } from '@repo/ui/button'
 
 import { Loading } from '@/components/shared/loading/loading'
 import { ControlObjectiveCard } from './control-implementation-card'
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@radix-ui/react-accordion'
+import CreateControlImplementationSheet from './create-control-implementation-sheet'
 
 const ControlImplementationPage = () => {
   const params = useParams()
@@ -69,10 +69,10 @@ const ControlImplementationPage = () => {
   if (!edges?.length) {
     return (
       <>
-        <CreateControlObjectiveSheet open={showCreateSheet} onOpenChange={setShowCreateSheet} />
+        <CreateControlImplementationSheet open={showCreateSheet} onOpenChange={setShowCreateSheet} />
         <div className="flex flex-col items-center justify-center h-[60vh] text-center text-gray-300">
           <Settings2 className="w-20 h-20 mb-4 text-border" strokeWidth={1} />
-          <p className="mb-2 text-sm">No Objective found for this Control.</p>
+          <p className="mb-2 text-sm">No Implementations found for this Control.</p>
           <div className="text-blue-500 flex items-center gap-1 cursor-pointer">
             <p onClick={() => setShowCreateSheet(true)} className="text-blue-500">
               Create a new one
@@ -86,7 +86,7 @@ const ControlImplementationPage = () => {
 
   return (
     <div>
-      <CreateControlObjectiveSheet
+      <CreateControlImplementationSheet
         open={showCreateSheet}
         onOpenChange={(open) => {
           setShowCreateSheet(open)
@@ -95,7 +95,7 @@ const ControlImplementationPage = () => {
         editData={editData}
       />
       <div className="flex justify-between items-center">
-        <PageHeading heading="Control Objectives" />
+        <PageHeading heading="Control Implementations" />
         <div className="flex gap-2.5 items-center">
           <Button className="h-8 !px-2" variant="outline" onClick={() => setExpandedItems([])} icon={<ChevronsDownUp />} iconPosition="left">
             Collapse all
@@ -104,7 +104,7 @@ const ControlImplementationPage = () => {
             Expand all
           </Button>
           <Button className="h-8 !px-2" icon={<CirclePlus />} iconPosition="left" onClick={() => setShowCreateSheet(true)}>
-            Create Objective
+            Create
           </Button>
         </div>
       </div>

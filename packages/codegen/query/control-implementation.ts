@@ -46,3 +46,31 @@ export const GET_ALL_CONTROL_IMPLEMENTATIONS = gql`
     }
   }
 `
+
+export const CREATE_CONTROL_IMPLEMENTATION = gql`
+  mutation CreateControlImplementation($input: CreateControlImplementationInput!) {
+    createControlImplementation(input: $input) {
+      controlImplementation {
+        id
+      }
+    }
+  }
+`
+
+export const UPDATE_CONTROL_IMPLEMENTATION = gql`
+  mutation UpdateControlImplementation($updateControlImplementationId: ID!, $input: UpdateControlImplementationInput!) {
+    updateControlImplementation(id: $updateControlImplementationId, input: $input) {
+      controlImplementation {
+        id
+      }
+    }
+  }
+`
+
+export const DELETE_CONTROL_IMPLEMENTATION = gql`
+  mutation DeleteControlImplementation($deleteControlImplementationId: ID!) {
+    deleteControlImplementation(id: $deleteControlImplementationId) {
+      deletedID
+    }
+  }
+`

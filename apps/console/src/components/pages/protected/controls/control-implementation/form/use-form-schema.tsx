@@ -3,37 +3,23 @@
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ControlObjectiveControlSource, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
+import { ControlImplementationDocumentStatus } from '@repo/codegen/src/schema'
 
-export enum VersionBump {
-  MAJOR = 'MAJOR',
-  MINOR = 'MINOR',
-  PATCH = 'PATCH',
-  DRAFT = 'DRAFT',
-}
-
-export const controlObjectiveSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  desiredOutcome: z.any().optional(),
-  status: z.nativeEnum(ControlObjectiveObjectiveStatus),
-  source: z.nativeEnum(ControlObjectiveControlSource),
-  controlObjectiveType: z.string().optional(),
-  category: z.string().optional(),
-  subcategory: z.string().optional(),
+export const controlImplementationSchema = z.object({
+  details: z.any().optional(),
+  status: z.nativeEnum(ControlImplementationDocumentStatus).optional(),
+  implementationDate: z.date().optional(),
   controlIDs: z.array(z.string()).optional(),
-  subcontrolIDs: z.array(z.string()).optional(),
-  RevisionBump: z.enum(['MAJOR', 'MINOR', 'PATCH', 'DRAFT']).optional(),
 })
 
-export type TFormData = z.infer<typeof controlObjectiveSchema> & { id?: string; revision?: string }
+export type TFormData = z.infer<typeof controlImplementationSchema> & { id?: string; revision?: string }
 
 const useFormSchema = () => {
   return {
     form: useForm<TFormData>({
-      resolver: zodResolver(controlObjectiveSchema),
+      resolver: zodResolver(controlImplementationSchema),
       defaultValues: {
-        status: ControlObjectiveObjectiveStatus.DRAFT,
-        source: ControlObjectiveControlSource.USER_DEFINED,
+        status: ControlImplementationDocumentStatus.DRAFT,
       },
     }),
   }
