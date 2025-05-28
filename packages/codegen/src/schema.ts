@@ -35007,6 +35007,90 @@ export interface WebauthnWhereInput {
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+export type ControlImplementationFieldsFragment = {
+  __typename?: 'ControlImplementation'
+  id: string
+  details?: string | null
+  status?: ControlImplementationDocumentStatus | null
+  implementationDate?: any | null
+  verified?: boolean | null
+  controls: {
+    __typename?: 'ControlConnection'
+    edges?: Array<{
+      __typename?: 'ControlEdge'
+      node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; standard?: { __typename?: 'Standard'; shortName?: string | null } | null } | null
+    } | null> | null
+  }
+  subcontrols: {
+    __typename?: 'SubcontrolConnection'
+    edges?: Array<{
+      __typename?: 'SubcontrolEdge'
+      node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; refCode: string; description?: string | null } } | null
+    } | null> | null
+  }
+}
+
+export type GetAllControlImplementationsQueryVariables = Exact<{
+  where?: InputMaybe<ControlImplementationWhereInput>
+}>
+
+export type GetAllControlImplementationsQuery = {
+  __typename?: 'Query'
+  controlImplementations: {
+    __typename?: 'ControlImplementationConnection'
+    edges?: Array<{
+      __typename?: 'ControlImplementationEdge'
+      node?: {
+        __typename?: 'ControlImplementation'
+        id: string
+        details?: string | null
+        status?: ControlImplementationDocumentStatus | null
+        implementationDate?: any | null
+        verified?: boolean | null
+        controls: {
+          __typename?: 'ControlConnection'
+          edges?: Array<{
+            __typename?: 'ControlEdge'
+            node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; standard?: { __typename?: 'Standard'; shortName?: string | null } | null } | null
+          } | null> | null
+        }
+        subcontrols: {
+          __typename?: 'SubcontrolConnection'
+          edges?: Array<{
+            __typename?: 'SubcontrolEdge'
+            node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; refCode: string; description?: string | null } } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type CreateControlImplementationMutationVariables = Exact<{
+  input: CreateControlImplementationInput
+}>
+
+export type CreateControlImplementationMutation = {
+  __typename?: 'Mutation'
+  createControlImplementation: { __typename?: 'ControlImplementationCreatePayload'; controlImplementation: { __typename?: 'ControlImplementation'; id: string } }
+}
+
+export type UpdateControlImplementationMutationVariables = Exact<{
+  updateControlImplementationId: Scalars['ID']['input']
+  input: UpdateControlImplementationInput
+}>
+
+export type UpdateControlImplementationMutation = {
+  __typename?: 'Mutation'
+  updateControlImplementation: { __typename?: 'ControlImplementationUpdatePayload'; controlImplementation: { __typename?: 'ControlImplementation'; id: string } }
+}
+
+export type DeleteControlImplementationMutationVariables = Exact<{
+  deleteControlImplementationId: Scalars['ID']['input']
+}>
+
+export type DeleteControlImplementationMutation = { __typename?: 'Mutation'; deleteControlImplementation: { __typename?: 'ControlImplementationDeletePayload'; deletedID: string } }
+
 export type ControlObjectiveFieldsFragment = {
   __typename?: 'ControlObjective'
   id: string

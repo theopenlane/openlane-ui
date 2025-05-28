@@ -8,8 +8,7 @@ import { Button } from '@repo/ui/button'
 import { Label } from '@repo/ui/label'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import { SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { ControlObjectiveControlSource, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
-import { useCreateControlObjective, useDeleteControlObjective, useUpdateControlObjective } from '@/lib/graphql-hooks/control-objectives'
+import { ControlImplementationDocumentStatus } from '@repo/codegen/src/schema'
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Value } from '@udecode/plate-common'
@@ -21,13 +20,8 @@ import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { SetObjectAssociationDialog } from '../set-object-association-dialog'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
+import { useCreateControlImplementation, useDeleteControlImplementation, useUpdateControlImplementation } from '@/lib/graphql-hooks/control-implementations'
 
-const controlSourceLabels: Record<ControlObjectiveControlSource, string> = {
-  [ControlObjectiveControlSource.FRAMEWORK]: 'Framework',
-  [ControlObjectiveControlSource.IMPORTED]: 'Imported',
-  [ControlObjectiveControlSource.TEMPLATE]: 'Template',
-  [ControlObjectiveControlSource.USER_DEFINED]: 'User Defined',
-}
 export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { onSuccess: () => void; defaultValues?: Partial<TFormData> }) => {
   const { id, subcontrolId } = useParams()
   const { successNotification, errorNotification } = useNotification()
@@ -49,21 +43,24 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
     formState: { errors },
   } = form
 
-  const { mutate: createObjective } = useCreateControlObjective()
-  const { mutate: updateObjective } = useUpdateControlObjective()
-  const { mutate: deleteObjective } = useDeleteControlObjective()
+  const { mutate: createImplementation } = useCreateControlImplementation()
+  const { mutate: updateImplementation } = useUpdateControlImplementation()
+  const { mutate: deleteImplementation } = useDeleteControlImplementation()
 
   const handleDelete = () => {
     if (defaultValues?.id) {
-      deleteObjective(
-        { deleteControlObjectiveId: defaultValues.id },
+      deleteImplementation(
+        { deleteControlImplementationId: defaultValues.id },
         {
           onSuccess: () => {
-            successNotification({ title: 'Control Objective deleted' })
+            successNotification({ title: 'Control Implementation deleted' })
             onSuccess()
           },
           onError: () => {
-            errorNotification({ title: 'Delete failed', description: 'Could not delete objective. Please try again.' })
+            errorNotification({
+              title: 'Delete failed',
+              description: 'Could not delete control implementation. Please try again.',
+            })
           },
         },
       )
@@ -71,35 +68,44 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
   }
 
   const onSubmit = async (data: TFormData) => {
+    const details = await convertToHtml(data.details as Value)
+
     const creationPayload = {
       ...data,
+      details,
       ...associations,
     }
 
     if (isEditing) {
-      updateObjective(
+      updateImplementation(
         {
-          updateControlObjectiveId: defaultValues.id || '',
-          input: basePayload,
+          updateControlImplementationId: defaultValues.id || '',
+          input: creationPayload,
         },
         {
           onSuccess: () => {
-            successNotification({ title: 'Control Objective updated' })
+            successNotification({ title: 'Control Implementation updated' })
             onSuccess()
           },
           onError: () => {
-            errorNotification({ title: 'Update failed', description: 'Could not update objective. Please try again.' })
+            errorNotification({
+              title: 'Update failed',
+              description: 'Could not update control implementation. Please try again.',
+            })
           },
         },
       )
     } else {
-      createObjective(creationPayload, {
+      createImplementation(creationPayload, {
         onSuccess: () => {
-          successNotification({ title: 'Control Objective created' })
+          successNotification({ title: 'Control Implementation created' })
           onSuccess()
         },
         onError: () => {
-          errorNotification({ title: 'Create failed', description: 'Could not create objective. Please try again.' })
+          errorNotification({
+            title: 'Create failed',
+            description: 'Could not create control implementation. Please try again.',
+          })
         },
       })
     }
@@ -157,9 +163,9 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.entries(ControlObjectiveObjectiveStatus).map(([key, val]) => (
+                    {Object.entries(ControlImplementationDocumentStatus).map(([key, val]) => (
                       <SelectItem key={key} value={val}>
-                        {val.charAt(0).toUpperCase() + val.slice(1).toLowerCase()}
+                        {formatEnumLabel(val)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -173,15 +179,7 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
             Implementation <br /> date
           </Label>
           <div className="w-48">
-            <Controller
-              name="implementationDate"
-              control={form.control}
-              render={({ field }) => (
-                <>
-                  <CalendarPopover field={field} disabledFrom={new Date()} />
-                </>
-              )}
-            />
+            <Controller name="implementationDate" control={form.control} render={({ field }) => <CalendarPopover field={field} disabledFrom={new Date()} defaultToday />} />
           </div>
         </div>
 
@@ -192,4 +190,12 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
       </div>
     </form>
   )
+}
+
+const formatEnumLabel = (value: string) => {
+  return value
+    .toLowerCase()
+    .split('_')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
 }
