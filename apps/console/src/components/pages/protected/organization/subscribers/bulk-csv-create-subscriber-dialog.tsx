@@ -1,16 +1,17 @@
 'use client'
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { Import, Info } from 'lucide-react'
+import { Info, Upload } from 'lucide-react'
 import React, { cloneElement, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { Card } from '@repo/ui/cardpanel'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
-import { useCreateBulkCSVProcedure } from '@/lib/graphql-hooks/procedures.ts'
+import { exportCSV } from '@/lib/export'
 import { DOCS_URL, GRAPHQL_OBJECT_DOCS } from '@/constants'
+import { useCreateBulkCSVSubscriber } from '@/lib/graphql-hooks/subscribes.ts'
 
-type TBulkCSVCreateProcedureDialogProps = {
+type BulkCsvCreateSubscriberDialogProps = {
   trigger?: React.ReactElement<
     Partial<{
       onClick: React.MouseEventHandler
@@ -20,11 +21,11 @@ type TBulkCSVCreateProcedureDialogProps = {
   >
 }
 
-const BulkCSVCreateProcedureDialog: React.FC<TBulkCSVCreateProcedureDialogProps> = ({ trigger }) => {
+const BulkCSVCreateSubscriberDialog: React.FC<BulkCsvCreateSubscriberDialogProps> = ({ trigger }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [uploadedFile, setUploadedFile] = useState<TUploadedFile | null>(null)
   const { successNotification, errorNotification } = useNotification()
-  const { mutateAsync: createBulkProcedure, isPending: isSubmitting } = useCreateBulkCSVProcedure()
+  const { mutateAsync: createBulkSubscriber, isPending: isSubmitting } = useCreateBulkCSVSubscriber()
 
   const handleFileUpload = async () => {
     if (!uploadedFile) {
@@ -32,21 +33,26 @@ const BulkCSVCreateProcedureDialog: React.FC<TBulkCSVCreateProcedureDialogProps>
     }
 
     try {
-      await createBulkProcedure({ input: uploadedFile.file! })
+      await createBulkSubscriber({ input: uploadedFile.file! })
       successNotification({
-        title: 'Procedure Created',
-        description: `Procedure has been successfully created`,
+        title: 'Subscribers Created',
+        description: `Subscribers has been successfully created`,
       })
+      setIsOpen(false)
     } catch (error) {
       errorNotification({
         title: 'Error',
-        description: 'There was an error creating the procedures. Please try again.',
+        description: 'There was an error creating the subscribers. Please try again.',
       })
     }
   }
 
   const handleUploadedFile = (uploadedFile: TUploadedFile) => {
     setUploadedFile(uploadedFile)
+  }
+
+  const handleCSVExport = async () => {
+    const data = await exportCSV({ filename: 'subscriber' })
   }
 
   return (
@@ -60,25 +66,30 @@ const BulkCSVCreateProcedureDialog: React.FC<TBulkCSVCreateProcedureDialogProps>
         </DialogTrigger>
       ) : (
         <DialogTrigger asChild>
-          <Button icon={<Import />} iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
-            Import existing document
+          <Button icon={<Upload />} className="h-8 !px-2" iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
+            Bulk Upload
           </Button>
         </DialogTrigger>
       )}
+
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Import existing document</DialogTitle>
+          <DialogTitle>Bulk Upload</DialogTitle>
         </DialogHeader>
         <Card className="mt-6 p-4 flex gap-3">
           <Info className="mt-1" width={16} height={16} />
           <div>
             <p className="font-semibold">Column format</p>
             <p className="text-sm">
-              You can upload a csv containing procedures. Please refer to our{' '}
-              <a href={`${DOCS_URL}${GRAPHQL_OBJECT_DOCS}#procedures`} target="_blank" className="text-brand hover:underline">
+              You can upload a csv containing subscribers. Please refer to our{' '}
+              <a href={`${DOCS_URL}${GRAPHQL_OBJECT_DOCS}#subscriber`} target="_blank" className="text-brand hover:underline">
                 documentation
               </a>{' '}
-              for column format. We also provide a <span className="text-brand hover:underline">template csv file</span> for you to fill out.
+              for column format. We also provide a{' '}
+              <span className="text-brand hover:underline cursor-pointer" onClick={() => handleCSVExport()}>
+                template csv file
+              </span>{' '}
+              for you to fill out.
             </p>
           </div>
         </Card>
@@ -100,4 +111,4 @@ const BulkCSVCreateProcedureDialog: React.FC<TBulkCSVCreateProcedureDialogProps>
   )
 }
 
-export default BulkCSVCreateProcedureDialog
+export default BulkCSVCreateSubscriberDialog

@@ -36387,6 +36387,13 @@ export type UpdateSubscriberMutationVariables = Exact<{
 
 export type UpdateSubscriberMutation = { __typename?: 'Mutation', updateSubscriber: { __typename?: 'SubscriberUpdatePayload', subscriber: { __typename?: 'Subscriber', id: string } } };
 
+export type CreateBulkCsvSubscriberMutationVariables = Exact<{
+  input: Scalars['Upload']['input'];
+}>;
+
+
+export type CreateBulkCsvSubscriberMutation = { __typename?: 'Mutation', createBulkCSVSubscriber: { __typename?: 'SubscriberBulkCreatePayload', subscribers?: Array<{ __typename?: 'Subscriber', id: string }> | null } };
+
 export type TasksWithFilterQueryVariables = Exact<{
   where?: InputMaybe<TaskWhereInput>;
   orderBy?: InputMaybe<Array<TaskOrder> | TaskOrder>;

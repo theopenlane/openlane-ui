@@ -1,10 +1,9 @@
 import { useRouter } from 'next/navigation'
 import { pageStyles } from './page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { Button } from '@repo/ui/button'
-import { FilePlus, LayoutTemplate, PlusIcon } from 'lucide-react'
+import { CirclePlus, FilePlus, LayoutTemplate } from 'lucide-react'
 import { TemplateList } from './templates'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { AlertDialog } from '@repo/ui/alert-dialog'
 import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api.ts'
@@ -31,9 +30,10 @@ export const CreateDropdown = () => {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           {canCreate(permission?.roles, AccessEnum.CanCreateTemplate) && (
-            <Button icon={<PlusIcon />} iconPosition="left" onClick={handleCreateNew}>
-              Create New
-            </Button>
+            <div className="flex items-center space-x-2 cursor-pointer" onClick={handleCreateNew}>
+              <CirclePlus size={16} strokeWidth={2} />
+              <span>Questionnaire</span>
+            </div>
           )}
         </DropdownMenuTrigger>
         <DropdownMenuContent>

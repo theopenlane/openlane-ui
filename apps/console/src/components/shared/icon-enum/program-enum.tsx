@@ -1,7 +1,6 @@
-import { Cog, Folder, FolderCheck, FolderClock, FolderInput, FolderOutput, ShieldPlus } from 'lucide-react'
+import { CirclePlus, Cog, Folder, FolderCheck, FolderClock, FolderInput, FolderOutput } from 'lucide-react'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema.ts'
 import React from 'react'
-import { Button } from '@repo/ui/button'
 import Link from 'next/link'
 
 export const ProgramIconMapper: Record<ProgramProgramStatus, React.ReactNode> = {
@@ -14,7 +13,7 @@ export const ProgramIconMapper: Record<ProgramProgramStatus, React.ReactNode> = 
 
 export const ProgramCreateIconBtn = (
   <div className="flex items-center space-x-2">
-    <ShieldPlus size={16} strokeWidth={2} />
+    <CirclePlus size={16} strokeWidth={2} />
     <span>Program</span>
   </div>
 )

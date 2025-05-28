@@ -28,10 +28,10 @@ const CreateGroupSchema = z.object({
 type CreateGroupFormData = z.infer<typeof CreateGroupSchema>
 
 type MyGroupsDialogProps = {
-  triggerText?: boolean
+  trigger?: React.ReactElement
 }
 
-const CreateGroupDialog = ({ triggerText }: MyGroupsDialogProps) => {
+const CreateGroupDialog = ({ trigger }: MyGroupsDialogProps) => {
   const { data: session } = useSession()
   const [isOpen, setIsOpen] = useState(false)
   const [visibility, setVisibility] = useState<'Public' | 'Private'>('Public')
@@ -95,18 +95,16 @@ const CreateGroupDialog = ({ triggerText }: MyGroupsDialogProps) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        {triggerText ? (
-          <div className="flex cursor-pointer">
-            <p className="text-brand ">Create a new one</p>
-            <p>?</p>
-          </div>
-        ) : (
+      {trigger ? (
+        <DialogTrigger>{trigger}</DialogTrigger>
+      ) : (
+        <DialogTrigger asChild>
           <Button icon={<PlusCircle />} iconPosition="left">
             Create Group
           </Button>
-        )}
-      </DialogTrigger>
+        </DialogTrigger>
+      )}
+
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold">Create a new group</DialogTitle>
