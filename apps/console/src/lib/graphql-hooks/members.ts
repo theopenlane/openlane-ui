@@ -10,8 +10,8 @@ import {
   RemoveUserFromOrgMutationVariables,
   OrgMembershipsQuery,
   OrgMembershipsQueryVariables,
+  OrgMembershipWhereInput,
   OrgMembership,
-  GetInternalPoliciesListQueryVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 
@@ -32,7 +32,7 @@ export const useRemoveUserFromOrg = () => {
 }
 
 type TUseGetOrgMemberships = {
-  where?: GetInternalPoliciesListQueryVariables['where']
+  where?: OrgMembershipWhereInput
   pagination?: TPagination
   enabled?: boolean
 }

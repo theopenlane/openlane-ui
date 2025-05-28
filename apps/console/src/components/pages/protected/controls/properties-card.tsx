@@ -64,13 +64,11 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ category, subcategory, 
                       <SelectValue placeholder="Select status">{field.value === 'NULL' ? '-' : statusLabels[field.value as ControlControlStatus]}</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {statusOptions
-                        .filter((status) => status !== 'NOT_IMPLEMENTED')
-                        .map((status) => (
-                          <SelectItem key={status} value={status}>
-                            {statusLabels[status]}
-                          </SelectItem>
-                        ))}
+                      {statusOptions.map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {statusLabels[status]}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 )}

@@ -130,11 +130,15 @@ export const GET_GROUP_PERMISSIONS = gql`
   query GetGroupPermissions($groupId: ID!) {
     group(id: $groupId) {
       permissions {
-        displayID
-        id
-        name
-        objectType
-        permissions
+        edges {
+          node {
+            displayID
+            id
+            name
+            objectType
+            permissions
+          }
+        }
       }
     }
   }
