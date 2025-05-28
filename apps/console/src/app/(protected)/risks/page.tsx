@@ -16,6 +16,7 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { Badge } from '@repo/ui/badge'
 import RiskLabel from '@/components/pages/protected/risks/risk-label'
+import { VisibilityState } from '@tanstack/react-table'
 
 const RiskTablePage: React.FC = () => {
   const { replace } = useRouter()
@@ -29,6 +30,8 @@ const RiskTablePage: React.FC = () => {
       direction: OrderDirection.DESC,
     },
   ])
+
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
 
   const debouncedSearch = useDebounce(searchQuery, 300)
   const searching = searchQuery !== debouncedSearch
@@ -97,12 +100,12 @@ const RiskTablePage: React.FC = () => {
     },
   ]
 
-  function isAccessorKeyColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
-    return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string'
+  function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
+    return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
   }
 
   const handleExport = () => {
-    const exportableColumns = columns.filter(isAccessorKeyColumn).map((col) => {
+    const exportableColumns = columns.filter(isVisibleColumn).map((col) => {
       const key = col.accessorKey as keyof RiskFieldsFragment
       const label = col.header
 
@@ -143,6 +146,7 @@ const RiskTablePage: React.FC = () => {
       />
 
       <DataTable
+        showVisibility={true}
         sortFields={RISKS_SORT_FIELDS}
         onSortChange={setOrderBy}
         columns={columns}
@@ -152,6 +156,8 @@ const RiskTablePage: React.FC = () => {
         pagination={pagination}
         onPaginationChange={setPagination}
         paginationMeta={paginationMeta}
+        columnVisibility={columnVisibility}
+        setColumnVisibility={setColumnVisibility}
       />
 
       <RiskDetailsSheet />
