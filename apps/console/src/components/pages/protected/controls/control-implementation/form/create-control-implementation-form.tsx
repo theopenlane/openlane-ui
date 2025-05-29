@@ -189,7 +189,7 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
 
         {!isEditing && (
           <div className="flex items-center py-2.5">
-            <Label className="min-w-36">ControlIDs</Label>
+            <Label className="min-w-36">Controls</Label>
             <SetObjectAssociationDialog initialData={associations} setAssociations={setAssociations} />
           </div>
         )}
