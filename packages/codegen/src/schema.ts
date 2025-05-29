@@ -35061,7 +35061,7 @@ export type ControlImplementationFieldsFragment = {
     __typename?: 'SubcontrolConnection'
     edges?: Array<{
       __typename?: 'SubcontrolEdge'
-      node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; refCode: string; description?: string | null } } | null
+      node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; refCode: string; description?: string | null; id: string } } | null
     } | null> | null
   }
 }
@@ -35094,7 +35094,7 @@ export type GetAllControlImplementationsQuery = {
           __typename?: 'SubcontrolConnection'
           edges?: Array<{
             __typename?: 'SubcontrolEdge'
-            node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; refCode: string; description?: string | null } } | null
+            node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; refCode: string; description?: string | null; id: string } } | null
           } | null> | null
         }
       } | null
@@ -35149,7 +35149,7 @@ export type ControlObjectiveFieldsFragment = {
     __typename?: 'SubcontrolConnection'
     edges?: Array<{
       __typename?: 'SubcontrolEdge'
-      node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; refCode: string; description?: string | null } } | null
+      node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; id: string; refCode: string; description?: string | null } } | null
     } | null> | null
   }
 }
@@ -35186,7 +35186,7 @@ export type GetAllControlObjectivesQuery = {
           __typename?: 'SubcontrolConnection'
           edges?: Array<{
             __typename?: 'SubcontrolEdge'
-            node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; refCode: string; description?: string | null } } | null
+            node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; id: string; refCode: string; description?: string | null } } | null
           } | null> | null
         }
       } | null

@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useGetAllControlImplementations } from '@/lib/graphql-hooks/control-implementations'
 import { ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
-import { ArrowRight, ChevronRight, ChevronsDownUp, ChevronsUpDown, CirclePlus, Pencil, Settings2 } from 'lucide-react'
+import { ArrowRight, ChevronRight, ChevronsDownUp, CirclePlus, List, Pencil, Settings2 } from 'lucide-react'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Button } from '@repo/ui/button'
 import { Loading } from '@/components/shared/loading/loading'
@@ -27,6 +27,15 @@ const ControlImplementationPage = () => {
   })
 
   const edges = data?.controlImplementations?.edges?.filter((edge): edge is { node: ControlImplementationFieldsFragment } => !!edge?.node)
+
+  const toggleAll = () => {
+    if (!edges) return
+
+    const allIds = edges.map((edge) => edge.node.id)
+    const hasAllExpanded = allIds.every((id) => expandedItems.includes(id))
+
+    setExpandedItems(hasAllExpanded ? [] : allIds)
+  }
 
   const expandFirstImplementation = (ids: string[]) => {
     if (ids.length > 0) {
@@ -96,11 +105,11 @@ const ControlImplementationPage = () => {
       <div className="flex justify-between items-center">
         <PageHeading heading="Control Implementations" />
         <div className="flex gap-2.5 items-center">
-          <Button className="h-8 !px-2" variant="outline" onClick={() => setExpandedItems([])} icon={<ChevronsDownUp />} iconPosition="left">
-            Collapse all
-          </Button>
-          <Button className="h-8 !px-2" variant="outline" onClick={() => setExpandedItems(edges.map((e) => e.node.id))} icon={<ChevronsUpDown />} iconPosition="left">
-            Expand all
+          <Button type="button" className="h-8 !px-2" variant="outline" onClick={toggleAll}>
+            <div className="flex">
+              <List size={16} />
+              <ChevronsDownUp size={16} />
+            </div>
           </Button>
           <Button className="h-8 !px-2" icon={<CirclePlus />} iconPosition="left" onClick={() => setShowCreateSheet(true)}>
             Create

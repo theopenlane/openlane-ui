@@ -27,6 +27,7 @@ export const CONTROL_IMPLEMENTATION_FIELDS = gql`
           control {
             refCode
             description
+            id
           }
         }
       }
