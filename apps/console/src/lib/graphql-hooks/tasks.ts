@@ -15,10 +15,8 @@ import {
   CreateBulkCsvTaskMutation,
   CreateBulkCsvTaskMutationVariables,
   Task,
-  TaskTaskStatus,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task.ts'
 import { TPagination } from '@repo/ui/pagination-types'
 import { invalidateTaskAssociations } from '@/components/shared/objectAssociation/object-assoiation-config'
 
