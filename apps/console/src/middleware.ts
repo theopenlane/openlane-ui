@@ -20,6 +20,10 @@ export default auth(async (req) => {
   const isTfaEnabled = session?.user.isTfaEnabled
   const isOnboarding = session?.user.isOnboarding
 
+  if (isWaitlist) {
+    return NextResponse.next()
+  }
+
   if (!isLoggedIn) {
     return isPublicPage ? NextResponse.next() : NextResponse.redirect(new URL('/login', req.url))
   }
@@ -28,7 +32,7 @@ export default auth(async (req) => {
     return path === '/tfa' || path === '/login' ? NextResponse.next() : NextResponse.redirect(new URL('/tfa', req.url))
   }
 
-  if (isInvite || isUnsubscribe || isWaitlist) {
+  if (isInvite || isUnsubscribe) {
     return NextResponse.next()
   }
 
