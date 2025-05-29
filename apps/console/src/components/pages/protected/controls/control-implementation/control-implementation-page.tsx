@@ -2,15 +2,16 @@
 
 import React, { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { useGetAllControlImplementations } from '@/lib/graphql-hooks/control-implementations'
+import { useGetAllControlImplementations, useUpdateControlImplementation } from '@/lib/graphql-hooks/control-implementations'
 import { ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
-import { ArrowRight, ChevronRight, ChevronsDownUp, CirclePlus, List, Pencil, Settings2 } from 'lucide-react'
+import { ArrowRight, Check, ChevronRight, ChevronsDownUp, CirclePlus, List, Pencil, Settings2 } from 'lucide-react'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Button } from '@repo/ui/button'
 import { Loading } from '@/components/shared/loading/loading'
 import { ControlImplementationCard } from './control-implementation-card'
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@radix-ui/react-accordion'
 import CreateControlImplementationSheet from './create-control-implementation-sheet'
+import { useNotification } from '@/hooks/useNotification'
 
 const ControlImplementationPage = () => {
   const params = useParams()
@@ -22,10 +23,12 @@ const ControlImplementationPage = () => {
   const [isInitialized, setIsInitialized] = useState(false)
   const [editData, setEditData] = useState<ControlImplementationFieldsFragment | null>(null)
 
+  const { successNotification, errorNotification } = useNotification()
   const { data, isLoading } = useGetAllControlImplementations({
     ...(subcontrolId ? { hasSubcontrolsWith: [{ id: subcontrolId }] } : { hasControlsWith: [{ id }] }),
   })
 
+  const { mutateAsync: updateImplementation, isPending } = useUpdateControlImplementation()
   const edges = data?.controlImplementations?.edges?.filter((edge): edge is { node: ControlImplementationFieldsFragment } => !!edge?.node)
 
   const toggleAll = () => {
@@ -65,6 +68,22 @@ const ControlImplementationPage = () => {
 
     detectAndExpandNewImplementations(currentIds, existingIds)
   }, [edges, existingIds, isInitialized])
+
+  const handleMarkVerified = async (id: string) => {
+    try {
+      await updateImplementation({
+        updateControlImplementationId: id,
+        input: { verified: true },
+      })
+      successNotification({ title: 'Marked as verified' })
+    } catch (error) {
+      console.error('Verification update failed:', error)
+      errorNotification({
+        title: 'Failed to mark as verified',
+        description: 'Something went wrong while updating the implementation.',
+      })
+    }
+  }
 
   useEffect(() => {
     handleImplementationsUpdate()
@@ -125,18 +144,24 @@ const ControlImplementationPage = () => {
                   <ChevronRight size={22} className="mr-2 text-brand transition-transform group-data-[state=open]:rotate-90" />
                   <span className="text-base font-medium ">{`Implementation ${i + 1}`}</span>
                 </AccordionTrigger>
-                <Button
-                  className="h-8 !px-2"
-                  variant="outline"
-                  icon={<Pencil />}
-                  iconPosition="left"
-                  onClick={() => {
-                    setEditData(edge.node)
-                    setShowCreateSheet(true)
-                  }}
-                >
-                  Edit
-                </Button>
+
+                <div className="flex gap-2">
+                  <Button className="h-8 !px-2" icon={<Check />} iconPosition="left" onClick={() => handleMarkVerified(edge.node.id)} disabled={isPending || !!edge.node.verified}>
+                    {edge.node.verified ? 'Verified' : 'Mark verified'}
+                  </Button>
+                  <Button
+                    className="h-8 !px-2"
+                    variant="outline"
+                    icon={<Pencil />}
+                    iconPosition="left"
+                    onClick={() => {
+                      setEditData(edge.node)
+                      setShowCreateSheet(true)
+                    }}
+                  >
+                    Edit
+                  </Button>
+                </div>
               </div>
               <AccordionContent>
                 <ControlImplementationCard obj={edge.node} />
