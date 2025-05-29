@@ -5,8 +5,6 @@ import Providers from './providers'
 import './globals.css'
 import { pirschAnalyticsKey, recaptchaSiteKey } from '@repo/dally/auth'
 import Script from 'next/script'
-import { siteUrl } from '@repo/dally/auth'
-import { OPENLANE_WEBSITE_URL } from '@/constants'
 import type { Metadata } from 'next'
 
 const imageWidth = '1200'
@@ -26,7 +24,6 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title,
       description,
-      url: OPENLANE_WEBSITE_URL,
       type: 'website',
       images: [
         {
