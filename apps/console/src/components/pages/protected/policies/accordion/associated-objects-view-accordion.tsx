@@ -9,6 +9,10 @@ import { ChevronDown, ChevronsDownUp, List } from 'lucide-react'
 import { InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import SetObjectAssociationDialog from '@/components/pages/protected/policies/modal/set-object-association-modal.tsx'
+import { useAccountRole } from '@/lib/authz/access-api.ts'
+import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
+import { useSession } from 'next-auth/react'
+import { canEdit } from '@/lib/authz/utils.ts'
 
 type AssociatedObjectsAccordionProps = {
   policy: InternalPolicyByIdFragment
@@ -17,6 +21,10 @@ type AssociatedObjectsAccordionProps = {
 const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> = ({ policy }) => {
   const plateEditorHelper = usePlateEditor()
   const [expandedItems, setExpandedItems] = useState<string[]>(['procedures'])
+  const { data: session } = useSession()
+  const { data: permission } = useAccountRole(session, ObjectEnum.POLICY, policy.id)
+  const editAllowed = canEdit(permission?.roles)
+
   const toggleAll = () => {
     const allSections = ['controls', 'procedures', 'tasks', 'controlObjectives', 'programs']
     const hasAllExpanded = allSections.every((section) => expandedItems.includes(section))
@@ -81,9 +89,7 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
         <h2 className="text-lg font-semibold whitespace-nowrap">Associated Objects</h2>
         <div className="flex justify-between w-full items-center">
           <div className="flex gap-2.5 items-center">
-            <div className="ml-auto">
-              <SetObjectAssociationDialog policyId={policy?.id} />
-            </div>
+            <div className="ml-auto">{editAllowed && <SetObjectAssociationDialog policyId={policy?.id} />}</div>
             <Button type="button" className="h-8 !px-2" variant="outline" onClick={toggleAll}>
               <div className="flex">
                 <List size={16} />
