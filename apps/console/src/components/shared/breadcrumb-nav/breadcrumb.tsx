@@ -84,6 +84,11 @@ export const BreadcrumbNavigation = ({ homeElement = 'Home' }: TBreadCrumbProps)
         name: 'Control Objectives',
       })
     }
+    if (pathname.includes('/control-implementation')) {
+      breadcrumbs.push({
+        name: 'Control Implementations',
+      })
+    }
   } else if (pathname.startsWith('/procedures')) {
     breadcrumbs.push({ name: 'Procedures', url: '/procedures' })
 
