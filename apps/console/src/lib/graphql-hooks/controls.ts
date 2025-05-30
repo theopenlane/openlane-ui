@@ -1,17 +1,31 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { CREATE_CSV_BULK_CONTROL, DELETE_CONTROL, GET_ALL_CONTROLS, GET_CONTROL_BY_ID, GET_CONTROL_COUNTS_BY_STATUS, UPDATE_CONTROL } from '@repo/codegen/query/control'
+import {
+  CREATE_CONTROL,
+  CREATE_CSV_BULK_CONTROL,
+  DELETE_CONTROL,
+  GET_ALL_CONTROLS,
+  GET_CONTROL_BY_ID,
+  GET_CONTROL_COUNTS_BY_STATUS,
+  GET_CONTROL_SELECT_OPTIONS,
+  UPDATE_CONTROL,
+} from '@repo/codegen/query/control'
 
 import {
   Control,
+  ControlWhereInput,
   CreateBulkCsvControlMutation,
   CreateBulkCsvControlMutationVariables,
+  CreateControlMutation,
+  CreateControlMutationVariables,
   DeleteControlMutation,
   DeleteControlMutationVariables,
   GetAllControlsQuery,
   GetAllControlsQueryVariables,
   GetControlByIdQuery,
   GetControlCountsByStatusQuery,
+  GetControlSelectOptionsQuery,
+  GetControlSelectOptionsQueryVariables,
   UpdateControlMutation,
   UpdateControlMutationVariables,
 } from '@repo/codegen/src/schema'
@@ -105,4 +119,35 @@ export const useDeleteControl = () => {
       queryClient.invalidateQueries({ queryKey: ['controls'] })
     },
   })
+}
+
+export const useCreateControl = () => {
+  const { client } = useGraphQLClient()
+  const queryClient = useQueryClient()
+
+  return useMutation<CreateControlMutation, unknown, CreateControlMutationVariables>({
+    mutationFn: async (variables) => client.request(CREATE_CONTROL, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['controls'] })
+    },
+  })
+}
+
+export const useControlSelect = ({ where }: { where?: ControlWhereInput }) => {
+  const { client } = useGraphQLClient()
+
+  const { data, isLoading, error } = useQuery<GetControlSelectOptionsQuery>({
+    queryKey: ['controls', where, 'select'],
+    queryFn: async () => {
+      return client.request<GetControlSelectOptionsQuery, GetControlSelectOptionsQueryVariables>(GET_CONTROL_SELECT_OPTIONS, { where })
+    },
+  })
+
+  const controlOptions = data?.controls?.edges?.flatMap((edge) => (edge?.node?.id && edge.node.refCode ? [{ label: edge.node.refCode, value: edge.node.id }] : [])) ?? []
+
+  return {
+    controlOptions,
+    isLoading,
+    error,
+  }
 }

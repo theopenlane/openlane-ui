@@ -238,3 +238,26 @@ export const DELETE_CONTROL = gql`
     }
   }
 `
+
+export const CREATE_CONTROL = gql`
+  mutation CreateControl($input: CreateControlInput!) {
+    createControl(input: $input) {
+      control {
+        id
+      }
+    }
+  }
+`
+
+export const GET_CONTROL_SELECT_OPTIONS = gql`
+  query GetControlSelectOptions($where: ControlWhereInput, $first: Int = 10) {
+    controls(where: $where, first: $first) {
+      edges {
+        node {
+          id
+          refCode
+        }
+      }
+    }
+  }
+`

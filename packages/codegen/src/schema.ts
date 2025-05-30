@@ -35501,6 +35501,23 @@ export type DeleteControlMutationVariables = Exact<{
 
 export type DeleteControlMutation = { __typename?: 'Mutation'; deleteControl: { __typename?: 'ControlDeletePayload'; deletedID: string } }
 
+export type CreateControlMutationVariables = Exact<{
+  input: CreateControlInput
+}>
+
+export type CreateControlMutation = { __typename?: 'Mutation'; createControl: { __typename?: 'ControlCreatePayload'; control: { __typename?: 'Control'; id: string } } }
+
+export type GetControlSelectOptionsQueryVariables = Exact<{
+  where?: InputMaybe<ControlWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type GetControlSelectOptionsQuery = {
+  __typename?: 'Query'
+  controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
+}
+
 export type CreateEvidenceMutationVariables = Exact<{
   input: CreateEvidenceInput
   evidenceFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
@@ -37096,6 +37113,12 @@ export type DeleteSubcontrolMutationVariables = Exact<{
 }>
 
 export type DeleteSubcontrolMutation = { __typename?: 'Mutation'; deleteSubcontrol: { __typename?: 'SubcontrolDeletePayload'; deletedID: string } }
+
+export type CreateSubcontrolMutationVariables = Exact<{
+  input: CreateSubcontrolInput
+}>
+
+export type CreateSubcontrolMutation = { __typename?: 'Mutation'; createSubcontrol: { __typename?: 'SubcontrolCreatePayload'; subcontrol: { __typename?: 'Subcontrol'; id: string } } }
 
 export type CreateSubscriberMutationVariables = Exact<{
   input: CreateSubscriberInput
