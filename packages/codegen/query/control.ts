@@ -256,6 +256,11 @@ export const GET_CONTROL_SELECT_OPTIONS = gql`
         node {
           id
           refCode
+          category
+          subcategory
+          standard {
+            shortName
+          }
         }
       }
     }

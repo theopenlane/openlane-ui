@@ -31,6 +31,7 @@ import {
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
+import { useMemo } from 'react'
 
 type UseGetAllControlsArgs = {
   where?: GetAllControlsQueryVariables['where']
@@ -143,11 +144,18 @@ export const useControlSelect = ({ where }: { where?: ControlWhereInput }) => {
     },
   })
 
-  const controlOptions = data?.controls?.edges?.flatMap((edge) => (edge?.node?.id && edge.node.refCode ? [{ label: edge.node.refCode, value: edge.node.id }] : [])) ?? []
+  const controlOptions = useMemo(
+    () =>
+      data?.controls?.edges?.flatMap((edge) =>
+        edge?.node?.id && edge.node.refCode ? [{ label: `${edge.node.refCode}${edge.node.standard?.shortName ? `( ${edge.node.standard?.shortName})` : ''}`, value: edge.node.id }] : [],
+      ) ?? [],
+    [data],
+  )
 
   return {
     controlOptions,
     isLoading,
     error,
+    data,
   }
 }

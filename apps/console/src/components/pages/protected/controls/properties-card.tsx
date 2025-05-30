@@ -5,14 +5,11 @@ import { useFormContext, Controller } from 'react-hook-form'
 import { Card } from '@repo/ui/cardpanel'
 import { Input } from '@repo/ui/input'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@repo/ui/select'
-import { FolderIcon, BinocularsIcon, Settings2 } from 'lucide-react'
+import { FolderIcon, BinocularsIcon } from 'lucide-react'
 import { Control, ControlControlStatus, SubcontrolControlStatus } from '@repo/codegen/src/schema'
 import MappedCategoriesDialog from './mapped-categories-dialog'
 import Link from 'next/link'
 import { ControlIconMapper } from '@/components/shared/icon-enum/control-enum.tsx'
-import { usePathname } from 'next/navigation'
-import { Button } from '@repo/ui/button'
-import SetParentControlDialog from './create-control/set-parent-control-dialog'
 
 interface PropertiesCardProps {
   category?: string | null
@@ -43,8 +40,6 @@ const iconsMap: Record<string, React.ReactNode> = {
 
 const PropertiesCard: React.FC<PropertiesCardProps> = ({ category, subcategory, status, mappedCategories, isEditing, controlData }) => {
   const { control } = useFormContext()
-  const path = usePathname()
-  const isCreateSubcontrol = path.includes('create-control')
 
   return (
     <Card className="p-4 bg-muted rounded-xl shadow-sm">
@@ -87,18 +82,6 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ category, subcategory, 
           </div>
         </div>
         {isEditing ? <MappedCategoriesDialog /> : <Property label="Mapped categories" value={(mappedCategories ?? []).join(',\n')} />}{' '}
-        {isCreateSubcontrol && (
-          <div className="grid grid-cols-[110px_1fr] items-start gap-x-3 pb-3">
-            <div className="flex items-start gap-2">
-              <Settings2 className="text-brand pt-0.5" size={16} />
-              <p className="text-sm">
-                Parent <br />
-                control
-              </p>
-            </div>
-            <SetParentControlDialog />
-          </div>
-        )}
       </div>
     </Card>
   )

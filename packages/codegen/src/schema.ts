@@ -35510,12 +35510,24 @@ export type CreateControlMutation = { __typename?: 'Mutation'; createControl: { 
 export type GetControlSelectOptionsQueryVariables = Exact<{
   where?: InputMaybe<ControlWhereInput>
   first?: InputMaybe<Scalars['Int']['input']>
-  after?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type GetControlSelectOptionsQuery = {
   __typename?: 'Query'
-  controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
+  controls: {
+    __typename?: 'ControlConnection'
+    edges?: Array<{
+      __typename?: 'ControlEdge'
+      node?: {
+        __typename?: 'Control'
+        id: string
+        refCode: string
+        category?: string | null
+        subcategory?: string | null
+        standard?: { __typename?: 'Standard'; shortName?: string | null } | null
+      } | null
+    } | null> | null
+  }
 }
 
 export type CreateEvidenceMutationVariables = Exact<{

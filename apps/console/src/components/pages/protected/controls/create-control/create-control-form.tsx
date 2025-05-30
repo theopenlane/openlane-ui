@@ -6,7 +6,7 @@ import { Button } from '@repo/ui/button'
 import { Label } from '@repo/ui/label'
 import { Switch } from '@repo/ui/switch'
 import { Value } from '@udecode/plate-common'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import AuthorityCard from '@/components/pages/protected/controls/authority-card'
 import PropertiesCard from '@/components/pages/protected/controls/properties-card'
@@ -14,29 +14,34 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { ControlFormData, controlFormSchema } from './use-form-schema'
 import { ControlControlStatus, CreateControlInput } from '@repo/codegen/src/schema'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { useControlSelect, useCreateControl } from '@/lib/graphql-hooks/controls'
+import { useControlSelect, useCreateControl, useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useNotification } from '@/hooks/useNotification'
-import { useRouter } from 'next/navigation'
+import { useParams, usePathname, useRouter } from 'next/navigation'
 import { Popover, PopoverContent } from '@repo/ui/popover'
 import { Command, CommandItem, CommandList, CommandEmpty } from '@repo/ui/command'
 import { PopoverTrigger } from '@radix-ui/react-popover'
 import useClickOutside from '@/hooks/useClickOutside'
+import { Option } from '@repo/ui/multiple-selector'
 
 export default function CreateControlForm() {
+  const { id } = useParams<{ id: string | undefined }>()
+  const path = usePathname()
+  const isCreateSubcontrol = path.includes('controls/create-subcontrol')
   const [createMultiple, setCreateMultiple] = useState(false)
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
-  const [selectedControlId, setSelectedControlId] = useState<string | undefined>()
   const [search, setSearch] = useState('')
   const [open, setOpen] = useState(false)
 
   const dropdownRef = useClickOutside(() => setOpen(false))
-  const searchRef = useRef()
+  const searchRef = useRef(null)
 
   const form = useForm<ControlFormData>({
     resolver: zodResolver(controlFormSchema),
     defaultValues: {
       status: ControlControlStatus.NOT_IMPLEMENTED,
+      category: '',
+      subcategory: '',
     },
   })
 
@@ -48,7 +53,9 @@ export default function CreateControlForm() {
     formState: { errors },
   } = form
 
-  const { controlOptions, isLoading } = useControlSelect({
+  const { data: controlData } = useGetControlById(id)
+
+  const { data, controlOptions, isLoading } = useControlSelect({
     where: search ? { refCodeContainsFold: search } : undefined,
   })
 
@@ -61,6 +68,7 @@ export default function CreateControlForm() {
 
       const input: CreateControlInput = {
         ...data,
+        categoryID: id,
         description,
       }
 
@@ -84,6 +92,41 @@ export default function CreateControlForm() {
     }
   }
 
+  const handleControlSelect = (opt: Option) => {
+    setSearch(opt.label)
+    setOpen(false)
+    form.setValue('controlID', opt.value)
+
+    const selectedNode = data?.controls?.edges?.find((edge) => edge?.node?.id === opt.value)?.node
+
+    if (selectedNode) {
+      const currentCategory = form.getValues('category')
+      const currentSubcategory = form.getValues('subcategory')
+
+      if (!currentCategory && selectedNode.category) {
+        form.setValue('category', selectedNode.category)
+      }
+      if (!currentSubcategory && selectedNode.subcategory) {
+        form.setValue('subcategory', selectedNode.subcategory)
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (controlData) {
+      const currentCategory = form.getValues('category')
+      const currentSubcategory = form.getValues('subcategory')
+
+      if (!currentCategory && controlData.control.category) {
+        form.setValue('category', controlData.control.category)
+      }
+      if (!currentSubcategory && controlData.control.subcategory) {
+        form.setValue('subcategory', controlData.control.subcategory)
+      }
+    }
+    return () => {}
+  }, [controlData, form])
+
   const onCancel = () => {
     reset()
   }
@@ -104,52 +147,52 @@ export default function CreateControlForm() {
               <Input {...register('refCode', { required: true })} />
             </div>
 
-            <div className=" mt-4">
-              <Label>
-                Parent Control <span className="text-destructive">*</span>
-              </Label>
-              <div ref={dropdownRef} className="relative w-full">
-                <Input
-                  ref={searchRef}
-                  role="combobox"
-                  value={search}
-                  placeholder="Search Control"
-                  onFocus={() => setOpen(true)}
-                  onChange={(e) => {
-                    setSearch(e.target.value)
-                    setOpen(true)
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Escape') setOpen(false)
-                  }}
-                />
+            {isCreateSubcontrol && (
+              <div className=" mt-4">
+                <Label>
+                  Parent Control <span className="text-destructive">*</span>
+                </Label>
+                <div ref={dropdownRef} className="relative w-full">
+                  <Input
+                    ref={searchRef}
+                    role="combobox"
+                    value={search}
+                    placeholder="Search Control"
+                    onFocus={() => setOpen(true)}
+                    onChange={(e) => {
+                      setSearch(e.target.value)
+                      setOpen(true)
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Escape') setOpen(false)
+                    }}
+                  />
+                  {errors?.controlID && <p className="text-destructive text-sm mt-1">{errors.controlID.message}</p>}
 
-                <Popover open={open}>
-                  <PopoverTrigger className="h-0 absolute" />
-                  <PopoverContent onOpenAutoFocus={(e) => e.preventDefault()} align="start" className="absolute z-50  w-[334px] p-0">
-                    <Command shouldFilter={false}>
-                      <CommandList>
-                        <CommandEmpty>No results.</CommandEmpty>
-                        {controlOptions.map((opt) => (
-                          <CommandItem
-                            key={opt.value}
-                            value={opt.value}
-                            onSelect={() => {
-                              setSelectedControlId(opt.value)
-                              console.log('setSearch', opt.label)
-                              setSearch(opt.label)
-                              setOpen(false)
-                            }}
-                          >
-                            {opt.label}
-                          </CommandItem>
-                        ))}
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                  <Popover open={open}>
+                    <PopoverTrigger className="h-0 absolute" />
+                    <PopoverContent onOpenAutoFocus={(e) => e.preventDefault()} align="start" className="absolute z-50  w-[334px] p-0">
+                      <Command shouldFilter={false}>
+                        <CommandList>
+                          <CommandEmpty>No results.</CommandEmpty>
+                          {controlOptions.map((opt) => (
+                            <CommandItem
+                              key={opt.value}
+                              value={opt.value}
+                              onSelect={() => {
+                                handleControlSelect(opt)
+                              }}
+                            >
+                              {opt.label}
+                            </CommandItem>
+                          ))}
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Description */}
             <div className="mt-4">
