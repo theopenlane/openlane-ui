@@ -37154,7 +37154,10 @@ export type GetAllSubscribersQuery = {
   subscribers: {
     __typename?: 'SubscriberConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'SubscriberEdge'; node?: { __typename?: 'Subscriber'; active: boolean; email: string; id: string; verifiedEmail: boolean } | null } | null> | null
+    edges?: Array<{
+      __typename?: 'SubscriberEdge'
+      node?: { __typename?: 'Subscriber'; active: boolean; email: string; id: string; verifiedEmail: boolean; createdAt?: any | null } | null
+    } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
   }
 }
