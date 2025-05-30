@@ -163,7 +163,7 @@ export default function CreateControlForm() {
                       if (e.key === 'Escape') setOpen(false)
                     }}
                   />
-                  {errors?.controlID && <p className="text-destructive text-sm mt-1">{errors.controlID.message}</p>}
+                  {errors?.controlID && <p className="text-destructive text-sm mt-1">Parent Control is required</p>}
 
                   <Popover open={open}>
                     <PopoverTrigger className="h-0 absolute" />

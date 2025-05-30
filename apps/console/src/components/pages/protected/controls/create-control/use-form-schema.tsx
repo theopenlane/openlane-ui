@@ -6,12 +6,11 @@ export const controlFormSchema = z.object({
   description: z.any(),
   controlOwnerID: z.string().optional(),
   delegateID: z.string().optional(),
-  categoryID: z.string().optional(),
   category: z.string().optional(),
   subcategory: z.string().optional(),
   status: z.nativeEnum(ControlControlStatus).optional(),
   mappedCategories: z.array(z.string()).optional(),
-  controlID: z.string(),
+  controlID: z.string().min(1),
 })
 
 export type ControlFormData = z.infer<typeof controlFormSchema>
