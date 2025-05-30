@@ -1,12 +1,12 @@
 'use client'
 
-import { useForm, Controller, FormProvider } from 'react-hook-form'
+import { useForm, Controller, FormProvider, UseFormReturn } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { Label } from '@repo/ui/label'
 import { Switch } from '@repo/ui/switch'
 import { Value } from '@udecode/plate-common'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import AuthorityCard from '@/components/pages/protected/controls/authority-card'
 import PropertiesCard from '@/components/pages/protected/controls/properties-card'
@@ -92,40 +92,36 @@ export default function CreateControlForm() {
     }
   }
 
+  const fillCategoryAndSubcategory = useCallback((form: UseFormReturn<ControlFormData>, node?: { category?: string | null; subcategory?: string | null }) => {
+    if (!node) return
+
+    const currentCategory = form.getValues('category')
+    const currentSubcategory = form.getValues('subcategory')
+
+    if (!currentCategory && node.category) {
+      form.setValue('category', node.category)
+    }
+    if (!currentSubcategory && node.subcategory) {
+      form.setValue('subcategory', node.subcategory)
+    }
+  }, [])
+
   const handleControlSelect = (opt: Option) => {
     setSearch(opt.label)
     setOpen(false)
     form.setValue('controlID', opt.value)
 
     const selectedNode = data?.controls?.edges?.find((edge) => edge?.node?.id === opt.value)?.node
-
     if (selectedNode) {
-      const currentCategory = form.getValues('category')
-      const currentSubcategory = form.getValues('subcategory')
-
-      if (!currentCategory && selectedNode.category) {
-        form.setValue('category', selectedNode.category)
-      }
-      if (!currentSubcategory && selectedNode.subcategory) {
-        form.setValue('subcategory', selectedNode.subcategory)
-      }
+      fillCategoryAndSubcategory(form, selectedNode)
     }
   }
 
   useEffect(() => {
-    if (controlData) {
-      const currentCategory = form.getValues('category')
-      const currentSubcategory = form.getValues('subcategory')
-
-      if (!currentCategory && controlData.control.category) {
-        form.setValue('category', controlData.control.category)
-      }
-      if (!currentSubcategory && controlData.control.subcategory) {
-        form.setValue('subcategory', controlData.control.subcategory)
-      }
+    if (controlData?.control) {
+      fillCategoryAndSubcategory(form, controlData.control)
     }
-    return () => {}
-  }, [controlData, form])
+  }, [controlData, form, fillCategoryAndSubcategory])
 
   const onCancel = () => {
     reset()
