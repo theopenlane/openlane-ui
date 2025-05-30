@@ -10,7 +10,7 @@ import PlateEditor from '@/components/shared/plate/plate-editor'
 import AuthorityCard from '@/components/pages/protected/controls/authority-card'
 import PropertiesCard from '@/components/pages/protected/controls/properties-card'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ControlFormData, controlFormSchema, createControlFormSchema } from './use-form-schema'
+import { ControlFormData, createControlFormSchema } from './use-form-schema'
 import { ControlControlStatus, CreateControlInput, CreateSubcontrolInput } from '@repo/codegen/src/schema'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useControlSelect, useCreateControl, useGetControlById } from '@/lib/graphql-hooks/controls'
@@ -23,7 +23,6 @@ import useClickOutside from '@/hooks/useClickOutside'
 import { Option } from '@repo/ui/multiple-selector'
 import { useCreateSubcontrol } from '@/lib/graphql-hooks/subcontrol'
 import { Check } from 'lucide-react'
-import { optimizeImage } from 'next/dist/server/image-optimizer'
 
 export default function CreateControlForm() {
   const { id } = useParams<{ id: string | undefined }>()
@@ -36,6 +35,7 @@ export default function CreateControlForm() {
   const [open, setOpen] = useState(false)
   const [selectedParentControlLabel, setSelectedParentControlLabel] = useState('')
   const [dataInitialized, setDataInitialized] = useState(false)
+  const [clearData, setClearData] = useState<boolean>(false)
 
   const dropdownRef = useClickOutside(() => setOpen(false))
   const searchRef = useRef(null)
@@ -67,7 +67,10 @@ export default function CreateControlForm() {
   const { mutateAsync: createSubcontrol } = useCreateSubcontrol()
 
   const { convertToHtml } = usePlateEditor()
-
+  const resetForm = () => {
+    setClearData(true)
+    reset()
+  }
   const onSubmit = async (data: ControlFormData) => {
     try {
       const description = await convertToHtml(data.description)
@@ -93,7 +96,7 @@ export default function CreateControlForm() {
       }
 
       if (createMultiple) {
-        reset()
+        resetForm()
         successNotification({ title: 'Control created successfully' })
       } else if (newId && isCreateSubcontrol) {
         successNotification({ title: 'Control created successfully, redirecting...' })
@@ -149,6 +152,7 @@ export default function CreateControlForm() {
   }, [controlData, form, fillCategoryAndSubcategory, selectedParentControlLabel, dataInitialized])
 
   const onCancel = () => {
+    setClearData(true)
     reset()
   }
 
@@ -227,7 +231,11 @@ export default function CreateControlForm() {
             {/* Description */}
             <div className="mt-4">
               <Label>Description</Label>
-              <Controller name="description" control={control} render={({ field }) => <PlateEditor variant="basic" initialValue={field.value as string} onChange={field.onChange} />} />
+              <Controller
+                name="description"
+                control={control}
+                render={({ field }) => <PlateEditor variant="basic" initialValue={field.value as string} clearData={clearData} onClear={() => setClearData(false)} onChange={field.onChange} />}
+              />
             </div>
 
             {/* Actions */}
