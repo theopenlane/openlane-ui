@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { ListFilter, Trash2 } from 'lucide-react'
+import { ListFilter, Trash2, X } from 'lucide-react'
 import { Popover, PopoverTrigger, PopoverContent } from '@repo/ui/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Input } from '@repo/ui/input'
@@ -11,6 +11,7 @@ import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { format, startOfDay, addDays } from 'date-fns'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { useRouter } from 'next/navigation'
+import { formatDate } from '@/utils/date.ts'
 
 const getOperatorsForType = (type: Filter['type']) => {
   const operatorMap = {
@@ -161,6 +162,21 @@ export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilter
     }
   }
 
+  const normalizeFilter = (item: Filter) => {
+    return `${item.field.charAt(0).toUpperCase() + item.field.slice(1)} ${getOperatorsForType(item.type)
+      .find((op) => op.value === item.operator)
+      ?.label.toLowerCase()} ${renderActiveFilterType(item)}`
+  }
+
+  const renderActiveFilterType = (filter: Filter) => {
+    switch (filter.type) {
+      case 'date':
+        return formatDate(filter.value)
+      default:
+        return filter.value
+    }
+  }
+
   const renderFilterInput = (filter: Filter, index: number) => {
     const filterField = filterFields.find((f) => f.key === filter.field)
     if (!filterField) return null
@@ -217,91 +233,106 @@ export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilter
   }
 
   return (
-    <Popover onOpenChange={(open) => open && filters?.length === 0 && addFilter()}>
-      <PopoverTrigger asChild>
-        <button className="gap-2 flex items-center py-1.5 px-3 border rounded-lg">
-          <ListFilter size={16} />
-          <p className="text-sm whitespace-nowrap">Add Filter</p>
-          <div className="border h-4" />
-          <p className="text-sm">{filters?.filter((filter) => filter.value !== '').length}</p>
-        </button>
-      </PopoverTrigger>
-      <PopoverContent align="start" side="bottom" sideOffset={8} asChild className="size-fit p-4 ">
-        <div className="flex flex-col gap-2">
-          {filters?.map((filter, index) => {
-            const filterField = filterFields.find((f) => f.key === filter.field)
-            const operators = filterField ? getOperatorsForType(filterField.type) : []
+    <div className="relative">
+      <Popover onOpenChange={(open) => open && filters?.length === 0 && addFilter()}>
+        <PopoverTrigger asChild>
+          <button className="gap-2 flex items-center py-1.5 px-3 border rounded-lg">
+            <ListFilter size={16} />
+            <p className="text-sm whitespace-nowrap">Filter</p>
+          </button>
+        </PopoverTrigger>
+        <PopoverContent align="start" side="bottom" sideOffset={8} asChild className="size-fit p-4 ">
+          <div className="flex flex-col gap-2">
+            {filters?.map((filter, index) => {
+              const filterField = filterFields.find((f) => f.key === filter.field)
+              const operators = filterField ? getOperatorsForType(filterField.type) : []
 
-            return (
-              <div key={index} className="flex items-center gap-2">
-                {index === 0 && <p className={prefixes()}>Where</p>}
-                {index === 1 && (
-                  <Select value={conjunction} onValueChange={(val: 'and' | 'or') => setConjunction(val)}>
-                    <SelectTrigger className={prefixes()}>
-                      <SelectValue placeholder="And/Or" />
+              return (
+                <div key={index} className="flex items-center gap-2">
+                  {index === 0 && <p className={prefixes()}>Where</p>}
+                  {index === 1 && (
+                    <Select value={conjunction} onValueChange={(val: 'and' | 'or') => setConjunction(val)}>
+                      <SelectTrigger className={prefixes()}>
+                        <SelectValue placeholder="And/Or" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="and">And</SelectItem>
+                        <SelectItem value="or">Or</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                  {index > 1 && <p className={prefixes()}>{conjunction}</p>}
+                  <Select
+                    value={filter.field}
+                    onValueChange={(value) => {
+                      const selectedField = filterFields.find((f) => f.key === value)
+                      if (selectedField) {
+                        handleFilterChange(index, {
+                          field: value,
+                          type: selectedField.type,
+                          value: '',
+                          operator: getOperatorsForType(selectedField.type)[0]?.value || 'equals', // Reset to default operator
+                        })
+                      }
+                    }}
+                  >
+                    <SelectTrigger className={columnName()}>
+                      <SelectValue placeholder="Select field" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="and">And</SelectItem>
-                      <SelectItem value="or">Or</SelectItem>
+                      {filterFields.map((field) => (
+                        <SelectItem key={field.key} value={field.key}>
+                          {field.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
-                )}
-                {index > 1 && <p className={prefixes()}>{conjunction}</p>}
-                <Select
-                  value={filter.field}
-                  onValueChange={(value) => {
-                    const selectedField = filterFields.find((f) => f.key === value)
-                    if (selectedField) {
-                      handleFilterChange(index, {
-                        field: value,
-                        type: selectedField.type,
-                        value: '',
-                        operator: getOperatorsForType(selectedField.type)[0]?.value || 'equals', // Reset to default operator
-                      })
-                    }
-                  }}
-                >
-                  <SelectTrigger className={columnName()}>
-                    <SelectValue placeholder="Select field" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {filterFields.map((field) => (
-                      <SelectItem key={field.key} value={field.key}>
-                        {field.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
 
-                <Select value={filter.operator} onValueChange={(value) => handleFilterChange(index, { operator: value })}>
-                  <SelectTrigger className={operator()}>
-                    <SelectValue placeholder="Select operator" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {operators.map((operator) => (
-                      <SelectItem key={operator.value} value={operator.value}>
-                        {operator.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <Select value={filter.operator} onValueChange={(value) => handleFilterChange(index, { operator: value })}>
+                    <SelectTrigger className={operator()}>
+                      <SelectValue placeholder="Select operator" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {operators.map((operator) => (
+                        <SelectItem key={operator.value} value={operator.value}>
+                          {operator.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
 
-                {renderFilterInput(filter, index)}
+                  {renderFilterInput(filter, index)}
 
-                <Button variant="outline" onClick={() => removeFilter(index)}>
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+                  <Button variant="outline" onClick={() => removeFilter(index)}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              )
+            })}
+            <div className="flex gap-2">
+              <Button onClick={addFilter}>Add Filter</Button>
+              <Button variant="outline" onClick={resetFilters}>
+                Reset Filters
+              </Button>
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
+      {filters && filters?.filter((filter) => filter.value !== '').length > 0 && (
+        <div className="absolute left-0 mt-2 text-xs leading-6 w-max">
+          <div className="flex items-center flex-wrap gap-2 ">
+            <span className="whitespace-nowrap text-xs">Active filter</span>
+            {filters?.map((item, index) => (
+              <div key={index} className="flex items-center border rounded-lg px-2 py-1 max-w-xs">
+                <span className="mr-2 truncate text-xs">{normalizeFilter(item)}</span>
+                <button className="border-l pl-2" onClick={() => removeFilter(index)}>
+                  <X size={12} />
+                </button>
               </div>
-            )
-          })}
-          <div className="flex gap-2">
-            <Button onClick={addFilter}>Add Filter</Button>
-            <Button variant="outline" onClick={resetFilters}>
-              Reset Filters
-            </Button>
+            ))}
           </div>
         </div>
-      </PopoverContent>
-    </Popover>
+      )}
+    </div>
   )
 }
