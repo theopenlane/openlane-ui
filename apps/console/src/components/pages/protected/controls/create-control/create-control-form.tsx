@@ -5,14 +5,13 @@ import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { Label } from '@repo/ui/label'
 import { Switch } from '@repo/ui/switch'
-import { Value } from '@udecode/plate-common'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import AuthorityCard from '@/components/pages/protected/controls/authority-card'
 import PropertiesCard from '@/components/pages/protected/controls/properties-card'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ControlFormData, controlFormSchema } from './use-form-schema'
-import { ControlControlStatus, CreateControlInput } from '@repo/codegen/src/schema'
+import { ControlFormData, controlFormSchema, createControlFormSchema } from './use-form-schema'
+import { ControlControlStatus, CreateControlInput, CreateSubcontrolInput } from '@repo/codegen/src/schema'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useControlSelect, useCreateControl, useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useNotification } from '@/hooks/useNotification'
@@ -22,22 +21,27 @@ import { Command, CommandItem, CommandList, CommandEmpty } from '@repo/ui/comman
 import { PopoverTrigger } from '@radix-ui/react-popover'
 import useClickOutside from '@/hooks/useClickOutside'
 import { Option } from '@repo/ui/multiple-selector'
+import { useCreateSubcontrol } from '@/lib/graphql-hooks/subcontrol'
+import { Check } from 'lucide-react'
+import { optimizeImage } from 'next/dist/server/image-optimizer'
 
 export default function CreateControlForm() {
   const { id } = useParams<{ id: string | undefined }>()
   const path = usePathname()
-  const isCreateSubcontrol = path.includes('controls/create-subcontrol')
+  const isCreateSubcontrol = path.includes('/create-subcontrol')
   const [createMultiple, setCreateMultiple] = useState(false)
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
   const [search, setSearch] = useState('')
   const [open, setOpen] = useState(false)
+  const [selectedParentControlLabel, setSelectedParentControlLabel] = useState('')
+  const [dataInitialized, setDataInitialized] = useState(false)
 
   const dropdownRef = useClickOutside(() => setOpen(false))
   const searchRef = useRef(null)
 
   const form = useForm<ControlFormData>({
-    resolver: zodResolver(controlFormSchema),
+    resolver: zodResolver(createControlFormSchema(isCreateSubcontrol)),
     defaultValues: {
       status: ControlControlStatus.NOT_IMPLEMENTED,
       category: '',
@@ -55,30 +59,45 @@ export default function CreateControlForm() {
 
   const { data: controlData } = useGetControlById(id)
 
-  const { data, controlOptions, isLoading } = useControlSelect({
+  const { data, controlOptions } = useControlSelect({
     where: search ? { refCodeContainsFold: search } : undefined,
   })
 
   const { mutateAsync: createControl } = useCreateControl()
+  const { mutateAsync: createSubcontrol } = useCreateSubcontrol()
+
   const { convertToHtml } = usePlateEditor()
 
   const onSubmit = async (data: ControlFormData) => {
     try {
       const description = await convertToHtml(data.description)
 
-      const input: CreateControlInput = {
-        ...data,
-        categoryID: id,
-        description,
+      let newId: string | undefined
+
+      if (isCreateSubcontrol) {
+        const input = {
+          ...data,
+          description,
+        } as CreateSubcontrolInput
+
+        const response = await createSubcontrol({ input })
+        newId = response?.createSubcontrol?.subcontrol?.id
+      } else {
+        const input = {
+          ...data,
+          description,
+        } as CreateControlInput
+
+        const response = await createControl({ input })
+        newId = response?.createControl?.control?.id
       }
-
-      const response = await createControl({ input })
-
-      const newId = response?.createControl?.control?.id
 
       if (createMultiple) {
         reset()
         successNotification({ title: 'Control created successfully' })
+      } else if (newId && isCreateSubcontrol) {
+        successNotification({ title: 'Control created successfully, redirecting...' })
+        router.push(`/controls/${form.getValues('controlID')}/${newId}`)
       } else if (newId) {
         successNotification({ title: 'Control created successfully, redirecting...' })
         router.push(`/controls/${newId}`)
@@ -107,6 +126,7 @@ export default function CreateControlForm() {
   }, [])
 
   const handleControlSelect = (opt: Option) => {
+    setSelectedParentControlLabel(opt.label)
     setSearch(opt.label)
     setOpen(false)
     form.setValue('controlID', opt.value)
@@ -118,10 +138,15 @@ export default function CreateControlForm() {
   }
 
   useEffect(() => {
-    if (controlData?.control) {
+    if (controlData?.control && !dataInitialized) {
+      const label = `${controlData.control.refCode}${controlData.control?.standard?.shortName ? `( ${controlData.control.standard?.shortName})` : ''}`
       fillCategoryAndSubcategory(form, controlData.control)
+      setSearch(label)
+      setSelectedParentControlLabel(label)
+      form.setValue('controlID', controlData?.control.id)
+      setDataInitialized(true)
     }
-  }, [controlData, form, fillCategoryAndSubcategory])
+  }, [controlData, form, fillCategoryAndSubcategory, selectedParentControlLabel, dataInitialized])
 
   const onCancel = () => {
     reset()
@@ -130,7 +155,7 @@ export default function CreateControlForm() {
   return (
     <FormProvider {...form}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <div className="text-2xl font-semibold">Create Control</div>
+        <div className="text-2xl font-semibold">{isCreateSubcontrol ? 'Create Subcontrol' : 'Create Control'}</div>
 
         <div className="flex gap-12">
           <div className="flex-1">
@@ -171,17 +196,26 @@ export default function CreateControlForm() {
                       <Command shouldFilter={false}>
                         <CommandList>
                           <CommandEmpty>No results.</CommandEmpty>
-                          {controlOptions.map((opt) => (
-                            <CommandItem
-                              key={opt.value}
-                              value={opt.value}
-                              onSelect={() => {
-                                handleControlSelect(opt)
-                              }}
-                            >
-                              {opt.label}
-                            </CommandItem>
-                          ))}
+                          <CommandItem onSelect={() => setSearch(selectedParentControlLabel)}>
+                            <div className="flex gap-1 items-center opacity-50">
+                              <Check size={12} />
+                              <p>{selectedParentControlLabel}</p>{' '}
+                            </div>
+                          </CommandItem>
+                          {controlOptions
+                            .filter((opt) => opt.value !== form.getValues('controlID'))
+                            .map((opt) => (
+                              <CommandItem
+                                className="pl-7"
+                                key={opt.value}
+                                value={opt.value}
+                                onSelect={() => {
+                                  handleControlSelect(opt)
+                                }}
+                              >
+                                {opt.label}
+                              </CommandItem>
+                            ))}
                         </CommandList>
                       </Command>
                     </PopoverContent>

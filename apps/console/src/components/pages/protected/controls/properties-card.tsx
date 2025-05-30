@@ -6,7 +6,7 @@ import { Card } from '@repo/ui/cardpanel'
 import { Input } from '@repo/ui/input'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@repo/ui/select'
 import { FolderIcon, BinocularsIcon } from 'lucide-react'
-import { Control, ControlControlStatus, SubcontrolControlStatus } from '@repo/codegen/src/schema'
+import { Control, ControlControlSource, ControlControlStatus, ControlControlType, SubcontrolControlStatus } from '@repo/codegen/src/schema'
 import MappedCategoriesDialog from './mapped-categories-dialog'
 import Link from 'next/link'
 import { ControlIconMapper } from '@/components/shared/icon-enum/control-enum.tsx'
@@ -27,6 +27,20 @@ const statusLabels: Record<ControlControlStatus, string> = {
   NEEDS_APPROVAL: 'Needs approval',
   NOT_IMPLEMENTED: 'Not implemented',
   PREPARING: 'Preparing',
+}
+
+const sourceLabels: Record<ControlControlSource, string> = {
+  FRAMEWORK: 'Framework',
+  IMPORTED: 'Imported',
+  TEMPLATE: 'Template',
+  USER_DEFINED: 'User defined',
+}
+
+const typeLabels: Record<ControlControlType, string> = {
+  CORRECTIVE: 'Corrective',
+  DETECTIVE: 'Detective',
+  DETERRENT: 'Deterrent',
+  PREVENTATIVE: 'Preventative',
 }
 
 const statusOptions = Object.values(ControlControlStatus)
@@ -82,6 +96,8 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ category, subcategory, 
           </div>
         </div>
         {isEditing ? <MappedCategoriesDialog /> : <Property label="Mapped categories" value={(mappedCategories ?? []).join(',\n')} />}{' '}
+        <EditableSelect label="Control source" name="source" isEditing={isEditing} options={Object.values(ControlControlSource)} labels={sourceLabels} />
+        <EditableSelect label="Control type" name="controlType" isEditing={isEditing} options={Object.values(ControlControlType)} labels={typeLabels} />
       </div>
     </Card>
   )
@@ -131,3 +147,40 @@ const LinkedProperty = ({ label, href, value, icon }: { label: string; href: str
     </div>
   </div>
 )
+
+const EditableSelect = ({ label, name, isEditing, options, labels }: { label: string; name: string; isEditing: boolean; options: string[]; labels: Record<string, string> }) => {
+  const { control } = useFormContext()
+
+  return (
+    <div className="grid grid-cols-[110px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
+      <div className="flex items-start gap-2">
+        <div className="pt-0.5">{iconsMap[label] ?? <FolderIcon size={16} className="text-brand" />}</div>
+        <div className="text-sm">{label}</div>
+      </div>
+      <div className="text-sm">
+        {isEditing ? (
+          <Controller
+            control={control}
+            name={name}
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder={`Select ${label.toLowerCase()}`}>{labels[field.value as keyof typeof labels] ?? ''}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {options.map((opt) => (
+                    <SelectItem key={opt} value={opt}>
+                      {labels[opt]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+        ) : (
+          <span>{labels[useFormContext().getValues(name)] ?? '-'}</span>
+        )}
+      </div>
+    </div>
+  )
+}

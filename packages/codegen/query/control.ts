@@ -38,6 +38,9 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
     assessmentMethods
     assessmentObjectives
     displayID
+    standard {
+      shortName
+    }
     controlObjectives {
       edges {
         node {
