@@ -7,7 +7,7 @@ import { verificationStyles } from './page.styles'
 import { Logo } from '@repo/ui/logo'
 
 export const TokenVerifier = () => {
-  const { errorMessage, successMessage, successIcon, success, loading } = verificationStyles()
+  const { errorMessage, successIcon, success, loading } = verificationStyles()
 
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
@@ -39,7 +39,7 @@ export const TokenVerifier = () => {
     return (
       <div className="flex flex-col m-auto self-center">
         <div className="mx-auto animate-pulse w-96">
-          <Logo theme="dark" />
+          <Logo />
         </div>
         <div className={errorMessage()}>No token provided, please check your email for a verification link.</div>
       </div>
@@ -50,7 +50,7 @@ export const TokenVerifier = () => {
     return (
       <div className="flex flex-col m-auto self-center">
         <div className="mx-auto animate-pulse w-96">
-          <Logo theme="dark" />
+          <Logo />
         </div>
         <div className={errorMessage()}>{error}</div>
       </div>
@@ -61,11 +61,14 @@ export const TokenVerifier = () => {
     return (
       <div className="flex flex-col m-auto self-center">
         <div className="mx-auto animate-pulse w-96">
-          <Logo theme="dark" />
+          <Logo />
         </div>
         <div className={success()}>
-          <SparklesIcon size={24} className={successIcon()} />
-          <span className={successMessage()}>Thank you for subscribing. Your email is now verified.</span>
+          <div className="flex items-center justify-center gap-1">
+            <SparklesIcon size={24} className={successIcon()} />
+            <span className="mt-1">Thanks for confirming!</span>
+          </div>
+          <p> You’re on the list, and we’ll be reaching out as soon as your access is ready. Can’t wait to show you what we’ve been building.</p>
         </div>
       </div>
     )
@@ -74,11 +77,11 @@ export const TokenVerifier = () => {
   return (
     <div className="flex flex-col m-auto self-center">
       <div className="mx-auto animate-pulse w-96">
-        <Logo theme="dark" />
+        <Logo />
       </div>
       <div className={loading()}>
         <LoaderCircle className="animate-spin" size={20} />
-        <span className={successMessage()}>Verifying</span>
+        <span>Verifying</span>
       </div>
     </div>
   )
