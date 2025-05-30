@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import { useGetAllSubscribers } from '@/lib/graphql-hooks/subscribes'
-import { Subscriber, subscribersColumns } from '@/components/pages/protected/organization/subscribers/table/columns.tsx'
+import { exportableSubscriberColumns, subscribersColumns } from '@/components/pages/protected/organization/subscribers/table/columns.tsx'
 import SubscribersTableToolbar from '@/components/pages/protected/organization/subscribers/table/subscribers-table-toolbar.tsx'
 import { GetAllSubscribersQueryVariables, OrderDirection, SubscriberOrderField } from '@repo/codegen/src/schema.ts'
 import { SUBSCRIBERS_SORT_FIELDS } from '@/components/pages/protected/organization/subscribers/table/table-config.ts'
@@ -11,24 +11,6 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TPagination } from '@repo/ui/pagination-types'
 import { useDebounce } from '@uidotdev/usehooks'
 import { exportToCSV } from '@/utils/exportToCSV'
-
-export const exportableSubscriberColumns: {
-  label: string
-  accessor: (item: Subscriber) => string | number | null | undefined
-}[] = [
-  {
-    label: 'Email',
-    accessor: (item) => item?.email,
-  },
-  {
-    label: 'Active',
-    accessor: (item) => (item?.active ? 'Yes' : 'No'),
-  },
-  {
-    label: 'Verified Email',
-    accessor: (item) => (item?.verifiedEmail ? 'Yes' : 'No'),
-  },
-]
 
 export const SubscribersTable = () => {
   const [filters, setFilters] = useState<Record<string, any> | null>(null)

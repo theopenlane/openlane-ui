@@ -19,6 +19,7 @@ export const GET_ALL_SUBSCRIBERS = gql`
           email
           id
           verifiedEmail
+          createdAt
         }
       }
       pageInfo {
