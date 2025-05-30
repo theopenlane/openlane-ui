@@ -166,3 +166,12 @@ export const DELETE_SUBCONTROL = gql`
     }
   }
 `
+export const CREATE_SUBCONTROL = gql`
+  mutation CreateSubcontrol($input: CreateSubcontrolInput!) {
+    createSubcontrol(input: $input) {
+      subcontrol {
+        id
+      }
+    }
+  }
+`

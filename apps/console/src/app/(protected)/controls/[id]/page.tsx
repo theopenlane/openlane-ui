@@ -7,7 +7,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { Value } from '@udecode/plate-common'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import { ArrowRight, ChevronDown, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
+import { ArrowRight, ChevronDown, CirclePlus, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
 import AssociatedObjectsAccordion from '../../../../components/pages/protected/controls/associated-objects-accordion.tsx'
 import TitleField from '../../../../components/pages/protected/controls/form-fields/title-field.tsx'
 import DescriptionField from '../../../../components/pages/protected/controls/form-fields/description-field.tsx'
@@ -32,6 +32,7 @@ import { TaskIconBtn } from '@/components/shared/icon-enum/task-enum.tsx'
 import Menu from '@/components/shared/menu/menu.tsx'
 import DeleteControlDialog from '@/components/pages/protected/controls/delete-control-dialog.tsx'
 import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
+import Link from 'next/link'
 
 interface FormValues {
   refCode: string
@@ -220,6 +221,12 @@ const ControlDetailsPage: React.FC = () => {
                           controlIDs: [id],
                         }}
                       />
+                      <Link href={`/controls/${id}/create-subcontrol`}>
+                        <div className="flex items-center space-x-2">
+                          <CirclePlus size={16} strokeWidth={2} />
+                          <span>Subcontrol</span>
+                        </div>
+                      </Link>
                     </>
                   }
                 />

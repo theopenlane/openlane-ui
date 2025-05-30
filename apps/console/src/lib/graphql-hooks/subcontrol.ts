@@ -1,18 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { DELETE_SUBCONTROL, GET_ALL_SUBCONTROLS, GET_SUBCONTROL_BY_ID, UPDATE_SUBCONTROL } from '@repo/codegen/query/subcontrol'
+import { CREATE_SUBCONTROL, DELETE_SUBCONTROL, GET_ALL_SUBCONTROLS, GET_SUBCONTROL_BY_ID, UPDATE_SUBCONTROL } from '@repo/codegen/query/subcontrol'
 import {
+  CreateSubcontrolMutation,
+  CreateSubcontrolMutationVariables,
   DeleteSubcontrolMutation,
   DeleteSubcontrolMutationVariables,
   GetAllSubcontrolsQuery,
   GetAllSubcontrolsQueryVariables,
-  GetProcedureDetailsByIdQuery,
   GetSubcontrolByIdQuery,
   UpdateSubcontrolMutation,
   UpdateSubcontrolMutationVariables,
 } from '@repo/codegen/src/schema'
-import { DeleteControlMutation, DeleteControlMutationVariables } from '@repo/codegen/src/schema.ts'
-import { DELETE_CONTROL } from '@repo/codegen/query/control.ts'
 
 export function useGetAllSubcontrols(where?: GetAllSubcontrolsQueryVariables['where']) {
   const { client } = useGraphQLClient()
@@ -51,6 +50,18 @@ export const useDeleteSubcontrol = () => {
 
   return useMutation<DeleteSubcontrolMutation, unknown, DeleteSubcontrolMutationVariables>({
     mutationFn: async (variables) => client.request(DELETE_SUBCONTROL, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subcontrols'] })
+    },
+  })
+}
+
+export const useCreateSubcontrol = () => {
+  const { client } = useGraphQLClient()
+  const queryClient = useQueryClient()
+
+  return useMutation<CreateSubcontrolMutation, unknown, CreateSubcontrolMutationVariables>({
+    mutationFn: async (variables) => client.request(CREATE_SUBCONTROL, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subcontrols'] })
     },

@@ -1,12 +1,15 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React from 'react'
 import { SelectFilterField, SelectIsFilterField } from '@/types'
-import { DownloadIcon, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
+import { CirclePlus, DownloadIcon, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
 import { CONTROLS_FILTER_FIELDS } from './table-config'
 import { Input } from '@repo/ui/input'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
 import Menu from '@/components/shared/menu/menu.tsx'
 import { BulkCSVCreateControlDialog } from '@/components/pages/protected/controls/bulk-csv-create-control-dialog.tsx'
+import { CreateBtn } from '@/components/shared/icon-enum/common-enum'
+import { Button } from '@repo/ui/button'
+import Link from 'next/link'
 
 type TProps = {
   onFilterChange: (filters: Record<string, any>) => void
@@ -50,6 +53,25 @@ const ControlsTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, sea
       </div>
 
       <div className="grow flex flex-row items-center gap-2 justify-end">
+        <Menu
+          trigger={CreateBtn}
+          content={
+            <>
+              <Link href="/controls/create-control">
+                <div className="flex items-center space-x-2">
+                  <CirclePlus size={16} strokeWidth={2} />
+                  <span>Control</span>
+                </div>
+              </Link>
+              <Link href="/controls/create-subcontrol">
+                <div className="flex items-center space-x-2">
+                  <CirclePlus size={16} strokeWidth={2} />
+                  <span>Subcontrol</span>
+                </div>
+              </Link>
+            </>
+          }
+        />
         <Menu
           content={
             <>
