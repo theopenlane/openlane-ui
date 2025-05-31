@@ -16,8 +16,8 @@ export const getHrefForObjectType = (
       return `/controls/${row.control?.id}/${row.id}`
     case 'risks':
       return `/risks?id=${row.id}`
-    // case 'tasks':
-    //   return `/tasks?id=${row.id}` //TODO: TASKS NEED REFACTOR SO WE CAN COME TO ID AND REDNDER DETAILS IN SHEET
+    case 'tasks':
+      return `/tasks?id=${row.id}`
     case 'programs':
       return `/programs?id=${row.id}`
 
