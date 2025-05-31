@@ -13,6 +13,7 @@ import { useAccountRole } from '@/lib/authz/access-api.ts'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
 import { useSession } from 'next-auth/react'
 import { canEdit } from '@/lib/authz/utils.ts'
+import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 
 type AssociatedObjectsAccordionProps = {
   policy: InternalPolicyByIdFragment
@@ -45,16 +46,24 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
         </TableHeader>
         <TableBody>
           {rows.length > 0 ? (
-            rows.map((row) => (
-              <TableRow key={row?.id}>
-                <TableCell className="px-4 py-2 text-primary font-bold min-w-[100px]">
-                  <Link href={`/${kind}/${row?.id}`} className="text-blue-500 hover:underline">
-                    {row.name || row.refCode || row.title || '-'}
-                  </Link>
-                </TableCell>
-                <TableCell className="px-4 py-2 line-clamp-1 overflow-hidden">{row?.summary || row?.description || (row?.details && plateEditorHelper.convertToReadOnly(row.details, 0))}</TableCell>
-              </TableRow>
-            ))
+            rows.map((row) => {
+              const href = getHrefForObjectType(kind, row)
+              const text = row.name || row.refCode || row.title || '-'
+              return (
+                <TableRow key={row?.id}>
+                  <TableCell className="px-4 py-2 text-primary font-bold min-w-[100px]">
+                    {href ? (
+                      <Link href={href} className="text-blue-500 hover:underline">
+                        {text}
+                      </Link>
+                    ) : (
+                      <p>{text}</p>
+                    )}
+                  </TableCell>
+                  <TableCell className="px-4 py-2 line-clamp-1 overflow-hidden">{row?.summary || row?.description || (row?.details && plateEditorHelper.convertToReadOnly(row.details, 0))}</TableCell>
+                </TableRow>
+              )
+            })
           ) : (
             <TableRow>
               <TableCell colSpan={2} className="px-4 py-2 text-muted-foreground">
@@ -108,6 +117,11 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
         <AccordionItem value="controls">
           <SectionTrigger label="Controls" count={policy.controls.totalCount} />
           {!!policy.controls.edges?.length && <AccordionContent>{renderTable('controls', extractNodes(policy.controls.edges))}</AccordionContent>}
+        </AccordionItem>
+
+        <AccordionItem value="subcontrols">
+          <SectionTrigger label="Subcontrols" count={policy.subcontrols.totalCount} />
+          {!!policy.subcontrols.edges?.length && <AccordionContent>{renderTable('controls', extractNodes(policy.controls.edges))}</AccordionContent>}
         </AccordionItem>
 
         <AccordionItem value="controlObjectives">
