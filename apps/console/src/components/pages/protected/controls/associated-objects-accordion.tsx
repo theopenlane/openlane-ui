@@ -5,10 +5,11 @@ import Link from 'next/link'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/table'
 import { Button } from '@repo/ui/button'
-import { ChevronDown, ChevronsDownUp, ChevronsUpDown, List } from 'lucide-react'
+import { ChevronDown, ChevronsDownUp, List } from 'lucide-react'
 import { SetObjectAssociationDialog } from './set-object-association-modal'
 import { ControlDetailsFieldsFragment, Group, InternalPolicy, InternalPolicyEdge, Organization, Procedure, ProcedureEdge, Program, ProgramProgramStatus, Task, User } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
+import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 
 type AssociatedObjectsAccordionProps = {
   policies: ControlDetailsFieldsFragment['internalPolicies']
@@ -77,7 +78,7 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
             rows.map((item) => (
               <TableRow key={item.id}>
                 <TableCell className="px-4 py-2 ">
-                  <Link href={`/${type}/${item.id}/view`} className="text-blue-500 hover:underline">
+                  <Link href={getHrefForObjectType(type, item)} className="text-blue-500 hover:underline">
                     {item.name}
                   </Link>
                 </TableCell>
@@ -120,7 +121,7 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
             rows.map((task) => (
               <TableRow key={task.id}>
                 <TableCell className="px-4 py-2 whitespace-nowrap">
-                  <Link href={`/tasks?taskId=${task.id}`} className="text-blue-500 hover:underline">
+                  <Link href={getHrefForObjectType('tasks', task)} className="text-blue-500 hover:underline">
                     {task.title}
                   </Link>
                 </TableCell>
@@ -159,7 +160,7 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
             rows.map((program) => (
               <TableRow key={program.id}>
                 <TableCell className="px-4 py-2 whitespace-nowrap">
-                  <Link href={`/programs?id=${program.id}`} className="text-blue-500 hover:underline">
+                  <Link href={getHrefForObjectType('programs', program)} className="text-blue-500 hover:underline">
                     {program.name}
                   </Link>
                 </TableCell>
@@ -192,7 +193,7 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
             rows.map((risk) => (
               <TableRow key={risk.id}>
                 <TableCell className="px-4 py-2">
-                  <Link href={`/risks?id=${risk.id}`} className="text-blue-500 hover:underline">
+                  <Link href={getHrefForObjectType('risks', risk)} className="text-blue-500 hover:underline">
                     {risk.name}
                   </Link>
                 </TableCell>

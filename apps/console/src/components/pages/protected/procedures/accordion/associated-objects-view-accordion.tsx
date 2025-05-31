@@ -13,6 +13,7 @@ import { useSession } from 'next-auth/react'
 import { useAccountRole } from '@/lib/authz/access-api.ts'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
 import { canEdit } from '@/lib/authz/utils.ts'
+import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 
 type AssociatedObjectsAccordionProps = {
   procedure: ProcedureByIdFragment
@@ -35,26 +36,34 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
     kind: string,
     rows: { id: string; displayID: string; refCode?: string | null; name?: string | null; title?: string | null; details?: string | null; description?: string | null; summary?: string | null }[],
   ) => (
-    <div className="mt-4 rounded-md border border-border overflow-hidden bg-card">
+    <div className="mt-4 rounded-md border border-border overflow-hidden bg-card w-full">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="px-4 py-2">Name</TableHead>
+            <TableHead className="px-4 py-2 min-w-[100px]">Name</TableHead>
             <TableHead className="px-4 py-2">Description</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {rows.length > 0 ? (
-            rows.map((row) => (
-              <TableRow key={row?.refCode ?? row.displayID}>
-                <TableCell className="px-4 py-2 text-primary font-bold">
-                  <Link href={`/${kind}/${row?.id}`} className="text-blue-500 hover:underline">
-                    {row.name || row.refCode || row.title || '-'}
-                  </Link>
-                </TableCell>
-                <TableCell className="px-4 py-2 line-clamp-1 overflow-hidden">{row?.summary || row?.description || (row?.details && plateEditorHelper.convertToReadOnly(row.details, 0))}</TableCell>
-              </TableRow>
-            ))
+            rows.map((row) => {
+              const href = getHrefForObjectType(kind, row)
+              const text = row.name || row.refCode || row.title || '-'
+              return (
+                <TableRow key={row.id}>
+                  <TableCell className="px-4 py-2 text-primary font-bold min-w-[100px]">
+                    {href ? (
+                      <Link href={href} className="text-blue-500 hover:underline">
+                        {text}
+                      </Link>
+                    ) : (
+                      <p>{text}</p>
+                    )}
+                  </TableCell>
+                  <TableCell className="px-4 py-2 line-clamp-1 overflow-hidden">{row?.summary || row?.description || (row?.details && plateEditorHelper.convertToReadOnly(row.details, 0))}</TableCell>
+                </TableRow>
+              )
+            })
           ) : (
             <TableRow>
               <TableCell colSpan={2} className="px-4 py-2 text-muted-foreground">
@@ -108,6 +117,11 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
         <AccordionItem value="controls">
           <SectionTrigger label="Controls" count={procedure.controls.totalCount} />
           {!!procedure.controls.edges?.length && <AccordionContent>{renderTable('controls', extractNodes(procedure.controls.edges))}</AccordionContent>}
+        </AccordionItem>
+
+        <AccordionItem value="subcontrols">
+          <SectionTrigger label="Subcontrols" count={procedure.subcontrols.totalCount} />
+          {!!procedure.subcontrols.edges?.length && <AccordionContent>{renderTable('subcontrols', extractNodes(procedure.subcontrols.edges))}</AccordionContent>}
         </AccordionItem>
 
         <AccordionItem value="risks">
