@@ -35249,6 +35249,8 @@ export type ControlDetailsFieldsFragment = {
   assessmentMethods?: Array<any> | null
   assessmentObjectives?: Array<any> | null
   displayID: string
+  source?: ControlControlSource | null
+  controlType?: ControlControlType | null
   standard?: { __typename?: 'Standard'; shortName?: string | null } | null
   controlObjectives: {
     __typename?: 'ControlObjectiveConnection'
@@ -35387,6 +35389,8 @@ export type GetControlByIdQuery = {
     assessmentMethods?: Array<any> | null
     assessmentObjectives?: Array<any> | null
     displayID: string
+    source?: ControlControlSource | null
+    controlType?: ControlControlType | null
     standard?: { __typename?: 'Standard'; shortName?: string | null } | null
     controlObjectives: {
       __typename?: 'ControlObjectiveConnection'
@@ -37043,6 +37047,8 @@ export type GetSubcontrolByIdQuery = {
     assessmentMethods?: Array<any> | null
     assessmentObjectives?: Array<any> | null
     displayID: string
+    source?: SubcontrolControlSource | null
+    controlType?: SubcontrolControlType | null
     control: { __typename?: 'Control'; refCode: string; id: string }
     controlObjectives: {
       __typename?: 'ControlObjectiveConnection'

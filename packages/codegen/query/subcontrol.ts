@@ -32,6 +32,8 @@ export const GET_SUBCONTROL_BY_ID = gql`
       assessmentMethods
       assessmentObjectives
       displayID
+      source
+      controlType
       control {
         refCode
         id

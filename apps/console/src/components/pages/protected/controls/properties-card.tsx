@@ -18,6 +18,7 @@ interface PropertiesCardProps {
   mappedCategories?: string[] | null
   isEditing: boolean
   controlData?: Control
+  isSourceFramework?: boolean
 }
 
 const statusLabels: Record<ControlControlStatus, string> = {
@@ -52,16 +53,17 @@ const iconsMap: Record<string, React.ReactNode> = {
   'Mapped categories': <FolderIcon size={16} className="text-brand" />,
 }
 
-const PropertiesCard: React.FC<PropertiesCardProps> = ({ category, subcategory, status, mappedCategories, isEditing, controlData }) => {
+const PropertiesCard: React.FC<PropertiesCardProps> = ({ category, subcategory, status, mappedCategories, isEditing, controlData, isSourceFramework }) => {
   const { control } = useFormContext()
+  const isEditAllowed = !isSourceFramework && isEditing
 
   return (
     <Card className="p-4 bg-muted rounded-xl shadow-sm">
       <h3 className="text-lg font-medium mb-4">Properties</h3>
       <div className="space-y-3">
         {controlData && <LinkedProperty label="Control" href={`/controls/${controlData.id}`} value={controlData.refCode} icon={<FolderIcon size={16} className="text-brand" />} />}
-        <EditableProperty label="Category" icon={iconsMap.Category} isEditing={isEditing} name="category" defaultValue={category} />
-        <EditableProperty label="Subcategory" icon={iconsMap.Subcategory} isEditing={isEditing} name="subcategory" defaultValue={subcategory} />
+        <EditableProperty label="Category" icon={iconsMap.Category} isEditing={isEditAllowed} name="category" defaultValue={category} />
+        <EditableProperty label="Subcategory" icon={iconsMap.Subcategory} isEditing={isEditAllowed} name="subcategory" defaultValue={subcategory} />
         <div className="grid grid-cols-[110px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
           <div className="flex items-start gap-2">
             <div className="pt-0.5">{iconsMap.Status}</div>
@@ -96,7 +98,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ category, subcategory, 
           </div>
         </div>
         {isEditing ? <MappedCategoriesDialog /> : <Property label="Mapped categories" value={(mappedCategories ?? []).join(',\n')} />}{' '}
-        <EditableSelect label="Source" name="source" isEditing={isEditing} options={Object.values(ControlControlSource)} labels={sourceLabels} />
+        <EditableSelect label="Source" name="source" isEditing={isEditAllowed} options={Object.values(ControlControlSource)} labels={sourceLabels} />
         <EditableSelect label="Type" name="controlType" isEditing={isEditing} options={Object.values(ControlControlType)} labels={typeLabels} />
       </div>
     </Card>
