@@ -98,7 +98,13 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ category, subcategory, 
           </div>
         </div>
         {isEditing ? <MappedCategoriesDialog /> : <Property label="Mapped categories" value={(mappedCategories ?? []).join(',\n')} />}{' '}
-        <EditableSelect label="Source" name="source" isEditing={isEditAllowed} options={Object.values(ControlControlSource)} labels={sourceLabels} />
+        <EditableSelect
+          label="Source"
+          name="source"
+          isEditing={isEditAllowed}
+          options={Object.values(ControlControlSource).filter((source) => source !== ControlControlSource.FRAMEWORK)}
+          labels={sourceLabels}
+        />
         <EditableSelect label="Type" name="controlType" isEditing={isEditing} options={Object.values(ControlControlType)} labels={typeLabels} />
       </div>
     </Card>
