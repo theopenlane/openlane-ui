@@ -188,7 +188,7 @@
     "@udecode/plate-list": "^44.0.5",
     "@udecode/plate-placeholder": "^9.0.0",
     "@udecode/plate-tabbable": "^44.0.0",
-    "cmdk": "1.0.4",
+    "cmdk": "1.1.1",
     "emblor": "^1.4.7",
     "input-otp": "^1.4.2",
     "prismjs": "^1.29.0",
