@@ -123,7 +123,7 @@ const TaskDetailsSheet = () => {
       return
     }
 
-    const url = `${window.location.origin}${window.location.pathname}?taskId=${id}`
+    const url = `${window.location.origin}${window.location.pathname}?id=${id}`
     navigator.clipboard
       .writeText(url)
       .then(() => {
