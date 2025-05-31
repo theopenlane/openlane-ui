@@ -56,3 +56,22 @@ export const GET_ORG_MEMBERSHIPS = gql`
     }
   }
 `
+
+export const GET_ORG_USER_LIST = gql`
+  query OrgMemberships($where: OrgMembershipWhereInput) {
+    orgMemberships(where: $where) {
+      edges {
+        node {
+          user {
+            id
+            displayName
+            avatarRemoteURL
+            avatarFile {
+              presignedURL
+            }
+          }
+        }
+      }
+    }
+  }
+`
