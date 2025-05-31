@@ -47,6 +47,7 @@ interface DataTableProps<TData, TValue> {
   onPaginationChange?: (arg: TPagination) => void
   paginationMeta?: TPaginationMeta
   wrapperClass?: string
+  footer?: ReactElement | null
 }
 
 export function DataTable<TData, TValue>({
@@ -64,6 +65,7 @@ export function DataTable<TData, TValue>({
   onPaginationChange,
   paginationMeta,
   wrapperClass,
+  footer,
 }: DataTableProps<TData, TValue>) {
   const [sortConditions, setSortConditions] = useState<{ field: string; direction?: OrderDirection }[]>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -346,6 +348,7 @@ export function DataTable<TData, TValue>({
             </TableBody>
           </Table>
         </div>
+        {footer}
       </div>
 
       {/* Pagination also gets opacity and interaction block on loading */}
