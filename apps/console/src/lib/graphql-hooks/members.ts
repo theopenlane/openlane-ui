@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
-import { UPDATE_USER_ROLE_IN_ORG, REMOVE_USER_FROM_ORG, GET_ORG_MEMBERSHIPS } from '@repo/codegen/query/member'
+import { UPDATE_USER_ROLE_IN_ORG, REMOVE_USER_FROM_ORG, GET_ORG_MEMBERSHIPS, GET_ORG_USER_LIST } from '@repo/codegen/query/member'
 
 import {
   UpdateUserRoleInOrgMutation,
@@ -12,6 +12,7 @@ import {
   OrgMembershipsQueryVariables,
   OrgMembershipWhereInput,
   OrgMembership,
+  User,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 
@@ -58,6 +59,29 @@ export const useGetOrgMemberships = ({ where, pagination, enabled }: TUseGetOrgM
     ...queryResult,
     members,
     paginationMeta,
+    isLoading: queryResult.isFetching,
+  }
+}
+
+type TUseGetOrgUserListProps = {
+  where?: OrgMembershipWhereInput
+}
+
+export const useGetOrgUserList = ({ where }: TUseGetOrgUserListProps) => {
+  const idInNotEmpty = Array.isArray(where?.hasUserWith?.[0]?.idIn) && where.hasUserWith[0].idIn.length > 0
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<OrgMembershipsQuery, OrgMembershipsQueryVariables>({
+    queryKey: ['memberships', where],
+    queryFn: () => client.request(GET_ORG_USER_LIST, { where }),
+    enabled: idInNotEmpty,
+  })
+
+  const users = (queryResult.data?.orgMemberships?.edges ?? []).map((edge) => edge?.node?.user) as User[]
+
+  return {
+    ...queryResult,
+    users,
     isLoading: queryResult.isFetching,
   }
 }
