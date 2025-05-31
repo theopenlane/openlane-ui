@@ -9,7 +9,7 @@ import { Button } from '@repo/ui/button'
 import { ArrowRight, ChevronDown, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
 
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
-import { Control, EvidenceEdge, SubcontrolControlStatus } from '@repo/codegen/src/schema.ts'
+import { Control, EvidenceEdge, SubcontrolControlSource, SubcontrolControlStatus, SubcontrolControlType } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { useGetSubcontrolById, useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol.ts'
@@ -38,6 +38,8 @@ interface FormValues {
   subcategory?: string
   status: SubcontrolControlStatus
   mappedCategories: string[]
+  source?: SubcontrolControlSource
+  controlType?: SubcontrolControlType
 }
 
 interface SheetData {
@@ -66,6 +68,8 @@ const ControlDetailsPage: React.FC = () => {
 
   const { mutateAsync: updateSubcontrol } = useUpdateSubcontrol()
   const plateEditorHelper = usePlateEditor()
+
+  const isSourceFramework = data?.subcontrol.source === SubcontrolControlSource.FRAMEWORK
 
   const form = useForm<FormValues>({
     defaultValues: initialDataObj,
@@ -131,6 +135,8 @@ const ControlDetailsPage: React.FC = () => {
         subcategory: data?.subcontrol?.subcategory || '',
         status: data?.subcontrol?.status || SubcontrolControlStatus.NOT_IMPLEMENTED,
         mappedCategories: data?.subcontrol?.mappedCategories || [],
+        controlType: data.subcontrol.controlType || undefined,
+        source: data.subcontrol.source || undefined,
       }
 
       form.reset(newValues)
@@ -150,9 +156,9 @@ const ControlDetailsPage: React.FC = () => {
         <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-[1fr_336px] gap-6">
           <div className="space-y-6">
             <div className="flex items-center justify-between mb-4">
-              <TitleField isEditing={isEditing} />
+              <TitleField isEditing={!isSourceFramework && isEditing} />
             </div>
-            <DescriptionField isEditing={isEditing} initialValue={initialValues.description} />
+            <DescriptionField isEditing={!isSourceFramework && isEditing} initialValue={initialValues.description} />
             <ControlEvidenceTable
               control={{
                 displayID: subcontrol?.refCode,
@@ -223,6 +229,7 @@ const ControlDetailsPage: React.FC = () => {
               status={subcontrol.status}
               mappedCategories={subcontrol.mappedCategories}
               isEditing={isEditing}
+              isSourceFramework={isSourceFramework}
             />
             <DetailsCard />
             {hasInfoData && (

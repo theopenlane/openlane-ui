@@ -16,7 +16,7 @@ import PropertiesCard from '../../../../components/pages/protected/controls/prop
 import DetailsCard from '../../../../components/pages/protected/controls/details.tsx'
 import InfoCard from '../../../../components/pages/protected/controls/info-card.tsx'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
-import { ControlControlStatus, EvidenceEdge } from '@repo/codegen/src/schema.ts'
+import { ControlControlSource, ControlControlStatus, ControlControlType, EvidenceEdge } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import SubcontrolsTable from '@/components/pages/protected/controls/subcontrols-table.tsx'
@@ -43,6 +43,8 @@ interface FormValues {
   subcategory?: string
   status: ControlControlStatus
   mappedCategories: string[]
+  controlType?: ControlControlType
+  source?: ControlControlSource
 }
 
 interface SheetData {
@@ -70,6 +72,8 @@ const ControlDetailsPage: React.FC = () => {
   const [initialValues, setInitialValues] = useState<FormValues>(initialDataObj)
   const { data: session } = useSession()
   const { data: permission } = useAccountRole(session, ObjectEnum.CONTROL, id!)
+
+  const isSourceFramework = data?.control.source === ControlControlSource.FRAMEWORK
 
   const { mutateAsync: updateControl } = useUpdateControl()
   const plateEditorHelper = usePlateEditor()
@@ -138,6 +142,8 @@ const ControlDetailsPage: React.FC = () => {
         subcategory: data.control.subcategory || '',
         status: data.control.status || ControlControlStatus.NOT_IMPLEMENTED,
         mappedCategories: data.control.mappedCategories || [],
+        controlType: data.control.controlType || undefined,
+        source: data.control.source || undefined,
       }
 
       form.reset(newValues)
@@ -157,9 +163,9 @@ const ControlDetailsPage: React.FC = () => {
         <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-[1fr_336px] gap-6">
           <div className="space-y-6">
             <div className="flex items-center justify-between mb-4">
-              <TitleField isEditing={isEditing} />
+              <TitleField isEditing={!isSourceFramework && isEditing} />
             </div>
-            <DescriptionField isEditing={isEditing} initialValue={initialValues.description} />
+            <DescriptionField isEditing={!isSourceFramework && isEditing} initialValue={initialValues.description} />
             <ControlEvidenceTable
               canEdit={canEdit(permission?.roles)}
               control={{
@@ -244,7 +250,14 @@ const ControlDetailsPage: React.FC = () => {
               </div>
             )}
             <AuthorityCard controlOwner={control.controlOwner} delegate={control.delegate} isEditing={isEditing} />
-            <PropertiesCard category={control.category} subcategory={control.subcategory} status={control.status} mappedCategories={control.mappedCategories} isEditing={isEditing} />
+            <PropertiesCard
+              category={control.category}
+              subcategory={control.subcategory}
+              status={control.status}
+              mappedCategories={control.mappedCategories}
+              isEditing={isEditing}
+              isSourceFramework={isSourceFramework}
+            />
             <DetailsCard />
             {hasInfoData && (
               <InfoCard
