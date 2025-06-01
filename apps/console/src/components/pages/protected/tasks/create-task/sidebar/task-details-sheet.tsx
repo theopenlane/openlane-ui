@@ -47,15 +47,18 @@ const TaskDetailsSheet = () => {
   const plateEditorHelper = usePlateEditor()
   const taskTypeOptions = Object.values(TaskTypes)
   const statusOptions = Object.values(TaskTaskStatus)
-  const searchParams = useSearchParams()
   const router = useRouter()
-  const { selectedTask, setSelectedTask, orgMembers } = useTaskStore()
+  const { orgMembers } = useTaskStore()
   const { successNotification, errorNotification } = useNotification()
   const [comments, setComments] = useState<TCommentData[]>([])
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
   const [associations, setAssociations] = useState<TObjectAssociationMap>({})
   const { mutateAsync: updateTask } = useUpdateTask()
-  const { data, isLoading: fetching } = useTask(selectedTask as string)
+
+  const searchParams = useSearchParams()
+  const id = searchParams.get('id')
+
+  const { data, isLoading: fetching } = useTask(id as string)
 
   const taskData = data?.task
   const { form } = useFormSchema()
@@ -116,11 +119,11 @@ const TaskDetailsSheet = () => {
   }, [taskData, form])
 
   const handleCopyLink = () => {
-    if (!selectedTask) {
+    if (!id) {
       return
     }
 
-    const url = `${window.location.origin}${window.location.pathname}?taskId=${selectedTask}`
+    const url = `${window.location.origin}${window.location.pathname}?id=${id}`
     navigator.clipboard
       .writeText(url)
       .then(() => {
@@ -145,16 +148,14 @@ const TaskDetailsSheet = () => {
   }
 
   const handleCloseParams = () => {
-    setSelectedTask(null)
-    setIsEditing(false)
-
     const newSearchParams = new URLSearchParams(searchParams.toString())
-    newSearchParams.delete('taskId')
+    newSearchParams.delete('id')
     router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
+    setIsEditing(false)
   }
 
   const onSubmit = async (data: EditTaskFormData) => {
-    if (!selectedTask) {
+    if (!id) {
       return
     }
 
@@ -181,7 +182,7 @@ const TaskDetailsSheet = () => {
 
     try {
       await updateTask({
-        updateTaskId: selectedTask as string,
+        updateTaskId: id as string,
         input: formData,
       })
 
@@ -203,7 +204,7 @@ const TaskDetailsSheet = () => {
   const handleMarkAsComplete = async () => {
     try {
       await updateTask({
-        updateTaskId: selectedTask as string,
+        updateTaskId: id as string,
         input: {
           status: TaskTaskStatus.COMPLETED,
         },
@@ -249,7 +250,7 @@ const TaskDetailsSheet = () => {
       const comment = await plateEditorHelper.convertToHtml(data.comment)
 
       await updateTask({
-        updateTaskId: selectedTask as string,
+        updateTaskId: id as string,
         input: {
           addComment: {
             text: comment,
@@ -278,7 +279,7 @@ const TaskDetailsSheet = () => {
   }
 
   return (
-    <Sheet open={!!selectedTask} onOpenChange={handleSheetClose}>
+    <Sheet open={!!id} onOpenChange={handleSheetClose}>
       <SheetContent className="bg-card flex flex-col">
         {fetching ? (
           <Loading />

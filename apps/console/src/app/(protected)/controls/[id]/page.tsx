@@ -7,7 +7,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { Value } from '@udecode/plate-common'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import { ArrowRight, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
+import { ArrowRight, ChevronDown, CirclePlus, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
 import AssociatedObjectsAccordion from '../../../../components/pages/protected/controls/associated-objects-accordion.tsx'
 import TitleField from '../../../../components/pages/protected/controls/form-fields/title-field.tsx'
 import DescriptionField from '../../../../components/pages/protected/controls/form-fields/description-field.tsx'
@@ -16,7 +16,7 @@ import PropertiesCard from '../../../../components/pages/protected/controls/prop
 import DetailsCard from '../../../../components/pages/protected/controls/details.tsx'
 import InfoCard from '../../../../components/pages/protected/controls/info-card.tsx'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
-import { ControlControlStatus, EvidenceEdge } from '@repo/codegen/src/schema.ts'
+import { ControlControlSource, ControlControlStatus, ControlControlType, EvidenceEdge } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import SubcontrolsTable from '@/components/pages/protected/controls/subcontrols-table.tsx'
@@ -28,6 +28,11 @@ import EvidenceDetailsSheet from '@/components/pages/protected/controls/control-
 import ControlEvidenceTable from '@/components/pages/protected/controls/control-evidence/control-evidence-table.tsx'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog.tsx'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
+import { TaskIconBtn } from '@/components/shared/icon-enum/task-enum.tsx'
+import Menu from '@/components/shared/menu/menu.tsx'
+import DeleteControlDialog from '@/components/pages/protected/controls/delete-control-dialog.tsx'
+import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
+import Link from 'next/link'
 
 interface FormValues {
   refCode: string
@@ -38,6 +43,8 @@ interface FormValues {
   subcategory?: string
   status: ControlControlStatus
   mappedCategories: string[]
+  controlType?: ControlControlType
+  source?: ControlControlSource
 }
 
 interface SheetData {
@@ -65,6 +72,8 @@ const ControlDetailsPage: React.FC = () => {
   const [initialValues, setInitialValues] = useState<FormValues>(initialDataObj)
   const { data: session } = useSession()
   const { data: permission } = useAccountRole(session, ObjectEnum.CONTROL, id!)
+
+  const isSourceFramework = data?.control.source === ControlControlSource.FRAMEWORK
 
   const { mutateAsync: updateControl } = useUpdateControl()
   const plateEditorHelper = usePlateEditor()
@@ -117,7 +126,7 @@ const ControlDetailsPage: React.FC = () => {
     setIsEditing(false)
   }
 
-  const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleEdit = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault()
     setIsEditing(true)
   }
@@ -133,6 +142,8 @@ const ControlDetailsPage: React.FC = () => {
         subcategory: data.control.subcategory || '',
         status: data.control.status || ControlControlStatus.NOT_IMPLEMENTED,
         mappedCategories: data.control.mappedCategories || [],
+        controlType: data.control.controlType || undefined,
+        source: data.control.source || undefined,
       }
 
       form.reset(newValues)
@@ -152,9 +163,9 @@ const ControlDetailsPage: React.FC = () => {
         <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-[1fr_336px] gap-6">
           <div className="space-y-6">
             <div className="flex items-center justify-between mb-4">
-              <TitleField isEditing={isEditing} />
+              <TitleField isEditing={!isSourceFramework && isEditing} />
             </div>
-            <DescriptionField isEditing={isEditing} initialValue={initialValues.description} />
+            <DescriptionField isEditing={!isSourceFramework && isEditing} initialValue={initialValues.description} />
             <ControlEvidenceTable
               canEdit={canEdit(permission?.roles)}
               control={{
@@ -200,24 +211,53 @@ const ControlDetailsPage: React.FC = () => {
             )}
             {!isEditing && canEdit(permission?.roles) && (
               <div className="flex gap-2 justify-end">
-                <CreateTaskDialog
-                  defaultSelectedObject={ObjectTypeObjects.CONTROL}
-                  initialData={{
-                    programIDs: (control.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                    procedureIDs: (control.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                    internalPolicyIDs: (control.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                    controlObjectiveIDs: (control.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                    riskIDs: (control.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                    controlIDs: [id],
-                  }}
+                <Menu
+                  trigger={CreateBtn}
+                  content={
+                    <>
+                      <CreateTaskDialog
+                        trigger={TaskIconBtn}
+                        defaultSelectedObject={ObjectTypeObjects.CONTROL}
+                        initialData={{
+                          programIDs: (control.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                          procedureIDs: (control.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                          internalPolicyIDs: (control.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                          controlObjectiveIDs: (control.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                          riskIDs: (control.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                          controlIDs: [id],
+                        }}
+                      />
+                      <Link href={`/controls/${id}/create-subcontrol`}>
+                        <div className="flex items-center space-x-2">
+                          <CirclePlus size={16} strokeWidth={2} />
+                          <span>Subcontrol</span>
+                        </div>
+                      </Link>
+                    </>
+                  }
                 />
-                <Button className="h-8 !px-2" icon={<PencilIcon />} iconPosition="left" onClick={handleEdit}>
-                  Edit Control
-                </Button>
+                <Menu
+                  content={
+                    <>
+                      <div className="flex items-center space-x-2 cursor-pointer" onClick={(e) => handleEdit(e)}>
+                        <PencilIcon size={16} strokeWidth={2} />
+                        <span>Edit</span>
+                      </div>
+                      <DeleteControlDialog controlId={control.id} />
+                    </>
+                  }
+                />
               </div>
             )}
             <AuthorityCard controlOwner={control.controlOwner} delegate={control.delegate} isEditing={isEditing} />
-            <PropertiesCard category={control.category} subcategory={control.subcategory} status={control.status} mappedCategories={control.mappedCategories} isEditing={isEditing} />
+            <PropertiesCard
+              category={control.category}
+              subcategory={control.subcategory}
+              status={control.status}
+              mappedCategories={control.mappedCategories}
+              isEditing={isEditing}
+              isSourceFramework={isSourceFramework}
+            />
             <DetailsCard />
             {hasInfoData && (
               <InfoCard

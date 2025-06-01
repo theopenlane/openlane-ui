@@ -1,10 +1,10 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React from 'react'
 import { SUBSCRIBERS_FILTER_FIELDS } from '@/components/pages/protected/organization/subscribers/table/table-config.ts'
-import { DownloadIcon, LoaderCircle, SearchIcon } from 'lucide-react'
+import { DownloadIcon, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
 import { Input } from '@repo/ui/input'
-import { Button } from '@repo/ui/button'
-import { exportToCSV } from '@/utils/exportToCSV'
+import Menu from '@/components/shared/menu/menu.tsx'
+import BulkCSVCreateSubscriberDialog from '@/components/pages/protected/organization/subscribers/bulk-csv-create-subscriber-dialog.tsx'
 
 type TProps = {
   onFilterChange: (filters: Record<string, any>) => void
@@ -27,9 +27,24 @@ const SubscribersTableToolbar: React.FC<TProps> = ({ searching, searchTerm, onFi
           variant="searchTable"
         />
       </div>
-      <Button onClick={handleExport} icon={<DownloadIcon />} iconPosition="left">
-        Export
-      </Button>
+      <Menu
+        content={
+          <>
+            <div className="flex items-center space-x-2" onClick={handleExport}>
+              <DownloadIcon size={16} strokeWidth={2} />
+              <span>Export</span>
+            </div>
+            <BulkCSVCreateSubscriberDialog
+              trigger={
+                <div className="flex items-center space-x-2">
+                  <Upload size={16} strokeWidth={2} />
+                  <span>Bulk Upload</span>
+                </div>
+              }
+            />
+          </>
+        }
+      />
     </div>
   )
 }

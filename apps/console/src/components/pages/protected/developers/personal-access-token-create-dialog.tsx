@@ -166,7 +166,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
           </div>
         ) : (
           <Button iconPosition="left" icon={<CirclePlusIcon />}>
-            Create Token
+            Create New
           </Button>
         )}
       </DialogTrigger>

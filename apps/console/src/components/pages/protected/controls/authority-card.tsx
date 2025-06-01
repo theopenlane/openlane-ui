@@ -13,8 +13,8 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 
 interface AuthorityCardProps {
-  controlOwner: ControlDetailsFieldsFragment['controlOwner']
-  delegate: ControlDetailsFieldsFragment['delegate']
+  controlOwner?: ControlDetailsFieldsFragment['controlOwner']
+  delegate?: ControlDetailsFieldsFragment['delegate']
   isEditing: boolean
 }
 

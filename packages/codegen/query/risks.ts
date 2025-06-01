@@ -76,3 +76,13 @@ export const UPDATE_RISK = gql`
     }
   }
 `
+
+export const CREATE_CSV_BULK_RISK = gql`
+  mutation CreateBulkCSVRisk($input: Upload!) {
+    createBulkCSVRisk(input: $input) {
+      risks {
+        id
+      }
+    }
+  }
+`

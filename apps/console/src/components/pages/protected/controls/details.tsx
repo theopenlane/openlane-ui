@@ -13,6 +13,7 @@ const DetailsCard = () => {
   const subcontrolId = params?.subcontrolId as string | undefined
 
   const controlObjectivesPath = subcontrolId ? `/controls/${id}/${subcontrolId}/control-objectives` : `/controls/${id}/control-objectives`
+  const controlImplementationPath = subcontrolId ? `/controls/${id}/${subcontrolId}/control-implementation` : `/controls/${id}/control-implementation`
 
   return (
     <Card className="p-4 bg-muted rounded-xl shadow-sm">
@@ -28,9 +29,11 @@ const DetailsCard = () => {
         </div>
         <div className="flex justify-between p-0 items-center">
           <span className="text-sm ">Implementation details</span>
-          <Button className="h-8 !p-2 size-fit" variant="outline" icon={<ChevronRight size={16} />}>
-            View
-          </Button>
+          <Link href={controlImplementationPath}>
+            <Button className="h-8 !p-2 size-fit" variant="outline" icon={<ChevronRight size={16} />}>
+              View
+            </Button>
+          </Link>
         </div>
       </div>
     </Card>

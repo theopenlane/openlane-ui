@@ -19,6 +19,7 @@ export const GET_ALL_SUBSCRIBERS = gql`
           email
           id
           verifiedEmail
+          createdAt
         }
       }
       pageInfo {
@@ -42,6 +43,16 @@ export const UNSUBSCRIBE_MUTATION = gql`
   mutation UpdateSubscriber($email: String!, $input: UpdateSubscriberInput!) {
     updateSubscriber(email: $email, input: $input) {
       subscriber {
+        id
+      }
+    }
+  }
+`
+
+export const CREATE_CSV_BULK_SUBSCRIBER = gql`
+  mutation CreateBulkCSVSubscriber($input: Upload!) {
+    createBulkCSVSubscriber(input: $input) {
+      subscribers {
         id
       }
     }

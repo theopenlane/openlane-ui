@@ -142,6 +142,19 @@ export const PROCEDURE_BY_ID = gql`
       }
       totalCount
     }
+    subcontrols {
+      edges {
+        node {
+          id
+          displayID
+          refCode
+          control {
+            id
+          }
+        }
+      }
+      totalCount
+    }
     programs {
       edges {
         node {

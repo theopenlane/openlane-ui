@@ -26,8 +26,9 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useSession } from 'next-auth/react'
 import { useAccountRole } from '@/lib/authz/access-api'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
-import { canDelete } from '@/lib/authz/utils'
+import { canDelete, canEdit } from '@/lib/authz/utils'
 import { useDeleteProcedure } from '@/lib/graphql-hooks/procedures'
+import Menu from '@/components/shared/menu/menu.tsx'
 
 type TViewProcedurePage = {
   procedureId: string
@@ -47,6 +48,7 @@ const ViewProcedurePage: React.FC<TViewProcedurePage> = ({ procedureId }) => {
   const { data: session } = useSession()
   const { data: permission } = useAccountRole(session, ObjectEnum.PROCEDURE, procedureId)
   const deleteAllowed = canDelete(permission?.roles)
+  const editAllowed = canEdit(permission?.roles)
   const { mutateAsync: deleteProcedure } = useDeleteProcedure()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
@@ -93,7 +95,7 @@ const ViewProcedurePage: React.FC<TViewProcedurePage> = ({ procedureId }) => {
     setIsEditing(false)
   }
 
-  const handleEdit = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleEdit = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault()
     setIsEditing(true)
   }
@@ -161,19 +163,6 @@ const ViewProcedurePage: React.FC<TViewProcedurePage> = ({ procedureId }) => {
             </div>
             <div className="space-y-4">
               <div className="flex gap-2 justify-end">
-                {deleteAllowed && (
-                  <>
-                    <Button type="button" className="h-8 !px-2" icon={<Trash2 />} iconPosition="left" onClick={() => setIsDeleteDialogOpen(true)}>
-                      Delete
-                    </Button>
-                    <ConfirmationDialog
-                      open={isDeleteDialogOpen}
-                      onOpenChange={setIsDeleteDialogOpen}
-                      onConfirm={handleDeleteProcedure}
-                      description="This action cannot be undone. This will permanently remove the procedure from the organization."
-                    />
-                  </>
-                )}
                 {isEditing ? (
                   <div className="flex gap-2 justify-end">
                     <Button className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
@@ -185,9 +174,36 @@ const ViewProcedurePage: React.FC<TViewProcedurePage> = ({ procedureId }) => {
                   </div>
                 ) : (
                   <div className="flex gap-2 justify-end">
-                    <Button className="h-8 !px-2" icon={<PencilIcon />} iconPosition="left" onClick={handleEdit}>
-                      Edit Procedure
-                    </Button>
+                    {!editAllowed && !deleteAllowed ? (
+                      <></>
+                    ) : (
+                      <Menu
+                        content={
+                          <>
+                            {editAllowed && (
+                              <div className="flex items-center space-x-2 cursor-pointer" onClick={handleEdit}>
+                                <PencilIcon size={16} strokeWidth={2} />
+                                <span>Edit</span>
+                              </div>
+                            )}
+                            {deleteAllowed && (
+                              <>
+                                <div className="flex items-center space-x-2 cursor-pointer" onClick={() => setIsDeleteDialogOpen(true)}>
+                                  <Trash2 size={16} strokeWidth={2} />
+                                  <span>Delete</span>
+                                </div>
+                                <ConfirmationDialog
+                                  open={isDeleteDialogOpen}
+                                  onOpenChange={setIsDeleteDialogOpen}
+                                  onConfirm={handleDeleteProcedure}
+                                  description="This action cannot be undone. This will permanently remove the procedure from the organization."
+                                />
+                              </>
+                            )}
+                          </>
+                        }
+                      />
+                    )}
                   </div>
                 )}
               </div>

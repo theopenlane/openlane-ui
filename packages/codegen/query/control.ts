@@ -38,6 +38,11 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
     assessmentMethods
     assessmentObjectives
     displayID
+    source
+    controlType
+    standard {
+      shortName
+    }
     controlObjectives {
       edges {
         node {
@@ -217,6 +222,52 @@ export const GET_CONTROL_COUNTS_BY_STATUS = gql`
     }
     approved: controls(where: { status: APPROVED, hasProgramsWith: [{ id: $programId }] }) {
       totalCount
+    }
+  }
+`
+
+export const CREATE_CSV_BULK_CONTROL = gql`
+  mutation CreateBulkCSVControl($input: Upload!) {
+    createBulkCSVControl(input: $input) {
+      controls {
+        id
+      }
+    }
+  }
+`
+
+export const DELETE_CONTROL = gql`
+  mutation DeleteControl($deleteControlId: ID!) {
+    deleteControl(id: $deleteControlId) {
+      deletedID
+    }
+  }
+`
+
+export const CREATE_CONTROL = gql`
+  mutation CreateControl($input: CreateControlInput!) {
+    createControl(input: $input) {
+      control {
+        id
+      }
+    }
+  }
+`
+
+export const GET_CONTROL_SELECT_OPTIONS = gql`
+  query GetControlSelectOptions($where: ControlWhereInput, $first: Int = 10) {
+    controls(where: $where, first: $first) {
+      edges {
+        node {
+          id
+          refCode
+          category
+          subcategory
+          standard {
+            shortName
+          }
+        }
+      }
     }
   }
 `

@@ -1,11 +1,13 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React from 'react'
-import { CreditCard as CardIcon, DownloadIcon, LoaderCircle, SearchIcon, Table as TableIcon } from 'lucide-react'
+import { CreditCard as CardIcon, DownloadIcon, LoaderCircle, SearchIcon, Table as TableIcon, Upload } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { RISKS_FILTER_FIELDS } from './table-config'
 import { Button } from '@repo/ui/button'
 import { SelectIsFilterField } from '@/types'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
+import Menu from '@/components/shared/menu/menu.tsx'
+import BulkCSVCreateRiskDialog from '@/components/pages/protected/risks/bulk-csv-create-risk-dialog.tsx'
 
 type TProps = {
   onFilterChange: (filters: Record<string, any>) => void
@@ -40,9 +42,24 @@ const RisksTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, search
           variant="searchTable"
         />
       </div>
-      <Button onClick={handleExport} icon={<DownloadIcon />} iconPosition="left">
-        Export
-      </Button>
+      <Menu
+        content={
+          <>
+            <div className="flex items-center space-x-2 cursor-pointer" onClick={handleExport}>
+              <DownloadIcon size={16} strokeWidth={2} />
+              <span>Export</span>
+            </div>
+            <BulkCSVCreateRiskDialog
+              trigger={
+                <div className="flex items-center space-x-2">
+                  <Upload size={16} strokeWidth={2} />
+                  <span>Bulk Upload</span>
+                </div>
+              }
+            />
+          </>
+        }
+      />
     </div>
   )
 }

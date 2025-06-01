@@ -4,6 +4,7 @@ import React from 'react'
 import Link from 'next/link'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/table'
 import { useParams } from 'next/navigation'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 
 type Props = {
   subcontrols: ({
@@ -18,6 +19,8 @@ type Props = {
 
 const SubcontrolsTable: React.FC<Props> = ({ subcontrols, totalCount }) => {
   const { id } = useParams()
+  const { convertToReadOnly } = usePlateEditor()
+
   return (
     <div className="mt-8 space-y-4">
       <div className="flex gap-2">
@@ -48,7 +51,7 @@ const SubcontrolsTable: React.FC<Props> = ({ subcontrols, totalCount }) => {
                         {node.refCode}
                       </Link>
                     </TableCell>
-                    <TableCell className="px-4 py-2 max-w-[700px] truncate text-ellipsis overflow-hidden">{node.description || '-'}</TableCell>
+                    <TableCell className="px-4 py-2 max-w-[700px] truncate text-ellipsis overflow-hidden">{node.description ? convertToReadOnly(node.description) : '-'}</TableCell>
                   </TableRow>
                 ))
             ) : (

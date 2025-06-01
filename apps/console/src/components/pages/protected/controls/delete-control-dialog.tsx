@@ -1,0 +1,56 @@
+'use client'
+import React, { useState } from 'react'
+import { useNotification } from '@/hooks/useNotification'
+import { Trash2 } from 'lucide-react'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { useSession } from 'next-auth/react'
+import { useAccountRole } from '@/lib/authz/access-api.ts'
+import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
+import { canDelete } from '@/lib/authz/utils.ts'
+import { useDeleteControl } from '@/lib/graphql-hooks/controls.ts'
+import { useRouter } from 'next/navigation'
+
+const DeleteControlDialog: React.FC<{ controlId: string }> = ({ controlId }) => {
+  const { successNotification, errorNotification } = useNotification()
+  const { data: session } = useSession()
+  const { data: permission } = useAccountRole(session, ObjectEnum.CONTROL, controlId!)
+  const [isOpen, setIsOpen] = useState(false)
+  const router = useRouter()
+
+  const { mutateAsync: deleteControl } = useDeleteControl()
+
+  const handleDelete = async () => {
+    if (!controlId) return
+
+    try {
+      await deleteControl({ deleteControlId: controlId })
+      successNotification({ title: `Control deleted successfully.` })
+      router.push('/controls')
+    } catch (error) {
+      errorNotification({ title: 'Failed to delete control.' })
+    } finally {
+      setIsOpen(false)
+    }
+  }
+
+  if (!canDelete(permission?.roles)) {
+    return null
+  }
+
+  return (
+    <>
+      <div className="flex items-center space-x-2 cursor-pointer" onClick={() => setIsOpen(true)}>
+        <Trash2 size={16} strokeWidth={2} />
+        <span>Delete</span>
+      </div>
+      <ConfirmationDialog
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        onConfirm={handleDelete}
+        description={`This action cannot be undone, this will permanently remove the control from the organization.`}
+      />
+    </>
+  )
+}
+
+export default DeleteControlDialog
