@@ -173,7 +173,7 @@ const ControlDetailsPage: React.FC = () => {
     <>
       <CancelDialog isOpen={navGuard.active} onConfirm={navGuard.accept} onCancel={navGuard.reject} />
       <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-[1fr_336px] gap-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-6">
           <div className="space-y-6">
             <div className="flex items-center justify-between mb-4">
               <TitleField isEditing={!isSourceFramework && isEditing} />
