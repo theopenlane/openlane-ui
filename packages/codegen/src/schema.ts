@@ -35043,6 +35043,90 @@ export interface WebauthnWhereInput {
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+export type ControlImplementationFieldsFragment = {
+  __typename?: 'ControlImplementation'
+  id: string
+  details?: string | null
+  status?: ControlImplementationDocumentStatus | null
+  implementationDate?: any | null
+  verified?: boolean | null
+  controls: {
+    __typename?: 'ControlConnection'
+    edges?: Array<{
+      __typename?: 'ControlEdge'
+      node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; standard?: { __typename?: 'Standard'; shortName?: string | null } | null } | null
+    } | null> | null
+  }
+  subcontrols: {
+    __typename?: 'SubcontrolConnection'
+    edges?: Array<{
+      __typename?: 'SubcontrolEdge'
+      node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; refCode: string; description?: string | null; id: string } } | null
+    } | null> | null
+  }
+}
+
+export type GetAllControlImplementationsQueryVariables = Exact<{
+  where?: InputMaybe<ControlImplementationWhereInput>
+}>
+
+export type GetAllControlImplementationsQuery = {
+  __typename?: 'Query'
+  controlImplementations: {
+    __typename?: 'ControlImplementationConnection'
+    edges?: Array<{
+      __typename?: 'ControlImplementationEdge'
+      node?: {
+        __typename?: 'ControlImplementation'
+        id: string
+        details?: string | null
+        status?: ControlImplementationDocumentStatus | null
+        implementationDate?: any | null
+        verified?: boolean | null
+        controls: {
+          __typename?: 'ControlConnection'
+          edges?: Array<{
+            __typename?: 'ControlEdge'
+            node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; standard?: { __typename?: 'Standard'; shortName?: string | null } | null } | null
+          } | null> | null
+        }
+        subcontrols: {
+          __typename?: 'SubcontrolConnection'
+          edges?: Array<{
+            __typename?: 'SubcontrolEdge'
+            node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; refCode: string; description?: string | null; id: string } } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type CreateControlImplementationMutationVariables = Exact<{
+  input: CreateControlImplementationInput
+}>
+
+export type CreateControlImplementationMutation = {
+  __typename?: 'Mutation'
+  createControlImplementation: { __typename?: 'ControlImplementationCreatePayload'; controlImplementation: { __typename?: 'ControlImplementation'; id: string } }
+}
+
+export type UpdateControlImplementationMutationVariables = Exact<{
+  updateControlImplementationId: Scalars['ID']['input']
+  input: UpdateControlImplementationInput
+}>
+
+export type UpdateControlImplementationMutation = {
+  __typename?: 'Mutation'
+  updateControlImplementation: { __typename?: 'ControlImplementationUpdatePayload'; controlImplementation: { __typename?: 'ControlImplementation'; id: string } }
+}
+
+export type DeleteControlImplementationMutationVariables = Exact<{
+  deleteControlImplementationId: Scalars['ID']['input']
+}>
+
+export type DeleteControlImplementationMutation = { __typename?: 'Mutation'; deleteControlImplementation: { __typename?: 'ControlImplementationDeletePayload'; deletedID: string } }
+
 export type ControlObjectiveFieldsFragment = {
   __typename?: 'ControlObjective'
   id: string
@@ -35065,7 +35149,7 @@ export type ControlObjectiveFieldsFragment = {
     __typename?: 'SubcontrolConnection'
     edges?: Array<{
       __typename?: 'SubcontrolEdge'
-      node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; refCode: string; description?: string | null } } | null
+      node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; id: string; refCode: string; description?: string | null } } | null
     } | null> | null
   }
 }
@@ -35102,7 +35186,7 @@ export type GetAllControlObjectivesQuery = {
           __typename?: 'SubcontrolConnection'
           edges?: Array<{
             __typename?: 'SubcontrolEdge'
-            node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; refCode: string; description?: string | null } } | null
+            node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; id: string; refCode: string; description?: string | null } } | null
           } | null> | null
         }
       } | null
@@ -35165,6 +35249,11 @@ export type ControlDetailsFieldsFragment = {
   assessmentMethods?: Array<any> | null
   assessmentObjectives?: Array<any> | null
   displayID: string
+  source?: ControlControlSource | null
+  controlType?: ControlControlType | null
+  auditorReferenceID?: string | null
+  referenceID?: string | null
+  standard?: { __typename?: 'Standard'; shortName?: string | null } | null
   controlObjectives: {
     __typename?: 'ControlObjectiveConnection'
     edges?: Array<{
@@ -35302,6 +35391,11 @@ export type GetControlByIdQuery = {
     assessmentMethods?: Array<any> | null
     assessmentObjectives?: Array<any> | null
     displayID: string
+    source?: ControlControlSource | null
+    controlType?: ControlControlType | null
+    auditorReferenceID?: string | null
+    referenceID?: string | null
+    standard?: { __typename?: 'Standard'; shortName?: string | null } | null
     controlObjectives: {
       __typename?: 'ControlObjectiveConnection'
       edges?: Array<{
@@ -35416,6 +35510,35 @@ export type DeleteControlMutationVariables = Exact<{
 }>
 
 export type DeleteControlMutation = { __typename?: 'Mutation'; deleteControl: { __typename?: 'ControlDeletePayload'; deletedID: string } }
+
+export type CreateControlMutationVariables = Exact<{
+  input: CreateControlInput
+}>
+
+export type CreateControlMutation = { __typename?: 'Mutation'; createControl: { __typename?: 'ControlCreatePayload'; control: { __typename?: 'Control'; id: string } } }
+
+export type GetControlSelectOptionsQueryVariables = Exact<{
+  where?: InputMaybe<ControlWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+}>
+
+export type GetControlSelectOptionsQuery = {
+  __typename?: 'Query'
+  controls: {
+    __typename?: 'ControlConnection'
+    edges?: Array<{
+      __typename?: 'ControlEdge'
+      node?: {
+        __typename?: 'Control'
+        id: string
+        refCode: string
+        category?: string | null
+        subcategory?: string | null
+        standard?: { __typename?: 'Standard'; shortName?: string | null } | null
+      } | null
+    } | null> | null
+  }
+}
 
 export type CreateEvidenceMutationVariables = Exact<{
   input: CreateEvidenceInput
@@ -36159,6 +36282,12 @@ export type InternalPolicyByIdFragment = {
     edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
   }
+  subcontrols: {
+    __typename?: 'SubcontrolConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string } | null } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+  }
   programs: {
     __typename?: 'ProgramConnection'
     totalCount: number
@@ -36215,6 +36344,12 @@ export type GetInternalPolicyDetailsByIdQuery = {
       __typename?: 'ControlConnection'
       totalCount: number
       edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+    }
+    subcontrols: {
+      __typename?: 'SubcontrolConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string } | null } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     programs: {
@@ -36358,6 +36493,14 @@ export type ProcedureByIdFragment = {
     totalCount: number
     edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
   }
+  subcontrols: {
+    __typename?: 'SubcontrolConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'SubcontrolEdge'
+      node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; control: { __typename?: 'Control'; id: string } } | null
+    } | null> | null
+  }
   programs: {
     __typename?: 'ProgramConnection'
     totalCount: number
@@ -36410,6 +36553,14 @@ export type GetProcedureDetailsByIdQuery = {
       __typename?: 'ControlConnection'
       totalCount: number
       edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
+    }
+    subcontrols: {
+      __typename?: 'SubcontrolConnection'
+      totalCount: number
+      edges?: Array<{
+        __typename?: 'SubcontrolEdge'
+        node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; control: { __typename?: 'Control'; id: string } } | null
+      } | null> | null
     }
     programs: {
       __typename?: 'ProgramConnection'
@@ -36568,6 +36719,10 @@ export type GetProgramBasicInfoQuery = {
     auditorEmail?: string | null
     auditorReady: boolean
     displayID: string
+    tags?: Array<string> | null
+    frameworkName?: string | null
+    status: ProgramProgramStatus
+    programType: ProgramProgramType
   }
 }
 
@@ -36946,6 +37101,10 @@ export type GetSubcontrolByIdQuery = {
     assessmentMethods?: Array<any> | null
     assessmentObjectives?: Array<any> | null
     displayID: string
+    source?: SubcontrolControlSource | null
+    controlType?: SubcontrolControlType | null
+    auditorReferenceID?: string | null
+    referenceID?: string | null
     control: { __typename?: 'Control'; refCode: string; id: string }
     controlObjectives: {
       __typename?: 'ControlObjectiveConnection'
@@ -37031,6 +37190,12 @@ export type DeleteSubcontrolMutationVariables = Exact<{
 
 export type DeleteSubcontrolMutation = { __typename?: 'Mutation'; deleteSubcontrol: { __typename?: 'SubcontrolDeletePayload'; deletedID: string } }
 
+export type CreateSubcontrolMutationVariables = Exact<{
+  input: CreateSubcontrolInput
+}>
+
+export type CreateSubcontrolMutation = { __typename?: 'Mutation'; createSubcontrol: { __typename?: 'SubcontrolCreatePayload'; subcontrol: { __typename?: 'Subcontrol'; id: string } } }
+
 export type CreateSubscriberMutationVariables = Exact<{
   input: CreateSubscriberInput
 }>
@@ -37051,7 +37216,10 @@ export type GetAllSubscribersQuery = {
   subscribers: {
     __typename?: 'SubscriberConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'SubscriberEdge'; node?: { __typename?: 'Subscriber'; active: boolean; email: string; id: string; verifiedEmail: boolean } | null } | null> | null
+    edges?: Array<{
+      __typename?: 'SubscriberEdge'
+      node?: { __typename?: 'Subscriber'; active: boolean; email: string; id: string; verifiedEmail: boolean; createdAt?: any | null } | null
+    } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
   }
 }
