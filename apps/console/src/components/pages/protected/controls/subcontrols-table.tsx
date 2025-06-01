@@ -51,7 +51,7 @@ const SubcontrolsTable: React.FC<Props> = ({ subcontrols, totalCount }) => {
                         {node.refCode}
                       </Link>
                     </TableCell>
-                    <TableCell className="px-4 py-2 max-w-[700px] truncate text-ellipsis overflow-hidden">{node.description ? convertToReadOnly(node.description) : '-'}</TableCell>
+                    <TableCell className="px-4 py-2 max-w-[700px] truncate text-ellipsis overflow-hidden">{node.description ? convertToReadOnly(node.description, 0) : '-'}</TableCell>
                   </TableRow>
                 ))
             ) : (

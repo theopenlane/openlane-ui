@@ -60,7 +60,9 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
                       <p>{text}</p>
                     )}
                   </TableCell>
-                  <TableCell className="px-4 py-2 line-clamp-1 overflow-hidden">{row?.summary || row?.description || (row?.details && plateEditorHelper.convertToReadOnly(row.details, 0))}</TableCell>
+                  <TableCell className="px-4 py-2 line-clamp-1 overflow-hidden">
+                    {row?.summary || (row?.description && plateEditorHelper.convertToReadOnly(row.description, 0)) || (row?.details && plateEditorHelper.convertToReadOnly(row.details, 0))}
+                  </TableCell>
                 </TableRow>
               )
             })
