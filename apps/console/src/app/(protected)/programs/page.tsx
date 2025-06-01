@@ -26,6 +26,7 @@ import { TaskIconBtn } from '@/components/shared/icon-enum/task-enum.tsx'
 import Menu from '@/components/shared/menu/menu.tsx'
 import { ProgramCreateIconBtn, ProgramSettingsIconBtn } from '@/components/shared/icon-enum/program-enum.tsx'
 import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
+import TimelineReadiness from '@/components/pages/protected/dashboard/timeline-readiness'
 
 const Page: React.FC = () => {
   const router = useRouter()
@@ -177,8 +178,11 @@ const Page: React.FC = () => {
             <Loading />
           ) : basicInfoData?.program ? (
             <>
-              <BasicInformation name={basicInfoData.program.name} startDate={basicInfoData.program.startDate} endDate={basicInfoData.program.endDate} description={basicInfoData.program.description} />
-              <ProgramAuditor firm={basicInfoData.program.auditFirm} name={basicInfoData.program.auditor} email={basicInfoData.program.auditorEmail} isReady={!!basicInfoData.program.auditorReady} />
+              <BasicInformation />
+              <div className="flex flex-col gap-7 flex-1">
+                <TimelineReadiness />
+                <ProgramAuditor />
+              </div>
             </>
           ) : (
             <div>No program info available</div>

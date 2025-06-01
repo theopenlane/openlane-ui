@@ -190,6 +190,10 @@ export const GET_PROGRAM_BASIC_INFO = gql`
       auditorEmail
       auditorReady
       displayID
+      tags
+      frameworkName
+      status
+      programType
     }
   }
 `
