@@ -64,6 +64,7 @@ const initialDataObj = {
   subcategory: '',
   status: ControlControlStatus.NOT_IMPLEMENTED,
   mappedCategories: [],
+  referenceID: 'asd',
 }
 
 const ControlDetailsPage: React.FC = () => {
@@ -157,6 +158,8 @@ const ControlDetailsPage: React.FC = () => {
         mappedCategories: data.control.mappedCategories || [],
         controlType: data.control.controlType || undefined,
         source: data.control.source || undefined,
+        referenceID: data.control.referenceID || undefined,
+        auditorReferenceID: data.control.auditorReferenceID || undefined,
       }
 
       form.reset(newValues)
