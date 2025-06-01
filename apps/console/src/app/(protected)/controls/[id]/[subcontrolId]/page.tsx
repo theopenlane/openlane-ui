@@ -32,7 +32,7 @@ import { useNotification } from '@/hooks/useNotification'
 
 interface FormValues {
   refCode: string
-  description: string
+  description: string | Value
   delegateID: string
   controlOwnerID: string
   category?: string

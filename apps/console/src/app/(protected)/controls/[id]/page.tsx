@@ -37,7 +37,7 @@ import { useNotification } from '@/hooks/useNotification.tsx'
 
 interface FormValues {
   refCode: string
-  description: string
+  description: Value | string
   delegateID: string
   controlOwnerID: string
   category?: string
