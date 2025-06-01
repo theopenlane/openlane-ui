@@ -7,10 +7,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@repo/ui/button'
 import { ChevronDown, ChevronsDownUp, List } from 'lucide-react'
 import { SetObjectAssociationDialog } from './set-object-association-modal'
-import { ControlDetailsFieldsFragment, Group, InternalPolicy, InternalPolicyEdge, Organization, Procedure, ProcedureEdge, Program, ProgramProgramStatus, Task, User } from '@repo/codegen/src/schema'
+import { ControlDetailsFieldsFragment, Group, Program, RiskEdge, RiskFieldsFragment, Task, User } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 import { PROGRAM_STATUS_LABELS } from '@/components/shared/icon-enum/program-enum'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 
 type AssociatedObjectsAccordionProps = {
   policies: ControlDetailsFieldsFragment['internalPolicies']
@@ -34,6 +35,7 @@ type PolicyOrProcedure = {
 
 const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({ policies, procedures, tasks, programs, risks, canEdit }) => {
   const [expandedItems, setExpandedItems] = useState<string[]>(['policies'])
+  const { convertToReadOnly } = usePlateEditor()
 
   const toggleAll = () => {
     const allSections = ['policies', 'procedures', 'tasks', 'programs', 'risks']
@@ -119,7 +121,7 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
                   </Link>
                 </TableCell>
                 <TableCell className="px-4 py-2 text-muted-foreground">
-                  <p className="line-clamp-2 text-sm">{task.details}</p>
+                  <p className="line-clamp-2 text-sm">{task.details ? convertToReadOnly(task.details as string, 0) : '-'}</p>
                 </TableCell>
                 <TableCell className="px-4 py-2 flex items-center gap-2">
                   <Avatar entity={task.assignee as User} />
@@ -172,7 +174,7 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
     </div>
   )
 
-  const renderRisks = (rows: any[]) => (
+  const renderRisks = (rows: RiskFieldsFragment[]) => (
     <div className="mt-4 rounded-md border border-border overflow-hidden bg-card">
       <Table>
         <TableHeader>
@@ -191,7 +193,7 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
                   </Link>
                 </TableCell>
                 <TableCell className="px-4 py-2 text-muted-foreground">
-                  <p className="line-clamp-2 text-sm">{risk.details}</p>
+                  <p className="line-clamp-2 text-sm">{risk.details ? convertToReadOnly(risk.details as string, 0) : '-'}</p>
                 </TableCell>
               </TableRow>
             ))
@@ -249,7 +251,7 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
 
         <AccordionItem value="risks">
           <SectionTrigger label="Risks" count={risks.totalCount} />
-          {!!risks.edges?.length && <AccordionContent>{renderRisks(extractNodes(risks.edges))}</AccordionContent>}
+          {!!risks.edges?.length && <AccordionContent>{renderRisks(extractNodes(risks.edges as RiskEdge[]))}</AccordionContent>}
         </AccordionItem>
       </Accordion>
     </div>
