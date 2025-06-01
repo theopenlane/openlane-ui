@@ -8,6 +8,10 @@ import { SelectIsFilterField } from '@/types'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
 import Menu from '@/components/shared/menu/menu.tsx'
 import BulkCSVCreateRiskDialog from '@/components/pages/protected/risks/bulk-csv-create-risk-dialog.tsx'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { EyeIcon } from 'lucide-react'
+import { VisibilityState } from '@tanstack/react-table'
+import { Checkbox } from '@repo/ui/checkbox'
 
 type TProps = {
   onFilterChange: (filters: Record<string, any>) => void
@@ -15,9 +19,12 @@ type TProps = {
   searchTerm: string
   setSearchTerm: (searchTerm: string) => void
   handleExport: () => void
+  columnVisibility?: VisibilityState
+  setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
+  mappedColumns?: Record<string, boolean>[]
 }
 
-const RisksTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, searchTerm, setSearchTerm, handleExport }: TProps) => {
+const RisksTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, searchTerm, setSearchTerm, handleExport, columnVisibility, setColumnVisibility, mappedColumns }: TProps) => {
   const { programOptions } = useProgramSelect()
 
   const filterFields = [
@@ -42,6 +49,36 @@ const RisksTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, search
           variant="searchTable"
         />
       </div>
+      {mappedColumns && columnVisibility && setColumnVisibility && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button icon={<EyeIcon />} iconPosition="left" variant="outline" size="md" className="ml-auto mr-2">
+              Select Columns
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {mappedColumns.map((column, index) => {
+              const key = Object.keys(column)[0]
+              return (
+                <div className="flex items-center gap-x-3">
+                  <Checkbox
+                    key={`${key}-${index}`}
+                    className="capitalize"
+                    checked={columnVisibility[key] !== false}
+                    onCheckedChange={(value: boolean) => {
+                      setColumnVisibility((prev) => ({
+                        ...prev,
+                        [key]: value,
+                      }))
+                    }}
+                  ></Checkbox>
+                  <div>{key}</div>
+                </div>
+              )
+            })}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
       <Menu
         content={
           <>

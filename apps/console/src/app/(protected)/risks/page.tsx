@@ -100,6 +100,13 @@ const RiskTablePage: React.FC = () => {
     },
   ]
 
+  const mappedColumns = columns.map((column) => {
+    if ('accessorKey' in column && typeof column.accessorKey === 'string') {
+      return { [column.accessorKey]: true }
+    }
+    return {}
+  })
+
   function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
     return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
   }
@@ -143,10 +150,11 @@ const RiskTablePage: React.FC = () => {
         searching={searching}
         onFilterChange={setFilters}
         handleExport={handleExport}
+        columnVisibility={columnVisibility}
+        setColumnVisibility={setColumnVisibility}
+        mappedColumns={mappedColumns}
       />
-
       <DataTable
-        showVisibility={true}
         sortFields={RISKS_SORT_FIELDS}
         onSortChange={setOrderBy}
         columns={columns}
