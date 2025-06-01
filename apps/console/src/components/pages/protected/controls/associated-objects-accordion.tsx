@@ -10,6 +10,7 @@ import { SetObjectAssociationDialog } from './set-object-association-modal'
 import { ControlDetailsFieldsFragment, Group, InternalPolicy, InternalPolicyEdge, Organization, Procedure, ProcedureEdge, Program, ProgramProgramStatus, Task, User } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
+import { PROGRAM_STATUS_LABELS } from '@/components/shared/icon-enum/program-enum'
 
 type AssociatedObjectsAccordionProps = {
   policies: ControlDetailsFieldsFragment['internalPolicies']
@@ -29,14 +30,6 @@ type PolicyOrProcedure = {
     logoURL?: string | null
     displayName: string
   } | null
-}
-
-const PROGRAM_STATUS_LABELS: Record<ProgramProgramStatus, string> = {
-  [ProgramProgramStatus.ACTION_REQUIRED]: 'Action Required',
-  [ProgramProgramStatus.COMPLETED]: 'Completed',
-  [ProgramProgramStatus.IN_PROGRESS]: 'In Progress',
-  [ProgramProgramStatus.NOT_STARTED]: 'Not Started',
-  [ProgramProgramStatus.READY_FOR_AUDITOR]: 'Ready for Auditor',
 }
 
 const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({ policies, procedures, tasks, programs, risks, canEdit }) => {
