@@ -13,6 +13,8 @@ export const controlFormSchema = z.object({
   controlID: z.string().min(1, 'Parent Control is required'),
   source: z.nativeEnum(ControlControlSource).optional(),
   controlType: z.nativeEnum(ControlControlType).optional(),
+  referenceID: z.string().optional(),
+  auditorReferenceID: z.string().optional(),
 })
 
 export const createControlFormSchema = (isCreateSubcontrol: boolean) =>
