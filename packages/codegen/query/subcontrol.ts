@@ -34,6 +34,8 @@ export const GET_SUBCONTROL_BY_ID = gql`
       displayID
       source
       controlType
+      auditorReferenceID
+      referenceID
       control {
         refCode
         id

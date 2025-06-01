@@ -77,21 +77,18 @@ export default function CreateControlForm() {
 
       let newId: string | undefined
 
-      if (isCreateSubcontrol) {
-        const input = {
-          ...data,
-          description,
-        } as CreateSubcontrolInput
+      const commonInput = {
+        ...data,
+        description,
+        referenceID: data.referenceID || undefined,
+        auditorReferenceID: data.auditorReferenceID || undefined,
+      }
 
-        const response = await createSubcontrol({ input })
+      if (isCreateSubcontrol) {
+        const response = await createSubcontrol({ input: commonInput as CreateSubcontrolInput })
         newId = response?.createSubcontrol?.subcontrol?.id
       } else {
-        const input = {
-          ...data,
-          description,
-        } as CreateControlInput
-
-        const response = await createControl({ input })
+        const response = await createControl({ input: commonInput as CreateControlInput })
         newId = response?.createControl?.control?.id
       }
 
@@ -106,7 +103,6 @@ export default function CreateControlForm() {
         router.push(`/controls/${newId}`)
       }
     } catch (err) {
-      console.error(err)
       errorNotification({
         title: 'Failed to create control',
         description: 'Something went wrong. Please try again.',
