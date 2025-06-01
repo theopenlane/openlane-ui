@@ -21,7 +21,10 @@ type TProps = {
   handleExport: () => void
   columnVisibility?: VisibilityState
   setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
-  mappedColumns?: Record<string, boolean>[]
+  mappedColumns: {
+    accessorKey: string
+    header: string
+  }[]
 }
 
 const RisksTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, searchTerm, setSearchTerm, handleExport, columnVisibility, setColumnVisibility, mappedColumns }: TProps) => {
@@ -58,21 +61,19 @@ const RisksTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, search
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {mappedColumns.map((column, index) => {
-              const key = Object.keys(column)[0]
               return (
-                <div className="flex items-center gap-x-3">
+                <div key={`${column.accessorKey}-${index}`} className="flex items-center gap-x-3">
                   <Checkbox
-                    key={`${key}-${index}`}
                     className="capitalize"
-                    checked={columnVisibility[key] !== false}
+                    checked={columnVisibility[column.accessorKey] !== false}
                     onCheckedChange={(value: boolean) => {
                       setColumnVisibility((prev) => ({
                         ...prev,
-                        [key]: value,
+                        [column.accessorKey]: value,
                       }))
                     }}
                   ></Checkbox>
-                  <div>{key}</div>
+                  <div>{column.header}</div>
                 </div>
               )
             })}

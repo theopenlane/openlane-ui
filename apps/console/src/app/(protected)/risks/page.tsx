@@ -100,12 +100,12 @@ const RiskTablePage: React.FC = () => {
     },
   ]
 
-  const mappedColumns = columns.map((column) => {
-    if ('accessorKey' in column && typeof column.accessorKey === 'string') {
-      return { [column.accessorKey]: true }
-    }
-    return {}
-  })
+  const mappedColumns: { accessorKey: string; header: string }[] = columns
+    .filter((column): column is { accessorKey: string; header: string } => 'accessorKey' in column && typeof column.accessorKey === 'string' && typeof column.header === 'string')
+    .map((column) => ({
+      accessorKey: column.accessorKey,
+      header: column.header,
+    }))
 
   function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
     return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
