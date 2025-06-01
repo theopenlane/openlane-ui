@@ -6,7 +6,7 @@ import { useForm, FormProvider } from 'react-hook-form'
 import { Value } from '@udecode/plate-common'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import { ArrowRight, ChevronDown, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
+import { ArrowRight, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
 
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { Control, EvidenceEdge, SubcontrolControlSource, SubcontrolControlStatus, SubcontrolControlType } from '@repo/codegen/src/schema.ts'
@@ -28,6 +28,7 @@ import Menu from '@/components/shared/menu/menu'
 import { TaskIconBtn } from '@/components/shared/icon-enum/task-enum.tsx'
 import DeleteSubcontrolDialog from '@/components/pages/protected/controls/delete-subcontrol-dialog.tsx'
 import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
+import { useNotification } from '@/hooks/useNotification'
 
 interface FormValues {
   refCode: string
@@ -40,6 +41,8 @@ interface FormValues {
   mappedCategories: string[]
   source?: SubcontrolControlSource
   controlType?: SubcontrolControlType
+  referenceID?: string
+  auditorReferenceID?: string
 }
 
 interface SheetData {
@@ -65,6 +68,7 @@ const ControlDetailsPage: React.FC = () => {
   const [showSheet, setShowSheet] = useState<boolean>(false)
   const [sheetData, setSheetData] = useState<SheetData | null>(null)
   const [initialValues, setInitialValues] = useState<FormValues>(initialDataObj)
+  const { successNotification, errorNotification } = useNotification()
 
   const { mutateAsync: updateSubcontrol } = useUpdateSubcontrol()
   const plateEditorHelper = usePlateEditor()
@@ -81,7 +85,7 @@ const ControlDetailsPage: React.FC = () => {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      const description = await plateEditorHelper.convertToHtml(values.description as Value | any)
+      const description = await plateEditorHelper.convertToHtml(values.description as Value)
 
       await updateSubcontrol({
         updateSubcontrolId: subcontrolId!,
@@ -90,12 +94,21 @@ const ControlDetailsPage: React.FC = () => {
           description,
           controlOwnerID: values.controlOwnerID || undefined,
           delegateID: values.delegateID || undefined,
+          referenceID: values.referenceID || undefined,
+          auditorReferenceID: values.auditorReferenceID || undefined,
         },
       })
 
+      successNotification({
+        title: 'Subcontrol updated',
+        description: 'The subcontrol was successfully updated.',
+      })
+
       setIsEditing(false)
-    } catch (error) {
-      console.error('Failed to update control:', error)
+    } catch {
+      errorNotification({
+        title: 'Failed to update subcontrol',
+      })
     }
   }
 
@@ -137,6 +150,8 @@ const ControlDetailsPage: React.FC = () => {
         mappedCategories: data?.subcontrol?.mappedCategories || [],
         controlType: data.subcontrol.controlType || undefined,
         source: data.subcontrol.source || undefined,
+        referenceID: data.subcontrol.referenceID || undefined,
+        auditorReferenceID: data.subcontrol.auditorReferenceID || undefined,
       }
 
       form.reset(newValues)

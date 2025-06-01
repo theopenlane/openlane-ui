@@ -35251,6 +35251,8 @@ export type ControlDetailsFieldsFragment = {
   displayID: string
   source?: ControlControlSource | null
   controlType?: ControlControlType | null
+  auditorReferenceID?: string | null
+  referenceID?: string | null
   standard?: { __typename?: 'Standard'; shortName?: string | null } | null
   controlObjectives: {
     __typename?: 'ControlObjectiveConnection'
@@ -35391,6 +35393,8 @@ export type GetControlByIdQuery = {
     displayID: string
     source?: ControlControlSource | null
     controlType?: ControlControlType | null
+    auditorReferenceID?: string | null
+    referenceID?: string | null
     standard?: { __typename?: 'Standard'; shortName?: string | null } | null
     controlObjectives: {
       __typename?: 'ControlObjectiveConnection'
@@ -37077,6 +37081,8 @@ export type GetSubcontrolByIdQuery = {
     displayID: string
     source?: SubcontrolControlSource | null
     controlType?: SubcontrolControlType | null
+    auditorReferenceID?: string | null
+    referenceID?: string | null
     control: { __typename?: 'Control'; refCode: string; id: string }
     controlObjectives: {
       __typename?: 'ControlObjectiveConnection'
