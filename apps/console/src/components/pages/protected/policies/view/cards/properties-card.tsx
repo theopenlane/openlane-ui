@@ -20,7 +20,10 @@ type TPropertiesCardProps = {
 
 const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, policy }) => {
   const statusOptions = Object.values(InternalPolicyDocumentStatus).map((value) => ({
-    label: value.charAt(0) + value.slice(1).toLowerCase(),
+    label: value
+      .split('_')
+      .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
+      .join(' '),
     value,
   }))
 

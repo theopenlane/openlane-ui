@@ -93,6 +93,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
         creationDate: evidence.creationDate ? new Date(evidence.creationDate as string) : undefined,
         status: evidence?.status ? Object.values(EvidenceEvidenceStatus).find((type) => type === evidence?.status) : undefined,
         tags: evidence?.tags ?? [],
+        collectionProcedure: evidence?.collectionProcedure ?? '',
       })
 
       if (evidence?.tags) {
@@ -269,7 +270,10 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                     )}
                   />
                 ) : (
-                  <>{!!evidence?.description && <div className="mt-5">{evidence.description}</div>}</>
+                  <div className="mt-5">
+                    <FormLabel className="font-bold">Description</FormLabel>
+                    {evidence?.description ? <p>{evidence?.description}</p> : <p className="text-gray-500">no description provided</p>}
+                  </div>
                 )}
 
                 {isEditing ? (
@@ -290,10 +294,13 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                     )}
                   />
                 ) : (
-                  <>{!!evidence?.collectionProcedure && <div className="mt-5">{evidence.collectionProcedure}</div>}</>
+                  <div className="mt-5">
+                    <FormLabel className="font-bold">Collection Procedure</FormLabel>
+                    {evidence?.collectionProcedure ? <p>{evidence?.collectionProcedure}</p> : <p className="text-gray-500">no collection procedure provided</p>}
+                  </div>
                 )}
 
-                <div className="relative grid grid-cols-2 gap-8 p-4 border rounded-lg  mt-10">
+                <div className="relative grid grid-cols-2 gap-8 p-4 border rounded-lg mt-10">
                   <div className="absolute top-0 bottom-0 left-1/2 w-px border" />
 
                   {/* Left Column */}

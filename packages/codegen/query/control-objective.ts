@@ -29,6 +29,7 @@ export const CONTROL_OBJECTIVE_FIELDS = gql`
           id
           refCode
           control {
+            id
             refCode
             description
           }

@@ -32,6 +32,10 @@ export const GET_SUBCONTROL_BY_ID = gql`
       assessmentMethods
       assessmentObjectives
       displayID
+      source
+      controlType
+      auditorReferenceID
+      referenceID
       control {
         refCode
         id
@@ -163,6 +167,15 @@ export const DELETE_SUBCONTROL = gql`
   mutation DeleteSubcontrol($deleteSubcontrolId: ID!) {
     deleteSubcontrol(id: $deleteSubcontrolId) {
       deletedID
+    }
+  }
+`
+export const CREATE_SUBCONTROL = gql`
+  mutation CreateSubcontrol($input: CreateSubcontrolInput!) {
+    createSubcontrol(input: $input) {
+      subcontrol {
+        id
+      }
     }
   }
 `

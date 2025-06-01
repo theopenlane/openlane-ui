@@ -114,7 +114,7 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
             const isUpcoming = isAfter(new Date(dueDate), dueSoonLimit) && isBefore(new Date(dueDate), upcomingUpper)
 
             return (
-              <Link key={task.id} href={`/tasks?taskId=${task.id}`} className="grid grid-cols-[120px_1fr] items-center gap-[20px] size-fit">
+              <Link key={task.id} href={`/tasks?id=${task.id}`} className="grid grid-cols-[120px_1fr] items-center gap-[20px] size-fit">
                 {' '}
                 <div className={clsx('flex items-center gap-2', ((isDue || isSoon) && 'text-destructive') || (isUpcoming && 'text-green-500'))}>
                   {isDue ? (
