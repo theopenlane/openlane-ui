@@ -64,7 +64,6 @@ const initialDataObj = {
   subcategory: '',
   status: ControlControlStatus.NOT_IMPLEMENTED,
   mappedCategories: [],
-  referenceID: 'asd',
 }
 
 const ControlDetailsPage: React.FC = () => {
