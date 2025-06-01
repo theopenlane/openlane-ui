@@ -46,20 +46,6 @@ export const GET_ALL_EVIDENCES = gql`
 const EVIDENCE_FIELDS = gql`
   fragment EvidenceFields on Evidence {
     collectionProcedure
-    controlObjectives {
-      edges {
-        node {
-          id
-        }
-      }
-    }
-    controls {
-      edges {
-        node {
-          id
-        }
-      }
-    }
     createdAt
     createdBy
     creationDate
@@ -68,31 +54,10 @@ const EVIDENCE_FIELDS = gql`
     id
     name
     ownerID
-    programs {
-      edges {
-        node {
-          id
-        }
-      }
-    }
     renewalDate
     source
     status
-    subcontrols {
-      edges {
-        node {
-          id
-        }
-      }
-    }
     tags
-    tasks {
-      edges {
-        node {
-          id
-        }
-      }
-    }
     url
     updatedBy
     updatedAt
