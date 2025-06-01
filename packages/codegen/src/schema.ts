@@ -36701,6 +36701,10 @@ export type GetProgramBasicInfoQuery = {
     auditorEmail?: string | null
     auditorReady: boolean
     displayID: string
+    tags?: Array<string> | null
+    frameworkName?: string | null
+    status: ProgramProgramStatus
+    programType: ProgramProgramType
   }
 }
 
