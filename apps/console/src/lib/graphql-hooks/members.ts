@@ -13,6 +13,7 @@ import {
   OrgMembershipWhereInput,
   OrgMembership,
   User,
+  OrgMembershipsByIdsQuery,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 
@@ -71,7 +72,7 @@ export const useGetOrgUserList = ({ where }: TUseGetOrgUserListProps) => {
   const idInNotEmpty = Array.isArray(where?.hasUserWith?.[0]?.idIn) && where.hasUserWith[0].idIn.length > 0
   const { client } = useGraphQLClient()
 
-  const queryResult = useQuery<OrgMembershipsQuery, OrgMembershipsQueryVariables>({
+  const queryResult = useQuery<OrgMembershipsByIdsQuery, OrgMembershipsQueryVariables>({
     queryKey: ['memberships', where],
     queryFn: () => client.request(GET_ORG_USER_LIST, { where }),
     enabled: idInNotEmpty,

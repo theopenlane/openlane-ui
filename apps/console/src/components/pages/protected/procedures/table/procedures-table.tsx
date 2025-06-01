@@ -2,9 +2,9 @@
 
 import { useRouter } from 'next/navigation'
 import { DataTable } from '@repo/ui/data-table'
-import React, { useState, useMemo } from 'react'
-import { GetProceduresListQueryVariables, OrderDirection, Procedure, ProcedureOrderField } from '@repo/codegen/src/schema'
-import { proceduresColumns } from '@/components/pages/protected/procedures/table/columns.tsx'
+import React, { useState, useMemo, useEffect } from 'react'
+import { GetProceduresListQueryVariables, Maybe, OrderDirection, Procedure, ProcedureOrderField } from '@repo/codegen/src/schema'
+import { getProceduresColumns } from '@/components/pages/protected/procedures/table/columns.tsx'
 import ProceduresTableToolbar from '@/components/pages/protected/procedures/table/procedures-table-toolbar.tsx'
 import { PROCEDURES_SORTABLE_FIELDS } from '@/components/pages/protected/procedures/table/table-config.ts'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -14,11 +14,14 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { ColumnDef } from '@tanstack/react-table'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { formatDateTime } from '@/utils/date'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
+import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens.ts'
 
 export const ProceduresTable = () => {
   const router = useRouter()
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<Record<string, any> | null>(null)
+  const [memberIds, setMemberIds] = useState<(Maybe<string> | undefined)[]>()
   const [searchTerm, setSearchTerm] = useState('')
   const [orderBy, setOrderBy] = useState<GetProceduresListQueryVariables['orderBy']>([
     {
@@ -36,7 +39,40 @@ export const ProceduresTable = () => {
     }
   }, [filters, debouncedSearch])
 
+  const userListWhere = useMemo(() => {
+    if (!memberIds) {
+      return undefined
+    }
+
+    const conditions: Record<string, any> = {
+      hasUserWith: [{ idIn: memberIds }],
+    }
+
+    return conditions
+  }, [memberIds])
+
+  const tokensWhere = useMemo(() => {
+    if (!memberIds) {
+      return undefined
+    }
+
+    const conditions: Record<string, any> = {
+      idIn: memberIds,
+    }
+
+    return conditions
+  }, [memberIds])
+
   const { procedures, isLoading: fetching, paginationMeta } = useProcedures({ where: whereFilter, orderBy, pagination, enabled: !!filters })
+  const { users } = useGetOrgUserList({ where: userListWhere })
+  const { tokens } = useGetApiTokensByIds({ where: tokensWhere })
+
+  useEffect(() => {
+    if (procedures && (!memberIds || memberIds.length === 0)) {
+      const userIds = [...new Set(procedures.map((item) => item.updatedBy))]
+      setMemberIds(userIds)
+    }
+  }, [procedures?.length])
 
   const handleCreateNew = async () => {
     router.push(`/procedures/create`)
@@ -51,7 +87,7 @@ export const ProceduresTable = () => {
   }
 
   const handleExport = () => {
-    const exportableColumns = proceduresColumns
+    const exportableColumns = getProceduresColumns({ users, tokens })
       .filter((col): col is ColumnDef<Procedure> & { accessorKey: string; header: string } => isAccessorKeyColumn(col))
       .map((col) => {
         const key = col.accessorKey as keyof Procedure
@@ -96,7 +132,7 @@ export const ProceduresTable = () => {
       <DataTable
         sortFields={PROCEDURES_SORTABLE_FIELDS}
         onSortChange={setOrderBy}
-        columns={proceduresColumns}
+        columns={getProceduresColumns({ users, tokens })}
         data={procedures}
         onRowClick={handleRowClick}
         loading={fetching}

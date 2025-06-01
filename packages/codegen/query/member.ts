@@ -58,7 +58,7 @@ export const GET_ORG_MEMBERSHIPS = gql`
 `
 
 export const GET_ORG_USER_LIST = gql`
-  query OrgMemberships($where: OrgMembershipWhereInput) {
+  query OrgMembershipsByIds($where: OrgMembershipWhereInput) {
     orgMemberships(where: $where) {
       edges {
         node {

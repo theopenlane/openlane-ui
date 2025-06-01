@@ -49,6 +49,7 @@ import { fileDownload } from '@/components/shared/lib/export.ts'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { ControlEvidenceRenewDialog } from '@/components/pages/protected/controls/control-evidence/control-evidence-renew-dialog.tsx'
 import { EvidenceIconMapper } from '@/components/shared/icon-enum/evidence-enum.tsx'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
 
 type TEvidenceDetailsSheet = {
   controlId: string
@@ -72,7 +73,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const { data, isLoading: fetching } = useGetEvidenceById(selectedControlEvidence)
   const evidence = data?.evidence
   const { data: createdByUser } = useGetCurrentUser(evidence?.createdBy)
-  const { data: updatedByUser } = useGetCurrentUser(evidence?.updatedBy)
+  const { users } = useGetOrgUserList({ where: { hasUserWith: [{ idIn: evidence?.updatedBy ? [evidence.updatedBy] : [] }] } })
   const statusOptions = Object.values(EvidenceEvidenceStatus)
 
   const { form } = useFormSchema()
@@ -495,8 +496,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                       </div>
                       <div className="text-sm text-left w-[200px]">
                         <p className="text-sm flex items-center ">
-                          <Avatar entity={updatedByUser?.user as User} variant="small" />
-                          <span>{updatedByUser?.user?.displayName}</span>
+                          <Avatar entity={users?.[0] as User} variant="small" />
+                          <span>{users?.[0]?.displayName}</span>
                         </p>
                       </div>
                     </div>

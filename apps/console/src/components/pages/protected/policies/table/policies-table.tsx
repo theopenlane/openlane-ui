@@ -15,6 +15,7 @@ import { ColumnDef } from '@tanstack/react-table'
 import { formatDateTime } from '@/utils/date'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
 import { getPoliciesColumns } from '@/components/pages/protected/policies/table/columns.tsx'
+import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens.ts'
 
 export const PoliciesTable = () => {
   const router = useRouter()
@@ -51,12 +52,25 @@ export const PoliciesTable = () => {
     return conditions
   }, [memberIds])
 
+  const tokensWhere = useMemo(() => {
+    if (!memberIds) {
+      return undefined
+    }
+
+    const conditions: Record<string, any> = {
+      idIn: memberIds,
+    }
+
+    return conditions
+  }, [memberIds])
+
   const orderByFilter = useMemo(() => {
     return orderBy || undefined
   }, [orderBy])
 
   const { policies, isLoading: fetching, paginationMeta } = useInternalPolicies({ where, orderBy: orderByFilter, pagination, enabled: !!filters })
-  const { users, isLoading } = useGetOrgUserList({ where: userListWhere })
+  const { users } = useGetOrgUserList({ where: userListWhere })
+  const { tokens } = useGetApiTokensByIds({ where: tokensWhere })
 
   useEffect(() => {
     if (policies && (!memberIds || memberIds.length === 0)) {
@@ -119,7 +133,7 @@ export const PoliciesTable = () => {
       <DataTable
         sortFields={INTERNAL_POLICIES_SORTABLE_FIELDS}
         onSortChange={setOrderBy}
-        columns={getPoliciesColumns({ users })}
+        columns={getPoliciesColumns({ users, tokens })}
         data={policies}
         onRowClick={handleRowClick}
         loading={fetching}
