@@ -33,10 +33,11 @@ import Menu from '@/components/shared/menu/menu.tsx'
 import DeleteControlDialog from '@/components/pages/protected/controls/delete-control-dialog.tsx'
 import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
 import Link from 'next/link'
+import { useNotification } from '@/hooks/useNotification.tsx'
 
 interface FormValues {
   refCode: string
-  description: string
+  description: Value | string
   delegateID: string
   controlOwnerID: string
   category?: string
@@ -45,6 +46,8 @@ interface FormValues {
   mappedCategories: string[]
   controlType?: ControlControlType
   source?: ControlControlSource
+  referenceID?: string
+  auditorReferenceID?: string
 }
 
 interface SheetData {
@@ -72,6 +75,7 @@ const ControlDetailsPage: React.FC = () => {
   const [initialValues, setInitialValues] = useState<FormValues>(initialDataObj)
   const { data: session } = useSession()
   const { data: permission } = useAccountRole(session, ObjectEnum.CONTROL, id!)
+  const { successNotification, errorNotification } = useNotification()
 
   const isSourceFramework = data?.control.source === ControlControlSource.FRAMEWORK
 
@@ -88,7 +92,7 @@ const ControlDetailsPage: React.FC = () => {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      const description = await plateEditorHelper.convertToHtml(values.description as Value | any)
+      const description = await plateEditorHelper.convertToHtml(values.description as Value)
 
       await updateControl({
         updateControlId: id!,
@@ -97,12 +101,21 @@ const ControlDetailsPage: React.FC = () => {
           description,
           controlOwnerID: values.controlOwnerID || undefined,
           delegateID: values.delegateID || undefined,
+          referenceID: values.referenceID || undefined,
+          auditorReferenceID: values.auditorReferenceID || undefined,
         },
       })
 
+      successNotification({
+        title: 'Control updated',
+        description: 'The control was successfully updated.',
+      })
+
       setIsEditing(false)
-    } catch (error) {
-      console.error('Failed to update control:', error)
+    } catch {
+      errorNotification({
+        title: 'Failed to update control',
+      })
     }
   }
 
@@ -144,6 +157,8 @@ const ControlDetailsPage: React.FC = () => {
         mappedCategories: data.control.mappedCategories || [],
         controlType: data.control.controlType || undefined,
         source: data.control.source || undefined,
+        referenceID: data.control.referenceID || undefined,
+        auditorReferenceID: data.control.auditorReferenceID || undefined,
       }
 
       form.reset(newValues)
@@ -160,7 +175,7 @@ const ControlDetailsPage: React.FC = () => {
     <>
       <CancelDialog isOpen={navGuard.active} onConfirm={navGuard.accept} onCancel={navGuard.reject} />
       <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-[1fr_336px] gap-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-[1fr_350px] gap-6">
           <div className="space-y-6">
             <div className="flex items-center justify-between mb-4">
               <TitleField isEditing={!isSourceFramework && isEditing} />

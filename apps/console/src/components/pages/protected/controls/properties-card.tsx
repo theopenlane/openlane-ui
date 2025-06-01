@@ -5,11 +5,13 @@ import { useFormContext, Controller } from 'react-hook-form'
 import { Card } from '@repo/ui/cardpanel'
 import { Input } from '@repo/ui/input'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@repo/ui/select'
-import { FolderIcon, BinocularsIcon } from 'lucide-react'
+import { FolderIcon, BinocularsIcon, CopyIcon, InfoIcon } from 'lucide-react'
 import { Control, ControlControlSource, ControlControlStatus, ControlControlType, SubcontrolControlStatus } from '@repo/codegen/src/schema'
 import MappedCategoriesDialog from './mapped-categories-dialog'
 import Link from 'next/link'
 import { ControlIconMapper } from '@/components/shared/icon-enum/control-enum.tsx'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { useNotification } from '@/hooks/useNotification'
 
 interface PropertiesCardProps {
   category?: string | null
@@ -106,6 +108,24 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ category, subcategory, 
           labels={sourceLabels}
         />
         <EditableSelect label="Type" name="controlType" isEditing={isEditing} options={Object.values(ControlControlType)} labels={typeLabels} />
+        {isEditing || controlData?.referenceID ? (
+          <ReferenceProperty
+            name="referenceID"
+            label="Reference ID"
+            tooltip="Internal reference id of the control, used to map across internal systems"
+            value={controlData?.referenceID}
+            isEditing={isEditing}
+          />
+        ) : null}
+        {isEditing || controlData?.referenceID ? (
+          <ReferenceProperty
+            name="auditReferenceID"
+            label="Audit Reference ID"
+            tooltip="Reference ID used by auditor, may vary from defined reference code from standard"
+            value={controlData?.auditorReferenceID}
+            isEditing={isEditing}
+          />
+        ) : null}
       </div>
     </Card>
   )
@@ -187,6 +207,57 @@ const EditableSelect = ({ label, name, isEditing, options, labels }: { label: st
           />
         ) : (
           <span>{labels[useFormContext().getValues(name)] ?? '-'}</span>
+        )}
+      </div>
+    </div>
+  )
+}
+
+const ReferenceProperty = ({ name, label, tooltip, value, isEditing }: { name: string; label: string; tooltip: string; value?: string | null; isEditing: boolean }) => {
+  const { control } = useFormContext()
+  const { successNotification } = useNotification()
+
+  const handleCopy = () => {
+    if (!value) return
+    navigator.clipboard.writeText(value)
+    successNotification({ description: `${label} copied to clipboard` })
+  }
+
+  return (
+    <div className="grid grid-cols-[110px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
+      <div className="flex items-start gap-2">
+        <FolderIcon size={16} className="text-brand mt-0.5 shrink-0" />
+        <div>
+          <div className="text-sm">{label}</div>
+          <TooltipProvider disableHoverableContent>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <InfoIcon size={14} className="mx-1 mt-1" />
+              </TooltipTrigger>
+              <TooltipContent side="bottom">{tooltip}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      </div>
+      <div className="text-sm w-full">
+        {isEditing ? (
+          <Controller control={control} name={name} render={({ field }) => <Input {...field} className="w-full" placeholder={label} />} />
+        ) : value ? (
+          <div className="flex items-center gap-2">
+            <span>{value}</span>
+            <TooltipProvider disableHoverableContent>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button type="button" onClick={handleCopy}>
+                    <CopyIcon className="w-4 h-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">Copy</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        ) : (
+          '-'
         )}
       </div>
     </div>

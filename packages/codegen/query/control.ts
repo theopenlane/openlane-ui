@@ -40,6 +40,8 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
     displayID
     source
     controlType
+    auditorReferenceID
+    referenceID
     standard {
       shortName
     }
