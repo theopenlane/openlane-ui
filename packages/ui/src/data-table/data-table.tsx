@@ -47,6 +47,8 @@ interface DataTableProps<TData, TValue> {
   onPaginationChange?: (arg: TPagination) => void
   paginationMeta?: TPaginationMeta
   wrapperClass?: string
+  columnVisibility?: VisibilityState
+  setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
   footer?: ReactElement | null
 }
 
@@ -65,11 +67,12 @@ export function DataTable<TData, TValue>({
   onPaginationChange,
   paginationMeta,
   wrapperClass,
+  setColumnVisibility,
+  columnVisibility,
   footer,
 }: DataTableProps<TData, TValue>) {
   const [sortConditions, setSortConditions] = useState<{ field: string; direction?: OrderDirection }[]>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = useState({})
 
   const currentPage = pagination?.page || 1
@@ -246,8 +249,7 @@ export function DataTable<TData, TValue>({
             {showVisibility && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="md" className="ml-auto">
-                    <EyeIcon />
+                  <Button icon={<EyeIcon />} iconPosition="left" variant="outline" size="md" className="ml-auto mr-2">
                     Visibility
                   </Button>
                 </DropdownMenuTrigger>
