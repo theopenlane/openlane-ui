@@ -28,6 +28,8 @@ const formSchema = z.object({
   internalPolicyIDs: z.array(z.any()).optional(),
   controlIDs: z.array(z.any()).optional(),
   taskIDs: z.array(z.any()).optional(),
+  approverID: z.string().optional(),
+  delegateID: z.string().optional(),
 })
 
 export type CreateProcedureFormData = z.infer<typeof formSchema>

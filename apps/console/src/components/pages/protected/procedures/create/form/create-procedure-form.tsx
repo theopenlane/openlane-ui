@@ -21,6 +21,7 @@ import AssociationCard from '@/components/pages/protected/procedures/create/card
 import TagsCard from '@/components/pages/protected/procedures/create/cards/tags-card.tsx'
 import { useCreateProcedure, useUpdateProcedure } from '@/lib/graphql-hooks/procedures.ts'
 import { DOCS_URL } from '@/constants/index.ts'
+import AuthorityCard from '@/components/pages/protected/procedures/view/cards/authority-card.tsx'
 
 type TCreateProcedureFormProps = {
   procedure?: ProcedureByIdFragment
@@ -288,6 +289,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
           </Button>
         </div>
         <div className="space-y-4">
+          <AuthorityCard form={form} isEditing={true} inputClassName="!w-[162px]" />
           <StatusCard form={form} metadata={metadata} />
           <AssociationCard />
           <TagsCard form={form} />
