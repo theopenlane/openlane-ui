@@ -73,6 +73,64 @@ export const GET_EVIDENCE = gql`
   ${EVIDENCE_FIELDS}
 `
 
+export const GET_RENEW_EVIDENCE = gql`
+  query GetRenewEvidence($evidenceId: ID!) {
+    evidence(id: $evidenceId) {
+      collectionProcedure
+      createdAt
+      createdBy
+      creationDate
+      description
+      displayID
+      id
+      name
+      ownerID
+      renewalDate
+      source
+      status
+      tags
+      url
+      updatedBy
+      updatedAt
+      programs {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      subcontrols {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      tasks {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      controlObjectives {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      controls {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+    }
+  }
+`
+
 export const GET_EVIDENCE_FILES_PAGINATED = gql`
   query GetEvidenceFilesPaginated($evidenceId: ID!, $after: Cursor, $first: Int, $before: Cursor, $last: Int, $orderBy: [FileOrder!]) {
     evidence(id: $evidenceId) {
