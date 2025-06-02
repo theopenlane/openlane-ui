@@ -38,8 +38,6 @@ export const GET_ORG_MEMBERSHIPS = gql`
           role
           user {
             id
-            firstName
-            lastName
             displayName
             authProvider
             avatarRemoteURL

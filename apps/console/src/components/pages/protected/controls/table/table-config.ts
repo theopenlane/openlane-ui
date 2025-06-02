@@ -1,5 +1,5 @@
 import { FilterField, SelectFilterField } from '@/types'
-import { ControlControlStatus, OrderDirection } from '@repo/codegen/src/schema.ts'
+import { ControlControlStatus, ControlOrderField, OrderDirection } from '@repo/codegen/src/schema.ts'
 
 const statusLabels: Record<ControlControlStatus, string> = {
   APPROVED: 'Approved',
@@ -38,8 +38,8 @@ export const CONTROLS_SORT_FIELDS = [
     key: 'ref_code',
     label: 'Ref',
     default: {
-      key: 'ref_code',
-      direction: OrderDirection.DESC,
+      key: ControlOrderField.ref_code,
+      direction: OrderDirection.ASC,
     },
   },
 ]

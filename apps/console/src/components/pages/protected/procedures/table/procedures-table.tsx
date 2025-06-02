@@ -27,7 +27,7 @@ export const ProceduresTable = () => {
   const [orderBy, setOrderBy] = useState<GetProceduresListQueryVariables['orderBy']>([
     {
       field: ProcedureOrderField.name,
-      direction: OrderDirection.DESC,
+      direction: OrderDirection.ASC,
     },
   ])
 

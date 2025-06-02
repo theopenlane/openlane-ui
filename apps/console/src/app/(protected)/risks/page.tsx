@@ -27,7 +27,7 @@ const RiskTablePage: React.FC = () => {
   const [orderBy, setOrderBy] = useState<GetAllRisksQueryVariables['orderBy']>([
     {
       field: RiskOrderField.name,
-      direction: OrderDirection.DESC,
+      direction: OrderDirection.ASC,
     },
   ])
 

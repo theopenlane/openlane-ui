@@ -65,6 +65,25 @@ const BasicInformation = () => {
     }
   }, [program, form])
 
+  const handleCancel = () => {
+    if (program) {
+      form.reset({
+        name: program.name ?? '',
+        description: program.description ?? '',
+        tags: program.tags ?? [],
+      })
+
+      setTagValues(
+        (program.tags ?? []).map((tag) => ({
+          label: tag,
+          value: tag,
+        })),
+      )
+    }
+
+    setIsEditing(false)
+  }
+
   const onSubmit = async (values: FormValues) => {
     try {
       await updateProgram({
@@ -103,9 +122,14 @@ const BasicInformation = () => {
               </Button>
             )}
             {isEditing && (
-              <Button className="!h-8 !p-2" variant="outline" type="submit" icon={<Pencil />} iconPosition="left" disabled={isPending}>
-                Save edit
-              </Button>
+              <div className="flex gap-2">
+                <Button className="!h-8 !p-2" variant="outline" type="submit" icon={<Pencil />} iconPosition="left" disabled={isPending}>
+                  Save edit
+                </Button>
+                <Button type="button" variant="back" className="!h-8 !p-2" onClick={handleCancel}>
+                  Cancel
+                </Button>
+              </div>
             )}
           </div>
 

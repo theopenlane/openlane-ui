@@ -191,7 +191,7 @@ const ProfilePage = () => {
     <>
       <ProfileNameForm />
       <AvatarUpload
-        fallbackString={userData?.user?.firstName?.substring(0, 2)}
+        fallbackString={userData?.user?.displayName?.substring(0, 2)}
         uploadCallback={handleUploadAvatar || 'N/A'}
         placeholderImage={userData?.user.avatarFile?.presignedURL || sessionData?.user?.image}
       />

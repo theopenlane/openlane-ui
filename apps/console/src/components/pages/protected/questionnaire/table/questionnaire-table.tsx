@@ -20,7 +20,7 @@ export const QuestionnairesTable = () => {
   const [orderBy, setOrderBy] = useState<FilterTemplatesQueryVariables['orderBy']>([
     {
       field: TemplateOrderField.name,
-      direction: OrderDirection.DESC,
+      direction: OrderDirection.ASC,
     },
   ])
 

@@ -1,5 +1,5 @@
 import { FilterField } from '@/types'
-import { OrderDirection } from '@repo/codegen/src/schema.ts'
+import { OrderDirection, ProcedureOrderField } from '@repo/codegen/src/schema.ts'
 
 export const PROCEDURES_FILTERABLE_FIELDS: FilterField[] = [
   { key: 'name', label: 'Name', type: 'text' },
@@ -14,8 +14,8 @@ export const PROCEDURES_SORTABLE_FIELDS = [
     key: 'name',
     label: 'Name',
     default: {
-      key: 'name',
-      direction: OrderDirection.DESC,
+      key: ProcedureOrderField.name,
+      direction: OrderDirection.ASC,
     },
   },
   { key: 'review_due', label: 'Review Due Date' },

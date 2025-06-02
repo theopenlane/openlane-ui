@@ -22,8 +22,6 @@ export const TASKS_WITH_FILTER = gql`
           category
           assigner {
             displayName
-            firstName
-            lastName
             avatarRemoteURL
             avatarFile {
               presignedURL
@@ -31,8 +29,6 @@ export const TASKS_WITH_FILTER = gql`
           }
           assignee {
             displayName
-            firstName
-            lastName
             avatarRemoteURL
             avatarFile {
               presignedURL
@@ -78,15 +74,11 @@ export const TASK = gql`
       tags
       assignee {
         displayName
-        firstName
-        lastName
         avatarRemoteURL
         id
       }
       assigner {
         avatarRemoteURL
-        lastName
-        firstName
         displayName
         id
       }

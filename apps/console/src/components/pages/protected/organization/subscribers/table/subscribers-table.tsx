@@ -19,7 +19,7 @@ export const SubscribersTable = () => {
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [orderBy, setOrderBy] = useState<GetAllSubscribersQueryVariables['orderBy']>([
     {
-      field: SubscriberOrderField.email,
+      field: SubscriberOrderField.created_at,
       direction: OrderDirection.DESC,
     },
   ])
