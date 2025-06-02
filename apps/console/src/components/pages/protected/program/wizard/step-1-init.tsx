@@ -11,11 +11,9 @@ import { InfoIcon } from 'lucide-react'
 import { wizardStyles } from './wizard.styles'
 import { Grid, GridRow, GridCell } from '@repo/ui/grid'
 import React, { useState } from 'react'
-import { addDays, getYear } from 'date-fns'
+import { getYear } from 'date-fns'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { useGetStandards } from '@/lib/graphql-hooks/standards'
-
-const today = new Date()
 
 const currentYear = getYear(new Date())
 
@@ -30,7 +28,7 @@ export const initProgramSchema = z
         errorMap: () => ({ message: 'Invalid status' }),
       })
       .default(ProgramProgramStatus.NOT_STARTED),
-    startDate: z.date().min(new Date(), { message: 'Start date must be in the future' }).default(today),
+    startDate: z.date().min(new Date(), { message: 'Start date must be in the future' }),
     endDate: z.date().min(new Date(), { message: 'End date must be after start date' }),
     programType: z.string().min(1, { message: 'Program type is required' }),
   })
