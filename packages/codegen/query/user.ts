@@ -4,8 +4,6 @@ export const GET_USER_PROFILE = gql`
   query GetUserProfile($userId: ID!) {
     user(id: $userId) {
       id
-      firstName
-      lastName
       displayName
       email
       avatarRemoteURL
@@ -56,8 +54,6 @@ export const GET_USERS = gql`
       edges {
         node {
           id
-          firstName
-          lastName
           displayName
           avatarRemoteURL
           avatarFile {

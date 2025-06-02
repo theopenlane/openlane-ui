@@ -40,8 +40,6 @@ export const GET_SINGLE_ORGANIZATION_MEMBERS = gql`
             role
             user {
               id
-              firstName
-              lastName
               displayName
               authProvider
               avatarRemoteURL

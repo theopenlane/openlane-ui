@@ -35726,8 +35726,6 @@ export type GetAllGroupsQuery = {
               user: {
                 __typename?: 'User'
                 id: string
-                firstName?: string | null
-                lastName?: string | null
                 displayName: string
                 avatarRemoteURL?: string | null
                 role?: UserRole | null
@@ -35796,8 +35794,7 @@ export type GetGroupDetailsQuery = {
           user: {
             __typename?: 'User'
             id: string
-            firstName?: string | null
-            lastName?: string | null
+            displayName: string
             avatarRemoteURL?: string | null
             role?: UserRole | null
             avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
@@ -35883,8 +35880,6 @@ export type OrgMembershipsQuery = {
         user: {
           __typename?: 'User'
           id: string
-          firstName?: string | null
-          lastName?: string | null
           displayName: string
           authProvider: UserAuthProvider
           avatarRemoteURL?: string | null
@@ -36001,8 +35996,6 @@ export type GetSingleOrganizationMembersQuery = {
           user: {
             __typename?: 'User'
             id: string
-            firstName?: string | null
-            lastName?: string | null
             displayName: string
             authProvider: UserAuthProvider
             avatarRemoteURL?: string | null
@@ -36670,7 +36663,7 @@ export type GetProgramEdgesForWizardQuery = {
     __typename?: 'OrgMembershipConnection'
     edges?: Array<{
       __typename?: 'OrgMembershipEdge'
-      node?: { __typename?: 'OrgMembership'; user: { __typename?: 'User'; id: string; firstName?: string | null; lastName?: string | null; role?: UserRole | null; displayName: string } } | null
+      node?: { __typename?: 'OrgMembership'; user: { __typename?: 'User'; id: string; role?: UserRole | null; displayName: string } } | null
     } | null> | null
   }
 }
@@ -36704,8 +36697,8 @@ export type GetProgramDetailsByIdQuery = {
           status: TaskTaskStatus
           due?: string | null
           details?: string | null
-          assignee?: { __typename?: 'User'; id: string; firstName?: string | null; lastName?: string | null; email: string } | null
-          assigner?: { __typename?: 'User'; id: string; firstName?: string | null; lastName?: string | null; email: string } | null
+          assignee?: { __typename?: 'User'; displayName: string; id: string; email: string } | null
+          assigner?: { __typename?: 'User'; displayName: string; id: string; email: string } | null
         } | null
       } | null> | null
     }

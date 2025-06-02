@@ -82,8 +82,6 @@ export const GET_PROGRAM_EDGES_FOR_WIZARD = gql`
         node {
           user {
             id
-            firstName
-            lastName
             role
             displayName
           }
@@ -115,15 +113,13 @@ export const GET_PROGRAM_DETAILS_BY_ID = gql`
             due
             details
             assignee {
+              displayName
               id
-              firstName
-              lastName
               email
             }
             assigner {
+              displayName
               id
-              firstName
-              lastName
               email
             }
           }
