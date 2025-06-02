@@ -47,7 +47,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
 
   const membersOptions = membersData?.organization?.members?.edges?.map((member) => ({
     value: member?.node?.user?.id,
-    label: `${member?.node?.user?.firstName} ${member?.node?.user?.lastName}`,
+    label: `${member?.node?.user?.displayName}`,
     membershipId: member?.node?.id,
   }))
 

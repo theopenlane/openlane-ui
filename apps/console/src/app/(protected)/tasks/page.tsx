@@ -26,7 +26,7 @@ const Page: React.FC = () => {
       (member) =>
         ({
           value: member?.node?.user?.id,
-          label: `${member?.node?.user?.firstName} ${member?.node?.user?.lastName}`,
+          label: `${member?.node?.user?.displayName}`,
           membershipId: member?.node?.user.id,
         }) as TOrgMembers,
     )

@@ -110,7 +110,7 @@ const TaskDetailsSheet = () => {
           comment: item?.node?.text,
           avatarUrl: avatarUrl,
           createdAt: item?.node?.createdAt,
-          userName: user?.firstName ? `${user.firstName} ${user?.lastName}` : user.displayName,
+          userName: user.displayName,
         } as TCommentData
       })
       const sortedComments = comments?.sort((a, b) => new Date(!commentSortIsAsc ? b.createdAt : a.createdAt).getTime() - new Date(!commentSortIsAsc ? a.createdAt : b.createdAt).getTime())

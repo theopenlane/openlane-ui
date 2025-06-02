@@ -63,7 +63,7 @@ const MyGroupsCard = ({ groups, isError }: Props) => {
                             {group.members?.edges?.slice(9).map((member: any, idx: number) => (
                               <div key={idx} className="flex items-center gap-2 border-b h-11">
                                 <Avatar className="h-8 w-8" entity={member.user as User} />
-                                <p>{member?.user?.firstName + ' ' + member?.user?.lastName}</p>
+                                <p>{member?.user?.displayName}</p>
                               </div>
                             ))}
                           </div>
