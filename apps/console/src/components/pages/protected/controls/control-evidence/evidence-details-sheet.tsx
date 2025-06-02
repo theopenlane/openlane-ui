@@ -213,7 +213,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                       Edit
                     </Button>
                   )}
-                  {evidence && <ControlEvidenceRenewDialog evidence={evidence} controlId={controlId} />}
+                  {evidence && <ControlEvidenceRenewDialog evidenceId={evidence.id} controlId={controlId} />}
                   <Button icon={<Trash2 />} iconPosition="left" variant="outline" onClick={() => setDeleteDialogIsOpen(true)}>
                     Delete
                   </Button>
