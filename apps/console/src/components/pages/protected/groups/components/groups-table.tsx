@@ -81,7 +81,7 @@ const columns: ColumnDef<Group>[] = [
               data={members.map((user) => ({
                 id: user.id,
                 imageUrl: user.avatarFile?.presignedURL ?? user.avatarRemoteURL ?? undefined,
-                fallback: user.firstName?.substring(0, 2) ?? undefined,
+                fallback: user.displayName?.substring(0, 2) ?? undefined,
                 displayName: user?.displayName ?? undefined,
               }))}
             />

@@ -77,9 +77,7 @@ const TasksPage: React.FC = () => {
           }
 
           if (key === 'assigner') {
-            const firstName = task.assigner?.firstName
-            const lastName = task.assigner?.lastName
-            return !firstName && !lastName ? task.assigner?.displayName : `${firstName ?? ''} ${lastName ?? ''}`.trim()
+            return task.assigner?.displayName
           }
 
           return typeof value === 'string' || typeof value === 'number' ? value : ''
