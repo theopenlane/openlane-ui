@@ -35876,6 +35876,24 @@ export type OrgMembershipsQuery = {
   }
 }
 
+export type OrgMembershipsByIdsQueryVariables = Exact<{
+  where?: InputMaybe<OrgMembershipWhereInput>
+}>
+
+export type OrgMembershipsByIdsQuery = {
+  __typename?: 'Query'
+  orgMemberships: {
+    __typename?: 'OrgMembershipConnection'
+    edges?: Array<{
+      __typename?: 'OrgMembershipEdge'
+      node?: {
+        __typename?: 'OrgMembership'
+        user: { __typename?: 'User'; id: string; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null }
+      } | null
+    } | null> | null
+  }
+}
+
 export type GetAllNarrativesQueryVariables = Exact<{
   where?: InputMaybe<NarrativeWhereInput>
 }>
@@ -37597,6 +37615,16 @@ export type DeleteApiTokenMutationVariables = Exact<{
 }>
 
 export type DeleteApiTokenMutation = { __typename?: 'Mutation'; deleteAPIToken: { __typename?: 'APITokenDeletePayload'; deletedID: string } }
+
+export type GetApiTokensByIdsQueryVariables = Exact<{
+  where?: InputMaybe<ApiTokenWhereInput>
+  orderBy?: InputMaybe<Array<ApiTokenOrder> | ApiTokenOrder>
+}>
+
+export type GetApiTokensByIdsQuery = {
+  __typename?: 'Query'
+  apiTokens: { __typename?: 'APITokenConnection'; edges?: Array<{ __typename?: 'APITokenEdge'; node?: { __typename?: 'APIToken'; id: string; name: string } | null } | null> | null }
+}
 
 export type GetUserProfileQueryVariables = Exact<{
   userId: Scalars['ID']['input']
