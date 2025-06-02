@@ -26,7 +26,7 @@ export const PoliciesTable = () => {
   const [orderBy, setOrderBy] = useState<GetInternalPoliciesListQueryVariables['orderBy']>([
     {
       field: InternalPolicyOrderField.name,
-      direction: OrderDirection.DESC,
+      direction: OrderDirection.ASC,
     },
   ])
   const debouncedSearch = useDebounce(searchTerm, 300)
