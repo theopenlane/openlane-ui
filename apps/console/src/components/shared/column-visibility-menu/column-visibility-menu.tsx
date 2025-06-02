@@ -4,7 +4,7 @@ import { EyeIcon } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
 import { VisibilityState } from '@tanstack/react-table'
 
-interface ColumnVisibilityMenuProps {
+type TColumnVisibilityMenuProps = {
   columnVisibility: VisibilityState
   setColumnVisibility: React.Dispatch<React.SetStateAction<VisibilityState>>
   mappedColumns: {
@@ -13,7 +13,7 @@ interface ColumnVisibilityMenuProps {
   }[]
 }
 
-const ColumnVisibilityMenu: React.FC<ColumnVisibilityMenuProps> = ({ mappedColumns, columnVisibility, setColumnVisibility }: ColumnVisibilityMenuProps) => {
+const ColumnVisibilityMenu: React.FC<TColumnVisibilityMenuProps> = ({ mappedColumns, columnVisibility, setColumnVisibility }: TColumnVisibilityMenuProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
