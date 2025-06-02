@@ -10,8 +10,8 @@ type TProceduresColumnsProps = {
   tokens?: ApiToken[]
 }
 
-export const getProceduresColumns = ({ users, tokens }: TProceduresColumnsProps): ColumnDef<Procedure>[] => {
-  return [
+export const getProceduresColumns = ({ users, tokens }: TProceduresColumnsProps) => {
+  const columns: ColumnDef<Procedure>[] = [
     {
       accessorKey: 'name',
       header: 'Name',
@@ -59,4 +59,13 @@ export const getProceduresColumns = ({ users, tokens }: TProceduresColumnsProps)
       maxSize: 120,
     },
   ]
+
+  const mappedColumns = columns
+    .filter((column): column is { accessorKey: string; header: string } => 'accessorKey' in column && typeof column.accessorKey === 'string' && 'header' in column && typeof column.header === 'string')
+    .map((column) => ({
+      accessorKey: column.accessorKey,
+      header: column.header,
+    }))
+
+  return { columns, mappedColumns }
 }

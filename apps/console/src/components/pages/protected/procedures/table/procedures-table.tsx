@@ -16,6 +16,7 @@ import { exportToCSV } from '@/utils/exportToCSV'
 import { formatDateTime } from '@/utils/date'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
 import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens.ts'
+import { VisibilityState } from '@tanstack/react-table'
 
 export const ProceduresTable = () => {
   const router = useRouter()
@@ -66,6 +67,8 @@ export const ProceduresTable = () => {
   const { procedures, isLoading: fetching, paginationMeta } = useProcedures({ where: whereFilter, orderBy, pagination, enabled: !!filters })
   const { users } = useGetOrgUserList({ where: userListWhere })
   const { tokens } = useGetApiTokensByIds({ where: tokensWhere })
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+  const { columns, mappedColumns } = getProceduresColumns({ users, tokens })
 
   useEffect(() => {
     if (procedures && (!memberIds || memberIds.length === 0)) {
@@ -82,34 +85,32 @@ export const ProceduresTable = () => {
     router.push(`/procedures/${rowData.id}/view`)
   }
 
-  function isAccessorKeyColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
-    return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string'
+  function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
+    return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
   }
 
   const handleExport = () => {
-    const exportableColumns = getProceduresColumns({ users, tokens })
-      .filter((col): col is ColumnDef<Procedure> & { accessorKey: string; header: string } => isAccessorKeyColumn(col))
-      .map((col) => {
-        const key = col.accessorKey as keyof Procedure
-        const label = col.header
+    const exportableColumns = columns.filter(isVisibleColumn).map((col) => {
+      const key = col.accessorKey as keyof Procedure
+      const label = col.header
 
-        return {
-          label,
-          accessor: (procedure: Procedure) => {
-            const value = procedure[key]
+      return {
+        label,
+        accessor: (procedure: Procedure) => {
+          const value = procedure[key]
 
-            if ((key === 'updatedAt' || key === 'createdAt') && value) {
-              return formatDateTime(value as string)
-            }
+          if ((key === 'updatedAt' || key === 'createdAt') && value) {
+            return formatDateTime(value as string)
+          }
 
-            if (key === 'summary') {
-              return (value as string) ?? ''
-            }
+          if (key === 'summary') {
+            return (value as string) ?? ''
+          }
 
-            return typeof value === 'string' || typeof value === 'number' ? value : ''
-          },
-        }
-      })
+          return typeof value === 'string' || typeof value === 'number' ? value : ''
+        },
+      }
+    })
 
     exportToCSV(procedures, exportableColumns, 'procedures')
   }
@@ -127,18 +128,23 @@ export const ProceduresTable = () => {
           setPagination(DEFAULT_PAGINATION)
         }}
         handleExport={handleExport}
+        mappedColumns={mappedColumns}
+        columnVisibility={columnVisibility}
+        setColumnVisibility={setColumnVisibility}
       />
 
       <DataTable
         sortFields={PROCEDURES_SORTABLE_FIELDS}
         onSortChange={setOrderBy}
-        columns={getProceduresColumns({ users, tokens })}
+        columns={columns}
         data={procedures}
         onRowClick={handleRowClick}
         loading={fetching}
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
         paginationMeta={paginationMeta}
+        columnVisibility={columnVisibility}
+        setColumnVisibility={setColumnVisibility}
       />
     </>
   )

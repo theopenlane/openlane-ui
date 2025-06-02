@@ -3,15 +3,12 @@ import React from 'react'
 import { CreditCard as CardIcon, DownloadIcon, LoaderCircle, SearchIcon, Table as TableIcon, Upload } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { RISKS_FILTER_FIELDS } from './table-config'
-import { Button } from '@repo/ui/button'
 import { SelectIsFilterField } from '@/types'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
 import Menu from '@/components/shared/menu/menu.tsx'
 import BulkCSVCreateRiskDialog from '@/components/pages/protected/risks/bulk-csv-create-risk-dialog.tsx'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { EyeIcon } from 'lucide-react'
 import { VisibilityState } from '@tanstack/react-table'
-import { Checkbox } from '@repo/ui/checkbox'
+import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 
 type TProps = {
   onFilterChange: (filters: Record<string, any>) => void
@@ -53,32 +50,7 @@ const RisksTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, search
         />
       </div>
       {mappedColumns && columnVisibility && setColumnVisibility && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button icon={<EyeIcon />} iconPosition="left" variant="outline" size="md" className="ml-auto mr-2">
-              Select Columns
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {mappedColumns.map((column, index) => {
-              return (
-                <div key={`${column.accessorKey}-${index}`} className="flex items-center gap-x-3">
-                  <Checkbox
-                    className="capitalize"
-                    checked={columnVisibility[column.accessorKey] !== false}
-                    onCheckedChange={(value: boolean) => {
-                      setColumnVisibility((prev) => ({
-                        ...prev,
-                        [column.accessorKey]: value,
-                      }))
-                    }}
-                  ></Checkbox>
-                  <div>{column.header}</div>
-                </div>
-              )
-            })}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
       )}
       <Menu
         content={
