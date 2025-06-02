@@ -4,14 +4,15 @@ import { TASK_FILTER_FIELDS } from '@/components/pages/protected/tasks/table/tab
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import { SelectFilterField, SelectIsFilterField } from '@/types'
 import { TOrgMembers, useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
-import { ChevronDown, CreditCard as CardIcon, DownloadIcon, ShieldPlus, Table as TableIcon, Upload } from 'lucide-react'
+import { CreditCard as CardIcon, DownloadIcon, Table as TableIcon, Upload } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
 import { BulkCSVCreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/bulk-csv-create-task-dialog'
-import { Button } from '@repo/ui/button'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
 import Menu from '@/components/shared/menu/menu'
 import { TaskIconBtn } from '@/components/shared/icon-enum/task-enum.tsx'
 import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
+import { VisibilityState } from '@tanstack/react-table'
+import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 
 type TProps = {
   onFilterChange: (filters: Record<string, any>) => void
@@ -19,6 +20,12 @@ type TProps = {
   onTabChange: (tab: 'table' | 'card') => void
   onShowCompletedTasksChange: (val: boolean) => void
   handleExport: () => void
+  columnVisibility?: VisibilityState
+  setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
+  mappedColumns: {
+    accessorKey: string
+    header: string
+  }[]
 }
 
 const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
@@ -76,8 +83,10 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
           <p>Show completed tasks</p>
         </div>
       </div>
-
       <div className="grow flex flex-row items-center gap-2 justify-end">
+        {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
+          <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility}></ColumnVisibilityMenu>
+        )}
         <Menu trigger={CreateBtn} content={<CreateTaskDialog trigger={TaskIconBtn} />} />
         <Menu
           content={

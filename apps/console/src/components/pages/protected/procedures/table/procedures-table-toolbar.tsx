@@ -1,8 +1,7 @@
 import React from 'react'
 import { cn } from '@repo/ui/lib/utils'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
-import { Button } from '@repo/ui/button'
-import { ChevronDown, CirclePlus, DownloadIcon, Import, LoaderCircle, PlusCircle, SearchIcon } from 'lucide-react'
+import { CirclePlus, DownloadIcon, Import, LoaderCircle, PlusCircle, SearchIcon } from 'lucide-react'
 import { PROCEDURES_FILTERABLE_FIELDS } from '@/components/pages/protected/procedures/table/table-config.ts'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -13,6 +12,8 @@ import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Menu from '@/components/shared/menu/menu.tsx'
 import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
+import { VisibilityState } from '@tanstack/react-table'
+import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 
 type TProceduresTableToolbarProps = {
   className?: string
@@ -22,9 +23,26 @@ type TProceduresTableToolbarProps = {
   setFilters: (filters: Record<string, any>) => void
   handleCreateNew: () => void
   handleExport: () => void
+  columnVisibility?: VisibilityState
+  setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
+  mappedColumns: {
+    accessorKey: string
+    header: string
+  }[]
 }
 
-const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({ className, searching, searchTerm, handleCreateNew, setFilters, setSearchTerm, handleExport }) => {
+const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
+  className,
+  searching,
+  searchTerm,
+  handleCreateNew,
+  setFilters,
+  setSearchTerm,
+  handleExport,
+  columnVisibility,
+  setColumnVisibility,
+  mappedColumns,
+}) => {
   const isSearching = useDebounce(searching, 200)
   const { data: session } = useSession()
   const { data: permission } = useOrganizationRole(session)
@@ -43,6 +61,9 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({ classN
       </div>
 
       <div className="grow flex flex-row items-center gap-2 justify-end">
+        {mappedColumns && columnVisibility && setColumnVisibility && (
+          <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
+        )}
         {canCreate(permission?.roles, AccessEnum.CanCreateProcedure) && (
           <Menu
             trigger={CreateBtn}
