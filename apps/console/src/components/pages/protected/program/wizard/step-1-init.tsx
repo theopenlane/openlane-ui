@@ -16,7 +16,6 @@ import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { useGetStandards } from '@/lib/graphql-hooks/standards'
 
 const today = new Date()
-const oneYearFromToday = addDays(new Date(), 365)
 
 const currentYear = getYear(new Date())
 
@@ -32,7 +31,7 @@ export const initProgramSchema = z
       })
       .default(ProgramProgramStatus.NOT_STARTED),
     startDate: z.date().min(new Date(), { message: 'Start date must be in the future' }).default(today),
-    endDate: z.date().min(new Date(), { message: 'End date must be after start date' }).default(oneYearFromToday),
+    endDate: z.date().min(new Date(), { message: 'End date must be after start date' }),
     programType: z.string().min(1, { message: 'Program type is required' }),
   })
   .superRefine((data, ctx) => {
