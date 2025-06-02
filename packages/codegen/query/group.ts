@@ -16,8 +16,7 @@ export const GET_ALL_GROUPS = gql`
                 role
                 user {
                   id
-                  firstName
-                  lastName
+
                   avatarFile {
                     presignedURL
                   }
@@ -94,8 +93,7 @@ export const GET_GROUP_DETAILS = gql`
             role
             user {
               id
-              firstName
-              lastName
+              displayName
               avatarFile {
                 presignedURL
               }

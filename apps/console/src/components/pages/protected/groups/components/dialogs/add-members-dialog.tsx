@@ -44,7 +44,7 @@ const AddMembersDialog = () => {
     })
     .map((member) => ({
       value: member?.node?.user?.id,
-      label: `${member?.node?.user?.firstName} ${member?.node?.user?.lastName}`,
+      label: `${member?.node?.user?.displayName}`,
       membershipId: member?.node?.user?.id,
     }))
 
@@ -87,7 +87,7 @@ const AddMembersDialog = () => {
         .filter((member) => member.user.id !== session.user.userId)
         .map((member) => ({
           value: member.user.id,
-          label: `${member.user.firstName} ${member.user.lastName}`,
+          label: `${member.user.displayName}`,
         }))
 
       setSelectedMembers(initialSelected)

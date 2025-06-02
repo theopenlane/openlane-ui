@@ -45,7 +45,7 @@ const GroupsMembersTable = () => {
         .filter((member) => member.user.id !== session?.user.userId)
         .map((member) => ({
           id: member.membershipID || '',
-          name: member.user.firstName || 'Unknown Member',
+          name: member.user.displayName || 'Unknown Member',
           role: member.role as GroupMembershipRole,
           avatar: member.user.avatarFile?.presignedURL || member.user.avatarRemoteURL || '',
         }))

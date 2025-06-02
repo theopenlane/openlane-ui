@@ -43,7 +43,7 @@ const CreateGroupDialog = ({ trigger }: MyGroupsDialogProps) => {
     ?.filter((member) => member?.node?.user?.id != session?.user.userId)
     .map((member) => ({
       value: member?.node?.user?.id,
-      label: `${member?.node?.user?.firstName} ${member?.node?.user?.lastName}`,
+      label: `${member?.node?.user?.displayName}`,
     }))
 
   const {
