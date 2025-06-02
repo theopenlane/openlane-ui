@@ -279,7 +279,7 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
                             />
                           </FormLabel>
 
-                          <CalendarPopover field={field} defaultAddDays={365} />
+                          <CalendarPopover field={field} defaultAddDays={365} disabledFrom={new Date()} />
                           {field.value !== null && (
                             <p>
                               Don't want to renew this evidence?{' '}
