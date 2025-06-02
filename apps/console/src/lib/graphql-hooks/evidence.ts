@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { CREATE_EVIDENCE, DELETE_EVIDENCE, GET_ALL_EVIDENCES, GET_EVIDENCE, GET_EVIDENCE_FILES, GET_EVIDENCE_FILES_PAGINATED, UPDATE_EVIDENCE } from '@repo/codegen/query/evidence'
+import { CREATE_EVIDENCE, DELETE_EVIDENCE, GET_ALL_EVIDENCES, GET_EVIDENCE, GET_EVIDENCE_FILES, GET_EVIDENCE_FILES_PAGINATED, GET_RENEW_EVIDENCE, UPDATE_EVIDENCE } from '@repo/codegen/query/evidence'
 import {
   CreateEvidenceMutation,
   CreateEvidenceMutationVariables,
@@ -15,6 +15,8 @@ import {
   UpdateEvidenceMutationVariables,
   DeleteEvidenceMutation,
   DeleteEvidenceMutationVariables,
+  GetRenewEvidenceQuery,
+  GetRenewEvidenceQueryVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -54,6 +56,23 @@ export const useGetEvidenceById = (evidenceId?: string | null) => {
     queryFn: async () => client.request(GET_EVIDENCE, { evidenceId }),
     enabled: !!evidenceId,
   })
+}
+
+export const useGetRenewEvidenceById = (evidenceId?: string | null, enabled: boolean = true) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetRenewEvidenceQuery, GetRenewEvidenceQueryVariables>({
+    queryKey: ['getRenewEvidenceById', evidenceId],
+    queryFn: async () => client.request(GET_RENEW_EVIDENCE, { evidenceId }),
+    enabled: enabled && !!evidenceId,
+  })
+
+  const evidence = queryResult.data?.evidence
+
+  return {
+    ...queryResult,
+    evidence,
+  }
 }
 
 type EvidencePaginationArgs = {
