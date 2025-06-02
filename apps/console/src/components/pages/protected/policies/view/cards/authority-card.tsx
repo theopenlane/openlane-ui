@@ -122,7 +122,7 @@ export const SearchableSingleSelect: React.FC<SearchableSingleSelectProps> = ({ 
           <div className="w-[200px]">
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
-                <div className="w-full h-10 px-3 border bg-input-background rounded-md flex items-center justify-between cursor-pointer overflow-hidden min-w-[180px] max-w-[180px]">
+                <div className="w-full h-10 px-3 border bg-input-background rounded-md flex items-center justify-between cursor-pointer overflow-hidden min-w-[180px]">
                   <span className="block truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px]">{selected?.label || placeholder}</span>
                   <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </div>
