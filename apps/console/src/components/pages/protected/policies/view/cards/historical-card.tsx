@@ -1,10 +1,9 @@
 'use client'
 
 import React from 'react'
-import { InternalPolicyByIdFragment, User } from '@repo/codegen/src/schema'
+import { ApiToken, InternalPolicyByIdFragment, User } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
-import { CalendarCheck2, CalendarClock, Glasses, KeyRound, UserRoundCheck, UserRoundPen } from 'lucide-react'
-import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
+import { CalendarCheck2, CalendarClock, KeyRound, UserRoundCheck, UserRoundPen } from 'lucide-react'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { formatTimeSince } from '@/utils/date'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
@@ -15,13 +14,17 @@ type TPropertiesCardProps = {
 }
 
 const PropertiesCard: React.FC<TPropertiesCardProps> = ({ policy }) => {
-  const { data: createdByUser } = useGetCurrentUser(policy.createdBy)
-  const { users } = useGetOrgUserList({ where: { hasUserWith: [{ idIn: policy?.updatedBy ? [policy.updatedBy] : [] }] } })
-  const { tokens } = useGetApiTokensByIds({ where: { idIn: policy?.updatedBy ? [policy.updatedBy] : [] } })
-  const token = tokens?.find((item) => item.id === policy?.updatedBy)
-  const user = users?.find((item) => item.id === policy?.updatedBy)
+  const userIds = []
+  policy?.updatedBy && userIds.push(policy.updatedBy)
+  policy?.createdBy && userIds.push(policy.createdBy)
+  const { users } = useGetOrgUserList({ where: { hasUserWith: [{ idIn: userIds }] } })
+  const { tokens } = useGetApiTokensByIds({ where: { idIn: userIds } })
+  const updatedByToken = tokens?.find((item) => item.id === policy?.updatedBy)
+  const updatedByUser = users?.find((item) => item.id === policy?.updatedBy)
+  const createdByToken = tokens?.find((item) => item.id === policy?.createdBy)
+  const createdByUser = users?.find((item) => item.id === policy?.createdBy)
 
-  const handleCreatedBy = () => {
+  const handleUserDisplay = (token?: ApiToken, user?: User) => {
     if (!token && !user) {
       return 'Deleted user'
     }
@@ -46,10 +49,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ policy }) => {
           </div>
 
           <div className="w-[220px]">
-            <div className="flex gap-2">
-              <Avatar entity={createdByUser?.user! as User} variant="small" />
-              <span>{createdByUser?.user?.displayName}</span>
-            </div>
+            <div className="flex gap-2">{handleUserDisplay(createdByToken, createdByUser)}</div>
           </div>
         </div>
 
@@ -67,7 +67,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ policy }) => {
           </div>
         </div>
 
-        {/* Created By */}
+        {/* Updated By */}
         <div className="flex justify-between items-center">
           <div className="flex gap-2 w-[160px] items-center">
             <UserRoundPen size={16} className="text-brand" />
@@ -75,7 +75,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ policy }) => {
           </div>
 
           <div className="w-[220px]">
-            <div className="flex gap-2">{handleCreatedBy()}</div>
+            <div className="flex gap-2">{handleUserDisplay(updatedByToken, updatedByUser)}</div>
           </div>
         </div>
 

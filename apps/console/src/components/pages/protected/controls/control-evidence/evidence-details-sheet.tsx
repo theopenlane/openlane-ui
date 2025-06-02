@@ -36,7 +36,6 @@ import { useDeleteEvidence, useGetEvidenceById, useUpdateEvidence } from '@/lib/
 import { formatDate } from '@/utils/date.ts'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { EvidenceEvidenceStatus, User } from '@repo/codegen/src/schema.ts'
-import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 import useFormSchema, { EditEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema.ts'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Controller } from 'react-hook-form'
@@ -72,8 +71,14 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const { mutateAsync: deleteEvidence } = useDeleteEvidence()
   const { data, isLoading: fetching } = useGetEvidenceById(selectedControlEvidence)
   const evidence = data?.evidence
-  const { data: createdByUser } = useGetCurrentUser(evidence?.createdBy)
-  const { users } = useGetOrgUserList({ where: { hasUserWith: [{ idIn: evidence?.updatedBy ? [evidence.updatedBy] : [] }] } })
+
+  const userIds = []
+  evidence?.updatedBy && userIds.push(evidence.updatedBy)
+  evidence?.createdBy && userIds.push(evidence.createdBy)
+  const { users } = useGetOrgUserList({ where: { hasUserWith: [{ idIn: userIds }] } })
+  const updatedByUser = users?.find((item) => item.id === evidence?.updatedBy)
+  const createdByUser = users?.find((item) => item.id === evidence?.createdBy)
+
   const statusOptions = Object.values(EvidenceEvidenceStatus)
 
   const { form } = useFormSchema()
@@ -480,8 +485,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                       </div>
                       <div className="text-sm text-left w-[200px]">
                         <p className="text-sm flex items-center">
-                          <Avatar entity={createdByUser?.user as User} variant="small" />
-                          <span>{createdByUser?.user?.displayName}</span>
+                          <Avatar entity={createdByUser as User} variant="small" />
+                          <span>{createdByUser?.displayName}</span>
                         </p>
                       </div>
                     </div>
@@ -503,8 +508,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                       </div>
                       <div className="text-sm text-left w-[200px]">
                         <p className="text-sm flex items-center ">
-                          <Avatar entity={users?.[0] as User} variant="small" />
-                          <span>{users?.[0]?.displayName}</span>
+                          <Avatar entity={updatedByUser as User} variant="small" />
+                          <span>{updatedByUser?.displayName}</span>
                         </p>
                       </div>
                     </div>
