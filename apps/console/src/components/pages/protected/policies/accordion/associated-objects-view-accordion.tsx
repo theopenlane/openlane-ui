@@ -9,6 +9,11 @@ import { ChevronDown, ChevronsDownUp, List } from 'lucide-react'
 import { InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import SetObjectAssociationDialog from '@/components/pages/protected/policies/modal/set-object-association-modal.tsx'
+import { useAccountRole } from '@/lib/authz/access-api.ts'
+import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
+import { useSession } from 'next-auth/react'
+import { canEdit } from '@/lib/authz/utils.ts'
+import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 
 type AssociatedObjectsAccordionProps = {
   policy: InternalPolicyByIdFragment
@@ -17,6 +22,10 @@ type AssociatedObjectsAccordionProps = {
 const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> = ({ policy }) => {
   const plateEditorHelper = usePlateEditor()
   const [expandedItems, setExpandedItems] = useState<string[]>(['procedures'])
+  const { data: session } = useSession()
+  const { data: permission } = useAccountRole(session, ObjectEnum.POLICY, policy.id)
+  const editAllowed = canEdit(permission?.roles)
+
   const toggleAll = () => {
     const allSections = ['controls', 'procedures', 'tasks', 'controlObjectives', 'programs']
     const hasAllExpanded = allSections.every((section) => expandedItems.includes(section))
@@ -37,16 +46,26 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
         </TableHeader>
         <TableBody>
           {rows.length > 0 ? (
-            rows.map((row) => (
-              <TableRow key={row?.id}>
-                <TableCell className="px-4 py-2 text-primary font-bold min-w-[100px]">
-                  <Link href={`/${kind}/${row?.id}`} className="text-blue-500 hover:underline">
-                    {row.name || row.refCode || row.title || '-'}
-                  </Link>
-                </TableCell>
-                <TableCell className="px-4 py-2 line-clamp-1 overflow-hidden">{row?.summary || row?.description || (row?.details && plateEditorHelper.convertToReadOnly(row.details, 0))}</TableCell>
-              </TableRow>
-            ))
+            rows.map((row) => {
+              const href = getHrefForObjectType(kind, row)
+              const text = row.name || row.refCode || row.title || '-'
+              return (
+                <TableRow key={row?.id}>
+                  <TableCell className="px-4 py-2 text-primary font-bold min-w-[100px]">
+                    {href ? (
+                      <Link href={href} className="text-blue-500 hover:underline">
+                        {text}
+                      </Link>
+                    ) : (
+                      <p>{text}</p>
+                    )}
+                  </TableCell>
+                  <TableCell className="px-4 py-2 line-clamp-1 overflow-hidden">
+                    {row?.summary || (row?.description && plateEditorHelper.convertToReadOnly(row.description, 0)) || (row?.details && plateEditorHelper.convertToReadOnly(row.details, 0))}
+                  </TableCell>
+                </TableRow>
+              )
+            })
           ) : (
             <TableRow>
               <TableCell colSpan={2} className="px-4 py-2 text-muted-foreground">
@@ -81,9 +100,7 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
         <h2 className="text-lg font-semibold whitespace-nowrap">Associated Objects</h2>
         <div className="flex justify-between w-full items-center">
           <div className="flex gap-2.5 items-center">
-            <div className="ml-auto">
-              <SetObjectAssociationDialog policyId={policy?.id} />
-            </div>
+            <div className="ml-auto">{editAllowed && <SetObjectAssociationDialog policyId={policy?.id} />}</div>
             <Button type="button" className="h-8 !px-2" variant="outline" onClick={toggleAll}>
               <div className="flex">
                 <List size={16} />
@@ -102,6 +119,11 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
         <AccordionItem value="controls">
           <SectionTrigger label="Controls" count={policy.controls.totalCount} />
           {!!policy.controls.edges?.length && <AccordionContent>{renderTable('controls', extractNodes(policy.controls.edges))}</AccordionContent>}
+        </AccordionItem>
+
+        <AccordionItem value="subcontrols">
+          <SectionTrigger label="Subcontrols" count={policy.subcontrols.totalCount} />
+          {!!policy.subcontrols.edges?.length && <AccordionContent>{renderTable('controls', extractNodes(policy.controls.edges))}</AccordionContent>}
         </AccordionItem>
 
         <AccordionItem value="controlObjectives">

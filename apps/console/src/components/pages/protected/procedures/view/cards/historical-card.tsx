@@ -3,10 +3,12 @@
 import React from 'react'
 import { ProcedureByIdFragment, User } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
-import { CalendarCheck2, CalendarClock, UserRoundCheck, UserRoundPen } from 'lucide-react'
+import { CalendarCheck2, CalendarClock, Glasses, KeyRound, UserRoundCheck, UserRoundPen } from 'lucide-react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { formatTimeSince } from '@/utils/date'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
+import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens.ts'
 
 type TPropertiesCardProps = {
   procedure: ProcedureByIdFragment
@@ -14,7 +16,23 @@ type TPropertiesCardProps = {
 
 const PropertiesCard: React.FC<TPropertiesCardProps> = ({ procedure }) => {
   const { data: createdByUser } = useGetCurrentUser(procedure.createdBy)
-  const { data: updatedByUser } = useGetCurrentUser(procedure.updatedBy)
+  const { users } = useGetOrgUserList({ where: { hasUserWith: [{ idIn: procedure?.updatedBy ? [procedure.updatedBy] : [] }] } })
+  const { tokens } = useGetApiTokensByIds({ where: { idIn: procedure?.updatedBy ? [procedure.updatedBy] : [] } })
+  const token = tokens?.find((item) => item.id === procedure?.updatedBy)
+  const user = users?.find((item) => item.id === procedure?.updatedBy)
+
+  const handleCreatedBy = () => {
+    if (!token && !user) {
+      return 'Deleted user'
+    }
+
+    return (
+      <>
+        {token ? <KeyRound size={16} /> : <Avatar entity={user} variant="small" />}
+        {token ? token.name : user?.displayName || '—'}
+      </>
+    )
+  }
 
   return (
     <Card className="p-4">
@@ -57,10 +75,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ procedure }) => {
           </div>
 
           <div className="w-[220px]">
-            <div className="flex gap-2">
-              <Avatar entity={updatedByUser?.user! as User} variant="small" />
-              <span>{updatedByUser?.user?.displayName}</span>
-            </div>
+            <div className="flex gap-2">{handleCreatedBy()}</div>
           </div>
         </div>
 

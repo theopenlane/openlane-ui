@@ -2,9 +2,8 @@
 
 import { useRouter } from 'next/navigation'
 import { DataTable } from '@repo/ui/data-table'
-import React, { useState, useMemo } from 'react'
-import { GetInternalPoliciesListQueryVariables, InternalPolicy, InternalPolicyOrderField, OrderDirection } from '@repo/codegen/src/schema'
-import { policiesColumns } from '@/components/pages/protected/policies/table/columns.tsx'
+import React, { useState, useMemo, useEffect } from 'react'
+import { GetInternalPoliciesListQueryVariables, InternalPolicy, InternalPolicyOrderField, Maybe, OrderDirection } from '@repo/codegen/src/schema'
 import PoliciesTableToolbar from '@/components/pages/protected/policies/table/policies-table-toolbar.tsx'
 import { INTERNAL_POLICIES_SORTABLE_FIELDS } from '@/components/pages/protected/policies/table/table-config.ts'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -14,11 +13,15 @@ import { useInternalPolicies } from '@/lib/graphql-hooks/policy'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { ColumnDef } from '@tanstack/react-table'
 import { formatDateTime } from '@/utils/date'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
+import { getPoliciesColumns } from '@/components/pages/protected/policies/table/columns.tsx'
+import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens.ts'
 
 export const PoliciesTable = () => {
   const router = useRouter()
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<Record<string, any> | null>(null)
+  const [memberIds, setMemberIds] = useState<(Maybe<string> | undefined)[]>()
   const [searchTerm, setSearchTerm] = useState('')
   const [orderBy, setOrderBy] = useState<GetInternalPoliciesListQueryVariables['orderBy']>([
     {
@@ -37,11 +40,44 @@ export const PoliciesTable = () => {
     return conditions
   }, [filters, debouncedSearch])
 
+  const userListWhere = useMemo(() => {
+    if (!memberIds) {
+      return undefined
+    }
+
+    const conditions: Record<string, any> = {
+      hasUserWith: [{ idIn: memberIds }],
+    }
+
+    return conditions
+  }, [memberIds])
+
+  const tokensWhere = useMemo(() => {
+    if (!memberIds) {
+      return undefined
+    }
+
+    const conditions: Record<string, any> = {
+      idIn: memberIds,
+    }
+
+    return conditions
+  }, [memberIds])
+
   const orderByFilter = useMemo(() => {
     return orderBy || undefined
   }, [orderBy])
 
   const { policies, isLoading: fetching, paginationMeta } = useInternalPolicies({ where, orderBy: orderByFilter, pagination, enabled: !!filters })
+  const { users } = useGetOrgUserList({ where: userListWhere })
+  const { tokens } = useGetApiTokensByIds({ where: tokensWhere })
+
+  useEffect(() => {
+    if (policies && (!memberIds || memberIds.length === 0)) {
+      const userIds = [...new Set(policies.map((item) => item.updatedBy))]
+      setMemberIds(userIds)
+    }
+  }, [policies?.length])
 
   const handleCreateNew = async () => {
     router.push(`/policies/create`)
@@ -52,7 +88,7 @@ export const PoliciesTable = () => {
   }
 
   const handleExport = () => {
-    const exportableColumns = policiesColumns
+    const exportableColumns = getPoliciesColumns({ users })
       .filter((col): col is ColumnDef<InternalPolicy> & { accessorKey: string; header: string } => 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string')
       .map((col) => {
         const key = col.accessorKey as keyof InternalPolicy
@@ -97,7 +133,7 @@ export const PoliciesTable = () => {
       <DataTable
         sortFields={INTERNAL_POLICIES_SORTABLE_FIELDS}
         onSortChange={setOrderBy}
-        columns={policiesColumns}
+        columns={getPoliciesColumns({ users, tokens })}
         data={policies}
         onRowClick={handleRowClick}
         loading={fetching}

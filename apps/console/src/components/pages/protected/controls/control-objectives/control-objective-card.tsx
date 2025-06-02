@@ -1,7 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { Card } from '@repo/ui/cardpanel'
+import { Popover } from '@repo/ui/popover'
+import { PopoverContent, PopoverTrigger } from '@radix-ui/react-popover'
 import { ControlObjectiveControlSource, ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Archive, FilePenLineIcon, ThumbsUp } from 'lucide-react'
@@ -13,6 +16,8 @@ interface Props {
 
 export const ControlObjectiveCard = ({ obj }: Props) => {
   const plateEditorHelper = usePlateEditor()
+  const convertToReadOnly = plateEditorHelper.convertToReadOnly
+
   const [hoveredControl, setHoveredControl] = useState<{
     id: string
     shortName: string
@@ -23,9 +28,8 @@ export const ControlObjectiveCard = ({ obj }: Props) => {
     id: string
     parentRefCode: string
     parentDescription: string
+    parentId: string
   } | null>(null)
-
-  const { convertToReadOnly } = usePlateEditor()
 
   return (
     <Card className="p-4 flex">
@@ -39,7 +43,7 @@ export const ControlObjectiveCard = ({ obj }: Props) => {
 
           {/* Type */}
           <div className="flex items-start border-b pb-2">
-            <div className="min-w-32 pl-5 border-l h-full ">Type</div>
+            <div className="min-w-32 pl-5 border-l h-full">Type</div>
             <div>{obj.controlObjectiveType || '—'}</div>
           </div>
 
@@ -51,7 +55,7 @@ export const ControlObjectiveCard = ({ obj }: Props) => {
 
           {/* Category */}
           <div className="flex items-start border-b pb-2">
-            <div className="min-w-32 pl-5 border-l h-full ">Category</div>
+            <div className="min-w-32 pl-5 border-l h-full">Category</div>
             <div>{obj.category || '—'}</div>
           </div>
 
@@ -63,86 +67,96 @@ export const ControlObjectiveCard = ({ obj }: Props) => {
 
           {/* Subcategory */}
           <div className="flex items-start border-b pb-2">
-            <div className="min-w-32 pl-5 border-l h-full ">Subcategory</div>
+            <div className="min-w-32 pl-5 border-l h-full">Subcategory</div>
             <div>{obj.subcategory || '—'}</div>
           </div>
         </div>
 
-        <div className="mt-5">{plateEditorHelper.convertToReadOnly(obj.desiredOutcome || '', 0)}</div>
+        <div className="mt-5">{convertToReadOnly(obj.desiredOutcome || '', 0)}</div>
       </div>
 
       <div className="w-px bg-border self-stretch mx-6" />
 
       <div className="w-[350px] flex-shrink-0">
-        <div className="flex justify-between items-center ">
+        <div className="flex justify-between items-center mb-2">
           <p className="text-lg">Controls</p>
           <LinkControlsModal controlObjectiveData={obj} />
         </div>
 
+        {/* Controls with popover */}
         {!!obj.controls?.edges?.length && (
           <div className="flex flex-wrap gap-2 text-sm mb-3">
-            {obj.controls.edges.map((control) => (
-              <span
-                key={control?.node?.id}
-                onMouseEnter={() =>
-                  setHoveredControl({
-                    id: control?.node?.id || '',
-                    shortName: control?.node?.standard?.shortName || '-',
-                    description: control?.node?.description || '-',
-                  })
-                }
-                onMouseLeave={() => setHoveredControl(null)}
-                className="underline cursor-pointer"
-              >
-                {control?.node?.refCode}
-              </span>
-            ))}
+            {obj.controls.edges.map((control) =>
+              control?.node ? (
+                <Popover key={control.node.id} open={control.node.id === hoveredControl?.id}>
+                  <div onMouseLeave={() => setHoveredControl(null)}>
+                    <PopoverTrigger
+                      asChild
+                      onMouseEnter={() =>
+                        setHoveredControl({
+                          id: control?.node?.id || '',
+                          shortName: control?.node?.standard?.shortName || '-',
+                          description: control?.node?.description || '-',
+                        })
+                      }
+                    >
+                      <span className="pb-1">{control.node.refCode}</span>
+                    </PopoverTrigger>
+                    {hoveredControl?.id === control.node.id && (
+                      <PopoverContent asChild align="start">
+                        <div className="bg-background text-xs border border-border rounded-md p-4 grid grid-cols-[auto,1fr] gap-y-3 gap-x-5 max-w-xs">
+                          <span className="font-medium">Standard</span>
+                          <span>{hoveredControl.shortName}</span>
+
+                          <span className="font-medium">Details</span>
+                          <div>{convertToReadOnly(hoveredControl.description, 0)}</div>
+                        </div>
+                      </PopoverContent>
+                    )}
+                  </div>
+                </Popover>
+              ) : null,
+            )}
           </div>
         )}
 
+        {/* Subcontrols with popover */}
         {!!obj.subcontrols?.edges?.length && (
           <div className="flex flex-wrap gap-2 text-sm mb-3">
-            {obj.subcontrols.edges.map((subcontrol) => {
-              if (!subcontrol?.node) {
-                return null
-              }
-              return (
-                <span
-                  key={subcontrol.node.id}
-                  onMouseEnter={() =>
-                    setHoveredSubcontrol({
-                      id: subcontrol?.node?.id || '',
-                      parentRefCode: subcontrol?.node?.control?.refCode || '—',
-                      parentDescription: subcontrol?.node?.control?.description || '—',
-                    })
-                  }
-                  onMouseLeave={() => setHoveredSubcontrol(null)}
-                  className="underline cursor-pointer"
-                >
-                  {subcontrol?.node?.refCode}
-                </span>
-              )
-            })}
-          </div>
-        )}
+            {obj.subcontrols.edges.map((subcontrol) =>
+              subcontrol?.node ? (
+                <Popover key={subcontrol.node.id} open={subcontrol.node.id === hoveredSubcontrol?.id}>
+                  <div onMouseLeave={() => setHoveredSubcontrol(null)}>
+                    <PopoverTrigger
+                      asChild
+                      onMouseEnter={() =>
+                        setHoveredSubcontrol({
+                          id: subcontrol?.node?.id || '',
+                          parentRefCode: subcontrol?.node?.control?.refCode || '—',
+                          parentDescription: subcontrol?.node?.control?.description || '—',
+                          parentId: subcontrol?.node?.control?.id || '',
+                        })
+                      }
+                    >
+                      <span className="underline cursor-pointer  pb-1">{subcontrol.node.refCode}</span>
+                    </PopoverTrigger>
+                    {hoveredSubcontrol?.id === subcontrol.node.id && (
+                      <PopoverContent asChild align="start">
+                        <div className="bg-background text-xs border border-border rounded-md p-4 grid grid-cols-[auto,1fr] gap-y-3 gap-x-5 max-w-xs">
+                          <span className="font-medium">Parent control</span>
+                          <Link href={`/controls/${hoveredSubcontrol.parentId}`}>
+                            <span className="text-blue-500 underline">{hoveredSubcontrol.parentRefCode}</span>
+                          </Link>
 
-        {hoveredSubcontrol && (
-          <div className="text-xs border border-border rounded-md p-4 grid grid-cols-[auto,1fr] gap-y-3 gap-x-5">
-            <span className="font-medium text-foreground">Parent control</span>
-            <span className=" underline cursor-pointer">{hoveredSubcontrol.parentRefCode}</span>
-
-            <span className="font-medium text-foreground">Details</span>
-            <div>{convertToReadOnly(hoveredSubcontrol.parentDescription, 0)}</div>
-          </div>
-        )}
-
-        {hoveredControl && (
-          <div className="text-xs border border-border rounded-md p-4 grid grid-cols-[auto,1fr] gap-y-3 gap-x-5">
-            <span className="font-medium text-foreground">Standard</span>
-            <span className=" underline cursor-pointer">{hoveredControl.shortName}</span>
-
-            <span className="font-medium text-foreground">Details</span>
-            <div>{convertToReadOnly(hoveredControl.description, 0)}</div>
+                          <span className="font-medium">Details</span>
+                          <div>{convertToReadOnly(hoveredSubcontrol.parentDescription, 0)}</div>
+                        </div>
+                      </PopoverContent>
+                    )}
+                  </div>
+                </Popover>
+              ) : null,
+            )}
           </div>
         )}
       </div>

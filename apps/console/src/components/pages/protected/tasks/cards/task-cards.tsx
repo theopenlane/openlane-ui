@@ -3,12 +3,12 @@
 import React from 'react'
 import { Calendar, CircleUser, ListChecks } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
-import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { Task } from '@repo/codegen/src/schema.ts'
 import { formatDate } from '@/utils/date'
 import { TaskStatusMapper } from '../util/task'
 import { TaskStatusIconMapper } from '@/components/shared/icon-enum/task-enum.tsx'
+import { useRouter } from 'next/navigation'
 
 type TTaskCardsProps = {
   tasks: Task[]
@@ -16,12 +16,7 @@ type TTaskCardsProps = {
 }
 
 const TaskCards: React.FC<TTaskCardsProps> = (props: TTaskCardsProps) => {
-  const { setSelectedTask } = useTaskStore()
-
-  const handleRowClick = (task: Task) => {
-    setSelectedTask(task.id ?? null)
-  }
-
+  const { replace } = useRouter()
   if (props.isError) {
     return <p className="text-red-500">Error loading tasks</p>
   }
@@ -32,7 +27,15 @@ const TaskCards: React.FC<TTaskCardsProps> = (props: TTaskCardsProps) => {
           const fullName = task.assignee?.displayName
 
           return (
-            <Card key={task.id} className="w-full max-w-md cursor-pointer" onClick={() => handleRowClick(task)}>
+            <Card
+              key={task.id}
+              className="w-full max-w-md cursor-pointer"
+              onClick={() => {
+                const params = new URLSearchParams(window.location.search)
+                params.set('id', task.id)
+                replace(`?${params.toString()}`)
+              }}
+            >
               <div className="flex py-1.5 px-4 justify-between items-center mb-2 border-b gap-2">
                 <h3 className="font-semibold truncate">{task.title}</h3>
               </div>

@@ -49,6 +49,7 @@ import { fileDownload } from '@/components/shared/lib/export.ts'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { ControlEvidenceRenewDialog } from '@/components/pages/protected/controls/control-evidence/control-evidence-renew-dialog.tsx'
 import { EvidenceIconMapper } from '@/components/shared/icon-enum/evidence-enum.tsx'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
 
 type TEvidenceDetailsSheet = {
   controlId: string
@@ -72,7 +73,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const { data, isLoading: fetching } = useGetEvidenceById(selectedControlEvidence)
   const evidence = data?.evidence
   const { data: createdByUser } = useGetCurrentUser(evidence?.createdBy)
-  const { data: updatedByUser } = useGetCurrentUser(evidence?.updatedBy)
+  const { users } = useGetOrgUserList({ where: { hasUserWith: [{ idIn: evidence?.updatedBy ? [evidence.updatedBy] : [] }] } })
   const statusOptions = Object.values(EvidenceEvidenceStatus)
 
   const { form } = useFormSchema()
@@ -92,6 +93,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
         creationDate: evidence.creationDate ? new Date(evidence.creationDate as string) : undefined,
         status: evidence?.status ? Object.values(EvidenceEvidenceStatus).find((type) => type === evidence?.status) : undefined,
         tags: evidence?.tags ?? [],
+        collectionProcedure: evidence?.collectionProcedure ?? '',
       })
 
       if (evidence?.tags) {
@@ -268,7 +270,10 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                     )}
                   />
                 ) : (
-                  <>{!!evidence?.description && <div className="mt-5">{evidence.description}</div>}</>
+                  <div className="mt-5">
+                    <FormLabel className="font-bold">Description</FormLabel>
+                    {evidence?.description ? <p>{evidence?.description}</p> : <p className="text-gray-500">no description provided</p>}
+                  </div>
                 )}
 
                 {isEditing ? (
@@ -289,10 +294,13 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                     )}
                   />
                 ) : (
-                  <>{!!evidence?.collectionProcedure && <div className="mt-5">{evidence.collectionProcedure}</div>}</>
+                  <div className="mt-5">
+                    <FormLabel className="font-bold">Collection Procedure</FormLabel>
+                    {evidence?.collectionProcedure ? <p>{evidence?.collectionProcedure}</p> : <p className="text-gray-500">no collection procedure provided</p>}
+                  </div>
                 )}
 
-                <div className="relative grid grid-cols-2 gap-8 p-4 border rounded-lg  mt-10">
+                <div className="relative grid grid-cols-2 gap-8 p-4 border rounded-lg mt-10">
                   <div className="absolute top-0 bottom-0 left-1/2 w-px border" />
 
                   {/* Left Column */}
@@ -495,8 +503,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                       </div>
                       <div className="text-sm text-left w-[200px]">
                         <p className="text-sm flex items-center ">
-                          <Avatar entity={updatedByUser?.user as User} variant="small" />
-                          <span>{updatedByUser?.user?.displayName}</span>
+                          <Avatar entity={users?.[0] as User} variant="small" />
+                          <span>{users?.[0]?.displayName}</span>
                         </p>
                       </div>
                     </div>

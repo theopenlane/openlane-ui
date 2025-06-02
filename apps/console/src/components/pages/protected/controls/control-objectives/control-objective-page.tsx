@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useGetAllControlObjectives } from '@/lib/graphql-hooks/control-objectives'
 import { ControlObjectiveFieldsFragment } from '@repo/codegen/src/schema'
-import { ArrowRight, ChevronRight, ChevronsDownUp, ChevronsUpDown, CirclePlus, Pencil, Settings2 } from 'lucide-react'
+import { ArrowRight, ChevronRight, ChevronsDownUp, CirclePlus, List, Pencil, Settings2 } from 'lucide-react'
 import CreateControlObjectiveSheet from '@/components/pages/protected/controls/control-objectives/create-control-objective-sheet'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Button } from '@repo/ui/button'
@@ -28,6 +28,15 @@ const ControlObjectivePage = () => {
   })
 
   const edges = data?.controlObjectives?.edges?.filter((edge): edge is { node: ControlObjectiveFieldsFragment } => !!edge?.node)
+
+  const toggleAll = () => {
+    if (!edges) return
+
+    const allIds = edges.map((edge) => edge.node.id)
+    const hasAllExpanded = allIds.every((id) => expandedItems.includes(id))
+
+    setExpandedItems(hasAllExpanded ? [] : allIds)
+  }
 
   const expandFirstObjective = (ids: string[]) => {
     if (ids.length > 0) {
@@ -97,11 +106,11 @@ const ControlObjectivePage = () => {
       <div className="flex justify-between items-center">
         <PageHeading heading="Control Objectives" />
         <div className="flex gap-2.5 items-center">
-          <Button className="h-8 !px-2" variant="outline" onClick={() => setExpandedItems([])} icon={<ChevronsDownUp />} iconPosition="left">
-            Collapse all
-          </Button>
-          <Button className="h-8 !px-2" variant="outline" onClick={() => setExpandedItems(edges.map((e) => e.node.id))} icon={<ChevronsUpDown />} iconPosition="left">
-            Expand all
+          <Button type="button" className="h-8 !px-2" variant="outline" onClick={toggleAll}>
+            <div className="flex">
+              <List size={16} />
+              <ChevronsDownUp size={16} />
+            </div>
           </Button>
           <Button className="h-8 !px-2" icon={<CirclePlus />} iconPosition="left" onClick={() => setShowCreateSheet(true)}>
             Create Objective

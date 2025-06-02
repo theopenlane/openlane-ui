@@ -149,6 +149,22 @@ export const INTERNAL_POLICY_BY_ID = gql`
       }
       totalCount
     }
+    subcontrols {
+      edges {
+        node {
+          id
+          displayID
+          refCode
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      totalCount
+    }
     programs {
       edges {
         node {
