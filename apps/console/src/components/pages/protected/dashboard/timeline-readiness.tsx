@@ -78,6 +78,15 @@ const TimelineReadiness = () => {
     }
   }
 
+  const handleCancel = () => {
+    form.reset({
+      startDate: program?.startDate ? new Date(program.startDate) : null,
+      endDate: program?.endDate ? new Date(program.endDate) : null,
+      status: program?.status ?? ProgramProgramStatus.NOT_STARTED,
+    })
+    setIsEditing(false)
+  }
+
   useEffect(() => {
     if (program) {
       form.reset({
@@ -100,14 +109,19 @@ const TimelineReadiness = () => {
           <div className="flex justify-between items-center">
             <h2 className="text-lg font-semibold mb-4">Timeline & Readiness</h2>
             {!isEditing && (
-              <Button variant="outline" type="button" icon={<Pencil />} iconPosition="left" onClick={() => setIsEditing(true)}>
+              <Button className="!h-8 !p-2" variant="outline" type="button" icon={<Pencil />} iconPosition="left" onClick={() => setIsEditing(true)}>
                 Edit
               </Button>
             )}
             {isEditing && (
-              <Button variant="outline" type="submit" icon={<Pencil />} iconPosition="left" disabled={isPending}>
-                Save edit
-              </Button>
+              <div className="flex gap-2">
+                <Button className="!h-8 !p-2" variant="outline" type="submit" icon={<Pencil />} iconPosition="left" disabled={isPending}>
+                  Save edit
+                </Button>
+                <Button type="button" variant="back" className="!h-8 !p-2" onClick={handleCancel}>
+                  Cancel
+                </Button>
+              </div>
             )}
           </div>
 
