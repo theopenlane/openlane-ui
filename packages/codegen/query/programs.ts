@@ -85,6 +85,7 @@ export const GET_PROGRAM_EDGES_FOR_WIZARD = gql`
             firstName
             lastName
             role
+            displayName
           }
         }
       }
