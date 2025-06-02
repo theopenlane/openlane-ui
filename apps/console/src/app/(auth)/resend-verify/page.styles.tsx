@@ -2,7 +2,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 
 const pageStyles = tv({
   slots: {
-    content: 'flex items-center justify-center h-screen relative',
+    content: 'flex items-center justify-center h-screen relative m-auto',
     form: 'w-full relative z-3 px-4',
   },
 })
