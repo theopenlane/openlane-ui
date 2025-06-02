@@ -44,7 +44,7 @@ export const PersonalAccessTokenTable = () => {
   const [filters, setFilters] = useState<CommonWhereType | null>(null)
   const [orderBy, setOrderBy] = useState<CommonOrderByType>([
     {
-      field: PersonalAccessTokenOrderField.name,
+      field: PersonalAccessTokenOrderField.created_at,
       direction: OrderDirection.DESC,
     },
   ])

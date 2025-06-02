@@ -33,7 +33,7 @@ const ControlsTable: React.FC = () => {
   const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>([
     {
       field: ControlOrderField.ref_code,
-      direction: OrderDirection.DESC,
+      direction: OrderDirection.ASC,
     },
   ])
   const [searchTerm, setSearchTerm] = useState('')
