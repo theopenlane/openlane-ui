@@ -265,7 +265,7 @@ const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardPro
             })}
           </ul>
           <div className={buttonRow()}>
-            <Button onClick={stepper.prev} disabled={stepper.isFirst}>
+            <Button onClick={stepper.prev} disabled={stepper.isFirst || isSubmitting}>
               Back
             </Button>
             {!stepper.isLast ? (
@@ -278,8 +278,8 @@ const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardPro
                 Next
               </Button>
             ) : (
-              <Button disabled={isSubmitting} onClick={handleFormSubmit}>
-                Create Program
+              <Button disabled={isSubmitting} onClick={handleFormSubmit} loading={isSubmitting}>
+                {isSubmitting ? 'Creating Program...' : 'Create Program'}
               </Button>
             )}
           </div>
