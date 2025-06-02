@@ -22,7 +22,7 @@ import { Check } from 'lucide-react'
 import { SummaryCard } from './summary-card'
 import { useCreateProgramWithMembers, useGetProgramEdgesForWizard } from '@/lib/graphql-hooks/programs'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
-import { addDays } from 'date-fns'
+import { addYears } from 'date-fns'
 
 export type FormFields = z.infer<typeof initProgramSchema & typeof programDetailSchema & typeof programInviteSchema & typeof programObjectAssociationSchema>
 
@@ -33,7 +33,7 @@ const { useStepper, steps } = defineStepper(
   { id: 'link', label: 'Associate existing objects', schema: programObjectAssociationSchema },
 )
 const today = new Date()
-const nextDay = addDays(today, 1)
+const oneYearFromToday = addYears(new Date(), 1)
 
 interface ProgramWizardProps {
   onSuccess?: () => void
@@ -220,7 +220,7 @@ const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardPro
 
   useEffect(() => {
     setValue('startDate', today)
-    setValue('endDate', nextDay)
+    setValue('endDate', oneYearFromToday)
   }, [setValue])
 
   useEffect(() => {
