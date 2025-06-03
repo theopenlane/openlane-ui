@@ -159,7 +159,7 @@ export const TokenVerifier = () => {
                     <button type="submit" disabled={isPending} className="p-4 text-button-text bg-brand justify-between items-center rounded-md text-sm h-10 font-bold flex gap-1">
                       <div className="flex items-center">
                         {isPending && <LoaderCircle className="animate-spin mr-2" size={16} />}
-                        <span>{isPending ? 'Rejoining...' : 'Rejoin the waitlist'}</span>
+                        <span>{isPending ? 'Resending...' : 'Resend Confirmation'}</span>
                       </div>
                       <CircleArrowRight size={16} />
                     </button>
