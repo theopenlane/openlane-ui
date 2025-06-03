@@ -120,8 +120,17 @@ export const TokenVerifier = () => {
         </div>
 
         <div className={messageWrapper()}>
-          <TriangleAlert size={37} className="text-warning" strokeWidth={1.5} />
-          <p className="text-sm">{submittedEmail ? `We sent an email confirmation to ${submittedEmail}.` : 'No token provided, please check your email for a verification link.'}</p>
+          {submittedEmail ? (
+            <p className="text-sm">
+              You're on the list! We just sent a confirmation to <span className="underline">{submittedEmail}</span>.<br /> Hang tight — we'll be in touch when it's your turn to try the beta.
+            </p>
+          ) : (
+            <>
+              <TriangleAlert size={37} className="text-warning" strokeWidth={1.5} />
+
+              <p className="text-sm">No token provided, please check your email for a verification link.</p>
+            </>
+          )}
         </div>
 
         {!submittedEmail && (
