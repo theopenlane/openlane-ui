@@ -17,6 +17,7 @@ import { TASK_SORT_FIELDS } from '../protected/tasks/table/table-config'
 import { useSearchParams } from 'next/navigation'
 import Frame from '@/assets/Frame'
 import { TaskStatusIconMapper } from '@/components/shared/icon-enum/task-enum.tsx'
+import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task.ts'
 
 type FormattedTask = {
   id: string
@@ -56,7 +57,7 @@ const columns: ColumnDef<FormattedTask>[] = [
       return (
         <span className="flex items-center gap-2 capitalize">
           {icon}
-          {status}
+          {TaskStatusMapper[status]}
         </span>
       )
     },
