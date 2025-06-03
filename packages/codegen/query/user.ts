@@ -7,6 +7,8 @@ export const GET_USER_PROFILE = gql`
       firstName
       lastName
       displayName
+      firstName
+      lastName
       email
       avatarRemoteURL
       avatarFile {

@@ -35712,7 +35712,6 @@ export type GetAllGroupsQuery = {
       node?: {
         __typename?: 'Group'
         id: string
-        name: string
         description?: string | null
         displayName: string
         members: {
@@ -37648,9 +37647,9 @@ export type GetUserProfileQuery = {
   user: {
     __typename?: 'User'
     id: string
+    displayName: string
     firstName?: string | null
     lastName?: string | null
-    displayName: string
     email: string
     avatarRemoteURL?: string | null
     avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
