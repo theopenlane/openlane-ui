@@ -63,6 +63,21 @@ export const useRisksWithFilter = ({ where, pagination, orderBy, enabled = true 
   }
 }
 
+export const useRiskSelect = () => {
+  const { risks, ...rest } = useRisksWithFilter({
+    where: {},
+    enabled: true,
+  })
+
+  const riskOptions =
+    risks?.map((risk) => ({
+      label: risk.name,
+      value: risk.id,
+    })) ?? []
+
+  return { riskOptions, ...rest }
+}
+
 export const useGetRiskById = (riskId: string | null) => {
   const { client } = useGraphQLClient()
 

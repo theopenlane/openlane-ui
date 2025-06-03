@@ -35712,7 +35712,6 @@ export type GetAllGroupsQuery = {
       node?: {
         __typename?: 'Group'
         id: string
-        name: string
         description?: string | null
         displayName: string
         members: {
@@ -37288,22 +37287,8 @@ export type TasksWithFilterQuery = {
         due?: string | null
         displayID: string
         category?: string | null
-        assigner?: {
-          __typename?: 'User'
-          displayName: string
-          firstName?: string | null
-          lastName?: string | null
-          avatarRemoteURL?: string | null
-          avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
-        } | null
-        assignee?: {
-          __typename?: 'User'
-          displayName: string
-          firstName?: string | null
-          lastName?: string | null
-          avatarRemoteURL?: string | null
-          avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
-        } | null
+        assigner?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
+        assignee?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
       } | null
     } | null> | null
   }
@@ -37344,8 +37329,8 @@ export type TaskQuery = {
     due?: string | null
     displayID: string
     details?: string | null
-    assignee?: { __typename?: 'User'; displayName: string; firstName?: string | null; lastName?: string | null; avatarRemoteURL?: string | null; id: string } | null
-    assigner?: { __typename?: 'User'; avatarRemoteURL?: string | null; lastName?: string | null; firstName?: string | null; displayName: string; id: string } | null
+    assignee?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; id: string } | null
+    assigner?: { __typename?: 'User'; avatarRemoteURL?: string | null; displayName: string; id: string } | null
     subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null }
     controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
     risks: { __typename?: 'RiskConnection'; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
@@ -37650,8 +37635,6 @@ export type GetUserProfileQuery = {
   user: {
     __typename?: 'User'
     id: string
-    firstName?: string | null
-    lastName?: string | null
     displayName: string
     email: string
     avatarRemoteURL?: string | null
@@ -37696,15 +37679,7 @@ export type GetAllUsersQuery = {
     __typename?: 'UserConnection'
     edges?: Array<{
       __typename?: 'UserEdge'
-      node?: {
-        __typename?: 'User'
-        id: string
-        firstName?: string | null
-        lastName?: string | null
-        displayName: string
-        avatarRemoteURL?: string | null
-        avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
-      } | null
+      node?: { __typename?: 'User'; id: string; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
     } | null> | null
   }
 }

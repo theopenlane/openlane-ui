@@ -39,7 +39,6 @@ import {
   GetProgramGroupsQuery,
   GetProgramGroupsQueryVariables,
   DeleteProgramMutationVariables,
-  MutationUpdateProgramMembershipArgs,
   UpdateProgramMembershipMutationVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -56,15 +55,6 @@ export const useGetAllPrograms = ({ where, orderBy }: UseGetAllProgramsArgs = {}
     queryKey: ['programs', { where, orderBy }],
     queryFn: async () => client.request(GET_ALL_PROGRAMS, { where, orderBy }),
     enabled: true,
-  })
-}
-
-export const useGetProgramEdgesForWizard = () => {
-  const { client } = useGraphQLClient()
-
-  return useQuery<GetProgramEdgesForWizardQuery>({
-    queryKey: ['programEdgesForWizard'],
-    queryFn: async () => client.request(GET_PROGRAM_EDGES_FOR_WIZARD),
   })
 }
 

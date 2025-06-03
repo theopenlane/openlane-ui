@@ -75,6 +75,17 @@ export const useProcedures = ({ where, orderBy, pagination, enabled = true }: Us
   }
 }
 
+export const useProcedureSelect = () => {
+  const { data, ...rest } = useProcedures({
+    where: {},
+    enabled: true,
+  })
+
+  const procedureOptions = data?.procedures?.edges?.flatMap((edge) => (edge?.node?.id && edge?.node?.name ? [{ label: edge.node.name, value: edge.node.id }] : [])) ?? []
+
+  return { procedureOptions, ...rest }
+}
+
 export const useGetProcedureDetailsById = (procedureId: string | null) => {
   const { client } = useGraphQLClient()
 
