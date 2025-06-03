@@ -111,7 +111,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ category, subcategory, 
         {isEditing || controlData?.referenceID ? (
           <ReferenceProperty
             name="referenceID"
-            label="Reference ID"
+            label="Ref ID"
             tooltip="Internal reference id of the control, used to map across internal systems"
             value={controlData?.referenceID}
             isEditing={isEditing}
@@ -120,7 +120,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ category, subcategory, 
         {isEditing || controlData?.referenceID ? (
           <ReferenceProperty
             name="auditReferenceID"
-            label="Audit Reference ID"
+            label="Auditor ID"
             tooltip="Reference ID used by auditor, may vary from defined reference code from standard"
             value={controlData?.auditorReferenceID}
             isEditing={isEditing}
