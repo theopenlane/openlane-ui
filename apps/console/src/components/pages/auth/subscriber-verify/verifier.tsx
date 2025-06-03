@@ -5,7 +5,7 @@ import { CircleArrowRight, CircleCheckBig, CircleX, LoaderCircle, TriangleAlert 
 import { useEffect, useState } from 'react'
 import { verificationStyles } from './page.styles'
 import { Logo } from '@repo/ui/logo'
-import { OPENLANE_WEBSITE_URL } from '@/constants'
+import { OPENLANE_WEBSITE_URL, SUPPORT_EMAIL } from '@/constants'
 import Link from 'next/link'
 import Linkedin from '@/assets/Linkedin'
 import Discord from '@/assets/Discord'
@@ -79,18 +79,11 @@ export const TokenVerifier = () => {
     const result = await subscribeToNewsletter(email)
 
     if (result.success) {
-      successNotification({
-        title: 'Subscribed!',
-        description: 'We just sent a confirmation to your inbox.',
-      })
       setSubmittedEmail(email)
       setShowResubscribeForm(false)
       form.reset()
     } else {
-      errorNotification({
-        title: 'Subscription failed',
-        description: result.message || 'An unexpected error occurred.',
-      })
+      setError('An unexpected error occurred. Please try again.')
     }
   }
 
@@ -115,7 +108,7 @@ export const TokenVerifier = () => {
   if (!token) {
     return (
       <div className="flex flex-col m-auto self-center z-1 relative">
-        <div className="mx-auto animate-pulse w-96 flex justify-center">
+        <div className="mx-auto animate-pulse flex justify-center">
           <Logo width={213} />
         </div>
 
@@ -177,8 +170,8 @@ export const TokenVerifier = () => {
 
   if (error) {
     return (
-      <div className="flex flex-col m-auto self-center">
-        <div className="mx-auto animate-pulse w-96">
+      <div className="flex flex-col m-auto self-center relative">
+        <div className="mx-auto animate-pulse">
           <Logo width={213} />
         </div>
         <div className={messageWrapper()}>
@@ -188,8 +181,9 @@ export const TokenVerifier = () => {
             <p>If you continue to have issues, please reach out to our support team.</p>
           </div>
         </div>
-
-        <Button className="size-fit mt-4 mx-auto mb-5">Contact Support</Button>
+        <a href={SUPPORT_EMAIL} className="mt-4 mx-auto mb-5">
+          <Button>Contact Support</Button>
+        </a>
         <Footer />
       </div>
     )
@@ -197,8 +191,8 @@ export const TokenVerifier = () => {
 
   if (isVerified) {
     return (
-      <div className="flex flex-col m-auto self-center z-1">
-        <div className="mx-auto animate-pulse w-96 flex justify-center">
+      <div className="flex flex-col m-auto self-center z-1 relative">
+        <div className="mx-auto animate-pulse flex justify-center">
           <Logo width={213} />
         </div>
         <div className={messageWrapper()}>
@@ -213,8 +207,8 @@ export const TokenVerifier = () => {
   }
 
   return (
-    <div className="flex flex-col m-auto self-center">
-      <div className="mx-auto animate-pulse w-96">
+    <div className="flex flex-col m-auto self-center relative">
+      <div className="mx-auto animate-pulse">
         <Logo width={213} />
       </div>
       <div className={loading()}>
