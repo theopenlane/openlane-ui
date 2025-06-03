@@ -61,7 +61,7 @@ export const TokenVerifier = () => {
     return (
       <div className="flex flex-col m-auto self-center">
         <div className="mx-auto animate-pulse w-96">
-          <Logo />
+          <Logo width={213} />
         </div>
         <div className={messageWrapper()}>
           <CircleX size={37} className="text-destructive" strokeWidth={1.5} />
@@ -96,7 +96,7 @@ export const TokenVerifier = () => {
   return (
     <div className="flex flex-col m-auto self-center">
       <div className="mx-auto animate-pulse w-96">
-        <Logo />
+        <Logo width={213} />
       </div>
       <div className={loading()}>
         <LoaderCircle className="animate-spin" size={20} />
