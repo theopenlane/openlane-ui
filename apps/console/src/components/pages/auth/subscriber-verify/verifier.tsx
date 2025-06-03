@@ -1,7 +1,7 @@
 'use client'
 
 import { useSearchParams } from 'next/navigation'
-import { CircleCheckBig, CircleX, LoaderCircle, TriangleAlert } from 'lucide-react'
+import { CircleArrowRight, CircleCheckBig, CircleX, LoaderCircle, TriangleAlert } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { verificationStyles } from './page.styles'
 import { Logo } from '@repo/ui/logo'
@@ -11,6 +11,19 @@ import Linkedin from '@/assets/Linkedin'
 import Discord from '@/assets/Discord'
 import Github from '@/assets/Github'
 import { Button } from '@repo/ui/button'
+import { Form, FormControl, FormField } from '@repo/ui/form'
+import { Input } from '@repo/ui/input'
+import { z } from 'zod'
+import { CREATE_SUBSCRIBER } from '@repo/codegen/query/subscribe'
+import { extractGraphQlResponseError } from '@/utils/graphQlErrorMatcher'
+import { GraphQlResponseError } from '@/constants/graphQlResponseError'
+import { useNotification } from '@/hooks/useNotification'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+
+const formSchema = z.object({
+  email: z.string().email(),
+})
 
 export const TokenVerifier = () => {
   const { messageWrapper, loading } = verificationStyles()
@@ -20,6 +33,62 @@ export const TokenVerifier = () => {
 
   const [isVerified, setIsVerified] = useState(false)
   const [error, setError] = useState('')
+  const [showResubscribeForm, setShowResubscribeForm] = useState(false)
+  const [isPending, setIsPending] = useState(false)
+
+  const { successNotification, errorNotification } = useNotification()
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: '',
+    },
+  })
+
+  const subscribeToNewsletter = async (email: string) => {
+    try {
+      setIsPending(true)
+
+      const res = await fetch('/api/graphql', {
+        method: 'POST',
+        body: JSON.stringify({
+          query: CREATE_SUBSCRIBER,
+          variables: { input: { email } },
+        }),
+      })
+
+      const graphQlCreateSubscriberError = await extractGraphQlResponseError(res)
+
+      if (graphQlCreateSubscriberError && graphQlCreateSubscriberError === GraphQlResponseError.MaxAttemptsErrorCode) {
+        errorNotification({
+          title: 'Subscription failed',
+          description: 'Too many attempts',
+        })
+      }
+
+      return { success: true }
+    } catch {
+      return { success: false, message: 'An error occurred while subscribing.' }
+    } finally {
+      setIsPending(false)
+    }
+  }
+
+  const onSubmit = async ({ email }: z.infer<typeof formSchema>) => {
+    const result = await subscribeToNewsletter(email)
+
+    if (result.success) {
+      successNotification({
+        title: 'Subscribed!',
+        description: 'You have been added to the waitlist.',
+      })
+    } else {
+      errorNotification({
+        title: 'Subscription failed',
+        description: result.message || 'An unexpected error occurred.',
+      })
+    }
+  }
 
   useEffect(() => {
     const verifyToken = async () => {
@@ -43,7 +112,7 @@ export const TokenVerifier = () => {
 
   if (!token) {
     return (
-      <div className="flex flex-col m-auto self-center z-1">
+      <div className="flex flex-col m-auto self-center z-1 relative">
         <div className="mx-auto animate-pulse w-96 flex justify-center">
           <Logo width={213} />
         </div>
@@ -51,7 +120,36 @@ export const TokenVerifier = () => {
           <TriangleAlert size={37} className="text-warning" strokeWidth={1.5} />
           <p className="text-sm">No token provided, please check your email for a verification link.</p>
         </div>
-        <Button className="size-fit mt-4 mx-auto mb-5">Request a new one</Button>
+        {!showResubscribeForm ? (
+          <Button className="size-fit mt-4 mx-auto mb-5" onClick={() => setShowResubscribeForm(true)}>
+            Request a new one
+          </Button>
+        ) : (
+          <div className="flex justify-center mt-2">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col items-center justify-center gap-2">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <>
+                      <FormControl>
+                        <Input type="email" placeholder="Your email" {...field} />
+                      </FormControl>
+                    </>
+                  )}
+                />
+                <button type="submit" disabled={isPending} className="p-4 text-button-text bg-brand justify-between items-center rounded-md text-sm h-10 font-bold flex gap-1">
+                  <div className="flex items-center">
+                    {isPending && <LoaderCircle className="animate-spin mr-2" size={16} />}
+                    <span>{isPending ? 'Rejoining...' : 'Rejoin the waitlist'}</span>
+                  </div>
+                  <CircleArrowRight size={16} />
+                </button>
+              </form>
+            </Form>
+          </div>
+        )}
         <Footer />
       </div>
     )
