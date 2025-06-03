@@ -53,7 +53,7 @@ const TaskDetailsSheet = () => {
   const [comments, setComments] = useState<TCommentData[]>([])
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
   const [associations, setAssociations] = useState<TObjectAssociationMap>({})
-  const { mutateAsync: updateTask } = useUpdateTask()
+  const { mutateAsync: updateTask, isPending } = useUpdateTask()
 
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
@@ -294,11 +294,11 @@ const TaskDetailsSheet = () => {
                   </Button>
                   {isEditing ? (
                     <div className="flex gap-2">
-                      <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
+                      <Button disabled={isPending} type="button" variant="outline" onClick={() => setIsEditing(false)}>
                         Cancel
                       </Button>
-                      <Button onClick={form.handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
-                        Save
+                      <Button loading={isPending} disabled={isPending} onClick={form.handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
+                        {isPending ? 'Saving...' : 'Save'}
                       </Button>
                     </div>
                   ) : (
@@ -306,7 +306,7 @@ const TaskDetailsSheet = () => {
                       Edit
                     </Button>
                   )}
-                  {taskData?.displayID && <DeleteTaskDialog taskName={taskData.displayID} />}
+                  {taskData?.displayID && id && <DeleteTaskDialog taskName={taskData.displayID} taskId={id} />}
                 </div>
               </div>
             </SheetHeader>

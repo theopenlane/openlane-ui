@@ -35,9 +35,22 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, vari
       const plateEditor = createPlateEditor({
         plugins: [...viewPlugins],
       })
-      editor.children = plateEditor.api.html.deserialize({
+
+      const slateNodes = plateEditor.api.html.deserialize({
         element: initialValue,
       }) as Value
+
+      // Check if initialValue is plain text e.g. when uploading through csv
+      if (Array.isArray(slateNodes) && slateNodes.length === 1 && typeof (slateNodes[0] as any).text === 'string' && !(slateNodes[0] as any).type) {
+        editor.children = [
+          {
+            type: 'p',
+            children: slateNodes as any[],
+          },
+        ]
+      } else {
+        editor.children = slateNodes
+      }
     }
   }, [])
 

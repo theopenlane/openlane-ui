@@ -1,7 +1,6 @@
 'use client'
 import React, { useState } from 'react'
 import { useNotification } from '@/hooks/useNotification'
-import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
 import { useQueryClient } from '@tanstack/react-query'
 import { useDeleteTask } from '@/lib/graphql-hooks/tasks'
 import { Trash2 } from 'lucide-react'
@@ -11,28 +10,32 @@ import { useSession } from 'next-auth/react'
 import { useAccountRole } from '@/lib/authz/access-api.ts'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
 import { canDelete } from '@/lib/authz/utils.ts'
+import { useRouter, useSearchParams } from 'next/navigation'
 
-const DeleteTaskDialog: React.FC<{ taskName: string }> = ({ taskName }) => {
-  const { selectedTask, setSelectedTask } = useTaskStore()
+const DeleteTaskDialog: React.FC<{ taskName: string; taskId: string }> = ({ taskName, taskId }) => {
   const queryClient = useQueryClient()
+  const searchParams = useSearchParams()
+  const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
   const { data: session } = useSession()
-  const { data: permission } = useAccountRole(session, ObjectEnum.TASK, selectedTask!)
+  const { data: permission } = useAccountRole(session, ObjectEnum.TASK, taskId)
   const [isOpen, setIsOpen] = useState(false)
 
   const { mutateAsync: deleteTask } = useDeleteTask()
 
   const handleDelete = async () => {
-    if (!selectedTask) return
+    if (!taskId) return
 
     try {
-      await deleteTask({ deleteTaskId: selectedTask as string })
+      await deleteTask({ deleteTaskId: taskId })
       queryClient.invalidateQueries({ queryKey: ['tasks'] })
       successNotification({ title: `Task deleted successfully.` })
-      setSelectedTask(null)
     } catch (error) {
       errorNotification({ title: 'Failed to delete task.' })
     } finally {
+      const newSearchParams = new URLSearchParams(searchParams.toString())
+      newSearchParams.delete('id')
+      router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
       setIsOpen(false)
     }
   }
