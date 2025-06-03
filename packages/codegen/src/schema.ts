@@ -35713,7 +35713,7 @@ export type GetAllGroupsQuery = {
         __typename?: 'Group'
         id: string
         description?: string | null
-        displayName: string
+        name: string
         members: {
           __typename?: 'GroupMembershipConnection'
           edges?: Array<{
@@ -37647,9 +37647,9 @@ export type GetUserProfileQuery = {
   user: {
     __typename?: 'User'
     id: string
-    displayName: string
     firstName?: string | null
     lastName?: string | null
+    displayName: string
     email: string
     avatarRemoteURL?: string | null
     avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
