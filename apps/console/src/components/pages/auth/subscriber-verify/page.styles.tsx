@@ -2,9 +2,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 
 const verificationStyles = tv({
   slots: {
-    errorMessage: 'mt-14',
-    success: 'mt-14 bg-opacity-20 p-5 rounded-md flex flex-col justify-center gap-3 items-center',
-    successIcon: 'mt-1',
+    messageWrapper: 'mt-14 p-5 flex gap-6 bg-card rounded-lg items-center mx-2',
     loading: 'mt-14 p-5 rounded-md flex gap-3 justify-center items-center',
   },
 })
