@@ -16,6 +16,7 @@ import { formatDateTime } from '@/utils/date'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
 import { getPoliciesColumns } from '@/components/pages/protected/policies/table/columns.tsx'
 import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens.ts'
+import { VisibilityState } from '@tanstack/react-table'
 
 export const PoliciesTable = () => {
   const router = useRouter()
@@ -23,6 +24,7 @@ export const PoliciesTable = () => {
   const [filters, setFilters] = useState<Record<string, any> | null>(null)
   const [memberIds, setMemberIds] = useState<(Maybe<string> | undefined)[]>()
   const [searchTerm, setSearchTerm] = useState('')
+
   const [orderBy, setOrderBy] = useState<GetInternalPoliciesListQueryVariables['orderBy']>([
     {
       field: InternalPolicyOrderField.name,
@@ -71,6 +73,8 @@ export const PoliciesTable = () => {
   const { policies, isLoading: fetching, paginationMeta } = useInternalPolicies({ where, orderBy: orderByFilter, pagination, enabled: !!filters })
   const { users } = useGetOrgUserList({ where: userListWhere })
   const { tokens } = useGetApiTokensByIds({ where: tokensWhere })
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+  const { columns, mappedColumns } = getPoliciesColumns({ users, tokens })
 
   useEffect(() => {
     if (policies && (!memberIds || memberIds.length === 0)) {
@@ -87,30 +91,32 @@ export const PoliciesTable = () => {
     router.push(`/policies/${rowData.id}/view`)
   }
 
+  function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
+    return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
+  }
+
   const handleExport = () => {
-    const exportableColumns = getPoliciesColumns({ users })
-      .filter((col): col is ColumnDef<InternalPolicy> & { accessorKey: string; header: string } => 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string')
-      .map((col) => {
-        const key = col.accessorKey as keyof InternalPolicy
-        const label = col.header
+    const exportableColumns = columns.filter(isVisibleColumn).map((col) => {
+      const key = col.accessorKey as keyof InternalPolicy
+      const label = col.header
 
-        return {
-          label,
-          accessor: (policy: InternalPolicy) => {
-            const value = policy[key]
+      return {
+        label,
+        accessor: (policy: InternalPolicy) => {
+          const value = policy[key]
 
-            if (key === 'updatedAt' || key === 'createdAt') {
-              return formatDateTime(value as string)
-            }
+          if (key === 'updatedAt' || key === 'createdAt') {
+            return formatDateTime(value as string)
+          }
 
-            if (key === 'summary') {
-              return (value as string) ?? ''
-            }
+          if (key === 'summary') {
+            return (value as string) ?? ''
+          }
 
-            return typeof value === 'string' || typeof value === 'number' ? value : ''
-          },
-        }
-      })
+          return typeof value === 'string' || typeof value === 'number' ? value : ''
+        },
+      }
+    })
 
     exportToCSV(policies, exportableColumns, 'internal_policies')
   }
@@ -128,18 +134,23 @@ export const PoliciesTable = () => {
           setPagination(DEFAULT_PAGINATION)
         }}
         handleExport={handleExport}
+        mappedColumns={mappedColumns}
+        columnVisibility={columnVisibility}
+        setColumnVisibility={setColumnVisibility}
       />
 
       <DataTable
         sortFields={INTERNAL_POLICIES_SORTABLE_FIELDS}
         onSortChange={setOrderBy}
-        columns={getPoliciesColumns({ users, tokens })}
+        columns={columns}
         data={policies}
         onRowClick={handleRowClick}
         loading={fetching}
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
         paginationMeta={paginationMeta}
+        columnVisibility={columnVisibility}
+        setColumnVisibility={setColumnVisibility}
       />
     </>
   )

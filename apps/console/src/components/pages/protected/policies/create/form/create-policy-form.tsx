@@ -21,6 +21,7 @@ import StatusCard from '@/components/pages/protected/policies/create/cards/statu
 import AssociationCard from '@/components/pages/protected/policies/create/cards/association-card.tsx'
 import TagsCard from '@/components/pages/protected/policies/create/cards/tags-card.tsx'
 import { DOCS_URL } from '@/constants'
+import AuthorityCard from '@/components/pages/protected/policies/view/cards/authority-card.tsx'
 
 type TCreatePolicyFormProps = {
   policy?: InternalPolicyByIdFragment
@@ -288,6 +289,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
           </Button>
         </div>
         <div className="space-y-4">
+          <AuthorityCard form={form} isEditing={true} inputClassName="!w-[162px]" />
           <StatusCard form={form} metadata={metadata} />
           <AssociationCard />
           <TagsCard form={form} />

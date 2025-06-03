@@ -151,7 +151,7 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
       <SheetHeader>{!isEditing && <SheetTitle className="text-left">Create Implementation</SheetTitle>}</SheetHeader>
       <div className="p-4 border rounded-lg">
         <div className="border-b flex items-center py-2.5">
-          <Label className="self-start whitespace-nowrap min-w-36">Desired outcome</Label>
+          <Label className="self-start whitespace-nowrap min-w-36">Implementation Details</Label>
           <Controller control={control} name="details" render={({ field }) => <PlateEditor initialValue={defaultValues?.details} onChange={(val) => field.onChange(val)} variant="basic" />} />
         </div>
 

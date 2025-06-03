@@ -4,7 +4,11 @@ export const GET_USER_PROFILE = gql`
   query GetUserProfile($userId: ID!) {
     user(id: $userId) {
       id
+      firstName
+      lastName
       displayName
+      firstName
+      lastName
       email
       avatarRemoteURL
       avatarFile {

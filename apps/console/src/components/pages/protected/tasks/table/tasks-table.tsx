@@ -8,6 +8,7 @@ import { taskColumns } from '@/components/pages/protected/tasks/table/columns.ts
 import { TASK_SORT_FIELDS } from '@/components/pages/protected/tasks/table/table-config.ts'
 import { useTasksWithFilter } from '@/lib/graphql-hooks/tasks.ts'
 import { useRouter } from 'next/navigation'
+import { VisibilityState } from '@tanstack/react-table'
 
 type TTasksTableProps = {
   onSortChange?: (sortCondition: any[]) => void
@@ -15,8 +16,10 @@ type TTasksTableProps = {
   onPaginationChange: (pagination: TPagination) => void
   whereFilter: Record<string, any> | null
   orderByFilter: TaskOrder[] | TaskOrder | undefined
+  columnVisibility?: VisibilityState
+  setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
 }
-const TasksTable = forwardRef(({ onSortChange, pagination, onPaginationChange, whereFilter, orderByFilter }: TTasksTableProps, ref) => {
+const TasksTable = forwardRef(({ onSortChange, pagination, onPaginationChange, whereFilter, orderByFilter, columnVisibility, setColumnVisibility }: TTasksTableProps, ref) => {
   const { replace } = useRouter()
   const { tasks, isLoading: fetching, data, isFetching, isError } = useTasksWithFilter({ where: whereFilter, orderBy: orderByFilter, pagination, enabled: !!whereFilter })
 
@@ -44,6 +47,8 @@ const TasksTable = forwardRef(({ onSortChange, pagination, onPaginationChange, w
         pagination={pagination}
         onPaginationChange={onPaginationChange}
         paginationMeta={{ totalCount: data?.tasks.totalCount, pageInfo: data?.tasks?.pageInfo, isLoading: isFetching }}
+        columnVisibility={columnVisibility}
+        setColumnVisibility={setColumnVisibility}
       />
     </div>
   )

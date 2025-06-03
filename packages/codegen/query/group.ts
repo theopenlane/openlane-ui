@@ -6,7 +6,6 @@ export const GET_ALL_GROUPS = gql`
       edges {
         node {
           id
-          name
           description
           displayName
           members {

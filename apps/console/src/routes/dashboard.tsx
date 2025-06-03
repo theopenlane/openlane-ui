@@ -112,6 +112,10 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
         href: '/organization-settings/general-settings',
       },
       {
+        title: 'Authentication',
+        href: '/organization-settings/authentication',
+      },
+      {
         title: 'Members',
         href: '/organization-settings/members',
       },
