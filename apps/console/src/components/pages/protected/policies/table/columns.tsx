@@ -10,8 +10,8 @@ type TPoliciesColumnsProps = {
   tokens?: ApiToken[]
 }
 
-export const getPoliciesColumns = ({ users, tokens }: TPoliciesColumnsProps): ColumnDef<InternalPolicy>[] => {
-  return [
+export const getPoliciesColumns = ({ users, tokens }: TPoliciesColumnsProps) => {
+  const columns: ColumnDef<InternalPolicy>[] = [
     {
       accessorKey: 'name',
       header: 'Name',
@@ -62,4 +62,13 @@ export const getPoliciesColumns = ({ users, tokens }: TPoliciesColumnsProps): Co
       maxSize: 120,
     },
   ]
+
+  const mappedColumns = columns
+    .filter((column): column is { accessorKey: string; header: string } => 'accessorKey' in column && typeof column.accessorKey === 'string' && 'header' in column && typeof column.header === 'string')
+    .map((column) => ({
+      accessorKey: column.accessorKey,
+      header: column.header,
+    }))
+
+  return { columns, mappedColumns }
 }
