@@ -5,6 +5,8 @@ export const GET_USER_PROFILE = gql`
     user(id: $userId) {
       id
       displayName
+      firstName
+      lastName
       email
       avatarRemoteURL
       avatarFile {

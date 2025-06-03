@@ -37636,6 +37636,8 @@ export type GetUserProfileQuery = {
     __typename?: 'User'
     id: string
     displayName: string
+    firstName?: string | null
+    lastName?: string | null
     email: string
     avatarRemoteURL?: string | null
     avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
