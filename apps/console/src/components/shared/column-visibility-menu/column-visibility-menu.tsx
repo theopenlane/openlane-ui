@@ -17,9 +17,7 @@ const ColumnVisibilityMenu: React.FC<TColumnVisibilityMenuProps> = ({ mappedColu
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button icon={<EyeIcon />} iconPosition="left" variant="outline" size="md" className="ml-auto mr-2">
-          Select Columns
-        </Button>
+        <Button icon={<EyeIcon />} iconPosition="left" variant="outline" size="md" className="h-8 !px-0 !pl-2"></Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         {mappedColumns.map((column, index) => {

@@ -11,7 +11,7 @@ export const TaskStatusIconMapper: Record<TaskTaskStatus, React.ReactNode> = {
 }
 
 export const TaskIconBtn = (
-  <div className="flex items-center space-x-2">
+  <div className="flex items-center space-x-2 hover:bg-muted">
     <CirclePlus size={16} strokeWidth={2} />
     <span>Task</span>
   </div>

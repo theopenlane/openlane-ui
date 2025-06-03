@@ -243,7 +243,7 @@ const ControlDetailsPage: React.FC = () => {
                         }}
                       />
                       <Link href={`/controls/${id}/create-subcontrol`}>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-2 hover:bg-muted">
                           <CirclePlus size={16} strokeWidth={2} />
                           <span>Subcontrol</span>
                         </div>
@@ -254,7 +254,7 @@ const ControlDetailsPage: React.FC = () => {
                 <Menu
                   content={
                     <>
-                      <div className="flex items-center space-x-2 cursor-pointer" onClick={(e) => handleEdit(e)}>
+                      <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={(e) => handleEdit(e)}>
                         <PencilIcon size={16} strokeWidth={2} />
                         <span>Edit</span>
                       </div>

@@ -68,7 +68,7 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
           <Menu
             trigger={CreateBtn}
             content={
-              <div className="flex items-center space-x-2 cursor-pointer" onClick={handleCreateNew}>
+              <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleCreateNew}>
                 <CirclePlus size={16} strokeWidth={2} />
                 <span>Procedure</span>
               </div>
@@ -81,14 +81,14 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
               {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
                 <BulkCSVCreateProcedureDialog
                   trigger={
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 hover:bg-muted">
                       <Import size={16} strokeWidth={2} />
                       <span>Import existing document</span>
                     </div>
                   }
                 />
               )}
-              <div className="flex items-center space-x-2 cursor-pointer" onClick={handleExport}>
+              <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleExport}>
                 <DownloadIcon size={16} strokeWidth={2} />
                 <span>Export</span>
               </div>
