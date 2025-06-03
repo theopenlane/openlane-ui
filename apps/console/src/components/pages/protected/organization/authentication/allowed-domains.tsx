@@ -111,15 +111,16 @@ const AllowedDomains = () => {
               if (inputError) setInputError(null)
             }}
           />
-          <Button className="h-7 p-2" type="submit" disabled={!newDomain.trim()}>
-            Add domain
-          </Button>
+
+          <button>
+            <CirclePlus size={16} className="text-brand cursor-pointer" />
+          </button>
         </form>
 
         {inputError && <p className="mt-2 text-sm text-destructive">{inputError}</p>}
 
-        <Button className="h-8 p-2 mt-4" variant="outline" icon={<CirclePlus size={13} />} iconPosition="left" onClick={saveChanges} disabled={isPending}>
-          Save changes
+        <Button className="h-8 p-2 mt-4" variant="outline" onClick={saveChanges} disabled={isPending}>
+          Save
         </Button>
       </div>
     </div>
