@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { Button } from '@repo/ui/button'
 import { Separator } from '@repo/ui/separator'
@@ -52,7 +52,6 @@ const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardPro
   const stepper = useStepper()
 
   const { mutateAsync: createNewProgram } = useCreateProgramWithMembers()
-  // const { data: edgeData } = useGetProgramEdgesForWizard()
 
   const form = useForm({
     mode: 'onTouched',
@@ -69,19 +68,6 @@ const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardPro
   const { isValid, isDirty } = useFormState({ control: form.control })
   const { isValid: isFullFormValid } = useFormState({ control: fullForm.control })
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  // const groupRes = edgeData?.groups?.edges || []
-  // const userRes = edgeData?.orgMemberships.edges || []
-  // const policyRes = edgeData?.internalPolicies.edges || []
-  // const procedureRes = edgeData?.procedures.edges || []
-  // const riskRes = edgeData?.risks.edges || []
-
-  // // map to a common format
-  // const groups = mapToNode(groupRes)
-  // const users = mapToNode(userRes)
-  // const policies = mapToNode(policyRes)
-  // const procedures = mapToNode(procedureRes)
-  // const risks = mapToNode(riskRes)
 
   const currentIndex = stepper.all.findIndex((item) => item.id === stepper.current.id)
 
