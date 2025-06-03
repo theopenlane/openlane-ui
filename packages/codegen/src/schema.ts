@@ -37648,6 +37648,8 @@ export type GetUserProfileQuery = {
   user: {
     __typename?: 'User'
     id: string
+    firstName?: string | null
+    lastName?: string | null
     displayName: string
     email: string
     avatarRemoteURL?: string | null
