@@ -68,13 +68,13 @@ const ControlsTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, sea
           content={
             <>
               <Link href="/controls/create-control">
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 hover:bg-muted">
                   <CirclePlus size={16} strokeWidth={2} />
                   <span>Control</span>
                 </div>
               </Link>
               <Link href="/controls/create-subcontrol">
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 hover:bg-muted">
                   <CirclePlus size={16} strokeWidth={2} />
                   <span>Subcontrol</span>
                 </div>
@@ -85,13 +85,13 @@ const ControlsTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, sea
         <Menu
           content={
             <>
-              <div className="flex items-center space-x-2 cursor-pointer" onClick={handleExport}>
+              <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleExport}>
                 <DownloadIcon size={16} strokeWidth={2} />
                 <span>Export</span>
               </div>
               <BulkCSVCreateControlDialog
                 trigger={
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 hover:bg-muted">
                     <Upload size={16} strokeWidth={2} />
                     <span>Bulk Upload</span>
                   </div>
