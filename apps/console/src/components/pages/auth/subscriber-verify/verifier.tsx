@@ -137,7 +137,7 @@ export const TokenVerifier = () => {
           <>
             {!showResubscribeForm ? (
               <Button className="mt-4 mx-auto mb-5" onClick={() => setShowResubscribeForm(true)}>
-                Request a new one
+                Resend Confirmation
               </Button>
             ) : (
               <div className="flex justify-center mt-2">
