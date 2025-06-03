@@ -39,7 +39,7 @@ const AuthorityCard: React.FC<AuthorityCardProps> = ({ controlOwner, delegate, i
               fieldName="controlOwnerID"
               placeholder="Select a group"
               options={groups.map((g) => ({
-                label: g.displayName,
+                label: g.name,
                 value: g.id,
               }))}
             />
@@ -69,7 +69,7 @@ const AuthorityCard: React.FC<AuthorityCardProps> = ({ controlOwner, delegate, i
               fieldName="delegateID"
               placeholder="Select a group"
               options={groups.map((g) => ({
-                label: g.displayName,
+                label: g.name,
                 value: g.id,
               }))}
             />

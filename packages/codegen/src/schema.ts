@@ -1904,7 +1904,6 @@ export interface Control extends Node {
   internalPolicies: InternalPolicyConnection
   /** mapped categories of the control to other standards */
   mappedCategories?: Maybe<Array<Scalars['String']['output']>>
-  mappedControls: MappedControlConnection
   narratives: NarrativeConnection
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
@@ -1913,6 +1912,8 @@ export interface Control extends Node {
   programs: ProgramConnection
   /** the unique reference code for the control */
   refCode: Scalars['String']['output']
+  /** the reference framework for the control if it came from a standard */
+  referenceFramework?: Maybe<Scalars['String']['output']>
   /** internal reference id of the control, can be used for internal tracking */
   referenceID?: Maybe<Scalars['String']['output']>
   /** references for the control */
@@ -1934,7 +1935,6 @@ export interface Control extends Node {
   tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
-  viewers: GroupConnection
 }
 
 export interface ControlActionPlansArgs {
@@ -2000,15 +2000,6 @@ export interface ControlInternalPoliciesArgs {
   where?: InputMaybe<InternalPolicyWhereInput>
 }
 
-export interface ControlMappedControlsArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<MappedControlOrder>>
-  where?: InputMaybe<MappedControlWhereInput>
-}
-
 export interface ControlNarrativesArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -2070,15 +2061,6 @@ export interface ControlTasksArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<TaskOrder>>
   where?: InputMaybe<TaskWhereInput>
-}
-
-export interface ControlViewersArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<GroupOrder>>
-  where?: InputMaybe<GroupWhereInput>
 }
 
 /** Return response for createBulkControl mutation */
@@ -2188,6 +2170,8 @@ export interface ControlHistory extends Node {
   ref?: Maybe<Scalars['String']['output']>
   /** the unique reference code for the control */
   refCode: Scalars['String']['output']
+  /** the reference framework for the control if it came from a standard */
+  referenceFramework?: Maybe<Scalars['String']['output']>
   /** internal reference id of the control, can be used for internal tracking */
   referenceID?: Maybe<Scalars['String']['output']>
   /** references for the control */
@@ -2502,6 +2486,22 @@ export interface ControlHistoryWhereInput {
   refNEQ?: InputMaybe<Scalars['String']['input']>
   refNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   refNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** reference_framework field predicates */
+  referenceFramework?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkContains?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkContainsFold?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkEqualFold?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkGT?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkGTE?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkHasPrefix?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkHasSuffix?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceFrameworkIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  referenceFrameworkLT?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkLTE?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkNEQ?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceFrameworkNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** reference_id field predicates */
   referenceID?: InputMaybe<Scalars['String']['input']>
   referenceIDContains?: InputMaybe<Scalars['String']['input']>
@@ -2595,11 +2595,13 @@ export interface ControlHistoryWhereInput {
 
 export interface ControlImplementation extends Node {
   __typename?: 'ControlImplementation'
+  blockedGroups: GroupConnection
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** details of the control implementation */
   details?: Maybe<Scalars['String']['output']>
+  editors: GroupConnection
   id: Scalars['ID']['output']
   /** date the control was implemented */
   implementationDate?: Maybe<Scalars['Time']['output']>
@@ -2617,6 +2619,16 @@ export interface ControlImplementation extends Node {
   verificationDate?: Maybe<Scalars['Time']['output']>
   /** set to true if the control implementation has been verified */
   verified?: Maybe<Scalars['Boolean']['output']>
+  viewers: GroupConnection
+}
+
+export interface ControlImplementationBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface ControlImplementationControlsArgs {
@@ -2628,6 +2640,15 @@ export interface ControlImplementationControlsArgs {
   where?: InputMaybe<ControlWhereInput>
 }
 
+export interface ControlImplementationEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface ControlImplementationSubcontrolsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -2635,6 +2656,15 @@ export interface ControlImplementationSubcontrolsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<SubcontrolOrder>>
   where?: InputMaybe<SubcontrolWhereInput>
+}
+
+export interface ControlImplementationViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 /** Return response for createBulkControlImplementation mutation */
@@ -3012,15 +3042,24 @@ export interface ControlImplementationWhereInput {
   detailsNEQ?: InputMaybe<Scalars['String']['input']>
   detailsNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   detailsNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** blocked_groups edge predicates */
+  hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
   /** controls edge predicates */
   hasControls?: InputMaybe<Scalars['Boolean']['input']>
   hasControlsWith?: InputMaybe<Array<ControlWhereInput>>
+  /** editors edge predicates */
+  hasEditors?: InputMaybe<Scalars['Boolean']['input']>
+  hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
   /** subcontrols edge predicates */
   hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
+  /** viewers edge predicates */
+  hasViewers?: InputMaybe<Scalars['Boolean']['input']>
+  hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -4603,9 +4642,6 @@ export interface ControlWhereInput {
   /** internal_policies edge predicates */
   hasInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalPoliciesWith?: InputMaybe<Array<InternalPolicyWhereInput>>
-  /** mapped_controls edge predicates */
-  hasMappedControls?: InputMaybe<Scalars['Boolean']['input']>
-  hasMappedControlsWith?: InputMaybe<Array<MappedControlWhereInput>>
   /** narratives edge predicates */
   hasNarratives?: InputMaybe<Scalars['Boolean']['input']>
   hasNarrativesWith?: InputMaybe<Array<NarrativeWhereInput>>
@@ -4633,9 +4669,6 @@ export interface ControlWhereInput {
   /** tasks edge predicates */
   hasTasks?: InputMaybe<Scalars['Boolean']['input']>
   hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
-  /** viewers edge predicates */
-  hasViewers?: InputMaybe<Scalars['Boolean']['input']>
-  hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -4679,6 +4712,22 @@ export interface ControlWhereInput {
   refCodeLTE?: InputMaybe<Scalars['String']['input']>
   refCodeNEQ?: InputMaybe<Scalars['String']['input']>
   refCodeNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** reference_framework field predicates */
+  referenceFramework?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkContains?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkContainsFold?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkEqualFold?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkGT?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkGTE?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkHasPrefix?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkHasSuffix?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceFrameworkIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  referenceFrameworkLT?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkLTE?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkNEQ?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceFrameworkNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** reference_id field predicates */
   referenceID?: InputMaybe<Scalars['String']['input']>
   referenceIDContains?: InputMaybe<Scalars['String']['input']>
@@ -4865,9 +4914,11 @@ export interface CreateContactInput {
  * Input was generated by ent.
  */
 export interface CreateControlImplementationInput {
+  blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** details of the control implementation */
   details?: InputMaybe<Scalars['String']['input']>
+  editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** date the control was implemented */
   implementationDate?: InputMaybe<Scalars['Time']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -4880,6 +4931,7 @@ export interface CreateControlImplementationInput {
   verificationDate?: InputMaybe<Scalars['Time']['input']>
   /** set to true if the control implementation has been verified */
   verified?: InputMaybe<Scalars['Boolean']['input']>
+  viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
 /**
@@ -4918,13 +4970,14 @@ export interface CreateControlInput {
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** mapped categories of the control to other standards */
   mappedCategories?: InputMaybe<Array<Scalars['String']['input']>>
-  mappedControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   narrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   procedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the unique reference code for the control */
   refCode: Scalars['String']['input']
+  /** the reference framework for the control if it came from a standard */
+  referenceFramework?: InputMaybe<Scalars['String']['input']>
   /** internal reference id of the control, can be used for internal tracking */
   referenceID?: InputMaybe<Scalars['String']['input']>
   /** references for the control */
@@ -4942,7 +4995,6 @@ export interface CreateControlInput {
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
 /**
@@ -5221,10 +5273,12 @@ export interface CreateFullProgramInput {
 export interface CreateGroupInput {
   controlBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  controlImplementationBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  controlImplementationEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  controlImplementationViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlObjectiveBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlObjectiveEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlObjectiveViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  controlViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   createGroupSettings?: InputMaybe<CreateGroupSettingInput>
   /** the groups description */
   description?: InputMaybe<Scalars['String']['input']>
@@ -5237,6 +5291,8 @@ export interface CreateGroupInput {
   internalPolicyEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the URL to an image uploaded by the customer for the groups avatar image */
   logoURL?: InputMaybe<Scalars['String']['input']>
+  mappedControlBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  mappedControlEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the name of the group - must be unique within the organization */
   name: Scalars['String']['input']
   narrativeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -5465,14 +5521,23 @@ export interface CreateMappableDomainInput {
  * Input was generated by ent.
  */
 export interface CreateMappedControlInput {
-  controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** percentage (0-100) of confidence in the mapping */
+  confidence?: InputMaybe<Scalars['Int']['input']>
+  editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  fromControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  fromSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the type of mapping between the two controls, e.g. subset, intersect, equal, superset */
-  mappingType?: InputMaybe<Scalars['String']['input']>
+  mappingType?: InputMaybe<MappedControlMappingType>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
   /** description of how the two controls are related */
   relation?: InputMaybe<Scalars['String']['input']>
-  subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** source of the mapping, e.g. manual, suggested, etc. */
+  source?: InputMaybe<MappedControlMappingSource>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
+  toControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  toSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
 export interface CreateMemberWithProgramInput {
@@ -5559,6 +5624,7 @@ export interface CreateOrganizationInput {
   contactIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  controlImplementationCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlObjectiveCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -5575,6 +5641,7 @@ export interface CreateOrganizationInput {
   entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   entityTypeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   eventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  evidenceCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   evidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   groupCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -5588,6 +5655,8 @@ export interface CreateOrganizationInput {
   jobRunnerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   jobRunnerRegistrationTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   jobRunnerTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  mappedControlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  mappedControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the name of the organization */
   name: Scalars['String']['input']
   narrativeCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -5604,10 +5673,12 @@ export interface CreateOrganizationInput {
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scheduledJobCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scheduledJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scheduledJobRunIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   secretIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   settingID?: InputMaybe<Scalars['ID']['input']>
+  standardCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   standardIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   subscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -5934,12 +6005,13 @@ export interface CreateSubcontrolInput {
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** mapped categories of the control to other standards */
   mappedCategories?: InputMaybe<Array<Scalars['String']['input']>>
-  mappedControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   narrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   procedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the unique reference code for the control */
   refCode: Scalars['String']['input']
+  /** the reference framework for the control if it came from a standard */
+  referenceFramework?: InputMaybe<Scalars['String']['input']>
   /** internal reference id of the control, can be used for internal tracking */
   referenceID?: InputMaybe<Scalars['String']['input']>
   /** references for the control */
@@ -10751,10 +10823,12 @@ export interface Group extends Node {
   __typename?: 'Group'
   controlBlockedGroups: ControlConnection
   controlEditors: ControlConnection
+  controlImplementationBlockedGroups: ControlImplementationConnection
+  controlImplementationEditors: ControlImplementationConnection
+  controlImplementationViewers: ControlImplementationConnection
   controlObjectiveBlockedGroups: ControlObjectiveConnection
   controlObjectiveEditors: ControlObjectiveConnection
   controlObjectiveViewers: ControlObjectiveConnection
-  controlViewers: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** the groups description */
@@ -10775,6 +10849,8 @@ export interface Group extends Node {
   isManaged?: Maybe<Scalars['Boolean']['output']>
   /** the URL to an image uploaded by the customer for the groups avatar image */
   logoURL?: Maybe<Scalars['String']['output']>
+  mappedControlBlockedGroups: MappedControlConnection
+  mappedControlEditors: MappedControlConnection
   members: GroupMembershipConnection
   /** the name of the group - must be unique within the organization */
   name: Scalars['String']['output']
@@ -10821,6 +10897,33 @@ export interface GroupControlEditorsArgs {
   where?: InputMaybe<ControlWhereInput>
 }
 
+export interface GroupControlImplementationBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlImplementationOrder>>
+  where?: InputMaybe<ControlImplementationWhereInput>
+}
+
+export interface GroupControlImplementationEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlImplementationOrder>>
+  where?: InputMaybe<ControlImplementationWhereInput>
+}
+
+export interface GroupControlImplementationViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlImplementationOrder>>
+  where?: InputMaybe<ControlImplementationWhereInput>
+}
+
 export interface GroupControlObjectiveBlockedGroupsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -10846,15 +10949,6 @@ export interface GroupControlObjectiveViewersArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ControlObjectiveOrder>>
   where?: InputMaybe<ControlObjectiveWhereInput>
-}
-
-export interface GroupControlViewersArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<ControlOrder>>
-  where?: InputMaybe<ControlWhereInput>
 }
 
 export interface GroupEventsArgs {
@@ -10900,6 +10994,24 @@ export interface GroupInternalPolicyEditorsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<InternalPolicyOrder>>
   where?: InputMaybe<InternalPolicyWhereInput>
+}
+
+export interface GroupMappedControlBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<MappedControlOrder>>
+  where?: InputMaybe<MappedControlWhereInput>
+}
+
+export interface GroupMappedControlEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<MappedControlOrder>>
+  where?: InputMaybe<MappedControlWhereInput>
 }
 
 export interface GroupMembersArgs {
@@ -12327,6 +12439,15 @@ export interface GroupWhereInput {
   /** control_editors edge predicates */
   hasControlEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasControlEditorsWith?: InputMaybe<Array<ControlWhereInput>>
+  /** control_implementation_blocked_groups edge predicates */
+  hasControlImplementationBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  hasControlImplementationBlockedGroupsWith?: InputMaybe<Array<ControlImplementationWhereInput>>
+  /** control_implementation_editors edge predicates */
+  hasControlImplementationEditors?: InputMaybe<Scalars['Boolean']['input']>
+  hasControlImplementationEditorsWith?: InputMaybe<Array<ControlImplementationWhereInput>>
+  /** control_implementation_viewers edge predicates */
+  hasControlImplementationViewers?: InputMaybe<Scalars['Boolean']['input']>
+  hasControlImplementationViewersWith?: InputMaybe<Array<ControlImplementationWhereInput>>
   /** control_objective_blocked_groups edge predicates */
   hasControlObjectiveBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasControlObjectiveBlockedGroupsWith?: InputMaybe<Array<ControlObjectiveWhereInput>>
@@ -12336,9 +12457,6 @@ export interface GroupWhereInput {
   /** control_objective_viewers edge predicates */
   hasControlObjectiveViewers?: InputMaybe<Scalars['Boolean']['input']>
   hasControlObjectiveViewersWith?: InputMaybe<Array<ControlObjectiveWhereInput>>
-  /** control_viewers edge predicates */
-  hasControlViewers?: InputMaybe<Scalars['Boolean']['input']>
-  hasControlViewersWith?: InputMaybe<Array<ControlWhereInput>>
   /** events edge predicates */
   hasEvents?: InputMaybe<Scalars['Boolean']['input']>
   hasEventsWith?: InputMaybe<Array<EventWhereInput>>
@@ -12354,6 +12472,12 @@ export interface GroupWhereInput {
   /** internal_policy_editors edge predicates */
   hasInternalPolicyEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalPolicyEditorsWith?: InputMaybe<Array<InternalPolicyWhereInput>>
+  /** mapped_control_blocked_groups edge predicates */
+  hasMappedControlBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  hasMappedControlBlockedGroupsWith?: InputMaybe<Array<MappedControlWhereInput>>
+  /** mapped_control_editors edge predicates */
+  hasMappedControlEditors?: InputMaybe<Scalars['Boolean']['input']>
+  hasMappedControlEditorsWith?: InputMaybe<Array<MappedControlWhereInput>>
   /** members edge predicates */
   hasMembers?: InputMaybe<Scalars['Boolean']['input']>
   hasMembersWith?: InputMaybe<Array<GroupMembershipWhereInput>>
@@ -16098,22 +16222,51 @@ export interface MappableDomainWhereInput {
 
 export interface MappedControl extends Node {
   __typename?: 'MappedControl'
-  controls: ControlConnection
+  blockedGroups: GroupConnection
+  /** percentage (0-100) of confidence in the mapping */
+  confidence?: Maybe<Scalars['Int']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
+  editors: GroupConnection
+  fromControls: ControlConnection
+  fromSubcontrols: SubcontrolConnection
   id: Scalars['ID']['output']
   /** the type of mapping between the two controls, e.g. subset, intersect, equal, superset */
-  mappingType?: Maybe<Scalars['String']['output']>
+  mappingType: MappedControlMappingType
+  owner?: Maybe<Organization>
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['ID']['output']>
   /** description of how the two controls are related */
   relation?: Maybe<Scalars['String']['output']>
-  subcontrols: SubcontrolConnection
+  /** source of the mapping, e.g. manual, suggested, etc. */
+  source?: Maybe<MappedControlMappingSource>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
+  toControls: ControlConnection
+  toSubcontrols: SubcontrolConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
 }
 
-export interface MappedControlControlsArgs {
+export interface MappedControlBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface MappedControlEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface MappedControlFromControlsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
   first?: InputMaybe<Scalars['Int']['input']>
@@ -16122,7 +16275,25 @@ export interface MappedControlControlsArgs {
   where?: InputMaybe<ControlWhereInput>
 }
 
-export interface MappedControlSubcontrolsArgs {
+export interface MappedControlFromSubcontrolsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<SubcontrolOrder>>
+  where?: InputMaybe<SubcontrolWhereInput>
+}
+
+export interface MappedControlToControlsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlOrder>>
+  where?: InputMaybe<ControlWhereInput>
+}
+
+export interface MappedControlToSubcontrolsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
   first?: InputMaybe<Scalars['Int']['input']>
@@ -16174,16 +16345,22 @@ export interface MappedControlEdge {
 
 export interface MappedControlHistory extends Node {
   __typename?: 'MappedControlHistory'
+  /** percentage (0-100) of confidence in the mapping */
+  confidence?: Maybe<Scalars['Int']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
   /** the type of mapping between the two controls, e.g. subset, intersect, equal, superset */
-  mappingType?: Maybe<Scalars['String']['output']>
+  mappingType: MappedControlHistoryMappingType
   operation: MappedControlHistoryOpType
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['String']['output']>
   ref?: Maybe<Scalars['String']['output']>
   /** description of how the two controls are related */
   relation?: Maybe<Scalars['String']['output']>
+  /** source of the mapping, e.g. manual, suggested, etc. */
+  source?: Maybe<MappedControlHistoryMappingSource>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
@@ -16210,6 +16387,22 @@ export interface MappedControlHistoryEdge {
   node?: Maybe<MappedControlHistory>
 }
 
+/** MappedControlHistoryMappingSource is enum for the field source */
+export enum MappedControlHistoryMappingSource {
+  IMPORTED = 'IMPORTED',
+  MANUAL = 'MANUAL',
+  SUGGESTED = 'SUGGESTED',
+}
+
+/** MappedControlHistoryMappingType is enum for the field mapping_type */
+export enum MappedControlHistoryMappingType {
+  EQUAL = 'EQUAL',
+  INTERSECT = 'INTERSECT',
+  PARTIAL = 'PARTIAL',
+  SUBSET = 'SUBSET',
+  SUPERSET = 'SUPERSET',
+}
+
 /** MappedControlHistoryOpType is enum for the field operation */
 export enum MappedControlHistoryOpType {
   DELETE = 'DELETE',
@@ -16227,8 +16420,9 @@ export interface MappedControlHistoryOrder {
 
 /** Properties by which MappedControlHistory connections can be ordered. */
 export enum MappedControlHistoryOrderField {
+  MAPPING_TYPE = 'MAPPING_TYPE',
+  SOURCE = 'SOURCE',
   created_at = 'created_at',
-  mapping_type = 'mapping_type',
   updated_at = 'updated_at',
 }
 
@@ -16238,6 +16432,17 @@ export enum MappedControlHistoryOrderField {
  */
 export interface MappedControlHistoryWhereInput {
   and?: InputMaybe<Array<MappedControlHistoryWhereInput>>
+  /** confidence field predicates */
+  confidence?: InputMaybe<Scalars['Int']['input']>
+  confidenceGT?: InputMaybe<Scalars['Int']['input']>
+  confidenceGTE?: InputMaybe<Scalars['Int']['input']>
+  confidenceIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  confidenceIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  confidenceLT?: InputMaybe<Scalars['Int']['input']>
+  confidenceLTE?: InputMaybe<Scalars['Int']['input']>
+  confidenceNEQ?: InputMaybe<Scalars['Int']['input']>
+  confidenceNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  confidenceNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -16286,21 +16491,10 @@ export interface MappedControlHistoryWhereInput {
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   /** mapping_type field predicates */
-  mappingType?: InputMaybe<Scalars['String']['input']>
-  mappingTypeContains?: InputMaybe<Scalars['String']['input']>
-  mappingTypeContainsFold?: InputMaybe<Scalars['String']['input']>
-  mappingTypeEqualFold?: InputMaybe<Scalars['String']['input']>
-  mappingTypeGT?: InputMaybe<Scalars['String']['input']>
-  mappingTypeGTE?: InputMaybe<Scalars['String']['input']>
-  mappingTypeHasPrefix?: InputMaybe<Scalars['String']['input']>
-  mappingTypeHasSuffix?: InputMaybe<Scalars['String']['input']>
-  mappingTypeIn?: InputMaybe<Array<Scalars['String']['input']>>
-  mappingTypeIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  mappingTypeLT?: InputMaybe<Scalars['String']['input']>
-  mappingTypeLTE?: InputMaybe<Scalars['String']['input']>
-  mappingTypeNEQ?: InputMaybe<Scalars['String']['input']>
-  mappingTypeNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  mappingTypeNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  mappingType?: InputMaybe<MappedControlHistoryMappingType>
+  mappingTypeIn?: InputMaybe<Array<MappedControlHistoryMappingType>>
+  mappingTypeNEQ?: InputMaybe<MappedControlHistoryMappingType>
+  mappingTypeNotIn?: InputMaybe<Array<MappedControlHistoryMappingType>>
   not?: InputMaybe<MappedControlHistoryWhereInput>
   /** operation field predicates */
   operation?: InputMaybe<MappedControlHistoryOpType>
@@ -16308,6 +16502,22 @@ export interface MappedControlHistoryWhereInput {
   operationNEQ?: InputMaybe<MappedControlHistoryOpType>
   operationNotIn?: InputMaybe<Array<MappedControlHistoryOpType>>
   or?: InputMaybe<Array<MappedControlHistoryWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['String']['input']>
+  ownerIDContains?: InputMaybe<Scalars['String']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  ownerIDGT?: InputMaybe<Scalars['String']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['String']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['String']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['String']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** ref field predicates */
   ref?: InputMaybe<Scalars['String']['input']>
   refContains?: InputMaybe<Scalars['String']['input']>
@@ -16340,6 +16550,13 @@ export interface MappedControlHistoryWhereInput {
   relationNEQ?: InputMaybe<Scalars['String']['input']>
   relationNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   relationNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** source field predicates */
+  source?: InputMaybe<MappedControlHistoryMappingSource>
+  sourceIn?: InputMaybe<Array<MappedControlHistoryMappingSource>>
+  sourceIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  sourceNEQ?: InputMaybe<MappedControlHistoryMappingSource>
+  sourceNotIn?: InputMaybe<Array<MappedControlHistoryMappingSource>>
+  sourceNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -16369,6 +16586,22 @@ export interface MappedControlHistoryWhereInput {
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+/** MappedControlMappingSource is enum for the field source */
+export enum MappedControlMappingSource {
+  IMPORTED = 'IMPORTED',
+  MANUAL = 'MANUAL',
+  SUGGESTED = 'SUGGESTED',
+}
+
+/** MappedControlMappingType is enum for the field mapping_type */
+export enum MappedControlMappingType {
+  EQUAL = 'EQUAL',
+  INTERSECT = 'INTERSECT',
+  PARTIAL = 'PARTIAL',
+  SUBSET = 'SUBSET',
+  SUPERSET = 'SUPERSET',
+}
+
 /** Ordering options for MappedControl connections */
 export interface MappedControlOrder {
   /** The ordering direction. */
@@ -16379,8 +16612,9 @@ export interface MappedControlOrder {
 
 /** Properties by which MappedControl connections can be ordered. */
 export enum MappedControlOrderField {
+  MAPPING_TYPE = 'MAPPING_TYPE',
+  SOURCE = 'SOURCE',
   created_at = 'created_at',
-  mapping_type = 'mapping_type',
   updated_at = 'updated_at',
 }
 
@@ -16397,6 +16631,17 @@ export interface MappedControlUpdatePayload {
  */
 export interface MappedControlWhereInput {
   and?: InputMaybe<Array<MappedControlWhereInput>>
+  /** confidence field predicates */
+  confidence?: InputMaybe<Scalars['Int']['input']>
+  confidenceGT?: InputMaybe<Scalars['Int']['input']>
+  confidenceGTE?: InputMaybe<Scalars['Int']['input']>
+  confidenceIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  confidenceIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  confidenceLT?: InputMaybe<Scalars['Int']['input']>
+  confidenceLTE?: InputMaybe<Scalars['Int']['input']>
+  confidenceNEQ?: InputMaybe<Scalars['Int']['input']>
+  confidenceNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  confidenceNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -16424,12 +16669,27 @@ export interface MappedControlWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** controls edge predicates */
-  hasControls?: InputMaybe<Scalars['Boolean']['input']>
-  hasControlsWith?: InputMaybe<Array<ControlWhereInput>>
-  /** subcontrols edge predicates */
-  hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
-  hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
+  /** blocked_groups edge predicates */
+  hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** editors edge predicates */
+  hasEditors?: InputMaybe<Scalars['Boolean']['input']>
+  hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** from_controls edge predicates */
+  hasFromControls?: InputMaybe<Scalars['Boolean']['input']>
+  hasFromControlsWith?: InputMaybe<Array<ControlWhereInput>>
+  /** from_subcontrols edge predicates */
+  hasFromSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  hasFromSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
+  /** owner edge predicates */
+  hasOwner?: InputMaybe<Scalars['Boolean']['input']>
+  hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** to_controls edge predicates */
+  hasToControls?: InputMaybe<Scalars['Boolean']['input']>
+  hasToControlsWith?: InputMaybe<Array<ControlWhereInput>>
+  /** to_subcontrols edge predicates */
+  hasToSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  hasToSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -16442,23 +16702,28 @@ export interface MappedControlWhereInput {
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   /** mapping_type field predicates */
-  mappingType?: InputMaybe<Scalars['String']['input']>
-  mappingTypeContains?: InputMaybe<Scalars['String']['input']>
-  mappingTypeContainsFold?: InputMaybe<Scalars['String']['input']>
-  mappingTypeEqualFold?: InputMaybe<Scalars['String']['input']>
-  mappingTypeGT?: InputMaybe<Scalars['String']['input']>
-  mappingTypeGTE?: InputMaybe<Scalars['String']['input']>
-  mappingTypeHasPrefix?: InputMaybe<Scalars['String']['input']>
-  mappingTypeHasSuffix?: InputMaybe<Scalars['String']['input']>
-  mappingTypeIn?: InputMaybe<Array<Scalars['String']['input']>>
-  mappingTypeIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  mappingTypeLT?: InputMaybe<Scalars['String']['input']>
-  mappingTypeLTE?: InputMaybe<Scalars['String']['input']>
-  mappingTypeNEQ?: InputMaybe<Scalars['String']['input']>
-  mappingTypeNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  mappingTypeNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  mappingType?: InputMaybe<MappedControlMappingType>
+  mappingTypeIn?: InputMaybe<Array<MappedControlMappingType>>
+  mappingTypeNEQ?: InputMaybe<MappedControlMappingType>
+  mappingTypeNotIn?: InputMaybe<Array<MappedControlMappingType>>
   not?: InputMaybe<MappedControlWhereInput>
   or?: InputMaybe<Array<MappedControlWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContains?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** relation field predicates */
   relation?: InputMaybe<Scalars['String']['input']>
   relationContains?: InputMaybe<Scalars['String']['input']>
@@ -16475,6 +16740,13 @@ export interface MappedControlWhereInput {
   relationNEQ?: InputMaybe<Scalars['String']['input']>
   relationNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   relationNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** source field predicates */
+  source?: InputMaybe<MappedControlMappingSource>
+  sourceIn?: InputMaybe<Array<MappedControlMappingSource>>
+  sourceIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  sourceNEQ?: InputMaybe<MappedControlMappingSource>
+  sourceNotIn?: InputMaybe<Array<MappedControlMappingSource>>
+  sourceNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -19935,6 +20207,7 @@ export interface Organization extends Node {
   children: OrganizationConnection
   contacts: ContactConnection
   controlCreators: GroupConnection
+  controlImplementationCreators: GroupConnection
   controlImplementations: ControlImplementationConnection
   controlObjectiveCreators: GroupConnection
   controlObjectives: ControlObjectiveConnection
@@ -19954,6 +20227,7 @@ export interface Organization extends Node {
   entityTypes: EntityTypeConnection
   events: EventConnection
   evidence: EvidenceConnection
+  evidenceCreators: GroupConnection
   files: FileConnection
   groupCreators: GroupConnection
   groups: GroupConnection
@@ -19967,6 +20241,8 @@ export interface Organization extends Node {
   jobRunnerTokens: JobRunnerTokenConnection
   jobRunners: JobRunnerConnection
   jobs: ScheduledJobConnection
+  mappedControlCreators: GroupConnection
+  mappedControls: MappedControlConnection
   members: OrgMembershipConnection
   /** the name of the organization */
   name: Scalars['String']['output']
@@ -19984,10 +20260,12 @@ export interface Organization extends Node {
   programs: ProgramConnection
   riskCreators: GroupConnection
   risks: RiskConnection
+  scheduledJobCreators: GroupConnection
   scheduledJobRuns: ScheduledJobRunConnection
   scheduledJobs: ControlScheduledJobConnection
   secrets: HushConnection
   setting?: Maybe<OrganizationSetting>
+  standardCreators: GroupConnection
   standards: StandardConnection
   subcontrols: SubcontrolConnection
   subscribers: SubscriberConnection
@@ -20038,6 +20316,15 @@ export interface OrganizationContactsArgs {
 }
 
 export interface OrganizationControlCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface OrganizationControlImplementationCreatorsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
   first?: InputMaybe<Scalars['Int']['input']>
@@ -20143,6 +20430,15 @@ export interface OrganizationEvidenceArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<EvidenceOrder>>
   where?: InputMaybe<EvidenceWhereInput>
+}
+
+export interface OrganizationEvidenceCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationFilesArgs {
@@ -20253,6 +20549,24 @@ export interface OrganizationJobsArgs {
   where?: InputMaybe<ScheduledJobWhereInput>
 }
 
+export interface OrganizationMappedControlCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface OrganizationMappedControlsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<MappedControlOrder>>
+  where?: InputMaybe<MappedControlWhereInput>
+}
+
 export interface OrganizationMembersArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -20352,6 +20666,15 @@ export interface OrganizationRisksArgs {
   where?: InputMaybe<RiskWhereInput>
 }
 
+export interface OrganizationScheduledJobCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationScheduledJobRunsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -20377,6 +20700,15 @@ export interface OrganizationSecretsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<HushOrder>>
   where?: InputMaybe<HushWhereInput>
+}
+
+export interface OrganizationStandardCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationStandardsArgs {
@@ -21429,6 +21761,9 @@ export interface OrganizationWhereInput {
   /** control_creators edge predicates */
   hasControlCreators?: InputMaybe<Scalars['Boolean']['input']>
   hasControlCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** control_implementation_creators edge predicates */
+  hasControlImplementationCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasControlImplementationCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** control_implementations edge predicates */
   hasControlImplementations?: InputMaybe<Scalars['Boolean']['input']>
   hasControlImplementationsWith?: InputMaybe<Array<ControlImplementationWhereInput>>
@@ -21461,6 +21796,9 @@ export interface OrganizationWhereInput {
   hasEventsWith?: InputMaybe<Array<EventWhereInput>>
   /** evidence edge predicates */
   hasEvidence?: InputMaybe<Scalars['Boolean']['input']>
+  /** evidence_creators edge predicates */
+  hasEvidenceCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasEvidenceCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   hasEvidenceWith?: InputMaybe<Array<EvidenceWhereInput>>
   /** files edge predicates */
   hasFiles?: InputMaybe<Scalars['Boolean']['input']>
@@ -21498,6 +21836,12 @@ export interface OrganizationWhereInput {
   /** jobs edge predicates */
   hasJobs?: InputMaybe<Scalars['Boolean']['input']>
   hasJobsWith?: InputMaybe<Array<ScheduledJobWhereInput>>
+  /** mapped_control_creators edge predicates */
+  hasMappedControlCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasMappedControlCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** mapped_controls edge predicates */
+  hasMappedControls?: InputMaybe<Scalars['Boolean']['input']>
+  hasMappedControlsWith?: InputMaybe<Array<MappedControlWhereInput>>
   /** members edge predicates */
   hasMembers?: InputMaybe<Scalars['Boolean']['input']>
   hasMembersWith?: InputMaybe<Array<OrgMembershipWhereInput>>
@@ -21537,6 +21881,9 @@ export interface OrganizationWhereInput {
   /** risks edge predicates */
   hasRisks?: InputMaybe<Scalars['Boolean']['input']>
   hasRisksWith?: InputMaybe<Array<RiskWhereInput>>
+  /** scheduled_job_creators edge predicates */
+  hasScheduledJobCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasScheduledJobCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** scheduled_job_runs edge predicates */
   hasScheduledJobRuns?: InputMaybe<Scalars['Boolean']['input']>
   hasScheduledJobRunsWith?: InputMaybe<Array<ScheduledJobRunWhereInput>>
@@ -21549,6 +21896,9 @@ export interface OrganizationWhereInput {
   /** setting edge predicates */
   hasSetting?: InputMaybe<Scalars['Boolean']['input']>
   hasSettingWith?: InputMaybe<Array<OrganizationSettingWhereInput>>
+  /** standard_creators edge predicates */
+  hasStandardCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasStandardCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** standards edge predicates */
   hasStandards?: InputMaybe<Scalars['Boolean']['input']>
   hasStandardsWith?: InputMaybe<Array<StandardWhereInput>>
@@ -28739,7 +29089,6 @@ export interface Subcontrol extends Node {
   internalPolicies: InternalPolicyConnection
   /** mapped categories of the control to other standards */
   mappedCategories?: Maybe<Array<Scalars['String']['output']>>
-  mappedControls: MappedControlConnection
   narratives: NarrativeConnection
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
@@ -28747,6 +29096,8 @@ export interface Subcontrol extends Node {
   procedures: ProcedureConnection
   /** the unique reference code for the control */
   refCode: Scalars['String']['output']
+  /** the reference framework for the control if it came from a standard */
+  referenceFramework?: Maybe<Scalars['String']['output']>
   /** internal reference id of the control, can be used for internal tracking */
   referenceID?: Maybe<Scalars['String']['output']>
   /** references for the control */
@@ -28809,15 +29160,6 @@ export interface SubcontrolInternalPoliciesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<InternalPolicyOrder>>
   where?: InputMaybe<InternalPolicyWhereInput>
-}
-
-export interface SubcontrolMappedControlsArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<MappedControlOrder>>
-  where?: InputMaybe<MappedControlWhereInput>
 }
 
 export interface SubcontrolNarrativesArgs {
@@ -28974,6 +29316,8 @@ export interface SubcontrolHistory extends Node {
   ref?: Maybe<Scalars['String']['output']>
   /** the unique reference code for the control */
   refCode: Scalars['String']['output']
+  /** the reference framework for the control if it came from a standard */
+  referenceFramework?: Maybe<Scalars['String']['output']>
   /** internal reference id of the control, can be used for internal tracking */
   referenceID?: Maybe<Scalars['String']['output']>
   /** references for the control */
@@ -29300,6 +29644,22 @@ export interface SubcontrolHistoryWhereInput {
   refNEQ?: InputMaybe<Scalars['String']['input']>
   refNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   refNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** reference_framework field predicates */
+  referenceFramework?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkContains?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkContainsFold?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkEqualFold?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkGT?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkGTE?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkHasPrefix?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkHasSuffix?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceFrameworkIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  referenceFrameworkLT?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkLTE?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkNEQ?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceFrameworkNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** reference_id field predicates */
   referenceID?: InputMaybe<Scalars['String']['input']>
   referenceIDContains?: InputMaybe<Scalars['String']['input']>
@@ -29590,9 +29950,6 @@ export interface SubcontrolWhereInput {
   /** internal_policies edge predicates */
   hasInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalPoliciesWith?: InputMaybe<Array<InternalPolicyWhereInput>>
-  /** mapped_controls edge predicates */
-  hasMappedControls?: InputMaybe<Scalars['Boolean']['input']>
-  hasMappedControlsWith?: InputMaybe<Array<MappedControlWhereInput>>
   /** narratives edge predicates */
   hasNarratives?: InputMaybe<Scalars['Boolean']['input']>
   hasNarrativesWith?: InputMaybe<Array<NarrativeWhereInput>>
@@ -29654,6 +30011,22 @@ export interface SubcontrolWhereInput {
   refCodeLTE?: InputMaybe<Scalars['String']['input']>
   refCodeNEQ?: InputMaybe<Scalars['String']['input']>
   refCodeNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** reference_framework field predicates */
+  referenceFramework?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkContains?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkContainsFold?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkEqualFold?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkGT?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkGTE?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkHasPrefix?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkHasSuffix?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceFrameworkIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  referenceFrameworkLT?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkLTE?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkNEQ?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceFrameworkNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** reference_id field predicates */
   referenceID?: InputMaybe<Scalars['String']['input']>
   referenceIDContains?: InputMaybe<Scalars['String']['input']>
@@ -31542,23 +31915,32 @@ export interface UpdateContactInput {
  * Input was generated by ent.
  */
 export interface UpdateControlImplementationInput {
+  addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
   clearDetails?: InputMaybe<Scalars['Boolean']['input']>
+  clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearImplementationDate?: InputMaybe<Scalars['Boolean']['input']>
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearVerificationDate?: InputMaybe<Scalars['Boolean']['input']>
   clearVerified?: InputMaybe<Scalars['Boolean']['input']>
+  clearViewers?: InputMaybe<Scalars['Boolean']['input']>
   /** details of the control implementation */
   details?: InputMaybe<Scalars['String']['input']>
   /** date the control was implemented */
   implementationDate?: InputMaybe<Scalars['Time']['input']>
+  removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** status of the %s, e.g. draft, published, archived, etc. */
   status?: InputMaybe<ControlImplementationDocumentStatus>
   /** tags associated with the object */
@@ -31581,7 +31963,6 @@ export interface UpdateControlInput {
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addMappedControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -31589,7 +31970,6 @@ export interface UpdateControlInput {
   addScheduledJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendAssessmentMethods?: InputMaybe<Array<Scalars['AssessmentMethod']['input']>>
   appendAssessmentObjectives?: InputMaybe<Array<Scalars['AssessmentObjective']['input']>>
   appendControlQuestions?: InputMaybe<Array<Scalars['String']['input']>>
@@ -31628,10 +32008,10 @@ export interface UpdateControlInput {
   clearImplementationGuidance?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearMappedCategories?: InputMaybe<Scalars['Boolean']['input']>
-  clearMappedControls?: InputMaybe<Scalars['Boolean']['input']>
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
+  clearReferenceFramework?: InputMaybe<Scalars['Boolean']['input']>
   clearReferenceID?: InputMaybe<Scalars['Boolean']['input']>
   clearReferences?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
@@ -31643,7 +32023,6 @@ export interface UpdateControlInput {
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
-  clearViewers?: InputMaybe<Scalars['Boolean']['input']>
   controlOwnerID?: InputMaybe<Scalars['ID']['input']>
   /** questions to ask to verify the control */
   controlQuestions?: InputMaybe<Array<Scalars['String']['input']>>
@@ -31660,6 +32039,8 @@ export interface UpdateControlInput {
   mappedCategories?: InputMaybe<Array<Scalars['String']['input']>>
   /** the unique reference code for the control */
   refCode?: InputMaybe<Scalars['String']['input']>
+  /** the reference framework for the control if it came from a standard */
+  referenceFramework?: InputMaybe<Scalars['String']['input']>
   /** internal reference id of the control, can be used for internal tracking */
   referenceID?: InputMaybe<Scalars['String']['input']>
   /** references for the control */
@@ -31671,7 +32052,6 @@ export interface UpdateControlInput {
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeMappedControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -31679,7 +32059,6 @@ export interface UpdateControlInput {
   removeScheduledJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** source of the control, e.g. framework, template, custom, etc. */
   source?: InputMaybe<ControlControlSource>
   standardID?: InputMaybe<Scalars['ID']['input']>
@@ -32112,16 +32491,20 @@ export interface UpdateFileInput {
 export interface UpdateGroupInput {
   addControlBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addControlImplementationBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addControlImplementationEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addControlImplementationViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlObjectiveBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlObjectiveEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlObjectiveViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addControlViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addGroupMembers?: InputMaybe<Array<CreateGroupMembershipInput>>
   addIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addMappedControlBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addMappedControlEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -32137,10 +32520,12 @@ export interface UpdateGroupInput {
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearControlBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearControlEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearControlImplementationBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearControlImplementationEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearControlImplementationViewers?: InputMaybe<Scalars['Boolean']['input']>
   clearControlObjectiveBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearControlObjectiveEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearControlObjectiveViewers?: InputMaybe<Scalars['Boolean']['input']>
-  clearControlViewers?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
@@ -32148,6 +32533,8 @@ export interface UpdateGroupInput {
   clearInternalPolicyBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicyEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearLogoURL?: InputMaybe<Scalars['Boolean']['input']>
+  clearMappedControlBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearMappedControlEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearNarrativeBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearNarrativeEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearNarrativeViewers?: InputMaybe<Scalars['Boolean']['input']>
@@ -32179,16 +32566,20 @@ export interface UpdateGroupInput {
   ownerID?: InputMaybe<Scalars['ID']['input']>
   removeControlBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeControlImplementationBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeControlImplementationEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeControlImplementationViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeControlViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupMembers?: InputMaybe<Array<Scalars['ID']['input']>>
   removeIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeMappedControlBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeMappedControlEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -32474,20 +32865,39 @@ export interface UpdateMappableDomainInput {
  * Input was generated by ent.
  */
 export interface UpdateMappedControlInput {
-  addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addFromControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addFromSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addToControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addToSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
-  clearControls?: InputMaybe<Scalars['Boolean']['input']>
-  clearMappingType?: InputMaybe<Scalars['Boolean']['input']>
+  clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearConfidence?: InputMaybe<Scalars['Boolean']['input']>
+  clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearFromControls?: InputMaybe<Scalars['Boolean']['input']>
+  clearFromSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearRelation?: InputMaybe<Scalars['Boolean']['input']>
-  clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  clearSource?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  clearToControls?: InputMaybe<Scalars['Boolean']['input']>
+  clearToSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  /** percentage (0-100) of confidence in the mapping */
+  confidence?: InputMaybe<Scalars['Int']['input']>
   /** the type of mapping between the two controls, e.g. subset, intersect, equal, superset */
-  mappingType?: InputMaybe<Scalars['String']['input']>
+  mappingType?: InputMaybe<MappedControlMappingType>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
   /** description of how the two controls are related */
   relation?: InputMaybe<Scalars['String']['input']>
-  removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeFromControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeFromSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeToControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeToSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** source of the mapping, e.g. manual, suggested, etc. */
+  source?: InputMaybe<MappedControlMappingSource>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
 }
@@ -32567,6 +32977,7 @@ export interface UpdateOrganizationInput {
   addContactIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addControlImplementationCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlObjectiveCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -32576,6 +32987,7 @@ export interface UpdateOrganizationInput {
   addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEntityTypeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEvidenceCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addGroupCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -32589,6 +33001,8 @@ export interface UpdateOrganizationInput {
   addJobRunnerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addJobRunnerRegistrationTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addJobRunnerTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addMappedControlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addMappedControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNoteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -32601,9 +33015,11 @@ export interface UpdateOrganizationInput {
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addScheduledJobCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addScheduledJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addScheduledJobRunIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSecretIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addStandardCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addStandardIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -32623,6 +33039,7 @@ export interface UpdateOrganizationInput {
   clearAvatarUpdatedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearContacts?: InputMaybe<Scalars['Boolean']['input']>
   clearControlCreators?: InputMaybe<Scalars['Boolean']['input']>
+  clearControlImplementationCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearControlImplementations?: InputMaybe<Scalars['Boolean']['input']>
   clearControlObjectiveCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearControlObjectives?: InputMaybe<Scalars['Boolean']['input']>
@@ -32635,6 +33052,7 @@ export interface UpdateOrganizationInput {
   clearEntityTypes?: InputMaybe<Scalars['Boolean']['input']>
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
   clearEvidence?: InputMaybe<Scalars['Boolean']['input']>
+  clearEvidenceCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearGroupCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearGroups?: InputMaybe<Scalars['Boolean']['input']>
@@ -32647,6 +33065,8 @@ export interface UpdateOrganizationInput {
   clearJobRunnerTokens?: InputMaybe<Scalars['Boolean']['input']>
   clearJobRunners?: InputMaybe<Scalars['Boolean']['input']>
   clearJobs?: InputMaybe<Scalars['Boolean']['input']>
+  clearMappedControlCreators?: InputMaybe<Scalars['Boolean']['input']>
+  clearMappedControls?: InputMaybe<Scalars['Boolean']['input']>
   clearNarrativeCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
   clearNotes?: InputMaybe<Scalars['Boolean']['input']>
@@ -32658,10 +33078,12 @@ export interface UpdateOrganizationInput {
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
   clearRiskCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
+  clearScheduledJobCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearScheduledJobRuns?: InputMaybe<Scalars['Boolean']['input']>
   clearScheduledJobs?: InputMaybe<Scalars['Boolean']['input']>
   clearSecrets?: InputMaybe<Scalars['Boolean']['input']>
   clearSetting?: InputMaybe<Scalars['Boolean']['input']>
+  clearStandardCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearStandards?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearSubscribers?: InputMaybe<Scalars['Boolean']['input']>
@@ -32680,6 +33102,7 @@ export interface UpdateOrganizationInput {
   removeContactIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeControlImplementationCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -32689,6 +33112,7 @@ export interface UpdateOrganizationInput {
   removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEntityTypeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEvidenceCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -32702,6 +33126,8 @@ export interface UpdateOrganizationInput {
   removeJobRunnerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeJobRunnerRegistrationTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeJobRunnerTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeMappedControlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeMappedControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNoteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -32714,9 +33140,11 @@ export interface UpdateOrganizationInput {
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeScheduledJobCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeScheduledJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeScheduledJobRunIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSecretIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeStandardCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeStandardIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -33162,7 +33590,6 @@ export interface UpdateSubcontrolInput {
   addControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addMappedControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -33204,9 +33631,9 @@ export interface UpdateSubcontrolInput {
   clearImplementationGuidance?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearMappedCategories?: InputMaybe<Scalars['Boolean']['input']>
-  clearMappedControls?: InputMaybe<Scalars['Boolean']['input']>
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
+  clearReferenceFramework?: InputMaybe<Scalars['Boolean']['input']>
   clearReferenceID?: InputMaybe<Scalars['Boolean']['input']>
   clearReferences?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
@@ -33233,6 +33660,8 @@ export interface UpdateSubcontrolInput {
   mappedCategories?: InputMaybe<Array<Scalars['String']['input']>>
   /** the unique reference code for the control */
   refCode?: InputMaybe<Scalars['String']['input']>
+  /** the reference framework for the control if it came from a standard */
+  referenceFramework?: InputMaybe<Scalars['String']['input']>
   /** internal reference id of the control, can be used for internal tracking */
   referenceID?: InputMaybe<Scalars['String']['input']>
   /** references for the control */
@@ -33242,7 +33671,6 @@ export interface UpdateSubcontrolInput {
   removeControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeMappedControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -36829,12 +37257,12 @@ export type GetProgramGroupsQuery = {
     viewers: {
       __typename?: 'GroupConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; displayName: string; id: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null } | null> | null
+      edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; name: string; id: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null } | null> | null
     }
     editors: {
       __typename?: 'GroupConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; displayName: string; id: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null } | null> | null
+      edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; name: string; id: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null } | null> | null
     }
   }
 }

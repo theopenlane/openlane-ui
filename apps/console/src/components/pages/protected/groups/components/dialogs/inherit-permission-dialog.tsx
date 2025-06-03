@@ -71,7 +71,7 @@ const InheritPermissionDialog = () => {
   const groups =
     TableData?.groups?.edges?.map((edge) => ({
       id: edge?.node?.id,
-      name: edge?.node?.displayName,
+      name: edge?.node?.name,
     })) || []
 
   const permissionsData = [

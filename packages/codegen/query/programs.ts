@@ -277,7 +277,7 @@ export const GET_PROGRAM_GROUPS = gql`
         totalCount
         edges {
           node {
-            displayName
+            name
             id
             gravatarLogoURL
             logoURL
@@ -288,7 +288,7 @@ export const GET_PROGRAM_GROUPS = gql`
         totalCount
         edges {
           node {
-            displayName
+            name
             id
             gravatarLogoURL
             logoURL
