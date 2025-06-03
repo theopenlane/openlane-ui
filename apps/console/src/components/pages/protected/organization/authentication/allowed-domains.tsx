@@ -104,7 +104,7 @@ const AllowedDomains = () => {
           <Input
             type="text"
             className="h-7 p-2.5"
-            placeholder="e.g. ap.equinix.com"
+            placeholder="example.com"
             value={newDomain}
             onChange={(e) => {
               setNewDomain(e.target.value)
