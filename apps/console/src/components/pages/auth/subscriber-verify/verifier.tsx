@@ -34,11 +34,9 @@ export const TokenVerifier = () => {
   const [isVerified, setIsVerified] = useState(false)
   const [error, setError] = useState('')
 
-  // Show/hide the “Request a new one” form
   const [showResubscribeForm, setShowResubscribeForm] = useState(false)
   const [isPending, setIsPending] = useState(false)
 
-  // Once they successfully subscribe, store the email here
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null)
 
   const { successNotification, errorNotification } = useNotification()
@@ -81,15 +79,13 @@ export const TokenVerifier = () => {
     const result = await subscribeToNewsletter(email)
 
     if (result.success) {
-      // 1) show a toast
       successNotification({
         title: 'Subscribed!',
         description: 'We just sent a confirmation to your inbox.',
       })
-      // 2) record the email and hide the form
       setSubmittedEmail(email)
       setShowResubscribeForm(false)
-      form.reset() // optional: clear the input
+      form.reset()
     } else {
       errorNotification({
         title: 'Subscription failed',
@@ -116,9 +112,6 @@ export const TokenVerifier = () => {
     verifyToken()
   }, [token])
 
-  // ---------- RENDERING ----------
-
-  // 1) No token provided
   if (!token) {
     return (
       <div className="flex flex-col m-auto self-center z-1 relative">
@@ -131,7 +124,7 @@ export const TokenVerifier = () => {
           <p className="text-sm">{submittedEmail ? `We sent an email confirmation to ${submittedEmail}.` : 'No token provided, please check your email for a verification link.'}</p>
         </div>
 
-        {!submittedEmail && ( // Only show “Request a new one” if user hasn't just subscribed
+        {!submittedEmail && (
           <>
             {!showResubscribeForm ? (
               <Button className="size-fit mt-4 mx-auto mb-5" onClick={() => setShowResubscribeForm(true)}>
@@ -173,7 +166,6 @@ export const TokenVerifier = () => {
     )
   }
 
-  // 2) Token exists but verification failed
   if (error) {
     return (
       <div className="flex flex-col m-auto self-center">
@@ -194,7 +186,6 @@ export const TokenVerifier = () => {
     )
   }
 
-  // 3) Token exists and isVerified is true
   if (isVerified) {
     return (
       <div className="flex flex-col m-auto self-center z-1">
@@ -212,7 +203,6 @@ export const TokenVerifier = () => {
     )
   }
 
-  // 4) While verifying
   return (
     <div className="flex flex-col m-auto self-center">
       <div className="mx-auto animate-pulse w-96">
