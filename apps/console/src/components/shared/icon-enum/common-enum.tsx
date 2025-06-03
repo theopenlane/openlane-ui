@@ -1,4 +1,4 @@
-import { ChevronDown, EllipsisVertical } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import React from 'react'
 

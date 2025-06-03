@@ -55,13 +55,13 @@ const RisksTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, search
       <Menu
         content={
           <>
-            <div className="flex items-center space-x-2 hover:bg-muted  cursor-pointer" onClick={handleExport}>
+            <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleExport}>
               <DownloadIcon size={16} strokeWidth={2} />
               <span>Export</span>
             </div>
             <BulkCSVCreateRiskDialog
               trigger={
-                <div className="flex items-center space-x-2 hover:bg-muted ">
+                <div className="flex items-center space-x-2 hover:bg-muted">
                   <Upload size={16} strokeWidth={2} />
                   <span>Bulk Upload</span>
                 </div>
