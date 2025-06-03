@@ -81,7 +81,7 @@ export const ProgramSettingsAssignGroupDialog = () => {
       const groupRows: GroupRow[] =
         (groups.map((group) => ({
           id: group?.id,
-          name: group?.displayName,
+          name: group?.name,
           description: group?.description,
           role: 'View',
         })) as GroupRow[]) || []

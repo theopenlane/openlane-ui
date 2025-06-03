@@ -42,7 +42,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
               fieldName="approverID"
               placeholder="Select approver"
               options={groups.map((g) => ({
-                label: g.displayName,
+                label: g.name,
                 value: g.id,
               }))}
             />
@@ -76,7 +76,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
               fieldName="delegateID"
               placeholder="Select delegate"
               options={groups.map((g) => ({
-                label: g.displayName,
+                label: g.name,
                 value: g.id,
               }))}
             />
