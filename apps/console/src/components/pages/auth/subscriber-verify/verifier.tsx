@@ -189,7 +189,7 @@ export const TokenVerifier = () => {
           </div>
         </div>
 
-        <Button className="size-fit mt-4 mx-auto mb-5">Send email to support team</Button>
+        <Button className="size-fit mt-4 mx-auto mb-5">Contact Support</Button>
         <Footer />
       </div>
     )
