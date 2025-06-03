@@ -14,7 +14,7 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { Loading } from '@/components/shared/loading/loading'
 import Link from 'next/link'
 import { formatDateSince } from '@/utils/date'
-import { SUPPORT_EMAIL } from '@/constants'
+import { INFO_EMAIL } from '@/constants'
 
 const filterFields: FilterField[] = [
   { key: 'systemOwned', label: 'System Owned', type: 'boolean' },
@@ -102,7 +102,7 @@ const StandardsPage = () => {
         ))}
         <Card className="w-full max-w-xl bg-card p-28 rounded-lg shadow border border-dashed flex flex-col items-center justify-center text-center h-[350px]">
           <p className="mb-4">Looking for a framework that’s not supported yet? Reach out with the details.</p>
-          <a href={SUPPORT_EMAIL}>
+          <a href={INFO_EMAIL}>
             <Button variant="outline" className="!text-brand">
               info@theopenlane.io
             </Button>
