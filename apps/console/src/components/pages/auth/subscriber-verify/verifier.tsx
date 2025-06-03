@@ -127,7 +127,7 @@ export const TokenVerifier = () => {
         {!submittedEmail && (
           <>
             {!showResubscribeForm ? (
-              <Button className="size-fit mt-4 mx-auto mb-5" onClick={() => setShowResubscribeForm(true)}>
+              <Button className="size-fit mt-4 mx-auto mb-5 h-8 p-2" onClick={() => setShowResubscribeForm(true)}>
                 Request a new one
               </Button>
             ) : (
