@@ -10,6 +10,8 @@ import { useEffect, useState } from 'react'
 import { cn } from '@repo/ui/lib/utils'
 import { Separator as Hr } from '@repo/ui/separator'
 import { sidebarNavStyles } from './sidebar-nav.styles'
+import { Logo } from '@repo/ui/logo'
+import { Lightbulb, Milestone } from 'lucide-react'
 
 interface SideNavProps {
   items: (NavItem | Separator | NavHeading)[]
@@ -106,6 +108,15 @@ export function SideNav({ items, userTaskCount, setOpen, className }: SideNavPro
           </Link>
         ),
       )}
+      <div className="flex justify-between fixed p-3 bottom-0 w-60 border-t">
+        <Link href={'/dashboard'} className="">
+          <Logo width={87} />
+        </Link>
+        <div className="flex gap-3.5">
+          <Lightbulb className="cursor-pointer" size={16} />
+          <Milestone className="cursor-pointer" size={16} />
+        </div>
+      </div>
     </nav>
   )
 }

@@ -15,6 +15,7 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { useGetAllOrganizationsWithMembers } from '@/lib/graphql-hooks/organization'
 import { useQueryClient } from '@tanstack/react-query'
 import { Organization } from '@repo/codegen/src/schema'
+import { Avatar } from '../avatar/avatar'
 
 export const OrganizationSelector = () => {
   const { data: sessionData, update: updateSession } = useSession()
@@ -85,6 +86,7 @@ export const OrganizationSelector = () => {
         <Popover>
           <PopoverTrigger>
             <div className={organizationDropdown()}>
+              <Avatar entity={currentOrg as Organization} />
               <span className="truncate">{currentOrg?.displayName}</span>
               <ChevronsUpDown className="shrink-0" size={12} />
             </div>
@@ -149,6 +151,7 @@ const OrganizationItem = ({ org, isCurrent, role, onClick }: { org: Organization
       <div className={orgInfo()}>
         <div className="flex items-center gap-1">
           {isCurrent ? <Check size={16} /> : <Check size={16} className="opacity-0" />}
+          <Avatar entity={org} />
           <div className={orgTitle()}>{org.displayName}</div>
         </div>
         <Tag className="bg-transparent capitalize px-1.5 border rounded-lg text-sm">{role.toLowerCase()}</Tag>
