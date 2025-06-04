@@ -12,6 +12,7 @@ import { Separator as Hr } from '@repo/ui/separator'
 import { sidebarNavStyles } from './sidebar-nav.styles'
 import { Logo } from '@repo/ui/logo'
 import { Lightbulb, Milestone } from 'lucide-react'
+import clsx from 'clsx'
 
 interface SideNavProps {
   items: (NavItem | Separator | NavHeading)[]
@@ -108,14 +109,22 @@ export function SideNav({ items, userTaskCount, setOpen, className }: SideNavPro
           </Link>
         ),
       )}
-      <div className="flex justify-between fixed p-3 bottom-0 w-60 border-t">
-        <Link href={'/dashboard'} className="">
-          <Logo width={87} />
-        </Link>
-        <div className="flex gap-3.5">
-          <Lightbulb className="cursor-pointer" size={16} />
-          <Milestone className="cursor-pointer" size={16} />
-        </div>
+      <div className={clsx('flex justify-between fixed p-3 bottom-0 border-t bg-panel-bg', isSidebarOpen ? 'w-60' : 'w-[57px]')}>
+        {isSidebarOpen ? (
+          <>
+            <Link href={'/dashboard'} className="">
+              <Logo width={87} />
+            </Link>
+            <div className="flex gap-3.5">
+              <Lightbulb className="cursor-pointer" size={16} />
+              <Milestone className="cursor-pointer" size={16} />
+            </div>
+          </>
+        ) : (
+          <Link href={'/dashboard'} className="">
+            <Logo asIcon width={25} />
+          </Link>
+        )}
       </div>
     </nav>
   )
