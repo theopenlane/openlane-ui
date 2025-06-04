@@ -87,7 +87,7 @@ export const OrganizationSelector = () => {
           <PopoverTrigger>
             <div className={organizationDropdown()}>
               <Avatar entity={currentOrg as Organization} />
-              <span className="truncate">{currentOrg?.displayName}</span>
+              <span>{currentOrg?.displayName}</span>
               <ChevronsUpDown className="shrink-0" size={12} />
             </div>
           </PopoverTrigger>

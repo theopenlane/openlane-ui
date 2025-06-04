@@ -3,7 +3,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 const organizationSelectorStyles = tv({
   slots: {
     container: 'flex content-center gap-4 ',
-    organizationDropdown: 'flex items-center gap-[6px] text-md cursor-pointer w-[195px]  px-2 py-0.5 justify-between',
+    organizationDropdown: 'flex items-center gap-[6px] text-md cursor-pointer px-2 py-0.5 justify-between',
     dropdownContent: 'p-0',
     allOrganizationsLink: 'flex items-center gap-2  pb-3 px-4 ',
     popoverContent: 'p-0 max-w-300',
