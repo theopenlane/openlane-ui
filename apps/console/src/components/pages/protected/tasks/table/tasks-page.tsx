@@ -11,9 +11,11 @@ import { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import TaskInfiniteCards from '@/components/pages/protected/tasks/cards/task-infinite-cards.tsx'
 import TasksTable from '@/components/pages/protected/tasks/table/tasks-table.tsx'
 import { formatDate } from '@/utils/date'
+import { useDebounce } from '@uidotdev/usehooks'
 
 const TasksPage: React.FC = () => {
   const { orgMembers } = useTaskStore()
+  const [searchQuery, setSearchQuery] = useState('')
   const tableRef = useRef<{ exportData: () => Task[] }>(null)
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
   const [showCompletedTasks, setShowCompletedTasks] = useState<boolean>(false)
@@ -30,6 +32,9 @@ const TasksPage: React.FC = () => {
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
 
+  const debouncedSearch = useDebounce(searchQuery, 300)
+  const searching = searchQuery !== debouncedSearch
+
   const whereFilter = useMemo(() => {
     if (!filters) {
       return null
@@ -37,10 +42,11 @@ const TasksPage: React.FC = () => {
     const conditions: Record<string, any> = {
       ...(showCompletedTasks ? { statusIn: allStatuses } : { statusIn: statusesWithoutComplete }),
       ...filters,
+      ...{ titleContainsFold: debouncedSearch },
     }
 
     return conditions
-  }, [filters, showCompletedTasks, allStatuses, statusesWithoutComplete])
+  }, [filters, showCompletedTasks, allStatuses, statusesWithoutComplete, debouncedSearch])
 
   const orderByFilter = useMemo(() => {
     return orderBy || undefined
@@ -108,6 +114,12 @@ const TasksPage: React.FC = () => {
         mappedColumns={mappedColumns}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
+        searchTerm={searchQuery}
+        setSearchTerm={(val) => {
+          setSearchQuery(val)
+          setPagination(DEFAULT_PAGINATION)
+        }}
+        searching={searching}
       />
       {activeTab === 'table' ? (
         <TasksTable
