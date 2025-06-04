@@ -9,7 +9,7 @@ import { GET_ALL_RISKS } from '@repo/codegen/query/risks'
 import { GET_ALL_SUBCONTROLS } from '@repo/codegen/query/subcontrol'
 import { TASKS_WITH_FILTER } from '@repo/codegen/query/tasks'
 
-import { Control, Subcontrol, ControlObjective, Program, TaskEdge, Evidence, Group, InternalPolicy, Procedure, PageInfo } from '@repo/codegen/src/schema'
+import { Control, Subcontrol, ControlObjective, Program, TaskEdge, Evidence, Group, InternalPolicy, Procedure, PageInfo, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import { useQueryClient } from '@tanstack/react-query'
 
 export type AllObjectQueriesData = {
@@ -120,6 +120,7 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     queryDocument: GET_ALL_CONTROL_OBJECTIVES,
     searchAttribute: 'nameContainsFold',
     objectName: 'name',
+    defaultWhere: { statusNEQ: ControlObjectiveObjectiveStatus.ARCHIVED },
   },
   [ObjectTypeObjects.PROGRAM]: {
     responseObjectKey: 'programs',
