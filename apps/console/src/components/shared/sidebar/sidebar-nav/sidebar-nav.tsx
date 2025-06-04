@@ -11,8 +11,10 @@ import { cn } from '@repo/ui/lib/utils'
 import { Separator as Hr } from '@repo/ui/separator'
 import { sidebarNavStyles } from './sidebar-nav.styles'
 import { Logo } from '@repo/ui/logo'
-import { Lightbulb, Milestone } from 'lucide-react'
+import { BookText, File, Lightbulb, Milestone, PaperclipIcon } from 'lucide-react'
 import clsx from 'clsx'
+import { Popover, PopoverContent, PopoverTrigger } from '@radix-ui/react-popover'
+import { CONTRIBUTE_URL, DOCS_URL, SUPPORT_EMAIL } from '@/constants'
 
 interface SideNavProps {
   items: (NavItem | Separator | NavHeading)[]
@@ -26,6 +28,7 @@ export function SideNav({ items, userTaskCount, setOpen, className }: SideNavPro
   const { isOpen: isSidebarOpen, toggle: toggleOpen } = useSidebar()
   const [openItems, setOpenItems] = useState<string[]>([])
   const [lastOpenItems, setLastOpenItems] = useState<string[]>([])
+  const [showPopup, setShowPopup] = useState(false)
 
   const { nav, icon, accordionTrigger, link, linkLabel, accordionItem, separator, heading, badgeCount } = sidebarNavStyles()
 
@@ -116,8 +119,38 @@ export function SideNav({ items, userTaskCount, setOpen, className }: SideNavPro
               <Logo width={87} />
             </Link>
             <div className="flex gap-3.5">
-              <Lightbulb className="cursor-pointer" size={16} />
-              <Milestone className="cursor-pointer" size={16} />
+              <Popover open={showPopup} onOpenChange={setOpen}>
+                <PopoverTrigger asChild onMouseEnter={() => setShowPopup(true)} onMouseLeave={() => setShowPopup(false)}>
+                  <div>
+                    <Lightbulb className="cursor-pointer" size={16} />
+                  </div>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 bg-panel-bg border p-4 rounded-md z-1 relative" side="top" onMouseEnter={() => setShowPopup(true)} onMouseLeave={() => setShowPopup(false)}>
+                  <Link
+                    href={DOCS_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 mb-1 hover:bg-muted focus:rounded hover:rounded-sm focus:text-accent-foreground p-1"
+                  >
+                    <BookText size={16} />
+                    <p>Docs</p>
+                  </Link>
+
+                  <div className="border-b mb-1" />
+
+                  <a href={SUPPORT_EMAIL} className="flex items-center gap-1 mb-1 hover:bg-muted focus:rounded hover:rounded-sm focus:text-accent-foreground p-1">
+                    <File size={16} />
+                    <p>Feedback</p>
+                  </a>
+
+                  <div className="border-b mb-1" />
+
+                  <a href={CONTRIBUTE_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:bg-muted focus:rounded hover:rounded-sm focus:text-accent-foreground p-1">
+                    <File size={16} />
+                    <p>Contribute</p>
+                  </a>
+                </PopoverContent>
+              </Popover>
             </div>
           </>
         ) : (

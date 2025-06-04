@@ -16,7 +16,7 @@ const sidebarStyles = tv({
     },
     isOpen: {
       true: {
-        nav: 'w-60 overflow-auto max-h-[calc(100%_-_41px)]',
+        nav: 'w-60 overflow-auto max-h-[calc(100%_-_41px)] z-20',
       },
     },
   },
