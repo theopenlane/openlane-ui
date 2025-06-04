@@ -129,10 +129,10 @@ export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuc
         {isEditing ? (
           <>
             <Button className="h-8 !px-4" icon={<Pencil />} iconPosition="left">
-              Save edit
+              Save
             </Button>
             <Button variant="back" className="h-8 !px-4" type="button" onClick={onSuccess}>
-              Discard edit
+              Cancel
             </Button>
             <Button variant="destructive" className="h-8 !px-4" icon={<Trash2 />} iconPosition="left" type="button" onClick={handleDelete}>
               Delete
