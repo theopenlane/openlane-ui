@@ -116,7 +116,7 @@ const TimelineReadiness = () => {
             {isEditing && (
               <div className="flex gap-2">
                 <Button className="!h-8 !p-2" variant="outline" type="submit" icon={<Pencil />} iconPosition="left" disabled={isPending}>
-                  Save edit
+                  Save
                 </Button>
                 <Button type="button" variant="back" className="!h-8 !p-2" onClick={handleCancel}>
                   Cancel
