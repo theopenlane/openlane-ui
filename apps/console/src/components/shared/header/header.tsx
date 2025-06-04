@@ -12,6 +12,7 @@ import { usePathname } from 'next/navigation'
 import { GlobalSearch } from '../search/search'
 import { Logo } from '@repo/ui/logo'
 import { DOCS_URL } from '@/constants'
+import NavTriangle from '@/assets/NavTriangle'
 
 export default function Header() {
   const { isOpen, toggle } = useSidebar()
@@ -38,7 +39,6 @@ export default function Header() {
             <OrganizationSelector />
           </div>
           <div className={userNav()}>
-            <SupportLinks />
             <UserMenu />
           </div>
         </nav>
@@ -51,14 +51,12 @@ export default function Header() {
       <div className={header()}>
         <nav className={nav()}>
           <div className={expandNav({ isOpen: !isOpen })}>
-            <Link href={'/dashboard'} className="">
-              <Logo width={160} />
-            </Link>
-            <PanelLeft height={16} width={16} onClick={handleToggle} className="cursor-pointer ml-14" />
+            <OrganizationSelector />
+            <NavTriangle size={31} className="text-border -ml-5" />
+
+            <PanelLeft height={16} width={16} onClick={handleToggle} className="cursor-pointer" />
             <div className="border-l h-4" />
             <div className="flex justify-start items-center">
-              <OrganizationSelector />
-
               <div className={mobileSidebar()}>
                 <>MobileSidebar</>
               </div>
@@ -71,20 +69,10 @@ export default function Header() {
 
           <div className={userNav()}>
             <GlobalSearch />
-            <SupportLinks />
             <UserMenu />
           </div>
         </nav>
       </div>
     </>
-  )
-}
-
-function SupportLinks() {
-  return (
-    <Link href={DOCS_URL} target="_blank" rel="noopener noreferrer" className="flex gap-2 items-center">
-      <BookText className="text-input-text" size={16} />
-      <p>Docs</p>
-    </Link>
   )
 }
