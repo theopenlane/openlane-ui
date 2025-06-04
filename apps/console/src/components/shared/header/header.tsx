@@ -39,7 +39,6 @@ export default function Header() {
             <OrganizationSelector />
           </div>
           <div className={userNav()}>
-            <SupportLinks />
             <UserMenu />
           </div>
         </nav>
@@ -70,20 +69,10 @@ export default function Header() {
 
           <div className={userNav()}>
             <GlobalSearch />
-            <SupportLinks />
             <UserMenu />
           </div>
         </nav>
       </div>
     </>
-  )
-}
-
-function SupportLinks() {
-  return (
-    <Link href={DOCS_URL} target="_blank" rel="noopener noreferrer" className="flex gap-2 items-center">
-      <BookText className="text-input-text" size={16} />
-      <p>Docs</p>
-    </Link>
   )
 }
