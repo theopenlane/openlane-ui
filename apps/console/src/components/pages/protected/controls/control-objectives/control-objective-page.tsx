@@ -2,16 +2,17 @@
 
 import React, { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { useGetAllControlObjectives } from '@/lib/graphql-hooks/control-objectives'
-import { ControlObjectiveFieldsFragment } from '@repo/codegen/src/schema'
+import { useGetAllControlObjectives, useUpdateControlObjective } from '@/lib/graphql-hooks/control-objectives'
+import { ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import { ArrowRight, ChevronRight, ChevronsDownUp, CirclePlus, List, Pencil, Settings2 } from 'lucide-react'
 import CreateControlObjectiveSheet from '@/components/pages/protected/controls/control-objectives/create-control-objective-sheet'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Button } from '@repo/ui/button'
-
 import { Loading } from '@/components/shared/loading/loading'
 import { ControlObjectiveCard } from './control-objective-card'
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@radix-ui/react-accordion'
+import { Checkbox } from '@repo/ui/checkbox'
+import { useNotification } from '@/hooks/useNotification'
 
 const ControlObjectivePage = () => {
   const params = useParams()
@@ -22,12 +23,17 @@ const ControlObjectivePage = () => {
   const [existingIds, setExistingIds] = useState<string[]>([])
   const [isInitialized, setIsInitialized] = useState(false)
   const [editData, setEditData] = useState<ControlObjectiveFieldsFragment | null>(null)
+  const [archivedChecked, setArchivedChecked] = useState(false)
+  const { successNotification, errorNotification } = useNotification()
 
   const { data, isLoading } = useGetAllControlObjectives({
     ...(subcontrolId ? { hasSubcontrolsWith: [{ id: subcontrolId }] } : { hasControlsWith: [{ id }] }),
+    ...(archivedChecked ? {} : { statusNEQ: ControlObjectiveObjectiveStatus.ARCHIVED }),
   })
 
   const edges = data?.controlObjectives?.edges?.filter((edge): edge is { node: ControlObjectiveFieldsFragment } => !!edge?.node)
+
+  const { mutateAsync: updateObjective } = useUpdateControlObjective()
 
   const toggleAll = () => {
     if (!edges) return
@@ -67,6 +73,24 @@ const ControlObjectivePage = () => {
     detectAndExpandNewObjectives(currentIds, existingIds)
   }, [edges, existingIds, isInitialized])
 
+  const handleUnarchinve = async (node: ControlObjectiveFieldsFragment) => {
+    try {
+      await updateObjective({
+        input: { status: ControlObjectiveObjectiveStatus.ACTIVE },
+        updateControlObjectiveId: node.id,
+      })
+
+      successNotification({
+        title: 'Objective unarchived',
+        description: `${node.name} is now active.`,
+      })
+    } catch {
+      errorNotification({
+        title: 'Failed to unarchive objective',
+      })
+    }
+  }
+
   useEffect(() => {
     handleControlObjectivesUpdate()
   }, [handleControlObjectivesUpdate])
@@ -79,6 +103,24 @@ const ControlObjectivePage = () => {
     return (
       <>
         <CreateControlObjectiveSheet open={showCreateSheet} onOpenChange={setShowCreateSheet} />
+        <div className="flex justify-between items-center">
+          <PageHeading heading="Control Objectives" />
+          <Button className="h-8 !px-2" icon={<CirclePlus />} iconPosition="left" onClick={() => setShowCreateSheet(true)}>
+            Create Objective
+          </Button>
+        </div>
+        <div className="flex gap-4 items-center">
+          <div className="flex gap-2 items-center">
+            <Checkbox checked={archivedChecked} onCheckedChange={(checked) => setArchivedChecked(!!checked)} />
+            <p>Show archived</p>
+          </div>
+          <Button type="button" className="h-8 !px-2" variant="outline" onClick={toggleAll}>
+            <div className="flex">
+              <List size={16} />
+              <ChevronsDownUp size={16} />
+            </div>
+          </Button>
+        </div>
         <div className="flex flex-col items-center justify-center h-[60vh] text-center text-gray-300">
           <Settings2 className="w-20 h-20 mb-4 text-border" strokeWidth={1} />
           <p className="mb-2 text-sm">No Objective found for this Control.</p>
@@ -105,17 +147,20 @@ const ControlObjectivePage = () => {
       />
       <div className="flex justify-between items-center">
         <PageHeading heading="Control Objectives" />
-        <div className="flex gap-2.5 items-center">
-          <Button type="button" className="h-8 !px-2" variant="outline" onClick={toggleAll}>
-            <div className="flex">
-              <List size={16} />
-              <ChevronsDownUp size={16} />
-            </div>
-          </Button>
-          <Button className="h-8 !px-2" icon={<CirclePlus />} iconPosition="left" onClick={() => setShowCreateSheet(true)}>
-            Create Objective
-          </Button>
+        <Button className="h-8 !px-2" icon={<CirclePlus />} iconPosition="left" onClick={() => setShowCreateSheet(true)}>
+          Create Objective
+        </Button>
+      </div>
+      <div className="flex gap-4 items-center">
+        <div className="flex gap-2 items-center">
+          <Checkbox checked={archivedChecked} onCheckedChange={(checked) => setArchivedChecked(!!checked)} /> <p>Show archived</p>
         </div>
+        <Button type="button" className="h-8 !px-2" variant="outline" onClick={toggleAll}>
+          <div className="flex">
+            <List size={16} />
+            <ChevronsDownUp size={16} />
+          </div>
+        </Button>
       </div>
       <div className="space-y-4 mt-6">
         <Accordion type="multiple" value={expandedItems} onValueChange={setExpandedItems} className="w-full mt-6">
@@ -126,18 +171,32 @@ const ControlObjectivePage = () => {
                   <ChevronRight size={22} className="mr-2 text-brand transition-transform group-data-[state=open]:rotate-90" />
                   <span className="text-base font-medium ">{edge.node.name}</span>
                 </AccordionTrigger>
-                <Button
-                  className="h-8 !px-2"
-                  variant="outline"
-                  icon={<Pencil />}
-                  iconPosition="left"
-                  onClick={() => {
-                    setEditData(edge.node)
-                    setShowCreateSheet(true)
-                  }}
-                >
-                  Edit
-                </Button>
+                {edge.node.status === ControlObjectiveObjectiveStatus.ARCHIVED ? (
+                  <Button
+                    className="h-8 !px-2"
+                    variant="outline"
+                    icon={<Pencil />}
+                    iconPosition="left"
+                    onClick={() => {
+                      handleUnarchinve(edge.node)
+                    }}
+                  >
+                    Unarchive
+                  </Button>
+                ) : (
+                  <Button
+                    className="h-8 !px-2"
+                    variant="outline"
+                    icon={<Pencil />}
+                    iconPosition="left"
+                    onClick={() => {
+                      setEditData(edge.node)
+                      setShowCreateSheet(true)
+                    }}
+                  >
+                    Edit
+                  </Button>
+                )}
               </div>
               <AccordionContent>
                 <ControlObjectiveCard obj={edge.node} />
