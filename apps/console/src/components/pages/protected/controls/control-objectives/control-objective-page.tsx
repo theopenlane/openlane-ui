@@ -106,7 +106,7 @@ const ControlObjectivePage = () => {
         <div className="flex justify-between items-center">
           <PageHeading heading="Control Objectives" />
           <Button className="h-8 !px-2" icon={<CirclePlus />} iconPosition="left" onClick={() => setShowCreateSheet(true)}>
-            Create Objective
+            Create
           </Button>
         </div>
         <div className="flex gap-4 items-center">
@@ -148,7 +148,7 @@ const ControlObjectivePage = () => {
       <div className="flex justify-between items-center">
         <PageHeading heading="Control Objectives" />
         <Button className="h-8 !px-2" icon={<CirclePlus />} iconPosition="left" onClick={() => setShowCreateSheet(true)}>
-          Create Objective
+          Create
         </Button>
       </div>
       <div className="flex gap-4 items-center">

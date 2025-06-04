@@ -11,7 +11,7 @@ import { ControlImplementationDocumentStatus } from '@repo/codegen/src/schema'
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Value } from '@udecode/plate-common'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Info, Pencil, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import useFormSchema, { TFormData } from './use-form-schema'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
@@ -20,6 +20,7 @@ import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { SetObjectAssociationDialog } from '../set-object-association-dialog'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 import { useCreateControlImplementation, useDeleteControlImplementation, useUpdateControlImplementation } from '@/lib/graphql-hooks/control-implementations'
+import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
 
 export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { onSuccess: () => void; defaultValues?: Partial<TFormData> }) => {
   const { id, subcontrolId } = useParams()
@@ -148,10 +149,19 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
           </>
         )}
       </div>
-      <SheetHeader>{!isEditing && <SheetTitle className="text-left">Create Implementation</SheetTitle>}</SheetHeader>
+      <SheetHeader>{!isEditing && <SheetTitle className="text-left">Control Implementation</SheetTitle>}</SheetHeader>
+      {!isEditing && (
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertTitle>Add details about how this control is implemented in your environment.</AlertTitle>
+          <AlertDescription>
+            <p>Include relevant tools, processes, teams involved, and how effectiveness is ensured.</p>
+          </AlertDescription>
+        </Alert>
+      )}
       <div className="p-4 border rounded-lg">
         <div className="border-b flex items-center py-2.5">
-          <Label className="self-start whitespace-nowrap min-w-36">Implementation Details</Label>
+          <Label className="self-start whitespace-nowrap min-w-36">Details</Label>
           <Controller control={control} name="details" render={({ field }) => <PlateEditor initialValue={defaultValues?.details} onChange={(val) => field.onChange(val)} variant="basic" />} />
         </div>
 
@@ -179,9 +189,7 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
           />
         </div>
         <div className="border-b flex items-center py-2.5">
-          <Label className="min-w-36">
-            Implementation <br /> date
-          </Label>
+          <Label className="min-w-36">Date Implemented</Label>
           <div className="w-48">
             <Controller name="implementationDate" control={form.control} render={({ field }) => <CalendarPopover field={field} disabledFrom={new Date()} defaultToday />} />
           </div>
