@@ -8,7 +8,7 @@ import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 import { useNotification } from '@/hooks/useNotification'
 import { useUpdateControlObjective } from '@/lib/graphql-hooks/control-objectives'
-import { ControlObjectiveFieldsFragment } from '@repo/codegen/src/schema'
+import { ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import { useParams } from 'next/navigation'
 
 export function LinkControlsModal({ controlObjectiveData }: { controlObjectiveData: ControlObjectiveFieldsFragment }) {
@@ -108,7 +108,9 @@ export function LinkControlsModal({ controlObjectiveData }: { controlObjectiveDa
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogTrigger asChild>
-        <Button className="h-8">Link Controls</Button>
+        <Button disabled={controlObjectiveData.status === ControlObjectiveObjectiveStatus.ARCHIVED} className="h-8">
+          Link Controls
+        </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl p-6 space-y-4">
         <DialogHeader>
