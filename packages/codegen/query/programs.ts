@@ -38,6 +38,13 @@ export const GET_ALL_PROGRAMS = gql`
           displayID
         }
       }
+      pageInfo {
+        endCursor
+        startCursor
+        hasPreviousPage
+        hasNextPage
+      }
+      totalCount
     }
   }
 `

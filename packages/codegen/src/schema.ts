@@ -36700,7 +36700,9 @@ export type GetAllInternalPoliciesQuery = {
   __typename?: 'Query'
   internalPolicies: {
     __typename?: 'InternalPolicyConnection'
+    totalCount: number
     edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
 
@@ -37069,6 +37071,7 @@ export type GetAllProgramsQuery = {
   __typename?: 'Query'
   programs: {
     __typename?: 'ProgramConnection'
+    totalCount: number
     edges?: Array<{
       __typename?: 'ProgramEdge'
       node?: {
@@ -37084,6 +37087,7 @@ export type GetAllProgramsQuery = {
         displayID: string
       } | null
     } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
 

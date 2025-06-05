@@ -5,10 +5,10 @@ import { GET_ALL_INTERNAL_POLICIES } from '@repo/codegen/query/policy'
 import { GET_ALL_PROCEDURES } from '@repo/codegen/query/procedure'
 import { GET_ALL_PROGRAMS } from '@repo/codegen/query/programs'
 import { GET_ALL_RISKS } from '@repo/codegen/query/risks'
-import { Program, Risk, Control, ControlObjective, NarrativeEdge, InternalPolicy, Procedure } from '@repo/codegen/src/schema'
+import { Program, Risk, Control, ControlObjective, NarrativeEdge, InternalPolicy, Procedure, PageInfo } from '@repo/codegen/src/schema'
 
 export enum ObjectTypes {
-  CONTROL_OBJECTIVE = 'Control Objective',
+  // CONTROL_OBJECTIVE = 'Control Objective',
   INTERNAL_POLICY = 'Internal Policy',
   // NARRATIVE = 'Narrative',
   PROCEDURE = 'Procedure',
@@ -19,7 +19,7 @@ export enum ObjectTypes {
 export const objectTypeInputToEnumMap: Record<string, ObjectTypes> = {
   Program: ObjectTypes.PROGRAM,
   Risk: ObjectTypes.RISK,
-  ControlObjective: ObjectTypes.CONTROL_OBJECTIVE,
+  // ControlObjective: ObjectTypes.CONTROL_OBJECTIVE,
   // Narrative: ObjectTypes.NARRATIVE,
   InternalPolicy: ObjectTypes.INTERNAL_POLICY,
   Procedure: ObjectTypes.PROCEDURE,
@@ -31,21 +31,29 @@ export const objectTypeInputToEnumMap: Record<string, ObjectTypes> = {
 export type AllQueriesData = {
   programs?: {
     edges?: Array<{ node: Program }>
+    pageInfo?: PageInfo
+    totalCount?: number
   }
   risks?: {
     edges?: Array<{ node: Risk }>
+    pageInfo?: PageInfo
+    totalCount?: number
   }
-  controlObjectives?: {
-    edges?: Array<{ node: ControlObjective }>
-  }
+  // controlObjectives?: {
+  //   edges?: Array<{ node: ControlObjective }>
+  // }
   // narratives?: {
   //   edges?: Array<{ node: NarrativeEdge }>
   // }
   internalPolicies?: {
     edges?: Array<{ node: InternalPolicy }>
+    pageInfo?: PageInfo
+    totalCount?: number
   }
   procedures?: {
     edges?: Array<{ node: Procedure }>
+    pageInfo?: PageInfo
+    totalCount?: number
   }
 }
 
@@ -69,11 +77,11 @@ export const OBJECT_TYPE_CONFIG: Record<
     responseObjectKey: 'risks',
     queryDocument: GET_ALL_RISKS,
   },
-  [ObjectTypes.CONTROL_OBJECTIVE]: {
-    roleOptions: ['View', 'Edit', 'Blocked'],
-    responseObjectKey: 'controlObjectives',
-    queryDocument: GET_ALL_CONTROL_OBJECTIVES,
-  },
+  // [ObjectTypes.CONTROL_OBJECTIVE]: {
+  //   roleOptions: ['View', 'Edit', 'Blocked'],
+  //   responseObjectKey: 'controlObjectives',
+  //   queryDocument: GET_ALL_CONTROL_OBJECTIVES,
+  // },
   // [ObjectTypes.NARRATIVE]: {
   //   roleOptions: ['View', 'Edit', 'Blocked'],
   //   responseObjectKey: 'narratives',

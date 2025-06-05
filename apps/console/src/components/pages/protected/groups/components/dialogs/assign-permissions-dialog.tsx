@@ -17,6 +17,8 @@ import { GET_ALL_RISKS } from '@repo/codegen/query/risks'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { useNotification } from '@/hooks/useNotification'
 import { useDebounce } from '@uidotdev/usehooks'
+import { TPagination } from '@repo/ui/pagination-types'
+import { DEFAULT_PAGINATION } from '@/constants/pagination'
 
 type TableDataItem = {
   id: string
@@ -73,6 +75,11 @@ const AssignPermissionsDialog = () => {
   const [searchValue, setSearchValue] = useState('')
   const [debouncedSearchValue, setDebouncedSearchValue] = useState('')
   const debouncedSetSearchValue = useDebounce(searchValue, 300)
+  const [pagination, setPagination] = useState<TPagination>({
+    ...DEFAULT_PAGINATION,
+    pageSize: 5,
+    query: { first: 5 },
+  })
 
   const { mutateAsync: updateGroup } = useUpdateGroup()
 
@@ -84,11 +91,14 @@ const AssignPermissionsDialog = () => {
     selectedGroup,
     selectedObject,
   })
-  const { data } = useQuery<AllQueriesData>({
-    queryKey: [objectKey, 'group-permissions', where],
-    queryFn: () => client.request(selectedQuery || GET_ALL_RISKS, where),
+  const { data, isLoading } = useQuery<AllQueriesData>({
+    queryKey: [objectKey, 'group-permissions', where, pagination.page, pagination.pageSize],
+    queryFn: () => client.request(selectedQuery || GET_ALL_RISKS, { ...where, ...pagination.query }),
     enabled: !!selectedQuery,
   })
+
+  const pageInfo = objectKey ? data?.[objectKey]?.pageInfo : undefined
+  const totalCount = objectKey ? data?.[objectKey]?.totalCount : undefined
 
   const objectDataList = objectKey && data?.[objectKey]?.edges ? data[objectKey].edges : []
 
@@ -293,6 +303,9 @@ const AssignPermissionsDialog = () => {
                   },
                 ]}
                 data={tableData}
+                onPaginationChange={setPagination}
+                pagination={pagination}
+                paginationMeta={{ totalCount, pageInfo, isLoading }}
               />
             )}
 
