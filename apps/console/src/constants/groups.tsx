@@ -78,56 +78,75 @@ export type AllQueriesData = {
 
 export type AllQueriesDataKey = keyof AllQueriesData
 
-export const OBJECT_TYPE_CONFIG: Record<
-  ObjectTypes,
-  {
-    roleOptions: string[]
-    responseObjectKey: AllQueriesDataKey
-    queryDocument: any
-    objectName: string
-  }
-> = {
+export type ObjectPermissionConfig = {
+  roleOptions: string[]
+  responseObjectKey: AllQueriesDataKey
+  queryDocument: any
+  objectName: string
+  searchAttribute: string
+  inputPlaceholder: string
+  excludeViewersInFilter?: boolean
+  extraTableColumns?: ColumnDef<TableDataItem>[]
+}
+
+export const OBJECT_TYPE_CONFIG: Record<ObjectTypes, ObjectPermissionConfig> = {
   [ObjectTypes.PROGRAM]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'programs',
     queryDocument: GET_ALL_PROGRAMS,
     objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'program name',
   },
   [ObjectTypes.RISK]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'risks',
     queryDocument: GET_ALL_RISKS,
     objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'risk name',
   },
   [ObjectTypes.CONTROL]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'controls',
     queryDocument: GET_ALL_CONTROLS,
     objectName: 'refCode',
+    searchAttribute: 'refCodeContainsFold',
+    inputPlaceholder: 'ref code',
+    excludeViewersInFilter: true,
+    extraTableColumns: [
+      {
+        header: 'Reference Framework',
+        accessorKey: 'referenceFramework',
+      },
+    ],
   },
   [ObjectTypes.CONTROL_OBJECTIVE]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'controlObjectives',
     queryDocument: GET_ALL_CONTROL_OBJECTIVES,
     objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'control objective name',
   },
   [ObjectTypes.INTERNAL_POLICY]: {
     roleOptions: ['Edit', 'Blocked'],
     responseObjectKey: 'internalPolicies',
     queryDocument: GET_ALL_INTERNAL_POLICIES,
     objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'internal policy name',
+    excludeViewersInFilter: true,
   },
   [ObjectTypes.PROCEDURE]: {
     roleOptions: ['Edit', 'Blocked'],
     responseObjectKey: 'procedures',
     queryDocument: GET_ALL_PROCEDURES,
     objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'procedure name',
+    excludeViewersInFilter: true,
   },
-  // [ObjectTypes.NARRATIVE]: {
-  //   roleOptions: ['View', 'Edit', 'Blocked'],
-  //   responseObjectKey: 'narratives',
-  //   queryDocument: GET_ALL_NARRATIVES,
-  // },
 }
 
 export const generateColumns = (selectedObject: ObjectTypes | null): ColumnDef<TableDataItem>[] => {
@@ -143,14 +162,36 @@ export const generateColumns = (selectedObject: ObjectTypes | null): ColumnDef<T
     },
   ]
 
-  const conditionalColumns: ColumnDef<TableDataItem>[] = []
+  const extraColumns = selectedObject ? OBJECT_TYPE_CONFIG[selectedObject]?.extraTableColumns || [] : []
 
-  if (selectedObject === ObjectTypes.CONTROL) {
-    conditionalColumns.push({
-      header: 'Reference Framework',
-      accessorKey: 'referenceFramework',
-    })
+  return [...baseColumns, ...extraColumns]
+}
+
+export const generateGroupsPermissionsWhere = ({
+  debouncedSearchValue,
+  selectedGroup,
+  selectedObject,
+}: {
+  debouncedSearchValue: string
+  selectedGroup: string | null
+  selectedObject: ObjectTypes | null
+}): { where: Record<string, any> } => {
+  if (!selectedObject || !selectedGroup) return { where: {} }
+
+  const config = OBJECT_TYPE_CONFIG[selectedObject]
+  const baseWhere = {
+    [config.searchAttribute]: debouncedSearchValue,
   }
 
-  return [...baseColumns, ...conditionalColumns]
+  const exclusionFilter = {
+    not: {
+      or: [{ hasEditorsWith: [{ id: selectedGroup }] }, { hasBlockedGroupsWith: [{ id: selectedGroup }] }, ...(config.excludeViewersInFilter ? [] : [{ hasViewersWith: [{ id: selectedGroup }] }])],
+    },
+  }
+
+  return {
+    where: {
+      and: [baseWhere, exclusionFilter],
+    },
+  }
 }

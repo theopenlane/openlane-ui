@@ -1,5 +1,5 @@
 'use client'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Plus } from 'lucide-react'
@@ -9,54 +9,22 @@ import { Label } from '@repo/ui/label'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
-import { AllQueriesData, generateColumns, OBJECT_TYPE_CONFIG, ObjectTypes, TableDataItem } from '@/constants/groups'
+import { AllQueriesData, generateColumns, generateGroupsPermissionsWhere, OBJECT_TYPE_CONFIG, ObjectTypes, TableDataItem } from '@/constants/groups'
 import { useUpdateGroup } from '@/lib/graphql-hooks/groups'
 import { useQuery } from '@tanstack/react-query'
 import { GET_ALL_RISKS } from '@repo/codegen/query/risks'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { useNotification } from '@/hooks/useNotification'
-import { useDebounce } from '@uidotdev/usehooks'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 
-const generateWhere = ({
-  debouncedSearchValue,
-  selectedGroup,
-  selectedObject,
-}: {
-  debouncedSearchValue: string
-  selectedGroup: string | null
-  selectedObject: ObjectTypes | null
-}): { where: Record<string, any> } => {
-  let baseWhere = {
-    nameContainsFold: debouncedSearchValue,
-  }
-
-  if (selectedObject === ObjectTypes.CONTROL) {
-    baseWhere = { refCodeContainsFold: debouncedSearchValue }
-  }
-
-  const exclusionFilter = {
-    not: {
-      or: [{ hasEditorsWith: [{ id: selectedGroup }] }, { hasViewersWith: [{ id: selectedGroup }] }, { hasBlockedGroupsWith: [{ id: selectedGroup }] }],
-    },
-  }
-
-  const objectsWithoutViewers: ObjectTypes[] = [ObjectTypes.PROCEDURE, ObjectTypes.INTERNAL_POLICY, ObjectTypes.CONTROL]
-
-  return {
-    where: {
-      and: objectsWithoutViewers.includes(selectedObject as ObjectTypes)
-        ? [
-            baseWhere,
-            { not: { or: [{ hasEditorsWith: [{ id: selectedGroup }] }, { hasBlockedGroupsWith: [{ id: selectedGroup }] }] } }, // Excludes `hasViewersWith`
-          ]
-        : [baseWhere, exclusionFilter],
-    },
-  }
-}
-
 const options = Object.values(ObjectTypes)
+
+const defaultPagination = {
+  ...DEFAULT_PAGINATION,
+  pageSize: 5,
+  query: { first: 5 },
+}
 
 const AssignPermissionsDialog = () => {
   const { selectedGroup } = useGroupsStore()
@@ -69,25 +37,17 @@ const AssignPermissionsDialog = () => {
   const [roles, setRoles] = useState<Record<string, string>>({})
   const [searchValue, setSearchValue] = useState('')
   const [debouncedSearchValue, setDebouncedSearchValue] = useState('')
-  const debouncedSetSearchValue = useDebounce(searchValue, 300)
-  const [pagination, setPagination] = useState<TPagination>({
-    ...DEFAULT_PAGINATION,
-    pageSize: 5,
-    query: { first: 5 },
-  })
+  const [pagination, setPagination] = useState<TPagination>(defaultPagination)
 
   const { mutateAsync: updateGroup } = useUpdateGroup()
 
   const selectedConfig = selectedObject ? OBJECT_TYPE_CONFIG[selectedObject] : null
   const selectedQuery = selectedConfig?.queryDocument
 
-  // const inputName = selectedConfig?.inputName
-  // const inputPlaceholder = selectedConfig?.placeholder
-  // const searchAttribute = selectedConfig?.searchAttribute
   const objectName = selectedConfig?.objectName!
 
   const objectKey = selectedObject ? OBJECT_TYPE_CONFIG[selectedObject]?.responseObjectKey : null
-  const where = generateWhere({
+  const where = generateGroupsPermissionsWhere({
     debouncedSearchValue,
     selectedGroup,
     selectedObject,
@@ -120,8 +80,6 @@ const AssignPermissionsDialog = () => {
       })) || []
     )
   }, [objectDataList, selectedPermissions, togglePermission, objectName])
-
-  console.log('tableData', tableData)
 
   const columns = useMemo(() => generateColumns(selectedObject), [selectedObject])
 
@@ -167,7 +125,7 @@ const AssignPermissionsDialog = () => {
       addControlObjectiveBlockedGroupIDs: [],
     }
 
-    const prefix = selectedObject.replace(/\s+/g, '') // Remove spaces for the prefix
+    const prefix = selectedObject.replace(/\s+/g, '')
 
     selectedPermissions.forEach((id) => {
       const role = roles[id] || 'View'
@@ -254,6 +212,17 @@ const AssignPermissionsDialog = () => {
     }
   }
 
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchValue(searchValue)
+      setPagination(defaultPagination)
+    }, 300)
+
+    return () => {
+      clearTimeout(handler)
+    }
+  }, [searchValue])
+
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
@@ -275,6 +244,8 @@ const AssignPermissionsDialog = () => {
                   onValueChange={(val: ObjectTypes) => {
                     setSelectedObject(val)
                     setSearchValue('')
+                    setPagination(defaultPagination)
+                    setDebouncedSearchValue('')
                   }}
                 >
                   <SelectTrigger className="w-[180px]">{selectedObject || 'Select object'}</SelectTrigger>
