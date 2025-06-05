@@ -78,25 +78,44 @@ const AssignPermissionsDialog = () => {
 
   const selectedQuery = selectedObject && OBJECT_TYPE_CONFIG[selectedObject].queryDocument
 
-  const { data } = useQuery<AllQueriesData>({
-    queryKey: ['assignPermissionCustom', { debouncedSearchValue, selectedGroup, selectedObject }],
-    queryFn: () =>
-      client.request(
-        selectedQuery || GET_ALL_RISKS,
-        generateWhere({
-          debouncedSearchValue,
-          selectedGroup,
-          selectedObject,
-        }),
-      ),
-    enabled: Boolean(selectedQuery),
+  const objectKey = selectedObject ? OBJECT_TYPE_CONFIG[selectedObject]?.responseObjectKey : null
+  const where = generateWhere({
+    debouncedSearchValue,
+    selectedGroup,
+    selectedObject,
   })
-  const handleNext = () => setStep(2)
-  const handleBack = () => setStep(1)
+  const { data } = useQuery<AllQueriesData>({
+    queryKey: [objectKey, 'group-permissions', where],
+    queryFn: () => client.request(selectedQuery || GET_ALL_RISKS, where),
+    enabled: !!selectedQuery,
+  })
+
+  const objectDataList = objectKey && data?.[objectKey]?.edges ? data[objectKey].edges : []
 
   const togglePermission = (id: string) => {
     setSelectedPermissions((prev) => (prev.includes(id) ? prev.filter((perm) => perm !== id) : [...prev, id]))
   }
+
+  const tableData: TableDataItem[] =
+    objectDataList.map((item: any) => ({
+      id: item?.node?.id,
+      name: item?.node?.name,
+      checked: selectedPermissions.includes(item?.node?.id || ''),
+      togglePermission,
+      displayID: item?.node?.displayID || '',
+    })) || []
+
+  const step2Data = selectedPermissions.map((id) => {
+    const program = tableData.find((p: any) => p.id === id)
+    return {
+      id,
+      name: program?.name || 'Unknown',
+      permission: roles[id] || 'View',
+    }
+  })
+
+  const handleNext = () => setStep(2)
+  const handleBack = () => setStep(1)
 
   const handleRoleChange = (id: string, role: string) => {
     setRoles((prev) => ({ ...prev, [id]: role }))
@@ -169,26 +188,6 @@ const AssignPermissionsDialog = () => {
       })
     }
   }
-
-  const objectKey = selectedObject ? OBJECT_TYPE_CONFIG[selectedObject]?.responseObjectKey : null
-  const objectDataList = objectKey && data?.[objectKey]?.edges ? data[objectKey].edges : []
-  const tableData: TableDataItem[] =
-    objectDataList.map((item: any) => ({
-      id: item?.node?.id,
-      name: item?.node?.name,
-      checked: selectedPermissions.includes(item?.node?.id || ''),
-      togglePermission,
-      displayID: item?.node?.displayID || '',
-    })) || []
-
-  const step2Data = selectedPermissions.map((id) => {
-    const program = tableData.find((p: any) => p.id === id)
-    return {
-      id,
-      name: program?.name || 'Unknown',
-      permission: roles[id] || 'View',
-    }
-  })
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue(event.target.value)

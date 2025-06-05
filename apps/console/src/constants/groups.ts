@@ -5,26 +5,25 @@ import { GET_ALL_INTERNAL_POLICIES } from '@repo/codegen/query/policy'
 import { GET_ALL_PROCEDURES } from '@repo/codegen/query/procedure'
 import { GET_ALL_PROGRAMS } from '@repo/codegen/query/programs'
 import { GET_ALL_RISKS } from '@repo/codegen/query/risks'
+import { Program, Risk, Control, ControlObjective, NarrativeEdge, InternalPolicy, Procedure } from '@repo/codegen/src/schema'
 
 export enum ObjectTypes {
+  CONTROL_OBJECTIVE = 'Control Objective',
+  INTERNAL_POLICY = 'Internal Policy',
+  // NARRATIVE = 'Narrative',
+  PROCEDURE = 'Procedure',
   PROGRAM = 'Program',
   RISK = 'Risk',
-  CONTROL_OBJECTIVE = 'Control Objective',
-  NARRATIVE = 'Narrative',
-  INTERNAL_POLICY = 'Internal Policy',
-  PROCEDURE = 'Procedure',
 }
 
 export const objectTypeInputToEnumMap: Record<string, ObjectTypes> = {
   Program: ObjectTypes.PROGRAM,
   Risk: ObjectTypes.RISK,
   ControlObjective: ObjectTypes.CONTROL_OBJECTIVE,
-  Narrative: ObjectTypes.NARRATIVE,
+  // Narrative: ObjectTypes.NARRATIVE,
   InternalPolicy: ObjectTypes.INTERNAL_POLICY,
   Procedure: ObjectTypes.PROCEDURE,
 }
-
-import { Program, Risk, Control, ControlObjective, NarrativeEdge, InternalPolicy, Procedure } from '@repo/codegen/src/schema'
 
 /**
  * Our "data" shape for all object types, keyed by their respective property.
@@ -39,9 +38,9 @@ export type AllQueriesData = {
   controlObjectives?: {
     edges?: Array<{ node: ControlObjective }>
   }
-  narratives?: {
-    edges?: Array<{ node: NarrativeEdge }>
-  }
+  // narratives?: {
+  //   edges?: Array<{ node: NarrativeEdge }>
+  // }
   internalPolicies?: {
     edges?: Array<{ node: InternalPolicy }>
   }
@@ -75,11 +74,11 @@ export const OBJECT_TYPE_CONFIG: Record<
     responseObjectKey: 'controlObjectives',
     queryDocument: GET_ALL_CONTROL_OBJECTIVES,
   },
-  [ObjectTypes.NARRATIVE]: {
-    roleOptions: ['View', 'Edit', 'Blocked'],
-    responseObjectKey: 'narratives',
-    queryDocument: GET_ALL_NARRATIVES,
-  },
+  // [ObjectTypes.NARRATIVE]: {
+  //   roleOptions: ['View', 'Edit', 'Blocked'],
+  //   responseObjectKey: 'narratives',
+  //   queryDocument: GET_ALL_NARRATIVES,
+  // },
   [ObjectTypes.INTERNAL_POLICY]: {
     roleOptions: ['Edit', 'Blocked'],
     responseObjectKey: 'internalPolicies',
