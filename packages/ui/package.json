@@ -204,7 +204,7 @@
     "@types/eslint": "latest",
     "autoprefixer": "^10.4.20",
     "clsx": "^2.1.1",
-    "eslint": "latest",
+    "eslint": "^9.28.0",
     "postcss": "^8.5.1",
     "react": "19.0.0",
     "tailwind-variants": "^0.3.1",
