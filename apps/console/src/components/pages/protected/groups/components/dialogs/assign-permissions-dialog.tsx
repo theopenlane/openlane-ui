@@ -173,7 +173,7 @@ const AssignPermissionsDialog = () => {
 
   const columnsStep2: ColumnDef<{ id: string; name: string; permission: string }>[] = [
     {
-      header: 'Program',
+      header: 'Name',
       accessorKey: 'name',
     },
     {
