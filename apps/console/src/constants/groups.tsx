@@ -18,7 +18,7 @@ export type TableDataItem = {
 }
 
 export enum ObjectTypes {
-  CONTROL = 'Controls',
+  CONTROL = 'Control',
   CONTROL_OBJECTIVE = 'Control Objective',
   INTERNAL_POLICY = 'Internal Policy',
   PROCEDURE = 'Procedure',
@@ -84,43 +84,50 @@ export const OBJECT_TYPE_CONFIG: Record<
     roleOptions: string[]
     responseObjectKey: AllQueriesDataKey
     queryDocument: any
+    objectName: string
   }
 > = {
   [ObjectTypes.PROGRAM]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'programs',
     queryDocument: GET_ALL_PROGRAMS,
+    objectName: 'name',
   },
   [ObjectTypes.RISK]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'risks',
     queryDocument: GET_ALL_RISKS,
+    objectName: 'name',
   },
   [ObjectTypes.CONTROL]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
-    responseObjectKey: 'risks',
-    queryDocument: GET_ALL_RISKS,
+    responseObjectKey: 'controls',
+    queryDocument: GET_ALL_CONTROLS,
+    objectName: 'refCode',
   },
   [ObjectTypes.CONTROL_OBJECTIVE]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'controlObjectives',
     queryDocument: GET_ALL_CONTROL_OBJECTIVES,
+    objectName: 'name',
+  },
+  [ObjectTypes.INTERNAL_POLICY]: {
+    roleOptions: ['Edit', 'Blocked'],
+    responseObjectKey: 'internalPolicies',
+    queryDocument: GET_ALL_INTERNAL_POLICIES,
+    objectName: 'name',
+  },
+  [ObjectTypes.PROCEDURE]: {
+    roleOptions: ['Edit', 'Blocked'],
+    responseObjectKey: 'procedures',
+    queryDocument: GET_ALL_PROCEDURES,
+    objectName: 'name',
   },
   // [ObjectTypes.NARRATIVE]: {
   //   roleOptions: ['View', 'Edit', 'Blocked'],
   //   responseObjectKey: 'narratives',
   //   queryDocument: GET_ALL_NARRATIVES,
   // },
-  [ObjectTypes.INTERNAL_POLICY]: {
-    roleOptions: ['Edit', 'Blocked'],
-    responseObjectKey: 'internalPolicies',
-    queryDocument: GET_ALL_INTERNAL_POLICIES,
-  },
-  [ObjectTypes.PROCEDURE]: {
-    roleOptions: ['Edit', 'Blocked'],
-    responseObjectKey: 'procedures',
-    queryDocument: GET_ALL_PROCEDURES,
-  },
 }
 
 export const generateColumns = (selectedObject: ObjectTypes | null): ColumnDef<TableDataItem>[] => {
@@ -142,13 +149,6 @@ export const generateColumns = (selectedObject: ObjectTypes | null): ColumnDef<T
     conditionalColumns.push({
       header: 'Reference Framework',
       accessorKey: 'referenceFramework',
-    })
-  }
-
-  if (selectedObject === ObjectTypes.PROGRAM) {
-    conditionalColumns.unshift({
-      header: 'Display ID',
-      accessorKey: 'displayID',
     })
   }
 

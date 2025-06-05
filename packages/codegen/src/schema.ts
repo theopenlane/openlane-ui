@@ -35502,6 +35502,7 @@ export type GetAllControlImplementationsQuery = {
   __typename?: 'Query'
   controlImplementations: {
     __typename?: 'ControlImplementationConnection'
+    totalCount: number
     edges?: Array<{
       __typename?: 'ControlImplementationEdge'
       node?: {
@@ -35527,6 +35528,7 @@ export type GetAllControlImplementationsQuery = {
         }
       } | null
     } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
 

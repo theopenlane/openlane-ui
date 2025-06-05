@@ -28,8 +28,12 @@ const generateWhere = ({
   selectedGroup: string | null
   selectedObject: ObjectTypes | null
 }): { where: Record<string, any> } => {
-  const baseWhere = {
+  let baseWhere = {
     nameContainsFold: debouncedSearchValue,
+  }
+
+  if (selectedObject === ObjectTypes.CONTROL) {
+    baseWhere = { refCodeContainsFold: debouncedSearchValue }
   }
 
   const exclusionFilter = {
@@ -38,7 +42,7 @@ const generateWhere = ({
     },
   }
 
-  const objectsWithoutViewers: ObjectTypes[] = [ObjectTypes.PROCEDURE, ObjectTypes.INTERNAL_POLICY]
+  const objectsWithoutViewers: ObjectTypes[] = [ObjectTypes.PROCEDURE, ObjectTypes.INTERNAL_POLICY, ObjectTypes.CONTROL]
 
   return {
     where: {
@@ -74,7 +78,13 @@ const AssignPermissionsDialog = () => {
 
   const { mutateAsync: updateGroup } = useUpdateGroup()
 
-  const selectedQuery = selectedObject && OBJECT_TYPE_CONFIG[selectedObject].queryDocument
+  const selectedConfig = selectedObject ? OBJECT_TYPE_CONFIG[selectedObject] : null
+  const selectedQuery = selectedConfig?.queryDocument
+
+  // const inputName = selectedConfig?.inputName
+  // const inputPlaceholder = selectedConfig?.placeholder
+  // const searchAttribute = selectedConfig?.searchAttribute
+  const objectName = selectedConfig?.objectName!
 
   const objectKey = selectedObject ? OBJECT_TYPE_CONFIG[selectedObject]?.responseObjectKey : null
   const where = generateWhere({
@@ -103,14 +113,15 @@ const AssignPermissionsDialog = () => {
     return (
       objectDataList?.map((item: any) => ({
         id: item?.node?.id,
-        name: item?.node?.name,
+        name: item?.node?.[objectName] || '',
         checked: selectedPermissions.includes(item?.node?.id || ''),
         togglePermission,
-        displayID: item?.node?.displayID || '',
         referenceFramework: item?.node?.referenceFramework || '',
       })) || []
     )
-  }, [objectDataList, selectedPermissions, togglePermission])
+  }, [objectDataList, selectedPermissions, togglePermission, objectName])
+
+  console.log('tableData', tableData)
 
   const columns = useMemo(() => generateColumns(selectedObject), [selectedObject])
 
