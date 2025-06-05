@@ -42,13 +42,20 @@ export const CONTROL_OBJECTIVE_FIELDS = gql`
 export const GET_ALL_CONTROL_OBJECTIVES = gql`
   ${CONTROL_OBJECTIVE_FIELDS}
 
-  query GetAllControlObjectives($where: ControlObjectiveWhereInput) {
-    controlObjectives(where: $where) {
+  query GetAllControlObjectives($where: ControlObjectiveWhereInput, $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    controlObjectives(where: $where, first: $first, after: $after, last: $last, before: $before) {
       edges {
         node {
           ...ControlObjectiveFields
         }
       }
+      pageInfo {
+        endCursor
+        startCursor
+        hasPreviousPage
+        hasNextPage
+      }
+      totalCount
     }
   }
 `

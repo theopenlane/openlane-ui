@@ -29,8 +29,8 @@ export const GET_EVIDENCE_FILES = gql`
 `
 
 export const GET_ALL_EVIDENCES = gql`
-  query GetAllEvidences($where: EvidenceWhereInput) {
-    evidences(where: $where) {
+  query GetAllEvidences($where: EvidenceWhereInput, $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    evidences(where: $where, first: $first, after: $after, last: $last, before: $before) {
       edges {
         node {
           id
@@ -39,6 +39,13 @@ export const GET_ALL_EVIDENCES = gql`
           description
         }
       }
+      pageInfo {
+        endCursor
+        startCursor
+        hasPreviousPage
+        hasNextPage
+      }
+      totalCount
     }
   }
 `

@@ -14,6 +14,7 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 
+const initialPagiantion = { ...DEFAULT_PAGINATION, pageSize: 5, query: { first: 5 } }
 type Props = {
   onIdChange: (updatedMap: TObjectAssociationMap, refCodes?: any) => void
   excludeObjectTypes?: ObjectTypeObjects[]
@@ -27,7 +28,7 @@ const ObjectAssociation: React.FC<Props> = ({ onIdChange, excludeObjectTypes, in
   const [selectedObject, setSelectedObject] = useState<ObjectTypeObjects | null>(defaultSelectedObject || null)
   const [searchValue, setSearchValue] = useState('')
   const [TableData, setTableData] = useState<any[]>([])
-  const [pagination, setPagination] = useState<TPagination>({ ...DEFAULT_PAGINATION, pageSize: 5, query: { first: 5 } })
+  const [pagination, setPagination] = useState<TPagination>(initialPagiantion)
   const debouncedSearchValue = useDebounce(searchValue, 300)
 
   const selectedConfig = selectedObject ? OBJECT_QUERY_CONFIG[selectedObject] : null
@@ -77,7 +78,12 @@ const ObjectAssociation: React.FC<Props> = ({ onIdChange, excludeObjectTypes, in
       <div className="grid grid-cols-2 gap-4 items-center">
         <div className="flex flex-col gap-2">
           <Label>Object Type</Label>
-          <Select onValueChange={(val: ObjectTypeObjects) => setSelectedObject(val)}>
+          <Select
+            onValueChange={(val: ObjectTypeObjects) => {
+              setSelectedObject(val)
+              setPagination(initialPagiantion)
+            }}
+          >
             <SelectTrigger className="w-full">{selectedObject || 'Select object'}</SelectTrigger>
             <SelectContent>
               {Object.values(ObjectTypeObjects)

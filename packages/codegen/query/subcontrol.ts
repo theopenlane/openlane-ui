@@ -11,6 +11,13 @@ export const GET_ALL_SUBCONTROLS = gql`
           refCode
         }
       }
+      pageInfo {
+        endCursor
+        startCursor
+        hasPreviousPage
+        hasNextPage
+      }
+      totalCount
     }
   }
 `
