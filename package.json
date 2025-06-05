@@ -19,7 +19,7 @@
     "@typescript-eslint/eslint-plugin": "^8.30.1",
     "@typescript-eslint/parser": "^8.30.1",
     "@vercel/style-guide": "^6.0.0",
-    "dotenv-cli": "latest",
+    "dotenv-cli": "^8.0.0",
     "eslint": "^9.24.0",
     "eslint-config-turbo": "^2.5.0",
     "eslint-plugin-import": "^2.31.0",
@@ -27,7 +27,7 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-tsdoc": "^0.4.0",
-    "prettier": "latest",
+    "prettier": "^3.5.3",
     "prettier-plugin-tailwindcss": "latest",
     "turbo": "1.13"
   },
