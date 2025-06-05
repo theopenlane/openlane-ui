@@ -10,6 +10,7 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
     subcategory
     tags
     mappedCategories
+    referenceFramework
     subcontrols {
       totalCount
     }

@@ -6,20 +6,32 @@ import { GET_ALL_PROCEDURES } from '@repo/codegen/query/procedure'
 import { GET_ALL_PROGRAMS } from '@repo/codegen/query/programs'
 import { GET_ALL_RISKS } from '@repo/codegen/query/risks'
 import { Program, Risk, Control, ControlObjective, NarrativeEdge, InternalPolicy, Procedure, PageInfo } from '@repo/codegen/src/schema'
+import { Checkbox } from '@repo/ui/checkbox'
+import { ColumnDef } from '@tanstack/table-core'
+
+export type TableDataItem = {
+  id: string
+  name: string
+  checked: boolean
+  togglePermission: (id: string) => void
+  referenceFramework?: string
+}
 
 export enum ObjectTypes {
-  // CONTROL_OBJECTIVE = 'Control Objective',
+  CONTROL = 'Controls',
+  CONTROL_OBJECTIVE = 'Control Objective',
   INTERNAL_POLICY = 'Internal Policy',
-  // NARRATIVE = 'Narrative',
   PROCEDURE = 'Procedure',
   PROGRAM = 'Program',
   RISK = 'Risk',
+  // NARRATIVE = 'Narrative',
 }
 
 export const objectTypeInputToEnumMap: Record<string, ObjectTypes> = {
   Program: ObjectTypes.PROGRAM,
   Risk: ObjectTypes.RISK,
-  // ControlObjective: ObjectTypes.CONTROL_OBJECTIVE,
+  Control: ObjectTypes.CONTROL,
+  ControlObjective: ObjectTypes.CONTROL_OBJECTIVE,
   // Narrative: ObjectTypes.NARRATIVE,
   InternalPolicy: ObjectTypes.INTERNAL_POLICY,
   Procedure: ObjectTypes.PROCEDURE,
@@ -39,9 +51,16 @@ export type AllQueriesData = {
     pageInfo?: PageInfo
     totalCount?: number
   }
-  // controlObjectives?: {
-  //   edges?: Array<{ node: ControlObjective }>
-  // }
+  controls?: {
+    edges?: Array<{ node: Control }>
+    pageInfo?: PageInfo
+    totalCount?: number
+  }
+  controlObjectives?: {
+    edges?: Array<{ node: ControlObjective }>
+    pageInfo?: PageInfo
+    totalCount?: number
+  }
   // narratives?: {
   //   edges?: Array<{ node: NarrativeEdge }>
   // }
@@ -77,11 +96,16 @@ export const OBJECT_TYPE_CONFIG: Record<
     responseObjectKey: 'risks',
     queryDocument: GET_ALL_RISKS,
   },
-  // [ObjectTypes.CONTROL_OBJECTIVE]: {
-  //   roleOptions: ['View', 'Edit', 'Blocked'],
-  //   responseObjectKey: 'controlObjectives',
-  //   queryDocument: GET_ALL_CONTROL_OBJECTIVES,
-  // },
+  [ObjectTypes.CONTROL]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'risks',
+    queryDocument: GET_ALL_RISKS,
+  },
+  [ObjectTypes.CONTROL_OBJECTIVE]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'controlObjectives',
+    queryDocument: GET_ALL_CONTROL_OBJECTIVES,
+  },
   // [ObjectTypes.NARRATIVE]: {
   //   roleOptions: ['View', 'Edit', 'Blocked'],
   //   responseObjectKey: 'narratives',
@@ -97,4 +121,36 @@ export const OBJECT_TYPE_CONFIG: Record<
     responseObjectKey: 'procedures',
     queryDocument: GET_ALL_PROCEDURES,
   },
+}
+
+export const generateColumns = (selectedObject: ObjectTypes | null): ColumnDef<TableDataItem>[] => {
+  const baseColumns: ColumnDef<TableDataItem>[] = [
+    {
+      header: '',
+      accessorKey: 'checked',
+      cell: ({ row }) => <Checkbox checked={row.original.checked} onCheckedChange={() => row.original.togglePermission(row.original.id || '')} />,
+    },
+    {
+      header: 'Name',
+      accessorKey: 'name',
+    },
+  ]
+
+  const conditionalColumns: ColumnDef<TableDataItem>[] = []
+
+  if (selectedObject === ObjectTypes.CONTROL) {
+    conditionalColumns.push({
+      header: 'Reference Framework',
+      accessorKey: 'referenceFramework',
+    })
+  }
+
+  if (selectedObject === ObjectTypes.PROGRAM) {
+    conditionalColumns.unshift({
+      header: 'Display ID',
+      accessorKey: 'displayID',
+    })
+  }
+
+  return [...baseColumns, ...conditionalColumns]
 }

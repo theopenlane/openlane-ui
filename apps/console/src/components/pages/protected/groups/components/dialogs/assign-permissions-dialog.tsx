@@ -1,16 +1,15 @@
 'use client'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Plus } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Input } from '@repo/ui/input'
-import { Checkbox } from '@repo/ui/checkbox'
 import { Label } from '@repo/ui/label'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
-import { AllQueriesData, OBJECT_TYPE_CONFIG, ObjectTypes } from '@/constants/groups'
+import { AllQueriesData, generateColumns, OBJECT_TYPE_CONFIG, ObjectTypes, TableDataItem } from '@/constants/groups'
 import { useUpdateGroup } from '@/lib/graphql-hooks/groups'
 import { useQuery } from '@tanstack/react-query'
 import { GET_ALL_RISKS } from '@repo/codegen/query/risks'
@@ -19,14 +18,6 @@ import { useNotification } from '@/hooks/useNotification'
 import { useDebounce } from '@uidotdev/usehooks'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-
-type TableDataItem = {
-  id: string
-  name: string
-  checked: boolean
-  togglePermission: (id: string) => void
-  displayID: string
-}
 
 const generateWhere = ({
   debouncedSearchValue,
@@ -100,20 +91,28 @@ const AssignPermissionsDialog = () => {
   const pageInfo = objectKey ? data?.[objectKey]?.pageInfo : undefined
   const totalCount = objectKey ? data?.[objectKey]?.totalCount : undefined
 
-  const objectDataList = objectKey && data?.[objectKey]?.edges ? data[objectKey].edges : []
+  const objectDataList = useMemo(() => {
+    return objectKey && data?.[objectKey]?.edges ? data[objectKey].edges : []
+  }, [data, objectKey])
 
-  const togglePermission = (id: string) => {
+  const togglePermission = useCallback((id: string) => {
     setSelectedPermissions((prev) => (prev.includes(id) ? prev.filter((perm) => perm !== id) : [...prev, id]))
-  }
+  }, [])
 
-  const tableData: TableDataItem[] =
-    objectDataList.map((item: any) => ({
-      id: item?.node?.id,
-      name: item?.node?.name,
-      checked: selectedPermissions.includes(item?.node?.id || ''),
-      togglePermission,
-      displayID: item?.node?.displayID || '',
-    })) || []
+  const tableData: TableDataItem[] = useMemo(() => {
+    return (
+      objectDataList?.map((item: any) => ({
+        id: item?.node?.id,
+        name: item?.node?.name,
+        checked: selectedPermissions.includes(item?.node?.id || ''),
+        togglePermission,
+        displayID: item?.node?.displayID || '',
+        referenceFramework: item?.node?.referenceFramework || '',
+      })) || []
+    )
+  }, [objectDataList, selectedPermissions, togglePermission])
+
+  const columns = useMemo(() => generateColumns(selectedObject), [selectedObject])
 
   const step2Data = selectedPermissions.map((id) => {
     const program = tableData.find((p: any) => p.id === id)
@@ -285,29 +284,7 @@ const AssignPermissionsDialog = () => {
               )}
             </div>
 
-            {selectedObject && (
-              <DataTable
-                columns={[
-                  {
-                    header: '',
-                    accessorKey: 'checked',
-                    cell: ({ row }) => <Checkbox checked={row.original.checked} onCheckedChange={() => row.original.togglePermission(row.original.id || '')} />,
-                  },
-                  {
-                    header: 'Display ID',
-                    accessorKey: 'displayID',
-                  },
-                  {
-                    header: 'Name',
-                    accessorKey: 'name',
-                  },
-                ]}
-                data={tableData}
-                onPaginationChange={setPagination}
-                pagination={pagination}
-                paginationMeta={{ totalCount, pageInfo, isLoading }}
-              />
-            )}
+            {selectedObject && <DataTable columns={columns} data={tableData} onPaginationChange={setPagination} pagination={pagination} paginationMeta={{ totalCount, pageInfo, isLoading }} />}
 
             <DialogFooter className="flex justify-start pt-4">
               <Button className="w-[180px]" onClick={handleNext} disabled={selectedPermissions.length === 0}>
