@@ -1,11 +1,12 @@
 import { GET_ALL_CONTROLS } from '@repo/codegen/query/control'
+import { GET_ALL_CONTROL_IMPLEMENTATIONS } from '@repo/codegen/query/control-implementation'
 import { GET_ALL_CONTROL_OBJECTIVES } from '@repo/codegen/query/control-objective'
 import { GET_ALL_NARRATIVES } from '@repo/codegen/query/narrative'
 import { GET_ALL_INTERNAL_POLICIES } from '@repo/codegen/query/policy'
 import { GET_ALL_PROCEDURES } from '@repo/codegen/query/procedure'
 import { GET_ALL_PROGRAMS } from '@repo/codegen/query/programs'
 import { GET_ALL_RISKS } from '@repo/codegen/query/risks'
-import { Program, Risk, Control, ControlObjective, NarrativeEdge, InternalPolicy, Procedure, PageInfo } from '@repo/codegen/src/schema'
+import { Program, Risk, Control, ControlObjective, NarrativeEdge, InternalPolicy, Procedure, PageInfo, ControlImplementation } from '@repo/codegen/src/schema'
 import { Checkbox } from '@repo/ui/checkbox'
 import { ColumnDef } from '@tanstack/table-core'
 
@@ -19,6 +20,7 @@ export type TableDataItem = {
 
 export enum ObjectTypes {
   CONTROL = 'Control',
+  CONTROL_IMPLEMENTATION = 'Control Implementation',
   CONTROL_OBJECTIVE = 'Control Objective',
   INTERNAL_POLICY = 'Internal Policy',
   PROCEDURE = 'Procedure',
@@ -28,13 +30,13 @@ export enum ObjectTypes {
 }
 
 export const objectTypeInputToEnumMap: Record<string, ObjectTypes> = {
-  Program: ObjectTypes.PROGRAM,
-  Risk: ObjectTypes.RISK,
   Control: ObjectTypes.CONTROL,
+  ControlImplementation: ObjectTypes.CONTROL_IMPLEMENTATION,
   ControlObjective: ObjectTypes.CONTROL_OBJECTIVE,
-  // Narrative: ObjectTypes.NARRATIVE,
   InternalPolicy: ObjectTypes.INTERNAL_POLICY,
   Procedure: ObjectTypes.PROCEDURE,
+  Program: ObjectTypes.PROGRAM,
+  Risk: ObjectTypes.RISK,
 }
 
 /**
@@ -53,6 +55,11 @@ export type AllQueriesData = {
   }
   controls?: {
     edges?: Array<{ node: Control }>
+    pageInfo?: PageInfo
+    totalCount?: number
+  }
+  controlImplementations?: {
+    edges?: Array<{ node: ControlImplementation }>
     pageInfo?: PageInfo
     totalCount?: number
   }
@@ -146,6 +153,14 @@ export const OBJECT_TYPE_CONFIG: Record<ObjectTypes, ObjectPermissionConfig> = {
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'procedure name',
     excludeViewersInFilter: true,
+  },
+  [ObjectTypes.CONTROL_IMPLEMENTATION]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'controlImplementations',
+    queryDocument: GET_ALL_CONTROL_IMPLEMENTATIONS,
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'control implementation name',
   },
 }
 
