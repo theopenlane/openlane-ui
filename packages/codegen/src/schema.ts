@@ -35584,12 +35584,17 @@ export type ControlObjectiveFieldsFragment = {
 
 export type GetAllControlObjectivesQueryVariables = Exact<{
   where?: InputMaybe<ControlObjectiveWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type GetAllControlObjectivesQuery = {
   __typename?: 'Query'
   controlObjectives: {
     __typename?: 'ControlObjectiveConnection'
+    totalCount: number
     edges?: Array<{
       __typename?: 'ControlObjectiveEdge'
       node?: {
@@ -35619,6 +35624,7 @@ export type GetAllControlObjectivesQuery = {
         }
       } | null
     } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
 
@@ -35990,13 +35996,19 @@ export type GetEvidenceFilesQuery = {
 
 export type GetAllEvidencesQueryVariables = Exact<{
   where?: InputMaybe<EvidenceWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type GetAllEvidencesQuery = {
   __typename?: 'Query'
   evidences: {
     __typename?: 'EvidenceConnection'
+    totalCount: number
     edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string; displayID: string; description?: string | null } | null } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
 
@@ -36700,7 +36712,9 @@ export type GetAllInternalPoliciesQuery = {
   __typename?: 'Query'
   internalPolicies: {
     __typename?: 'InternalPolicyConnection'
+    totalCount: number
     edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
 
@@ -37063,12 +37077,17 @@ export type UpdateProgramMutation = { __typename?: 'Mutation'; updateProgram: { 
 export type GetAllProgramsQueryVariables = Exact<{
   where?: InputMaybe<ProgramWhereInput>
   orderBy?: InputMaybe<Array<ProgramOrder> | ProgramOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type GetAllProgramsQuery = {
   __typename?: 'Query'
   programs: {
     __typename?: 'ProgramConnection'
+    totalCount: number
     edges?: Array<{
       __typename?: 'ProgramEdge'
       node?: {
@@ -37084,6 +37103,7 @@ export type GetAllProgramsQuery = {
         displayID: string
       } | null
     } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
 
@@ -37355,6 +37375,10 @@ export type GetRiskByIdQuery = {
 export type GetAllRisksQueryVariables = Exact<{
   where?: InputMaybe<RiskWhereInput>
   orderBy?: InputMaybe<Array<RiskOrder> | RiskOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type GetAllRisksQuery = {
@@ -37362,7 +37386,7 @@ export type GetAllRisksQuery = {
   risks: {
     __typename?: 'RiskConnection'
     totalCount: number
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean }
     edges?: Array<{
       __typename?: 'RiskEdge'
       node?: {
@@ -37529,7 +37553,9 @@ export type GetAllSubcontrolsQuery = {
   __typename?: 'Query'
   subcontrols: {
     __typename?: 'SubcontrolConnection'
+    totalCount: number
     edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; description?: string | null; refCode: string } | null } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
 

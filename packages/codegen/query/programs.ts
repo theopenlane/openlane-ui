@@ -23,8 +23,8 @@ export const UPDATE_PROGRAM = gql`
 `
 
 export const GET_ALL_PROGRAMS = gql`
-  query GetAllPrograms($where: ProgramWhereInput, $orderBy: [ProgramOrder!]) {
-    programs(where: $where, orderBy: $orderBy) {
+  query GetAllPrograms($where: ProgramWhereInput, $orderBy: [ProgramOrder!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    programs(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
       edges {
         node {
           id
@@ -38,6 +38,13 @@ export const GET_ALL_PROGRAMS = gql`
           displayID
         }
       }
+      pageInfo {
+        endCursor
+        startCursor
+        hasPreviousPage
+        hasNextPage
+      }
+      totalCount
     }
   }
 `
