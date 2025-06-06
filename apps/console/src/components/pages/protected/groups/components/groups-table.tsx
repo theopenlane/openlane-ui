@@ -4,12 +4,12 @@ import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import React from 'react'
 import { Group, GroupOrder, User } from '@repo/codegen/src/schema'
-import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { GROUP_SORT_FIELDS } from '@/components/pages/protected/groups/table/table-config.ts'
 import { TPagination } from '@repo/ui/pagination-types'
 import { useGetAllGroups } from '@/lib/graphql-hooks/groups.ts'
 import { VisibilityState } from '@tanstack/react-table'
 import { getGroupTableColumns } from '../table/columns'
+import { useSmartRouter } from '@/hooks/useSmartRouter'
 
 type TGroupsTableProps = {
   onSortChange?: (sortCondition: any[]) => void
@@ -28,12 +28,13 @@ const GroupsTable = ({ onSortChange, pagination, onPaginationChange, whereFilter
     pagination: pagination,
     enabled: !!whereFilter,
   })
-  const { setSelectedGroup } = useGroupsStore()
+  // const { setSelectedGroup } = useGroupsStore()
+  const { replace } = useSmartRouter()
 
   const { columns } = getGroupTableColumns()
 
   const handleRowClick = (group: Group) => {
-    setSelectedGroup(group.id)
+    replace({ id: group.id })
   }
 
   if (isError) {
