@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@ai-sdk/amazon-bedrock": "^1.0.5",
-    "@assistant-ui/react": "^0.7.17",
+    "@assistant-ui/react": "^0.10.0",
     "@jsonforms/react": "^3.2.1",
     "@jsonforms/vanilla-renderers": "^3.2.1",
     "@novu/node": "^0.24.1",
