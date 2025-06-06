@@ -39,6 +39,7 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
 
   const creator = new SurveyCreator(creatorOptions)
   const themeTabPlugin = creator.themeEditor
+  creator.toolbox.forceCompact = false
 
   function addCustomTheme(theme: ITheme, userFriendlyThemeName: string) {
     // Add a localized user-friendly theme name
@@ -74,7 +75,7 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
   const saveTemplate = async (data: any, saveNo: string, callback: any) => {
     const variables = {
       input: {
-        name: data.title,
+        name: data.title || 'Untitled Questionnaire',
         jsonconfig: data,
         templateType: TemplateDocumentType.DOCUMENT,
         description: data.description,
