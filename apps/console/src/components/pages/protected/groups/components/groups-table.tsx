@@ -28,7 +28,6 @@ const GroupsTable = ({ onSortChange, pagination, onPaginationChange, whereFilter
     pagination: pagination,
     enabled: !!whereFilter,
   })
-  // const { setSelectedGroup } = useGroupsStore()
   const { replace } = useSmartRouter()
 
   const { columns } = getGroupTableColumns()
