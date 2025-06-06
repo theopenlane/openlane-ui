@@ -110,7 +110,7 @@ export const OBJECT_TYPE_CONFIG: Record<ObjectTypes, ObjectPermissionConfig> = {
     inputPlaceholder: 'risk name',
   },
   [ObjectTypes.CONTROL]: {
-    roleOptions: ['View', 'Edit', 'Blocked'],
+    roleOptions: ['Edit', 'Blocked'],
     responseObjectKey: 'controls',
     queryDocument: GET_ALL_CONTROLS,
     objectName: 'refCode',

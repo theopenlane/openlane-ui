@@ -30,7 +30,7 @@ const AssignPermissionsDialog = () => {
   const { selectedGroup } = useGroupsStore()
   const { queryClient, client } = useGraphQLClient()
   const [isOpen, setIsOpen] = useState(false)
-  const [selectedPermissions, setSelectedPermissions] = useState<{ name: string; id: string }[]>([])
+  const [selectedPermissions, setSelectedPermissions] = useState<{ name: string; id: string; selectedObject: ObjectTypes }[]>([])
   const { successNotification, errorNotification } = useNotification()
   const [step, setStep] = useState(1)
   const [selectedObject, setSelectedObject] = useState<ObjectTypes | null>(null)
@@ -52,6 +52,7 @@ const AssignPermissionsDialog = () => {
     selectedGroup,
     selectedObject,
   })
+
   const { data, isLoading } = useQuery<AllQueriesData>({
     queryKey: [objectKey, 'group-permissions', where, pagination.page, pagination.pageSize],
     queryFn: () => client.request(selectedQuery || GET_ALL_RISKS, { ...where, ...pagination.query }),
@@ -65,16 +66,22 @@ const AssignPermissionsDialog = () => {
     return objectKey && data?.[objectKey]?.edges ? data[objectKey].edges : []
   }, [data, objectKey])
 
-  const togglePermission = useCallback((obj: TableDataItem) => {
-    setSelectedPermissions((prev) => {
-      const exists = prev.some((perm) => perm.id === obj.id)
-      if (exists) {
-        return prev.filter((perm) => perm.id !== obj.id)
-      } else {
-        return [...prev, { id: obj.id, name: obj.name }]
+  const togglePermission = useCallback(
+    (obj: TableDataItem) => {
+      if (!selectedObject) {
+        return
       }
-    })
-  }, [])
+      setSelectedPermissions((prev) => {
+        const exists = prev.some((perm) => perm.id === obj.id)
+        if (exists) {
+          return prev.filter((perm) => perm.id !== obj.id)
+        } else {
+          return [...prev, { id: obj.id, name: obj.name, selectedObject }]
+        }
+      })
+    },
+    [selectedObject],
+  )
 
   const tableData: TableDataItem[] = useMemo(() => {
     return (
@@ -89,15 +96,6 @@ const AssignPermissionsDialog = () => {
   }, [objectDataList, selectedPermissions, togglePermission, objectName])
 
   const columns = useMemo(() => generateColumns(selectedObject), [selectedObject])
-
-  const step2Data = selectedPermissions.map((obj) => {
-    // const program = tableData.find((p: any) => p.id === obj.id)
-    return {
-      id: obj.id,
-      name: obj.name,
-      permission: roles[obj.id] || 'View',
-    }
-  })
 
   const handleNext = () => setStep(2)
   const handleBack = () => setStep(1)
@@ -121,7 +119,6 @@ const AssignPermissionsDialog = () => {
       addRiskViewerIDs: [],
       addRiskEditorIDs: [],
       addRiskBlockedGroupIDs: [],
-      addControlViewerIDs: [],
       addControlEditorIDs: [],
       addControlBlockedGroupIDs: [],
       addNarrativeViewerIDs: [],
@@ -130,16 +127,17 @@ const AssignPermissionsDialog = () => {
       addControlObjectiveViewerIDs: [],
       addControlObjectiveEditorIDs: [],
       addControlObjectiveBlockedGroupIDs: [],
+      addControlImplementationBlockedGroupIDs: [],
+      addControlImplementationEditorIDs: [],
+      addControlImplementationViewerIDs: [],
     }
 
-    const prefix = selectedObject.replace(/\s+/g, '')
-
     selectedPermissions.forEach((obj) => {
+      const prefix = obj?.selectedObject?.replace(/\s+/g, '')
+
       const id = obj.id
-      const role = roles[id] || 'View'
-
+      const role = roles[id] || OBJECT_TYPE_CONFIG[obj.selectedObject].roleOptions[0]
       const suffix = role === 'View' ? 'ViewerIDs' : role === 'Edit' ? 'EditorIDs' : 'BlockedGroupIDs'
-
       const key = `add${prefix}${suffix}`
 
       if (permissionMap[key]) {
@@ -154,12 +152,7 @@ const AssignPermissionsDialog = () => {
         updateGroupId: selectedGroup,
         input: cleanedPermissionMap,
       })
-      queryClient.invalidateQueries({
-        predicate: (query) => {
-          const qk = query.queryKey
-          return (qk.length === 1 && qk[0] === 'groups') || (qk.length > 1 && qk[0] === 'group' && qk[1] === selectedGroup)
-        },
-      })
+      queryClient.invalidateQueries({ queryKey: ['groups', selectedGroup] })
 
       successNotification({
         title: 'Permissions updated successfully',
@@ -179,27 +172,34 @@ const AssignPermissionsDialog = () => {
     setSearchValue(event.target.value)
   }
 
-  const columnsStep2: ColumnDef<{ id: string; name: string; permission: string }>[] = [
+  const columnsStep2: ColumnDef<{ id: string; name: string; selectedObject: ObjectTypes }>[] = [
     {
       header: 'Name',
       accessorKey: 'name',
     },
     {
+      header: 'Object Type',
+      accessorKey: 'selectedObject',
+    },
+    {
       header: 'Role',
-      accessorKey: 'permission',
-      cell: ({ row }) => (
-        <Select onValueChange={(value) => handleRoleChange(row.original.id, value)}>
-          <SelectTrigger className="w-full">{row.original.permission}</SelectTrigger>
-          <SelectContent>
-            {selectedObject &&
-              OBJECT_TYPE_CONFIG[selectedObject].roleOptions.map((role) => (
+      accessorKey: 'role',
+      cell: ({ row }) => {
+        const columnData = row.original
+        const selectValue = roles[columnData.id]
+        return (
+          <Select value={selectValue} onValueChange={(value) => handleRoleChange(columnData.id, value)}>
+            <SelectTrigger className="w-full">{selectValue || OBJECT_TYPE_CONFIG[columnData.selectedObject].roleOptions[0]}</SelectTrigger>
+            <SelectContent>
+              {OBJECT_TYPE_CONFIG[columnData.selectedObject].roleOptions.map((role) => (
                 <SelectItem key={role} value={role}>
                   {role}
                 </SelectItem>
               ))}
-          </SelectContent>
-        </Select>
-      ),
+            </SelectContent>
+          </Select>
+        )
+      },
     },
   ]
 
@@ -285,7 +285,7 @@ const AssignPermissionsDialog = () => {
         ) : (
           <>
             <p>You are about to add {selectedPermissions.length} relationship(s) to the group.</p>
-            <DataTable columns={columnsStep2} data={step2Data} />
+            <DataTable columns={columnsStep2} data={selectedPermissions} />
             <DialogFooter className="flex justify-between pt-4">
               <Button onClick={handleBack}>Back</Button>
               <Button className="w-[180px]" onClick={handleSave}>

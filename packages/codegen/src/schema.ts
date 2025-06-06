@@ -36271,7 +36271,7 @@ export type GetGroupPermissionsQuery = {
       __typename?: 'GroupPermissionConnection'
       edges?: Array<{
         __typename?: 'GroupPermissionEdge'
-        node?: { __typename?: 'GroupPermission'; displayID?: string | null; id: string; name?: string | null; objectType: string; permissions: Permission } | null
+        node?: { __typename?: 'GroupPermission'; id: string; name?: string | null; objectType: string; permissions: Permission } | null
       } | null> | null
     }
   }
