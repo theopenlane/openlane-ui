@@ -57,9 +57,9 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
   const theme = themeContext.resolvedTheme as 'light' | 'dark' | 'white' | undefined
 
   if (theme === 'dark') {
-    creator.applyTheme(darkTheme)
+    creator.applyCreatorTheme(darkTheme)
   } else {
-    creator.applyTheme(lightTheme)
+    creator.applyCreatorTheme(lightTheme)
   }
 
   const { data: templateResult } = useGetTemplate(input.existingId || input.templateId)

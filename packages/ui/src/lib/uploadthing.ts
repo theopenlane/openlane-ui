@@ -9,7 +9,9 @@ import { z } from 'zod'
 
 export interface UploadedFile<T = unknown> extends ClientUploadedFileData<T> {}
 
-interface UseUploadFileProps extends Pick<UploadFilesOptions<OurFileRouter, keyof OurFileRouter>, 'headers' | 'onUploadBegin' | 'onUploadProgress' | 'skipPolling'> {
+interface UseUploadFileProps
+  // @ts-ignore
+  extends Partial<Pick<UploadFilesOptions<OurFileRouter, keyof OurFileRouter>, 'headers' | 'onUploadBegin' | 'onUploadProgress' | 'skipPolling'>> {
   onUploadComplete?: (file: UploadedFile) => void
   onUploadError?: (error: unknown) => void
 }
