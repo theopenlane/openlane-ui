@@ -1,11 +1,13 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
-import { CREATE_CSV_BULK_RISK, GET_ALL_RISKS, GET_RISK_BY_ID, UPDATE_RISK } from '@repo/codegen/query/risks'
+import { CREATE_CSV_BULK_RISK, DELETE_RISK, GET_ALL_RISKS, GET_RISK_BY_ID, UPDATE_RISK } from '@repo/codegen/query/risks'
 
 import {
   CreateBulkCsvRiskMutation,
   CreateBulkCsvRiskMutationVariables,
+  DeleteRiskMutation,
+  DeleteRiskMutationVariables,
   GetAllRisksQuery,
   GetRiskByIdQuery,
   GetRiskByIdQueryVariables,
@@ -81,7 +83,7 @@ export const useRiskSelect = () => {
 export const useGetRiskById = (riskId: string | null) => {
   const { client } = useGraphQLClient()
 
-  return useQuery<GetRiskByIdQuery, unknown>({
+  const queryResult = useQuery<GetRiskByIdQuery, unknown>({
     queryKey: ['risks', riskId],
     queryFn: async () => {
       if (!riskId) throw new Error('Missing risk ID')
@@ -89,6 +91,13 @@ export const useGetRiskById = (riskId: string | null) => {
     },
     enabled: !!riskId,
   })
+
+  const risk = queryResult?.data?.risk as RiskFieldsFragment
+
+  return {
+    ...queryResult,
+    risk,
+  }
 }
 
 export const useUpdateRisk = () => {
@@ -111,5 +120,16 @@ export const useCreateBulkCSVRisk = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['risks'] })
     },
+  })
+}
+
+export const useDeleteRisk = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<DeleteRiskMutation, unknown, DeleteRiskMutationVariables>({
+    mutationFn: async (variables) => {
+      return client.request(DELETE_RISK, variables)
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['risks'] }),
   })
 }

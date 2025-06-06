@@ -16,25 +16,120 @@ const RISK_FIELDS = gql`
     impact
     mitigation
     stakeholder {
+      id
+      displayName
+      gravatarLogoURL
+      logoURL
+    }
+    delegate {
+      id
+      displayName
+      gravatarLogoURL
+      logoURL
+    }
+    stakeholder {
       displayName
       logoURL
       gravatarLogoURL
+    }
+    procedures {
+      edges {
+        node {
+          id
+          name
+          displayID
+          summary
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      totalCount
     }
     controls {
       edges {
         node {
           id
+          displayID
           refCode
         }
       }
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      totalCount
     }
     subcontrols {
       edges {
         node {
           id
+          displayID
           refCode
         }
       }
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      totalCount
+    }
+    programs {
+      edges {
+        node {
+          id
+          displayID
+          name
+          description
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      totalCount
+    }
+    tasks {
+      edges {
+        node {
+          id
+          displayID
+          title
+          details
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      totalCount
+    }
+    internalPolicies {
+      edges {
+        node {
+          id
+          displayID
+          name
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      totalCount
     }
   }
 `
@@ -83,6 +178,14 @@ export const CREATE_CSV_BULK_RISK = gql`
       risks {
         id
       }
+    }
+  }
+`
+
+export const DELETE_RISK = gql`
+  mutation DeleteRisk($deleteRiskId: ID!) {
+    deleteRisk(id: $deleteRiskId) {
+      deletedID
     }
   }
 `

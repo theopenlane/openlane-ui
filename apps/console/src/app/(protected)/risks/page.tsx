@@ -5,7 +5,7 @@ import { useRisksWithFilter } from '@/lib/graphql-hooks/risks'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { PageHeading } from '@repo/ui/page-heading'
-import { GetAllRisksQueryVariables, OrderDirection, RiskFieldsFragment, RiskOrder, RiskOrderField, RiskRiskStatus } from '@repo/codegen/src/schema'
+import { GetAllRisksQueryVariables, InternalPolicy, OrderDirection, RiskFieldsFragment, RiskOrder, RiskOrderField, RiskRiskStatus } from '@repo/codegen/src/schema'
 import RiskDetailsSheet from '@/components/pages/protected/risks/risk-details-sheet'
 import { useRouter } from 'next/navigation'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -20,7 +20,7 @@ import { VisibilityState } from '@tanstack/react-table'
 
 const RiskTablePage: React.FC = () => {
   const { replace } = useRouter()
-
+  const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
   const [filters, setFilters] = useState<Record<string, any> | null>(null)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
@@ -111,6 +111,10 @@ const RiskTablePage: React.FC = () => {
     return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
   }
 
+  const handleRowClick = (rowData: InternalPolicy) => {
+    router.push(`/risks/${rowData.id}`)
+  }
+
   const handleExport = () => {
     const exportableColumns = columns.filter(isVisibleColumn).map((col) => {
       const key = col.accessorKey as keyof RiskFieldsFragment
@@ -159,7 +163,7 @@ const RiskTablePage: React.FC = () => {
         onSortChange={setOrderBy}
         columns={columns}
         data={risks || []}
-        onRowClick={(row) => replace(`/risks?id=${row.id}`)}
+        onRowClick={() => handleRowClick}
         loading={!risks && !isError}
         pagination={pagination}
         onPaginationChange={setPagination}
