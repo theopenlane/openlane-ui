@@ -19,18 +19,15 @@ export type TableDataItem = {
 
 export enum ObjectTypes {
   CONTROL = 'Control',
-  CONTROL_IMPLEMENTATION = 'Control Implementation',
   CONTROL_OBJECTIVE = 'Control Objective',
   INTERNAL_POLICY = 'Internal Policy',
   PROCEDURE = 'Procedure',
   PROGRAM = 'Program',
   RISK = 'Risk',
-  // NARRATIVE = 'Narrative',
 }
 
 export const objectTypeInputToEnumMap: Record<string, ObjectTypes> = {
   Control: ObjectTypes.CONTROL,
-  ControlImplementation: ObjectTypes.CONTROL_IMPLEMENTATION,
   ControlObjective: ObjectTypes.CONTROL_OBJECTIVE,
   InternalPolicy: ObjectTypes.INTERNAL_POLICY,
   Procedure: ObjectTypes.PROCEDURE,
@@ -54,11 +51,6 @@ export type AllQueriesData = {
   }
   controls?: {
     edges?: Array<{ node: Control }>
-    pageInfo?: PageInfo
-    totalCount?: number
-  }
-  controlImplementations?: {
-    edges?: Array<{ node: ControlImplementation }>
     pageInfo?: PageInfo
     totalCount?: number
   }
@@ -149,14 +141,6 @@ export const OBJECT_TYPE_CONFIG: Record<ObjectTypes, ObjectPermissionConfig> = {
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'procedure name',
     excludeViewersInFilter: true,
-  },
-  [ObjectTypes.CONTROL_IMPLEMENTATION]: {
-    roleOptions: ['View', 'Edit', 'Blocked'],
-    responseObjectKey: 'controlImplementations',
-    queryDocument: GET_ALL_CONTROL_IMPLEMENTATIONS,
-    objectName: 'details',
-    searchAttribute: 'detailsContainsFold',
-    inputPlaceholder: 'control implementation name',
   },
 }
 
