@@ -30,7 +30,7 @@ const AssignPermissionsDialog = () => {
   const { selectedGroup } = useGroupsStore()
   const { queryClient, client } = useGraphQLClient()
   const [isOpen, setIsOpen] = useState(false)
-  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([])
+  const [selectedPermissions, setSelectedPermissions] = useState<{ name: string; id: string }[]>([])
   const { successNotification, errorNotification } = useNotification()
   const [step, setStep] = useState(1)
   const [selectedObject, setSelectedObject] = useState<ObjectTypes | null>(null)
@@ -65,8 +65,15 @@ const AssignPermissionsDialog = () => {
     return objectKey && data?.[objectKey]?.edges ? data[objectKey].edges : []
   }, [data, objectKey])
 
-  const togglePermission = useCallback((id: string) => {
-    setSelectedPermissions((prev) => (prev.includes(id) ? prev.filter((perm) => perm !== id) : [...prev, id]))
+  const togglePermission = useCallback((obj: TableDataItem) => {
+    setSelectedPermissions((prev) => {
+      const exists = prev.some((perm) => perm.id === obj.id)
+      if (exists) {
+        return prev.filter((perm) => perm.id !== obj.id)
+      } else {
+        return [...prev, { id: obj.id, name: obj.name }]
+      }
+    })
   }, [])
 
   const tableData: TableDataItem[] = useMemo(() => {
@@ -74,7 +81,7 @@ const AssignPermissionsDialog = () => {
       objectDataList?.map((item: any) => ({
         id: item?.node?.id,
         name: item?.node?.[objectName] || '',
-        checked: selectedPermissions.includes(item?.node?.id || ''),
+        checked: selectedPermissions.some((perm) => perm.id === item?.node?.id),
         togglePermission,
         referenceFramework: item?.node?.referenceFramework || '',
       })) || []
@@ -83,12 +90,12 @@ const AssignPermissionsDialog = () => {
 
   const columns = useMemo(() => generateColumns(selectedObject), [selectedObject])
 
-  const step2Data = selectedPermissions.map((id) => {
-    const program = tableData.find((p: any) => p.id === id)
+  const step2Data = selectedPermissions.map((obj) => {
+    // const program = tableData.find((p: any) => p.id === obj.id)
     return {
-      id,
-      name: program?.name || 'Unknown',
-      permission: roles[id] || 'View',
+      id: obj.id,
+      name: obj.name,
+      permission: roles[obj.id] || 'View',
     }
   })
 
@@ -127,7 +134,8 @@ const AssignPermissionsDialog = () => {
 
     const prefix = selectedObject.replace(/\s+/g, '')
 
-    selectedPermissions.forEach((id) => {
+    selectedPermissions.forEach((obj) => {
+      const id = obj.id
       const role = roles[id] || 'View'
 
       const suffix = role === 'View' ? 'ViewerIDs' : role === 'Edit' ? 'EditorIDs' : 'BlockedGroupIDs'
@@ -230,7 +238,7 @@ const AssignPermissionsDialog = () => {
           Assign permissions to group
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[650px]">
         <DialogHeader>
           <DialogTitle className="text-2xl font-semibold">Assign permissions</DialogTitle>
         </DialogHeader>

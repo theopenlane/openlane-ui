@@ -1,12 +1,11 @@
 import { GET_ALL_CONTROLS } from '@repo/codegen/query/control'
 import { GET_ALL_CONTROL_IMPLEMENTATIONS } from '@repo/codegen/query/control-implementation'
 import { GET_ALL_CONTROL_OBJECTIVES } from '@repo/codegen/query/control-objective'
-import { GET_ALL_NARRATIVES } from '@repo/codegen/query/narrative'
 import { GET_ALL_INTERNAL_POLICIES } from '@repo/codegen/query/policy'
 import { GET_ALL_PROCEDURES } from '@repo/codegen/query/procedure'
 import { GET_ALL_PROGRAMS } from '@repo/codegen/query/programs'
 import { GET_ALL_RISKS } from '@repo/codegen/query/risks'
-import { Program, Risk, Control, ControlObjective, NarrativeEdge, InternalPolicy, Procedure, PageInfo, ControlImplementation } from '@repo/codegen/src/schema'
+import { Program, Risk, Control, ControlObjective, InternalPolicy, Procedure, PageInfo, ControlImplementation } from '@repo/codegen/src/schema'
 import { Checkbox } from '@repo/ui/checkbox'
 import { ColumnDef } from '@tanstack/table-core'
 
@@ -14,7 +13,7 @@ export type TableDataItem = {
   id: string
   name: string
   checked: boolean
-  togglePermission: (id: string) => void
+  togglePermission: (obj: TableDataItem) => void
   referenceFramework?: string
 }
 
@@ -68,9 +67,6 @@ export type AllQueriesData = {
     pageInfo?: PageInfo
     totalCount?: number
   }
-  // narratives?: {
-  //   edges?: Array<{ node: NarrativeEdge }>
-  // }
   internalPolicies?: {
     edges?: Array<{ node: InternalPolicy }>
     pageInfo?: PageInfo
@@ -158,8 +154,8 @@ export const OBJECT_TYPE_CONFIG: Record<ObjectTypes, ObjectPermissionConfig> = {
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'controlImplementations',
     queryDocument: GET_ALL_CONTROL_IMPLEMENTATIONS,
-    objectName: 'name',
-    searchAttribute: 'nameContainsFold',
+    objectName: 'details',
+    searchAttribute: 'detailsContainsFold',
     inputPlaceholder: 'control implementation name',
   },
 }
@@ -169,7 +165,7 @@ export const generateColumns = (selectedObject: ObjectTypes | null): ColumnDef<T
     {
       header: '',
       accessorKey: 'checked',
-      cell: ({ row }) => <Checkbox checked={row.original.checked} onCheckedChange={() => row.original.togglePermission(row.original.id || '')} />,
+      cell: ({ row }) => <Checkbox checked={row.original.checked} onCheckedChange={() => row.original.togglePermission(row.original || '')} />,
     },
     {
       header: 'Name',
