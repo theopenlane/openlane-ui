@@ -39,7 +39,6 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
 
   const creator = new SurveyCreator(creatorOptions)
   const themeTabPlugin = creator.themeEditor
-  creator.toolbox.forceCompact = false
 
   function addCustomTheme(theme: ITheme, userFriendlyThemeName: string) {
     // Add a localized user-friendly theme name
