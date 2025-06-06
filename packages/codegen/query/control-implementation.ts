@@ -44,6 +44,13 @@ export const GET_ALL_CONTROL_IMPLEMENTATIONS = gql`
           ...ControlImplementationFields
         }
       }
+      pageInfo {
+        endCursor
+        startCursor
+        hasPreviousPage
+        hasNextPage
+      }
+      totalCount
     }
   }
 `

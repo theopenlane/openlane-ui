@@ -129,7 +129,6 @@ export const GET_GROUP_PERMISSIONS = gql`
       permissions {
         edges {
           node {
-            displayID
             id
             name
             objectType

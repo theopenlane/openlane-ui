@@ -35502,6 +35502,7 @@ export type GetAllControlImplementationsQuery = {
   __typename?: 'Query'
   controlImplementations: {
     __typename?: 'ControlImplementationConnection'
+    totalCount: number
     edges?: Array<{
       __typename?: 'ControlImplementationEdge'
       node?: {
@@ -35527,6 +35528,7 @@ export type GetAllControlImplementationsQuery = {
         }
       } | null
     } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
 
@@ -35663,6 +35665,7 @@ export type ControlListFieldsFragment = {
   subcategory?: string | null
   tags?: Array<string> | null
   mappedCategories?: Array<string> | null
+  referenceFramework?: string | null
   subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
   controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
 }
@@ -35795,6 +35798,7 @@ export type GetAllControlsQuery = {
         subcategory?: string | null
         tags?: Array<string> | null
         mappedCategories?: Array<string> | null
+        referenceFramework?: string | null
         subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
         controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
       } | null
@@ -36267,7 +36271,7 @@ export type GetGroupPermissionsQuery = {
       __typename?: 'GroupPermissionConnection'
       edges?: Array<{
         __typename?: 'GroupPermissionEdge'
-        node?: { __typename?: 'GroupPermission'; displayID?: string | null; id: string; name?: string | null; objectType: string; permissions: Permission } | null
+        node?: { __typename?: 'GroupPermission'; id: string; name?: string | null; objectType: string; permissions: Permission } | null
       } | null> | null
     }
   }
