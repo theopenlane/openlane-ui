@@ -66,13 +66,16 @@ export const MediaPlaceholderElement = withHOC(
     const { openFilePicker } = useFilePicker({
       accept: currentContent.accept,
       multiple: true,
-      onFilesSelected: ({ plainFiles: updatedFiles }) => {
+      onFilesSuccessfullySelected: ({ plainFiles: updatedFiles }: { plainFiles: File[] }) => {
         const firstFile = updatedFiles[0]
         const restFiles = updatedFiles.slice(1)
 
         replaceCurrentPlaceholder(firstFile)
 
         restFiles.length > 0 && (editor as any).tf.insert.media(restFiles)
+      },
+      onFilesRejected: ({ errors }) => {
+        console.error('File picker errors:', errors)
       },
     })
 

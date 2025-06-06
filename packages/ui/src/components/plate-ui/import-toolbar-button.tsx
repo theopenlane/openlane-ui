@@ -40,12 +40,20 @@ export function ImportToolbarButton({ children, ...props }: DropdownMenuProps) {
   const { openFilePicker } = useFilePicker({
     accept,
     multiple: false,
-    onFilesSelected: async ({ plainFiles }) => {
-      const text = await plainFiles[0].text()
+    onFilesSuccessfullySelected: ({ plainFiles }: { plainFiles: File[] }) => {
+      plainFiles[0]
+        .text()
+        .then((text) => {
+          const nodes = getFileNodes(text, type)
+          editor.tf.insertNodes(nodes)
+        })
+        .catch((err) => {
+          console.error('Error reading file:', err)
+        })
+    },
 
-      const nodes = getFileNodes(text, type)
-
-      editor.tf.insertNodes(nodes)
+    onFilesRejected: ({ errors }) => {
+      console.error('File picker errors:', errors)
     },
   })
 

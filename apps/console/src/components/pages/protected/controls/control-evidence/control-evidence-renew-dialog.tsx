@@ -58,7 +58,7 @@ const ControlEvidenceRenewDialog: React.FC<TControlEvidenceRenewDialog> = ({ evi
       await createEvidence(formData)
       setIsOpen(false)
       queryClient.invalidateQueries({ queryKey: ['controls', controlId] })
-      queryClient.invalidateQueries({ queryKey: 'evidences' })
+      queryClient.invalidateQueries({ queryKey: ['evidences'] })
       successNotification({
         title: 'Evidence Created',
         description: `Evidence has been successfully created`,
