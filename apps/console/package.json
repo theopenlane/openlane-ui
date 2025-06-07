@@ -11,7 +11,7 @@
     "test": "jest"
   },
   "dependencies": {
-    "@ai-sdk/amazon-bedrock": "^1.0.5",
+    "@ai-sdk/amazon-bedrock": "^2.0.0",
     "@assistant-ui/react": "^0.7.17",
     "@jsonforms/react": "^3.2.1",
     "@jsonforms/vanilla-renderers": "^3.2.1",
