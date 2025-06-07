@@ -253,7 +253,7 @@
         "@tanstack/react-table": "^8.20.6",
         "@types/prismjs": "^1.26.5",
         "@udecode/cmdk": "^0.2.0",
-        "@udecode/cn": "^44.0.1",
+        "@udecode/cn": "^48.0.0",
         "@udecode/plate": "^46.0.4",
         "@udecode/plate-ai": "^46.0.8",
         "@udecode/plate-alignment": "^44.0.0",
@@ -1613,7 +1613,7 @@
 
     "@udecode/cmdk": ["@udecode/cmdk@0.2.1", "", { "dependencies": { "@radix-ui/react-dialog": "^1.1.11", "@radix-ui/react-id": "^1.1.1", "@radix-ui/react-primitive": "^2.1.0", "use-sync-external-store": "^1.5.0" }, "peerDependencies": { "react": "^18 || ^19 || ^19.0.0-rc", "react-dom": "^18 || ^19 || ^19.0.0-rc" } }, "sha512-aNLh2MROMWTUBjJpSvoyIsYWF8bK0XZo4zmqbbqMeNEtqYA1vt5USgBL5hllnUgh8QOTYUTTpVQmTbbWhICgVQ=="],
 
-    "@udecode/cn": ["@udecode/cn@44.0.1", "", { "dependencies": { "@udecode/react-utils": "44.0.1" }, "peerDependencies": { "class-variance-authority": ">=0.7.0", "react": ">=18.0.0", "react-dom": ">=18.0.0", "tailwind-merge": ">=2.2.0" } }, "sha512-uiykstK3mgWC0SHWXgPiHnOU6XlbSvyJe7KRaatzdkyc/czxDGAcZ3VMFlJvQ9A8siDkDlLKYNnzy+XCxzClkA=="],
+    "@udecode/cn": ["@udecode/cn@48.0.3", "", { "dependencies": { "@udecode/react-utils": "47.3.1" }, "peerDependencies": { "class-variance-authority": ">=0.7.0", "react": ">=18.0.0", "react-dom": ">=18.0.0", "tailwind-merge": ">=2.2.0" } }, "sha512-kfkXrM4buT6eDllWMd3c2mIxEKKyOTWxdigJ/3UWJ+ZDwHMIyVkcF7O5shfW+iq/p9ZIkBWGdcf7nO1UGwk8lw=="],
 
     "@udecode/plate": ["@udecode/plate@46.0.10", "", { "dependencies": { "@udecode/plate-core": "46.0.10", "@udecode/plate-utils": "46.0.10", "@udecode/react-hotkeys": "37.0.0", "@udecode/react-utils": "46.0.9", "@udecode/slate": "45.0.6", "@udecode/utils": "42.0.0" }, "peerDependencies": { "react": ">=18.0.0", "react-dom": ">=18.0.0" } }, "sha512-2S5rAPnx8/ZMWUDe8zWEHSjBtSNzHVM/poAI7YWLcAgQi09VzCTuacQ8yYSOz7qhvz9pzCOhvc4ZWS6Y3OTAjQ=="],
 
@@ -1723,7 +1723,7 @@
 
     "@udecode/react-hotkeys": ["@udecode/react-hotkeys@37.0.0", "", { "peerDependencies": { "react": ">=16.8.0", "react-dom": ">=16.8.0" } }, "sha512-3ZV5LiaTnKyhXwN6U0NE2cofNsNN2IPMkNCDntbSIIRLYmI+o6LRkDwAucSNh/BIdNXfvxscsR04RYyIwjGbJw=="],
 
-    "@udecode/react-utils": ["@udecode/react-utils@44.0.1", "", { "dependencies": { "@radix-ui/react-slot": "^1.1.1", "@udecode/utils": "42.0.0", "clsx": "^2.1.1" }, "peerDependencies": { "react": ">=18.0.0", "react-dom": ">=18.0.0" } }, "sha512-UKzmuwOWrxfleNOXVsoTNk694WLmyKFaQ4v+QcxfEYmG+VcFQE3vuFXC8EtGK+azADOXgz9Ww3z/Deg+DBnZxg=="],
+    "@udecode/react-utils": ["@udecode/react-utils@47.3.1", "", { "dependencies": { "@radix-ui/react-slot": "^1.2.0", "@udecode/utils": "47.2.7", "clsx": "^2.1.1" }, "peerDependencies": { "react": ">=18.0.0", "react-dom": ">=18.0.0" } }, "sha512-fHnY0RGOeKKPnFW8xx8VWlLI0yscHd/kIU5t0bZ5bJ7Vanlhk1CUnPGDNa5HCIMVQrLARngGut/lIyGtoF65EQ=="],
 
     "@udecode/slate": ["@udecode/slate@45.0.6", "", { "dependencies": { "@udecode/utils": "42.0.0", "is-plain-object": "^5.0.0", "lodash": "^4.17.21", "slate": "0.112.0", "slate-dom": "0.112.2" } }, "sha512-MqcEUmUfA3QzFHgM+fhMaoJje220pCxvKCerjYhsPjNFVnoyFc9H4iB3G0UHfonkgyjEUueyuCa+uHQHGMIhBQ=="],
 
@@ -4262,6 +4262,8 @@
     "@udecode/plate-floating/@floating-ui/react": ["@floating-ui/react@0.27.12", "", { "dependencies": { "@floating-ui/react-dom": "^2.1.3", "@floating-ui/utils": "^0.2.9", "tabbable": "^6.0.0" }, "peerDependencies": { "react": ">=17.0.0", "react-dom": ">=17.0.0" } }, "sha512-kKlWNrpIQxF1B/a2MZvE0/uyKby4960yjO91W7nVyNKmmfNi62xU9HCjL1M1eWzx/LFj/VPSwJVbwQk9Pq/68A=="],
 
     "@udecode/plate-utils/@udecode/react-utils": ["@udecode/react-utils@46.0.9", "", { "dependencies": { "@radix-ui/react-slot": "^1.1.1", "@udecode/utils": "42.0.0", "clsx": "^2.1.1" }, "peerDependencies": { "react": ">=18.0.0", "react-dom": ">=18.0.0" } }, "sha512-wih5cJRgRbKGZ++VrqsB+3t9Ajo47+aRKiFTqkHeUEDfHwLItm/ITrbzXFXHRuSgwAHUhjePHcRKkRZmmg2uRQ=="],
+
+    "@udecode/react-utils/@udecode/utils": ["@udecode/utils@47.2.7", "", {}, "sha512-tQ8tIcdW+ZqWWrDgyf/moTLWtcErcHxaOfuCD/6qIL5hCq+jZm67nGHQToOT4Czti5Jr7CDPMgr8lYpdTEZcew=="],
 
     "@udecode/slate-react/@udecode/react-utils": ["@udecode/react-utils@39.0.0", "", { "dependencies": { "@radix-ui/react-slot": "^1.1.0", "@udecode/utils": "37.0.0", "clsx": "^2.1.1" }, "peerDependencies": { "react": ">=16.8.0", "react-dom": ">=16.8.0" } }, "sha512-EoX6T7VmQe9bcR2bIqoobcsX66vo45XKt26rY4eJPWjaTys3yGdyD2iMDy/mEYFFh8ZOUC1V+sNw+XBwQOgyCw=="],
 
