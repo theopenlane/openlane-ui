@@ -177,7 +177,7 @@
     "@radix-ui/react-tabs": "latest",
     "@radix-ui/react-toast": "^1.2.5",
     "@remixicon/react": "^4.6.0",
-    "@stepperize/react": "^4.2.0",
+    "@stepperize/react": "^5.0.0",
     "@storybook/react": "8.6.14",
     "@tailwindcss/typography": "^0.5.16",
     "@tanstack/react-table": "^8.20.6",
