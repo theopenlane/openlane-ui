@@ -135,7 +135,7 @@ export const GlobalSearch = () => {
         <PopoverContent onOpenAutoFocus={(e) => e.preventDefault()} className={popover()}>
           <Command>
             <div ref={cmdInputRef} className="hidden" /> {/* Hidden input to relay keydown events */}
-            {renderSearchResults({ data, handleOrganizationSwitch, setQuery, query })}
+            {renderSearchResults({ data, handleOrganizationSwitch, setQuery, query, hasResults })}
           </Command>
         </PopoverContent>
       </Popover>
@@ -173,9 +173,10 @@ interface SearchProps {
   handleOrganizationSwitch?: (orgId?: string) => Promise<void>
   setQuery?: React.Dispatch<React.SetStateAction<string>>
   query: string
+  hasResults: boolean
 }
 
-const renderSearchResults = ({ data, handleOrganizationSwitch, setQuery, query }: SearchProps) => {
+const renderSearchResults = ({ data, handleOrganizationSwitch, setQuery, query, hasResults }: SearchProps) => {
   const routeMatches =
     query.length > 1
       ? routeList.filter((r) => {
@@ -189,7 +190,7 @@ const renderSearchResults = ({ data, handleOrganizationSwitch, setQuery, query }
         })
       : []
 
-  const noResults = !routeMatches.length && (!data?.search || Object.values(data.search).every((val) => !val || typeof val !== 'object' || !('edges' in val) || !(val.edges && val.edges.length > 0)))
+  const noResults = !routeMatches.length && !hasResults
 
   if (noResults) {
     return renderNoResults()
