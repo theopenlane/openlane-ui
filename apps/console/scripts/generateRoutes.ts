@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 
-const baseDir = path.join(__dirname, '../apps/console/src/app/(protected)')
+const baseDir = path.join(__dirname, '../src/app/(protected)')
 
 function toNameFromPath(pathStr: string): string {
   return (
@@ -33,6 +33,6 @@ function walk(currentPath: string, routePrefix = '') {
 
 walk(baseDir)
 
-fs.writeFileSync(path.join(__dirname, '../apps/console/src/route-list.json'), JSON.stringify(routes, null, 2))
+fs.writeFileSync(path.join(__dirname, '../src/route-list.json'), JSON.stringify(routes, null, 2))
 
 console.log('✅ Route list generated:', routes)
