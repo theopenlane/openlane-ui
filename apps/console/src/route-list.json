@@ -2,7 +2,7 @@
   {
     "route": "/controls",
     "name": "Controls",
-    "keywords": ["testkeyword"]
+    "keywords": ["requirements"]
   },
   {
     "route": "/controls/create-control",
