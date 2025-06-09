@@ -15,6 +15,7 @@ import { useSearch } from '@/lib/graphql-hooks/search'
 import { SearchQuery } from '@repo/codegen/src/schema'
 import { Avatar } from '../avatar/avatar'
 import { useShortcutSuffix } from '@/components/shared/shortcut-suffix/shortcut-suffix.tsx'
+import routeList from '@/route-list.json'
 
 export const GlobalSearch = () => {
   const { popover } = searchStyles()
@@ -133,7 +134,7 @@ export const GlobalSearch = () => {
         <PopoverContent onOpenAutoFocus={(e) => e.preventDefault()} className={popover()}>
           <Command>
             <div ref={cmdInputRef} className="hidden" /> {/* Hidden input to relay keydown events */}
-            {hasResults && data ? renderSearchResults({ data, handleOrganizationSwitch, setQuery }) : renderNoResults()}
+            {hasResults && data ? renderSearchResults({ data, handleOrganizationSwitch, setQuery, query }) : renderNoResults()}
           </Command>
         </PopoverContent>
       </Popover>
@@ -150,19 +151,39 @@ const renderNoResults = () => {
   )
 }
 
+const renderRouteResults = (routes: { name: string; route: string }[]) => {
+  const { item } = searchStyles()
+
+  return (
+    <CommandGroup key="routes" heading="Pages">
+      {routes.map((route) => (
+        <CommandItem className={item()} key={route.route} onSelect={() => (window.location.href = route.route)}>
+          <Link href={route.route}>
+            <div>{route.name}</div>
+          </Link>
+        </CommandItem>
+      ))}
+    </CommandGroup>
+  )
+}
+
 interface SearchProps {
   data: SearchQuery
   handleOrganizationSwitch?: (orgId?: string) => Promise<void>
   setQuery?: React.Dispatch<React.SetStateAction<string>>
+  query: string
 }
 
-const renderSearchResults = ({ data, handleOrganizationSwitch, setQuery }: SearchProps) => {
+const renderSearchResults = ({ data, handleOrganizationSwitch, setQuery, query }: SearchProps) => {
   if (!data?.search) return null
 
   const { search } = data
 
+  const routeMatches = query.length > 1 ? routeList.filter((r) => r.name.toLowerCase().includes(query.toLowerCase())) : []
+
   return (
     <CommandList key="search-results" className="max-h-[600px] overflow-auto">
+      {!!routeMatches.length && renderRouteResults(routeMatches)}
       {/* Organizations */}
       {!!search?.organizations?.edges?.length &&
         renderOrgGroupResults({
