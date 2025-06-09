@@ -20,6 +20,8 @@ export const getHrefForObjectType = (
       return `/tasks?id=${row.id}`
     case 'programs':
       return `/programs?id=${row.id}`
+    case 'groups':
+      return `/groups?id=${row.id}`
 
     default:
       return ``
