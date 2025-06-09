@@ -10,5 +10,5 @@
     "strict": true,
     "types": ["node"]
   },
-  "include": ["generateRoutes.ts"]
+  "include": ["generateRoutes.ts", "updateRoutes.ts"]
 }

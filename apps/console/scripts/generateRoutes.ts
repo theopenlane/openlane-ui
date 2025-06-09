@@ -1,5 +1,5 @@
-const fs = require('fs')
-const path = require('path')
+import fs from 'fs'
+import path from 'path'
 
 const baseDir = path.join(__dirname, '../src/app/(protected)')
 
@@ -14,7 +14,9 @@ function toNameFromPath(pathStr: string): string {
   )
 }
 
-const routes: { route: string; name: string }[] = []
+type RouteEntry = { route: string; name: string }
+
+const routes: RouteEntry[] = []
 
 function walk(currentPath: string, routePrefix = '') {
   const entries = fs.readdirSync(currentPath, { withFileTypes: true })

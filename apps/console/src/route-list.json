@@ -1,7 +1,8 @@
 [
   {
     "route": "/controls",
-    "name": "Controls"
+    "name": "Controls",
+    "keywords": ["testkeyword"]
   },
   {
     "route": "/controls/create-control",
@@ -121,19 +122,23 @@
   },
   {
     "route": "/assets",
-    "name": "Assets"
+    "name": "Assets",
+    "hidden": true
   },
   {
     "route": "/assets/servers",
-    "name": "Servers"
+    "name": "Servers",
+    "hidden": true
   },
   {
     "route": "/assets/domains",
-    "name": "Domains"
+    "name": "Domains",
+    "hidden": true
   },
   {
     "route": "/assets/ip-addresses",
-    "name": "Ip Addresses"
+    "name": "Ip Addresses",
+    "hidden": true
   },
   {
     "route": "/policies/create",
@@ -153,10 +158,12 @@
   },
   {
     "route": "/reporting",
-    "name": "Reporting"
+    "name": "Reporting",
+    "hidden": true
   },
   {
     "route": "/reporting/compliance",
-    "name": "Compliance"
+    "name": "Compliance",
+    "hidden": true
   }
 ]

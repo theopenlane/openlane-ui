@@ -135,7 +135,7 @@ export const GlobalSearch = () => {
         <PopoverContent onOpenAutoFocus={(e) => e.preventDefault()} className={popover()}>
           <Command>
             <div ref={cmdInputRef} className="hidden" /> {/* Hidden input to relay keydown events */}
-            {hasResults && data ? renderSearchResults({ data, handleOrganizationSwitch, setQuery, query }) : renderNoResults()}
+            {renderSearchResults({ data, handleOrganizationSwitch, setQuery, query })}
           </Command>
         </PopoverContent>
       </Popover>
@@ -169,18 +169,37 @@ const renderRouteResults = (routes: { name: string; route: string }[]) => {
 }
 
 interface SearchProps {
-  data: SearchQuery
+  data: SearchQuery | undefined
   handleOrganizationSwitch?: (orgId?: string) => Promise<void>
   setQuery?: React.Dispatch<React.SetStateAction<string>>
   query: string
 }
 
 const renderSearchResults = ({ data, handleOrganizationSwitch, setQuery, query }: SearchProps) => {
+  // if (!data?.search) return null
+
+  const routeMatches =
+    query.length > 1
+      ? routeList.filter((r) => {
+          if (r?.hidden === true) {
+            return false
+          }
+
+          const nameMatch = r.name?.toLowerCase().includes(query.toLowerCase())
+          const keywordMatch = r.keywords?.some((kw: string) => kw.toLowerCase().includes(query.toLowerCase()))
+          return nameMatch || keywordMatch
+        })
+      : []
+
+  const noResults = !routeMatches.length && (!data?.search || Object.values(data.search).every((val) => !val || typeof val !== 'object' || !('edges' in val) || !(val.edges && val.edges.length > 0)))
+
+  if (noResults) {
+    return renderNoResults()
+  }
+
   if (!data?.search) return null
 
   const { search } = data
-
-  const routeMatches = query.length > 1 ? routeList.filter((r) => r.name.toLowerCase().includes(query.toLowerCase())) : []
 
   return (
     <CommandList key="search-results" className="max-h-[600px] overflow-auto">
