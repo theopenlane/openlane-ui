@@ -176,8 +176,6 @@ interface SearchProps {
 }
 
 const renderSearchResults = ({ data, handleOrganizationSwitch, setQuery, query }: SearchProps) => {
-  // if (!data?.search) return null
-
   const routeMatches =
     query.length > 1
       ? routeList.filter((r) => {
