@@ -11,7 +11,7 @@ import { Button } from '@repo/ui/button'
 import { CreateProcedureInput, ProcedureByIdFragment, ProcedureDocumentStatus, ProcedureFrequency, UpdateProcedureInput } from '@repo/codegen/src/schema.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { useNotification } from '@/hooks/useNotification.tsx'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
 import { useQueryClient } from '@tanstack/react-query'
 import useFormSchema, { CreateProcedureFormData, EditProcedureFormData } from '../hooks/use-form-schema'
@@ -22,6 +22,7 @@ import TagsCard from '@/components/pages/protected/procedures/create/cards/tags-
 import { useCreateProcedure, useUpdateProcedure } from '@/lib/graphql-hooks/procedures.ts'
 import { DOCS_URL } from '@/constants/index.ts'
 import AuthorityCard from '@/components/pages/protected/procedures/view/cards/authority-card.tsx'
+import { useGetInternalPolicyDetailsById } from '@/lib/graphql-hooks/policy.ts'
 
 type TCreateProcedureFormProps = {
   procedure?: ProcedureByIdFragment
@@ -47,6 +48,9 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   const [metadata, setMetadata] = useState<TMetadata>()
   const isEditable = !!procedure
   const [initialAssociations, setInitialAssociations] = useState<TObjectAssociationMap>({})
+  const searchParams = useSearchParams()
+  const policyId = searchParams.get('policyId')
+  const { data, isLoading } = useGetInternalPolicyDetailsById(policyId)
 
   useEffect(() => {
     if (procedure) {
@@ -88,6 +92,20 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
       procedureState.setAssociationRefCodes(procedureAssociationsRefCodes)
     }
   }, [])
+
+  useEffect(() => {
+    if (data) {
+      const procedureAssociations: TObjectAssociationMap = {
+        internalPolicyIDs: data?.internalPolicy?.id ? [data.internalPolicy.id] : [],
+      }
+      const procedureAssociationsRefCodes: TObjectAssociationMap = {
+        internalPolicyIDs: data?.internalPolicy?.displayID ? [data.internalPolicy.displayID] : [],
+      }
+      setInitialAssociations(procedureAssociations)
+      procedureState.setAssociations(procedureAssociations)
+      procedureState.setAssociationRefCodes(procedureAssociationsRefCodes)
+    }
+  }, [data])
 
   const onCreateHandler = async (data: CreateProcedureFormData) => {
     try {

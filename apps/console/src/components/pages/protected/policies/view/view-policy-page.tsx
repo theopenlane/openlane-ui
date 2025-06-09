@@ -1,6 +1,6 @@
 import { Loading } from '@/components/shared/loading/loading'
 import { useDeleteInternalPolicy, useGetInternalPolicyDetailsById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import useFormSchema, { EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import { Form } from '@repo/ui/form'
@@ -26,6 +26,7 @@ import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useRouter } from 'next/navigation'
 import Menu from '@/components/shared/menu/menu.tsx'
+import CreateItemsFromPolicyToolbar from './create-items-from-policy-toolbar'
 
 type TViewPolicyPage = {
   policyId: string
@@ -85,6 +86,10 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
       policyState.setAssociationRefCodes(policyAssociationsRefCodes)
     }
   }, [policy])
+
+  const initialData: TObjectAssociationMap = {
+    ...(policyId ? { internalPolicyIDs: [policyId] } : {}),
+  }
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -147,6 +152,14 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     }
   }
 
+  const handleCreateNewPolicy = async () => {
+    router.push(`/policies/create`)
+  }
+
+  const handleCreateNewProcedure = async () => {
+    router.push(`/procedures/create?policyId=${policyId}`)
+  }
+
   return (
     <>
       {isLoading && <Loading />}
@@ -170,6 +183,12 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
                 </div>
               ) : (
                 <div className="flex gap-2 justify-end">
+                  <CreateItemsFromPolicyToolbar
+                    initialData={initialData}
+                    handleCreateNewPolicy={handleCreateNewPolicy}
+                    handleCreateNewProcedure={handleCreateNewProcedure}
+                    objectAssociationsDisplayIDs={policy?.displayID ? [policy?.displayID] : []}
+                  ></CreateItemsFromPolicyToolbar>
                   {!editAllowed && !deleteAllowed ? (
                     <></>
                   ) : (
