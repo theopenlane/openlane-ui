@@ -33,7 +33,6 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
   useEffect(() => {
     onIDsChange(selectedIdsMap, selectedRefCodeMap)
   }, [selectedIdsMap, data])
-
   const columns: ColumnDef<TObjectAssociationColumn>[] = [
     {
       accessorKey: 'name',
@@ -43,9 +42,7 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
         const refCode = row.original.refCode
         const name = row.original.name
         const inputName = row.original.inputName
-
         const checked = selectedIdsMap[inputName]?.includes(id) ?? false
-
         const toggleChecked = (isChecked: boolean) => {
           setSelectedRefCodeMap((prev) => {
             const currentList = prev[inputName] ?? []
