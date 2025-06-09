@@ -15,6 +15,7 @@ import { useSearch } from '@/lib/graphql-hooks/search'
 import { SearchQuery } from '@repo/codegen/src/schema'
 import { Avatar } from '../avatar/avatar'
 import { useShortcutSuffix } from '@/components/shared/shortcut-suffix/shortcut-suffix.tsx'
+import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 
 export const GlobalSearch = () => {
   const { popover } = searchStyles()
@@ -166,7 +167,7 @@ const renderSearchResults = ({ data, handleOrganizationSwitch, setQuery }: Searc
       {/* Organizations */}
       {!!search?.organizations?.edges?.length &&
         renderOrgGroupResults({
-          searchType: 'Organization',
+          searchType: 'Organizations',
           node: search.organizations?.edges?.map((edge) => edge?.node!) ?? [],
           handleOrganizationSwitch,
           setQuery,
@@ -175,49 +176,49 @@ const renderSearchResults = ({ data, handleOrganizationSwitch, setQuery }: Searc
       {/* Programs */}
       {!!search.programs?.edges?.length &&
         renderGroupResults({
-          searchType: 'Program',
+          searchType: 'Programs',
           node: (search.programs.edges ?? []).map((edge) => edge?.node!) ?? [],
         })}
 
       {/* Groups */}
       {!!search.groups?.edges?.length &&
         renderGroupResults({
-          searchType: 'Group',
+          searchType: 'Groups',
           node: (search.groups.edges ?? []).map((edge) => edge?.node!) ?? [],
         })}
 
       {/* Tasks */}
       {!!search.tasks?.edges?.length &&
         renderGroupResults({
-          searchType: 'Task',
+          searchType: 'Tasks',
           node: (search.tasks.edges ?? []).map((edge) => edge?.node!) ?? [],
         })}
 
       {/* Control Objectives */}
       {!!search.controlObjectives?.edges?.length &&
         renderGroupResults({
-          searchType: 'ControlObjective',
+          searchType: 'ControlObjectives',
           node: (search.controlObjectives.edges ?? []).map((edge) => edge?.node!) ?? [],
         })}
 
       {/* Controls */}
       {!!search.controls?.edges?.length &&
         renderGroupResults({
-          searchType: 'Control',
+          searchType: 'Controls',
           node: (search.controls.edges ?? []).map((edge) => edge?.node!) ?? [],
         })}
 
       {/* Subcontrols */}
       {!!search.subcontrols?.edges?.length &&
         renderGroupResults({
-          searchType: 'Subcontrol',
+          searchType: 'Subcontrols',
           node: (search.subcontrols.edges ?? []).map((edge) => edge?.node!) ?? [],
         })}
 
       {/* Risks */}
       {!!search.risks?.edges?.length &&
         renderGroupResults({
-          searchType: 'Risk',
+          searchType: 'Risks',
           node: (search.risks.edges ?? []).map((edge) => edge?.node!) ?? [],
         })}
     </CommandList>
@@ -233,9 +234,9 @@ interface SearchNodeProps {
 
 // renderGroupResults is a generic function to render search results for any type of entity
 const renderGroupResults = ({ searchType, node }: SearchNodeProps) => {
-  const groupKey = `${searchType.toLowerCase()}s`
+  const groupKey = `${searchType.toLowerCase()}`
   return (
-    <CommandGroup key={groupKey} heading={`${searchType}s`}>
+    <CommandGroup key={groupKey} heading={`${searchType}`}>
       {node.map((searchNode: any) => renderSearchResultField({ node: searchNode, searchType }))}
     </CommandGroup>
   )
@@ -253,9 +254,9 @@ const renderOrgGroupResults = ({ searchType, node, handleOrganizationSwitch, set
     return
   }
 
-  const groupKey = `${searchType.toLowerCase()}s`
+  const groupKey = `${searchType.toLowerCase()}`
   return (
-    <CommandGroup key={groupKey} heading={`${searchType}s`}>
+    <CommandGroup key={groupKey} heading={`${searchType}`}>
       {node.map((searchNode: any) => renderOrgSearchResultField({ node: searchNode, handleOrganizationSwitch, setQuery, searchType }))}
     </CommandGroup>
   )
@@ -297,12 +298,17 @@ interface SearchGroupProps {
 const renderSearchResultField = ({ node, searchType }: SearchGroupProps) => {
   const { item } = searchStyles()
   const nodeType = searchType.toLowerCase()
+  const href = getHrefForObjectType(nodeType, node)
 
   return (
-    <CommandItem className={item()} key={node.id} onSelect={() => (window.location.href = `/${nodeType}/${node.id}`)}>
-      <Link href={`/${nodeType}/${node.id}`}>
+    <CommandItem className={item()} key={node.id}>
+      {href ? (
+        <Link href={href}>
+          <div>{node.name || node.refCode || node.title || 'Unnamed'}</div>
+        </Link>
+      ) : (
         <div>{node.name || node.refCode || node.title || 'Unnamed'}</div>
-      </Link>
+      )}
     </CommandItem>
   )
 }
