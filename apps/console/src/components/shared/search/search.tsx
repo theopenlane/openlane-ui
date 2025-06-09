@@ -15,6 +15,7 @@ import { useSearch } from '@/lib/graphql-hooks/search'
 import { SearchQuery } from '@repo/codegen/src/schema'
 import { Avatar } from '../avatar/avatar'
 import { useShortcutSuffix } from '@/components/shared/shortcut-suffix/shortcut-suffix.tsx'
+import routeList from '@/route-list.json'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 
 export const GlobalSearch = () => {
@@ -134,7 +135,7 @@ export const GlobalSearch = () => {
         <PopoverContent onOpenAutoFocus={(e) => e.preventDefault()} className={popover()}>
           <Command>
             <div ref={cmdInputRef} className="hidden" /> {/* Hidden input to relay keydown events */}
-            {hasResults && data ? renderSearchResults({ data, handleOrganizationSwitch, setQuery }) : renderNoResults()}
+            {renderSearchResults({ data, handleOrganizationSwitch, setQuery, query, hasResults })}
           </Command>
         </PopoverContent>
       </Popover>
@@ -151,19 +152,57 @@ const renderNoResults = () => {
   )
 }
 
-interface SearchProps {
-  data: SearchQuery
-  handleOrganizationSwitch?: (orgId?: string) => Promise<void>
-  setQuery?: React.Dispatch<React.SetStateAction<string>>
+const renderRouteResults = (routes: { name: string; route: string }[]) => {
+  const { item } = searchStyles()
+
+  return (
+    <CommandGroup key="routes" heading="Pages">
+      {routes.map((route) => (
+        <CommandItem className={item()} key={route.route} onSelect={() => (window.location.href = route.route)}>
+          <Link href={route.route}>
+            <div>{route.name}</div>
+          </Link>
+        </CommandItem>
+      ))}
+    </CommandGroup>
+  )
 }
 
-const renderSearchResults = ({ data, handleOrganizationSwitch, setQuery }: SearchProps) => {
+interface SearchProps {
+  data: SearchQuery | undefined
+  handleOrganizationSwitch?: (orgId?: string) => Promise<void>
+  setQuery?: React.Dispatch<React.SetStateAction<string>>
+  query: string
+  hasResults: boolean
+}
+
+const renderSearchResults = ({ data, handleOrganizationSwitch, setQuery, query, hasResults }: SearchProps) => {
+  const routeMatches =
+    query.length > 1
+      ? routeList.filter((r) => {
+          if (r?.hidden === true) {
+            return false
+          }
+
+          const nameMatch = r.name?.toLowerCase().includes(query.toLowerCase())
+          const keywordMatch = r.keywords?.some((kw: string) => kw.toLowerCase().includes(query.toLowerCase()))
+          return nameMatch || keywordMatch
+        })
+      : []
+
+  const noResults = !routeMatches.length && !hasResults
+
+  if (noResults) {
+    return renderNoResults()
+  }
+
   if (!data?.search) return null
 
   const { search } = data
 
   return (
     <CommandList key="search-results" className="max-h-[600px] overflow-auto">
+      {!!routeMatches.length && renderRouteResults(routeMatches)}
       {/* Organizations */}
       {!!search?.organizations?.edges?.length &&
         renderOrgGroupResults({
