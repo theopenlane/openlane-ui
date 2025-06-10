@@ -144,13 +144,15 @@ export const GET_RISK_BY_ID = gql`
 `
 
 export const GET_ALL_RISKS = gql`
-  query GetAllRisks($where: RiskWhereInput, $orderBy: [RiskOrder!]) {
-    risks(where: $where, orderBy: $orderBy) {
-      totalCount
+  query GetAllRisks($where: RiskWhereInput, $orderBy: [RiskOrder!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    risks(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
       pageInfo {
         endCursor
         startCursor
+        hasPreviousPage
+        hasNextPage
       }
+      totalCount
       edges {
         node {
           ...RiskFields

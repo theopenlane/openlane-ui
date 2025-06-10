@@ -9,6 +9,7 @@ import {
   DeleteRiskMutation,
   DeleteRiskMutationVariables,
   GetAllRisksQuery,
+  GetAllRisksQueryVariables,
   GetRiskByIdQuery,
   GetRiskByIdQueryVariables,
   Risk,
@@ -33,7 +34,7 @@ export const useGetAllRisks = () => {
 type UseRisksWithFilterProps = {
   where?: RiskWhereInput
   pagination?: TPagination
-  orderBy?: RiskOrder[]
+  orderBy?: GetAllRisksQueryVariables['orderBy']
   enabled?: boolean
 }
 

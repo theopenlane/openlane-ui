@@ -5,22 +5,20 @@ import { useRisksWithFilter } from '@/lib/graphql-hooks/risks'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { PageHeading } from '@repo/ui/page-heading'
-import { GetAllRisksQueryVariables, InternalPolicy, OrderDirection, RiskFieldsFragment, RiskOrder, RiskOrderField, RiskRiskStatus } from '@repo/codegen/src/schema'
-import RiskDetailsSheet from '@/components/pages/protected/risks/risk-details-sheet'
+import { GetAllRisksQueryVariables, OrderDirection, RiskFieldsFragment, RiskOrder, RiskOrderField } from '@repo/codegen/src/schema'
 import { useRouter } from 'next/navigation'
 import { useDebounce } from '@uidotdev/usehooks'
-import RisksTableToolbar from './table/risks-table-toolbar'
-import { RISKS_SORT_FIELDS } from './table/table-config'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { exportToCSV } from '@/utils/exportToCSV'
-import { Badge } from '@repo/ui/badge'
-import RiskLabel from '@/components/pages/protected/risks/risk-label'
 import { VisibilityState } from '@tanstack/react-table'
+import RisksTableToolbar from '@/components/pages/protected/risks/table/risks-table-toolbar.tsx'
+import { RISKS_SORT_FIELDS } from '@/components/pages/protected/risks/table/table-config.ts'
+import { getRiskColumns } from '@/components/pages/protected/risks/table/columns.tsx'
 
 const RiskTablePage: React.FC = () => {
-  const { replace } = useRouter()
   const router = useRouter()
+  const { columns, mappedColumns } = getRiskColumns()
   const [searchQuery, setSearchQuery] = useState('')
   const [filters, setFilters] = useState<Record<string, any> | null>(null)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
@@ -43,9 +41,8 @@ const RiskTablePage: React.FC = () => {
     }
   }, [filters, debouncedSearch])
 
-  const orderByFilter: RiskOrder[] | undefined = useMemo(() => {
-    if (!orderBy) return undefined
-    return Array.isArray(orderBy) ? orderBy : [orderBy]
+  const orderByFilter = useMemo(() => {
+    return orderBy || undefined
   }, [orderBy])
 
   const { risks, paginationMeta, isError } = useRisksWithFilter({
@@ -54,58 +51,6 @@ const RiskTablePage: React.FC = () => {
     pagination,
     enabled: !!filters,
   })
-
-  const columns: ColumnDef<RiskFieldsFragment>[] = [
-    {
-      accessorKey: 'name',
-      header: 'Name',
-      cell: ({ cell }) => {
-        return <div className="font-bold">{cell.getValue() as string}</div>
-      },
-      size: 180,
-    },
-    {
-      accessorKey: 'details',
-      header: 'Details',
-      cell: ({ row }) => {
-        const details = row.original.details?.split('\n').slice(0, 3).join('\n')
-        const tags = row.original.tags || []
-        return (
-          <div>
-            <p>{details}</p>
-            {!!tags.length && (
-              <div className="mt-2 border-t border-dotted pt-2 flex flex-wrap gap-2">
-                {tags.map((tag: string, index: number) => (
-                  <Badge key={index}>{tag}</Badge>
-                ))}
-              </div>
-            )}
-          </div>
-        )
-      },
-    },
-    { accessorKey: 'riskType', header: 'Type' },
-    { accessorKey: 'category', header: 'Category' },
-    { accessorKey: 'score', header: 'Score' },
-    {
-      accessorKey: 'status',
-      header: 'Status',
-      cell: ({ cell }) => {
-        return (
-          <div className="flex items-center space-x-2">
-            <RiskLabel status={(cell.getValue() as RiskRiskStatus) || ''} isEditing={false} />
-          </div>
-        )
-      },
-    },
-  ]
-
-  const mappedColumns: { accessorKey: string; header: string }[] = columns
-    .filter((column): column is { accessorKey: string; header: string } => 'accessorKey' in column && typeof column.accessorKey === 'string' && typeof column.header === 'string')
-    .map((column) => ({
-      accessorKey: column.accessorKey,
-      header: column.header,
-    }))
 
   function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
     return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
@@ -171,8 +116,6 @@ const RiskTablePage: React.FC = () => {
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
       />
-
-      <RiskDetailsSheet />
     </div>
   )
 }

@@ -52,6 +52,10 @@ export const RISKS_SORT_FIELDS = [
     label: 'Score',
   },
   {
+    key: RiskOrderField.risk_type,
+    label: 'Risk Type',
+  },
+  {
     key: RiskOrderField.STATUS,
     label: 'Status',
   },
