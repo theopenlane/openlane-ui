@@ -11,7 +11,7 @@ import RiskLabel from '@/components/pages/protected/risks/risk-label.tsx'
 
 type TPropertiesCardProps = {
   form: UseFormReturn<EditRisksFormData>
-  risk: RiskFieldsFragment
+  risk?: RiskFieldsFragment
   isEditing: boolean
 }
 
@@ -27,7 +27,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, risk 
               <Controller name="riskType" control={form.control} render={({ field }) => <Input {...field} />} />
             ) : (
               <div className="flex items-center space-x-2">
-                <p>{risk.riskType}</p>
+                <p>{risk?.riskType}</p>
               </div>
             )}
           </FieldRow>
@@ -39,7 +39,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, risk 
               <Controller name="category" control={form.control} render={({ field }) => <Input {...field} />} />
             ) : (
               <div className="flex items-center space-x-2">
-                <p>{risk.category}</p>
+                <p>{risk?.category}</p>
               </div>
             )}
           </FieldRow>

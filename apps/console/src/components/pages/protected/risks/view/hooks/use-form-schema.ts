@@ -22,6 +22,7 @@ const formSchema = z.object({
 })
 
 export type EditRisksFormData = z.infer<typeof formSchema>
+export type CreateRisksFormData = z.infer<typeof formSchema>
 
 const useFormSchema = () => {
   return {

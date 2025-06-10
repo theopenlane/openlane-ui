@@ -36853,6 +36853,13 @@ export type DeleteRiskMutationVariables = Exact<{
 
 export type DeleteRiskMutation = { __typename?: 'Mutation', deleteRisk: { __typename?: 'RiskDeletePayload', deletedID: string } };
 
+export type CreateRiskMutationVariables = Exact<{
+  input: CreateRiskInput;
+}>;
+
+
+export type CreateRiskMutation = { __typename?: 'Mutation', createRisk: { __typename?: 'RiskCreatePayload', risk: { __typename?: 'Risk', id: string } } };
+
 export type SearchQueryVariables = Exact<{
   query: Scalars['String']['input'];
 }>;

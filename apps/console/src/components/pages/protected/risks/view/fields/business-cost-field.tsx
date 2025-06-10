@@ -9,7 +9,7 @@ import { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks
 type TBusinessCostFieldProps = {
   isEditing: boolean
   form: UseFormReturn<EditRisksFormData>
-  risk: RiskFieldsFragment
+  risk?: RiskFieldsFragment
 }
 
 const BusinessCostField: React.FC<TBusinessCostFieldProps> = ({ isEditing, form, risk }) => {

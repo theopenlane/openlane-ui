@@ -60,6 +60,10 @@ const RiskTablePage: React.FC = () => {
     router.push(`/risks/${rowData.id}`)
   }
 
+  const handleCreateNew = async () => {
+    router.push(`/risks/create`)
+  }
+
   const handleExport = () => {
     const exportableColumns = columns.filter(isVisibleColumn).map((col) => {
       const key = col.accessorKey as keyof RiskFieldsFragment
@@ -91,6 +95,7 @@ const RiskTablePage: React.FC = () => {
       <PageHeading heading="Risks" />
 
       <RisksTableToolbar
+        handleCreateNew={handleCreateNew}
         searchTerm={searchQuery}
         setSearchTerm={(val) => {
           setSearchQuery(val)

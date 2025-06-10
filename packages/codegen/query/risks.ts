@@ -191,3 +191,13 @@ export const DELETE_RISK = gql`
     }
   }
 `
+
+export const CREATE_RISK = gql`
+  mutation CreateRisk($input: CreateRiskInput!) {
+    createRisk(input: $input) {
+      risk {
+        id
+      }
+    }
+  }
+`
