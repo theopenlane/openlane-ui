@@ -100,22 +100,24 @@ const GroupsPage = () => {
             <p>Show auto generated group</p>
           </div>
         </div>
-        {mappedColumns && columnVisibility && setColumnVisibility && (
-          <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
-        )}
-        <Menu
-          trigger={CreateBtn}
-          content={
-            <CreateGroupDialog
-              trigger={
-                <div className="flex items-center space-x-2">
-                  <CirclePlus size={16} strokeWidth={2} />
-                  <span>Group</span>
-                </div>
-              }
-            />
-          }
-        />
+        <div className="flex items-center gap-2">
+          {mappedColumns && columnVisibility && setColumnVisibility && (
+            <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
+          )}
+          <Menu
+            trigger={CreateBtn}
+            content={
+              <CreateGroupDialog
+                trigger={
+                  <div className="flex items-center space-x-2">
+                    <CirclePlus size={16} strokeWidth={2} />
+                    <span>Group</span>
+                  </div>
+                }
+              />
+            }
+          />
+        </div>
       </div>
 
       {activeTab === 'table' ? (
