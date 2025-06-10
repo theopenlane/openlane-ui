@@ -7,7 +7,7 @@ import { createPlateEditor, Plate } from '@udecode/plate/react'
 import { TPlateEditorStyleVariant, TPlateEditorVariants, useCreateEditor } from '@repo/ui/components/editor/use-create-editor.ts'
 import { Editor, EditorContainer } from '@repo/ui/components/plate-ui/editor.tsx'
 import { Value } from '@udecode/plate'
-import { viewPlugins } from '@repo/ui/components/editor/plugins/editor-plugins.tsx'
+import { basePlugins, basicPlugins, viewPlugins } from '@repo/ui/components/editor/plugins/editor-plugins.tsx'
 import debounce from 'lodash.debounce'
 
 export type TPlateEditorProps = {

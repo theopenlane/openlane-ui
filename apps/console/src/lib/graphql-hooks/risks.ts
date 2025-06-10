@@ -1,17 +1,21 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
-import { CREATE_CSV_BULK_RISK, GET_ALL_RISKS, GET_RISK_BY_ID, UPDATE_RISK } from '@repo/codegen/query/risks'
+import { CREATE_CSV_BULK_RISK, CREATE_RISK, DELETE_RISK, GET_ALL_RISKS, GET_RISK_BY_ID, UPDATE_RISK } from '@repo/codegen/query/risks'
 
 import {
   CreateBulkCsvRiskMutation,
   CreateBulkCsvRiskMutationVariables,
+  CreateRiskMutation,
+  CreateRiskMutationVariables,
+  DeleteRiskMutation,
+  DeleteRiskMutationVariables,
   GetAllRisksQuery,
+  GetAllRisksQueryVariables,
   GetRiskByIdQuery,
   GetRiskByIdQueryVariables,
   Risk,
   RiskFieldsFragment,
-  RiskOrder,
   RiskWhereInput,
   UpdateRiskMutation,
   UpdateRiskMutationVariables,
@@ -31,7 +35,7 @@ export const useGetAllRisks = () => {
 type UseRisksWithFilterProps = {
   where?: RiskWhereInput
   pagination?: TPagination
-  orderBy?: RiskOrder[]
+  orderBy?: GetAllRisksQueryVariables['orderBy']
   enabled?: boolean
 }
 
@@ -81,7 +85,7 @@ export const useRiskSelect = () => {
 export const useGetRiskById = (riskId: string | null) => {
   const { client } = useGraphQLClient()
 
-  return useQuery<GetRiskByIdQuery, unknown>({
+  const queryResult = useQuery<GetRiskByIdQuery, unknown>({
     queryKey: ['risks', riskId],
     queryFn: async () => {
       if (!riskId) throw new Error('Missing risk ID')
@@ -89,6 +93,13 @@ export const useGetRiskById = (riskId: string | null) => {
     },
     enabled: !!riskId,
   })
+
+  const risk = queryResult?.data?.risk as RiskFieldsFragment
+
+  return {
+    ...queryResult,
+    risk,
+  }
 }
 
 export const useUpdateRisk = () => {
@@ -108,6 +119,30 @@ export const useCreateBulkCSVRisk = () => {
 
   return useMutation<CreateBulkCsvRiskMutation, unknown, CreateBulkCsvRiskMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_RISK, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['risks'] })
+    },
+  })
+}
+
+export const useDeleteRisk = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<DeleteRiskMutation, unknown, DeleteRiskMutationVariables>({
+    mutationFn: async (variables) => {
+      return client.request(DELETE_RISK, variables)
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['risks'] }),
+  })
+}
+
+export const useCreateRisk = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<CreateRiskMutation, unknown, CreateRiskMutationVariables>({
+    mutationFn: async (payload) => {
+      return client.request(CREATE_RISK, payload)
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['risks'] })
     },

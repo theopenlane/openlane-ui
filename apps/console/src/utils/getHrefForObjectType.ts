@@ -15,7 +15,7 @@ export const getHrefForObjectType = (
     case 'subcontrols':
       return `/controls/${row.control?.id}/${row.id}`
     case 'risks':
-      return `/risks?id=${row.id}`
+      return `/risks/${row.id}`
     case 'tasks':
       return `/tasks?id=${row.id}`
     case 'programs':
