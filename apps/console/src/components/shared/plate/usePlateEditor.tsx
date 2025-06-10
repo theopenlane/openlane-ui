@@ -16,7 +16,6 @@ const usePlateEditor = () => {
         plugins: [...basePlugins],
         value: data,
       })
-      console.log(editor)
 
       return await serializeHtml(editor, {
         components: staticViewComponents,
