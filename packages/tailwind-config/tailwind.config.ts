@@ -74,6 +74,7 @@ export const config: Partial<Config> = {
           light: 'var(--color-text-light)', // Light text
           navlink: 'var(--color-text-nav-link)', // Navigation link text
           dimmed: 'var(--color-text-dimmed)', // dimmed text color
+          informational: 'var(--color-text-informational)',
         },
         button: {
           DEFAULT: 'var(--color-button)', // Button background
