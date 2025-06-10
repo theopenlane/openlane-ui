@@ -7,7 +7,6 @@ import PropertiesCard from '@/components/pages/protected/risks/view/cards/proper
 import { Value } from '@udecode/plate-common'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import BusinessCostField from '@/components/pages/protected/risks/view/fields/business-cost-field.tsx'
-import MitigationField from '@/components/pages/protected/risks/view/fields/mitigation-field.tsx'
 import { useRisk } from '@/components/pages/protected/risks/create/hooks/use-risk.tsx'
 import TitleField from '../../view/fields/title-field'
 import DetailsField from '@/components/pages/protected/risks/view/fields/details-field.tsx'
@@ -38,19 +37,13 @@ const CreateRiskForm: React.FC = () => {
       businessCostsField = await plateEditorHelper.convertToHtml(businessCostsField as Value)
     }
 
-    let mitigationField = values?.mitigation
-
-    if (mitigationField) {
-      mitigationField = await plateEditorHelper.convertToHtml(mitigationField as Value)
-    }
-
     try {
       const createdRisk = await createRisk({
         input: {
           ...values,
+          mitigation: undefined,
           details: detailsField,
           businessCosts: businessCostsField,
-          mitigation: mitigationField,
           tags: values?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           stakeholderID: values.stakeholderID || undefined,
           delegateID: values.delegateID || undefined,
@@ -80,7 +73,6 @@ const CreateRiskForm: React.FC = () => {
             <TitleField isEditing={true} form={form} />
             <DetailsField isEditing={true} form={form} />
             <BusinessCostField isEditing={true} form={form} />
-            <MitigationField isEditing={true} form={form} />
             <Button className="mt-4" type="submit" variant="filled" disabled={isPending}>
               {isPending ? 'Creating risk' : 'Create risk'}
             </Button>
