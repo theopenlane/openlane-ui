@@ -8,7 +8,7 @@ export async function GET() {
   const session = await auth()
   const name = session?.user.name.split(' ')
 
-  const subscriber = await novu.subscribers.identify(session?.user.userId, {
+  const subscriber = await novu.subscribers.identify(session?.user?.userId, {
     email: session?.user.email,
     firstName: name[0],
     lastName: name[1],

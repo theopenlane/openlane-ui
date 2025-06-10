@@ -19,15 +19,17 @@ export const RiskLabel = ({ score, impact, likelihood, status, isEditing, onChan
   if (isEditing) {
     if (typeof score === 'number') {
       return (
-        <Input
-          type="text"
-          className="w-[120px]"
-          value={String(score)}
-          onChange={(e) => {
-            const numeric = e.target.value.replace(/\D/g, '')
-            onChange?.(numeric ? Number(numeric) : 0)
-          }}
-        />
+        <div className="w-full flex items-center gap-4">
+          <input
+            type="range"
+            min={0}
+            max={20}
+            value={score}
+            onChange={(e) => onChange?.(Number(e.target.value))}
+            className="accent-brand w-full h-2 bg-input-slider rounded-lg appearance-none cursor-pointer "
+          />
+          <span className="text-sm w-8 text-right">{score}</span>
+        </div>
       )
     }
 

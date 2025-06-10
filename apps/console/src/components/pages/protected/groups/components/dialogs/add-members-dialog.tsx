@@ -26,7 +26,7 @@ const AddMembersDialog = () => {
   const members =
     membersGroupData?.edges
       ?.filter((member) => {
-        return member?.node?.user?.id != session?.user.userId
+        return member?.node?.user?.id != session?.user?.userId
       })
       .map((user) => {
         return {
@@ -40,7 +40,7 @@ const AddMembersDialog = () => {
 
   const membersOptions = membersData?.organization?.members?.edges
     ?.filter((member) => {
-      return member?.node?.user?.id != session?.user.userId
+      return member?.node?.user?.id != session?.user?.userId
     })
     .map((member) => ({
       value: member?.node?.user?.id,
@@ -82,7 +82,7 @@ const AddMembersDialog = () => {
   }
 
   useEffect(() => {
-    if (!hasInitialized && members.length > 0 && session?.user.userId) {
+    if (!hasInitialized && members.length > 0 && session?.user?.userId) {
       const initialSelected = members
         .filter((member) => member.user.id !== session.user.userId)
         .map((member) => ({
@@ -93,7 +93,7 @@ const AddMembersDialog = () => {
       setSelectedMembers(initialSelected)
       setHasInitialized(true)
     }
-  }, [members, session?.user.userId, hasInitialized])
+  }, [members, session?.user?.userId, hasInitialized])
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

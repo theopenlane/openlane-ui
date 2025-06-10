@@ -15,7 +15,7 @@ type TProps = {
 const AddComment: React.FC<TProps> = (props: TProps) => {
   const { data: session } = useSession()
   const [clearData, setClearData] = useState<boolean>(false)
-  const userId = session?.user.userId
+  const userId = session?.user?.userId
   const { data } = useGetCurrentUser(userId)
   const [comment, setComment] = useState<Value | null>(null)
 

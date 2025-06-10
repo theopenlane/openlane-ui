@@ -11,6 +11,7 @@ import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { useGetProcedureDetailsById } from '@/lib/graphql-hooks/procedures'
 import { useGetProgramBasicInfo } from '@/lib/graphql-hooks/programs'
+import { useGetRiskById } from '@/lib/graphql-hooks/risks.ts'
 
 type TBreadCrumbProps = {
   homeElement?: string
@@ -29,6 +30,7 @@ export const BreadcrumbNavigation = ({ homeElement = 'Home' }: TBreadCrumbProps)
   const procedureId = pathNames.includes('procedures') ? (params.id as string) : null
   const subcontrolId = params.subcontrolId as string | undefined
   const programId = pathname.startsWith('/programs') ? searchParams.get('id') : null
+  const riskId = pathNames.includes('risks') ? (params.id as string) : null
 
   const { data: policyData, isLoading: isLoadingPolicy } = useGetInternalPolicyDetailsById(policyId)
   const { data: procedureData, isLoading: isLoadingProcedure } = useGetProcedureDetailsById(procedureId)
@@ -36,7 +38,8 @@ export const BreadcrumbNavigation = ({ homeElement = 'Home' }: TBreadCrumbProps)
   const { data: controlData, isLoading: isLoadingControl } = useGetControlById(controlId)
   const { data: subcontrolData, isLoading: isLoadingSubcontrol } = useGetSubcontrolById(subcontrolId)
   const { data: programData, isLoading: isLoadingProgram } = useGetProgramBasicInfo(programId || null)
-  const isLoading = isLoadingPolicy || isLoadingStandard || isLoadingControl || isLoadingSubcontrol || isLoadingProcedure || isLoadingProgram
+  const { data: riskData, isLoading: isLoadingRisk } = useGetRiskById(riskId)
+  const isLoading = isLoadingPolicy || isLoadingStandard || isLoadingControl || isLoadingSubcontrol || isLoadingProcedure || isLoadingProgram || isLoadingRisk
 
   const breadcrumbs: { name: string; url?: string }[] = [{ name: homeElement, url: '/dashboard' }]
 
@@ -105,6 +108,14 @@ export const BreadcrumbNavigation = ({ homeElement = 'Home' }: TBreadCrumbProps)
     if (procedureData?.procedure) {
       breadcrumbs.push({
         name: procedureData.procedure.name,
+      })
+    }
+  } else if (pathname.startsWith('/risks')) {
+    breadcrumbs.push({ name: 'Risks', url: '/risks' })
+
+    if (riskData?.risk) {
+      breadcrumbs.push({
+        name: riskData.risk.name,
       })
     }
   } else {
