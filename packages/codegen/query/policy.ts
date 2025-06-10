@@ -74,6 +74,13 @@ export const GET_ALL_INTERNAL_POLICIES = gql`
           name
         }
       }
+      pageInfo {
+        endCursor
+        startCursor
+        hasPreviousPage
+        hasNextPage
+      }
+      totalCount
     }
   }
 `

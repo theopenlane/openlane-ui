@@ -17,8 +17,8 @@ export default auth(async (req) => {
   const session = await auth()
 
   const isLoggedIn = req.auth?.user
-  const isTfaEnabled = session?.user.isTfaEnabled
-  const isOnboarding = session?.user.isOnboarding
+  const isTfaEnabled = session?.user?.isTfaEnabled
+  const isOnboarding = session?.user?.isOnboarding
 
   if (!isLoggedIn) {
     return isPublicPage ? NextResponse.next() : NextResponse.redirect(new URL('/login', req.url))

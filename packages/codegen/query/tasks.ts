@@ -36,6 +36,13 @@ export const TASKS_WITH_FILTER = gql`
           }
         }
       }
+      pageInfo {
+        endCursor
+        startCursor
+        hasPreviousPage
+        hasNextPage
+      }
+      totalCount
     }
   }
 `

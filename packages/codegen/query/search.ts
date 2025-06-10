@@ -66,6 +66,9 @@ export const SEARCH = gql`
           node {
             id
             refCode
+            control {
+              id
+            }
           }
         }
         pageInfo {

@@ -15,7 +15,6 @@ import GroupsPermissionsTable from './groups-permissions-table'
 import InheritPermissionDialog from './dialogs/inherit-permission-dialog'
 import { GroupSettingVisibility, GroupMembershipRole } from '@repo/codegen/src/schema'
 import { Loading } from '@/components/shared/loading/loading'
-import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { z } from 'zod'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -28,6 +27,8 @@ import { useGetGroupDetails, useUpdateGroup } from '@/lib/graphql-hooks/groups'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
 import { DOCS_URL } from '@/constants'
+import { useGroupsStore } from '@/hooks/useGroupsStore'
+import { useSmartRouter } from '@/hooks/useSmartRouter'
 
 const EditGroupSchema = z.object({
   groupName: z.string().min(1, 'Group name is required'),
@@ -47,6 +48,7 @@ const GroupDetailsSheet = () => {
   const { selectedGroup, setSelectedGroup, setIsAdmin, isAdmin } = useGroupsStore()
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
+  const { replace } = useSmartRouter()
 
   const { data, isPending: fetching } = useGetGroupDetails(selectedGroup)
 
@@ -90,10 +92,7 @@ const GroupDetailsSheet = () => {
 
     setSelectedGroup(null)
     setIsEditing(false)
-
-    const newSearchParams = new URLSearchParams(searchParams.toString())
-    newSearchParams.delete('groupid')
-    router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
+    replace({ id: null })
   }
   const onSubmit = async (data: EditGroupFormData) => {
     if (!selectedGroup || !id) return
@@ -141,7 +140,7 @@ const GroupDetailsSheet = () => {
   }, [data, reset, name, description, setting, tags])
 
   useEffect(() => {
-    const groupId = searchParams.get('groupid')
+    const groupId = searchParams.get('id')
     if (groupId) {
       setSelectedGroup(groupId)
     }

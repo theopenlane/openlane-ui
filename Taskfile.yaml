@@ -86,3 +86,15 @@ tasks:
     desc: Update the known passkey aaguids. This should be run periodically
     cmds:
       - curl https://raw.githubusercontent.com/passkeydeveloper/passkey-authenticator-aaguids/refs/heads/main/aaguid.json -o apps/console/src/lib/passkeys.json
+
+  generate:routes:
+    desc: Generate static route list from app folders
+    cmds:
+      - bun tsc --project apps/console/scripts/tsconfig.routes.json
+      - bun run apps/console/scripts/generateRoutes.js
+
+  update:routes:
+    desc: Generate static route list from app folders
+    cmds:
+      - bun tsc --project apps/console/scripts/tsconfig.routes.json
+      - bun run apps/console/scripts/updateRoutes.js

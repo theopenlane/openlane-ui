@@ -8,7 +8,7 @@ import { Task } from '@repo/codegen/src/schema.ts'
 import { formatDate } from '@/utils/date'
 import { TaskStatusMapper } from '../util/task'
 import { TaskStatusIconMapper } from '@/components/shared/icon-enum/task-enum.tsx'
-import { useRouter } from 'next/navigation'
+import { useSmartRouter } from '@/hooks/useSmartRouter'
 
 type TTaskCardsProps = {
   tasks: Task[]
@@ -16,7 +16,7 @@ type TTaskCardsProps = {
 }
 
 const TaskCards: React.FC<TTaskCardsProps> = (props: TTaskCardsProps) => {
-  const { replace } = useRouter()
+  const { replace } = useSmartRouter()
   if (props.isError) {
     return <p className="text-red-500">Error loading tasks</p>
   }
@@ -31,9 +31,7 @@ const TaskCards: React.FC<TTaskCardsProps> = (props: TTaskCardsProps) => {
               key={task.id}
               className="w-full max-w-md cursor-pointer"
               onClick={() => {
-                const params = new URLSearchParams(window.location.search)
-                params.set('id', task.id)
-                replace(`?${params.toString()}`)
+                replace({ id: task.id })
               }}
             >
               <div className="flex py-1.5 px-4 justify-between items-center mb-2 border-b gap-2">
