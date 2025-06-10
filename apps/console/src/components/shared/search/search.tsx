@@ -1,41 +1,73 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 import Link from 'next/link'
 import { switchOrganization } from '@/lib/user'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { searchStyles } from './search.styles'
-
-import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@repo/ui/command'
-import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
+import { Command, CommandEmpty, CommandItem, CommandList } from '@repo/ui/command'
 import { Input } from '@repo/ui/input'
-
-import { SearchIcon } from 'lucide-react'
+import { Clock8, LoaderCircle, SearchIcon } from 'lucide-react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useSearch } from '@/lib/graphql-hooks/search'
 import { SearchQuery } from '@repo/codegen/src/schema'
 import { Avatar } from '../avatar/avatar'
 import { useShortcutSuffix } from '@/components/shared/shortcut-suffix/shortcut-suffix.tsx'
-import routeList from '@/route-list.json'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
+import { generateSelectOptions, getSearchResultCount, searchTypeIcons } from './search-config'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { RoutePage } from '@/types'
+import { useSearchHistory } from './useSearchHistory'
 
 export const GlobalSearch = () => {
-  const { popover } = searchStyles()
-  const [open, setOpen] = useState(false) // Controls dropdown visibility
-  const [query, setQuery] = useState('') // Tracks user input
-  const [hasResults, setHasResults] = useState(false)
+  const [open, setOpen] = useState(false)
+  const [query, setQuery] = useState('')
   const cmdInputRef = useRef<HTMLInputElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const { fullSuffix } = useShortcutSuffix()
+  const [selectedType, setSelectedType] = useState<string>('All')
+
+  const { history: searchHistory, addTerm } = useSearchHistory()
 
   const { data: sessionData, update: updateSession } = useSession()
   const { push } = useRouter()
 
   const debouncedQuery = useDebounce(query, 300)
 
-  let { data, isFetching } = useSearch(debouncedQuery)
+  const { data, isFetching, pages } = useSearch(debouncedQuery)
+
+  const previousOptionsRef = useRef<{ label: string; value: string }[]>([])
+
+  const close = () => setOpen(false)
+
+  const selectOptionsWithCounts = useMemo(() => {
+    if (query.length < 3) {
+      const options = generateSelectOptions(undefined, [])
+      previousOptionsRef.current = options
+      return options
+    }
+    if (data?.search && !isFetching) {
+      const options = generateSelectOptions(data, pages)
+      previousOptionsRef.current = options
+      return options
+    }
+
+    if (!previousOptionsRef.current.length) {
+      const options = generateSelectOptions(data, pages)
+      previousOptionsRef.current = options
+      return options
+    }
+
+    return previousOptionsRef.current
+  }, [data, pages, isFetching, query])
+
+  const selectedCount = useMemo(() => {
+    return getSearchResultCount(selectedType, data, pages)
+  }, [selectedType, data, pages])
 
   // when the organization is selected, switch the organization and redirect to the dashboard
   const handleOrganizationSwitch = async (orgId?: string) => {
+    close()
     if (orgId) {
       const response = await switchOrganization({
         target_organization_id: orgId,
@@ -70,30 +102,13 @@ export const GlobalSearch = () => {
     return () => document.removeEventListener('keydown', down)
   }, [])
 
-  // reset the data when the query is empty or too short
-  useEffect(() => {
-    if (query.length < 2) {
-      data = undefined
-
-      setOpen(false)
-      setHasResults(false)
-    }
-  }, [query])
-
   // open the popover when the data is fetched
   useEffect(() => {
-    if (isFetching) {
-      setOpen(false)
+    const hasData = (data && data.search && Object.values(data.search).some((val) => val !== null)) || pages.length
+    if (debouncedQuery.length > 2 && hasData) {
+      addTerm(debouncedQuery)
     }
-
-    if (data && data.search) {
-      setOpen(true)
-      setHasResults(Object.values(data.search).some((val) => val !== null))
-    } else {
-      setHasResults(false)
-      setOpen(false)
-    }
-  }, [data, isFetching])
+  }, [data, isFetching, debouncedQuery, addTerm, pages.length])
 
   /**
    * Pass all keydown events from the input to the `CommandInput` to provide navigation using up/down arrow keys etc.
@@ -109,36 +124,86 @@ export const GlobalSearch = () => {
 
   return (
     <div className="relative w-72">
-      <Popover key={'search-results'} open={open} onOpenChange={setOpen}>
-        <PopoverAnchor>
-          <div className="relative flex items-center">
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTitle />
+        <DialogTrigger>
+          <Input
+            placeholder="Search..."
+            icon={<SearchIcon size={16} />}
+            onClick={() => {
+              setOpen(true)
+            }}
+            className="!border-none !h-9 pr-14 cursor-pointer"
+            iconPosition="left"
+            suffix={fullSuffix}
+            readOnly
+          />
+        </DialogTrigger>
+        <DialogContent className="p-0 max-w-[573px]" autoFocus>
+          <div className="mt-1.5">
             <Input
               ref={inputRef}
               placeholder="Search..."
-              icon={<SearchIcon size={16} />}
-              suffix={fullSuffix}
+              icon={isFetching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
               value={query}
-              onChange={(e) => {
-                e.stopPropagation()
-                e.preventDefault()
-                setQuery(e.currentTarget.value)
-              }}
-              onKeyDown={relayInputKeyDownToCommand}
-              className="!border-none !h-9 pr-14"
+              onChange={(e) => setQuery(e.currentTarget.value)}
+              className="!border-none !h-9 pr-14 cursor-pointer bg-transparent"
               iconPosition="left"
+              onKeyDown={relayInputKeyDownToCommand}
             />
           </div>
-        </PopoverAnchor>
-        <PopoverTrigger asChild>
-          <div />
-        </PopoverTrigger>
-        <PopoverContent onOpenAutoFocus={(e) => e.preventDefault()} className={popover()}>
-          <Command>
-            <div ref={cmdInputRef} className="hidden" /> {/* Hidden input to relay keydown events */}
-            {renderSearchResults({ data, handleOrganizationSwitch, setQuery, query, hasResults })}
+          <div className="flex px-4">
+            <Select value={selectedType} onValueChange={setSelectedType}>
+              <SelectTrigger className="w-[176px] shrink-0">
+                <SelectValue placeholder="Select type" />
+              </SelectTrigger>
+              <SelectContent>
+                {selectOptionsWithCounts.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <div className="border-r mx-3" />
+            <Clock8 size={16} className="self-center shrink-0" />
+            {/* history dropdown/list */}
+            <div className="overflow-hidden w-80">
+              {searchHistory.length > 0 && (
+                <div className="p-2 w-100 flex w-full gap-1 ">
+                  {searchHistory.map((term) => (
+                    <div
+                      key={term}
+                      className="px-2.5 py-1 cursor-pointer bg-card rounded-xl text-xs"
+                      onClick={() => {
+                        setQuery(term)
+                      }}
+                    >
+                      {term}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+          {/* Replace this with your custom search results UI */}
+          <Command className="bg-panel">
+            {/* Optional: hidden element to capture key events */}
+            <div className="hidden" />
+            {selectedCount === 0
+              ? renderNoResults()
+              : renderSearchResults({
+                  data,
+                  handleOrganizationSwitch,
+                  setQuery,
+                  query,
+                  selectedType,
+                  pages,
+                  close,
+                })}
           </Command>
-        </PopoverContent>
-      </Popover>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
@@ -152,19 +217,47 @@ const renderNoResults = () => {
   )
 }
 
-const renderRouteResults = (routes: { name: string; route: string }[]) => {
-  const { item } = searchStyles()
+const renderRouteResults = (routes: { name: string; route: string }[], query: string, close: () => void) => {
+  const { icon, leftFlex } = searchStyles()
 
+  const highlightMatch = (text: string, query: string) => {
+    if (!query) return text
+
+    const regex = new RegExp(`(${query})`, 'ig')
+    const parts = text.split(regex)
+
+    return parts.map((part, i) =>
+      regex.test(part) ? (
+        <span key={i} className="text-input-text">
+          {part}
+        </span>
+      ) : (
+        part
+      ),
+    )
+  }
   return (
-    <CommandGroup key="routes" heading="Pages">
-      {routes.map((route) => (
-        <CommandItem className={item()} key={route.route} onSelect={() => (window.location.href = route.route)}>
-          <Link href={route.route}>
-            <div>{route.name}</div>
+    <>
+      {routes.map((route) => {
+        const Icon = searchTypeIcons['Pages']
+
+        return (
+          <Link key={route.route} href={route.route} onClick={close}>
+            <div className="border-b py-1">
+              <CommandItem className="cursor-pointer py-2 rounded-md">
+                <div className="flex">
+                  <div className={leftFlex()}>
+                    {Icon && <Icon className={icon()} />}
+                    <p className="font-medium text-text-informational">Page</p>
+                  </div>
+                  <span className="text-text-informational"> {highlightMatch(route.route, query)}</span>
+                </div>
+              </CommandItem>
+            </div>
           </Link>
-        </CommandItem>
-      ))}
-    </CommandGroup>
+        )
+      })}
+    </>
   )
 }
 
@@ -173,94 +266,60 @@ interface SearchProps {
   handleOrganizationSwitch?: (orgId?: string) => Promise<void>
   setQuery?: React.Dispatch<React.SetStateAction<string>>
   query: string
-  hasResults: boolean
+  selectedType: string
+  pages: RoutePage[]
+  close: () => void
 }
 
-const renderSearchResults = ({ data, handleOrganizationSwitch, setQuery, query, hasResults }: SearchProps) => {
-  const routeMatches =
-    query.length > 1
-      ? routeList.filter((r) => {
-          if (r?.hidden === true) {
-            return false
-          }
-
-          const nameMatch = r.name?.toLowerCase().includes(query.toLowerCase())
-          const keywordMatch = r.keywords?.some((kw: string) => kw.toLowerCase().includes(query.toLowerCase()))
-          return nameMatch || keywordMatch
-        })
-      : []
-
-  const noResults = !routeMatches.length && !hasResults
-
-  if (noResults) {
-    return renderNoResults()
-  }
-
+const renderSearchResults = ({ data, handleOrganizationSwitch, setQuery, query, selectedType, pages, close }: SearchProps) => {
   if (!data?.search) return null
 
   const { search } = data
 
+  const shouldRenderSection = (type: string) => {
+    return selectedType === 'All' || selectedType === type
+  }
+
   return (
-    <CommandList key="search-results" className="max-h-[600px] overflow-auto">
-      {!!routeMatches.length && renderRouteResults(routeMatches)}
-      {/* Organizations */}
-      {!!search?.organizations?.edges?.length &&
-        renderOrgGroupResults({
-          searchType: 'Organizations',
-          node: search.organizations?.edges?.map((edge) => edge?.node!) ?? [],
-          handleOrganizationSwitch,
-          setQuery,
-        })}
+    <div className="flex flex-col">
+      {/* Type selector */}
+      <div className="px-2 py-1 border-b"></div>
 
-      {/* Programs */}
-      {!!search.programs?.edges?.length &&
-        renderGroupResults({
-          searchType: 'Programs',
-          node: (search.programs.edges ?? []).map((edge) => edge?.node!) ?? [],
-        })}
+      <CommandList key="search-results" className="max-h-[600px] overflow-auto px-2">
+        {/* Pages */}
+        {shouldRenderSection('Pages') && !!pages.length && renderRouteResults(pages, query, close)}
 
-      {/* Groups */}
-      {!!search.groups?.edges?.length &&
-        renderGroupResults({
-          searchType: 'Groups',
-          node: (search.groups.edges ?? []).map((edge) => edge?.node!) ?? [],
-        })}
+        {/* Organizations */}
+        {shouldRenderSection('Organizations') &&
+          !!search?.organizations?.edges?.length &&
+          renderOrgResults({ close, searchType: 'Organizations', node: search.organizations?.edges?.map((edge) => edge?.node!) ?? [], handleOrganizationSwitch, setQuery })}
 
-      {/* Tasks */}
-      {!!search.tasks?.edges?.length &&
-        renderGroupResults({
-          searchType: 'Tasks',
-          node: (search.tasks.edges ?? []).map((edge) => edge?.node!) ?? [],
-        })}
+        {/* Programs */}
+        {shouldRenderSection('Programs') && !!search.programs?.edges?.length && renderResults({ close, searchType: 'Programs', node: (search.programs.edges ?? []).map((edge) => edge?.node!) ?? [] })}
 
-      {/* Control Objectives */}
-      {!!search.controlObjectives?.edges?.length &&
-        renderGroupResults({
-          searchType: 'ControlObjectives',
-          node: (search.controlObjectives.edges ?? []).map((edge) => edge?.node!) ?? [],
-        })}
+        {/* Groups */}
+        {shouldRenderSection('Groups') && !!search.groups?.edges?.length && renderResults({ close, searchType: 'Groups', node: (search.groups.edges ?? []).map((edge) => edge?.node!) ?? [] })}
 
-      {/* Controls */}
-      {!!search.controls?.edges?.length &&
-        renderGroupResults({
-          searchType: 'Controls',
-          node: (search.controls.edges ?? []).map((edge) => edge?.node!) ?? [],
-        })}
+        {/* Tasks */}
+        {shouldRenderSection('Tasks') && !!search.tasks?.edges?.length && renderResults({ close, searchType: 'Tasks', node: (search.tasks.edges ?? []).map((edge) => edge?.node!) ?? [] })}
 
-      {/* Subcontrols */}
-      {!!search.subcontrols?.edges?.length &&
-        renderGroupResults({
-          searchType: 'Subcontrols',
-          node: (search.subcontrols.edges ?? []).map((edge) => edge?.node!) ?? [],
-        })}
+        {/* Control Objectives */}
+        {shouldRenderSection('ControlObjectives') &&
+          !!search.controlObjectives?.edges?.length &&
+          renderResults({ close, searchType: 'ControlObjectives', node: (search.controlObjectives.edges ?? []).map((edge) => edge?.node!) ?? [] })}
 
-      {/* Risks */}
-      {!!search.risks?.edges?.length &&
-        renderGroupResults({
-          searchType: 'Risks',
-          node: (search.risks.edges ?? []).map((edge) => edge?.node!) ?? [],
-        })}
-    </CommandList>
+        {/* Controls */}
+        {shouldRenderSection('Controls') && !!search.controls?.edges?.length && renderResults({ close, searchType: 'Controls', node: (search.controls.edges ?? []).map((edge) => edge?.node!) ?? [] })}
+
+        {/* Subcontrols */}
+        {shouldRenderSection('Subcontrols') &&
+          !!search.subcontrols?.edges?.length &&
+          renderResults({ close, searchType: 'Subcontrols', node: (search.subcontrols.edges ?? []).map((edge) => edge?.node!) ?? [] })}
+
+        {/* Risks */}
+        {shouldRenderSection('Risks') && !!search.risks?.edges?.length && renderResults({ close, searchType: 'Risks', node: (search.risks.edges ?? []).map((edge) => edge?.node!) ?? [] })}
+      </CommandList>
+    </div>
   )
 }
 
@@ -269,85 +328,80 @@ interface SearchNodeProps {
   node: any
   handleOrganizationSwitch?: (orgId?: string) => Promise<void>
   setQuery?: React.Dispatch<React.SetStateAction<string>>
+  close: () => void
 }
 
-// renderGroupResults is a generic function to render search results for any type of entity
-const renderGroupResults = ({ searchType, node }: SearchNodeProps) => {
-  const groupKey = `${searchType.toLowerCase()}`
-  return (
-    <CommandGroup key={groupKey} heading={`${searchType}`}>
-      {node.map((searchNode: any) => renderSearchResultField({ node: searchNode, searchType }))}
-    </CommandGroup>
-  )
-}
-
-interface SearchGroupProps {
-  node: any
-  handleOrganizationSwitch?: (orgId?: string) => Promise<void>
-  setQuery?: React.Dispatch<React.SetStateAction<string>>
-}
-
-// renderOrgGroupResults is specific for organizations which switches into the organization rather than redirecting to the page
-const renderOrgGroupResults = ({ searchType, node, handleOrganizationSwitch, setQuery }: SearchNodeProps) => {
-  if (handleOrganizationSwitch === undefined || setQuery === undefined) {
-    return
-  }
+const renderResults = ({ searchType, node, close }: SearchNodeProps) => {
+  const { icon, leftFlex } = searchStyles()
 
   const groupKey = `${searchType.toLowerCase()}`
+  const Icon = searchTypeIcons[searchType]
+
   return (
-    <CommandGroup key={groupKey} heading={`${searchType}`}>
-      {node.map((searchNode: any) => renderOrgSearchResultField({ node: searchNode, handleOrganizationSwitch, setQuery, searchType }))}
-    </CommandGroup>
+    <>
+      {node.map((searchNode: any, i: number) => {
+        const nodeType = searchType.toLowerCase()
+        const href = getHrefForObjectType(nodeType, searchNode)
+
+        const content = (
+          <div className="border-b py-1">
+            <CommandItem className="cursor-pointer py-2 rounded-md">
+              <div className="flex">
+                <div className={leftFlex()}>
+                  {Icon && <Icon className={icon()} />}
+                  <p className="font-medium text-text-informational">{searchType}</p>
+                </div>
+                <p className="text-input-text">{searchNode.name || searchNode.refCode || searchNode.title || 'Unnamed'}</p>
+              </div>
+            </CommandItem>
+          </div>
+        )
+
+        return href ? (
+          <Link key={groupKey + i} href={href} onClick={close}>
+            {content}
+          </Link>
+        ) : (
+          <div key={groupKey + i}>{content}</div>
+        )
+      })}
+    </>
   )
 }
 
-// renderOrgSearchResultField is specific for organizations which switches into the organization rather than redirecting to the page
-const renderOrgSearchResultField = ({ node, handleOrganizationSwitch, setQuery }: SearchGroupProps) => {
-  if (handleOrganizationSwitch === undefined || setQuery === undefined) {
-    return
-  }
+const renderOrgResults = ({ searchType, node, handleOrganizationSwitch, setQuery }: SearchNodeProps) => {
+  const { avatarRow, icon, leftFlex } = searchStyles()
 
-  const { item, avatarRow } = searchStyles()
+  if (!handleOrganizationSwitch || !setQuery) return
 
-  return (
-    <CommandItem
-      className={item()}
-      key={node.id}
-      onSelect={() => {
-        setQuery('')
-        handleOrganizationSwitch(node.id)
-      }}
-    >
-      <div>
-        <div className={avatarRow()}>
-          <Avatar entity={node} />
-          {node.displayName}
-        </div>
-      </div>
-    </CommandItem>
-  )
-}
-
-// renderSearchResultField is a generic function to render search result for any type of entity
-interface SearchGroupProps {
-  node: any
-  searchType: string
-}
-
-const renderSearchResultField = ({ node, searchType }: SearchGroupProps) => {
-  const { item } = searchStyles()
-  const nodeType = searchType.toLowerCase()
-  const href = getHrefForObjectType(nodeType, node)
+  const Icon = searchTypeIcons[searchType]
 
   return (
-    <CommandItem className={item()} key={node.id}>
-      {href ? (
-        <Link href={href}>
-          <div>{node.name || node.refCode || node.title || 'Unnamed'}</div>
-        </Link>
-      ) : (
-        <div>{node.name || node.refCode || node.title || 'Unnamed'}</div>
-      )}
-    </CommandItem>
+    <>
+      {node.map((searchNode: any, i: number) => {
+        return (
+          <div key={searchNode.id} className="border-b py-1">
+            <CommandItem
+              className="cursor-pointer py-2 rounded-md bg-panel"
+              onSelect={() => {
+                setQuery('')
+                handleOrganizationSwitch(searchNode.id)
+              }}
+            >
+              <div className="flex">
+                <div className={leftFlex()}>
+                  {Icon && <Icon className={icon()} />}
+                  <p className="font-medium">{searchType}</p>
+                </div>
+                <div className={avatarRow()}>
+                  <Avatar entity={searchNode} />
+                  <p className="text-input-text">{searchNode.displayName}</p>
+                </div>
+              </div>
+            </CommandItem>
+          </div>
+        )
+      })}
+    </>
   )
 }
