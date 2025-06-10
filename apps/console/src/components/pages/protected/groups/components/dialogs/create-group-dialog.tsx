@@ -40,7 +40,7 @@ const CreateGroupDialog = ({ trigger }: MyGroupsDialogProps) => {
 
   const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const membersOptions = membersData?.organization?.members?.edges
-    ?.filter((member) => member?.node?.user?.id != session?.user.userId)
+    ?.filter((member) => member?.node?.user?.id != session?.user?.userId)
     .map((member) => ({
       value: member?.node?.user?.id,
       label: `${member?.node?.user?.displayName}`,

@@ -75,7 +75,7 @@ const Risks = () => {
   const programId = searchParams.get('id')
   const [pagination, setPagination] = useState<TPagination>({ ...DEFAULT_PAGINATION, pageSize: 5 })
 
-  const { groups } = useGetAllGroups(session?.user.userId)
+  const { groups } = useGetAllGroups({ where: {} })
   const [tab, setTab] = useState<'created' | 'assigned'>('created')
 
   const stakeholderGroupIds = groups?.map((group) => group.id) ?? []
@@ -90,11 +90,11 @@ const Risks = () => {
     }
 
     return {
-      createdBy: session?.user.userId!,
+      createdBy: session?.user?.userId!,
       statusNEQ: RiskRiskStatus.MITIGATED,
       hasProgramsWith: programId ? [{ id: programId }] : undefined,
     }
-  }, [tab, session?.user.userId, stakeholderGroupIds, programId])
+  }, [tab, session?.user?.userId, stakeholderGroupIds, programId])
 
   const { risks, paginationMeta } = useRisksWithFilter({ where })
 

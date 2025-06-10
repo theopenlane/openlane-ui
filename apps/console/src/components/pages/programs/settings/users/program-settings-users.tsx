@@ -27,7 +27,7 @@ type MemberRow = {
 
 export const ProgramSettingsUsers = () => {
   const { data: session } = useSession()
-  const currentUserId = session?.user.userId
+  const currentUserId = session?.user?.userId
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
   const queryClient = useQueryClient()

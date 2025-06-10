@@ -42,7 +42,7 @@ const GroupsMembersTable = () => {
         })) || []
 
       const sortedMembers = membersList
-        .filter((member) => member.user.id !== session?.user.userId)
+        .filter((member) => member.user.id !== session?.user?.userId)
         .map((member) => ({
           id: member.membershipID || '',
           name: member.user.displayName || 'Unknown Member',
