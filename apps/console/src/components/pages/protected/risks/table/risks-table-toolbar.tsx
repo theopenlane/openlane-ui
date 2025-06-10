@@ -14,6 +14,8 @@ import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
 import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api.ts'
+import { TaskIconBtn } from '@/components/shared/icon-enum/task-enum.tsx'
+import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog.tsx'
 
 type TProps = {
   onFilterChange: (filters: Record<string, any>) => void
@@ -60,17 +62,20 @@ const RisksTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, search
       {mappedColumns && columnVisibility && setColumnVisibility && (
         <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
       )}
-      {canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (
-        <Menu
-          trigger={CreateBtn}
-          content={
-            <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleCreateNew}>
-              <CirclePlus size={16} strokeWidth={2} />
-              <span>Risk</span>
-            </div>
-          }
-        />
-      )}
+      <Menu
+        trigger={CreateBtn}
+        content={
+          <>
+            {canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (
+              <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleCreateNew}>
+                <CirclePlus size={16} strokeWidth={2} />
+                <span>Risk</span>
+              </div>
+            )}
+            <CreateTaskDialog trigger={TaskIconBtn} />
+          </>
+        }
+      />
       <Menu
         content={
           <>
@@ -78,14 +83,16 @@ const RisksTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, search
               <DownloadIcon size={16} strokeWidth={2} />
               <span>Export</span>
             </div>
-            <BulkCSVCreateRiskDialog
-              trigger={
-                <div className="flex items-center space-x-2 hover:bg-muted">
-                  <Upload size={16} strokeWidth={2} />
-                  <span>Bulk Upload</span>
-                </div>
-              }
-            />
+            {canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (
+              <BulkCSVCreateRiskDialog
+                trigger={
+                  <div className="flex items-center space-x-2 hover:bg-muted">
+                    <Upload size={16} strokeWidth={2} />
+                    <span>Bulk Upload</span>
+                  </div>
+                }
+              />
+            )}
           </>
         }
       />
