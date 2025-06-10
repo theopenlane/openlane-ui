@@ -22,7 +22,7 @@ export default function Sidebar({ className }: SidebarProps) {
   const path = usePathname()
 
   // get user task count
-  const assigneeId = session?.user.userId
+  const assigneeId = session?.user?.userId
 
   const userWhere: UserWhereInput = {
     id: assigneeId,
@@ -42,7 +42,7 @@ export default function Sidebar({ className }: SidebarProps) {
     isOpen,
   })
 
-  if (session?.user.isOnboarding) {
+  if (session?.user?.isOnboarding) {
     return null
   }
 
