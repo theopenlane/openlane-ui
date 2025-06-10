@@ -34,7 +34,7 @@ const DialogOverlay = React.forwardRef<React.ElementRef<typeof DialogPrimitive.O
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
 const DialogContent = React.forwardRef<React.ElementRef<typeof DialogPrimitive.Content>, React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & { isClosable?: boolean }>(
-  ({ className, children, isClosable = true, ...props }, ref) => (
+  ({ className, children, isClosable = true, autoFocus = false, ...props }, ref) => (
     <DialogPortal>
       <DialogOverlay isClosable={isClosable} />
       <DialogPrimitive.Content

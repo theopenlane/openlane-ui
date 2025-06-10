@@ -38,6 +38,8 @@ export const GlobalSearch = () => {
 
   const previousOptionsRef = useRef<{ label: string; value: string }[]>([])
 
+  const close = () => setOpen(false)
+
   const selectOptionsWithCounts = useMemo(() => {
     if (query.length < 3) {
       const options = generateSelectOptions(undefined, [])
@@ -65,6 +67,7 @@ export const GlobalSearch = () => {
 
   // when the organization is selected, switch the organization and redirect to the dashboard
   const handleOrganizationSwitch = async (orgId?: string) => {
+    close()
     if (orgId) {
       const response = await switchOrganization({
         target_organization_id: orgId,
@@ -136,7 +139,7 @@ export const GlobalSearch = () => {
             readOnly
           />
         </DialogTrigger>
-        <DialogContent className="p-0 max-w-[573px] " autoFocus>
+        <DialogContent className="p-0 max-w-[573px]" autoFocus>
           <div className="mt-1.5">
             <Input
               ref={inputRef}
@@ -196,6 +199,7 @@ export const GlobalSearch = () => {
                   query,
                   selectedType,
                   pages,
+                  close,
                 })}
           </Command>
         </DialogContent>
@@ -213,7 +217,7 @@ const renderNoResults = () => {
   )
 }
 
-const renderRouteResults = (routes: { name: string; route: string }[], query: string) => {
+const renderRouteResults = (routes: { name: string; route: string }[], query: string, close: () => void) => {
   const { icon, leftFlex } = searchStyles()
 
   const highlightMatch = (text: string, query: string) => {
@@ -238,7 +242,7 @@ const renderRouteResults = (routes: { name: string; route: string }[], query: st
         const Icon = searchTypeIcons['Pages']
 
         return (
-          <Link key={route.route} href={route.route}>
+          <Link key={route.route} href={route.route} onClick={close}>
             <div className="border-b py-1">
               <CommandItem className="cursor-pointer py-2 rounded-md">
                 <div className="flex">
@@ -264,9 +268,10 @@ interface SearchProps {
   query: string
   selectedType: string
   pages: RoutePage[]
+  close: () => void
 }
 
-const renderSearchResults = ({ data, handleOrganizationSwitch, setQuery, query, selectedType, pages }: SearchProps) => {
+const renderSearchResults = ({ data, handleOrganizationSwitch, setQuery, query, selectedType, pages, close }: SearchProps) => {
   if (!data?.search) return null
 
   const { search } = data
@@ -282,73 +287,37 @@ const renderSearchResults = ({ data, handleOrganizationSwitch, setQuery, query, 
 
       <CommandList key="search-results" className="max-h-[600px] overflow-auto px-2">
         {/* Pages */}
-        {shouldRenderSection('Pages') && !!pages.length && renderRouteResults(pages, query)}
+        {shouldRenderSection('Pages') && !!pages.length && renderRouteResults(pages, query, close)}
 
         {/* Organizations */}
         {shouldRenderSection('Organizations') &&
           !!search?.organizations?.edges?.length &&
-          renderOrgResults({
-            searchType: 'Organizations',
-            node: search.organizations?.edges?.map((edge) => edge?.node!) ?? [],
-            handleOrganizationSwitch,
-            setQuery,
-          })}
+          renderOrgResults({ close, searchType: 'Organizations', node: search.organizations?.edges?.map((edge) => edge?.node!) ?? [], handleOrganizationSwitch, setQuery })}
 
         {/* Programs */}
-        {shouldRenderSection('Programs') &&
-          !!search.programs?.edges?.length &&
-          renderResults({
-            searchType: 'Programs',
-            node: (search.programs.edges ?? []).map((edge) => edge?.node!) ?? [],
-          })}
+        {shouldRenderSection('Programs') && !!search.programs?.edges?.length && renderResults({ close, searchType: 'Programs', node: (search.programs.edges ?? []).map((edge) => edge?.node!) ?? [] })}
 
         {/* Groups */}
-        {shouldRenderSection('Groups') &&
-          !!search.groups?.edges?.length &&
-          renderResults({
-            searchType: 'Groups',
-            node: (search.groups.edges ?? []).map((edge) => edge?.node!) ?? [],
-          })}
+        {shouldRenderSection('Groups') && !!search.groups?.edges?.length && renderResults({ close, searchType: 'Groups', node: (search.groups.edges ?? []).map((edge) => edge?.node!) ?? [] })}
 
         {/* Tasks */}
-        {shouldRenderSection('Tasks') &&
-          !!search.tasks?.edges?.length &&
-          renderResults({
-            searchType: 'Tasks',
-            node: (search.tasks.edges ?? []).map((edge) => edge?.node!) ?? [],
-          })}
+        {shouldRenderSection('Tasks') && !!search.tasks?.edges?.length && renderResults({ close, searchType: 'Tasks', node: (search.tasks.edges ?? []).map((edge) => edge?.node!) ?? [] })}
 
         {/* Control Objectives */}
         {shouldRenderSection('ControlObjectives') &&
           !!search.controlObjectives?.edges?.length &&
-          renderResults({
-            searchType: 'ControlObjectives',
-            node: (search.controlObjectives.edges ?? []).map((edge) => edge?.node!) ?? [],
-          })}
+          renderResults({ close, searchType: 'ControlObjectives', node: (search.controlObjectives.edges ?? []).map((edge) => edge?.node!) ?? [] })}
 
         {/* Controls */}
-        {shouldRenderSection('Controls') &&
-          !!search.controls?.edges?.length &&
-          renderResults({
-            searchType: 'Controls',
-            node: (search.controls.edges ?? []).map((edge) => edge?.node!) ?? [],
-          })}
+        {shouldRenderSection('Controls') && !!search.controls?.edges?.length && renderResults({ close, searchType: 'Controls', node: (search.controls.edges ?? []).map((edge) => edge?.node!) ?? [] })}
 
         {/* Subcontrols */}
         {shouldRenderSection('Subcontrols') &&
           !!search.subcontrols?.edges?.length &&
-          renderResults({
-            searchType: 'Subcontrols',
-            node: (search.subcontrols.edges ?? []).map((edge) => edge?.node!) ?? [],
-          })}
+          renderResults({ close, searchType: 'Subcontrols', node: (search.subcontrols.edges ?? []).map((edge) => edge?.node!) ?? [] })}
 
         {/* Risks */}
-        {shouldRenderSection('Risks') &&
-          !!search.risks?.edges?.length &&
-          renderResults({
-            searchType: 'Risks',
-            node: (search.risks.edges ?? []).map((edge) => edge?.node!) ?? [],
-          })}
+        {shouldRenderSection('Risks') && !!search.risks?.edges?.length && renderResults({ close, searchType: 'Risks', node: (search.risks.edges ?? []).map((edge) => edge?.node!) ?? [] })}
       </CommandList>
     </div>
   )
@@ -359,9 +328,10 @@ interface SearchNodeProps {
   node: any
   handleOrganizationSwitch?: (orgId?: string) => Promise<void>
   setQuery?: React.Dispatch<React.SetStateAction<string>>
+  close: () => void
 }
 
-const renderResults = ({ searchType, node }: SearchNodeProps) => {
+const renderResults = ({ searchType, node, close }: SearchNodeProps) => {
   const { icon, leftFlex } = searchStyles()
 
   const groupKey = `${searchType.toLowerCase()}`
@@ -388,7 +358,7 @@ const renderResults = ({ searchType, node }: SearchNodeProps) => {
         )
 
         return href ? (
-          <Link key={groupKey + i} href={href}>
+          <Link key={groupKey + i} href={href} onClick={close}>
             {content}
           </Link>
         ) : (
