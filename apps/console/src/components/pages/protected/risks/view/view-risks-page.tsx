@@ -9,7 +9,6 @@ import { Button } from '@repo/ui/button'
 import { PencilIcon, SaveIcon, Trash2, XIcon } from 'lucide-react'
 import Menu from '@/components/shared/menu/menu.tsx'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import TagsCard from '@/components/pages/protected/policies/view/cards/tags-card.tsx'
 import { canDelete, canEdit } from '@/lib/authz/utils.ts'
 import { useAccountRole } from '@/lib/authz/access-api.ts'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
@@ -20,6 +19,11 @@ import DetailsField from './fields/details-field'
 import AssociatedObjectsViewAccordion from '../accordion/associated-objects-view-accordion'
 import AuthorityCard from './cards/authority-card'
 import PropertiesCard from '@/components/pages/protected/risks/view/cards/properties-card.tsx'
+import TagsCard from './cards/tags-card'
+import { Value } from '@udecode/plate-common'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
+import BusinessCostField from '@/components/pages/protected/risks/view/fields/business-cost-field.tsx'
+import MitigationField from '@/components/pages/protected/risks/view/fields/mitigation-field.tsx'
 
 type TRisksPageProps = {
   riskId: string
@@ -29,6 +33,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   const { risk, isLoading } = useGetRiskById(riskId)
   const { mutateAsync: updateRisk, isPending } = useUpdateRisk()
   const { mutateAsync: deleteRisk } = useDeleteRisk()
+  const plateEditorHelper = usePlateEditor()
 
   const { successNotification, errorNotification } = useNotification()
   const { form } = useFormSchema()
@@ -54,6 +59,8 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
         mitigation: risk.mitigation ?? '',
         businessCosts: risk.businessCosts ?? '',
         tags: risk.tags || [],
+        stakeholderID: risk.stakeholder?.id,
+        delegateID: risk.delegate?.id,
       })
     }
   }, [risk])
@@ -84,21 +91,34 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
       return
     }
 
+    let detailsField = values?.details
+
+    if (detailsField) {
+      detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
+    }
+    let businessCostsField = values?.businessCosts
+
+    if (businessCostsField) {
+      businessCostsField = await plateEditorHelper.convertToHtml(businessCostsField as Value)
+    }
+
+    let mitigationField = values?.mitigation
+
+    if (mitigationField) {
+      mitigationField = await plateEditorHelper.convertToHtml(mitigationField as Value)
+    }
+
     try {
       await updateRisk({
         id: risk.id,
         input: {
-          name: values.name,
-          riskType: values.riskType,
-          category: values.category,
-          score: values.score,
-          impact: values.impact,
-          likelihood: values.likelihood,
-          status: values.status,
-          details: values.details,
-          mitigation: values.mitigation,
-          businessCosts: values.businessCosts,
-          tags: values.tags,
+          ...values,
+          details: detailsField,
+          businessCosts: businessCostsField,
+          mitigation: mitigationField,
+          tags: values?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
+          stakeholderID: values.stakeholderID || undefined,
+          delegateID: values.delegateID || undefined,
         },
       })
 
@@ -125,6 +145,8 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
             <div className="space-y-6 w-full max-w-full overflow-hidden">
               <TitleField isEditing={isEditing} form={form} />
               <DetailsField isEditing={isEditing} form={form} risk={risk} />
+              <BusinessCostField isEditing={isEditing} form={form} risk={risk} />
+              <MitigationField isEditing={isEditing} form={form} risk={risk} />
               <AssociatedObjectsViewAccordion risk={risk} />
             </div>
             <div className="space-y-4">
@@ -173,7 +195,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
               )}
               <AuthorityCard form={form} stakeholder={risk.stakeholder} delegate={risk.delegate} isEditing={isEditing} />
               <PropertiesCard form={form} isEditing={isEditing} risk={risk} />
-              {/*<TagsCard form={form} policy={policy} isEditing={isEditing} />*/}
+              <TagsCard form={form} risk={risk} isEditing={isEditing} />
             </div>
           </form>
         </Form>

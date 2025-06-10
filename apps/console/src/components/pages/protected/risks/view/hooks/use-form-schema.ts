@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema'
+import { Value } from '@udecode/plate-common'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -12,10 +13,10 @@ const formSchema = z.object({
   impact: z.nativeEnum(RiskRiskImpact).optional(),
   likelihood: z.nativeEnum(RiskRiskLikelihood).optional(),
   status: z.nativeEnum(RiskRiskStatus).optional(),
-  details: z.string().optional(),
-  mitigation: z.string().optional(),
-  businessCosts: z.string().optional(),
-  tags: z.array(z.string()).optional(),
+  details: z.custom<Value | string>().optional(),
+  businessCosts: z.custom<Value | string>().optional(),
+  mitigation: z.custom<Value | string>().optional(),
+  tags: z.array(z.string().optional()),
   stakeholderID: z.string().optional(),
   delegateID: z.string().optional(),
 })

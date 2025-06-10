@@ -128,7 +128,7 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
 
         <AccordionItem value="subcontrols">
           <SectionTrigger label="Subcontrols" count={risk.subcontrols.totalCount} />
-          {!!risk.subcontrols.edges?.length && <AccordionContent>{renderTable('controls', extractNodes(risk.controls.edges))}</AccordionContent>}
+          {!!risk.subcontrols.edges?.length && <AccordionContent>{renderTable('subcontrols', extractNodes(risk.subcontrols.edges))}</AccordionContent>}
         </AccordionItem>
 
         <AccordionItem value="tasks">

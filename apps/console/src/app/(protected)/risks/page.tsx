@@ -111,7 +111,7 @@ const RiskTablePage: React.FC = () => {
     return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
   }
 
-  const handleRowClick = (rowData: InternalPolicy) => {
+  const handleRowClick = (rowData: RiskFieldsFragment) => {
     router.push(`/risks/${rowData.id}`)
   }
 
@@ -163,7 +163,7 @@ const RiskTablePage: React.FC = () => {
         onSortChange={setOrderBy}
         columns={columns}
         data={risks || []}
-        onRowClick={() => handleRowClick}
+        onRowClick={handleRowClick}
         loading={!risks && !isError}
         pagination={pagination}
         onPaginationChange={setPagination}

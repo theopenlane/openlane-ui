@@ -7,17 +7,17 @@ import { UseFormReturn } from 'react-hook-form'
 import { InputRow } from '@repo/ui/input'
 import { FormControl, FormField } from '@repo/ui/form'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
-import { InternalPolicyByIdFragment } from '@repo/codegen/src/schema.ts'
+import { RiskFieldsFragment } from '@repo/codegen/src/schema.ts'
 import { Badge } from '@repo/ui/badge'
-import { CreatePolicyFormData } from '@/components/pages/protected/policies/create/hooks/use-form-schema.ts'
+import { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema.ts'
 
 type TTagsCardProps = {
-  form: UseFormReturn<CreatePolicyFormData>
-  policy: InternalPolicyByIdFragment
+  form: UseFormReturn<EditRisksFormData>
+  risk: RiskFieldsFragment
   isEditing: boolean
 }
 
-const TagsCard: React.FC<TTagsCardProps> = ({ form, policy, isEditing }) => {
+const TagsCard: React.FC<TTagsCardProps> = ({ form, risk, isEditing }) => {
   const [tagValues, setTagValues] = useState<Option[]>([])
 
   useEffect(() => {
@@ -78,7 +78,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, policy, isEditing }) => {
               </InputRow>
             )}
             {!isEditing &&
-              policy.tags?.map((item, index) => (
+              risk.tags?.map((item, index) => (
                 <Fragment key={index}>
                   <Badge className="bg-background-secondary mr-1" variant="outline">
                     {item}
