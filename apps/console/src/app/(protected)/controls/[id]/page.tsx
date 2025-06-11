@@ -81,8 +81,6 @@ const ControlDetailsPage: React.FC = () => {
   const { successNotification, errorNotification } = useNotification()
   const [showCreateObjectiveSheet, setShowCreateObjectiveSheet] = useState(false)
   const [showCreateImplementationSheet, setShowCreateImplementationSheet] = useState(false)
-  const [editObjectiveData, setEditObjectiveData] = useState<ControlObjectiveFieldsFragment | null>(null)
-  const [editImplementationData, setEditImplementationData] = useState<ControlImplementationFieldsFragment | null>(null)
 
   const isSourceFramework = data?.control.source === ControlControlSource.FRAMEWORK
 
@@ -249,17 +247,13 @@ const ControlDetailsPage: React.FC = () => {
                         open={showCreateObjectiveSheet}
                         onOpenChange={(open) => {
                           setShowCreateObjectiveSheet(open)
-                          if (!open) setEditObjectiveData(null)
                         }}
-                        editData={editObjectiveData}
                       />
                       <CreateControlImplementationSheet
                         open={showCreateImplementationSheet}
                         onOpenChange={(open) => {
                           setShowCreateImplementationSheet(open)
-                          if (!open) setEditImplementationData(null)
                         }}
-                        editData={editImplementationData}
                       />
                       <Link href={`/controls/${id}/create-subcontrol`}>
                         <div className="flex items-center space-x-2 hover:bg-muted">

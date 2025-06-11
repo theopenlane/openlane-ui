@@ -74,8 +74,6 @@ const ControlDetailsPage: React.FC = () => {
   const { successNotification, errorNotification } = useNotification()
   const [showCreateObjectiveSheet, setShowCreateObjectiveSheet] = useState(false)
   const [showCreateImplementationSheet, setShowCreateImplementationSheet] = useState(false)
-  const [editObjectiveData, setEditObjectiveData] = useState<ControlObjectiveFieldsFragment | null>(null)
-  const [editImplementationData, setEditImplementationData] = useState<ControlImplementationFieldsFragment | null>(null)
 
   const { mutateAsync: updateSubcontrol } = useUpdateSubcontrol()
   const plateEditorHelper = usePlateEditor()
@@ -227,17 +225,13 @@ const ControlDetailsPage: React.FC = () => {
                         open={showCreateObjectiveSheet}
                         onOpenChange={(open) => {
                           setShowCreateObjectiveSheet(open)
-                          if (!open) setEditObjectiveData(null)
                         }}
-                        editData={editObjectiveData}
                       />
                       <CreateControlImplementationSheet
                         open={showCreateImplementationSheet}
                         onOpenChange={(open) => {
                           setShowCreateImplementationSheet(open)
-                          if (!open) setEditImplementationData(null)
                         }}
-                        editData={editImplementationData}
                       />
                       <CreateTaskDialog
                         trigger={TaskIconBtn}
