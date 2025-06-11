@@ -6,7 +6,7 @@ import { useForm, FormProvider } from 'react-hook-form'
 import { Value } from '@udecode/plate-common'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import { ArrowRight, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
+import { ArrowRight, PencilIcon, SaveIcon, XIcon, CirclePlus } from 'lucide-react'
 
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { Control, EvidenceEdge, SubcontrolControlSource, SubcontrolControlStatus, SubcontrolControlType } from '@repo/codegen/src/schema.ts'
@@ -29,6 +29,9 @@ import { TaskIconBtn } from '@/components/shared/icon-enum/task-enum.tsx'
 import DeleteSubcontrolDialog from '@/components/pages/protected/controls/delete-subcontrol-dialog.tsx'
 import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
 import { useNotification } from '@/hooks/useNotification'
+import CreateControlObjectiveSheet from '@/components/pages/protected/controls/control-objectives/create-control-objective-sheet'
+import { ControlObjectiveFieldsFragment, ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
+import CreateControlImplementationSheet from '@/components/pages/protected/controls/control-implementation/create-control-implementation-sheet.tsx'
 
 interface FormValues {
   refCode: string
@@ -69,10 +72,13 @@ const ControlDetailsPage: React.FC = () => {
   const [sheetData, setSheetData] = useState<SheetData | null>(null)
   const [initialValues, setInitialValues] = useState<FormValues>(initialDataObj)
   const { successNotification, errorNotification } = useNotification()
+  const [showCreateObjectiveSheet, setShowCreateObjectiveSheet] = useState(false)
+  const [showCreateImplementationSheet, setShowCreateImplementationSheet] = useState(false)
+  const [editObjectiveData, setEditObjectiveData] = useState<ControlObjectiveFieldsFragment | null>(null)
+  const [editImplementationData, setEditImplementationData] = useState<ControlImplementationFieldsFragment | null>(null)
 
   const { mutateAsync: updateSubcontrol } = useUpdateSubcontrol()
   const plateEditorHelper = usePlateEditor()
-
   const isSourceFramework = data?.subcontrol.source === SubcontrolControlSource.FRAMEWORK
 
   const form = useForm<FormValues>({
@@ -209,6 +215,30 @@ const ControlDetailsPage: React.FC = () => {
                   trigger={CreateBtn}
                   content={
                     <>
+                      <div onClick={() => setShowCreateImplementationSheet(true)} className="flex items-center space-x-2 hover:bg-muted cursor-pointer">
+                        <CirclePlus size={16} strokeWidth={2} />
+                        <span>Control Implementation</span>
+                      </div>
+                      <div onClick={() => setShowCreateObjectiveSheet(true)} className="flex items-center space-x-2 hover:bg-muted cursor-pointer">
+                        <CirclePlus size={16} strokeWidth={2} />
+                        <span>Control Objective</span>
+                      </div>
+                      <CreateControlObjectiveSheet
+                        open={showCreateObjectiveSheet}
+                        onOpenChange={(open) => {
+                          setShowCreateObjectiveSheet(open)
+                          if (!open) setEditObjectiveData(null)
+                        }}
+                        editData={editObjectiveData}
+                      />
+                      <CreateControlImplementationSheet
+                        open={showCreateImplementationSheet}
+                        onOpenChange={(open) => {
+                          setShowCreateImplementationSheet(open)
+                          if (!open) setEditImplementationData(null)
+                        }}
+                        editData={editImplementationData}
+                      />
                       <CreateTaskDialog
                         trigger={TaskIconBtn}
                         defaultSelectedObject={ObjectTypeObjects.SUB_CONTROL}

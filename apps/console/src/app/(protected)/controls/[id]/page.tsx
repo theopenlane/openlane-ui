@@ -34,6 +34,9 @@ import DeleteControlDialog from '@/components/pages/protected/controls/delete-co
 import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
 import Link from 'next/link'
 import { useNotification } from '@/hooks/useNotification.tsx'
+import CreateControlObjectiveSheet from '@/components/pages/protected/controls/control-objectives/create-control-objective-sheet'
+import { ControlObjectiveFieldsFragment, ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
+import CreateControlImplementationSheet from '@/components/pages/protected/controls/control-implementation/create-control-implementation-sheet.tsx'
 
 interface FormValues {
   refCode: string
@@ -76,6 +79,10 @@ const ControlDetailsPage: React.FC = () => {
   const { data: session } = useSession()
   const { data: permission } = useAccountRole(session, ObjectEnum.CONTROL, id!)
   const { successNotification, errorNotification } = useNotification()
+  const [showCreateObjectiveSheet, setShowCreateObjectiveSheet] = useState(false)
+  const [showCreateImplementationSheet, setShowCreateImplementationSheet] = useState(false)
+  const [editObjectiveData, setEditObjectiveData] = useState<ControlObjectiveFieldsFragment | null>(null)
+  const [editImplementationData, setEditImplementationData] = useState<ControlImplementationFieldsFragment | null>(null)
 
   const isSourceFramework = data?.control.source === ControlControlSource.FRAMEWORK
 
@@ -230,6 +237,36 @@ const ControlDetailsPage: React.FC = () => {
                   trigger={CreateBtn}
                   content={
                     <>
+                      <div onClick={() => setShowCreateImplementationSheet(true)} className="flex items-center space-x-2 hover:bg-muted cursor-pointer">
+                        <CirclePlus size={16} strokeWidth={2} />
+                        <span>Control Implementation</span>
+                      </div>
+                      <div onClick={() => setShowCreateObjectiveSheet(true)} className="flex items-center space-x-2 hover:bg-muted cursor-pointer">
+                        <CirclePlus size={16} strokeWidth={2} />
+                        <span>Control Objective</span>
+                      </div>
+                      <CreateControlObjectiveSheet
+                        open={showCreateObjectiveSheet}
+                        onOpenChange={(open) => {
+                          setShowCreateObjectiveSheet(open)
+                          if (!open) setEditObjectiveData(null)
+                        }}
+                        editData={editObjectiveData}
+                      />
+                      <CreateControlImplementationSheet
+                        open={showCreateImplementationSheet}
+                        onOpenChange={(open) => {
+                          setShowCreateImplementationSheet(open)
+                          if (!open) setEditImplementationData(null)
+                        }}
+                        editData={editImplementationData}
+                      />
+                      <Link href={`/controls/${id}/create-subcontrol`}>
+                        <div className="flex items-center space-x-2 hover:bg-muted">
+                          <CirclePlus size={16} strokeWidth={2} />
+                          <span>Subcontrol</span>
+                        </div>
+                      </Link>
                       <CreateTaskDialog
                         trigger={TaskIconBtn}
                         defaultSelectedObject={ObjectTypeObjects.CONTROL}
@@ -242,12 +279,6 @@ const ControlDetailsPage: React.FC = () => {
                           controlIDs: [id],
                         }}
                       />
-                      <Link href={`/controls/${id}/create-subcontrol`}>
-                        <div className="flex items-center space-x-2 hover:bg-muted">
-                          <CirclePlus size={16} strokeWidth={2} />
-                          <span>Subcontrol</span>
-                        </div>
-                      </Link>
                     </>
                   }
                 />
