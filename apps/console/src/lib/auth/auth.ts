@@ -24,6 +24,8 @@ export class InvalidLoginError extends CredentialsSignin {
   }
 }
 
+const maxAge = process.env.SESSION_NEXAUTH_MAX_AGE ? +process.env.SESSION_NEXAUTH_MAX_AGE : 2 * 60 * 60 // fallback to 2h if undefined
+
 export const config = {
   pages: {
     signIn: '/login',
@@ -32,6 +34,7 @@ export const config = {
   },
   session: {
     strategy: 'jwt',
+    maxAge,
   },
   providers: [
     GithubProvider({
