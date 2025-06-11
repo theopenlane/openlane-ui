@@ -25,7 +25,7 @@
     "@repo/ui": "workspace:*",
     "@simplewebauthn/browser": "^11.0.0",
     "@simplewebauthn/server": "^11.0.0",
-    "@stepperize/react": "^4.0.1",
+    "@stepperize/react": "^5.0.0",
     "@tanstack/react-query": "^5.66.9",
     "@types/jest": "^29.5.14",
     "@types/jsonwebtoken": "^9.0.6",
