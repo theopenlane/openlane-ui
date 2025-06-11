@@ -101,6 +101,7 @@ const CalendarPopover = <T extends FieldValues>({ field, defaultToday, required,
             return isBeforeMin || isAfterToday
           }}
           selected={value ?? undefined}
+          defaultMonth={value ?? undefined}
           onSelect={(calendarValue) => {
             calendarValue && handleForm(calendarValue)
           }}
