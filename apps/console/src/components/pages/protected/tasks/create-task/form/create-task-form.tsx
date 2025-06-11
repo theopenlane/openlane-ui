@@ -44,6 +44,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
   const { mutateAsync: createTask, isPending: isSubmitting } = useCreateTask()
   const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const [associations, setAssociations] = useState<TObjectAssociationMap>({})
+  const [associationResetTrigger, setAssociationResetTrigger] = useState(0)
 
   const membersOptions = membersData?.organization?.members?.edges?.map((member) => ({
     value: member?.node?.user?.id,
@@ -80,6 +81,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
 
       form.reset()
       props.onSuccess()
+      setAssociationResetTrigger((prev) => prev + 1)
     } catch (error) {
       errorNotification({
         title: 'Error',
@@ -271,8 +273,8 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                       displayIDs={props.objectAssociationsDisplayIDs}
                     ></HeadsUpDisplay>
                   )}
-                  {/* <ControlObjectTaskForm form={form} /> */}
                   <ObjectAssociation
+                    key={associationResetTrigger}
                     defaultSelectedObject={props.defaultSelectedObject}
                     excludeObjectTypes={props.excludeObjectTypes}
                     initialData={props.initialData}
