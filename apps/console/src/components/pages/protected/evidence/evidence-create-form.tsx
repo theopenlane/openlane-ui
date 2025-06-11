@@ -43,6 +43,8 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
   const [evidenceObjectTypes, setEvidenceObjectTypes] = useState<TObjectAssociationMap>()
   const { data: sessionData } = useSession()
   const { mutateAsync: createEvidence, isPending } = useCreateEvidence()
+  const [associationResetTrigger, setAssociationResetTrigger] = useState(0)
+
   const queryClient = useQueryClient()
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
@@ -86,6 +88,7 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
     form.reset()
     setTagValues([])
     setResetEvidenceFiles(true)
+    setAssociationResetTrigger((prev) => prev + 1)
   }
 
   useEffect(() => {
@@ -310,6 +313,7 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
                   ></HeadsUpDisplay>
                 )}
                 <ObjectAssociation
+                  key={associationResetTrigger}
                   onIdChange={handleEvidenceObjectIdsChange}
                   excludeObjectTypes={excludeObjectTypes || []}
                   initialData={formData?.objectAssociations}

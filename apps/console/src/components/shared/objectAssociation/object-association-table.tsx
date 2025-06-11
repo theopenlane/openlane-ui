@@ -71,7 +71,7 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
         return (
           <div className="flex items-center gap-3">
             <Checkbox id={id} checked={checked} onCheckedChange={toggleChecked} />
-            <span>{name}</span>
+            <span className="whitespace-nowrap">{name}</span>
           </div>
         )
       },
@@ -83,7 +83,7 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
     },
   ]
 
-  return <DataTable onPaginationChange={onPaginationChange} pagination={pagination} paginationMeta={paginationMeta} columns={columns} data={data} wrapperClass="max-h-96" />
+  return <DataTable onPaginationChange={onPaginationChange} pagination={pagination} paginationMeta={paginationMeta} columns={columns} data={data} wrapperClass="max-h-96 overflow-auto" />
 }
 
 export default ObjectAssociationTable
