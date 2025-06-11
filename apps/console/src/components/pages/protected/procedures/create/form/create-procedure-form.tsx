@@ -11,7 +11,7 @@ import { Button } from '@repo/ui/button'
 import { CreateProcedureInput, ProcedureByIdFragment, ProcedureDocumentStatus, ProcedureFrequency, UpdateProcedureInput } from '@repo/codegen/src/schema.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { useNotification } from '@/hooks/useNotification.tsx'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
 import { useQueryClient } from '@tanstack/react-query'
 import useFormSchema, { CreateProcedureFormData, EditProcedureFormData } from '../hooks/use-form-schema'
@@ -35,6 +35,7 @@ export type TMetadata = {
 }
 
 const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure }) => {
+  const path = usePathname()
   const { form } = useFormSchema()
   const router = useRouter()
   const queryClient = useQueryClient()
@@ -52,7 +53,15 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   const policyId = searchParams.get('policyId')
   const { data, isLoading } = useGetInternalPolicyDetailsById(policyId)
 
+  const isProcedureCreate = path === '/procedures/create'
+
   useEffect(() => {
+    if (isProcedureCreate) {
+      setInitialAssociations({})
+      procedureState.setAssociations({})
+      procedureState.setAssociationRefCodes({})
+      return
+    }
     if (procedure) {
       const procedureAssociations: TObjectAssociationMap = {
         controlIDs: procedure?.controls?.edges?.map((item) => item?.node?.id!) || [],
@@ -91,7 +100,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
       procedureState.setAssociations(procedureAssociations)
       procedureState.setAssociationRefCodes(procedureAssociationsRefCodes)
     }
-  }, [])
+  }, [isProcedureCreate])
 
   useEffect(() => {
     if (data) {
