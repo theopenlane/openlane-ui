@@ -12,7 +12,7 @@ import { useCreateInternalPolicy, useUpdateInternalPolicy } from '@/lib/graphql-
 import { CreateInternalPolicyInput, InternalPolicyByIdFragment, InternalPolicyDocumentStatus, InternalPolicyFrequency, UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { useNotification } from '@/hooks/useNotification.tsx'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
 import { useQueryClient } from '@tanstack/react-query'
 import useFormSchema, { CreatePolicyFormData, EditPolicyFormData } from '../hooks/use-form-schema'
@@ -34,6 +34,7 @@ export type TMetadata = {
 }
 
 const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
+  const path = usePathname()
   const { form } = useFormSchema()
   const router = useRouter()
   const queryClient = useQueryClient()
@@ -48,7 +49,15 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   const isEditable = !!policy
   const [initialAssociations, setInitialAssociations] = useState<TObjectAssociationMap>({})
 
+  const isPoliciesCreate = path === '/policies/create'
+
   useEffect(() => {
+    if (isPoliciesCreate) {
+      setInitialAssociations({})
+      policyState.setAssociations({})
+      policyState.setAssociationRefCodes({})
+      return
+    }
     if (policy) {
       const policyAssociations: TObjectAssociationMap = {
         controlIDs: policy?.controls?.edges?.map((item) => item?.node?.id!) || [],
@@ -87,7 +96,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
       policyState.setAssociations(policyAssociations)
       policyState.setAssociationRefCodes(policyAssociationsRefCodes)
     }
-  }, [])
+  }, [isPoliciesCreate])
 
   const onCreateHandler = async (data: CreatePolicyFormData) => {
     try {

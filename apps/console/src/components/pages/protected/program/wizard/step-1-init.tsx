@@ -115,7 +115,7 @@ const ProgramTypeSelect = () => {
             Program Type<span className="text-red-500"> *</span>
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger type={'button'}>
                   <InfoIcon size={14} className="mx-1" />
                 </TooltipTrigger>
                 <TooltipContent side="right">
@@ -175,8 +175,6 @@ const ProgramTypeSelect = () => {
     />
   )
 }
-
-export default ProgramTypeSelect
 
 const NameField = () => {
   const {
@@ -241,7 +239,7 @@ const FrameworkSelect = () => {
             Framework{programType === ProgramProgramType.FRAMEWORK && <span className="text-red-500"> *</span>}
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger type={'button'}>
                   <InfoIcon size={14} className="mx-1" />
                 </TooltipTrigger>
                 <TooltipContent side="right">
@@ -271,7 +269,7 @@ const FrameworkSelect = () => {
                     {framework.shortName} {framework.version ? `(${framework.version})` : ''}
                     <TooltipProvider>
                       <Tooltip>
-                        <TooltipTrigger>
+                        <TooltipTrigger type={'button'}>
                           <InfoIcon size={14} className="mx-1" />
                         </TooltipTrigger>
                         <TooltipContent side="bottom">
@@ -311,7 +309,7 @@ const DescriptionField = () => {
             Description
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger type={'button'}>
                   <InfoIcon size={14} className="mx-1" />
                 </TooltipTrigger>
                 <TooltipContent side="right">
@@ -350,7 +348,7 @@ const StatusSelect = () => {
             Status
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger type={'button'}>
                   <InfoIcon size={14} className="mx-1" />
                 </TooltipTrigger>
                 <TooltipContent side="right">
@@ -401,7 +399,7 @@ const PeriodComponent = () => {
                 Start Date
                 <TooltipProvider>
                   <Tooltip>
-                    <TooltipTrigger>
+                    <TooltipTrigger type={'button'}>
                       <InfoIcon size={14} className="mx-1" />
                     </TooltipTrigger>
                     <TooltipContent side="right">
@@ -436,7 +434,7 @@ const PeriodComponent = () => {
                 End Date
                 <TooltipProvider>
                   <Tooltip>
-                    <TooltipTrigger>
+                    <TooltipTrigger type={'button'}>
                       <InfoIcon size={14} className="mx-1" />
                     </TooltipTrigger>
                     <TooltipContent side="right">

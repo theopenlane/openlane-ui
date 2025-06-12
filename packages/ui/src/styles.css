@@ -57,10 +57,10 @@
   --color-accent-secondary-muted: #75d2bf;
 
   /* Border */
-  --color-border: #aabec5;
+  --color-border: #e1e9ec;
   --color-border-light: #aabec5;
   --color-border-dark: #303e4a;
-  --color-separator: #b4c1d5;
+  --color-separator: #e1e9ec;
   --color-separator-light: #b4c1d5;
   --color-separator-dark: #273344;
   --color-separator-edit: #bfbfbf;
@@ -192,7 +192,7 @@
 
   /* Border */
   --color-border: #303e4a;
-  --color-separator: #b4c1d5;
+  --color-separator: #303e4a;
   --color-separator-light: #b4c1d5;
   --color-separator-dark: #273344;
 
