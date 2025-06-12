@@ -38,6 +38,7 @@ export const LoginPage = () => {
   const { successNotification, errorNotification } = useNotification()
   const searchParams = useSearchParams()
   const token = searchParams?.get('token')
+  const redirectUrl = token ? `/invite?token=${token}` : '/'
 
   const submit = async (payload: LoginUser) => {
     setSignInLoading(true)
@@ -102,7 +103,7 @@ export const LoginPage = () => {
    */
   const github = async () => {
     await signIn('github', {
-      redirectTo: token ? `/invite?token=${token}` : '/',
+      redirectTo: redirectUrl,
     })
   }
 
@@ -111,7 +112,7 @@ export const LoginPage = () => {
    */
   const google = async () => {
     await signIn('google', {
-      redirectTo: token ? `/invite?token=${token}` : '/',
+      redirectTo: redirectUrl,
     })
   }
 
@@ -147,7 +148,7 @@ export const LoginPage = () => {
         setPasskeyStatus('Authentication successful, redirecting...')
 
         await signIn('passkey', {
-          callbackUrl: '/dashboard',
+          callbackUrl: redirectUrl,
           email: email || '',
           session: verificationResult.session,
           accessToken: verificationResult.access_token,
@@ -236,7 +237,7 @@ export const LoginPage = () => {
           )}
           <div className="flex text-base">
             <span>New to Openlane? &nbsp;</span>
-            <Link href="/signup" className=" text-base text-blue-500  hover:opacity-80 transition">
+            <Link href={`/signup${token ? `?token=${token}` : ''}`} className="text-base text-blue-500 hover:opacity-80 transition">
               Sign up for an account
             </Link>
           </div>
