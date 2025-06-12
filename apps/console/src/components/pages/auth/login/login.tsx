@@ -147,7 +147,7 @@ export const LoginPage = () => {
         setPasskeyStatus('Authentication successful, redirecting...')
 
         await signIn('passkey', {
-          callbackUrl: '/dashboard',
+          callbackUrl: `/invite?token=${token}`,
           email: email || '',
           session: verificationResult.session,
           accessToken: verificationResult.access_token,
