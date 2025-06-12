@@ -134,6 +134,23 @@ const RISK_FIELDS = gql`
   }
 `
 
+const RISK_TABLE_FIELDS = gql`
+  fragment RiskTableFields on Risk {
+    id
+    name
+    category
+    riskType
+    score
+    status
+    stakeholder {
+      id
+      displayName
+      gravatarLogoURL
+      logoURL
+    }
+  }
+`
+
 export const GET_RISK_BY_ID = gql`
   query GetRiskByID($riskId: ID!) {
     risk(id: $riskId) {
@@ -162,6 +179,27 @@ export const GET_ALL_RISKS = gql`
   }
 
   ${RISK_FIELDS}
+`
+
+export const GET_TABLE_RISKS = gql`
+  query GetTableRisks($where: RiskWhereInput, $orderBy: [RiskOrder!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    risks(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
+      pageInfo {
+        endCursor
+        startCursor
+        hasPreviousPage
+        hasNextPage
+      }
+      totalCount
+      edges {
+        node {
+          ...RiskTableFields
+        }
+      }
+    }
+  }
+
+  ${RISK_TABLE_FIELDS}
 `
 
 export const UPDATE_RISK = gql`

@@ -8,6 +8,7 @@ import {
   DELETE_PROCEDURE,
   CREATE_CSV_BULK_PROCEDURE,
   GET_ALL_PROCEDURES,
+  GET_TABLE_PROCEDURES,
 } from '@repo/codegen/query/procedure'
 
 import {
@@ -25,6 +26,7 @@ import {
   CreateBulkCsvProcedureMutationVariables,
   GetProceduresListQuery,
   GetProceduresListQueryVariables,
+  GetProceduresTableListQuery,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -48,10 +50,10 @@ type UseProceduresArgs = {
 export const useProcedures = ({ where, orderBy, pagination, enabled = true }: UseProceduresArgs) => {
   const { client } = useGraphQLClient()
 
-  const queryResult = useQuery<GetProceduresListQuery>({
+  const queryResult = useQuery<GetProceduresTableListQuery>({
     queryKey: ['procedures', where, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: async () =>
-      client.request(GET_ALL_PROCEDURES, {
+      client.request(GET_TABLE_PROCEDURES, {
         where,
         orderBy,
         ...pagination?.query,
