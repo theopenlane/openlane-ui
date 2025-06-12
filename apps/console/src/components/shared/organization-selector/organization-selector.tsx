@@ -84,7 +84,7 @@ export const OrganizationSelector = () => {
   return (
     <div className={container()}>
       <div>
-        <Popover onOpenChange={(open) => setIsPopoverOpened(open)} open={isPopoverOpened}>
+        <Popover onOpenChange={setIsPopoverOpened} open={isPopoverOpened}>
           <PopoverTrigger>
             <div className={organizationDropdown()}>
               <Avatar entity={currentOrg as Organization} />
