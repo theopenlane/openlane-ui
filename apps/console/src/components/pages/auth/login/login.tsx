@@ -236,7 +236,7 @@ export const LoginPage = () => {
           )}
           <div className="flex text-base">
             <span>New to Openlane? &nbsp;</span>
-            <Link href="/signup" className=" text-base text-blue-500  hover:opacity-80 transition">
+            <Link href={`/signup${token ? `?token=${token}` : ''}`} className="text-base text-blue-500 hover:opacity-80 transition">
               Sign up for an account
             </Link>
           </div>
