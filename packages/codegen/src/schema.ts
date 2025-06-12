@@ -13,6 +13,7 @@ export interface Scalars {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
+  /** AAGUID (Authenticator Attestation Global Unique Identifier) is a 128-bit identifier used in the WebAuthn and FIDO2 protocols to uniquely identify the model of an authenticator device */
   AAGUID: { input: any; output: any; }
   /**
    * The `Address` scalar type represents a physical or mailing address.
@@ -24,6 +25,11 @@ export interface Scalars {
   AssessmentMethod: { input: any; output: any; }
   /** The `AssessmentObjective` scalar type represents objectives that are validated during the audit to ensure the control is implemented */
   AssessmentObjective: { input: any; output: any; }
+  /**
+   * Change is a difference between two updates to an object used by
+   * the audit history resolvers
+   */
+  Change: { input: any; output: any; }
   /**
    * Define a Relay Cursor type:
    * https://relay.dev/graphql/connections.htm#sec-Cursor
@@ -37,7 +43,9 @@ export interface Scalars {
   ImplementationGuidance: { input: any; output: any; }
   /** A valid JSON string. */
   JSON: { input: any; output: any; }
+  /** JobCadence is when a job should be scheduled to run */
   JobCadence: { input: any; output: any; }
+  /** JobConfiguration is the configuration for an automated job */
   JobConfiguration: { input: any; output: any; }
   /** The builtin Map type */
   Map: { input: any; output: any; }
@@ -580,6 +588,7 @@ export enum ActionPlanHistoryOrderField {
   STATUS = 'STATUS',
   created_at = 'created_at',
   due_date = 'due_date',
+  history_time = 'history_time',
   name = 'name',
   review_due = 'review_due',
   revision = 'revision',
@@ -1189,7 +1198,7 @@ export interface AddProgramMembershipInput {
 
 export interface AuditLog extends Node {
   __typename?: 'AuditLog';
-  changes?: Maybe<Array<Scalars['String']['output']>>;
+  changes?: Maybe<Array<Scalars['Change']['output']>>;
   id: Scalars['ID']['output'];
   operation?: Maybe<Scalars['String']['output']>;
   table?: Maybe<Scalars['String']['output']>;
@@ -1217,12 +1226,31 @@ export interface AuditLogEdge {
   node?: Maybe<AuditLog>;
 }
 
+/** Ordering options for AuditLog connections */
+export interface AuditLogOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection;
+  /** The field by which to order AuditLogs. */
+  field: AuditLogOrderField;
+}
+
+/** Properties by which AuditLog connections can be ordered. */
+export enum AuditLogOrderField {
+  history_time = 'history_time'
+}
+
 export interface AuditLogWhereInput {
+  /** After time to look for results */
   after?: InputMaybe<Scalars['Time']['input']>;
+  /** Before time to look for results */
   before?: InputMaybe<Scalars['Time']['input']>;
+  /** Operation of the entry, INSERT, DELETE, or UPDATE */
   operation?: InputMaybe<Scalars['String']['input']>;
+  /** reference ID from the main object table unique ID */
   refID?: InputMaybe<Scalars['ID']['input']>;
-  table?: InputMaybe<Scalars['ID']['input']>;
+  /** Table (Object) that was updated. Required. */
+  table: Scalars['String']['input'];
+  /** User or service ID that made the update */
   updatedBy?: InputMaybe<Scalars['ID']['input']>;
 }
 
@@ -1399,6 +1427,7 @@ export enum ContactHistoryOrderField {
   created_at = 'created_at',
   email = 'email',
   full_name = 'full_name',
+  history_time = 'history_time',
   title = 'title',
   updated_at = 'updated_at'
 }
@@ -2278,6 +2307,7 @@ export enum ControlHistoryOrderField {
   STATUS = 'STATUS',
   category = 'category',
   created_at = 'created_at',
+  history_time = 'history_time',
   ref_code = 'ref_code',
   subcategory = 'subcategory',
   updated_at = 'updated_at'
@@ -2816,6 +2846,7 @@ export interface ControlImplementationHistoryOrder {
 export enum ControlImplementationHistoryOrderField {
   STATUS = 'STATUS',
   created_at = 'created_at',
+  history_time = 'history_time',
   implementation_date = 'implementation_date',
   updated_at = 'updated_at',
   verification_date = 'verification_date',
@@ -3480,6 +3511,7 @@ export enum ControlObjectiveHistoryOrderField {
   category = 'category',
   control_objective_type = 'control_objective_type',
   created_at = 'created_at',
+  history_time = 'history_time',
   name = 'name',
   revision = 'revision',
   status = 'status',
@@ -4186,6 +4218,7 @@ export interface ControlScheduledJobHistoryOrder {
 /** Properties by which ControlScheduledJobHistory connections can be ordered. */
 export enum ControlScheduledJobHistoryOrderField {
   created_at = 'created_at',
+  history_time = 'history_time',
   updated_at = 'updated_at'
 }
 
@@ -6342,6 +6375,7 @@ export interface CustomDomainHistoryOrder {
 export enum CustomDomainHistoryOrderField {
   cname_record = 'cname_record',
   created_at = 'created_at',
+  history_time = 'history_time',
   updated_at = 'updated_at'
 }
 
@@ -6872,6 +6906,7 @@ export interface DnsVerificationHistoryOrder {
 /** Properties by which DNSVerificationHistory connections can be ordered. */
 export enum DnsVerificationHistoryOrderField {
   created_at = 'created_at',
+  history_time = 'history_time',
   updated_at = 'updated_at'
 }
 
@@ -7536,6 +7571,7 @@ export interface DocumentDataHistoryOrder {
 /** Properties by which DocumentDataHistory connections can be ordered. */
 export enum DocumentDataHistoryOrderField {
   created_at = 'created_at',
+  history_time = 'history_time',
   updated_at = 'updated_at'
 }
 
@@ -7991,6 +8027,7 @@ export interface EntityHistoryOrder {
 export enum EntityHistoryOrderField {
   created_at = 'created_at',
   display_name = 'display_name',
+  history_time = 'history_time',
   name = 'name',
   status = 'status',
   updated_at = 'updated_at'
@@ -8322,6 +8359,7 @@ export interface EntityTypeHistoryOrder {
 /** Properties by which EntityTypeHistory connections can be ordered. */
 export enum EntityTypeHistoryOrderField {
   created_at = 'created_at',
+  history_time = 'history_time',
   name = 'name',
   updated_at = 'updated_at'
 }
@@ -8962,216 +9000,6 @@ export interface EventEdge {
   node?: Maybe<Event>;
 }
 
-export interface EventHistory extends Node {
-  __typename?: 'EventHistory';
-  correlationID?: Maybe<Scalars['String']['output']>;
-  createdAt?: Maybe<Scalars['Time']['output']>;
-  createdBy?: Maybe<Scalars['String']['output']>;
-  eventID?: Maybe<Scalars['String']['output']>;
-  eventType: Scalars['String']['output'];
-  historyTime: Scalars['Time']['output'];
-  id: Scalars['ID']['output'];
-  metadata?: Maybe<Scalars['Map']['output']>;
-  operation: EventHistoryOpType;
-  ref?: Maybe<Scalars['String']['output']>;
-  /** tags associated with the object */
-  tags?: Maybe<Array<Scalars['String']['output']>>;
-  updatedAt?: Maybe<Scalars['Time']['output']>;
-  updatedBy?: Maybe<Scalars['String']['output']>;
-}
-
-/** A connection to a list of items. */
-export interface EventHistoryConnection {
-  __typename?: 'EventHistoryConnection';
-  /** A list of edges. */
-  edges?: Maybe<Array<Maybe<EventHistoryEdge>>>;
-  /** Information to aid in pagination. */
-  pageInfo: PageInfo;
-  /** Identifies the total count of items in the connection. */
-  totalCount: Scalars['Int']['output'];
-}
-
-/** An edge in a connection. */
-export interface EventHistoryEdge {
-  __typename?: 'EventHistoryEdge';
-  /** A cursor for use in pagination. */
-  cursor: Scalars['Cursor']['output'];
-  /** The item at the end of the edge. */
-  node?: Maybe<EventHistory>;
-}
-
-/** EventHistoryOpType is enum for the field operation */
-export enum EventHistoryOpType {
-  DELETE = 'DELETE',
-  INSERT = 'INSERT',
-  UPDATE = 'UPDATE'
-}
-
-/** Ordering options for EventHistory connections */
-export interface EventHistoryOrder {
-  /** The ordering direction. */
-  direction?: OrderDirection;
-  /** The field by which to order EventHistories. */
-  field: EventHistoryOrderField;
-}
-
-/** Properties by which EventHistory connections can be ordered. */
-export enum EventHistoryOrderField {
-  created_at = 'created_at',
-  updated_at = 'updated_at'
-}
-
-/**
- * EventHistoryWhereInput is used for filtering EventHistory objects.
- * Input was generated by ent.
- */
-export interface EventHistoryWhereInput {
-  and?: InputMaybe<Array<EventHistoryWhereInput>>;
-  /** correlation_id field predicates */
-  correlationID?: InputMaybe<Scalars['String']['input']>;
-  correlationIDContains?: InputMaybe<Scalars['String']['input']>;
-  correlationIDContainsFold?: InputMaybe<Scalars['String']['input']>;
-  correlationIDEqualFold?: InputMaybe<Scalars['String']['input']>;
-  correlationIDGT?: InputMaybe<Scalars['String']['input']>;
-  correlationIDGTE?: InputMaybe<Scalars['String']['input']>;
-  correlationIDHasPrefix?: InputMaybe<Scalars['String']['input']>;
-  correlationIDHasSuffix?: InputMaybe<Scalars['String']['input']>;
-  correlationIDIn?: InputMaybe<Array<Scalars['String']['input']>>;
-  correlationIDIsNil?: InputMaybe<Scalars['Boolean']['input']>;
-  correlationIDLT?: InputMaybe<Scalars['String']['input']>;
-  correlationIDLTE?: InputMaybe<Scalars['String']['input']>;
-  correlationIDNEQ?: InputMaybe<Scalars['String']['input']>;
-  correlationIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>;
-  correlationIDNotNil?: InputMaybe<Scalars['Boolean']['input']>;
-  /** created_at field predicates */
-  createdAt?: InputMaybe<Scalars['Time']['input']>;
-  createdAtGT?: InputMaybe<Scalars['Time']['input']>;
-  createdAtGTE?: InputMaybe<Scalars['Time']['input']>;
-  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>;
-  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>;
-  createdAtLT?: InputMaybe<Scalars['Time']['input']>;
-  createdAtLTE?: InputMaybe<Scalars['Time']['input']>;
-  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>;
-  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>;
-  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>;
-  /** created_by field predicates */
-  createdBy?: InputMaybe<Scalars['String']['input']>;
-  createdByContains?: InputMaybe<Scalars['String']['input']>;
-  createdByContainsFold?: InputMaybe<Scalars['String']['input']>;
-  createdByEqualFold?: InputMaybe<Scalars['String']['input']>;
-  createdByGT?: InputMaybe<Scalars['String']['input']>;
-  createdByGTE?: InputMaybe<Scalars['String']['input']>;
-  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>;
-  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>;
-  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>;
-  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>;
-  createdByLT?: InputMaybe<Scalars['String']['input']>;
-  createdByLTE?: InputMaybe<Scalars['String']['input']>;
-  createdByNEQ?: InputMaybe<Scalars['String']['input']>;
-  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>;
-  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>;
-  /** event_id field predicates */
-  eventID?: InputMaybe<Scalars['String']['input']>;
-  eventIDContains?: InputMaybe<Scalars['String']['input']>;
-  eventIDContainsFold?: InputMaybe<Scalars['String']['input']>;
-  eventIDEqualFold?: InputMaybe<Scalars['String']['input']>;
-  eventIDGT?: InputMaybe<Scalars['String']['input']>;
-  eventIDGTE?: InputMaybe<Scalars['String']['input']>;
-  eventIDHasPrefix?: InputMaybe<Scalars['String']['input']>;
-  eventIDHasSuffix?: InputMaybe<Scalars['String']['input']>;
-  eventIDIn?: InputMaybe<Array<Scalars['String']['input']>>;
-  eventIDIsNil?: InputMaybe<Scalars['Boolean']['input']>;
-  eventIDLT?: InputMaybe<Scalars['String']['input']>;
-  eventIDLTE?: InputMaybe<Scalars['String']['input']>;
-  eventIDNEQ?: InputMaybe<Scalars['String']['input']>;
-  eventIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>;
-  eventIDNotNil?: InputMaybe<Scalars['Boolean']['input']>;
-  /** event_type field predicates */
-  eventType?: InputMaybe<Scalars['String']['input']>;
-  eventTypeContains?: InputMaybe<Scalars['String']['input']>;
-  eventTypeContainsFold?: InputMaybe<Scalars['String']['input']>;
-  eventTypeEqualFold?: InputMaybe<Scalars['String']['input']>;
-  eventTypeGT?: InputMaybe<Scalars['String']['input']>;
-  eventTypeGTE?: InputMaybe<Scalars['String']['input']>;
-  eventTypeHasPrefix?: InputMaybe<Scalars['String']['input']>;
-  eventTypeHasSuffix?: InputMaybe<Scalars['String']['input']>;
-  eventTypeIn?: InputMaybe<Array<Scalars['String']['input']>>;
-  eventTypeLT?: InputMaybe<Scalars['String']['input']>;
-  eventTypeLTE?: InputMaybe<Scalars['String']['input']>;
-  eventTypeNEQ?: InputMaybe<Scalars['String']['input']>;
-  eventTypeNotIn?: InputMaybe<Array<Scalars['String']['input']>>;
-  /** history_time field predicates */
-  historyTime?: InputMaybe<Scalars['Time']['input']>;
-  historyTimeGT?: InputMaybe<Scalars['Time']['input']>;
-  historyTimeGTE?: InputMaybe<Scalars['Time']['input']>;
-  historyTimeIn?: InputMaybe<Array<Scalars['Time']['input']>>;
-  historyTimeLT?: InputMaybe<Scalars['Time']['input']>;
-  historyTimeLTE?: InputMaybe<Scalars['Time']['input']>;
-  historyTimeNEQ?: InputMaybe<Scalars['Time']['input']>;
-  historyTimeNotIn?: InputMaybe<Array<Scalars['Time']['input']>>;
-  /** id field predicates */
-  id?: InputMaybe<Scalars['ID']['input']>;
-  idContainsFold?: InputMaybe<Scalars['ID']['input']>;
-  idEqualFold?: InputMaybe<Scalars['ID']['input']>;
-  idGT?: InputMaybe<Scalars['ID']['input']>;
-  idGTE?: InputMaybe<Scalars['ID']['input']>;
-  idIn?: InputMaybe<Array<Scalars['ID']['input']>>;
-  idLT?: InputMaybe<Scalars['ID']['input']>;
-  idLTE?: InputMaybe<Scalars['ID']['input']>;
-  idNEQ?: InputMaybe<Scalars['ID']['input']>;
-  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>;
-  not?: InputMaybe<EventHistoryWhereInput>;
-  /** operation field predicates */
-  operation?: InputMaybe<EventHistoryOpType>;
-  operationIn?: InputMaybe<Array<EventHistoryOpType>>;
-  operationNEQ?: InputMaybe<EventHistoryOpType>;
-  operationNotIn?: InputMaybe<Array<EventHistoryOpType>>;
-  or?: InputMaybe<Array<EventHistoryWhereInput>>;
-  /** ref field predicates */
-  ref?: InputMaybe<Scalars['String']['input']>;
-  refContains?: InputMaybe<Scalars['String']['input']>;
-  refContainsFold?: InputMaybe<Scalars['String']['input']>;
-  refEqualFold?: InputMaybe<Scalars['String']['input']>;
-  refGT?: InputMaybe<Scalars['String']['input']>;
-  refGTE?: InputMaybe<Scalars['String']['input']>;
-  refHasPrefix?: InputMaybe<Scalars['String']['input']>;
-  refHasSuffix?: InputMaybe<Scalars['String']['input']>;
-  refIn?: InputMaybe<Array<Scalars['String']['input']>>;
-  refIsNil?: InputMaybe<Scalars['Boolean']['input']>;
-  refLT?: InputMaybe<Scalars['String']['input']>;
-  refLTE?: InputMaybe<Scalars['String']['input']>;
-  refNEQ?: InputMaybe<Scalars['String']['input']>;
-  refNotIn?: InputMaybe<Array<Scalars['String']['input']>>;
-  refNotNil?: InputMaybe<Scalars['Boolean']['input']>;
-  /** updated_at field predicates */
-  updatedAt?: InputMaybe<Scalars['Time']['input']>;
-  updatedAtGT?: InputMaybe<Scalars['Time']['input']>;
-  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>;
-  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>;
-  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>;
-  updatedAtLT?: InputMaybe<Scalars['Time']['input']>;
-  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>;
-  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>;
-  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>;
-  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>;
-  /** updated_by field predicates */
-  updatedBy?: InputMaybe<Scalars['String']['input']>;
-  updatedByContains?: InputMaybe<Scalars['String']['input']>;
-  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>;
-  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>;
-  updatedByGT?: InputMaybe<Scalars['String']['input']>;
-  updatedByGTE?: InputMaybe<Scalars['String']['input']>;
-  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>;
-  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>;
-  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>;
-  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>;
-  updatedByLT?: InputMaybe<Scalars['String']['input']>;
-  updatedByLTE?: InputMaybe<Scalars['String']['input']>;
-  updatedByNEQ?: InputMaybe<Scalars['String']['input']>;
-  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>;
-  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>;
-}
-
 /** Ordering options for Event connections */
 export interface EventOrder {
   /** The ordering direction. */
@@ -9585,6 +9413,7 @@ export enum EvidenceHistoryOrderField {
   STATUS = 'STATUS',
   created_at = 'created_at',
   creation_date = 'creation_date',
+  history_time = 'history_time',
   name = 'name',
   renewal_date = 'renewal_date',
   updated_at = 'updated_at'
@@ -10269,6 +10098,7 @@ export interface FileHistoryOrder {
 /** Properties by which FileHistory connections can be ordered. */
 export enum FileHistoryOrderField {
   created_at = 'created_at',
+  history_time = 'history_time',
   updated_at = 'updated_at'
 }
 
@@ -11354,6 +11184,7 @@ export interface GroupHistoryOrder {
 export enum GroupHistoryOrderField {
   created_at = 'created_at',
   display_name = 'display_name',
+  history_time = 'history_time',
   name = 'name',
   updated_at = 'updated_at'
 }
@@ -11655,6 +11486,7 @@ export interface GroupMembershipHistoryOrder {
 export enum GroupMembershipHistoryOrderField {
   ROLE = 'ROLE',
   created_at = 'created_at',
+  history_time = 'history_time',
   updated_at = 'updated_at'
 }
 
@@ -12164,6 +11996,7 @@ export interface GroupSettingHistoryOrder {
 /** Properties by which GroupSettingHistory connections can be ordered. */
 export enum GroupSettingHistoryOrderField {
   created_at = 'created_at',
+  history_time = 'history_time',
   updated_at = 'updated_at'
 }
 
@@ -12844,6 +12677,7 @@ export interface HushHistoryOrder {
 /** Properties by which HushHistory connections can be ordered. */
 export enum HushHistoryOrderField {
   created_at = 'created_at',
+  history_time = 'history_time',
   kind = 'kind',
   name = 'name',
   updated_at = 'updated_at'
@@ -13326,6 +13160,7 @@ export interface IntegrationHistoryOrder {
 /** Properties by which IntegrationHistory connections can be ordered. */
 export enum IntegrationHistoryOrderField {
   created_at = 'created_at',
+  history_time = 'history_time',
   kind = 'kind',
   name = 'name',
   updated_at = 'updated_at'
@@ -13940,6 +13775,7 @@ export enum InternalPolicyHistoryOrderField {
   REVIEW_FREQUENCY = 'REVIEW_FREQUENCY',
   STATUS = 'STATUS',
   created_at = 'created_at',
+  history_time = 'history_time',
   name = 'name',
   review_due = 'review_due',
   revision = 'revision',
@@ -15062,253 +14898,6 @@ export interface JobRunnerEdge {
   node?: Maybe<JobRunner>;
 }
 
-export interface JobRunnerHistory extends Node {
-  __typename?: 'JobRunnerHistory';
-  createdAt?: Maybe<Scalars['Time']['output']>;
-  createdBy?: Maybe<Scalars['String']['output']>;
-  /** a shortened prefixed id field to use as a human readable identifier */
-  displayID: Scalars['String']['output'];
-  historyTime: Scalars['Time']['output'];
-  id: Scalars['ID']['output'];
-  /** the IP address of this runner */
-  ipAddress: Scalars['String']['output'];
-  /** the name of the runner */
-  name: Scalars['String']['output'];
-  operation: JobRunnerHistoryOpType;
-  /** the organization id that owns the object */
-  ownerID?: Maybe<Scalars['String']['output']>;
-  ref?: Maybe<Scalars['String']['output']>;
-  /** the status of this runner */
-  status: JobRunnerHistoryJobRunnerStatus;
-  /** indicates if the record is owned by the the openlane system and not by an organization */
-  systemOwned?: Maybe<Scalars['Boolean']['output']>;
-  /** tags associated with the object */
-  tags?: Maybe<Array<Scalars['String']['output']>>;
-  updatedAt?: Maybe<Scalars['Time']['output']>;
-  updatedBy?: Maybe<Scalars['String']['output']>;
-}
-
-/** A connection to a list of items. */
-export interface JobRunnerHistoryConnection {
-  __typename?: 'JobRunnerHistoryConnection';
-  /** A list of edges. */
-  edges?: Maybe<Array<Maybe<JobRunnerHistoryEdge>>>;
-  /** Information to aid in pagination. */
-  pageInfo: PageInfo;
-  /** Identifies the total count of items in the connection. */
-  totalCount: Scalars['Int']['output'];
-}
-
-/** An edge in a connection. */
-export interface JobRunnerHistoryEdge {
-  __typename?: 'JobRunnerHistoryEdge';
-  /** A cursor for use in pagination. */
-  cursor: Scalars['Cursor']['output'];
-  /** The item at the end of the edge. */
-  node?: Maybe<JobRunnerHistory>;
-}
-
-/** JobRunnerHistoryJobRunnerStatus is enum for the field status */
-export enum JobRunnerHistoryJobRunnerStatus {
-  OFFLINE = 'OFFLINE',
-  ONLINE = 'ONLINE'
-}
-
-/** JobRunnerHistoryOpType is enum for the field operation */
-export enum JobRunnerHistoryOpType {
-  DELETE = 'DELETE',
-  INSERT = 'INSERT',
-  UPDATE = 'UPDATE'
-}
-
-/** Ordering options for JobRunnerHistory connections */
-export interface JobRunnerHistoryOrder {
-  /** The ordering direction. */
-  direction?: OrderDirection;
-  /** The field by which to order JobRunnerHistories. */
-  field: JobRunnerHistoryOrderField;
-}
-
-/** Properties by which JobRunnerHistory connections can be ordered. */
-export enum JobRunnerHistoryOrderField {
-  created_at = 'created_at',
-  name = 'name',
-  updated_at = 'updated_at'
-}
-
-/**
- * JobRunnerHistoryWhereInput is used for filtering JobRunnerHistory objects.
- * Input was generated by ent.
- */
-export interface JobRunnerHistoryWhereInput {
-  and?: InputMaybe<Array<JobRunnerHistoryWhereInput>>;
-  /** created_at field predicates */
-  createdAt?: InputMaybe<Scalars['Time']['input']>;
-  createdAtGT?: InputMaybe<Scalars['Time']['input']>;
-  createdAtGTE?: InputMaybe<Scalars['Time']['input']>;
-  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>;
-  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>;
-  createdAtLT?: InputMaybe<Scalars['Time']['input']>;
-  createdAtLTE?: InputMaybe<Scalars['Time']['input']>;
-  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>;
-  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>;
-  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>;
-  /** created_by field predicates */
-  createdBy?: InputMaybe<Scalars['String']['input']>;
-  createdByContains?: InputMaybe<Scalars['String']['input']>;
-  createdByContainsFold?: InputMaybe<Scalars['String']['input']>;
-  createdByEqualFold?: InputMaybe<Scalars['String']['input']>;
-  createdByGT?: InputMaybe<Scalars['String']['input']>;
-  createdByGTE?: InputMaybe<Scalars['String']['input']>;
-  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>;
-  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>;
-  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>;
-  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>;
-  createdByLT?: InputMaybe<Scalars['String']['input']>;
-  createdByLTE?: InputMaybe<Scalars['String']['input']>;
-  createdByNEQ?: InputMaybe<Scalars['String']['input']>;
-  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>;
-  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>;
-  /** display_id field predicates */
-  displayID?: InputMaybe<Scalars['String']['input']>;
-  displayIDContains?: InputMaybe<Scalars['String']['input']>;
-  displayIDContainsFold?: InputMaybe<Scalars['String']['input']>;
-  displayIDEqualFold?: InputMaybe<Scalars['String']['input']>;
-  displayIDGT?: InputMaybe<Scalars['String']['input']>;
-  displayIDGTE?: InputMaybe<Scalars['String']['input']>;
-  displayIDHasPrefix?: InputMaybe<Scalars['String']['input']>;
-  displayIDHasSuffix?: InputMaybe<Scalars['String']['input']>;
-  displayIDIn?: InputMaybe<Array<Scalars['String']['input']>>;
-  displayIDLT?: InputMaybe<Scalars['String']['input']>;
-  displayIDLTE?: InputMaybe<Scalars['String']['input']>;
-  displayIDNEQ?: InputMaybe<Scalars['String']['input']>;
-  displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>;
-  /** history_time field predicates */
-  historyTime?: InputMaybe<Scalars['Time']['input']>;
-  historyTimeGT?: InputMaybe<Scalars['Time']['input']>;
-  historyTimeGTE?: InputMaybe<Scalars['Time']['input']>;
-  historyTimeIn?: InputMaybe<Array<Scalars['Time']['input']>>;
-  historyTimeLT?: InputMaybe<Scalars['Time']['input']>;
-  historyTimeLTE?: InputMaybe<Scalars['Time']['input']>;
-  historyTimeNEQ?: InputMaybe<Scalars['Time']['input']>;
-  historyTimeNotIn?: InputMaybe<Array<Scalars['Time']['input']>>;
-  /** id field predicates */
-  id?: InputMaybe<Scalars['ID']['input']>;
-  idContainsFold?: InputMaybe<Scalars['ID']['input']>;
-  idEqualFold?: InputMaybe<Scalars['ID']['input']>;
-  idGT?: InputMaybe<Scalars['ID']['input']>;
-  idGTE?: InputMaybe<Scalars['ID']['input']>;
-  idIn?: InputMaybe<Array<Scalars['ID']['input']>>;
-  idLT?: InputMaybe<Scalars['ID']['input']>;
-  idLTE?: InputMaybe<Scalars['ID']['input']>;
-  idNEQ?: InputMaybe<Scalars['ID']['input']>;
-  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>;
-  /** ip_address field predicates */
-  ipAddress?: InputMaybe<Scalars['String']['input']>;
-  ipAddressContains?: InputMaybe<Scalars['String']['input']>;
-  ipAddressContainsFold?: InputMaybe<Scalars['String']['input']>;
-  ipAddressEqualFold?: InputMaybe<Scalars['String']['input']>;
-  ipAddressGT?: InputMaybe<Scalars['String']['input']>;
-  ipAddressGTE?: InputMaybe<Scalars['String']['input']>;
-  ipAddressHasPrefix?: InputMaybe<Scalars['String']['input']>;
-  ipAddressHasSuffix?: InputMaybe<Scalars['String']['input']>;
-  ipAddressIn?: InputMaybe<Array<Scalars['String']['input']>>;
-  ipAddressLT?: InputMaybe<Scalars['String']['input']>;
-  ipAddressLTE?: InputMaybe<Scalars['String']['input']>;
-  ipAddressNEQ?: InputMaybe<Scalars['String']['input']>;
-  ipAddressNotIn?: InputMaybe<Array<Scalars['String']['input']>>;
-  /** name field predicates */
-  name?: InputMaybe<Scalars['String']['input']>;
-  nameContains?: InputMaybe<Scalars['String']['input']>;
-  nameContainsFold?: InputMaybe<Scalars['String']['input']>;
-  nameEqualFold?: InputMaybe<Scalars['String']['input']>;
-  nameGT?: InputMaybe<Scalars['String']['input']>;
-  nameGTE?: InputMaybe<Scalars['String']['input']>;
-  nameHasPrefix?: InputMaybe<Scalars['String']['input']>;
-  nameHasSuffix?: InputMaybe<Scalars['String']['input']>;
-  nameIn?: InputMaybe<Array<Scalars['String']['input']>>;
-  nameLT?: InputMaybe<Scalars['String']['input']>;
-  nameLTE?: InputMaybe<Scalars['String']['input']>;
-  nameNEQ?: InputMaybe<Scalars['String']['input']>;
-  nameNotIn?: InputMaybe<Array<Scalars['String']['input']>>;
-  not?: InputMaybe<JobRunnerHistoryWhereInput>;
-  /** operation field predicates */
-  operation?: InputMaybe<JobRunnerHistoryOpType>;
-  operationIn?: InputMaybe<Array<JobRunnerHistoryOpType>>;
-  operationNEQ?: InputMaybe<JobRunnerHistoryOpType>;
-  operationNotIn?: InputMaybe<Array<JobRunnerHistoryOpType>>;
-  or?: InputMaybe<Array<JobRunnerHistoryWhereInput>>;
-  /** owner_id field predicates */
-  ownerID?: InputMaybe<Scalars['String']['input']>;
-  ownerIDContains?: InputMaybe<Scalars['String']['input']>;
-  ownerIDContainsFold?: InputMaybe<Scalars['String']['input']>;
-  ownerIDEqualFold?: InputMaybe<Scalars['String']['input']>;
-  ownerIDGT?: InputMaybe<Scalars['String']['input']>;
-  ownerIDGTE?: InputMaybe<Scalars['String']['input']>;
-  ownerIDHasPrefix?: InputMaybe<Scalars['String']['input']>;
-  ownerIDHasSuffix?: InputMaybe<Scalars['String']['input']>;
-  ownerIDIn?: InputMaybe<Array<Scalars['String']['input']>>;
-  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>;
-  ownerIDLT?: InputMaybe<Scalars['String']['input']>;
-  ownerIDLTE?: InputMaybe<Scalars['String']['input']>;
-  ownerIDNEQ?: InputMaybe<Scalars['String']['input']>;
-  ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>;
-  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>;
-  /** ref field predicates */
-  ref?: InputMaybe<Scalars['String']['input']>;
-  refContains?: InputMaybe<Scalars['String']['input']>;
-  refContainsFold?: InputMaybe<Scalars['String']['input']>;
-  refEqualFold?: InputMaybe<Scalars['String']['input']>;
-  refGT?: InputMaybe<Scalars['String']['input']>;
-  refGTE?: InputMaybe<Scalars['String']['input']>;
-  refHasPrefix?: InputMaybe<Scalars['String']['input']>;
-  refHasSuffix?: InputMaybe<Scalars['String']['input']>;
-  refIn?: InputMaybe<Array<Scalars['String']['input']>>;
-  refIsNil?: InputMaybe<Scalars['Boolean']['input']>;
-  refLT?: InputMaybe<Scalars['String']['input']>;
-  refLTE?: InputMaybe<Scalars['String']['input']>;
-  refNEQ?: InputMaybe<Scalars['String']['input']>;
-  refNotIn?: InputMaybe<Array<Scalars['String']['input']>>;
-  refNotNil?: InputMaybe<Scalars['Boolean']['input']>;
-  /** status field predicates */
-  status?: InputMaybe<JobRunnerHistoryJobRunnerStatus>;
-  statusIn?: InputMaybe<Array<JobRunnerHistoryJobRunnerStatus>>;
-  statusNEQ?: InputMaybe<JobRunnerHistoryJobRunnerStatus>;
-  statusNotIn?: InputMaybe<Array<JobRunnerHistoryJobRunnerStatus>>;
-  /** system_owned field predicates */
-  systemOwned?: InputMaybe<Scalars['Boolean']['input']>;
-  systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>;
-  systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>;
-  systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>;
-  /** updated_at field predicates */
-  updatedAt?: InputMaybe<Scalars['Time']['input']>;
-  updatedAtGT?: InputMaybe<Scalars['Time']['input']>;
-  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>;
-  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>;
-  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>;
-  updatedAtLT?: InputMaybe<Scalars['Time']['input']>;
-  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>;
-  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>;
-  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>;
-  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>;
-  /** updated_by field predicates */
-  updatedBy?: InputMaybe<Scalars['String']['input']>;
-  updatedByContains?: InputMaybe<Scalars['String']['input']>;
-  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>;
-  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>;
-  updatedByGT?: InputMaybe<Scalars['String']['input']>;
-  updatedByGTE?: InputMaybe<Scalars['String']['input']>;
-  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>;
-  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>;
-  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>;
-  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>;
-  updatedByLT?: InputMaybe<Scalars['String']['input']>;
-  updatedByLTE?: InputMaybe<Scalars['String']['input']>;
-  updatedByNEQ?: InputMaybe<Scalars['String']['input']>;
-  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>;
-  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>;
-}
-
 /** JobRunnerJobRunnerStatus is enum for the field status */
 export enum JobRunnerJobRunnerStatus {
   OFFLINE = 'OFFLINE',
@@ -16071,6 +15660,7 @@ export interface MappableDomainHistoryOrder {
 /** Properties by which MappableDomainHistory connections can be ordered. */
 export enum MappableDomainHistoryOrderField {
   created_at = 'created_at',
+  history_time = 'history_time',
   name = 'name',
   updated_at = 'updated_at'
 }
@@ -16545,6 +16135,7 @@ export enum MappedControlHistoryOrderField {
   MAPPING_TYPE = 'MAPPING_TYPE',
   SOURCE = 'SOURCE',
   created_at = 'created_at',
+  history_time = 'history_time',
   updated_at = 'updated_at'
 }
 
@@ -18616,6 +18207,7 @@ export interface NarrativeHistoryOrder {
 /** Properties by which NarrativeHistory connections can be ordered. */
 export enum NarrativeHistoryOrderField {
   created_at = 'created_at',
+  history_time = 'history_time',
   name = 'name',
   updated_at = 'updated_at'
 }
@@ -19111,6 +18703,7 @@ export interface NoteHistoryOrder {
 /** Properties by which NoteHistory connections can be ordered. */
 export enum NoteHistoryOrderField {
   created_at = 'created_at',
+  history_time = 'history_time',
   updated_at = 'updated_at'
 }
 
@@ -19620,6 +19213,7 @@ export interface OrgMembershipHistoryOrder {
 export enum OrgMembershipHistoryOrderField {
   ROLE = 'ROLE',
   created_at = 'created_at',
+  history_time = 'history_time',
   updated_at = 'updated_at'
 }
 
@@ -20037,6 +19631,7 @@ export enum OrgSubscriptionHistoryOrderField {
   created_at = 'created_at',
   days_until_due = 'days_until_due',
   expires_at = 'expires_at',
+  history_time = 'history_time',
   product_tier = 'product_tier',
   stripe_subscription_status = 'stripe_subscription_status',
   trial_expires_at = 'trial_expires_at',
@@ -21279,6 +20874,7 @@ export interface OrganizationHistoryOrder {
 export enum OrganizationHistoryOrderField {
   created_at = 'created_at',
   display_name = 'display_name',
+  history_time = 'history_time',
   name = 'name',
   updated_at = 'updated_at'
 }
@@ -21638,6 +21234,7 @@ export interface OrganizationSettingHistoryOrder {
 /** Properties by which OrganizationSettingHistory connections can be ordered. */
 export enum OrganizationSettingHistoryOrderField {
   created_at = 'created_at',
+  history_time = 'history_time',
   updated_at = 'updated_at'
 }
 
@@ -22982,6 +22579,7 @@ export enum ProcedureHistoryOrderField {
   REVIEW_FREQUENCY = 'REVIEW_FREQUENCY',
   STATUS = 'STATUS',
   created_at = 'created_at',
+  history_time = 'history_time',
   name = 'name',
   review_due = 'review_due',
   revision = 'revision',
@@ -23894,6 +23492,7 @@ export enum ProgramHistoryOrderField {
   created_at = 'created_at',
   end_date = 'end_date',
   framework = 'framework',
+  history_time = 'history_time',
   name = 'name',
   start_date = 'start_date',
   updated_at = 'updated_at'
@@ -24295,6 +23894,7 @@ export interface ProgramMembershipHistoryOrder {
 export enum ProgramMembershipHistoryOrderField {
   ROLE = 'ROLE',
   created_at = 'created_at',
+  history_time = 'history_time',
   updated_at = 'updated_at'
 }
 
@@ -25046,7 +24646,6 @@ export interface Query {
   entityTypes: EntityTypeConnection;
   /** Look up event by ID */
   event: Event;
-  eventHistories: EventHistoryConnection;
   /** Search across Event objects */
   eventSearch?: Maybe<EventConnection>;
   events: EventConnection;
@@ -25102,7 +24701,6 @@ export interface Query {
   jobResults: JobResultConnection;
   /** Look up jobRunner by ID */
   jobRunner: JobRunner;
-  jobRunnerHistories: JobRunnerHistoryConnection;
   /** Look up jobRunnerRegistrationToken by ID */
   jobRunnerRegistrationToken: JobRunnerRegistrationToken;
   /** Search across JobRunnerRegistrationToken objects */
@@ -25686,6 +25284,7 @@ export interface QueryAuditLogsArgs {
   before?: InputMaybe<Scalars['Cursor']['input']>;
   first?: InputMaybe<Scalars['Int']['input']>;
   last?: InputMaybe<Scalars['Int']['input']>;
+  orderBy?: InputMaybe<AuditLogOrder>;
   where?: InputMaybe<AuditLogWhereInput>;
 }
 
@@ -26026,16 +25625,6 @@ export interface QueryEventArgs {
 }
 
 
-export interface QueryEventHistoriesArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>;
-  before?: InputMaybe<Scalars['Cursor']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<EventHistoryOrder>;
-  where?: InputMaybe<EventHistoryWhereInput>;
-}
-
-
 export interface QueryEventSearchArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>;
   before?: InputMaybe<Scalars['Cursor']['input']>;
@@ -26341,16 +25930,6 @@ export interface QueryJobResultsArgs {
 
 export interface QueryJobRunnerArgs {
   id: Scalars['ID']['input'];
-}
-
-
-export interface QueryJobRunnerHistoriesArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>;
-  before?: InputMaybe<Scalars['Cursor']['input']>;
-  first?: InputMaybe<Scalars['Int']['input']>;
-  last?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<JobRunnerHistoryOrder>;
-  where?: InputMaybe<JobRunnerHistoryWhereInput>;
 }
 
 
@@ -27435,6 +27014,7 @@ export enum RiskHistoryOrderField {
   business_costs = 'business_costs',
   category = 'category',
   created_at = 'created_at',
+  history_time = 'history_time',
   name = 'name',
   risk_type = 'risk_type',
   score = 'score',
@@ -28264,6 +27844,7 @@ export interface ScheduledJobHistoryOrder {
 export enum ScheduledJobHistoryOrderField {
   JOB_TYPE = 'JOB_TYPE',
   created_at = 'created_at',
+  history_time = 'history_time',
   title = 'title',
   updated_at = 'updated_at'
 }
@@ -29076,6 +28657,7 @@ export enum StandardHistoryOrderField {
   created_at = 'created_at',
   framework = 'framework',
   governing_body = 'governing_body',
+  history_time = 'history_time',
   name = 'name',
   revision = 'revision',
   short_name = 'short_name',
@@ -30071,6 +29653,7 @@ export enum SubcontrolHistoryOrderField {
   STATUS = 'STATUS',
   category = 'category',
   created_at = 'created_at',
+  history_time = 'history_time',
   ref_code = 'ref_code',
   subcategory = 'subcategory',
   updated_at = 'updated_at'
@@ -31438,6 +31021,7 @@ export enum TaskHistoryOrderField {
   completed = 'completed',
   created_at = 'created_at',
   due = 'due',
+  history_time = 'history_time',
   title = 'title',
   updated_at = 'updated_at'
 }
@@ -32139,6 +31723,7 @@ export interface TemplateHistoryOrder {
 export enum TemplateHistoryOrderField {
   TEMPLATE_TYPE = 'TEMPLATE_TYPE',
   created_at = 'created_at',
+  history_time = 'history_time',
   name = 'name',
   updated_at = 'updated_at'
 }
@@ -34953,6 +34538,7 @@ export enum UserHistoryOrderField {
   created_at = 'created_at',
   display_name = 'display_name',
   first_name = 'first_name',
+  history_time = 'history_time',
   last_name = 'last_name',
   updated_at = 'updated_at'
 }
@@ -35397,6 +34983,7 @@ export interface UserSettingHistoryOrder {
 /** Properties by which UserSettingHistory connections can be ordered. */
 export enum UserSettingHistoryOrderField {
   created_at = 'created_at',
+  history_time = 'history_time',
   updated_at = 'updated_at'
 }
 
@@ -36640,7 +36227,7 @@ export type GetInternalPoliciesListQueryVariables = Exact<{
 }>;
 
 
-export type GetInternalPoliciesListQuery = { __typename?: 'Query', internalPolicies: { __typename?: 'InternalPolicyConnection', totalCount: number, edges?: Array<{ __typename?: 'InternalPolicyEdge', node?: { __typename?: 'InternalPolicy', id: string, name: string, displayID: string, status?: InternalPolicyDocumentStatus | null, revision?: string | null, updatedAt?: any | null, updatedBy?: string | null, createdAt?: any | null, createdBy?: string | null, tags?: Array<string> | null, details?: string | null, summary?: string | null } | null } | null> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: any | null, startCursor?: any | null, hasPreviousPage: boolean, hasNextPage: boolean } } };
+export type GetInternalPoliciesListQuery = { __typename?: 'Query', internalPolicies: { __typename?: 'InternalPolicyConnection', totalCount: number, edges?: Array<{ __typename?: 'InternalPolicyEdge', node?: { __typename?: 'InternalPolicy', id: string, name: string, updatedAt?: any | null, updatedBy?: string | null, createdAt?: any | null, createdBy?: string | null, summary?: string | null } | null } | null> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: any | null, startCursor?: any | null, hasPreviousPage: boolean, hasNextPage: boolean } } };
 
 export type GetAllInternalPoliciesQueryVariables = Exact<{
   where?: InputMaybe<InternalPolicyWhereInput>;
@@ -36688,6 +36275,18 @@ export type GetAllProceduresWithDetailsQueryVariables = Exact<{ [key: string]: n
 
 
 export type GetAllProceduresWithDetailsQuery = { __typename?: 'Query', procedures: { __typename?: 'ProcedureConnection', edges?: Array<{ __typename?: 'ProcedureEdge', node?: { __typename?: 'Procedure', id: string, name: string, status?: ProcedureDocumentStatus | null, revision?: string | null, updatedAt?: any | null, updatedBy?: string | null, createdAt?: any | null, createdBy?: string | null, tags?: Array<string> | null } | null } | null> | null } };
+
+export type GetProceduresTableListQueryVariables = Exact<{
+  orderBy?: InputMaybe<Array<ProcedureOrder> | ProcedureOrder>;
+  where?: InputMaybe<ProcedureWhereInput>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+}>;
+
+
+export type GetProceduresTableListQuery = { __typename?: 'Query', procedures: { __typename?: 'ProcedureConnection', totalCount: number, edges?: Array<{ __typename?: 'ProcedureEdge', node?: { __typename?: 'Procedure', id: string, name: string, updatedAt?: any | null, updatedBy?: string | null, createdAt?: any | null, createdBy?: string | null, summary?: string | null } | null } | null> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: any | null, startCursor?: any | null, hasPreviousPage: boolean, hasNextPage: boolean } } };
 
 export type GetProceduresListQueryVariables = Exact<{
   orderBy?: InputMaybe<Array<ProcedureOrder> | ProcedureOrder>;
@@ -36824,6 +36423,8 @@ export type GetGlobalEvidenceStatsQuery = { __typename?: 'Query', totalControls:
 
 export type RiskFieldsFragment = { __typename?: 'Risk', id: string, displayID: string, name: string, details?: string | null, tags?: Array<string> | null, category?: string | null, riskType?: string | null, score?: number | null, status?: RiskRiskStatus | null, businessCosts?: string | null, likelihood?: RiskRiskLikelihood | null, impact?: RiskRiskImpact | null, mitigation?: string | null, stakeholder?: { __typename?: 'Group', id: string, displayName: string, gravatarLogoURL?: string | null, logoURL?: string | null } | null, delegate?: { __typename?: 'Group', id: string, displayName: string, gravatarLogoURL?: string | null, logoURL?: string | null } | null, procedures: { __typename?: 'ProcedureConnection', totalCount: number, edges?: Array<{ __typename?: 'ProcedureEdge', node?: { __typename?: 'Procedure', id: string, name: string, displayID: string, summary?: string | null } | null } | null> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: any | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: any | null } }, controls: { __typename?: 'ControlConnection', totalCount: number, edges?: Array<{ __typename?: 'ControlEdge', node?: { __typename?: 'Control', id: string, displayID: string, refCode: string } | null } | null> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: any | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: any | null } }, subcontrols: { __typename?: 'SubcontrolConnection', totalCount: number, edges?: Array<{ __typename?: 'SubcontrolEdge', node?: { __typename?: 'Subcontrol', id: string, displayID: string, refCode: string } | null } | null> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: any | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: any | null } }, programs: { __typename?: 'ProgramConnection', totalCount: number, edges?: Array<{ __typename?: 'ProgramEdge', node?: { __typename?: 'Program', id: string, displayID: string, name: string, description?: string | null } | null } | null> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: any | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: any | null } }, tasks: { __typename?: 'TaskConnection', totalCount: number, edges?: Array<{ __typename?: 'TaskEdge', node?: { __typename?: 'Task', id: string, displayID: string, title: string, details?: string | null } | null } | null> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: any | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: any | null } }, internalPolicies: { __typename?: 'InternalPolicyConnection', totalCount: number, edges?: Array<{ __typename?: 'InternalPolicyEdge', node?: { __typename?: 'InternalPolicy', id: string, displayID: string, name: string } | null } | null> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: any | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: any | null } } };
 
+export type RiskTableFieldsFragment = { __typename?: 'Risk', id: string, name: string, category?: string | null, riskType?: string | null, score?: number | null, status?: RiskRiskStatus | null, stakeholder?: { __typename?: 'Group', id: string, displayName: string, gravatarLogoURL?: string | null, logoURL?: string | null } | null };
+
 export type GetRiskByIdQueryVariables = Exact<{
   riskId: Scalars['ID']['input'];
 }>;
@@ -36842,6 +36443,18 @@ export type GetAllRisksQueryVariables = Exact<{
 
 
 export type GetAllRisksQuery = { __typename?: 'Query', risks: { __typename?: 'RiskConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', endCursor?: any | null, startCursor?: any | null, hasPreviousPage: boolean, hasNextPage: boolean }, edges?: Array<{ __typename?: 'RiskEdge', node?: { __typename?: 'Risk', id: string, displayID: string, name: string, details?: string | null, tags?: Array<string> | null, category?: string | null, riskType?: string | null, score?: number | null, status?: RiskRiskStatus | null, businessCosts?: string | null, likelihood?: RiskRiskLikelihood | null, impact?: RiskRiskImpact | null, mitigation?: string | null, stakeholder?: { __typename?: 'Group', id: string, displayName: string, gravatarLogoURL?: string | null, logoURL?: string | null } | null, delegate?: { __typename?: 'Group', id: string, displayName: string, gravatarLogoURL?: string | null, logoURL?: string | null } | null, procedures: { __typename?: 'ProcedureConnection', totalCount: number, edges?: Array<{ __typename?: 'ProcedureEdge', node?: { __typename?: 'Procedure', id: string, name: string, displayID: string, summary?: string | null } | null } | null> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: any | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: any | null } }, controls: { __typename?: 'ControlConnection', totalCount: number, edges?: Array<{ __typename?: 'ControlEdge', node?: { __typename?: 'Control', id: string, displayID: string, refCode: string } | null } | null> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: any | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: any | null } }, subcontrols: { __typename?: 'SubcontrolConnection', totalCount: number, edges?: Array<{ __typename?: 'SubcontrolEdge', node?: { __typename?: 'Subcontrol', id: string, displayID: string, refCode: string } | null } | null> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: any | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: any | null } }, programs: { __typename?: 'ProgramConnection', totalCount: number, edges?: Array<{ __typename?: 'ProgramEdge', node?: { __typename?: 'Program', id: string, displayID: string, name: string, description?: string | null } | null } | null> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: any | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: any | null } }, tasks: { __typename?: 'TaskConnection', totalCount: number, edges?: Array<{ __typename?: 'TaskEdge', node?: { __typename?: 'Task', id: string, displayID: string, title: string, details?: string | null } | null } | null> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: any | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: any | null } }, internalPolicies: { __typename?: 'InternalPolicyConnection', totalCount: number, edges?: Array<{ __typename?: 'InternalPolicyEdge', node?: { __typename?: 'InternalPolicy', id: string, displayID: string, name: string } | null } | null> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: any | null, hasNextPage: boolean, hasPreviousPage: boolean, startCursor?: any | null } } } | null } | null> | null } };
+
+export type GetTableRisksQueryVariables = Exact<{
+  where?: InputMaybe<RiskWhereInput>;
+  orderBy?: InputMaybe<Array<RiskOrder> | RiskOrder>;
+  first?: InputMaybe<Scalars['Int']['input']>;
+  after?: InputMaybe<Scalars['Cursor']['input']>;
+  last?: InputMaybe<Scalars['Int']['input']>;
+  before?: InputMaybe<Scalars['Cursor']['input']>;
+}>;
+
+
+export type GetTableRisksQuery = { __typename?: 'Query', risks: { __typename?: 'RiskConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', endCursor?: any | null, startCursor?: any | null, hasPreviousPage: boolean, hasNextPage: boolean }, edges?: Array<{ __typename?: 'RiskEdge', node?: { __typename?: 'Risk', id: string, name: string, category?: string | null, riskType?: string | null, score?: number | null, status?: RiskRiskStatus | null, stakeholder?: { __typename?: 'Group', id: string, displayName: string, gravatarLogoURL?: string | null, logoURL?: string | null } | null } | null } | null> | null } };
 
 export type UpdateRiskMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -36987,7 +36600,7 @@ export type TasksWithFilterQueryVariables = Exact<{
 }>;
 
 
-export type TasksWithFilterQuery = { __typename?: 'Query', tasks: { __typename?: 'TaskConnection', totalCount: number, pageInfo: { __typename?: 'PageInfo', endCursor?: any | null, startCursor?: any | null, hasPreviousPage: boolean, hasNextPage: boolean }, edges?: Array<{ __typename?: 'TaskEdge', node?: { __typename?: 'Task', id: string, title: string, status: TaskTaskStatus, tags?: Array<string> | null, details?: string | null, due?: string | null, displayID: string, category?: string | null, assigner?: { __typename?: 'User', displayName: string, avatarRemoteURL?: string | null, avatarFile?: { __typename?: 'File', presignedURL?: string | null } | null } | null, assignee?: { __typename?: 'User', displayName: string, avatarRemoteURL?: string | null, avatarFile?: { __typename?: 'File', presignedURL?: string | null } | null } | null } | null } | null> | null } };
+export type TasksWithFilterQuery = { __typename?: 'Query', tasks: { __typename?: 'TaskConnection', totalCount: number, edges?: Array<{ __typename?: 'TaskEdge', node?: { __typename?: 'Task', id: string, title: string, status: TaskTaskStatus, tags?: Array<string> | null, details?: string | null, due?: string | null, displayID: string, category?: string | null, assigner?: { __typename?: 'User', displayName: string, avatarRemoteURL?: string | null, avatarFile?: { __typename?: 'File', presignedURL?: string | null } | null } | null, assignee?: { __typename?: 'User', displayName: string, avatarRemoteURL?: string | null, avatarFile?: { __typename?: 'File', presignedURL?: string | null } | null } | null } | null } | null> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: any | null, startCursor?: any | null, hasPreviousPage: boolean, hasNextPage: boolean } } };
 
 export type CreateTaskMutationVariables = Exact<{
   input: CreateTaskInput;

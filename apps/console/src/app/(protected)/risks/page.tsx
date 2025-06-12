@@ -1,11 +1,11 @@
 'use client'
 
 import React, { useMemo, useState } from 'react'
-import { useRisksWithFilter } from '@/lib/graphql-hooks/risks'
+import { useTableRisks } from '@/lib/graphql-hooks/risks'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { PageHeading } from '@repo/ui/page-heading'
-import { GetAllRisksQueryVariables, OrderDirection, RiskFieldsFragment, RiskOrder, RiskOrderField } from '@repo/codegen/src/schema'
+import { GetAllRisksQueryVariables, OrderDirection, RiskFieldsFragment, RiskOrderField } from '@repo/codegen/src/schema'
 import { useRouter } from 'next/navigation'
 import { useDebounce } from '@uidotdev/usehooks'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -45,7 +45,7 @@ const RiskTablePage: React.FC = () => {
     return orderBy || undefined
   }, [orderBy])
 
-  const { risks, paginationMeta, isError } = useRisksWithFilter({
+  const { risks, paginationMeta, isError } = useTableRisks({
     where,
     orderBy: orderByFilter,
     pagination,

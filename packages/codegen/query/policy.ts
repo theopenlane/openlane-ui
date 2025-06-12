@@ -42,15 +42,10 @@ export const GET_INTERNAL_POLICIES_LIST = gql`
         node {
           id
           name
-          displayID
-          status
-          revision
           updatedAt
           updatedBy
           createdAt
           createdBy
-          tags
-          details
           summary
         }
       }
