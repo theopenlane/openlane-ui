@@ -1,5 +1,5 @@
 'use client'
-import Link from 'next/link'
+
 import { headerStyles } from './header.styles'
 import { UserMenu } from '@/components/shared/user-menu/user-menu'
 import { OrganizationSelector } from '@/components/shared/organization-selector/organization-selector'
@@ -7,11 +7,9 @@ import { BreadcrumbNavigation } from '@/components/shared/breadcrumb-nav/breadcr
 import { sidebarStyles } from '../sidebar/sidebar.styles'
 import { useSidebar } from '@/hooks/useSidebar'
 import { useState } from 'react'
-import { BookText, ChevronRight, PanelLeft } from 'lucide-react'
+import { PanelLeft } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import { GlobalSearch } from '../search/search'
-import { Logo } from '@repo/ui/logo'
-import { DOCS_URL } from '@/constants'
 import NavTriangle from '@/assets/NavTriangle'
 
 export default function Header() {

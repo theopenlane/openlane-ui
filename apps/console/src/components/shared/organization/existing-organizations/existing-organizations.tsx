@@ -15,7 +15,7 @@ export const ExistingOrganizations = () => {
 
   const { container, orgWrapper, orgInfo, orgSelect, orgTitle } = existingOrganizationsStyles()
 
-  const { data, isFetching, isError } = useGetAllOrganizationsWithMembers()
+  const { data, isFetching, isError } = useGetAllOrganizationsWithMembers({ userID: sessionData?.user.userId })
 
   const { push } = useRouter()
 
