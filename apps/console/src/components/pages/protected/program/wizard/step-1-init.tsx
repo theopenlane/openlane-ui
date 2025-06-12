@@ -50,35 +50,47 @@ export function ProgramInitComponent() {
   const { control, watch } = useFormContext()
 
   const programType = useWatch({ control, name: 'programType' })
-
+  const isFrameworkOrGap = programType === ProgramProgramType.FRAMEWORK || programType === ProgramProgramType.GAP_ANALYSIS
   return (
     <Panel className="border-none p-2">
-      <PanelHeader heading="" subheading="Enter the basic information about the program" noBorder />
-      <Grid className="grow">
-        <GridRow columns={4}>
+      <Grid>
+        <GridRow className="grid grid-cols-1 2xl:grid-cols-2 gap-4">
           <GridCell className={formRow()}>
             <ProgramTypeSelect />
           </GridCell>
-          {(programType === ProgramProgramType.FRAMEWORK || programType === ProgramProgramType.GAP_ANALYSIS) && (
-            <GridCell className={formRow()}>
-              <FrameworkSelect />
-            </GridCell>
-          )}
           <GridCell className={formRow()}>
             <NameField />
           </GridCell>
         </GridRow>
-        <GridRow columns={2}>
-          <GridCell className={formRow()}>
-            <DescriptionField />
-          </GridCell>
-          <GridCell className={formRow()}>
-            <StatusSelect />
-          </GridCell>
-          <GridCell>
-            <PeriodComponent />
-          </GridCell>
-        </GridRow>
+        {isFrameworkOrGap ? (
+          <GridRow className="grid grid-cols-1 2xl:grid-cols-2 gap-4">
+            <GridCell className={formRow()}>
+              <FrameworkSelect />
+            </GridCell>
+            <GridCell className={formRow()}>
+              <StatusSelect />
+            </GridCell>
+          </GridRow>
+        ) : (
+          <GridRow className="grid grid-cols-1 2xl:grid-cols-2 gap-4">
+            <GridCell className={formRow()}>
+              <DescriptionField />
+            </GridCell>
+            <GridCell>
+              <PeriodComponent />
+            </GridCell>
+          </GridRow>
+        )}
+        {isFrameworkOrGap ? (
+          <GridRow className="grid grid-cols-1 2xl:grid-cols-2 gap-4">
+            <GridCell className={formRow()}>
+              <DescriptionField />
+            </GridCell>
+            <GridCell>
+              <PeriodComponent />
+            </GridCell>
+          </GridRow>
+        ) : null}
       </Grid>
     </Panel>
   )
