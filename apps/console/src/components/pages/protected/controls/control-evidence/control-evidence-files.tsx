@@ -144,8 +144,12 @@ const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidence
         open={deleteDialogIsOpen}
         onOpenChange={setDeleteDialogIsOpen}
         onConfirm={handleDeleteFile}
-        title={`Delete ${deleteFileInfo.name}?`}
-        description={`This action cannot be undone, this will permanently remove ${deleteFileInfo.name} from the control.`}
+        title={`Delete File`}
+        description={
+          <>
+            This action cannot be undone. This will permanently remove <b>{deleteFileInfo.name}</b> from the control.
+          </>
+        }
       />
     </div>
   )

@@ -146,10 +146,10 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
               open={showDeleteConfirmation}
               onOpenChange={setShowDeleteConfirmation}
               onConfirm={handleDeleteMember}
-              title={`Delete ${memberName}`}
+              title={`Delete Member`}
               description={
                 <>
-                  This action cannot be undone, this will permanently remove <b>{memberName}</b> from the organization.
+                  This action cannot be undone. This will permanently remove <b>{memberName}</b> from the organization.
                 </>
               }
             />

@@ -183,7 +183,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
                                 open={isDeleteDialogOpen}
                                 onOpenChange={setIsDeleteDialogOpen}
                                 onConfirm={handleDeleteRisk}
-                                title={`Delete ${risk.name}?`}
+                                title={`Delete Risk`}
                                 description={
                                   <>
                                     This action cannot be undone. This will permanently remove <b>{risk.name}</b> from the organization.

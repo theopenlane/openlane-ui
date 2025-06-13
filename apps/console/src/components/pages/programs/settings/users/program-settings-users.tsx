@@ -180,7 +180,7 @@ export const ProgramSettingsUsers = () => {
           <ConfirmationDialog
             open={isDeleteDialogOpen}
             onOpenChange={setIsDeleteDialogOpen}
-            title="Remove User?"
+            title="Remove User"
             description={
               <>
                 Removing <b>{selectedUser.user.displayName}</b> from the program will revoke the users permissions to this program.

@@ -51,7 +51,7 @@ export const ProgramSettingsDangerZone = () => {
         title={`Delete Program ${program?.name}?`}
         description={
           <>
-            This action cannot be undone. This will permanently delete the <b>{program?.name}</b>.
+            This action cannot be undone. This will permanently delete <b>{program?.name}</b>.
           </>
         }
         confirmationText="Delete"

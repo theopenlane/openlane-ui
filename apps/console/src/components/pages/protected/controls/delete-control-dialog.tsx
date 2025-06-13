@@ -46,10 +46,10 @@ const DeleteControlDialog: React.FC<{ controlId: string; refCode: string }> = ({
         open={isOpen}
         onOpenChange={setIsOpen}
         onConfirm={handleDelete}
-        title={`Delete ${refCode}?`}
+        title={`Delete Control`}
         description={
           <>
-            This action cannot be undone, this will permanently remove <b>{refCode}</b> from the organization.
+            This action cannot be undone. This will permanently remove <b>{refCode}</b> from the organization.
           </>
         }
       />

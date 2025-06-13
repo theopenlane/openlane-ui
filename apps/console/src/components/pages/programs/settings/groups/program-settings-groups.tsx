@@ -213,7 +213,7 @@ export const ProgramSettingsGroups = () => {
           <ConfirmationDialog
             open={isDeleteDialogOpen}
             onOpenChange={setIsDeleteDialogOpen}
-            title="Remove group?"
+            title="Remove Group"
             description={
               <>
                 Removing <b>{selectedGroup.name}</b> from the program will revoke all group members permissions to this program.

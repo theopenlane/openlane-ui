@@ -50,7 +50,7 @@ export const SubscriberActions = ({ subscriberEmail }: SubscriberActionsProps) =
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
         onConfirm={handleDeleteSubscriber}
-        title={`Delete ${subscriberEmail}`}
+        title={`Delete Subscriber`}
         description={
           <>
             This action cannot be undone. This will permanently remove <b>{subscriberEmail}</b> from the system.

@@ -227,10 +227,10 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                     open={deleteDialogIsOpen}
                     onOpenChange={setDeleteDialogIsOpen}
                     onConfirm={handleDelete}
-                    title={`Delete ${evidenceName}`}
+                    title={`Delete Evidence`}
                     description={
                       <>
-                        This action cannot be undone, this will permanently remove <b>{evidenceName} </b>from the control.
+                        This action cannot be undone. This will permanently remove <b>{evidenceName} </b>from the control.
                       </>
                     }
                   />

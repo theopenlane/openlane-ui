@@ -27,7 +27,7 @@ type ConfirmationAlertProps = {
 
 export const ConfirmationDialog = ({ open, onOpenChange, onConfirm, title, description, confirmationText, confirmationTextVariant, showInput }: ConfirmationAlertProps) => {
   const [confirmationValue, setConfirmationValue] = useState('')
-  const isConfirmDisabled = showInput && confirmationValue !== 'DELETE'
+  const isConfirmDisabled = showInput && confirmationValue.toUpperCase() !== 'DELETE'.toUpperCase()
 
   const handleOpenChange = (isOpen: boolean) => {
     onOpenChange(isOpen)

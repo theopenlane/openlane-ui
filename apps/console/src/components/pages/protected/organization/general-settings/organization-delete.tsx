@@ -75,7 +75,7 @@ const OrganizationDelete = () => {
           onOpenChange={setIsDialogOpen}
           onConfirm={clickHandler}
           confirmationText="Delete"
-          title={`Delete Organization ${currentOrganization?.displayName}?`}
+          title={`Delete Organization ${currentOrganization?.displayName}`}
           description={
             <>
               This action is irreversible and will permanently delete the organization <b>{currentOrganization?.displayName}</b> and all associated data.

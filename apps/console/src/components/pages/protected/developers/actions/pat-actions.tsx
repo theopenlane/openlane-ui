@@ -58,8 +58,12 @@ export const TokenAction = ({ tokenId, tokenName }: TokenActionProps) => {
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
         onConfirm={handleDeleteToken}
-        title={`Delete ${tokenName}`}
-        description={`This action cannot be undone. This will permanently remove the ${isOrg ? 'API Token' : 'Personal Token'} from the organization.`}
+        title={`Delete  ${isOrg ? 'API Token' : 'Personal Token'}`}
+        description={
+          <>
+            This action cannot be undone. This will permanently remove the <b>${tokenName}</b> from the organization.
+          </>
+        }
       />
     </>
   )
