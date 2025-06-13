@@ -19,7 +19,7 @@ type ConfirmationAlertProps = {
   onOpenChange: (open: boolean) => void
   onConfirm: () => void
   title?: string
-  description?: string
+  description: React.ReactNode
   confirmationText?: string
   confirmationTextVariant?: 'filled' | 'white' | 'success' | 'light' | 'outline' | 'outlineLight' | 'outlineInput' | 'outlineInputPadding' | 'redOutline' | 'destructive' | 'back' | undefined
   showInput?: boolean

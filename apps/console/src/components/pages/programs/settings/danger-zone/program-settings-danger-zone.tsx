@@ -49,7 +49,11 @@ export const ProgramSettingsDangerZone = () => {
         onOpenChange={setDialogOpen}
         onConfirm={handleDelete}
         title={`Delete Program ${program?.name}?`}
-        description={`This action cannot be undone. This will permanently delete the ${program?.name}.`}
+        description={
+          <>
+            This action cannot be undone. This will permanently delete the <b>{program?.name}</b>.
+          </>
+        }
         confirmationText="Delete"
         confirmationTextVariant="destructive"
         showInput={true}

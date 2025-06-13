@@ -48,7 +48,11 @@ const DeleteSubcontrolDialog: React.FC<{ subcontrolId: string; controlId: string
         onOpenChange={setIsOpen}
         onConfirm={handleDelete}
         title={`Delete ${refCode}?`}
-        description={`This action cannot be undone, this will permanently remove ${refCode} from the organization.`}
+        description={
+          <>
+            This action cannot be undone, this will permanently remove <b>{refCode}</b> from the organization.
+          </>
+        }
       />
     </>
   )

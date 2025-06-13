@@ -184,7 +184,11 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
                                 onOpenChange={setIsDeleteDialogOpen}
                                 onConfirm={handleDeleteRisk}
                                 title={`Delete ${risk.name}?`}
-                                description={`This action cannot be undone. This will permanently remove ${risk.name} from the organization.`}
+                                description={
+                                  <>
+                                    This action cannot be undone. This will permanently remove <b>{risk.name}</b> from the organization.
+                                  </>
+                                }
                               />
                             </>
                           )}
