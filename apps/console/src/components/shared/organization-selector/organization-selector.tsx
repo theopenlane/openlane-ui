@@ -132,7 +132,7 @@ export const OrganizationSelector = () => {
 
             <div>
               <Link href="/organization" className={allOrganizationsLink()}>
-                <Button className="w-full" icon={<BriefcaseBusiness size={16} />} iconPosition="left">
+                <Button onClick={() => setIsPopoverOpened(false)} className="w-full" icon={<BriefcaseBusiness size={16} />} iconPosition="left">
                   View all organizations
                 </Button>
               </Link>
