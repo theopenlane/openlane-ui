@@ -10,7 +10,7 @@ import { canDelete } from '@/lib/authz/utils.ts'
 import { useDeleteControl } from '@/lib/graphql-hooks/controls.ts'
 import { useRouter } from 'next/navigation'
 
-const DeleteControlDialog: React.FC<{ controlId: string }> = ({ controlId }) => {
+const DeleteControlDialog: React.FC<{ controlId: string; refCode: string }> = ({ controlId, refCode }) => {
   const { successNotification, errorNotification } = useNotification()
   const { data: session } = useSession()
   const { data: permission } = useAccountRole(session, ObjectEnum.CONTROL, controlId!)
@@ -18,7 +18,6 @@ const DeleteControlDialog: React.FC<{ controlId: string }> = ({ controlId }) => 
   const router = useRouter()
 
   const { mutateAsync: deleteControl } = useDeleteControl()
-
   const handleDelete = async () => {
     if (!controlId) return
 
@@ -47,7 +46,8 @@ const DeleteControlDialog: React.FC<{ controlId: string }> = ({ controlId }) => 
         open={isOpen}
         onOpenChange={setIsOpen}
         onConfirm={handleDelete}
-        description={`This action cannot be undone, this will permanently remove the control from the organization.`}
+        title={`Delete ${refCode}?`}
+        description={`This action cannot be undone, this will permanently remove ${refCode} from the organization.`}
       />
     </>
   )

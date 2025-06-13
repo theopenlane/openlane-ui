@@ -49,7 +49,13 @@ const DeleteTaskDialog: React.FC<{ taskName: string; taskId: string }> = ({ task
       <Button icon={<Trash2 />} iconPosition="left" variant="outline" onClick={() => setIsOpen(true)}>
         Delete
       </Button>
-      <ConfirmationDialog open={isOpen} onOpenChange={setIsOpen} onConfirm={handleDelete} description={`This action cannot be undone, this will permanently remove the task from the organization.`} />
+      <ConfirmationDialog
+        title={`Delete ${taskName}?`}
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        onConfirm={handleDelete}
+        description={`This action cannot be undone, this will permanently remove ${taskName} from the organization.`}
+      />
     </>
   )
 }

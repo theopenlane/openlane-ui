@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useDeleteProgram } from '@/lib/graphql-hooks/programs'
+import { useDeleteProgram, useGetProgramBasicInfo } from '@/lib/graphql-hooks/programs'
 import { useNotification } from '@/hooks/useNotification'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
@@ -14,6 +14,8 @@ export const ProgramSettingsDangerZone = () => {
   const [isDialogOpen, setDialogOpen] = useState(false)
 
   const { mutateAsync, isPending } = useDeleteProgram()
+  const { data } = useGetProgramBasicInfo(programId)
+  const program = data?.program
   const { successNotification, errorNotification } = useNotification()
 
   const handleDelete = async () => {
@@ -46,10 +48,11 @@ export const ProgramSettingsDangerZone = () => {
         open={isDialogOpen}
         onOpenChange={setDialogOpen}
         onConfirm={handleDelete}
-        title="Are you absolutely sure?"
-        description="This action cannot be undone. This will permanently delete the program."
-        confirmationText="Delete Program"
+        title={`Delete Program ${program?.name}?`}
+        description={`This action cannot be undone. This will permanently delete the ${program?.name}.`}
+        confirmationText="Delete"
         confirmationTextVariant="destructive"
+        showInput={true}
       />
       <section className="flex gap-14 border-t pt-6">
         <div className="w-48 shrink-0">

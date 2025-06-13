@@ -17,13 +17,15 @@ import { SystemTooltip } from '@repo/ui/system-tooltip'
 
 type TControlEvidenceFiles = {
   controlEvidenceID: string
+  controlEvidencename?: string
 }
 
-const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidenceID }) => {
+const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidenceID, controlEvidencename }) => {
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const queryClient = useQueryClient()
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false)
   const [deleteFileId, setDeleteFileId] = useState<string | null>(null)
+  const [deleteFileName, setDeleteFileName] = useState<string | null>(null)
   const { successNotification, errorNotification } = useNotification()
   const [orderBy, setOrderBy] = useState<FileOrder[]>([
     {
@@ -56,6 +58,7 @@ const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidence
       })
 
       setDeleteFileId(null)
+      setDeleteFileName(null)
       queryClient.invalidateQueries({ queryKey: ['evidenceFiles'] })
       successNotification({
         title: 'Evidence Updated',
@@ -92,6 +95,7 @@ const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidence
                     className="flex items-center gap-1 cursor-pointer"
                     onClick={() => {
                       setDeleteDialogIsOpen(true)
+                      setDeleteFileName(row.original.providedFileName)
                       setDeleteFileId(row.original.id)
                     }}
                   >
@@ -141,7 +145,9 @@ const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidence
         open={deleteDialogIsOpen}
         onOpenChange={setDeleteDialogIsOpen}
         onConfirm={handleDeleteFile}
-        description={`This action cannot be undone, this will permanently remove the evidence from the control.`}
+        confirmationText="Delete"
+        title={`Delete ${deleteFileName}?`}
+        description={`This action cannot be undone, this will permanently remove ${deleteFileName} from the control.`}
       />
     </div>
   )

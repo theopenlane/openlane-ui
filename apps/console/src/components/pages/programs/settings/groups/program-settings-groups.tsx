@@ -213,9 +213,9 @@ export const ProgramSettingsGroups = () => {
           <ConfirmationDialog
             open={isDeleteDialogOpen}
             onOpenChange={setIsDeleteDialogOpen}
-            title="Remove group"
-            description={`Are you sure you want to remove ${selectedGroup.name} from the program?`}
-            confirmationText="Remove group"
+            title={`Delete ${selectedGroup.name}?`}
+            description={`This action cannot be undone, this will permanently remove ${selectedGroup.name} from the program.`}
+            confirmationText="Delete"
             confirmationTextVariant="destructive"
             onConfirm={() => handleRemove(selectedGroup.id, selectedGroup.role)}
           />

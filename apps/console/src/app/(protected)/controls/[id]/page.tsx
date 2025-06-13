@@ -283,7 +283,7 @@ const ControlDetailsPage: React.FC = () => {
                         <PencilIcon size={16} strokeWidth={2} />
                         <span>Edit</span>
                       </div>
-                      <DeleteControlDialog controlId={control.id} />
+                      <DeleteControlDialog controlId={control.id} refCode={control.refCode} />
                     </>
                   }
                 />

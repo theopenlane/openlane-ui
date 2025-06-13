@@ -180,9 +180,9 @@ export const ProgramSettingsUsers = () => {
           <ConfirmationDialog
             open={isDeleteDialogOpen}
             onOpenChange={setIsDeleteDialogOpen}
-            title="Remove user"
-            description={`Are you sure you want to remove ${selectedUser.user.displayName} from the program?`}
-            confirmationText="Remove user"
+            title={`Delete ${selectedUser.user.displayName}?`}
+            description={`This action cannot be undone, this will permanently remove ${selectedUser.user.displayName} from the program.`}
+            confirmationText="Delete"
             confirmationTextVariant="destructive"
             onConfirm={handleRemove}
           />

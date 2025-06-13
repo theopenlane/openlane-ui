@@ -10,6 +10,7 @@ import { useState } from 'react'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { canDelete } from '@/lib/authz/utils.ts'
+import { useGetOrganizationNameById } from '@/lib/graphql-hooks/organization'
 
 const OrganizationDelete = () => {
   const { successNotification, errorNotification } = useNotification()
@@ -19,6 +20,7 @@ const OrganizationDelete = () => {
   const { data: sessionData, update } = useSession()
   const currentOrgId = sessionData?.user.activeOrganizationId
   const { data } = useOrganizationRole(sessionData)
+  const { data: organizationName } = useGetOrganizationNameById(currentOrgId)
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
@@ -72,8 +74,9 @@ const OrganizationDelete = () => {
           open={isDialogOpen}
           onOpenChange={setIsDialogOpen}
           onConfirm={clickHandler}
-          title="Are you absolutely sure?"
-          description="This action cannot be undone. This will permanently delete your organization and remove your data from our servers."
+          title={`Delete Organization  ${organizationName?.organization.displayName}?`}
+          description={`This action is irreversible and will permanently delete the organization ${organizationName?.organization.displayName} and all associated data.`}
+          showInput={true}
         />
       </Panel>
     </Panel>

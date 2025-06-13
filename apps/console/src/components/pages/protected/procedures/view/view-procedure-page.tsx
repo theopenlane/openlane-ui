@@ -196,7 +196,8 @@ const ViewProcedurePage: React.FC<TViewProcedurePage> = ({ procedureId }) => {
                                   open={isDeleteDialogOpen}
                                   onOpenChange={setIsDeleteDialogOpen}
                                   onConfirm={handleDeleteProcedure}
-                                  description="This action cannot be undone. This will permanently remove the procedure from the organization."
+                                  title={`Delete ${procedure.name}`}
+                                  description={`This action cannot be undone. This will permanently remove ${procedure.name} from the organization.`}
                                 />
                               </>
                             )}

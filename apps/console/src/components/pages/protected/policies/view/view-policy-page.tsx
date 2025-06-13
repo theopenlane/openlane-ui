@@ -211,7 +211,8 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
                                 open={isDeleteDialogOpen}
                                 onOpenChange={setIsDeleteDialogOpen}
                                 onConfirm={handleDeletePolicy}
-                                description="This action cannot be undone. This will permanently remove the policy from the organization."
+                                title={`Delete ${policy.name}?`}
+                                description={`This action cannot be undone. This will permanently remove ${policy.name} from the organization.`}
                               />
                             </>
                           )}
