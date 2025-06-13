@@ -35,11 +35,12 @@ type MemberActionsProps = {
   memberId: string
   memberUserId: string
   memberRole: OrgMembershipRole
+  memberName: string
 }
 
 const ICON_SIZE = 12
 
-export const MemberActions = ({ memberId, memberUserId, memberRole }: MemberActionsProps) => {
+export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }: MemberActionsProps) => {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
   const { actionIcon, roleRow } = pageStyles()
   const { mutateAsync: deleteMember } = useRemoveUserFromOrg()
@@ -145,7 +146,12 @@ export const MemberActions = ({ memberId, memberUserId, memberRole }: MemberActi
               open={showDeleteConfirmation}
               onOpenChange={setShowDeleteConfirmation}
               onConfirm={handleDeleteMember}
-              description="This action cannot be undone, this will permanently remove the member from the organization."
+              title={`Delete Member`}
+              description={
+                <>
+                  This action cannot be undone. This will permanently remove <b>{memberName}</b> from the organization.
+                </>
+              }
             />
           </DropdownMenuItem>
         </DropdownMenuGroup>

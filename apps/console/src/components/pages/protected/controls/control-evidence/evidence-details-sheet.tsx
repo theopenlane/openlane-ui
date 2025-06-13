@@ -79,6 +79,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const updatedByUser = users?.find((item) => item.id === evidence?.updatedBy)
   const createdByUser = users?.find((item) => item.id === evidence?.createdBy)
 
+  const evidenceName = evidence?.name
   const statusOptions = Object.values(EvidenceEvidenceStatus)
 
   const { form } = useFormSchema()
@@ -226,7 +227,12 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                     open={deleteDialogIsOpen}
                     onOpenChange={setDeleteDialogIsOpen}
                     onConfirm={handleDelete}
-                    description={`This action cannot be undone, this will permanently remove the evidence from the control.`}
+                    title={`Delete Evidence`}
+                    description={
+                      <>
+                        This action cannot be undone. This will permanently remove <b>{evidenceName} </b>from the control.
+                      </>
+                    }
                   />
                 </div>
               </div>
