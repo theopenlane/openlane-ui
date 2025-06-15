@@ -219,7 +219,7 @@ export const ProgramSettingsGroups = () => {
                 Removing <b>{selectedGroup.name}</b> from the program will revoke all group members permissions to this program.
               </>
             }
-            confirmationText="Delete"
+            confirmationText="Remove"
             confirmationTextVariant="destructive"
             onConfirm={() => handleRemove(selectedGroup.id, selectedGroup.role)}
           />
