@@ -46,7 +46,9 @@ export const ConfirmationDialog = ({ open, onOpenChange, onConfirm, title, descr
         </AlertDialogHeader>
         {showInput && (
           <div className="mb-4 flex flex-col gap-2 text-left">
-            <Label>To confirm, please type DELETE below:</Label>
+            <Label>
+              To confirm, please type <b>DELETE</b> below:
+            </Label>
             <Input onChange={(e) => setConfirmationValue(e.target.value)}></Input>
           </div>
         )}
