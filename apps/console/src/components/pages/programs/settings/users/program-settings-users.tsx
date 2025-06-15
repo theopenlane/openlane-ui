@@ -186,7 +186,7 @@ export const ProgramSettingsUsers = () => {
                 Removing <b>{selectedUser.user.displayName}</b> from the program will revoke the users permissions to this program.
               </>
             }
-            confirmationText="Delete"
+            confirmationText="Remove"
             confirmationTextVariant="destructive"
             onConfirm={handleRemove}
           />
