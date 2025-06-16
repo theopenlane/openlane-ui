@@ -11,13 +11,34 @@ interface Props {
   setExpandedCard: () => void
 }
 
+export interface DroppedControl {
+  id: string
+  refCode: string
+}
+
 const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard }) => {
   const [where, setWhere] = useState({})
-  const hasFilters = Object.keys(where).length > 0
+  const [droppedControls, setDroppedControls] = useState<DroppedControl[]>([])
 
+  const hasFilters = Object.keys(where).length > 0
   let { data } = useControlSelect({ where, enabled: hasFilters })
   data = hasFilters ? data : undefined
-  console.log('controlOptions', data)
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    try {
+      const payload = JSON.parse(e.dataTransfer.getData('application/json'))
+      if (!payload?.id || !payload?.refCode) return
+
+      setDroppedControls((prev) => {
+        if (prev.find((c) => c.id === payload.id)) return prev
+        return [...prev, payload]
+      })
+    } catch (err) {
+      console.error('Invalid drop payload', err)
+    }
+  }
+
   return (
     <Card className="p-4">
       <AccordionItem value={title}>
@@ -28,12 +49,12 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard }) => {
               <ChevronDown
                 size={22}
                 className="
-                    transform
-                    -rotate-90
-                    transition-transform
-                    group-data-[state=open]:rotate-0
-                    text-brand
-                  "
+                  transform
+                  -rotate-90
+                  transition-transform
+                  group-data-[state=open]:rotate-0
+                  text-brand
+                "
               />
             </div>
           </button>
@@ -42,22 +63,26 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard }) => {
           <CardContent className="grid grid-cols-[2fr_325px] gap-x-8 p-0 mt-5">
             <div>
               <MapControlsFormFilters onFilterChange={setWhere} where={where} />
-              <MatchedControls controlsData={data} />
+              <MatchedControls controlsData={data} droppedControls={droppedControls} />
             </div>
-            <div
-              className="border-2 border-dashed rounded-lg h-80 flex items-center justify-center flex-col gap-2"
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={(e) => {
-                e.preventDefault()
-                const data = e.dataTransfer.getData('text/plain')
-                alert(`Dropped: ${data}`)
-              }}
-            >
-              <Expand size={42} strokeWidth={1} />
-              <p>Drag controls here</p>
+            <div className="border-2 border-dashed rounded-lg h-80 flex items-center justify-center flex-col gap-2" onDragOver={(e) => e.preventDefault()} onDrop={handleDrop}>
+              {!droppedControls.length ? (
+                <>
+                  <Expand size={42} strokeWidth={1} />
+                  <p>Drag controls here</p>
+                </>
+              ) : (
+                <div className="mt-4 space-y-1">
+                  {droppedControls.map((control) => (
+                    <div key={control.id} className="text-sm text-muted-foreground">
+                      ✅ {control.refCode}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </CardContent>
-        </AccordionContent>{' '}
+        </AccordionContent>
       </AccordionItem>
     </Card>
   )

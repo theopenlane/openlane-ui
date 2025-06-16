@@ -35560,15 +35560,7 @@ export type GetControlSelectOptionsQuery = {
     __typename?: 'ControlConnection'
     edges?: Array<{
       __typename?: 'ControlEdge'
-      node?: {
-        __typename?: 'Control'
-        id: string
-        refCode: string
-        category?: string | null
-        subcategory?: string | null
-        referenceFramework?: string | null
-        standard?: { __typename?: 'Standard'; shortName?: string | null } | null
-      } | null
+      node?: { __typename?: 'Control'; id: string; refCode: string; category?: string | null; subcategory?: string | null; referenceFramework?: string | null } | null
     } | null> | null
   }
 }

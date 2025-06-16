@@ -5,6 +5,13 @@ import { Textarea } from '@repo/ui/textarea'
 import React from 'react'
 
 const MapControlsRelations = () => {
+  const relationTypes = [
+    { label: 'Equal', value: 'equal' },
+    { label: 'Subset', value: 'subset' },
+    { label: 'Intersection', value: 'intersection' },
+    { label: 'Partial', value: 'partial' },
+    { label: 'Superset', value: 'superset' },
+  ]
   return (
     <div className="flex flex-col space-y-6">
       <div className="space-y-2">
@@ -14,9 +21,11 @@ const MapControlsRelations = () => {
             <SelectValue placeholder="Intersection" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="intersection">Intersection</SelectItem>
-            <SelectItem value="equivalent">Equivalent</SelectItem>
-            <SelectItem value="subset">Subset</SelectItem>
+            {relationTypes.map((type) => (
+              <SelectItem key={type.value} value={type.value}>
+                {type.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
