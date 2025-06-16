@@ -8,10 +8,19 @@ import { useRouter } from 'next/navigation'
 import { useGetAllOrganizationsWithMembers } from '@/lib/graphql-hooks/organization'
 import { Organization } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { useState } from 'react'
+import { useNotification } from '@/hooks/useNotification'
+import { useQueryClient } from '@tanstack/react-query'
+import { useRemoveUserFromOrg } from '@/lib/graphql-hooks/members'
 
 export const ExistingOrganizations = () => {
+  const [showLeaveConfirmation, setShowLeaveConfirmation] = useState<string | null>(null)
   const { data: sessionData, update: updateSession } = useSession()
   const currentOrg = sessionData?.user.activeOrganizationId
+  const { errorNotification, successNotification } = useNotification()
+  const queryClient = useQueryClient()
+  const { mutateAsync: leaveOrganization } = useRemoveUserFromOrg()
 
   const { container, orgWrapper, orgInfo, orgSelect, orgTitle } = existingOrganizationsStyles()
 
@@ -51,12 +60,33 @@ export const ExistingOrganizations = () => {
     }
   }
 
+  const handleLeaveOrganization = async (membershipId: string) => {
+    try {
+      await leaveOrganization({ deleteOrgMembershipId: membershipId })
+
+      successNotification({
+        title: 'Successfully left organization',
+      })
+
+      queryClient.invalidateQueries({
+        predicate: (query) => ['memberships', 'organizationsWithMembers', 'groups'].includes(query.queryKey[0] as string),
+      })
+    } catch {
+      errorNotification({
+        title: 'There was a problem leaving the organization, please try again',
+      })
+    }
+    setShowLeaveConfirmation(null)
+  }
+
   return (
     <div className={container()}>
       <Panel>
         <PanelHeader heading="Existing organizations" />
         {orgs.map((org) => {
           const role = org?.node?.members?.edges?.[0]?.node?.role ?? 'Owner'
+          const membershipId = org?.node?.members?.edges?.[0]?.node?.id
+
           return (
             <div key={org?.node?.id} className={`${orgWrapper()} group`}>
               <div>
@@ -66,11 +96,28 @@ export const ExistingOrganizations = () => {
                 <div className={orgTitle()}>{org?.node?.displayName}</div>
                 <Tag>{role}</Tag>
               </div>
-              {currentOrg !== org?.node?.id && (
+              {currentOrg !== org?.node?.id ? (
                 <div className={orgSelect()}>
                   <Button variant="filled" size="md" onClick={() => handleOrganizationSwitch(org?.node?.id)}>
                     Select
                   </Button>
+                </div>
+              ) : (
+                <div className={orgSelect()}>
+                  <Button variant="destructive" size="md" onClick={() => setShowLeaveConfirmation(org?.node?.id || null)}>
+                    Leave
+                  </Button>
+                  <ConfirmationDialog
+                    open={showLeaveConfirmation === org?.node?.id}
+                    onOpenChange={() => setShowLeaveConfirmation(null)}
+                    onConfirm={() => membershipId && handleLeaveOrganization(membershipId)}
+                    title="Leave Organization"
+                    description={
+                      <>
+                        This action cannot be undone. You will be permanently removed from <b>{org?.node?.displayName}</b>.
+                      </>
+                    }
+                  />
                 </div>
               )}
             </div>
