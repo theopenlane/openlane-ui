@@ -16,6 +16,7 @@ import { InfoIcon } from 'lucide-react'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useCreateOrganization } from '@/lib/graphql-hooks/organization'
 import { switchOrganization } from '@/lib/user'
+import { useQueryClient } from '@tanstack/react-query'
 
 const formSchema = z.object({
   name: z
@@ -40,7 +41,7 @@ export const CreateOrganizationForm = () => {
   const { data, isError, isPending, error, mutateAsync: createOrg, ...rest } = useCreateOrganization()
 
   const { container } = createOrganizationStyles()
-
+  var queryClient = useQueryClient()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -77,6 +78,10 @@ export const CreateOrganizationForm = () => {
           })
         }
       }
+
+      requestAnimationFrame(() => {
+        queryClient?.invalidateQueries()
+      })
 
       response.data && push('/dashboard')
     } catch (error) {
