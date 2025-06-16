@@ -60,13 +60,40 @@ export const ExistingOrganizations = () => {
     }
   }
 
-  const handleLeaveOrganization = async (membershipId: string) => {
+  const handleLeaveOrganization = async (membershipId: string, orgId: string) => {
     try {
       await leaveOrganization({ deleteOrgMembershipId: membershipId })
 
       successNotification({
         title: 'Successfully left organization',
       })
+
+      if (currentOrg === orgId) {
+        const remainingOrgs = orgs.filter((org) => org?.node?.id !== orgId)
+        if (remainingOrgs.length > 0) {
+          const nextOrg = remainingOrgs[0]?.node?.id
+          if (nextOrg) {
+            const response = await switchOrganization({
+              target_organization_id: nextOrg,
+            })
+
+            if (sessionData && response) {
+              await updateSession({
+                ...response.session,
+                user: {
+                  ...sessionData.user,
+                  accessToken: response.access_token,
+                  activeOrganizationId: nextOrg,
+                  refreshToken: response.refresh_token,
+                },
+              })
+            }
+          }
+        } else {
+          // no remaining organizations, redirect to onboarding page
+          push('/onboarding')
+        }
+      }
 
       queryClient.invalidateQueries({
         predicate: (query) => ['memberships', 'organizationsWithMembers', 'groups'].includes(query.queryKey[0] as string),
@@ -103,7 +130,7 @@ export const ExistingOrganizations = () => {
                   </Button>
                 </div>
               ) : (
-                role !== OrgMembershipRole.OWNER && (
+                role.toUpperCase() !== OrgMembershipRole.OWNER && (
                   <div className={orgSelect()}>
                     <Button variant="destructive" size="md" onClick={() => setShowLeaveConfirmation(org?.node?.id || null)}>
                       Leave
@@ -111,7 +138,7 @@ export const ExistingOrganizations = () => {
                     <ConfirmationDialog
                       open={showLeaveConfirmation === org?.node?.id}
                       onOpenChange={() => setShowLeaveConfirmation(null)}
-                      onConfirm={() => membershipId && handleLeaveOrganization(membershipId)}
+                      onConfirm={() => membershipId && handleLeaveOrganization(membershipId, org?.node?.id || '')}
                       title="Leave Organization"
                       description={
                         <>
