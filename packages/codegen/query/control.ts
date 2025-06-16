@@ -266,6 +266,7 @@ export const GET_CONTROL_SELECT_OPTIONS = gql`
           refCode
           category
           subcategory
+          referenceFramework
           standard {
             shortName
           }
