@@ -73,7 +73,7 @@ const AddToOrganizationDialog: React.FC<AddToOrganizationDialogProps> = ({ open,
               </div>
             </div>
           ) : (
-            <div className="flex flex-wrap gap-2 mt-1">Add all controls from ({standardName})</div>
+            <div className="flex flex-wrap gap-2 mt-1">Add all controls from <b>{standardName}</b></div>
           )}
           <div>
             <label className="font-semibold block mb-2">Assign to program</label>
