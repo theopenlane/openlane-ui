@@ -7,8 +7,6 @@ import { Badge } from '@repo/ui/badge'
 import { ExternalLink, TextCursorInput, Hammer, BookKey, FileStack, Link, Tag, ShieldPlus } from 'lucide-react'
 import { Table, TableBody, TableCell, TableRow } from '@repo/ui/table'
 import { standardDetailsStyles } from './standard-details-card-styles'
-import { Button } from '@repo/ui/button'
-import AddToOrganizationDialog from './add-to-organization-dialog'
 
 const icons = {
   shortName: TextCursorInput,
@@ -24,7 +22,6 @@ const StandardDetailsCard = () => {
   const { id } = useParams()
   const { data, isLoading, error } = useGetStandardDetails(id as string)
   const { card, cardContent, tableCell, valueCell, tagsWrapper, icon } = standardDetailsStyles()
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   if (isLoading) return <div>Loading...</div>
   if (error || !data?.standard) return <div>Error loading details.</div>
@@ -43,11 +40,6 @@ const StandardDetailsCard = () => {
     <>
       <Card className={card()}>
         <CardContent className={cardContent()}>
-          <div className="flex justify-end gap-4">
-            <Button icon={<ShieldPlus />} iconPosition="left" onClick={() => setIsDialogOpen(true)}>
-              Add Controls
-            </Button>
-          </div>
           <Table>
             <TableBody>
               {details.map(({ label, value, icon: Icon }) => (
@@ -89,7 +81,6 @@ const StandardDetailsCard = () => {
           </Table>
         </CardContent>
       </Card>
-      <AddToOrganizationDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} standardId={standard.id} standardName={standard.shortName ?? standard.name} />
     </>
   )
 }
