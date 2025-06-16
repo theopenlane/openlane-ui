@@ -6,7 +6,7 @@ import { switchOrganization } from '@/lib/user'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useGetAllOrganizationsWithMembers } from '@/lib/graphql-hooks/organization'
-import { Organization } from '@repo/codegen/src/schema'
+import { Organization, OrgMembershipRole } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useState } from 'react'
@@ -103,22 +103,24 @@ export const ExistingOrganizations = () => {
                   </Button>
                 </div>
               ) : (
-                <div className={orgSelect()}>
-                  <Button variant="destructive" size="md" onClick={() => setShowLeaveConfirmation(org?.node?.id || null)}>
-                    Leave
-                  </Button>
-                  <ConfirmationDialog
-                    open={showLeaveConfirmation === org?.node?.id}
-                    onOpenChange={() => setShowLeaveConfirmation(null)}
-                    onConfirm={() => membershipId && handleLeaveOrganization(membershipId)}
-                    title="Leave Organization"
-                    description={
-                      <>
-                        This action cannot be undone. You will be permanently removed from <b>{org?.node?.displayName}</b>.
-                      </>
-                    }
-                  />
-                </div>
+                role !== OrgMembershipRole.OWNER && (
+                  <div className={orgSelect()}>
+                    <Button variant="destructive" size="md" onClick={() => setShowLeaveConfirmation(org?.node?.id || null)}>
+                      Leave
+                    </Button>
+                    <ConfirmationDialog
+                      open={showLeaveConfirmation === org?.node?.id}
+                      onOpenChange={() => setShowLeaveConfirmation(null)}
+                      onConfirm={() => membershipId && handleLeaveOrganization(membershipId)}
+                      title="Leave Organization"
+                      description={
+                        <>
+                          This action cannot be undone. You will be permanently removed from <b>{org?.node?.displayName}</b>.
+                        </>
+                      }
+                    />
+                  </div>
+                )
               )}
             </div>
           )
