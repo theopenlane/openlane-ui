@@ -36,13 +36,6 @@ const AddToOrganizationDialog: React.FC<AddToOrganizationDialogProps> = ({ open,
 
   const handleAddToOrg = async () => {
     try {
-      console.log({
-        input: {
-          ownerID: currentOrgId,
-          programID: selectedProgram,
-          ...(standardId ? { standardID: standardId } : { controlIDs }),
-        },
-      })
       await cloneControls({
         input: {
           ownerID: currentOrgId,
