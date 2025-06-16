@@ -5,10 +5,15 @@ import { useGetStandardDetails } from '@/lib/graphql-hooks/standards'
 import { Loading } from '@/components/shared/loading/loading'
 import StandardDetailsCard from '@/components/pages/protected/standards/standard-details-card'
 import StandardDetailsAccordion from '@/components/pages/protected/standards/standard-details-accordion'
+import { Button } from '@repo/ui/button'
+import { ShieldPlus } from 'lucide-react'
+import { useState } from 'react'
+import AddToOrganizationDialog from '@/components/pages/protected/standards/add-to-organization-dialog'
 
 const StandardDetailsPage = () => {
   const { id } = useParams()
   const { data, isLoading, error } = useGetStandardDetails(id as string)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   if (isLoading) {
     return <Loading />
@@ -16,16 +21,28 @@ const StandardDetailsPage = () => {
   if (error) {
     return <div>Error loading standard details.</div>
   }
-  return (
-    <div className="flex gap-14">
-      <div className="flex flex-col gap-7 ">
-        <PageHeading heading={data?.standard.name || 'Standard Details'} className="mb-3" />
-        <p className="">{data?.standard.description}</p>
 
-        <StandardDetailsAccordion />
+  const standard = data?.standard
+
+  return (
+    <>
+      <div className="flex gap-14">
+        <div className="flex flex-col gap-7 ">
+          <PageHeading heading={data?.standard.name || 'Standard Details'} className="mb-3" />
+          <p className="">{data?.standard.description}</p>
+          <StandardDetailsAccordion />
+        </div>
+        <div>
+          <div className="flex justify-end pb-2">
+            <Button icon={<ShieldPlus />} iconPosition="left" onClick={() => setIsDialogOpen(true)}>
+              Add Controls
+            </Button>
+          </div>
+          <StandardDetailsCard />
+        </div>
       </div>
-      <StandardDetailsCard />
-    </div>
+      {standard && <AddToOrganizationDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} standardId={standard.id} standardName={standard.shortName ?? standard.name} selectedControls={[]} />}
+    </>
   )
 }
 
