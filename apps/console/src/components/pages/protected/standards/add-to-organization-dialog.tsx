@@ -15,19 +15,20 @@ type SelectedControl = { id: string; refCode: string }
 type AddToOrganizationDialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  selectedControls: SelectedControl[]
+  selectedControls?: SelectedControl[] | null
+  standardId?: string
+  standardName?: string
 }
 
-const AddToOrganizationDialog: React.FC<AddToOrganizationDialogProps> = ({ open, onOpenChange, selectedControls }) => {
+const AddToOrganizationDialog: React.FC<AddToOrganizationDialogProps> = ({ open, onOpenChange, selectedControls, standardId, standardName }) => {
   const [selectedProgram, setSelectedProgram] = useState<string | undefined>(undefined)
   const { currentOrgId } = useOrganization()
-
   const { data: programsData } = useGetAllPrograms()
   const { mutateAsync: cloneControls, isPending } = useCloneControls()
   const { successNotification, errorNotification } = useNotification()
   const queryClient = useQueryClient()
 
-  const controlIDs = useMemo(() => selectedControls.map((c) => c.id), [selectedControls])
+  const controlIDs = useMemo(() => selectedControls?.map((c) => c.id) ?? [], [selectedControls])
 
   const programs = useMemo(() => {
     return programsData?.programs?.edges?.map((edge) => edge?.node) || []
@@ -35,20 +36,22 @@ const AddToOrganizationDialog: React.FC<AddToOrganizationDialogProps> = ({ open,
 
   const handleAddToOrg = async () => {
     try {
+      console.log({
+        input: {
+          ownerID: currentOrgId,
+          programID: selectedProgram,
+          ...(standardId ? { standardID: standardId } : { controlIDs }),
+        },
+      })
       await cloneControls({
         input: {
           ownerID: currentOrgId,
           programID: selectedProgram,
-          controlIDs,
+          ...(standardId ? { standardID: standardId } : { controlIDs }),
         },
       })
 
-      queryClient.invalidateQueries({
-        predicate: (query) => {
-          const [firstKey, maybeId] = query.queryKey as [string, string?]
-          return firstKey === 'control' && typeof maybeId === 'string' && controlIDs.includes(maybeId)
-        },
-      })
+      queryClient.invalidateQueries({ queryKey: ['controls'] })
 
       successNotification({ title: 'Controls added to organization successfully!' })
       onOpenChange(false)
@@ -65,17 +68,20 @@ const AddToOrganizationDialog: React.FC<AddToOrganizationDialogProps> = ({ open,
         </DialogHeader>
 
         <div className="space-y-4 text-sm">
-          <div>
-            <p className="font-semibold">Selected controls ({selectedControls.length})</p>
-            <div className="flex flex-wrap gap-2 mt-1">
-              {selectedControls.map(({ refCode }) => (
-                <span key={refCode} className="text-sm text-primary border-b border-dotted border-current whitespace-nowrap">
-                  {refCode}
-                </span>
-              ))}
+          {selectedControls ? (
+            <div>
+              <p className="font-semibold">Selected controls ({selectedControls.length})</p>
+              <div className="flex flex-wrap gap-2 mt-1">
+                {selectedControls.map(({ refCode }) => (
+                  <span key={refCode} className="text-sm text-primary border-b border-dotted border-current whitespace-nowrap">
+                    {refCode}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
-
+          ) : (
+            <div className="flex flex-wrap gap-2 mt-1">Add all controls from ({standardName})</div>
+          )}
           <div>
             <label className="font-semibold block mb-2">Assign to program</label>
             <Select onValueChange={setSelectedProgram}>
