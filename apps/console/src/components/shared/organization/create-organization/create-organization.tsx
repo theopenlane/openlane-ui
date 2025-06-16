@@ -41,7 +41,7 @@ export const CreateOrganizationForm = () => {
   const { data, isError, isPending, error, mutateAsync: createOrg, ...rest } = useCreateOrganization()
 
   const { container } = createOrganizationStyles()
-  var queryClient = useQueryClient()
+  const queryClient = useQueryClient()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
