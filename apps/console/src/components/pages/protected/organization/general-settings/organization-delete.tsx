@@ -10,6 +10,7 @@ import { useState } from 'react'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { canDelete } from '@/lib/authz/utils.ts'
+import { useOrganization } from '@/hooks/useOrganization'
 
 const OrganizationDelete = () => {
   const { successNotification, errorNotification } = useNotification()
@@ -17,15 +18,16 @@ const OrganizationDelete = () => {
   const queryClient = useQueryClient()
   const { mutateAsync: deleteOrganization } = useDeleteOrganization()
   const { data: sessionData, update } = useSession()
-  const currentOrgId = sessionData?.user.activeOrganizationId
   const { data } = useOrganizationRole(sessionData)
+  const { currentOrgId, allOrgs } = useOrganization()
+  const currentOrganization = allOrgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const clickHandler = async () => {
     try {
       const response = await deleteOrganization({
-        deleteOrganizationId: currentOrgId,
+        deleteOrganizationId: currentOrgId || '',
       })
 
       if (response.extensions && sessionData) {
@@ -72,8 +74,14 @@ const OrganizationDelete = () => {
           open={isDialogOpen}
           onOpenChange={setIsDialogOpen}
           onConfirm={clickHandler}
-          title="Are you absolutely sure?"
-          description="This action cannot be undone. This will permanently delete your organization and remove your data from our servers."
+          confirmationText="Delete"
+          title={`Delete Organization ${currentOrganization?.displayName}`}
+          description={
+            <>
+              This action is irreversible and will permanently delete the organization <b>{currentOrganization?.displayName}</b> and all associated data.
+            </>
+          }
+          showInput={true}
         />
       </Panel>
     </Panel>

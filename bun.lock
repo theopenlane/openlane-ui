@@ -26,7 +26,7 @@
         "eslint-plugin-tsdoc": "^0.4.0",
         "prettier": "^3.5.3",
         "prettier-plugin-tailwindcss": "latest",
-        "turbo": "2.5.4",
+        "turbo": "^2.5.4",
       },
       "peerDependencies": {
         "react": "19.1.0",

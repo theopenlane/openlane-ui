@@ -129,7 +129,7 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
       accessorKey: 'id',
       header: '',
       cell: ({ cell }) => {
-        return <MemberActions memberId={cell.getValue() as string} memberUserId={cell.row.original.user?.id} memberRole={cell.row.original.role} />
+        return <MemberActions memberName={cell.row.original.user?.displayName} memberId={cell.getValue() as string} memberUserId={cell.row.original.user?.id} memberRole={cell.row.original.role} />
       },
       size: 40,
     },

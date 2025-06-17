@@ -15,6 +15,8 @@ import { z } from 'zod'
 import { InfoIcon } from 'lucide-react'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useCreateOrganization } from '@/lib/graphql-hooks/organization'
+import { switchOrganization } from '@/lib/user'
+import { useQueryClient } from '@tanstack/react-query'
 
 const formSchema = z.object({
   name: z
@@ -39,7 +41,7 @@ export const CreateOrganizationForm = () => {
   const { data, isError, isPending, error, mutateAsync: createOrg, ...rest } = useCreateOrganization()
 
   const { container } = createOrganizationStyles()
-
+  const queryClient = useQueryClient()
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -60,17 +62,26 @@ export const CreateOrganizationForm = () => {
       })
 
       if (response.extensions && session) {
-        await update({
-          ...session,
-          user: {
-            ...session.user,
-            accessToken: response.extensions.auth.access_token,
-            organization: response.extensions.auth.authorized_organization,
-            refreshToken: response.extensions.auth.refresh_token,
-            isOnboarding: false,
-          },
+        const switchResponse = await switchOrganization({
+          target_organization_id: response.data.createOrganization.organization.id,
         })
+        if (switchResponse) {
+          await update({
+            ...switchResponse.session,
+            user: {
+              ...session.user,
+              accessToken: switchResponse.access_token,
+              organization: response.data.createOrganization.organization.id,
+              refreshToken: switchResponse.refresh_token,
+              isOnboarding: false,
+            },
+          })
+        }
       }
+
+      requestAnimationFrame(() => {
+        queryClient?.invalidateQueries()
+      })
 
       response.data && push('/dashboard')
     } catch (error) {

@@ -14,11 +14,13 @@
   },
   {
     "route": "/organization-settings/members",
-    "name": "Members"
+    "name": "Members",
+    "keywords": ["roles", "invites", "invitations"]
   },
   {
     "route": "/organization-settings/authentication",
-    "name": "Authentication"
+    "name": "Authentication",
+    "keywords": ["auth"]
   },
   {
     "route": "/organization-settings",
@@ -34,31 +36,37 @@
   },
   {
     "route": "/organization-settings/developers",
-    "name": "Developers"
+    "name": "Developers",
+    "keywords": ["api", "api keys", "auth", "token"]
   },
   {
     "route": "/organization-settings/logs",
-    "name": "Logs"
+    "name": "Logs",
+    "keywords": ["audit logs", "activity", "history"]
   },
   {
     "route": "/organization-settings/billing",
-    "name": "Billing"
+    "name": "Billing",
+    "keywords": ["subscription", "plan", "payment method"]
   },
   {
     "route": "/organization-settings/billing/pricing",
-    "name": "Pricing"
+    "name": "Pricing",
+    "hidden": true
   },
   {
     "route": "/standards",
-    "name": "Standards"
+    "name": "Standards",
+    "keywords": ["frameworks", "regulations", "compliance"]
   },
   {
     "route": "/programs",
-    "name": "Programs"
+    "name": "Programs",
+    "keywords": ["audits", "assessments"]
   },
   {
     "route": "/programs/settings",
-    "name": "Settings"
+    "name": "Program Settings"
   },
   {
     "route": "/questionnaires/questionnaire-editor",
@@ -74,15 +82,18 @@
   },
   {
     "route": "/onboarding",
-    "name": "Onboarding"
+    "name": "Onboarding",
+    "hidden": true
   },
   {
     "route": "/user-settings/profile",
-    "name": "Profile"
+    "name": "Profile",
+    "keywords": ["account", "default organization", "preferences", "passkey", "2fa", "mfa", "two-factor authentication", "avatar"]
   },
   {
     "route": "/user-settings/alerts-preferences",
-    "name": "Alerts Preferences"
+    "name": "Alerts Preferences",
+    "hidden": true
   },
   {
     "route": "/user-settings",
@@ -90,7 +101,8 @@
   },
   {
     "route": "/user-settings/developers",
-    "name": "Developers"
+    "name": "Developers",
+    "keywords": ["pat", "personal access tokens", "api", "auth"]
   },
   {
     "route": "/tasks",
@@ -98,15 +110,18 @@
   },
   {
     "route": "/groups",
-    "name": "Groups"
+    "name": "Groups",
+    "keywords": ["teams", "permissions"]
   },
   {
     "route": "/evidence",
-    "name": "Evidence"
+    "name": "Evidence",
+    "keywords": ["audit", "files"]
   },
   {
     "route": "/dashboard",
-    "name": "Dashboard"
+    "name": "Dashboard",
+    "keywords": ["home"]
   },
   {
     "route": "/risks",
@@ -114,7 +129,7 @@
   },
   {
     "route": "/procedures/create",
-    "name": "Create"
+    "name": "Create Procedure"
   },
   {
     "route": "/procedures",
@@ -142,15 +157,17 @@
   },
   {
     "route": "/policies/create",
-    "name": "Create"
+    "name": "Create Policy"
   },
   {
     "route": "/policies",
-    "name": "Policies"
+    "name": "Policies",
+    "keywords": ["internal policies", "documents"]
   },
   {
     "route": "/entities",
-    "name": "Entities"
+    "name": "Entities",
+    "hidden": true
   },
   {
     "route": "/organization",
@@ -163,7 +180,7 @@
   },
   {
     "route": "/reporting/compliance",
-    "name": "Compliance",
+    "name": "Compliance Reporting",
     "hidden": true
   }
 ]

@@ -139,7 +139,7 @@ export const PersonalAccessTokenTable = () => {
     {
       accessorKey: 'id',
       header: '',
-      cell: ({ cell }) => <TokenAction tokenId={cell.getValue() as string} />,
+      cell: ({ cell }) => <TokenAction tokenId={cell.getValue() as string} tokenName={cell.row.original.name} />,
     },
   ]
 
