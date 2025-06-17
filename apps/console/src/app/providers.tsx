@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation'
 import { ReactNode, useEffect, useState } from 'react'
 import { Loading } from '@/components/shared/loading/loading'
 import { NavigationGuardProvider } from 'next-navigation-guard'
+import { BreadcrumbProvider } from '@/providers/BreadcrumbContext.tsx'
 
 interface ProvidersProps {
   children: ReactNode
@@ -50,7 +51,9 @@ const Providers = ({ children }: ProvidersProps) => {
   return (
     <NavigationGuardProvider>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+        <QueryClientProvider client={queryClient}>
+          <BreadcrumbProvider>{children}</BreadcrumbProvider>
+        </QueryClientProvider>
       </ThemeProvider>
     </NavigationGuardProvider>
   )
