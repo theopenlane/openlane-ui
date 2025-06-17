@@ -6,8 +6,10 @@ import {
   DELETE_CONTROL,
   GET_ALL_CONTROLS,
   GET_CONTROL_BY_ID,
+  GET_CONTROL_CATEGORIES,
   GET_CONTROL_COUNTS_BY_STATUS,
   GET_CONTROL_SELECT_OPTIONS,
+  GET_CONTROL_SUBCATEGORIES,
   UPDATE_CONTROL,
 } from '@repo/codegen/query/control'
 
@@ -23,9 +25,11 @@ import {
   GetAllControlsQuery,
   GetAllControlsQueryVariables,
   GetControlByIdQuery,
+  GetControlCategoriesQuery,
   GetControlCountsByStatusQuery,
   GetControlSelectOptionsQuery,
   GetControlSelectOptionsQueryVariables,
+  GetControlSubcategoriesQuery,
   UpdateControlMutation,
   UpdateControlMutationVariables,
 } from '@repo/codegen/src/schema'
@@ -159,4 +163,22 @@ export const useControlSelect = ({ where, enabled = true }: { where?: ControlWhe
     error,
     data,
   }
+}
+
+export const useGetControlCategories = () => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetControlCategoriesQuery, Error>({
+    queryKey: ['controlCategories'],
+    queryFn: () => client.request<GetControlCategoriesQuery>(GET_CONTROL_CATEGORIES),
+  })
+}
+
+export const useGetControlSubcategories = () => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetControlSubcategoriesQuery, Error>({
+    queryKey: ['controlSubcategories'],
+    queryFn: () => client.request<GetControlSubcategoriesQuery>(GET_CONTROL_SUBCATEGORIES),
+  })
 }

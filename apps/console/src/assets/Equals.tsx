@@ -2,11 +2,11 @@ import React from 'react'
 
 const Equals = () => {
   return (
-    <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg" className="bg-card rounded-full h-[30px] w-[30px]">
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
-        d="M31 41H59M31 47H59M68 44.5C68 57.4787 57.4787 68 44.5 68C31.5213 68 21 57.4787 21 44.5C21 31.5213 31.5213 21 44.5 21C57.4787 21 68 31.5213 68 44.5Z"
+        d="M6.53191 12.0638H22.0213M6.53191 15.383H22.0213M27 14C27 21.1797 21.1797 27 14 27C6.8203 27 1 21.1797 1 14C1 6.8203 6.8203 1 14 1C21.1797 1 27 6.8203 27 14Z"
         stroke="currentColor"
-        stroke-width="2"
+        strokeWidth="2"
       />
     </svg>
   )

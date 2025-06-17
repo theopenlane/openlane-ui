@@ -9,6 +9,9 @@ import { Accordion } from '@radix-ui/react-accordion'
 import Subset from '@/assets/Subset'
 import Equals from '@/assets/Equals'
 import { useControlSelect } from '@/lib/graphql-hooks/controls'
+import Partial from '@/assets/Partial'
+import SupersetDark from '@/assets/SupersetDark'
+import SupersetLight from '@/assets/SupersetLight '
 
 const Page: React.FC = () => {
   const [expandedCard, setExpandedCard] = useState<'From' | 'To' | ''>('From')
@@ -33,15 +36,19 @@ const Page: React.FC = () => {
       <div className="grid grid-cols-[2fr_1fr] gap-6">
         <div className="flex flex-col">
           <Accordion type="single" collapsible value={expandedCard} className="w-full">
-            <MapControlsCard title="From" setExpandedCard={() => handleCardToggle('From')} />
+            <MapControlsCard title="From" expandedCard={expandedCard} setExpandedCard={() => handleCardToggle('From')} />
             <div className="flex flex-col items-center">
               <div className="border-l h-4" />
-              <Intersection />
-              {/* <Subset />
-              <Equals /> */}
+              <div className="h-12 w-12 bg-card flex items-center justify-center rounded-full">
+                {/* <Intersection /> */}
+                {/* <Equals /> */}
+                {/* <Subset /> */}
+                {/* <Partial /> */}
+                <Superset />
+              </div>
               <div className="border-l h-4" />
             </div>
-            <MapControlsCard title="To" setExpandedCard={() => handleCardToggle('To')} />
+            <MapControlsCard title="To" expandedCard={expandedCard} setExpandedCard={() => handleCardToggle('To')} />
           </Accordion>
         </div>
         <MapControlsRelations />
@@ -51,3 +58,16 @@ const Page: React.FC = () => {
 }
 
 export default Page
+
+const Superset = () => {
+  return (
+    <>
+      <div className="block dark:hidden">
+        <SupersetLight />
+      </div>
+      <div className="hidden dark:block">
+        <SupersetDark />
+      </div>
+    </>
+  )
+}

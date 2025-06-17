@@ -2288,6 +2288,7 @@ export interface ControlHistoryOrder {
 /** Properties by which ControlHistory connections can be ordered. */
 export enum ControlHistoryOrderField {
   CONTROL_TYPE = 'CONTROL_TYPE',
+  REFERENCE_FRAMEWORK = 'REFERENCE_FRAMEWORK',
   SOURCE = 'SOURCE',
   STATUS = 'STATUS',
   category = 'category',
@@ -4028,6 +4029,7 @@ export interface ControlOrder {
 /** Properties by which Control connections can be ordered. */
 export enum ControlOrderField {
   CONTROL_TYPE = 'CONTROL_TYPE',
+  REFERENCE_FRAMEWORK = 'REFERENCE_FRAMEWORK',
   SOURCE = 'SOURCE',
   STATUS = 'STATUS',
   category = 'category',
@@ -5014,8 +5016,6 @@ export interface CreateControlInput {
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the unique reference code for the control */
   refCode: Scalars['String']['input']
-  /** the reference framework for the control if it came from a standard, empty if not associated with a standard */
-  referenceFramework?: InputMaybe<Scalars['String']['input']>
   /** internal reference id of the control, can be used for internal tracking */
   referenceID?: InputMaybe<Scalars['String']['input']>
   /** references for the control */
@@ -6048,8 +6048,6 @@ export interface CreateSubcontrolInput {
   procedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the unique reference code for the control */
   refCode: Scalars['String']['input']
-  /** the reference framework for the control if it came from a standard, empty if not associated with a standard */
-  referenceFramework?: InputMaybe<Scalars['String']['input']>
   /** internal reference id of the control, can be used for internal tracking */
   referenceID?: InputMaybe<Scalars['String']['input']>
   /** references for the control */
@@ -24175,6 +24173,8 @@ export interface Query {
   contacts: ContactConnection
   /** Look up control by ID */
   control: Control
+  /** Existing categories or domains for controls used in the organization */
+  controlCategories?: Maybe<Array<Scalars['String']['output']>>
   controlHistories: ControlHistoryConnection
   /** Look up controlImplementation by ID */
   controlImplementation: ControlImplementation
@@ -24194,6 +24194,8 @@ export interface Query {
   controlScheduledJobs: ControlScheduledJobConnection
   /** Search across Control objects */
   controlSearch?: Maybe<ControlConnection>
+  /** Existing subcategories or subdomains for controls used in the organization */
+  controlSubcategories?: Maybe<Array<Scalars['String']['output']>>
   controls: ControlConnection
   /** Look up customDomain by ID */
   customDomain: CustomDomain
@@ -28987,6 +28989,7 @@ export interface SubcontrolHistoryOrder {
 /** Properties by which SubcontrolHistory connections can be ordered. */
 export enum SubcontrolHistoryOrderField {
   CONTROL_TYPE = 'CONTROL_TYPE',
+  REFERENCE_FRAMEWORK = 'REFERENCE_FRAMEWORK',
   SOURCE = 'SOURCE',
   STATUS = 'STATUS',
   category = 'category',
@@ -29336,6 +29339,7 @@ export interface SubcontrolOrder {
 /** Properties by which Subcontrol connections can be ordered. */
 export enum SubcontrolOrderField {
   CONTROL_TYPE = 'CONTROL_TYPE',
+  REFERENCE_FRAMEWORK = 'REFERENCE_FRAMEWORK',
   SOURCE = 'SOURCE',
   STATUS = 'STATUS',
   category = 'category',
@@ -31603,7 +31607,6 @@ export interface UpdateControlInput {
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
-  clearReferenceFramework?: InputMaybe<Scalars['Boolean']['input']>
   clearReferenceID?: InputMaybe<Scalars['Boolean']['input']>
   clearReferences?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
@@ -31631,8 +31634,6 @@ export interface UpdateControlInput {
   mappedCategories?: InputMaybe<Array<Scalars['String']['input']>>
   /** the unique reference code for the control */
   refCode?: InputMaybe<Scalars['String']['input']>
-  /** the reference framework for the control if it came from a standard, empty if not associated with a standard */
-  referenceFramework?: InputMaybe<Scalars['String']['input']>
   /** internal reference id of the control, can be used for internal tracking */
   referenceID?: InputMaybe<Scalars['String']['input']>
   /** references for the control */
@@ -33225,7 +33226,6 @@ export interface UpdateSubcontrolInput {
   clearMappedCategories?: InputMaybe<Scalars['Boolean']['input']>
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
-  clearReferenceFramework?: InputMaybe<Scalars['Boolean']['input']>
   clearReferenceID?: InputMaybe<Scalars['Boolean']['input']>
   clearReferences?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
@@ -33252,8 +33252,6 @@ export interface UpdateSubcontrolInput {
   mappedCategories?: InputMaybe<Array<Scalars['String']['input']>>
   /** the unique reference code for the control */
   refCode?: InputMaybe<Scalars['String']['input']>
-  /** the reference framework for the control if it came from a standard, empty if not associated with a standard */
-  referenceFramework?: InputMaybe<Scalars['String']['input']>
   /** internal reference id of the control, can be used for internal tracking */
   referenceID?: InputMaybe<Scalars['String']['input']>
   /** references for the control */
@@ -35564,6 +35562,14 @@ export type GetControlSelectOptionsQuery = {
     } | null> | null
   }
 }
+
+export type GetControlCategoriesQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetControlCategoriesQuery = { __typename?: 'Query'; controlCategories?: Array<string> | null }
+
+export type GetControlSubcategoriesQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetControlSubcategoriesQuery = { __typename?: 'Query'; controlSubcategories?: Array<string> | null }
 
 export type CreateEvidenceMutationVariables = Exact<{
   input: CreateEvidenceInput

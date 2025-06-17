@@ -11,7 +11,7 @@ interface Props {
 const Drag = ({ className, strokeWidth, height = 16, width = 5 }: Props) => {
   return (
     <svg className={className} width={width} height={height} viewBox="0 0 5 18" fill="none" strokeWidth={strokeWidth} stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
-      <g clip-path="url(#clip0_11057_31126)">
+      <g clipPath="url(#clip0_11057_31126)">
         <path d="M-1 4H1.8V6.5H-1V4Z" fill="currentColor" />
         <path d="M-1 7.75H1.8V10.25H-1V7.75Z" fill="currentColor" />
         <path d="M-1 11.5H1.8V14H-1V11.5Z" fill="currentColor" />

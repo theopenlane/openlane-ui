@@ -58,7 +58,7 @@ const MatchedControls = ({ controlsData, droppedControls }: Props) => {
                     variant="outline"
                     className="bg-background-secondary cursor-grab flex gap-1"
                     draggable
-                    onDragStart={(e) => e.dataTransfer.setData('text/plain', control.refCode)}
+                    onDragStart={(e) => e.dataTransfer.setData('application/json', JSON.stringify({ id: control.id, refCode: control.refCode, shortName }))}
                   >
                     <Drag strokeWidth={1} className="text-border" />
                     <span className="text-text-informational">{shortName}</span> <span className="text-border">|</span> {control.refCode}
@@ -80,7 +80,7 @@ const MatchedControls = ({ controlsData, droppedControls }: Props) => {
                 variant="outline"
                 className="bg-background-secondary cursor-grab flex gap-1"
                 draggable
-                onDragStart={(e) => e.dataTransfer.setData('application/json', JSON.stringify({ id: control.id, refCode: control.refCode }))}
+                onDragStart={(e) => e.dataTransfer.setData('application/json', JSON.stringify({ id: control.id, refCode: control.refCode, shortName: 'CUSTOM' }))}
               >
                 <Drag strokeWidth={1} className="text-border" />
                 <span className="text-text-informational">CUSTOM </span> <span className="text-border">|</span> {control.refCode}

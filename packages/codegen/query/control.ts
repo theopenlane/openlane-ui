@@ -272,3 +272,15 @@ export const GET_CONTROL_SELECT_OPTIONS = gql`
     }
   }
 `
+
+export const GET_CONTROL_CATEGORIES = gql`
+  query GetControlCategories {
+    controlCategories
+  }
+`
+
+export const GET_CONTROL_SUBCATEGORIES = gql`
+  query GetControlSubcategories {
+    controlSubcategories
+  }
+`
