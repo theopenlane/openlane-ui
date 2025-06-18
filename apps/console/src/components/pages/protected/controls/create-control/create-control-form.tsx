@@ -5,7 +5,7 @@ import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { Label } from '@repo/ui/label'
 import { Switch } from '@repo/ui/switch'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import AuthorityCard from '@/components/pages/protected/controls/authority-card'
 import PropertiesCard from '@/components/pages/protected/controls/properties-card'
@@ -23,9 +23,11 @@ import useClickOutside from '@/hooks/useClickOutside'
 import { Option } from '@repo/ui/multiple-selector'
 import { useCreateSubcontrol } from '@/lib/graphql-hooks/subcontrol'
 import { Check } from 'lucide-react'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 
 export default function CreateControlForm() {
   const { id } = useParams<{ id: string | undefined }>()
+  const { setCrumbs } = React.useContext(BreadcrumbContext)
   const path = usePathname()
   const isCreateSubcontrol = path.includes('/create-subcontrol')
   const [createMultiple, setCreateMultiple] = useState(false)
@@ -57,7 +59,7 @@ export default function CreateControlForm() {
     formState: { errors },
   } = form
 
-  const { data: controlData } = useGetControlById(id)
+  const { data: controlData, isLoading } = useGetControlById(id)
 
   const { data, controlOptions } = useControlSelect({
     where: search ? { refCodeContainsFold: search } : undefined,
@@ -135,6 +137,23 @@ export default function CreateControlForm() {
       fillCategoryAndSubcategory(form, selectedNode)
     }
   }
+
+  useEffect(() => {
+    !controlData &&
+      setCrumbs([
+        { label: 'Home', href: '/dashboard' },
+        { label: 'Controls', href: '/controls' },
+        { label: 'Create Subcontrol', href: '/create-subcontrol' },
+      ])
+
+    controlData &&
+      setCrumbs([
+        { label: 'Home', href: '/dashboard' },
+        { label: 'Controls', href: '/controls' },
+        { label: controlData.control.refCode, isLoading: isLoading },
+        { label: 'Create Subcontrol', href: '/create-subcontrol' },
+      ])
+  }, [setCrumbs, controlData, isLoading])
 
   useEffect(() => {
     if (controlData?.control && !dataInitialized) {

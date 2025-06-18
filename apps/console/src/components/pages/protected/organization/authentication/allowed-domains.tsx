@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { CirclePlus, X } from 'lucide-react'
@@ -9,6 +9,7 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { useGetOrganizationSetting, useUpdateOrganizationSetting } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const isValidDomain = (domain: string) => /^(?!:\/\/)([a-zA-Z0-9-_]+\.)+[a-zA-Z]{2,}$/.test(domain)
 
@@ -23,6 +24,15 @@ const AllowedDomains = () => {
   const [domains, setDomains] = useState<string[]>([])
   const [newDomain, setNewDomain] = useState('')
   const queryClient = useQueryClient()
+  const { setCrumbs } = useContext(BreadcrumbContext)
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Organization Settings', href: '/organization-settings' },
+      { label: 'Authentication', href: '/authentication' },
+    ])
+  }, [setCrumbs])
 
   useEffect(() => {
     const apiDomains = data?.organization?.setting?.allowedEmailDomains

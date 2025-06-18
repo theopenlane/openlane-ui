@@ -143,7 +143,6 @@ const TaskDetailsSheet = () => {
       setIsDiscardDialogOpen(true)
       return
     }
-
     handleCloseParams()
   }
 
