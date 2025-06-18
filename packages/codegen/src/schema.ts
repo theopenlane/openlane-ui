@@ -6163,7 +6163,6 @@ export interface CreateUserInput {
   /** The user's displayed 'friendly' name */
   displayName: Scalars['String']['input']
   email: Scalars['String']['input']
-  emailVerificationTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   eventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   firstName?: InputMaybe<Scalars['String']['input']>
@@ -6176,7 +6175,6 @@ export interface CreateUserInput {
   organizationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** user password hash */
   password?: InputMaybe<Scalars['String']['input']>
-  passwordResetTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   personalAccessTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the user's role */
@@ -33415,12 +33413,10 @@ export interface UpdateUserInput {
   addActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addAssigneeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addAssignerTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addEmailVerificationTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addOrganizationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addPasswordResetTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addPersonalAccessTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -33440,7 +33436,6 @@ export interface UpdateUserInput {
   clearAvatarFile?: InputMaybe<Scalars['Boolean']['input']>
   clearAvatarRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
   clearAvatarUpdatedAt?: InputMaybe<Scalars['Boolean']['input']>
-  clearEmailVerificationTokens?: InputMaybe<Scalars['Boolean']['input']>
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearFirstName?: InputMaybe<Scalars['Boolean']['input']>
@@ -33450,7 +33445,6 @@ export interface UpdateUserInput {
   clearLastSeen?: InputMaybe<Scalars['Boolean']['input']>
   clearOrganizations?: InputMaybe<Scalars['Boolean']['input']>
   clearPassword?: InputMaybe<Scalars['Boolean']['input']>
-  clearPasswordResetTokens?: InputMaybe<Scalars['Boolean']['input']>
   clearPersonalAccessTokens?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
   clearRole?: InputMaybe<Scalars['Boolean']['input']>
@@ -33473,12 +33467,10 @@ export interface UpdateUserInput {
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAssigneeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAssignerTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeEmailVerificationTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeOrganizationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removePasswordResetTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removePersonalAccessTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -35876,6 +35868,12 @@ export type DeleteGroupMembershipMutationVariables = Exact<{
 
 export type DeleteGroupMembershipMutation = { __typename?: 'Mutation'; deleteGroupMembership: { __typename?: 'GroupMembershipDeletePayload'; deletedID: string } }
 
+export type CreateMappedControlMutationVariables = Exact<{
+  input: CreateMappedControlInput
+}>
+
+export type CreateMappedControlMutation = { __typename?: 'Mutation'; createMappedControl: { __typename?: 'MappedControlCreatePayload'; mappedControl: { __typename?: 'MappedControl'; id: string } } }
+
 export type UpdateUserRoleInOrgMutationVariables = Exact<{
   updateOrgMemberId: Scalars['ID']['input']
   input: UpdateOrgMembershipInput
@@ -37466,6 +37464,21 @@ export type CreateSubcontrolMutationVariables = Exact<{
 }>
 
 export type CreateSubcontrolMutation = { __typename?: 'Mutation'; createSubcontrol: { __typename?: 'SubcontrolCreatePayload'; subcontrol: { __typename?: 'Subcontrol'; id: string } } }
+
+export type GetSubcontrolSelectOptionsQueryVariables = Exact<{
+  where?: InputMaybe<SubcontrolWhereInput>
+}>
+
+export type GetSubcontrolSelectOptionsQuery = {
+  __typename?: 'Query'
+  subcontrols: {
+    __typename?: 'SubcontrolConnection'
+    edges?: Array<{
+      __typename?: 'SubcontrolEdge'
+      node?: { __typename?: 'Subcontrol'; id: string; refCode: string; category?: string | null; subcategory?: string | null; referenceFramework?: string | null } | null
+    } | null> | null
+  }
+}
 
 export type CreateSubscriberMutationVariables = Exact<{
   input: CreateSubscriberInput

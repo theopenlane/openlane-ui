@@ -8,6 +8,7 @@ export interface ControlChipProps {
     id: string
     refCode: string
     shortName: string
+    type: 'control' | 'subcontrol'
   }
   draggable?: boolean
   onDragStart?: (e: React.DragEvent<HTMLSpanElement>) => void

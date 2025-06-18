@@ -7,6 +7,10 @@ import { ChevronDown, Expand } from 'lucide-react'
 import { useControlSelect } from '@/lib/graphql-hooks/controls'
 
 import ControlChip from './shared/control-chip'
+import { ControlWhereInput, SubcontrolWhereInput } from '@repo/codegen/src/schema'
+import { useSubcontrolSelect } from '@/lib/graphql-hooks/subcontrol'
+import { useFormContext } from 'react-hook-form'
+import { MapControlsFormData } from './use-form-schema'
 
 interface Props {
   title: 'From' | 'To'
@@ -18,26 +22,43 @@ export interface DroppedControl {
   id: string
   refCode: string
   shortName: string
+  type: 'control' | 'subcontrol'
 }
 
 const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard }) => {
-  const [where, setWhere] = useState({})
-  const [droppedControls, setDroppedControls] = useState<DroppedControl[]>([])
+  const [where, setWhere] = useState<ControlWhereInput | SubcontrolWhereInput>({})
+  const [droppedControls, setDroppedControls] = useState<DroppedControl[]>([]) // subcontrols and controls together
+
+  const { setValue, getValues } = useFormContext<MapControlsFormData>()
 
   const hasFilters = Object.keys(where).length > 0
-  let { data } = useControlSelect({ where, enabled: hasFilters })
-  data = hasFilters ? data : undefined
+
+  const { data: controlData } = useControlSelect({ where: where as ControlWhereInput, enabled: hasFilters })
+  const { data: subcontrolData } = useSubcontrolSelect({ where: where as SubcontrolWhereInput, enabled: hasFilters })
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
     try {
       const payload = JSON.parse(e.dataTransfer.getData('application/json'))
-      if (!payload?.id || !payload?.refCode) return
 
-      setDroppedControls((prev) => {
-        if (prev.find((c) => c.id === payload.id)) return prev
-        return [...prev, payload]
-      })
+      if (!payload?.id || !payload?.refCode || !payload?.type) return
+
+      if (droppedControls.find((c) => c.id === payload.id)) return
+
+      setDroppedControls((prev) => [...prev, payload])
+
+      const isFrom = title === 'From'
+      const controlField = isFrom ? 'fromControlIDs' : 'toControlIDs'
+      const subcontrolField = isFrom ? 'fromSubcontrolIDs' : 'toSubcontrolIDs'
+
+      const controlIds = getValues(controlField) || []
+      const subcontrolIds = getValues(subcontrolField) || []
+
+      if (payload.type === 'control') {
+        setValue(controlField, [...controlIds, payload.id])
+      } else if (payload.type === 'subcontrol') {
+        setValue(subcontrolField, [...subcontrolIds, payload.id])
+      }
     } catch (err) {
       console.error('Invalid drop payload', err)
     }
@@ -70,36 +91,38 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
           </button>
         </AccordionTrigger>
         <AccordionContent>
-          <CardContent className="grid grid-cols-[2fr_325px] gap-x-8 p-0 mt-5">
-            <div>
-              <MapControlsFormFilters onFilterChange={setWhere} where={where} />
-              <MatchedControls controlsData={data} droppedControls={droppedControls} />
-            </div>
-            <div className="border-2 border-dashed rounded-lg h-80 flex items-center justify-center flex-col gap-2" onDragOver={(e) => e.preventDefault()} onDrop={handleDrop}>
-              {!droppedControls.length ? (
-                <>
-                  <Expand size={42} strokeWidth={1} />
-                  <p>Drag controls here</p>
-                </>
-              ) : (
-                <div className="flex gap-2 flex-wrap justify-center">
-                  {droppedControls.map((control) => (
-                    <ControlChip
-                      key={control.id}
-                      control={control}
-                      draggable
-                      onDragStart={(e) => e.dataTransfer.setData('application/json', JSON.stringify(control))}
-                      onDragEnd={(e) => {
-                        if (e.dataTransfer.dropEffect === 'none') handleRemove(control.id)
-                      }}
-                      removable
-                      onRemove={handleRemove}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          </CardContent>
+          {expandedCard === title && (
+            <CardContent className="grid grid-cols-[2fr_325px] gap-x-8 p-0 mt-5">
+              <div>
+                <MapControlsFormFilters onFilterChange={setWhere} />
+                <MatchedControls where={where} controlData={controlData} subcontrolData={subcontrolData} droppedControls={droppedControls} />
+              </div>
+              <div className="border-2 border-dashed rounded-lg h-80 flex items-center justify-center flex-col gap-2" onDragOver={(e) => e.preventDefault()} onDrop={handleDrop}>
+                {!droppedControls.length ? (
+                  <>
+                    <Expand size={42} strokeWidth={1} />
+                    <p>Drag controls here</p>
+                  </>
+                ) : (
+                  <div className="flex gap-2 flex-wrap justify-center">
+                    {droppedControls.map((control) => (
+                      <ControlChip
+                        key={control.id}
+                        control={control}
+                        draggable
+                        onDragStart={(e) => e.dataTransfer.setData('application/json', JSON.stringify(control))}
+                        onDragEnd={(e) => {
+                          if (e.dataTransfer.dropEffect === 'none') handleRemove(control.id)
+                        }}
+                        removable
+                        onRemove={handleRemove}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          )}
         </AccordionContent>
       </AccordionItem>
     </Card>

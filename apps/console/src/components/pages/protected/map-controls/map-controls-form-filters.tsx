@@ -10,18 +10,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 interface Props {
   onFilterChange: (where: ControlWhereInput) => void
-  where: ControlWhereInput
 }
 
-const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange, where }) => {
+const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange }) => {
   const { currentOrgId } = useOrganization()
 
-  // single-select for standard stays the same
-  const [standard, setStandard] = useState<string | undefined>(undefined)
+  const [referenceFramework, setReferenceFramework] = useState<string | undefined>(undefined)
   const [keyword, setKeyword] = useState<string>('')
   const debouncedKeyword = useDebounce(keyword, 300)
 
-  // now track categories as Option[]
   const [categoryOpts, setCategoryOpts] = useState<Option[]>([])
   const selectedCategoryValues = useMemo(() => categoryOpts.map((o) => o.value), [categoryOpts])
 
@@ -46,8 +43,8 @@ const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange, where }) => {
   useEffect(() => {
     const where: ControlWhereInput = {}
 
-    if (standard) {
-      where.standardID = standard
+    if (referenceFramework) {
+      where.referenceFramework = referenceFramework
     }
 
     const orClauses: ControlWhereInput[] = []
@@ -57,11 +54,9 @@ const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange, where }) => {
     }
 
     if (debouncedKeyword) {
-      orClauses.push({
-        categoryContainsFold: debouncedKeyword,
-        subcategoryContainsFold: debouncedKeyword,
-        refCodeContainsFold: debouncedKeyword,
-      })
+      orClauses.push({ categoryContainsFold: debouncedKeyword })
+      orClauses.push({ subcategoryContainsFold: debouncedKeyword })
+      orClauses.push({ refCodeContainsFold: debouncedKeyword })
     }
 
     if (orClauses.length) {
@@ -69,18 +64,18 @@ const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange, where }) => {
     }
 
     onFilterChange(where)
-  }, [standard, debouncedKeyword, onFilterChange, selectedCategoryValues])
+  }, [referenceFramework, debouncedKeyword, onFilterChange, selectedCategoryValues])
 
   return (
     <div className="grid grid-cols-[150px_1fr] gap-x-4 gap-y-2 items-center mb-4">
       <label className="text-sm font-medium">Framework</label>
-      <Select onValueChange={setStandard} value={standard}>
+      <Select onValueChange={setReferenceFramework} value={referenceFramework}>
         <SelectTrigger className="w-full">
           <SelectValue placeholder="Select Framework" />
         </SelectTrigger>
         <SelectContent>
           {standardOptions.map((opt) => (
-            <SelectItem key={opt.value} value={opt.value}>
+            <SelectItem key={opt.value} value={opt.label}>
               {opt.label}
             </SelectItem>
           ))}

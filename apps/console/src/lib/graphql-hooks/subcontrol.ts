@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { CREATE_SUBCONTROL, DELETE_SUBCONTROL, GET_ALL_SUBCONTROLS, GET_SUBCONTROL_BY_ID, UPDATE_SUBCONTROL } from '@repo/codegen/query/subcontrol'
+import { CREATE_SUBCONTROL, DELETE_SUBCONTROL, GET_ALL_SUBCONTROLS, GET_SUBCONTROL_BY_ID, GET_SUBCONTROL_SELECT_OPTIONS, UPDATE_SUBCONTROL } from '@repo/codegen/query/subcontrol'
 import {
   CreateSubcontrolMutation,
   CreateSubcontrolMutationVariables,
@@ -9,9 +9,13 @@ import {
   GetAllSubcontrolsQuery,
   GetAllSubcontrolsQueryVariables,
   GetSubcontrolByIdQuery,
+  GetSubcontrolSelectOptionsQuery,
+  GetSubcontrolSelectOptionsQueryVariables,
+  SubcontrolWhereInput,
   UpdateSubcontrolMutation,
   UpdateSubcontrolMutationVariables,
 } from '@repo/codegen/src/schema'
+import { useMemo } from 'react'
 
 export function useGetAllSubcontrols(where?: GetAllSubcontrolsQueryVariables['where']) {
   const { client } = useGraphQLClient()
@@ -66,4 +70,31 @@ export const useCreateSubcontrol = () => {
       queryClient.invalidateQueries({ queryKey: ['subcontrols'] })
     },
   })
+}
+
+export const useSubcontrolSelect = ({ where, enabled = true }: { where?: SubcontrolWhereInput; enabled?: boolean }) => {
+  const { client } = useGraphQLClient()
+
+  const { data, isLoading, error } = useQuery<GetSubcontrolSelectOptionsQuery>({
+    queryKey: ['subcontrols', where, 'select'],
+    queryFn: async () => {
+      return client.request<GetSubcontrolSelectOptionsQuery, GetSubcontrolSelectOptionsQueryVariables>(GET_SUBCONTROL_SELECT_OPTIONS, { where })
+    },
+    enabled,
+  })
+
+  const subcontrolOptions = useMemo(
+    () =>
+      data?.subcontrols?.edges?.flatMap((edge) =>
+        edge?.node?.id && edge.node.refCode ? [{ label: `${edge.node.refCode}${edge.node.referenceFramework ? `( ${edge.node.referenceFramework})` : ''}`, value: edge.node.id }] : [],
+      ) ?? [],
+    [data],
+  )
+
+  return {
+    subcontrolOptions,
+    isLoading,
+    error,
+    data,
+  }
 }
