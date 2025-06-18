@@ -48,9 +48,9 @@ const MapControlsRelations = () => {
           name="confidence"
           control={control}
           render={({ field }) => (
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center flex-col">
               <Slider value={field.value ?? 0} onChange={(val) => field.onChange(val)} />
-              <p className="text-blue-500 cursor-pointer" onClick={() => setValue('confidence', 0)}>
+              <p className="text-blue-500 cursor-pointer self-start" onClick={() => setValue('confidence', 0)}>
                 Clear
               </p>
             </div>
