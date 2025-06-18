@@ -1,70 +1,86 @@
+import React, { useEffect, useMemo, useState } from 'react'
+import { useOrganization } from '@/hooks/useOrganization'
+import { useGetControlCategories } from '@/lib/graphql-hooks/controls'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
+import { ControlWhereInput } from '@repo/codegen/src/schema'
 import { Input } from '@repo/ui/input'
+import { useDebounce } from '@uidotdev/usehooks'
+import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import React, { useEffect, useState } from 'react'
 
 interface Props {
-  /** Called whenever any filter changes, passing a new `where` condition */
-  onFilterChange: (where: Record<string, any>) => void
-  where: Record<string, any>
+  onFilterChange: (where: ControlWhereInput) => void
+  where: ControlWhereInput
 }
 
 const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange, where }) => {
-  const { standardOptions } = useStandardsSelect({})
+  const { currentOrgId } = useOrganization()
 
-  // Initialize local state from where prop
-  const [standard, setStandard] = useState<string>(where.standardID || 'all')
-  const [category, setCategory] = useState<string>(where.categoryContainsFold || '')
-  const [keyword, setKeyword] = useState<string>('') // Can't derive keyword from where.or
+  // single-select for standard stays the same
+  const [standard, setStandard] = useState<string | undefined>(undefined)
+  const [keyword, setKeyword] = useState<string>('')
+  const debouncedKeyword = useDebounce(keyword, 300)
 
-  const categories = ['Security', 'Privacy', 'Risk']
+  // now track categories as Option[]
+  const [categoryOpts, setCategoryOpts] = useState<Option[]>([])
+  const selectedCategoryValues = useMemo(() => categoryOpts.map((o) => o.value), [categoryOpts])
 
-  // Set initial keyword if possible (this is tricky because of the or condition)
-  useEffect(() => {
-    if (where.or) {
-      const orCondition = where.or[0]
-      if (orCondition.categoryContainsFold === orCondition.subcategoryContainsFold && orCondition.categoryContainsFold === orCondition.refCodeContainsFold) {
-        setKeyword(orCondition.categoryContainsFold)
-      }
-    }
-  }, [where.or])
+  const { data } = useGetControlCategories()
+  const categories = data?.controlCategories ?? []
 
-  // Assemble `where` condition whenever filters update
-  useEffect(() => {
-    const newWhere: Record<string, any> = {}
-
-    if (standard && standard !== 'all') {
-      newWhere.standardID = standard
-    }
-
-    if (category) {
-      newWhere.categoryContainsFold = category
-    }
-
-    if (keyword) {
-      newWhere.or = [
+  const { standardOptions } = useStandardsSelect({
+    where: {
+      hasControlsWith: [
         {
-          categoryContainsFold: keyword,
-          subcategoryContainsFold: keyword,
-          refCodeContainsFold: keyword,
+          hasOwnerWith: [
+            {
+              id: currentOrgId,
+            },
+          ],
         },
-      ]
+      ],
+    },
+    enabled: Boolean(currentOrgId),
+  })
+
+  useEffect(() => {
+    const where: ControlWhereInput = {}
+
+    if (standard) {
+      where.standardID = standard
     }
 
-    onFilterChange(newWhere)
-  }, [standard, category, keyword, onFilterChange])
+    const orClauses: ControlWhereInput[] = []
+
+    for (const cat of selectedCategoryValues) {
+      orClauses.push({ categoryContainsFold: cat })
+    }
+
+    if (debouncedKeyword) {
+      orClauses.push({
+        categoryContainsFold: debouncedKeyword,
+        subcategoryContainsFold: debouncedKeyword,
+        refCodeContainsFold: debouncedKeyword,
+      })
+    }
+
+    if (orClauses.length) {
+      where.or = orClauses
+    }
+
+    onFilterChange(where)
+  }, [standard, debouncedKeyword, onFilterChange, selectedCategoryValues])
 
   return (
     <div className="grid grid-cols-[150px_1fr] gap-x-4 gap-y-2 items-center mb-4">
       <label className="text-sm font-medium">Framework</label>
       <Select onValueChange={setStandard} value={standard}>
         <SelectTrigger className="w-full">
-          <SelectValue placeholder="All" />
+          <SelectValue placeholder="Select Framework" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All</SelectItem>
-          {standardOptions.map((opt, i) => (
-            <SelectItem key={i} value={opt.value}>
+          {standardOptions.map((opt) => (
+            <SelectItem key={opt.value} value={opt.value}>
               {opt.label}
             </SelectItem>
           ))}
@@ -72,18 +88,17 @@ const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange, where }) => {
       </Select>
 
       <label className="text-sm font-medium">Category</label>
-      <Select onValueChange={setCategory} value={category}>
-        <SelectTrigger className="w-full">
-          <SelectValue placeholder="Select Category" />
-        </SelectTrigger>
-        <SelectContent>
-          {categories.map((cat) => (
-            <SelectItem key={cat} value={cat.toLowerCase()}>
-              {cat}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <MultipleSelector
+        placeholder="Add or select category..."
+        creatable
+        className="w-full"
+        commandProps={{ className: 'w-full' }}
+        value={categoryOpts}
+        options={categories.map((cat) => ({ value: cat.toLowerCase(), label: cat }))}
+        onChange={(newOpts) => {
+          setCategoryOpts(newOpts)
+        }}
+      />
 
       <label className="text-sm font-medium">Keyword</label>
       <Input value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="Search by keyword" />

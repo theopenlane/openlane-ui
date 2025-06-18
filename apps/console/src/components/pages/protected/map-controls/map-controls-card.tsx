@@ -3,10 +3,10 @@ import { Card, CardContent } from '@repo/ui/cardpanel'
 import MapControlsFormFilters from './map-controls-form-filters'
 import MatchedControls from './matched-controls'
 import { AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { ChevronDown, Expand, XIcon } from 'lucide-react'
+import { ChevronDown, Expand } from 'lucide-react'
 import { useControlSelect } from '@/lib/graphql-hooks/controls'
-import { Badge } from '@repo/ui/badge'
-import Drag from '@/assets/Drag'
+
+import ControlChip from './shared/control-chip'
 
 interface Props {
   title: 'From' | 'To'
@@ -54,14 +54,7 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
             <div className="flex items-center gap-2 w-full justify-between">
               <div className="flex gap-2 items-center">
                 <h3 className="text-base font-medium text-xl">{title}</h3>
-                {expandedCard !== title &&
-                  droppedControls.map((control) => (
-                    <Badge key={control.id} variant="outline" className="bg-background-secondary flex gap-1 rounded-md">
-                      <span className="text-text-informational">{control.shortName}</span>
-                      <span className="text-border">|</span>
-                      {control.refCode}
-                    </Badge>
-                  ))}
+                {expandedCard !== title && droppedControls.map((control) => <ControlChip key={control.id} control={control} className="rounded-md cursor-default" />)}
               </div>
               <ChevronDown
                 size={22}
@@ -91,24 +84,17 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
               ) : (
                 <div className="flex gap-2 flex-wrap justify-center">
                   {droppedControls.map((control) => (
-                    <Badge
+                    <ControlChip
                       key={control.id}
-                      variant="outline"
-                      className="bg-background-secondary cursor-grab flex gap-1"
+                      control={control}
                       draggable
                       onDragStart={(e) => e.dataTransfer.setData('application/json', JSON.stringify(control))}
                       onDragEnd={(e) => {
-                        if (e.dataTransfer.dropEffect === 'none') {
-                          handleRemove(control.id)
-                        }
+                        if (e.dataTransfer.dropEffect === 'none') handleRemove(control.id)
                       }}
-                    >
-                      <Drag strokeWidth={1} className="text-border" />
-                      <span className="text-text-informational">{control.shortName}</span>
-                      <span className="text-border">|</span>
-                      {control.refCode}
-                      <XIcon size={12} className="cursor-pointer ml-1" onClick={() => handleRemove(control.id)} />
-                    </Badge>
+                      removable
+                      onRemove={handleRemove}
+                    />
                   ))}
                 </div>
               )}
