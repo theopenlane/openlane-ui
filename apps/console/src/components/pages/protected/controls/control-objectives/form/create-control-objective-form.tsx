@@ -114,8 +114,10 @@ export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuc
     if (loading && defaultValuesSet) {
       return
     }
+
     const createDefValues: Partial<TFormData> = {
-      ...defaultValues,
+      status: ControlObjectiveObjectiveStatus.DRAFT,
+      source: ControlObjectiveControlSource.USER_DEFINED,
       category: subcontrolData?.subcontrol?.category || controlData?.control?.category || '',
       subcategory: subcontrolData?.subcontrol?.subcategory || controlData?.control?.subcategory || '',
     }

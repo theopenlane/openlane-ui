@@ -46,6 +46,8 @@ tasks:
     desc: reinstall the dependencies listed in package.json
     cmds:
       - task: clean
+      - bun install --dev turbo@latest
+      - bun run turbo-clean
       - task: install
 
   test:
