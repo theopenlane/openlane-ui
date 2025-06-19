@@ -68,30 +68,25 @@ export const ExistingOrganizations = () => {
         title: 'Successfully left organization',
       })
 
-      if (currentOrg === orgId) {
-        const remainingOrgs = orgs.filter((org) => org?.node?.id !== orgId)
-        if (remainingOrgs.length > 0) {
-          const nextOrg = remainingOrgs[0]?.node?.id
-          if (nextOrg) {
-            const response = await switchOrganization({
-              target_organization_id: nextOrg,
-            })
+      const remainingOrgs = data?.organizations.edges?.filter((org) => org?.node?.id !== orgId) || []
 
-            if (sessionData && response) {
-              await updateSession({
-                ...response.session,
-                user: {
-                  ...sessionData.user,
-                  accessToken: response.access_token,
-                  activeOrganizationId: nextOrg,
-                  refreshToken: response.refresh_token,
-                },
-              })
-            }
-          }
-        } else {
-          // no remaining organizations, redirect to onboarding page
-          push('/onboarding')
+      const nextOrg = remainingOrgs[0]?.node?.id
+
+      if (nextOrg) {
+        const response = await switchOrganization({
+          target_organization_id: nextOrg,
+        })
+
+        if (sessionData && response) {
+          await updateSession({
+            ...response.session,
+            user: {
+              ...sessionData.user,
+              accessToken: response.access_token,
+              activeOrganizationId: nextOrg,
+              refreshToken: response.refresh_token,
+            },
+          })
         }
       }
 
