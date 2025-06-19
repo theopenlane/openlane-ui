@@ -11,6 +11,10 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
     tags
     mappedCategories
     referenceFramework
+    referenceID
+    auditorReferenceID
+    source
+    controlType
     subcontrols {
       totalCount
     }

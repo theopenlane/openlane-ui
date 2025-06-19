@@ -63,7 +63,7 @@
     "clsx": "latest",
     "eslint": "^9.28.0",
     "postcss": "^8.4.24",
-    "tailwind-variants": "latest",
+    "tailwind-variants": "^0.3.1",
     "@types/node": "^24.0.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
