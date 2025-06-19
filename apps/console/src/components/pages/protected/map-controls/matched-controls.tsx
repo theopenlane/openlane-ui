@@ -23,9 +23,10 @@ interface Props {
   subcontrolData?: GetSubcontrolSelectOptionsQuery
   droppedControls: DroppedControl[]
   where: ControlWhereInput | SubcontrolWhereInput
+  isLoading?: boolean
 }
 
-const MatchedControls = ({ controlData, droppedControls, where, subcontrolData }: Props) => {
+const MatchedControls = ({ controlData, droppedControls, where, subcontrolData, isLoading }: Props) => {
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({})
   const toggleAll = () => {
     const allOpen = Object.values(expandedItems).every((val) => val)
@@ -37,27 +38,34 @@ const MatchedControls = ({ controlData, droppedControls, where, subcontrolData }
   }
 
   const content = useMemo(() => {
-    if (where.referenceFramework && where.or) {
+    if (isLoading) {
+      return <p>Loading...</p>
+    }
+
+    const queryFramework = !!where.referenceFramework || where.referenceFrameworkIsNil
+    const queryKeywordOrCategory = !!where.or
+
+    if (queryFramework && queryKeywordOrCategory) {
       return <MapControlResults droppedControls={droppedControls} controlData={controlData} subcontrolData={subcontrolData} />
     }
-    if (where.referenceFramework) {
+    if (queryFramework) {
       return (
         <MapControlCategoriesAccordion expandedItems={expandedItems} setExpandedItems={setExpandedItems} controlData={controlData} droppedControls={droppedControls} subcontrolData={subcontrolData} />
       )
     }
 
-    if (where.or) {
+    if (queryKeywordOrCategory) {
       return (
         <MapControlFrameworksAccordion expandedItems={expandedItems} setExpandedItems={setExpandedItems} controlData={controlData} droppedControls={droppedControls} subcontrolData={subcontrolData} />
       )
     }
 
     return <p className="mt-5">At least one keyword required</p>
-  }, [controlData, droppedControls, expandedItems, where, subcontrolData])
+  }, [controlData, droppedControls, expandedItems, where, subcontrolData, isLoading])
 
   return (
     <div className=" border-t pt-5">
-      <div className="flex gap-4 items-center ">
+      <div className="flex gap-4 items-center mb-4">
         <div className="flex items-center justify-between mb-2  ">
           <span className="w-full">Matched controls</span>
         </div>

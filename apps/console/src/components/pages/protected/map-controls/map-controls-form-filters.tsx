@@ -1,21 +1,24 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useOrganization } from '@/hooks/useOrganization'
-import { useAllControlsGrouped, useGetControlCategories } from '@/lib/graphql-hooks/controls'
+import { useGetControlCategories } from '@/lib/graphql-hooks/controls'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
 import { ControlWhereInput } from '@repo/codegen/src/schema'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { Checkbox } from '@repo/ui/checkbox'
 
 interface Props {
   onFilterChange: (where: ControlWhereInput) => void
+  enableSubcontrols: boolean
+  setEnableSubcontrols: (arg: boolean) => void
 }
 
-const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange }) => {
+const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange, enableSubcontrols, setEnableSubcontrols }) => {
   const { currentOrgId } = useOrganization()
 
-  const [referenceFramework, setReferenceFramework] = useState<string | undefined>(undefined)
+  const [referenceFramework, setReferenceFramework] = useState<string>('')
   const [keyword, setKeyword] = useState<string>('')
   const debouncedKeyword = useDebounce(keyword, 300)
 
@@ -29,11 +32,7 @@ const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange }) => {
     where: {
       hasControlsWith: [
         {
-          hasOwnerWith: [
-            {
-              id: currentOrgId,
-            },
-          ],
+          hasOwnerWith: [{ id: currentOrgId }],
         },
       ],
     },
@@ -76,7 +75,7 @@ const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange }) => {
           <SelectValue placeholder="Select Framework" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value={'Custom'}>{'Custom'}</SelectItem>
+          <SelectItem value="Custom">Custom</SelectItem>
           {standardOptions.map((opt) => (
             <SelectItem key={opt.value} value={opt.label}>
               {opt.label}
@@ -93,13 +92,14 @@ const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange }) => {
         commandProps={{ className: 'w-full' }}
         value={categoryOpts}
         options={categories.map((cat) => ({ value: cat.toLowerCase(), label: cat }))}
-        onChange={(newOpts) => {
-          setCategoryOpts(newOpts)
-        }}
+        onChange={setCategoryOpts}
       />
 
       <label className="text-sm font-medium">Keyword</label>
       <Input value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="Search by keyword" />
+
+      <label className="text-sm font-medium">Include Subcontrols</label>
+      <Checkbox checked={enableSubcontrols} onCheckedChange={setEnableSubcontrols} />
       {(referenceFramework || categoryOpts.length > 0 || keyword) && (
         <div className="col-span-2 flex justify-end">
           <p
@@ -108,6 +108,7 @@ const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange }) => {
               setCategoryOpts([])
               setKeyword('')
               onFilterChange({})
+              setEnableSubcontrols(false)
             }}
             className="text-blue-500 cursor-pointer self-start"
           >

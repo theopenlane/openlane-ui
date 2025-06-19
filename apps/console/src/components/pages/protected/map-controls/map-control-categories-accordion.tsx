@@ -97,12 +97,12 @@ const MapControlCategoriesAccordion = ({ controlData, droppedControls, expandedI
       {Object.entries(controlsByCategory).map(([cat, items]) => (
         <AccordionItem key={cat} value={cat}>
           <RelationsAccordionTrigger label={cat} count={items.length} />
-          <AccordionContent className="my-3 flex flex-wrap gap-2">
+          <AccordionContent className="my-3 flex flex-wrap gap-2 max-h-28 overflow-auto">
             {items.map((c) => (
               <ControlChip
                 key={c.id}
                 draggable
-                control={{ id: c.id, refCode: c.refCode, shortName: c.referenceFramework || '', type: c.type }}
+                control={{ id: c.id, refCode: c.refCode, shortName: c.referenceFramework || 'CUSTOM', type: c.type }}
                 onDragStart={(e) => e.dataTransfer.setData('application/json', JSON.stringify({ id: c.id, refCode: c.refCode, shortName: c.referenceFramework, type: c.type }))}
               />
             ))}

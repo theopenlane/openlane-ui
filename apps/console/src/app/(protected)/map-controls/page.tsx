@@ -102,7 +102,7 @@ const Page = () => {
               and create a unified view of your compliance posture.
             </p>
           </div>
-          <div className="grid grid-cols-[2fr_1fr] gap-6">
+          <div className="grid grid-cols-[3fr_1fr] gap-6">
             <div className="flex flex-col">
               <Accordion type="single" collapsible value={expandedCard} className="w-full">
                 <MapControlsCard title="From" expandedCard={expandedCard} setExpandedCard={() => handleCardToggle('From')} />

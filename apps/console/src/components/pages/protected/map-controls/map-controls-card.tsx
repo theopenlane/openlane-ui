@@ -28,7 +28,7 @@ export interface DroppedControl {
 const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard }) => {
   const [where, setWhere] = useState<ControlWhereInput | SubcontrolWhereInput>({})
   const [droppedControls, setDroppedControls] = useState<DroppedControl[]>([]) // subcontrols and controls together
-
+  const [enableSubcontrols, setEnableSubcontrols] = useState(false)
   const { setValue, getValues } = useFormContext<MapControlsFormData>()
 
   const hasFilters = Object.keys(where).length > 0
@@ -38,7 +38,7 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
   console.log(allControls)
 
   // const { data: controlData } = useControlSelect({ where: where as ControlWhereInput, enabled: hasFilters })
-  const { data: subcontrolData } = useSubcontrolSelect({ where: where as SubcontrolWhereInput, enabled: hasFilters })
+  const { data: subcontrolData } = useSubcontrolSelect({ where: where as SubcontrolWhereInput, enabled: enableSubcontrols && hasFilters })
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
@@ -98,10 +98,10 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
           {expandedCard === title && (
             <CardContent className="grid grid-cols-[2fr_325px] gap-x-8 p-0 mt-5">
               <div>
-                <MapControlsFormFilters onFilterChange={setWhere} />
-                <MatchedControls where={where} controlData={allControls.allControls} subcontrolData={subcontrolData} droppedControls={droppedControls} />
+                <MapControlsFormFilters enableSubcontrols={enableSubcontrols} setEnableSubcontrols={setEnableSubcontrols} onFilterChange={setWhere} />
+                <MatchedControls isLoading={allControls.isLoading} where={where} controlData={allControls?.allControls} subcontrolData={subcontrolData} droppedControls={droppedControls} />
               </div>
-              <div className="border-2 border-dashed rounded-lg h-80 flex items-center justify-center flex-col gap-2" onDragOver={(e) => e.preventDefault()} onDrop={handleDrop}>
+              <div className="border-2 border-dashed rounded-lg flex items-center justify-center flex-col gap-2" onDragOver={(e) => e.preventDefault()} onDrop={handleDrop}>
                 {!droppedControls.length ? (
                   <>
                     <Expand size={42} strokeWidth={1} />

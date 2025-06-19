@@ -1,4 +1,4 @@
-import { GetControlSelectOptionsQuery, GetSubcontrolSelectOptionsQuery } from '@repo/codegen/src/schema'
+import { GetSubcontrolSelectOptionsQuery } from '@repo/codegen/src/schema'
 import React, { useMemo } from 'react'
 import { DroppedControl } from './map-controls-card'
 import ControlChip from './shared/control-chip'
@@ -23,26 +23,22 @@ interface Props {
 const MapControlResults = ({ controlData, droppedControls, subcontrolData }: Props) => {
   const droppedIds = useMemo(() => droppedControls.map((dc) => dc.id), [droppedControls])
 
-  // const availableControls = useMemo(() => {
-  //   // const controlNodes =
-  //   //   controlData?.controls?.edges
-  //   //     ?.map((edge) => edge?.node)
-  //   //     .filter((node): node is NonNullable<typeof node> => !!node)
-  //   //     .map((node) => ({ ...node, type: 'control' as const })) || []
+  const availableControls = useMemo(() => {
+    const controlNodes = controlData?.map((node) => ({ ...node, type: 'control' as const })) || []
 
-  //   const subcontrolNodes =
-  //     subcontrolData?.subcontrols?.edges
-  //       ?.map((edge) => edge?.node)
-  //       .filter((node): node is NonNullable<typeof node> => !!node)
-  //       .map((node) => ({ ...node, type: 'subcontrol' as const })) || []
+    // const subcontrolNodes =
+    //   subcontrolData?.subcontrols?.edges
+    //     ?.map((edge) => edge?.node)
+    //     .filter((node): node is NonNullable<typeof node> => !!node)
+    //     .map((node) => ({ ...node, type: 'subcontrol' as const })) || []
 
-  //   return [...controlNodes, ...subcontrolNodes].filter((node) => !droppedIds.includes(node.id))
-  // }, [controlData, subcontrolData, droppedIds])
+    return [...controlNodes].filter((node) => !droppedIds.includes(node?.id || ''))
+  }, [controlData, subcontrolData, droppedIds])
 
   return (
     <div className="my-3 flex flex-wrap gap-2">
-      {controlData && controlData.length > 0 ? (
-        controlData.map((control) => (
+      {availableControls && availableControls.length > 0 ? (
+        availableControls.map((control) => (
           <ControlChip
             key={control?.id}
             draggable

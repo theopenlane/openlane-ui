@@ -205,7 +205,7 @@ export function useFetchAllControls(where?: ControlWhereInput, enabled = true) {
 }
 
 export function useAllControlsGrouped({ where, enabled = true }: { where?: ControlWhereInput; enabled?: boolean }) {
-  const { data, hasNextPage, isFetchingNextPage, fetchNextPage, ...rest } = useFetchAllControls(where, enabled)
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, isFetching, ...rest } = useFetchAllControls(where, enabled)
 
   useEffect(() => {
     if (hasNextPage && !isFetchingNextPage) {
@@ -213,13 +213,21 @@ export function useAllControlsGrouped({ where, enabled = true }: { where?: Contr
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
-  const allControls = data?.pages.flatMap((page) => page?.edges?.map((edge) => edge?.node)) ?? []
+  const allControls = useMemo(() => {
+    const raw = data?.pages.flatMap((page) => page.edges?.map((edge) => edge?.node) ?? []) ?? []
+    return raw.filter((c): c is NonNullable<typeof c> => c != null)
+  }, [data?.pages])
+
+  const isLoadingAll = isLoading || isFetchingNextPage || hasNextPage || isFetching
+
+  if (isLoadingAll) {
+    return { isLoading: true, allControls: [] }
+  }
 
   return {
     allControls,
-    data,
+    isLoading: isLoadingAll,
     hasNextPage,
-    isFetchingNextPage,
     fetchNextPage,
     ...rest,
   }
