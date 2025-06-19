@@ -73,7 +73,7 @@ const Page = () => {
     const hasFrom = (!!data.fromControlIDs && !!data.fromControlIDs.length) || (!!data.fromSubcontrolIDs && !!data.fromSubcontrolIDs.length)
     const hasTo = (!!data.toControlIDs && !!data.toControlIDs.length) || (!!data.toSubcontrolIDs && !!data.toSubcontrolIDs.length)
     if (!hasFrom) {
-      errorNotification({ title: 'Controls missing in From segment' })
+      errorNotification({ title: 'From control is required' })
       return
     }
     if (!hasTo) {
