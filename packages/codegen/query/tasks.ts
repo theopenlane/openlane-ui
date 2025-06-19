@@ -92,6 +92,7 @@ export const TASK = gql`
           node {
             id
             refCode
+            controlID
           }
         }
       }
