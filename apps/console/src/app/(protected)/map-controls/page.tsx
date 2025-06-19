@@ -73,18 +73,18 @@ const Page = () => {
     const hasFrom = (!!data.fromControlIDs && !!data.fromControlIDs.length) || (!!data.fromSubcontrolIDs && !!data.fromSubcontrolIDs.length)
     const hasTo = (!!data.toControlIDs && !!data.toControlIDs.length) || (!!data.toSubcontrolIDs && !!data.toSubcontrolIDs.length)
     if (!hasFrom) {
-      errorNotification({ title: 'Controls missing in From segment' })
+      errorNotification({ title: 'From control is required' })
       return
     }
     if (!hasTo) {
-      errorNotification({ title: 'Controls missing in To segment' })
+      errorNotification({ title: 'To control is required' })
       return
     }
     try {
       await create({ input: data })
       successNotification({ title: 'Map Control created!' })
     } catch {
-      errorNotification({ title: 'Unable to crate Map Control, please try again later' })
+      errorNotification({ title: 'Unable to create control mapping, please try again later' })
     }
   }
 

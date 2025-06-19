@@ -35250,6 +35250,10 @@ export type ControlListFieldsFragment = {
   tags?: Array<string> | null
   mappedCategories?: Array<string> | null
   referenceFramework?: string | null
+  referenceID?: string | null
+  auditorReferenceID?: string | null
+  source?: ControlControlSource | null
+  controlType?: ControlControlType | null
   subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
   controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
 }
@@ -35383,6 +35387,10 @@ export type GetAllControlsQuery = {
         tags?: Array<string> | null
         mappedCategories?: Array<string> | null
         referenceFramework?: string | null
+        referenceID?: string | null
+        auditorReferenceID?: string | null
+        source?: ControlControlSource | null
+        controlType?: ControlControlType | null
         subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
         controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
       } | null
@@ -36092,7 +36100,10 @@ export type GetAllOrganizationsWithMembersQuery = {
         avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
         members: {
           __typename?: 'OrgMembershipConnection'
-          edges?: Array<{ __typename?: 'OrgMembershipEdge'; node?: { __typename?: 'OrgMembership'; role: OrgMembershipRole; user: { __typename?: 'User'; id: string } } | null } | null> | null
+          edges?: Array<{
+            __typename?: 'OrgMembershipEdge'
+            node?: { __typename?: 'OrgMembership'; id: string; role: OrgMembershipRole; user: { __typename?: 'User'; id: string } } | null
+          } | null> | null
         }
       } | null
     } | null> | null
@@ -37663,7 +37674,10 @@ export type TaskQuery = {
     details?: string | null
     assignee?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; id: string } | null
     assigner?: { __typename?: 'User'; avatarRemoteURL?: string | null; displayName: string; id: string } | null
-    subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null }
+    subcontrols: {
+      __typename?: 'SubcontrolConnection'
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; controlID: string } | null } | null> | null
+    }
     controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
     risks: { __typename?: 'RiskConnection'; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
     programs: { __typename?: 'ProgramConnection'; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string } | null } | null> | null }

@@ -29,7 +29,7 @@ export const CONTROLS_FILTER_FIELDS: FilterField[] = [
 export const CONTROLS_SORT_FIELDS = [
   { key: 'created_at', label: 'Created At' },
   { key: 'updated_at', label: 'Updated At' },
-  { key: 'status', label: 'Status' },
+  { key: 'STATUS', label: 'Status' },
   { key: 'SOURCE', label: 'Source' },
   { key: 'CONTROL_TYPE', label: 'Control Type' },
   { key: 'category', label: 'Category' },
