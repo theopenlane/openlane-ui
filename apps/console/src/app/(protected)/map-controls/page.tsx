@@ -84,7 +84,7 @@ const Page = () => {
       await create({ input: data })
       successNotification({ title: 'Map Control created!' })
     } catch {
-      errorNotification({ title: 'Unable to crate Map Control, please try again later' })
+      errorNotification({ title: 'Unable to create control mapping, please try again later' })
     }
   }
 
