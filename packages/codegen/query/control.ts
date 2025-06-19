@@ -311,10 +311,7 @@ export const GET_CONTROL_BY_ID_MINIFIED = gql`
     control(id: $controlId) {
       id
       refCode
-      standard {
-        id
-        shortName
-      }
+      standardID
       category
       subcategory
       description

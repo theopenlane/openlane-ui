@@ -105,40 +105,44 @@ const MapControlFrameworksAccordion: React.FC<Props> = ({ controlData, droppedCo
 
   return (
     <Accordion type="multiple" className="w-full" value={openKeys} onValueChange={handleValueChange}>
-      {standardOptions.map((opt) => {
-        const key = opt.label
-        const items = controlsByFramework[key] || []
-        return (
-          <AccordionItem key={key} value={key}>
-            <RelationsAccordionTrigger label={key} count={items.length} />
-            <AccordionContent className="my-3 flex flex-wrap gap-2 max-h-28 overflow-auto">
-              {items.map((c) => (
-                <ControlChip
-                  key={c.id}
-                  draggable
-                  control={{ id: c.id, refCode: c.refCode, shortName: key, type: c.type }}
-                  onDragStart={(e) => e.dataTransfer.setData('application/json', JSON.stringify({ id: c.id, refCode: c.refCode, shortName: key, type: c.type }))}
-                />
-              ))}
-            </AccordionContent>
-          </AccordionItem>
-        )
-      })}
+      {standardOptions
+        .filter((opt) => (controlsByFramework[opt.label] || []).length > 0)
+        .map((opt) => {
+          const key = opt.label
+          const items = controlsByFramework[key] || []
+          return (
+            <AccordionItem key={key} value={key}>
+              <RelationsAccordionTrigger label={key} count={items.length} />
+              <AccordionContent className="my-3 flex flex-wrap gap-2 max-h-28 overflow-auto">
+                {items.map((c) => (
+                  <ControlChip
+                    key={c.id}
+                    draggable
+                    control={{ id: c.id, refCode: c.refCode, shortName: key, type: c.type }}
+                    onDragStart={(e) => e.dataTransfer.setData('application/json', JSON.stringify({ id: c.id, refCode: c.refCode, shortName: key, type: c.type }))}
+                  />
+                ))}
+              </AccordionContent>
+            </AccordionItem>
+          )
+        })}
 
       {/* Custom section */}
-      <AccordionItem key="custom" value="custom">
-        <RelationsAccordionTrigger label="Custom" count={customControls.length} />
-        <AccordionContent className="my-3 flex flex-wrap gap-2 max-h-28 overflow-auto">
-          {customControls.map((c) => (
-            <ControlChip
-              key={c.id}
-              draggable
-              control={{ id: c.id, refCode: c.refCode, shortName: 'CUSTOM', type: c.type }}
-              onDragStart={(e) => e.dataTransfer.setData('application/json', JSON.stringify({ id: c.id, refCode: c.refCode, shortName: 'CUSTOM', type: c.type }))}
-            />
-          ))}
-        </AccordionContent>
-      </AccordionItem>
+      {customControls.length > 0 && (
+        <AccordionItem key="custom" value="custom">
+          <RelationsAccordionTrigger label="Custom" count={customControls.length} />
+          <AccordionContent className="my-3 flex flex-wrap gap-2 max-h-28 overflow-auto">
+            {customControls.map((c) => (
+              <ControlChip
+                key={c.id}
+                draggable
+                control={{ id: c.id, refCode: c.refCode, shortName: 'CUSTOM', type: c.type }}
+                onDragStart={(e) => e.dataTransfer.setData('application/json', JSON.stringify({ id: c.id, refCode: c.refCode, shortName: 'CUSTOM', type: c.type }))}
+              />
+            ))}
+          </AccordionContent>
+        </AccordionItem>
+      )}
     </Accordion>
   )
 }

@@ -38,7 +38,7 @@ const ControlChip: React.FC<ControlChipProps> = ({ control, draggable = false, o
   const details = ctrlData?.control || subData?.subcontrol
 
   const nameHref = control.type === 'control' ? `/controls/${ctrlData?.control.id}` : `/controls/${subData?.subcontrol.control.id}/${subData?.subcontrol.id}`
-  const standardHref = control.type === 'control' ? `/standards/${ctrlData?.control.standard?.id}` : `/standards/${subData?.subcontrol.control.standard?.id}`
+  const standardHref = control.type === 'control' ? `/standards/${ctrlData?.control.standardID}` : `/standards/${subData?.subcontrol.control.standardID}`
 
   const baseClasses = 'bg-background-secondary flex gap-1 items-center'
   const dragClass = draggable ? 'cursor-grab' : ''
@@ -68,43 +68,51 @@ const ControlChip: React.FC<ControlChipProps> = ({ control, draggable = false, o
           {loading ? (
             <p>Loading details…</p>
           ) : details ? (
-            <div className="grid grid-cols-[auto_1fr] gap-y-2 gap-x-3">
-              {/* Name */}
-              <div className="flex items-center gap-1">
-                <SlidersHorizontal size={12} />
-                <span className="font-medium">Name</span>
-              </div>
-              <Link href={nameHref} className="hover:underline flex items-center gap-1" target="_blank" rel="noopener">
-                <span className="text-brand">{details.refCode}</span> <ExternalLink size={12} />
-              </Link>
+            <div>
+              <div className="grid grid-cols-[auto_1fr] gap-y-2">
+                {/* Name */}
+                <div className="flex items-center gap-1 border-b pb-2">
+                  <SlidersHorizontal size={12} />
+                  <span className="font-medium">Name</span>
+                </div>
+                <div className="w-full border-b">
+                  <Link href={nameHref} className="size-fit pl-3 pb-2 hover:underline flex items-center gap-1" target="_blank" rel="noopener">
+                    <span className="text-brand">{details.refCode}</span> <ExternalLink size={12} />
+                  </Link>
+                </div>
 
-              {/* Standard */}
-              <div className="flex items-center gap-1">
-                <FileText size={12} />
-                <span className="font-medium">Standard</span>
-              </div>
-              <Link href={standardHref} className="hover:underline flex items-center gap-1" target="_blank" rel="noopener">
-                <span className="text-brand">{control.shortName}</span> <ExternalLink size={12} />
-              </Link>
+                {/* Standard */}
+                <div className="flex items-center gap-1 border-b pb-2">
+                  <FileText size={12} />
+                  <span className="font-medium">Standard</span>
+                </div>
+                <div className="w-full border-b">
+                  <Link href={standardHref} className=" size-fit pb-2 hover:underline flex items-center gap-1" target="_blank" rel="noopener">
+                    <span className="pl-3 text-brand ">{control.shortName}</span> <ExternalLink size={12} />
+                  </Link>
+                </div>
 
-              {/* Category */}
-              <div className="flex items-center gap-1">
-                <Folder size={12} />
-                <span className="font-medium">Category</span>
-              </div>
-              <span>{details.category}</span>
+                {/* Category */}
+                <div className="flex items-center gap-1 border-b pb-2">
+                  <Folder size={12} />
+                  <span className="font-medium">Category</span>
+                </div>
+                <span className="pl-3 pb-2 border-b">{details.category}</span>
 
-              {/* Subcategory */}
-              <div className="flex items-center gap-1">
-                <FolderPlus size={12} />
-                <span className="font-medium">Subcategory</span>
+                {/* Subcategory */}
+                <div className="flex items-center gap-1 border-b pb-2">
+                  <FolderPlus size={12} />
+                  <span className="font-medium">Subcategory</span>
+                </div>
+                <span className="pl-3 pb-2 border-b">{details.subcategory}</span>
               </div>
-              <span>{details.subcategory}</span>
 
               {/* Description (spans both cols for the text) */}
-              <div className="col-span-2 grid grid-cols-[auto_1fr] items-start gap-x-3 pt-2">
-                <PencilLine size={12} />
-                <span className="font-medium">Description</span>
+              <div className="flex flex-col pt-2">
+                <div className="flex items-center gap-1">
+                  <PencilLine size={12} />
+                  <span className="font-medium">Description</span>
+                </div>
                 <div className="line-clamp-4 text-justify">{convertToReadOnly(details.description || '', 0)}</div>
               </div>
             </div>

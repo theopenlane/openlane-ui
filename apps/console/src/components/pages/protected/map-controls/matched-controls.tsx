@@ -69,7 +69,7 @@ const MatchedControls = ({ controlData, droppedControls, where, subcontrolData, 
       )
     }
 
-    return <p className="mt-5">At least one filter is required</p>
+    return <div className="text-sm italic text-neutral-500">No available controls.</div>
   }, [controlData, droppedControls, expandedItems, where, subcontrolData, isLoading])
 
   return (

@@ -35587,15 +35587,7 @@ export type GetControlByIdMinifiedQueryVariables = Exact<{
 
 export type GetControlByIdMinifiedQuery = {
   __typename?: 'Query'
-  control: {
-    __typename?: 'Control'
-    id: string
-    refCode: string
-    category?: string | null
-    subcategory?: string | null
-    description?: string | null
-    standard?: { __typename?: 'Standard'; id: string; shortName?: string | null } | null
-  }
+  control: { __typename?: 'Control'; id: string; refCode: string; standardID?: string | null; category?: string | null; subcategory?: string | null; description?: string | null }
 }
 
 export type CreateEvidenceMutationVariables = Exact<{
@@ -37546,7 +37538,7 @@ export type GetSubcontrolByIdMinifiedQuery = {
     category?: string | null
     subcategory?: string | null
     description?: string | null
-    control: { __typename?: 'Control'; id: string; standard?: { __typename?: 'Standard'; id: string; shortName?: string | null } | null }
+    control: { __typename?: 'Control'; id: string; standardID?: string | null }
   }
 }
 
