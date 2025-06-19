@@ -82,7 +82,6 @@ export const GET_ALL_ORGANIZATIONS_WITH_MEMBERS = gql`
           members(where: $membersWhere) {
             edges {
               node {
-                id
                 role
                 user {
                   id
