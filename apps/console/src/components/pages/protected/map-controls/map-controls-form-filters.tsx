@@ -85,15 +85,24 @@ const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange, enableSubcont
       </Select>
 
       <label className="text-sm font-medium">Category</label>
-      <MultipleSelector
-        placeholder="Add or select category..."
-        creatable
-        className="w-full"
-        commandProps={{ className: 'w-full' }}
-        value={categoryOpts}
-        options={categories.map((cat) => ({ value: cat.toLowerCase(), label: cat }))}
-        onChange={setCategoryOpts}
-      />
+      <Select
+        value={selectedCategoryValues[0] || ''}
+        onValueChange={(value) => {
+          if (!value) return
+          setCategoryOpts([{ value, label: value }])
+        }}
+      >
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder="Select a category..." />
+        </SelectTrigger>
+        <SelectContent>
+          {categories.map((cat) => (
+            <SelectItem key={cat} value={cat.toLowerCase()}>
+              {cat}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
       <label className="text-sm font-medium">Keyword</label>
       <Input value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="Search by keyword" />

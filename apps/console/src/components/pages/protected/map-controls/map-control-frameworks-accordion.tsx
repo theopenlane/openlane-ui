@@ -22,7 +22,16 @@ interface Props {
   droppedControls: DroppedControl[]
   expandedItems: Record<string, boolean>
   setExpandedItems: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
-  subcontrolData?: GetSubcontrolSelectOptionsQuery
+  subcontrolData:
+    | {
+        __typename?: 'Subcontrol'
+        id: string
+        refCode: string
+        category?: string | null
+        subcategory?: string | null
+        referenceFramework?: string | null
+      }[]
+    | undefined
 }
 
 type SubcontrolOrControl =
@@ -63,7 +72,7 @@ const MapControlFrameworksAccordion: React.FC<Props> = ({ controlData, droppedCo
     }
 
     controlData?.forEach((control) => addControl(control, 'control'))
-    subcontrolData?.subcontrols?.edges?.forEach((edge) => addControl(edge?.node, 'subcontrol'))
+    subcontrolData?.forEach((subcontrol) => addControl(subcontrol, 'subcontrol'))
 
     return { controlsByFramework: byFramework, customControls: custom }
   }, [controlData, subcontrolData, droppedIds])
@@ -102,7 +111,7 @@ const MapControlFrameworksAccordion: React.FC<Props> = ({ controlData, droppedCo
         return (
           <AccordionItem key={key} value={key}>
             <RelationsAccordionTrigger label={key} count={items.length} />
-            <AccordionContent className="my-3 flex flex-wrap gap-2">
+            <AccordionContent className="my-3 flex flex-wrap gap-2 max-h-28 overflow-auto">
               {items.map((c) => (
                 <ControlChip
                   key={c.id}
@@ -119,7 +128,7 @@ const MapControlFrameworksAccordion: React.FC<Props> = ({ controlData, droppedCo
       {/* Custom section */}
       <AccordionItem key="custom" value="custom">
         <RelationsAccordionTrigger label="Custom" count={customControls.length} />
-        <AccordionContent className="my-3 flex flex-wrap gap-2">
+        <AccordionContent className="my-3 flex flex-wrap gap-2 max-h-28 overflow-auto">
           {customControls.map((c) => (
             <ControlChip
               key={c.id}

@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo } from 'react'
 import { Accordion, AccordionContent, AccordionItem } from '@radix-ui/react-accordion'
 import ControlChip from './shared/control-chip'
-import { GetControlSelectOptionsQuery, GetSubcontrolSelectOptionsQuery } from '@repo/codegen/src/schema'
 import { DroppedControl } from './map-controls-card'
 import RelationsAccordionTrigger from '@/components/shared/relations-accordion-trigger.tsx/relations-accordion-trigger'
 import { useGetControlCategories } from '@/lib/graphql-hooks/controls'
@@ -22,13 +21,26 @@ interface Props {
   droppedControls: DroppedControl[]
   expandedItems: Record<string, boolean>
   setExpandedItems: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
-  subcontrolData?: GetSubcontrolSelectOptionsQuery
+  subcontrolData:
+    | {
+        __typename?: 'Subcontrol'
+        id: string
+        refCode: string
+        category?: string | null
+        subcategory?: string | null
+        referenceFramework?: string | null
+      }[]
+    | undefined
 }
 
 const MapControlCategoriesAccordion = ({ controlData, droppedControls, expandedItems, setExpandedItems, subcontrolData }: Props) => {
   const droppedIds = useMemo(() => droppedControls.map((dc) => dc.id), [droppedControls])
   const { data } = useGetControlCategories()
-  const categories = useMemo(() => data?.controlCategories?.map((val) => val).filter((val): val is string => !!val) || [], [data])
+  const categories = useMemo(() => {
+    const cats = data?.controlCategories?.map((val) => val).filter((val): val is string => !!val) || []
+    cats.push('Custom')
+    return cats
+  }, [data])
 
   const controlsByCategory = useMemo(() => {
     const map: Record<string, { id: string; refCode: string; referenceFramework?: string; type: 'control' | 'subcontrol' }[]> = {}
@@ -39,7 +51,7 @@ const MapControlCategoriesAccordion = ({ controlData, droppedControls, expandedI
     controlData?.forEach((control) => {
       if (!control || !control.refCode || droppedIds.includes(control.id)) return
 
-      const categoryValue = control.category || ''
+      const categoryValue = control.category || 'Custom'
       if (categoryValue && map[categoryValue]) {
         map[categoryValue].push({
           id: control.id ?? '',
@@ -50,16 +62,15 @@ const MapControlCategoriesAccordion = ({ controlData, droppedControls, expandedI
       }
     })
 
-    subcontrolData?.subcontrols?.edges?.forEach((edge) => {
-      const control = edge?.node
-      if (!control || !control.refCode || droppedIds.includes(control.id)) return
+    subcontrolData?.forEach((subcontrol) => {
+      if (!subcontrol || !subcontrol.refCode || droppedIds.includes(subcontrol.id)) return
 
-      const categoryValue = control.category || ''
+      const categoryValue = subcontrol.category || 'Custom'
       if (categoryValue && map[categoryValue]) {
         map[categoryValue].push({
-          id: control.id,
-          refCode: control.refCode,
-          referenceFramework: control.referenceFramework || undefined,
+          id: subcontrol.id,
+          refCode: subcontrol.refCode,
+          referenceFramework: subcontrol.referenceFramework || undefined,
           type: 'subcontrol',
         })
       }

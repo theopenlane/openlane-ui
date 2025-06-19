@@ -35581,6 +35581,23 @@ export type GetControlsPaginatedQuery = {
   }
 }
 
+export type GetControlByIdMinifiedQueryVariables = Exact<{
+  controlId: Scalars['ID']['input']
+}>
+
+export type GetControlByIdMinifiedQuery = {
+  __typename?: 'Query'
+  control: {
+    __typename?: 'Control'
+    id: string
+    refCode: string
+    category?: string | null
+    subcategory?: string | null
+    description?: string | null
+    standard?: { __typename?: 'Standard'; id: string; shortName?: string | null } | null
+  }
+}
+
 export type CreateEvidenceMutationVariables = Exact<{
   input: CreateEvidenceInput
   evidenceFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
@@ -37495,6 +37512,41 @@ export type GetSubcontrolSelectOptionsQuery = {
       __typename?: 'SubcontrolEdge'
       node?: { __typename?: 'Subcontrol'; id: string; refCode: string; category?: string | null; subcategory?: string | null; referenceFramework?: string | null } | null
     } | null> | null
+  }
+}
+
+export type GetSubcontrolsPaginatedQueryVariables = Exact<{
+  where?: InputMaybe<SubcontrolWhereInput>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type GetSubcontrolsPaginatedQuery = {
+  __typename?: 'Query'
+  subcontrols: {
+    __typename?: 'SubcontrolConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'SubcontrolEdge'
+      node?: { __typename?: 'Subcontrol'; id: string; refCode: string; category?: string | null; subcategory?: string | null; referenceFramework?: string | null } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; endCursor?: any | null }
+  }
+}
+
+export type GetSubcontrolByIdMinifiedQueryVariables = Exact<{
+  subcontrolId: Scalars['ID']['input']
+}>
+
+export type GetSubcontrolByIdMinifiedQuery = {
+  __typename?: 'Query'
+  subcontrol: {
+    __typename?: 'Subcontrol'
+    id: string
+    refCode: string
+    category?: string | null
+    subcategory?: string | null
+    description?: string | null
+    control: { __typename?: 'Control'; id: string; standard?: { __typename?: 'Standard'; id: string; shortName?: string | null } | null }
   }
 }
 

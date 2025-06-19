@@ -6,6 +6,7 @@ import {
   DELETE_CONTROL,
   GET_ALL_CONTROLS,
   GET_CONTROL_BY_ID,
+  GET_CONTROL_BY_ID_MINIFIED,
   GET_CONTROL_CATEGORIES,
   GET_CONTROL_COUNTS_BY_STATUS,
   GET_CONTROL_SELECT_OPTIONS,
@@ -25,6 +26,8 @@ import {
   DeleteControlMutationVariables,
   GetAllControlsQuery,
   GetAllControlsQueryVariables,
+  GetControlByIdMinifiedQuery,
+  GetControlByIdMinifiedQueryVariables,
   GetControlByIdQuery,
   GetControlCategoriesQuery,
   GetControlCountsByStatusQuery,
@@ -231,4 +234,17 @@ export function useAllControlsGrouped({ where, enabled = true }: { where?: Contr
     fetchNextPage,
     ...rest,
   }
+}
+
+export function useGetControlMinifiedById(controlId?: string, enabled = true) {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetControlByIdMinifiedQuery, Error>({
+    queryKey: ['controls', controlId, 'minified'],
+    queryFn: async () => {
+      const data = await client.request<GetControlByIdMinifiedQuery, GetControlByIdMinifiedQueryVariables>(GET_CONTROL_BY_ID_MINIFIED, { controlId: controlId! })
+      return data
+    },
+    enabled: !!controlId && enabled,
+  })
 }

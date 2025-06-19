@@ -1,4 +1,3 @@
-import { GetSubcontrolSelectOptionsQuery } from '@repo/codegen/src/schema'
 import React, { useMemo } from 'react'
 import { DroppedControl } from './map-controls-card'
 import ControlChip from './shared/control-chip'
@@ -17,7 +16,16 @@ interface Props {
     | undefined
   )[]
   droppedControls: DroppedControl[]
-  subcontrolData?: GetSubcontrolSelectOptionsQuery
+  subcontrolData:
+    | {
+        __typename?: 'Subcontrol'
+        id: string
+        refCode: string
+        category?: string | null
+        subcategory?: string | null
+        referenceFramework?: string | null
+      }[]
+    | undefined
 }
 
 const MapControlResults = ({ controlData, droppedControls, subcontrolData }: Props) => {
@@ -26,13 +34,9 @@ const MapControlResults = ({ controlData, droppedControls, subcontrolData }: Pro
   const availableControls = useMemo(() => {
     const controlNodes = controlData?.map((node) => ({ ...node, type: 'control' as const })) || []
 
-    // const subcontrolNodes =
-    //   subcontrolData?.subcontrols?.edges
-    //     ?.map((edge) => edge?.node)
-    //     .filter((node): node is NonNullable<typeof node> => !!node)
-    //     .map((node) => ({ ...node, type: 'subcontrol' as const })) || []
+    const subcontrolNodes = subcontrolData?.map((node) => ({ ...node, type: 'subcontrol' as const })) || []
 
-    return [...controlNodes].filter((node) => !droppedIds.includes(node?.id || ''))
+    return [...controlNodes, ...subcontrolNodes].filter((node) => !droppedIds.includes(node?.id || ''))
   }, [controlData, subcontrolData, droppedIds])
 
   return (

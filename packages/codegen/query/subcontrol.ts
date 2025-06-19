@@ -202,3 +202,43 @@ export const GET_SUBCONTROL_SELECT_OPTIONS = gql`
     }
   }
 `
+
+export const GET_SUBCONTROLS_PAGINATED = gql`
+  query GetSubcontrolsPaginated($where: SubcontrolWhereInput, $after: Cursor) {
+    subcontrols(where: $where, after: $after) {
+      totalCount
+      edges {
+        node {
+          id
+          refCode
+          category
+          subcategory
+          referenceFramework
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+    }
+  }
+`
+
+export const GET_SUBCONTROL_BY_ID_MINIFIED = gql`
+  query GetSubcontrolByIdMinified($subcontrolId: ID!) {
+    subcontrol(id: $subcontrolId) {
+      id
+      refCode
+      control {
+        id
+        standard {
+          id
+          shortName
+        }
+      }
+      category
+      subcategory
+      description
+    }
+  }
+`

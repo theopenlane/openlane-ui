@@ -20,7 +20,16 @@ interface Props {
     | null
     | undefined
   )[]
-  subcontrolData?: GetSubcontrolSelectOptionsQuery
+  subcontrolData:
+    | {
+        __typename?: 'Subcontrol'
+        id: string
+        refCode: string
+        category?: string | null
+        subcategory?: string | null
+        referenceFramework?: string | null
+      }[]
+    | undefined
   droppedControls: DroppedControl[]
   where: ControlWhereInput | SubcontrolWhereInput
   isLoading?: boolean
@@ -60,7 +69,7 @@ const MatchedControls = ({ controlData, droppedControls, where, subcontrolData, 
       )
     }
 
-    return <p className="mt-5">At least one keyword required</p>
+    return <p className="mt-5">At least one filter is required</p>
   }, [controlData, droppedControls, expandedItems, where, subcontrolData, isLoading])
 
   return (

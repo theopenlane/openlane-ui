@@ -4,11 +4,11 @@ import MapControlsFormFilters from './map-controls-form-filters'
 import MatchedControls from './matched-controls'
 import { AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { ChevronDown, Expand } from 'lucide-react'
-import { useAllControlsGrouped, useControlSelect } from '@/lib/graphql-hooks/controls'
+import { useAllControlsGrouped } from '@/lib/graphql-hooks/controls'
 
 import ControlChip from './shared/control-chip'
 import { ControlWhereInput, SubcontrolWhereInput } from '@repo/codegen/src/schema'
-import { useSubcontrolSelect } from '@/lib/graphql-hooks/subcontrol'
+import { useAllSubcontrolsGrouped } from '@/lib/graphql-hooks/subcontrol'
 import { useFormContext } from 'react-hook-form'
 import { MapControlsFormData } from './use-form-schema'
 
@@ -33,12 +33,11 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
 
   const hasFilters = Object.keys(where).length > 0
 
+  const subcontrolEnabled = hasFilters && enableSubcontrols
+
   const allControls = useAllControlsGrouped({ where: where as ControlWhereInput, enabled: hasFilters })
-
-  console.log(allControls)
-
-  // const { data: controlData } = useControlSelect({ where: where as ControlWhereInput, enabled: hasFilters })
-  const { data: subcontrolData } = useSubcontrolSelect({ where: where as SubcontrolWhereInput, enabled: enableSubcontrols && hasFilters })
+  const allSubcontrols = useAllSubcontrolsGrouped({ where: where as SubcontrolWhereInput, enabled: subcontrolEnabled })
+  const queriesLoading = allControls.isLoading || allSubcontrols.isLoading
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
@@ -68,8 +67,25 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
     }
   }
 
-  const handleRemove = (id: string) => {
-    setDroppedControls((prev) => prev.filter((c) => c.id !== id))
+  const handleRemove = (control: DroppedControl) => {
+    const isFrom = title === 'From'
+    const controlField = isFrom ? 'fromControlIDs' : 'toControlIDs'
+    const subcontrolField = isFrom ? 'fromSubcontrolIDs' : 'toSubcontrolIDs'
+    setDroppedControls((prev) => prev.filter((c) => c.id !== control.id))
+
+    if (control.type === 'control') {
+      const ids = getValues(controlField) || []
+      setValue(
+        controlField,
+        ids.filter((i: string) => i !== control.id),
+      )
+    } else if (control.type === 'subcontrol') {
+      const ids = getValues(subcontrolField) || []
+      setValue(
+        subcontrolField,
+        ids.filter((i: string) => i !== control.id),
+      )
+    }
   }
   return (
     <Card className="p-4">
@@ -99,7 +115,13 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
             <CardContent className="grid grid-cols-[2fr_325px] gap-x-8 p-0 mt-5">
               <div>
                 <MapControlsFormFilters enableSubcontrols={enableSubcontrols} setEnableSubcontrols={setEnableSubcontrols} onFilterChange={setWhere} />
-                <MatchedControls isLoading={allControls.isLoading} where={where} controlData={allControls?.allControls} subcontrolData={subcontrolData} droppedControls={droppedControls} />
+                <MatchedControls
+                  isLoading={queriesLoading}
+                  where={where}
+                  controlData={allControls?.allControls}
+                  subcontrolData={subcontrolEnabled ? allSubcontrols.allSubcontrols : undefined}
+                  droppedControls={droppedControls}
+                />
               </div>
               <div className="border-2 border-dashed rounded-lg flex items-center justify-center flex-col gap-2" onDragOver={(e) => e.preventDefault()} onDrop={handleDrop}>
                 {!droppedControls.length ? (
@@ -116,7 +138,7 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
                         draggable
                         onDragStart={(e) => e.dataTransfer.setData('application/json', JSON.stringify(control))}
                         onDragEnd={(e) => {
-                          if (e.dataTransfer.dropEffect === 'none') handleRemove(control.id)
+                          if (e.dataTransfer.dropEffect === 'none') handleRemove(control)
                         }}
                         removable
                         onRemove={handleRemove}

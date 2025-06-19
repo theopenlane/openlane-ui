@@ -70,8 +70,8 @@ const Page = () => {
   }
 
   const onSubmit = async (data: MapControlsFormData) => {
-    const hasFrom = !!data.fromControlIDs || !!data.fromSubcontrolIDs
-    const hasTo = !!data.toControlIDs || !!data.toSubcontrolIDs
+    const hasFrom = (!!data.fromControlIDs && !!data.fromControlIDs.length) || (!!data.fromSubcontrolIDs && !!data.fromSubcontrolIDs.length)
+    const hasTo = (!!data.toControlIDs && !!data.toControlIDs.length) || (!!data.toSubcontrolIDs && !!data.toSubcontrolIDs.length)
     if (!hasFrom) {
       errorNotification({ title: 'Controls missing in From segment' })
       return

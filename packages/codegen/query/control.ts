@@ -305,3 +305,19 @@ export const GET_CONTROLS_PAGINATED = gql`
     }
   }
 `
+
+export const GET_CONTROL_BY_ID_MINIFIED = gql`
+  query GetControlByIdMinified($controlId: ID!) {
+    control(id: $controlId) {
+      id
+      refCode
+      standard {
+        id
+        shortName
+      }
+      category
+      subcategory
+      description
+    }
+  }
+`
