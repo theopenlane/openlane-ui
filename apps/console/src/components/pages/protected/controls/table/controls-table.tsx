@@ -38,7 +38,13 @@ const ControlsTable: React.FC = () => {
       direction: OrderDirection.ASC,
     },
   ])
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    referenceID: false,
+    auditorReferenceID: false,
+    source: false,
+    controlType: false,
+    referenceFramework: false,
+  })
   const [searchTerm, setSearchTerm] = useState('')
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const debouncedSearch = useDebounce(searchTerm, 300)
@@ -143,6 +149,36 @@ const ControlsTable: React.FC = () => {
           )
         },
         size: 100,
+      },
+      {
+        header: 'Reference ID',
+        accessorKey: 'referenceID',
+        cell: ({ row }) => <div>{row.getValue('referenceID') || '-'}</div>,
+        size: 120,
+      },
+      {
+        header: 'Auditor Reference ID',
+        accessorKey: 'auditorReferenceID',
+        cell: ({ row }) => <div>{row.getValue('auditorReferenceID') || '-'}</div>,
+        size: 120,
+      },
+      {
+        header: 'Source',
+        accessorKey: 'source',
+        cell: ({ row }) => <div>{row.getValue('source') || '-'}</div>,
+        size: 120,
+      },
+      {
+        header: 'Control Type',
+        accessorKey: 'controlType',
+        cell: ({ row }) => <div>{row.getValue('controlType') || '-'}</div>,
+        size: 120,
+      },
+      {
+        header: 'Reference Framework',
+        accessorKey: 'referenceFramework',
+        cell: ({ row }) => <div>{row.getValue('referenceFramework') || '-'}</div>,
+        size: 120,
       },
     ],
     [plateEditorHelper],
