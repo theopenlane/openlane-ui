@@ -4,7 +4,7 @@ import MapControlsFormFilters from './map-controls-form-filters'
 import MatchedControls from './matched-controls'
 import { AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { ChevronDown, Expand } from 'lucide-react'
-import { useControlSelect } from '@/lib/graphql-hooks/controls'
+import { useAllControlsGrouped, useControlSelect } from '@/lib/graphql-hooks/controls'
 
 import ControlChip from './shared/control-chip'
 import { ControlWhereInput, SubcontrolWhereInput } from '@repo/codegen/src/schema'
@@ -33,7 +33,11 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
 
   const hasFilters = Object.keys(where).length > 0
 
-  const { data: controlData } = useControlSelect({ where: where as ControlWhereInput, enabled: hasFilters })
+  const allControls = useAllControlsGrouped({ where: where as ControlWhereInput, enabled: hasFilters })
+
+  console.log(allControls)
+
+  // const { data: controlData } = useControlSelect({ where: where as ControlWhereInput, enabled: hasFilters })
   const { data: subcontrolData } = useSubcontrolSelect({ where: where as SubcontrolWhereInput, enabled: hasFilters })
 
   const handleDrop = (e: React.DragEvent) => {
@@ -95,7 +99,7 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
             <CardContent className="grid grid-cols-[2fr_325px] gap-x-8 p-0 mt-5">
               <div>
                 <MapControlsFormFilters onFilterChange={setWhere} />
-                <MatchedControls where={where} controlData={controlData} subcontrolData={subcontrolData} droppedControls={droppedControls} />
+                <MatchedControls where={where} controlData={allControls.allControls} subcontrolData={subcontrolData} droppedControls={droppedControls} />
               </div>
               <div className="border-2 border-dashed rounded-lg h-80 flex items-center justify-center flex-col gap-2" onDragOver={(e) => e.preventDefault()} onDrop={handleDrop}>
                 {!droppedControls.length ? (

@@ -7,7 +7,18 @@ import { DroppedControl } from './map-controls-card'
 import RelationsAccordionTrigger from '@/components/shared/relations-accordion-trigger.tsx/relations-accordion-trigger'
 
 interface Props {
-  controlData?: GetControlSelectOptionsQuery
+  controlData?: (
+    | {
+        __typename?: 'Control'
+        id: string
+        refCode: string
+        category?: string | null
+        subcategory?: string | null
+        referenceFramework?: string | null
+      }
+    | null
+    | undefined
+  )[]
   droppedControls: DroppedControl[]
   expandedItems: Record<string, boolean>
   setExpandedItems: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
@@ -51,7 +62,7 @@ const MapControlFrameworksAccordion: React.FC<Props> = ({ controlData, droppedCo
       }
     }
 
-    controlData?.controls?.edges?.forEach((edge) => addControl(edge?.node, 'control'))
+    controlData?.forEach((control) => addControl(control, 'control'))
     subcontrolData?.subcontrols?.edges?.forEach((edge) => addControl(edge?.node, 'subcontrol'))
 
     return { controlsByFramework: byFramework, customControls: custom }

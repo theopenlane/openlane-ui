@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient, useInfiniteQuery, InfiniteData } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   CREATE_CONTROL,
@@ -10,6 +10,7 @@ import {
   GET_CONTROL_COUNTS_BY_STATUS,
   GET_CONTROL_SELECT_OPTIONS,
   GET_CONTROL_SUBCATEGORIES,
+  GET_CONTROLS_PAGINATED,
   UPDATE_CONTROL,
 } from '@repo/codegen/query/control'
 
@@ -29,13 +30,15 @@ import {
   GetControlCountsByStatusQuery,
   GetControlSelectOptionsQuery,
   GetControlSelectOptionsQueryVariables,
+  GetControlsPaginatedQuery,
+  GetControlsPaginatedQueryVariables,
   GetControlSubcategoriesQuery,
   UpdateControlMutation,
   UpdateControlMutationVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 
 type UseGetAllControlsArgs = {
   where?: GetAllControlsQueryVariables['where']
@@ -181,4 +184,43 @@ export const useGetControlSubcategories = () => {
     queryKey: ['controlSubcategories'],
     queryFn: () => client.request<GetControlSubcategoriesQuery>(GET_CONTROL_SUBCATEGORIES),
   })
+}
+
+export function useFetchAllControls(where?: ControlWhereInput, enabled = true) {
+  const { client } = useGraphQLClient()
+
+  return useInfiniteQuery<GetControlsPaginatedQuery['controls'], Error, InfiniteData<GetControlsPaginatedQuery['controls']>, ['controls', 'infinite', ControlWhereInput?]>({
+    queryKey: ['controls', 'infinite', where],
+    queryFn: async ({ pageParam }) => {
+      const { controls } = await client.request<GetControlsPaginatedQuery, GetControlsPaginatedQueryVariables>(GET_CONTROLS_PAGINATED, {
+        where,
+        after: pageParam,
+      })
+      return controls
+    },
+    initialPageParam: undefined,
+    getNextPageParam: (last) => (last.pageInfo.hasNextPage ? last.pageInfo.endCursor : undefined),
+    enabled,
+  })
+}
+
+export function useAllControlsGrouped({ where, enabled = true }: { where?: ControlWhereInput; enabled?: boolean }) {
+  const { data, hasNextPage, isFetchingNextPage, fetchNextPage, ...rest } = useFetchAllControls(where, enabled)
+
+  useEffect(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage()
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+
+  const allControls = data?.pages.flatMap((page) => page?.edges?.map((edge) => edge?.node)) ?? []
+
+  return {
+    allControls,
+    data,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+    ...rest,
+  }
 }

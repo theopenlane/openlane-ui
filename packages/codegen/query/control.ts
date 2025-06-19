@@ -284,3 +284,24 @@ export const GET_CONTROL_SUBCATEGORIES = gql`
     controlSubcategories
   }
 `
+
+export const GET_CONTROLS_PAGINATED = gql`
+  query GetControlsPaginated($where: ControlWhereInput, $after: Cursor) {
+    controls(where: $where, after: $after) {
+      totalCount
+      edges {
+        node {
+          id
+          refCode
+          category
+          subcategory
+          referenceFramework
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+    }
+  }
+`

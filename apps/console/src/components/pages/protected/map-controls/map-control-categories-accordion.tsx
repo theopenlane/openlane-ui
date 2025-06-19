@@ -7,7 +7,18 @@ import RelationsAccordionTrigger from '@/components/shared/relations-accordion-t
 import { useGetControlCategories } from '@/lib/graphql-hooks/controls'
 
 interface Props {
-  controlData?: GetControlSelectOptionsQuery
+  controlData?: (
+    | {
+        __typename?: 'Control'
+        id: string
+        refCode: string
+        category?: string | null
+        subcategory?: string | null
+        referenceFramework?: string | null
+      }
+    | null
+    | undefined
+  )[]
   droppedControls: DroppedControl[]
   expandedItems: Record<string, boolean>
   setExpandedItems: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
@@ -18,20 +29,20 @@ const MapControlCategoriesAccordion = ({ controlData, droppedControls, expandedI
   const droppedIds = useMemo(() => droppedControls.map((dc) => dc.id), [droppedControls])
   const { data } = useGetControlCategories()
   const categories = useMemo(() => data?.controlCategories?.map((val) => val).filter((val): val is string => !!val) || [], [data])
+
   const controlsByCategory = useMemo(() => {
     const map: Record<string, { id: string; refCode: string; referenceFramework?: string; type: 'control' | 'subcontrol' }[]> = {}
     categories.forEach((cat) => {
       map[cat] = []
     })
 
-    controlData?.controls?.edges?.forEach((edge) => {
-      const control = edge?.node
+    controlData?.forEach((control) => {
       if (!control || !control.refCode || droppedIds.includes(control.id)) return
 
       const categoryValue = control.category || ''
       if (categoryValue && map[categoryValue]) {
         map[categoryValue].push({
-          id: control.id,
+          id: control.id ?? '',
           refCode: control.refCode,
           referenceFramework: control.referenceFramework || undefined,
           type: 'control',

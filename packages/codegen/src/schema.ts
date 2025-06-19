@@ -35563,6 +35563,24 @@ export type GetControlSubcategoriesQueryVariables = Exact<{ [key: string]: never
 
 export type GetControlSubcategoriesQuery = { __typename?: 'Query'; controlSubcategories?: Array<string> | null }
 
+export type GetControlsPaginatedQueryVariables = Exact<{
+  where?: InputMaybe<ControlWhereInput>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type GetControlsPaginatedQuery = {
+  __typename?: 'Query'
+  controls: {
+    __typename?: 'ControlConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'ControlEdge'
+      node?: { __typename?: 'Control'; id: string; refCode: string; category?: string | null; subcategory?: string | null; referenceFramework?: string | null } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; endCursor?: any | null }
+  }
+}
+
 export type CreateEvidenceMutationVariables = Exact<{
   input: CreateEvidenceInput
   evidenceFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>

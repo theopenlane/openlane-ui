@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useOrganization } from '@/hooks/useOrganization'
-import { useGetControlCategories } from '@/lib/graphql-hooks/controls'
+import { useAllControlsGrouped, useGetControlCategories } from '@/lib/graphql-hooks/controls'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
 import { ControlWhereInput } from '@repo/codegen/src/schema'
 import { Input } from '@repo/ui/input'
@@ -43,8 +43,10 @@ const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange }) => {
   useEffect(() => {
     const where: ControlWhereInput = {}
 
-    if (referenceFramework) {
+    if (referenceFramework && referenceFramework !== 'Custom') {
       where.referenceFramework = referenceFramework
+    } else if (referenceFramework === 'Custom') {
+      where.referenceFrameworkIsNil = true
     }
 
     const orClauses: ControlWhereInput[] = []
@@ -74,6 +76,7 @@ const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange }) => {
           <SelectValue placeholder="Select Framework" />
         </SelectTrigger>
         <SelectContent>
+          <SelectItem value={'Custom'}>{'Custom'}</SelectItem>
           {standardOptions.map((opt) => (
             <SelectItem key={opt.value} value={opt.label}>
               {opt.label}
@@ -97,6 +100,21 @@ const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange }) => {
 
       <label className="text-sm font-medium">Keyword</label>
       <Input value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="Search by keyword" />
+      {(referenceFramework || categoryOpts.length > 0 || keyword) && (
+        <div className="col-span-2 flex justify-end">
+          <p
+            onClick={() => {
+              setReferenceFramework('')
+              setCategoryOpts([])
+              setKeyword('')
+              onFilterChange({})
+            }}
+            className="text-blue-500 cursor-pointer self-start"
+          >
+            Clear
+          </p>
+        </div>
+      )}
     </div>
   )
 }

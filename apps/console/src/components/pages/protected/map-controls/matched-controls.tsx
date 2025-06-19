@@ -8,7 +8,18 @@ import MapControlFrameworksAccordion from './map-control-frameworks-accordion'
 import MapControlResults from './map-control-results'
 
 interface Props {
-  controlData: GetControlSelectOptionsQuery | undefined
+  controlData: (
+    | {
+        __typename?: 'Control'
+        id: string
+        refCode: string
+        category?: string | null
+        subcategory?: string | null
+        referenceFramework?: string | null
+      }
+    | null
+    | undefined
+  )[]
   subcontrolData?: GetSubcontrolSelectOptionsQuery
   droppedControls: DroppedControl[]
   where: ControlWhereInput | SubcontrolWhereInput
