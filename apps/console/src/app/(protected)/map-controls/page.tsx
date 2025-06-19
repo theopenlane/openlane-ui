@@ -77,7 +77,7 @@ const Page = () => {
       return
     }
     if (!hasTo) {
-      errorNotification({ title: 'Controls missing in To segment' })
+      errorNotification({ title: 'To control is required' })
       return
     }
     try {
