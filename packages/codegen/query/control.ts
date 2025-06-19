@@ -270,11 +270,55 @@ export const GET_CONTROL_SELECT_OPTIONS = gql`
           refCode
           category
           subcategory
-          standard {
-            shortName
-          }
+          referenceFramework
         }
       }
+    }
+  }
+`
+
+export const GET_CONTROL_CATEGORIES = gql`
+  query GetControlCategories {
+    controlCategories
+  }
+`
+
+export const GET_CONTROL_SUBCATEGORIES = gql`
+  query GetControlSubcategories {
+    controlSubcategories
+  }
+`
+
+export const GET_CONTROLS_PAGINATED = gql`
+  query GetControlsPaginated($where: ControlWhereInput, $after: Cursor) {
+    controls(where: $where, after: $after) {
+      totalCount
+      edges {
+        node {
+          id
+          refCode
+          category
+          subcategory
+          referenceFramework
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+    }
+  }
+`
+
+export const GET_CONTROL_BY_ID_MINIFIED = gql`
+  query GetControlByIdMinified($controlId: ID!) {
+    control(id: $controlId) {
+      id
+      refCode
+      standardID
+      category
+      subcategory
+      description
     }
   }
 `

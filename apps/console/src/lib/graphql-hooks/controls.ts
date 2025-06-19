@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient, useInfiniteQuery, InfiniteData } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   CREATE_CONTROL,
@@ -6,8 +6,12 @@ import {
   DELETE_CONTROL,
   GET_ALL_CONTROLS,
   GET_CONTROL_BY_ID,
+  GET_CONTROL_BY_ID_MINIFIED,
+  GET_CONTROL_CATEGORIES,
   GET_CONTROL_COUNTS_BY_STATUS,
   GET_CONTROL_SELECT_OPTIONS,
+  GET_CONTROL_SUBCATEGORIES,
+  GET_CONTROLS_PAGINATED,
   UPDATE_CONTROL,
 } from '@repo/codegen/query/control'
 
@@ -22,16 +26,22 @@ import {
   DeleteControlMutationVariables,
   GetAllControlsQuery,
   GetAllControlsQueryVariables,
+  GetControlByIdMinifiedQuery,
+  GetControlByIdMinifiedQueryVariables,
   GetControlByIdQuery,
+  GetControlCategoriesQuery,
   GetControlCountsByStatusQuery,
   GetControlSelectOptionsQuery,
   GetControlSelectOptionsQueryVariables,
+  GetControlsPaginatedQuery,
+  GetControlsPaginatedQueryVariables,
+  GetControlSubcategoriesQuery,
   UpdateControlMutation,
   UpdateControlMutationVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 
 type UseGetAllControlsArgs = {
   where?: GetAllControlsQueryVariables['where']
@@ -134,7 +144,7 @@ export const useCreateControl = () => {
   })
 }
 
-export const useControlSelect = ({ where }: { where?: ControlWhereInput }) => {
+export const useControlSelect = ({ where, enabled = true }: { where?: ControlWhereInput; enabled?: boolean }) => {
   const { client } = useGraphQLClient()
 
   const { data, isLoading, error } = useQuery<GetControlSelectOptionsQuery>({
@@ -142,12 +152,13 @@ export const useControlSelect = ({ where }: { where?: ControlWhereInput }) => {
     queryFn: async () => {
       return client.request<GetControlSelectOptionsQuery, GetControlSelectOptionsQueryVariables>(GET_CONTROL_SELECT_OPTIONS, { where })
     },
+    enabled,
   })
 
   const controlOptions = useMemo(
     () =>
       data?.controls?.edges?.flatMap((edge) =>
-        edge?.node?.id && edge.node.refCode ? [{ label: `${edge.node.refCode}${edge.node.standard?.shortName ? `( ${edge.node.standard?.shortName})` : ''}`, value: edge.node.id }] : [],
+        edge?.node?.id && edge.node.refCode ? [{ label: `${edge.node.refCode}${edge.node.referenceFramework ? `( ${edge.node.referenceFramework})` : ''}`, value: edge.node.id }] : [],
       ) ?? [],
     [data],
   )
@@ -158,4 +169,82 @@ export const useControlSelect = ({ where }: { where?: ControlWhereInput }) => {
     error,
     data,
   }
+}
+
+export const useGetControlCategories = () => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetControlCategoriesQuery, Error>({
+    queryKey: ['controlCategories'],
+    queryFn: () => client.request<GetControlCategoriesQuery>(GET_CONTROL_CATEGORIES),
+  })
+}
+
+export const useGetControlSubcategories = () => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetControlSubcategoriesQuery, Error>({
+    queryKey: ['controlSubcategories'],
+    queryFn: () => client.request<GetControlSubcategoriesQuery>(GET_CONTROL_SUBCATEGORIES),
+  })
+}
+
+export function useFetchAllControls(where?: ControlWhereInput, enabled = true) {
+  const { client } = useGraphQLClient()
+
+  return useInfiniteQuery<GetControlsPaginatedQuery['controls'], Error, InfiniteData<GetControlsPaginatedQuery['controls']>, ['controls', 'infinite', ControlWhereInput?]>({
+    queryKey: ['controls', 'infinite', where],
+    queryFn: async ({ pageParam }) => {
+      const { controls } = await client.request<GetControlsPaginatedQuery, GetControlsPaginatedQueryVariables>(GET_CONTROLS_PAGINATED, {
+        where,
+        after: pageParam,
+      })
+      return controls
+    },
+    initialPageParam: undefined,
+    getNextPageParam: (last) => (last.pageInfo.hasNextPage ? last.pageInfo.endCursor : undefined),
+    enabled,
+  })
+}
+
+export function useAllControlsGrouped({ where, enabled = true }: { where?: ControlWhereInput; enabled?: boolean }) {
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, isFetching, ...rest } = useFetchAllControls(where, enabled)
+
+  useEffect(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage()
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+
+  const allControls = useMemo(() => {
+    const raw = data?.pages.flatMap((page) => page.edges?.map((edge) => edge?.node) ?? []) ?? []
+    return raw.filter((c): c is NonNullable<typeof c> => c != null)
+  }, [data?.pages])
+
+  const isLoadingAll = isLoading || isFetchingNextPage || hasNextPage || isFetching
+
+  if (isLoadingAll) {
+    return { isLoading: true, allControls: [] }
+  }
+
+  return {
+    allControls,
+    isLoading: isLoadingAll,
+    hasNextPage,
+    fetchNextPage,
+    ...rest,
+  }
+}
+
+export function useGetControlMinifiedById(controlId?: string, enabled = true) {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetControlByIdMinifiedQuery, Error>({
+    queryKey: ['controls', controlId, 'minified'],
+    queryFn: async () => {
+      const data = await client.request<GetControlByIdMinifiedQuery, GetControlByIdMinifiedQueryVariables>(GET_CONTROL_BY_ID_MINIFIED, { controlId: controlId! })
+      return data
+    },
+    enabled: !!controlId && enabled,
+  })
 }

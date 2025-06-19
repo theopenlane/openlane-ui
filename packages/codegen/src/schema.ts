@@ -35558,16 +35558,44 @@ export type GetControlSelectOptionsQuery = {
     __typename?: 'ControlConnection'
     edges?: Array<{
       __typename?: 'ControlEdge'
-      node?: {
-        __typename?: 'Control'
-        id: string
-        refCode: string
-        category?: string | null
-        subcategory?: string | null
-        standard?: { __typename?: 'Standard'; shortName?: string | null } | null
-      } | null
+      node?: { __typename?: 'Control'; id: string; refCode: string; category?: string | null; subcategory?: string | null; referenceFramework?: string | null } | null
     } | null> | null
   }
+}
+
+export type GetControlCategoriesQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetControlCategoriesQuery = { __typename?: 'Query'; controlCategories?: Array<string> | null }
+
+export type GetControlSubcategoriesQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetControlSubcategoriesQuery = { __typename?: 'Query'; controlSubcategories?: Array<string> | null }
+
+export type GetControlsPaginatedQueryVariables = Exact<{
+  where?: InputMaybe<ControlWhereInput>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type GetControlsPaginatedQuery = {
+  __typename?: 'Query'
+  controls: {
+    __typename?: 'ControlConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'ControlEdge'
+      node?: { __typename?: 'Control'; id: string; refCode: string; category?: string | null; subcategory?: string | null; referenceFramework?: string | null } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; endCursor?: any | null }
+  }
+}
+
+export type GetControlByIdMinifiedQueryVariables = Exact<{
+  controlId: Scalars['ID']['input']
+}>
+
+export type GetControlByIdMinifiedQuery = {
+  __typename?: 'Query'
+  control: { __typename?: 'Control'; id: string; refCode: string; standardID?: string | null; category?: string | null; subcategory?: string | null; description?: string | null }
 }
 
 export type CreateEvidenceMutationVariables = Exact<{
@@ -35874,6 +35902,12 @@ export type DeleteGroupMembershipMutationVariables = Exact<{
 }>
 
 export type DeleteGroupMembershipMutation = { __typename?: 'Mutation'; deleteGroupMembership: { __typename?: 'GroupMembershipDeletePayload'; deletedID: string } }
+
+export type CreateMappedControlMutationVariables = Exact<{
+  input: CreateMappedControlInput
+}>
+
+export type CreateMappedControlMutation = { __typename?: 'Mutation'; createMappedControl: { __typename?: 'MappedControlCreatePayload'; mappedControl: { __typename?: 'MappedControl'; id: string } } }
 
 export type UpdateUserRoleInOrgMutationVariables = Exact<{
   updateOrgMemberId: Scalars['ID']['input']
@@ -37329,6 +37363,15 @@ export type CreateControlsByCloneMutation = {
   createControlsByClone: { __typename?: 'ControlBulkCreatePayload'; controls?: Array<{ __typename?: 'Control'; id: string }> | null }
 }
 
+export type GetAllStandardsSelectQueryVariables = Exact<{
+  where?: InputMaybe<StandardWhereInput>
+}>
+
+export type GetAllStandardsSelectQuery = {
+  __typename?: 'Query'
+  standards: { __typename?: 'StandardConnection'; edges?: Array<{ __typename?: 'StandardEdge'; node?: { __typename?: 'Standard'; id: string; shortName?: string | null } | null } | null> | null }
+}
+
 export type GetAllSubcontrolsQueryVariables = Exact<{
   where?: InputMaybe<SubcontrolWhereInput>
 }>
@@ -37459,6 +37502,56 @@ export type CreateSubcontrolMutationVariables = Exact<{
 }>
 
 export type CreateSubcontrolMutation = { __typename?: 'Mutation'; createSubcontrol: { __typename?: 'SubcontrolCreatePayload'; subcontrol: { __typename?: 'Subcontrol'; id: string } } }
+
+export type GetSubcontrolSelectOptionsQueryVariables = Exact<{
+  where?: InputMaybe<SubcontrolWhereInput>
+}>
+
+export type GetSubcontrolSelectOptionsQuery = {
+  __typename?: 'Query'
+  subcontrols: {
+    __typename?: 'SubcontrolConnection'
+    edges?: Array<{
+      __typename?: 'SubcontrolEdge'
+      node?: { __typename?: 'Subcontrol'; id: string; refCode: string; category?: string | null; subcategory?: string | null; referenceFramework?: string | null } | null
+    } | null> | null
+  }
+}
+
+export type GetSubcontrolsPaginatedQueryVariables = Exact<{
+  where?: InputMaybe<SubcontrolWhereInput>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type GetSubcontrolsPaginatedQuery = {
+  __typename?: 'Query'
+  subcontrols: {
+    __typename?: 'SubcontrolConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'SubcontrolEdge'
+      node?: { __typename?: 'Subcontrol'; id: string; refCode: string; category?: string | null; subcategory?: string | null; referenceFramework?: string | null } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; endCursor?: any | null }
+  }
+}
+
+export type GetSubcontrolByIdMinifiedQueryVariables = Exact<{
+  subcontrolId: Scalars['ID']['input']
+}>
+
+export type GetSubcontrolByIdMinifiedQuery = {
+  __typename?: 'Query'
+  subcontrol: {
+    __typename?: 'Subcontrol'
+    id: string
+    refCode: string
+    category?: string | null
+    subcategory?: string | null
+    description?: string | null
+    control: { __typename?: 'Control'; id: string; standardID?: string | null }
+  }
+}
 
 export type CreateSubscriberMutationVariables = Exact<{
   input: CreateSubscriberInput
