@@ -2288,6 +2288,7 @@ export interface ControlHistoryOrder {
 /** Properties by which ControlHistory connections can be ordered. */
 export enum ControlHistoryOrderField {
   CONTROL_TYPE = 'CONTROL_TYPE',
+  REFERENCE_FRAMEWORK = 'REFERENCE_FRAMEWORK',
   SOURCE = 'SOURCE',
   STATUS = 'STATUS',
   category = 'category',
@@ -4028,6 +4029,7 @@ export interface ControlOrder {
 /** Properties by which Control connections can be ordered. */
 export enum ControlOrderField {
   CONTROL_TYPE = 'CONTROL_TYPE',
+  REFERENCE_FRAMEWORK = 'REFERENCE_FRAMEWORK',
   SOURCE = 'SOURCE',
   STATUS = 'STATUS',
   category = 'category',
@@ -5014,8 +5016,6 @@ export interface CreateControlInput {
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the unique reference code for the control */
   refCode: Scalars['String']['input']
-  /** the reference framework for the control if it came from a standard, empty if not associated with a standard */
-  referenceFramework?: InputMaybe<Scalars['String']['input']>
   /** internal reference id of the control, can be used for internal tracking */
   referenceID?: InputMaybe<Scalars['String']['input']>
   /** references for the control */
@@ -6048,8 +6048,6 @@ export interface CreateSubcontrolInput {
   procedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the unique reference code for the control */
   refCode: Scalars['String']['input']
-  /** the reference framework for the control if it came from a standard, empty if not associated with a standard */
-  referenceFramework?: InputMaybe<Scalars['String']['input']>
   /** internal reference id of the control, can be used for internal tracking */
   referenceID?: InputMaybe<Scalars['String']['input']>
   /** references for the control */
@@ -6165,7 +6163,6 @@ export interface CreateUserInput {
   /** The user's displayed 'friendly' name */
   displayName: Scalars['String']['input']
   email: Scalars['String']['input']
-  emailVerificationTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   eventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   firstName?: InputMaybe<Scalars['String']['input']>
@@ -6178,7 +6175,6 @@ export interface CreateUserInput {
   organizationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** user password hash */
   password?: InputMaybe<Scalars['String']['input']>
-  passwordResetTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   personalAccessTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the user's role */
@@ -24175,6 +24171,8 @@ export interface Query {
   contacts: ContactConnection
   /** Look up control by ID */
   control: Control
+  /** Existing categories or domains for controls used in the organization */
+  controlCategories?: Maybe<Array<Scalars['String']['output']>>
   controlHistories: ControlHistoryConnection
   /** Look up controlImplementation by ID */
   controlImplementation: ControlImplementation
@@ -24194,6 +24192,8 @@ export interface Query {
   controlScheduledJobs: ControlScheduledJobConnection
   /** Search across Control objects */
   controlSearch?: Maybe<ControlConnection>
+  /** Existing subcategories or subdomains for controls used in the organization */
+  controlSubcategories?: Maybe<Array<Scalars['String']['output']>>
   controls: ControlConnection
   /** Look up customDomain by ID */
   customDomain: CustomDomain
@@ -28987,6 +28987,7 @@ export interface SubcontrolHistoryOrder {
 /** Properties by which SubcontrolHistory connections can be ordered. */
 export enum SubcontrolHistoryOrderField {
   CONTROL_TYPE = 'CONTROL_TYPE',
+  REFERENCE_FRAMEWORK = 'REFERENCE_FRAMEWORK',
   SOURCE = 'SOURCE',
   STATUS = 'STATUS',
   category = 'category',
@@ -29336,6 +29337,7 @@ export interface SubcontrolOrder {
 /** Properties by which Subcontrol connections can be ordered. */
 export enum SubcontrolOrderField {
   CONTROL_TYPE = 'CONTROL_TYPE',
+  REFERENCE_FRAMEWORK = 'REFERENCE_FRAMEWORK',
   SOURCE = 'SOURCE',
   STATUS = 'STATUS',
   category = 'category',
@@ -31603,7 +31605,6 @@ export interface UpdateControlInput {
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
-  clearReferenceFramework?: InputMaybe<Scalars['Boolean']['input']>
   clearReferenceID?: InputMaybe<Scalars['Boolean']['input']>
   clearReferences?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
@@ -31631,8 +31632,6 @@ export interface UpdateControlInput {
   mappedCategories?: InputMaybe<Array<Scalars['String']['input']>>
   /** the unique reference code for the control */
   refCode?: InputMaybe<Scalars['String']['input']>
-  /** the reference framework for the control if it came from a standard, empty if not associated with a standard */
-  referenceFramework?: InputMaybe<Scalars['String']['input']>
   /** internal reference id of the control, can be used for internal tracking */
   referenceID?: InputMaybe<Scalars['String']['input']>
   /** references for the control */
@@ -33225,7 +33224,6 @@ export interface UpdateSubcontrolInput {
   clearMappedCategories?: InputMaybe<Scalars['Boolean']['input']>
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
-  clearReferenceFramework?: InputMaybe<Scalars['Boolean']['input']>
   clearReferenceID?: InputMaybe<Scalars['Boolean']['input']>
   clearReferences?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
@@ -33252,8 +33250,6 @@ export interface UpdateSubcontrolInput {
   mappedCategories?: InputMaybe<Array<Scalars['String']['input']>>
   /** the unique reference code for the control */
   refCode?: InputMaybe<Scalars['String']['input']>
-  /** the reference framework for the control if it came from a standard, empty if not associated with a standard */
-  referenceFramework?: InputMaybe<Scalars['String']['input']>
   /** internal reference id of the control, can be used for internal tracking */
   referenceID?: InputMaybe<Scalars['String']['input']>
   /** references for the control */
@@ -33417,12 +33413,10 @@ export interface UpdateUserInput {
   addActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addAssigneeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addAssignerTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addEmailVerificationTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addOrganizationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addPasswordResetTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addPersonalAccessTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -33442,7 +33436,6 @@ export interface UpdateUserInput {
   clearAvatarFile?: InputMaybe<Scalars['Boolean']['input']>
   clearAvatarRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
   clearAvatarUpdatedAt?: InputMaybe<Scalars['Boolean']['input']>
-  clearEmailVerificationTokens?: InputMaybe<Scalars['Boolean']['input']>
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearFirstName?: InputMaybe<Scalars['Boolean']['input']>
@@ -33452,7 +33445,6 @@ export interface UpdateUserInput {
   clearLastSeen?: InputMaybe<Scalars['Boolean']['input']>
   clearOrganizations?: InputMaybe<Scalars['Boolean']['input']>
   clearPassword?: InputMaybe<Scalars['Boolean']['input']>
-  clearPasswordResetTokens?: InputMaybe<Scalars['Boolean']['input']>
   clearPersonalAccessTokens?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
   clearRole?: InputMaybe<Scalars['Boolean']['input']>
@@ -33475,12 +33467,10 @@ export interface UpdateUserInput {
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAssigneeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAssignerTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeEmailVerificationTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeOrganizationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removePasswordResetTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removePersonalAccessTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -35260,6 +35250,10 @@ export type ControlListFieldsFragment = {
   tags?: Array<string> | null
   mappedCategories?: Array<string> | null
   referenceFramework?: string | null
+  referenceID?: string | null
+  auditorReferenceID?: string | null
+  source?: ControlControlSource | null
+  controlType?: ControlControlType | null
   subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
   controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
 }
@@ -35393,6 +35387,10 @@ export type GetAllControlsQuery = {
         tags?: Array<string> | null
         mappedCategories?: Array<string> | null
         referenceFramework?: string | null
+        referenceID?: string | null
+        auditorReferenceID?: string | null
+        source?: ControlControlSource | null
+        controlType?: ControlControlType | null
         subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
         controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
       } | null
@@ -35560,16 +35558,44 @@ export type GetControlSelectOptionsQuery = {
     __typename?: 'ControlConnection'
     edges?: Array<{
       __typename?: 'ControlEdge'
-      node?: {
-        __typename?: 'Control'
-        id: string
-        refCode: string
-        category?: string | null
-        subcategory?: string | null
-        standard?: { __typename?: 'Standard'; shortName?: string | null } | null
-      } | null
+      node?: { __typename?: 'Control'; id: string; refCode: string; category?: string | null; subcategory?: string | null; referenceFramework?: string | null } | null
     } | null> | null
   }
+}
+
+export type GetControlCategoriesQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetControlCategoriesQuery = { __typename?: 'Query'; controlCategories?: Array<string> | null }
+
+export type GetControlSubcategoriesQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetControlSubcategoriesQuery = { __typename?: 'Query'; controlSubcategories?: Array<string> | null }
+
+export type GetControlsPaginatedQueryVariables = Exact<{
+  where?: InputMaybe<ControlWhereInput>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type GetControlsPaginatedQuery = {
+  __typename?: 'Query'
+  controls: {
+    __typename?: 'ControlConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'ControlEdge'
+      node?: { __typename?: 'Control'; id: string; refCode: string; category?: string | null; subcategory?: string | null; referenceFramework?: string | null } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; endCursor?: any | null }
+  }
+}
+
+export type GetControlByIdMinifiedQueryVariables = Exact<{
+  controlId: Scalars['ID']['input']
+}>
+
+export type GetControlByIdMinifiedQuery = {
+  __typename?: 'Query'
+  control: { __typename?: 'Control'; id: string; refCode: string; standardID?: string | null; category?: string | null; subcategory?: string | null; description?: string | null }
 }
 
 export type CreateEvidenceMutationVariables = Exact<{
@@ -35877,6 +35903,12 @@ export type DeleteGroupMembershipMutationVariables = Exact<{
 
 export type DeleteGroupMembershipMutation = { __typename?: 'Mutation'; deleteGroupMembership: { __typename?: 'GroupMembershipDeletePayload'; deletedID: string } }
 
+export type CreateMappedControlMutationVariables = Exact<{
+  input: CreateMappedControlInput
+}>
+
+export type CreateMappedControlMutation = { __typename?: 'Mutation'; createMappedControl: { __typename?: 'MappedControlCreatePayload'; mappedControl: { __typename?: 'MappedControl'; id: string } } }
+
 export type UpdateUserRoleInOrgMutationVariables = Exact<{
   updateOrgMemberId: Scalars['ID']['input']
   input: UpdateOrgMembershipInput
@@ -36068,7 +36100,10 @@ export type GetAllOrganizationsWithMembersQuery = {
         avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
         members: {
           __typename?: 'OrgMembershipConnection'
-          edges?: Array<{ __typename?: 'OrgMembershipEdge'; node?: { __typename?: 'OrgMembership'; role: OrgMembershipRole; user: { __typename?: 'User'; id: string } } | null } | null> | null
+          edges?: Array<{
+            __typename?: 'OrgMembershipEdge'
+            node?: { __typename?: 'OrgMembership'; id: string; role: OrgMembershipRole; user: { __typename?: 'User'; id: string } } | null
+          } | null> | null
         }
       } | null
     } | null> | null
@@ -37328,6 +37363,15 @@ export type CreateControlsByCloneMutation = {
   createControlsByClone: { __typename?: 'ControlBulkCreatePayload'; controls?: Array<{ __typename?: 'Control'; id: string }> | null }
 }
 
+export type GetAllStandardsSelectQueryVariables = Exact<{
+  where?: InputMaybe<StandardWhereInput>
+}>
+
+export type GetAllStandardsSelectQuery = {
+  __typename?: 'Query'
+  standards: { __typename?: 'StandardConnection'; edges?: Array<{ __typename?: 'StandardEdge'; node?: { __typename?: 'Standard'; id: string; shortName?: string | null } | null } | null> | null }
+}
+
 export type GetAllSubcontrolsQueryVariables = Exact<{
   where?: InputMaybe<SubcontrolWhereInput>
 }>
@@ -37459,6 +37503,56 @@ export type CreateSubcontrolMutationVariables = Exact<{
 
 export type CreateSubcontrolMutation = { __typename?: 'Mutation'; createSubcontrol: { __typename?: 'SubcontrolCreatePayload'; subcontrol: { __typename?: 'Subcontrol'; id: string } } }
 
+export type GetSubcontrolSelectOptionsQueryVariables = Exact<{
+  where?: InputMaybe<SubcontrolWhereInput>
+}>
+
+export type GetSubcontrolSelectOptionsQuery = {
+  __typename?: 'Query'
+  subcontrols: {
+    __typename?: 'SubcontrolConnection'
+    edges?: Array<{
+      __typename?: 'SubcontrolEdge'
+      node?: { __typename?: 'Subcontrol'; id: string; refCode: string; category?: string | null; subcategory?: string | null; referenceFramework?: string | null } | null
+    } | null> | null
+  }
+}
+
+export type GetSubcontrolsPaginatedQueryVariables = Exact<{
+  where?: InputMaybe<SubcontrolWhereInput>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type GetSubcontrolsPaginatedQuery = {
+  __typename?: 'Query'
+  subcontrols: {
+    __typename?: 'SubcontrolConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'SubcontrolEdge'
+      node?: { __typename?: 'Subcontrol'; id: string; refCode: string; category?: string | null; subcategory?: string | null; referenceFramework?: string | null } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; endCursor?: any | null }
+  }
+}
+
+export type GetSubcontrolByIdMinifiedQueryVariables = Exact<{
+  subcontrolId: Scalars['ID']['input']
+}>
+
+export type GetSubcontrolByIdMinifiedQuery = {
+  __typename?: 'Query'
+  subcontrol: {
+    __typename?: 'Subcontrol'
+    id: string
+    refCode: string
+    category?: string | null
+    subcategory?: string | null
+    description?: string | null
+    control: { __typename?: 'Control'; id: string; standardID?: string | null }
+  }
+}
+
 export type CreateSubscriberMutationVariables = Exact<{
   input: CreateSubscriberInput
 }>
@@ -37580,7 +37674,10 @@ export type TaskQuery = {
     details?: string | null
     assignee?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; id: string } | null
     assigner?: { __typename?: 'User'; avatarRemoteURL?: string | null; displayName: string; id: string } | null
-    subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null }
+    subcontrols: {
+      __typename?: 'SubcontrolConnection'
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; controlID: string } | null } | null> | null
+    }
     controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
     risks: { __typename?: 'RiskConnection'; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
     programs: { __typename?: 'ProgramConnection'; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string } | null } | null> | null }

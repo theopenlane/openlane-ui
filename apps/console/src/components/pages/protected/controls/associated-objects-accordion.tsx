@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/table'
@@ -36,7 +36,6 @@ type PolicyOrProcedure = {
 const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({ policies, procedures, tasks, programs, risks, canEdit }) => {
   const [expandedItems, setExpandedItems] = useState<string[]>(['policies'])
   const { convertToReadOnly } = usePlateEditor()
-
   const toggleAll = () => {
     const allSections = ['policies', 'procedures', 'tasks', 'programs', 'risks']
     const hasAllExpanded = allSections.every((section) => expandedItems.includes(section))
