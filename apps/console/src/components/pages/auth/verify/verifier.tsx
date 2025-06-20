@@ -24,7 +24,7 @@ export const TokenVerifier = () => {
       const refreshToken = verified?.refresh_token
 
       signIn('credentials', {
-        callbackUrl: '/dashboard',
+        callbackUrl: '/',
         accessToken,
         refreshToken,
         session: verified.session,
