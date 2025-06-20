@@ -11,12 +11,12 @@ export const setSessionCookie = async (session: string) => {
 
   // if in development, don't set domain
   if (isDevelopment) {
-    console.warn('Setting session cookie in development mode, domain will not be set.')
+    console.log('Setting session cookie in development mode, domain will not be set.')
     cookieStore.set(`${sessionCookieName}`, session, {
       expires,
     })
   } else if (isVercelDev) {
-    console.warn('Setting session cookie in Vercel development mode, domain will not be set.')
+    console.log('Setting session cookie in Vercel development mode, domain will not be set.')
     cookieStore.set(`${sessionCookieName}`, session, {
       path: '/',
       httpOnly: true,
