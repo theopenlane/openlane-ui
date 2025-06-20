@@ -9,6 +9,13 @@ export const setSessionCookie = async (session: string) => {
   const expires = new Date()
   expires.setTime(expires.getTime() + 1000 * 60 * expirationTime)
 
+  console.log('Setting session cookie with expiration:', expires)
+  console.log('Session cookie name:', sessionCookieName)
+  console.log('Session cookie value:', session)
+  console.log('Session cookie domain:', sessionCookieDomain)
+  console.log('Is development mode:', isDevelopment)
+  console.log('Is Vercel development mode:', isVercelDev)
+
   // if in development, don't set domain
   if (isDevelopment) {
     console.log('Setting session cookie in development mode, domain will not be set.')
