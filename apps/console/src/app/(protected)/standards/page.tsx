@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect, useContext } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Card } from '@repo/ui/cardpanel'
 import { Badge } from '@repo/ui/badge'
@@ -15,6 +15,7 @@ import { Loading } from '@/components/shared/loading/loading'
 import Link from 'next/link'
 import { formatDateSince } from '@/utils/date'
 import { INFO_EMAIL } from '@/constants'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const filterFields: FilterField[] = [
   { key: 'systemOwned', label: 'System Owned', type: 'boolean' },
@@ -26,9 +27,17 @@ const filterFields: FilterField[] = [
 ]
 
 const StandardsPage = () => {
+  const { setCrumbs } = useContext(BreadcrumbContext)
   const [searchQuery, setSearchQuery] = useState('')
   const [filters, setFilters] = useState<Record<string, any> | null>(null)
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Standards', href: '/standards' },
+    ])
+  }, [setCrumbs])
 
   const whereFilter = useMemo(() => {
     const conditions: Record<string, any> = {

@@ -1,4 +1,5 @@
 'use client'
+
 import { PageHeading } from '@repo/ui/page-heading'
 import { useParams } from 'next/navigation'
 import { useGetStandardDetails } from '@/lib/graphql-hooks/standards'
@@ -7,13 +8,32 @@ import StandardDetailsCard from '@/components/pages/protected/standards/standard
 import StandardDetailsAccordion from '@/components/pages/protected/standards/standard-details-accordion'
 import { Button } from '@repo/ui/button'
 import { ShieldPlus } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import AddToOrganizationDialog from '@/components/pages/protected/standards/add-to-organization-dialog'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 
 const StandardDetailsPage = () => {
   const { id } = useParams()
   const { data, isLoading, error } = useGetStandardDetails(id as string)
+  const standard = data?.standard
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const { setCrumbs } = useContext(BreadcrumbContext)
+  console.log(standard)
+  useEffect(() => {
+    !standard &&
+      setCrumbs([
+        { label: 'Home', href: '/dashboard' },
+        { label: 'Standards', href: '/standards' },
+        { label: '', isLoading: isLoading },
+      ])
+
+    standard &&
+      setCrumbs([
+        { label: 'Home', href: '/dashboard' },
+        { label: 'Standards', href: '/standards' },
+        { label: standard.shortName ?? standard.name, isLoading: isLoading },
+      ])
+  }, [setCrumbs, standard, isLoading])
 
   if (isLoading) {
     return <Loading />
@@ -21,8 +41,6 @@ const StandardDetailsPage = () => {
   if (error) {
     return <div>Error loading standard details.</div>
   }
-
-  const standard = data?.standard
 
   return (
     <>

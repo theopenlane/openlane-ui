@@ -1,5 +1,5 @@
 'use client'
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import GroupsTable from '@/components/pages/protected/groups/components/groups-table'
 import { CirclePlus, CreditCard as CardIcon, SearchIcon, Table as TableIcon, Upload } from 'lucide-react'
@@ -20,6 +20,7 @@ import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
 import { VisibilityState } from '@tanstack/react-table'
 import { getGroupTableColumns } from './table/columns'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const filterFields: FilterField[] = [
   { key: 'name', label: 'Name', type: 'text' },
@@ -45,6 +46,15 @@ const GroupsPage = () => {
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const IsMyGroups = false
+  const { setCrumbs } = React.useContext(BreadcrumbContext)
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Groups', href: '/groups' },
+    ])
+  }, [setCrumbs])
+
   const whereFilter = useMemo(() => {
     if (!whereFilters) {
       return null

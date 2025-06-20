@@ -112,7 +112,7 @@ export const useRiskSelect = () => {
   return { riskOptions, ...rest }
 }
 
-export const useGetRiskById = (riskId: string | null) => {
+export const useGetRiskById = (riskId: string | null, enabled: boolean = true) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<GetRiskByIdQuery, unknown>({
@@ -121,7 +121,7 @@ export const useGetRiskById = (riskId: string | null) => {
       if (!riskId) throw new Error('Missing risk ID')
       return client.request<GetRiskByIdQuery, GetRiskByIdQueryVariables>(GET_RISK_BY_ID, { riskId })
     },
-    enabled: !!riskId,
+    enabled: !!riskId && enabled,
   })
 
   const risk = queryResult?.data?.risk as RiskFieldsFragment
@@ -157,7 +157,6 @@ export const useCreateBulkCSVRisk = () => {
 
 export const useDeleteRisk = () => {
   const { client, queryClient } = useGraphQLClient()
-
   return useMutation<DeleteRiskMutation, unknown, DeleteRiskMutationVariables>({
     mutationFn: async (variables) => {
       return client.request(DELETE_RISK, variables)
