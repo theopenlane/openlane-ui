@@ -37,6 +37,7 @@ import { useNotification } from '@/hooks/useNotification.tsx'
 import CreateControlObjectiveSheet from '@/components/pages/protected/controls/control-objectives/create-control-objective-sheet'
 import { ControlObjectiveFieldsFragment, ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
 import CreateControlImplementationSheet from '@/components/pages/protected/controls/control-implementation/create-control-implementation-sheet.tsx'
+import { Control } from '@repo/codegen/src/schema.ts'
 
 interface FormValues {
   refCode: string
@@ -174,6 +175,7 @@ const ControlDetailsPage: React.FC = () => {
   if (isLoading) return <div className="p-4 text-muted-foreground">Loading...</div>
   if (isError || !data?.control) return <div className="p-4 text-red-500">Control not found</div>
   const control = data?.control
+
   const hasInfoData = control.implementationGuidance || control.exampleEvidence || control.controlQuestions || control.assessmentMethods || control.assessmentObjectives
 
   return (
@@ -295,6 +297,7 @@ const ControlDetailsPage: React.FC = () => {
               subcategory={control.subcategory}
               status={control.status}
               mappedCategories={control.mappedCategories}
+              controlData={control as Control}
               isEditing={isEditing}
               isSourceFramework={isSourceFramework}
             />
