@@ -275,6 +275,12 @@ const ControlDetailsPage: React.FC = () => {
                           controlIDs: [id],
                         }}
                       />
+                      <Link href={`/controls/${id}/map-control`}>
+                        <div className="flex items-center space-x-2 hover:bg-muted">
+                          <CirclePlus size={16} strokeWidth={2} />
+                          <span>Map Control</span>
+                        </div>
+                      </Link>
                     </>
                   }
                 />

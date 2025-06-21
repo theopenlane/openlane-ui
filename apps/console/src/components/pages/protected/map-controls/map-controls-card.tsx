@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import MapControlsFormFilters from './map-controls-form-filters'
 import MatchedControls from './matched-controls'
@@ -12,12 +12,6 @@ import { useAllSubcontrolsGrouped } from '@/lib/graphql-hooks/subcontrol'
 import { useFormContext } from 'react-hook-form'
 import { MapControlsFormData } from './use-form-schema'
 
-interface Props {
-  title: 'From' | 'To'
-  setExpandedCard: () => void
-  expandedCard: string
-}
-
 export interface DroppedControl {
   id: string
   refCode: string
@@ -25,9 +19,16 @@ export interface DroppedControl {
   type: 'control' | 'subcontrol'
 }
 
-const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard }) => {
+interface Props {
+  title: 'From' | 'To'
+  setExpandedCard: () => void
+  expandedCard: string
+  presetControl?: DroppedControl
+}
+
+const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard, presetControl }) => {
   const [where, setWhere] = useState<ControlWhereInput | SubcontrolWhereInput>({})
-  const [droppedControls, setDroppedControls] = useState<DroppedControl[]>([]) // subcontrols and controls together
+  const [droppedControls, setDroppedControls] = useState<DroppedControl[]>([])
   const [enableSubcontrols, setEnableSubcontrols] = useState(false)
   const { setValue, getValues } = useFormContext<MapControlsFormData>()
 
@@ -37,6 +38,7 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
 
   const allControls = useAllControlsGrouped({ where: where as ControlWhereInput, enabled: hasFilters })
   const allSubcontrols = useAllSubcontrolsGrouped({ where: where as SubcontrolWhereInput, enabled: subcontrolEnabled })
+
   const queriesLoading = allControls.isLoading || allSubcontrols.isLoading
 
   const handleDrop = (e: React.DragEvent) => {
@@ -87,6 +89,13 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
       )
     }
   }
+
+  useEffect(() => {
+    if (presetControl) {
+      setDroppedControls([presetControl])
+    }
+  }, [presetControl])
+
   return (
     <Card className="p-4">
       <AccordionItem value={title}>
