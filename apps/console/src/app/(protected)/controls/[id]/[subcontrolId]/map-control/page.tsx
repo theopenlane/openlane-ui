@@ -1,8 +1,8 @@
-import MapControlsPage from '@/components/pages/protected/map-controls/map-control-page'
+import MapControlPage from '@/components/pages/protected/map-controls/map-control-page'
 import React from 'react'
 
 const Page = () => {
-  return <MapControlsPage />
+  return <MapControlPage />
 }
 
 export default Page
