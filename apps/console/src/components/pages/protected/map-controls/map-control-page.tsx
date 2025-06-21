@@ -1,8 +1,8 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import Intersection from '@/assets/Intersection'
-import MapControlsCard from '@/components/pages/protected/map-controls/map-controls-card'
+import MapControlsCard, { DroppedControl } from '@/components/pages/protected/map-controls/map-controls-card'
 import MapControlsRelations from '@/components/pages/protected/map-controls/map-controls-relations'
 import { Accordion } from '@radix-ui/react-accordion'
 import Subset from '@/assets/Subset'
@@ -16,11 +16,24 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { MappedControlMappingType, MappedControlMappingSource } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateMappedControl } from '@/lib/graphql-hooks/mapped-control'
+import { useParams } from 'next/navigation'
+import { useGetControlById } from '@/lib/graphql-hooks/controls'
+import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 
-const Page = () => {
+const MapControlPage = () => {
   const [expandedCard, setExpandedCard] = useState<'From' | 'To' | ''>('From')
   const { errorNotification, successNotification } = useNotification()
   const { mutateAsync: create } = useCreateMappedControl()
+
+  const { id, subcontrolId } = useParams()
+
+  const shouldFetchControl = !subcontrolId && !!id
+  const shouldFetchSubcontrol = !!subcontrolId
+
+  const { data: controlData } = useGetControlById(shouldFetchControl ? (id as string) : null)
+  const { data: subcontrolData } = useGetSubcontrolById(shouldFetchSubcontrol ? (subcontrolId as string) : null)
+  const [presetControl, setPresetControl] = useState<DroppedControl>()
+
   const handleCardToggle = (title: 'From' | 'To') => {
     if (expandedCard === title) {
       setExpandedCard('')
@@ -88,6 +101,22 @@ const Page = () => {
     }
   }
 
+  useEffect(() => {
+    if (controlData) {
+      form.setValue('fromControlIDs', [controlData.control.id])
+      setPresetControl({ id: controlData.control.id, refCode: controlData.control.refCode, shortName: controlData.control.standard?.shortName || 'CUSTOM', type: 'control' })
+    }
+    if (subcontrolData) {
+      form.setValue('fromSubcontrolIDs', [subcontrolData.subcontrol.id])
+      setPresetControl({
+        id: subcontrolData.subcontrol.id,
+        refCode: subcontrolData.subcontrol.refCode,
+        shortName: subcontrolData.subcontrol.control.standard?.shortName || 'CUSTOM',
+        type: 'subcontrol',
+      })
+    }
+  }, [controlData, subcontrolData, form])
+
   return (
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col space-y-6">
@@ -105,7 +134,7 @@ const Page = () => {
           <div className="grid grid-cols-[3fr_1fr] gap-6">
             <div className="flex flex-col">
               <Accordion type="single" collapsible value={expandedCard} className="w-full">
-                <MapControlsCard title="From" expandedCard={expandedCard} setExpandedCard={() => handleCardToggle('From')} />
+                <MapControlsCard title="From" expandedCard={expandedCard} setExpandedCard={() => handleCardToggle('From')} presetControl={presetControl} />
                 <div className="flex flex-col items-center">
                   <div className="border-l h-4" />
                   <div className="h-12 w-12 bg-card flex items-center justify-center rounded-full">
@@ -124,4 +153,4 @@ const Page = () => {
   )
 }
 
-export default Page
+export default MapControlPage

@@ -37412,7 +37412,7 @@ export type GetSubcontrolByIdQuery = {
     controlType?: SubcontrolControlType | null
     auditorReferenceID?: string | null
     referenceID?: string | null
-    control: { __typename?: 'Control'; refCode: string; id: string }
+    control: { __typename?: 'Control'; refCode: string; id: string; standard?: { __typename?: 'Standard'; id: string; shortName?: string | null } | null }
     controlObjectives: {
       __typename?: 'ControlObjectiveConnection'
       edges?: Array<{
