@@ -31,9 +31,8 @@ type TRisksPageProps = {
 }
 
 const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
-  const [isDeleting, setIsDeleting] = useState<boolean>(false)
   const { setCrumbs } = React.useContext(BreadcrumbContext)
-  const { risk, isLoading } = useGetRiskById(riskId, !isDeleting)
+  const { risk, isLoading } = useGetRiskById(riskId)
   const { mutateAsync: updateRisk, isPending } = useUpdateRisk()
   const { mutateAsync: deleteRisk } = useDeleteRisk()
   const plateEditorHelper = usePlateEditor()
@@ -97,10 +96,9 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
 
   const handleDeleteRisk = async () => {
     try {
-      setIsDeleting(true)
+      router.push('/risks')
       await deleteRisk({ deleteRiskId: riskId })
       successNotification({ title: 'Risk deleted successfully' })
-      router.push('/risks')
     } catch {
       errorNotification({ title: 'Error deleting risk' })
     }

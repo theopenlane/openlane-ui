@@ -112,7 +112,7 @@ export const useRiskSelect = () => {
   return { riskOptions, ...rest }
 }
 
-export const useGetRiskById = (riskId: string | null, enabled: boolean = true) => {
+export const useGetRiskById = (riskId: string | null) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<GetRiskByIdQuery, unknown>({
@@ -121,7 +121,7 @@ export const useGetRiskById = (riskId: string | null, enabled: boolean = true) =
       if (!riskId) throw new Error('Missing risk ID')
       return client.request<GetRiskByIdQuery, GetRiskByIdQueryVariables>(GET_RISK_BY_ID, { riskId })
     },
-    enabled: !!riskId && enabled,
+    enabled: !!riskId,
   })
 
   const risk = queryResult?.data?.risk as RiskFieldsFragment
