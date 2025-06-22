@@ -32,6 +32,7 @@ import { useNotification } from '@/hooks/useNotification'
 import CreateControlObjectiveSheet from '@/components/pages/protected/controls/control-objectives/create-control-objective-sheet'
 import { ControlObjectiveFieldsFragment, ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
 import CreateControlImplementationSheet from '@/components/pages/protected/controls/control-implementation/create-control-implementation-sheet.tsx'
+import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 
 interface FormValues {
   refCode: string
@@ -168,133 +169,147 @@ const ControlDetailsPage: React.FC = () => {
   const subcontrol = data?.subcontrol
   const hasInfoData = subcontrol.implementationGuidance || subcontrol.exampleEvidence || subcontrol.controlQuestions || subcontrol.assessmentMethods || subcontrol.assessmentObjectives
 
+  const menuComponent = (
+    <div className="space-y-4">
+      {isEditing ? (
+        <div className="flex gap-2 justify-end">
+          <Button className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
+            Cancel
+          </Button>
+          <Button type="submit" iconPosition="left" className="h-8 !px-2" icon={<SaveIcon />}>
+            Save
+          </Button>
+        </div>
+      ) : (
+        <div className="flex gap-2 justify-end">
+          <Menu
+            trigger={CreateBtn}
+            content={
+              <>
+                <div onClick={() => setShowCreateImplementationSheet(true)} className="flex items-center space-x-2 hover:bg-muted cursor-pointer">
+                  <CirclePlus size={16} strokeWidth={2} />
+                  <span>Control Implementation</span>
+                </div>
+                <div onClick={() => setShowCreateObjectiveSheet(true)} className="flex items-center space-x-2 hover:bg-muted cursor-pointer">
+                  <CirclePlus size={16} strokeWidth={2} />
+                  <span>Control Objective</span>
+                </div>
+                <CreateControlObjectiveSheet
+                  open={showCreateObjectiveSheet}
+                  onOpenChange={(open) => {
+                    setShowCreateObjectiveSheet(open)
+                  }}
+                />
+                <CreateControlImplementationSheet
+                  open={showCreateImplementationSheet}
+                  onOpenChange={(open) => {
+                    setShowCreateImplementationSheet(open)
+                  }}
+                />
+                <CreateTaskDialog
+                  trigger={TaskIconBtn}
+                  defaultSelectedObject={ObjectTypeObjects.SUB_CONTROL}
+                  initialData={{
+                    procedureIDs: (subcontrol.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                    internalPolicyIDs: (subcontrol.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                    controlObjectiveIDs: (subcontrol.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                    riskIDs: (subcontrol.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+                    subcontrolIDs: [subcontrolId],
+                  }}
+                />
+              </>
+            }
+          />
+          <Menu
+            content={
+              <>
+                <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={(e) => handleEdit(e)}>
+                  <PencilIcon size={16} strokeWidth={2} />
+                  <span>Edit</span>
+                </div>
+                <DeleteSubcontrolDialog subcontrolId={subcontrolId} controlId={subcontrol.control.id} refCode={subcontrol.refCode} />
+              </>
+            }
+          />
+        </div>
+      )}
+    </div>
+  )
+
+  const mainContent = (
+    <div className="space-y-6 p-6">
+      <TitleField isEditing={!isSourceFramework && isEditing} />
+      <DescriptionField isEditing={!isSourceFramework && isEditing} initialValue={initialValues.description} />
+      <ControlEvidenceTable
+        control={{
+          displayID: subcontrol?.refCode,
+          tags: subcontrol.tags ?? [],
+          objectAssociations: {
+            controlIDs: [subcontrol?.id],
+            taskIDs: (subcontrol?.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+            controlObjectiveIDs: (subcontrol?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+          },
+          objectAssociationsDisplayIDs: [
+            ...((subcontrol?.tasks?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
+            ...((subcontrol?.controlObjectives?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
+            ...(subcontrol.refCode ? [subcontrol.refCode] : []),
+          ],
+        }}
+        evidences={subcontrol.evidence?.edges?.filter((e): e is EvidenceEdge => !!e && !!e.node) || []}
+      />
+      <AssociatedObjectsAccordion policies={subcontrol.internalPolicies} procedures={subcontrol.procedures} tasks={subcontrol.tasks} risks={subcontrol.risks} />
+    </div>
+  )
+
+  const sidebarContent = (
+    <>
+      <AuthorityCard controlOwner={subcontrol.controlOwner} delegate={subcontrol.delegate} isEditing={isEditing} />
+      <PropertiesCard
+        controlData={subcontrol.control as Control}
+        category={subcontrol.category}
+        subcategory={subcontrol.subcategory}
+        status={subcontrol.status}
+        mappedCategories={subcontrol.mappedCategories}
+        isEditing={isEditing}
+        isSourceFramework={isSourceFramework}
+      />
+      <DetailsCard />
+      {hasInfoData && (
+        <InfoCardWithSheet
+          implementationGuidance={subcontrol.implementationGuidance}
+          exampleEvidence={subcontrol.exampleEvidence}
+          controlQuestions={subcontrol.controlQuestions}
+          assessmentMethods={subcontrol.assessmentMethods}
+          assessmentObjectives={subcontrol.assessmentObjectives}
+          showInfoDetails={showInfoDetails}
+        />
+      )}
+    </>
+  )
+
   return (
     <>
-      <CancelDialog isOpen={navGuard.active} onConfirm={navGuard.accept} onCancel={navGuard.reject} />
       <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-[1fr_336px] gap-6">
-          <div className="space-y-6">
-            <div className="flex items-center justify-between mb-4">
-              <TitleField isEditing={!isSourceFramework && isEditing} />
-            </div>
-            <DescriptionField isEditing={!isSourceFramework && isEditing} initialValue={initialValues.description} />
-            <ControlEvidenceTable
-              control={{
-                displayID: subcontrol?.refCode,
-                tags: subcontrol.tags ?? [],
-                objectAssociations: {
-                  controlIDs: [subcontrol?.id],
-                  taskIDs: (subcontrol?.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                  controlObjectiveIDs: (subcontrol?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                },
-                objectAssociationsDisplayIDs: [
-                  ...((subcontrol?.tasks?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
-                  ...((subcontrol?.controlObjectives?.edges?.map((e) => e?.node?.displayID).filter(Boolean) as string[]) ?? []),
-                  ...(subcontrol.refCode ? [subcontrol.refCode] : []),
-                ],
-              }}
-              evidences={subcontrol.evidence?.edges?.filter((e): e is EvidenceEdge => !!e && !!e.node) || []}
-            />
-            <AssociatedObjectsAccordion policies={subcontrol.internalPolicies} procedures={subcontrol.procedures} tasks={subcontrol.tasks} risks={subcontrol.risks} />
-          </div>
-          <div className="space-y-4">
-            {isEditing ? (
-              <div className="flex gap-2 justify-end">
-                <Button className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
-                  Cancel
-                </Button>
-                <Button type="submit" iconPosition="left" className="h-8 !px-2" icon={<SaveIcon />}>
-                  Save
-                </Button>
-              </div>
-            ) : (
-              <div className="flex gap-2 justify-end">
-                <Menu
-                  trigger={CreateBtn}
-                  content={
-                    <>
-                      <div onClick={() => setShowCreateImplementationSheet(true)} className="flex items-center space-x-2 hover:bg-muted cursor-pointer">
-                        <CirclePlus size={16} strokeWidth={2} />
-                        <span>Control Implementation</span>
-                      </div>
-                      <div onClick={() => setShowCreateObjectiveSheet(true)} className="flex items-center space-x-2 hover:bg-muted cursor-pointer">
-                        <CirclePlus size={16} strokeWidth={2} />
-                        <span>Control Objective</span>
-                      </div>
-                      <CreateControlObjectiveSheet
-                        open={showCreateObjectiveSheet}
-                        onOpenChange={(open) => {
-                          setShowCreateObjectiveSheet(open)
-                        }}
-                      />
-                      <CreateControlImplementationSheet
-                        open={showCreateImplementationSheet}
-                        onOpenChange={(open) => {
-                          setShowCreateImplementationSheet(open)
-                        }}
-                      />
-                      <CreateTaskDialog
-                        trigger={TaskIconBtn}
-                        defaultSelectedObject={ObjectTypeObjects.SUB_CONTROL}
-                        initialData={{
-                          procedureIDs: (subcontrol.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                          internalPolicyIDs: (subcontrol.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                          controlObjectiveIDs: (subcontrol.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                          riskIDs: (subcontrol.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-                          subcontrolIDs: [subcontrolId],
-                        }}
-                      />
-                    </>
-                  }
-                />
-                <Menu
-                  content={
-                    <>
-                      <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={(e) => handleEdit(e)}>
-                        <PencilIcon size={16} strokeWidth={2} />
-                        <span>Edit</span>
-                      </div>
-                      <DeleteSubcontrolDialog subcontrolId={subcontrolId} controlId={subcontrol.control.id} refCode={subcontrol.refCode} />
-                    </>
-                  }
-                />
-              </div>
-            )}
-            <AuthorityCard controlOwner={subcontrol.controlOwner} delegate={subcontrol.delegate} isEditing={isEditing} />
-            <PropertiesCard
-              controlData={subcontrol.control as Control}
-              category={subcontrol.category}
-              subcategory={subcontrol.subcategory}
-              status={subcontrol.status}
-              mappedCategories={subcontrol.mappedCategories}
-              isEditing={isEditing}
-              isSourceFramework={isSourceFramework}
-            />
-            <DetailsCard />
-            {hasInfoData && (
-              <InfoCardWithSheet
-                implementationGuidance={subcontrol.implementationGuidance}
-                exampleEvidence={subcontrol.exampleEvidence}
-                controlQuestions={subcontrol.controlQuestions}
-                assessmentMethods={subcontrol.assessmentMethods}
-                assessmentObjectives={subcontrol.assessmentObjectives}
-                showInfoDetails={showInfoDetails}
-              />
-            )}
-          </div>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>
+            {mainContent}
+          </SlideBarLayout>
         </form>
-
-        <Sheet open={showSheet} onOpenChange={handleSheetClose}>
-          <SheetContent>
-            <SheetHeader>
-              <ArrowRight size={16} className="cursor-pointer" onClick={() => handleSheetClose(false)} />
-              <SheetTitle>{sheetData?.refCode}</SheetTitle>
-            </SheetHeader>
-            <div className="py-4">{sheetData?.content}</div>
-          </SheetContent>
-        </Sheet>
       </FormProvider>
+
+      <Sheet open={showSheet} onOpenChange={handleSheetClose}>
+        <SheetContent>
+          <SheetHeader>
+            <ArrowRight size={16} className="cursor-pointer" onClick={() => handleSheetClose(false)} />
+            <SheetTitle>{sheetData?.refCode}</SheetTitle>
+          </SheetHeader>
+          <div className="py-4">{sheetData?.content}</div>
+        </SheetContent>
+      </Sheet>
+
       <EvidenceDetailsSheet controlId={subcontrolId} />
+
+      <CancelDialog isOpen={navGuard.active} onConfirm={navGuard.accept} onCancel={navGuard.reject} />
     </>
   )
 }
