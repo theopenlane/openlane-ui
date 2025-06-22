@@ -65,7 +65,7 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarC
         <Button type="button" variant="outline" onClick={() => setOpen(!open)} className="h-8 !px-2 !pl-0 bg-card" icon={open ? <XIcon size={16} /> : <PanelRight size={16} />} />
       </div>
       <div
-        className="fixed right-0 top-[5%] bottom-0 border-l shadow-xl transform transition-transform duration-300 z-20 bg-background"
+        className="fixed right-0 top-[4rem] bottom-0 border-l shadow-xl transform transition-transform duration-300 z-20 bg-background"
         style={{
           width: open ? `${width}px` : 0,
           transform: open ? 'translateX(0)' : 'translateX(100%)',
