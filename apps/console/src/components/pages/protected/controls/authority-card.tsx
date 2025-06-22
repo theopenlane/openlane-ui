@@ -46,9 +46,9 @@ const AuthorityCard: React.FC<AuthorityCardProps> = ({ controlOwner, delegate, i
           ) : (
             <TooltipProvider disableHoverableContent>
               <Tooltip>
-                <Avatar entity={controlOwner as Group} variant="small" />
                 <TooltipTrigger className="w-[200px] cursor-default">
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 items-center">
+                    <Avatar entity={controlOwner as Group} variant="small" />
                     <span className="truncate">{controlOwner?.displayName || 'No Owner'} </span>
                   </div>
                 </TooltipTrigger>
@@ -76,10 +76,10 @@ const AuthorityCard: React.FC<AuthorityCardProps> = ({ controlOwner, delegate, i
           ) : (
             <TooltipProvider disableHoverableContent>
               <Tooltip>
-                <Avatar entity={delegate as Group} variant="small" />
                 <TooltipTrigger className="w-[200px] cursor-default">
-                  <div className="flex gap-2">
-                    <span className="truncate">{delegate?.displayName || 'No Delegate'} </span>
+                  <div className="flex gap-2 items-center">
+                    <Avatar entity={delegate as Group} variant="small" />
+                    <span className="truncate">{delegate?.displayName || 'No Delegate'}</span>
                   </div>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">{delegate?.displayName || 'No Delegate'}</TooltipContent>

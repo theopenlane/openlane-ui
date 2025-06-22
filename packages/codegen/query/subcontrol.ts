@@ -46,6 +46,10 @@ export const GET_SUBCONTROL_BY_ID = gql`
       control {
         refCode
         id
+        standard {
+          id
+          shortName
+        }
       }
       controlObjectives {
         edges {

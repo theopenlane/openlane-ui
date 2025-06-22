@@ -11,7 +11,7 @@ interface MenuProps {
 const Menu: React.FC<MenuProps> = ({ trigger, content }) => {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>{trigger ?? <Button variant="outline" className="h-8 !px-2 !pl-0" icon={<EllipsisVertical size={16} />} />}</DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>{trigger ?? <Button variant="outline" className="h-8 !px-2 !pl-0 bg-card" icon={<EllipsisVertical size={16} />} />}</DropdownMenuTrigger>
       <DropdownMenuContent className="border shadow-md" align="end">
         <div className="flex flex-col space-y-2">{content}</div>
       </DropdownMenuContent>

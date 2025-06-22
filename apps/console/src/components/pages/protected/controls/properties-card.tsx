@@ -117,9 +117,9 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ category, subcategory, 
             isEditing={isEditing}
           />
         ) : null}
-        {isEditing || controlData?.referenceID ? (
+        {isEditing || controlData?.auditorReferenceID ? (
           <ReferenceProperty
-            name="auditReferenceID"
+            name="auditorReferenceID"
             label="Auditor ID"
             tooltip="Reference ID used by auditor, may vary from defined reference code from standard"
             value={controlData?.auditorReferenceID}

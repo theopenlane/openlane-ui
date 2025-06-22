@@ -14,7 +14,7 @@ type TTitleFieldProps = {
 
 const TitleField: React.FC<TTitleFieldProps> = ({ isEditing, form }) => {
   return isEditing ? (
-    <div className="w-full">
+    <div className="w-full pt-5">
       <Controller
         control={form.control}
         name="name"
