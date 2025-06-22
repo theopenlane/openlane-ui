@@ -36,6 +36,7 @@ import Link from 'next/link'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import CreateControlObjectiveSheet from '@/components/pages/protected/controls/control-objectives/create-control-objective-sheet'
 import CreateControlImplementationSheet from '@/components/pages/protected/controls/control-implementation/create-control-implementation-sheet.tsx'
+import { Control } from '@repo/codegen/src/schema.ts'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 
 interface FormValues {
@@ -232,6 +233,12 @@ const ControlDetailsPage: React.FC = () => {
                     controlIDs: [id],
                   }}
                 />
+                <Link href={`/controls/${id}/map-control`}>
+                  <div className="flex items-center space-x-2 hover:bg-muted">
+                    <CirclePlus size={16} strokeWidth={2} />
+                    <span>Map Control</span>
+                  </div>
+                </Link>
               </>
             }
           />
@@ -297,6 +304,7 @@ const ControlDetailsPage: React.FC = () => {
         subcategory={control.subcategory}
         status={control.status}
         mappedCategories={control.mappedCategories}
+        controlData={control as Control}
         isEditing={isEditing}
         isSourceFramework={isSourceFramework}
       />

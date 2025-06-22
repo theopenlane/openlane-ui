@@ -32,6 +32,7 @@ import { useNotification } from '@/hooks/useNotification'
 import CreateControlObjectiveSheet from '@/components/pages/protected/controls/control-objectives/create-control-objective-sheet'
 import { ControlObjectiveFieldsFragment, ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
 import CreateControlImplementationSheet from '@/components/pages/protected/controls/control-implementation/create-control-implementation-sheet.tsx'
+import Link from 'next/link'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 
 interface FormValues {
@@ -66,7 +67,7 @@ const initialDataObj = {
 }
 
 const ControlDetailsPage: React.FC = () => {
-  const { subcontrolId } = useParams<{ subcontrolId: string }>()
+  const { subcontrolId, id } = useParams<{ subcontrolId: string; id: string }>()
   const { data, isLoading, isError } = useGetSubcontrolById(subcontrolId)
   const [isEditing, setIsEditing] = useState(false)
   const [showSheet, setShowSheet] = useState<boolean>(false)
@@ -217,6 +218,12 @@ const ControlDetailsPage: React.FC = () => {
                     subcontrolIDs: [subcontrolId],
                   }}
                 />
+                <Link href={`/controls/${id}/${subcontrolId}/map-control`}>
+                  <div className="flex items-center space-x-2 hover:bg-muted">
+                    <CirclePlus size={16} strokeWidth={2} />
+                    <span>Map Control</span>
+                  </div>
+                </Link>
               </>
             }
           />

@@ -54,3 +54,16 @@ export const CREATE_CONTROLS_BY_CLONE = gql`
     }
   }
 `
+
+export const GET_ALL_STANDARDS_SELECT = gql`
+  query GetAllStandardsSelect($where: StandardWhereInput) {
+    standards(where: $where) {
+      edges {
+        node {
+          id
+          shortName
+        }
+      }
+    }
+  }
+`
