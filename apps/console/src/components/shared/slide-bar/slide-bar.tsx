@@ -1,6 +1,7 @@
 import React, { useState, useRef, ReactNode, useEffect } from 'react'
 import { XIcon, PanelRight } from 'lucide-react'
 import { Button } from '@repo/ui/button'
+import { useSubscriptionBanner } from '@/hooks/useSubscriptionBanner.ts'
 
 type TSlideBarLayoutProps = {
   sidebarTitle: string
@@ -16,6 +17,7 @@ const DEFAULT_WIDTH = 360
 const FLOATING_MARGIN = 24
 
 const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarContent, children, menu, slideOpen }) => {
+  const { bannerText } = useSubscriptionBanner()
   const [open, setOpen] = useState<boolean>(false)
   const [width, setWidth] = useState<number>(DEFAULT_WIDTH)
   const resizing = useRef(false)
@@ -60,13 +62,14 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarC
         {children}
       </div>
 
-      <div className="fixed flex items-center space-x-2 z-30" style={{ top: '80px', right: `${FLOATING_MARGIN}px` }}>
+      <div className="fixed flex items-center space-x-2 z-30" style={{ top: !!bannerText ? '7rem' : '5rem', right: `${FLOATING_MARGIN}px` }}>
         {menu}
         <Button type="button" variant="outline" onClick={() => setOpen(!open)} className="h-8 !px-2 !pl-0 bg-card" icon={open ? <XIcon size={16} /> : <PanelRight size={16} />} />
       </div>
       <div
-        className="fixed right-0 top-[4rem] bottom-0 border-l shadow-xl transform transition-transform duration-300 z-20 bg-background"
+        className="fixed right-0  bottom-0 border-l shadow-xl transform transition-transform duration-300 z-20 bg-background"
         style={{
+          top: !!bannerText ? '6rem' : '4rem',
           width: open ? `${width}px` : 0,
           transform: open ? 'translateX(0)' : 'translateX(100%)',
         }}
