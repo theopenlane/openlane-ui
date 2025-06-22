@@ -24,6 +24,7 @@ import { Value } from '@udecode/plate-common'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import BusinessCostField from '@/components/pages/protected/risks/view/fields/business-cost-field.tsx'
 import MitigationField from '@/components/pages/protected/risks/view/fields/mitigation-field.tsx'
+import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 
 type TRisksPageProps = {
   riskId: string
@@ -136,76 +137,93 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
     }
   }
 
-  return (
+  if (isLoading) {
+    return <Loading />
+  }
+
+  if (!risk) {
+    return null
+  }
+
+  const sidebarContent = (
     <>
-      {isLoading && <Loading />}
-      {!isLoading && risk && (
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmitHandler)} className="grid grid-cols-1 lg:grid-cols-[1fr_336px] gap-6">
-            <div className="space-y-6 w-full max-w-full overflow-hidden">
-              <TitleField isEditing={isEditing} form={form} />
-              <DetailsField isEditing={isEditing} form={form} risk={risk} />
-              <BusinessCostField isEditing={isEditing} form={form} risk={risk} />
-              <MitigationField isEditing={isEditing} form={form} risk={risk} />
-              <AssociatedObjectsViewAccordion risk={risk} />
-            </div>
-            <div className="space-y-4">
-              {isEditing ? (
-                <div className="flex gap-2 justify-end">
-                  <Button className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
-                    Cancel
-                  </Button>
-                  <Button type="submit" iconPosition="left" className="h-8 !px-2" icon={<SaveIcon />} disabled={isPending}>
-                    {isPending ? 'Saving' : 'Save'}
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex gap-2 justify-end">
-                  {!editAllowed && !deleteAllowed ? (
-                    <></>
-                  ) : (
-                    <Menu
-                      content={
-                        <>
-                          {editAllowed && (
-                            <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleEdit}>
-                              <PencilIcon size={16} strokeWidth={2} />
-                              <span>Edit</span>
-                            </div>
-                          )}
-                          {deleteAllowed && (
-                            <>
-                              <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={() => setIsDeleteDialogOpen(true)}>
-                                <Trash2 size={16} strokeWidth={2} />
-                                <span>Delete</span>
-                              </div>
-                              <ConfirmationDialog
-                                open={isDeleteDialogOpen}
-                                onOpenChange={setIsDeleteDialogOpen}
-                                onConfirm={handleDeleteRisk}
-                                title={`Delete Risk`}
-                                description={
-                                  <>
-                                    This action cannot be undone. This will permanently remove <b>{risk.name}</b> from the organization.
-                                  </>
-                                }
-                              />
-                            </>
-                          )}
-                        </>
-                      }
-                    />
-                  )}
-                </div>
-              )}
-              <AuthorityCard form={form} stakeholder={risk.stakeholder} delegate={risk.delegate} isEditing={isEditing} />
-              <PropertiesCard form={form} isEditing={isEditing} risk={risk} />
-              <TagsCard form={form} risk={risk} isEditing={isEditing} />
-            </div>
-          </form>
-        </Form>
-      )}
+      <AuthorityCard form={form} stakeholder={risk.stakeholder} delegate={risk.delegate} isEditing={isEditing} />
+      <PropertiesCard form={form} isEditing={isEditing} risk={risk} />
+      <TagsCard form={form} risk={risk} isEditing={isEditing} />
     </>
+  )
+
+  const menuComponent = (
+    <div className="space-y-4">
+      {isEditing ? (
+        <div className="flex gap-2 justify-end">
+          <Button className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
+            Cancel
+          </Button>
+          <Button type="submit" iconPosition="left" className="h-8 !px-2" icon={<SaveIcon />} disabled={isPending}>
+            {isPending ? 'Saving' : 'Save'}
+          </Button>
+        </div>
+      ) : (
+        <div className="flex gap-2 justify-end">
+          {!editAllowed && !deleteAllowed ? (
+            <></>
+          ) : (
+            <Menu
+              content={
+                <>
+                  {editAllowed && (
+                    <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleEdit}>
+                      <PencilIcon size={16} strokeWidth={2} />
+                      <span>Edit</span>
+                    </div>
+                  )}
+                  {deleteAllowed && (
+                    <>
+                      <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={() => setIsDeleteDialogOpen(true)}>
+                        <Trash2 size={16} strokeWidth={2} />
+                        <span>Delete</span>
+                      </div>
+                      <ConfirmationDialog
+                        open={isDeleteDialogOpen}
+                        onOpenChange={setIsDeleteDialogOpen}
+                        onConfirm={handleDeleteRisk}
+                        title={`Delete Risk`}
+                        description={
+                          <>
+                            This action cannot be undone. This will permanently remove <b>{risk.name}</b> from the organization.
+                          </>
+                        }
+                      />
+                    </>
+                  )}
+                </>
+              }
+            />
+          )}
+        </div>
+      )}
+    </div>
+  )
+
+  const mainContent = (
+    <div className="space-y-6 p-6">
+      <TitleField isEditing={isEditing} form={form} />
+      <DetailsField isEditing={isEditing} form={form} risk={risk} />
+      <BusinessCostField isEditing={isEditing} form={form} risk={risk} />
+      <MitigationField isEditing={isEditing} form={form} risk={risk} />
+      <AssociatedObjectsViewAccordion risk={risk} />
+    </div>
+  )
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmitHandler)}>
+        <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>
+          {mainContent}
+        </SlideBarLayout>
+      </form>
+    </Form>
   )
 }
 
