@@ -49,19 +49,11 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   const router = useRouter()
 
   useEffect(() => {
-    !risk &&
-      setCrumbs([
-        { label: 'Home', href: '/dashboard' },
-        { label: 'Risks', href: '/risks' },
-        { label: '', isLoading: isLoading },
-      ])
-
-    risk &&
-      setCrumbs([
-        { label: 'Home', href: '/dashboard' },
-        { label: 'Risks', href: '/risks' },
-        { label: risk.name, isLoading: isLoading },
-      ])
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Risks', href: '/risks' },
+      { label: risk?.name, isLoading: isLoading },
+    ])
   }, [setCrumbs, risk, isLoading])
 
   useEffect(() => {

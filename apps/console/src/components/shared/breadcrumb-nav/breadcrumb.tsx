@@ -28,7 +28,7 @@ export function BreadcrumbNavigation() {
                   <Loader size={16} className="animate-spin" />
                 </div>
               )}
-              {!c.isLoading && c.href ? <BreadcrumbLink href={c.href}>{c.label}</BreadcrumbLink> : <span className="font-medium text-foreground">{c.label}</span>}
+              {!c.isLoading && c.href ? <BreadcrumbLink href={c.href}>{c.label ?? ''}</BreadcrumbLink> : <span className="font-medium text-foreground">{c.label}</span>}
             </BreadcrumbItem>
           </React.Fragment>
         ))}

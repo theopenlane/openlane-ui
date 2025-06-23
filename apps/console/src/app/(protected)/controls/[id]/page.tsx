@@ -151,19 +151,11 @@ const ControlDetailsPage: React.FC = () => {
   }
 
   useEffect(() => {
-    !data &&
-      setCrumbs([
-        { label: 'Home', href: '/dashboard' },
-        { label: 'Controls', href: '/controls' },
-        { label: '', isLoading: isLoading },
-      ])
-
-    data &&
-      setCrumbs([
-        { label: 'Home', href: '/dashboard' },
-        { label: 'Controls', href: '/controls' },
-        { label: data.control.refCode, isLoading: isLoading },
-      ])
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Controls', href: '/controls' },
+      { label: data?.control?.refCode, isLoading: isLoading },
+    ])
   }, [setCrumbs, data?.control, isLoading])
 
   useEffect(() => {

@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 
-export type Crumb = { label: string; href?: string; isLoading?: boolean }
+export type Crumb = { label?: string; href?: string; isLoading?: boolean }
 
 export const BreadcrumbContext = React.createContext<{
   crumbs: Crumb[]

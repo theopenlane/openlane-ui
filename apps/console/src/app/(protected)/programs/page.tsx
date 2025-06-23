@@ -62,19 +62,11 @@ const Page: React.FC = () => {
   }, [programId])
 
   useEffect(() => {
-    !basicInfoData &&
-      setCrumbs([
-        { label: 'Home', href: '/dashboard' },
-        { label: 'Programs', href: '/programs' },
-        { label: '', isLoading: isLoading },
-      ])
-
-    basicInfoData &&
-      setCrumbs([
-        { label: 'Home', href: '/dashboard' },
-        { label: 'Programs', href: '/programs' },
-        { label: basicInfoData.program.name, isLoading: isLoading },
-      ])
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Programs', href: '/programs' },
+      { label: basicInfoData?.program?.name, isLoading: isLoading },
+    ])
   }, [setCrumbs, basicInfoData, isLoading])
 
   useEffect(() => {

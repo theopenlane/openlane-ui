@@ -103,39 +103,21 @@ const MapControlPage = () => {
   }
 
   const setControlsCrumbs = () => {
-    !controlData &&
-      setCrumbs([
-        { label: 'Home', href: '/dashboard' },
-        { label: 'Controls', href: '/controls' },
-        { label: '', isLoading: isLoading },
-        { label: 'Map Controls', href: '/map-control' },
-      ])
-
-    controlData &&
-      setCrumbs([
-        { label: 'Home', href: '/dashboard' },
-        { label: 'Controls', href: '/controls' },
-        { label: controlData.control.refCode, isLoading: isLoading },
-        { label: 'Map Controls', href: '/map-control' },
-      ])
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Controls', href: '/controls' },
+      { label: controlData?.control?.refCode, isLoading: isLoading },
+      { label: 'Map Controls', href: '/map-control' },
+    ])
   }
 
   const setSubControlsCrumbs = () => {
-    !subcontrolData &&
-      setCrumbs([
-        { label: 'Home', href: '/dashboard' },
-        { label: 'Controls', href: '/controls' },
-        { label: '', isLoading: isLoading },
-        { label: 'Map Controls', href: '/map-control' },
-      ])
-
-    subcontrolData &&
-      setCrumbs([
-        { label: 'Home', href: '/dashboard' },
-        { label: 'Controls', href: '/controls' },
-        { label: subcontrolData.subcontrol.refCode, isLoading: isLoading },
-        { label: 'Map Controls', href: '/map-control' },
-      ])
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Controls', href: '/controls' },
+      { label: subcontrolData?.subcontrol?.refCode, isLoading: isLoading },
+      { label: 'Map Controls', href: '/map-control' },
+    ])
   }
 
   useEffect(() => {

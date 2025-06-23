@@ -55,19 +55,11 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const { setCrumbs } = React.useContext(BreadcrumbContext)
 
   useEffect(() => {
-    !policy &&
-      setCrumbs([
-        { label: 'Home', href: '/dashboard' },
-        { label: 'Policies', href: '/policies' },
-        { label: '', isLoading: isLoading },
-      ])
-
-    policy &&
-      setCrumbs([
-        { label: 'Home', href: '/dashboard' },
-        { label: 'Policies', href: '/policies' },
-        { label: policy.name, isLoading: isLoading },
-      ])
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Policies', href: '/policies' },
+      { label: policy?.name, isLoading: isLoading },
+    ])
   }, [setCrumbs, policy, isLoading])
 
   useEffect(() => {

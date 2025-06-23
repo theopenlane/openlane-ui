@@ -139,20 +139,12 @@ export default function CreateControlForm() {
   }
 
   useEffect(() => {
-    !controlData &&
-      setCrumbs([
-        { label: 'Home', href: '/dashboard' },
-        { label: 'Controls', href: '/controls' },
-        { label: 'Create Subcontrol', href: '/create-subcontrol' },
-      ])
-
-    controlData &&
-      setCrumbs([
-        { label: 'Home', href: '/dashboard' },
-        { label: 'Controls', href: '/controls' },
-        { label: controlData.control.refCode, isLoading: isLoading },
-        { label: 'Create Subcontrol', href: '/create-subcontrol' },
-      ])
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Controls', href: '/controls' },
+      { label: controlData?.control?.refCode, isLoading: isLoading },
+      { label: 'Create Subcontrol', href: '/create-subcontrol' },
+    ])
   }, [setCrumbs, controlData, isLoading])
 
   useEffect(() => {

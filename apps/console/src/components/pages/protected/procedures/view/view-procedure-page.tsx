@@ -57,19 +57,11 @@ const ViewProcedurePage: React.FC<TViewProcedurePage> = ({ procedureId }) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   useEffect(() => {
-    !procedure &&
-      setCrumbs([
-        { label: 'Home', href: '/dashboard' },
-        { label: 'Procedures', href: '/procedures' },
-        { label: '', isLoading: isLoading },
-      ])
-
-    procedure &&
-      setCrumbs([
-        { label: 'Home', href: '/dashboard' },
-        { label: 'Procedures', href: '/procedures' },
-        { label: procedure.name, isLoading: isLoading },
-      ])
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Procedures', href: '/procedures' },
+      { label: procedure?.name, isLoading: isLoading },
+    ])
   }, [setCrumbs, procedure, isLoading])
 
   useEffect(() => {

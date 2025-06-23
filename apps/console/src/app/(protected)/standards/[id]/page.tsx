@@ -20,19 +20,11 @@ const StandardDetailsPage = () => {
   const { setCrumbs } = useContext(BreadcrumbContext)
 
   useEffect(() => {
-    !standard &&
-      setCrumbs([
-        { label: 'Home', href: '/dashboard' },
-        { label: 'Standards', href: '/standards' },
-        { label: '', isLoading: isLoading },
-      ])
-
-    standard &&
-      setCrumbs([
-        { label: 'Home', href: '/dashboard' },
-        { label: 'Standards', href: '/standards' },
-        { label: standard.shortName ?? standard.name, isLoading: isLoading },
-      ])
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Standards', href: '/standards' },
+      { label: standard?.shortName ?? standard?.name, isLoading: isLoading },
+    ])
   }, [setCrumbs, standard, isLoading])
 
   if (isLoading) {
