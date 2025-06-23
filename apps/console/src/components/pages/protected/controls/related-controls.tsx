@@ -5,26 +5,33 @@ import { Button } from '@repo/ui/button'
 import { PanelRightOpen } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
 
-const RelatedControls = () => {
-  const { id } = useParams<{ id: string }>()
-  const router = useRouter()
+export type RelatedNode = {
+  type: 'Control' | 'Subcontrol'
+  id: string
+  refCode: string
+  referenceFramework?: string | null
+  controlId?: string
+}
 
-  const where = {
-    or: [{ hasFromControlsWith: [{ id }] }, { hasFromSubcontrolsWith: [{ id }] }, { hasToControlsWith: [{ id }] }, { hasToSubcontrolsWith: [{ id }] }],
-  }
+export type GroupedControls = Record<string, RelatedNode[]>
+
+const RelatedControls = () => {
+  const router = useRouter()
+  const { id, subcontrolId } = useParams<{ id: string; subcontrolId: string }>()
+
+  const where = subcontrolId
+    ? {
+        or: [{ hasFromSubcontrolsWith: [{ id: subcontrolId }] }, { hasToSubcontrolsWith: [{ id: subcontrolId }] }],
+      }
+    : id
+    ? {
+        or: [{ hasFromControlsWith: [{ id }] }, { hasToControlsWith: [{ id }] }],
+      }
+    : undefined
 
   const { data } = useGetMappedControls(where)
 
-  const grouped: Record<
-    string,
-    {
-      type: 'Control' | 'Subcontrol'
-      id: string
-      refCode: string
-      referenceFramework?: string | null
-      controlId?: string
-    }[]
-  > = {}
+  const grouped: GroupedControls = {}
 
   data?.mappedControls?.edges?.forEach((edge) => {
     const node = edge?.node
@@ -35,13 +42,7 @@ const RelatedControls = () => {
     const isToControl = node?.toControls?.edges?.some((e) => e?.node?.id === id)
     const isToSub = node?.toSubcontrols?.edges?.some((e) => e?.node?.id === id)
 
-    const oppositeNodes: {
-      type: 'Control' | 'Subcontrol'
-      id: string
-      refCode: string
-      referenceFramework?: string | null
-      controlId?: string
-    }[] = []
+    const oppositeNodes: RelatedNode[] = []
 
     if (isFromControl || isFromSub) {
       oppositeNodes.push(

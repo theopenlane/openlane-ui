@@ -20,6 +20,6 @@ export const useGetMappedControls = (where?: GetMappedControlsQueryVariables['wh
   return useQuery<GetMappedControlsQuery>({
     queryKey: ['mappedControls', where],
     queryFn: () => client.request(GET_MAPPED_CONTROLS, { where }),
-    enabled: true,
+    enabled: !!where,
   })
 }
