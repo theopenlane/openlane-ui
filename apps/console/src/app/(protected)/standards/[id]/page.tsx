@@ -18,7 +18,7 @@ const StandardDetailsPage = () => {
   const standard = data?.standard
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const { setCrumbs } = useContext(BreadcrumbContext)
-  console.log(standard)
+
   useEffect(() => {
     !standard &&
       setCrumbs([
