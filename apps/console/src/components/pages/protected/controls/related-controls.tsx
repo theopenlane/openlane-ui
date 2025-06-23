@@ -1,9 +1,10 @@
 import React from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { useGetMappedControls } from '@/lib/graphql-hooks/mapped-control'
 import { Button } from '@repo/ui/button'
 import { PanelRightOpen } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
+import Link from 'next/link'
 
 export type RelatedNode = {
   type: 'Control' | 'Subcontrol'
@@ -16,7 +17,6 @@ export type RelatedNode = {
 export type GroupedControls = Record<string, RelatedNode[]>
 
 const RelatedControls = () => {
-  const router = useRouter()
   const { id, subcontrolId } = useParams<{ id: string; subcontrolId: string }>()
 
   const where = subcontrolId
@@ -121,15 +121,15 @@ const RelatedControls = () => {
       </div>
 
       {Object.entries(grouped).map(([framework, nodes], index, array) => (
-        <div key={framework} className={`mb-4 flex gap-5 items-center py-2 ${index < array.length - 1 ? 'border-b' : ''}`}>
+        <div key={framework} className={`mb-2 flex gap-5 items-center py-2 ${index < array.length - 1 ? 'border-b' : ''}`}>
           <h3 className="font-semibold min-w-24 text-text-informational">{framework}</h3>
           <div className="flex gap-2.5 flex-wrap">
             {nodes.map((node) => {
               const href = node.type === 'Subcontrol' ? `/controls/${node.controlId}/${node.id}` : `/controls/${node.id}`
               return (
-                <span key={node.refCode} onClick={() => router.push(href)} className="text-xs border rounded-full cursor-pointer hover:text-brand px-2.5 py-0.5">
-                  {node.refCode}
-                </span>
+                <Link href={href} key={node.refCode}>
+                  <span className="text-xs border rounded-full cursor-pointer hover:text-brand px-2.5 py-0.5">{node.refCode}</span>
+                </Link>
               )
             })}
           </div>
