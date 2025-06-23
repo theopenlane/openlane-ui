@@ -100,6 +100,19 @@ const StandardDetailsAccordion: FC = () => {
   }, [groupedControls])
 
   useEffect(() => {
+    setPaginations((prev) => {
+      const updated = { ...prev }
+      for (const category of Object.keys(groupedControls)) {
+        updated[category] = {
+          ...DEFAULT_PAGINATION,
+          pageSize: prev[category]?.pageSize || DEFAULT_PAGINATION.pageSize,
+        }
+      }
+      return updated
+    })
+  }, [debouncedSearchQuery])
+
+  useEffect(() => {
     if (hasInitialized) return
 
     const firstCategory = Object.keys(groupedControls)[0]
@@ -113,6 +126,7 @@ const StandardDetailsAccordion: FC = () => {
     const pagination = paginations[category] || DEFAULT_PAGINATION
     const start = (pagination.page - 1) * pagination.pageSize
     const end = start + pagination.pageSize
+
     return controls.slice(start, end)
   }
 
