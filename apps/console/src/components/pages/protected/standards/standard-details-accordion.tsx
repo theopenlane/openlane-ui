@@ -100,19 +100,6 @@ const StandardDetailsAccordion: FC = () => {
   }, [groupedControls])
 
   useEffect(() => {
-    setPaginations((prev) => {
-      const updated = { ...prev }
-      for (const category of Object.keys(groupedControls)) {
-        updated[category] = {
-          ...DEFAULT_PAGINATION,
-          pageSize: prev[category]?.pageSize || DEFAULT_PAGINATION.pageSize,
-        }
-      }
-      return updated
-    })
-  }, [debouncedSearchQuery])
-
-  useEffect(() => {
     if (hasInitialized) return
 
     const firstCategory = Object.keys(groupedControls)[0]
@@ -145,7 +132,20 @@ const StandardDetailsAccordion: FC = () => {
             value={searchQuery}
             name="standardSearch"
             placeholder="Search ..."
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              const newValue = e.target.value
+              setSearchQuery(newValue)
+              setPaginations((prev) => {
+                const updated = { ...prev }
+                for (const category of Object.keys(groupedControls)) {
+                  updated[category] = {
+                    ...DEFAULT_PAGINATION,
+                    pageSize: prev[category]?.pageSize || DEFAULT_PAGINATION.pageSize,
+                  }
+                }
+                return updated
+              })
+            }}
             icon={<SearchIcon size={16} />}
             iconPosition="left"
             variant="searchTable"
