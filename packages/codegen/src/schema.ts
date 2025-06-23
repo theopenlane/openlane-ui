@@ -39391,7 +39391,10 @@ export type GetAllOrganizationsWithMembersQuery = {
         avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
         members: {
           __typename?: 'OrgMembershipConnection'
-          edges?: Array<{ __typename?: 'OrgMembershipEdge'; node?: { __typename?: 'OrgMembership'; role: OrgMembershipRole; user: { __typename?: 'User'; id: string } } | null } | null> | null
+          edges?: Array<{
+            __typename?: 'OrgMembershipEdge'
+            node?: { __typename?: 'OrgMembership'; id: string; role: OrgMembershipRole; user: { __typename?: 'User'; id: string } } | null
+          } | null> | null
         }
       } | null
     } | null> | null
