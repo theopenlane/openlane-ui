@@ -1,7 +1,7 @@
 'use client'
 
 import { GraphQLClient } from 'graphql-request'
-import { sessionCookieName } from '@repo/dally/auth'
+import { sessionCookieName, csrfCookieName, csrfHeader } from '@repo/dally/auth'
 import { getCookie } from './auth/utils/getCookie'
 import { fetchNewAccessToken, Tokens } from './auth/utils/refresh-token'
 import { jwtDecode } from 'jwt-decode'
@@ -34,6 +34,11 @@ export function useGetGraphQLClient() {
     const headers = new Headers(init?.headers || {})
     headers.set('Authorization', `Bearer ${accessToken}`)
     headers.set('Content-Type', 'application/json')
+
+    // Ensure CSRF token is included in the headers
+    // cookie should be automatically included by the browser
+    const csrfCookieValue = getCookie(csrfCookieName) || ''
+    headers.set(csrfHeader, csrfCookieValue)
 
     const sessionCookieValue = getCookie(sessionCookieName!)
     if (sessionCookieValue) {

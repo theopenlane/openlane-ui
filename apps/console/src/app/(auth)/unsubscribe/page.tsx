@@ -10,9 +10,7 @@ import { Input } from '@repo/ui/input'
 import { Form, FormField, FormControl, FormMessage } from '@repo/ui/form'
 import { LoaderCircle, MailCheck } from 'lucide-react'
 import { UNSUBSCRIBE_MUTATION } from '@repo/codegen/query/subscribe'
-import { Logo } from '@repo/ui/logo'
 import { Panel } from '@repo/ui/panel'
-import Link from 'next/link'
 
 const formSchema = z.object({
   email: z.string().email(),

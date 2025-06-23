@@ -1,13 +1,11 @@
+import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
   const bodyData = await request.json()
 
-  const fData = await fetch(`${process.env.API_REST_URL}/v1/resend`, {
+  const fData = await secureFetch(`${process.env.API_REST_URL}/v1/resend`, {
     method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-    },
     body: JSON.stringify(bodyData),
   })
 

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth/auth'
 import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
+import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 
 export async function POST(request: Request) {
   const bodyData = await request.json()
@@ -9,14 +10,14 @@ export async function POST(request: Request) {
   const token = session?.user?.accessToken
 
   const headers: HeadersInit = {
-    'content-type': 'application/json',
     Authorization: `Bearer ${token}`,
   }
+
   if (cookies) {
     headers['cookie'] = cookies
   }
 
-  const fData = await fetch(`${process.env.API_REST_URL}/v1/switch`, {
+  const fData = await secureFetch(`${process.env.API_REST_URL}/v1/switch`, {
     method: 'POST',
     headers,
     body: JSON.stringify(bodyData),

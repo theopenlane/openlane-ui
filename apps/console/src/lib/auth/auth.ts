@@ -12,6 +12,7 @@ import { cookies } from 'next/headers'
 import { sessionCookieName, allowedLoginDomains } from '@repo/dally/auth'
 import { getDashboardData } from '@/app/api/getDashboardData/route'
 import { passKeyProvider } from './providers/passkey'
+import { skipCSRFCheck } from '@auth/core'
 
 import { CredentialsSignin } from 'next-auth'
 
@@ -49,6 +50,7 @@ export const config = {
     credentialsProvider,
     passKeyProvider,
   ],
+  skipCSRFCheck: skipCSRFCheck,
   events: {
     async signOut() {
       const cookieStore = await cookies()
