@@ -40,7 +40,7 @@ export function useGetGraphQLClient() {
     // cookie should be automatically included by the browser
     const csrfCookieValue = getCookie(csrfCookieName) || ''
     headers.set(csrfHeader, csrfCookieValue)
-    setCSRFCookie(csrfCookieValue)
+    headers.set('Cookie', `${csrfCookieName}=${csrfCookieValue} SameSite=None`)
 
     const sessionCookieValue = getCookie(sessionCookieName!)
     if (sessionCookieValue) {

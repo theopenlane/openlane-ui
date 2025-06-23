@@ -6,6 +6,8 @@ import { cookies } from 'next/headers'
 export const setCSRFCookie = async (csrfToken: string) => {
   const cookieStore = await cookies()
 
+  console.log('Setting CSRF cookie:', csrfToken)
+
   if (isDevelopment) {
     cookieStore.set(`${csrfCookieName}`, csrfToken, {
       sameSite: 'lax',
