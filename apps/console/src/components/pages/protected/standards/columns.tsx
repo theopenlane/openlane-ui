@@ -8,7 +8,7 @@ import { ControlListFieldsFragment } from '@repo/codegen/src/schema'
 type GetColumnsProps = {
   selectedControls: { id: string; refCode: string }[]
   toggleSelection: (control: { id: string; refCode: string }) => void
-  setSelectedControls: (controls: { id: string; refCode: string }[]) => void
+  setSelectedControls: React.Dispatch<React.SetStateAction<{ id: string; refCode: string }[]>>
   controls: ControlListFieldsFragment[]
 }
 
@@ -16,12 +16,28 @@ export const getColumns = ({ selectedControls, toggleSelection, setSelectedContr
   return [
     {
       id: 'select',
-      header: () => (
-        <Checkbox
-          checked={selectedControls.length === controls.length}
-          onCheckedChange={(checked: boolean) => setSelectedControls(checked ? controls.map((c) => ({ id: c.id, refCode: c.refCode })) : [])}
-        />
-      ),
+      header: () => {
+        const isAllSelected = controls.length > 0 && controls.every((c) => selectedControls.some((sel) => sel.id === c.id))
+
+        return (
+          <Checkbox
+            checked={isAllSelected}
+            onCheckedChange={(checked: boolean) => {
+              setSelectedControls((prev) => {
+                const categoryItems = controls.map((c) => ({ id: c.id, refCode: c.refCode }))
+                const categoryIds = new Set(categoryItems.map((item) => item.id))
+
+                if (checked) {
+                  const newItems = categoryItems.filter((item) => !prev.some((p) => p.id === item.id))
+                  return [...prev, ...newItems]
+                } else {
+                  return prev.filter((item) => !categoryIds.has(item.id))
+                }
+              })
+            }}
+          />
+        )
+      },
       cell: ({ row }: any) => {
         const { id, refCode } = row.original
         const isChecked = selectedControls.some((c) => c.id === id)
