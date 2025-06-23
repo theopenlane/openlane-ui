@@ -7,6 +7,7 @@ import { fetchNewAccessToken, Tokens } from './auth/utils/refresh-token'
 import { jwtDecode } from 'jwt-decode'
 import { useSession } from 'next-auth/react'
 import { Session } from 'next-auth'
+import { setCSRFCookie } from './auth/utils/set-csrf-cookie'
 
 const GRAPHQL_ENDPOINT = process.env.NEXT_PUBLIC_API_GQL_URL!
 
@@ -39,7 +40,7 @@ export function useGetGraphQLClient() {
     // cookie should be automatically included by the browser
     const csrfCookieValue = getCookie(csrfCookieName) || ''
     headers.set(csrfHeader, csrfCookieValue)
-    headers.set('Cookie', `${csrfCookieName}=${csrfCookieValue}`)
+    setCSRFCookie(csrfCookieValue)
 
     const sessionCookieValue = getCookie(sessionCookieName!)
     if (sessionCookieValue) {
