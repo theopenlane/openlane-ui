@@ -27,9 +27,7 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy })
       />
     </div>
   ) : (
-    <Card className="p-4">
-      <div className="!mt-4 bg-none max-h-[55vh] overflow-auto p-2">{policy?.details && plateEditorHelper.convertToReadOnly(policy.details as string, 0)}</div>
-    </Card>
+    <div className="!mt-4 bg-none p-2">{policy?.details && plateEditorHelper.convertToReadOnly(policy.details as string, 0)}</div>
   )
 }
 

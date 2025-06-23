@@ -232,7 +232,6 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     <div className="space-y-6 p-6">
       <TitleField isEditing={isEditing} form={form} />
       <DetailsField isEditing={isEditing} form={form} policy={policy} />
-      <AssociatedObjectsViewAccordion policy={policy} />
     </div>
   )
 
@@ -242,6 +241,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
       <PropertiesCard form={form} isEditing={isEditing} policy={policy} />
       <HistoricalCard policy={policy} />
       <TagsCard form={form} policy={policy} isEditing={isEditing} />
+      <AssociatedObjectsViewAccordion policy={policy} />
     </>
   )
 
