@@ -16,6 +16,7 @@ export const GET_MAPPED_CONTROLS = gql`
       edges {
         node {
           id
+          mappingType
           relation
           fromSubcontrols {
             edges {
