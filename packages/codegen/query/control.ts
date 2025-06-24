@@ -27,6 +27,20 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
   }
 `
 
+export const CONTROL_LIST_STANDARDS_FIELDS_FRAGMENT = gql`
+  fragment ControlListStandardFields on Control {
+    id
+    refCode
+    description
+    category
+    subcategory
+    mappedCategories
+    subcontrols {
+      totalCount
+    }
+  }
+`
+
 export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
   fragment ControlDetailsFields on Control {
     id
@@ -324,13 +338,13 @@ export const GET_CONTROL_BY_ID_MINIFIED = gql`
 `
 
 export const GET_CONTROLS_PAGINATED_WITH_LIST_FIELDS = gql`
-  ${CONTROL_LIST_FIELDS_FRAGMENT}
+  ${CONTROL_LIST_STANDARDS_FIELDS_FRAGMENT}
   query GetControlsPaginatedWithListFields($where: ControlWhereInput, $after: Cursor) {
     controls(where: $where, after: $after) {
       totalCount
       edges {
         node {
-          ...ControlListFields
+          ...ControlListStandardFields
         }
         cursor
       }
