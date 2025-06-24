@@ -322,3 +322,22 @@ export const GET_CONTROL_BY_ID_MINIFIED = gql`
     }
   }
 `
+
+export const GET_CONTROLS_PAGINATED_WITH_LIST_FIELDS = gql`
+  ${CONTROL_LIST_FIELDS_FRAGMENT}
+  query GetControlsPaginatedWithListFields($where: ControlWhereInput, $after: Cursor) {
+    controls(where: $where, after: $after) {
+      totalCount
+      edges {
+        node {
+          ...ControlListFields
+        }
+        cursor
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+    }
+  }
+`
