@@ -150,6 +150,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
       <AuthorityCard form={form} stakeholder={risk.stakeholder} delegate={risk.delegate} isEditing={isEditing} />
       <PropertiesCard form={form} isEditing={isEditing} risk={risk} />
       <TagsCard form={form} risk={risk} isEditing={isEditing} />
+      <AssociatedObjectsViewAccordion risk={risk} />
     </>
   )
 
@@ -212,7 +213,6 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
       <DetailsField isEditing={isEditing} form={form} risk={risk} />
       <BusinessCostField isEditing={isEditing} form={form} risk={risk} />
       <MitigationField isEditing={isEditing} form={form} risk={risk} />
-      <AssociatedObjectsViewAccordion risk={risk} />
     </div>
   )
 

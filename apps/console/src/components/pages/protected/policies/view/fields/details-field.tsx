@@ -4,7 +4,6 @@ import React from 'react'
 import { EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { InternalPolicyByIdFragment } from '@repo/codegen/src/schema.ts'
-import { Card } from '@repo/ui/cardpanel'
 
 type TDetailsFieldProps = {
   isEditing: boolean

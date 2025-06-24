@@ -18,7 +18,7 @@ const FLOATING_MARGIN = 24
 
 const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarContent, children, menu, slideOpen }) => {
   const { bannerText } = useSubscriptionBanner()
-  const [open, setOpen] = useState<boolean>(false)
+  const [open, setOpen] = useState<boolean>(true)
   const [width, setWidth] = useState<number>(DEFAULT_WIDTH)
   const resizing = useRef(false)
 

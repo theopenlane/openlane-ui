@@ -1,13 +1,10 @@
 'use client'
 
 import React, { useState } from 'react'
-import Link from 'next/link'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/table'
 import { Button } from '@repo/ui/button'
 import { ChevronDown, ChevronsDownUp, List } from 'lucide-react'
 import { InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import SetObjectAssociationDialog from '@/components/pages/protected/policies/modal/set-object-association-modal.tsx'
 import { useAccountRole } from '@/lib/authz/access-api.ts'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
@@ -21,8 +18,6 @@ type AssociatedObjectsAccordionProps = {
 }
 
 const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> = ({ policy }) => {
-  console.log(policy)
-  const plateEditorHelper = usePlateEditor()
   const [expandedItems, setExpandedItems] = useState<string[]>(['procedures'])
   const { data: session } = useSession()
   const { data: permission } = useAccountRole(session, ObjectEnum.POLICY, policy.id)
@@ -41,10 +36,9 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
     <div className="flex gap-2 flex-wrap">
       {rows.length > 0 ? (
         rows.map((row) => {
-          const href = getHrefForObjectType(kind, row)
-          const text = row.name || row.refCode || row.title || '-'
           return (
             <ObjectAssociationChip
+              key={row?.id}
               object={{
                 id: row.id,
                 refCode: row?.refCode,
@@ -53,6 +47,7 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
                 details: row?.details,
                 description: row?.description,
                 summary: row?.summary,
+                link: getHrefForObjectType(kind, row),
               }}
             ></ObjectAssociationChip>
           )
