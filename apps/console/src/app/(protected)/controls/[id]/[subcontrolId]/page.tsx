@@ -265,7 +265,6 @@ const ControlDetailsPage: React.FC = () => {
         }}
         evidences={subcontrol.evidence?.edges?.filter((e): e is EvidenceEdge => !!e && !!e.node) || []}
       />
-      <AssociatedObjectsAccordion policies={subcontrol.internalPolicies} procedures={subcontrol.procedures} tasks={subcontrol.tasks} risks={subcontrol.risks} />
     </div>
   )
 
@@ -294,6 +293,7 @@ const ControlDetailsPage: React.FC = () => {
           showInfoDetails={showInfoDetails}
         />
       )}
+      <AssociatedObjectsAccordion policies={subcontrol.internalPolicies} procedures={subcontrol.procedures} tasks={subcontrol.tasks} risks={subcontrol.risks} />
     </>
   )
 

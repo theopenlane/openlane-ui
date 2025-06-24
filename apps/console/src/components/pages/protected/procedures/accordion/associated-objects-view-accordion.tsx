@@ -14,13 +14,13 @@ import { useAccountRole } from '@/lib/authz/access-api.ts'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
 import { canEdit } from '@/lib/authz/utils.ts'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
+import ObjectAssociationChip from '@/components/shared/objectAssociation/object-association-chip.tsx'
 
 type AssociatedObjectsAccordionProps = {
   procedure: ProcedureByIdFragment
 }
 
 const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> = ({ procedure }) => {
-  const plateEditorHelper = usePlateEditor()
   const [expandedItems, setExpandedItems] = useState<string[]>(['internalPolicies'])
   const { data: session } = useSession()
   const { data: permission } = useAccountRole(session, ObjectEnum.PROCEDURE, procedure.id)
@@ -36,45 +36,28 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
     kind: string,
     rows: { id: string; displayID: string; refCode?: string | null; name?: string | null; title?: string | null; details?: string | null; description?: string | null; summary?: string | null }[],
   ) => (
-    <div className="mt-4 rounded-md border border-border overflow-hidden bg-card w-full">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="px-4 py-2 min-w-[100px]">Name</TableHead>
-            <TableHead className="px-4 py-2">Description</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {rows.length > 0 ? (
-            rows.map((row) => {
-              const href = getHrefForObjectType(kind, row)
-              const text = row.name || row.refCode || row.title || '-'
-              return (
-                <TableRow key={row.id}>
-                  <TableCell className="px-4 py-2 text-primary font-bold min-w-[100px]">
-                    {href ? (
-                      <Link href={href} className="text-blue-500 hover:underline">
-                        {text}
-                      </Link>
-                    ) : (
-                      <p>{text}</p>
-                    )}
-                  </TableCell>
-                  <TableCell className="px-4 py-2 line-clamp-1 overflow-hidden">
-                    {row?.summary || (row?.description && plateEditorHelper.convertToReadOnly(row.description, 0)) || (row?.details && plateEditorHelper.convertToReadOnly(row.details, 0))}
-                  </TableCell>
-                </TableRow>
-              )
-            })
-          ) : (
-            <TableRow>
-              <TableCell colSpan={2} className="px-4 py-2 text-muted-foreground">
-                No records found.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+    <div className="flex gap-2 flex-wrap">
+      {rows.length > 0 ? (
+        rows.map((row) => {
+          return (
+            <ObjectAssociationChip
+              key={row?.id}
+              object={{
+                id: row.id,
+                refCode: row?.refCode,
+                name: row?.name,
+                title: row?.title,
+                details: row?.details,
+                description: row?.description,
+                summary: row?.summary,
+                link: getHrefForObjectType(kind, row),
+              }}
+            ></ObjectAssociationChip>
+          )
+        })
+      ) : (
+        <div>No records found.</div>
+      )}
     </div>
   )
 
@@ -95,52 +78,61 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
   }
 
   return (
-    <div className="mt-10 space-y-4">
+    <div className="rounded-lg border bg-card text-card-foreground shadow-sm p-4">
       <div className="flex items-center gap-2.5">
-        <h2 className="text-lg font-semibold whitespace-nowrap">Associated Objects</h2>
-        <div className="flex justify-between w-full items-center">
-          <div className="flex gap-2.5 items-center">
-            <div className="ml-auto">{editAllowed && <SetObjectAssociationDialog procedureId={procedure?.id} />}</div>
-            <Button type="button" className="h-8 !px-2" variant="outline" onClick={toggleAll}>
-              <div className="flex">
-                <List size={16} />
-                <ChevronsDownUp size={16} />
-              </div>
-            </Button>
+        <h2 className="text-lg font-medium whitespace-nowrap">Associated Objects</h2>
+        <Button type="button" className="h-8 !px-2" variant="outline" onClick={toggleAll}>
+          <div className="flex">
+            <List size={16} />
+            <ChevronsDownUp size={16} />
           </div>
-        </div>
+        </Button>
       </div>
       <Accordion type="multiple" value={expandedItems} onValueChange={(values) => setExpandedItems(values)} className="w-full">
-        <AccordionItem value="internalPolicies">
-          <SectionTrigger label="Internal Policies" count={procedure.internalPolicies.totalCount} />
-          {!!procedure.internalPolicies.edges?.length && <AccordionContent>{renderTable('policies', extractNodes(procedure.internalPolicies.edges))}</AccordionContent>}
-        </AccordionItem>
+        {!!procedure.internalPolicies.edges?.length && (
+          <AccordionItem value="internalPolicies">
+            <SectionTrigger label="Internal Policies" count={procedure.internalPolicies.totalCount} />
+            <AccordionContent>{renderTable('policies', extractNodes(procedure.internalPolicies.edges))}</AccordionContent>
+          </AccordionItem>
+        )}
 
-        <AccordionItem value="controls">
-          <SectionTrigger label="Controls" count={procedure.controls.totalCount} />
-          {!!procedure.controls.edges?.length && <AccordionContent>{renderTable('controls', extractNodes(procedure.controls.edges))}</AccordionContent>}
-        </AccordionItem>
+        {!!procedure.controls.edges?.length && (
+          <AccordionItem value="controls">
+            <SectionTrigger label="Controls" count={procedure.controls.totalCount} />
+            <AccordionContent>{renderTable('controls', extractNodes(procedure.controls.edges))}</AccordionContent>
+          </AccordionItem>
+        )}
 
-        <AccordionItem value="subcontrols">
-          <SectionTrigger label="Subcontrols" count={procedure.subcontrols.totalCount} />
-          {!!procedure.subcontrols.edges?.length && <AccordionContent>{renderTable('subcontrols', extractNodes(procedure.subcontrols.edges))}</AccordionContent>}
-        </AccordionItem>
+        {!!procedure.subcontrols.edges?.length && (
+          <AccordionItem value="subcontrols">
+            <SectionTrigger label="Subcontrols" count={procedure.subcontrols.totalCount} />
+            <AccordionContent>{renderTable('subcontrols', extractNodes(procedure.subcontrols.edges))}</AccordionContent>
+          </AccordionItem>
+        )}
 
-        <AccordionItem value="risks">
-          <SectionTrigger label="Risks" count={procedure.risks.totalCount} />
-          {!!procedure.risks.edges?.length && <AccordionContent>{renderTable('risks', extractNodes(procedure.risks.edges))}</AccordionContent>}
-        </AccordionItem>
+        {!!procedure.risks.edges?.length && (
+          <AccordionItem value="risks">
+            <SectionTrigger label="Risks" count={procedure.risks.totalCount} />
+            <AccordionContent>{renderTable('risks', extractNodes(procedure.risks.edges))}</AccordionContent>
+          </AccordionItem>
+        )}
 
-        <AccordionItem value="tasks">
-          <SectionTrigger label="Tasks" count={procedure.tasks.totalCount} />
-          {!!procedure.tasks.edges?.length && <AccordionContent>{renderTable('tasks', extractNodes(procedure.tasks.edges))}</AccordionContent>}
-        </AccordionItem>
+        {!!procedure.tasks.edges?.length && (
+          <AccordionItem value="tasks">
+            <SectionTrigger label="Tasks" count={procedure.tasks.totalCount} />
+            <AccordionContent>{renderTable('tasks', extractNodes(procedure.tasks.edges))}</AccordionContent>
+          </AccordionItem>
+        )}
 
-        <AccordionItem value="programs">
-          <SectionTrigger label="Programs" count={procedure.programs.totalCount} />
-          {!!procedure.programs.edges?.length && <AccordionContent>{renderTable('programs', extractNodes(procedure.programs.edges))}</AccordionContent>}
-        </AccordionItem>
+        {!!procedure.programs.edges?.length && (
+          <AccordionItem value="programs">
+            <SectionTrigger label="Programs" count={procedure.programs.totalCount} />
+            <AccordionContent>{renderTable('programs', extractNodes(procedure.programs.edges))}</AccordionContent>
+          </AccordionItem>
+        )}
       </Accordion>
+
+      <div className="mt-5">{editAllowed && <SetObjectAssociationDialog procedureId={procedure?.id} />}</div>
     </div>
   )
 }

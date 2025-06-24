@@ -26,7 +26,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
   const groups = data?.groups?.edges?.map((edge) => edge?.node!) || []
 
   return (
-    <Card className="p-4 !mt-11">
+    <Card className="p-4">
       <h3 className="text-lg font-medium mb-2">Authority</h3>
       <div className="flex flex-col gap-4">
         {/* Approver */}

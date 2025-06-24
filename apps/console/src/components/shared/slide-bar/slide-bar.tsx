@@ -11,14 +11,14 @@ type TSlideBarLayoutProps = {
   slideOpen?: boolean
 }
 
-const MIN_WIDTH = 360
+const MIN_WIDTH = 400
 const MAX_RATIO = 0.9
-const DEFAULT_WIDTH = 360
+const DEFAULT_WIDTH = 400
 const FLOATING_MARGIN = 24
 
 const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarContent, children, menu, slideOpen }) => {
   const { bannerText } = useSubscriptionBanner()
-  const [open, setOpen] = useState<boolean>(false)
+  const [open, setOpen] = useState<boolean>(true)
   const [width, setWidth] = useState<number>(DEFAULT_WIDTH)
   const resizing = useRef(false)
 
