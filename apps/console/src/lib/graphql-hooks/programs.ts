@@ -92,13 +92,13 @@ export const useUpdateProgram = () => {
   })
 }
 
-export const useGetProgramBasicInfo = (programId: string | null) => {
+export const useGetProgramBasicInfo = (programId: string | null, enabled: boolean = true) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetProgramBasicInfoQuery, GetProgramBasicInfoQueryVariables>({
     queryKey: ['programs', programId, 'basic'],
     queryFn: async () => client.request(GET_PROGRAM_BASIC_INFO, { programId }),
-    enabled: !!programId,
+    enabled: !!programId && enabled,
   })
 }
 

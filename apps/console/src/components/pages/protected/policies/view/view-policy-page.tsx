@@ -27,6 +27,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useRouter } from 'next/navigation'
 import Menu from '@/components/shared/menu/menu.tsx'
 import CreateItemsFromPolicyToolbar from './create-items-from-policy-toolbar'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 
 type TViewPolicyPage = {
@@ -34,7 +35,8 @@ type TViewPolicyPage = {
 }
 
 const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
-  const { data, isLoading } = useGetInternalPolicyDetailsById(policyId)
+  const [isDeleting, setIsDeleting] = useState<boolean>(false)
+  const { data, isLoading } = useGetInternalPolicyDetailsById(policyId, !isDeleting)
   const plateEditorHelper = usePlateEditor()
   const { mutateAsync: updatePolicy, isPending: isSaving } = useUpdateInternalPolicy()
   const policyState = usePolicy()
@@ -50,6 +52,15 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const { mutateAsync: deletePolicy } = useDeleteInternalPolicy()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const router = useRouter()
+  const { setCrumbs } = React.useContext(BreadcrumbContext)
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Policies', href: '/policies' },
+      { label: policy?.name, isLoading: isLoading },
+    ])
+  }, [setCrumbs, policy, isLoading])
 
   useEffect(() => {
     if (policy) {
@@ -105,6 +116,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
 
   const handleDeletePolicy = async () => {
     try {
+      setIsDeleting(true)
       await deletePolicy({ deleteInternalPolicyId: policyId })
       successNotification({ title: 'Policy deleted successfully' })
       router.push('/policies')

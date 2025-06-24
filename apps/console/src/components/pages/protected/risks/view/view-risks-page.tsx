@@ -24,6 +24,7 @@ import { Value } from '@udecode/plate-common'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import BusinessCostField from '@/components/pages/protected/risks/view/fields/business-cost-field.tsx'
 import MitigationField from '@/components/pages/protected/risks/view/fields/mitigation-field.tsx'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 
 type TRisksPageProps = {
@@ -31,6 +32,7 @@ type TRisksPageProps = {
 }
 
 const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
+  const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { risk, isLoading } = useGetRiskById(riskId)
   const { mutateAsync: updateRisk, isPending } = useUpdateRisk()
   const { mutateAsync: deleteRisk } = useDeleteRisk()
@@ -45,6 +47,14 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   const editAllowed = canEdit(permission?.roles)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const router = useRouter()
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Risks', href: '/risks' },
+      { label: risk?.name, isLoading: isLoading },
+    ])
+  }, [setCrumbs, risk, isLoading])
 
   useEffect(() => {
     if (risk) {
@@ -79,9 +89,9 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
 
   const handleDeleteRisk = async () => {
     try {
+      router.push('/risks')
       await deleteRisk({ deleteRiskId: riskId })
       successNotification({ title: 'Risk deleted successfully' })
-      router.push('/risks')
     } catch {
       errorNotification({ title: 'Error deleting risk' })
     }

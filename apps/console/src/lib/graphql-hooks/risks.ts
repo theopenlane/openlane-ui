@@ -157,7 +157,6 @@ export const useCreateBulkCSVRisk = () => {
 
 export const useDeleteRisk = () => {
   const { client, queryClient } = useGraphQLClient()
-
   return useMutation<DeleteRiskMutation, unknown, DeleteRiskMutationVariables>({
     mutationFn: async (variables) => {
       return client.request(DELETE_RISK, variables)

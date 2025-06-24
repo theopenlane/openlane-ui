@@ -1,7 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 import { useNotification } from '@/hooks/useNotification'
-import { useQueryClient } from '@tanstack/react-query'
+
 import { useDeleteTask } from '@/lib/graphql-hooks/tasks'
 import { Trash2 } from 'lucide-react'
 import { Button } from '@repo/ui/button'
@@ -13,7 +13,6 @@ import { canDelete } from '@/lib/authz/utils.ts'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 const DeleteTaskDialog: React.FC<{ taskName: string; taskId: string }> = ({ taskName, taskId }) => {
-  const queryClient = useQueryClient()
   const searchParams = useSearchParams()
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
@@ -27,15 +26,14 @@ const DeleteTaskDialog: React.FC<{ taskName: string; taskId: string }> = ({ task
     if (!taskId) return
 
     try {
+      const newSearchParams = new URLSearchParams(searchParams.toString())
+      newSearchParams.delete('id')
+      router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
       await deleteTask({ deleteTaskId: taskId })
-      queryClient.invalidateQueries({ queryKey: ['tasks'] })
       successNotification({ title: `Task deleted successfully.` })
     } catch (error) {
       errorNotification({ title: 'Failed to delete task.' })
     } finally {
-      const newSearchParams = new URLSearchParams(searchParams.toString())
-      newSearchParams.delete('id')
-      router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
       setIsOpen(false)
     }
   }

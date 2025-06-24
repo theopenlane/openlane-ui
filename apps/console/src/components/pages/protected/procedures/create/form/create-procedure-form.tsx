@@ -23,6 +23,7 @@ import { useCreateProcedure, useUpdateProcedure } from '@/lib/graphql-hooks/proc
 import { DOCS_URL } from '@/constants/index.ts'
 import AuthorityCard from '@/components/pages/protected/procedures/view/cards/authority-card.tsx'
 import { useGetInternalPolicyDetailsById } from '@/lib/graphql-hooks/policy.ts'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 
 type TCreateProcedureFormProps = {
   procedure?: ProcedureByIdFragment
@@ -39,6 +40,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   const { form } = useFormSchema()
   const router = useRouter()
   const queryClient = useQueryClient()
+  const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { mutateAsync: createProcedure, isPending: isCreating } = useCreateProcedure()
   const { mutateAsync: updateProcedure, isPending: isSaving } = useUpdateProcedure()
   const isSubmitting = isCreating || isSaving
@@ -54,6 +56,13 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   const { data, isLoading } = useGetInternalPolicyDetailsById(policyId)
 
   const isProcedureCreate = path === '/procedures/create'
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Procedures', href: '/procedures' },
+    ])
+  }, [setCrumbs])
 
   useEffect(() => {
     if (isProcedureCreate) {

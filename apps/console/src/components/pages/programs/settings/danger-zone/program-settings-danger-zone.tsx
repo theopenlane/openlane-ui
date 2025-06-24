@@ -8,13 +8,14 @@ import { useNotification } from '@/hooks/useNotification'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
 export const ProgramSettingsDangerZone = () => {
+  const [isDeleting, setIsDeleting] = useState<boolean>(false)
   const router = useRouter()
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
   const [isDialogOpen, setDialogOpen] = useState(false)
 
   const { mutateAsync, isPending } = useDeleteProgram()
-  const { data } = useGetProgramBasicInfo(programId)
+  const { data } = useGetProgramBasicInfo(programId, !isDeleting)
   const program = data?.program
   const { successNotification, errorNotification } = useNotification()
 
@@ -28,11 +29,12 @@ export const ProgramSettingsDangerZone = () => {
     }
 
     try {
+      setIsDeleting(true)
+      router.replace('/programs')
       await mutateAsync({ deleteProgramId: programId })
       successNotification({
         title: 'The program has been successfully deleted.',
       })
-      router.replace('/programs')
     } catch {
       errorNotification({
         title: 'Failed to Delete Program',
