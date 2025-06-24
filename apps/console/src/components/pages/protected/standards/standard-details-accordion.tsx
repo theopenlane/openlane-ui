@@ -5,7 +5,6 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@r
 import { Button } from '@repo/ui/button'
 import { ChevronDown, ChevronRight, ChevronsDownUp, List, SearchIcon, ShieldPlus } from 'lucide-react'
 import { Input } from '@repo/ui/input'
-import { useGetAllControls } from '@/lib/graphql-hooks/controls'
 import { useParams } from 'next/navigation'
 import { useDebounce } from '@uidotdev/usehooks'
 import { ControlListFieldsFragment } from '@repo/codegen/src/schema'
@@ -17,6 +16,8 @@ import { getColumns } from './columns'
 import AddToOrganizationDialog from './add-to-organization-dialog'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
+import { ControlWhereInput } from '@repo/codegen/src/schema'
+import { useAllControlsGroupedWithListFields } from '@/lib/graphql-hooks/controls'
 
 const generateWhere = (id: string, searchValue: string) => ({
   and: [
@@ -40,20 +41,23 @@ const StandardDetailsAccordion: FC = () => {
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
 
   const where = generateWhere(id, debouncedSearchQuery)
-  const { controls } = useGetAllControls({ where })
   const { data: session } = useSession()
   const { data: permission } = useOrganizationRole(session)
+  const hasFilters = Object.keys(where).length > 0
+  const allControls = useAllControlsGroupedWithListFields({ where: where as ControlWhereInput, enabled: hasFilters })
 
   const groupedControls = useMemo(() => {
-    if (!controls || controls.length === 0) return {}
+    const controlsList = allControls?.allControls ?? []
 
-    return controls.reduce<Record<string, ControlListFieldsFragment[]>>((acc, control) => {
+    if (!controlsList || controlsList.length === 0) return {}
+
+    return controlsList.reduce<Record<string, ControlListFieldsFragment[]>>((acc, control) => {
       const category = control.category || 'Uncategorized'
       if (!acc[category]) acc[category] = []
       acc[category].push(control)
       return acc
     }, {})
-  }, [controls])
+  }, [allControls])
 
   const toggleSelection = (control: { id: string; refCode: string }) => {
     setSelectedControls((prev) => {
@@ -136,7 +140,7 @@ const StandardDetailsAccordion: FC = () => {
               const newValue = e.target.value
               setSearchQuery(newValue)
               setPaginations((prev) => {
-                const updated = { ...prev }
+                const updated: Record<string, TPagination> = {}
                 for (const category of Object.keys(groupedControls)) {
                   updated[category] = {
                     ...DEFAULT_PAGINATION,
