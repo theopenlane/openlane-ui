@@ -13,6 +13,7 @@ import {
   GET_CONTROL_SUBCATEGORIES,
   GET_CONTROLS_PAGINATED,
   UPDATE_CONTROL,
+  GET_CONTROLS_PAGINATED_WITH_LIST_FIELDS,
 } from '@repo/codegen/query/control'
 
 import {
@@ -38,6 +39,9 @@ import {
   GetControlSubcategoriesQuery,
   UpdateControlMutation,
   UpdateControlMutationVariables,
+  GetControlsPaginatedWithListFieldsQuery,
+  GetControlsPaginatedWithListFieldsQueryVariables,
+  ControlListFieldsFragment,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -230,6 +234,59 @@ export function useAllControlsGrouped({ where, enabled = true }: { where?: Contr
   return {
     allControls,
     isLoading: isLoadingAll,
+    hasNextPage,
+    fetchNextPage,
+    ...rest,
+  }
+}
+
+export function useFetchAllControlsWithListFields(where?: ControlWhereInput, enabled = true) {
+  const { client } = useGraphQLClient()
+
+  return useInfiniteQuery<GetControlsPaginatedWithListFieldsQuery['controls'], Error, InfiniteData<GetControlsPaginatedWithListFieldsQuery['controls']>, ['controls', 'infinite', ControlWhereInput?]>({
+    queryKey: ['controls', 'infinite', where],
+    queryFn: async ({ pageParam }) => {
+      const { controls } = await client.request<GetControlsPaginatedWithListFieldsQuery, GetControlsPaginatedWithListFieldsQueryVariables>(GET_CONTROLS_PAGINATED_WITH_LIST_FIELDS, {
+        where,
+        after: pageParam,
+      })
+      return controls
+    },
+    initialPageParam: undefined,
+    getNextPageParam: (last) => (last.pageInfo.hasNextPage ? last.pageInfo.endCursor : undefined),
+    enabled,
+  })
+}
+
+export function useAllControlsGroupedWithListFields({ where, enabled = true }: { where?: ControlWhereInput; enabled?: boolean }) {
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, isFetching, ...rest } = useFetchAllControlsWithListFields(where, enabled)
+
+  useEffect(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage()
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+
+  const allControls = useMemo(() => {
+    const raw = data?.pages.flatMap((page) => page.edges?.map((edge) => edge?.node) ?? []) ?? []
+    return raw.filter((c): c is ControlListFieldsFragment => c != null)
+  }, [data?.pages])
+
+  const groupedControls = useMemo(() => {
+    return allControls.reduce<Record<string, ControlListFieldsFragment[]>>((acc, control) => {
+      const category = control.category || 'Uncategorized'
+      if (!acc[category]) acc[category] = []
+      acc[category].push(control)
+      return acc
+    }, {})
+  }, [allControls])
+
+  const isLoadingAll = isLoading || isFetchingNextPage || hasNextPage || isFetching
+
+  return {
+    isLoading: isLoadingAll,
+    allControls,
+    groupedControls,
     hasNextPage,
     fetchNextPage,
     ...rest,

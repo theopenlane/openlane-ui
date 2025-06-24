@@ -36324,6 +36324,17 @@ export type ControlListFieldsFragment = {
   controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
 }
 
+export type ControlListStandardFieldsFragment = {
+  __typename?: 'Control'
+  id: string
+  refCode: string
+  description?: string | null
+  category?: string | null
+  subcategory?: string | null
+  mappedCategories?: Array<string> | null
+  subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
+}
+
 export type ControlDetailsFieldsFragment = {
   __typename?: 'Control'
   id: string
@@ -36662,6 +36673,34 @@ export type GetControlByIdMinifiedQueryVariables = Exact<{
 export type GetControlByIdMinifiedQuery = {
   __typename?: 'Query'
   control: { __typename?: 'Control'; id: string; refCode: string; standardID?: string | null; category?: string | null; subcategory?: string | null; description?: string | null }
+}
+
+export type GetControlsPaginatedWithListFieldsQueryVariables = Exact<{
+  where?: InputMaybe<ControlWhereInput>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type GetControlsPaginatedWithListFieldsQuery = {
+  __typename?: 'Query'
+  controls: {
+    __typename?: 'ControlConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'ControlEdge'
+      cursor: any
+      node?: {
+        __typename?: 'Control'
+        id: string
+        refCode: string
+        description?: string | null
+        category?: string | null
+        subcategory?: string | null
+        mappedCategories?: Array<string> | null
+        subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; endCursor?: any | null }
+  }
 }
 
 export type CreateEvidenceMutationVariables = Exact<{

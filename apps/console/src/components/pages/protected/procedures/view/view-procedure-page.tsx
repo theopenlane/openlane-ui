@@ -228,7 +228,6 @@ const ViewProcedurePage: React.FC<TViewProcedurePage> = ({ procedureId }) => {
     <div className="space-y-6 p-6">
       <TitleField isEditing={isEditing} form={form} />
       <DetailsField isEditing={isEditing} form={form} procedure={procedure} />
-      <AssociatedObjectsViewAccordion procedure={procedure} />
     </div>
   )
 
@@ -238,6 +237,7 @@ const ViewProcedurePage: React.FC<TViewProcedurePage> = ({ procedureId }) => {
       <PropertiesCard form={form} isEditing={isEditing} procedure={procedure} />
       <HistoricalCard procedure={procedure} />
       <TagsCard form={form} procedure={procedure} isEditing={isEditing} />
+      <AssociatedObjectsViewAccordion procedure={procedure} />
     </>
   )
 
