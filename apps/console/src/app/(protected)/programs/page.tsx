@@ -190,7 +190,7 @@ const Page: React.FC = () => {
               <BasicInformation />
               <div className="flex flex-col gap-7 flex-1">
                 <TimelineReadiness />
-                <ProgramAuditor />
+                <ProgramAuditor firm={basicInfoData.program.auditFirm} name={basicInfoData.program.name} email={basicInfoData.program.auditorEmail} isReady={basicInfoData.program.auditorReady} />
               </div>
             </>
           ) : (
