@@ -39136,6 +39136,50 @@ export type GetMappedControlsQuery = {
   }
 }
 
+export type GetMappedControlByIdQueryVariables = Exact<{
+  mappedControlId: Scalars['ID']['input']
+}>
+
+export type GetMappedControlByIdQuery = {
+  __typename?: 'Query'
+  mappedControl: {
+    __typename?: 'MappedControl'
+    id: string
+    relation?: string | null
+    confidence?: number | null
+    mappingType: MappedControlMappingType
+    fromSubcontrols: {
+      __typename?: 'SubcontrolConnection'
+      edges?: Array<{
+        __typename?: 'SubcontrolEdge'
+        node?: { __typename?: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; control: { __typename?: 'Control'; id: string } } | null
+      } | null> | null
+    }
+    toSubcontrols: {
+      __typename?: 'SubcontrolConnection'
+      edges?: Array<{
+        __typename?: 'SubcontrolEdge'
+        node?: { __typename?: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; control: { __typename?: 'Control'; id: string } } | null
+      } | null> | null
+    }
+    fromControls: {
+      __typename?: 'ControlConnection'
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; referenceFramework?: string | null } | null } | null> | null
+    }
+    toControls: {
+      __typename?: 'ControlConnection'
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; referenceFramework?: string | null } | null } | null> | null
+    }
+  }
+}
+
+export type UpdateMappedControlMutationVariables = Exact<{
+  updateMappedControlId: Scalars['ID']['input']
+  input: UpdateMappedControlInput
+}>
+
+export type UpdateMappedControlMutation = { __typename?: 'Mutation'; updateMappedControl: { __typename?: 'MappedControlUpdatePayload'; mappedControl: { __typename?: 'MappedControl'; id: string } } }
+
 export type UpdateUserRoleInOrgMutationVariables = Exact<{
   updateOrgMemberId: Scalars['ID']['input']
   input: UpdateOrgMembershipInput

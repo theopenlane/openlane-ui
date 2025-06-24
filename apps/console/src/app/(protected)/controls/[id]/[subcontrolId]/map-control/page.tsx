@@ -1,4 +1,4 @@
-import MapControlPage from '@/components/pages/protected/map-controls/map-control-page'
+import MapControlPage from '@/components/pages/protected/controls/map-controls/map-control-page'
 import React from 'react'
 
 const Page = () => {

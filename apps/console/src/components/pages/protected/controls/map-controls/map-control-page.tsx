@@ -1,12 +1,9 @@
 'use client'
 import React, { useCallback, useEffect, useState } from 'react'
 
-import MapControlsCard, { DroppedControl } from '@/components/pages/protected/map-controls/map-controls-card'
-import MapControlsRelations from '@/components/pages/protected/map-controls/map-controls-relations'
 import { Accordion } from '@radix-ui/react-accordion'
 
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
-import { MapControlsFormData, mapControlsSchema } from '@/components/pages/protected/map-controls/use-form-schema'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { MappedControlMappingType, MappedControlMappingSource } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
@@ -16,21 +13,22 @@ import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { MappingIconMapper } from '@/components/shared/icon-enum/map-control-enum'
+import MapControlsCard, { DroppedControl } from './map-controls-card'
+import { MapControlsFormData, mapControlsSchema } from './use-form-schema'
+import MapControlsRelations from './map-controls-relations'
 
 const MapControlPage = () => {
   const [expandedCard, setExpandedCard] = useState<'From' | 'To' | ''>('From')
   const { errorNotification, successNotification } = useNotification()
   const { mutateAsync: create } = useCreateMappedControl()
-
   const { id, subcontrolId } = useParams()
-
   const shouldFetchControl = !subcontrolId && !!id
   const shouldFetchSubcontrol = !!subcontrolId
-
   const { data: controlData, isLoading } = useGetControlById(shouldFetchControl ? (id as string) : null)
   const { data: subcontrolData, isLoading: isLoadingSubcontrol } = useGetSubcontrolById(shouldFetchSubcontrol ? (subcontrolId as string) : null)
-  const [presetControl, setPresetControl] = useState<DroppedControl>()
+  const [presetControls, setPresetControls] = useState<DroppedControl[]>()
   const { setCrumbs } = React.useContext(BreadcrumbContext)
+
   const handleCardToggle = (title: 'From' | 'To') => {
     if (expandedCard === title) {
       setExpandedCard('')
@@ -77,7 +75,7 @@ const MapControlPage = () => {
       { label: 'Home', href: '/dashboard' },
       { label: 'Controls', href: '/controls' },
       { label: controlData?.control?.refCode, isLoading: isLoading, href: `/controls/${id}` },
-      { label: 'Map Controls', href: '/map-control' },
+      { label: 'Create Map Control', href: '/map-control' },
     ])
   }, [controlData?.control?.refCode, isLoading, setCrumbs, id])
 
@@ -86,7 +84,7 @@ const MapControlPage = () => {
       { label: 'Home', href: '/dashboard' },
       { label: 'Controls', href: '/controls' },
       { label: subcontrolData?.subcontrol?.refCode, isLoading: isLoading, href: `/controls/${id}/${subcontrolId}` },
-      { label: 'Map Controls', href: '/map-control' },
+      { label: 'Create Map Control', href: '/map-control' },
     ])
   }, [isLoading, setCrumbs, subcontrolData?.subcontrol?.refCode, id, subcontrolId])
 
@@ -94,17 +92,19 @@ const MapControlPage = () => {
     if (controlData) {
       setControlsCrumbs()
       form.setValue('fromControlIDs', [controlData.control.id])
-      setPresetControl({ id: controlData.control.id, refCode: controlData.control.refCode, shortName: controlData.control.standard?.shortName || 'CUSTOM', type: 'control' })
+      setPresetControls([{ id: controlData.control.id, refCode: controlData.control.refCode, shortName: controlData.control.standard?.shortName || 'CUSTOM', type: 'control' }])
     }
     if (subcontrolData) {
       setSubControlsCrumbs()
       form.setValue('fromSubcontrolIDs', [subcontrolData.subcontrol.id])
-      setPresetControl({
-        id: subcontrolData.subcontrol.id,
-        refCode: subcontrolData.subcontrol.refCode,
-        shortName: subcontrolData.subcontrol.control.standard?.shortName || 'CUSTOM',
-        type: 'subcontrol',
-      })
+      setPresetControls([
+        {
+          id: subcontrolData.subcontrol.id,
+          refCode: subcontrolData.subcontrol.refCode,
+          shortName: subcontrolData.subcontrol.control.standard?.shortName || 'CUSTOM',
+          type: 'subcontrol',
+        },
+      ])
     }
   }, [setCrumbs, controlData, subcontrolData, form, isLoading, isLoadingSubcontrol, setControlsCrumbs, setSubControlsCrumbs])
 
@@ -125,7 +125,7 @@ const MapControlPage = () => {
           <div className="grid grid-cols-[3fr_1fr] gap-6">
             <div className="flex flex-col">
               <Accordion type="single" collapsible value={expandedCard} className="w-full">
-                <MapControlsCard title="From" expandedCard={expandedCard} setExpandedCard={() => handleCardToggle('From')} presetControl={presetControl} />
+                <MapControlsCard title="From" expandedCard={expandedCard} setExpandedCard={() => handleCardToggle('From')} presetControls={presetControls} />
                 <div className="flex flex-col items-center">
                   <div className="border-l h-4" />
                   <div className="h-12 w-12 bg-card flex items-center justify-center rounded-full">{MappingIconMapper[mappingType]}</div>

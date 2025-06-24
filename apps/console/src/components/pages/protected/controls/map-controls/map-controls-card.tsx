@@ -23,10 +23,10 @@ interface Props {
   title: 'From' | 'To'
   setExpandedCard: () => void
   expandedCard: string
-  presetControl?: DroppedControl
+  presetControls?: DroppedControl[]
 }
 
-const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard, presetControl }) => {
+const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard, presetControls }) => {
   const [where, setWhere] = useState<ControlWhereInput | SubcontrolWhereInput>({})
   const [droppedControls, setDroppedControls] = useState<DroppedControl[]>([])
   const [enableSubcontrols, setEnableSubcontrols] = useState(false)
@@ -91,10 +91,10 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
   }
 
   useEffect(() => {
-    if (presetControl) {
-      setDroppedControls([presetControl])
+    if (presetControls) {
+      setDroppedControls([...presetControls])
     }
-  }, [presetControl])
+  }, [presetControls])
 
   return (
     <Card className="p-4">
