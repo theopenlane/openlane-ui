@@ -76,19 +76,19 @@ const MapControlPage = () => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
       { label: 'Controls', href: '/controls' },
-      { label: controlData?.control?.refCode, isLoading: isLoading },
+      { label: controlData?.control?.refCode, isLoading: isLoading, href: `/controls/${id}` },
       { label: 'Map Controls', href: '/map-control' },
     ])
-  }, [controlData?.control?.refCode, isLoading, setCrumbs])
+  }, [controlData?.control?.refCode, isLoading, setCrumbs, id])
 
   const setSubControlsCrumbs = useCallback(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
       { label: 'Controls', href: '/controls' },
-      { label: subcontrolData?.subcontrol?.refCode, isLoading: isLoading },
+      { label: subcontrolData?.subcontrol?.refCode, isLoading: isLoading, href: `/controls/${id}/${subcontrolId}` },
       { label: 'Map Controls', href: '/map-control' },
     ])
-  }, [isLoading, setCrumbs, subcontrolData?.subcontrol?.refCode])
+  }, [isLoading, setCrumbs, subcontrolData?.subcontrol?.refCode, id, subcontrolId])
 
   useEffect(() => {
     if (controlData) {

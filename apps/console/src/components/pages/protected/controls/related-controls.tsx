@@ -2,13 +2,11 @@ import React, { useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useGetMappedControls } from '@/lib/graphql-hooks/mapped-control'
 import { Button } from '@repo/ui/button'
-import { ChevronsLeftRightEllipsis, PanelRightOpen, PencilLine } from 'lucide-react'
+import { PanelRightOpen } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
-import Link from 'next/link'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { MappingIconMapper } from '@/components/shared/icon-enum/map-control-enum'
 import { MappedControlMappingType } from '@repo/codegen/src/schema'
 import MappedRelationsSheet from './mapped-relationships-sheet'
+import { RelatedControlChip } from './shared/related-control-chip'
 
 export type RelatedNode = {
   type: 'Control' | 'Subcontrol'
@@ -144,32 +142,7 @@ const RelatedControls = () => {
           <div className="flex gap-2.5 flex-wrap">
             {nodes.map((node) => {
               const href = node.type === 'Subcontrol' ? `/controls/${node.controlId}/${node.id}` : `/controls/${node.id}`
-              return (
-                <TooltipProvider key={node.refCode}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Link href={href}>
-                        <span className="text-xs border rounded-full cursor-pointer hover:text-brand px-2.5 py-0.5">{node.refCode}</span>
-                      </Link>
-                    </TooltipTrigger>
-                    <TooltipContent side="top" className="text-xs">
-                      <div className="flex flex-col gap-1">
-                        <div className="flex gap-1 items-center border-b">
-                          <ChevronsLeftRightEllipsis size={12} />
-                          <span>Mapping type</span>
-                          <div className="ml-4 flex w-2.5 justify-center items-center">{node.mappingType && MappingIconMapper[node.mappingType]}</div>
-                          <span className="capitalize">{node.mappingType.toLowerCase()}</span>
-                        </div>
-                        <div className="flex gap-1 items-center">
-                          <PencilLine size={12} />
-                          <span>Relation Description</span>
-                        </div>
-                        <span className="line-clamp-4">{node.relation}</span>
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )
+              return <RelatedControlChip key={node.refCode} refCode={node.refCode} href={href} mappingType={node.mappingType} relation={node.relation} />
             })}
           </div>
         </div>
