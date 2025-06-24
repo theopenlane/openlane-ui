@@ -7,7 +7,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { Value } from '@udecode/plate-common'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import { ArrowRight, ChevronDown, CirclePlus, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
+import { ArrowRight, CirclePlus, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
 import AssociatedObjectsAccordion from '../../../../components/pages/protected/controls/associated-objects-accordion.tsx'
 import TitleField from '../../../../components/pages/protected/controls/form-fields/title-field.tsx'
 import DescriptionField from '../../../../components/pages/protected/controls/form-fields/description-field.tsx'
@@ -36,6 +36,7 @@ import Link from 'next/link'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import CreateControlObjectiveSheet from '@/components/pages/protected/controls/control-objectives/create-control-objective-sheet'
 import CreateControlImplementationSheet from '@/components/pages/protected/controls/control-implementation/create-control-implementation-sheet.tsx'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { Control } from '@repo/codegen/src/schema.ts'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 import RelatedControls from '@/components/pages/protected/controls/related-controls.tsx'
@@ -73,6 +74,7 @@ const initialDataObj = {
 
 const ControlDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
+  const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { data, isLoading, isError } = useGetControlById(id)
   const [isEditing, setIsEditing] = useState(false)
   const [showSheet, setShowSheet] = useState<boolean>(false)
@@ -83,9 +85,7 @@ const ControlDetailsPage: React.FC = () => {
   const { successNotification, errorNotification } = useNotification()
   const [showCreateObjectiveSheet, setShowCreateObjectiveSheet] = useState(false)
   const [showCreateImplementationSheet, setShowCreateImplementationSheet] = useState(false)
-
   const isSourceFramework = data?.control.source === ControlControlSource.FRAMEWORK
-
   const { mutateAsync: updateControl } = useUpdateControl()
   const plateEditorHelper = usePlateEditor()
 
@@ -150,6 +150,14 @@ const ControlDetailsPage: React.FC = () => {
     e.preventDefault()
     setIsEditing(true)
   }
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Controls', href: '/controls' },
+      { label: data?.control?.refCode, isLoading: isLoading },
+    ])
+  }, [setCrumbs, data?.control, isLoading])
 
   useEffect(() => {
     if (data?.control) {

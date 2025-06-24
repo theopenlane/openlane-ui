@@ -29,6 +29,7 @@ import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canDelete, canEdit } from '@/lib/authz/utils'
 import { useDeleteProcedure } from '@/lib/graphql-hooks/procedures'
 import Menu from '@/components/shared/menu/menu.tsx'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 
 type TViewProcedurePage = {
@@ -36,7 +37,9 @@ type TViewProcedurePage = {
 }
 
 const ViewProcedurePage: React.FC<TViewProcedurePage> = ({ procedureId }) => {
-  const { data, isLoading } = useGetProcedureDetailsById(procedureId)
+  const [isDeleting, setIsDeleting] = useState<boolean>(false)
+  const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { data, isLoading } = useGetProcedureDetailsById(procedureId, !isDeleting)
   const plateEditorHelper = usePlateEditor()
   const { mutateAsync: updateProcedure, isPending: isSaving } = useUpdateProcedure()
   const procedureState = useProcedure()
@@ -52,6 +55,14 @@ const ViewProcedurePage: React.FC<TViewProcedurePage> = ({ procedureId }) => {
   const editAllowed = canEdit(permission?.roles)
   const { mutateAsync: deleteProcedure } = useDeleteProcedure()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Procedures', href: '/procedures' },
+      { label: procedure?.name, isLoading: isLoading },
+    ])
+  }, [setCrumbs, procedure, isLoading])
 
   useEffect(() => {
     if (procedure) {
@@ -103,6 +114,7 @@ const ViewProcedurePage: React.FC<TViewProcedurePage> = ({ procedureId }) => {
 
   const handleDeleteProcedure = async () => {
     try {
+      setIsDeleting(true)
       await deleteProcedure({ deleteProcedureId: procedureId })
       successNotification({ title: 'Procedure deleted successfully' })
       router.push('/procedures')

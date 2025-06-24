@@ -11,6 +11,7 @@ interface ITaskStoreState {
   setSelectedTask: (taskId: string | number | null) => void
   orgMembers: TOrgMembers[] | undefined
   setOrgMembers: (members: TOrgMembers[] | undefined) => void
+  clearSelectedTask: () => void
 }
 
 export const useTaskStore = create<ITaskStoreState>((set) => ({
@@ -18,4 +19,5 @@ export const useTaskStore = create<ITaskStoreState>((set) => ({
   setSelectedTask: (taskId) => set({ selectedTask: taskId }),
   orgMembers: [],
   setOrgMembers: (members) => set({ orgMembers: members }),
+  clearSelectedTask: () => set({ selectedTask: null }),
 }))

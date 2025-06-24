@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import MapControlsCard, { DroppedControl } from '@/components/pages/protected/map-controls/map-controls-card'
 import MapControlsRelations from '@/components/pages/protected/map-controls/map-controls-relations'
@@ -14,6 +14,7 @@ import { useCreateMappedControl } from '@/lib/graphql-hooks/mapped-control'
 import { useParams } from 'next/navigation'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { MappingIconMapper } from '@/components/shared/icon-enum/map-control-enum'
 
 const MapControlPage = () => {
@@ -26,10 +27,10 @@ const MapControlPage = () => {
   const shouldFetchControl = !subcontrolId && !!id
   const shouldFetchSubcontrol = !!subcontrolId
 
-  const { data: controlData } = useGetControlById(shouldFetchControl ? (id as string) : null)
-  const { data: subcontrolData } = useGetSubcontrolById(shouldFetchSubcontrol ? (subcontrolId as string) : null)
+  const { data: controlData, isLoading } = useGetControlById(shouldFetchControl ? (id as string) : null)
+  const { data: subcontrolData, isLoading: isLoadingSubcontrol } = useGetSubcontrolById(shouldFetchSubcontrol ? (subcontrolId as string) : null)
   const [presetControl, setPresetControl] = useState<DroppedControl>()
-
+  const { setCrumbs } = React.useContext(BreadcrumbContext)
   const handleCardToggle = (title: 'From' | 'To') => {
     if (expandedCard === title) {
       setExpandedCard('')
@@ -71,12 +72,32 @@ const MapControlPage = () => {
     }
   }
 
+  const setControlsCrumbs = useCallback(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Controls', href: '/controls' },
+      { label: controlData?.control?.refCode, isLoading: isLoading },
+      { label: 'Map Controls', href: '/map-control' },
+    ])
+  }, [controlData?.control?.refCode, isLoading, setCrumbs])
+
+  const setSubControlsCrumbs = useCallback(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Controls', href: '/controls' },
+      { label: subcontrolData?.subcontrol?.refCode, isLoading: isLoading },
+      { label: 'Map Controls', href: '/map-control' },
+    ])
+  }, [isLoading, setCrumbs, subcontrolData?.subcontrol?.refCode])
+
   useEffect(() => {
     if (controlData) {
+      setControlsCrumbs()
       form.setValue('fromControlIDs', [controlData.control.id])
       setPresetControl({ id: controlData.control.id, refCode: controlData.control.refCode, shortName: controlData.control.standard?.shortName || 'CUSTOM', type: 'control' })
     }
     if (subcontrolData) {
+      setSubControlsCrumbs()
       form.setValue('fromSubcontrolIDs', [subcontrolData.subcontrol.id])
       setPresetControl({
         id: subcontrolData.subcontrol.id,
@@ -85,7 +106,7 @@ const MapControlPage = () => {
         type: 'subcontrol',
       })
     }
-  }, [controlData, subcontrolData, form])
+  }, [setCrumbs, controlData, subcontrolData, form, isLoading, isLoadingSubcontrol, setControlsCrumbs, setSubControlsCrumbs])
 
   return (
     <FormProvider {...form}>

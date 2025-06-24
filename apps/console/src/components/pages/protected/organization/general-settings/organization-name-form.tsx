@@ -7,18 +7,20 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormItem, FormField, FormControl, FormMessage } from '@repo/ui/form'
 import { z } from 'zod'
 import { Button } from '@repo/ui/button'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useContext } from 'react'
 import { RESET_SUCCESS_STATE_MS } from '@/constants'
 import { useOrganization } from '@/hooks/useOrganization'
 import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
 import { useUpdateOrganization, useUpdateOrgAvatar } from '@/lib/graphql-hooks/organization'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const OrganizationNameForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
   const { isPending, mutateAsync: updateOrg } = useUpdateOrganization()
   const { isPending: uploading, mutateAsync: uploadAvatar } = useUpdateOrgAvatar()
+  const { setCrumbs } = useContext(BreadcrumbContext)
 
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
@@ -38,6 +40,14 @@ const OrganizationNameForm = () => {
       displayName: '',
     },
   })
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Organization Settings', href: '/organization-settings' },
+      { label: 'General Settings', href: '/general-settings' },
+    ])
+  }, [setCrumbs])
 
   useEffect(() => {
     if (currentOrganization) {

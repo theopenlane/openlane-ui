@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect, useContext } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Card } from '@repo/ui/cardpanel'
 import { Badge } from '@repo/ui/badge'
@@ -15,6 +15,7 @@ import { Loading } from '@/components/shared/loading/loading'
 import Link from 'next/link'
 import { formatDateSince } from '@/utils/date'
 import { INFO_EMAIL } from '@/constants'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const filterFields: FilterField[] = [
   { key: 'systemOwned', label: 'System Owned', type: 'boolean' },
@@ -26,9 +27,17 @@ const filterFields: FilterField[] = [
 ]
 
 const StandardsPage = () => {
+  const { setCrumbs } = useContext(BreadcrumbContext)
   const [searchQuery, setSearchQuery] = useState('')
   const [filters, setFilters] = useState<Record<string, any> | null>(null)
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Standards', href: '/standards' },
+    ])
+  }, [setCrumbs])
 
   const whereFilter = useMemo(() => {
     const conditions: Record<string, any> = {
@@ -66,9 +75,9 @@ const StandardsPage = () => {
           />
         </div>
       </div>
-      <div className="mt-5 flex flex-wrap gap-7">
+      <div className="mt-5 grid gap-7 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-2">
         {data?.standards?.edges?.map((standard) => (
-          <Card key={standard?.node?.id} className="w-full max-w-xl bg-card p-4 rounded-lg shadow">
+          <Card key={standard?.node?.id} className="bg-card p-4 rounded-lg shadow">
             <div className="flex justify-between items-start mb-2">
               <div>
                 <h3 className="font-semibold text-base">{standard?.node?.shortName}</h3>
@@ -100,7 +109,7 @@ const StandardsPage = () => {
             </Link>
           </Card>
         ))}
-        <Card className="w-full max-w-xl bg-card p-28 rounded-lg shadow border border-dashed flex flex-col items-center justify-center text-center h-[350px]">
+        <Card className="bg-card p-28 rounded-lg shadow border border-dashed flex flex-col items-center justify-center text-center h-[350px]">
           <p className="mb-4">Looking for a framework that’s not supported yet? Reach out with the details.</p>
           <a href={INFO_EMAIL}>
             <Button variant="outline" className="!text-brand">
