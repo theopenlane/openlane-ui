@@ -66,3 +66,66 @@ export const GET_MAPPED_CONTROLS = gql`
     }
   }
 `
+
+export const GET_MAPPED_CONTROL_BY_ID = gql`
+  query GetMappedControlById($mappedControlId: ID!) {
+    mappedControl(id: $mappedControlId) {
+      id
+      relation
+      confidence
+      mappingType
+      fromSubcontrols {
+        edges {
+          node {
+            id
+            refCode
+            referenceFramework
+            control {
+              id
+            }
+          }
+        }
+      }
+      toSubcontrols {
+        edges {
+          node {
+            id
+            refCode
+            referenceFramework
+            control {
+              id
+            }
+          }
+        }
+      }
+      fromControls {
+        edges {
+          node {
+            id
+            refCode
+            referenceFramework
+          }
+        }
+      }
+      toControls {
+        edges {
+          node {
+            id
+            refCode
+            referenceFramework
+          }
+        }
+      }
+    }
+  }
+`
+
+export const UPDATE_MAPPED_CONTROL = gql`
+  mutation updateMappedControl($updateMappedControlId: ID!, $input: UpdateMappedControlInput!) {
+    updateMappedControl(id: $updateMappedControlId, input: $input) {
+      mappedControl {
+        id
+      }
+    }
+  }
+`

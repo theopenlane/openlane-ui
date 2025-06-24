@@ -1,9 +1,10 @@
 import React from 'react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { Button } from '@repo/ui/button'
 import { GetMappedControlsQuery, MappedControlMappingType } from '@repo/codegen/src/schema'
 import { RelatedControlChip } from './shared/related-control-chip'
 import { MappingIconMapper } from '@/components/shared/icon-enum/map-control-enum'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 type MappedRelationsSheetProps = {
   open: boolean
@@ -58,6 +59,7 @@ const MappedRelationsSheet: React.FC<MappedRelationsSheetProps> = ({ open, onOpe
                 type: mapping?.mappingType as MappedControlMappingType,
                 confidence: mapping?.confidence ?? 0,
                 relation: mapping?.relation ?? '',
+                id: mapping?.id ?? '',
               }}
             />
           )
@@ -78,8 +80,11 @@ const RelationCard = ({
     type: MappedControlMappingType
     confidence: number
     relation: string
+    id: string
   }
 }) => {
+  const pathname = usePathname()
+
   return (
     <div className="border rounded-md p-4 mt-5">
       <div>
@@ -87,7 +92,9 @@ const RelationCard = ({
           <div className="flex items-center">
             <div className="flex gap-4 w-40 shrink-0 self-start items-center">
               <label className="text-sm">From</label>
-              <span className="text-brand cursor-pointer text-xs">(Edit)</span>
+              <Link href={`${pathname}/edit-map-control?mappedControlId=${data.id}`} className="text-brand cursor-pointer text-xs">
+                (Edit)
+              </Link>
             </div>
             <div className="flex flex-col gap-2">
               {Object.entries(data.from).map(([framework, codes], index, array) => (

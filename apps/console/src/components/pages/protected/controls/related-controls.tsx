@@ -42,10 +42,12 @@ const RelatedControls = () => {
     const node = edge?.node
     if (!node) return
 
-    const isFromControl = node?.fromControls?.edges?.some((e) => e?.node?.id === id)
-    const isFromSub = node?.fromSubcontrols?.edges?.some((e) => e?.node?.id === id)
-    const isToControl = node?.toControls?.edges?.some((e) => e?.node?.id === id)
-    const isToSub = node?.toSubcontrols?.edges?.some((e) => e?.node?.id === id)
+    const currentId = subcontrolId ? subcontrolId : id
+
+    const isFromControl = node?.fromControls?.edges?.some((e) => e?.node?.id === currentId)
+    const isFromSub = node?.fromSubcontrols?.edges?.some((e) => e?.node?.id === currentId)
+    const isToControl = node?.toControls?.edges?.some((e) => e?.node?.id === currentId)
+    const isToSub = node?.toSubcontrols?.edges?.some((e) => e?.node?.id === currentId)
 
     const oppositeNodes: RelatedNode[] = []
 
