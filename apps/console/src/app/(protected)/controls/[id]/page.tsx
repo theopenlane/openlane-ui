@@ -38,6 +38,7 @@ import CreateControlObjectiveSheet from '@/components/pages/protected/controls/c
 import CreateControlImplementationSheet from '@/components/pages/protected/controls/control-implementation/create-control-implementation-sheet.tsx'
 import { Control } from '@repo/codegen/src/schema.ts'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
+import RelatedControls from '@/components/pages/protected/controls/related-controls.tsx'
 
 interface FormValues {
   refCode: string
@@ -308,6 +309,7 @@ const ControlDetailsPage: React.FC = () => {
         isEditing={isEditing}
         isSourceFramework={isSourceFramework}
       />
+      <RelatedControls />
       <DetailsCard />
       {hasInfoData && (
         <InfoCard

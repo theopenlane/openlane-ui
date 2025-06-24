@@ -35909,6 +35909,47 @@ export type CreateMappedControlMutationVariables = Exact<{
 
 export type CreateMappedControlMutation = { __typename?: 'Mutation'; createMappedControl: { __typename?: 'MappedControlCreatePayload'; mappedControl: { __typename?: 'MappedControl'; id: string } } }
 
+export type GetMappedControlsQueryVariables = Exact<{
+  where?: InputMaybe<MappedControlWhereInput>
+}>
+
+export type GetMappedControlsQuery = {
+  __typename?: 'Query'
+  mappedControls: {
+    __typename?: 'MappedControlConnection'
+    edges?: Array<{
+      __typename?: 'MappedControlEdge'
+      node?: {
+        __typename?: 'MappedControl'
+        id: string
+        relation?: string | null
+        fromSubcontrols: {
+          __typename?: 'SubcontrolConnection'
+          edges?: Array<{
+            __typename?: 'SubcontrolEdge'
+            node?: { __typename?: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; control: { __typename?: 'Control'; id: string } } | null
+          } | null> | null
+        }
+        toSubcontrols: {
+          __typename?: 'SubcontrolConnection'
+          edges?: Array<{
+            __typename?: 'SubcontrolEdge'
+            node?: { __typename?: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; control: { __typename?: 'Control'; id: string } } | null
+          } | null> | null
+        }
+        fromControls: {
+          __typename?: 'ControlConnection'
+          edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; referenceFramework?: string | null } | null } | null> | null
+        }
+        toControls: {
+          __typename?: 'ControlConnection'
+          edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; referenceFramework?: string | null } | null } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
 export type UpdateUserRoleInOrgMutationVariables = Exact<{
   updateOrgMemberId: Scalars['ID']['input']
   input: UpdateOrgMembershipInput
