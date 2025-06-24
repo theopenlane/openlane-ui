@@ -1,15 +1,10 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
-import Intersection from '@/assets/Intersection'
 import MapControlsCard, { DroppedControl } from '@/components/pages/protected/map-controls/map-controls-card'
 import MapControlsRelations from '@/components/pages/protected/map-controls/map-controls-relations'
 import { Accordion } from '@radix-ui/react-accordion'
-import Subset from '@/assets/Subset'
-import Equals from '@/assets/Equals'
-import Partial from '@/assets/Partial'
-import SupersetDark from '@/assets/SupersetDark'
-import SupersetLight from '@/assets/SupersetLight '
+
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { MapControlsFormData, mapControlsSchema } from '@/components/pages/protected/map-controls/use-form-schema'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -20,6 +15,7 @@ import { useParams } from 'next/navigation'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { MappingIconMapper } from '@/components/shared/icon-enum/map-control-enum'
 
 const MapControlPage = () => {
   const [expandedCard, setExpandedCard] = useState<'From' | 'To' | ''>('From')
@@ -57,32 +53,6 @@ const MapControlPage = () => {
     name: 'mappingType',
   })
 
-  const MappingIcon = ({ type }: { type: MappedControlMappingType }) => {
-    switch (type) {
-      case MappedControlMappingType.EQUAL:
-        return <Equals />
-      case MappedControlMappingType.INTERSECT:
-        return <Intersection />
-      case MappedControlMappingType.SUBSET:
-        return <Subset />
-      case MappedControlMappingType.PARTIAL:
-        return <Partial />
-      case MappedControlMappingType.SUPERSET:
-        return (
-          <>
-            <div className="block dark:hidden">
-              <SupersetLight />
-            </div>
-            <div className="hidden dark:block">
-              <SupersetDark />
-            </div>
-          </>
-        )
-      default:
-        return null
-    }
-  }
-
   const onSubmit = async (data: MapControlsFormData) => {
     const hasFrom = (!!data.fromControlIDs && !!data.fromControlIDs.length) || (!!data.fromSubcontrolIDs && !!data.fromSubcontrolIDs.length)
     const hasTo = (!!data.toControlIDs && !!data.toControlIDs.length) || (!!data.toSubcontrolIDs && !!data.toSubcontrolIDs.length)
@@ -102,23 +72,23 @@ const MapControlPage = () => {
     }
   }
 
-  const setControlsCrumbs = () => {
+  const setControlsCrumbs = useCallback(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
       { label: 'Controls', href: '/controls' },
-      { label: controlData?.control?.refCode, isLoading: isLoading },
+      { label: controlData?.control?.refCode, isLoading: isLoading, href: `/controls/${id}` },
       { label: 'Map Controls', href: '/map-control' },
     ])
-  }
+  }, [controlData?.control?.refCode, isLoading, setCrumbs, id])
 
-  const setSubControlsCrumbs = () => {
+  const setSubControlsCrumbs = useCallback(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
       { label: 'Controls', href: '/controls' },
-      { label: subcontrolData?.subcontrol?.refCode, isLoading: isLoading },
+      { label: subcontrolData?.subcontrol?.refCode, isLoading: isLoading, href: `/controls/${id}/${subcontrolId}` },
       { label: 'Map Controls', href: '/map-control' },
     ])
-  }
+  }, [isLoading, setCrumbs, subcontrolData?.subcontrol?.refCode, id, subcontrolId])
 
   useEffect(() => {
     if (controlData) {
@@ -136,7 +106,7 @@ const MapControlPage = () => {
         type: 'subcontrol',
       })
     }
-  }, [setCrumbs, controlData, subcontrolData, form, isLoading, isLoadingSubcontrol])
+  }, [setCrumbs, controlData, subcontrolData, form, isLoading, isLoadingSubcontrol, setControlsCrumbs, setSubControlsCrumbs])
 
   return (
     <FormProvider {...form}>
@@ -158,9 +128,7 @@ const MapControlPage = () => {
                 <MapControlsCard title="From" expandedCard={expandedCard} setExpandedCard={() => handleCardToggle('From')} presetControl={presetControl} />
                 <div className="flex flex-col items-center">
                   <div className="border-l h-4" />
-                  <div className="h-12 w-12 bg-card flex items-center justify-center rounded-full">
-                    <MappingIcon type={mappingType} />
-                  </div>
+                  <div className="h-12 w-12 bg-card flex items-center justify-center rounded-full">{MappingIconMapper[mappingType]}</div>
                   <div className="border-l h-4" />
                 </div>
                 <MapControlsCard title="To" expandedCard={expandedCard} setExpandedCard={() => handleCardToggle('To')} />

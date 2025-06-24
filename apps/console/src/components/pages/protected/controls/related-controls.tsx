@@ -1,10 +1,12 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useGetMappedControls } from '@/lib/graphql-hooks/mapped-control'
 import { Button } from '@repo/ui/button'
 import { PanelRightOpen } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
-import Link from 'next/link'
+import { MappedControlMappingType } from '@repo/codegen/src/schema'
+import MappedRelationsSheet from './mapped-relationships-sheet'
+import { RelatedControlChip } from './shared/related-control-chip'
 
 export type RelatedNode = {
   type: 'Control' | 'Subcontrol'
@@ -12,12 +14,15 @@ export type RelatedNode = {
   refCode: string
   referenceFramework?: string | null
   controlId?: string
+  mappingType: MappedControlMappingType
+  relation?: string | null
 }
 
 export type GroupedControls = Record<string, RelatedNode[]>
 
 const RelatedControls = () => {
   const { id, subcontrolId } = useParams<{ id: string; subcontrolId: string }>()
+  const [sheetOpen, setSheetOpen] = useState(false)
 
   const where = subcontrolId
     ? {
@@ -54,6 +59,8 @@ const RelatedControls = () => {
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
+                  mappingType: node.mappingType,
+                  relation: node.relation,
                 }
               : null,
           )
@@ -67,6 +74,8 @@ const RelatedControls = () => {
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
                   controlId: e.node.control.id,
+                  mappingType: node.mappingType,
+                  relation: node.relation,
                 }
               : null,
           )
@@ -82,6 +91,8 @@ const RelatedControls = () => {
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
+                  mappingType: node.mappingType,
+                  relation: node.relation,
                 }
               : null,
           )
@@ -95,6 +106,8 @@ const RelatedControls = () => {
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
                   controlId: e.node.control.id,
+                  mappingType: node.mappingType,
+                  relation: node.relation,
                 }
               : null,
           )
@@ -111,30 +124,30 @@ const RelatedControls = () => {
     })
   })
 
+  if (!data) {
+    return null
+  }
   return (
     <Card className="p-4">
       <div className="flex justify-between items-center mb-5">
         <p className="text-lg">Related Controls</p>
-        <Button type="button" className="h-8 p-2" variant="outline" icon={<PanelRightOpen />}>
+        <Button type="button" className="h-8 p-2" variant="outline" icon={<PanelRightOpen />} onClick={() => setSheetOpen(true)}>
           View
         </Button>
       </div>
 
       {Object.entries(grouped).map(([framework, nodes], index, array) => (
-        <div key={framework} className={`mb-2 flex gap-5 items-center py-2 ${index < array.length - 1 ? 'border-b' : ''}`}>
+        <div key={framework} className={`mb-2 flex gap-5 items-center pb-2 ${index < array.length - 1 ? 'border-b' : ''}`}>
           <h3 className="font-semibold min-w-24 text-text-informational">{framework}</h3>
           <div className="flex gap-2.5 flex-wrap">
             {nodes.map((node) => {
               const href = node.type === 'Subcontrol' ? `/controls/${node.controlId}/${node.id}` : `/controls/${node.id}`
-              return (
-                <Link href={href} key={node.refCode}>
-                  <span className="text-xs border rounded-full cursor-pointer hover:text-brand px-2.5 py-0.5">{node.refCode}</span>
-                </Link>
-              )
+              return <RelatedControlChip key={node.refCode} refCode={node.refCode} href={href} mappingType={node.mappingType} relation={node.relation} />
             })}
           </div>
         </div>
       ))}
+      <MappedRelationsSheet open={sheetOpen} onOpenChange={setSheetOpen} queryData={data} />
     </Card>
   )
 }
