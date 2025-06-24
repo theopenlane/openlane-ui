@@ -36989,6 +36989,8 @@ export type GetMappedControlsQuery = {
         __typename?: 'MappedControl'
         id: string
         relation?: string | null
+        confidence?: number | null
+        mappingType: MappedControlMappingType
         fromSubcontrols: {
           __typename?: 'SubcontrolConnection'
           edges?: Array<{
