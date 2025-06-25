@@ -16,7 +16,7 @@ import {
 } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { useGetMappedControlById, useUpdateMappedControl } from '@/lib/graphql-hooks/mapped-control'
-import { useParams, useSearchParams } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
@@ -24,24 +24,27 @@ import { MappingIconMapper } from '@/components/shared/icon-enum/map-control-enu
 import MapControlsCard, { DroppedControl } from '../map-controls/map-controls-card'
 import { MapControlsFormData, mapControlsSchema } from '../map-controls/use-form-schema'
 import MapControlsRelations from '../map-controls/map-controls-relations'
+import { useQueryClient } from '@tanstack/react-query'
 
 const EditMapControlPage = () => {
-  const [expandedCard, setExpandedCard] = useState<'From' | 'To' | ''>('From')
-  const { errorNotification, successNotification } = useNotification()
-  const { mutateAsync: update } = useUpdateMappedControl()
   const { id, subcontrolId } = useParams()
+  const router = useRouter()
+  const queryClient = useQueryClient()
+  const searchParams = useSearchParams()
+  const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { errorNotification, successNotification } = useNotification()
+  const mappedControlId = searchParams.get('mappedControlId')
+  const [expandedCard, setExpandedCard] = useState<'From' | 'To' | ''>('From')
+  const [presetControlsFrom, setPresetControlsFrom] = useState<DroppedControl[]>([])
+  const [presetControlsTo, setPresetControlsTo] = useState<DroppedControl[]>([])
+  const { mutateAsync: update, data: updateData, isPending } = useUpdateMappedControl()
+
   const shouldFetchControl = !subcontrolId && !!id
   const shouldFetchSubcontrol = !!subcontrolId
   const { data: controlData, isLoading } = useGetControlById(shouldFetchControl ? (id as string) : null)
   const { data: subcontrolData, isLoading: isLoadingSubcontrol } = useGetSubcontrolById(shouldFetchSubcontrol ? (subcontrolId as string) : null)
 
-  const searchParams = useSearchParams()
-  const mappedControlId = searchParams.get('mappedControlId')
-  const { data: mappedControlData } = useGetMappedControlById(mappedControlId ?? '')
-  const [presetControlsFrom, setPresetControlsFrom] = useState<DroppedControl[]>([])
-  const [presetControlsTo, setPresetControlsTo] = useState<DroppedControl[]>([])
-
-  const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { data: mappedControlData } = useGetMappedControlById({ mappedControlId: mappedControlId ?? '', enabled: !!mappedControlId && !updateData && !isPending })
 
   const handleCardToggle = (title: 'From' | 'To') => {
     if (expandedCard === title) {
@@ -96,6 +99,7 @@ const EditMapControlPage = () => {
       mappingType: data.mappingType,
       source: data.source,
       confidence: data.confidence,
+      relation: data.relation,
     }
 
     return input
@@ -129,6 +133,9 @@ const EditMapControlPage = () => {
       {
         await update(variables)
         successNotification({ title: 'Map Control updated!' })
+        const redirectUrl = subcontrolId ? `/controls/${id}/${subcontrolId}?openRelations=true` : `/controls/${id}?openRelations=true`
+        router.push(redirectUrl)
+        queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
       }
     } catch {
       errorNotification({
@@ -172,10 +179,16 @@ const EditMapControlPage = () => {
       const fromSubcontrolIDs = mc.fromSubcontrols?.edges?.map((e) => e?.node?.id || '').filter(Boolean) || []
       const toSubcontrolIDs = mc.toSubcontrols?.edges?.map((e) => e?.node?.id || '').filter(Boolean) || []
 
-      form.setValue('fromControlIDs', fromControlIDs)
-      form.setValue('toControlIDs', toControlIDs)
-      form.setValue('fromSubcontrolIDs', fromSubcontrolIDs)
-      form.setValue('toSubcontrolIDs', toSubcontrolIDs)
+      form.reset({
+        fromControlIDs,
+        toControlIDs,
+        fromSubcontrolIDs,
+        toSubcontrolIDs,
+        confidence: mc.confidence ?? undefined,
+        mappingType: mc.mappingType ?? MappedControlMappingType.PARTIAL,
+        relation: mc.relation ?? '',
+        source: mc.source ?? MappedControlMappingSource.MANUAL,
+      })
 
       const presetFrom: DroppedControl[] = []
       const presetTo: DroppedControl[] = []

@@ -104,7 +104,14 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
             <div className="flex items-center gap-2 w-full justify-between">
               <div className="flex gap-2 items-center">
                 <h3 className="text-base font-medium text-xl">{title}</h3>
-                {expandedCard !== title && droppedControls.map((control) => <ControlChip key={control.id} control={control} className="rounded-md cursor-default" />)}
+                {expandedCard !== title && (
+                  <div className="flex gap-1 flex-wrap items-center">
+                    {droppedControls.slice(0, 5).map((control) => (
+                      <ControlChip key={control.id} control={control} className="rounded-md cursor-default" />
+                    ))}
+                    {droppedControls.length > 5 && <span className="text-sm ml-2">+{droppedControls.length - 5} more</span>}
+                  </div>
+                )}
               </div>
               <ChevronDown
                 size={22}
@@ -113,7 +120,7 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
                   -rotate-90
                   transition-transform
                   group-data-[state=open]:rotate-0
-                  text-brand
+                  text-brand shrink-0
                 "
               />
             </div>
