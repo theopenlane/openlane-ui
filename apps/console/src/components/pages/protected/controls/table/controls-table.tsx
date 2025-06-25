@@ -18,6 +18,8 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { ControlIconMapper } from '@/components/shared/icon-enum/control-enum.tsx'
 import { VisibilityState } from '@tanstack/react-table'
 import { exportToCSV } from '@/utils/exportToCSV'
+import ControlChip from '../map-controls/shared/control-chip'
+import { RelatedControlChip } from '../shared/related-control-chip'
 
 export const ControlStatusLabels: Record<ControlControlStatus, string> = {
   [ControlControlStatus.APPROVED]: 'Approved',
@@ -179,6 +181,28 @@ const ControlsTable: React.FC = () => {
         accessorKey: 'referenceFramework',
         cell: ({ row }) => <div>{row.getValue('referenceFramework') || '-'}</div>,
         size: 120,
+      },
+      {
+        header: 'Subcontrol',
+        id: 'subcontrol',
+        cell: ({ row }) => {
+          const controlId = row.original.id
+          const edges = row.original.subcontrols?.edges ?? []
+
+          if (!edges.length) return <div>-</div>
+
+          return (
+            <div className="flex flex-wrap gap-2">
+              {edges.map((edge, i) => {
+                const node = edge?.node
+                if (!node) return null
+                // TODO: we can set limit to 5 subcontrols and show + rest
+                return <RelatedControlChip href={`/controls/${controlId}/${node.id}`} key={i} refCode={node.refCode} />
+              })}
+            </div>
+          )
+        },
+        size: 200,
       },
     ],
     [plateEditorHelper],
