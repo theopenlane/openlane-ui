@@ -75,9 +75,11 @@ const ProgramAuditor = ({ firm, name, email, isReady }: ProgramAuditorProps) => 
 
   const { handleSubmit, control } = form
 
-  const errorMessages = Object.values(form.formState.errors).map((error) => error?.message) as string[]
-
   const onSubmit = async (values: SetAuditorFormValues) => {
+    if (!form.formState.isDirty) {
+      setIsEditing(false)
+      return
+    }
     try {
       await updateProgram({
         updateProgramId: programId!,
