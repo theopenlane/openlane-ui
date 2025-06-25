@@ -114,7 +114,9 @@ const RelationCard = ({
           <div className="flex items-center">
             <div className="flex gap-4 w-40 shrink-0 self-start items-center">
               <label className="text-sm">To</label>
-              <span className="text-brand cursor-pointer text-xs">(Edit)</span>
+              <Link href={`${pathname}/edit-map-control?mappedControlId=${data.id}`} className="text-brand cursor-pointer text-xs">
+                (Edit)
+              </Link>
             </div>
             <div className="flex flex-col gap-2">
               {Object.entries(data.to).map(([framework, codes], index, array) => (
