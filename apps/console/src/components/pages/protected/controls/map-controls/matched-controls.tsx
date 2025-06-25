@@ -1,4 +1,4 @@
-import { ControlWhereInput, GetControlSelectOptionsQuery, GetSubcontrolSelectOptionsQuery, SubcontrolWhereInput } from '@repo/codegen/src/schema'
+import { ControlWhereInput, SubcontrolWhereInput } from '@repo/codegen/src/schema'
 import React, { useMemo, useState } from 'react'
 import { DroppedControl } from './map-controls-card'
 import MapControlCategoriesAccordion from './map-control-categories-accordion'
@@ -33,9 +33,10 @@ interface Props {
   droppedControls: DroppedControl[]
   where: ControlWhereInput | SubcontrolWhereInput
   isLoading?: boolean
+  title: 'From' | 'To'
 }
 
-const MatchedControls = ({ controlData, droppedControls, where, subcontrolData, isLoading }: Props) => {
+const MatchedControls = ({ controlData, droppedControls, where, subcontrolData, isLoading, title }: Props) => {
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({})
   const toggleAll = () => {
     const allOpen = Object.values(expandedItems).every((val) => val)
@@ -55,22 +56,36 @@ const MatchedControls = ({ controlData, droppedControls, where, subcontrolData, 
     const queryKeywordOrCategory = !!where.or
 
     if (queryFramework && queryKeywordOrCategory) {
-      return <MapControlResults droppedControls={droppedControls} controlData={controlData} subcontrolData={subcontrolData} />
+      return <MapControlResults droppedControls={droppedControls} controlData={controlData} subcontrolData={subcontrolData} title={title} />
     }
     if (queryFramework) {
       return (
-        <MapControlCategoriesAccordion expandedItems={expandedItems} setExpandedItems={setExpandedItems} controlData={controlData} droppedControls={droppedControls} subcontrolData={subcontrolData} />
+        <MapControlCategoriesAccordion
+          expandedItems={expandedItems}
+          setExpandedItems={setExpandedItems}
+          controlData={controlData}
+          droppedControls={droppedControls}
+          subcontrolData={subcontrolData}
+          title={title}
+        />
       )
     }
 
     if (queryKeywordOrCategory) {
       return (
-        <MapControlFrameworksAccordion expandedItems={expandedItems} setExpandedItems={setExpandedItems} controlData={controlData} droppedControls={droppedControls} subcontrolData={subcontrolData} />
+        <MapControlFrameworksAccordion
+          expandedItems={expandedItems}
+          setExpandedItems={setExpandedItems}
+          controlData={controlData}
+          droppedControls={droppedControls}
+          subcontrolData={subcontrolData}
+          title={title}
+        />
       )
     }
 
     return <div className="text-sm italic text-neutral-500">No available controls.</div>
-  }, [controlData, droppedControls, expandedItems, where, subcontrolData, isLoading])
+  }, [controlData, droppedControls, expandedItems, where, subcontrolData, isLoading, title])
 
   return (
     <div className=" border-t pt-5">
