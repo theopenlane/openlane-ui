@@ -2,15 +2,14 @@ import type { NextAuthConfig } from 'next-auth'
 import NextAuth from 'next-auth'
 import GithubProvider from 'next-auth/providers/github'
 import GoogleProvider from 'next-auth/providers/google'
-import { isDevelopment, openlaneAPIUrl } from '@repo/dally/auth'
+import { isDevelopment } from '@repo/dally/auth'
 import { jwtDecode } from 'jwt-decode'
 import { JwtPayload } from 'jsonwebtoken'
 import { credentialsProvider } from './providers/credentials'
 import { getTokenFromOpenlaneAPI } from './utils/get-openlane-token'
 import { setSessionCookie } from './utils/set-session-cookie'
-import { cookies, type UnsafeUnwrappedCookies } from 'next/headers'
+import { cookies } from 'next/headers'
 import { sessionCookieName, allowedLoginDomains } from '@repo/dally/auth'
-import { fetchNewAccessToken } from './utils/refresh-token'
 import { getDashboardData } from '@/app/api/getDashboardData/route'
 import { passKeyProvider } from './providers/passkey'
 
@@ -24,6 +23,8 @@ export class InvalidLoginError extends CredentialsSignin {
   }
 }
 
+const maxAge = process.env.SESSION_NEXAUTH_MAX_AGE ? +process.env.SESSION_NEXAUTH_MAX_AGE : 2 * 60 * 60 // fallback to 2h if undefined
+
 export const config = {
   pages: {
     signIn: '/login',
@@ -32,6 +33,7 @@ export const config = {
   },
   session: {
     strategy: 'jwt',
+    maxAge,
   },
   providers: [
     GithubProvider({

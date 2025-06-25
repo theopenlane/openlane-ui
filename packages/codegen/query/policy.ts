@@ -42,15 +42,10 @@ export const GET_INTERNAL_POLICIES_LIST = gql`
         node {
           id
           name
-          displayID
-          status
-          revision
           updatedAt
           updatedBy
           createdAt
           createdBy
-          tags
-          details
           summary
         }
       }
@@ -72,8 +67,16 @@ export const GET_ALL_INTERNAL_POLICIES = gql`
         node {
           id
           name
+          summary
         }
       }
+      pageInfo {
+        endCursor
+        startCursor
+        hasPreviousPage
+        hasNextPage
+      }
+      totalCount
     }
   }
 `
@@ -134,6 +137,22 @@ export const INTERNAL_POLICY_BY_ID = gql`
       totalCount
     }
     controls {
+      edges {
+        node {
+          id
+          displayID
+          refCode
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      totalCount
+    }
+    subcontrols {
       edges {
         node {
           id

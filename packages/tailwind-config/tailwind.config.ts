@@ -40,6 +40,7 @@ export const config: Partial<Config> = {
         dark: 'var(--color-bg-dark)', // Dark background color
         primary: 'var(--color-bg-primary)', // Primary background color
         secondary: 'var(--color-bg-secondary)', // Secondary background color
+        'input-slider': '#125D52',
       }),
 
       foregroundColor: (theme: any) => ({
@@ -74,6 +75,7 @@ export const config: Partial<Config> = {
           light: 'var(--color-text-light)', // Light text
           navlink: 'var(--color-text-nav-link)', // Navigation link text
           dimmed: 'var(--color-text-dimmed)', // dimmed text color
+          informational: 'var(--color-text-informational)',
         },
         button: {
           DEFAULT: 'var(--color-button)', // Button background
@@ -201,6 +203,7 @@ export const config: Partial<Config> = {
         'task-in-review': '#EAB308',
         'task-open': '#2CCBAB',
         'task-wont-do': '#c70000',
+        'input-slider': '#125D52',
 
         // Other Palette Colors
         teal: {

@@ -1,5 +1,5 @@
 import { FilterField, SelectFilterField } from '@/types'
-import { ControlControlStatus, OrderDirection } from '@repo/codegen/src/schema.ts'
+import { ControlControlStatus, ControlOrderField, OrderDirection } from '@repo/codegen/src/schema.ts'
 
 const statusLabels: Record<ControlControlStatus, string> = {
   APPROVED: 'Approved',
@@ -18,6 +18,8 @@ export const CONTROLS_FILTER_FIELDS: FilterField[] = [
   { key: 'refCode', label: 'RefCode', type: 'text' },
   { key: 'program', label: 'Program', type: 'containsText' },
   { key: 'standard', label: 'Standard', type: 'containsText' },
+  { key: 'category', label: 'Category', type: 'containsText' },
+  { key: 'subcategory', label: 'Subcategory', type: 'containsText' },
   {
     key: 'status',
     label: 'Status',
@@ -29,7 +31,7 @@ export const CONTROLS_FILTER_FIELDS: FilterField[] = [
 export const CONTROLS_SORT_FIELDS = [
   { key: 'created_at', label: 'Created At' },
   { key: 'updated_at', label: 'Updated At' },
-  { key: 'status', label: 'Status' },
+  { key: 'STATUS', label: 'Status' },
   { key: 'SOURCE', label: 'Source' },
   { key: 'CONTROL_TYPE', label: 'Control Type' },
   { key: 'category', label: 'Category' },
@@ -38,8 +40,8 @@ export const CONTROLS_SORT_FIELDS = [
     key: 'ref_code',
     label: 'Ref',
     default: {
-      key: 'ref_code',
-      direction: OrderDirection.DESC,
+      key: ControlOrderField.ref_code,
+      direction: OrderDirection.ASC,
     },
   },
 ]

@@ -117,9 +117,13 @@ export const SignupPage = () => {
             if (payload.password === payload.confirmedPassword) {
               delete payload.confirmedPassword
 
+              if (token) {
+                payload.token = token
+              }
+
               const res: any = await registerUser(payload)
               if (res?.ok && token) {
-                router.push(`/invite?token=${token}`)
+                router.push(`/login`)
               } else if (res?.ok) {
                 router.push('/verify')
               } else if (res?.message) {

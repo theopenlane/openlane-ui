@@ -27,7 +27,7 @@ type MemberRow = {
 
 export const ProgramSettingsUsers = () => {
   const { data: session } = useSession()
-  const currentUserId = session?.user.userId
+  const currentUserId = session?.user?.userId
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
   const queryClient = useQueryClient()
@@ -180,9 +180,13 @@ export const ProgramSettingsUsers = () => {
           <ConfirmationDialog
             open={isDeleteDialogOpen}
             onOpenChange={setIsDeleteDialogOpen}
-            title="Remove user"
-            description={`Are you sure you want to remove ${selectedUser.user.displayName} from the program?`}
-            confirmationText="Remove user"
+            title="Remove User"
+            description={
+              <>
+                Removing <b>{selectedUser.user.displayName}</b> from the program will revoke the users permissions to this program.
+              </>
+            }
+            confirmationText="Remove"
             confirmationTextVariant="destructive"
             onConfirm={handleRemove}
           />

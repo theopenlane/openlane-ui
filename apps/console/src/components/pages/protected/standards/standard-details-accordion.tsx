@@ -2,24 +2,22 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import type { FC } from 'react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/table'
-import { Checkbox } from '@repo/ui/checkbox'
 import { Button } from '@repo/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { ChevronDown, ChevronRight, ChevronsDownUp, ChevronsUpDown, SearchIcon, ShieldPlus } from 'lucide-react'
+import { ChevronDown, ChevronRight, ChevronsDownUp, List, SearchIcon, ShieldPlus } from 'lucide-react'
 import { Input } from '@repo/ui/input'
-import { useGetAllControls } from '@/lib/graphql-hooks/controls'
 import { useParams } from 'next/navigation'
 import { useDebounce } from '@uidotdev/usehooks'
 import { ControlListFieldsFragment } from '@repo/codegen/src/schema'
-import { useGetAllPrograms } from '@/lib/graphql-hooks/programs'
-import { useCloneControls } from '@/lib/graphql-hooks/standards'
-import { useNotification } from '@/hooks/useNotification'
-import { useQueryClient } from '@tanstack/react-query'
 import { canEdit } from '@/lib/authz/utils.ts'
 import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api.ts'
+import { DataTable } from '@repo/ui/data-table'
+import { getColumns } from './columns'
+import AddToOrganizationDialog from './add-to-organization-dialog'
+import { TPagination } from '@repo/ui/pagination-types'
+import { DEFAULT_PAGINATION } from '@/constants/pagination'
+import { ControlWhereInput } from '@repo/codegen/src/schema'
+import { useAllControlsGroupedWithListFields } from '@/lib/graphql-hooks/controls'
 
 const generateWhere = (id: string, searchValue: string) => ({
   and: [
@@ -31,71 +29,79 @@ const generateWhere = (id: string, searchValue: string) => ({
 })
 
 const StandardDetailsAccordion: FC = () => {
-  const { successNotification, errorNotification } = useNotification()
-
   const params = useParams()
   const id = typeof params?.id === 'string' ? params.id : ''
   const [hasInitialized, setHasInitialized] = useState(false)
-  const [selectedControls, setSelectedControls] = useState<string[]>([])
+  const [paginations, setPaginations] = useState<Record<string, TPagination>>({})
+  const [selectedControls, setSelectedControls] = useState<{ id: string; refCode: string }[]>([])
   const [openSections, setOpenSections] = useState<string[]>([])
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [selectedProgram, setSelectedProgram] = useState<string | null>(null)
+  const [dialogCategory, setDialogCategory] = useState<string | null>(null)
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
-  const queryClient = useQueryClient()
-
-  const { mutateAsync: cloneControls, isPending } = useCloneControls()
 
   const where = generateWhere(id, debouncedSearchQuery)
-  const { controls } = useGetAllControls({ where })
-  const { data: programsData } = useGetAllPrograms()
   const { data: session } = useSession()
   const { data: permission } = useOrganizationRole(session)
+  const hasFilters = Object.keys(where).length > 0
+  const allControls = useAllControlsGroupedWithListFields({ where: where as ControlWhereInput, enabled: hasFilters })
 
   const groupedControls = useMemo(() => {
-    if (!controls || controls.length === 0) return {}
+    const controlsList = allControls?.allControls ?? []
 
-    return controls.reduce<Record<string, ControlListFieldsFragment[]>>((acc, control) => {
+    if (!controlsList || controlsList.length === 0) return {}
+
+    return controlsList.reduce<Record<string, ControlListFieldsFragment[]>>((acc, control) => {
       const category = control.category || 'Uncategorized'
       if (!acc[category]) acc[category] = []
       acc[category].push(control)
       return acc
     }, {})
-  }, [controls])
+  }, [allControls])
 
-  const programs = useMemo(() => {
-    return programsData?.programs?.edges?.map((edge) => edge?.node) || []
-  }, [programsData])
-
-  const toggleSelection = (controlId: string) => {
-    setSelectedControls((prev) => (prev.includes(controlId) ? prev.filter((id) => id !== controlId) : [...prev, controlId]))
+  const toggleSelection = (control: { id: string; refCode: string }) => {
+    setSelectedControls((prev) => {
+      const exists = prev.some((c) => c.id === control.id)
+      return exists ? prev.filter((c) => c.id !== control.id) : [...prev, control]
+    })
   }
 
-  const handleAddToProgram = async () => {
-    if (!selectedProgram || selectedControls.length === 0) return
+  const columnsByCategory = useMemo(() => {
+    return Object.fromEntries(
+      Object.entries(groupedControls).map(([category, controls]) => {
+        const columns = getColumns({
+          selectedControls,
+          toggleSelection,
+          setSelectedControls,
+          controls,
+        })
+        return [category, columns]
+      }),
+    )
+  }, [groupedControls, selectedControls])
 
-    try {
-      await cloneControls({
-        input: {
-          programID: selectedProgram,
-          controlIDs: selectedControls,
-        },
-      })
+  const allSectionKeys = useMemo(() => Object.keys(groupedControls), [groupedControls])
 
-      queryClient.invalidateQueries({
-        predicate: (query) => {
-          const [firstKey, maybeId] = query.queryKey as [string, string?]
-          return firstKey === 'control' && typeof maybeId === 'string' && selectedControls.includes(maybeId)
-        },
-      })
-
-      successNotification({ title: 'Controls added to program successfully!' })
-      setIsDialogOpen(false)
-      setSelectedControls([])
-    } catch (error) {
-      errorNotification({ title: 'Failed to add controls to the program.' })
-    }
+  const toggleAllSections = () => {
+    const hasAllOpen = allSectionKeys.every((section) => openSections.includes(section))
+    setOpenSections(hasAllOpen ? [] : allSectionKeys)
   }
+
+  useEffect(() => {
+    setPaginations((prev) => {
+      const newPaginations = { ...prev }
+      let hasChanged = false
+
+      Object.keys(groupedControls).forEach((category) => {
+        if (!newPaginations[category]) {
+          newPaginations[category] = DEFAULT_PAGINATION
+          hasChanged = true
+        }
+      })
+
+      return hasChanged ? newPaginations : prev
+    })
+  }, [groupedControls])
 
   useEffect(() => {
     if (hasInitialized) return
@@ -107,6 +113,21 @@ const StandardDetailsAccordion: FC = () => {
     }
   }, [groupedControls, hasInitialized])
 
+  const getPaginatedControls = (category: string, controls: ControlListFieldsFragment[]) => {
+    const pagination = paginations[category] || DEFAULT_PAGINATION
+    const start = (pagination.page - 1) * pagination.pageSize
+    const end = start + pagination.pageSize
+
+    return controls.slice(start, end)
+  }
+
+  const handlePaginationChange = (category: string, newPagination: TPagination) => {
+    setPaginations((prev) => ({
+      ...prev,
+      [category]: newPagination,
+    }))
+  }
+
   return (
     <div className="relative">
       <Accordion type="multiple" value={openSections} onValueChange={setOpenSections} className="w-full">
@@ -115,39 +136,52 @@ const StandardDetailsAccordion: FC = () => {
             value={searchQuery}
             name="standardSearch"
             placeholder="Search ..."
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              const newValue = e.target.value
+              setSearchQuery(newValue)
+              setPaginations((prev) => {
+                const updated: Record<string, TPagination> = {}
+                for (const category of Object.keys(groupedControls)) {
+                  updated[category] = {
+                    ...DEFAULT_PAGINATION,
+                    pageSize: prev[category]?.pageSize || DEFAULT_PAGINATION.pageSize,
+                  }
+                }
+                return updated
+              })
+            }}
             icon={<SearchIcon size={16} />}
             iconPosition="left"
             variant="searchTable"
             className="!border-brand"
           />
-          <Button
-            className="h-8 !px-2"
-            variant="outline"
-            onClick={() => {
-              setOpenSections([])
-            }}
-            icon={<ChevronsDownUp />}
-            iconPosition="left"
-          >
-            Collapse all
-          </Button>
-
-          <Button
-            className="h-8 !px-2"
-            variant="outline"
-            onClick={() => {
-              const all = Object.keys(groupedControls)
-              setOpenSections(all)
-            }}
-            icon={<ChevronsUpDown />}
-            iconPosition="left"
-          >
-            Expand all
+          <Button type="button" className="h-8 !px-2" variant="outline" onClick={toggleAllSections}>
+            <div className="flex">
+              <List size={16} />
+              <ChevronsDownUp size={16} />
+            </div>
           </Button>
         </div>
         {Object.entries(groupedControls).map(([category, controls]) => {
+          const columns = columnsByCategory[category]
           const isOpen = openSections.includes(category)
+          const selectedInCategory = selectedControls.filter((sel) => controls.some((c) => c.id === sel.id))
+          const tableFooter =
+            canEdit(permission?.roles) && selectedInCategory.length > 0 ? (
+              <div className="flex justify-between items-center mt-3 p-2 border-t">
+                <span>Add selected controls to Organization</span>
+                <Button
+                  icon={<ShieldPlus />}
+                  iconPosition="left"
+                  onClick={() => {
+                    setDialogCategory(category)
+                    setIsDialogOpen(true)
+                  }}
+                >
+                  Add to Organization ({selectedInCategory.length})
+                </Button>
+              </div>
+            ) : null
           return (
             <AccordionItem key={category} value={category}>
               <AccordionTrigger className="flex items-center gap-2 text-lg font-semibold w-full p-4 cursor-pointer rounded-lg">
@@ -155,50 +189,17 @@ const StandardDetailsAccordion: FC = () => {
                 {isOpen ? <ChevronDown size={22} className="text-brand" /> : <ChevronRight size={22} className="text-brand" />}
               </AccordionTrigger>
               <AccordionContent>
-                <div className="bg-card py-3 rounded-lg border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="w-10">
-                          <Checkbox checked={selectedControls.length === controls.length} onCheckedChange={(checked: boolean) => setSelectedControls(checked ? controls.map((c) => c.id) : [])} />
-                        </TableHead>
-                        <TableHead className="whitespace-nowrap">Ref Code</TableHead>
-                        <TableHead>Description</TableHead>
-                        <TableHead>Subdomain</TableHead>
-                        <TableHead className="whitespace-nowrap">Mapped Categories</TableHead>
-                        <TableHead># of Sub controls</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {controls.map((control) => (
-                        <TableRow key={control.id}>
-                          <TableCell>
-                            <Checkbox checked={selectedControls.includes(control.id)} onCheckedChange={() => toggleSelection(control.id)} />
-                          </TableCell>
-                          <TableCell className="text-blue-400 whitespace-nowrap">{control.refCode}</TableCell>
-                          <TableCell>
-                            {control?.description?.split('\n').map((line, i) => (
-                              <React.Fragment key={i}>
-                                {line}
-                                <br />
-                              </React.Fragment>
-                            ))}
-                          </TableCell>{' '}
-                          <TableCell>{control.subcategory}</TableCell>
-                          <TableCell>{control.mappedCategories?.join(', ')}</TableCell>
-                          <TableCell>{control.subcontrols.totalCount}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                  {canEdit(permission?.roles) && selectedControls.length > 0 && (
-                    <div className="flex justify-between items-center mt-3 p-2 border-t">
-                      <span>Add selected controls to an existing program</span>
-                      <Button icon={<ShieldPlus />} iconPosition="left" onClick={() => setIsDialogOpen(true)}>
-                        Add to a program ({selectedControls.length})
-                      </Button>
-                    </div>
-                  )}
+                <div className="">
+                  <DataTable
+                    columns={columns}
+                    data={getPaginatedControls(category, controls)}
+                    footer={tableFooter}
+                    paginationMeta={{
+                      totalCount: controls.length,
+                    }}
+                    pagination={paginations[category] ?? DEFAULT_PAGINATION}
+                    onPaginationChange={(newPagination) => handlePaginationChange(category, newPagination)}
+                  />
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -206,30 +207,11 @@ const StandardDetailsAccordion: FC = () => {
         })}
       </Accordion>
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[445px]">
-          <DialogHeader>
-            <DialogTitle>Add to a program</DialogTitle>
-          </DialogHeader>
-          <Select onValueChange={setSelectedProgram}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select program" />
-            </SelectTrigger>
-            <SelectContent>
-              {programs.map((program) => (
-                <SelectItem key={program?.id} value={program?.id ?? ''}>
-                  {program?.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <DialogFooter>
-            <Button disabled={!selectedProgram || isPending} onClick={handleAddToProgram}>
-              {isPending ? 'Adding...' : 'Add'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <AddToOrganizationDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        selectedControls={dialogCategory ? selectedControls.filter((sel) => groupedControls[dialogCategory].some((c) => c.id === sel.id)) : []}
+      />
     </div>
   )
 }

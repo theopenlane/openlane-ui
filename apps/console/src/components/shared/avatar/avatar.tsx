@@ -13,7 +13,7 @@ export function Avatar({ variant, entity, className }: AvatarProps) {
   const image =
     'avatarFile' in entity ? entity.avatarFile?.presignedURL || entity.avatarRemoteURL : 'gravatarLogoURL' in entity || 'logoURL' in entity ? entity.gravatarLogoURL || entity.logoURL : undefined
 
-  const fallbackText = 'firstName' in entity ? entity.firstName?.substring(0, variant === 'small' ? 1 : 2) : entity.displayName?.substring(0, variant === 'small' ? 1 : 2)
+  const fallbackText = entity.displayName?.substring(0, variant === 'small' ? 1 : 2)
 
   return (
     <AvatarComponent variant={variant} className={className}>

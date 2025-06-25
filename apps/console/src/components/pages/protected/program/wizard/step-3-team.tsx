@@ -2,12 +2,10 @@ import { useFormContext } from 'react-hook-form'
 import { z, infer as zInfer } from 'zod'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Grid, GridRow, GridCell } from '@repo/ui/grid'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { InfoIcon } from 'lucide-react'
 import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
-import { Node } from '../nodes'
 import MultipleSelector from '@repo/ui/multiple-selector'
-import { useSession } from 'next-auth/react'
+import { useUserSelect } from '@/lib/graphql-hooks/members'
+import { useGroupSelect } from '@/lib/graphql-hooks/groups'
 
 export const programInviteSchema = z.object({
   programAdmins: z.array(z.string()).optional(),
@@ -17,9 +15,8 @@ export const programInviteSchema = z.object({
 })
 
 type ProgramInviteValues = zInfer<typeof programInviteSchema>
-type ProgramInviteProps = { users: Node[]; groups: Node[] }
 
-export const ProgramInviteComponent: React.FC<ProgramInviteProps> = ({ users, groups }) => {
+export const ProgramInviteComponent: React.FC = () => {
   return (
     <Panel className="border-none p-2 ">
       <PanelHeader heading="" subheading="Gives read and write access to the program to your team members" noBorder />
@@ -27,7 +24,7 @@ export const ProgramInviteComponent: React.FC<ProgramInviteProps> = ({ users, gr
         <Grid>
           <GridRow columns={1}>
             <GridCell>
-              <InviteComponent users={users} groups={groups} />
+              <InviteComponent />
             </GridCell>
           </GridRow>
         </Grid>
@@ -37,63 +34,54 @@ export const ProgramInviteComponent: React.FC<ProgramInviteProps> = ({ users, gr
 }
 
 // InviteComponent contains the team invite form
-export const InviteComponent: React.FC<ProgramInviteProps> = ({ users, groups }) => {
+export const InviteComponent: React.FC = () => {
+  const { userOptions } = useUserSelect()
+  const { groupOptions } = useGroupSelect()
+
   return (
     <>
       <div className="bg-background-secondary flex flex-col gap-5">
         <h1 className="text-base font-semibold">Program Members</h1>
         <p>Add users in your organization to the program directly. Admins will have read and write access, Members will only have read access</p>
-        <div>
-          <Grid>
-            <GridRow columns={2}>
-              <GridCell>
-                <AddMemberDropdown values={users} fieldName="programAdmins" fieldType="user" formLabel="Assign Program Admins" />
-              </GridCell>
-              <GridCell>
-                <AddMemberDropdown values={users} fieldName="programMembers" fieldType="user" formLabel="Assign Program Members" />
-              </GridCell>
-            </GridRow>
-          </Grid>
-        </div>
+        <Grid>
+          <GridRow columns={2}>
+            <GridCell>
+              <AddSelectDropdown fieldName="programAdmins" formLabel="Assign Program Admins" placeholder="Search users..." options={userOptions} />
+            </GridCell>
+            <GridCell>
+              <AddSelectDropdown fieldName="programMembers" formLabel="Assign Program Members" placeholder="Search users..." options={userOptions} />
+            </GridCell>
+          </GridRow>
+        </Grid>
       </div>
+
       <div className="bg-background-secondary mt-10 flex flex-col gap-5">
         <h1 className="text-base font-semibold">Group Permissions</h1>
         <p>Assign permissions to the program based on groups. Groups with editor access can read and write, groups with viewer access can only read objects in the program.</p>
-        <div>
-          <Grid>
-            <GridRow columns={2}>
-              <GridCell>
-                <AddMemberDropdown values={groups} fieldName="groupEditors" fieldType="group" formLabel="Assign Groups with Edit Access" />
-              </GridCell>
-              <GridCell>
-                <AddMemberDropdown values={groups} fieldName="groupViewers" fieldType="group" formLabel="Assign Groups with Read Only Access" />
-              </GridCell>
-            </GridRow>
-          </Grid>
-        </div>
+        <Grid>
+          <GridRow columns={2}>
+            <GridCell>
+              <AddSelectDropdown fieldName="groupEditors" formLabel="Assign Groups with Edit Access" placeholder="Search groups..." options={groupOptions} />
+            </GridCell>
+            <GridCell>
+              <AddSelectDropdown fieldName="groupViewers" formLabel="Assign Groups with Read Only Access" placeholder="Search groups..." options={groupOptions} />
+            </GridCell>
+          </GridRow>
+        </Grid>
       </div>
     </>
   )
 }
 
-const AddMemberDropdown = ({ values, fieldName, fieldType, formLabel }: { values: Node[]; fieldName: keyof ProgramInviteValues; fieldType: 'group' | 'user'; formLabel: string }) => {
-  const { data: session } = useSession()
-  const {
-    register,
-    control,
-    formState: { errors },
-  } = useFormContext<ProgramInviteValues>()
+type AddSelectDropdownProps = {
+  fieldName: keyof ProgramInviteValues
+  formLabel: string
+  placeholder: string
+  options: { label: string; value: string }[]
+}
 
-  const placeholder = `Search ${fieldType}(s) ...`
-
-  const filteredValues = values.filter((item) => {
-    return item.node.id !== session?.user?.userId
-  })
-
-  const options = filteredValues.map((item) => ({
-    label: item.node.name,
-    value: item.node.id,
-  }))
+export const AddSelectDropdown = ({ fieldName, formLabel, placeholder, options }: AddSelectDropdownProps) => {
+  const { register, control } = useFormContext<ProgramInviteValues>()
 
   return (
     <FormField
@@ -101,28 +89,13 @@ const AddMemberDropdown = ({ values, fieldName, fieldType, formLabel }: { values
       name={register(fieldName).name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel htmlFor={field.name}>
-            {formLabel}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <InfoIcon size={14} className="mx-1" />
-                </TooltipTrigger>
-                <TooltipContent side="right">
-                  <p></p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </FormLabel>
+          <FormLabel htmlFor={field.name}>{formLabel}</FormLabel>
           <FormControl>
             <MultipleSelector
               placeholder={placeholder}
-              defaultOptions={options}
+              options={options}
               value={options.filter((option) => field.value?.includes(option.value))}
-              onChange={(selectedOptions) => {
-                const selectedIds = selectedOptions.map((option) => option.value)
-                field.onChange(selectedIds)
-              }}
+              onChange={(selected) => field.onChange(selected.map((o) => o.value))}
             />
           </FormControl>
         </FormItem>

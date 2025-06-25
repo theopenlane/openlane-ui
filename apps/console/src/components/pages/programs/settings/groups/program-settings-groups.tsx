@@ -56,14 +56,14 @@ export const ProgramSettingsGroups = () => {
     return [
       ...((viewers.map((edge) => ({
         id: edge?.node?.id,
-        name: edge?.node?.displayName,
+        name: edge?.node?.name,
         membersCount: data?.program?.viewers.totalCount,
         role: 'Viewer',
         group: edge?.node,
       })) as GroupRow[]) || []),
       ...((editors.map((edge) => ({
         id: edge?.node?.id,
-        name: edge?.node?.displayName,
+        name: edge?.node?.name,
         membersCount: data?.program?.editors.totalCount,
         role: 'Editor',
         group: edge?.node,
@@ -160,7 +160,7 @@ export const ProgramSettingsGroups = () => {
           <div className="flex items-center gap-2">
             <Avatar entity={group} className="h-8 w-8" />
             <div>
-              <div className="font-medium">{group.displayName}</div>
+              <div className="font-medium">{group.name}</div>
               <div className="text-muted-foreground text-sm">{row.original.membersCount ?? 0} members</div>
             </div>
           </div>
@@ -213,9 +213,13 @@ export const ProgramSettingsGroups = () => {
           <ConfirmationDialog
             open={isDeleteDialogOpen}
             onOpenChange={setIsDeleteDialogOpen}
-            title="Remove group"
-            description={`Are you sure you want to remove ${selectedGroup.name} from the program?`}
-            confirmationText="Remove group"
+            title="Remove Group"
+            description={
+              <>
+                Removing <b>{selectedGroup.name}</b> from the program will revoke all group members permissions to this program.
+              </>
+            }
+            confirmationText="Remove"
             confirmationTextVariant="destructive"
             onConfirm={() => handleRemove(selectedGroup.id, selectedGroup.role)}
           />

@@ -8,6 +8,7 @@ import {
   DELETE_PROCEDURE,
   CREATE_CSV_BULK_PROCEDURE,
   GET_ALL_PROCEDURES,
+  GET_TABLE_PROCEDURES,
 } from '@repo/codegen/query/procedure'
 
 import {
@@ -25,6 +26,7 @@ import {
   CreateBulkCsvProcedureMutationVariables,
   GetProceduresListQuery,
   GetProceduresListQueryVariables,
+  GetProceduresTableListQuery,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -48,10 +50,10 @@ type UseProceduresArgs = {
 export const useProcedures = ({ where, orderBy, pagination, enabled = true }: UseProceduresArgs) => {
   const { client } = useGraphQLClient()
 
-  const queryResult = useQuery<GetProceduresListQuery>({
+  const queryResult = useQuery<GetProceduresTableListQuery>({
     queryKey: ['procedures', where, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: async () =>
-      client.request(GET_ALL_PROCEDURES, {
+      client.request(GET_TABLE_PROCEDURES, {
         where,
         orderBy,
         ...pagination?.query,
@@ -75,13 +77,24 @@ export const useProcedures = ({ where, orderBy, pagination, enabled = true }: Us
   }
 }
 
-export const useGetProcedureDetailsById = (procedureId: string | null) => {
+export const useProcedureSelect = () => {
+  const { data, ...rest } = useProcedures({
+    where: {},
+    enabled: true,
+  })
+
+  const procedureOptions = data?.procedures?.edges?.flatMap((edge) => (edge?.node?.id && edge?.node?.name ? [{ label: edge.node.name, value: edge.node.id }] : [])) ?? []
+
+  return { procedureOptions, ...rest }
+}
+
+export const useGetProcedureDetailsById = (procedureId: string | null, enabled: boolean = true) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetProcedureDetailsByIdQuery, GetProcedureDetailsByIdQueryVariables>({
     queryKey: ['procedures', procedureId],
     queryFn: () => client.request(GET_PROCEDURE_DETAILS_BY_ID, { procedureId }),
-    enabled: !!procedureId,
+    enabled: !!procedureId && enabled,
   })
 }
 

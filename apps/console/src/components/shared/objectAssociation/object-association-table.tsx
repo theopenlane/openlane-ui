@@ -5,6 +5,7 @@ import { ColumnDef } from '@tanstack/react-table'
 import { Checkbox } from '@repo/ui/checkbox'
 import { TObjectAssociationMap } from './types/TObjectAssociationMap'
 import { TPagination, TPaginationMeta } from '@repo/ui/pagination-types'
+import usePlateEditor from '../plate/usePlateEditor'
 
 type Props = {
   data: TObjectAssociationColumn[]
@@ -19,7 +20,7 @@ type Props = {
 const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitialData, onPaginationChange, pagination, paginationMeta }: Props) => {
   const [selectedIdsMap, setSelectedIdsMap] = useState<TObjectAssociationMap>({})
   const [selectedRefCodeMap, setSelectedRefCodeMap] = useState<TObjectAssociationMap>({})
-
+  const { convertToReadOnly } = usePlateEditor()
   useEffect(() => {
     if (initialData) {
       setSelectedIdsMap(initialData)
@@ -32,7 +33,6 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
   useEffect(() => {
     onIDsChange(selectedIdsMap, selectedRefCodeMap)
   }, [selectedIdsMap, data])
-
   const columns: ColumnDef<TObjectAssociationColumn>[] = [
     {
       accessorKey: 'name',
@@ -42,9 +42,7 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
         const refCode = row.original.refCode
         const name = row.original.name
         const inputName = row.original.inputName
-
         const checked = selectedIdsMap[inputName]?.includes(id) ?? false
-
         const toggleChecked = (isChecked: boolean) => {
           setSelectedRefCodeMap((prev) => {
             const currentList = prev[inputName] ?? []
@@ -73,7 +71,7 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
         return (
           <div className="flex items-center gap-3">
             <Checkbox id={id} checked={checked} onCheckedChange={toggleChecked} />
-            <span>{name}</span>
+            <span className="whitespace-nowrap">{name}</span>
           </div>
         )
       },
@@ -81,11 +79,11 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
     {
       accessorKey: 'description',
       header: 'Description',
-      cell: ({ row }) => <span className="line-clamp-2 overflow-hidden">{row.original.description || row.original.details}</span>,
+      cell: ({ row }) => <span className="line-clamp-2 overflow-hidden">{convertToReadOnly(row.original.description || row.original.details, 0)}</span>,
     },
   ]
 
-  return <DataTable onPaginationChange={onPaginationChange} pagination={pagination} paginationMeta={paginationMeta} columns={columns} data={data} wrapperClass="max-h-96" />
+  return <DataTable onPaginationChange={onPaginationChange} pagination={pagination} paginationMeta={paginationMeta} columns={columns} data={data} wrapperClass="max-h-96 overflow-auto" />
 }
 
 export default ObjectAssociationTable

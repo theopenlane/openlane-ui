@@ -1,31 +1,31 @@
 'use client'
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { FileUp, InfoIcon, RefreshCw, Trash2, Upload } from 'lucide-react'
+import { FileUp, InfoIcon, RefreshCw, Trash2 } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
 import { acceptedFileTypes, acceptedFileTypesShort } from '@/components/pages/protected/evidence/upload/evidence-upload-config.ts'
-import { useCreateEvidence } from '@/lib/graphql-hooks/evidence.ts'
 import { Form, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import useFormSchema, { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema.ts'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { InputRow } from '@repo/ui/input'
 import { useQueryClient } from '@tanstack/react-query'
-import { EvidenceFieldsFragment } from '@repo/codegen/src/schema.ts'
+import { useCreateEvidence, useGetRenewEvidenceById } from '@/lib/graphql-hooks/evidence'
 
 type TControlEvidenceRenewDialog = {
-  evidence: EvidenceFieldsFragment
   controlId: string
+  evidenceId: string
 }
 
-const ControlEvidenceRenewDialog: React.FC<TControlEvidenceRenewDialog> = ({ evidence, controlId }) => {
+const ControlEvidenceRenewDialog: React.FC<TControlEvidenceRenewDialog> = ({ evidenceId, controlId }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const queryClient = useQueryClient()
   const { form } = useFormSchema()
   const { successNotification, errorNotification } = useNotification()
+  const { evidence, isLoading: fetching } = useGetRenewEvidenceById(evidenceId, isOpen)
   const { mutateAsync: createEvidence, isPending: isSubmitting } = useCreateEvidence()
   const [evidenceFiles, setEvidenceFiles] = useState<TUploadedFile[]>([])
 
@@ -58,6 +58,7 @@ const ControlEvidenceRenewDialog: React.FC<TControlEvidenceRenewDialog> = ({ evi
       await createEvidence(formData)
       setIsOpen(false)
       queryClient.invalidateQueries({ queryKey: ['controls', controlId] })
+      queryClient.invalidateQueries({ queryKey: ['evidences'] })
       successNotification({
         title: 'Evidence Created',
         description: `Evidence has been successfully created`,

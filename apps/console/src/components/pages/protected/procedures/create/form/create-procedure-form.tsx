@@ -11,7 +11,7 @@ import { Button } from '@repo/ui/button'
 import { CreateProcedureInput, ProcedureByIdFragment, ProcedureDocumentStatus, ProcedureFrequency, UpdateProcedureInput } from '@repo/codegen/src/schema.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { useNotification } from '@/hooks/useNotification.tsx'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
 import { useQueryClient } from '@tanstack/react-query'
 import useFormSchema, { CreateProcedureFormData, EditProcedureFormData } from '../hooks/use-form-schema'
@@ -21,6 +21,9 @@ import AssociationCard from '@/components/pages/protected/procedures/create/card
 import TagsCard from '@/components/pages/protected/procedures/create/cards/tags-card.tsx'
 import { useCreateProcedure, useUpdateProcedure } from '@/lib/graphql-hooks/procedures.ts'
 import { DOCS_URL } from '@/constants/index.ts'
+import AuthorityCard from '@/components/pages/protected/procedures/view/cards/authority-card.tsx'
+import { useGetInternalPolicyDetailsById } from '@/lib/graphql-hooks/policy.ts'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 
 type TCreateProcedureFormProps = {
   procedure?: ProcedureByIdFragment
@@ -33,9 +36,11 @@ export type TMetadata = {
 }
 
 const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure }) => {
+  const path = usePathname()
   const { form } = useFormSchema()
   const router = useRouter()
   const queryClient = useQueryClient()
+  const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { mutateAsync: createProcedure, isPending: isCreating } = useCreateProcedure()
   const { mutateAsync: updateProcedure, isPending: isSaving } = useUpdateProcedure()
   const isSubmitting = isCreating || isSaving
@@ -46,8 +51,26 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   const [metadata, setMetadata] = useState<TMetadata>()
   const isEditable = !!procedure
   const [initialAssociations, setInitialAssociations] = useState<TObjectAssociationMap>({})
+  const searchParams = useSearchParams()
+  const policyId = searchParams.get('policyId')
+  const { data, isLoading } = useGetInternalPolicyDetailsById(policyId)
+
+  const isProcedureCreate = path === '/procedures/create'
 
   useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Procedures', href: '/procedures' },
+    ])
+  }, [setCrumbs])
+
+  useEffect(() => {
+    if (isProcedureCreate) {
+      setInitialAssociations({})
+      procedureState.setAssociations({})
+      procedureState.setAssociationRefCodes({})
+      return
+    }
     if (procedure) {
       const procedureAssociations: TObjectAssociationMap = {
         controlIDs: procedure?.controls?.edges?.map((item) => item?.node?.id!) || [],
@@ -86,7 +109,21 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
       procedureState.setAssociations(procedureAssociations)
       procedureState.setAssociationRefCodes(procedureAssociationsRefCodes)
     }
-  }, [])
+  }, [isProcedureCreate])
+
+  useEffect(() => {
+    if (data) {
+      const procedureAssociations: TObjectAssociationMap = {
+        internalPolicyIDs: data?.internalPolicy?.id ? [data.internalPolicy.id] : [],
+      }
+      const procedureAssociationsRefCodes: TObjectAssociationMap = {
+        internalPolicyIDs: data?.internalPolicy?.displayID ? [data.internalPolicy.displayID] : [],
+      }
+      setInitialAssociations(procedureAssociations)
+      procedureState.setAssociations(procedureAssociations)
+      procedureState.setAssociationRefCodes(procedureAssociationsRefCodes)
+    }
+  }, [data])
 
   const onCreateHandler = async (data: CreateProcedureFormData) => {
     try {
@@ -288,6 +325,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
           </Button>
         </div>
         <div className="space-y-4">
+          <AuthorityCard form={form} isEditing={true} inputClassName="!w-[162px]" />
           <StatusCard form={form} metadata={metadata} />
           <AssociationCard />
           <TagsCard form={form} />

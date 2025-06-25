@@ -15,6 +15,7 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { useGetAllOrganizationsWithMembers } from '@/lib/graphql-hooks/organization'
 import { useQueryClient } from '@tanstack/react-query'
 import { Organization } from '@repo/codegen/src/schema'
+import { Avatar } from '../avatar/avatar'
 
 export const OrganizationSelector = () => {
   const { data: sessionData, update: updateSession } = useSession()
@@ -26,7 +27,6 @@ export const OrganizationSelector = () => {
   })
 
   const { currentOrgId } = useOrganization()
-
   const { data } = useGetAllOrganizationsWithMembers({ userID: sessionData?.user.userId })
   const orgs = data?.organizations?.edges ?? []
   const currentOrg = orgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
@@ -36,7 +36,7 @@ export const OrganizationSelector = () => {
       return org?.node?.name.toLowerCase().includes(orgData.organizationSearch.toLowerCase()) && org?.node?.id !== currentOrgId && !org?.node?.personalOrg
     })
     .slice(0, 4)
-
+  const [isPopoverOpened, setIsPopoverOpened] = useState<boolean>(false)
   const nonPersonalOrgs = orgs.filter((org) => !org?.node?.personalOrg)
 
   useEffect(() => {
@@ -69,6 +69,8 @@ export const OrganizationSelector = () => {
         requestAnimationFrame(() => {
           queryClient?.invalidateQueries()
         })
+
+        setIsPopoverOpened(false)
       }
     }
   }
@@ -82,10 +84,11 @@ export const OrganizationSelector = () => {
   return (
     <div className={container()}>
       <div>
-        <Popover>
+        <Popover onOpenChange={setIsPopoverOpened} open={isPopoverOpened}>
           <PopoverTrigger>
             <div className={organizationDropdown()}>
-              <span className="truncate">{currentOrg?.displayName}</span>
+              <Avatar entity={currentOrg as Organization} />
+              <span>{currentOrg?.displayName}</span>
               <ChevronsUpDown className="shrink-0" size={12} />
             </div>
           </PopoverTrigger>
@@ -129,7 +132,7 @@ export const OrganizationSelector = () => {
 
             <div>
               <Link href="/organization" className={allOrganizationsLink()}>
-                <Button className="w-full" icon={<BriefcaseBusiness size={16} />} iconPosition="left">
+                <Button onClick={() => setIsPopoverOpened(false)} className="w-full" icon={<BriefcaseBusiness size={16} />} iconPosition="left">
                   View all organizations
                 </Button>
               </Link>
@@ -149,6 +152,7 @@ const OrganizationItem = ({ org, isCurrent, role, onClick }: { org: Organization
       <div className={orgInfo()}>
         <div className="flex items-center gap-1">
           {isCurrent ? <Check size={16} /> : <Check size={16} className="opacity-0" />}
+          <Avatar entity={org} />
           <div className={orgTitle()}>{org.displayName}</div>
         </div>
         <Tag className="bg-transparent capitalize px-1.5 border rounded-lg text-sm">{role.toLowerCase()}</Tag>

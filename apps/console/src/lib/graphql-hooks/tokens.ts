@@ -1,6 +1,14 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { GET_PERSONAL_ACCESS_TOKENS, CREATE_PERSONAL_ACCESS_TOKEN, DELETE_PERSONAL_ACCESS_TOKEN, CREATE_API_TOKEN, GET_API_TOKENS, DELETE_API_TOKEN } from '@repo/codegen/query/tokens'
+import {
+  GET_PERSONAL_ACCESS_TOKENS,
+  CREATE_PERSONAL_ACCESS_TOKEN,
+  DELETE_PERSONAL_ACCESS_TOKEN,
+  CREATE_API_TOKEN,
+  GET_API_TOKENS,
+  DELETE_API_TOKEN,
+  GET_API_TOKENS_BY_IDS,
+} from '@repo/codegen/query/tokens'
 import {
   GetPersonalAccessTokensQuery,
   CreatePersonalAccessTokenMutation,
@@ -14,6 +22,10 @@ import {
   DeleteApiTokenMutationVariables,
   GetApiTokensQueryVariables,
   GetPersonalAccessTokensQueryVariables,
+  GetApiTokensByIdsQuery,
+  GetApiTokensByIdsQueryVariables,
+  User,
+  ApiToken,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 
@@ -97,4 +109,26 @@ export const useDeleteApiToken = () => {
       queryClient.invalidateQueries({ queryKey: ['apiTokens'] })
     },
   })
+}
+
+export const useGetApiTokensByIds = ({ where, enabled = true }: UseGetApiTokensArgs) => {
+  const idInNotEmpty = Array.isArray(where?.idIn) && where.idIn.length > 0
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetApiTokensByIdsQuery, GetApiTokensByIdsQueryVariables>({
+    queryKey: ['apiTokens', where],
+    queryFn: async () =>
+      client.request(GET_API_TOKENS_BY_IDS, {
+        where,
+      }),
+    enabled: idInNotEmpty,
+  })
+
+  const tokens = (queryResult.data?.apiTokens?.edges ?? []).map((edge) => edge?.node) as ApiToken[]
+
+  return {
+    ...queryResult,
+    tokens,
+    isLoading: queryResult.isFetching,
+  }
 }

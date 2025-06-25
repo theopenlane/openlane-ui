@@ -30,7 +30,7 @@ export const CreateDropdown = () => {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           {canCreate(permission?.roles, AccessEnum.CanCreateTemplate) && (
-            <div className="flex items-center space-x-2 cursor-pointer" onClick={handleCreateNew}>
+            <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleCreateNew}>
               <CirclePlus size={16} strokeWidth={2} />
               <span>Questionnaire</span>
             </div>

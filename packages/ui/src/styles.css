@@ -40,7 +40,7 @@
   --color-button-back: #e2efeb;
 
   /* Assets */
-  --asset-color-bg: #DAE3E7;
+  --asset-color-bg: #dae3e7;
 
   /* Background */
   --color-bg: #f9fbfc;
@@ -57,10 +57,10 @@
   --color-accent-secondary-muted: #75d2bf;
 
   /* Border */
-  --color-border: #aabec5;
+  --color-border: #e1e9ec;
   --color-border-light: #aabec5;
   --color-border-dark: #303e4a;
-  --color-separator: #b4c1d5;
+  --color-separator: #e1e9ec;
   --color-separator-light: #b4c1d5;
   --color-separator-dark: #273344;
   --color-separator-edit: #bfbfbf;
@@ -74,6 +74,7 @@
   --color-text-light: #aabec5;
   --color-text-nav-link: #303e4a;
   --color-text-dimmed: #8998a9;
+  --color-text-informational: #798695;
 
   /* Panel */
   --color-panel-bg: #ffffff;
@@ -175,7 +176,7 @@
   --color-button-back: #96a09d;
 
   /* Assets */
-  --asset-color-bg: #374A52;
+  --asset-color-bg: #374a52;
 
   /* Background */
   --color-bg: #0d1117;
@@ -191,7 +192,7 @@
 
   /* Border */
   --color-border: #303e4a;
-  --color-separator: #b4c1d5;
+  --color-separator: #303e4a;
   --color-separator-light: #b4c1d5;
   --color-separator-dark: #273344;
 
@@ -200,6 +201,7 @@
   --color-text-paragraph: #bdd9e1;
   --color-text-nav-link: #bdd9e1;
   --color-text-dimmed: #5c6c70;
+  --color-text-informational: #7a8588;
 
   /* Panel */
   --color-panel-bg: #1c2630;

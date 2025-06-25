@@ -7,15 +7,24 @@ import { TOrgMembers, useTaskStore } from '@/components/pages/protected/tasks/ho
 import { useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 
 const Page: React.FC = () => {
   const { setSelectedTask, setOrgMembers } = useTaskStore()
   const searchParams = useSearchParams()
   const { data: session } = useSession()
   const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
+  const { setCrumbs } = React.useContext(BreadcrumbContext)
 
   useEffect(() => {
-    const taskId = searchParams.get('taskId')
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Tasks', href: '/tasks' },
+    ])
+  }, [setCrumbs])
+
+  useEffect(() => {
+    const taskId = searchParams.get('id')
     if (taskId) {
       setSelectedTask(taskId)
     }
@@ -26,7 +35,7 @@ const Page: React.FC = () => {
       (member) =>
         ({
           value: member?.node?.user?.id,
-          label: `${member?.node?.user?.firstName} ${member?.node?.user?.lastName}`,
+          label: `${member?.node?.user?.displayName}`,
           membershipId: member?.node?.user.id,
         }) as TOrgMembers,
     )

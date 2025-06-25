@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { Button } from '@repo/ui/button'
 import { Separator } from '@repo/ui/separator'
@@ -17,11 +17,11 @@ import { CreateProgramWithMembersInput, ProgramMembershipRole, ProgramProgramTyp
 import { useNotification } from '@/hooks/useNotification'
 import { useRouter } from 'next/navigation'
 import { dialogStyles } from './dialog.styles'
-import { mapToNode } from './nodes'
 import { Check } from 'lucide-react'
 import { SummaryCard } from './summary-card'
-import { useCreateProgramWithMembers, useGetProgramEdgesForWizard } from '@/lib/graphql-hooks/programs'
+import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/programs'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
+import { addYears } from 'date-fns'
 
 export type FormFields = z.infer<typeof initProgramSchema & typeof programDetailSchema & typeof programInviteSchema & typeof programObjectAssociationSchema>
 
@@ -32,6 +32,7 @@ const { useStepper, steps } = defineStepper(
   { id: 'link', label: 'Associate existing objects', schema: programObjectAssociationSchema },
 )
 const today = new Date()
+const oneYearFromToday = addYears(new Date(), 1)
 
 interface ProgramWizardProps {
   onSuccess?: () => void
@@ -51,7 +52,6 @@ const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardPro
   const stepper = useStepper()
 
   const { mutateAsync: createNewProgram } = useCreateProgramWithMembers()
-  const { data: edgeData } = useGetProgramEdgesForWizard()
 
   const form = useForm({
     mode: 'onTouched',
@@ -68,19 +68,6 @@ const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardPro
   const { isValid, isDirty } = useFormState({ control: form.control })
   const { isValid: isFullFormValid } = useFormState({ control: fullForm.control })
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const groupRes = edgeData?.groups?.edges || []
-  const userRes = edgeData?.orgMemberships.edges || []
-  const policyRes = edgeData?.internalPolicies.edges || []
-  const procedureRes = edgeData?.procedures.edges || []
-  const riskRes = edgeData?.risks.edges || []
-
-  // map to a common format
-  const groups = mapToNode(groupRes)
-  const users = mapToNode(userRes)
-  const policies = mapToNode(policyRes)
-  const procedures = mapToNode(procedureRes)
-  const risks = mapToNode(riskRes)
 
   const currentIndex = stepper.all.findIndex((item) => item.id === stepper.current.id)
 
@@ -218,7 +205,7 @@ const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardPro
 
   useEffect(() => {
     setValue('startDate', today)
-    setValue('endDate', today)
+    setValue('endDate', oneYearFromToday)
   }, [setValue])
 
   useEffect(() => {
@@ -263,7 +250,7 @@ const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardPro
             })}
           </ul>
           <div className={buttonRow()}>
-            <Button onClick={stepper.prev} disabled={stepper.isFirst}>
+            <Button onClick={stepper.prev} disabled={stepper.isFirst || isSubmitting}>
               Back
             </Button>
             {!stepper.isLast ? (
@@ -276,8 +263,8 @@ const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardPro
                 Next
               </Button>
             ) : (
-              <Button disabled={isSubmitting} onClick={handleFormSubmit}>
-                Create Program
+              <Button disabled={isSubmitting} onClick={handleFormSubmit} loading={isSubmitting}>
+                {isSubmitting ? 'Creating Program...' : 'Create Program'}
               </Button>
             )}
           </div>
@@ -289,8 +276,8 @@ const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardPro
               {stepper.switch({
                 init: () => <ProgramInitComponent />,
                 details: () => <ProgramDetailsComponent />,
-                invite: () => <ProgramInviteComponent users={users} groups={groups} />,
-                link: () => <ProgramObjectAssociationComponent risks={risks} policies={policies} procedures={procedures} />,
+                invite: () => <ProgramInviteComponent />,
+                link: () => <ProgramObjectAssociationComponent />,
               })}
             </div>
             <SummaryCard formData={getValues()} stepper={stepper} />

@@ -9,17 +9,17 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
 type TokenActionProps = {
   tokenId: string
+  tokenName: string
 }
 
 const ICON_SIZE = 16
 
-export const TokenAction = ({ tokenId }: TokenActionProps) => {
+export const TokenAction = ({ tokenId, tokenName }: TokenActionProps) => {
   const { mutateAsync: deletePersonalToken } = useDeletePersonalAccessToken()
   const { mutateAsync: deleteApiToken } = useDeleteApiToken()
   const { successNotification, errorNotification } = useNotification()
   const path = usePathname()
   const isOrg = path.includes('/organization-settings')
-
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   const handleDeleteToken = async () => {
@@ -27,7 +27,6 @@ export const TokenAction = ({ tokenId }: TokenActionProps) => {
       if (isOrg) {
         await deleteApiToken({ deleteAPITokenId: tokenId })
       } else {
-        await deletePersonalToken({ deletePersonalAccessTokenId: tokenId })
       }
 
       successNotification({
@@ -59,8 +58,12 @@ export const TokenAction = ({ tokenId }: TokenActionProps) => {
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
         onConfirm={handleDeleteToken}
-        title="Confirm Deletion"
-        description={`This action cannot be undone. This will permanently remove the ${isOrg ? 'API Token' : 'Personal Token'} from the organization.`}
+        title={`Delete ${isOrg ? 'API Token' : 'Personal Token'}`}
+        description={
+          <>
+            This action cannot be undone. This will permanently remove the <b>${tokenName}</b> from the organization.
+          </>
+        }
       />
     </>
   )

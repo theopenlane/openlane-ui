@@ -7,9 +7,9 @@ import { useGetGroupPermissions } from '@/lib/graphql-hooks/groups'
 
 interface GroupPermission {
   id: string
-  displayId: string
   objectType: string
   permissions: Permission
+  name: string
 }
 
 const GroupDeletePermissionsTable: React.FC = () => {
@@ -19,16 +19,16 @@ const GroupDeletePermissionsTable: React.FC = () => {
 
   const groupPermissions: GroupPermission[] =
     data?.group?.permissions?.edges?.map((edge) => ({
+      name: edge?.node?.name ?? 'name',
       id: edge?.node?.id ?? 'unknown-id',
-      displayId: edge?.node?.displayID || 'N/A',
       objectType: edge?.node?.objectType || 'Unknown',
       permissions: edge?.node?.permissions as Permission,
     })) || []
 
   const columns: ColumnDef<GroupPermission>[] = [
     {
-      header: 'Object',
-      accessorKey: 'displayId',
+      header: 'Name',
+      accessorKey: 'name',
     },
     {
       header: 'Object Type',

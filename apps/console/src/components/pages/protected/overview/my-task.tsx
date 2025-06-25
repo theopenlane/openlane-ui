@@ -85,7 +85,6 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
   }
 
   return (
-    //TODO: add size fit when we have pending actions, currently no api
     <Card>
       <CardTitle className="text-lg font-semibold">My Tasks</CardTitle>
       <CardContent>
@@ -114,7 +113,7 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
             const isUpcoming = isAfter(new Date(dueDate), dueSoonLimit) && isBefore(new Date(dueDate), upcomingUpper)
 
             return (
-              <Link key={task.id} href={`/tasks?taskId=${task.id}`} className="grid grid-cols-[120px_1fr] items-center gap-[20px] size-fit">
+              <Link key={task.id} href={`/tasks?id=${task.id}`} className="grid grid-cols-[120px_1fr] items-center gap-[20px] size-fit">
                 {' '}
                 <div className={clsx('flex items-center gap-2', ((isDue || isSoon) && 'text-destructive') || (isUpcoming && 'text-green-500'))}>
                   {isDue ? (
@@ -152,7 +151,6 @@ const MyTask = ({ status = 'default' }) => {
 
   if (!userId) {
     return (
-      //TODO: add size fit when we have pending actions, currently no api
       <Card>
         <CardTitle className="text-lg font-semibold">My Tasks</CardTitle>
         <CardContent className="text-center text-red-500">Error: No user found</CardContent>
@@ -163,7 +161,6 @@ const MyTask = ({ status = 'default' }) => {
   return (
     <Suspense
       fallback={
-        //TODO: add size fit when we have pending actions, currently no api
         <Card>
           <CardTitle className="text-lg font-semibold">My Tasks</CardTitle>
           <CardContent className="text-center">Loading...</CardContent>

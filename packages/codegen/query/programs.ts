@@ -23,8 +23,8 @@ export const UPDATE_PROGRAM = gql`
 `
 
 export const GET_ALL_PROGRAMS = gql`
-  query GetAllPrograms($where: ProgramWhereInput, $orderBy: [ProgramOrder!]) {
-    programs(where: $where, orderBy: $orderBy) {
+  query GetAllPrograms($where: ProgramWhereInput, $orderBy: [ProgramOrder!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    programs(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
       edges {
         node {
           id
@@ -38,6 +38,13 @@ export const GET_ALL_PROGRAMS = gql`
           displayID
         }
       }
+      pageInfo {
+        endCursor
+        startCursor
+        hasPreviousPage
+        hasNextPage
+      }
+      totalCount
     }
   }
 `
@@ -82,9 +89,8 @@ export const GET_PROGRAM_EDGES_FOR_WIZARD = gql`
         node {
           user {
             id
-            firstName
-            lastName
             role
+            displayName
           }
         }
       }
@@ -114,15 +120,13 @@ export const GET_PROGRAM_DETAILS_BY_ID = gql`
             due
             details
             assignee {
+              displayName
               id
-              firstName
-              lastName
               email
             }
             assigner {
+              displayName
               id
-              firstName
-              lastName
               email
             }
           }
@@ -190,6 +194,10 @@ export const GET_PROGRAM_BASIC_INFO = gql`
       auditorEmail
       auditorReady
       displayID
+      tags
+      frameworkName
+      status
+      programType
     }
   }
 `
@@ -276,7 +284,7 @@ export const GET_PROGRAM_GROUPS = gql`
         totalCount
         edges {
           node {
-            displayName
+            name
             id
             gravatarLogoURL
             logoURL
@@ -287,7 +295,7 @@ export const GET_PROGRAM_GROUPS = gql`
         totalCount
         edges {
           node {
-            displayName
+            name
             id
             gravatarLogoURL
             logoURL

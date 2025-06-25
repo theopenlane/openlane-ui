@@ -12,7 +12,7 @@ import { useCreateInternalPolicy, useUpdateInternalPolicy } from '@/lib/graphql-
 import { CreateInternalPolicyInput, InternalPolicyByIdFragment, InternalPolicyDocumentStatus, InternalPolicyFrequency, UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { useNotification } from '@/hooks/useNotification.tsx'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
 import { useQueryClient } from '@tanstack/react-query'
 import useFormSchema, { CreatePolicyFormData, EditPolicyFormData } from '../hooks/use-form-schema'
@@ -21,6 +21,7 @@ import StatusCard from '@/components/pages/protected/policies/create/cards/statu
 import AssociationCard from '@/components/pages/protected/policies/create/cards/association-card.tsx'
 import TagsCard from '@/components/pages/protected/policies/create/cards/tags-card.tsx'
 import { DOCS_URL } from '@/constants'
+import AuthorityCard from '@/components/pages/protected/policies/view/cards/authority-card.tsx'
 
 type TCreatePolicyFormProps = {
   policy?: InternalPolicyByIdFragment
@@ -33,6 +34,7 @@ export type TMetadata = {
 }
 
 const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
+  const path = usePathname()
   const { form } = useFormSchema()
   const router = useRouter()
   const queryClient = useQueryClient()
@@ -47,7 +49,15 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   const isEditable = !!policy
   const [initialAssociations, setInitialAssociations] = useState<TObjectAssociationMap>({})
 
+  const isPoliciesCreate = path === '/policies/create'
+
   useEffect(() => {
+    if (isPoliciesCreate) {
+      setInitialAssociations({})
+      policyState.setAssociations({})
+      policyState.setAssociationRefCodes({})
+      return
+    }
     if (policy) {
       const policyAssociations: TObjectAssociationMap = {
         controlIDs: policy?.controls?.edges?.map((item) => item?.node?.id!) || [],
@@ -86,7 +96,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
       policyState.setAssociations(policyAssociations)
       policyState.setAssociationRefCodes(policyAssociationsRefCodes)
     }
-  }, [])
+  }, [isPoliciesCreate])
 
   const onCreateHandler = async (data: CreatePolicyFormData) => {
     try {
@@ -288,6 +298,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
           </Button>
         </div>
         <div className="space-y-4">
+          <AuthorityCard form={form} isEditing={true} inputClassName="!w-[162px]" />
           <StatusCard form={form} metadata={metadata} />
           <AssociationCard />
           <TagsCard form={form} />

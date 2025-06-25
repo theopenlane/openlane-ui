@@ -133,7 +133,7 @@ export const Subscribe = () => {
                 render={({ field }) => (
                   <>
                     <FormControl>
-                      <Input type="email" placeholder="Your email" {...field} />
+                      <Input type="email" placeholder="Your work email" {...field} />
                     </FormControl>
                     <FormMessage />
                   </>

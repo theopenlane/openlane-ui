@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { DataTable } from '@repo/ui/data-table'
-import { questionnaireColumns } from '@/components/pages/protected/questionnaire/table/columns.tsx'
+import { getQuestionnaireColumns } from './columns'
 import QuestionnaireTableToolbar from '@/components/pages/protected/questionnaire/table/questionnaire-table-toolbar.tsx'
 import { QUESTIONNAIRE_SORT_FIELDS } from '@/components/pages/protected/questionnaire/table/table-config.ts'
 import { FilterTemplatesQueryVariables, OrderDirection, TemplateDocumentType, TemplateOrderField } from '@repo/codegen/src/schema.ts'
@@ -11,6 +11,7 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useTemplates } from '@/lib/graphql-hooks/templates'
 import { useRouter } from 'next/navigation'
+import { VisibilityState } from '@tanstack/react-table'
 
 export const QuestionnairesTable = () => {
   const router = useRouter()
@@ -19,11 +20,13 @@ export const QuestionnairesTable = () => {
   const [orderBy, setOrderBy] = useState<FilterTemplatesQueryVariables['orderBy']>([
     {
       field: TemplateOrderField.name,
-      direction: OrderDirection.DESC,
+      direction: OrderDirection.ASC,
     },
   ])
 
   const orderByFilter = useMemo(() => orderBy || undefined, [orderBy])
+
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
 
   const [searchTerm, setSearchTerm] = useState('')
   const debouncedSearch = useDebounce(searchTerm, 300)
@@ -35,6 +38,8 @@ export const QuestionnairesTable = () => {
       ...filters,
     }
   }, [filters, debouncedSearch])
+
+  const { columns, mappedColumns } = getQuestionnaireColumns()
 
   const {
     templates,
@@ -57,17 +62,22 @@ export const QuestionnairesTable = () => {
           setPagination(DEFAULT_PAGINATION)
         }}
         setFilters={setFilters}
+        mappedColumns={mappedColumns}
+        columnVisibility={columnVisibility}
+        setColumnVisibility={setColumnVisibility}
       />
       <DataTable
         sortFields={QUESTIONNAIRE_SORT_FIELDS}
         onSortChange={setOrderBy}
-        columns={questionnaireColumns}
+        columns={columns}
         data={templates}
         loading={fetching}
         pagination={pagination}
         onPaginationChange={setPagination}
         paginationMeta={paginationMeta}
         onRowClick={(row) => router.push(`/questionnaires/questionnaire-viewer?id=${row.id}`)}
+        columnVisibility={columnVisibility}
+        setColumnVisibility={setColumnVisibility}
       />
     </div>
   )

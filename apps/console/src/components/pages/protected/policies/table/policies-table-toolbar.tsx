@@ -1,8 +1,7 @@
 import React from 'react'
 import { cn } from '@repo/ui/lib/utils'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
-import { Button } from '@repo/ui/button'
-import { ChevronDown, CirclePlus, DownloadIcon, Import, LoaderCircle, SearchIcon } from 'lucide-react'
+import { CirclePlus, DownloadIcon, Import, LoaderCircle, SearchIcon } from 'lucide-react'
 import { INTERNAL_POLICIES_FILTERABLE_FIELDS } from '@/components/pages/protected/policies/table/table-config.ts'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -13,6 +12,8 @@ import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Menu from '@/components/shared/menu/menu.tsx'
 import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
+import { VisibilityState } from '@tanstack/react-table'
+import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 
 type TPoliciesTableToolbarProps = {
   className?: string
@@ -22,9 +23,26 @@ type TPoliciesTableToolbarProps = {
   setFilters: (filters: Record<string, any>) => void
   handleCreateNew: () => void
   handleExport: () => void
+  columnVisibility?: VisibilityState
+  setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
+  mappedColumns: {
+    accessorKey: string
+    header: string
+  }[]
 }
 
-const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({ className, searching, searchTerm, handleCreateNew, setFilters, setSearchTerm, handleExport }) => {
+const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
+  className,
+  searching,
+  searchTerm,
+  handleCreateNew,
+  setFilters,
+  setSearchTerm,
+  handleExport,
+  columnVisibility,
+  setColumnVisibility,
+  mappedColumns,
+}) => {
   const isSearching = useDebounce(searching, 200)
   const { data: session } = useSession()
   const { data: permission } = useOrganizationRole(session)
@@ -43,11 +61,14 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({ className,
       </div>
 
       <div className="grow flex flex-row items-center gap-2 justify-end">
+        {mappedColumns && columnVisibility && setColumnVisibility && (
+          <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
+        )}
         {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
           <Menu
             trigger={CreateBtn}
             content={
-              <div className="flex items-center space-x-2 cursor-pointer" onClick={handleCreateNew}>
+              <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleCreateNew}>
                 <CirclePlus size={16} strokeWidth={2} />
                 <span>Policy</span>
               </div>
@@ -60,14 +81,14 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({ className,
               {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
                 <BulkCSVCreatePolicyDialog
                   trigger={
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 hover:bg-muted">
                       <Import size={16} strokeWidth={2} />
                       <span>Import existing document</span>
                     </div>
                   }
                 />
               )}
-              <div className="flex items-center space-x-2 cursor-pointer" onClick={handleExport}>
+              <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleExport}>
                 <DownloadIcon size={16} strokeWidth={2} />
                 <span>Export</span>
               </div>

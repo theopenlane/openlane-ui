@@ -1,32 +1,19 @@
 import {
-  BarChart3Icon,
   CircleGaugeIcon,
-  FileIcon,
-  HandshakeIcon,
   LayersIcon,
   SettingsIcon,
   UsersRoundIcon,
   UserRoundCogIcon,
   Users,
-  TriangleAlertIcon,
-  FileQuestion,
   ShieldCheck,
   AlertTriangle,
-  Sliders,
   Fingerprint,
-  FileText,
-  ClipboardList,
   ListChecks,
-  Library,
-  ShapesIcon,
   Settings2,
   ScrollText,
   Workflow,
   NotebookPen,
-  FileBadge,
   FileBadge2,
-  Building,
-  LineChart,
 } from 'lucide-react'
 import { NavHeading, type NavItem, type Separator } from '@/types'
 
@@ -123,6 +110,10 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
       {
         title: 'General Settings',
         href: '/organization-settings/general-settings',
+      },
+      {
+        title: 'Authentication',
+        href: '/organization-settings/authentication',
       },
       {
         title: 'Members',

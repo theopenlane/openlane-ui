@@ -43,6 +43,31 @@ export const GET_ALL_PROCEDURES_WITH_DETAILS = gql`
   }
 `
 
+export const GET_TABLE_PROCEDURES = gql`
+  query GetProceduresTableList($orderBy: [ProcedureOrder!], $where: ProcedureWhereInput, $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    procedures(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
+      totalCount
+      edges {
+        node {
+          id
+          name
+          updatedAt
+          updatedBy
+          createdAt
+          createdBy
+          summary
+        }
+      }
+      pageInfo {
+        endCursor
+        startCursor
+        hasPreviousPage
+        hasNextPage
+      }
+    }
+  }
+`
+
 export const GET_ALL_PROCEDURES = gql`
   query GetProceduresList($orderBy: [ProcedureOrder!], $where: ProcedureWhereInput, $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
     procedures(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
@@ -138,6 +163,19 @@ export const PROCEDURE_BY_ID = gql`
           id
           displayID
           refCode
+        }
+      }
+      totalCount
+    }
+    subcontrols {
+      edges {
+        node {
+          id
+          displayID
+          refCode
+          control {
+            id
+          }
         }
       }
       totalCount

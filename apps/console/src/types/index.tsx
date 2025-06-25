@@ -66,3 +66,10 @@ export type WhereCondition =
       or?: Condition[]
     }
   | Condition
+
+export type RoutePage = {
+  route: string
+  name: string
+  keywords?: string[]
+  hidden?: undefined
+}

@@ -13,11 +13,12 @@ import { useCreateControlObjective, useDeleteControlObjective, useUpdateControlO
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Value } from '@udecode/plate-common'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Info, Pencil, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import useFormSchema, { TFormData, VersionBump } from './use-form-schema'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
+import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
 
 const controlSourceLabels: Record<ControlObjectiveControlSource, string> = {
   [ControlObjectiveControlSource.FRAMEWORK]: 'Framework',
@@ -113,8 +114,10 @@ export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuc
     if (loading && defaultValuesSet) {
       return
     }
+
     const createDefValues: Partial<TFormData> = {
-      ...defaultValues,
+      status: ControlObjectiveObjectiveStatus.DRAFT,
+      source: ControlObjectiveControlSource.USER_DEFINED,
       category: subcontrolData?.subcontrol?.category || controlData?.control?.category || '',
       subcategory: subcontrolData?.subcontrol?.subcategory || controlData?.control?.subcategory || '',
     }
@@ -129,10 +132,10 @@ export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuc
         {isEditing ? (
           <>
             <Button className="h-8 !px-4" icon={<Pencil />} iconPosition="left">
-              Save edit
+              Save
             </Button>
             <Button variant="back" className="h-8 !px-4" type="button" onClick={onSuccess}>
-              Discard edit
+              Cancel
             </Button>
             <Button variant="destructive" className="h-8 !px-4" icon={<Trash2 />} iconPosition="left" type="button" onClick={handleDelete}>
               Delete
@@ -147,7 +150,16 @@ export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuc
           </>
         )}
       </div>
-      <SheetHeader>{!isEditing && <SheetTitle className="text-left">Create Objective</SheetTitle>}</SheetHeader>
+      <SheetHeader>{!isEditing && <SheetTitle className="text-left">Control Objective</SheetTitle>}</SheetHeader>
+      {!isEditing && (
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertTitle>Describe the goal this control is intended to achieve.</AlertTitle>
+          <AlertDescription>
+            <p>Focus on the risk it addresses, the outcome it supports, and how it contributes to your overall security or compliance posture.</p>
+          </AlertDescription>
+        </Alert>
+      )}
       <div className="p-4 border rounded-lg">
         <div className="border-b flex items-center pb-2.5">
           <Label className="w-36 self-start">

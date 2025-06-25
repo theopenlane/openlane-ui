@@ -29,8 +29,8 @@ export const GET_EVIDENCE_FILES = gql`
 `
 
 export const GET_ALL_EVIDENCES = gql`
-  query GetAllEvidences($where: EvidenceWhereInput) {
-    evidences(where: $where) {
+  query GetAllEvidences($where: EvidenceWhereInput, $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    evidences(where: $where, first: $first, after: $after, last: $last, before: $before) {
       edges {
         node {
           id
@@ -39,6 +39,13 @@ export const GET_ALL_EVIDENCES = gql`
           description
         }
       }
+      pageInfo {
+        endCursor
+        startCursor
+        hasPreviousPage
+        hasNextPage
+      }
+      totalCount
     }
   }
 `
@@ -46,20 +53,6 @@ export const GET_ALL_EVIDENCES = gql`
 const EVIDENCE_FIELDS = gql`
   fragment EvidenceFields on Evidence {
     collectionProcedure
-    controlObjectives {
-      edges {
-        node {
-          id
-        }
-      }
-    }
-    controls {
-      edges {
-        node {
-          id
-        }
-      }
-    }
     createdAt
     createdBy
     creationDate
@@ -68,31 +61,10 @@ const EVIDENCE_FIELDS = gql`
     id
     name
     ownerID
-    programs {
-      edges {
-        node {
-          id
-        }
-      }
-    }
     renewalDate
     source
     status
-    subcontrols {
-      edges {
-        node {
-          id
-        }
-      }
-    }
     tags
-    tasks {
-      edges {
-        node {
-          id
-        }
-      }
-    }
     url
     updatedBy
     updatedAt
@@ -106,6 +78,64 @@ export const GET_EVIDENCE = gql`
     }
   }
   ${EVIDENCE_FIELDS}
+`
+
+export const GET_RENEW_EVIDENCE = gql`
+  query GetRenewEvidence($evidenceId: ID!) {
+    evidence(id: $evidenceId) {
+      collectionProcedure
+      createdAt
+      createdBy
+      creationDate
+      description
+      displayID
+      id
+      name
+      ownerID
+      renewalDate
+      source
+      status
+      tags
+      url
+      updatedBy
+      updatedAt
+      programs {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      subcontrols {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      tasks {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      controlObjectives {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      controls {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+    }
+  }
 `
 
 export const GET_EVIDENCE_FILES_PAGINATED = gql`

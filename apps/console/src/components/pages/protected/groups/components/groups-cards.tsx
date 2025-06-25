@@ -5,9 +5,9 @@ import { Badge } from '@repo/ui/badge'
 import { GlobeIcon, LockIcon } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
 import { Group, User } from '@repo/codegen/src/schema'
-import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { useSmartRouter } from '@/hooks/useSmartRouter'
 
 interface Props {
   groups: Group[]
@@ -15,10 +15,10 @@ interface Props {
 }
 
 const MyGroupsCard = ({ groups, isError }: Props) => {
-  const { setSelectedGroup } = useGroupsStore()
+  const { replace } = useSmartRouter()
 
   const handleRowClick = (group: Group) => {
-    setSelectedGroup(group.id)
+    replace({ id: group.id })
   }
 
   if (isError) {
@@ -63,7 +63,7 @@ const MyGroupsCard = ({ groups, isError }: Props) => {
                             {group.members?.edges?.slice(9).map((member: any, idx: number) => (
                               <div key={idx} className="flex items-center gap-2 border-b h-11">
                                 <Avatar className="h-8 w-8" entity={member.user as User} />
-                                <p>{member?.user?.firstName + ' ' + member?.user?.lastName}</p>
+                                <p>{member?.user?.displayName}</p>
                               </div>
                             ))}
                           </div>

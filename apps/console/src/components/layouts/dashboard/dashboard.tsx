@@ -9,8 +9,12 @@ import { NavItems } from '@/routes/dashboard'
 import { useSubscriptionBanner } from '@/hooks/useSubscriptionBanner'
 import { CreditCard } from 'lucide-react'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useContext } from 'react'
 import SessionExpiredModal from '@/components/shared/session-expired-modal/session-expired-modal'
+import { useSession } from 'next-auth/react'
+import { jwtDecode } from 'jwt-decode'
+import { fromUnixTime, differenceInMilliseconds, isAfter } from 'date-fns'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 export interface DashboardLayoutProps {
   children?: React.ReactNode
@@ -20,8 +24,12 @@ export interface DashboardLayoutProps {
 export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const { bannerText } = useSubscriptionBanner()
   const { base, main } = dashboardStyles({ hasBanner: !!bannerText })
-
   const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(false)
+  const { data: sessionData } = useSession()
+  const { setCrumbs } = useContext(BreadcrumbContext)
+  useEffect(() => {
+    setCrumbs([{ label: 'Home', href: '/dashboard' }])
+  }, [setCrumbs])
 
   useEffect(() => {
     const handler = () => {
@@ -31,6 +39,30 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
     window.addEventListener('session-expired', handler)
     return () => window.removeEventListener('session-expired', handler)
   }, [])
+
+  useEffect(() => {
+    if (!sessionData?.user?.refreshToken) return
+
+    const decoded: { exp?: number } = jwtDecode(sessionData.user.refreshToken)
+
+    if (!decoded.exp) return
+
+    const expirationDate = fromUnixTime(decoded.exp)
+    const now = new Date()
+
+    if (isAfter(now, expirationDate)) {
+      setShowSessionExpiredModal(true)
+      return
+    }
+
+    const delay = differenceInMilliseconds(expirationDate, now)
+
+    const id = setTimeout(() => {
+      setShowSessionExpiredModal(true)
+    }, delay)
+
+    return () => clearTimeout(id)
+  }, [sessionData])
 
   return (
     <>

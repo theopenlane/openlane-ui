@@ -17,13 +17,17 @@ import { SystemTooltip } from '@repo/ui/system-tooltip'
 
 type TControlEvidenceFiles = {
   controlEvidenceID: string
+  controlEvidencename?: string
 }
 
-const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidenceID }) => {
+const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidenceID, controlEvidencename }) => {
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const queryClient = useQueryClient()
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false)
-  const [deleteFileId, setDeleteFileId] = useState<string | null>(null)
+  const [deleteFileInfo, setDeleteFileInfo] = useState<{
+    id: string | null
+    name: string | null
+  }>({ id: null, name: null })
   const { successNotification, errorNotification } = useNotification()
   const [orderBy, setOrderBy] = useState<FileOrder[]>([
     {
@@ -43,7 +47,7 @@ const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidence
   }
 
   const handleDeleteFile = async () => {
-    if (!deleteFileId) {
+    if (!deleteFileInfo.id) {
       return
     }
 
@@ -51,11 +55,10 @@ const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidence
       await updateEvidence({
         updateEvidenceId: controlEvidenceID,
         input: {
-          removeFileIDs: [deleteFileId],
+          removeFileIDs: [deleteFileInfo.id],
         },
       })
-
-      setDeleteFileId(null)
+      setDeleteFileInfo({ id: null, name: null })
       queryClient.invalidateQueries({ queryKey: ['evidenceFiles'] })
       successNotification({
         title: 'Evidence Updated',
@@ -92,7 +95,7 @@ const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidence
                     className="flex items-center gap-1 cursor-pointer"
                     onClick={() => {
                       setDeleteDialogIsOpen(true)
-                      setDeleteFileId(row.original.id)
+                      setDeleteFileInfo({ id: row.original.id, name: row.original.providedFileName })
                     }}
                   >
                     <Trash2 size={16} />
@@ -141,7 +144,12 @@ const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidence
         open={deleteDialogIsOpen}
         onOpenChange={setDeleteDialogIsOpen}
         onConfirm={handleDeleteFile}
-        description={`This action cannot be undone, this will permanently remove the evidence from the control.`}
+        title={`Delete File`}
+        description={
+          <>
+            This action cannot be undone. This will permanently remove <b>{deleteFileInfo.name}</b> from the control.
+          </>
+        }
       />
     </div>
   )

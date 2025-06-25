@@ -6,9 +6,8 @@ export const GET_ALL_GROUPS = gql`
       edges {
         node {
           id
-          name
           description
-          displayName
+          name
           members {
             edges {
               node {
@@ -16,8 +15,7 @@ export const GET_ALL_GROUPS = gql`
                 role
                 user {
                   id
-                  firstName
-                  lastName
+
                   avatarFile {
                     presignedURL
                   }
@@ -94,8 +92,7 @@ export const GET_GROUP_DETAILS = gql`
             role
             user {
               id
-              firstName
-              lastName
+              displayName
               avatarFile {
                 presignedURL
               }
@@ -132,7 +129,6 @@ export const GET_GROUP_PERMISSIONS = gql`
       permissions {
         edges {
           node {
-            displayID
             id
             name
             objectType

@@ -1,26 +1,10 @@
 import { FilterField } from '@/types'
-import { OrderDirection } from '@repo/codegen/src/schema.ts'
+import { OrderDirection, ProcedureOrderField } from '@repo/codegen/src/schema.ts'
 
 export const PROCEDURES_FILTERABLE_FIELDS: FilterField[] = [
-  { key: 'background', label: 'Background', type: 'text' },
   { key: 'name', label: 'Name', type: 'text' },
-  { key: 'description', label: 'Description', type: 'text' },
-  { key: 'displayID', label: 'Display ID', type: 'text' },
-  { key: 'hasControlObjectives', label: 'Has Control Objectives', type: 'boolean' },
-  { key: 'hasControls', label: 'Has Controls', type: 'boolean' },
-  { key: 'hasNarratives', label: 'Has Narratives', type: 'boolean' },
-  { key: 'hasProcedures', label: 'Has Procedures', type: 'boolean' },
-  { key: 'hasPrograms', label: 'Has Programs', type: 'boolean' },
-  { key: 'procedureType', label: 'Type', type: 'text' },
-  { key: 'purposeAndScope', label: 'Purpose and Scope', type: 'text' },
-  { key: 'reviewDue', label: 'Review Due', type: 'date' },
-  { key: 'status', label: 'Status', type: 'text' },
-  { key: 'version', label: 'Version', type: 'text' },
-
-  { key: 'createdAt', label: 'Date Created', type: 'date' },
-  { key: 'createdBy', label: 'Created By', type: 'text' },
-  { key: 'updatedAt', label: 'Date Updated', type: 'date' },
-  { key: 'updatedBy', label: 'Updated By', type: 'text' },
+  { key: 'updatedBy', label: 'Last Updated By', type: 'date' },
+  { key: 'updatedAt', label: 'Last Updated', type: 'date' },
 ]
 
 export const PROCEDURES_SORTABLE_FIELDS = [
@@ -30,12 +14,12 @@ export const PROCEDURES_SORTABLE_FIELDS = [
     key: 'name',
     label: 'Name',
     default: {
-      key: 'name',
-      direction: OrderDirection.DESC,
+      key: ProcedureOrderField.name,
+      direction: OrderDirection.ASC,
     },
   },
   { key: 'review_due', label: 'Review Due Date' },
   { key: 'revision', label: 'Revision' },
-  { key: 'created_at', label: 'Created At' },
-  { key: 'updated_at', label: 'Updated At' },
+  { key: 'updated_by', label: 'Last Updated By' },
+  { key: 'updated_at', label: 'Last Updated' },
 ]

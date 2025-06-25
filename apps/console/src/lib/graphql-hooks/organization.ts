@@ -16,6 +16,7 @@ import {
   DELETE_ORGANIZATION,
   UPDATE_ORGANIZATION,
   GET_ORGANIZATION_BILLING_BANNER,
+  UPDATE_ORG_SETTING,
 } from '@repo/codegen/query/organization'
 import {
   GetAllOrganizationsQuery,
@@ -45,6 +46,8 @@ import {
   GetOrganizationBillingBannerQuery,
   GetOrganizationBillingBannerQueryVariables,
   OrgMembershipWhereInput,
+  UpdateOrganizationSettingMutationVariables,
+  UpdateOrganizationSettingMutation,
 } from '@repo/codegen/src/schema'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Variables } from 'graphql-request'
@@ -204,5 +207,13 @@ export const useUpdateOrgAvatar = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user'] })
     },
+  })
+}
+
+export const useUpdateOrganizationSetting = () => {
+  const { client } = useGraphQLClient()
+
+  return useMutation({
+    mutationFn: (payload: UpdateOrganizationSettingMutationVariables) => client.request<UpdateOrganizationSettingMutation>(UPDATE_ORG_SETTING, payload),
   })
 }

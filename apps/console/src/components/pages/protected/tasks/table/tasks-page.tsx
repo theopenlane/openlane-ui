@@ -7,13 +7,15 @@ import { taskColumns } from '@/components/pages/protected/tasks/table/columns.ts
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { exportToCSV } from '@/utils/exportToCSV'
-import { ColumnDef } from '@tanstack/react-table'
+import { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import TaskInfiniteCards from '@/components/pages/protected/tasks/cards/task-infinite-cards.tsx'
 import TasksTable from '@/components/pages/protected/tasks/table/tasks-table.tsx'
 import { formatDate } from '@/utils/date'
+import { useDebounce } from '@uidotdev/usehooks'
 
 const TasksPage: React.FC = () => {
   const { orgMembers } = useTaskStore()
+  const [searchQuery, setSearchQuery] = useState('')
   const tableRef = useRef<{ exportData: () => Task[] }>(null)
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
   const [showCompletedTasks, setShowCompletedTasks] = useState<boolean>(false)
@@ -28,6 +30,11 @@ const TasksPage: React.FC = () => {
   const allStatuses = useMemo(() => [TaskTaskStatus.COMPLETED, TaskTaskStatus.OPEN, TaskTaskStatus.IN_PROGRESS, TaskTaskStatus.IN_REVIEW, TaskTaskStatus.WONT_DO], [])
   const statusesWithoutComplete = useMemo(() => [TaskTaskStatus.OPEN, TaskTaskStatus.IN_PROGRESS, TaskTaskStatus.IN_REVIEW], [])
 
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+
+  const debouncedSearch = useDebounce(searchQuery, 300)
+  const searching = searchQuery !== debouncedSearch
+
   const whereFilter = useMemo(() => {
     if (!filters) {
       return null
@@ -35,10 +42,11 @@ const TasksPage: React.FC = () => {
     const conditions: Record<string, any> = {
       ...(showCompletedTasks ? { statusIn: allStatuses } : { statusIn: statusesWithoutComplete }),
       ...filters,
+      ...{ titleContainsFold: debouncedSearch },
     }
 
     return conditions
-  }, [filters, showCompletedTasks, allStatuses, statusesWithoutComplete])
+  }, [filters, showCompletedTasks, allStatuses, statusesWithoutComplete, debouncedSearch])
 
   const orderByFilter = useMemo(() => {
     return orderBy || undefined
@@ -52,14 +60,21 @@ const TasksPage: React.FC = () => {
     setShowCompletedTasks(val)
   }
 
-  function isAccessorKeyColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
-    return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string'
+  function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
+    return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
   }
+
+  const mappedColumns: { accessorKey: string; header: string }[] = taskColumns
+    .filter((column): column is { accessorKey: string; header: string } => 'accessorKey' in column && typeof column.accessorKey === 'string' && typeof column.header === 'string')
+    .map((column) => ({
+      accessorKey: column.accessorKey,
+      header: column.header,
+    }))
 
   const handleExport = () => {
     const tasks = tableRef.current?.exportData?.() ?? []
 
-    const exportableColumns = taskColumns.filter(isAccessorKeyColumn).map((col) => {
+    const exportableColumns = taskColumns.filter(isVisibleColumn).map((col) => {
       const key = col.accessorKey as keyof Task
       const label = col.header
 
@@ -77,9 +92,7 @@ const TasksPage: React.FC = () => {
           }
 
           if (key === 'assigner') {
-            const firstName = task.assigner?.firstName
-            const lastName = task.assigner?.lastName
-            return !firstName && !lastName ? task.assigner?.displayName : `${firstName ?? ''} ${lastName ?? ''}`.trim()
+            return task.assigner?.displayName
           }
 
           return typeof value === 'string' || typeof value === 'number' ? value : ''
@@ -92,9 +105,33 @@ const TasksPage: React.FC = () => {
 
   return (
     <>
-      <TaskTableToolbar onFilterChange={setFilters} members={orgMembers} onTabChange={handleTabChange} onShowCompletedTasksChange={handleShowCompletedTasks} handleExport={handleExport} />
+      <TaskTableToolbar
+        onFilterChange={setFilters}
+        members={orgMembers}
+        onTabChange={handleTabChange}
+        onShowCompletedTasksChange={handleShowCompletedTasks}
+        handleExport={handleExport}
+        mappedColumns={mappedColumns}
+        columnVisibility={columnVisibility}
+        setColumnVisibility={setColumnVisibility}
+        searchTerm={searchQuery}
+        setSearchTerm={(val) => {
+          setSearchQuery(val)
+          setPagination(DEFAULT_PAGINATION)
+        }}
+        searching={searching}
+      />
       {activeTab === 'table' ? (
-        <TasksTable ref={tableRef} orderByFilter={orderByFilter} pagination={pagination} onPaginationChange={setPagination} whereFilter={whereFilter} onSortChange={setOrderBy} />
+        <TasksTable
+          ref={tableRef}
+          orderByFilter={orderByFilter}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          whereFilter={whereFilter}
+          onSortChange={setOrderBy}
+          columnVisibility={columnVisibility}
+          setColumnVisibility={setColumnVisibility}
+        />
       ) : (
         <TaskInfiniteCards ref={tableRef} whereFilter={whereFilter} orderByFilter={orderByFilter} />
       )}

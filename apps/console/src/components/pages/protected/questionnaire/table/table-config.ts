@@ -1,5 +1,5 @@
 import { FilterField } from '@/types'
-import { OrderDirection } from '@repo/codegen/src/schema.ts'
+import { OrderDirection, TemplateOrderField } from '@repo/codegen/src/schema.ts'
 
 export const QUESTIONNAIRE_FILTER_FIELDS: FilterField[] = [
   { key: 'name', label: 'Task', type: 'text' },
@@ -13,8 +13,8 @@ export const QUESTIONNAIRE_SORT_FIELDS = [
     key: 'name',
     label: 'Name',
     default: {
-      key: 'name',
-      direction: OrderDirection.DESC,
+      key: TemplateOrderField.name,
+      direction: OrderDirection.ASC,
     },
   },
   { key: 'TEMPLATE_TYPE', label: 'Type' },

@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
-import { UPDATE_USER_ROLE_IN_ORG, REMOVE_USER_FROM_ORG, GET_ORG_MEMBERSHIPS } from '@repo/codegen/query/member'
+import { UPDATE_USER_ROLE_IN_ORG, REMOVE_USER_FROM_ORG, GET_ORG_MEMBERSHIPS, GET_ORG_USER_LIST } from '@repo/codegen/query/member'
 
 import {
   UpdateUserRoleInOrgMutation,
@@ -12,8 +12,12 @@ import {
   OrgMembershipsQueryVariables,
   OrgMembershipWhereInput,
   OrgMembership,
+  User,
+  OrgMembershipsByIdsQuery,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
+import { useSession } from 'next-auth/react'
+import { Option } from '@repo/ui/multiple-selector'
 
 export const useUpdateUserRoleInOrg = () => {
   const { client } = useGraphQLClient()
@@ -60,4 +64,42 @@ export const useGetOrgMemberships = ({ where, pagination, enabled }: TUseGetOrgM
     paginationMeta,
     isLoading: queryResult.isFetching,
   }
+}
+
+type TUseGetOrgUserListProps = {
+  where?: OrgMembershipWhereInput
+}
+
+export const useGetOrgUserList = ({ where }: TUseGetOrgUserListProps) => {
+  const idInNotEmpty = Array.isArray(where?.hasUserWith?.[0]?.idIn) && where.hasUserWith[0].idIn.length > 0
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<OrgMembershipsByIdsQuery, OrgMembershipsQueryVariables>({
+    queryKey: ['memberships', where],
+    queryFn: () => client.request(GET_ORG_USER_LIST, { where }),
+    enabled: idInNotEmpty,
+  })
+
+  const users = (queryResult.data?.orgMemberships?.edges ?? []).map((edge) => edge?.node?.user) as User[]
+
+  return {
+    ...queryResult,
+    users,
+    isLoading: queryResult.isFetching,
+  }
+}
+
+export const useUserSelect = () => {
+  const { data: session } = useSession()
+  const { data, ...rest } = useGetOrgMemberships({})
+
+  const userOptions =
+    data?.orgMemberships?.edges
+      ?.filter((edge) => edge?.node?.user?.id && edge.node.user.id !== session?.user?.userId)
+      ?.map((edge) => ({
+        label: edge?.node?.user.displayName || '',
+        value: edge?.node?.user.id || '',
+      })) ?? []
+
+  return { userOptions, ...rest }
 }

@@ -14,18 +14,19 @@ import BasicInformation from '@/components/pages/protected/dashboard/basic-info'
 import ProgramAuditor from '@/components/pages/protected/dashboard/program-auditor'
 import ProgramsTaskTable from '@/components/pages/programs/programs-tasks-table'
 import { ControlsSummaryCard } from '@/components/pages/protected/programs/controls-summary-card'
-import { ArrowRight, ChevronDown, ShieldCheck } from 'lucide-react'
+import { ArrowRight, ShieldCheck } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import { DOCS_URL } from '@/constants'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
-import { Button } from '@repo/ui/button'
 import { TaskIconBtn } from '@/components/shared/icon-enum/task-enum.tsx'
 import Menu from '@/components/shared/menu/menu.tsx'
 import { ProgramCreateIconBtn, ProgramSettingsIconBtn } from '@/components/shared/icon-enum/program-enum.tsx'
 import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
+import TimelineReadiness from '@/components/pages/protected/dashboard/timeline-readiness'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 
 const Page: React.FC = () => {
   const router = useRouter()
@@ -42,6 +43,7 @@ const Page: React.FC = () => {
   const { data: basicInfoData, isLoading: isBasicInfoLoading } = useGetProgramBasicInfo(programId)
   const { data: session } = useSession()
   const { data: permission } = useOrganizationRole(session)
+  const { setCrumbs } = React.useContext(BreadcrumbContext)
 
   const programMap = useMemo(() => {
     const map: Record<string, string> = {}
@@ -58,6 +60,14 @@ const Page: React.FC = () => {
       programIDs: programId ? [programId] : [],
     }
   }, [programId])
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Programs', href: '/programs' },
+      { label: basicInfoData?.program?.name, isLoading: isLoading },
+    ])
+  }, [setCrumbs, basicInfoData, isLoading])
 
   useEffect(() => {
     if (!data?.programs?.edges?.length) return
@@ -177,8 +187,11 @@ const Page: React.FC = () => {
             <Loading />
           ) : basicInfoData?.program ? (
             <>
-              <BasicInformation name={basicInfoData.program.name} startDate={basicInfoData.program.startDate} endDate={basicInfoData.program.endDate} description={basicInfoData.program.description} />
-              <ProgramAuditor firm={basicInfoData.program.auditFirm} name={basicInfoData.program.auditor} email={basicInfoData.program.auditorEmail} isReady={!!basicInfoData.program.auditorReady} />
+              <BasicInformation />
+              <div className="flex flex-col gap-7 flex-1">
+                <TimelineReadiness />
+                <ProgramAuditor firm={basicInfoData.program.auditFirm} name={basicInfoData.program.name} email={basicInfoData.program.auditorEmail} isReady={basicInfoData.program.auditorReady} />
+              </div>
             </>
           ) : (
             <div>No program info available</div>

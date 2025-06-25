@@ -149,7 +149,7 @@ const SetObjectAssociationDialog: React.FC<TSetObjectAssociationDialogProps> = (
           }}
           initialData={associationsState}
           refCodeInitialData={refCodeAssociationsState}
-          excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.GROUP, ObjectTypeObjects.RISK, ObjectTypeObjects.INTERNAL_POLICY]}
+          excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP, ObjectTypeObjects.RISK, ObjectTypeObjects.INTERNAL_POLICY]}
         />
         <DialogFooter>
           <Button onClick={handleSave} disabled={isSaving}>

@@ -40,8 +40,6 @@ export const GET_SINGLE_ORGANIZATION_MEMBERS = gql`
             role
             user {
               id
-              firstName
-              lastName
               displayName
               authProvider
               avatarRemoteURL
@@ -84,6 +82,7 @@ export const GET_ALL_ORGANIZATIONS_WITH_MEMBERS = gql`
           members(where: $membersWhere) {
             edges {
               node {
+                id
                 role
                 user {
                   id
@@ -158,6 +157,7 @@ export const GET_ORGANIZATION_SETTING = gql`
   query GetOrganizationSetting($organizationId: ID!) {
     organization(id: $organizationId) {
       setting {
+        id
         createdAt
         updatedAt
         createdBy
@@ -171,6 +171,7 @@ export const GET_ORGANIZATION_SETTING = gql`
         tags
         geoLocation
         billingNotificationsEnabled
+        allowedEmailDomains
       }
     }
   }
@@ -228,6 +229,16 @@ export const DELETE_ORGANIZATION = gql`
   mutation DeleteOrganization($deleteOrganizationId: ID!) {
     deleteOrganization(id: $deleteOrganizationId) {
       deletedID
+    }
+  }
+`
+
+export const UPDATE_ORG_SETTING = gql`
+  mutation UpdateOrganizationSetting($updateOrganizationSettingId: ID!, $input: UpdateOrganizationSettingInput!) {
+    updateOrganizationSetting(id: $updateOrganizationSettingId, input: $input) {
+      organizationSetting {
+        id
+      }
     }
   }
 `

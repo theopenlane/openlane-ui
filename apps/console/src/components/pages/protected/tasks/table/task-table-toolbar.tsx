@@ -4,14 +4,16 @@ import { TASK_FILTER_FIELDS } from '@/components/pages/protected/tasks/table/tab
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import { SelectFilterField, SelectIsFilterField } from '@/types'
 import { TOrgMembers, useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
-import { ChevronDown, CreditCard as CardIcon, DownloadIcon, ShieldPlus, Table as TableIcon, Upload } from 'lucide-react'
+import { CreditCard as CardIcon, DownloadIcon, LoaderCircle, SearchIcon, Table as TableIcon, Upload } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
 import { BulkCSVCreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/bulk-csv-create-task-dialog'
-import { Button } from '@repo/ui/button'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
 import Menu from '@/components/shared/menu/menu'
 import { TaskIconBtn } from '@/components/shared/icon-enum/task-enum.tsx'
 import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
+import { VisibilityState } from '@tanstack/react-table'
+import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
+import { Input } from '@repo/ui/input'
 
 type TProps = {
   onFilterChange: (filters: Record<string, any>) => void
@@ -19,6 +21,15 @@ type TProps = {
   onTabChange: (tab: 'table' | 'card') => void
   onShowCompletedTasksChange: (val: boolean) => void
   handleExport: () => void
+  columnVisibility?: VisibilityState
+  setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
+  mappedColumns: {
+    accessorKey: string
+    header: string
+  }[]
+  searchTerm: string
+  setSearchTerm: (searchTerm: string) => void
+  searching?: boolean
 }
 
 const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
@@ -71,26 +82,35 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
       </div>
       <div className="grow flex flex-row items-center gap-2">
         <TableFilter filterFields={filterFields} onFilterChange={props.onFilterChange} />
+        <Input
+          icon={props.searching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
+          placeholder="Search"
+          value={props.searchTerm}
+          onChange={(event) => props.setSearchTerm(event.currentTarget.value)}
+          variant="searchTable"
+        />
         <div className="grow flex flex-row items-center gap-2 pl-5">
           <Checkbox checked={showCompletedTasks} onCheckedChange={(val: boolean) => handleShowCompletedTasks(val)} />
           <p>Show completed tasks</p>
         </div>
       </div>
-
       <div className="grow flex flex-row items-center gap-2 justify-end">
+        {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
+          <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility}></ColumnVisibilityMenu>
+        )}
         <Menu trigger={CreateBtn} content={<CreateTaskDialog trigger={TaskIconBtn} />} />
         <Menu
           content={
             <>
               <BulkCSVCreateTaskDialog
                 trigger={
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 hover:bg-muted">
                     <Upload size={16} strokeWidth={2} />
                     <span>Bulk Upload</span>
                   </div>
                 }
               />
-              <div className="flex items-center space-x-2 cursor-pointer" onClick={props.handleExport}>
+              <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={props.handleExport}>
                 <DownloadIcon size={16} strokeWidth={2} />
                 <span>Export</span>
               </div>

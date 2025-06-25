@@ -11,12 +11,9 @@ import { InfoIcon } from 'lucide-react'
 import { wizardStyles } from './wizard.styles'
 import { Grid, GridRow, GridCell } from '@repo/ui/grid'
 import React, { useState } from 'react'
-import { addDays, getYear } from 'date-fns'
+import { getYear } from 'date-fns'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { useGetStandards } from '@/lib/graphql-hooks/standards'
-
-const today = new Date()
-const oneYearFromToday = addDays(new Date(), 365)
 
 const currentYear = getYear(new Date())
 
@@ -31,8 +28,8 @@ export const initProgramSchema = z
         errorMap: () => ({ message: 'Invalid status' }),
       })
       .default(ProgramProgramStatus.NOT_STARTED),
-    startDate: z.date().min(new Date(), { message: 'Start date must be in the future' }).default(today),
-    endDate: z.date().min(new Date(), { message: 'End date must be after start date' }).default(oneYearFromToday),
+    startDate: z.date().min(new Date(), { message: 'Start date must be in the future' }),
+    endDate: z.date().min(new Date(), { message: 'End date must be after start date' }),
     programType: z.string().min(1, { message: 'Program type is required' }),
   })
   .superRefine((data, ctx) => {
@@ -53,35 +50,63 @@ export function ProgramInitComponent() {
   const { control, watch } = useFormContext()
 
   const programType = useWatch({ control, name: 'programType' })
-
+  const isFrameworkOrGap = programType === ProgramProgramType.FRAMEWORK || programType === ProgramProgramType.GAP_ANALYSIS
   return (
     <Panel className="border-none p-2">
-      <PanelHeader heading="" subheading="Enter the basic information about the program" noBorder />
-      <Grid className="grow">
-        <GridRow columns={4}>
+      <Grid>
+        <GridRow className="grid grid-cols-1 2xl:grid-cols-2 gap-4">
           <GridCell className={formRow()}>
             <ProgramTypeSelect />
-          </GridCell>
-          {(programType === ProgramProgramType.FRAMEWORK || programType === ProgramProgramType.GAP_ANALYSIS) && (
-            <GridCell className={formRow()}>
-              <FrameworkSelect />
-            </GridCell>
-          )}
-          <GridCell className={formRow()}>
-            <NameField />
-          </GridCell>
-        </GridRow>
-        <GridRow columns={2}>
-          <GridCell className={formRow()}>
-            <DescriptionField />
           </GridCell>
           <GridCell className={formRow()}>
             <StatusSelect />
           </GridCell>
-          <GridCell>
-            <PeriodComponent />
-          </GridCell>
         </GridRow>
+        {isFrameworkOrGap ? (
+          <GridRow className="grid grid-cols-1 2xl:grid-cols-2 gap-4">
+            <GridCell className={formRow()}>
+              <FrameworkSelect />
+            </GridCell>
+            <GridCell className={formRow()}>
+              <PeriodFrom />
+            </GridCell>
+          </GridRow>
+        ) : (
+          <GridRow className="grid grid-cols-1 2xl:grid-cols-2 gap-4">
+            <GridCell className={formRow()}>
+              <NameField />
+            </GridCell>
+            <GridCell className={formRow()}>
+              <PeriodFrom />
+            </GridCell>
+          </GridRow>
+        )}
+        {isFrameworkOrGap ? (
+          <GridRow className="grid grid-cols-1 2xl:grid-cols-2 gap-4">
+            <GridCell className={formRow()}>
+              <NameField />
+            </GridCell>
+            <GridCell className={formRow()}>
+              <PeriodTo />
+            </GridCell>
+          </GridRow>
+        ) : (
+          <GridRow className="grid grid-cols-1 2xl:grid-cols-2 gap-4">
+            <GridCell className={formRow()}>
+              <DescriptionField />
+            </GridCell>
+            <GridCell className={formRow()}>
+              <PeriodTo />
+            </GridCell>
+          </GridRow>
+        )}
+        {isFrameworkOrGap ? (
+          <GridRow className="grid grid-cols-1 2xl:grid-cols-2 gap-4">
+            <GridCell>
+              <DescriptionField />
+            </GridCell>
+          </GridRow>
+        ) : null}
       </Grid>
     </Panel>
   )
@@ -118,7 +143,7 @@ const ProgramTypeSelect = () => {
             Program Type<span className="text-red-500"> *</span>
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger type={'button'}>
                   <InfoIcon size={14} className="mx-1" />
                 </TooltipTrigger>
                 <TooltipContent side="right">
@@ -178,8 +203,6 @@ const ProgramTypeSelect = () => {
     />
   )
 }
-
-export default ProgramTypeSelect
 
 const NameField = () => {
   const {
@@ -244,7 +267,7 @@ const FrameworkSelect = () => {
             Framework{programType === ProgramProgramType.FRAMEWORK && <span className="text-red-500"> *</span>}
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger type={'button'}>
                   <InfoIcon size={14} className="mx-1" />
                 </TooltipTrigger>
                 <TooltipContent side="right">
@@ -274,7 +297,7 @@ const FrameworkSelect = () => {
                     {framework.shortName} {framework.version ? `(${framework.version})` : ''}
                     <TooltipProvider>
                       <Tooltip>
-                        <TooltipTrigger>
+                        <TooltipTrigger type={'button'}>
                           <InfoIcon size={14} className="mx-1" />
                         </TooltipTrigger>
                         <TooltipContent side="bottom">
@@ -314,7 +337,7 @@ const DescriptionField = () => {
             Description
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger type={'button'}>
                   <InfoIcon size={14} className="mx-1" />
                 </TooltipTrigger>
                 <TooltipContent side="right">
@@ -353,7 +376,7 @@ const StatusSelect = () => {
             Status
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger type={'button'}>
                   <InfoIcon size={14} className="mx-1" />
                 </TooltipTrigger>
                 <TooltipContent side="right">
@@ -383,86 +406,95 @@ const StatusSelect = () => {
   )
 }
 
-const PeriodComponent = () => {
+const PeriodFrom = () => {
   const {
     register,
     control,
     formState: { errors },
   } = useFormContext<InitProgramValues>()
 
-  const { formRow, dateInput } = wizardStyles()
+  const { dateInput } = wizardStyles()
+
+  return (
+    <FormField
+      control={control}
+      name={register('startDate').name}
+      render={({ field }) => (
+        <FormItem className={dateInput()}>
+          <FormLabel className="mb-2">
+            Start Date
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger type={'button'}>
+                  <InfoIcon size={14} className="mx-1" />
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  <p>The start date of the period</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </FormLabel>
+          <FormControl>
+            <CalendarPopover
+              field={field}
+              defaultToday
+              customSelect={[
+                { value: 0, label: 'Today' },
+                { value: 1, label: 'Tomorrow' },
+                { value: 7, label: 'In 1 week' },
+                { value: 30, label: 'In 1 month' },
+              ]}
+            />
+          </FormControl>
+        </FormItem>
+      )}
+    />
+  )
+}
+
+const PeriodTo = () => {
+  const {
+    register,
+    control,
+    formState: { errors },
+  } = useFormContext<InitProgramValues>()
+
+  const { dateInput } = wizardStyles()
 
   return (
     <>
-      <div className={formRow()}>
-        <FormField
-          control={control}
-          name={register('startDate').name}
-          render={({ field }) => (
-            <FormItem className={dateInput()}>
-              <FormLabel className="mb-2">
-                Start Date
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <InfoIcon size={14} className="mx-1" />
-                    </TooltipTrigger>
-                    <TooltipContent side="right">
-                      <p>The start date of the period</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </FormLabel>
-              <FormControl>
-                <CalendarPopover
-                  field={field}
-                  defaultToday
-                  customSelect={[
-                    { value: 0, label: 'Today' },
-                    { value: 1, label: 'Tomorrow' },
-                    { value: 7, label: 'In 1 week' },
-                    { value: 30, label: 'In 1 month' },
-                  ]}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-      </div>
-      <div className={formRow()}>
-        <FormField
-          control={control}
-          name={register('endDate').name}
-          render={({ field }) => (
-            <FormItem className={dateInput()}>
-              <FormLabel className="mb-2">
-                End Date
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <InfoIcon size={14} className="mx-1" />
-                    </TooltipTrigger>
-                    <TooltipContent side="right">
-                      <p>The end date of the period</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </FormLabel>
-              <FormControl>
-                <CalendarPopover
-                  field={field}
-                  defaultToday
-                  customSelect={[
-                    { value: 90, label: '90 days' },
-                    { value: 180, label: '180 days' },
-                    { value: 365, label: '1 year' },
-                  ]}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-      </div>
+      <FormField
+        control={control}
+        name={register('endDate').name}
+        render={({ field }) => (
+          <FormItem className={dateInput()}>
+            <FormLabel className="mb-2">
+              End Date
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger type={'button'}>
+                    <InfoIcon size={14} className="mx-1" />
+                  </TooltipTrigger>
+                  <TooltipContent side="right">
+                    <p>The end date of the period</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </FormLabel>
+            <FormControl>
+              <CalendarPopover
+                field={field}
+                defaultToday
+                customSelect={[
+                  { value: 90, label: '90 days' },
+                  { value: 180, label: '180 days' },
+                  { value: 365, label: '1 year' },
+                ]}
+              />
+            </FormControl>
+          </FormItem>
+        )}
+      />
     </>
   )
 }

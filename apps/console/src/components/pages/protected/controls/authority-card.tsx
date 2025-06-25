@@ -13,8 +13,8 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 
 interface AuthorityCardProps {
-  controlOwner: ControlDetailsFieldsFragment['controlOwner']
-  delegate: ControlDetailsFieldsFragment['delegate']
+  controlOwner?: ControlDetailsFieldsFragment['controlOwner']
+  delegate?: ControlDetailsFieldsFragment['delegate']
   isEditing: boolean
 }
 
@@ -39,16 +39,16 @@ const AuthorityCard: React.FC<AuthorityCardProps> = ({ controlOwner, delegate, i
               fieldName="controlOwnerID"
               placeholder="Select a group"
               options={groups.map((g) => ({
-                label: g.displayName,
+                label: g.name,
                 value: g.id,
               }))}
             />
           ) : (
             <TooltipProvider disableHoverableContent>
               <Tooltip>
-                <Avatar entity={controlOwner as Group} variant="small" />
                 <TooltipTrigger className="w-[200px] cursor-default">
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 items-center">
+                    <Avatar entity={controlOwner as Group} variant="small" />
                     <span className="truncate">{controlOwner?.displayName || 'No Owner'} </span>
                   </div>
                 </TooltipTrigger>
@@ -69,17 +69,17 @@ const AuthorityCard: React.FC<AuthorityCardProps> = ({ controlOwner, delegate, i
               fieldName="delegateID"
               placeholder="Select a group"
               options={groups.map((g) => ({
-                label: g.displayName,
+                label: g.name,
                 value: g.id,
               }))}
             />
           ) : (
             <TooltipProvider disableHoverableContent>
               <Tooltip>
-                <Avatar entity={delegate as Group} variant="small" />
                 <TooltipTrigger className="w-[200px] cursor-default">
-                  <div className="flex gap-2">
-                    <span className="truncate">{delegate?.displayName || 'No Delegate'} </span>
+                  <div className="flex gap-2 items-center">
+                    <Avatar entity={delegate as Group} variant="small" />
+                    <span className="truncate">{delegate?.displayName || 'No Delegate'}</span>
                   </div>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">{delegate?.displayName || 'No Delegate'}</TooltipContent>

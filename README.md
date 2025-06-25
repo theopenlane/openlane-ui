@@ -66,8 +66,10 @@ task build
    accidentally committing it. This hold example of environment configurations
    which you should review and potentially override depending on your needs.
 
+   Note: turbov2 requires the .env file live in the app directory, and cannot be in the root.
+
    ```bash
-   cp ./config/.env.example ./config/.env
+   cp ./config/.env.example ./apps/console/.env
    ```
 
 1. To develop all apps and packages, run the following command:

@@ -41,7 +41,6 @@ const GroupsPermissionsTable = () => {
   const permissions =
     data?.group.permissions.edges?.map((edge) => ({
       id: edge?.node?.id ?? 'unknown-id',
-      displayID: edge?.node?.displayID || 'N/A',
       name: edge?.node?.name || 'Unknown',
       objectType: edge?.node?.objectType || 'Unknown',
       role: edge?.node?.permissions as Permission,
@@ -91,8 +90,7 @@ const GroupsPermissionsTable = () => {
     }
   }
 
-  const columns: ColumnDef<{ id: string; displayID: string; name: string; objectType: string; role: Permission }>[] = [
-    { header: 'Display ID', accessorKey: 'displayID' },
+  const columns: ColumnDef<{ id: string; name: string; objectType: string; role: Permission }>[] = [
     { header: 'Name', accessorKey: 'name' },
     { header: 'Object Type', accessorKey: 'objectType' },
     {
@@ -107,7 +105,7 @@ const GroupsPermissionsTable = () => {
           <Select defaultValue={PERMISSION_LABELS[row.original.role]} onValueChange={(value) => handleRoleChange(row.original.id, value, row.original.objectType)}>
             <SelectTrigger className="w-full">{PERMISSION_LABELS[row.original.role]}</SelectTrigger>
             <SelectContent>
-              {roleOptions.map((role) => (
+              {roleOptions.map((role: string) => (
                 <SelectItem key={role} value={role}>
                   {role}
                 </SelectItem>

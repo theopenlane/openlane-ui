@@ -16,6 +16,8 @@ import ControlsTableToolbar from './controls-table-toolbar'
 import { CONTROLS_SORT_FIELDS } from './table-config'
 import { useDebounce } from '@uidotdev/usehooks'
 import { ControlIconMapper } from '@/components/shared/icon-enum/control-enum.tsx'
+import { VisibilityState } from '@tanstack/react-table'
+import { exportToCSV } from '@/utils/exportToCSV'
 
 export const ControlStatusLabels: Record<ControlControlStatus, string> = {
   [ControlControlStatus.APPROVED]: 'Approved',
@@ -33,9 +35,16 @@ const ControlsTable: React.FC = () => {
   const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>([
     {
       field: ControlOrderField.ref_code,
-      direction: OrderDirection.DESC,
+      direction: OrderDirection.ASC,
     },
   ])
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    referenceID: false,
+    auditorReferenceID: false,
+    source: false,
+    controlType: false,
+    referenceFramework: false,
+  })
   const [searchTerm, setSearchTerm] = useState('')
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const debouncedSearch = useDebounce(searchTerm, 300)
@@ -141,30 +150,71 @@ const ControlsTable: React.FC = () => {
         },
         size: 100,
       },
+      {
+        header: 'Reference ID',
+        accessorKey: 'referenceID',
+        cell: ({ row }) => <div>{row.getValue('referenceID') || '-'}</div>,
+        size: 120,
+      },
+      {
+        header: 'Auditor Reference ID',
+        accessorKey: 'auditorReferenceID',
+        cell: ({ row }) => <div>{row.getValue('auditorReferenceID') || '-'}</div>,
+        size: 120,
+      },
+      {
+        header: 'Source',
+        accessorKey: 'source',
+        cell: ({ row }) => <div>{row.getValue('source') || '-'}</div>,
+        size: 120,
+      },
+      {
+        header: 'Control Type',
+        accessorKey: 'controlType',
+        cell: ({ row }) => <div>{row.getValue('controlType') || '-'}</div>,
+        size: 120,
+      },
+      {
+        header: 'Reference Framework',
+        accessorKey: 'referenceFramework',
+        cell: ({ row }) => <div>{row.getValue('referenceFramework') || '-'}</div>,
+        size: 120,
+      },
     ],
     [plateEditorHelper],
   )
+
+  const mappedColumns: { accessorKey: string; header: string }[] = columns
+    .filter((column): column is { accessorKey: string; header: string } => 'accessorKey' in column && typeof column.accessorKey === 'string' && typeof column.header === 'string')
+    .map((column) => ({
+      accessorKey: column.accessorKey,
+      header: column.header,
+    }))
+
+  function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
+    return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
+  }
 
   const handleRowClick = (row: ControlListFieldsFragment) => {
     push(`/controls/${row.id}`)
   }
 
-  const exportToCSV = (data: ControlListFieldsFragment[], fileName: string) => {
-    const csvRows = []
-    csvRows.push(['Name', 'Ref', 'Description', 'Tags', 'Status', 'Owners'].join(','))
+  const handleExport = () => {
+    const exportableColumns = columns.filter(isVisibleColumn).map((col) => {
+      const key = col.accessorKey as keyof ControlListFieldsFragment
+      const label = col.header
 
-    data.forEach((row) => {
-      const owner = row.controlOwner?.displayName
-      csvRows.push([row.refCode, row.refCode, row.description || '', row.tags?.join('; ') || '', row.status || '', owner].join(','))
+      return {
+        label,
+        accessor: (control: ControlListFieldsFragment) => {
+          const value = control[key]
+
+          return typeof value === 'string' || typeof value === 'number' ? value : ''
+        },
+      }
     })
 
-    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${fileName}.csv`
-    a.click()
-    URL.revokeObjectURL(url)
+    exportToCSV(controls, exportableColumns, 'controls_list')
   }
 
   if (isError) return <div>Failed to load Controls</div>
@@ -172,13 +222,16 @@ const ControlsTable: React.FC = () => {
   return (
     <div>
       <ControlsTableToolbar
-        exportToCSV={(data) => exportToCSV(controls, data)}
+        handleExport={handleExport}
         onFilterChange={setFilters}
         searchTerm={searchTerm}
         setSearchTerm={(inputVal) => {
           setSearchTerm(inputVal)
           setPagination(DEFAULT_PAGINATION)
         }}
+        columnVisibility={columnVisibility}
+        setColumnVisibility={setColumnVisibility}
+        mappedColumns={mappedColumns}
       />
       <DataTable
         columns={columns}
@@ -189,6 +242,8 @@ const ControlsTable: React.FC = () => {
         paginationMeta={paginationMeta}
         sortFields={CONTROLS_SORT_FIELDS}
         onSortChange={setOrderBy}
+        columnVisibility={columnVisibility}
+        setColumnVisibility={setColumnVisibility}
       />
     </div>
   )

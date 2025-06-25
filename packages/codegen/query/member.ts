@@ -38,8 +38,6 @@ export const GET_ORG_MEMBERSHIPS = gql`
           role
           user {
             id
-            firstName
-            lastName
             displayName
             authProvider
             avatarRemoteURL
@@ -48,6 +46,25 @@ export const GET_ORG_MEMBERSHIPS = gql`
             createdAt
             avatarFile {
               id
+              presignedURL
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_ORG_USER_LIST = gql`
+  query OrgMembershipsByIds($where: OrgMembershipWhereInput) {
+    orgMemberships(where: $where) {
+      edges {
+        node {
+          user {
+            id
+            displayName
+            avatarRemoteURL
+            avatarFile {
               presignedURL
             }
           }

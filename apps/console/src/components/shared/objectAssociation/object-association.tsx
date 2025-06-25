@@ -14,6 +14,8 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 
+const initialPagination = { ...DEFAULT_PAGINATION, pageSize: 5, query: { first: 5 } }
+
 type Props = {
   onIdChange: (updatedMap: TObjectAssociationMap, refCodes?: any) => void
   excludeObjectTypes?: ObjectTypeObjects[]
@@ -22,12 +24,12 @@ type Props = {
   defaultSelectedObject?: ObjectTypeObjects
 }
 
-const ObjectAssociation: React.FC<Props> = ({ onIdChange, excludeObjectTypes, initialData, refCodeInitialData, defaultSelectedObject }) => {
+const ObjectAssociation = ({ onIdChange, excludeObjectTypes, initialData, refCodeInitialData, defaultSelectedObject }: Props) => {
   const { client } = useGraphQLClient()
   const [selectedObject, setSelectedObject] = useState<ObjectTypeObjects | null>(defaultSelectedObject || null)
   const [searchValue, setSearchValue] = useState('')
   const [TableData, setTableData] = useState<any[]>([])
-  const [pagination, setPagination] = useState<TPagination>({ ...DEFAULT_PAGINATION, pageSize: 5, query: { first: 5 } })
+  const [pagination, setPagination] = useState<TPagination>(initialPagination)
   const debouncedSearchValue = useDebounce(searchValue, 300)
 
   const selectedConfig = selectedObject ? OBJECT_QUERY_CONFIG[selectedObject] : null
@@ -52,6 +54,11 @@ const ObjectAssociation: React.FC<Props> = ({ onIdChange, excludeObjectTypes, in
   const pageInfo = objectKey ? data?.[objectKey]?.pageInfo : undefined
   const totalCount = objectKey ? data?.[objectKey]?.totalCount : undefined
 
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value
+    setSearchValue(value)
+  }
+
   useEffect(() => {
     if (objectKey && data) {
       const updatedData =
@@ -67,17 +74,17 @@ const ObjectAssociation: React.FC<Props> = ({ onIdChange, excludeObjectTypes, in
     }
   }, [data, objectKey])
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value
-    setSearchValue(value)
-  }
-
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4 items-center">
         <div className="flex flex-col gap-2">
           <Label>Object Type</Label>
-          <Select onValueChange={(val: ObjectTypeObjects) => setSelectedObject(val)}>
+          <Select
+            onValueChange={(val: ObjectTypeObjects) => {
+              setSelectedObject(val)
+              setPagination(initialPagination)
+            }}
+          >
             <SelectTrigger className="w-full">{selectedObject || 'Select object'}</SelectTrigger>
             <SelectContent>
               {Object.values(ObjectTypeObjects)

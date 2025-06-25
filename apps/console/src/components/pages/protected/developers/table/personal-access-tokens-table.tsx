@@ -44,7 +44,7 @@ export const PersonalAccessTokenTable = () => {
   const [filters, setFilters] = useState<CommonWhereType | null>(null)
   const [orderBy, setOrderBy] = useState<CommonOrderByType>([
     {
-      field: PersonalAccessTokenOrderField.name,
+      field: PersonalAccessTokenOrderField.created_at,
       direction: OrderDirection.DESC,
     },
   ])
@@ -139,7 +139,7 @@ export const PersonalAccessTokenTable = () => {
     {
       accessorKey: 'id',
       header: '',
-      cell: ({ cell }) => <TokenAction tokenId={cell.getValue() as string} />,
+      cell: ({ cell }) => <TokenAction tokenId={cell.getValue() as string} tokenName={cell.row.original.name} />,
     },
   ]
 

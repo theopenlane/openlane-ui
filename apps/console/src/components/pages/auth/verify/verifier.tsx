@@ -24,7 +24,7 @@ export const TokenVerifier = () => {
       const refreshToken = verified?.refresh_token
 
       signIn('credentials', {
-        callbackUrl: '/dashboard',
+        callbackUrl: '/',
         accessToken,
         refreshToken,
         session: verified.session,
@@ -36,7 +36,7 @@ export const TokenVerifier = () => {
     <main className={content()}>
       <div className={wrapper()}>
         <div className={logo()}>
-          <Logo width={300} theme="dark" />
+          <Logo width={300} />
         </div>
         {isLoading ? <h1 className={verifying()}>Verifying your account...</h1> : null}
         {!isLoading && (

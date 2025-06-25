@@ -19,7 +19,7 @@ export const useGetCurrentUser = (userId?: string | null) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetUserProfileQuery, GetUserProfileQueryVariables>({
-    queryKey: ['user'],
+    queryKey: ['user', userId],
     queryFn: async () => client.request(GET_USER_PROFILE, { userId }),
     enabled: !!userId,
   })

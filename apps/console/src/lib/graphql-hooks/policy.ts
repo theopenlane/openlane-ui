@@ -63,13 +63,24 @@ export const useInternalPolicies = ({ where, orderBy, pagination, enabled }: Use
   }
 }
 
-export const useGetInternalPolicyDetailsById = (internalPolicyId: string | null) => {
+export const usePolicySelect = () => {
+  const { data, ...rest } = useInternalPolicies({
+    where: {},
+    enabled: true,
+  })
+
+  const policyOptions = data?.internalPolicies?.edges?.flatMap((edge) => (edge?.node?.id && edge?.node?.name ? [{ label: edge.node.name, value: edge.node.id }] : [])) ?? []
+
+  return { policyOptions, ...rest }
+}
+
+export const useGetInternalPolicyDetailsById = (internalPolicyId: string | null, enabled: boolean = true) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetInternalPolicyDetailsByIdQuery, GetInternalPolicyDetailsByIdQueryVariables>({
     queryKey: ['internalPolicies', internalPolicyId],
     queryFn: async () => client.request(GET_INTERNAL_POLICY_DETAILS_BY_ID, { internalPolicyId }),
-    enabled: !!internalPolicyId,
+    enabled: !!internalPolicyId && enabled,
   })
 }
 

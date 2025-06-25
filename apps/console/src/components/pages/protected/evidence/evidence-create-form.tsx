@@ -43,6 +43,8 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
   const [evidenceObjectTypes, setEvidenceObjectTypes] = useState<TObjectAssociationMap>()
   const { data: sessionData } = useSession()
   const { mutateAsync: createEvidence, isPending } = useCreateEvidence()
+  const [associationResetTrigger, setAssociationResetTrigger] = useState(0)
+
   const queryClient = useQueryClient()
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
@@ -86,6 +88,7 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
     form.reset()
     setTagValues([])
     setResetEvidenceFiles(true)
+    setAssociationResetTrigger((prev) => prev + 1)
   }
 
   useEffect(() => {
@@ -257,7 +260,7 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
                             Creation Date
                             <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>The date the evidence was collected, generally the current date but can be adjusted.</p>} />
                           </FormLabel>
-                          <CalendarPopover field={field} defaultToday required />
+                          <CalendarPopover field={field} defaultToday required disableFuture />
                           {form.formState.errors.creationDate && <p className="text-red-500 text-sm">{form.formState.errors.creationDate.message}</p>}
                         </FormItem>
                       )}
@@ -279,7 +282,7 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
                             />
                           </FormLabel>
 
-                          <CalendarPopover field={field} defaultAddDays={365} />
+                          <CalendarPopover field={field} defaultAddDays={365} disabledFrom={new Date()} />
                           {field.value !== null && (
                             <p>
                               Don't want to renew this evidence?{' '}
@@ -310,6 +313,7 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
                   ></HeadsUpDisplay>
                 )}
                 <ObjectAssociation
+                  key={associationResetTrigger}
                   onIdChange={handleEvidenceObjectIdsChange}
                   excludeObjectTypes={excludeObjectTypes || []}
                   initialData={formData?.objectAssociations}

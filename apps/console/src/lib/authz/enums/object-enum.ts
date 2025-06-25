@@ -9,4 +9,5 @@ export enum ObjectEnum {
   SUBCONTROL = 'subcontrol',
   TEMPLATE = 'template',
   STANDARD = 'standard',
+  RISK = 'risk',
 }
