@@ -38404,7 +38404,11 @@ export type ControlListFieldsFragment = {
   auditorReferenceID?: string | null
   source?: ControlControlSource | null
   controlType?: ControlControlType | null
-  subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
+  subcontrols: {
+    __typename?: 'SubcontrolConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null
+  }
   controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
 }
 
@@ -38552,7 +38556,11 @@ export type GetAllControlsQuery = {
         auditorReferenceID?: string | null
         source?: ControlControlSource | null
         controlType?: ControlControlType | null
-        subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
+        subcontrols: {
+          __typename?: 'SubcontrolConnection'
+          totalCount: number
+          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null
+        }
         controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
       } | null
     } | null> | null

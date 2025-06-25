@@ -10,7 +10,7 @@ import { MappedControlMappingType } from '@repo/codegen/src/schema'
 type Props = {
   refCode: string
   href: string
-  mappingType: MappedControlMappingType
+  mappingType?: MappedControlMappingType
   relation?: string | null
 }
 
@@ -18,19 +18,21 @@ export const RelatedControlChip: React.FC<Props> = ({ refCode, href, mappingType
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger asChild>
-          <Link href={href}>
+        <TooltipTrigger asChild disabled={!relation && !mappingType}>
+          <Link href={href} onClick={(e) => e.stopPropagation()}>
             <span className="text-xs border rounded-full cursor-pointer hover:text-brand px-2.5 py-0.5">{refCode}</span>
           </Link>
         </TooltipTrigger>
         <TooltipContent side="top" className="text-xs">
           <div className="flex flex-col gap-1">
-            <div className="flex gap-1 items-center border-b">
-              <ChevronsLeftRightEllipsis size={12} />
-              <span>Mapping type</span>
-              <div className="ml-4 flex w-2.5 justify-center items-center">{MappingIconMapper[mappingType]}</div>
-              <span className="capitalize">{mappingType.toLowerCase()}</span>
-            </div>
+            {mappingType && (
+              <div className="flex gap-1 items-center border-b">
+                <ChevronsLeftRightEllipsis size={12} />
+                <span>Mapping type</span>
+                <div className="ml-4 flex w-2.5 justify-center items-center">{MappingIconMapper[mappingType]}</div>
+                <span className="capitalize">{mappingType.toLowerCase()}</span>
+              </div>
+            )}
             <div className="flex gap-1 items-center">
               <PencilLine size={12} />
               <span>Relation Description</span>
