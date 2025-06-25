@@ -72,7 +72,7 @@ export const SetAuditorDialog = () => {
         <Button className="w-fit">Set auditor</Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-[497px]">
+      <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="max-w-[497px]">
         <DialogHeader>
           <DialogTitle>Set auditor</DialogTitle>
         </DialogHeader>
