@@ -32,13 +32,13 @@ export const useGetMappedControls = (where?: GetMappedControlsQueryVariables['wh
   })
 }
 
-export const useGetMappedControlById = (mappedControlId?: string) => {
+export const useGetMappedControlById = ({ mappedControlId, enabled }: { mappedControlId?: string; enabled: boolean }) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetMappedControlByIdQuery, unknown>({
     queryKey: ['mappedControls', mappedControlId],
     queryFn: () => client.request(GET_MAPPED_CONTROL_BY_ID, { mappedControlId }),
-    enabled: !!mappedControlId,
+    enabled,
   })
 }
 
