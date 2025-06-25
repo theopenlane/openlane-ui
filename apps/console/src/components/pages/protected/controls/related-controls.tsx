@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useParams, useSearchParams } from 'next/navigation'
+import { useParams, usePathname, useSearchParams } from 'next/navigation'
 import { useGetMappedControls } from '@/lib/graphql-hooks/mapped-control'
 import { Button } from '@repo/ui/button'
 import { PanelRightOpen } from 'lucide-react'
@@ -7,6 +7,7 @@ import { Card } from '@repo/ui/cardpanel'
 import { MappedControlMappingType } from '@repo/codegen/src/schema'
 import MappedRelationsSheet from './mapped-relationships-sheet'
 import { RelatedControlChip } from './shared/related-control-chip'
+import Link from 'next/link'
 
 export type RelatedNode = {
   type: 'Control' | 'Subcontrol'
@@ -25,6 +26,7 @@ const RelatedControls = () => {
   const [sheetOpen, setSheetOpen] = useState(false)
   const searchParams = useSearchParams()
   const openRelationsParam = searchParams.get('openRelations') === 'true'
+  const path = usePathname()
 
   const where = subcontrolId
     ? {
@@ -141,9 +143,17 @@ const RelatedControls = () => {
     <Card className="p-4">
       <div className="flex justify-between items-center mb-5">
         <p className="text-lg">Related Controls</p>
-        <Button type="button" className="h-8 p-2" variant="outline" icon={<PanelRightOpen />} onClick={() => setSheetOpen(true)}>
-          View
-        </Button>
+        {Object.keys(grouped).length > 0 ? (
+          <Button type="button" className="h-8 p-2" variant="outline" icon={<PanelRightOpen />} onClick={() => setSheetOpen(true)}>
+            View
+          </Button>
+        ) : (
+          <Link href={`${path}/map-control`} className="text-sm font-medium text-primary underline underline-offset-4">
+            <Button type="button" className="h-8 p-2" variant="outline">
+              Create
+            </Button>
+          </Link>
+        )}
       </div>
 
       {Object.entries(grouped).map(([framework, nodes], index, array) => (
@@ -157,6 +167,7 @@ const RelatedControls = () => {
           </div>
         </div>
       ))}
+
       <MappedRelationsSheet open={sheetOpen} onOpenChange={setSheetOpen} queryData={data} />
     </Card>
   )
