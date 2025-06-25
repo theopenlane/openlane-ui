@@ -21762,7 +21762,7 @@ export interface OrganizationSetting extends Node {
   /** Phone number to contact for billing */
   billingPhone?: Maybe<Scalars['String']['output']>
   /** unique token used to receive compliance webhook events */
-  complianceWebhookToken: Scalars['String']['output']
+  complianceWebhookToken?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** domains associated with the organization */
@@ -21857,7 +21857,7 @@ export interface OrganizationSettingHistory extends Node {
   /** Phone number to contact for billing */
   billingPhone?: Maybe<Scalars['String']['output']>
   /** unique token used to receive compliance webhook events */
-  complianceWebhookToken: Scalars['String']['output']
+  complianceWebhookToken?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** domains associated with the organization */
@@ -22014,10 +22014,12 @@ export interface OrganizationSettingHistoryWhereInput {
   complianceWebhookTokenHasPrefix?: InputMaybe<Scalars['String']['input']>
   complianceWebhookTokenHasSuffix?: InputMaybe<Scalars['String']['input']>
   complianceWebhookTokenIn?: InputMaybe<Array<Scalars['String']['input']>>
+  complianceWebhookTokenIsNil?: InputMaybe<Scalars['Boolean']['input']>
   complianceWebhookTokenLT?: InputMaybe<Scalars['String']['input']>
   complianceWebhookTokenLTE?: InputMaybe<Scalars['String']['input']>
   complianceWebhookTokenNEQ?: InputMaybe<Scalars['String']['input']>
   complianceWebhookTokenNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  complianceWebhookTokenNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -22319,10 +22321,12 @@ export interface OrganizationSettingWhereInput {
   complianceWebhookTokenHasPrefix?: InputMaybe<Scalars['String']['input']>
   complianceWebhookTokenHasSuffix?: InputMaybe<Scalars['String']['input']>
   complianceWebhookTokenIn?: InputMaybe<Array<Scalars['String']['input']>>
+  complianceWebhookTokenIsNil?: InputMaybe<Scalars['Boolean']['input']>
   complianceWebhookTokenLT?: InputMaybe<Scalars['String']['input']>
   complianceWebhookTokenLTE?: InputMaybe<Scalars['String']['input']>
   complianceWebhookTokenNEQ?: InputMaybe<Scalars['String']['input']>
   complianceWebhookTokenNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  complianceWebhookTokenNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -35791,6 +35795,7 @@ export interface UpdateOrganizationSettingInput {
   clearBillingContact?: InputMaybe<Scalars['Boolean']['input']>
   clearBillingEmail?: InputMaybe<Scalars['Boolean']['input']>
   clearBillingPhone?: InputMaybe<Scalars['Boolean']['input']>
+  clearComplianceWebhookToken?: InputMaybe<Scalars['Boolean']['input']>
   clearDomains?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearGeoLocation?: InputMaybe<Scalars['Boolean']['input']>
@@ -38399,7 +38404,11 @@ export type ControlListFieldsFragment = {
   auditorReferenceID?: string | null
   source?: ControlControlSource | null
   controlType?: ControlControlType | null
-  subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
+  subcontrols: {
+    __typename?: 'SubcontrolConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null
+  }
   controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
 }
 
@@ -38547,7 +38556,11 @@ export type GetAllControlsQuery = {
         auditorReferenceID?: string | null
         source?: ControlControlSource | null
         controlType?: ControlControlType | null
-        subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
+        subcontrols: {
+          __typename?: 'SubcontrolConnection'
+          totalCount: number
+          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null
+        }
         controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
       } | null
     } | null> | null
@@ -39148,6 +39161,7 @@ export type GetMappedControlByIdQuery = {
     relation?: string | null
     confidence?: number | null
     mappingType: MappedControlMappingType
+    source?: MappedControlMappingSource | null
     fromSubcontrols: {
       __typename?: 'SubcontrolConnection'
       edges?: Array<{

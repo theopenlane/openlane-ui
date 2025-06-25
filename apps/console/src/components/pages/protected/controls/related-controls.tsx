@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { useParams } from 'next/navigation'
+import React, { useEffect, useState } from 'react'
+import { useParams, useSearchParams } from 'next/navigation'
 import { useGetMappedControls } from '@/lib/graphql-hooks/mapped-control'
 import { Button } from '@repo/ui/button'
 import { PanelRightOpen } from 'lucide-react'
@@ -23,6 +23,8 @@ export type GroupedControls = Record<string, RelatedNode[]>
 const RelatedControls = () => {
   const { id, subcontrolId } = useParams<{ id: string; subcontrolId: string }>()
   const [sheetOpen, setSheetOpen] = useState(false)
+  const searchParams = useSearchParams()
+  const openRelationsParam = searchParams.get('openRelations') === 'true'
 
   const where = subcontrolId
     ? {
@@ -125,6 +127,12 @@ const RelatedControls = () => {
       }
     })
   })
+
+  useEffect(() => {
+    if (openRelationsParam) {
+      setSheetOpen(true)
+    }
+  }, [openRelationsParam])
 
   if (!data) {
     return null

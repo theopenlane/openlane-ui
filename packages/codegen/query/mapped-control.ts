@@ -74,6 +74,7 @@ export const GET_MAPPED_CONTROL_BY_ID = gql`
       relation
       confidence
       mappingType
+      source
       fromSubcontrols {
         edges {
           node {

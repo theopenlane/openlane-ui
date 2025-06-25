@@ -14,10 +14,10 @@ export const MappingIconMapper: Record<MappedControlMappingType, React.ReactNode
   [MappedControlMappingType.PARTIAL]: <Partial />,
   [MappedControlMappingType.SUPERSET]: (
     <>
-      <div className="block dark:hidden">
+      <div className="flex dark:hidden w-full">
         <SupersetLight />
       </div>
-      <div className="hidden dark:block">
+      <div className="hidden dark:flex w-full">
         <SupersetDark />
       </div>
     </>
