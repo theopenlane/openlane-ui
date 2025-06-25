@@ -136,7 +136,9 @@ const RelationCard = ({
       <div className="">
         <div className="flex items-center border-b py-2">
           <p className="flex gap-4 w-40 shrink-0 self-start items-center text-sm">Type</p>
-          {data.type && <div className="h-2.5 w-2.5 bg-card flex items-center justify-center rounded-full">{MappingIconMapper[data.type]}</div>}
+          {data.type && (
+            <div className={`flex items-center justify-center rounded-full bg-card ${data.type === MappedControlMappingType.SUPERSET ? 'h-5 w-5' : 'h-2.5 w-2.5'}`}>{MappingIconMapper[data.type]}</div>
+          )}{' '}
           <p className="capitalize ml-2 text-sm">{data.type.toLowerCase()}</p>
         </div>
         <div className="flex items-center border-b py-2">

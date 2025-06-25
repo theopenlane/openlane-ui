@@ -133,7 +133,7 @@ const EditMapControlPage = () => {
       {
         await update(variables)
         successNotification({ title: 'Map Control updated!' })
-        const redirectUrl = subcontrolId ? `/controls/${id}/${subcontrolId}` : `/controls/${id}`
+        const redirectUrl = subcontrolId ? `/controls/${id}/${subcontrolId}?openRelations=true` : `/controls/${id}?openRelations=true`
         router.push(redirectUrl)
         queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
       }
