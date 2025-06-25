@@ -41,7 +41,7 @@ import {
   UpdateControlMutationVariables,
   GetControlsPaginatedWithListFieldsQuery,
   GetControlsPaginatedWithListFieldsQueryVariables,
-  ControlListFieldsFragment,
+  ControlListStandardFieldsFragment,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -269,11 +269,11 @@ export function useAllControlsGroupedWithListFields({ where, enabled = true }: {
 
   const allControls = useMemo(() => {
     const raw = data?.pages.flatMap((page) => page.edges?.map((edge) => edge?.node) ?? []) ?? []
-    return raw.filter((c): c is ControlListFieldsFragment => c != null)
+    return raw.filter((c): c is ControlListStandardFieldsFragment => c != null)
   }, [data?.pages])
 
   const groupedControls = useMemo(() => {
-    return allControls.reduce<Record<string, ControlListFieldsFragment[]>>((acc, control) => {
+    return allControls.reduce<Record<string, ControlListStandardFieldsFragment[]>>((acc, control) => {
       const category = control.category || 'Uncategorized'
       if (!acc[category]) acc[category] = []
       acc[category].push(control)
