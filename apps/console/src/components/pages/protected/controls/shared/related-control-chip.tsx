@@ -15,14 +15,22 @@ type Props = {
 }
 
 export const RelatedControlChip: React.FC<Props> = ({ refCode, href, mappingType, relation }) => {
+  const tooltipDisabled = !relation && !mappingType
+
+  const chip = (
+    <Link href={href} onClick={(e) => e.stopPropagation()}>
+      <span className="text-xs border rounded-full cursor-pointer hover:text-brand px-2.5 py-0.5">{refCode}</span>
+    </Link>
+  )
+
+  if (tooltipDisabled) {
+    return chip
+  }
+
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger asChild disabled={!relation && !mappingType}>
-          <Link href={href} onClick={(e) => e.stopPropagation()}>
-            <span className="text-xs border rounded-full cursor-pointer hover:text-brand px-2.5 py-0.5">{refCode}</span>
-          </Link>
-        </TooltipTrigger>
+        <TooltipTrigger asChild>{chip}</TooltipTrigger>
         <TooltipContent side="top" className="text-xs">
           <div className="flex flex-col gap-1">
             {mappingType && (

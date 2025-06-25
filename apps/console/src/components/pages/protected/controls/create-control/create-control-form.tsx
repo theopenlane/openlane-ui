@@ -69,9 +69,11 @@ export default function CreateControlForm() {
   const { mutateAsync: createSubcontrol } = useCreateSubcontrol()
 
   const { convertToHtml } = usePlateEditor()
+
   const resetForm = () => {
     setClearData(true)
-    reset()
+    const controlID = form.getValues('controlID')
+    reset({ controlID })
   }
   const onSubmit = async (data: ControlFormData) => {
     try {
