@@ -158,7 +158,7 @@ const RelatedControls = () => {
 
       {Object.entries(grouped).map(([framework, nodes], index, array) => (
         <div key={framework} className={`mb-2 flex gap-5 items-center pb-2 ${index < array.length - 1 ? 'border-b' : ''}`}>
-          <h3 className="font-semibold min-w-24 text-text-informational">{framework}</h3>
+          <h3 className="font-semibold min-w-24 text-text-informational text-xs">{framework}</h3>
           <div className="flex gap-2.5 flex-wrap">
             {nodes.map((node) => {
               const href = node.type === 'Subcontrol' ? `/controls/${node.controlId}/${node.id}` : `/controls/${node.id}`

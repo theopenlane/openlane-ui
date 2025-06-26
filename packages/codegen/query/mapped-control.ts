@@ -130,3 +130,11 @@ export const UPDATE_MAPPED_CONTROL = gql`
     }
   }
 `
+
+export const DELETE_MAPPED_CONTROL = gql`
+  mutation DeleteMappedControl($deleteMappedControlId: ID!) {
+    deleteMappedControl(id: $deleteMappedControlId) {
+      deletedID
+    }
+  }
+`
