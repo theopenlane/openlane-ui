@@ -8,6 +8,7 @@ import { useState } from 'react'
 import { useDeleteMappedControl } from '@/lib/graphql-hooks/mapped-control'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
+import { Button } from '@repo/ui/button'
 
 const RelationCard = ({
   data,
@@ -50,9 +51,13 @@ const RelationCard = ({
           <div className=" border-b">
             <div className="flex gap-2 justify-end">
               <Link href={`${pathname}/edit-map-control?mappedControlId=${data.id}`} className="text-brand cursor-pointer text-xs">
-                <Pencil size={16} />
+                <Button className="h-8 p-2" icon={<Pencil />} iconPosition="left" variant="outline">
+                  Edit
+                </Button>
               </Link>
-              <Trash2 onClick={() => setOpen(true)} className="text-destructive cursor-pointer" size={16}></Trash2>
+              <Button onClick={() => setOpen(true)} className="h-8 p-2" icon={<Trash2 />} iconPosition="left" variant="outline">
+                Delete
+              </Button>
             </div>
             <div className="flex items-center">
               <div className="flex gap-4 w-40 shrink-0 self-start items-center">
