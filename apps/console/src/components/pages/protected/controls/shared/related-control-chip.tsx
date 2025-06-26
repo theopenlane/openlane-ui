@@ -37,7 +37,9 @@ export const RelatedControlChip: React.FC<Props> = ({ refCode, href, mappingType
               <div className="flex gap-1 items-center border-b">
                 <ChevronsLeftRightEllipsis size={12} />
                 <span>Mapping type</span>
-                <div className="ml-4 flex w-2.5 justify-center items-center">{MappingIconMapper[mappingType]}</div>
+                <div className={`ml-4 flex w-2.5 h-2.5 justify-center items-center ${mappingType === MappedControlMappingType.SUPERSET ? 'h-5 w-5' : 'h-2.5 w-2.5'}`}>
+                  {MappingIconMapper[mappingType]}
+                </div>
                 <span className="capitalize">{mappingType.toLowerCase()}</span>
               </div>
             )}
