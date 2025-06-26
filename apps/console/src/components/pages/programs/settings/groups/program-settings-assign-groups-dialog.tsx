@@ -166,7 +166,6 @@ export const ProgramSettingsAssignGroupDialog = () => {
       await updateProgram({
         updateProgramId: programId,
         input: {
-          addBlockedGroupIDs: selectedGroups.map((g) => g.id),
           addEditorIDs,
           addViewerIDs,
         },

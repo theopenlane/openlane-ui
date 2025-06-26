@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
-import { CREATE_CSV_BULK_RISK, CREATE_RISK, DELETE_RISK, GET_ALL_RISKS, GET_RISK_BY_ID, UPDATE_RISK } from '@repo/codegen/query/risks'
+import { CREATE_CSV_BULK_RISK, CREATE_RISK, DELETE_RISK, GET_ALL_RISKS, GET_RISK_BY_ID, GET_TABLE_RISKS, UPDATE_RISK } from '@repo/codegen/query/risks'
 
 import {
   CreateBulkCsvRiskMutation,
@@ -14,8 +14,10 @@ import {
   GetAllRisksQueryVariables,
   GetRiskByIdQuery,
   GetRiskByIdQueryVariables,
+  GetTableRisksQuery,
   Risk,
   RiskFieldsFragment,
+  RiskTableFieldsFragment,
   RiskWhereInput,
   UpdateRiskMutation,
   UpdateRiskMutationVariables,
@@ -54,6 +56,34 @@ export const useRisksWithFilter = ({ where, pagination, orderBy, enabled = true 
   })
 
   const risks = queryResult?.data?.risks?.edges?.map((edge) => edge?.node as RiskFieldsFragment) as Risk[]
+
+  const paginationMeta = {
+    totalCount: queryResult.data?.risks?.totalCount ?? 0,
+    pageInfo: queryResult?.data?.risks?.pageInfo,
+  }
+
+  return {
+    ...queryResult,
+    risks,
+    paginationMeta,
+  }
+}
+
+export const useTableRisks = ({ where, pagination, orderBy, enabled = true }: UseRisksWithFilterProps) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery({
+    queryKey: ['risks', { where, pagination, orderBy }],
+    queryFn: async () =>
+      await client.request<GetTableRisksQuery>(GET_TABLE_RISKS, {
+        where,
+        ...pagination?.query,
+        orderBy,
+      }),
+    enabled,
+  })
+
+  const risks = queryResult?.data?.risks?.edges?.map((edge) => edge?.node as RiskTableFieldsFragment) as Risk[]
 
   const paginationMeta = {
     totalCount: queryResult.data?.risks?.totalCount ?? 0,
@@ -127,7 +157,6 @@ export const useCreateBulkCSVRisk = () => {
 
 export const useDeleteRisk = () => {
   const { client, queryClient } = useGraphQLClient()
-
   return useMutation<DeleteRiskMutation, unknown, DeleteRiskMutationVariables>({
     mutationFn: async (variables) => {
       return client.request(DELETE_RISK, variables)

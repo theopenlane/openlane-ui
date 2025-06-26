@@ -9,11 +9,12 @@ import { NavItems } from '@/routes/dashboard'
 import { useSubscriptionBanner } from '@/hooks/useSubscriptionBanner'
 import { CreditCard } from 'lucide-react'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useContext } from 'react'
 import SessionExpiredModal from '@/components/shared/session-expired-modal/session-expired-modal'
 import { useSession } from 'next-auth/react'
 import { jwtDecode } from 'jwt-decode'
 import { fromUnixTime, differenceInMilliseconds, isAfter } from 'date-fns'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 export interface DashboardLayoutProps {
   children?: React.ReactNode
@@ -25,6 +26,10 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const { base, main } = dashboardStyles({ hasBanner: !!bannerText })
   const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(false)
   const { data: sessionData } = useSession()
+  const { setCrumbs } = useContext(BreadcrumbContext)
+  useEffect(() => {
+    setCrumbs([{ label: 'Home', href: '/dashboard' }])
+  }, [setCrumbs])
 
   useEffect(() => {
     const handler = () => {

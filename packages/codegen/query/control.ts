@@ -11,6 +11,10 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
     tags
     mappedCategories
     referenceFramework
+    referenceID
+    auditorReferenceID
+    source
+    controlType
     subcontrols {
       totalCount
     }
@@ -19,6 +23,28 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
       displayName
       logoURL
       gravatarLogoURL
+    }
+    subcontrols {
+      edges {
+        node {
+          id
+          refCode
+        }
+      }
+    }
+  }
+`
+
+export const CONTROL_LIST_STANDARDS_FIELDS_FRAGMENT = gql`
+  fragment ControlListStandardFields on Control {
+    id
+    refCode
+    description
+    category
+    subcategory
+    mappedCategories
+    subcontrols {
+      totalCount
     }
   }
 `
@@ -266,10 +292,73 @@ export const GET_CONTROL_SELECT_OPTIONS = gql`
           refCode
           category
           subcategory
-          standard {
-            shortName
-          }
+          referenceFramework
         }
+      }
+    }
+  }
+`
+
+export const GET_CONTROL_CATEGORIES = gql`
+  query GetControlCategories {
+    controlCategories
+  }
+`
+
+export const GET_CONTROL_SUBCATEGORIES = gql`
+  query GetControlSubcategories {
+    controlSubcategories
+  }
+`
+
+export const GET_CONTROLS_PAGINATED = gql`
+  query GetControlsPaginated($where: ControlWhereInput, $after: Cursor) {
+    controls(where: $where, after: $after) {
+      totalCount
+      edges {
+        node {
+          id
+          refCode
+          category
+          subcategory
+          referenceFramework
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+    }
+  }
+`
+
+export const GET_CONTROL_BY_ID_MINIFIED = gql`
+  query GetControlByIdMinified($controlId: ID!) {
+    control(id: $controlId) {
+      id
+      refCode
+      standardID
+      category
+      subcategory
+      description
+    }
+  }
+`
+
+export const GET_CONTROLS_PAGINATED_WITH_LIST_FIELDS = gql`
+  ${CONTROL_LIST_STANDARDS_FIELDS_FRAGMENT}
+  query GetControlsPaginatedWithListFields($where: ControlWhereInput, $after: Cursor) {
+    controls(where: $where, after: $after) {
+      totalCount
+      edges {
+        node {
+          ...ControlListStandardFields
+        }
+        cursor
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
       }
     }
   }

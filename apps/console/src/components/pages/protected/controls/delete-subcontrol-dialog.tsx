@@ -10,7 +10,7 @@ import { canDelete } from '@/lib/authz/utils.ts'
 import { useRouter } from 'next/navigation'
 import { useDeleteSubcontrol } from '@/lib/graphql-hooks/subcontrol.ts'
 
-const DeleteSubcontrolDialog: React.FC<{ subcontrolId: string; controlId: string }> = ({ subcontrolId, controlId }) => {
+const DeleteSubcontrolDialog: React.FC<{ subcontrolId: string; controlId: string; refCode: string }> = ({ subcontrolId, controlId, refCode }) => {
   const { successNotification, errorNotification } = useNotification()
   const { data: session } = useSession()
   const { data: permission } = useAccountRole(session, ObjectEnum.SUBCONTROL, subcontrolId!)
@@ -47,7 +47,12 @@ const DeleteSubcontrolDialog: React.FC<{ subcontrolId: string; controlId: string
         open={isOpen}
         onOpenChange={setIsOpen}
         onConfirm={handleDelete}
-        description={`This action cannot be undone, this will permanently remove the Subcontrol from the organization.`}
+        title={`Delete Subcontrol`}
+        description={
+          <>
+            This action cannot be undone. This will permanently remove <b>{refCode}</b> from the organization.
+          </>
+        }
       />
     </>
   )

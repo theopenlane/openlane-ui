@@ -3,11 +3,12 @@
 import { pageStyles } from './page.styles'
 import { OrganizationInviteForm } from '@/components/pages/protected/organization/members/organization-invite-form'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
-import { useState } from 'react'
+import { useState, useContext, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { MembersTable } from './members-table'
 import { useGetInvites } from '@/lib/graphql-hooks/organization'
 import { OrganizationInvitesTable } from './table/organization-invites-table'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const MembersPage: React.FC = () => {
   const { inviteCount, inviteRow } = pageStyles()
@@ -15,8 +16,17 @@ const MembersPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState(defaultTab)
   const { data: session } = useSession()
   const { data } = useGetInvites({ where: {} })
+  const { setCrumbs } = useContext(BreadcrumbContext)
 
   const numInvites = Array.isArray(data?.invites.edges) ? data?.invites.edges.length : 0
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Organization Settings', href: '/organization-settings' },
+      { label: 'Members', href: '/members' },
+    ])
+  }, [setCrumbs])
 
   return (
     <>

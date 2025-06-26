@@ -9,6 +9,7 @@ export interface RegisterUser {
   username: string
   password: string
   confirmedPassword?: string
+  token?: string
 }
 
 export interface ResendVerificationEmail {

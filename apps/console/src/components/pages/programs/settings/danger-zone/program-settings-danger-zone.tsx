@@ -3,17 +3,20 @@
 import React, { useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useDeleteProgram } from '@/lib/graphql-hooks/programs'
+import { useDeleteProgram, useGetProgramBasicInfo } from '@/lib/graphql-hooks/programs'
 import { useNotification } from '@/hooks/useNotification'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
 export const ProgramSettingsDangerZone = () => {
+  const [isDeleting, setIsDeleting] = useState<boolean>(false)
   const router = useRouter()
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
   const [isDialogOpen, setDialogOpen] = useState(false)
 
   const { mutateAsync, isPending } = useDeleteProgram()
+  const { data } = useGetProgramBasicInfo(programId, !isDeleting)
+  const program = data?.program
   const { successNotification, errorNotification } = useNotification()
 
   const handleDelete = async () => {
@@ -26,11 +29,12 @@ export const ProgramSettingsDangerZone = () => {
     }
 
     try {
+      setIsDeleting(true)
+      router.replace('/programs')
       await mutateAsync({ deleteProgramId: programId })
       successNotification({
         title: 'The program has been successfully deleted.',
       })
-      router.replace('/programs')
     } catch {
       errorNotification({
         title: 'Failed to Delete Program',
@@ -46,10 +50,15 @@ export const ProgramSettingsDangerZone = () => {
         open={isDialogOpen}
         onOpenChange={setDialogOpen}
         onConfirm={handleDelete}
-        title="Are you absolutely sure?"
-        description="This action cannot be undone. This will permanently delete the program."
-        confirmationText="Delete Program"
+        title={`Delete Program ${program?.name}?`}
+        description={
+          <>
+            This action cannot be undone. This will permanently delete <b>{program?.name}</b>.
+          </>
+        }
+        confirmationText="Delete"
         confirmationTextVariant="destructive"
+        showInput={true}
       />
       <section className="flex gap-14 border-t pt-6">
         <div className="w-48 shrink-0">

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { Suspense, useMemo, useState } from 'react'
+import React, { Suspense, useMemo, useState, useEffect, useContext } from 'react'
 import { ProfileNameForm } from './profile-name-form'
 import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
 import { useSession } from 'next-auth/react'
@@ -14,9 +14,11 @@ import { Badge } from '@repo/ui/badge'
 import { useGetCurrentUser, useUpdateUserAvatar, useUpdateUserSetting } from '@/lib/graphql-hooks/user'
 import { useCreateTfaSetting, useGetUserTFASettings, useUpdateTfaSetting } from '@/lib/graphql-hooks/tfa'
 import PasskeySection from './passkeys-section'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const ProfilePage = () => {
   const { data: sessionData } = useSession()
+  const { setCrumbs } = useContext(BreadcrumbContext)
   const { successNotification, errorNotification } = useNotification()
   const userId = sessionData?.user.userId
 
@@ -36,6 +38,14 @@ const ProfilePage = () => {
   const { isPending: updatingUser, mutateAsync: updateUserSetting } = useUpdateUserSetting()
 
   const isVerified = !!tfaSettings?.verified
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'User Settings', href: '/user-settings' },
+      { label: 'Profile', href: '/profile' },
+    ])
+  }, [setCrumbs])
 
   const handleUploadAvatar = async (file: File) => {
     if (!userId) return

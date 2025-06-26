@@ -27,13 +27,16 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useRouter } from 'next/navigation'
 import Menu from '@/components/shared/menu/menu.tsx'
 import CreateItemsFromPolicyToolbar from './create-items-from-policy-toolbar'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
+import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 
 type TViewPolicyPage = {
   policyId: string
 }
 
 const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
-  const { data, isLoading } = useGetInternalPolicyDetailsById(policyId)
+  const [isDeleting, setIsDeleting] = useState<boolean>(false)
+  const { data, isLoading } = useGetInternalPolicyDetailsById(policyId, !isDeleting)
   const plateEditorHelper = usePlateEditor()
   const { mutateAsync: updatePolicy, isPending: isSaving } = useUpdateInternalPolicy()
   const policyState = usePolicy()
@@ -49,6 +52,15 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const { mutateAsync: deletePolicy } = useDeleteInternalPolicy()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const router = useRouter()
+  const { setCrumbs } = React.useContext(BreadcrumbContext)
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Policies', href: '/policies' },
+      { label: policy?.name, isLoading: isLoading },
+    ])
+  }, [setCrumbs, policy, isLoading])
 
   useEffect(() => {
     if (policy) {
@@ -104,6 +116,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
 
   const handleDeletePolicy = async () => {
     try {
+      setIsDeleting(true)
       await deletePolicy({ deleteInternalPolicyId: policyId })
       successNotification({ title: 'Policy deleted successfully' })
       router.push('/policies')
@@ -160,76 +173,98 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     router.push(`/procedures/create?policyId=${policyId}`)
   }
 
-  return (
-    <>
-      {isLoading && <Loading />}
-      {!isLoading && policy && (
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmitHandler)} className="grid grid-cols-1 lg:grid-cols-[1fr_336px] gap-6">
-            <div className="space-y-6 w-full max-w-full overflow-hidden">
-              <TitleField isEditing={isEditing} form={form} />
-              <DetailsField isEditing={isEditing} form={form} policy={policy} />
-              <AssociatedObjectsViewAccordion policy={policy} />
-            </div>
-            <div className="space-y-4">
-              {isEditing ? (
-                <div className="flex gap-2 justify-end">
-                  <Button className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
-                    Cancel
-                  </Button>
-                  <Button type="submit" iconPosition="left" className="h-8 !px-2" icon={<SaveIcon />} disabled={isSaving}>
-                    {isSaving ? 'Saving' : 'Save'}
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex gap-2 justify-end">
-                  <CreateItemsFromPolicyToolbar
-                    initialData={initialData}
-                    handleCreateNewPolicy={handleCreateNewPolicy}
-                    handleCreateNewProcedure={handleCreateNewProcedure}
-                    objectAssociationsDisplayIDs={policy?.displayID ? [policy?.displayID] : []}
-                  ></CreateItemsFromPolicyToolbar>
-                  {!editAllowed && !deleteAllowed ? (
-                    <></>
-                  ) : (
-                    <Menu
-                      content={
-                        <>
-                          {editAllowed && (
-                            <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleEdit}>
-                              <PencilIcon size={16} strokeWidth={2} />
-                              <span>Edit</span>
-                            </div>
-                          )}
-                          {deleteAllowed && (
-                            <>
-                              <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={() => setIsDeleteDialogOpen(true)}>
-                                <Trash2 size={16} strokeWidth={2} />
-                                <span>Delete</span>
-                              </div>
-                              <ConfirmationDialog
-                                open={isDeleteDialogOpen}
-                                onOpenChange={setIsDeleteDialogOpen}
-                                onConfirm={handleDeletePolicy}
-                                description="This action cannot be undone. This will permanently remove the policy from the organization."
-                              />
-                            </>
-                          )}
-                        </>
-                      }
-                    />
+  if (isLoading) {
+    return <Loading />
+  }
+
+  if (!policy) {
+    return null
+  }
+
+  const menuComponent = (
+    <div className="space-y-4">
+      {isEditing ? (
+        <div className="flex gap-2 justify-end">
+          <Button className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
+            Cancel
+          </Button>
+          <Button type="submit" iconPosition="left" className="h-8 !px-2" icon={<SaveIcon />} disabled={isSaving}>
+            {isSaving ? 'Saving' : 'Save'}
+          </Button>
+        </div>
+      ) : (
+        <div className="flex gap-2 justify-end">
+          <CreateItemsFromPolicyToolbar
+            initialData={initialData}
+            handleCreateNewPolicy={handleCreateNewPolicy}
+            handleCreateNewProcedure={handleCreateNewProcedure}
+            objectAssociationsDisplayIDs={policy?.displayID ? [policy?.displayID] : []}
+          ></CreateItemsFromPolicyToolbar>
+          {!editAllowed && !deleteAllowed ? (
+            <></>
+          ) : (
+            <Menu
+              content={
+                <>
+                  {editAllowed && (
+                    <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleEdit}>
+                      <PencilIcon size={16} strokeWidth={2} />
+                      <span>Edit</span>
+                    </div>
                   )}
-                </div>
-              )}
-              <AuthorityCard form={form} approver={policy.approver} delegate={policy.delegate} isEditing={isEditing} />
-              <PropertiesCard form={form} isEditing={isEditing} policy={policy} />
-              <HistoricalCard policy={policy} />
-              <TagsCard form={form} policy={policy} isEditing={isEditing} />
-            </div>
-          </form>
-        </Form>
+                  {deleteAllowed && (
+                    <>
+                      <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={() => setIsDeleteDialogOpen(true)}>
+                        <Trash2 size={16} strokeWidth={2} />
+                        <span>Delete</span>
+                      </div>
+                      <ConfirmationDialog
+                        open={isDeleteDialogOpen}
+                        onOpenChange={setIsDeleteDialogOpen}
+                        onConfirm={handleDeletePolicy}
+                        title={`Delete Internal Policy`}
+                        description={
+                          <>
+                            This action cannot be undone. This will permanently remove <b>{policy.name}</b> from the organization.
+                          </>
+                        }
+                      />
+                    </>
+                  )}
+                </>
+              }
+            />
+          )}
+        </div>
       )}
+    </div>
+  )
+
+  const mainContent = (
+    <div className="space-y-6 p-6">
+      <TitleField isEditing={isEditing} form={form} />
+      <DetailsField isEditing={isEditing} form={form} policy={policy} />
+    </div>
+  )
+
+  const sidebarContent = (
+    <>
+      <AuthorityCard form={form} approver={policy.approver} delegate={policy.delegate} isEditing={isEditing} />
+      <PropertiesCard form={form} isEditing={isEditing} policy={policy} />
+      <HistoricalCard policy={policy} />
+      <TagsCard form={form} policy={policy} isEditing={isEditing} />
+      <AssociatedObjectsViewAccordion policy={policy} />
     </>
+  )
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmitHandler)}>
+        <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>
+          {mainContent}
+        </SlideBarLayout>
+      </form>
+    </Form>
   )
 }
 

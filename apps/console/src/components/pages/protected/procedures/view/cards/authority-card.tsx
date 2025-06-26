@@ -26,7 +26,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
   const groups = data?.groups?.edges?.map((edge) => edge?.node!) || []
 
   return (
-    <Card className="p-4 !mt-11">
+    <Card className="p-4">
       <h3 className="text-lg font-medium mb-2">Authority</h3>
       <div className="flex flex-col gap-4">
         {/* Approver */}
@@ -51,9 +51,9 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
           {!isEditing && (
             <TooltipProvider disableHoverableContent>
               <Tooltip>
-                <Avatar entity={approver as Group} variant="small" />
                 <TooltipTrigger className="w-[200px] cursor-default min-w-[160px] max-w-[160px]">
                   <div className="flex gap-2">
+                    <Avatar entity={approver as Group} variant="small" />
                     <span className="truncate">{approver?.displayName || 'No Approver'} </span>
                   </div>
                 </TooltipTrigger>
@@ -85,9 +85,9 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
           {!isEditing && (
             <TooltipProvider disableHoverableContent>
               <Tooltip>
-                <Avatar entity={delegate as Group} variant="small" />
                 <TooltipTrigger className="w-[200px] cursor-default  min-w-[160px] max-w-[160px]">
                   <div className="flex gap-2">
+                    <Avatar entity={delegate as Group} variant="small" />
                     <span className="truncate">{delegate?.displayName || 'No Delegate'} </span>
                   </div>
                 </TooltipTrigger>

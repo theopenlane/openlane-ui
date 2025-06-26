@@ -27,7 +27,6 @@ export const OrganizationSelector = () => {
   })
 
   const { currentOrgId } = useOrganization()
-
   const { data } = useGetAllOrganizationsWithMembers({ userID: sessionData?.user.userId })
   const orgs = data?.organizations?.edges ?? []
   const currentOrg = orgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
@@ -37,7 +36,7 @@ export const OrganizationSelector = () => {
       return org?.node?.name.toLowerCase().includes(orgData.organizationSearch.toLowerCase()) && org?.node?.id !== currentOrgId && !org?.node?.personalOrg
     })
     .slice(0, 4)
-
+  const [isPopoverOpened, setIsPopoverOpened] = useState<boolean>(false)
   const nonPersonalOrgs = orgs.filter((org) => !org?.node?.personalOrg)
 
   useEffect(() => {
@@ -70,6 +69,8 @@ export const OrganizationSelector = () => {
         requestAnimationFrame(() => {
           queryClient?.invalidateQueries()
         })
+
+        setIsPopoverOpened(false)
       }
     }
   }
@@ -83,7 +84,7 @@ export const OrganizationSelector = () => {
   return (
     <div className={container()}>
       <div>
-        <Popover>
+        <Popover onOpenChange={setIsPopoverOpened} open={isPopoverOpened}>
           <PopoverTrigger>
             <div className={organizationDropdown()}>
               <Avatar entity={currentOrg as Organization} />
@@ -131,7 +132,7 @@ export const OrganizationSelector = () => {
 
             <div>
               <Link href="/organization" className={allOrganizationsLink()}>
-                <Button className="w-full" icon={<BriefcaseBusiness size={16} />} iconPosition="left">
+                <Button onClick={() => setIsPopoverOpened(false)} className="w-full" icon={<BriefcaseBusiness size={16} />} iconPosition="left">
                   View all organizations
                 </Button>
               </Link>

@@ -19,11 +19,10 @@ import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import DashboardSkeleton from '@/app/(protected)/dashboard/dashboard-skeleton.tsx'
 import Menu from '@/components/shared/menu/menu.tsx'
-import { ChevronDown, ShieldPlus } from 'lucide-react'
-import { Button } from '@repo/ui/button'
 import { TaskIconBtn } from '@/components/shared/icon-enum/task-enum.tsx'
 import { ProgramCreateIconBtn } from '@/components/shared/icon-enum/program-enum.tsx'
 import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 
 const Page: React.FC = () => {
   const router = useRouter()
@@ -31,6 +30,7 @@ const Page: React.FC = () => {
   const [selectedProgram, setSelectedProgram] = useState<string>('All programs')
   const { data: session } = useSession()
   const { data: permission } = useOrganizationRole(session)
+  const { setCrumbs } = React.useContext(BreadcrumbContext)
 
   const { data, isLoading } = useGetAllPrograms({
     where: {
@@ -58,6 +58,10 @@ const Page: React.FC = () => {
       setSelectedProgram(programName)
     }
   }, [searchParams, programMap])
+
+  useEffect(() => {
+    setCrumbs([{ label: 'Home', href: '/dashboard' }])
+  }, [setCrumbs])
 
   const handleSelectChange = (val: string) => {
     if (val === 'All programs') {

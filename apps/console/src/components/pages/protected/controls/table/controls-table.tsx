@@ -18,6 +18,8 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { ControlIconMapper } from '@/components/shared/icon-enum/control-enum.tsx'
 import { VisibilityState } from '@tanstack/react-table'
 import { exportToCSV } from '@/utils/exportToCSV'
+import ControlChip from '../map-controls/shared/control-chip'
+import { RelatedControlChip } from '../shared/related-control-chip'
 
 export const ControlStatusLabels: Record<ControlControlStatus, string> = {
   [ControlControlStatus.APPROVED]: 'Approved',
@@ -38,7 +40,13 @@ const ControlsTable: React.FC = () => {
       direction: OrderDirection.ASC,
     },
   ])
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    referenceID: false,
+    auditorReferenceID: false,
+    source: false,
+    controlType: false,
+    referenceFramework: false,
+  })
   const [searchTerm, setSearchTerm] = useState('')
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const debouncedSearch = useDebounce(searchTerm, 300)
@@ -143,6 +151,58 @@ const ControlsTable: React.FC = () => {
           )
         },
         size: 100,
+      },
+      {
+        header: 'Reference ID',
+        accessorKey: 'referenceID',
+        cell: ({ row }) => <div>{row.getValue('referenceID') || '-'}</div>,
+        size: 120,
+      },
+      {
+        header: 'Auditor Reference ID',
+        accessorKey: 'auditorReferenceID',
+        cell: ({ row }) => <div>{row.getValue('auditorReferenceID') || '-'}</div>,
+        size: 120,
+      },
+      {
+        header: 'Source',
+        accessorKey: 'source',
+        cell: ({ row }) => <div>{row.getValue('source') || '-'}</div>,
+        size: 120,
+      },
+      {
+        header: 'Control Type',
+        accessorKey: 'controlType',
+        cell: ({ row }) => <div>{row.getValue('controlType') || '-'}</div>,
+        size: 120,
+      },
+      {
+        header: 'Reference Framework',
+        accessorKey: 'referenceFramework',
+        cell: ({ row }) => <div>{row.getValue('referenceFramework') || '-'}</div>,
+        size: 120,
+      },
+      {
+        header: 'Subcontrol',
+        id: 'subcontrol',
+        cell: ({ row }) => {
+          const controlId = row.original.id
+          const edges = row.original.subcontrols?.edges ?? []
+
+          if (!edges.length) return <div>-</div>
+
+          return (
+            <div className="flex flex-wrap gap-2">
+              {edges.map((edge, i) => {
+                const node = edge?.node
+                if (!node) return null
+                // TODO: we can set limit to 5 subcontrols and show + rest
+                return <RelatedControlChip href={`/controls/${controlId}/${node.id}`} key={i} refCode={node.refCode} />
+              })}
+            </div>
+          )
+        },
+        size: 200,
       },
     ],
     [plateEditorHelper],

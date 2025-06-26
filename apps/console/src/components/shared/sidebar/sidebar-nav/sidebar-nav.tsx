@@ -18,12 +18,11 @@ import { CONTRIBUTE_URL, DOCS_URL, SUPPORT_EMAIL } from '@/constants'
 
 interface SideNavProps {
   items: (NavItem | Separator | NavHeading)[]
-  userTaskCount: number
   setOpen?: (open: boolean) => void
   className?: string
 }
 
-export function SideNav({ items, userTaskCount, setOpen, className }: SideNavProps) {
+export function SideNav({ items, setOpen, className }: SideNavProps) {
   const path = usePathname()
   const { isOpen: isSidebarOpen, toggle: toggleOpen } = useSidebar()
   const [openItems, setOpenItems] = useState<string[]>([])
@@ -79,7 +78,7 @@ export function SideNav({ items, userTaskCount, setOpen, className }: SideNavPro
               <AccordionTrigger className={accordionTrigger()}>
                 <div>{item.icon && <item.icon className={icon()} />}</div>
                 <div className={cn(linkLabel(), !isSidebarOpen && className)}>{item.title}</div>
-                {item.addCount && isSidebarOpen && <div className={badgeCount({ isCurrent: path === item.href })}>{userTaskCount}</div>}
+                {item.addCount && isSidebarOpen && <div className={badgeCount({ isCurrent: path === item.href })}></div>}
               </AccordionTrigger>
               <AccordionContent>
                 {item.children?.map((child) => (

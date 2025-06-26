@@ -29,13 +29,17 @@ import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canDelete, canEdit } from '@/lib/authz/utils'
 import { useDeleteProcedure } from '@/lib/graphql-hooks/procedures'
 import Menu from '@/components/shared/menu/menu.tsx'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
+import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 
 type TViewProcedurePage = {
   procedureId: string
 }
 
 const ViewProcedurePage: React.FC<TViewProcedurePage> = ({ procedureId }) => {
-  const { data, isLoading } = useGetProcedureDetailsById(procedureId)
+  const [isDeleting, setIsDeleting] = useState<boolean>(false)
+  const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { data, isLoading } = useGetProcedureDetailsById(procedureId, !isDeleting)
   const plateEditorHelper = usePlateEditor()
   const { mutateAsync: updateProcedure, isPending: isSaving } = useUpdateProcedure()
   const procedureState = useProcedure()
@@ -51,6 +55,14 @@ const ViewProcedurePage: React.FC<TViewProcedurePage> = ({ procedureId }) => {
   const editAllowed = canEdit(permission?.roles)
   const { mutateAsync: deleteProcedure } = useDeleteProcedure()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Procedures', href: '/procedures' },
+      { label: procedure?.name, isLoading: isLoading },
+    ])
+  }, [setCrumbs, procedure, isLoading])
 
   useEffect(() => {
     if (procedure) {
@@ -102,6 +114,7 @@ const ViewProcedurePage: React.FC<TViewProcedurePage> = ({ procedureId }) => {
 
   const handleDeleteProcedure = async () => {
     try {
+      setIsDeleting(true)
       await deleteProcedure({ deleteProcedureId: procedureId })
       successNotification({ title: 'Procedure deleted successfully' })
       router.push('/procedures')
@@ -150,73 +163,92 @@ const ViewProcedurePage: React.FC<TViewProcedurePage> = ({ procedureId }) => {
     }
   }
 
-  return (
-    <>
-      {isLoading && <Loading />}
-      {!isLoading && procedure && (
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmitHandler)} className="grid grid-cols-1 lg:grid-cols-[1fr_336px] gap-6">
-            <div className="space-y-6 w-full max-w-full overflow-hidden">
-              <TitleField isEditing={isEditing} form={form} />
-              <DetailsField isEditing={isEditing} form={form} procedure={procedure} />
-              <AssociatedObjectsViewAccordion procedure={procedure} />
-            </div>
-            <div className="space-y-4">
-              <div className="flex gap-2 justify-end">
-                {isEditing ? (
-                  <div className="flex gap-2 justify-end">
-                    <Button className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
-                      Cancel
-                    </Button>
-                    <Button type="submit" iconPosition="left" className="h-8 !px-2" icon={<SaveIcon />} disabled={isSaving}>
-                      {isSaving ? 'Saving' : 'Save'}
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="flex gap-2 justify-end">
-                    {!editAllowed && !deleteAllowed ? (
-                      <></>
-                    ) : (
-                      <Menu
-                        content={
+  if (isLoading) {
+    return <Loading />
+  }
+
+  if (!procedure) {
+    return null
+  }
+
+  const menuComponent = (
+    <div className="space-y-4">
+      {isEditing ? (
+        <div className="flex gap-2 justify-end">
+          <Button className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
+            Cancel
+          </Button>
+          <Button type="submit" iconPosition="left" className="h-8 !px-2" icon={<SaveIcon />} disabled={isSaving}>
+            {isSaving ? 'Saving' : 'Save'}
+          </Button>
+        </div>
+      ) : (
+        <div className="flex gap-2 justify-end">
+          {!editAllowed && !deleteAllowed ? (
+            <></>
+          ) : (
+            <Menu
+              content={
+                <>
+                  {editAllowed && (
+                    <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleEdit}>
+                      <PencilIcon size={16} strokeWidth={2} />
+                      <span>Edit</span>
+                    </div>
+                  )}
+                  {deleteAllowed && (
+                    <>
+                      <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={() => setIsDeleteDialogOpen(true)}>
+                        <Trash2 size={16} strokeWidth={2} />
+                        <span>Delete</span>
+                      </div>
+                      <ConfirmationDialog
+                        open={isDeleteDialogOpen}
+                        onOpenChange={setIsDeleteDialogOpen}
+                        onConfirm={handleDeleteProcedure}
+                        title={`Delete Procedure`}
+                        description={
                           <>
-                            {editAllowed && (
-                              <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleEdit}>
-                                <PencilIcon size={16} strokeWidth={2} />
-                                <span>Edit</span>
-                              </div>
-                            )}
-                            {deleteAllowed && (
-                              <>
-                                <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={() => setIsDeleteDialogOpen(true)}>
-                                  <Trash2 size={16} strokeWidth={2} />
-                                  <span>Delete</span>
-                                </div>
-                                <ConfirmationDialog
-                                  open={isDeleteDialogOpen}
-                                  onOpenChange={setIsDeleteDialogOpen}
-                                  onConfirm={handleDeleteProcedure}
-                                  description="This action cannot be undone. This will permanently remove the procedure from the organization."
-                                />
-                              </>
-                            )}
+                            This action cannot be undone. This will permanently remove <b>{procedure.name}</b> from the organization.
                           </>
                         }
                       />
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <AuthorityCard form={form} approver={procedure.approver} delegate={procedure.delegate} isEditing={isEditing} />
-              <PropertiesCard form={form} isEditing={isEditing} procedure={procedure} />
-              <HistoricalCard procedure={procedure} />
-              <TagsCard form={form} procedure={procedure} isEditing={isEditing} />
-            </div>
-          </form>
-        </Form>
+                    </>
+                  )}
+                </>
+              }
+            />
+          )}
+        </div>
       )}
+    </div>
+  )
+
+  const mainContent = (
+    <div className="space-y-6 p-6">
+      <TitleField isEditing={isEditing} form={form} />
+      <DetailsField isEditing={isEditing} form={form} procedure={procedure} />
+    </div>
+  )
+
+  const sidebarContent = (
+    <>
+      <AuthorityCard form={form} approver={procedure.approver} delegate={procedure.delegate} isEditing={isEditing} />
+      <PropertiesCard form={form} isEditing={isEditing} procedure={procedure} />
+      <HistoricalCard procedure={procedure} />
+      <TagsCard form={form} procedure={procedure} isEditing={isEditing} />
+      <AssociatedObjectsViewAccordion procedure={procedure} />
     </>
+  )
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmitHandler)}>
+        <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>
+          {mainContent}
+        </SlideBarLayout>
+      </form>
+    </Form>
   )
 }
 

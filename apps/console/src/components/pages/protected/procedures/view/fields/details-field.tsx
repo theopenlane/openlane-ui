@@ -4,7 +4,6 @@ import React from 'react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { ProcedureByIdFragment } from '@repo/codegen/src/schema.ts'
 import { EditProcedureMetadataFormData } from '@/components/pages/protected/procedures/view/hooks/use-form-schema.ts'
-import { Card } from '@repo/ui/cardpanel'
 
 type TDetailsFieldProps = {
   isEditing: boolean
@@ -27,9 +26,7 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, procedure
       />
     </div>
   ) : (
-    <Card className="p-4">
-      <div className="!mt-4 bg-none max-h-[55vh] overflow-auto p-2">{procedure?.details && plateEditorHelper.convertToReadOnly(procedure.details as string, 0)}</div>
-    </Card>
+    <div className="!mt-4 bg-none p-2">{procedure?.details && plateEditorHelper.convertToReadOnly(procedure.details as string, 0)}</div>
   )
 }
 
