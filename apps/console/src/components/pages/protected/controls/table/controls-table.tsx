@@ -20,6 +20,7 @@ import { VisibilityState } from '@tanstack/react-table'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { RelatedControlChip } from '../shared/related-control-chip'
+import SubcontrolCell from './subcontrol-cell'
 
 export const ControlStatusLabels: Record<ControlControlStatus, string> = {
   [ControlControlStatus.APPROVED]: 'Approved',
@@ -192,24 +193,8 @@ const ControlsTable: React.FC = () => {
       },
       {
         header: 'Subcontrol',
-        id: 'subcontrol',
-        cell: ({ row }) => {
-          const controlId = row.original.id
-          const edges = row.original.subcontrols?.edges ?? []
-
-          if (!edges.length) return <div>-</div>
-
-          return (
-            <div className="flex flex-wrap gap-2">
-              {edges.map((edge, i) => {
-                const node = edge?.node
-                if (!node) return null
-                // TODO: we can set limit to 5 subcontrols and show + rest
-                return <RelatedControlChip href={`/controls/${controlId}/${node.id}`} key={i} refCode={node.refCode} />
-              })}
-            </div>
-          )
-        },
+        accessorKey: 'subcontrol',
+        cell: SubcontrolCell,
         size: 200,
       },
     ],

@@ -2,9 +2,9 @@ import React, { useEffect, useMemo } from 'react'
 import { Accordion, AccordionContent, AccordionItem } from '@radix-ui/react-accordion'
 import ControlChip from './shared/control-chip'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
-import { GetControlSelectOptionsQuery, GetSubcontrolSelectOptionsQuery } from '@repo/codegen/src/schema'
 import { DroppedControl } from './map-controls-card'
 import RelationsAccordionTrigger from '@/components/shared/relations-accordion-trigger.tsx/relations-accordion-trigger'
+import { useFormContext } from 'react-hook-form'
 
 interface Props {
   controlData?: (
@@ -32,6 +32,7 @@ interface Props {
         referenceFramework?: string | null
       }[]
     | undefined
+  title: 'To' | 'From'
 }
 
 type SubcontrolOrControl =
@@ -45,16 +46,21 @@ type SubcontrolOrControl =
   | null
   | undefined
 
-const MapControlFrameworksAccordion: React.FC<Props> = ({ controlData, droppedControls, expandedItems, setExpandedItems, subcontrolData }) => {
+const MapControlFrameworksAccordion: React.FC<Props> = ({ controlData, droppedControls, expandedItems, setExpandedItems, subcontrolData, title }) => {
   const { standardOptions } = useStandardsSelect({})
-  const droppedIds = useMemo(() => new Set(droppedControls.map((dc) => dc.id)), [droppedControls])
+  const form = useFormContext()
 
   const { controlsByFramework, customControls } = useMemo(() => {
+    const oppositeControlIDs: string[] = form.getValues(title === 'From' ? 'toControlIDs' : 'fromControlIDs') || []
+    const oppositeSubcontrolIDs: string[] = form.getValues(title === 'From' ? 'toSubcontrolIDs' : 'fromSubcontrolIDs') || []
+
+    const excludeIds = new Set([...droppedControls.map((dc) => dc.id), ...oppositeControlIDs, ...oppositeSubcontrolIDs])
+
     const byFramework: Record<string, { id: string; refCode: string; type: 'control' | 'subcontrol' }[]> = {}
     const custom: { id: string; refCode: string; type: 'control' | 'subcontrol' }[] = []
 
     const addControl = (control: SubcontrolOrControl, type: 'control' | 'subcontrol') => {
-      if (!control || !control.refCode || droppedIds.has(control.id)) return
+      if (!control || !control.refCode || excludeIds.has(control.id)) return
 
       const key = control.referenceFramework ?? 'custom'
       const item = {
@@ -75,7 +81,7 @@ const MapControlFrameworksAccordion: React.FC<Props> = ({ controlData, droppedCo
     subcontrolData?.forEach((subcontrol) => addControl(subcontrol, 'subcontrol'))
 
     return { controlsByFramework: byFramework, customControls: custom }
-  }, [controlData, subcontrolData, droppedIds])
+  }, [controlData, subcontrolData, droppedControls, title, form])
 
   const openKeys = useMemo(
     () =>
@@ -127,7 +133,6 @@ const MapControlFrameworksAccordion: React.FC<Props> = ({ controlData, droppedCo
           )
         })}
 
-      {/* Custom section */}
       {customControls.length > 0 && (
         <AccordionItem key="custom" value="custom">
           <RelationsAccordionTrigger label="Custom" count={customControls.length} />

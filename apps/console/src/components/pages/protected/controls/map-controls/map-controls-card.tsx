@@ -137,6 +137,7 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
                   controlData={allControls?.allControls}
                   subcontrolData={subcontrolEnabled ? allSubcontrols.allSubcontrols : undefined}
                   droppedControls={droppedControls}
+                  title={title}
                 />
               </div>
               <div className="border-2 border-dashed rounded-lg flex items-center justify-center flex-col gap-2" onDragOver={(e) => e.preventDefault()} onDrop={handleDrop}>
