@@ -11,6 +11,7 @@ import { CreateBtn } from '@/components/shared/icon-enum/common-enum'
 import Link from 'next/link'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
+import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
 
 type TProps = {
   onFilterChange: (filters: Record<string, any>) => void
@@ -29,14 +30,19 @@ type TProps = {
 
 const ControlsTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, searchTerm, setSearchTerm, owners, handleExport, columnVisibility, setColumnVisibility, mappedColumns }: TProps) => {
   const { programOptions } = useProgramSelect()
+  const { data } = useGetAllGroups({ where: {} })
+  const groups = data?.groups?.edges?.map((edge) => edge?.node!) || []
 
   const filterFields = [
     ...CONTROLS_FILTER_FIELDS,
     {
-      key: 'ownerID',
+      key: 'controlOwnerID',
       label: 'Owners',
       type: 'select',
-      options: owners ?? [{ value: 'owner_1', label: 'Owner 1' }],
+      options: groups.map((group) => ({
+        value: group.id,
+        label: group.name,
+      })),
     } as SelectFilterField,
     {
       key: 'hasProgramsWith',
