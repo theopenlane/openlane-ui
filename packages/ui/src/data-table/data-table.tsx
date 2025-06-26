@@ -76,6 +76,7 @@ export function DataTable<TData, TValue>({
   const [sortConditions, setSortConditions] = useState<{ field: string; direction?: OrderDirection }[]>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [rowSelection, setRowSelection] = useState({})
+  const [filterActive, setFilterActive] = useState(false)
   const searchParams = useSearchParams()
 
   const currentPage = pagination?.page || 1
@@ -239,13 +240,15 @@ export function DataTable<TData, TValue>({
 
   useEffect(() => {
     const filtersParam = searchParams.get('filters')
+    const filterActive = searchParams.get('filterActive')
+    filterActive && filterActive === '1' ? setFilterActive(true) : setFilterActive(false)
     const parsedFilters: Filter[] | null = filtersParam ? JSON.parse(decodeURIComponent(filtersParam)) : null
     parsedFilters && parsedFilters?.filter((filter) => filter.value !== '').length > 0 ? setHasFilters(true) : setHasFilters(false)
   }, [searchParams])
 
   return (
     <>
-      <div className={cn(`overflow-hidden rounded-lg border bg-background-secondary ${hasFilters ? 'mt-12' : ''}`, wrapperClass)}>
+      <div className={cn(`overflow-hidden rounded-lg border bg-background-secondary ${filterActive ? 'mt-16' : ''}`, wrapperClass)}>
         {(showFilter || showVisibility) && (
           <div className="flex items-center py-4">
             {showFilter && (

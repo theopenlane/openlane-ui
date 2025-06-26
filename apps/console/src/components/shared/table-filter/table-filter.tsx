@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { ListFilter, Trash2, X } from 'lucide-react'
+import React, { useState, useEffect, useCallback, startTransition } from 'react'
+import { ChevronDown, ChevronUp, ListFilter, Plus, Trash2, X } from 'lucide-react'
 import { Popover, PopoverTrigger, PopoverContent } from '@repo/ui/popover'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Input } from '@repo/ui/input'
@@ -55,9 +55,10 @@ export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilter
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [filters, setFilters] = useState<Filter[] | null>(null)
+  const [appliedFilters, setAppliedFilters] = useState<Filter[] | null>(null)
   const [conjunction, setConjunction] = useState<'and' | 'or'>('and')
-  const debouncedFilters = useDebounce(filters, 300)
   const { prefixes, columnName, operator, value } = tableFilterStyles()
+  const filtersActive = searchParams.get('filterActive') === '1'
 
   const handleDateEQOperator = (value: string, field: string) => {
     const start = format(startOfDay(new Date(value)), "yyyy-MM-dd'T'HH:mm:ss'Z'")
@@ -94,31 +95,51 @@ export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilter
         const parsedFilters = JSON.parse(decodeURIComponent(filtersParam))
         if (Array.isArray(parsedFilters)) {
           setFilters(parsedFilters)
+          setAppliedFilters(parsedFilters)
+          const hasFilters = Array.isArray(filters) && filters.length > 0
+          const params = new URLSearchParams(searchParams.toString())
+
+          hasFilters ? params.set('filters', JSON.stringify(filters)) : params.delete('filters')
+
+          const url = `${pathname}?${params.toString()}`
+          router.replace(url)
+
+          onFilterChange?.(generateWhereCondition(parsedFilters, conjunction))
         }
       } catch (err) {
         console.error('Invalid filters in URL', err)
       }
     } else {
       setFilters([])
+      setAppliedFilters([])
+      onFilterChange?.(generateWhereCondition([], conjunction))
     }
   }, [searchParams])
-
-  useEffect(() => {
-    const hasFilters = Array.isArray(filters) && filters.length > 0
-    const params = new URLSearchParams(searchParams.toString())
-
-    hasFilters ? params.set('filters', JSON.stringify(filters)) : params.delete('filters')
-
-    const url = `${pathname}?${params.toString()}`
-    router.replace(url)
-  }, [filters, router, pathname, searchParams])
 
   const updateFilters = (updatedFilters: Filter[]) => {
     setFilters(updatedFilters)
   }
 
+  const handleSaveFilters = (appliedFilters?: Filter[]) => {
+    if (!filters && !appliedFilters) {
+      return
+    }
+
+    const editedFilters = (appliedFilters ?? filters)!
+    const hasFilters = Array.isArray(editedFilters) && editedFilters.length > 0
+    const params = new URLSearchParams(searchParams.toString())
+    hasFilters ? params.set('filters', JSON.stringify(editedFilters)) : params.delete('filters')
+    const url = `${pathname}?${params.toString()}`
+    router.replace(url)
+    setAppliedFilters(editedFilters)
+    onFilterChange?.(generateWhereCondition(editedFilters, conjunction))
+  }
+
   const addFilter = () => {
-    if (!filterFields.length) return
+    if (!filterFields.length) {
+      return
+    }
+
     const firstField = filterFields[0]
     updateFilters([
       ...(filters || []),
@@ -144,20 +165,23 @@ export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilter
     ])
   }
 
-  useEffect(() => {
-    if (debouncedFilters) {
-      onFilterChange?.(generateWhereCondition(debouncedFilters, conjunction))
-    }
-  }, [debouncedFilters, conjunction, onFilterChange, generateWhereCondition])
-
   const handleFilterChange = (index: number, field: Partial<Filter>) => {
     if (filters) {
       setFilters(filters.map((filter, i) => (i === index ? { ...filter, ...field } : filter)))
     }
   }
 
-  const removeFilter = (index: number) => {
-    if (filters) {
+  const removeFilter = (index: number, isAppliedFilter: boolean = false) => {
+    if (isAppliedFilter && appliedFilters) {
+      const updatedAppliedFilters = appliedFilters.filter((_, i) => i !== index)
+      handleSaveFilters(updatedAppliedFilters)
+    }
+
+    if (filters && filters.length === 1) {
+      resetFilters()
+    }
+
+    if (filters && filters.length > 1) {
       updateFilters(filters.filter((_, i) => i !== index))
     }
   }
@@ -232,100 +256,129 @@ export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilter
     }
   }
 
+  const toggleFilterActive = useCallback(() => {
+    startTransition(() => {
+      const params = new URLSearchParams(searchParams.toString())
+
+      if (params.get('filterActive') === '1') {
+        params.delete('filterActive')
+      } else {
+        params.set('filterActive', '1')
+      }
+
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+    })
+  }, [searchParams, pathname, router])
+
   return (
-    <div className="relative">
-      <Popover onOpenChange={(open) => open && filters?.length === 0 && addFilter()}>
-        <PopoverTrigger asChild>
-          <button className="gap-2 flex items-center py-1.5 px-3 border rounded-lg">
-            <ListFilter size={16} />
-            <p className="text-sm whitespace-nowrap">Filter</p>
-          </button>
-        </PopoverTrigger>
-        <PopoverContent align="start" side="bottom" sideOffset={8} asChild className="size-fit p-4 ">
-          <div className="flex flex-col gap-2">
-            {filters?.map((filter, index) => {
-              const filterField = filterFields.find((f) => f.key === filter.field)
-              const operators = filterField ? getOperatorsForType(filterField.type) : []
-
-              return (
-                <div key={index} className="flex items-center gap-2">
-                  {index === 0 && <p className={prefixes()}>Where</p>}
-                  {index === 1 && (
-                    <Select value={conjunction} onValueChange={(val: 'and' | 'or') => setConjunction(val)}>
-                      <SelectTrigger className={prefixes()}>
-                        <SelectValue placeholder="And/Or" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="and">And</SelectItem>
-                        <SelectItem value="or">Or</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
-                  {index > 1 && <p className={prefixes()}>{conjunction}</p>}
-                  <Select
-                    value={filter.field}
-                    onValueChange={(value) => {
-                      const selectedField = filterFields.find((f) => f.key === value)
-                      if (selectedField) {
-                        handleFilterChange(index, {
-                          field: value,
-                          type: selectedField.type,
-                          value: '',
-                          operator: getOperatorsForType(selectedField.type)[0]?.value || 'equals', // Reset to default operator
-                        })
-                      }
-                    }}
-                  >
-                    <SelectTrigger className={columnName()}>
-                      <SelectValue placeholder="Select field" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {filterFields.map((field) => (
-                        <SelectItem key={field.key} value={field.key}>
-                          {field.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  <Select value={filter.operator} onValueChange={(value) => handleFilterChange(index, { operator: value })}>
-                    <SelectTrigger className={operator()}>
-                      <SelectValue placeholder="Select operator" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {operators.map((operator) => (
-                        <SelectItem key={operator.value} value={operator.value}>
-                          {operator.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  {renderFilterInput(filter, index)}
-
-                  <Button variant="outline" onClick={() => removeFilter(index)}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              )
-            })}
-            <div className="flex gap-2">
-              <Button onClick={addFilter}>Add Filter</Button>
-              <Button variant="outline" onClick={resetFilters}>
-                Reset Filters
-              </Button>
+    <div>
+      <button className="gap-2 flex items-center py-1.5 px-3 border rounded-lg" onClick={toggleFilterActive}>
+        <ListFilter size={16} />
+        <p className="text-sm whitespace-nowrap">Filters</p>
+        <ChevronUp size={16} />
+        <span className="border-l pl-2">
+          <span className="bg-background-secondary rounded-md p-1 pl-2 pr-2 text-sm">{appliedFilters?.length}</span>
+        </span>
+      </button>
+      {filtersActive && (
+        <div className="absolute mt-2 text-xs leading-6 w-full bg-background-secondary p-2 rounded-lg">
+          <div className="flex items-center flex-wrap gap-2">
+            <div className="flex gap-2 border rounded-lg px-2 py-1 cursor-pointer">
+              <Plus size={16} />
+              <span className="text-xs">Filter</span>
             </div>
-          </div>
-        </PopoverContent>
-      </Popover>
-      {filters && filters?.filter((filter) => filter.value !== '').length > 0 && (
-        <div className="absolute left-0 mt-2 text-xs leading-6 w-max">
-          <div className="flex items-center flex-wrap gap-2 ">
-            <span className="whitespace-nowrap text-xs">Active filter</span>
-            {filters?.map((item, index) => (
+            <Popover onOpenChange={(open) => open && filters?.length === 0 && addFilter()}>
+              <PopoverTrigger asChild>
+                <div className="flex items-center gap-2 border rounded-lg px-2 py-1 cursor-pointer">
+                  <ListFilter size={16} />
+                  <span className="text-xs">Advanced</span>
+                  <span className="border-l bg-background-secondary pl-2 text-xs">{appliedFilters?.length}</span>
+                  <ChevronDown size={16} />
+                </div>
+              </PopoverTrigger>
+              <PopoverContent align="start" side="bottom" sideOffset={8} asChild className="size-fit p-4 ">
+                <div className="flex flex-col gap-2">
+                  {filters?.map((filter, index) => {
+                    const filterField = filterFields.find((f) => f.key === filter.field)
+                    const operators = filterField ? getOperatorsForType(filterField.type) : []
+
+                    return (
+                      <div key={index} className="flex items-center gap-2">
+                        {index === 0 && <p className={prefixes()}>Where</p>}
+                        {index === 1 && (
+                          <Select value={conjunction} onValueChange={(val: 'and' | 'or') => setConjunction(val)}>
+                            <SelectTrigger className={prefixes()}>
+                              <SelectValue placeholder="And/Or" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="and">And</SelectItem>
+                              <SelectItem value="or">Or</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
+                        {index > 1 && <p className={prefixes()}>{conjunction}</p>}
+                        <Select
+                          value={filter.field}
+                          onValueChange={(value) => {
+                            const selectedField = filterFields.find((f) => f.key === value)
+                            if (selectedField) {
+                              handleFilterChange(index, {
+                                field: value,
+                                type: selectedField.type,
+                                value: '',
+                                operator: getOperatorsForType(selectedField.type)[0]?.value || 'equals', // Reset to default operator
+                              })
+                            }
+                          }}
+                        >
+                          <SelectTrigger className={columnName()}>
+                            <SelectValue placeholder="Select field" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {filterFields.map((field) => (
+                              <SelectItem key={field.key} value={field.key}>
+                                {field.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+
+                        <Select value={filter.operator} onValueChange={(value) => handleFilterChange(index, { operator: value })}>
+                          <SelectTrigger className={operator()}>
+                            <SelectValue placeholder="Select operator" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {operators.map((operator) => (
+                              <SelectItem key={operator.value} value={operator.value}>
+                                {operator.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+
+                        {renderFilterInput(filter, index)}
+
+                        <Button variant="outline" onClick={() => removeFilter(index)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )
+                  })}
+                  <div className="flex gap-2">
+                    <Button onClick={() => handleSaveFilters()}>Save</Button>
+                    <Button variant="outline" onClick={resetFilters}>
+                      Reset Filters
+                    </Button>
+                    <Button onClick={addFilter}>Add filter rule</Button>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+
+            {appliedFilters?.map((item, index) => (
               <div key={index} className="flex items-center border rounded-lg px-2 py-1 max-w-xs">
                 <span className="mr-2 truncate text-xs">{normalizeFilter(item)}</span>
-                <button className="border-l pl-2" onClick={() => removeFilter(index)}>
+                <button className="border-l pl-2" onClick={() => removeFilter(index, true)}>
                   <X size={12} />
                 </button>
               </div>

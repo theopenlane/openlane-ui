@@ -48,7 +48,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
   const { data: permission } = useOrganizationRole(session)
 
   return (
-    <div className={cn('flex items-center gap-2', className)}>
+    <div className={cn('relative flex items-center gap-2', className)}>
       <div className="grow flex flex-row items-center gap-2">
         <TableFilter filterFields={INTERNAL_POLICIES_FILTERABLE_FIELDS} onFilterChange={setFilters} />
         <Input
