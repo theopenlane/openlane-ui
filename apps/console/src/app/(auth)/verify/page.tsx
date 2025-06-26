@@ -1,8 +1,11 @@
-'use client'
-
 import React, { Suspense } from 'react'
 import { LoaderCircle } from 'lucide-react'
 import { TokenVerifier } from '@/components/pages/auth/verify/verifier'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Verifier',
+}
 
 export const dynamic = 'force-dynamic'
 

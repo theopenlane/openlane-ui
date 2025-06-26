@@ -70,6 +70,14 @@ const Page: React.FC = () => {
   }, [setCrumbs, basicInfoData, isLoading])
 
   useEffect(() => {
+    if (!basicInfoData) {
+      document.title = `Acme Corp: | Home`
+      return
+    }
+    document.title = `Acme Corp: Programs - ${basicInfoData.program.name}`
+  }, [basicInfoData])
+
+  useEffect(() => {
     if (!data?.programs?.edges?.length) return
 
     const firstProgram = data.programs.edges[0]?.node

@@ -178,6 +178,7 @@ const ControlDetailsPage: React.FC = () => {
 
       form.reset(newValues)
       setInitialValues(newValues)
+      document.title = `Acme Corp: Controls - ${data.control.refCode}`
     }
   }, [data?.control, form])
 

@@ -99,6 +99,7 @@ const ViewProcedurePage: React.FC<TViewProcedurePage> = ({ procedureId }) => {
       procedureState.setAssociations(procedureAssociations)
       procedureState.setAssociationRefCodes(procedureAssociationsRefCodes)
     }
+    document.title = `Acme Corp: Procedures - ${procedure?.name}`
   }, [procedure])
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {

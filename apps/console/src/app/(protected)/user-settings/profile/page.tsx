@@ -4,7 +4,7 @@ import { pageStyles } from './page.styles'
 import ProfilePage from '@/components/pages/protected/profile/user-settings/profile-page'
 
 export const metadata: Metadata = {
-  title: 'Organization settings',
+  title: 'Profile',
 }
 
 const Page: React.FC = () => {

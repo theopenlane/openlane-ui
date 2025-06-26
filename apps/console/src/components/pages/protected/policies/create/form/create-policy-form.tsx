@@ -95,6 +95,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
       setInitialAssociations(policyAssociations)
       policyState.setAssociations(policyAssociations)
       policyState.setAssociationRefCodes(policyAssociationsRefCodes)
+      document.title = `Acme Corp: Internal Policies - ${policy.name}`
     }
   }, [isPoliciesCreate])
 

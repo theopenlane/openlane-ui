@@ -73,6 +73,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
         stakeholderID: risk.stakeholder?.id,
         delegateID: risk.delegate?.id,
       })
+      document.title = `Acme Corp: Risks - ${risk.name}`
     }
   }, [risk])
 

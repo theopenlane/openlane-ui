@@ -52,6 +52,10 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
     ])
   }, [setCrumbs])
 
+  useEffect(() => {
+    document.title = `Acme Corp: | Questionnaire Editor`
+  }, [])
+
   function addCustomTheme(theme: ITheme, userFriendlyThemeName: string) {
     // Add a localized user-friendly theme name
     if (theme.themeName) {

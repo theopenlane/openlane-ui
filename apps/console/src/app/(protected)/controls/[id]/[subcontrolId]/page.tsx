@@ -161,6 +161,7 @@ const ControlDetailsPage: React.FC = () => {
 
       form.reset(newValues)
       setInitialValues(newValues)
+      document.title = `Acme Corp: Subcontrols - ${data.subcontrol.refCode}`
     }
   }, [data?.subcontrol, form])
 

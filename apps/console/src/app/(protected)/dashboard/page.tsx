@@ -50,7 +50,7 @@ const Page: React.FC = () => {
 
   useEffect(() => {
     const programId = searchParams.get('id')
-
+    document.title = `Acme Corp: | Dashboard`
     if (!programId) {
       setSelectedProgram('All programs')
     } else {

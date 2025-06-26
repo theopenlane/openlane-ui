@@ -13,6 +13,10 @@ const Page: React.FC = () => {
       { label: 'Audit Logs', href: '/logs' },
     ])
   }, [setCrumbs])
+
+  useEffect(() => {
+    document.title = `Acme Corp: | Audit Logs`
+  }, [])
   return <PageHeading heading="Audit Logs" eyebrow="Organization Settings" />
 }
 

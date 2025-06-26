@@ -108,6 +108,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
       setInitialAssociations(procedureAssociations)
       procedureState.setAssociations(procedureAssociations)
       procedureState.setAssociationRefCodes(procedureAssociationsRefCodes)
+      document.title = `Acme Corp: Procedures - ${procedure.name}`
     }
   }, [isProcedureCreate])
 

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import dynamic from 'next/dynamic'
 import { useSearchParams, useRouter } from 'next/navigation'
@@ -40,6 +40,10 @@ const Page: React.FC = () => {
   const formSchema = z.object({
     email: z.string().email({ message: 'Invalid email address' }),
   })
+
+  useEffect(() => {
+    document.title = `Acme Corp: | Questionnaire Viewer`
+  }, [])
 
   const form = useForm({
     resolver: zodResolver(formSchema),

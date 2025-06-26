@@ -1,3 +1,4 @@
+'use client'
 import { Logo } from '@repo/ui/logo'
 import React, { ReactNode } from 'react'
 

@@ -96,6 +96,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
       policyState.setInitialAssociations(policyAssociations)
       policyState.setAssociations(policyAssociations)
       policyState.setAssociationRefCodes(policyAssociationsRefCodes)
+      document.title = `Acme Corp: Internal Policies - ${policy.name}`
     }
   }, [policy])
 
