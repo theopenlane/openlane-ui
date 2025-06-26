@@ -18,7 +18,7 @@ import { MapControlsFormData, mapControlsSchema } from './use-form-schema'
 import MapControlsRelations from './map-controls-relations'
 
 const MapControlPage = () => {
-  const [expandedCard, setExpandedCard] = useState<'From' | 'To' | ''>('From')
+  const [expandedCard, setExpandedCard] = useState<'From' | 'To' | ''>('To')
   const { errorNotification, successNotification } = useNotification()
   const { mutateAsync: create } = useCreateMappedControl()
   const { id, subcontrolId } = useParams()

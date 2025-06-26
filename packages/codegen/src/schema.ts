@@ -39194,6 +39194,12 @@ export type UpdateMappedControlMutationVariables = Exact<{
 
 export type UpdateMappedControlMutation = { __typename?: 'Mutation'; updateMappedControl: { __typename?: 'MappedControlUpdatePayload'; mappedControl: { __typename?: 'MappedControl'; id: string } } }
 
+export type DeleteMappedControlMutationVariables = Exact<{
+  deleteMappedControlId: Scalars['ID']['input']
+}>
+
+export type DeleteMappedControlMutation = { __typename?: 'Mutation'; deleteMappedControl: { __typename?: 'MappedControlDeletePayload'; deletedID: string } }
+
 export type UpdateUserRoleInOrgMutationVariables = Exact<{
   updateOrgMemberId: Scalars['ID']['input']
   input: UpdateOrgMembershipInput
