@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@repo/ui/textarea'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { InfoIcon } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import React from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 
@@ -19,6 +20,7 @@ const relationTypes = [
 
 const MapControlsRelations = () => {
   const { control, setValue } = useFormContext()
+  const router = useRouter()
 
   return (
     <div className="flex flex-col space-y-6">
@@ -123,8 +125,8 @@ const MapControlsRelations = () => {
       </div>
 
       <div className="flex justify-end space-x-2">
-        <Button type="submit">Set</Button>
-        <Button type="button" variant="back">
+        <Button type="submit">Save</Button>
+        <Button type="button" variant="back" onClick={() => router.back()}>
           Cancel
         </Button>
       </div>

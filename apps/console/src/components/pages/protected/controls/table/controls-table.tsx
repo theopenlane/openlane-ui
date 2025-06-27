@@ -148,10 +148,9 @@ const ControlsTable: React.FC = () => {
       },
       {
         header: 'Owner',
-        accessorKey: 'controlOwner',
+        accessorKey: ControlOrderField.CONTROL_OWNER_name,
         cell: ({ row }) => {
-          const owner = row.getValue<ControlListFieldsFragment['controlOwner']>('controlOwner')
-
+          const owner = row.original.controlOwner
           return (
             <div className="flex items-center gap-2">
               <Avatar entity={owner as Group} variant="small" />
