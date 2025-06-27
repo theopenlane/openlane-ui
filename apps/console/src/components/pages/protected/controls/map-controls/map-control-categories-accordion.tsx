@@ -4,6 +4,7 @@ import ControlChip from './shared/control-chip'
 import { DroppedControl } from './map-controls-card'
 import RelationsAccordionTrigger from '@/components/shared/relations-accordion-trigger.tsx/relations-accordion-trigger'
 import { useGetControlCategories } from '@/lib/graphql-hooks/controls'
+import { useFormContext } from 'react-hook-form'
 
 interface Props {
   controlData?: (
@@ -31,11 +32,14 @@ interface Props {
         referenceFramework?: string | null
       }[]
     | undefined
+  title: 'From' | 'To'
 }
 
-const MapControlCategoriesAccordion = ({ controlData, droppedControls, expandedItems, setExpandedItems, subcontrolData }: Props) => {
-  const droppedIds = useMemo(() => droppedControls.map((dc) => dc.id), [droppedControls])
+const MapControlCategoriesAccordion = ({ controlData, droppedControls, expandedItems, setExpandedItems, subcontrolData, title }: Props) => {
   const { data } = useGetControlCategories()
+
+  const form = useFormContext()
+
   const categories = useMemo(() => {
     const cats = data?.controlCategories?.map((val) => val).filter((val): val is string => !!val) || []
     cats.push('Custom')
@@ -43,41 +47,41 @@ const MapControlCategoriesAccordion = ({ controlData, droppedControls, expandedI
   }, [data])
 
   const controlsByCategory = useMemo(() => {
+    const oppositeControlIDs: string[] = form.getValues(title === 'From' ? 'toControlIDs' : 'fromControlIDs') || []
+    const oppositeSubcontrolIDs: string[] = form.getValues(title === 'From' ? 'toSubcontrolIDs' : 'fromSubcontrolIDs') || []
+
+    const droppedIds = droppedControls.map((dc) => dc.id)
+    const excludeIds = new Set([...droppedIds, ...oppositeControlIDs, ...oppositeSubcontrolIDs])
+
     const map: Record<string, { id: string; refCode: string; referenceFramework?: string; type: 'control' | 'subcontrol' }[]> = {}
     categories.forEach((cat) => {
       map[cat] = []
     })
 
     controlData?.forEach((control) => {
-      if (!control || !control.refCode || droppedIds.includes(control.id)) return
-
+      if (!control || !control.refCode || excludeIds.has(control.id)) return
       const categoryValue = control.category || 'Custom'
-      if (categoryValue && map[categoryValue]) {
-        map[categoryValue].push({
-          id: control.id ?? '',
-          refCode: control.refCode,
-          referenceFramework: control.referenceFramework || undefined,
-          type: 'control',
-        })
-      }
+      map[categoryValue]?.push({
+        id: control.id,
+        refCode: control.refCode,
+        referenceFramework: control.referenceFramework || undefined,
+        type: 'control',
+      })
     })
 
     subcontrolData?.forEach((subcontrol) => {
-      if (!subcontrol || !subcontrol.refCode || droppedIds.includes(subcontrol.id)) return
-
+      if (!subcontrol || !subcontrol.refCode || excludeIds.has(subcontrol.id)) return
       const categoryValue = subcontrol.category || 'Custom'
-      if (categoryValue && map[categoryValue]) {
-        map[categoryValue].push({
-          id: subcontrol.id,
-          refCode: subcontrol.refCode,
-          referenceFramework: subcontrol.referenceFramework || undefined,
-          type: 'subcontrol',
-        })
-      }
+      map[categoryValue]?.push({
+        id: subcontrol.id,
+        refCode: subcontrol.refCode,
+        referenceFramework: subcontrol.referenceFramework || undefined,
+        type: 'subcontrol',
+      })
     })
 
-    return Object.fromEntries(Object.entries(map).filter(([, controls]) => controls.length > 0))
-  }, [controlData, categories, droppedIds, subcontrolData])
+    return Object.fromEntries(Object.entries(map).filter(([, list]) => list.length > 0))
+  }, [controlData, subcontrolData, droppedControls, title, categories, form])
 
   const openKeys = useMemo(
     () =>
@@ -114,7 +118,7 @@ const MapControlCategoriesAccordion = ({ controlData, droppedControls, expandedI
                 key={c.id}
                 draggable
                 control={{ id: c.id, refCode: c.refCode, shortName: c.referenceFramework || 'CUSTOM', type: c.type }}
-                onDragStart={(e) => e.dataTransfer.setData('application/json', JSON.stringify({ id: c.id, refCode: c.refCode, shortName: c.referenceFramework, type: c.type }))}
+                onDragStart={(e) => e.dataTransfer.setData('application/json', JSON.stringify({ id: c.id, refCode: c.refCode, shortName: c.referenceFramework || 'CUSTOM', type: c.type }))}
               />
             ))}
           </AccordionContent>

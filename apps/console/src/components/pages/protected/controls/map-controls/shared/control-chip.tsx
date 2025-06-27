@@ -1,10 +1,9 @@
-// components/ControlChip.tsx
 import React, { useState } from 'react'
 import { Badge } from '@repo/ui/badge'
 import Drag from '@/assets/Drag'
 import { PencilLine, XIcon } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { SlidersHorizontal, FileText, Folder, FolderPlus, Edit2, ExternalLink } from 'lucide-react'
+import { SlidersHorizontal, FileText, Folder, FolderPlus, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 
 import { DroppedControl } from '../map-controls-card'

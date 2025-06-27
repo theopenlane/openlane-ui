@@ -99,7 +99,10 @@ export const useUpdateControl = () => {
 
   return useMutation<UpdateControlMutation, unknown, UpdateControlMutationVariables>({
     mutationFn: async (variables) => client.request(UPDATE_CONTROL, variables),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['controls'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['controls'] })
+      queryClient.invalidateQueries({ queryKey: ['mappedcontrols'] })
+    },
   })
 }
 
@@ -132,6 +135,7 @@ export const useDeleteControl = () => {
     mutationFn: async (variables) => client.request(DELETE_CONTROL, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['controls'] })
+      queryClient.invalidateQueries({ queryKey: ['mappedcontrols'] })
     },
   })
 }
@@ -144,6 +148,7 @@ export const useCreateControl = () => {
     mutationFn: async (variables) => client.request(CREATE_CONTROL, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['controls'] })
+      queryClient.invalidateQueries({ queryKey: ['mappedcontrols'] })
     },
   })
 }

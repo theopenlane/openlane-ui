@@ -33,6 +33,8 @@ import CreateControlImplementationSheet from '@/components/pages/protected/contr
 import Link from 'next/link'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 import RelatedControls from '@/components/pages/protected/controls/related-controls'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { useGetControlById } from '@/lib/graphql-hooks/controls'
 
 interface FormValues {
   refCode: string
@@ -66,8 +68,9 @@ const initialDataObj = {
 }
 
 const ControlDetailsPage: React.FC = () => {
+  const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { subcontrolId, id } = useParams<{ subcontrolId: string; id: string }>()
-  const { data, isLoading, isError } = useGetSubcontrolById(subcontrolId)
+
   const [isEditing, setIsEditing] = useState(false)
   const [showSheet, setShowSheet] = useState<boolean>(false)
   const [sheetData, setSheetData] = useState<SheetData | null>(null)
@@ -78,6 +81,10 @@ const ControlDetailsPage: React.FC = () => {
 
   const { mutateAsync: updateSubcontrol } = useUpdateSubcontrol()
   const plateEditorHelper = usePlateEditor()
+
+  const { data, isLoading, isError } = useGetSubcontrolById(subcontrolId)
+  const { data: controlData, isLoading: isLoadingControl } = useGetControlById(id)
+
   const isSourceFramework = data?.subcontrol.source === SubcontrolControlSource.FRAMEWORK
 
   const form = useForm<FormValues>({
@@ -141,6 +148,15 @@ const ControlDetailsPage: React.FC = () => {
     e.preventDefault()
     setIsEditing(true)
   }
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Controls', href: '/controls' },
+      { label: controlData?.control?.refCode, isLoading: isLoadingControl },
+      { label: data?.subcontrol?.refCode, isLoading: isLoading },
+    ])
+  }, [setCrumbs, controlData, isLoading, data, isLoadingControl])
 
   useEffect(() => {
     if (data?.subcontrol) {
