@@ -51,6 +51,9 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
     <>
       <div className="relative flex items-center gap-2 my-2">
         <div className="grow flex flex-row items-center gap-2">
+          {mappedColumns && columnVisibility && setColumnVisibility && (
+            <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
+          )}
           <TableFilter filterFields={INTERNAL_POLICIES_FILTERABLE_FIELDS} onFilterChange={setFilters} />
           <Input
             icon={isSearching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
@@ -62,9 +65,6 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
         </div>
 
         <div className="grow flex flex-row items-center gap-2 justify-end">
-          {mappedColumns && columnVisibility && setColumnVisibility && (
-            <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
-          )}
           {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
             <Menu
               trigger={CreateBtn}

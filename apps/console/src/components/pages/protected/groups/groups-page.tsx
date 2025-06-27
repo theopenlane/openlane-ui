@@ -94,6 +94,9 @@ const GroupsPage = () => {
             <CardIcon size={16} />
           </div>
         </div>
+        {mappedColumns && columnVisibility && setColumnVisibility && (
+          <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
+        )}
         <TableFilter filterFields={filterFields} onFilterChange={setWhereFilters} />
         <Input
           value={searchQuery}
@@ -109,9 +112,6 @@ const GroupsPage = () => {
           <p>Show auto generated group</p>
         </div>
         <div className="grow flex flex-row items-center gap-2 justify-end">
-          {mappedColumns && columnVisibility && setColumnVisibility && (
-            <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
-          )}
           <Menu
             trigger={CreateBtn}
             content={

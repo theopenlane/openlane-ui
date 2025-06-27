@@ -1,6 +1,6 @@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Button } from '@repo/ui/button'
-import { EyeIcon } from 'lucide-react'
+import { StretchVertical } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
 import { VisibilityState } from '@tanstack/react-table'
 
@@ -17,14 +17,17 @@ const ColumnVisibilityMenu: React.FC<TColumnVisibilityMenuProps> = ({ mappedColu
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button icon={<EyeIcon />} iconPosition="left" variant="outline" size="md" className="h-8 !px-0 !pl-2"></Button>
+        <Button icon={<StretchVertical size={16} />} iconPosition="left" variant="outline" size="md" className="size-fit py-1.5 px-2">
+          Column
+        </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent className="border shadow-md p-0" align="start">
         {mappedColumns.map((column, index) => {
           return (
-            <div key={`${column.accessorKey}-${index}`} className="flex items-center gap-x-3">
+            <div key={`${column.accessorKey}-${index}`} className="flex items-center gap-x-3 p-1">
               <Checkbox
-                className="capitalize"
+                className="capitalize h-4 w-4 text-sm"
+                stroke={2}
                 checked={columnVisibility[column.accessorKey] !== false}
                 onCheckedChange={(value: boolean) => {
                   setColumnVisibility((prev) => ({
@@ -32,8 +35,8 @@ const ColumnVisibilityMenu: React.FC<TColumnVisibilityMenuProps> = ({ mappedColu
                     [column.accessorKey]: value,
                   }))
                 }}
-              ></Checkbox>
-              <div>{column.header}</div>
+              />
+              <div className="text-sm">{column.header}</div>
             </div>
           )
         })}

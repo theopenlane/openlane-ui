@@ -82,6 +82,9 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
           </div>
         </div>
         <div className="grow flex flex-row items-center gap-2">
+          {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
+            <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility}></ColumnVisibilityMenu>
+          )}
           <TableFilter filterFields={filterFields} onFilterChange={props.onFilterChange} />
           <Input
             icon={props.searching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
@@ -96,9 +99,6 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
           </div>
         </div>
         <div className="grow flex flex-row items-center gap-2 justify-end">
-          {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
-            <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility}></ColumnVisibilityMenu>
-          )}
           <Menu trigger={CreateBtn} content={<CreateTaskDialog trigger={TaskIconBtn} />} />
           <Menu
             content={

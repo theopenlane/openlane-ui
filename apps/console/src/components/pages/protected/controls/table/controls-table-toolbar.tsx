@@ -50,6 +50,9 @@ const ControlsTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, sea
     <>
       <div className="flex items-center gap-2 my-2">
         <div className="grow flex flex-row items-center gap-2">
+          {mappedColumns && columnVisibility && setColumnVisibility && (
+            <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
+          )}
           <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} />
           <Input
             icon={searching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
@@ -61,9 +64,6 @@ const ControlsTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, sea
         </div>
 
         <div className="grow flex flex-row items-center gap-2 justify-end">
-          {mappedColumns && columnVisibility && setColumnVisibility && (
-            <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
-          )}
           <Menu
             trigger={CreateBtn}
             content={
