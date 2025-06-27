@@ -18,6 +18,8 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { ControlIconMapper } from '@/components/shared/icon-enum/control-enum.tsx'
 import { VisibilityState } from '@tanstack/react-table'
 import { exportToCSV } from '@/utils/exportToCSV'
+import { RelatedControlChip } from '../shared/related-control-chip'
+import SubcontrolCell from './subcontrol-cell'
 
 export const ControlStatusLabels: Record<ControlControlStatus, string> = {
   [ControlControlStatus.APPROVED]: 'Approved',
@@ -137,10 +139,9 @@ const ControlsTable: React.FC = () => {
       },
       {
         header: 'Owner',
-        accessorKey: 'controlOwner',
+        accessorKey: ControlOrderField.CONTROL_OWNER_name,
         cell: ({ row }) => {
-          const owner = row.getValue<ControlListFieldsFragment['controlOwner']>('controlOwner')
-
+          const owner = row.original.controlOwner
           return (
             <div className="flex items-center gap-2">
               <Avatar entity={owner as Group} variant="small" />
@@ -179,6 +180,12 @@ const ControlsTable: React.FC = () => {
         accessorKey: 'referenceFramework',
         cell: ({ row }) => <div>{row.getValue('referenceFramework') || '-'}</div>,
         size: 120,
+      },
+      {
+        header: 'Subcontrol',
+        accessorKey: 'subcontrol',
+        cell: SubcontrolCell,
+        size: 200,
       },
     ],
     [plateEditorHelper],

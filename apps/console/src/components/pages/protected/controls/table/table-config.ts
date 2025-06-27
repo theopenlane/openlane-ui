@@ -36,6 +36,7 @@ export const CONTROLS_SORT_FIELDS = [
   { key: 'CONTROL_TYPE', label: 'Control Type' },
   { key: 'category', label: 'Category' },
   { key: 'subcategory', label: 'Subcategory' },
+  { key: 'CONTROL_OWNER_name', label: 'Owners' },
   {
     key: 'ref_code',
     label: 'Ref',

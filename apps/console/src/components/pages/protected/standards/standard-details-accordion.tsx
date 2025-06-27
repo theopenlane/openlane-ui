@@ -7,7 +7,7 @@ import { ChevronDown, ChevronRight, ChevronsDownUp, List, SearchIcon, ShieldPlus
 import { Input } from '@repo/ui/input'
 import { useParams } from 'next/navigation'
 import { useDebounce } from '@uidotdev/usehooks'
-import { ControlListFieldsFragment } from '@repo/codegen/src/schema'
+import { ControlListStandardFieldsFragment } from '@repo/codegen/src/schema'
 import { canEdit } from '@/lib/authz/utils.ts'
 import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api.ts'
@@ -51,7 +51,7 @@ const StandardDetailsAccordion: FC = () => {
 
     if (!controlsList || controlsList.length === 0) return {}
 
-    return controlsList.reduce<Record<string, ControlListFieldsFragment[]>>((acc, control) => {
+    return controlsList.reduce<Record<string, ControlListStandardFieldsFragment[]>>((acc, control) => {
       const category = control.category || 'Uncategorized'
       if (!acc[category]) acc[category] = []
       acc[category].push(control)
@@ -113,7 +113,7 @@ const StandardDetailsAccordion: FC = () => {
     }
   }, [groupedControls, hasInitialized])
 
-  const getPaginatedControls = (category: string, controls: ControlListFieldsFragment[]) => {
+  const getPaginatedControls = (category: string, controls: ControlListStandardFieldsFragment[]) => {
     const pagination = paginations[category] || DEFAULT_PAGINATION
     const start = (pagination.page - 1) * pagination.pageSize
     const end = start + pagination.pageSize

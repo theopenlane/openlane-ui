@@ -24,6 +24,14 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
       logoURL
       gravatarLogoURL
     }
+    subcontrols {
+      edges {
+        node {
+          id
+          refCode
+        }
+      }
+    }
   }
 `
 

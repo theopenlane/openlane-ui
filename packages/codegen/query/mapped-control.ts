@@ -74,6 +74,7 @@ export const GET_MAPPED_CONTROL_BY_ID = gql`
       relation
       confidence
       mappingType
+      source
       fromSubcontrols {
         edges {
           node {
@@ -126,6 +127,14 @@ export const UPDATE_MAPPED_CONTROL = gql`
       mappedControl {
         id
       }
+    }
+  }
+`
+
+export const DELETE_MAPPED_CONTROL = gql`
+  mutation DeleteMappedControl($deleteMappedControlId: ID!) {
+    deleteMappedControl(id: $deleteMappedControlId) {
+      deletedID
     }
   }
 `

@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react'
 import { DroppedControl } from './map-controls-card'
 import ControlChip from './shared/control-chip'
+import { useFormContext } from 'react-hook-form'
 
 interface Props {
   controlData?: (
@@ -26,18 +27,25 @@ interface Props {
         referenceFramework?: string | null
       }[]
     | undefined
+  title: 'From' | 'To'
 }
 
-const MapControlResults = ({ controlData, droppedControls, subcontrolData }: Props) => {
-  const droppedIds = useMemo(() => droppedControls.map((dc) => dc.id), [droppedControls])
+const MapControlResults = ({ controlData, droppedControls, subcontrolData, title }: Props) => {
+  const form = useFormContext()
 
   const availableControls = useMemo(() => {
-    const controlNodes = controlData?.map((node) => ({ ...node, type: 'control' as const })) || []
+    const oppositeControlIDs: string[] = form.getValues(title === 'From' ? 'toControlIDs' : 'fromControlIDs') || []
+    const oppositeSubcontrolIDs: string[] = form.getValues(title === 'From' ? 'toSubcontrolIDs' : 'fromSubcontrolIDs') || []
 
-    const subcontrolNodes = subcontrolData?.map((node) => ({ ...node, type: 'subcontrol' as const })) || []
+    const droppedIds = droppedControls.map((dc) => dc.id)
+    const excludeIds = new Set([...droppedIds, ...oppositeControlIDs, ...oppositeSubcontrolIDs])
 
-    return [...controlNodes, ...subcontrolNodes].filter((node) => !droppedIds.includes(node?.id || ''))
-  }, [controlData, subcontrolData, droppedIds])
+    const controlNodes = controlData?.filter(Boolean).map((node) => ({ ...node!, type: 'control' as const })) || []
+
+    const subcontrolNodes = subcontrolData?.filter(Boolean).map((node) => ({ ...node!, type: 'subcontrol' as const })) || []
+
+    return [...controlNodes, ...subcontrolNodes].filter((node) => !excludeIds.has(node.id))
+  }, [form, controlData, subcontrolData, droppedControls, title])
 
   return (
     <div className="my-3 flex flex-wrap gap-2">
@@ -50,7 +58,7 @@ const MapControlResults = ({ controlData, droppedControls, subcontrolData }: Pro
               id: control?.id ?? '',
               refCode: control?.refCode ?? '',
               shortName: control?.referenceFramework || 'CUSTOM',
-              type: control?.__typename === 'Control' ? 'control' : 'subcontrol',
+              type: control.type,
             }}
             onDragStart={(e) =>
               e.dataTransfer.setData(
@@ -59,7 +67,7 @@ const MapControlResults = ({ controlData, droppedControls, subcontrolData }: Pro
                   id: control?.id,
                   refCode: control?.refCode,
                   shortName: control?.referenceFramework || 'CUSTOM',
-                  type: control?.__typename === 'Control' ? 'control' : 'subcontrol',
+                  type: control.type,
                 }),
               )
             }
