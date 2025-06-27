@@ -25,7 +25,7 @@ const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange, enableSubcont
   const [categoryOpts, setCategoryOpts] = useState<Option[]>([])
   const selectedCategoryValues = useMemo(() => categoryOpts.map((o) => o.value), [categoryOpts])
 
-  const { data } = useGetControlCategories()
+  const { data } = useGetControlCategories({})
   const categories = data?.controlCategories ?? []
 
   const { standardOptions } = useStandardsSelect({

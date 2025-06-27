@@ -1,17 +1,21 @@
 'use client'
 
-import React from 'react'
+import React, { useMemo, useState } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 import { Card } from '@repo/ui/cardpanel'
 import { Input } from '@repo/ui/input'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@repo/ui/select'
-import { FolderIcon, BinocularsIcon, CopyIcon, InfoIcon } from 'lucide-react'
-import { Control, ControlControlSource, ControlControlStatus, ControlControlType, SubcontrolControlStatus } from '@repo/codegen/src/schema'
+import { FolderIcon, BinocularsIcon, CopyIcon, InfoIcon, PlusIcon, ChevronDown } from 'lucide-react'
+import { Control, ControlControlSource, ControlControlStatus, ControlControlType, GetControlCategoriesQuery, GetControlSubcategoriesQuery, SubcontrolControlStatus } from '@repo/codegen/src/schema'
 import MappedCategoriesDialog from './mapped-categories-dialog'
 import Link from 'next/link'
 import { ControlIconMapper } from '@/components/shared/icon-enum/control-enum.tsx'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { useNotification } from '@/hooks/useNotification'
+import { useGetControlCategories, useGetControlSubcategories } from '@/lib/graphql-hooks/controls'
+import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
+import { Button } from '@repo/ui/button'
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 
 interface PropertiesCardProps {
   category?: string | null
@@ -55,7 +59,7 @@ const iconsMap: Record<string, React.ReactNode> = {
   'Mapped categories': <FolderIcon size={16} className="text-brand" />,
 }
 
-const PropertiesCard: React.FC<PropertiesCardProps> = ({ category, subcategory, status, mappedCategories, isEditing, controlData, isSourceFramework }) => {
+const PropertiesCard: React.FC<PropertiesCardProps> = ({ status, mappedCategories, isEditing, controlData, isSourceFramework }) => {
   const { control } = useFormContext()
   const isEditAllowed = !isSourceFramework && isEditing
 
@@ -64,8 +68,8 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ category, subcategory, 
       <h3 className="text-lg font-medium mb-4">Properties</h3>
       <div className="space-y-3">
         {controlData && <LinkedProperty label="Control" href={`/controls/${controlData.id}`} value={controlData.refCode} icon={<FolderIcon size={16} className="text-brand" />} />}
-        <EditableProperty label="Category" icon={iconsMap.Category} isEditing={isEditAllowed} name="category" defaultValue={category} />
-        <EditableProperty label="Subcategory" icon={iconsMap.Subcategory} isEditing={isEditAllowed} name="subcategory" defaultValue={subcategory} />
+        <EditableSelectFromQuery label="Category" name="category" isEditing={isEditAllowed} icon={iconsMap.Category} />
+        <EditableSelectFromQuery label="Subcategory" name="subcategory" isEditing={isEditAllowed} icon={iconsMap.Subcategory} />
         <div className="grid grid-cols-[110px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
           <div className="flex items-start gap-2">
             <div className="pt-0.5">{iconsMap.Status}</div>
@@ -132,25 +136,6 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ category, subcategory, 
 }
 
 export default PropertiesCard
-
-const EditableProperty = ({ label, name, icon, isEditing, defaultValue }: { label: string; name: string; icon: React.ReactNode; isEditing: boolean; defaultValue?: string | null }) => {
-  const { control } = useFormContext()
-  return (
-    <div className="grid grid-cols-[110px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
-      <div className="flex items-start gap-2">
-        <div className="pt-0.5">{icon}</div>
-        <div className="text-sm">{label}</div>
-      </div>
-      <div className="text-sm">
-        {isEditing ? (
-          <Controller control={control} name={name} defaultValue={defaultValue || ''} render={({ field }) => <Input {...field} className="w-[180px]" placeholder={`Enter ${label.toLowerCase()}`} />} />
-        ) : (
-          defaultValue || '-'
-        )}
-      </div>
-    </div>
-  )
-}
 
 const Property = ({ label, value }: { label: string; value?: string | null }) => (
   <div className="grid grid-cols-[110px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
@@ -259,6 +244,109 @@ const ReferenceProperty = ({ name, label, tooltip, value, isEditing }: { name: s
         ) : (
           '-'
         )}
+      </div>
+    </div>
+  )
+}
+
+export const EditableSelectFromQuery = ({ label, name, isEditing, icon }: { label: string; name: string; isEditing: boolean; icon: React.ReactNode }) => {
+  const { control } = useFormContext()
+  const isCategory = name === 'category'
+
+  const { data: categoriesData } = useGetControlCategories({ enabled: isEditing && isCategory })
+  const { data: subcategoriesData } = useGetControlSubcategories({ enabled: isEditing && !isCategory })
+
+  const rawOptions = useMemo(() => {
+    return isCategory ? categoriesData?.controlCategories ?? [] : subcategoriesData?.controlSubcategories ?? []
+  }, [isCategory, categoriesData, subcategoriesData])
+
+  const initialOptions = useMemo(() => rawOptions.map((val) => ({ value: val, label: val })), [rawOptions])
+
+  const [input, setInput] = useState('')
+  const [open, setOpen] = useState(false)
+
+  return (
+    <div className="grid grid-cols-[110px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
+      <div className="flex items-start gap-2">
+        <div className="pt-0.5">{icon}</div>
+        <div className="text-sm">{label}</div>
+      </div>
+      <div className="text-sm">
+        <Controller
+          name={name}
+          control={control}
+          render={({ field }) => {
+            if (!isEditing) {
+              return <span>{field.value || '-'}</span>
+            }
+
+            const exists = initialOptions.some((opt) => opt.value === field.value)
+            const allOptions = exists ? initialOptions : field.value ? [{ value: field.value, label: field.value }, ...initialOptions] : initialOptions
+
+            const filtered = allOptions.filter((opt) => opt.label.toLowerCase().includes(input.toLowerCase()))
+
+            const allowCustomApply = input.trim().length > 0 && !allOptions.some((opt) => opt.label.toLowerCase() === input.toLowerCase())
+
+            const handleCustomApply = () => {
+              field.onChange(input.trim())
+              setInput('')
+              setOpen(false)
+            }
+
+            return (
+              <Popover open={open} onOpenChange={setOpen}>
+                <PopoverTrigger asChild>
+                  <div className="w-[200px] flex text-sm h-10 px-3 justify-between border bg-input-background rounded-md items-center cursor-pointer">
+                    <span className="truncate">{field.value || `Select ${label.toLowerCase()}`}</span>
+                    <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </div>
+                </PopoverTrigger>
+                <PopoverContent className="w-[200px] p-0 bg-input-background border z-50">
+                  <Command>
+                    <CommandInput
+                      placeholder="Search..."
+                      value={input}
+                      onValueChange={setInput}
+                      onKeyDown={(e) => {
+                        if ((e.key === 'Enter' || e.key === 'Tab') && allowCustomApply) {
+                          e.preventDefault()
+                          handleCustomApply()
+                        }
+                      }}
+                    />
+                    <CommandList>
+                      <CommandEmpty className="p-2 text-center">No results found.</CommandEmpty>
+                      <CommandGroup>
+                        {filtered.map((option) => (
+                          <CommandItem
+                            key={option.value}
+                            value={option.label}
+                            onSelect={() => {
+                              field.onChange(option.value)
+                              setInput('')
+                              setOpen(false)
+                            }}
+                          >
+                            {option.label}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                    {allowCustomApply && (
+                      <div className="border-t px-2 py-1 " onClick={handleCustomApply}>
+                        <div className="w-full justify-start text-left text-sm flex items-center">
+                          <PlusIcon className="mr-1 h-4 w-4" />
+                          <span>Add&nbsp;</span>
+                          <span className="truncate">“{input.trim()}”</span>
+                        </div>
+                      </div>
+                    )}
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            )
+          }}
+        />
       </div>
     </div>
   )

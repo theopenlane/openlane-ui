@@ -36,7 +36,7 @@ interface Props {
 }
 
 const MapControlCategoriesAccordion = ({ controlData, droppedControls, expandedItems, setExpandedItems, subcontrolData, title }: Props) => {
-  const { data } = useGetControlCategories()
+  const { data } = useGetControlCategories({})
 
   const form = useFormContext()
 

@@ -180,21 +180,23 @@ export const useControlSelect = ({ where, enabled = true }: { where?: ControlWhe
   }
 }
 
-export const useGetControlCategories = () => {
+export const useGetControlCategories = ({ enabled = true }: { enabled?: boolean }) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetControlCategoriesQuery, Error>({
     queryKey: ['controlCategories'],
     queryFn: () => client.request<GetControlCategoriesQuery>(GET_CONTROL_CATEGORIES),
+    enabled,
   })
 }
 
-export const useGetControlSubcategories = () => {
+export const useGetControlSubcategories = ({ enabled = true }: { enabled?: boolean }) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetControlSubcategoriesQuery, Error>({
     queryKey: ['controlSubcategories'],
     queryFn: () => client.request<GetControlSubcategoriesQuery>(GET_CONTROL_SUBCATEGORIES),
+    enabled,
   })
 }
 
