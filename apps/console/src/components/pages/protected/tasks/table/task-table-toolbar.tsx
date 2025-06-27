@@ -71,54 +71,57 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
   }
 
   return (
-    <div className="flex items-center gap-2 my-5">
-      <div className="flex gap-1 size-fit bg-transparent py-0.5 px-1 border rounded-md">
-        <div className={`py-1.5 px-2.5 rounded-md cursor-pointer ${activeTab === 'table' ? 'bg-card' : 'bg-transparent'}`} onClick={() => handleTabChange('table')}>
-          <TableIcon size={16} />
+    <>
+      <div className="flex items-center gap-2 my-2">
+        <div className="flex gap-1 size-fit bg-transparent py-0.5 px-1 border rounded-md">
+          <div className={`py-1.5 px-2.5 rounded-md cursor-pointer ${activeTab === 'table' ? 'bg-card' : 'bg-transparent'}`} onClick={() => handleTabChange('table')}>
+            <TableIcon size={16} />
+          </div>
+          <div className={`py-1.5 px-2.5 rounded-md cursor-pointer ${activeTab === 'card' ? 'bg-card' : 'bg-transparent'}`} onClick={() => handleTabChange('card')}>
+            <CardIcon size={16} />
+          </div>
         </div>
-        <div className={`py-1.5 px-2.5 rounded-md cursor-pointer ${activeTab === 'card' ? 'bg-card' : 'bg-transparent'}`} onClick={() => handleTabChange('card')}>
-          <CardIcon size={16} />
+        <div className="grow flex flex-row items-center gap-2">
+          <TableFilter filterFields={filterFields} onFilterChange={props.onFilterChange} />
+          <Input
+            icon={props.searching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
+            placeholder="Search"
+            value={props.searchTerm}
+            onChange={(event) => props.setSearchTerm(event.currentTarget.value)}
+            variant="searchTable"
+          />
+          <div className="grow flex flex-row items-center gap-2 pl-5">
+            <Checkbox checked={showCompletedTasks} onCheckedChange={(val: boolean) => handleShowCompletedTasks(val)} />
+            <p>Show completed tasks</p>
+          </div>
+        </div>
+        <div className="grow flex flex-row items-center gap-2 justify-end">
+          {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
+            <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility}></ColumnVisibilityMenu>
+          )}
+          <Menu trigger={CreateBtn} content={<CreateTaskDialog trigger={TaskIconBtn} />} />
+          <Menu
+            content={
+              <>
+                <BulkCSVCreateTaskDialog
+                  trigger={
+                    <div className="flex items-center space-x-2 hover:bg-muted">
+                      <Upload size={16} strokeWidth={2} />
+                      <span>Bulk Upload</span>
+                    </div>
+                  }
+                />
+                <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={props.handleExport}>
+                  <DownloadIcon size={16} strokeWidth={2} />
+                  <span>Export</span>
+                </div>
+              </>
+            }
+          />
         </div>
       </div>
-      <div className="grow flex flex-row items-center gap-2">
-        <TableFilter filterFields={filterFields} onFilterChange={props.onFilterChange} />
-        <Input
-          icon={props.searching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
-          placeholder="Search"
-          value={props.searchTerm}
-          onChange={(event) => props.setSearchTerm(event.currentTarget.value)}
-          variant="searchTable"
-        />
-        <div className="grow flex flex-row items-center gap-2 pl-5">
-          <Checkbox checked={showCompletedTasks} onCheckedChange={(val: boolean) => handleShowCompletedTasks(val)} />
-          <p>Show completed tasks</p>
-        </div>
-      </div>
-      <div className="grow flex flex-row items-center gap-2 justify-end">
-        {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
-          <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility}></ColumnVisibilityMenu>
-        )}
-        <Menu trigger={CreateBtn} content={<CreateTaskDialog trigger={TaskIconBtn} />} />
-        <Menu
-          content={
-            <>
-              <BulkCSVCreateTaskDialog
-                trigger={
-                  <div className="flex items-center space-x-2 hover:bg-muted">
-                    <Upload size={16} strokeWidth={2} />
-                    <span>Bulk Upload</span>
-                  </div>
-                }
-              />
-              <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={props.handleExport}>
-                <DownloadIcon size={16} strokeWidth={2} />
-                <span>Export</span>
-              </div>
-            </>
-          }
-        />
-      </div>
-    </div>
+      <div id="datatable-filter-portal" />
+    </>
   )
 }
 

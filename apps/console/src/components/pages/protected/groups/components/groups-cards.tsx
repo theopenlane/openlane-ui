@@ -26,7 +26,7 @@ const MyGroupsCard = ({ groups, isError }: Props) => {
   }
 
   return (
-    <div className="mt-5 flex flex-wrap gap-7">
+    <div className="flex flex-wrap gap-7">
       {groups.length > 0 ? (
         groups.map((group) => (
           <Card key={group.id} className="w-full max-w-md cursor-pointer" onClick={() => handleRowClick(group as Group)}>

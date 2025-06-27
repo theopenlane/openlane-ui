@@ -32,23 +32,21 @@ const TasksTable = forwardRef(({ onSortChange, pagination, onPaginationChange, w
   }
 
   return (
-    <div className="mt-5">
-      <DataTable
-        columns={taskColumns}
-        sortFields={TASK_SORT_FIELDS}
-        onSortChange={onSortChange}
-        data={tasks}
-        loading={fetching}
-        onRowClick={(task) => {
-          replace({ id: task.id })
-        }}
-        pagination={pagination}
-        onPaginationChange={onPaginationChange}
-        paginationMeta={{ totalCount: data?.tasks.totalCount, pageInfo: data?.tasks?.pageInfo, isLoading: isFetching }}
-        columnVisibility={columnVisibility}
-        setColumnVisibility={setColumnVisibility}
-      />
-    </div>
+    <DataTable
+      columns={taskColumns}
+      sortFields={TASK_SORT_FIELDS}
+      onSortChange={onSortChange}
+      data={tasks}
+      loading={fetching}
+      onRowClick={(task) => {
+        replace({ id: task.id })
+      }}
+      pagination={pagination}
+      onPaginationChange={onPaginationChange}
+      paginationMeta={{ totalCount: data?.tasks.totalCount, pageInfo: data?.tasks?.pageInfo, isLoading: isFetching }}
+      columnVisibility={columnVisibility}
+      setColumnVisibility={setColumnVisibility}
+    />
   )
 })
 

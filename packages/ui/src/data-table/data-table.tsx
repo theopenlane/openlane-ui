@@ -248,7 +248,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <>
-      <div className={cn(`overflow-hidden rounded-lg border bg-background-secondary ${filterActive ? 'mt-16' : ''}`, wrapperClass)}>
+      <div className={cn(`overflow-hidden rounded-lg border bg-background-secondary`, wrapperClass)}>
         {(showFilter || showVisibility) && (
           <div className="flex items-center py-4">
             {showFilter && (
