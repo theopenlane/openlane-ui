@@ -1,23 +1,12 @@
-'use client'
+import React from 'react'
+import LogsPage from '@/components/pages/protected/logs/logs-page'
+import { Metadata } from 'next'
 
-import React, { useContext, useEffect } from 'react'
-import { PageHeading } from '@repo/ui/page-heading'
-import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-
+export const metadata: Metadata = {
+  title: 'Audit logs',
+}
 const Page: React.FC = () => {
-  const { setCrumbs } = useContext(BreadcrumbContext)
-  useEffect(() => {
-    setCrumbs([
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Organization Settings', href: '/organization-settings' },
-      { label: 'Audit Logs', href: '/logs' },
-    ])
-  }, [setCrumbs])
-
-  useEffect(() => {
-    document.title = `Acme Corp: | Audit Logs`
-  }, [])
-  return <PageHeading heading="Audit Logs" eyebrow="Organization Settings" />
+  return <LogsPage></LogsPage>
 }
 
 export default Page

@@ -25,6 +25,8 @@ const StandardDetailsPage = () => {
       { label: 'Standards', href: '/standards' },
       { label: standard?.shortName ?? standard?.name, isLoading: isLoading },
     ])
+
+    if (standard) document.title = `Acme Corp: Standards - ${standard?.shortName ?? standard?.name}`
   }, [setCrumbs, standard, isLoading])
 
   if (isLoading) {
