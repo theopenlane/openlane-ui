@@ -6,8 +6,6 @@ export const metadata: Metadata = {
   title: 'Tfa',
 }
 
-const TfaPage: React.FC = () => {
-  return <Tfa></Tfa>
-}
+const TfaPage: React.FC = () => <Tfa />
 
 export default TfaPage

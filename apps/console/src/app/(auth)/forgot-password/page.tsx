@@ -5,8 +5,6 @@ export const metadata: Metadata = {
   title: 'Forgot Password',
 }
 
-const ForgotPasswordPage: React.FC = () => {
-  return <ForgotPasswordComponent></ForgotPasswordComponent>
-}
+const ForgotPasswordPage: React.FC = () => <ForgotPasswordComponent />
 
 export default ForgotPasswordPage

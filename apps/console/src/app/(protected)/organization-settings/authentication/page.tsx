@@ -10,7 +10,8 @@ export const metadata: Metadata = {
 const Page: React.FC = () => {
   return (
     <>
-      <PageHeading heading="Authentication" /> <AllowedDomains />
+      <PageHeading heading="Authentication" />
+      <AllowedDomains />
     </>
   )
 }

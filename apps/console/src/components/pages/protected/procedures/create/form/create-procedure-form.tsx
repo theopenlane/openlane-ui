@@ -24,6 +24,7 @@ import { DOCS_URL } from '@/constants/index.ts'
 import AuthorityCard from '@/components/pages/protected/procedures/view/cards/authority-card.tsx'
 import { useGetInternalPolicyDetailsById } from '@/lib/graphql-hooks/policy.ts'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
+import { Loading } from '@/components/shared/loading/loading'
 
 type TCreateProcedureFormProps = {
   procedure?: ProcedureByIdFragment
@@ -108,7 +109,6 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
       setInitialAssociations(procedureAssociations)
       procedureState.setAssociations(procedureAssociations)
       procedureState.setAssociationRefCodes(procedureAssociationsRefCodes)
-      document.title = `Acme Corp: Procedures - ${procedure.name}`
     }
   }, [isProcedureCreate])
 
@@ -253,86 +253,95 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   const handleDetailsChange = (value: Value) => {
     form.setValue('details', value)
   }
+  if (isLoading) {
+    return <Loading />
+  }
 
+  if (!procedure) {
+    return null
+  }
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(isEditable ? onSaveHandler : onCreateHandler)} className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
-        <div className="space-y-6">
-          {isEditable && (
-            <Alert>
-              <Info className="h-4 w-4" />
-              <AlertTitle>Edit & draft approval process</AlertTitle>
-              <AlertDescription>
-                <p>Editing Title, Procedure will trigger a draft creation and require approval.</p>
-              </AlertDescription>
-            </Alert>
-          )}
-          {!isEditable && (
-            <Alert>
-              <Info className="h-4 w-4" />
-              <AlertTitle>Not sure what to write?</AlertTitle>
-              <AlertDescription>
-                <p>
-                  For template library and help docs, please refer to our{' '}
-                  <a className="text-blue-600" href={`${DOCS_URL}/docs/category/policies-and-procedures`} target="_blank">
-                    documentation
-                  </a>
-                  .
-                </p>
-              </AlertDescription>
-            </Alert>
-          )}
-          {/* Title Field */}
-          <InputRow className="w-full">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem className="w-full">
-                  <div className="flex items-center">
-                    <FormLabel>Title</FormLabel>
-                    <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a brief, descriptive title to help easily identify the procedure later.</p>} />
-                  </div>
-                  <FormControl>
-                    <Input variant="medium" {...field} className="w-full" />
-                  </FormControl>
-                  {form.formState.errors.name && <p className="text-red-500 text-sm">{form.formState.errors.name.message}</p>}
-                </FormItem>
-              )}
-            />
-          </InputRow>
+    <>
+      <title>{`Acme Corp: Procedures - ${procedure.name}`}</title>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(isEditable ? onSaveHandler : onCreateHandler)} className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
+          <div className="space-y-6">
+            {isEditable && (
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertTitle>Edit & draft approval process</AlertTitle>
+                <AlertDescription>
+                  <p>Editing Title, Procedure will trigger a draft creation and require approval.</p>
+                </AlertDescription>
+              </Alert>
+            )}
+            {!isEditable && (
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertTitle>Not sure what to write?</AlertTitle>
+                <AlertDescription>
+                  <p>
+                    For template library and help docs, please refer to our{' '}
+                    <a className="text-blue-600" href={`${DOCS_URL}/docs/category/policies-and-procedures`} target="_blank">
+                      documentation
+                    </a>
+                    .
+                  </p>
+                </AlertDescription>
+              </Alert>
+            )}
+            {/* Title Field */}
+            <InputRow className="w-full">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <div className="flex items-center">
+                      <FormLabel>Title</FormLabel>
+                      <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a brief, descriptive title to help easily identify the procedure later.</p>} />
+                    </div>
+                    <FormControl>
+                      <Input variant="medium" {...field} className="w-full" />
+                    </FormControl>
+                    {form.formState.errors.name && <p className="text-red-500 text-sm">{form.formState.errors.name.message}</p>}
+                  </FormItem>
+                )}
+              />
+            </InputRow>
 
-          {/* details Field */}
-          <InputRow className="w-full">
-            <FormField
-              control={form.control}
-              name="details"
-              render={({ field }) => (
-                <FormItem className="w-full">
-                  <FormLabel>Procedure</FormLabel>
-                  <SystemTooltip
-                    icon={<InfoIcon size={14} className="mx-1 mt-1" />}
-                    content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
-                  />
-                  <PlateEditor onChange={handleDetailsChange} variant="basic" initialValue={procedure?.details ?? undefined} />
-                  {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
-                </FormItem>
-              )}
-            />
-          </InputRow>
+            {/* details Field */}
+            <InputRow className="w-full">
+              <FormField
+                control={form.control}
+                name="details"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Procedure</FormLabel>
+                    <SystemTooltip
+                      icon={<InfoIcon size={14} className="mx-1 mt-1" />}
+                      content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
+                    />
+                    <PlateEditor onChange={handleDetailsChange} variant="basic" initialValue={procedure?.details ?? undefined} />
+                    {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
+                  </FormItem>
+                )}
+              />
+            </InputRow>
 
-          <Button className="mt-4" type="submit" variant="filled" disabled={isSubmitting}>
-            {isSubmitting ? (isEditable ? 'Saving' : 'Creating procedure') : isEditable ? 'Save' : 'Create Procedure'}
-          </Button>
-        </div>
-        <div className="space-y-4">
-          <AuthorityCard form={form} isEditing={true} inputClassName="!w-[162px]" />
-          <StatusCard form={form} metadata={metadata} />
-          <AssociationCard />
-          <TagsCard form={form} />
-        </div>
-      </form>
-    </Form>
+            <Button className="mt-4" type="submit" variant="filled" disabled={isSubmitting}>
+              {isSubmitting ? (isEditable ? 'Saving' : 'Creating procedure') : isEditable ? 'Save' : 'Create Procedure'}
+            </Button>
+          </div>
+          <div className="space-y-4">
+            <AuthorityCard form={form} isEditing={true} inputClassName="!w-[162px]" />
+            <StatusCard form={form} metadata={metadata} />
+            <AssociationCard />
+            <TagsCard form={form} />
+          </div>
+        </form>
+      </Form>
+    </>
   )
 }
 

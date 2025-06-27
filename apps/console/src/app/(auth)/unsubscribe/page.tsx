@@ -6,8 +6,6 @@ export const metadata: Metadata = {
   title: 'Unsubscribe',
 }
 
-const UnsubscribePage: React.FC = () => {
-  return <Unsubscribe></Unsubscribe>
-}
+const UnsubscribePage: React.FC = () => <Unsubscribe />
 
 export default UnsubscribePage

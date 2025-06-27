@@ -6,8 +6,6 @@ export const metadata: Metadata = {
   title: 'Risks',
 }
 
-const RisksPage: React.FC = () => {
-  return <RiskTable />
-}
+const RisksPage: React.FC = () => <RiskTable />
 
 export default RisksPage

@@ -177,7 +177,6 @@ const ControlDetailsPage: React.FC = () => {
 
       form.reset(newValues)
       setInitialValues(newValues)
-      document.title = `Acme Corp: Subcontrols - ${data.subcontrol.refCode}`
     }
   }, [data?.subcontrol, form])
 
@@ -314,6 +313,7 @@ const ControlDetailsPage: React.FC = () => {
 
   return (
     <>
+      <title>{`Acme Corp: Subcontrols - ${data.subcontrol.refCode}`}</title>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>

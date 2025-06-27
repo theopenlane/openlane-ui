@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: 'Onboarding',
 }
 const Page: React.FC = () => {
-  return <MultiStepForm></MultiStepForm>
+  return <MultiStepForm />
 }
 
 export default Page

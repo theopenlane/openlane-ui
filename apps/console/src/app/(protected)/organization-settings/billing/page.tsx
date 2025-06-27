@@ -5,8 +5,6 @@ import { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Billing',
 }
-const Page: React.FC = () => {
-  return <BillingPage></BillingPage>
-}
+const Page: React.FC = () => <BillingPage />
 
 export default Page

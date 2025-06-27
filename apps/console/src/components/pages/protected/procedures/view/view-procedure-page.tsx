@@ -99,7 +99,6 @@ const ViewProcedurePage: React.FC<TViewProcedurePage> = ({ procedureId }) => {
       procedureState.setAssociations(procedureAssociations)
       procedureState.setAssociationRefCodes(procedureAssociationsRefCodes)
     }
-    document.title = `Acme Corp: Procedures - ${procedure?.name}`
   }, [procedure])
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -243,13 +242,16 @@ const ViewProcedurePage: React.FC<TViewProcedurePage> = ({ procedureId }) => {
   )
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmitHandler)}>
-        <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>
-          {mainContent}
-        </SlideBarLayout>
-      </form>
-    </Form>
+    <>
+      <title>{`Acme Corp: Procedures - ${data.procedure.name}`}</title>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmitHandler)}>
+          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>
+            {mainContent}
+          </SlideBarLayout>
+        </form>
+      </Form>
+    </>
   )
 }
 

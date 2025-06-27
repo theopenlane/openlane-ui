@@ -70,10 +70,6 @@ const ProgramsPage: React.FC = () => {
   }, [setCrumbs, basicInfoData, isLoading])
 
   useEffect(() => {
-    // if (!basicInfoData) {
-    //   document.title = `Acme Corp: | Home`
-    //   return
-    // }
     if (basicInfoData) document.title = `Acme Corp: Programs - ${basicInfoData.program.name}`
   }, [basicInfoData])
 

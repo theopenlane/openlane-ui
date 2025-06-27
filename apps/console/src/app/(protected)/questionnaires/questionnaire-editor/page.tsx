@@ -6,8 +6,6 @@ export const metadata: Metadata = {
   title: 'Questionnaire Editor',
 }
 
-const Page: React.FC = () => {
-  return <QuestionnaireEditorPage></QuestionnaireEditorPage>
-}
+const Page: React.FC = () => <QuestionnaireEditorPage />
 
 export default Page

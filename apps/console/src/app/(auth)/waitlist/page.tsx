@@ -5,8 +5,6 @@ export const metadata: Metadata = {
   title: 'Waitlist',
 }
 
-const WaitlistPage: React.FC = () => {
-  return <Waitlist></Waitlist>
-}
+const WaitlistPage: React.FC = () => <Waitlist />
 
 export default WaitlistPage

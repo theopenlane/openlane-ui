@@ -73,7 +73,6 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
         stakeholderID: risk.stakeholder?.id,
         delegateID: risk.delegate?.id,
       })
-      document.title = `Acme Corp: Risks - ${risk.name}`
     }
   }, [risk])
 
@@ -228,13 +227,16 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   )
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmitHandler)}>
-        <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>
-          {mainContent}
-        </SlideBarLayout>
-      </form>
-    </Form>
+    <>
+      <title>{`Acme Corp: Risks - ${risk.name}`}</title>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmitHandler)}>
+          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>
+            {mainContent}
+          </SlideBarLayout>
+        </form>
+      </Form>
+    </>
   )
 }
 

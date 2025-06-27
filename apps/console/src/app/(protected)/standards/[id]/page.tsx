@@ -25,8 +25,6 @@ const StandardDetailsPage = () => {
       { label: 'Standards', href: '/standards' },
       { label: standard?.shortName ?? standard?.name, isLoading: isLoading },
     ])
-
-    if (standard) document.title = `Acme Corp: Standards - ${standard?.shortName ?? standard?.name}`
   }, [setCrumbs, standard, isLoading])
 
   if (isLoading) {
@@ -38,6 +36,7 @@ const StandardDetailsPage = () => {
 
   return (
     <>
+      <title>{`Acme Corp: Standards - ${standard?.shortName ?? standard?.name}`}</title>
       <div className="flex gap-14">
         <div className="flex flex-col gap-7 ">
           <PageHeading heading={data?.standard.name || 'Standard Details'} className="mb-3" />

@@ -6,8 +6,6 @@ export const metadata: Metadata = {
   title: 'Standards',
 }
 
-const Page = () => {
-  return <StandardsPage></StandardsPage>
-}
+const Page: React.FC = () => <StandardsPage />
 
 export default Page
