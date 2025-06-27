@@ -8,7 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { MappedControlMappingType, MappedControlMappingSource } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateMappedControl } from '@/lib/graphql-hooks/mapped-control'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
@@ -28,6 +28,7 @@ const MapControlPage = () => {
   const { data: subcontrolData, isLoading: isLoadingSubcontrol } = useGetSubcontrolById(shouldFetchSubcontrol ? (subcontrolId as string) : null)
   const [presetControls, setPresetControls] = useState<DroppedControl[]>()
   const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const router = useRouter()
 
   const handleCardToggle = (title: 'From' | 'To') => {
     if (expandedCard === title) {
@@ -65,6 +66,7 @@ const MapControlPage = () => {
     try {
       await create({ input: data })
       successNotification({ title: 'Map Control created!' })
+      router.back()
     } catch {
       errorNotification({ title: 'Unable to create control mapping, please try again later' })
     }
