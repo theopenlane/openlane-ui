@@ -1,3 +1,4 @@
+'use client'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { existingOrganizationsStyles } from './existing-organizations.styles'
 import { Button } from '@repo/ui/button'

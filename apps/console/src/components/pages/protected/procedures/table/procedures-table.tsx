@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { DataTable } from '@repo/ui/data-table'
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useMemo, useEffect, useContext } from 'react'
 import { GetProceduresListQueryVariables, Maybe, OrderDirection, Procedure, ProcedureOrderField } from '@repo/codegen/src/schema'
 import { getProceduresColumns } from '@/components/pages/protected/procedures/table/columns.tsx'
 import ProceduresTableToolbar from '@/components/pages/protected/procedures/table/procedures-table-toolbar.tsx'
@@ -17,6 +17,7 @@ import { formatDateTime } from '@/utils/date'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
 import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens.ts'
 import { VisibilityState } from '@tanstack/react-table'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 export const ProceduresTable = () => {
   const router = useRouter()
@@ -24,6 +25,7 @@ export const ProceduresTable = () => {
   const [filters, setFilters] = useState<Record<string, any> | null>(null)
   const [memberIds, setMemberIds] = useState<(Maybe<string> | undefined)[]>()
   const [searchTerm, setSearchTerm] = useState('')
+  const { setCrumbs } = useContext(BreadcrumbContext)
   const [orderBy, setOrderBy] = useState<GetProceduresListQueryVariables['orderBy']>([
     {
       field: ProcedureOrderField.name,
@@ -76,6 +78,13 @@ export const ProceduresTable = () => {
       setMemberIds(userIds)
     }
   }, [procedures?.length])
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Procedures', href: '/procedures' },
+    ])
+  }, [setCrumbs])
 
   const handleCreateNew = async () => {
     router.push(`/procedures/create`)

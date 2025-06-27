@@ -258,13 +258,16 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   )
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmitHandler)}>
-        <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>
-          {mainContent}
-        </SlideBarLayout>
-      </form>
-    </Form>
+    <>
+      <title>{`Acme Corp: Internal Policies - ${policy.name}`}</title>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmitHandler)}>
+          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>
+            {mainContent}
+          </SlideBarLayout>
+        </form>
+      </Form>
+    </>
   )
 }
 

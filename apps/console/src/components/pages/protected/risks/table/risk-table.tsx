@@ -1,4 +1,6 @@
-import React, { useMemo, useState } from 'react'
+'use client'
+
+import React, { useMemo, useState, useEffect, useContext } from 'react'
 import { useRouter } from 'next/navigation'
 import { getRiskColumns } from '@/components/pages/protected/risks/table/columns.tsx'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -12,6 +14,7 @@ import { PageHeading } from '@repo/ui/page-heading'
 import RisksTableToolbar from '@/components/pages/protected/risks/table/risks-table-toolbar.tsx'
 import { DataTable } from '@repo/ui/data-table'
 import { RISKS_SORT_FIELDS } from '@/components/pages/protected/risks/table/table-config.ts'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const RiskTable: React.FC = () => {
   const router = useRouter()
@@ -19,6 +22,7 @@ const RiskTable: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [filters, setFilters] = useState<Record<string, any> | null>(null)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const { setCrumbs } = useContext(BreadcrumbContext)
   const [orderBy, setOrderBy] = useState<GetAllRisksQueryVariables['orderBy']>([
     {
       field: RiskOrderField.name,
@@ -48,6 +52,13 @@ const RiskTable: React.FC = () => {
     pagination,
     enabled: !!filters,
   })
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Risks', href: '/risks' },
+    ])
+  }, [setCrumbs])
 
   function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
     return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false

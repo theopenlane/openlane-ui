@@ -3,7 +3,7 @@ import type { Metadata } from 'next/types'
 import MembersPage from '@/components/pages/protected/organization/members/members-page'
 
 export const metadata: Metadata = {
-  title: 'Organization settings',
+  title: 'Members',
 }
 
 const Page: React.FC = () => {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import React, { useState, useMemo, useContext, useEffect } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import { getQuestionnaireColumns } from './columns'
 import QuestionnaireTableToolbar from '@/components/pages/protected/questionnaire/table/questionnaire-table-toolbar.tsx'
@@ -12,11 +12,13 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { useTemplates } from '@/lib/graphql-hooks/templates'
 import { useRouter } from 'next/navigation'
 import { VisibilityState } from '@tanstack/react-table'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 export const QuestionnairesTable = () => {
   const router = useRouter()
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<Record<string, any> | null>(null)
+  const { setCrumbs } = useContext(BreadcrumbContext)
   const [orderBy, setOrderBy] = useState<FilterTemplatesQueryVariables['orderBy']>([
     {
       field: TemplateOrderField.name,
@@ -38,6 +40,13 @@ export const QuestionnairesTable = () => {
       ...filters,
     }
   }, [filters, debouncedSearch])
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Questionnaires', href: '/questionnaires' },
+    ])
+  }, [setCrumbs])
 
   const { columns, mappedColumns } = getQuestionnaireColumns()
 

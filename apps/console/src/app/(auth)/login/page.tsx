@@ -1,8 +1,11 @@
-'use client'
-
 import { Suspense } from 'react'
 import { LoginPage } from '@/components/pages/auth/login/login'
 import AuthMarketingPanel from '@/components/shared/AuthMarketingPanel.tsx/auth-marketing-panel'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Login',
+}
 
 const AuthLogin: React.FC = () => {
   return (

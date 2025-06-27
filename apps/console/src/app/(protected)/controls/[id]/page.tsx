@@ -334,6 +334,7 @@ const ControlDetailsPage: React.FC = () => {
 
   return (
     <>
+      <title>{`Acme Corp: Controls - ${data.control.refCode}`}</title>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>

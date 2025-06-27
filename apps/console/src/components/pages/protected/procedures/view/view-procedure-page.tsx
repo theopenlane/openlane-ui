@@ -242,13 +242,16 @@ const ViewProcedurePage: React.FC<TViewProcedurePage> = ({ procedureId }) => {
   )
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmitHandler)}>
-        <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>
-          {mainContent}
-        </SlideBarLayout>
-      </form>
-    </Form>
+    <>
+      <title>{`Acme Corp: Procedures - ${data.procedure.name}`}</title>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmitHandler)}>
+          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>
+            {mainContent}
+          </SlideBarLayout>
+        </form>
+      </Form>
+    </>
   )
 }
 

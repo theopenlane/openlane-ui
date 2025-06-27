@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useMemo, useState, useEffect, useContext } from 'react'
 import { useGetAllControls } from '@/lib/graphql-hooks/controls'
 import { Badge } from '@repo/ui/badge'
 import { DataTable } from '@repo/ui/data-table'
@@ -18,6 +18,7 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { ControlIconMapper } from '@/components/shared/icon-enum/control-enum.tsx'
 import { VisibilityState } from '@tanstack/react-table'
 import { exportToCSV } from '@/utils/exportToCSV'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { RelatedControlChip } from '../shared/related-control-chip'
 import SubcontrolCell from './subcontrol-cell'
 
@@ -34,6 +35,7 @@ const ControlsTable: React.FC = () => {
   const { push } = useRouter()
   const plateEditorHelper = usePlateEditor()
   const [filters, setFilters] = useState<Record<string, any> | null>(null)
+  const { setCrumbs } = useContext(BreadcrumbContext)
   const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>([
     {
       field: ControlOrderField.ref_code,
@@ -68,6 +70,13 @@ const ControlsTable: React.FC = () => {
 
     return conditions
   }, [filters])
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Controls', href: '/controls' },
+    ])
+  }, [setCrumbs])
 
   const { controls, isError, paginationMeta } = useGetAllControls({
     where: { ownerIDNEQ: '', refCodeContainsFold: debouncedSearch, ...whereFilter },
