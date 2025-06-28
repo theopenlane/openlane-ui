@@ -7,7 +7,7 @@ import { fetchNewAccessToken, Tokens } from './auth/utils/refresh-token'
 import { jwtDecode } from 'jwt-decode'
 import { useSession } from 'next-auth/react'
 import { Session } from 'next-auth'
-import { setCSRFCookie } from './auth/utils/set-csrf-cookie'
+import { log } from 'console'
 
 const GRAPHQL_ENDPOINT = process.env.NEXT_PUBLIC_API_GQL_URL!
 
@@ -79,6 +79,8 @@ export function useGetGraphQLClient() {
         throw e
       }
     }
+
+    console.log('Fetching GraphQL request with headers', headers)
 
     const makeRequest = () =>
       fetch(requestUrl, {
