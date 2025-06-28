@@ -4,7 +4,7 @@ import { TokenVerifier } from '@/components/pages/auth/verify/verifier'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Verifier',
+  title: 'Verification',
 }
 
 export const dynamic = 'force-dynamic'

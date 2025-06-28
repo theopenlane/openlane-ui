@@ -3,8 +3,8 @@ import { AuthLayout, type AuthLayoutProps } from '../../components/layouts/auth'
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | Openlane | Streamlining Compliance Securing Success',
-    default: 'Acme',
+    template: '%s | Openlane | Streamlining Compliance, Securing Success',
+    default: '',
   },
 }
 

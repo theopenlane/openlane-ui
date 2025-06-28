@@ -3,7 +3,7 @@ import Tfa from '@/components/pages/auth/tfa/tfa'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Tfa',
+  title: 'Two Factor Authentication',
 }
 
 const TfaPage: React.FC = () => <Tfa />

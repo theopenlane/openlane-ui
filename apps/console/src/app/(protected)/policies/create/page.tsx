@@ -3,7 +3,7 @@ import CreatePolicyPage from '@/components/pages/protected/policies/create/creat
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Internal Policies',
+  title: 'Create Internal Policy',
 }
 const Page: React.FC = () => <CreatePolicyPage />
 

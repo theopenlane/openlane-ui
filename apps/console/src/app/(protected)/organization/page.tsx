@@ -4,7 +4,7 @@ import { CreateOrganizationForm } from '@/components/shared/organization/create-
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Organization',
+  title: 'Organizations',
 }
 const OrganizationLanding: React.FC = () => {
   return (

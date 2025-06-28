@@ -3,7 +3,7 @@ import CreateRiskPage from '@/components/pages/protected/risks/create/create-ris
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Risks',
+  title: 'Create Risk',
 }
 const Page: React.FC = () => <CreateRiskPage />
 

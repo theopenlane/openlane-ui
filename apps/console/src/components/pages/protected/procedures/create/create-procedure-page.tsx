@@ -11,7 +11,6 @@ import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 const CreateProcedurePage: React.FC = () => {
   const { data: session } = useSession()
   const { data: permission, isLoading } = useOrganizationRole(session)
-
   return (
     <>
       {!isLoading && !canCreate(permission?.roles, AccessEnum.CanCreateProcedure) && <ProtectedArea />}

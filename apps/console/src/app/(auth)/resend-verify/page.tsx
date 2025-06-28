@@ -3,7 +3,7 @@ import { pageStyles } from './page.styles'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Resend Verify',
+  title: 'Resend Email Verification',
 }
 
 const ResendVerification: React.FC = () => {

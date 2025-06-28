@@ -3,7 +3,7 @@ import CreateProcedurePage from '@/components/pages/protected/procedures/create/
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Procedures',
+  title: 'Create Procedure',
 }
 const Page: React.FC = () => <CreateProcedurePage />
 

@@ -3,7 +3,7 @@ import LogsPage from '@/components/pages/protected/logs/logs-page'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Audit logs',
+  title: 'Audit Logs',
 }
 const Page: React.FC = () => <LogsPage />
 

@@ -4,7 +4,7 @@ import AllowedDomains from '@/components/pages/protected/organization/authentica
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Authentication',
+  title: 'Authentication Settings',
 }
 
 const Page: React.FC = () => {

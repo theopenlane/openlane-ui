@@ -4,7 +4,7 @@ import { TokenVerifier } from '@/components/pages/auth/subscriber-verify/verifie
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Subscriber verify',
+  title: 'Verify Subscription',
 }
 
 const VerifySubscriber: React.FC = () => {
