@@ -61,7 +61,7 @@ const StandardsPage = () => {
   return (
     <>
       <PageHeading heading="Standards Catalog" />
-      <div className="mt-5 flex justify-between items-center gap-5">
+      <div className="my-2 flex justify-between items-center gap-5">
         <div className="flex gap-4">
           <TableFilter filterFields={filterFields} onFilterChange={setFilters} />
           <Input
@@ -75,7 +75,9 @@ const StandardsPage = () => {
           />
         </div>
       </div>
-      <div className="mt-5 grid gap-7 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-2">
+      <div id="datatable-filter-portal" />
+
+      <div className="my-2 grid gap-7 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-2">
         {data?.standards?.edges?.map((standard) => (
           <Card key={standard?.node?.id} className="bg-card p-4 rounded-lg shadow">
             <div className="flex justify-between items-start mb-2">

@@ -25,6 +25,8 @@ import { OrderDirection } from '@repo/codegen/src/schema.ts'
 import Pagination from '../pagination/pagination'
 import { TPagination, TPaginationMeta } from '../pagination/types'
 import { cn } from '../../lib/utils'
+import { useSearchParams } from 'next/navigation'
+import { Filter } from 'console/src/types'
 
 type CustomColumnDef<TData, TValue> = ColumnDef<TData, TValue> & {
   meta?: {
@@ -74,11 +76,14 @@ export function DataTable<TData, TValue>({
   const [sortConditions, setSortConditions] = useState<{ field: string; direction?: OrderDirection }[]>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [rowSelection, setRowSelection] = useState({})
+  const [filterActive, setFilterActive] = useState(false)
+  const searchParams = useSearchParams()
 
   const currentPage = pagination?.page || 1
   const currentPageSize = pagination?.pageSize || 10
 
   const [columnSizes, setColumnSizes] = useState<Record<string, number>>({})
+  const [hasFilters, setHasFilters] = useState<boolean>(false)
 
   const { totalCount, pageInfo, isLoading } = paginationMeta || {}
 
@@ -233,9 +238,17 @@ export function DataTable<TData, TValue>({
     }
   }, [sortConditions])
 
+  useEffect(() => {
+    const filtersParam = searchParams.get('filters')
+    const filterActive = searchParams.get('filterActive')
+    filterActive && filterActive === '1' ? setFilterActive(true) : setFilterActive(false)
+    const parsedFilters: Filter[] | null = filtersParam ? JSON.parse(decodeURIComponent(filtersParam)) : null
+    parsedFilters && parsedFilters?.filter((filter) => filter.value !== '').length > 0 ? setHasFilters(true) : setHasFilters(false)
+  }, [searchParams])
+
   return (
     <>
-      <div className={cn('overflow-hidden rounded-lg border bg-background-secondary', wrapperClass)}>
+      <div className={cn(`overflow-hidden rounded-lg border bg-background-secondary`, wrapperClass)}>
         {(showFilter || showVisibility) && (
           <div className="flex items-center py-4">
             {showFilter && (

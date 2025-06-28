@@ -88,7 +88,7 @@ const RiskTable: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <>
       <PageHeading heading="Risks" />
 
       <RisksTableToolbar
@@ -118,7 +118,7 @@ const RiskTable: React.FC = () => {
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
       />
-    </div>
+    </>
   )
 }
 

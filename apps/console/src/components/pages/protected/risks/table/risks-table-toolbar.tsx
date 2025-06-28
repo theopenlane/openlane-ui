@@ -48,55 +48,58 @@ const RisksTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, search
     } as SelectIsFilterField,
   ]
   return (
-    <div className="flex items-center gap-2 my-5">
-      <div className="grow flex flex-row items-center gap-2">
-        <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} />
-        <Input
-          icon={searching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
-          placeholder="Search"
-          value={searchTerm}
-          onChange={(event) => setSearchTerm(event.currentTarget.value)}
-          variant="searchTable"
+    <>
+      <div className="flex items-center gap-2 my-2">
+        <div className="grow flex flex-row items-center gap-2">
+          {mappedColumns && columnVisibility && setColumnVisibility && (
+            <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
+          )}
+          <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} />
+          <Input
+            icon={searching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
+            placeholder="Search"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.currentTarget.value)}
+            variant="searchTable"
+          />
+        </div>
+        <Menu
+          trigger={CreateBtn}
+          content={
+            <>
+              {canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (
+                <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleCreateNew}>
+                  <CirclePlus size={16} strokeWidth={2} />
+                  <span>Risk</span>
+                </div>
+              )}
+              <CreateTaskDialog trigger={TaskIconBtn} />
+            </>
+          }
+        />
+        <Menu
+          content={
+            <>
+              <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleExport}>
+                <DownloadIcon size={16} strokeWidth={2} />
+                <span>Export</span>
+              </div>
+              {canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (
+                <BulkCSVCreateRiskDialog
+                  trigger={
+                    <div className="flex items-center space-x-2 hover:bg-muted">
+                      <Upload size={16} strokeWidth={2} />
+                      <span>Bulk Upload</span>
+                    </div>
+                  }
+                />
+              )}
+            </>
+          }
         />
       </div>
-      {mappedColumns && columnVisibility && setColumnVisibility && (
-        <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
-      )}
-      <Menu
-        trigger={CreateBtn}
-        content={
-          <>
-            {canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (
-              <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleCreateNew}>
-                <CirclePlus size={16} strokeWidth={2} />
-                <span>Risk</span>
-              </div>
-            )}
-            <CreateTaskDialog trigger={TaskIconBtn} />
-          </>
-        }
-      />
-      <Menu
-        content={
-          <>
-            <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleExport}>
-              <DownloadIcon size={16} strokeWidth={2} />
-              <span>Export</span>
-            </div>
-            {canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (
-              <BulkCSVCreateRiskDialog
-                trigger={
-                  <div className="flex items-center space-x-2 hover:bg-muted">
-                    <Upload size={16} strokeWidth={2} />
-                    <span>Bulk Upload</span>
-                  </div>
-                }
-              />
-            )}
-          </>
-        }
-      />
-    </div>
+      <div id="datatable-filter-portal" />
+    </>
   )
 }
 

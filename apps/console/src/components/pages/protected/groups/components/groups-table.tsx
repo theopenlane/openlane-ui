@@ -41,20 +41,18 @@ const GroupsTable = ({ onSortChange, pagination, onPaginationChange, whereFilter
   }
 
   return (
-    <div className="mt-5">
-      <DataTable
-        columns={columns as ColumnDef<Group>[]}
-        data={groups}
-        onRowClick={handleRowClick}
-        sortFields={GROUP_SORT_FIELDS}
-        onSortChange={onSortChange}
-        pagination={pagination}
-        onPaginationChange={(pagination: TPagination) => onPaginationChange(pagination)}
-        paginationMeta={paginationMeta}
-        columnVisibility={columnVisibility}
-        setColumnVisibility={setColumnVisibility}
-      />
-    </div>
+    <DataTable
+      columns={columns as ColumnDef<Group>[]}
+      data={groups}
+      onRowClick={handleRowClick}
+      sortFields={GROUP_SORT_FIELDS}
+      onSortChange={onSortChange}
+      pagination={pagination}
+      onPaginationChange={(pagination: TPagination) => onPaginationChange(pagination)}
+      paginationMeta={paginationMeta}
+      columnVisibility={columnVisibility}
+      setColumnVisibility={setColumnVisibility}
+    />
   )
 }
 

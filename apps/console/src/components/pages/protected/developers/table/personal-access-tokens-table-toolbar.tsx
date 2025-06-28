@@ -8,11 +8,14 @@ type TProps = {
 
 const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
   return (
-    <div className="flex items-center gap-2 my-5">
-      <div className="grow flex flex-row items-center gap-2">
-        <TableFilter filterFields={TOKEN_FILTER_FIELDS} onFilterChange={props.onFilterChange} />
+    <>
+      <div className="flex items-center gap-2 my-2">
+        <div className="grow flex flex-row items-center gap-2">
+          <TableFilter filterFields={TOKEN_FILTER_FIELDS} onFilterChange={props.onFilterChange} />
+        </div>
       </div>
-    </div>
+      <div id="datatable-filter-portal" />
+    </>
   )
 }
 

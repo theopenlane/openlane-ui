@@ -138,7 +138,6 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
   return (
     <div>
       <MembersTableToolbar
-        className="my-5"
         searching={isLoading}
         setFilters={setFilters}
         searchTerm={searchTerm}

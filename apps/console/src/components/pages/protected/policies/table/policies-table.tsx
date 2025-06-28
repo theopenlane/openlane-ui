@@ -124,7 +124,6 @@ export const PoliciesTable = () => {
   return (
     <>
       <PoliciesTableToolbar
-        className="my-5"
         searching={fetching}
         handleCreateNew={handleCreateNew}
         setFilters={setFilters}
