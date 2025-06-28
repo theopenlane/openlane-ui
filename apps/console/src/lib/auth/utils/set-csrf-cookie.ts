@@ -12,12 +12,14 @@ export const setCSRFCookie = async (csrfToken: string) => {
     cookieStore.set(`${csrfCookieName}`, csrfToken, {
       sameSite: 'lax',
       secure: false,
+      httpOnly: true,
       path: '/',
     })
   } else {
     cookieStore.set(`${csrfCookieName}`, csrfToken, {
       sameSite: 'none',
       secure: true,
+      httpOnly: true,
       path: '/',
     })
   }
