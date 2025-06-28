@@ -38,14 +38,13 @@ export function useGetGraphQLClient() {
 
     // Ensure CSRF token is included in the headers
     // cookie should be automatically included by the browser
-    const csrfCookieValue = getCookie(csrfCookieName) || ''
-
-    console.log('Setting CSRF in graph client to:', csrfCookieValue)
-
-    headers.set(csrfHeader, csrfCookieValue)
-    console.log('CSRF header set:', csrfHeader, csrfCookieValue)
-    headers.set('Cookie', `${csrfCookieName}=${csrfCookieValue}`)
-    console.log('CSRF cookie set:', csrfCookieName, csrfCookieValue)
+    const csrfCookieValue = getCookie(csrfCookieName!)
+    if (csrfCookieValue) {
+      headers.set(csrfHeader, csrfCookieValue)
+      console.log('CSRF header set:', csrfHeader, csrfCookieValue)
+      headers.set('Cookie', `${csrfCookieName}=${csrfCookieValue}`)
+      console.log('CSRF cookie set:', csrfCookieName, csrfCookieValue)
+    }
 
     const sessionCookieValue = getCookie(sessionCookieName!)
     if (sessionCookieValue) {
