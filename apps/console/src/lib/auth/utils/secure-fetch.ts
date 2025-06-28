@@ -12,11 +12,11 @@ export const secureFetch = async (url: string, options: RequestInit = {}) => {
     'Content-Type': jsonContentType,
   }
 
-  let csrfToken = getCookie(csrfCookieName)
-  if (!csrfToken) {
-    // If CSRF token is not found in cookies, fetch a new one
-    csrfToken = await fetchCSRFToken()
-  }
+  let csrfToken = getCookie(csrfCookieName) || ''
+  // if (!csrfToken) {
+  //   // If CSRF token is not found in cookies, fetch a new one
+  //   csrfToken = await fetchCSRFToken()
+  // }
 
   headers[csrfHeader] = csrfToken // Ensure CSRF token is in the headers
   headers['Cookie'] = `${csrfCookieName}=${csrfToken}` // Forward the CSRF token in the cookie
