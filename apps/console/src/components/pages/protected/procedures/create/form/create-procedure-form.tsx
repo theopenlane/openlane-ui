@@ -257,13 +257,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   const handleDetailsChange = (value: Value) => {
     form.setValue('details', value)
   }
-  if (isLoading) {
-    return <Loading />
-  }
 
-  if (!procedure && !isProcedureCreate) {
-    return null
-  }
   return (
     <>
       {isEditable && <title>{`${orgNameData?.organization.displayName}: Procedures - ${procedure?.name}`}</title>}
