@@ -40,7 +40,7 @@ export function useGetGraphQLClient() {
     // cookie should be automatically included by the browser
     const csrfCookieValue = getCookie(csrfCookieName) || ''
 
-    console.log('Setting CSRF cookie to:', csrfCookieValue)
+    console.log('Setting CSRF in graph client to:', csrfCookieValue)
 
     headers.set(csrfHeader, csrfCookieValue)
     headers.set('Cookie', `${csrfCookieName}=${csrfCookieValue}`)
