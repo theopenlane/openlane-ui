@@ -12,7 +12,6 @@ export const setCSRFCookie = async (csrfToken: string) => {
     cookieStore.set(`${csrfCookieName}`, csrfToken, {
       sameSite: 'lax',
       secure: false,
-      httpOnly: true,
       path: '/',
     })
   } else {
@@ -20,7 +19,6 @@ export const setCSRFCookie = async (csrfToken: string) => {
       domain: `${sessionCookieDomain}`,
       sameSite: 'none',
       secure: true,
-      httpOnly: true,
       path: '/',
     })
   }
