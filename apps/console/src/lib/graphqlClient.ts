@@ -43,7 +43,9 @@ export function useGetGraphQLClient() {
     console.log('Setting CSRF in graph client to:', csrfCookieValue)
 
     headers.set(csrfHeader, csrfCookieValue)
+    console.log('CSRF header set:', csrfHeader, csrfCookieValue)
     headers.set('Cookie', `${csrfCookieName}=${csrfCookieValue}`)
+    console.log('CSRF cookie set:', csrfCookieName, csrfCookieValue)
 
     const sessionCookieValue = getCookie(sessionCookieName!)
     if (sessionCookieValue) {
