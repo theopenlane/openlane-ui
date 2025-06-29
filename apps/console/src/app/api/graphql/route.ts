@@ -1,3 +1,4 @@
+import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 import { openlaneGQLUrl } from '@repo/dally/auth'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -17,10 +18,9 @@ export async function POST(request: NextRequest) {
     })
   }
 
-  const graphqlResponse = await fetch(openlaneGQLUrl, {
+  const graphqlResponse = await secureFetch(openlaneGQLUrl, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
       Authorization: `Bearer ${process.env.OPENLANE_API_WRITE_TOKEN}`,
     },
     body: JSON.stringify({ query, variables }),

@@ -1,0 +1,23 @@
+'use server'
+
+import { csrfCookieName, isDevelopment, sessionCookieDomain } from '@repo/dally/auth'
+import { cookies } from 'next/headers'
+
+export const setCSRFCookie = async (csrfToken: string) => {
+  const cookieStore = await cookies()
+
+  if (isDevelopment) {
+    cookieStore.set(`${csrfCookieName}`, csrfToken, {
+      sameSite: 'lax',
+      secure: false,
+      path: '/',
+    })
+  } else {
+    cookieStore.set(`${csrfCookieName}`, csrfToken, {
+      domain: `${sessionCookieDomain}`,
+      sameSite: 'none',
+      secure: true,
+      path: '/',
+    })
+  }
+}

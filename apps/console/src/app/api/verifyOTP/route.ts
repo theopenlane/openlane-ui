@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth/auth'
+import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,12 +22,11 @@ export async function POST(request: NextRequest) {
 
     // Add the token to the headers
     const headers: HeadersInit = {
-      'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     }
 
     // Make the request to the external API
-    const response = await fetch(`${process.env.API_REST_URL}/v1/2fa/validate`, {
+    const response = await secureFetch(`${process.env.API_REST_URL}/v1/2fa/validate`, {
       method: 'POST',
       headers,
       body: JSON.stringify(otp),
