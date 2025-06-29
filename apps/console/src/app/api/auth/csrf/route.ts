@@ -1,4 +1,5 @@
 import { setCSRFCookie } from '@/lib/auth/utils/set-csrf-cookie'
+import { csrfHeader } from '@repo/dally/auth'
 import { NextResponse } from 'next/server'
 
 export async function GET() {
@@ -11,6 +12,7 @@ export async function GET() {
   })
 
   setCSRFCookie(data.csrf)
+  response.headers.set(csrfHeader, data.csrf)
 
   return response ?? ''
 }
