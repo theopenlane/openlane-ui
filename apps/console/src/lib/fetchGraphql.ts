@@ -1,6 +1,5 @@
 import { getSession } from 'next-auth/react'
 import { ensureAuth } from './auth/utils/tokenValidator'
-import { csrfCookieName } from '@repo/dally/auth'
 import { secureFetch } from './auth/utils/secure-fetch'
 
 export const fetchGraphQLWithUpload = async ({ query, variables = {} }: { query: string; variables?: Record<string, any> }) => {

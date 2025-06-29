@@ -6,15 +6,11 @@ export async function GET() {
 
   const data = await fData.json()
 
-  console.log('CSRF data:', data)
-
   const response = NextResponse.json(data, {
     status: fData.status,
   })
 
   setCSRFCookie(data.csrf)
-
-  console.log('CSRF cookie set:', data.csrf)
 
   return response ?? ''
 }

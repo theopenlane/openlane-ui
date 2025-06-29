@@ -50,6 +50,8 @@ export const config = {
     credentialsProvider,
     passKeyProvider,
   ],
+  // we have our own CSRF protection on the server side that is used
+  // instead of the default NextAuth CSRF protection
   skipCSRFCheck: skipCSRFCheck,
   events: {
     async signOut() {

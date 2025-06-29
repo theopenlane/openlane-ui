@@ -36,16 +36,14 @@ export function useGetGraphQLClient() {
     headers.set('Authorization', `Bearer ${accessToken}`)
     headers.set('Content-Type', 'application/json')
 
-    // Ensure CSRF token is included in the headers
-    // cookie should be automatically included by the browser
+    // Ensure CSRF token is included in the headers and cookies
     const csrfCookieValue = getCookie(csrfCookieName!)
     if (csrfCookieValue) {
       headers.set(csrfHeader, csrfCookieValue)
-      console.log('CSRF header set:', csrfHeader, csrfCookieValue)
       headers.set('Cookie', `${csrfCookieName}=${csrfCookieValue}`)
-      console.log('CSRF cookie set:', csrfCookieName, csrfCookieValue)
     }
 
+    // Include session cookie if it exists
     const sessionCookieValue = getCookie(sessionCookieName!)
     if (sessionCookieValue) {
       headers.set('Cookie', `${sessionCookieName}=${sessionCookieValue}`)
@@ -79,8 +77,6 @@ export function useGetGraphQLClient() {
         throw e
       }
     }
-
-    console.log('Fetching GraphQL request with headers', headers)
 
     const makeRequest = () =>
       fetch(requestUrl, {

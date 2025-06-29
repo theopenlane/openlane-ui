@@ -21,8 +21,6 @@ export const secureFetch = async (url: string, options: RequestInit = {}) => {
   headers[csrfHeader] = csrfToken // Ensure CSRF token is in the headers
   headers['Cookie'] = `${csrfCookieName}=${csrfToken}` // Forward the CSRF token in the cookie
 
-  console.log('Secure Fetch Headers:', headers)
-
   return fetch(url, {
     ...options,
     headers,
