@@ -14,7 +14,7 @@ export const setSessionCookie = async (session: string) => {
     cookieStore.set(`${sessionCookieName}`, session, {
       expires,
     })
-  } else if (isVercelDev) {
+  } else if (isVercelDev && sessionCookieDomain === '') {
     cookieStore.set(`${sessionCookieName}`, session, {
       path: '/',
       httpOnly: true,

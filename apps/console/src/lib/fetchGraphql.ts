@@ -1,5 +1,6 @@
 import { getSession } from 'next-auth/react'
 import { ensureAuth } from './auth/utils/tokenValidator'
+import { secureFetch } from './auth/utils/secure-fetch'
 
 export const fetchGraphQLWithUpload = async ({ query, variables = {} }: { query: string; variables?: Record<string, any> }) => {
   const session = await getSession()
@@ -67,7 +68,7 @@ export const fetchGraphQLWithUpload = async ({ query, variables = {} }: { query:
     body = JSON.stringify({ query, variables })
   }
 
-  const response = await fetch(process.env.NEXT_PUBLIC_API_GQL_URL!, {
+  const response = await secureFetch(process.env.NEXT_PUBLIC_API_GQL_URL!, {
     method: 'POST',
     headers,
     body,
