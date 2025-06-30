@@ -26,6 +26,8 @@ import BusinessCostField from '@/components/pages/protected/risks/view/fields/bu
 import MitigationField from '@/components/pages/protected/risks/view/fields/mitigation-field.tsx'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
+import { useGetOrganizationNameById } from '@/lib/graphql-hooks/organization'
+import { useOrganization } from '@/hooks/useOrganization'
 
 type TRisksPageProps = {
   riskId: string
@@ -47,6 +49,8 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   const editAllowed = canEdit(permission?.roles)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const router = useRouter()
+  const { currentOrgId } = useOrganization()
+  const { data: orgNameData } = useGetOrganizationNameById(currentOrgId)
 
   useEffect(() => {
     setCrumbs([
@@ -227,13 +231,16 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   )
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmitHandler)}>
-        <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>
-          {mainContent}
-        </SlideBarLayout>
-      </form>
-    </Form>
+    <>
+      <title>{`${orgNameData?.organization.displayName}: Risks - ${risk.name}`}</title>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmitHandler)}>
+          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>
+            {mainContent}
+          </SlideBarLayout>
+        </form>
+      </Form>
+    </>
   )
 }
 

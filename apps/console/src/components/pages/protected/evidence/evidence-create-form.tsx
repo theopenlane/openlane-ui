@@ -1,7 +1,7 @@
 'use client'
 import { Grid, GridCell, GridRow } from '@repo/ui/grid'
-import React, { Fragment, useEffect, useState } from 'react'
-import { ChevronDown, InfoIcon } from 'lucide-react'
+import React, { useContext, useEffect, useState } from 'react'
+import { InfoIcon } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import useFormSchema, { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { Input, InputRow } from '@repo/ui/input'
@@ -22,11 +22,9 @@ import ObjectAssociation from '@/components/shared/objectAssociation/object-asso
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 import { Panel, PanelHeader } from '@repo/ui/panel'
-import { Card } from '@repo/ui/cardpanel'
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { Badge } from '@repo/ui/badge'
 import { useQueryClient } from '@tanstack/react-query'
 import HeadsUpDisplay from '@/components/shared/heads-up/heads-up'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 type TProps = {
   formData?: TFormEvidenceData
@@ -44,6 +42,7 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
   const { data: sessionData } = useSession()
   const { mutateAsync: createEvidence, isPending } = useCreateEvidence()
   const [associationResetTrigger, setAssociationResetTrigger] = useState(0)
+  const { setCrumbs } = useContext(BreadcrumbContext)
 
   const queryClient = useQueryClient()
 
@@ -110,6 +109,13 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
       }
     }
   }, [])
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Evidence', href: '/evidence' },
+    ])
+  }, [setCrumbs])
 
   const handleEvidenceObjectIdsChange = (updatedMap: TObjectAssociationMap) => {
     setEvidenceObjectTypes(updatedMap)
