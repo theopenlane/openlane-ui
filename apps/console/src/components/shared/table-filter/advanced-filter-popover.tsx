@@ -13,7 +13,7 @@ type TAdvancedFilterPopover = {
   filterFields: FilterField[]
   conjunction: 'and' | 'or'
   onSetConjunction: (conjunction: 'and' | 'or') => void
-  renderFilterInput: (filter: Filter, isAdvanced: boolean, index: number) => React.ReactNode
+  renderFilterInput: (filter: Filter, isAdvanced: boolean, onClose: () => void, index: number) => React.ReactNode
   onRemoveFilter: (index: number) => void
   onHandleSaveFilters: () => void
   onResetFilters: () => void
@@ -130,7 +130,7 @@ const AdvancedFilterPopover: React.FC<TAdvancedFilterPopover> = ({
                   </SelectContent>
                 </Select>
 
-                {renderFilterInput(filter, true, index)}
+                {renderFilterInput(filter, true, () => setOpen(false), index)}
 
                 <Button className="!gap-1 !p-1 !pl-2 !pr-2 h-[unset]" variant="outline" onClick={() => onRemoveFilter(index)}>
                   <Trash2 className="h-4 w-4" />
@@ -139,7 +139,13 @@ const AdvancedFilterPopover: React.FC<TAdvancedFilterPopover> = ({
             )
           })}
           <div className="flex gap-2">
-            <Button className="h-6 !px-2" onClick={() => onHandleSaveFilters()}>
+            <Button
+              className="h-6 !px-2"
+              onClick={() => {
+                onHandleSaveFilters()
+                setOpen(false)
+              }}
+            >
               Save
             </Button>
             <Button className="h-6 !px-2" variant="back" onClick={onResetFilters}>

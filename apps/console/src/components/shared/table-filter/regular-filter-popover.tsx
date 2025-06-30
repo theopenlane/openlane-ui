@@ -10,7 +10,7 @@ import { formatDate } from '@/utils/date.ts'
 type TRegularFilterPopover = {
   onHandleFilterChange: (filter: Filter) => void
   filterFields: FilterField[]
-  renderFilterInput: (filter: Filter, isAdvanced: boolean) => React.ReactNode
+  renderFilterInput: (filter: Filter, isAdvanced: boolean, onClose: () => void) => React.ReactNode
   onDeleteFilter: (filter: Filter) => void
   onHandleSaveFilters: () => void
   onResetFilters: (filter: Filter) => void
@@ -95,7 +95,7 @@ const RegularFilterPopover: React.FC<TRegularFilterPopover> = ({
                   </SelectContent>
                 </Select>
 
-                {renderFilterInput(filter, false)}
+                {renderFilterInput(filter, false, () => setOpen(false))}
 
                 <Button className="!gap-1 !p-1 !pl-2 !pr-2 h-[unset]" variant="outline" onClick={() => onDeleteFilter(regularFilterItem)}>
                   <Trash2 className="h-4 w-4" />
@@ -103,7 +103,13 @@ const RegularFilterPopover: React.FC<TRegularFilterPopover> = ({
               </div>
 
               <div className="flex gap-2">
-                <Button className="h-6 !px-2" onClick={() => onHandleSaveFilters()}>
+                <Button
+                  className="h-6 !px-2"
+                  onClick={() => {
+                    onHandleSaveFilters()
+                    setOpen(false)
+                  }}
+                >
                   Save
                 </Button>
                 <Button variant="back" className="h-6 !px-2" onClick={() => onResetFilters(filter)}>

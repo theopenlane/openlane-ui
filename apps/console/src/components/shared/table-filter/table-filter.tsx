@@ -392,7 +392,7 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
   }, [searchParams, pathname, router])
 
   const renderFilterInput = useCallback(
-    (filter: Filter, isAdvanced: boolean = false, index?: number) => {
+    (filter: Filter, isAdvanced: boolean = false, onClose: () => void, index?: number) => {
       const filterField = filterFields.find((f) => f.key === filter.field)
       if (!filterField) {
         return null
@@ -409,13 +409,29 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
               placeholder="Enter a value..."
               value={filter.value}
               onChange={(e) => handleInputFilterChange({ ...filter, value: e.target.value }, isAdvanced, index)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  isAdvanced ? handleSaveAdvancedFilters() : handleSaveRegularFilters()
+                  onClose()
+                }
+              }}
             />
           )
         case 'selectIs':
         case 'select':
           return (
             <Select value={filter.value} onValueChange={(value) => handleInputFilterChange({ ...filter, value: value }, isAdvanced, index)}>
-              <SelectTrigger className={value()}>
+              <SelectTrigger
+                className={value()}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    isAdvanced ? handleSaveAdvancedFilters() : handleSaveRegularFilters()
+                    onClose()
+                  }
+                }}
+              >
                 <SelectValue placeholder="Select an option..." />
               </SelectTrigger>
               <SelectContent>
@@ -444,7 +460,16 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
         case 'boolean':
           return (
             <Select value={String(filter.value)} onValueChange={(value) => handleInputFilterChange({ ...filter, value: value === 'true' }, isAdvanced, index)}>
-              <SelectTrigger className={value()}>
+              <SelectTrigger
+                className={value()}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    isAdvanced ? handleSaveAdvancedFilters() : handleSaveRegularFilters()
+                    onClose()
+                  }
+                }}
+              >
                 <SelectValue placeholder="Select..." />
               </SelectTrigger>
               <SelectContent>
