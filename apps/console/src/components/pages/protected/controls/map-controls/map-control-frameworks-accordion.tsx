@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo } from 'react'
 import { Accordion, AccordionContent, AccordionItem } from '@radix-ui/react-accordion'
 import ControlChip from './shared/control-chip'
-import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
-import { DroppedControl } from './map-controls-card'
 import RelationsAccordionTrigger from '@/components/shared/relations-accordion-trigger.tsx/relations-accordion-trigger'
-import { useFormContext } from 'react-hook-form'
+import ContextMenu from '@/components/shared/context-menu/context-menu'
+import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
+import { useMapControls } from './shared/use-selectable-controls'
+import { MapControl } from '@/types'
 
 interface Props {
   controlData?: (
@@ -19,69 +20,46 @@ interface Props {
     | null
     | undefined
   )[]
-  droppedControls: DroppedControl[]
+  subcontrolData?: {
+    __typename?: 'Subcontrol'
+    id: string
+    refCode: string
+    category?: string | null
+    subcategory?: string | null
+    referenceFramework?: string | null
+  }[]
+  droppedControls: MapControl[]
   expandedItems: Record<string, boolean>
   setExpandedItems: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
-  subcontrolData:
-    | {
-        __typename?: 'Subcontrol'
-        id: string
-        refCode: string
-        category?: string | null
-        subcategory?: string | null
-        referenceFramework?: string | null
-      }[]
-    | undefined
-  title: 'To' | 'From'
+  title: 'From' | 'To'
+  setDroppedControls: React.Dispatch<React.SetStateAction<MapControl[]>>
 }
 
-type SubcontrolOrControl =
-  | {
-      id: string
-      refCode: string
-      category?: string | null
-      subcategory?: string | null
-      referenceFramework?: string | null
-    }
-  | null
-  | undefined
-
-const MapControlFrameworksAccordion: React.FC<Props> = ({ controlData, droppedControls, expandedItems, setExpandedItems, subcontrolData, title }) => {
+const MapControlFrameworksAccordion: React.FC<Props> = ({ controlData, subcontrolData, droppedControls, expandedItems, setExpandedItems, title, setDroppedControls }) => {
   const { standardOptions } = useStandardsSelect({})
-  const form = useFormContext()
 
-  const { controlsByFramework, customControls } = useMemo(() => {
-    const oppositeControlIDs: string[] = form.getValues(title === 'From' ? 'toControlIDs' : 'fromControlIDs') || []
-    const oppositeSubcontrolIDs: string[] = form.getValues(title === 'From' ? 'toSubcontrolIDs' : 'fromSubcontrolIDs') || []
+  const { availableControls, selectedIds, setSelectedIds, contextMenu, setContextMenu, handleContextMenu, handleAddToMapping, createDragPreview } = useMapControls({
+    controlData,
+    subcontrolData,
+    droppedControls,
+    title,
+  })
 
-    const excludeIds = new Set([...droppedControls.map((dc) => dc.id), ...oppositeControlIDs, ...oppositeSubcontrolIDs])
+  const controlsByFramework = useMemo(() => {
+    const map: Record<string, MapControl[]> = {}
+    standardOptions.forEach((opt) => {
+      map[opt.label] = []
+    })
+    map['custom'] = []
 
-    const byFramework: Record<string, { id: string; refCode: string; type: 'control' | 'subcontrol' }[]> = {}
-    const custom: { id: string; refCode: string; type: 'control' | 'subcontrol' }[] = []
+    availableControls.forEach((ctrl) => {
+      const key = ctrl.referenceFramework || 'custom'
+      if (!map[key]) map[key] = []
+      map[key].push(ctrl)
+    })
 
-    const addControl = (control: SubcontrolOrControl, type: 'control' | 'subcontrol') => {
-      if (!control || !control.refCode || excludeIds.has(control.id)) return
-
-      const key = control.referenceFramework ?? 'custom'
-      const item = {
-        id: control.id,
-        refCode: control.refCode,
-        type,
-      }
-
-      if (key === 'custom') {
-        custom.push(item)
-      } else {
-        byFramework[key] = byFramework[key] || []
-        byFramework[key].push(item)
-      }
-    }
-
-    controlData?.forEach((control) => addControl(control, 'control'))
-    subcontrolData?.forEach((subcontrol) => addControl(subcontrol, 'subcontrol'))
-
-    return { controlsByFramework: byFramework, customControls: custom }
-  }, [controlData, subcontrolData, droppedControls, title, form])
+    return map
+  }, [availableControls, standardOptions])
 
   const openKeys = useMemo(
     () =>
@@ -90,63 +68,100 @@ const MapControlFrameworksAccordion: React.FC<Props> = ({ controlData, droppedCo
         .map(([k]) => k),
     [expandedItems],
   )
-
   const handleValueChange = (newOpen: string[]) => {
-    const allKeys = [...standardOptions.map((o) => o.label), 'custom']
+    const keys = standardOptions.map((o) => o.label).concat('custom')
     const next: Record<string, boolean> = {}
-    allKeys.forEach((k) => {
+    keys.forEach((k) => {
       next[k] = newOpen.includes(k)
     })
     setExpandedItems(next)
   }
 
   useEffect(() => {
-    const initialItems: Record<string, boolean> = {}
-    standardOptions.forEach((opt) => {
-      initialItems[opt.label] = false
+    const initial: Record<string, boolean> = {}
+    standardOptions.forEach((o) => {
+      initial[o.label] = false
     })
-    initialItems['custom'] = false
-    setExpandedItems(initialItems)
-  }, [setExpandedItems, standardOptions])
+    initial['custom'] = false
+    setExpandedItems(initial)
+  }, [standardOptions, setExpandedItems])
+
+  useEffect(() => {
+    const droppedIds = new Set(droppedControls.map((c) => c.id))
+    setSelectedIds((prev) => prev.filter((id) => !droppedIds.has(id)))
+  }, [droppedControls, setSelectedIds])
 
   return (
     <Accordion type="multiple" className="w-full" value={openKeys} onValueChange={handleValueChange}>
-      {standardOptions
-        .filter((opt) => (controlsByFramework[opt.label] || []).length > 0)
-        .map((opt) => {
-          const key = opt.label
-          const items = controlsByFramework[key] || []
-          return (
-            <AccordionItem key={key} value={key}>
-              <RelationsAccordionTrigger label={key} count={items.length} />
+      {standardOptions.map(
+        (opt) =>
+          controlsByFramework[opt.label]?.length > 0 && (
+            <AccordionItem key={opt.label} value={opt.label}>
+              <RelationsAccordionTrigger label={opt.label} count={controlsByFramework[opt.label].length} />
               <AccordionContent className="my-3 flex flex-wrap gap-2 max-h-28 overflow-auto">
-                {items.map((c) => (
+                {controlsByFramework[opt.label].map((c) => (
                   <ControlChip
                     key={c.id}
                     draggable
-                    control={{ id: c.id, refCode: c.refCode, shortName: key, type: c.type }}
-                    onDragStart={(e) => e.dataTransfer.setData('application/json', JSON.stringify({ id: c.id, refCode: c.refCode, shortName: key, type: c.type }))}
+                    control={c}
+                    selected={selectedIds.includes(c.id)}
+                    onClick={(e) => {
+                      if (e.ctrlKey || e.metaKey) {
+                        setSelectedIds((prev) => (prev.includes(c.id) ? prev.filter((id) => id !== c.id) : [...prev, c.id]))
+                      } else {
+                        setSelectedIds([c.id])
+                      }
+                    }}
+                    onContextMenu={(e) => handleContextMenu(e, c)}
+                    onDragStart={(e) => {
+                      const dragSet = selectedIds.includes(c.id) ? availableControls.filter((x) => selectedIds.includes(x.id)) : [c]
+                      e.dataTransfer.setData('application/json', JSON.stringify(dragSet))
+                      const preview = createDragPreview(`${dragSet.length} item${dragSet.length > 1 ? 's' : ''}`)
+                      e.dataTransfer.setDragImage(preview, 0, 0)
+                    }}
                   />
                 ))}
               </AccordionContent>
             </AccordionItem>
-          )
-        })}
+          ),
+      )}
 
-      {customControls.length > 0 && (
+      {controlsByFramework.custom.length > 0 && (
         <AccordionItem key="custom" value="custom">
-          <RelationsAccordionTrigger label="Custom" count={customControls.length} />
+          <RelationsAccordionTrigger label="Custom" count={controlsByFramework.custom.length} />
           <AccordionContent className="my-3 flex flex-wrap gap-2 max-h-28 overflow-auto">
-            {customControls.map((c) => (
+            {controlsByFramework.custom.map((c) => (
               <ControlChip
                 key={c.id}
                 draggable
-                control={{ id: c.id, refCode: c.refCode, shortName: 'CUSTOM', type: c.type }}
-                onDragStart={(e) => e.dataTransfer.setData('application/json', JSON.stringify({ id: c.id, refCode: c.refCode, shortName: 'CUSTOM', type: c.type }))}
+                control={c}
+                selected={selectedIds.includes(c.id)}
+                onClick={(e) => {
+                  if (e.ctrlKey || e.metaKey) {
+                    setSelectedIds((prev) => (prev.includes(c.id) ? prev.filter((id) => id !== c.id) : [...prev, c.id]))
+                  } else {
+                    setSelectedIds([c.id])
+                  }
+                }}
+                onContextMenu={(e) => handleContextMenu(e, c)}
+                onDragStart={(e) => {
+                  const dragSet = selectedIds.includes(c.id) ? availableControls.filter((x) => selectedIds.includes(x.id)) : [c]
+                  e.dataTransfer.setData('application/json', JSON.stringify(dragSet))
+                  const preview = createDragPreview(`${dragSet.length} item${dragSet.length > 1 ? 's' : ''}`)
+                  e.dataTransfer.setDragImage(preview, 0, 0)
+                }}
               />
             ))}
           </AccordionContent>
         </AccordionItem>
+      )}
+
+      {contextMenu && (
+        <ContextMenu x={contextMenu.x} y={contextMenu.y} onClose={() => setContextMenu(null)}>
+          <button className="px-4 py-2 hover:bg-muted w-full text-left" onClick={() => handleAddToMapping(setDroppedControls)}>
+            Add to Mapping
+          </button>
+        </ContextMenu>
       )}
     </Accordion>
   )

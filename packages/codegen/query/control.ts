@@ -317,6 +317,7 @@ export const GET_CONTROLS_PAGINATED = gql`
       totalCount
       edges {
         node {
+          __typename
           id
           refCode
           category

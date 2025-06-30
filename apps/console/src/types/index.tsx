@@ -73,3 +73,12 @@ export type RoutePage = {
   keywords?: string[]
   hidden?: undefined
 }
+
+export type MapControl = {
+  __typename?: 'Control' | 'Subcontrol'
+  id: string
+  refCode: string
+  category?: string | null
+  subcategory?: string | null
+  referenceFramework?: string | null
+}

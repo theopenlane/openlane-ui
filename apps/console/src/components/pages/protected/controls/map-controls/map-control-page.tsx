@@ -13,10 +13,11 @@ import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { MappingIconMapper } from '@/components/shared/icon-enum/map-control-enum'
-import MapControlsCard, { DroppedControl } from './map-controls-card'
+import MapControlsCard from './map-controls-card'
 import { MapControlsFormData, mapControlsSchema } from './use-form-schema'
 import MapControlsRelations from './map-controls-relations'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
+import { MapControl } from '@/types'
 
 const MapControlPage = () => {
   const [expandedCard, setExpandedCard] = useState<'From' | 'To' | ''>('To')
@@ -27,7 +28,7 @@ const MapControlPage = () => {
   const shouldFetchSubcontrol = !!subcontrolId
   const { data: controlData, isLoading } = useGetControlById(shouldFetchControl ? (id as string) : null)
   const { data: subcontrolData, isLoading: isLoadingSubcontrol } = useGetSubcontrolById(shouldFetchSubcontrol ? (subcontrolId as string) : null)
-  const [presetControls, setPresetControls] = useState<DroppedControl[]>()
+  const [presetControls, setPresetControls] = useState<MapControl[]>()
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const router = useRouter()
 
@@ -95,26 +96,19 @@ const MapControlPage = () => {
     if (controlData) {
       setControlsCrumbs()
       form.setValue('fromControlIDs', [controlData.control.id])
-      setPresetControls([{ id: controlData.control.id, refCode: controlData.control.refCode, shortName: controlData.control.standard?.shortName || 'CUSTOM', type: 'control' }])
+      setPresetControls([controlData.control])
     }
     if (subcontrolData) {
       setSubControlsCrumbs()
       form.setValue('fromSubcontrolIDs', [subcontrolData.subcontrol.id])
-      setPresetControls([
-        {
-          id: subcontrolData.subcontrol.id,
-          refCode: subcontrolData.subcontrol.refCode,
-          shortName: subcontrolData.subcontrol.control.standard?.shortName || 'CUSTOM',
-          type: 'subcontrol',
-        },
-      ])
+      setPresetControls([subcontrolData.subcontrol])
     }
   }, [setCrumbs, controlData, subcontrolData, form, isLoading, isLoadingSubcontrol, setControlsCrumbs, setSubControlsCrumbs])
 
   return (
     <FormProvider {...form}>
-      <SlideBarLayout sidebarContent={<MapControlsRelations />}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col space-y-6">
+        <SlideBarLayout sidebarContent={<MapControlsRelations />}>
           <div className="p-8 space-y-6">
             <div>
               <h1 className="text-2xl font-bold">Map Controls</h1>
@@ -135,8 +129,8 @@ const MapControlPage = () => {
               </Accordion>
             </div>
           </div>
-        </form>
-      </SlideBarLayout>
+        </SlideBarLayout>
+      </form>
     </FormProvider>
   )
 }

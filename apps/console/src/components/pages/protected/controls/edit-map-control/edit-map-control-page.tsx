@@ -21,11 +21,12 @@ import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { MappingIconMapper } from '@/components/shared/icon-enum/map-control-enum'
-import MapControlsCard, { DroppedControl } from '../map-controls/map-controls-card'
+import MapControlsCard from '../map-controls/map-controls-card'
 import { MapControlsFormData, mapControlsSchema } from '../map-controls/use-form-schema'
 import MapControlsRelations from '../map-controls/map-controls-relations'
 import { useQueryClient } from '@tanstack/react-query'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
+import { MapControl } from '@/types'
 
 const EditMapControlPage = () => {
   const { id, subcontrolId } = useParams()
@@ -36,8 +37,8 @@ const EditMapControlPage = () => {
   const { errorNotification, successNotification } = useNotification()
   const mappedControlId = searchParams.get('mappedControlId')
   const [expandedCard, setExpandedCard] = useState<'From' | 'To' | ''>('From')
-  const [presetControlsFrom, setPresetControlsFrom] = useState<DroppedControl[]>([])
-  const [presetControlsTo, setPresetControlsTo] = useState<DroppedControl[]>([])
+  const [presetControlsFrom, setPresetControlsFrom] = useState<MapControl[]>([])
+  const [presetControlsTo, setPresetControlsTo] = useState<MapControl[]>([])
   const { mutateAsync: update, data: updateData, isPending } = useUpdateMappedControl()
 
   const shouldFetchControl = !subcontrolId && !!id
@@ -191,50 +192,30 @@ const EditMapControlPage = () => {
         source: mc.source ?? MappedControlMappingSource.MANUAL,
       })
 
-      const presetFrom: DroppedControl[] = []
-      const presetTo: DroppedControl[] = []
+      const presetFrom: MapControl[] = []
+      const presetTo: MapControl[] = []
 
       mc.fromControls?.edges?.forEach((e) => {
         if (e?.node) {
-          presetFrom.push({
-            id: e.node.id,
-            refCode: e.node.refCode,
-            shortName: e.node.referenceFramework || 'CUSTOM',
-            type: 'control',
-          })
+          presetFrom.push(e.node)
         }
       })
 
       mc.fromSubcontrols?.edges?.forEach((e) => {
         if (e?.node) {
-          presetFrom.push({
-            id: e.node.id,
-            refCode: e.node.refCode,
-            shortName: e.node.referenceFramework || 'CUSTOM',
-            type: 'subcontrol',
-          })
+          presetFrom.push(e.node)
         }
       })
 
       mc.toControls?.edges?.forEach((e) => {
         if (e?.node) {
-          presetTo.push({
-            id: e.node.id,
-            refCode: e.node.refCode,
-            shortName: e.node.referenceFramework || 'CUSTOM',
-            type: 'control',
-          })
+          presetTo.push(e.node)
         }
       })
 
       mc.toSubcontrols?.edges?.forEach((e) => {
         if (e?.node) {
-          presetTo.push({
-            id: e.node.id,
-            refCode: e.node.refCode,
-            shortName: e.node.referenceFramework || 'CUSTOM',
-            type: 'subcontrol',
-          })
+          presetTo.push(e.node)
         }
       })
 
@@ -245,8 +226,8 @@ const EditMapControlPage = () => {
 
   return (
     <FormProvider {...form}>
-      <SlideBarLayout sidebarContent={<MapControlsRelations />}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col space-y-6">
+        <SlideBarLayout sidebarContent={<MapControlsRelations />}>
           <div className="p-8 space-y-6">
             <div>
               <h1 className="text-2xl font-bold">Map Controls</h1>
@@ -270,8 +251,8 @@ const EditMapControlPage = () => {
               </Accordion>
             </div>
           </div>
-        </form>
-      </SlideBarLayout>
+        </SlideBarLayout>
+      </form>
     </FormProvider>
   )
 }

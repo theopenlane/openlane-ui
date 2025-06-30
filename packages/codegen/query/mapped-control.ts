@@ -78,6 +78,7 @@ export const GET_MAPPED_CONTROL_BY_ID = gql`
       fromSubcontrols {
         edges {
           node {
+            __typename
             id
             refCode
             referenceFramework
@@ -90,6 +91,7 @@ export const GET_MAPPED_CONTROL_BY_ID = gql`
       toSubcontrols {
         edges {
           node {
+            __typename
             id
             refCode
             referenceFramework
@@ -102,6 +104,7 @@ export const GET_MAPPED_CONTROL_BY_ID = gql`
       fromControls {
         edges {
           node {
+            __typename
             id
             refCode
             referenceFramework
@@ -111,6 +114,7 @@ export const GET_MAPPED_CONTROL_BY_ID = gql`
       toControls {
         edges {
           node {
+            __typename
             id
             refCode
             referenceFramework

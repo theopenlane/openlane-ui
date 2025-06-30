@@ -38752,7 +38752,7 @@ export type GetControlsPaginatedQuery = {
     totalCount: number
     edges?: Array<{
       __typename?: 'ControlEdge'
-      node?: { __typename?: 'Control'; id: string; refCode: string; category?: string | null; subcategory?: string | null; referenceFramework?: string | null } | null
+      node?: { __typename: 'Control'; id: string; refCode: string; category?: string | null; subcategory?: string | null; referenceFramework?: string | null } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; endCursor?: any | null }
   }
@@ -39166,23 +39166,23 @@ export type GetMappedControlByIdQuery = {
       __typename?: 'SubcontrolConnection'
       edges?: Array<{
         __typename?: 'SubcontrolEdge'
-        node?: { __typename?: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; control: { __typename?: 'Control'; id: string } } | null
+        node?: { __typename: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; control: { __typename?: 'Control'; id: string } } | null
       } | null> | null
     }
     toSubcontrols: {
       __typename?: 'SubcontrolConnection'
       edges?: Array<{
         __typename?: 'SubcontrolEdge'
-        node?: { __typename?: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; control: { __typename?: 'Control'; id: string } } | null
+        node?: { __typename: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; control: { __typename?: 'Control'; id: string } } | null
       } | null> | null
     }
     fromControls: {
       __typename?: 'ControlConnection'
-      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; referenceFramework?: string | null } | null } | null> | null
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename: 'Control'; id: string; refCode: string; referenceFramework?: string | null } | null } | null> | null
     }
     toControls: {
       __typename?: 'ControlConnection'
-      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; referenceFramework?: string | null } | null } | null> | null
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename: 'Control'; id: string; refCode: string; referenceFramework?: string | null } | null } | null> | null
     }
   }
 }
@@ -40821,7 +40821,7 @@ export type GetSubcontrolsPaginatedQuery = {
     totalCount: number
     edges?: Array<{
       __typename?: 'SubcontrolEdge'
-      node?: { __typename?: 'Subcontrol'; id: string; refCode: string; category?: string | null; subcategory?: string | null; referenceFramework?: string | null } | null
+      node?: { __typename: 'Subcontrol'; id: string; refCode: string; category?: string | null; subcategory?: string | null; referenceFramework?: string | null } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; endCursor?: any | null }
   }

@@ -11,24 +11,18 @@ import { ControlWhereInput, SubcontrolWhereInput } from '@repo/codegen/src/schem
 import { useAllSubcontrolsGrouped } from '@/lib/graphql-hooks/subcontrol'
 import { useFormContext } from 'react-hook-form'
 import { MapControlsFormData } from './use-form-schema'
-
-export interface DroppedControl {
-  id: string
-  refCode: string
-  shortName: string
-  type: 'control' | 'subcontrol'
-}
+import { MapControl } from '@/types'
 
 interface Props {
   title: 'From' | 'To'
   setExpandedCard: () => void
   expandedCard: string
-  presetControls?: DroppedControl[]
+  presetControls?: MapControl[]
 }
 
 const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard, presetControls }) => {
   const [where, setWhere] = useState<ControlWhereInput | SubcontrolWhereInput>({})
-  const [droppedControls, setDroppedControls] = useState<DroppedControl[]>([])
+  const [droppedControls, setDroppedControls] = useState<MapControl[]>([])
   const [enableSubcontrols, setEnableSubcontrols] = useState(false)
   const { setValue, getValues } = useFormContext<MapControlsFormData>()
 
@@ -43,14 +37,11 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
+
     try {
-      const payload = JSON.parse(e.dataTransfer.getData('application/json'))
+      const payload: MapControl[] = JSON.parse(e.dataTransfer.getData('application/json'))
 
-      if (!payload?.id || !payload?.refCode || !payload?.type) return
-
-      if (droppedControls.find((c) => c.id === payload.id)) return
-
-      setDroppedControls((prev) => [...prev, payload])
+      if (!Array.isArray(payload) || payload.length === 0) return
 
       const isFrom = title === 'From'
       const controlField = isFrom ? 'fromControlIDs' : 'toControlIDs'
@@ -59,29 +50,48 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
       const controlIds = getValues(controlField) || []
       const subcontrolIds = getValues(subcontrolField) || []
 
-      if (payload.type === 'control') {
-        setValue(controlField, [...controlIds, payload.id])
-      } else if (payload.type === 'subcontrol') {
-        setValue(subcontrolField, [...subcontrolIds, payload.id])
+      const existingIds = new Set(droppedControls.map((c) => c.id))
+
+      const newControls = payload.filter((item) => !existingIds.has(item.id))
+
+      if (newControls.length === 0) return
+
+      setDroppedControls((prev) => [...prev, ...newControls])
+      const newControlIds = newControls
+        .filter((item) => item.__typename === 'Control')
+        .map((item) => item.id)
+        .filter((id) => !controlIds.includes(id))
+
+      const newSubcontrolIds = newControls
+        .filter((item) => item.__typename === 'Subcontrol')
+        .map((item) => item.id)
+        .filter((id) => !subcontrolIds.includes(id))
+
+      if (newControlIds.length > 0) {
+        setValue(controlField, [...controlIds, ...newControlIds])
+      }
+
+      if (newSubcontrolIds.length > 0) {
+        setValue(subcontrolField, [...subcontrolIds, ...newSubcontrolIds])
       }
     } catch (err) {
       console.error('Invalid drop payload', err)
     }
   }
 
-  const handleRemove = (control: DroppedControl) => {
+  const handleRemove = (control: MapControl) => {
     const isFrom = title === 'From'
     const controlField = isFrom ? 'fromControlIDs' : 'toControlIDs'
     const subcontrolField = isFrom ? 'fromSubcontrolIDs' : 'toSubcontrolIDs'
     setDroppedControls((prev) => prev.filter((c) => c.id !== control.id))
 
-    if (control.type === 'control') {
+    if (control.__typename === 'Control') {
       const ids = getValues(controlField) || []
       setValue(
         controlField,
         ids.filter((i: string) => i !== control.id),
       )
-    } else if (control.type === 'subcontrol') {
+    } else if (control.__typename === 'Subcontrol') {
       const ids = getValues(subcontrolField) || []
       setValue(
         subcontrolField,
@@ -138,6 +148,7 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
                   subcontrolData={subcontrolEnabled ? allSubcontrols.allSubcontrols : undefined}
                   droppedControls={droppedControls}
                   title={title}
+                  setDroppedControls={setDroppedControls}
                 />
               </div>
               <div className="border-2 border-dashed rounded-lg flex items-center justify-center flex-col gap-2" onDragOver={(e) => e.preventDefault()} onDrop={handleDrop}>

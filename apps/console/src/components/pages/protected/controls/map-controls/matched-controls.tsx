@@ -1,11 +1,11 @@
 import { ControlWhereInput, SubcontrolWhereInput } from '@repo/codegen/src/schema'
 import React, { useMemo, useState } from 'react'
-import { DroppedControl } from './map-controls-card'
 import MapControlCategoriesAccordion from './map-control-categories-accordion'
 import { Button } from '@repo/ui/button'
 import { ChevronsDownUp, List } from 'lucide-react'
 import MapControlFrameworksAccordion from './map-control-frameworks-accordion'
 import MapControlResults from './map-control-results'
+import { MapControl } from '@/types'
 
 interface Props {
   controlData: (
@@ -30,13 +30,14 @@ interface Props {
         referenceFramework?: string | null
       }[]
     | undefined
-  droppedControls: DroppedControl[]
+  droppedControls: MapControl[]
   where: ControlWhereInput | SubcontrolWhereInput
   isLoading?: boolean
   title: 'From' | 'To'
+  setDroppedControls: React.Dispatch<React.SetStateAction<MapControl[]>>
 }
 
-const MatchedControls = ({ controlData, droppedControls, where, subcontrolData, isLoading, title }: Props) => {
+const MatchedControls = ({ controlData, droppedControls, where, subcontrolData, isLoading, title, setDroppedControls }: Props) => {
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({})
   const toggleAll = () => {
     const allOpen = Object.values(expandedItems).every((val) => val)
@@ -56,7 +57,7 @@ const MatchedControls = ({ controlData, droppedControls, where, subcontrolData, 
     const queryKeywordOrCategory = !!where.or
 
     if (queryFramework && queryKeywordOrCategory) {
-      return <MapControlResults droppedControls={droppedControls} controlData={controlData} subcontrolData={subcontrolData} title={title} />
+      return <MapControlResults droppedControls={droppedControls} controlData={controlData} subcontrolData={subcontrolData} title={title} setDroppedControls={setDroppedControls} />
     }
     if (queryFramework) {
       return (
@@ -67,6 +68,7 @@ const MatchedControls = ({ controlData, droppedControls, where, subcontrolData, 
           droppedControls={droppedControls}
           subcontrolData={subcontrolData}
           title={title}
+          setDroppedControls={setDroppedControls}
         />
       )
     }
@@ -80,12 +82,13 @@ const MatchedControls = ({ controlData, droppedControls, where, subcontrolData, 
           droppedControls={droppedControls}
           subcontrolData={subcontrolData}
           title={title}
+          setDroppedControls={setDroppedControls}
         />
       )
     }
 
     return <div className="text-sm italic text-neutral-500">No available controls.</div>
-  }, [controlData, droppedControls, expandedItems, where, subcontrolData, isLoading, title])
+  }, [controlData, droppedControls, expandedItems, where, subcontrolData, isLoading, title, setDroppedControls])
 
   return (
     <div className=" border-t pt-5">
