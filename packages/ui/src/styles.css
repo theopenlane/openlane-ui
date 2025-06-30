@@ -104,7 +104,7 @@
   --color-table-row-bg-even: #ffffff;
   --color-table-border-muted: #e9f1f5;
   --color-table-border: #b3c8d1;
-  --color-table-header-bg: #f5f5f5;
+  --color-table-header-bg: #e4edf1;
   --color-table-header-text: #303e4a;
 
   /* Gradient */
@@ -231,7 +231,7 @@
   --color-table-row-bg-even: #354755;
   --color-table-border: #998da0;
   --color-table-border-muted: #395365;
-  --color-table-header-bg: #303e4a;
+  --color-table-header-bg: #3b4b59;
   --color-table-header-text: #d0f3ea;
 
   /* Gradient */
