@@ -29,6 +29,8 @@ import Menu from '@/components/shared/menu/menu.tsx'
 import CreateItemsFromPolicyToolbar from './create-items-from-policy-toolbar'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
+import { useOrganization } from '@/hooks/useOrganization'
+import { useGetOrganizationNameById } from '@/lib/graphql-hooks/organization'
 
 type TViewPolicyPage = {
   policyId: string
@@ -53,6 +55,8 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const router = useRouter()
   const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { currentOrgId } = useOrganization()
+  const { data: orgNameData } = useGetOrganizationNameById(currentOrgId)
 
   useEffect(() => {
     setCrumbs([
@@ -259,7 +263,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
 
   return (
     <>
-      <title>{`Acme Corp: Internal Policies - ${policy.name}`}</title>
+      <title>{`${orgNameData?.organization.displayName} Internal Policies - ${policy.name}`}</title>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmitHandler)}>
           <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>

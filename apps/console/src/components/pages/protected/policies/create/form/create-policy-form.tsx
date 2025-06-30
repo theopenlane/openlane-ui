@@ -22,7 +22,10 @@ import AssociationCard from '@/components/pages/protected/policies/create/cards/
 import TagsCard from '@/components/pages/protected/policies/create/cards/tags-card.tsx'
 import { DOCS_URL } from '@/constants'
 import AuthorityCard from '@/components/pages/protected/policies/view/cards/authority-card.tsx'
-import Head from 'next/head'
+import { useOrganization } from '@/hooks/useOrganization'
+import { useGetOrganizationNameById } from '@/lib/graphql-hooks/organization'
+const { currentOrgId } = useOrganization()
+const { data: orgNameData } = useGetOrganizationNameById(currentOrgId)
 
 type TCreatePolicyFormProps = {
   policy?: InternalPolicyByIdFragment
@@ -229,7 +232,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
 
   return (
     <>
-      <title>{`Acme Corp: Internal Policies - ${policy?.name}`}</title>
+      <title>{`${orgNameData?.organization.displayName}: Internal Policies - ${policy?.name}`}</title>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(isEditable ? onSaveHandler : onCreateHandler)} className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
           <div className="space-y-6">

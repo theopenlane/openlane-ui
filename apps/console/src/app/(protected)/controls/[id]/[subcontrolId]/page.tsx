@@ -35,6 +35,8 @@ import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 import RelatedControls from '@/components/pages/protected/controls/related-controls'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
+import { useOrganization } from '@/hooks/useOrganization'
+import { useGetOrganizationNameById } from '@/lib/graphql-hooks/organization'
 
 interface FormValues {
   refCode: string
@@ -84,7 +86,8 @@ const ControlDetailsPage: React.FC = () => {
 
   const { data, isLoading, isError } = useGetSubcontrolById(subcontrolId)
   const { data: controlData, isLoading: isLoadingControl } = useGetControlById(id)
-
+  const { currentOrgId } = useOrganization()
+  const { data: orgNameData } = useGetOrganizationNameById(currentOrgId)
   const isSourceFramework = data?.subcontrol.source === SubcontrolControlSource.FRAMEWORK
 
   const form = useForm<FormValues>({
@@ -313,7 +316,7 @@ const ControlDetailsPage: React.FC = () => {
 
   return (
     <>
-      <title>{`Acme Corp: Subcontrols - ${data.subcontrol.refCode}`}</title>
+      <title>{`${orgNameData?.organization.displayName}: Subcontrols - ${data.subcontrol.refCode}`}</title>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>
