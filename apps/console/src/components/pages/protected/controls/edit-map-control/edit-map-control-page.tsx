@@ -25,6 +25,7 @@ import MapControlsCard, { DroppedControl } from '../map-controls/map-controls-ca
 import { MapControlsFormData, mapControlsSchema } from '../map-controls/use-form-schema'
 import MapControlsRelations from '../map-controls/map-controls-relations'
 import { useQueryClient } from '@tanstack/react-query'
+import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 
 const EditMapControlPage = () => {
   const { id, subcontrolId } = useParams()
@@ -244,19 +245,19 @@ const EditMapControlPage = () => {
 
   return (
     <FormProvider {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col space-y-6">
-        <div className="p-8 space-y-6">
-          <div>
-            <h1 className="text-2xl font-bold">Map Controls</h1>
-            <p
-              className="text
+      <SlideBarLayout sidebarContent={<MapControlsRelations />}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col space-y-6">
+          <div className="p-8 space-y-6">
+            <div>
+              <h1 className="text-2xl font-bold">Map Controls</h1>
+              <p
+                className="text
             -muted-foreground mt-1"
-            >
-              Define how controls relate across frameworks – custom sets—whether they’re equivalent, overlapping, or one is a subset of another. Use these mappings to reduce duplication, surface gaps,
-              and create a unified view of your compliance posture.
-            </p>
-          </div>
-          <div className="grid grid-cols-[3fr_1fr] gap-6">
+              >
+                Define how controls relate across frameworks – custom sets—whether they’re equivalent, overlapping, or one is a subset of another. Use these mappings to reduce duplication, surface
+                gaps, and create a unified view of your compliance posture.
+              </p>
+            </div>
             <div className="flex flex-col">
               <Accordion type="single" collapsible value={expandedCard} className="w-full">
                 <MapControlsCard title="From" expandedCard={expandedCard} setExpandedCard={() => handleCardToggle('From')} presetControls={presetControlsFrom} />
@@ -268,10 +269,9 @@ const EditMapControlPage = () => {
                 <MapControlsCard title="To" expandedCard={expandedCard} setExpandedCard={() => handleCardToggle('To')} presetControls={presetControlsTo} />
               </Accordion>
             </div>
-            <MapControlsRelations />
           </div>
-        </div>
-      </form>
+        </form>
+      </SlideBarLayout>
     </FormProvider>
   )
 }

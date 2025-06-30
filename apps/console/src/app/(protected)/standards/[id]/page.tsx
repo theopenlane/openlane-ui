@@ -11,6 +11,8 @@ import { ShieldPlus } from 'lucide-react'
 import { useState, useEffect, useContext } from 'react'
 import AddToOrganizationDialog from '@/components/pages/protected/standards/add-to-organization-dialog'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
+import { useOrganization } from '@/hooks/useOrganization'
+import { useGetOrganizationNameById } from '@/lib/graphql-hooks/organization'
 
 const StandardDetailsPage = () => {
   const { id } = useParams()
@@ -18,6 +20,8 @@ const StandardDetailsPage = () => {
   const standard = data?.standard
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const { setCrumbs } = useContext(BreadcrumbContext)
+  const { currentOrgId } = useOrganization()
+  const { data: orgNameData } = useGetOrganizationNameById(currentOrgId)
 
   useEffect(() => {
     setCrumbs([
@@ -36,6 +40,7 @@ const StandardDetailsPage = () => {
 
   return (
     <>
+      <title>{`${orgNameData?.organization.displayName}: Standards - ${standard?.shortName ?? standard?.name}`}</title>
       <div className="flex gap-14">
         <div className="flex flex-col gap-7 ">
           <PageHeading heading={data?.standard.name || 'Standard Details'} className="mb-3" />

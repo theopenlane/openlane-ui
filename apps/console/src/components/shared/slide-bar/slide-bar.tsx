@@ -4,7 +4,7 @@ import { Button } from '@repo/ui/button'
 import { useSubscriptionBanner } from '@/hooks/useSubscriptionBanner.ts'
 
 type TSlideBarLayoutProps = {
-  sidebarTitle: string
+  sidebarTitle?: string
   sidebarContent: ReactNode
   children: ReactNode
   menu?: ReactNode
@@ -74,9 +74,13 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarC
           transform: open ? 'translateX(0)' : 'translateX(100%)',
         }}
       >
-        <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-lg font-medium truncate mr-2">{sidebarTitle}</h2>
-        </div>
+        {sidebarTitle ? (
+          <div className="flex items-center justify-between p-4 border-b">
+            <h2 className="text-lg font-medium truncate mr-2">{sidebarTitle}</h2>
+          </div>
+        ) : (
+          <div className="p-4"></div>
+        )}
 
         <div onMouseDown={startResize} className="absolute left-0 top-0 h-full w-1 cursor-col-resize" />
 

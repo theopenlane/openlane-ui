@@ -1,7 +1,7 @@
 'use client'
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useMemo, useRef, useState, useEffect } from 'react'
 import TaskTableToolbar from '@/components/pages/protected/tasks/table/task-table-toolbar'
-import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
+import { useTaskStore, TOrgMembers } from '@/components/pages/protected/tasks/hooks/useTaskStore'
 import { OrderDirection, Task, TaskOrderField, TasksWithFilterQueryVariables, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { taskColumns } from '@/components/pages/protected/tasks/table/columns.tsx'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -12,15 +12,23 @@ import TaskInfiniteCards from '@/components/pages/protected/tasks/cards/task-inf
 import TasksTable from '@/components/pages/protected/tasks/table/tasks-table.tsx'
 import { formatDate } from '@/utils/date'
 import { useDebounce } from '@uidotdev/usehooks'
+import { useSearchParams } from 'next/navigation'
+import { useSession } from 'next-auth/react'
+import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 
 const TasksPage: React.FC = () => {
-  const { orgMembers } = useTaskStore()
+  const { setSelectedTask, setOrgMembers, orgMembers } = useTaskStore()
   const [searchQuery, setSearchQuery] = useState('')
   const tableRef = useRef<{ exportData: () => Task[] }>(null)
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
   const [showCompletedTasks, setShowCompletedTasks] = useState<boolean>(false)
   const [filters, setFilters] = useState<Record<string, any> | null>(null)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const searchParams = useSearchParams()
+  const { data: session } = useSession()
+  const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
+  const { setCrumbs } = React.useContext(BreadcrumbContext)
   const [orderBy, setOrderBy] = useState<TasksWithFilterQueryVariables['orderBy']>([
     {
       field: TaskOrderField.due,
@@ -47,6 +55,32 @@ const TasksPage: React.FC = () => {
 
     return conditions
   }, [filters, showCompletedTasks, allStatuses, statusesWithoutComplete, debouncedSearch])
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Tasks', href: '/tasks' },
+    ])
+  }, [setCrumbs])
+
+  useEffect(() => {
+    const taskId = searchParams.get('id')
+    if (taskId) {
+      setSelectedTask(taskId)
+    }
+  }, [searchParams, setSelectedTask])
+
+  useEffect(() => {
+    const members = membersData?.organization?.members?.edges?.map(
+      (member) =>
+        ({
+          value: member?.node?.user?.id,
+          label: `${member?.node?.user?.displayName}`,
+          membershipId: member?.node?.user.id,
+        }) as TOrgMembers,
+    )
+    setOrgMembers(members)
+  }, [membersData])
 
   const orderByFilter = useMemo(() => {
     return orderBy || undefined
