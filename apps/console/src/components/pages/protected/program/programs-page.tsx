@@ -27,6 +27,8 @@ import { ProgramCreateIconBtn, ProgramSettingsIconBtn } from '@/components/share
 import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
 import TimelineReadiness from '@/components/pages/protected/dashboard/timeline-readiness'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
+import { useOrganization } from '@/hooks/useOrganization'
+import { useGetOrganizationNameById } from '@/lib/graphql-hooks/organization'
 
 const ProgramsPage: React.FC = () => {
   const router = useRouter()
@@ -44,6 +46,8 @@ const ProgramsPage: React.FC = () => {
   const { data: session } = useSession()
   const { data: permission } = useOrganizationRole(session)
   const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { currentOrgId } = useOrganization()
+  const { data: orgNameData } = useGetOrganizationNameById(currentOrgId)
 
   const programMap = useMemo(() => {
     const map: Record<string, string> = {}
@@ -70,7 +74,7 @@ const ProgramsPage: React.FC = () => {
   }, [setCrumbs, basicInfoData, isLoading])
 
   useEffect(() => {
-    if (basicInfoData) document.title = `Acme Corp: Programs - ${basicInfoData.program.name}`
+    if (basicInfoData) document.title = `${orgNameData?.organization.displayName}: Programs - ${basicInfoData.program.name}`
   }, [basicInfoData])
 
   useEffect(() => {
