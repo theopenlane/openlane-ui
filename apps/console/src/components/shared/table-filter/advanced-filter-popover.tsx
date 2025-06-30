@@ -1,8 +1,8 @@
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
-import { ChevronDown, ChevronUp, ListFilter, Plus, Trash2 } from 'lucide-react'
+import { ChevronDown, ChevronUp, ListFilter, Plus, Trash2, X } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Button } from '@repo/ui/button'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Filter, FilterField } from '@/types'
 import { getOperatorsForType } from './table-filter'
 
@@ -13,10 +13,12 @@ type TAdvancedFilterPopover = {
   filterFields: FilterField[]
   conjunction: 'and' | 'or'
   onSetConjunction: (conjunction: 'and' | 'or') => void
-  renderFilterInput: (filter: Filter, isAdvanced: boolean, index: number) => React.ReactNode
+  renderFilterInput: (filter: Filter, isAdvanced: boolean, onClose: () => void, index: number) => React.ReactNode
   onRemoveFilter: (index: number) => void
   onHandleSaveFilters: () => void
   onResetFilters: () => void
+  isActive?: boolean
+  onDeleteFilter: () => void
 }
 
 const AdvancedFilterPopover: React.FC<TAdvancedFilterPopover> = ({
@@ -28,19 +30,24 @@ const AdvancedFilterPopover: React.FC<TAdvancedFilterPopover> = ({
   onSetConjunction,
   renderFilterInput,
   onRemoveFilter,
+  onDeleteFilter,
   onHandleSaveFilters,
   onResetFilters,
+  isActive,
 }) => {
   const [open, setOpen] = useState<boolean>(false)
+
+  useEffect(() => {
+    if (isActive) {
+      setOpen(true)
+    }
+  }, [isActive])
 
   return (
     <Popover
       open={open}
       onOpenChange={(newOpen) => {
         setOpen(newOpen)
-        if (newOpen && filters?.length === 0) {
-          onAddFilter()
-        }
       }}
     >
       <PopoverTrigger asChild>
@@ -49,6 +56,15 @@ const AdvancedFilterPopover: React.FC<TAdvancedFilterPopover> = ({
           <span className="text-xs">Advanced</span>
           <span className="border-l bg-background-secondary pl-2 text-xs">{filters?.length}</span>
           {open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          <button
+            className="border-l pl-2"
+            onClick={(e) => {
+              e.stopPropagation()
+              onDeleteFilter()
+            }}
+          >
+            <X size={12} />
+          </button>
         </div>
       </PopoverTrigger>
       <PopoverContent align="start" side="bottom" sideOffset={8} asChild className="size-fit p-4 pt-2 pb-2">
@@ -114,7 +130,7 @@ const AdvancedFilterPopover: React.FC<TAdvancedFilterPopover> = ({
                   </SelectContent>
                 </Select>
 
-                {renderFilterInput(filter, true, index)}
+                {renderFilterInput(filter, true, () => setOpen(false), index)}
 
                 <Button className="!gap-1 !p-1 !pl-2 !pr-2 h-[unset]" variant="outline" onClick={() => onRemoveFilter(index)}>
                   <Trash2 className="h-4 w-4" />
@@ -123,7 +139,13 @@ const AdvancedFilterPopover: React.FC<TAdvancedFilterPopover> = ({
             )
           })}
           <div className="flex gap-2">
-            <Button className="h-6 !px-2" onClick={() => onHandleSaveFilters()}>
+            <Button
+              className="h-6 !px-2"
+              onClick={() => {
+                onHandleSaveFilters()
+                setOpen(false)
+              }}
+            >
               Save
             </Button>
             <Button className="h-6 !px-2" variant="back" onClick={onResetFilters}>
