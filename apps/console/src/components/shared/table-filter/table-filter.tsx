@@ -61,6 +61,8 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
   const searchParams = useSearchParams()
   const [regularFilters, setRegularFilters] = useState<Filter[] | null>(null)
   const [advancedFilters, setAdvancedFilters] = useState<Filter[] | null>(null)
+  const [activeRegularFilterKey, setActiveRegularFilterKey] = useState<string | null>(null)
+  const [activeAdvancedFilter, setActiveAdvancedFilter] = useState(false)
   const [appliedFilters, setAppliedFilters] = useState<TAppliedFilters>({
     advancedFilters: [],
     regularFilters: [],
@@ -227,15 +229,7 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
     }
 
     if (advancedFilters.length === 1) {
-      const firstField = filterFields[0]
-      setAdvancedFilters([
-        {
-          field: firstField.key,
-          value: '',
-          type: firstField.type!,
-          operator: 'EQ',
-        },
-      ])
+      handleDeleteAdvancedFilter()
       return
     }
 
@@ -243,13 +237,20 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
     setAdvancedFilters(updatedAdvancedFilters)
   }
 
-  const handleRemoveRegularFilter = (filter: Filter) => {
-    if (!regularFilters) {
+  const handleDeleteAdvancedFilter = () => {
+    if (!advancedFilters) {
       return
     }
 
-    const updatedFilters = regularFilters.map((regularFilter) => (regularFilter.field === filter.field ? { ...regularFilter, value: '' } : filter))
-    setRegularFilters(updatedFilters)
+    setAppliedFilters((prev) => ({
+      ...prev,
+      advancedFilters: [],
+    }))
+    setAdvancedFilters([])
+    onSubmitHandler([])
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete('advancedFilters')
+    router.replace(`${pathname}?${params.toString()}`)
   }
 
   const handleDeleteRegularFilter = (filter: Filter) => {
@@ -289,6 +290,11 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
       return
     }
 
+    if (appliedFilters.advancedFilters.length === 1 && appliedFilters.advancedFilters[0].value === '') {
+      handleDeleteAdvancedFilter()
+      return
+    }
+
     setAdvancedFilters(appliedFilters.advancedFilters)
   }
 
@@ -299,6 +305,11 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
 
     const original = appliedFilters.regularFilters.find((f) => f.field === filter.field)
     if (!original) {
+      return
+    }
+
+    if (original.value === '') {
+      handleDeleteRegularFilter(filter)
       return
     }
 
@@ -327,28 +338,32 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
           advancedFilters: [...prevState.advancedFilters, newFilter],
         }
       })
+
+      setActiveAdvancedFilter(true)
     }
 
     if (!isAdvanced && filterField) {
-      setAppliedFilters((prevState) => {
-        const filterExists = prevState.regularFilters.some((filter) => filter.field === filterField.key)
+      const filterExists = appliedFilters.regularFilters.some((filter) => filter.field === filterField.key)
 
-        if (filterExists) {
-          return prevState
-        }
+      if (filterExists) {
+        setActiveRegularFilterKey(filterField.key)
+        return
+      }
 
-        const newFilter: Filter = {
-          field: filterField.key,
-          value: '',
-          type: filterField.type,
-          operator: getOperatorsForType(filterField.type)[0]?.value || 'equals',
-        }
+      const newFilter: Filter = {
+        field: filterField.key,
+        value: '',
+        type: filterField.type,
+        operator: getOperatorsForType(filterField.type)[0]?.value || 'equals',
+      }
 
-        return {
-          ...prevState,
-          regularFilters: [...prevState.regularFilters, newFilter],
-        }
-      })
+      setAppliedFilters((prevState) => ({
+        ...prevState,
+        regularFilters: [...prevState.regularFilters, newFilter],
+      }))
+
+      setActiveRegularFilterKey(newFilter.field)
+      handleAddRegularFilter(newFilter)
     }
   }
 
@@ -460,6 +475,7 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
           <div className="text-xs leading-6 bg-background-secondary p-2 rounded-lg shadow-md transition-all z-50 mb-2">
             <div className="flex items-center flex-wrap gap-2">
               <Menu
+                closeOnSelect={true}
                 align="start"
                 trigger={
                   <div className="flex gap-2 border rounded-lg px-2 py-1 cursor-pointer">
@@ -467,26 +483,37 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
                     <span className="text-xs">Filter</span>
                   </div>
                 }
-                content={
+                content={(close) => (
                   <>
-                    {filterFields?.map((filterField, index) => {
-                      return (
-                        <span key={index} className="text-sm cursor-pointer hover:bg-muted" onClick={() => handleAddAppliedFilter(false, filterField)}>
-                          {filterField?.label}
-                        </span>
-                      )
-                    })}
+                    {filterFields?.map((filterField, index) => (
+                      <span
+                        key={index}
+                        className="text-sm cursor-pointer hover:bg-muted"
+                        onClick={() => {
+                          handleAddAppliedFilter(false, filterField)
+                          close()
+                        }}
+                      >
+                        {filterField?.label}
+                      </span>
+                    ))}
                   </>
-                }
-                extraContent={
-                  <div className="flex items-center justify-between cursor-pointer hover:bg-muted" onClick={() => handleAddAppliedFilter(true)}>
+                )}
+                extraContent={(close) => (
+                  <div
+                    className="flex items-center justify-between cursor-pointer hover:bg-muted"
+                    onClick={() => {
+                      handleAddAppliedFilter(true)
+                      close()
+                    }}
+                  >
                     <div className="flex items-center gap-2">
                       <ListFilter size={16} />
                       <span className="text-xs">Advanced</span>
                     </div>
-                    <span className="text-xs">{appliedFilters?.advancedFilters.length === 0 ? 'No rules' : `${advancedFilters?.length} ${advancedFilters?.length === 1 ? ' rule' : '  rules'}`}</span>
+                    <span className="text-xs">{appliedFilters?.advancedFilters.length === 0 ? 'No rules' : `${advancedFilters?.length} ${advancedFilters?.length === 1 ? ' rule' : ' rules'}`}</span>
                   </div>
-                }
+                )}
               />
 
               {appliedFilters?.advancedFilters?.length > 0 && (
@@ -499,8 +526,10 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
                   onSetConjunction={setConjunction}
                   renderFilterInput={renderFilterInput}
                   onRemoveFilter={handleRemoveAdvancedFilter}
+                  onDeleteFilter={handleDeleteAdvancedFilter}
                   onHandleSaveFilters={handleSaveAdvancedFilters}
                   onResetFilters={resetAdvancedFilters}
+                  isActive={activeAdvancedFilter}
                 />
               )}
 
@@ -513,10 +542,9 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
                   filterFields={filterFields}
                   renderFilterInput={renderFilterInput}
                   onDeleteFilter={handleDeleteRegularFilter}
-                  onRemoveFilter={handleRemoveRegularFilter}
                   onHandleSaveFilters={handleSaveRegularFilters}
                   onResetFilters={resetRegularFilters}
-                  onAddFilter={handleAddRegularFilter}
+                  isActive={activeRegularFilterKey === regularFilterItem.field}
                 />
               ))}
             </div>

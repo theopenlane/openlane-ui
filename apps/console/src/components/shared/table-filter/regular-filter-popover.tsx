@@ -2,38 +2,43 @@ import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Trash2, X } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Button } from '@repo/ui/button'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Filter, FilterField } from '@/types'
 import { getOperatorsForType } from './table-filter'
 import { formatDate } from '@/utils/date.ts'
 
 type TRegularFilterPopover = {
-  onAddFilter: (regularFilterItem: Filter) => void
   onHandleFilterChange: (filter: Filter) => void
   filterFields: FilterField[]
   renderFilterInput: (filter: Filter, isAdvanced: boolean) => React.ReactNode
-  onRemoveFilter: (filter: Filter) => void
   onDeleteFilter: (filter: Filter) => void
   onHandleSaveFilters: () => void
   onResetFilters: (filter: Filter) => void
   filter: Filter | null
   regularFilterItem: Filter
+  isActive?: boolean
 }
 
 const RegularFilterPopover: React.FC<TRegularFilterPopover> = ({
-  onAddFilter,
   onHandleFilterChange,
   filterFields,
   renderFilterInput,
-  onRemoveFilter,
   onHandleSaveFilters,
   onResetFilters,
   filter,
   regularFilterItem,
   onDeleteFilter,
+  isActive,
 }) => {
   const filterField = filterFields.find((f) => f.key === filter?.field)
   const operators = filterField ? getOperatorsForType(filterField.type) : []
+  const [open, setOpen] = useState<boolean>(false)
+
+  useEffect(() => {
+    if (isActive) {
+      setOpen(true)
+    }
+  }, [isActive])
 
   const normalizeFilter = (item: Filter) => {
     return `${item.field.charAt(0).toUpperCase() + item.field.slice(1)} ${getOperatorsForType(item.type)
@@ -50,7 +55,12 @@ const RegularFilterPopover: React.FC<TRegularFilterPopover> = ({
   }
 
   return (
-    <Popover onOpenChange={(open) => open && !filter && onAddFilter(regularFilterItem)}>
+    <Popover
+      open={open}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen)
+      }}
+    >
       <PopoverTrigger asChild>
         <div className="flex items-center border rounded-lg px-2 py-1 max-w-xs cursor-pointer">
           <span className="mr-2 truncate text-xs">{normalizeFilter(regularFilterItem)}</span>
@@ -87,7 +97,7 @@ const RegularFilterPopover: React.FC<TRegularFilterPopover> = ({
 
                 {renderFilterInput(filter, false)}
 
-                <Button className="!gap-1 !p-1 !pl-2 !pr-2 h-[unset]" variant="outline" onClick={() => onRemoveFilter(regularFilterItem)}>
+                <Button className="!gap-1 !p-1 !pl-2 !pr-2 h-[unset]" variant="outline" onClick={() => onDeleteFilter(regularFilterItem)}>
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
