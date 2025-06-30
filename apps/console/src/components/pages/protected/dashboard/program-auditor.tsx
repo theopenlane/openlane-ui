@@ -14,6 +14,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
 import { useSearchParams } from 'next/navigation'
 import { Input } from '@repo/ui/input'
+import SetReadyForAuditorDialog from './set-ready-for-auditor-dialog'
 
 interface ProgramAuditorProps {
   firm?: string | null
@@ -38,6 +39,7 @@ const ProgramAuditor = ({ firm, name, email, isReady }: ProgramAuditorProps) => 
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
   const [isEditing, setIsEditing] = useState(false)
+  const [isEligibleForAuditorSet, setIsEligibleForAuditorSet] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: updateProgram, isPending } = useUpdateProgram()
   const queryClient = useQueryClient()
@@ -57,8 +59,12 @@ const ProgramAuditor = ({ firm, name, email, isReady }: ProgramAuditorProps) => 
         auditorWriteComments: false,
         auditorReady: false,
       })
+      setIsEligibleForAuditorSet(true)
     }
     setIsEditing(false)
+    return () => {
+      setIsEligibleForAuditorSet(false)
+    }
   }, [name, email, firm, programId])
 
   const form = useForm<SetAuditorFormValues>({
@@ -109,11 +115,14 @@ const ProgramAuditor = ({ firm, name, email, isReady }: ProgramAuditorProps) => 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex justify-between items-center gap-4 mb-4">
             <h2 className="text-lg font-semibold">Auditor of this program</h2>
-            {hasAuditor && !isEditing && (
-              <Button className="!h-8 !p-2" variant="outline" type="button" icon={<Pencil />} iconPosition="left" onClick={() => setIsEditing(true)}>
-                Edit
-              </Button>
-            )}
+            <div className="flex gap-2">
+              {!isEditing && isEligibleForAuditorSet && <SetReadyForAuditorDialog />}
+              {hasAuditor && !isEditing && (
+                <Button className="!h-8 !p-2" variant="outline" type="button" icon={<Pencil />} iconPosition="left" onClick={() => setIsEditing(true)}>
+                  Edit
+                </Button>
+              )}
+            </div>
             {isEditing && (
               <div className="flex gap-2">
                 <Button className="!h-8 !p-2" variant="outline" type="submit" icon={<Pencil />} iconPosition="left" disabled={isPending}>
