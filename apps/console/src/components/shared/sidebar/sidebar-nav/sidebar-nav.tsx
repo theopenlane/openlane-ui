@@ -4,14 +4,13 @@ import Link from 'next/link'
 import { NavHeading, type NavItem, type Separator } from '@/types'
 import { usePathname } from 'next/navigation'
 import { useSidebar } from '@/hooks/useSidebar'
-
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/shared/sidebar/sidebar-accordion/sidebar-accordion'
 import { useEffect, useState } from 'react'
 import { cn } from '@repo/ui/lib/utils'
 import { Separator as Hr } from '@repo/ui/separator'
 import { sidebarNavStyles } from './sidebar-nav.styles'
 import { Logo } from '@repo/ui/logo'
-import { BookText, File, Lightbulb, Milestone, PaperclipIcon } from 'lucide-react'
+import { BookText, Milestone, MessageSquareQuote, HandHelping } from 'lucide-react'
 import clsx from 'clsx'
 import { Popover, PopoverContent, PopoverTrigger } from '@radix-ui/react-popover'
 import { CONTRIBUTE_URL, DOCS_URL, SUPPORT_EMAIL } from '@/constants'
@@ -121,7 +120,7 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
               <Popover open={showPopup} onOpenChange={setOpen}>
                 <PopoverTrigger asChild onMouseEnter={() => setShowPopup(true)} onMouseLeave={() => setShowPopup(false)}>
                   <div>
-                    <Lightbulb className="cursor-pointer" size={16} />
+                    <Milestone className="cursor-pointer" size={16} />
                   </div>
                 </PopoverTrigger>
                 <PopoverContent className="w-64 bg-panel-bg border p-4 rounded-md z-1 relative" side="top" onMouseEnter={() => setShowPopup(true)} onMouseLeave={() => setShowPopup(false)}>
@@ -138,14 +137,14 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
                   <div className="border-b mb-1" />
 
                   <a href={SUPPORT_EMAIL} className="flex items-center gap-1 mb-1 hover:bg-muted focus:rounded hover:rounded-sm focus:text-accent-foreground p-1">
-                    <File size={16} />
+                    <MessageSquareQuote size={16} />
                     <p>Feedback</p>
                   </a>
 
                   <div className="border-b mb-1" />
 
                   <a href={CONTRIBUTE_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:bg-muted focus:rounded hover:rounded-sm focus:text-accent-foreground p-1">
-                    <File size={16} />
+                    <HandHelping size={16} />
                     <p>Contribute</p>
                   </a>
                 </PopoverContent>
