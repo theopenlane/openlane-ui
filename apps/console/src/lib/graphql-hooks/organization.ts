@@ -63,7 +63,7 @@ export const useGetAllOrganizations = () => {
   })
 }
 
-export const useGetOrganizationNameById = (organizationId: string) => {
+export const useGetOrganizationNameById = (organizationId: string | undefined) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetOrganizationNameByIdQuery, GetOrganizationNameByIdQueryVariables>({

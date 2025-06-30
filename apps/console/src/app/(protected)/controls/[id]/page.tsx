@@ -40,6 +40,8 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { Control } from '@repo/codegen/src/schema.ts'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 import RelatedControls from '@/components/pages/protected/controls/related-controls.tsx'
+import { useOrganization } from '@/hooks/useOrganization'
+import { useGetOrganizationNameById } from '@/lib/graphql-hooks/organization.ts'
 
 interface FormValues {
   refCode: string
@@ -88,6 +90,8 @@ const ControlDetailsPage: React.FC = () => {
   const isSourceFramework = data?.control.source === ControlControlSource.FRAMEWORK
   const { mutateAsync: updateControl } = useUpdateControl()
   const plateEditorHelper = usePlateEditor()
+  const { currentOrgId } = useOrganization()
+  const { data: orgNameData } = useGetOrganizationNameById(currentOrgId)
 
   const form = useForm<FormValues>({
     defaultValues: initialDataObj,
@@ -334,6 +338,7 @@ const ControlDetailsPage: React.FC = () => {
 
   return (
     <>
+      <title>{`${orgNameData?.organization.displayName}: Controls - ${data.control.refCode}`}</title>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>

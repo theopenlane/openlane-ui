@@ -1,20 +1,11 @@
-'use client'
-
-import React, { useContext, useEffect } from 'react'
+import React from 'react'
 import RiskTable from '@/components/pages/protected/risks/table/risk-table.tsx'
-import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { Metadata } from 'next'
 
-const RisksPage: React.FC = () => {
-  const { setCrumbs } = useContext(BreadcrumbContext)
-
-  useEffect(() => {
-    setCrumbs([
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Risks', href: '/risks' },
-    ])
-  }, [setCrumbs])
-
-  return <RiskTable />
+export const metadata: Metadata = {
+  title: 'Risks',
 }
+
+const RisksPage: React.FC = () => <RiskTable />
 
 export default RisksPage

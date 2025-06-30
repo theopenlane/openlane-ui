@@ -5,7 +5,7 @@ import { pageStyles } from './page.styles'
 import { OrganizationDelete } from '@/components/pages/protected/organization/general-settings/organization-delete'
 
 export const metadata: Metadata = {
-  title: 'Organization settings',
+  title: 'Organization Settings',
 }
 
 const Page: React.FC = () => {

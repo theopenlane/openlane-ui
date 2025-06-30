@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { DataTable } from '@repo/ui/data-table'
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useMemo, useEffect, useContext } from 'react'
 import { GetInternalPoliciesListQueryVariables, InternalPolicy, InternalPolicyOrderField, Maybe, OrderDirection } from '@repo/codegen/src/schema'
 import PoliciesTableToolbar from '@/components/pages/protected/policies/table/policies-table-toolbar.tsx'
 import { INTERNAL_POLICIES_SORTABLE_FIELDS } from '@/components/pages/protected/policies/table/table-config.ts'
@@ -17,6 +17,7 @@ import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
 import { getPoliciesColumns } from '@/components/pages/protected/policies/table/columns.tsx'
 import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens.ts'
 import { VisibilityState } from '@tanstack/react-table'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 export const PoliciesTable = () => {
   const router = useRouter()
@@ -24,6 +25,7 @@ export const PoliciesTable = () => {
   const [filters, setFilters] = useState<Record<string, any> | null>(null)
   const [memberIds, setMemberIds] = useState<(Maybe<string> | undefined)[]>()
   const [searchTerm, setSearchTerm] = useState('')
+  const { setCrumbs } = useContext(BreadcrumbContext)
 
   const [orderBy, setOrderBy] = useState<GetInternalPoliciesListQueryVariables['orderBy']>([
     {
@@ -75,6 +77,13 @@ export const PoliciesTable = () => {
   const { tokens } = useGetApiTokensByIds({ where: tokensWhere })
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const { columns, mappedColumns } = getPoliciesColumns({ users, tokens })
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Policies', href: '/policies' },
+    ])
+  }, [setCrumbs])
 
   useEffect(() => {
     if (policies && (!memberIds || memberIds.length === 0)) {
