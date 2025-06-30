@@ -74,8 +74,6 @@ export default React.memo(ControlChip)
 const ControlTooltipContent: React.FC<{ control: NonNullable<ControlChipProps['control']> }> = ({ control }) => {
   const { convertToReadOnly } = usePlateEditor()
 
-  console.log(control)
-
   const { data: ctrlData, isLoading: ctrlLoading } = useGetControlMinifiedById(control.__typename === 'Control' ? control.id : undefined)
   const { data: subData, isLoading: subLoading } = useGetSubcontrolMinifiedById(control.__typename === 'Subcontrol' ? control.id : undefined)
 

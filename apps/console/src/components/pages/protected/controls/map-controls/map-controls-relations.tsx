@@ -26,8 +26,6 @@ const MapControlsRelations = ({ handleSave }: Props) => {
   const { control, setValue } = useFormContext()
   const router = useRouter()
 
-  console.log(handleSave)
-
   return (
     <div className="flex flex-col space-y-6">
       <div className="space-y-2">
