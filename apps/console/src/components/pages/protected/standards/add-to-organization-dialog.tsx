@@ -60,7 +60,7 @@ const AddToOrganizationDialog: React.FC<AddToOrganizationDialogProps> = ({ open,
         </DialogHeader>
 
         <div className="space-y-4 text-sm">
-          {selectedControls ? (
+          {selectedControls && selectedControls.length > 0 ? (
             <div>
               <p className="font-semibold">Selected controls ({selectedControls.length})</p>
               <div className="flex flex-wrap gap-2 mt-1">
