@@ -25,7 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
   if (!session) {
     return {
       title: {
-        template: 'Openlane | %s',
+        template: 'Openlane: %s',
         default: '',
       },
     }
@@ -37,7 +37,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: {
-      template: `${org?.node.displayName} | %s`,
+      template: `${org?.node.displayName}: %s`,
       default: '',
     },
   }
