@@ -263,7 +263,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
 
   return (
     <>
-      <title>{`${orgNameData?.organization.displayName} Internal Policies - ${policy.name}`}</title>
+      <title>{`${orgNameData?.organization.displayName}: Internal Policies - ${policy.name}`}</title>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmitHandler)}>
           <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>
