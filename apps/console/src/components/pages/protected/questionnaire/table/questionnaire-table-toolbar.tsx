@@ -32,25 +32,26 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({ 
   const isSearching = useDebounce(searching, 200)
 
   return (
-    <div className="flex items-center gap-2 my-5">
-      <div className="grow flex flex-row items-center gap-2">
-        <TableFilter filterFields={QUESTIONNAIRE_FILTER_FIELDS} onFilterChange={setFilters} />
-        <Input
-          icon={isSearching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
-          placeholder="Search"
-          value={searchTerm}
-          disabled={creating}
-          onChange={(event) => setSearchTerm(event.currentTarget.value)}
-          variant="searchTable"
-        />
+    <>
+      <div className="flex items-center gap-2 my-2">
+        <div className="grow flex flex-row items-center gap-2">
+          {mappedColumns && columnVisibility && setColumnVisibility && (
+            <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
+          )}
+          <TableFilter filterFields={QUESTIONNAIRE_FILTER_FIELDS} onFilterChange={setFilters} />
+          <Input
+            icon={isSearching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
+            placeholder="Search"
+            value={searchTerm}
+            disabled={creating}
+            onChange={(event) => setSearchTerm(event.currentTarget.value)}
+            variant="searchTable"
+          />
+        </div>
+        <div className="grow flex flex-row items-center gap-2 justify-end">{createDropdown()}</div>
       </div>
-      <div className="grow flex flex-row items-center gap-2 justify-end">
-        {mappedColumns && columnVisibility && setColumnVisibility && (
-          <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
-        )}
-        {createDropdown()}
-      </div>
-    </div>
+      <div id="datatable-filter-portal" />
+    </>
   )
 }
 

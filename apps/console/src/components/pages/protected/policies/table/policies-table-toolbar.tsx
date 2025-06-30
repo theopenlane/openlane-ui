@@ -48,55 +48,58 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
   const { data: permission } = useOrganizationRole(session)
 
   return (
-    <div className={cn('flex items-center gap-2', className)}>
-      <div className="grow flex flex-row items-center gap-2">
-        <TableFilter filterFields={INTERNAL_POLICIES_FILTERABLE_FIELDS} onFilterChange={setFilters} />
-        <Input
-          icon={isSearching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
-          placeholder="Search"
-          value={searchTerm}
-          onChange={(event) => setSearchTerm(event.currentTarget.value)}
-          variant="searchTable"
-        />
-      </div>
+    <>
+      <div className="relative flex items-center gap-2 my-2">
+        <div className="grow flex flex-row items-center gap-2">
+          {mappedColumns && columnVisibility && setColumnVisibility && (
+            <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
+          )}
+          <TableFilter filterFields={INTERNAL_POLICIES_FILTERABLE_FIELDS} onFilterChange={setFilters} />
+          <Input
+            icon={isSearching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
+            placeholder="Search"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.currentTarget.value)}
+            variant="searchTable"
+          />
+        </div>
 
-      <div className="grow flex flex-row items-center gap-2 justify-end">
-        {mappedColumns && columnVisibility && setColumnVisibility && (
-          <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
-        )}
-        {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
+        <div className="grow flex flex-row items-center gap-2 justify-end">
+          {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
+            <Menu
+              trigger={CreateBtn}
+              content={
+                <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleCreateNew}>
+                  <CirclePlus size={16} strokeWidth={2} />
+                  <span>Policy</span>
+                </div>
+              }
+            />
+          )}
           <Menu
-            trigger={CreateBtn}
             content={
-              <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleCreateNew}>
-                <CirclePlus size={16} strokeWidth={2} />
-                <span>Policy</span>
-              </div>
+              <>
+                {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
+                  <BulkCSVCreatePolicyDialog
+                    trigger={
+                      <div className="flex items-center space-x-2 hover:bg-muted">
+                        <Import size={16} strokeWidth={2} />
+                        <span>Import existing document</span>
+                      </div>
+                    }
+                  />
+                )}
+                <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleExport}>
+                  <DownloadIcon size={16} strokeWidth={2} />
+                  <span>Export</span>
+                </div>
+              </>
             }
           />
-        )}
-        <Menu
-          content={
-            <>
-              {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
-                <BulkCSVCreatePolicyDialog
-                  trigger={
-                    <div className="flex items-center space-x-2 hover:bg-muted">
-                      <Import size={16} strokeWidth={2} />
-                      <span>Import existing document</span>
-                    </div>
-                  }
-                />
-              )}
-              <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleExport}>
-                <DownloadIcon size={16} strokeWidth={2} />
-                <span>Export</span>
-              </div>
-            </>
-          }
-        />
+        </div>
       </div>
-    </div>
+      <div id="datatable-filter-portal" />
+    </>
   )
 }
 

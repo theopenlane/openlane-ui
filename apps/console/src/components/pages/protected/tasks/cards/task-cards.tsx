@@ -21,7 +21,7 @@ const TaskCards: React.FC<TTaskCardsProps> = (props: TTaskCardsProps) => {
     return <p className="text-red-500">Error loading tasks</p>
   }
   return (
-    <div className="mt-5 flex flex-wrap gap-7">
+    <div className="flex flex-wrap gap-7">
       {props.tasks.length > 0 ? (
         props.tasks.map((task) => {
           const fullName = task.assignee?.displayName

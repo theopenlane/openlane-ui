@@ -6,14 +6,22 @@ import { Button } from '@repo/ui/button'
 interface MenuProps {
   trigger?: React.ReactNode
   content: React.ReactNode | JSX.Element
+  extraContent?: React.ReactNode | JSX.Element
+  align?: 'start' | 'center' | 'end'
 }
 
-const Menu: React.FC<MenuProps> = ({ trigger, content }) => {
+const Menu: React.FC<MenuProps> = ({ trigger, content, extraContent, align }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>{trigger ?? <Button variant="outline" className="h-8 !px-2 !pl-0 bg-card" icon={<EllipsisVertical size={16} />} />}</DropdownMenuTrigger>
-      <DropdownMenuContent className="border shadow-md" align="end">
-        <div className="flex flex-col space-y-2">{content}</div>
+      <DropdownMenuContent className="border shadow-md p-0" align={align ?? 'end'}>
+        <div className="flex flex-col space-y-2 px-3 py-3">{content}</div>
+        {extraContent && (
+          <>
+            <div className="border-b" />
+            <div className="flex flex-col space-y-2 px-3 py-2">{extraContent}</div>
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   )
