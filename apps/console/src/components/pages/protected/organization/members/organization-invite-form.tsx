@@ -71,7 +71,7 @@ const OrganizationInviteForm = ({ inviteAdmins }: { inviteAdmins: boolean }) => 
       setEmails([])
     } catch {
       errorNotification({
-        title: 'Error, Ivites not sent',
+        title: 'Unexpected error occured, invites not sent',
       })
     }
   }
