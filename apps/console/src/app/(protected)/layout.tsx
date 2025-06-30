@@ -25,7 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
   if (!session) {
     return {
       title: {
-        template: 'Acme Corp | %s',
+        template: 'Openlane | %s',
         default: '',
       },
     }
