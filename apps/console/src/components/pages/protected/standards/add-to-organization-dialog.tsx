@@ -27,7 +27,6 @@ const AddToOrganizationDialog: React.FC<AddToOrganizationDialogProps> = ({ open,
   const { mutateAsync: cloneControls, isPending } = useCloneControls()
   const { successNotification, errorNotification } = useNotification()
   const queryClient = useQueryClient()
-
   const controlIDs = useMemo(() => selectedControls?.map((c) => c.id) ?? [], [selectedControls])
 
   const programs = useMemo(() => {
@@ -57,7 +56,7 @@ const AddToOrganizationDialog: React.FC<AddToOrganizationDialogProps> = ({ open,
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle className="text-xl">Add to Organization</DialogTitle>
+          <DialogTitle className="text-xl">Add Controls</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 text-sm">
@@ -66,9 +65,9 @@ const AddToOrganizationDialog: React.FC<AddToOrganizationDialogProps> = ({ open,
               <p className="font-semibold">Selected controls ({selectedControls.length})</p>
               <div className="flex flex-wrap gap-2 mt-1">
                 {selectedControls.map(({ refCode }) => (
-                  <span key={refCode} className="text-sm text-primary border-b border-dotted border-current whitespace-nowrap">
+                  <div key={refCode} className="inline-flex px-2.5 py-0.5 border text-xs hover:text-brand hover:border-brand rounded-full items-center justify-center">
                     {refCode}
-                  </span>
+                  </div>
                 ))}
               </div>
             </div>
