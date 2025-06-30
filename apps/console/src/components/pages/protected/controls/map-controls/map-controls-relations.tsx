@@ -18,9 +18,15 @@ const relationTypes = [
   { label: 'Superset', value: MappedControlMappingType.SUPERSET },
 ]
 
-const MapControlsRelations = () => {
+interface Props {
+  handleSave?: () => void
+}
+
+const MapControlsRelations = ({ handleSave }: Props) => {
   const { control, setValue } = useFormContext()
   const router = useRouter()
+
+  console.log(handleSave)
 
   return (
     <div className="flex flex-col space-y-6">
@@ -120,7 +126,7 @@ const MapControlsRelations = () => {
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-        </div>{' '}
+        </div>
         <Controller name="relation" control={control} render={({ field }) => <Textarea placeholder="Add description..." rows={4} value={field.value ?? ''} onChange={field.onChange} />} />{' '}
       </div>
 

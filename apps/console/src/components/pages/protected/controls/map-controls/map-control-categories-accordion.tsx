@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo } from 'react'
 import { Accordion, AccordionContent, AccordionItem } from '@radix-ui/react-accordion'
 import ControlChip from './shared/control-chip'
-import { DroppedControl } from './map-controls-card'
 import RelationsAccordionTrigger from '@/components/shared/relations-accordion-trigger.tsx/relations-accordion-trigger'
 import { useGetControlCategories } from '@/lib/graphql-hooks/controls'
-import { useFormContext } from 'react-hook-form'
+import { useMapControls } from './shared/use-selectable-controls'
+import ContextMenu from '@/components/shared/context-menu/context-menu'
+import { MapControl } from '@/types'
 
 interface Props {
   controlData?: (
@@ -19,69 +20,51 @@ interface Props {
     | null
     | undefined
   )[]
-  droppedControls: DroppedControl[]
+  droppedControls: MapControl[]
   expandedItems: Record<string, boolean>
   setExpandedItems: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
-  subcontrolData:
-    | {
-        __typename?: 'Subcontrol'
-        id: string
-        refCode: string
-        category?: string | null
-        subcategory?: string | null
-        referenceFramework?: string | null
-      }[]
-    | undefined
+  subcontrolData?: {
+    __typename?: 'Subcontrol'
+    id: string
+    refCode: string
+    category?: string | null
+    subcategory?: string | null
+    referenceFramework?: string | null
+  }[]
   title: 'From' | 'To'
+  setDroppedControls: React.Dispatch<React.SetStateAction<MapControl[]>>
 }
 
-const MapControlCategoriesAccordion = ({ controlData, droppedControls, expandedItems, setExpandedItems, subcontrolData, title }: Props) => {
+const MapControlCategoriesAccordion = ({ controlData, droppedControls, expandedItems, setExpandedItems, subcontrolData, title, setDroppedControls }: Props) => {
   const { data } = useGetControlCategories({})
 
-  const form = useFormContext()
+  const { availableControls, selectedIds, setSelectedIds, contextMenu, setContextMenu, handleContextMenu, handleAddToMapping, createDragPreview } = useMapControls({
+    controlData,
+    subcontrolData,
+    droppedControls,
+    title,
+  })
 
   const categories = useMemo(() => {
-    const cats = data?.controlCategories?.map((val) => val).filter((val): val is string => !!val) || []
+    const cats = data?.controlCategories?.filter((c): c is string => !!c) || []
     cats.push('Custom')
     return cats
   }, [data])
 
   const controlsByCategory = useMemo(() => {
-    const oppositeControlIDs: string[] = form.getValues(title === 'From' ? 'toControlIDs' : 'fromControlIDs') || []
-    const oppositeSubcontrolIDs: string[] = form.getValues(title === 'From' ? 'toSubcontrolIDs' : 'fromSubcontrolIDs') || []
-
-    const droppedIds = droppedControls.map((dc) => dc.id)
-    const excludeIds = new Set([...droppedIds, ...oppositeControlIDs, ...oppositeSubcontrolIDs])
-
-    const map: Record<string, { id: string; refCode: string; referenceFramework?: string; type: 'control' | 'subcontrol' }[]> = {}
+    const map: Record<string, MapControl[]> = {}
     categories.forEach((cat) => {
       map[cat] = []
     })
-
-    controlData?.forEach((control) => {
-      if (!control || !control.refCode || excludeIds.has(control.id)) return
-      const categoryValue = control.category || 'Custom'
-      map[categoryValue]?.push({
-        id: control.id,
-        refCode: control.refCode,
-        referenceFramework: control.referenceFramework || undefined,
-        type: 'control',
-      })
+    availableControls.forEach((ctrl) => {
+      const category = ctrl.category || 'Custom'
+      if (!map[category]) map[category] = []
+      map[category].push(ctrl)
     })
-
-    subcontrolData?.forEach((subcontrol) => {
-      if (!subcontrol || !subcontrol.refCode || excludeIds.has(subcontrol.id)) return
-      const categoryValue = subcontrol.category || 'Custom'
-      map[categoryValue]?.push({
-        id: subcontrol.id,
-        refCode: subcontrol.refCode,
-        referenceFramework: subcontrol.referenceFramework || undefined,
-        type: 'subcontrol',
-      })
-    })
-
     return Object.fromEntries(Object.entries(map).filter(([, list]) => list.length > 0))
-  }, [controlData, subcontrolData, droppedControls, title, categories, form])
+  }, [availableControls, categories])
+
+  console.log('controlsByCategory', controlsByCategory)
 
   const openKeys = useMemo(
     () =>
@@ -90,7 +73,6 @@ const MapControlCategoriesAccordion = ({ controlData, droppedControls, expandedI
         .map(([k]) => k),
     [expandedItems],
   )
-
   const handleValueChange = (newOpen: string[]) => {
     const next: Record<string, boolean> = {}
     categories.forEach((cat) => {
@@ -107,6 +89,11 @@ const MapControlCategoriesAccordion = ({ controlData, droppedControls, expandedI
     setExpandedItems(initial)
   }, [categories, setExpandedItems])
 
+  useEffect(() => {
+    const droppedIds = new Set(droppedControls.map((c) => c.id))
+    setSelectedIds((prev) => prev.filter((id) => !droppedIds.has(id)))
+  }, [droppedControls, setSelectedIds])
+
   return (
     <Accordion type="multiple" className="w-full" value={openKeys} onValueChange={handleValueChange}>
       {Object.entries(controlsByCategory).map(([cat, items]) => (
@@ -117,13 +104,35 @@ const MapControlCategoriesAccordion = ({ controlData, droppedControls, expandedI
               <ControlChip
                 key={c.id}
                 draggable
-                control={{ id: c.id, refCode: c.refCode, shortName: c.referenceFramework || 'CUSTOM', type: c.type }}
-                onDragStart={(e) => e.dataTransfer.setData('application/json', JSON.stringify({ id: c.id, refCode: c.refCode, shortName: c.referenceFramework || 'CUSTOM', type: c.type }))}
+                control={c}
+                selected={selectedIds.includes(c.id)}
+                onClick={(e) => {
+                  if (e.ctrlKey || e.metaKey) {
+                    setSelectedIds((prev) => (prev.includes(c.id) ? prev.filter((id) => id !== c.id) : [...prev, c.id]))
+                  } else {
+                    setSelectedIds([c.id])
+                  }
+                }}
+                onContextMenu={(e) => handleContextMenu(e, c)}
+                onDragStart={(e) => {
+                  const dragSet = selectedIds.includes(c.id) ? availableControls.filter((x) => selectedIds.includes(x.id)) : [c]
+                  e.dataTransfer.setData('application/json', JSON.stringify(dragSet))
+                  const preview = createDragPreview(`${dragSet.length} item${dragSet.length > 1 ? 's' : ''}`)
+                  e.dataTransfer.setDragImage(preview, 0, 0)
+                }}
               />
             ))}
           </AccordionContent>
         </AccordionItem>
       ))}
+
+      {contextMenu && (
+        <ContextMenu x={contextMenu.x} y={contextMenu.y} onClose={() => setContextMenu(null)}>
+          <button className="px-4 py-2 hover:bg-muted w-full text-left" onClick={() => handleAddToMapping(setDroppedControls)}>
+            Add to Mapping
+          </button>
+        </ContextMenu>
+      )}
     </Accordion>
   )
 }
