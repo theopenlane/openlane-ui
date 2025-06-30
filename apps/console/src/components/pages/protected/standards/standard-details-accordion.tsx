@@ -178,7 +178,7 @@ const StandardDetailsAccordion: FC = () => {
                     setIsDialogOpen(true)
                   }}
                 >
-                  Add Controls ({selectedInCategory.length})
+                  Add to Organization ({selectedInCategory.length})
                 </Button>
               </div>
             ) : null
