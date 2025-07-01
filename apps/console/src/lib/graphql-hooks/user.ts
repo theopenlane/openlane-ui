@@ -64,5 +64,6 @@ export const useGetUsers = (where?: GetAllUsersQueryVariables['where']) => {
   return useQuery<GetAllUsersQuery>({
     queryKey: ['users', where],
     queryFn: () => client.request(GET_USERS, { where }),
+    enabled: !!where,
   })
 }

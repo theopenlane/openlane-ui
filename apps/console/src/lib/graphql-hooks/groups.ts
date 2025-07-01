@@ -86,7 +86,7 @@ export const useGroupSelect = () => {
 export const useGetAllGroupsInfinite = ({ where, orderBy, pagination, enabled = true }: GroupsArgs) => {
   const { client } = useGraphQLClient()
 
-  const queryKey = ['groupsInfinite', where, orderBy] as const
+  const queryKey = ['groupsInfinite', where, orderBy]
 
   const queryResult = useInfiniteQuery<GetAllGroupsQuery, Error, InfiniteData<GetAllGroupsQuery>, typeof queryKey, number>({
     queryKey,

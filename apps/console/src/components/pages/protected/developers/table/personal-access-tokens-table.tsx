@@ -37,7 +37,7 @@ export const PersonalAccessTokenTable = () => {
   type CommonWhereType = GetPersonalAccessTokensQueryVariables['where'] | GetApiTokensQueryVariables['where']
 
   type CommonOrderByType = Array<{
-    field: PersonalAccessTokenOrderField | any
+    field: PersonalAccessTokenOrderField
     direction: OrderDirection
   }>
 
@@ -57,19 +57,22 @@ export const PersonalAccessTokenTable = () => {
     return orderBy.length > 0 ? orderBy : undefined
   }, [orderBy])
 
-  const { data, isError, isFetching } = isOrg
-    ? useGetApiTokens({
-        where: whereFilter,
-        orderBy: orderByFilter as GetApiTokensQueryVariables['orderBy'],
-        pagination,
-        enabled: !!filters,
-      })
-    : useGetPersonalAccessTokens({
-        where: whereFilter,
-        orderBy: orderByFilter as GetPersonalAccessTokensQueryVariables['orderBy'],
-        pagination,
-        enabled: !!filters,
-      })
+  const orgTokensResponse = useGetApiTokens({
+    where: whereFilter,
+    orderBy: orderByFilter as GetApiTokensQueryVariables['orderBy'],
+    pagination,
+    enabled: !!filters && isOrg,
+  })
+
+  const personalTokensResponse = useGetPersonalAccessTokens({
+    where: whereFilter,
+    orderBy: orderByFilter as GetPersonalAccessTokensQueryVariables['orderBy'],
+    pagination,
+    enabled: !!filters && !isOrg,
+  })
+
+  const data = orgTokensResponse.data || personalTokensResponse.data
+  const isFetching = orgTokensResponse.isFetching || personalTokensResponse.isFetching
 
   const paginationMeta = useMemo(() => {
     const source = isOrg ? (data as GetApiTokensQuery)?.apiTokens : (data as GetPersonalAccessTokensQuery)?.personalAccessTokens
@@ -82,24 +85,26 @@ export const PersonalAccessTokenTable = () => {
   }, [data, isOrg, isFetching])
 
   const tokens: TokenNode[] = isOrg
-    ? (data as GetApiTokensQuery)?.apiTokens?.edges?.map((edge) => ({
-        id: edge?.node?.id!!,
-        name: edge?.node?.name || 'Unnamed Token',
-        description: edge?.node?.description!!,
-        expiresAt: edge?.node?.expiresAt!!,
-        scopes: edge?.node?.scopes?.join(', ') || '-',
-      })) || []
-    : (data as GetPersonalAccessTokensQuery)?.personalAccessTokens?.edges?.map((edge) => ({
-        id: edge?.node?.id!!,
-        name: edge?.node?.name!!,
-        description: edge?.node?.description!!,
-        expiresAt: edge?.node?.expiresAt!!,
-        organizations:
-          edge?.node?.organizations?.edges?.map((orgEdge) => ({
-            id: orgEdge?.node?.id!!,
-            name: orgEdge?.node?.name!!,
-          })) || [],
-      })) || []
+    ? (data as GetApiTokensQuery)?.apiTokens?.edges
+        ?.map((edge) => edge?.node)
+        .filter((node): node is NonNullable<typeof node> => !!node && !!node.id)
+        .map((node) => ({
+          id: node.id,
+          name: node.name || 'Unnamed Token',
+          description: node.description ?? undefined,
+          expiresAt: node.expiresAt,
+          scopes: node.scopes?.join(', ') || '-',
+        })) || []
+    : (data as GetPersonalAccessTokensQuery)?.personalAccessTokens?.edges
+        ?.map((edge) => edge?.node)
+        .filter((node): node is NonNullable<typeof node> => !!node && !!node.id)
+        .map((node) => ({
+          id: node.id,
+          name: node.name!,
+          description: node.description ?? undefined,
+          expiresAt: node.expiresAt,
+          organizations: node.organizations?.edges?.map((orgEdge) => orgEdge?.node).filter((org): org is { id: string; name: string } => !!org && !!org.id && !!org.name) || [],
+        })) || []
 
   const columns: ColumnDef<TokenNode>[] = [
     {

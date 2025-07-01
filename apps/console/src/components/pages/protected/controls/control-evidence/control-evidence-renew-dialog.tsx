@@ -25,7 +25,7 @@ const ControlEvidenceRenewDialog: React.FC<TControlEvidenceRenewDialog> = ({ evi
   const queryClient = useQueryClient()
   const { form } = useFormSchema()
   const { successNotification, errorNotification } = useNotification()
-  const { evidence, isLoading: fetching } = useGetRenewEvidenceById(evidenceId, isOpen)
+  const { evidence } = useGetRenewEvidenceById(evidenceId, isOpen)
   const { mutateAsync: createEvidence, isPending: isSubmitting } = useCreateEvidence()
   const [evidenceFiles, setEvidenceFiles] = useState<TUploadedFile[]>([])
 
@@ -39,14 +39,14 @@ const ControlEvidenceRenewDialog: React.FC<TControlEvidenceRenewDialog> = ({ evi
         collectionProcedure: evidence.collectionProcedure ?? '',
         source: evidence.source ?? '',
         ...(evidence.url ? { url: evidence.url } : {}),
-        controlObjectiveIDs: evidence?.controlObjectives?.edges?.map((item) => item?.node?.id!) || [],
-        controlIDs: evidence?.controls?.edges?.map((item) => item?.node?.id!) || [],
-        programIDs: evidence?.programs?.edges?.map((item) => item?.node?.id!) || [],
-        subcontrolIDs: evidence?.subcontrols?.edges?.map((item) => item?.node?.id!) || [],
-        taskIDs: evidence?.tasks?.edges?.map((item) => item?.node?.id!) || [],
+        controlObjectiveIDs: evidence?.controlObjectives?.edges?.map((item) => item?.node?.id) || [],
+        controlIDs: evidence?.controls?.edges?.map((item) => item?.node?.id) || [],
+        programIDs: evidence?.programs?.edges?.map((item) => item?.node?.id) || [],
+        subcontrolIDs: evidence?.subcontrols?.edges?.map((item) => item?.node?.id) || [],
+        taskIDs: evidence?.tasks?.edges?.map((item) => item?.node?.id) || [],
       })
     }
-  }, [evidence])
+  }, [evidence, form])
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
     const formData = {
@@ -128,7 +128,7 @@ const ControlEvidenceRenewDialog: React.FC<TControlEvidenceRenewDialog> = ({ evi
                     <CalendarPopover field={field} defaultAddDays={365} />
                     {field.value !== null && (
                       <p>
-                        Don't want to renew this evidence?{' '}
+                        Don&apos;t want to renew this evidence?{' '}
                         <b className="text-sm cursor-pointer text-accent-secondary" onClick={() => field.onChange(null)}>
                           Clear it
                         </b>
