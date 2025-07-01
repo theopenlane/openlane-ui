@@ -3,11 +3,11 @@ import InfiniteScroll from '@repo/ui/infinite-scroll'
 import React, { useEffect, useState } from 'react'
 import { useGetAllGroupsInfinite } from '@/lib/graphql-hooks/groups.ts'
 import { TPagination } from '@repo/ui/pagination-types'
-import { GroupOrder } from '@repo/codegen/src/schema.ts'
+import { GroupOrder, GroupWhereInput } from '@repo/codegen/src/schema.ts'
 import { CARD_DEFAULT_PAGINATION } from '@/constants/pagination.ts'
 
 type TGroupInfiniteCardsProps = {
-  whereFilter: Record<string, any> | null
+  whereFilter: GroupWhereInput | null
   orderByFilter: GroupOrder[] | GroupOrder | undefined
 }
 
@@ -29,7 +29,7 @@ const GroupInfiniteCards = ({ whereFilter, orderByFilter }: TGroupInfiniteCardsP
       return
     }
     fetchNextPage()
-  }, [cardPagination])
+  }, [cardPagination, fetchNextPage])
 
   return (
     <InfiniteScroll pagination={cardPagination} onPaginationChange={handlePaginationChange} paginationMeta={paginationMeta} key="card">

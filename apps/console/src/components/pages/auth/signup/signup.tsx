@@ -6,21 +6,19 @@ import { SimpleForm } from '@repo/ui/simple-form'
 import MessageBox from '@repo/ui/message-box'
 import { Button } from '@repo/ui/button'
 import { ArrowRightCircle } from 'lucide-react'
-import { getPasskeyRegOptions, registerUser, verifyRegistration, type RegisterUser } from '@/lib/user'
+import { registerUser, type RegisterUser } from '@/lib/user'
 import { GoogleIcon } from '@repo/ui/icons/google'
 import { signIn } from 'next-auth/react'
 import { Separator } from '@repo/ui/separator'
 import { Input } from '@repo/ui/input'
 import { PasswordInput } from '@repo/ui/password-input'
-import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
-import { startRegistration } from '@simplewebauthn/browser'
 import Link from 'next/link'
 import { allowedLoginDomains, recaptchaSiteKey } from '@repo/dally/auth'
 import Github from '@/assets/Github'
 import { loginStyles } from '../login/login.styles'
 import { OPENLANE_WEBSITE_URL } from '@/constants'
 
-const TEMP_PASSKEY_EMAIL = 'tempuser1@test.com'
+// const TEMP_PASSKEY_EMAIL = 'tempuser1@test.com'
 
 export const SignupPage = () => {
   const searchParams = useSearchParams()
@@ -45,27 +43,27 @@ export const SignupPage = () => {
     return allowedLoginDomains.some((domain) => payload.email.endsWith(domain))
   }
 
-  async function registerPasskey() {
-    try {
-      const options = await getPasskeyRegOptions({ email: TEMP_PASSKEY_EMAIL })
-      setSessionCookie(options.session)
-      const attestationResponse = await startRegistration(options.publicKey)
-      const verificationResult = await verifyRegistration({ attestationResponse })
+  // async function registerPasskey() {
+  //   try {
+  //     const options = await getPasskeyRegOptions({ email: TEMP_PASSKEY_EMAIL })
+  //     setSessionCookie(options.session)
+  //     const attestationResponse = await startRegistration(options.publicKey)
+  //     const verificationResult = await verifyRegistration({ attestationResponse })
 
-      if (verificationResult.success) {
-        await signIn('passkey', {
-          email: TEMP_PASSKEY_EMAIL,
-          session: verificationResult.session,
-          accessToken: verificationResult.access_token,
-          refreshToken: verificationResult.refresh_token,
-        })
-      } else {
-        setRegistrationErrorMessage(`Error: ${verificationResult.error}`)
-      }
-    } catch (error) {
-      setRegistrationErrorMessage(`{${error || ''}}`)
-    }
-  }
+  //     if (verificationResult.success) {
+  //       await signIn('passkey', {
+  //         email: TEMP_PASSKEY_EMAIL,
+  //         session: verificationResult.session,
+  //         accessToken: verificationResult.access_token,
+  //         refreshToken: verificationResult.refresh_token,
+  //       })
+  //     } else {
+  //       setRegistrationErrorMessage(`Error: ${verificationResult.error}`)
+  //     }
+  //   } catch (error) {
+  //     setRegistrationErrorMessage(`{${error || ''}}`)
+  //   }
+  // }
 
   return (
     <div className="flex flex-col self-center">
@@ -86,13 +84,12 @@ export const SignupPage = () => {
 
       <SimpleForm
         classNames={form()}
-        onChange={(e: any) => setIsPasswordActive(e.email.length > 0)}
-        onSubmit={async (payload: RegisterUser) => {
+        onChange={(e: { email: string }) => setIsPasswordActive(e.email.length > 0)}
+        onSubmit={async (payload: RegisterUser & { confirmedPassword?: string }) => {
           setIsLoading(true)
           setRegistrationErrorMessage('')
           try {
             if (recaptchaSiteKey) {
-              // @ts-ignore
               const recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'signup' })
               const validation = await fetch('/api/recaptchaVerify', {
                 method: 'POST',
