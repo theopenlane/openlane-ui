@@ -39,7 +39,7 @@ const BulkCSVCreateRiskDialog: React.FC<BulkCsvCreateRiskDialogProps> = ({ trigg
         description: `Risks has been successfully created`,
       })
       setIsOpen(false)
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Error',
         description: 'There was an error creating the risks. Please try again.',
@@ -52,7 +52,7 @@ const BulkCSVCreateRiskDialog: React.FC<BulkCsvCreateRiskDialogProps> = ({ trigg
   }
 
   const handleCSVExport = async () => {
-    const data = await exportCSV({ filename: 'risk' })
+    await exportCSV({ filename: 'risk' })
   }
 
   return (

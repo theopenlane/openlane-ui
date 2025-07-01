@@ -6,7 +6,7 @@ type TEditPolicyPage = {
   policyId: string
 }
 
-const EditPolicyPage: React.FC<TEditPolicyPage> = ({ policyId }) => {
+const EditPolicyPage = ({ policyId }: TEditPolicyPage) => {
   const { data, isLoading } = useGetInternalPolicyDetailsById(policyId)
 
   return (

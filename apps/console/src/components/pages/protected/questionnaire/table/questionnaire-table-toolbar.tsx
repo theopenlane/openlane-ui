@@ -9,13 +9,14 @@ import { CreateDropdown } from '@/components/pages/protected/questionnaire/creat
 import Menu from '@/components/shared/menu/menu.tsx'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
+import { TemplateWhereInput } from '@repo/codegen/src/schema'
 
 type TQuestionnaireTableToolbarProps = {
   creating: boolean
   searching?: boolean
   searchTerm: string
   setSearchTerm: (searchTerm: string) => void
-  setFilters: (filters: Record<string, any>) => void
+  setFilters: (filters: TemplateWhereInput) => void
   columnVisibility?: VisibilityState
   setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
   mappedColumns: {

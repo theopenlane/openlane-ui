@@ -2,7 +2,7 @@ import { ColumnDef } from '@tanstack/react-table'
 import { ApiToken, InternalPolicy, User } from '@repo/codegen/src/schema.ts'
 import { formatTimeSince } from '@/utils/date'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
-import { Glasses, KeyRound } from 'lucide-react'
+import { KeyRound } from 'lucide-react'
 import React from 'react'
 
 type TPoliciesColumnsProps = {
