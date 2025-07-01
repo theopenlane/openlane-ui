@@ -51,8 +51,8 @@ export const getPoliciesColumns = ({ users, tokens }: TPoliciesColumnsProps) => 
           </div>
         )
       },
-      size: 130,
-      maxSize: 130,
+      size: 150,
+      maxSize: 180,
     },
     {
       accessorKey: 'updatedAt',
