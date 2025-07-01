@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { DataTable } from '@repo/ui/data-table'
 import React, { useState, useMemo, useEffect, useContext } from 'react'
-import { GetProceduresListQueryVariables, Maybe, OrderDirection, Procedure, ProcedureOrderField } from '@repo/codegen/src/schema'
+import { GetProceduresListQueryVariables, Maybe, OrderDirection, OrgMembershipWhereInput, Procedure, ProcedureOrderField, ProcedureWhereInput } from '@repo/codegen/src/schema'
 import { getProceduresColumns } from '@/components/pages/protected/procedures/table/columns.tsx'
 import ProceduresTableToolbar from '@/components/pages/protected/procedures/table/procedures-table-toolbar.tsx'
 import { PROCEDURES_SORTABLE_FIELDS } from '@/components/pages/protected/procedures/table/table-config.ts'
@@ -22,7 +22,7 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 export const ProceduresTable = () => {
   const router = useRouter()
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
-  const [filters, setFilters] = useState<Record<string, any> | null>(null)
+  const [filters, setFilters] = useState<ProcedureWhereInput | null>(null)
   const [memberIds, setMemberIds] = useState<(Maybe<string> | undefined)[]>()
   const [searchTerm, setSearchTerm] = useState('')
   const { setCrumbs } = useContext(BreadcrumbContext)
@@ -42,12 +42,12 @@ export const ProceduresTable = () => {
     }
   }, [filters, debouncedSearch])
 
-  const userListWhere = useMemo(() => {
+  const userListWhere: OrgMembershipWhereInput = useMemo(() => {
     if (!memberIds) {
-      return undefined
+      return {}
     }
 
-    const conditions: Record<string, any> = {
+    const conditions = {
       hasUserWith: [{ idIn: memberIds }],
     }
 
@@ -56,10 +56,10 @@ export const ProceduresTable = () => {
 
   const tokensWhere = useMemo(() => {
     if (!memberIds) {
-      return undefined
+      return {}
     }
 
-    const conditions: Record<string, any> = {
+    const conditions = {
       idIn: memberIds,
     }
 
@@ -77,7 +77,7 @@ export const ProceduresTable = () => {
       const userIds = [...new Set(procedures.map((item) => item.updatedBy))]
       setMemberIds(userIds)
     }
-  }, [procedures?.length])
+  }, [procedures?.length, memberIds, procedures])
 
   useEffect(() => {
     setCrumbs([

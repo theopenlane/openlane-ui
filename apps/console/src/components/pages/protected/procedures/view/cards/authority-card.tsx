@@ -23,7 +23,7 @@ type TAuthorityCardProps = {
 
 const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approver, delegate, inputClassName }) => {
   const { data } = useGetAllGroups({ where: {}, enabled: isEditing })
-  const groups = data?.groups?.edges?.map((edge) => edge?.node!) || []
+  const groups = data?.groups?.edges?.map((edge) => edge?.node) || []
 
   return (
     <Card className="p-4">
@@ -42,8 +42,8 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
               fieldName="approverID"
               placeholder="Select approver"
               options={groups.map((g) => ({
-                label: g.name,
-                value: g.id,
+                label: g?.name || '',
+                value: g?.id || '',
               }))}
             />
           )}
@@ -76,8 +76,8 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
               fieldName="delegateID"
               placeholder="Select delegate"
               options={groups.map((g) => ({
-                label: g.name,
-                value: g.id,
+                label: g?.name || '',
+                value: g?.id || '',
               }))}
             />
           )}

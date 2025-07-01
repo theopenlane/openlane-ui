@@ -52,7 +52,7 @@ export async function registerUser<T>(arg: RegisterUser) {
     const fDataMessage = await fData.json()
     fData.message = fDataMessage.error
     return fData
-  } catch (error) {
+  } catch {
     return { message: 'error' }
   }
 }
@@ -69,7 +69,7 @@ export async function resendVerification<T>(arg: ResendVerificationEmail) {
     const fDataMessage = await fData.json()
     fData.message = fDataMessage.error
     return fData
-  } catch (error) {
+  } catch {
     return { message: 'error' }
   }
 }
@@ -136,7 +136,7 @@ export async function getPasskeyRegOptions<T>(arg: PasskeyRegOptionsInput) {
   const data = await fData.json()
   try {
     return data
-  } catch (error) {
+  } catch {
     return { message: 'error' }
   }
 }
@@ -152,7 +152,7 @@ export async function verifyRegistration<T>(arg: RegistrationVerificationInput) 
   })
   try {
     return await fData.json()
-  } catch (error) {
+  } catch {
     return { message: 'error' }
   }
 }
@@ -170,7 +170,7 @@ export async function getPasskeySignInOptions<T>(arg: PasskeySignInOptionsInput)
   const data = await fData.json()
   try {
     return data
-  } catch (error) {
+  } catch {
     return { message: 'error' }
   }
 }
@@ -186,7 +186,7 @@ export async function verifyAuthentication<T>(arg: AuthVerificationInput) {
   })
   try {
     return await fData.json()
-  } catch (error) {
+  } catch {
     return { message: 'error' }
   }
 }
@@ -204,7 +204,7 @@ export async function switchOrganization<T>(arg: SwitchOrganization) {
     const fDataMessage = await fData.json()
     fData.message = fDataMessage.error
     return fDataMessage
-  } catch (error) {
+  } catch {
     return { message: 'error' }
   }
 }

@@ -13,7 +13,7 @@ const TfaPage: React.FC = () => {
   const router = useRouter()
   const [isSecret, setIsSecret] = useState(false)
   const [error, setError] = useState<string>('')
-  const { successNotification, errorNotification } = useNotification()
+  const { errorNotification } = useNotification()
 
   const otpLength = isSecret ? 8 : 6
 
@@ -42,7 +42,7 @@ const TfaPage: React.FC = () => {
           title: `Enter an authenticator app code: `,
           bottomText: (
             <>
-              <p className="text-sm text-text-light">Don't have access to your app? Click&nbsp;</p>
+              <p className="text-sm text-text-light">Don&apos;t have access to your app? Click&nbsp;</p>
               <p
                 onClick={() => {
                   setIsSecret(true)
@@ -57,7 +57,7 @@ const TfaPage: React.FC = () => {
             </>
           ),
         }
-  }, [isSecret, otpLength])
+  }, [isSecret])
 
   const onVerified = async () => {
     if (!sessionData || !sessionData.user) {

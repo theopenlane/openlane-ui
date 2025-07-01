@@ -292,32 +292,32 @@ const renderSearchResults = ({ data, handleOrganizationSwitch, setQuery, query, 
         {/* Organizations */}
         {shouldRenderSection('Organizations') &&
           !!search?.organizations?.edges?.length &&
-          renderOrgResults({ close, searchType: 'Organizations', node: search.organizations?.edges?.map((edge) => edge?.node!) ?? [], handleOrganizationSwitch, setQuery })}
+          renderOrgResults({ close, searchType: 'Organizations', node: search.organizations?.edges?.map((edge) => edge?.node) ?? [], handleOrganizationSwitch, setQuery })}
 
         {/* Programs */}
-        {shouldRenderSection('Programs') && !!search.programs?.edges?.length && renderResults({ close, searchType: 'Programs', node: (search.programs.edges ?? []).map((edge) => edge?.node!) ?? [] })}
+        {shouldRenderSection('Programs') && !!search.programs?.edges?.length && renderResults({ close, searchType: 'Programs', node: (search.programs.edges ?? []).map((edge) => edge?.node) ?? [] })}
 
         {/* Groups */}
-        {shouldRenderSection('Groups') && !!search.groups?.edges?.length && renderResults({ close, searchType: 'Groups', node: (search.groups.edges ?? []).map((edge) => edge?.node!) ?? [] })}
+        {shouldRenderSection('Groups') && !!search.groups?.edges?.length && renderResults({ close, searchType: 'Groups', node: (search.groups.edges ?? []).map((edge) => edge?.node) ?? [] })}
 
         {/* Tasks */}
-        {shouldRenderSection('Tasks') && !!search.tasks?.edges?.length && renderResults({ close, searchType: 'Tasks', node: (search.tasks.edges ?? []).map((edge) => edge?.node!) ?? [] })}
+        {shouldRenderSection('Tasks') && !!search.tasks?.edges?.length && renderResults({ close, searchType: 'Tasks', node: (search.tasks.edges ?? []).map((edge) => edge?.node) ?? [] })}
 
         {/* Control Objectives */}
         {shouldRenderSection('ControlObjectives') &&
           !!search.controlObjectives?.edges?.length &&
-          renderResults({ close, searchType: 'ControlObjectives', node: (search.controlObjectives.edges ?? []).map((edge) => edge?.node!) ?? [] })}
+          renderResults({ close, searchType: 'ControlObjectives', node: (search.controlObjectives.edges ?? []).map((edge) => edge?.node) ?? [] })}
 
         {/* Controls */}
-        {shouldRenderSection('Controls') && !!search.controls?.edges?.length && renderResults({ close, searchType: 'Controls', node: (search.controls.edges ?? []).map((edge) => edge?.node!) ?? [] })}
+        {shouldRenderSection('Controls') && !!search.controls?.edges?.length && renderResults({ close, searchType: 'Controls', node: (search.controls.edges ?? []).map((edge) => edge?.node) ?? [] })}
 
         {/* Subcontrols */}
         {shouldRenderSection('Subcontrols') &&
           !!search.subcontrols?.edges?.length &&
-          renderResults({ close, searchType: 'Subcontrols', node: (search.subcontrols.edges ?? []).map((edge) => edge?.node!) ?? [] })}
+          renderResults({ close, searchType: 'Subcontrols', node: (search.subcontrols.edges ?? []).map((edge) => edge?.node) ?? [] })}
 
         {/* Risks */}
-        {shouldRenderSection('Risks') && !!search.risks?.edges?.length && renderResults({ close, searchType: 'Risks', node: (search.risks.edges ?? []).map((edge) => edge?.node!) ?? [] })}
+        {shouldRenderSection('Risks') && !!search.risks?.edges?.length && renderResults({ close, searchType: 'Risks', node: (search.risks.edges ?? []).map((edge) => edge?.node) ?? [] })}
       </CommandList>
     </div>
   )
@@ -378,7 +378,7 @@ const renderOrgResults = ({ searchType, node, handleOrganizationSwitch, setQuery
 
   return (
     <>
-      {node.map((searchNode: any, i: number) => {
+      {node.map((searchNode: any) => {
         return (
           <div key={searchNode.id} className="border-b py-1">
             <CommandItem

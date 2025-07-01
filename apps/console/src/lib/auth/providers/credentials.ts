@@ -2,7 +2,6 @@ import { openlaneAPIUrl } from '@repo/dally/auth'
 import Credentials from 'next-auth/providers/credentials'
 import { setSessionCookie } from '../utils/set-session-cookie'
 import { getDashboardData } from '@/app/api/getDashboardData/route'
-import { CredentialsSignin } from 'next-auth'
 
 // Standard username and password credentials provider
 export const credentialsProvider = Credentials({

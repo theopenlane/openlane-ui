@@ -24,7 +24,6 @@ import { DOCS_URL } from '@/constants/index.ts'
 import AuthorityCard from '@/components/pages/protected/procedures/view/cards/authority-card.tsx'
 import { useGetInternalPolicyDetailsById } from '@/lib/graphql-hooks/policy.ts'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
-import { Loading } from '@/components/shared/loading/loading'
 import { useOrganization } from '@/hooks/useOrganization.ts'
 import { useGetOrganizationNameById } from '@/lib/graphql-hooks/organization.ts'
 
@@ -56,7 +55,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   const [initialAssociations, setInitialAssociations] = useState<TObjectAssociationMap>({})
   const searchParams = useSearchParams()
   const policyId = searchParams.get('policyId')
-  const { data, isLoading } = useGetInternalPolicyDetailsById(policyId)
+  const { data } = useGetInternalPolicyDetailsById(policyId)
   const { currentOrgId } = useOrganization()
   const { data: orgNameData } = useGetOrganizationNameById(currentOrgId)
 
@@ -70,27 +69,21 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   }, [setCrumbs])
 
   useEffect(() => {
-    if (isProcedureCreate) {
-      setInitialAssociations({})
-      procedureState.setAssociations({})
-      procedureState.setAssociationRefCodes({})
-      return
-    }
     if (procedure) {
       const procedureAssociations: TObjectAssociationMap = {
-        controlIDs: procedure?.controls?.edges?.map((item) => item?.node?.id!) || [],
-        internalPolicyIDs: procedure?.internalPolicies?.edges?.map((item) => item?.node?.id!) || [],
-        programIDs: procedure?.programs?.edges?.map((item) => item?.node?.id!) || [],
-        risks: procedure?.risks?.edges?.map((item) => item?.node?.id!) || [],
-        taskIDs: procedure?.tasks?.edges?.map((item) => item?.node?.id!) || [],
+        controlIDs: procedure?.controls?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
+        internalPolicyIDs: procedure?.internalPolicies?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
+        programIDs: procedure?.programs?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
+        risks: procedure?.risks?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
+        taskIDs: procedure?.tasks?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
       }
 
       const procedureAssociationsRefCodes: TObjectAssociationMap = {
-        controlIDs: procedure?.controls?.edges?.map((item) => item?.node?.refCode!) || [],
-        internalPolicyIDs: procedure?.internalPolicies?.edges?.map((item) => item?.node?.displayID!) || [],
-        programIDs: procedure?.programs?.edges?.map((item) => item?.node?.displayID!) || [],
-        risks: procedure?.risks?.edges?.map((item) => item?.node?.displayID!) || [],
-        taskIDs: procedure?.tasks?.edges?.map((item) => item?.node?.displayID!) || [],
+        controlIDs: procedure?.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => typeof id === 'string') || [],
+        internalPolicyIDs: procedure?.internalPolicies?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
+        programIDs: procedure?.programs?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
+        risks: procedure?.risks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
+        taskIDs: procedure?.tasks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
       }
 
       form.reset({
@@ -114,7 +107,16 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
       procedureState.setAssociations(procedureAssociations)
       procedureState.setAssociationRefCodes(procedureAssociationsRefCodes)
     }
-  }, [isProcedureCreate])
+  }, [form, procedure, procedureState])
+
+  useEffect(() => {
+    if (isProcedureCreate && Object.keys(procedureState.associations).length > 0) {
+      setInitialAssociations({})
+      procedureState.setAssociations({})
+      procedureState.setAssociationRefCodes({})
+      return
+    }
+  }, [isProcedureCreate, procedureState])
 
   useEffect(() => {
     if (data) {
@@ -128,7 +130,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
       procedureState.setAssociations(procedureAssociations)
       procedureState.setAssociationRefCodes(procedureAssociationsRefCodes)
     }
-  }, [data])
+  }, [data, procedureState])
 
   const onCreateHandler = async (data: CreateProcedureFormData) => {
     try {
@@ -156,7 +158,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
 
       form.reset()
       router.push(`/procedures/${createdProcedure.createProcedure.procedure.id}/view`)
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Error',
         description: 'There was an error creating the procedure. Please try again.',
@@ -222,11 +224,15 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
         ),
       }
 
+      if (!procedure) {
+        return
+      }
+
       const formData: {
         updateProcedureId: string
         input: UpdateProcedureInput
       } = {
-        updateProcedureId: procedure?.id!,
+        updateProcedureId: procedure.id,
         input: {
           ...data,
           details: detailsField,
@@ -244,9 +250,9 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
 
       form.reset()
       queryClient.invalidateQueries({ queryKey: ['procedures'] })
-      queryClient.invalidateQueries({ queryKey: ['procedure', procedure?.id!] })
+      queryClient.invalidateQueries({ queryKey: ['procedure', procedure?.id] })
       router.push(`/procedures`)
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Error',
         description: 'There was an error updating the procedure. Please try again.',
@@ -280,7 +286,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
                 <AlertDescription>
                   <p>
                     For template library and help docs, please refer to our{' '}
-                    <a className="text-blue-600" href={`${DOCS_URL}/docs/category/policies-and-procedures`} target="_blank">
+                    <a className="text-blue-600" href={`${DOCS_URL}/docs/category/policies-and-procedures`} target="_blank" rel="noreferrer">
                       documentation
                     </a>
                     .
@@ -313,7 +319,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
               <FormField
                 control={form.control}
                 name="details"
-                render={({ field }) => (
+                render={() => (
                   <FormItem className="w-full">
                     <FormLabel>Procedure</FormLabel>
                     <SystemTooltip

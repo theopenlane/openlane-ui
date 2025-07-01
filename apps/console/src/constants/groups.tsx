@@ -8,6 +8,8 @@ import { Program, Risk, Control, ControlObjective, InternalPolicy, Procedure, Pa
 import { Checkbox } from '@repo/ui/checkbox'
 import { ColumnDef } from '@tanstack/table-core'
 
+export type ObjectDataNode = Program | Risk | Control | ControlObjective | InternalPolicy | Procedure
+
 export type TableDataItem = {
   id: string
   name: string

@@ -27,19 +27,19 @@ const MappedCategoriesDialog = () => {
   const { data } = useGetStandards({})
 
   const standards = useMemo(() => {
-    return data?.standards?.edges?.map((edge) => edge?.node!) || []
+    return data?.standards?.edges?.map((edge) => edge?.node) || []
   }, [data])
 
   const filteredStandards = useMemo(() => {
     if (selectedStandardId === 'all') return standards
-    return standards.filter((s) => s.id === selectedStandardId)
+    return standards.filter((s) => s?.id === selectedStandardId)
   }, [standards, selectedStandardId])
 
   const allRows = useMemo(() => {
     return filteredStandards.flatMap((standard) =>
-      (standard.domains || []).map((domain) => ({
-        id: `${standard.id}:${domain}`,
-        standardLabel: standard.shortName,
+      (standard?.domains || []).map((domain) => ({
+        id: `${standard?.id}:${domain}`,
+        standardLabel: standard?.shortName,
         domain,
       })),
     )
@@ -80,8 +80,8 @@ const MappedCategoriesDialog = () => {
 
   const filterOptions = useMemo(() => {
     return standards.map((standard) => ({
-      label: standard.shortName,
-      value: standard.id,
+      label: standard?.shortName,
+      value: standard?.id,
     }))
   }, [standards])
 
@@ -129,7 +129,7 @@ const MappedCategoriesDialog = () => {
                 <SelectContent>
                   <SelectItem value="all">All</SelectItem>
                   {filterOptions.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>
+                    <SelectItem key={opt.value} value={opt.value || ''}>
                       {opt.label}
                     </SelectItem>
                   ))}

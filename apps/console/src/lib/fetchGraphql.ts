@@ -49,7 +49,7 @@ export const fetchGraphQLWithUpload = async ({ query, variables = {} }: { query:
 
     // Append FILES LAST
     fileIndex = 0
-    Object.entries(variables).forEach(([key, value]) => {
+    Object.entries(variables).forEach(([, value]) => {
       if (value instanceof File) {
         formData.append(fileIndex.toString(), value)
         fileIndex++
