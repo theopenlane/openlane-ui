@@ -77,7 +77,9 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
         },
       })
 
-      onEvidenceCreateSuccess && onEvidenceCreateSuccess()
+      if (onEvidenceCreateSuccess) {
+        onEvidenceCreateSuccess()
+      }
     } catch {
       errorNotification({
         title: 'Error',
@@ -108,7 +110,7 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
         setTagValues(tags)
       }
     }
-  }, [])
+  }, [form, formData])
 
   useEffect(() => {
     setCrumbs([
@@ -123,7 +125,9 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
 
   const handleUploadedFiles = (evidenceFiles: TUploadedFile[]) => {
     const evidenceFilesFiltered = evidenceFiles?.filter((item) => item.type === 'file')
-    evidenceFilesFiltered && form.setValue('evidenceFiles', evidenceFilesFiltered)
+    if (evidenceFilesFiltered) {
+      form.setValue('evidenceFiles', evidenceFilesFiltered)
+    }
   }
 
   const handleResetEvidenceFiles = () => {
@@ -291,7 +295,7 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
                           <CalendarPopover field={field} defaultAddDays={365} disabledFrom={new Date()} />
                           {field.value !== null && (
                             <p>
-                              Don't want to renew this evidence?{' '}
+                              Don&apos;t want to renew this evidence?{' '}
                               <b className="text-sm cursor-pointer text-accent-secondary" onClick={() => field.onChange(null)}>
                                 Clear it
                               </b>

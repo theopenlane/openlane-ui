@@ -41,7 +41,7 @@ const SetReadyForAuditorDialog: React.FC = () => {
           <Info className="mt-1" size={16} />
           <div className="text-sm">
             <p className="text-base ">What will happen?</p>
-            <p>This program will be marked as "Auditor ready"</p>
+            <p>This program will be marked as &quot;Auditor ready&quot;</p>
           </div>
         </div>
         <DialogFooter className="mt-6 flex gap-2">

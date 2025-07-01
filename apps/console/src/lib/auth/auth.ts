@@ -62,7 +62,7 @@ export const config = {
       if ((user as any)?.error) {
         throw new InvalidLoginError((user as any).error)
       }
-      let email = profile?.email || user?.email || ''
+      const email = profile?.email || user?.email || ''
 
       // Allow only specific domains if configured
       const allow = allowedLoginDomains.length === 0 || allowedLoginDomains.some((domain) => email.endsWith(domain))

@@ -49,6 +49,18 @@ const ProgramAuditor = ({ firm, name, email, isReady }: ProgramAuditorProps) => 
     setIsEditing(false)
   }
 
+  const form = useForm<SetAuditorFormValues>({
+    resolver: zodResolver(setAuditorSchema),
+    defaultValues: {
+      auditorName: name ?? '',
+      auditorEmail: email ?? '',
+      auditFirm: firm ?? '',
+      auditorReadComments: false,
+      auditorWriteComments: false,
+      auditorReady: false,
+    },
+  })
+
   useEffect(() => {
     if (name || email || firm) {
       form.reset({
@@ -65,19 +77,7 @@ const ProgramAuditor = ({ firm, name, email, isReady }: ProgramAuditorProps) => 
     return () => {
       setIsEligibleForAuditorSet(false)
     }
-  }, [name, email, firm, programId])
-
-  const form = useForm<SetAuditorFormValues>({
-    resolver: zodResolver(setAuditorSchema),
-    defaultValues: {
-      auditorName: name ?? '',
-      auditorEmail: email ?? '',
-      auditFirm: firm ?? '',
-      auditorReadComments: false,
-      auditorWriteComments: false,
-      auditorReady: false,
-    },
-  })
+  }, [name, email, firm, programId, form])
 
   const { handleSubmit, control } = form
 

@@ -76,7 +76,7 @@ const BulkCSVCreatePolicyDialog: React.FC<TBulkCSVCreatePolicyDialogProps> = ({ 
             <p className="font-semibold">Column format</p>
             <p className="text-sm">
               You can upload a csv containing policies. Please refer to our{' '}
-              <a href={`${DOCS_URL}${GRAPHQL_OBJECT_DOCS}#policies`} target="_blank" className="text-brand hover:underline">
+              <a href={`${DOCS_URL}${GRAPHQL_OBJECT_DOCS}#policies`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
                 documentation
               </a>{' '}
               for column format. We also provide a <span className="text-brand hover:underline">template csv file</span> for you to fill out.

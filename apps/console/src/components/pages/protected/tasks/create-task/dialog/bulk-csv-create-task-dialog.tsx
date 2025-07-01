@@ -82,7 +82,7 @@ const BulkCSVCreateTaskDialog: React.FC<BulkCsvCreateTaskDialogProps> = ({ trigg
             <p className="font-semibold">Column format</p>
             <p className="text-sm">
               You can upload a csv containing tasks. Please refer to our{' '}
-              <a href={`${DOCS_URL}${GRAPHQL_OBJECT_DOCS}#task`} target="_blank" className="text-brand hover:underline">
+              <a href={`${DOCS_URL}${GRAPHQL_OBJECT_DOCS}#task`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
                 documentation
               </a>{' '}
               for column format. We also provide a{' '}

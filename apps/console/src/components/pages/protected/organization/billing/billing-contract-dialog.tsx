@@ -63,8 +63,8 @@ const BillingContactDialog = () => {
     placesService.getDetails({ placeId }, (place) => {
       if (!place || !place.address_components) return
 
-      let line1 = description.split(',')[0]
-      let line2 = ''
+      const line1 = description.split(',')[0]
+      const line2 = ''
       let city = ''
       let state = ''
       let postalCode = ''

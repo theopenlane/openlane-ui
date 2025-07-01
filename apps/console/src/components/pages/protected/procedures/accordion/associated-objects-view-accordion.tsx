@@ -1,13 +1,10 @@
 'use client'
 
 import React, { useState } from 'react'
-import Link from 'next/link'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/table'
 import { Button } from '@repo/ui/button'
 import { ChevronDown, ChevronsDownUp, List } from 'lucide-react'
 import { ProcedureByIdFragment } from '@repo/codegen/src/schema'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import SetObjectAssociationDialog from '@/components/pages/protected/procedures/modal/set-object-association-modal.tsx'
 import { useSession } from 'next-auth/react'
 import { useAccountRole } from '@/lib/authz/access-api.ts'
