@@ -39,7 +39,7 @@ export const TokenVerifier = () => {
 
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null)
 
-  const { successNotification, errorNotification } = useNotification()
+  const { errorNotification } = useNotification()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

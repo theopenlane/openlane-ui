@@ -9,7 +9,7 @@ import usePlateEditor from '../plate/usePlateEditor'
 
 type Props = {
   data: TObjectAssociationColumn[]
-  onIDsChange: (updatedMap: TObjectAssociationMap, refCodes?: any) => void
+  onIDsChange: (updatedMap: TObjectAssociationMap, refCodes?: Partial<Record<string, string[]>>) => void
   initialData?: TObjectAssociationMap
   refCodeInitialData?: TObjectAssociationMap
   pagination?: TPagination | null
@@ -28,11 +28,11 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
     if (refCodeInitialData) {
       setSelectedRefCodeMap(refCodeInitialData)
     }
-  }, [initialData])
+  }, [initialData, refCodeInitialData])
 
   useEffect(() => {
     onIDsChange(selectedIdsMap, selectedRefCodeMap)
-  }, [selectedIdsMap, data])
+  }, [selectedIdsMap, data, onIDsChange, selectedRefCodeMap])
   const columns: ColumnDef<TObjectAssociationColumn>[] = [
     {
       accessorKey: 'name',

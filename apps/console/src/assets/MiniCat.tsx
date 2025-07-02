@@ -1,6 +1,9 @@
 import React from 'react'
 
-const MiniCat = ({ className = '' }) => {
+type Props = {
+  className?: string
+}
+const MiniCat = ({ className = '' }: Props) => {
   return (
     <svg className={className} width="56" height="70" viewBox="0 0 56 70" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path

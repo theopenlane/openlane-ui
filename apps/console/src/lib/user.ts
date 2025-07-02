@@ -10,6 +10,7 @@ export interface RegisterUser {
   password: string
   confirmedPassword?: string
   token?: string
+  email: string
 }
 
 export interface ResendVerificationEmail {
@@ -32,7 +33,7 @@ export interface RegistrationVerificationInput {
 export interface AuthVerificationInput {
   assertionResponse: any
 }
-interface HttpResponse<T> extends Response {
+export interface HttpResponse<T> extends Response {
   message?: T
 }
 
@@ -40,20 +41,25 @@ export interface SwitchOrganization {
   target_organization_id: string
 }
 
-export async function registerUser<T>(arg: RegisterUser) {
-  const fData: HttpResponse<T> = await fetch('/api/auth/register', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(arg),
-  })
+type RegisterUserResponse<T> = { ok: true; data: T } | { ok: false; message: string }
+
+export async function registerUser<T>(arg: RegisterUser): Promise<RegisterUserResponse<T>> {
   try {
-    const fDataMessage = await fData.json()
-    fData.message = fDataMessage.error
-    return fData
+    const response = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(arg),
+    })
+
+    const json = await response.json()
+
+    if (response.ok) {
+      return { ok: true, data: json }
+    } else {
+      return { ok: false, message: json?.error ?? 'Unknown error' }
+    }
   } catch {
-    return { message: 'error' }
+    return { ok: false, message: 'Network error' }
   }
 }
 

@@ -39,7 +39,8 @@ export const SignupPage = () => {
     await signIn('google', { redirectTo: '/' })
   }
 
-  async function validateEmail(payload: any) {
+  async function validateEmail(payload: RegisterUser) {
+    console.log('allowedLoginDomains', allowedLoginDomains)
     return allowedLoginDomains.some((domain) => payload.email.endsWith(domain))
   }
 
@@ -85,7 +86,7 @@ export const SignupPage = () => {
       <SimpleForm
         classNames={form()}
         onChange={(e: { email: string }) => setIsPasswordActive(e.email.length > 0)}
-        onSubmit={async (payload: RegisterUser & { confirmedPassword?: string }) => {
+        onSubmit={async (payload: RegisterUser) => {
           setIsLoading(true)
           setRegistrationErrorMessage('')
           try {
@@ -118,7 +119,8 @@ export const SignupPage = () => {
                 payload.token = token
               }
 
-              const res: any = await registerUser(payload)
+              const res = await registerUser(payload)
+
               if (res?.ok && token) {
                 router.push(`/login`)
               } else if (res?.ok) {

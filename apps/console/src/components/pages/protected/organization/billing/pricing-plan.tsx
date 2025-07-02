@@ -1,6 +1,5 @@
 'use client'
 import React, { useMemo } from 'react'
-import { Panel } from '@repo/ui/panel'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { formatDistanceToNowStrict, parseISO, isBefore } from 'date-fns'
@@ -17,7 +16,6 @@ const PricingPlan = () => {
 
   const subscription = data?.organization.orgSubscriptions?.[0] ?? ({} as OrgSubscription)
 
-  // @ts-ignore TODO: MISSING TYPES FROM CODEGEN
   const { expiresAt, subscriptionURL, active, productTier, stripeSubscriptionStatus, trialExpiresAt, productPrice = {}, features = [] } = subscription
   const { amount: price, interval: priceInterval } = productPrice
 

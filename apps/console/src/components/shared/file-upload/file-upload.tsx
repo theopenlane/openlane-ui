@@ -20,38 +20,43 @@ const FileUpload: React.FC<TProps> = (props: TProps) => {
   const MAX_FILE_SIZE_IN_MB = MAX_FILE_SIZE / (1024 * 1024)
   const { errorNotification } = useNotification()
 
-  const onDrop = useCallback((acceptedFiles: FileWithPath[]) => {
-    const validFiles = acceptedFiles.filter((file) => {
-      if (file.size > MAX_FILE_SIZE) {
-        errorNotification({
-          title: 'Error',
-          description: `exceeds the maximum file size of ${MAX_FILE_SIZE_IN_MB} MB.`,
-        })
-        return false
-      }
-      if (!props.acceptedFileTypes.includes(file.type)) {
-        errorNotification({
-          title: 'Error',
-          description: `${file.name} is not an accepted file type.`,
-        })
-        return false
-      }
-      return true
-    })
+  const onDrop = useCallback(
+    (acceptedFiles: FileWithPath[]) => {
+      const validFiles = acceptedFiles.filter((file) => {
+        if (file.size > MAX_FILE_SIZE) {
+          errorNotification({
+            title: 'Error',
+            description: `exceeds the maximum file size of ${MAX_FILE_SIZE_IN_MB} MB.`,
+          })
+          return false
+        }
+        if (!props.acceptedFileTypes.includes(file.type)) {
+          errorNotification({
+            title: 'Error',
+            description: `${file.name} is not an accepted file type.`,
+          })
+          return false
+        }
+        return true
+      })
 
-    validFiles.forEach((file) => {
-      const reader = new FileReader()
+      validFiles.forEach((file) => {
+        const reader = new FileReader()
 
-      reader.onload = () => {
-        const fileUrl = reader.result as string
-        const newFile: TUploadedFile = { name: file.name, size: file.size, url: fileUrl, type: 'file', file: file }
-        !props.multipleFiles && setUploadedFile(newFile)
-        props.onFileUpload(newFile)
-      }
+        reader.onload = () => {
+          const fileUrl = reader.result as string
+          const newFile: TUploadedFile = { name: file.name, size: file.size, url: fileUrl, type: 'file', file: file }
+          if (!props.multipleFiles) {
+            setUploadedFile(newFile)
+          }
+          props.onFileUpload(newFile)
+        }
 
-      reader.readAsDataURL(file)
-    })
-  }, [])
+        reader.readAsDataURL(file)
+      })
+    },
+    [MAX_FILE_SIZE, MAX_FILE_SIZE_IN_MB, errorNotification, props],
+  )
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,

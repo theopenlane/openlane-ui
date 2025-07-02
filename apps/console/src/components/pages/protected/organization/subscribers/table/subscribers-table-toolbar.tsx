@@ -5,9 +5,10 @@ import { DownloadIcon, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import Menu from '@/components/shared/menu/menu.tsx'
 import BulkCSVCreateSubscriberDialog from '@/components/pages/protected/organization/subscribers/bulk-csv-create-subscriber-dialog.tsx'
+import { SubscriberWhereInput } from '@repo/codegen/src/schema'
 
 type TProps = {
-  onFilterChange: (filters: Record<string, any>) => void
+  onFilterChange: (filters: SubscriberWhereInput) => void
   searching?: boolean
   searchTerm: string
   setSearchTerm: (searchTerm: string) => void

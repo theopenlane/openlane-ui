@@ -37,7 +37,7 @@ const OrganizationEmailForm = () => {
         email: billingEmail ?? undefined,
       })
     }
-  }, [billingEmail])
+  }, [billingEmail, form])
 
   const updateOrganization = async ({ email }: { email: string }) => {
     if (!currentOrgId) {

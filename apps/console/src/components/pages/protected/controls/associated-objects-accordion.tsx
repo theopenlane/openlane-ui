@@ -1,17 +1,12 @@
 'use client'
 
 import React, { useState } from 'react'
-import Link from 'next/link'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/table'
 import { Button } from '@repo/ui/button'
 import { ChevronDown, ChevronsDownUp, List } from 'lucide-react'
 import { SetObjectAssociationDialog } from './set-object-association-modal'
-import { ControlDetailsFieldsFragment, Group, Program, RiskEdge, RiskFieldsFragment, Task, User } from '@repo/codegen/src/schema'
-import { Avatar } from '@/components/shared/avatar/avatar'
+import { ControlDetailsFieldsFragment } from '@repo/codegen/src/schema'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
-import { PROGRAM_STATUS_LABELS } from '@/components/shared/icon-enum/program-enum'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import ObjectAssociationChip from '@/components/shared/objectAssociation/object-association-chip.tsx'
 
 type AssociatedObjectsAccordionProps = {
@@ -21,17 +16,6 @@ type AssociatedObjectsAccordionProps = {
   programs?: ControlDetailsFieldsFragment['programs']
   risks: ControlDetailsFieldsFragment['risks']
   canEdit?: boolean
-}
-
-type PolicyOrProcedure = {
-  id: string
-  name: string
-  approver?: {
-    __typename?: 'Group'
-    gravatarLogoURL?: string | null
-    logoURL?: string | null
-    displayName: string
-  } | null
 }
 
 const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({ policies, procedures, tasks, programs, risks, canEdit }) => {

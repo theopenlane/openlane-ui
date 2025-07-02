@@ -37,7 +37,7 @@ const BulkCSVCreatePolicyDialog: React.FC<TBulkCSVCreatePolicyDialogProps> = ({ 
         title: 'Policies Created',
         description: `Policies has been successfully created`,
       })
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Error',
         description: 'There was an error creating the policies. Please try again.',

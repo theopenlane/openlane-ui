@@ -37,7 +37,7 @@ const BulkCSVCreateProcedureDialog: React.FC<TBulkCSVCreateProcedureDialogProps>
         title: 'Procedure Created',
         description: `Procedure has been successfully created`,
       })
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Error',
         description: 'There was an error creating the procedures. Please try again.',

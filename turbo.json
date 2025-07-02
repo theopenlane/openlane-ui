@@ -16,7 +16,10 @@
         "SESSION_COOKIE_DOMAIN",
         "NEXT_PUBLIC_ALLOWED_LOGIN_DOMAINS",
         "SESSION_NEXAUTH_MAX_AGE",
-        "RECAPTCHA_SECRET_KEY"
+        "RECAPTCHA_SECRET_KEY",
+        "AWS_REGION",
+        "OPENLANE_API_WRITE_TOKEN",
+        "NOVU_API_KEY"
       ],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**", "storybook-static/**"]
     },

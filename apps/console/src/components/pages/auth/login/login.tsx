@@ -4,17 +4,15 @@ import { LoginUser } from '@repo/dally/user'
 import { Button } from '@repo/ui/button'
 import MessageBox from '@repo/ui/message-box'
 import SimpleForm from '@repo/ui/simple-form'
-import { ArrowRightCircle, ArrowUpRight, FingerprintIcon, KeyRoundIcon } from 'lucide-react'
-import { signIn } from 'next-auth/react'
+import { ArrowRightCircle, KeyRoundIcon } from 'lucide-react'
+import { signIn, SignInResponse } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import { Separator } from '@repo/ui/separator'
 import { loginStyles } from './login.styles'
 import { GoogleIcon } from '@repo/ui/icons/google'
-import { GithubIcon } from '@repo/ui/icons/github'
 import { Input } from '@repo/ui/input'
 import { PasswordInput } from '@repo/ui/password-input'
-import { Label } from '@repo/ui/label'
 import { getPasskeySignInOptions, verifyAuthentication } from '@/lib/user'
 import { startAuthentication } from '@simplewebauthn/browser'
 import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
@@ -32,10 +30,8 @@ export const LoginPage = () => {
   const [signInErrorMessage, setSignInErrorMessage] = useState('There was an error. Please try again.')
   const [signInLoading, setSignInLoading] = useState(false)
   const showLoginError = !signInLoading && signInError
-  const [passkeyStatus, setPasskeyStatus] = useState('')
   const [email, setEmail] = useState('')
-
-  const { successNotification, errorNotification } = useNotification()
+  const { errorNotification } = useNotification()
   const searchParams = useSearchParams()
   const token = searchParams?.get('token')
   const redirectUrl = token ? `/invite?token=${token}` : '/'
@@ -46,7 +42,6 @@ export const LoginPage = () => {
 
     try {
       if (recaptchaSiteKey) {
-        // @ts-ignore
         const recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'login' })
 
         const recaptchaValidation = await fetch('/api/recaptchaVerify', {
@@ -65,12 +60,13 @@ export const LoginPage = () => {
         }
       }
 
-      const res: any = await signIn('credentials', {
+      const res: SignInResponse = await signIn('credentials', {
         redirect: false,
         ...payload,
       })
 
       if (res.ok && !res.error) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         token ? router.push(`/invite?token=${token}`) : router.push(`/`)
       } else {
         let errMsg = 'There was an error. Please try again.'
@@ -123,13 +119,11 @@ export const LoginPage = () => {
     try {
       setSignInError(false)
       setSignInErrorMessage('')
-      setPasskeyStatus('Initializing passkey authentication...')
 
       const options = await getPasskeySignInOptions({
         email: email || '',
       })
       setSessionCookie(options.session)
-      setPasskeyStatus('Waiting for your passkey...')
 
       const assertionResponse = await startAuthentication({
         optionsJSON: {
@@ -139,14 +133,11 @@ export const LoginPage = () => {
         },
       })
 
-      setPasskeyStatus('Verifying your passkey...')
       const verificationResult = await verifyAuthentication({
         assertionResponse,
       })
 
       if (verificationResult.success) {
-        setPasskeyStatus('Authentication successful, redirecting...')
-
         await signIn('passkey', {
           callbackUrl: redirectUrl,
           email: email || '',
@@ -169,8 +160,6 @@ export const LoginPage = () => {
 
       setSignInError(true)
       setSignInErrorMessage('An unexpected error occurred during passkey login')
-    } finally {
-      setPasskeyStatus('')
     }
   }
 
@@ -198,10 +187,10 @@ export const LoginPage = () => {
 
         <SimpleForm
           classNames={form()}
-          onSubmit={(e: any) => {
+          onSubmit={(e: LoginUser) => {
             submit(e)
           }}
-          onChange={(e: any) => {
+          onChange={(e: { username: string }) => {
             setEmail(e.username)
           }}
         >

@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { InfoIcon, X } from 'lucide-react'
 import { useSession } from 'next-auth/react'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { z, infer as zInfer } from 'zod'
 
@@ -25,10 +25,10 @@ export const step1Schema = z.object({
 type Step1Values = zInfer<typeof step1Schema>
 
 const companySizes = [
-  { value: '1–10', label: '1–10 employees (Freelancers, solo entrepreneurs, or small startups)' },
-  { value: '11–50', label: '11–50 employees (Small businesses or growing teams)' },
-  { value: '51–200', label: '51–200 employees (Mid-sized companies or established startups)' },
-  { value: '201-1000', label: '201–1,000 employees (Small to mid-sized enterprises)' },
+  { value: '1-10', label: '1-10 employees (Freelancers, solo entrepreneurs, or small startups)' },
+  { value: '11-50', label: '11-50 employees (Small businesses or growing teams)' },
+  { value: '51-200', label: '51-200 employees (Mid-sized companies or established startups)' },
+  { value: '201-1000', label: '201-1,000 employees (Small to mid-sized enterprises)' },
   { value: '1000+', label: '1,000+ employees (Large enterprises or corporations)' },
 ]
 
@@ -63,13 +63,13 @@ export default function Step1() {
 
   const [domainInput, setDomainInput] = useState('')
   const userDomain = sessionData?.user.email.split('@')[1]
-  const domains = watch('domains') || []
+  const domains = useMemo(() => watch('domains') || [], [watch])
 
   useEffect(() => {
     if (userDomain && !domains.includes(userDomain)) {
       setValue('domains', [...domains, userDomain])
     }
-  }, [userDomain, setValue])
+  }, [userDomain, setValue, domains])
 
   const addDomain = () => {
     if (!domainInput.trim()) return

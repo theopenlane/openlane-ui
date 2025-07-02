@@ -26,7 +26,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form }) => {
       })
       setTagValues(tags)
     }
-  }, [])
+  }, [form])
 
   return (
     <Card className="p-4">

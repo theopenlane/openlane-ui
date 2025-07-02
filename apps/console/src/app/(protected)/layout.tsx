@@ -30,14 +30,20 @@ export async function generateMetadata(): Promise<Metadata> {
       },
     }
   }
-  const dashboardData = await getDashboardData(token, cookieSession?.value!)
-
-  const organizations: OrganizationEdge[] = dashboardData.organizations.edges
-  const org = organizations.find(({ node }) => node.id === organizationId)
-
+  if (cookieSession?.value) {
+    const dashboardData = await getDashboardData(token, cookieSession?.value)
+    const organizations: OrganizationEdge[] = dashboardData.organizations.edges
+    const org = organizations.find(({ node }) => node.id === organizationId)
+    return {
+      title: {
+        template: `${org?.node.displayName}: %s`,
+        default: '',
+      },
+    }
+  }
   return {
     title: {
-      template: `${org?.node.displayName}: %s`,
+      template: 'Openlane: %s',
       default: '',
     },
   }

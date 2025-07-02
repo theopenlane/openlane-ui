@@ -1,6 +1,12 @@
 import React from 'react'
 
-const SquareArrow = ({ className = '', strokeWidth = 1, size = 16 }) => {
+type Props = {
+  className?: string
+  strokeWidth?: number
+  size?: number
+}
+
+const SquareArrow = ({ className = '', strokeWidth = 1, size = 16 }: Props) => {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 14 14" fill="none" className={className} stroke="currentColor" strokeWidth={2}>
       <path
