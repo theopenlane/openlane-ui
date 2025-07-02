@@ -19,7 +19,6 @@ import { ControlIconMapper } from '@/components/shared/icon-enum/control-enum.ts
 import { VisibilityState } from '@tanstack/react-table'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { RelatedControlChip } from '../shared/related-control-chip'
 import SubcontrolCell from './subcontrol-cell'
 
 export const ControlStatusLabels: Record<ControlControlStatus, string> = {
