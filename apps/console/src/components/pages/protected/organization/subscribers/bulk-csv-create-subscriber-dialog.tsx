@@ -39,7 +39,7 @@ const BulkCSVCreateSubscriberDialog: React.FC<BulkCsvCreateSubscriberDialogProps
         description: `Subscribers has been successfully created`,
       })
       setIsOpen(false)
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Error',
         description: 'There was an error creating the subscribers. Please try again.',
@@ -52,7 +52,7 @@ const BulkCSVCreateSubscriberDialog: React.FC<BulkCsvCreateSubscriberDialogProps
   }
 
   const handleCSVExport = async () => {
-    const data = await exportCSV({ filename: 'subscriber' })
+    await exportCSV({ filename: 'subscriber' })
   }
 
   return (

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { getRiskColumns } from '@/components/pages/protected/risks/table/columns.tsx'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination.ts'
-import { GetAllRisksQueryVariables, OrderDirection, RiskFieldsFragment, RiskOrderField } from '@repo/codegen/src/schema.ts'
+import { GetAllRisksQueryVariables, OrderDirection, RiskFieldsFragment, RiskOrderField, RiskWhereInput } from '@repo/codegen/src/schema.ts'
 import { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useTableRisks } from '@/lib/graphql-hooks/risks.ts'
@@ -20,7 +20,7 @@ const RiskTable: React.FC = () => {
   const router = useRouter()
   const { columns, mappedColumns } = getRiskColumns()
   const [searchQuery, setSearchQuery] = useState('')
-  const [filters, setFilters] = useState<Record<string, any> | null>(null)
+  const [filters, setFilters] = useState<RiskWhereInput | null>(null)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const { setCrumbs } = useContext(BreadcrumbContext)
   const [orderBy, setOrderBy] = useState<GetAllRisksQueryVariables['orderBy']>([

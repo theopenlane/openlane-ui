@@ -1,3 +1,4 @@
+import { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/types'
 import useSWR from 'swr'
 
 export interface LoginUser {
@@ -27,12 +28,13 @@ export interface PasskeySignInOptionsInput {
 }
 
 export interface RegistrationVerificationInput {
-  attestationResponse: any
+  attestationResponse: RegistrationResponseJSON
 }
 
 export interface AuthVerificationInput {
-  assertionResponse: any
+  assertionResponse: AuthenticationResponseJSON
 }
+
 export interface HttpResponse<T> extends Response {
   message?: T
 }
