@@ -12,6 +12,7 @@ import { config as baseConfig } from './base.js'
  *
  * @type {import("eslint").Linter.Config[]}
  * */
+
 export const nextJsConfig = [
   ...baseConfig,
   js.configs.recommended,
@@ -44,6 +45,11 @@ export const nextJsConfig = [
       ...pluginReactHooks.configs.recommended.rules,
       // React scope no longer necessary with new JSX transform.
       'react/react-in-jsx-scope': 'off',
+    },
+  },
+  {
+    rules: {
+      '@next/next/no-html-link-for-pages': 'off',
     },
   },
 ]
