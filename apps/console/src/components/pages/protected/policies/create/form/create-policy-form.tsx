@@ -23,9 +23,6 @@ import TagsCard from '@/components/pages/protected/policies/create/cards/tags-ca
 import { DOCS_URL } from '@/constants'
 import AuthorityCard from '@/components/pages/protected/policies/view/cards/authority-card.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
-import { useGetOrganizationNameById } from '@/lib/graphql-hooks/organization'
-const { currentOrgId } = useOrganization()
-const { data: orgNameData } = useGetOrganizationNameById(currentOrgId)
 
 type TCreatePolicyFormProps = {
   policy?: InternalPolicyByIdFragment
@@ -52,6 +49,8 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   const [metadata, setMetadata] = useState<TMetadata>()
   const isEditable = !!policy
   const [initialAssociations, setInitialAssociations] = useState<TObjectAssociationMap>({})
+  const { currentOrgId, getOrganizationByID } = useOrganization()
+  const currentOrganization = getOrganizationByID(currentOrgId!)
 
   const isPoliciesCreate = path === '/policies/create'
 
@@ -232,7 +231,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
 
   return (
     <>
-      <title>{`${orgNameData?.organization.displayName}: Internal Policies - ${policy?.name}`}</title>
+      <title>{`${currentOrganization?.node?.displayName}: Internal Policies - ${policy?.name}`}</title>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(isEditable ? onSaveHandler : onCreateHandler)} className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
           <div className="space-y-6">
@@ -252,7 +251,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
                 <AlertDescription>
                   <p>
                     For template library and help docs, please refer to our{' '}
-                    <a className="text-blue-600" href={`${DOCS_URL}/docs/category/policies-and-procedures`} target="_blank">
+                    <a className="text-blue-600" href={`${DOCS_URL}/docs/category/policies-and-procedures`} target="_blank" rel="noreferrer">
                       documentation
                     </a>
                     .

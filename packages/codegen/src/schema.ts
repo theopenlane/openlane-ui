@@ -41134,6 +41134,15 @@ export type SearchTemplatesQuery = {
   } | null
 }
 
+export type CreateBulkCsvTemplateMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvTemplateMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVTemplate: { __typename?: 'TemplateBulkCreatePayload'; templates?: Array<{ __typename?: 'Template'; id: string }> | null }
+}
+
 export type GetTfaSettingsQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetTfaSettingsQuery = {
