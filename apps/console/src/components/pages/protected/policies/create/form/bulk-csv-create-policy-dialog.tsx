@@ -9,6 +9,7 @@ import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateBulkCSVInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
 import { DOCS_URL, GRAPHQL_OBJECT_DOCS } from '@/constants'
+import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 
 type TBulkCSVCreatePolicyDialogProps = {
   trigger?: React.ReactElement<

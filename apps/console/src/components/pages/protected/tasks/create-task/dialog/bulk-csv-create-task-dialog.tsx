@@ -10,6 +10,7 @@ import { useCreateBulkCSVTask } from '@/lib/graphql-hooks/tasks'
 import { useNotification } from '@/hooks/useNotification'
 import { exportCSV } from '@/lib/export'
 import { DOCS_URL, GRAPHQL_OBJECT_DOCS } from '@/constants'
+import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 
 type BulkCsvCreateTaskDialogProps = {
   trigger?: React.ReactElement<
@@ -39,7 +40,7 @@ const BulkCSVCreateTaskDialog: React.FC<BulkCsvCreateTaskDialogProps> = ({ trigg
         description: `Tasks has been successfully created`,
       })
       setIsOpen(false)
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Error',
         description: 'There was an error creating the tasks. Please try again.',
@@ -52,7 +53,7 @@ const BulkCSVCreateTaskDialog: React.FC<BulkCsvCreateTaskDialogProps> = ({ trigg
   }
 
   const handleCSVExport = async () => {
-    const data = await exportCSV({ filename: 'task' })
+    await exportCSV({ filename: 'task' })
   }
 
   return (

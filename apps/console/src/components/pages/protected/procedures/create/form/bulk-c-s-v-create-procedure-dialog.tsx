@@ -9,6 +9,7 @@ import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateBulkCSVProcedure } from '@/lib/graphql-hooks/procedures.ts'
 import { DOCS_URL, GRAPHQL_OBJECT_DOCS } from '@/constants'
+import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 
 type TBulkCSVCreateProcedureDialogProps = {
   trigger?: React.ReactElement<

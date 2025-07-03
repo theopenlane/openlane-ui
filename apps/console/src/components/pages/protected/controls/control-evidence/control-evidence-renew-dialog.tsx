@@ -14,6 +14,7 @@ import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { InputRow } from '@repo/ui/input'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCreateEvidence, useGetRenewEvidenceById } from '@/lib/graphql-hooks/evidence'
+import { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
 
 type TControlEvidenceRenewDialog = {
   controlId: string

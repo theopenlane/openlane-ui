@@ -47,7 +47,7 @@ const AddToOrganizationDialog: React.FC<AddToOrganizationDialogProps> = ({ open,
 
       successNotification({ title: 'Controls added to organization successfully!' })
       onOpenChange(false)
-    } catch (error) {
+    } catch {
       errorNotification({ title: 'Failed to add controls to the organization.' })
     }
   }

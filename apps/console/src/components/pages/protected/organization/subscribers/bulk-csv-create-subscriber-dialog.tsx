@@ -10,6 +10,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { exportCSV } from '@/lib/export'
 import { DOCS_URL, GRAPHQL_OBJECT_DOCS } from '@/constants'
 import { useCreateBulkCSVSubscriber } from '@/lib/graphql-hooks/subscribes.ts'
+import { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
 
 type BulkCsvCreateSubscriberDialogProps = {
   trigger?: React.ReactElement<

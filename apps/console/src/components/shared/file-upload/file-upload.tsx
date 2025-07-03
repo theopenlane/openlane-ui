@@ -4,6 +4,7 @@ import { File, FileUp, Upload } from 'lucide-react'
 import { FileWithPath, useDropzone } from 'react-dropzone'
 import { cn } from '@repo/ui/lib/utils'
 import { useNotification } from '@/hooks/useNotification'
+import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 
 type TProps = {
   onFileUpload: (uploadedFile: TUploadedFile) => void

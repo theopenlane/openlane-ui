@@ -25,6 +25,7 @@ import { Panel, PanelHeader } from '@repo/ui/panel'
 import { useQueryClient } from '@tanstack/react-query'
 import HeadsUpDisplay from '@/components/shared/heads-up/heads-up'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { TUploadedFile } from './upload/types/TUploadedFile'
 
 type TProps = {
   formData?: TFormEvidenceData
