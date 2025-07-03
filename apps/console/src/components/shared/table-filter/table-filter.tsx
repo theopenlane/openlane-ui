@@ -89,7 +89,7 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
           if (!operatorMapping) return []
 
           if (type === 'date' && operator === 'EQ') {
-            return handleDateEQOperator(value, field)
+            return handleDateEQOperator(value as string, field)
           }
 
           const queryField = operatorMapping.value !== 'EQ' ? `${field}${operatorMapping.value}` : field
@@ -429,7 +429,7 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
               className={value()}
               type={filter.type}
               placeholder="Enter a value..."
-              value={filter.value}
+              value={filter.value as string}
               onChange={(e) => handleInputFilterChange({ ...filter, value: e.target.value }, isAdvanced, index)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
@@ -447,7 +447,7 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
         case 'selectIs':
         case 'select':
           return (
-            <Select value={filter.value} onValueChange={(value) => handleInputFilterChange({ ...filter, value: value }, isAdvanced, index)}>
+            <Select value={filter.value as string} onValueChange={(value) => handleInputFilterChange({ ...filter, value: value }, isAdvanced, index)}>
               <SelectTrigger
                 className={value()}
                 onKeyDown={(e) => {
@@ -479,7 +479,7 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
               buttonClassName={`${value()} w-40 flex justify-between items-center`}
               defaultToday
               field={{
-                value: filter.value ? new Date(filter.value) : null,
+                value: filter.value ? new Date(filter.value as string) : null,
                 onChange: (selectedDate) => handleInputFilterChange({ ...filter, value: selectedDate ? format(selectedDate, "yyyy-MM-dd'T'HH:mm:ss'Z'") : '' }, isAdvanced, index),
                 name: filter.field,
                 onBlur: () => {},

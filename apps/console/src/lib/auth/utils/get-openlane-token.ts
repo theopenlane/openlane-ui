@@ -2,7 +2,16 @@ import { openlaneAPIUrl } from '@repo/dally/auth'
 
 // getTokenFromOpenlaneAPI is a function that takes an oauth user and registers them
 // with the openlane API to get an access token and refresh token
-export const getTokenFromOpenlaneAPI = async (reqBody: any) => {
+export interface OAuthUserRequest {
+  externalUserID: string | number
+  email: string
+  name: string
+  image: string
+  authProvider: string
+  accessToken: string
+}
+
+export const getTokenFromOpenlaneAPI = async (reqBody: OAuthUserRequest) => {
   try {
     const response = await fetch(`${openlaneAPIUrl}/oauth/register`, {
       method: 'POST',

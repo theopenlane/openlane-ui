@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
-import { CREATE_TEMPLATE, UPDATE_TEMPLATE, GET_ALL_TEMPLATES, GET_TEMPLATE, DELETE_TEMPLATE, SEARCH_TEMPLATE } from '@repo/codegen/query/template'
+import { CREATE_TEMPLATE, UPDATE_TEMPLATE, GET_ALL_TEMPLATES, GET_TEMPLATE, DELETE_TEMPLATE } from '@repo/codegen/query/template'
 
 import {
   CreateTemplateMutation,
