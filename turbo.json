@@ -3,7 +3,7 @@
   "globalDependencies": ["**/.env.*local", "**/.env", ".env"],
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "^lint"],
       "env": [
         "NODE_ENV",
         "API_REST_URL",
@@ -19,7 +19,9 @@
       ],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**", "storybook-static/**"]
     },
-    "lint": {},
+    "lint": {
+      "outputs": []
+    },
     "type-check": {},
     "dev": {
       "cache": false,
