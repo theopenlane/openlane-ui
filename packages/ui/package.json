@@ -72,7 +72,7 @@
   },
   "scripts": {
     "build": "tailwindcss -i ./src/styles.css -o dist/index.css",
-    "lint": "eslint src/",
+    "lint": "eslint src/ --max-warnings=0",
     "dev": "tailwindcss -i ./src/styles.css -o ./dist/index.css --watch",
     "type-check": "tsc --noEmit"
   },
