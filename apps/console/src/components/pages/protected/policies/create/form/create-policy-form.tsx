@@ -50,6 +50,8 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   const [metadata, setMetadata] = useState<TMetadata>()
   const isEditable = !!policy
   const [initialAssociations, setInitialAssociations] = useState<TObjectAssociationMap>({})
+  const { currentOrgId } = useOrganization()
+  const { data: orgNameData } = useGetOrganizationNameById(currentOrgId)
 
   const { currentOrgId } = useOrganization()
   const { data: orgNameData } = useGetOrganizationNameById(currentOrgId)

@@ -5,14 +5,15 @@ import { DataTable } from '@repo/ui/data-table'
 import { getQuestionnaireColumns } from './columns'
 import QuestionnaireTableToolbar from '@/components/pages/protected/questionnaire/table/questionnaire-table-toolbar.tsx'
 import { QUESTIONNAIRE_SORT_FIELDS } from '@/components/pages/protected/questionnaire/table/table-config.ts'
-import { FilterTemplatesQueryVariables, OrderDirection, TemplateDocumentType, TemplateOrderField, TemplateWhereInput } from '@repo/codegen/src/schema.ts'
+import { FilterTemplatesQueryVariables, OrderDirection, Template, TemplateDocumentType, TemplateOrderField, TemplateWhereInput } from '@repo/codegen/src/schema.ts'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useTemplates } from '@/lib/graphql-hooks/templates'
 import { useRouter } from 'next/navigation'
-import { VisibilityState } from '@tanstack/react-table'
+import { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { exportToCSV } from '@/utils/exportToCSV'
 
 export const QuestionnairesTable = () => {
   const router = useRouter()
@@ -49,6 +50,27 @@ export const QuestionnairesTable = () => {
   }, [setCrumbs])
 
   const { columns, mappedColumns } = getQuestionnaireColumns()
+  function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
+    return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
+  }
+  const handleExport = () => {
+    const exportableColumns = columns.filter(isVisibleColumn).map((col) => {
+      const key = col.accessorKey as keyof Template
+      const label = col.header
+      return {
+        label,
+        accessor: (template: Template) => {
+          const value = template[key]
+          return typeof value === 'string' || typeof value === 'number' ? value : ''
+        },
+      }
+    })
+    exportToCSV(templates, exportableColumns, 'questionnaires_list')
+  }
+
+  const handleRowClick = (row: Template) => {
+    router.push(`/questionnaires/questionnaire-viewer?id=${row.id}`)
+  }
 
   const {
     templates,
@@ -64,6 +86,7 @@ export const QuestionnairesTable = () => {
   return (
     <div>
       <QuestionnaireTableToolbar
+        handleExport={handleExport}
         creating={fetching}
         searchTerm={searchTerm}
         setSearchTerm={(inputVal) => {
@@ -84,7 +107,7 @@ export const QuestionnairesTable = () => {
         pagination={pagination}
         onPaginationChange={setPagination}
         paginationMeta={paginationMeta}
-        onRowClick={(row) => router.push(`/questionnaires/questionnaire-viewer?id=${row.id}`)}
+        onRowClick={handleRowClick}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
       />

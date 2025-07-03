@@ -22,15 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const token = session?.user?.accessToken
   const organizationId = session?.user?.activeOrganizationId
 
-  if (!session) {
-    return {
-      title: {
-        template: 'Openlane: %s',
-        default: '',
-      },
-    }
-  }
-  if (cookieSession?.value) {
+  if (cookieSession?.value && token) {
     const dashboardData = await getDashboardData(token, cookieSession?.value)
     const organizations: OrganizationEdge[] = dashboardData.organizations.edges
     const org = organizations.find(({ node }) => node.id === organizationId)
@@ -41,6 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
       },
     }
   }
+
   return {
     title: {
       template: 'Openlane: %s',

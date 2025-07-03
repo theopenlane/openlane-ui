@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
-import { CREATE_TEMPLATE, UPDATE_TEMPLATE, GET_ALL_TEMPLATES, GET_TEMPLATE, DELETE_TEMPLATE } from '@repo/codegen/query/template'
+import { CREATE_TEMPLATE, UPDATE_TEMPLATE, GET_ALL_TEMPLATES, GET_TEMPLATE, DELETE_TEMPLATE, CREATE_CSV_BULK_TEMPLATE } from '@repo/codegen/query/template'
 
 import {
   CreateTemplateMutation,
@@ -15,8 +15,11 @@ import {
   DeleteTemplateMutation,
   DeleteTemplateMutationVariables,
   Template,
+  CreateBulkCsvTemplateMutation,
+  CreateBulkCsvTemplateMutationVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
+import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 
 type UseTemplatesArgs = {
   where?: FilterTemplatesQueryVariables['where']
@@ -93,6 +96,17 @@ export const useDeleteTemplate = () => {
 
   return useMutation<DeleteTemplateMutation, unknown, DeleteTemplateMutationVariables>({
     mutationFn: (variables) => client.request(DELETE_TEMPLATE, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['templates'] })
+    },
+  })
+}
+
+export const useCreateBulkCSVTemplate = () => {
+  const { queryClient } = useGraphQLClient()
+
+  return useMutation<CreateBulkCsvTemplateMutation, unknown, CreateBulkCsvTemplateMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_TEMPLATE, variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['templates'] })
     },
