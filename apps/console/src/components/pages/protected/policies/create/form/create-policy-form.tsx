@@ -53,9 +53,6 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   const { currentOrgId } = useOrganization()
   const { data: orgNameData } = useGetOrganizationNameById(currentOrgId)
 
-  const { currentOrgId } = useOrganization()
-  const { data: orgNameData } = useGetOrganizationNameById(currentOrgId)
-
   const isPoliciesCreate = path === '/policies/create'
 
   useEffect(() => {
