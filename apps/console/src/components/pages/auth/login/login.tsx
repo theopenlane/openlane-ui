@@ -151,11 +151,15 @@ export const LoginPage = () => {
       }
 
       return verificationResult
-    } catch (err: any) {
-      if (err.name === 'AbortError' || err.name === 'NotAllowedError') {
-        console.error('Error during passkey login:', err)
-        errorNotification({ title: 'User canceled the passkey login request' })
-        return
+    } catch (err: unknown) {
+      if (typeof err === 'object' && err !== null && 'name' in err) {
+        const errorName = (err as { name: string }).name
+
+        if (errorName === 'AbortError' || errorName === 'NotAllowedError') {
+          console.error('Error during passkey login:', err)
+          errorNotification({ title: 'User canceled the passkey login request' })
+          return
+        }
       }
 
       setSignInError(true)
@@ -241,7 +245,7 @@ export const LoginPage = () => {
         </div>
         <p className="text-xs mt-5">
           This site is protected by reCAPTCHA and the <br />
-          Google Privacy Policy and Terms of Service apply.
+          Google Privacy Policy and Terms of Service apply.
         </p>
         {showLoginError && <MessageBox className={'p-4 ml-1'} message={signInErrorMessage} />}
       </div>

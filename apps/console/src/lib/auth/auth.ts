@@ -6,7 +6,7 @@ import { isDevelopment } from '@repo/dally/auth'
 import { jwtDecode } from 'jwt-decode'
 import { JwtPayload } from 'jsonwebtoken'
 import { credentialsProvider } from './providers/credentials'
-import { getTokenFromOpenlaneAPI } from './utils/get-openlane-token'
+import { getTokenFromOpenlaneAPI, OAuthUserRequest } from './utils/get-openlane-token'
 import { setSessionCookie } from './utils/set-session-cookie'
 import { cookies } from 'next/headers'
 import { sessionCookieName, allowedLoginDomains } from '@repo/dally/auth'
@@ -59,8 +59,8 @@ export const config = {
   },
   callbacks: {
     async signIn({ user, account, profile }) {
-      if ((user as any)?.error) {
-        throw new InvalidLoginError((user as any).error)
+      if ('error' in user && typeof user.error === 'string') {
+        throw new InvalidLoginError(user.error)
       }
       const email = profile?.email || user?.email || ''
 
@@ -81,7 +81,7 @@ export const config = {
         }
 
         try {
-          const data = await getTokenFromOpenlaneAPI(oauthUser)
+          const data = await getTokenFromOpenlaneAPI(oauthUser as OAuthUserRequest)
           const dashboardData = await getDashboardData(data.access_token, data.session)
 
           if (!data) throw new Error(' ❌ Failed to fetch Openlane token')

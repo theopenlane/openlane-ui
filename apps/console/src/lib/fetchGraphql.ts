@@ -1,7 +1,7 @@
 import { getSession } from 'next-auth/react'
 import { ensureAuth } from './auth/utils/tokenValidator'
 
-export const fetchGraphQLWithUpload = async ({ query, variables = {} }: { query: string; variables?: Record<string, any> }) => {
+export const fetchGraphQLWithUpload = async ({ query, variables = {} }: { query: string; variables?: Record<string, unknown> }) => {
   const session = await getSession()
 
   const accessToken = await ensureAuth(session)
