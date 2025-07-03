@@ -222,8 +222,6 @@ export const invalidateTaskAssociations = (payload: Record<string, unknown>, que
 export function getPagination(objectKey: QueryResponseMapKey | undefined, data: QueryResponse | undefined): { pageInfo?: PageInfo; totalCount?: number } {
   if (!objectKey || !data) return {}
 
-  console.log(data)
-
   switch (objectKey) {
     case 'controls': {
       const typed = data as GetAllControlsQuery

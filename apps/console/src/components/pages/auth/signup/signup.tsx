@@ -40,7 +40,6 @@ export const SignupPage = () => {
   }
 
   async function validateEmail(payload: RegisterUser) {
-    console.log('allowedLoginDomains', allowedLoginDomains)
     return allowedLoginDomains.some((domain) => payload.email.endsWith(domain))
   }
 
