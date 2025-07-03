@@ -11,7 +11,7 @@ export type InviteNode = {
   id: string
   recipient: string
   status: InviteInviteStatus
-  createdAt?: any
+  createdAt?: string
   role: InviteRole
   sendAttempts?: number
 }

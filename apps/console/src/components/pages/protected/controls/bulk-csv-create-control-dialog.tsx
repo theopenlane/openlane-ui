@@ -39,7 +39,7 @@ const BulkCSVCreateControlDialog: React.FC<BulkCsvCreateControlDialogProps> = ({
         description: `Controls has been successfully created`,
       })
       setIsOpen(false)
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Error',
         description: 'There was an error creating the controls. Please try again.',
@@ -52,7 +52,7 @@ const BulkCSVCreateControlDialog: React.FC<BulkCsvCreateControlDialogProps> = ({
   }
 
   const handleCSVExport = async () => {
-    const data = await exportCSV({ filename: 'control' })
+    await exportCSV({ filename: 'control' })
   }
 
   return (

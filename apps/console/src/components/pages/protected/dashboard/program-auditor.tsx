@@ -15,6 +15,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { useSearchParams } from 'next/navigation'
 import { Input } from '@repo/ui/input'
 import SetReadyForAuditorDialog from './set-ready-for-auditor-dialog'
+import { GqlError } from '@/types'
 
 interface ProgramAuditorProps {
   firm?: string | null
@@ -104,7 +105,7 @@ const ProgramAuditor = ({ firm, name, email, isReady }: ProgramAuditorProps) => 
     } catch (error) {
       errorNotification({
         title: 'Failed to update auditor',
-        gqlError: error,
+        gqlError: error as GqlError,
       })
     }
   }
