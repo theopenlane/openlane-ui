@@ -86,7 +86,7 @@ export const useCreateTask = () => {
   return useMutation<CreateTaskMutation, unknown, CreateTaskMutationVariables>({
     mutationFn: async (variables) => client.request(CREATE_TASK, variables),
     onSuccess: (_, variables) => {
-      invalidateTaskAssociations(variables.input, queryClient)
+      invalidateTaskAssociations(variables, queryClient)
     },
   })
 }

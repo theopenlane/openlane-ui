@@ -23,7 +23,9 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarC
   const resizing = useRef(false)
 
   useEffect(() => {
-    slideOpen && setOpen(true)
+    if (slideOpen) {
+      setOpen(true)
+    }
   }, [slideOpen])
 
   const handleMouseMove = (e: MouseEvent) => {

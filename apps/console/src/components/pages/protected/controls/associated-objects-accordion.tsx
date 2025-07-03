@@ -6,7 +6,7 @@ import { Button } from '@repo/ui/button'
 import { ChevronDown, ChevronsDownUp, List } from 'lucide-react'
 import { SetObjectAssociationDialog } from './set-object-association-modal'
 import { ControlDetailsFieldsFragment } from '@repo/codegen/src/schema'
-import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
+import { getHrefForObjectType, NormalizedObject } from '@/utils/getHrefForObjectType'
 import ObjectAssociationChip from '@/components/shared/objectAssociation/object-association-chip.tsx'
 
 type AssociatedObjectsAccordionProps = {
@@ -61,7 +61,7 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
                 details: row?.details,
                 description: row?.description,
                 summary: row?.summary,
-                link: getHrefForObjectType(kind, row),
+                link: getHrefForObjectType(kind, row as NormalizedObject),
               }}
             ></ObjectAssociationChip>
           )

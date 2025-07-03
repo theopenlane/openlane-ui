@@ -10,7 +10,7 @@ import { useSession } from 'next-auth/react'
 import { useAccountRole } from '@/lib/authz/access-api.ts'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
 import { canEdit } from '@/lib/authz/utils.ts'
-import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
+import { getHrefForObjectType, NormalizedObject } from '@/utils/getHrefForObjectType'
 import ObjectAssociationChip from '@/components/shared/objectAssociation/object-association-chip.tsx'
 
 type AssociatedObjectsAccordionProps = {
@@ -47,7 +47,7 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
                 details: row?.details,
                 description: row?.description,
                 summary: row?.summary,
-                link: getHrefForObjectType(kind, row),
+                link: getHrefForObjectType(kind, row as NormalizedObject),
               }}
             ></ObjectAssociationChip>
           )

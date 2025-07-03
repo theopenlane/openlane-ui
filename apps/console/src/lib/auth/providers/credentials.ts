@@ -22,7 +22,7 @@ export const credentialsProvider = Credentials({
     let session = ''
 
     try {
-      //handle session login for users that are logged in for the second time after verification
+      //handle session login for users that are logging in for the second time after verification
       if (credentials.accessToken && credentials.refreshToken && credentials.session) {
         accessToken = credentials.accessToken
         refreshToken = credentials.refreshToken
