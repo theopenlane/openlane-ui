@@ -13,6 +13,7 @@ import { CREATE_SUBSCRIBER } from '@repo/codegen/query/subscribe'
 import { GraphQlResponseError } from '@/constants/graphQlResponseError'
 import { extractGraphQlResponseError } from '@/utils/graphQlErrorMatcher'
 import { SUPPORT_EMAIL } from '@/constants'
+import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -54,7 +55,7 @@ export const Subscribe = () => {
         }
       }
 
-      const res = await fetch('/api/graphql', {
+      const res = await secureFetch('/api/graphql', {
         method: 'POST',
         body: JSON.stringify({
           query: CREATE_SUBSCRIBER,

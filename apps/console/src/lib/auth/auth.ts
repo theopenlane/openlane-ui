@@ -12,6 +12,7 @@ import { cookies } from 'next/headers'
 import { sessionCookieName, allowedLoginDomains } from '@repo/dally/auth'
 import { getDashboardData } from '@/app/api/getDashboardData/route'
 import { passKeyProvider } from './providers/passkey'
+import { skipCSRFCheck } from '@auth/core'
 
 import { CredentialsSignin } from 'next-auth'
 
@@ -49,6 +50,9 @@ export const config = {
     credentialsProvider,
     passKeyProvider,
   ],
+  // we have our own CSRF protection on the server side that is used
+  // instead of the default NextAuth CSRF protection
+  skipCSRFCheck: skipCSRFCheck,
   events: {
     async signOut() {
       const cookieStore = await cookies()
@@ -90,7 +94,7 @@ export const config = {
             refreshToken: data.refresh_token,
             session: data.session,
             isTfaEnabled: data.tfa_enabled,
-            isOnboarding: dashboardData?.organizations?.edges?.length == 1,
+            isOnboarding: dashboardData.organizations?.edges?.length == 1,
           })
 
           // Store session in a cookie

@@ -20,6 +20,7 @@ import { GraphQlResponseError } from '@/constants/graphQlResponseError'
 import { useNotification } from '@/hooks/useNotification'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -50,7 +51,7 @@ export const TokenVerifier = () => {
     try {
       setIsPending(true)
 
-      const res = await fetch('/api/graphql', {
+      const res = await secureFetch('/api/graphql', {
         method: 'POST',
         body: JSON.stringify({
           query: CREATE_SUBSCRIBER,
@@ -91,7 +92,7 @@ export const TokenVerifier = () => {
     const verifyToken = async () => {
       if (token) {
         try {
-          const response = await fetch(`/api/subscriber-verify?token=${token}`)
+          const response = await secureFetch(`/api/subscriber-verify?token=${token}`)
           if (!response.ok) {
             setError('Verification failed. Please try again.')
           } else {

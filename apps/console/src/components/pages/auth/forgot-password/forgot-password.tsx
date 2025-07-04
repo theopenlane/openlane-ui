@@ -12,6 +12,7 @@ import { openlaneAPIUrl, recaptchaSiteKey } from '@repo/dally/auth'
 import { useNotification } from '@/hooks/useNotification'
 import { pageStyles } from '@/app/(auth)/login/page.styles'
 import { Logo } from '@repo/ui/logo'
+import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 
 export default function ForgotPasswordComponent() {
   const [email, setEmail] = useState('')
@@ -55,11 +56,8 @@ export default function ForgotPasswordComponent() {
     }
 
     try {
-      const res = await fetch(`${openlaneAPIUrl}/v1/forgot-password`, {
+      const res = await secureFetch(`${openlaneAPIUrl}/v1/forgot-password`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ email }),
       })
 

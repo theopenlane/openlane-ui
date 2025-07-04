@@ -1,21 +1,20 @@
+import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
   const bodyData = await request.json()
   const cookies = request.headers.get('cookie')
 
-  const headers: HeadersInit = {
-    'content-type': 'application/json',
-  }
+  const headers: HeadersInit = {}
+
   if (cookies) {
     headers['cookie'] = cookies
   }
 
-  const fData = await fetch(`${process.env.API_REST_URL}/registration/verification`, {
+  const fData = await secureFetch(`${process.env.API_REST_URL}/registration/verification`, {
     method: 'POST',
     headers,
     body: JSON.stringify(bodyData),
-    credentials: 'include',
   })
 
   if (fData.ok) {

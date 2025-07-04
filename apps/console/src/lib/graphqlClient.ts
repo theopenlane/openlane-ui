@@ -1,12 +1,13 @@
 'use client'
 
 import { GraphQLClient } from 'graphql-request'
-import { sessionCookieName } from '@repo/dally/auth'
+import { sessionCookieName, csrfCookieName, csrfHeader } from '@repo/dally/auth'
 import { getCookie } from './auth/utils/getCookie'
 import { fetchNewAccessToken, Tokens } from './auth/utils/refresh-token'
 import { jwtDecode } from 'jwt-decode'
 import { useSession } from 'next-auth/react'
 import { Session } from 'next-auth'
+import { fetchCSRFToken } from './auth/utils/secure-fetch'
 
 const GRAPHQL_ENDPOINT = process.env.NEXT_PUBLIC_API_GQL_URL!
 
@@ -35,9 +36,27 @@ export function useGetGraphQLClient() {
     headers.set('Authorization', `Bearer ${accessToken}`)
     headers.set('Content-Type', 'application/json')
 
+    // Ensure CSRF token is included in the headers and cookies
+    let csrfCookieValue = getCookie(csrfCookieName)
+    if (!csrfCookieValue) {
+      // If CSRF token is not found in cookies, fetch a new one
+      try {
+        csrfCookieValue = await fetchCSRFToken()
+        if (!csrfCookieValue) {
+          console.error('❌ Failed to fetch CSRF token')
+        }
+      } catch (error) {
+        console.error('❌ Failed to fetch CSRF token:', error)
+      }
+    }
+
+    headers.set(csrfHeader, csrfCookieValue!)
+    headers.set('cookie', `${csrfCookieName}=${csrfCookieValue}`)
+
+    // Include session cookie if it exists
     const sessionCookieValue = getCookie(sessionCookieName!)
     if (sessionCookieValue) {
-      headers.set('Cookie', `${sessionCookieName}=${sessionCookieValue}`)
+      headers.set('cookie', `${sessionCookieName}=${sessionCookieValue}`)
     }
 
     const now = Date.now()

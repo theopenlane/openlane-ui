@@ -13,6 +13,7 @@ import { UNSUBSCRIBE_MUTATION } from '@repo/codegen/query/subscribe'
 import { Logo } from '@repo/ui/logo'
 import { Panel } from '@repo/ui/panel'
 import Link from 'next/link'
+import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -42,7 +43,7 @@ const UnsubscribeForm = () => {
   const handleUnsubscribe = async (email: string) => {
     setIsPending(true)
     try {
-      const res = await fetch('/api/graphql', {
+      const res = await secureFetch('/api/graphql', {
         method: 'POST',
         body: JSON.stringify({
           query: UNSUBSCRIBE_MUTATION,
