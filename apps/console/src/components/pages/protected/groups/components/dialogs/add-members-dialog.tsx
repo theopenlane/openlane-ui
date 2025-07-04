@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Plus } from 'lucide-react'
@@ -16,24 +16,27 @@ const AddMembersDialog = () => {
   const { selectedGroup, isAdmin } = useGroupsStore()
   const { data: session } = useSession()
   const [isOpen, setIsOpen] = useState(false)
-  const { successNotification, errorNotification } = useNotification()
+  const { successNotification } = useNotification()
   const [selectedMembers, setSelectedMembers] = useState<Option[]>([])
   const queryClient = useQueryClient()
   const { data } = useGetGroupDetails(selectedGroup)
   const { members: membersGroupData, isManaged, id } = data?.group || {}
   const [hasInitialized, setHasInitialized] = useState(false)
 
-  const members =
-    membersGroupData?.edges
-      ?.filter((member) => {
-        return member?.node?.user?.id != session?.user?.userId
-      })
-      .map((user) => {
-        return {
-          user: user?.node?.user as User,
-          groupID: user?.node?.id || '',
-        }
-      }) || []
+  const members = useMemo(
+    () =>
+      membersGroupData?.edges
+        ?.filter((member) => {
+          return member?.node?.user?.id != session?.user?.userId
+        })
+        .map((user) => {
+          return {
+            user: user?.node?.user as User,
+            groupID: user?.node?.id || '',
+          }
+        }) || [],
+    [membersGroupData?.edges, session?.user?.userId],
+  )
 
   const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const { mutateAsync: updateGroup } = useUpdateGroup()

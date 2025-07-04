@@ -4,7 +4,6 @@ import { pageStyles } from './page.styles'
 import { OrganizationInviteForm } from '@/components/pages/protected/organization/members/organization-invite-form'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { useState, useContext, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
 import { MembersTable } from './members-table'
 import { useGetInvites } from '@/lib/graphql-hooks/organization'
 import { OrganizationInvitesTable } from './table/organization-invites-table'
@@ -14,7 +13,6 @@ const MembersPage: React.FC = () => {
   const { inviteCount, inviteRow } = pageStyles()
   const defaultTab = 'members'
   const [activeTab, setActiveTab] = useState(defaultTab)
-  const { data: session } = useSession()
   const { data } = useGetInvites({ where: {} })
   const { setCrumbs } = useContext(BreadcrumbContext)
 

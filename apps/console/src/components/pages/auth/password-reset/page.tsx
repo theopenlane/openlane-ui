@@ -68,7 +68,7 @@ export default function PasswordResetPage() {
         })
       })
     }
-  }, [token])
+  }, [token, errorNotification])
 
   return (
     <div className={content()}>

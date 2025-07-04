@@ -4,10 +4,10 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { CARD_DEFAULT_PAGINATION } from '@/constants/pagination.ts'
 import TaskCards from '@/components/pages/protected/tasks/cards/task-cards.tsx'
 import { useTasksWithFilterInfinite } from '@/lib/graphql-hooks/tasks.ts'
-import { TaskOrder } from '@repo/codegen/src/schema.ts'
+import { TaskOrder, TaskWhereInput } from '@repo/codegen/src/schema.ts'
 
 type TTaskInfiniteCardsProps = {
-  whereFilter: Record<string, any> | null
+  whereFilter: TaskWhereInput | null
   orderByFilter: TaskOrder[] | TaskOrder | undefined
 }
 

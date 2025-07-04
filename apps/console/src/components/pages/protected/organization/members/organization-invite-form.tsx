@@ -71,7 +71,7 @@ const OrganizationInviteForm = ({ inviteAdmins }: { inviteAdmins: boolean }) => 
       setEmails([])
     } catch {
       errorNotification({
-        title: 'Unexpected error occured, invites not sent',
+        title: 'Unexpected error occurred, invites not sent',
       })
     }
   }
@@ -114,7 +114,7 @@ const OrganizationInviteForm = ({ inviteAdmins }: { inviteAdmins: boolean }) => 
                   <TagInput
                     {...field}
                     tags={emails}
-                    validateTag={(tag: any) => {
+                    validateTag={(tag: string) => {
                       const isValid = isValidEmail(tag)
                       const isDuplicate = emails.some((email) => email.text === tag)
 

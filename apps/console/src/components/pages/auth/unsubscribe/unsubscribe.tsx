@@ -10,9 +10,7 @@ import { Input } from '@repo/ui/input'
 import { Form, FormField, FormControl, FormMessage } from '@repo/ui/form'
 import { LoaderCircle, MailCheck } from 'lucide-react'
 import { UNSUBSCRIBE_MUTATION } from '@repo/codegen/query/subscribe'
-import { Logo } from '@repo/ui/logo'
 import { Panel } from '@repo/ui/panel'
-import Link from 'next/link'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 
 const formSchema = z.object({
@@ -22,7 +20,6 @@ const formSchema = z.object({
 const UnsubscribeForm = () => {
   const [isPending, setIsPending] = useState(false)
   const [submitted, setSubmitted] = useState(false)
-  const [autoEmail, setAutoEmail] = useState('')
   const params = useSearchParams()
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -35,10 +32,9 @@ const UnsubscribeForm = () => {
   useEffect(() => {
     const email = params.get('email')
     if (email) {
-      setAutoEmail(email)
       form.setValue('email', email)
     }
-  }, [params])
+  }, [params, form])
 
   const handleUnsubscribe = async (email: string) => {
     setIsPending(true)
@@ -56,7 +52,7 @@ const UnsubscribeForm = () => {
 
       const json = await res.json()
       if (json.errors?.length) {
-        throw new Error(json.errors.map((e: any) => e.message).join('\n'))
+        throw new Error(json.errors.map((e: { message: string }) => e.message).join('\n'))
       }
 
       setSubmitted(true)
@@ -76,10 +72,10 @@ const UnsubscribeForm = () => {
     return (
       <div className="text-center p-6 border rounded-md bg-oxford-blue-950 text-white">
         <MailCheck className="mx-auto mb-4" size={32} />
-        <h2 className="text-xl font-bold">You’ve Been Unsubscribed</h2>
-        <p className="mt-2">We’re sorry to see you go — but we get it.</p>
-        <p>You’ve been removed from our mailing list and won’t receive any further updates.</p>
-        <p>If you want to rejoin, you're always welcome.</p>
+        <h2 className="text-xl font-bold">You&apos;ve Been Unsubscribed</h2>
+        <p className="mt-2">We&apos;re sorry to see you go — but we get it.</p>
+        <p>You&apos;ve been removed from our mailing list and won&apos;t receive any further updates.</p>
+        <p>If you want to rejoin, you&apos;re always welcome.</p>
         <p className="mt-2">Thanks for being part of Openlane — we wish you all the best.</p>
       </div>
     )

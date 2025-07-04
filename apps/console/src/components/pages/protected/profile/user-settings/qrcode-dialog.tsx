@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { QRCodeSVG } from 'qrcode.react'
 import { Button } from '@repo/ui/button'
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@repo/ui/input-otp'
@@ -15,15 +15,13 @@ import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 interface QRCodeProps {
   qrcode: string | null
   secret: string | null
-  refetch: () => void
   onClose: () => void
   regeneratedCodes: null | string[]
 }
 
-const QRCodeDialog = ({ qrcode, secret, refetch, onClose, regeneratedCodes }: QRCodeProps) => {
+const QRCodeDialog = ({ qrcode, secret, onClose, regeneratedCodes }: QRCodeProps) => {
   const { successNotification, errorNotification } = useNotification()
   const [isOpen, setIsOpen] = useState(true)
-  const [otpValue, setOtpValue] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [recoveryCodes, setRecoveryCodes] = useState<string[] | null>(null)
   const [isSecretKeySetup, setIsSecretKeySetup] = useState<boolean>(false)
@@ -40,56 +38,61 @@ const QRCodeDialog = ({ qrcode, secret, refetch, onClose, regeneratedCodes }: QR
       setIsSecretKeySetup(false)
     }, 300)
   }
-  const verifyOTP = async (otp: string) => {
-    try {
-      const response = await secureFetch('/api/verifyOTP', {
-        method: 'POST',
-        body: JSON.stringify({ totp_code: otp }),
-      })
+  const verifyOTP = useCallback(
+    async (otp: string) => {
+      try {
+        const response = await secureFetch('/api/verifyOTP', {
+          method: 'POST',
 
-      const data = await response.json()
-
-      if (response.ok) {
-        successNotification({ title: 'OTP validated successfully' })
-        const resp = await updateTfaSetting({
-          input: {
-            verified: true,
-          },
+          body: JSON.stringify({ totp_code: otp }),
         })
 
-        // ensure recovery codes are available
-        if (!resp?.updateTFASetting?.recoveryCodes) {
-          errorNotification({ title: 'Failed to retrieve recovery codes' })
+        const data = await response.json()
+
+        if (response.ok) {
+          successNotification({ title: 'OTP validated successfully' })
+          const resp = await updateTfaSetting({
+            input: {
+              verified: true,
+            },
+          })
+
+          // ensure recovery codes are available
+          if (!resp?.updateTFASetting?.recoveryCodes) {
+            errorNotification({ title: 'Failed to retrieve recovery codes' })
+          }
+
+          setRecoveryCodes(resp?.updateTFASetting?.recoveryCodes || null)
+          setModalClosable(false)
+
+          queryClient.invalidateQueries({ queryKey: ['tfaSettings'] })
+          queryClient.invalidateQueries({ queryKey: ['userTFASettings'] })
+        } else {
+          errorNotification({ title: 'OTP validation failed', description: data.message })
         }
-
-        setRecoveryCodes(resp?.updateTFASetting?.recoveryCodes || null)
-        setModalClosable(false)
-
-        queryClient.invalidateQueries({ queryKey: ['tfaSettings'] })
-        queryClient.invalidateQueries({ queryKey: ['userTFASettings'] })
-      } else {
-        errorNotification({ title: 'OTP validation failed', description: data.message })
+      } catch (error) {
+        console.error('Error during OTP validation:', error)
+        errorNotification({ title: 'An error occurred' })
       }
-    } catch (error) {
-      console.error('Error during OTP validation:', error)
-      errorNotification({ title: 'An error occurred' })
-    }
-  }
+    },
+    [errorNotification, queryClient, successNotification, updateTfaSetting],
+  )
 
-  const handleOtpChange = async (value: string) => {
-    setOtpValue(value)
-
-    if (value.length === 6) {
-      setIsSubmitting(true)
-      try {
-        await verifyOTP(value)
-      } finally {
-        setIsSubmitting(false)
+  const handleOtpChange = useCallback(
+    async (value: string) => {
+      if (value.length === 6) {
+        setIsSubmitting(true)
+        try {
+          await verifyOTP(value)
+        } finally {
+          setIsSubmitting(false)
+        }
       }
-    }
-  }
+    },
+    [verifyOTP],
+  )
 
-  const handleDownloadRecoveryCodes = () => {
+  const handleDownloadRecoveryCodes = useCallback(() => {
     const codes = recoveryCodes || regeneratedCodes
     if (codes) {
       const blob = new Blob([codes.join('\n')], { type: 'text/plain' })
@@ -103,15 +106,18 @@ const QRCodeDialog = ({ qrcode, secret, refetch, onClose, regeneratedCodes }: QR
       URL.revokeObjectURL(url)
       setModalClosable(true)
     }
-  }
+  }, [recoveryCodes, regeneratedCodes])
 
-  const handleOpenChange = (isOpen: boolean) => {
-    setIsOpen(isOpen)
-    if (!isOpen) {
-      resetState()
-      onClose()
-    }
-  }
+  const handleOpenChange = useCallback(
+    (isOpen: boolean) => {
+      setIsOpen(isOpen)
+      if (!isOpen) {
+        resetState()
+        onClose()
+      }
+    },
+    [onClose],
+  )
 
   useEffect(() => {
     if (copiedText) {
@@ -120,7 +126,7 @@ const QRCodeDialog = ({ qrcode, secret, refetch, onClose, regeneratedCodes }: QR
       })
       setModalClosable(true)
     }
-  }, [copiedText])
+  }, [copiedText, successNotification])
 
   const config = useMemo(() => {
     const codes = recoveryCodes || regeneratedCodes
@@ -182,7 +188,7 @@ const QRCodeDialog = ({ qrcode, secret, refetch, onClose, regeneratedCodes }: QR
         ),
       }
     }
-  }, [handleOtpChange, handleDownloadRecoveryCodes, recoveryCodes, regeneratedCodes])
+  }, [handleOtpChange, handleDownloadRecoveryCodes, recoveryCodes, regeneratedCodes, copyToClipboard, handleOpenChange, isSecretKeySetup, isSubmitting, qrcode, secret])
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>

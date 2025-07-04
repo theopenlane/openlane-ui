@@ -1,6 +1,11 @@
 import React from 'react'
 
-const CalendarArrow = ({ className = '', strokeWidth = 1, size = 16 }) => {
+type CalendarArrowProps = {
+  className?: string
+  strokeWidth?: number
+}
+
+const CalendarArrow = ({ className = '', strokeWidth = 1 }: CalendarArrowProps) => {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" width={16} height={16} viewBox="0 0 24 24" fill="none" className={className} stroke="currentColor">
       <path

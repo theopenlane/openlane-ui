@@ -15,8 +15,12 @@ type TPropertiesCardProps = {
 
 const PropertiesCard: React.FC<TPropertiesCardProps> = ({ policy }) => {
   const userIds = []
-  policy?.updatedBy && userIds.push(policy.updatedBy)
-  policy?.createdBy && userIds.push(policy.createdBy)
+  if (policy?.updatedBy) {
+    userIds.push(policy.updatedBy)
+  }
+  if (policy?.createdBy) {
+    userIds.push(policy.createdBy)
+  }
   const { users } = useGetOrgUserList({ where: { hasUserWith: [{ idIn: userIds }] } })
   const { tokens } = useGetApiTokensByIds({ where: { idIn: userIds } })
   const updatedByToken = tokens?.find((item) => item.id === policy?.updatedBy)

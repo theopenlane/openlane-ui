@@ -1,6 +1,9 @@
 import React from 'react'
 
-const Path = ({ className = '' }) => {
+type Props = {
+  className?: string
+}
+const Path = ({ className = '' }: Props) => {
   return (
     <svg className={className} width="160" height="142" viewBox="0 0 160 142" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path

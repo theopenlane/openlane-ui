@@ -1,6 +1,6 @@
 import { ColumnDef } from '@tanstack/react-table'
 import { GlobeIcon, LockIcon, StarsIcon } from 'lucide-react'
-import { Group, GroupOrder, User } from '@repo/codegen/src/schema'
+import { Group, User } from '@repo/codegen/src/schema'
 import AvatarList from '@/components/shared/avatar-list/avatar-list'
 import { Badge } from '@repo/ui/badge'
 
@@ -51,11 +51,11 @@ export const getGroupTableColumns = () => {
       header: 'Visibility',
       accessorKey: 'visibility',
       cell: ({ row }) => {
-        const value = row.original.setting?.visibility!
+        const value = row.original.setting?.visibility
         return (
           <span className="flex items-center gap-2 capitalize">
             {value === 'PUBLIC' ? <GlobeIcon height={18} /> : <LockIcon height={18} />}
-            {value.toLowerCase()}
+            {value?.toLowerCase()}
           </span>
         )
       },

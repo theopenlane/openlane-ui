@@ -7,6 +7,8 @@ import { UseFormReturn } from 'react-hook-form'
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { useGetEvidenceFiles } from '@/lib/graphql-hooks/evidence'
 import { formatDateSince } from '@/utils/date'
+import { TUploadedFile } from './types/TUploadedFile'
+import { TEvidenceFilesColumn } from './types/TEvidenceFilesColumn'
 
 type TProps = {
   evidenceFiles: TUploadedFile[]
@@ -32,7 +34,7 @@ const ExistingFilesTab: React.FC<TProps> = (props: TProps) => {
 
       setFiles(tableData)
     }
-  }, [isLoading])
+  }, [isLoading, data?.files?.edges])
 
   const handleAdd = (data: TEvidenceFilesColumn) => {
     const fileAdded = props.evidenceFiles.some((item) => item.name === data.providedFileName)

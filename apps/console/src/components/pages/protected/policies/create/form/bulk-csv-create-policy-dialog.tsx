@@ -9,6 +9,7 @@ import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateBulkCSVInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
 import { DOCS_URL, GRAPHQL_OBJECT_DOCS } from '@/constants'
+import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 
 type TBulkCSVCreatePolicyDialogProps = {
   trigger?: React.ReactElement<
@@ -37,7 +38,7 @@ const BulkCSVCreatePolicyDialog: React.FC<TBulkCSVCreatePolicyDialogProps> = ({ 
         title: 'Policies Created',
         description: `Policies has been successfully created`,
       })
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Error',
         description: 'There was an error creating the policies. Please try again.',
@@ -76,7 +77,7 @@ const BulkCSVCreatePolicyDialog: React.FC<TBulkCSVCreatePolicyDialogProps> = ({ 
             <p className="font-semibold">Column format</p>
             <p className="text-sm">
               You can upload a csv containing policies. Please refer to our{' '}
-              <a href={`${DOCS_URL}${GRAPHQL_OBJECT_DOCS}#policies`} target="_blank" className="text-brand hover:underline">
+              <a href={`${DOCS_URL}${GRAPHQL_OBJECT_DOCS}#policies`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
                 documentation
               </a>{' '}
               for column format. We also provide a <span className="text-brand hover:underline">template csv file</span> for you to fill out.

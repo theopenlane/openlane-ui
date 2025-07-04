@@ -24,7 +24,6 @@ import {
   GetPersonalAccessTokensQueryVariables,
   GetApiTokensByIdsQuery,
   GetApiTokensByIdsQueryVariables,
-  User,
   ApiToken,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -111,7 +110,7 @@ export const useDeleteApiToken = () => {
   })
 }
 
-export const useGetApiTokensByIds = ({ where, enabled = true }: UseGetApiTokensArgs) => {
+export const useGetApiTokensByIds = ({ where }: UseGetApiTokensArgs) => {
   const idInNotEmpty = Array.isArray(where?.idIn) && where.idIn.length > 0
   const { client } = useGraphQLClient()
 

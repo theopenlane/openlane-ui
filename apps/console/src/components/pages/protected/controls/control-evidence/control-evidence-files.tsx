@@ -4,23 +4,24 @@ import React, { useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination.ts'
-import { fileColumns } from '@/components/pages/protected/controls/control-evidence-files/table/columns.tsx'
+import { fileColumns, TFile } from '@/components/pages/protected/controls/control-evidence-files/table/columns.tsx'
 import { EVIDENCE_FILES_SORT_FIELDS } from '@/components/pages/protected/controls/control-evidence-files/table/table-config.ts'
 import { ControlEvidenceUploadDialog } from '@/components/pages/protected/controls/control-evidence/control-evidence-upload-dialog.tsx'
-import { Download, Eye, Trash2 } from 'lucide-react'
+import { Download, Trash2 } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { fileDownload } from '@/components/shared/lib/export.ts'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
+import type { Row } from '@tanstack/react-table'
 
 type TControlEvidenceFiles = {
   controlEvidenceID: string
   controlEvidencename?: string
 }
 
-const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidenceID, controlEvidencename }) => {
+const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidenceID }) => {
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const queryClient = useQueryClient()
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false)
@@ -64,7 +65,7 @@ const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidence
         title: 'Evidence Updated',
         description: 'The evidence has been successfully updated.',
       })
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Error',
         description: 'There was an unexpected error. Please try again later.',
@@ -77,12 +78,12 @@ const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidence
       {
         accessorKey: 'id',
         header: 'Action',
-        cell: ({ cell, row }: any) => {
+        cell: ({ row }: { row: Row<TFile> }) => {
           return (
             <div onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()} className="flex gap-4">
               <SystemTooltip
                 icon={
-                  <p className="flex items-center gap-1 cursor-pointer" onClick={() => fileDownload(row.original.presignedURL, row.original.providedFileName, errorNotification)}>
+                  <p className="flex items-center gap-1 cursor-pointer" onClick={() => fileDownload(row?.original?.presignedURL || '', row.original.providedFileName, errorNotification)}>
                     <Download size={16} />
                   </p>
                 }
@@ -133,7 +134,7 @@ const ControlEvidenceFiles: React.FC<TControlEvidenceFiles> = ({ controlEvidence
         columns={columns}
         sortFields={EVIDENCE_FILES_SORT_FIELDS}
         onSortChange={setOrderBy}
-        data={files}
+        data={files.filter((f) => !!f)}
         loading={fetching}
         pagination={pagination}
         onPaginationChange={setPagination}

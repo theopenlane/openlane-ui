@@ -7,7 +7,7 @@ import DirectLinkTab from '@/components/pages/protected/evidence/upload/direct-l
 import { UseFormReturn } from 'react-hook-form'
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import ExistingFilesTab from '@/components/pages/protected/evidence/upload/existing-files-tab'
-import { Tooltip } from '@repo/ui/tooltip'
+import { TUploadedFile } from './types/TUploadedFile'
 
 type TProps = {
   evidenceFiles: (uploadedFiles: TUploadedFile[]) => void
@@ -22,14 +22,14 @@ const EvidenceUploadForm: React.FC<TProps> = (props: TProps) => {
 
   useEffect(() => {
     props.evidenceFiles(evidenceFiles)
-  }, [evidenceFiles.length])
+  }, [evidenceFiles.length, evidenceFiles, props])
 
   useEffect(() => {
     if (props.resetEvidenceFiles) {
       setEvidenceFiles([])
       props.setResetEvidenceFiles()
     }
-  }, [props.resetEvidenceFiles])
+  }, [props.resetEvidenceFiles, props])
 
   const handleDelete = (file: TUploadedFile) => {
     setEvidenceFiles((prev) => {
@@ -42,11 +42,12 @@ const EvidenceUploadForm: React.FC<TProps> = (props: TProps) => {
       if (file.type === 'existingFile') {
         const formFileIds = props.form.getValues('fileIDs')
         const fileId = prev.find((item) => item.id === file.id)?.id
-        formFileIds &&
+        if (formFileIds) {
           props.form.setValue(
             'fileIDs',
             formFileIds.filter((file) => file !== fileId),
           )
+        }
       }
 
       return evidenceFiles

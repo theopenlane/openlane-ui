@@ -17,10 +17,11 @@ import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api.ts'
+import { ProgramEdge, TaskEdge } from '@repo/codegen/src/schema'
 
 type DashboardProps = {
-  programs?: { edges: any[] }
-  tasks?: { edges: any[] }
+  programs?: { edges: ProgramEdge[] }
+  tasks?: { edges: TaskEdge[] }
 }
 
 export const DefaultLanding: React.FC<DashboardProps> = ({ programs, tasks }) => {
@@ -37,8 +38,8 @@ export const DefaultLanding: React.FC<DashboardProps> = ({ programs, tasks }) =>
               {programs && programs.edges?.length > 0 ? (
                 programs.edges.slice(0, 2).map((program, i) => (
                   <React.Fragment key={i}>
-                    <Link href={`/programs/programs/${program.node.id}`} key={program.node.id} className="text-lg font-medium text-gray-900 dark:text-gray-50">
-                      {program.node.name}
+                    <Link href={`/programs/programs/${program?.node?.id}`} key={program?.node?.id} className="text-lg font-medium text-gray-900 dark:text-gray-50">
+                      {program?.node?.name}
                     </Link>
                     {/* TODO (sfunk): This are just stubbed progress bars; Update them with data */}
                     <div className={dataRow()}>
@@ -48,7 +49,7 @@ export const DefaultLanding: React.FC<DashboardProps> = ({ programs, tasks }) =>
                         </ProgressCircle>
                         <div>
                           <p className={progressPercent()}>70/80</p>
-                          <p className={progressLabel()}>Control's Completed</p>
+                          <p className={progressLabel()}>Control&apos;s Completed</p>
                         </div>
                       </div>
                       <div className={dataRow()}>
@@ -74,7 +75,7 @@ export const DefaultLanding: React.FC<DashboardProps> = ({ programs, tasks }) =>
               <PanelHeader heading="Tasks Due Soon" noBorder />
               {tasks && tasks.edges?.length > 0 ? (
                 tasks.edges?.map((task) => (
-                  <div className="flex">
+                  <div key={task.node?.id} className="flex">
                     <CalendarClock className="text-red-500 mr-5" />
                     {task?.node?.title}
                   </div>

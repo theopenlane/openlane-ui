@@ -1,6 +1,6 @@
 'use client'
 
-import { OrgMembership, OrgMembershipRole, User, UserAuthProvider } from '@repo/codegen/src/schema'
+import { OrgMembership, OrgMembershipRole, OrgMembershipWhereInput, User, UserAuthProvider, UserWhereInput } from '@repo/codegen/src/schema'
 import { pageStyles } from './page.styles'
 import React, { useState, useEffect, Dispatch, SetStateAction, useMemo } from 'react'
 import { Copy, KeyRoundIcon } from 'lucide-react'
@@ -22,35 +22,46 @@ type MembersTableProps = {
   setActiveTab: Dispatch<SetStateAction<string>>
 }
 
+export type ExtendedOrgMembershipWhereInput = OrgMembershipWhereInput & {
+  providers?: string
+}
+
 export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
   const { nameRow, copyIcon } = pageStyles()
-  const [filters, setFilters] = useState<Record<string, any> | null>(null)
+  const [filters, setFilters] = useState<ExtendedOrgMembershipWhereInput | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [copiedText, copyToClipboard] = useCopyToClipboard()
   const { successNotification } = useNotification()
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const debouncedSearch = useDebounce(searchTerm, 300)
-  const whereFilters = useMemo(() => {
-    if (!filters) {
-      return undefined
+
+  const whereFilters: OrgMembershipWhereInput = useMemo(() => {
+    if (!filters) return {}
+
+    let mergedFilters: ExtendedOrgMembershipWhereInput = {}
+
+    if ('and' in filters && Array.isArray(filters.and)) {
+      filters.and.forEach((item) => {
+        mergedFilters = { ...mergedFilters, ...item }
+      })
+    } else {
+      mergedFilters = { ...filters }
     }
 
-    const modifiedWhereFilters = { ...filters }
-    const hasUserWithConditions: Record<string, any> = {
+    const { providers, ...rest } = mergedFilters
+
+    const hasUserWith: UserWhereInput = {
       displayNameContainsFold: debouncedSearch,
     }
 
-    if ('providers' in modifiedWhereFilters) {
-      hasUserWithConditions.authProviderIn = [modifiedWhereFilters.providers]
-      delete modifiedWhereFilters.providers
+    if (providers) {
+      hasUserWith.authProviderIn = [providers as UserAuthProvider]
     }
 
-    const conditions: Record<string, any> = {
-      ...modifiedWhereFilters,
-      hasUserWith: [hasUserWithConditions],
+    return {
+      ...rest,
+      hasUserWith: [hasUserWith],
     }
-
-    return conditions
   }, [filters, debouncedSearch])
 
   const { members, isLoading, paginationMeta } = useGetOrgMemberships({ where: whereFilters, pagination, enabled: !!filters })
@@ -62,7 +73,7 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
         variant: 'success',
       })
     }
-  }, [copiedText])
+  }, [copiedText, successNotification])
 
   const providerIcon = (provider: UserAuthProvider) => {
     switch (provider) {

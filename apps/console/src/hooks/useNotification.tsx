@@ -1,3 +1,4 @@
+import { GqlError } from '@/types'
 import { useToast } from '@repo/ui/use-toast'
 
 type TSuccessProps = {
@@ -9,7 +10,7 @@ type TSuccessProps = {
 type TErrorProps = {
   title?: string
   description?: string
-  gqlError?: any // TODO: define error
+  gqlError?: GqlError
   variant?: 'default' | 'destructive' | 'success'
 }
 
@@ -26,7 +27,7 @@ export function useNotification() {
       const messages: string[] = []
 
       if (props.gqlError.graphQLErrors) {
-        props.gqlError.graphQLErrors.forEach((graphQLError: any) => {
+        props.gqlError.graphQLErrors.forEach((graphQLError) => {
           const path = graphQLError.path?.join('.') ?? ''
           messages.push(path + ' ' + graphQLError.message)
         })

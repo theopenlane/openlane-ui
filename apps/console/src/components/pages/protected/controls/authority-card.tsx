@@ -4,7 +4,7 @@ import React from 'react'
 import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
 import { ControlDetailsFieldsFragment, Group } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
-import { CircleUser, CircleArrowRight, ChevronsUpDown, Check, ChevronDown } from 'lucide-react'
+import { CircleUser, CircleArrowRight, ChevronDown } from 'lucide-react'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useFormContext, Controller } from 'react-hook-form'
 import { Option } from '@repo/ui/multiple-selector'
@@ -21,7 +21,7 @@ interface AuthorityCardProps {
 const AuthorityCard: React.FC<AuthorityCardProps> = ({ controlOwner, delegate, isEditing }) => {
   const { data } = useGetAllGroups({ where: {}, enabled: !!isEditing })
 
-  const groups = data?.groups?.edges?.map((edge) => edge?.node!) || []
+  const groups = data?.groups?.edges?.map((edge) => edge?.node) || []
 
   return (
     <Card className="p-4">
@@ -39,8 +39,8 @@ const AuthorityCard: React.FC<AuthorityCardProps> = ({ controlOwner, delegate, i
               fieldName="controlOwnerID"
               placeholder="Select a group"
               options={groups.map((g) => ({
-                label: g.name,
-                value: g.id,
+                label: g?.name || '',
+                value: g?.id || '',
               }))}
             />
           ) : (
@@ -69,8 +69,8 @@ const AuthorityCard: React.FC<AuthorityCardProps> = ({ controlOwner, delegate, i
               fieldName="delegateID"
               placeholder="Select a group"
               options={groups.map((g) => ({
-                label: g.name,
-                value: g.id,
+                label: g?.name || '',
+                value: g?.id || '',
               }))}
             />
           ) : (

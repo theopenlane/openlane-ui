@@ -1,11 +1,16 @@
 import resolveConfig from 'tailwindcss/resolveConfig'
 import tailwindConfig from '../../tailwind.config'
+import type { Config } from 'tailwindcss'
 
-export const fullConfig = resolveConfig(tailwindConfig) as {
+const resolved = resolveConfig(tailwindConfig as Config)
+
+export const fullConfig = resolved as unknown as {
   theme: {
-    colors: Record<string, any>
-    fontSize: Record<string, any>
-    spacing: Record<string, any>
+    colors: {
+      java: Record<number, string>
+    }
+    fontSize: Record<string, [string, Record<string, string>]>
+    spacing: Record<string, string>
   }
 }
 

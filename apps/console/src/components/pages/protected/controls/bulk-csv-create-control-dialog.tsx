@@ -10,6 +10,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { exportCSV } from '@/lib/export'
 import { DOCS_URL, GRAPHQL_OBJECT_DOCS } from '@/constants'
 import { useCreateBulkCSVControl } from '@/lib/graphql-hooks/controls.ts'
+import { TUploadedFile } from '../evidence/upload/types/TUploadedFile'
 
 type BulkCsvCreateControlDialogProps = {
   trigger?: React.ReactElement<
@@ -39,7 +40,7 @@ const BulkCSVCreateControlDialog: React.FC<BulkCsvCreateControlDialogProps> = ({
         description: `Controls has been successfully created`,
       })
       setIsOpen(false)
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Error',
         description: 'There was an error creating the controls. Please try again.',
@@ -52,7 +53,7 @@ const BulkCSVCreateControlDialog: React.FC<BulkCsvCreateControlDialogProps> = ({
   }
 
   const handleCSVExport = async () => {
-    const data = await exportCSV({ filename: 'control' })
+    await exportCSV({ filename: 'control' })
   }
 
   return (
@@ -82,7 +83,7 @@ const BulkCSVCreateControlDialog: React.FC<BulkCsvCreateControlDialogProps> = ({
             <p className="font-semibold">Column format</p>
             <p className="text-sm">
               You can upload a csv containing controls. Please refer to our{' '}
-              <a href={`${DOCS_URL}${GRAPHQL_OBJECT_DOCS}#control`} target="_blank" className="text-brand hover:underline">
+              <a href={`${DOCS_URL}${GRAPHQL_OBJECT_DOCS}#control`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
                 documentation
               </a>{' '}
               for column format. We also provide a{' '}

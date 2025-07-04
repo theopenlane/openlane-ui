@@ -64,7 +64,7 @@ const DefaultOrgForm = () => {
         defaultOrg: userData.user.setting?.defaultOrg?.id ?? '',
       })
     }
-  }, [userData])
+  }, [userData, form])
 
   useEffect(() => {
     if (isSuccess) {

@@ -22,7 +22,6 @@ interface AvatarUploadProps extends AvatarUploadVariants {
 const AvatarUpload = ({ className, placeholderImage, uploadCallback, fallbackString }: AvatarUploadProps) => {
   const [isCroppingModalOpen, setIsCroppingModalOpen] = useState(false)
   const [crop, setCrop] = useState({ x: 0, y: 0 })
-  const [zoom, setZoom] = useState(1)
   const [uploadedImage, setUploadedImage] = useState<string | null>(null)
   const [avatarUrl, setAvatarUrl] = useState<null | string>()
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null)
@@ -106,10 +105,10 @@ const AvatarUpload = ({ className, placeholderImage, uploadCallback, fallbackStr
         <DialogContent className="w-[600px] max-w-[100%]">
           <DialogHeader>
             <DialogTitle>Edit your avatar</DialogTitle>
-            <DialogDescription>Please crop, resize and click 'Save avatar'</DialogDescription>
+            <DialogDescription>Please crop, resize and click &apos;Save avatar&apos;</DialogDescription>
           </DialogHeader>
           <div className={cropContainer()}>
-            {uploadedImage && <Cropper image={uploadedImage} crop={crop} zoom={zoom} aspect={1} cropShape="rect" showGrid={false} onCropChange={onCropChange} onCropComplete={onCropComplete} />}
+            {uploadedImage && <Cropper image={uploadedImage} crop={crop} zoom={1} aspect={1} cropShape="rect" showGrid={false} onCropChange={onCropChange} onCropComplete={onCropComplete} />}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={closeModal}>

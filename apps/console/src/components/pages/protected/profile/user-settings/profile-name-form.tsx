@@ -80,7 +80,7 @@ const ProfileNameForm = () => {
         email: userData?.user.email ?? '',
       })
     }
-  }, [userData])
+  }, [userData, form])
 
   useEffect(() => {
     if (isSuccess) {

@@ -9,6 +9,7 @@ import { useDeleteMappedControl } from '@/lib/graphql-hooks/mapped-control'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
 import { Button } from '@repo/ui/button'
+import { GqlError } from '@/types'
 
 const RelationCard = ({
   data,
@@ -39,7 +40,7 @@ const RelationCard = ({
     } catch (error) {
       errorNotification({
         title: 'Failed to delete mapping',
-        gqlError: error,
+        gqlError: error as GqlError,
       })
     }
   }

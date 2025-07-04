@@ -1,13 +1,13 @@
 'use client'
 
-import React, { useMemo, useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { createPlateEditor, Plate } from '@udecode/plate/react'
 import { TPlateEditorStyleVariant, TPlateEditorVariants, useCreateEditor } from '@repo/ui/components/editor/use-create-editor.ts'
 import { Editor, EditorContainer } from '@repo/ui/components/plate-ui/editor.tsx'
-import { Value } from '@udecode/plate'
-import { basePlugins, basicPlugins, viewPlugins } from '@repo/ui/components/editor/plugins/editor-plugins.tsx'
+import { TElement, Value } from '@udecode/plate'
+import { viewPlugins } from '@repo/ui/components/editor/plugins/editor-plugins.tsx'
 import debounce from 'lodash.debounce'
 
 export type TPlateEditorProps = {
@@ -23,6 +23,7 @@ export type TPlateEditorProps = {
 
 const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, variant, styleVariant, clearData, onClear, placeholder, isScrollable }) => {
   const editor = useCreateEditor({ variant })
+  const [initialized, setInitialized] = useState(false)
 
   const debouncedOnChange = useRef(
     debounce((val: Value) => {
@@ -30,8 +31,9 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, vari
     }, 300),
   ).current
 
-  useMemo(() => {
-    if (initialValue) {
+  useEffect(() => {
+    if (initialValue && !initialized) {
+      setInitialized(true)
       const plateEditor = createPlateEditor({
         plugins: [...viewPlugins],
       })
@@ -40,26 +42,25 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, vari
         element: initialValue,
       }) as Value
 
-      // Check if initialValue is plain text e.g. when uploading through csv
-      if (Array.isArray(slateNodes) && slateNodes.length === 1 && typeof (slateNodes[0] as any).text === 'string' && !(slateNodes[0] as any).type) {
+      if (Array.isArray(slateNodes) && slateNodes.length === 1 && typeof (slateNodes[0] as TElement).text === 'string' && !(slateNodes[0] as TElement).type) {
         editor.children = [
           {
             type: 'p',
-            children: slateNodes as any[],
+            children: slateNodes as Value,
           },
         ]
       } else {
         editor.children = slateNodes
       }
     }
-  }, [])
+  }, [editor, initialValue, initialized])
 
   useEffect(() => {
     if (clearData) {
       editor.transforms.reset()
       onClear?.()
     }
-  }, [clearData])
+  }, [clearData, editor.transforms, onClear])
 
   return (
     <DndProvider backend={HTML5Backend}>

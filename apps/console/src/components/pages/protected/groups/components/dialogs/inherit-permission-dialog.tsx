@@ -60,7 +60,7 @@ const InheritPermissionDialog = () => {
       })
 
       setIsOpen(false)
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Failed to inherit permissions',
         description: 'An unexpected error occurred.',
@@ -167,7 +167,8 @@ const InheritPermissionDialog = () => {
               <Button
                 className=""
                 onClick={() => {
-                  inheritPermissions(), setIsOpen(false)
+                  inheritPermissions()
+                  setIsOpen(false)
                 }}
               >
                 Inherit

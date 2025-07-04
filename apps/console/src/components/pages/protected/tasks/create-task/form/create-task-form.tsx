@@ -82,7 +82,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
       form.reset()
       props.onSuccess()
       setAssociationResetTrigger((prev) => prev + 1)
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Error',
         description: 'There was an error creating the task. Please try again.',
@@ -158,7 +158,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                       <FormField
                         control={form.control}
                         name="details"
-                        render={({ field }) => (
+                        render={() => (
                           <FormItem className="w-full">
                             <FormLabel>Details</FormLabel>
                             <SystemTooltip
@@ -229,8 +229,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                                 {membersOptions &&
                                   membersOptions.length > 0 &&
                                   membersOptions.map((option) => (
-                                    // @ts-ignore todo mateo: fix type
-                                    <SelectItem key={option.value} value={option.value}>
+                                    <SelectItem key={option.value} value={option.value as string}>
                                       {option.label}
                                     </SelectItem>
                                   ))}

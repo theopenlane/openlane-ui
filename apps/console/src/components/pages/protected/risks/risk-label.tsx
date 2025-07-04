@@ -1,8 +1,7 @@
-import { SquareArrowDown, SquareArrowRight, SquareArrowUpRight, SquareArrowUp, RotateCcw, Umbrella, RefreshCw, CirclePlay, Archive } from 'lucide-react'
+import { SquareArrowDown, SquareArrowRight, SquareArrowUpRight, SquareArrowUp } from 'lucide-react'
 
 import { RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { Input } from '@repo/ui/input'
 import { RiskIconMapper } from '@/components/shared/icon-enum/risk-enum.tsx'
 import { RisksStatusMapper } from '@/components/pages/protected/risks/risks.ts'
 
@@ -12,7 +11,7 @@ interface RiskLabelProps {
   likelihood?: RiskRiskLikelihood
   status?: RiskRiskStatus
   isEditing: boolean
-  onChange?: (value: any) => void
+  onChange?: (value: string | number) => void
 }
 
 export const RiskLabel = ({ score, impact, likelihood, status, isEditing, onChange }: RiskLabelProps) => {

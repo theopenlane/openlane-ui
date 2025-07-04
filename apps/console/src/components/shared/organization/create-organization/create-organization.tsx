@@ -38,7 +38,7 @@ export const CreateOrganizationForm = () => {
   const { data: session, update } = useSession()
   const { allOrgs } = useOrganization()
   const numOrgs = allOrgs.length
-  const { data, isError, isPending, error, mutateAsync: createOrg, ...rest } = useCreateOrganization()
+  const { isPending, mutateAsync: createOrg } = useCreateOrganization()
 
   const { container } = createOrganizationStyles()
   const queryClient = useQueryClient()
@@ -83,7 +83,9 @@ export const CreateOrganizationForm = () => {
         queryClient?.invalidateQueries()
       })
 
-      response.data && push('/dashboard')
+      if (response.data) {
+        push('/dashboard')
+      }
     } catch (error) {
       console.error('Error creating organization:', error)
       errorNotification({

@@ -3,7 +3,7 @@
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import React from 'react'
-import { Group, GroupOrder, User } from '@repo/codegen/src/schema'
+import { Group, GroupOrder, GroupWhereInput } from '@repo/codegen/src/schema'
 import { GROUP_SORT_FIELDS } from '@/components/pages/protected/groups/table/table-config.ts'
 import { TPagination } from '@repo/ui/pagination-types'
 import { useGetAllGroups } from '@/lib/graphql-hooks/groups.ts'
@@ -12,10 +12,10 @@ import { getGroupTableColumns } from '../table/columns'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 
 type TGroupsTableProps = {
-  onSortChange?: (sortCondition: any[]) => void
+  onSortChange?: (sortCondition: GroupOrder | GroupOrder[]) => void
   pagination: TPagination
   onPaginationChange: (pagination: TPagination) => void
-  whereFilter: Record<string, any> | null
+  whereFilter: GroupWhereInput | null
   orderByFilter: GroupOrder[] | GroupOrder | undefined
   columnVisibility?: VisibilityState
   setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
