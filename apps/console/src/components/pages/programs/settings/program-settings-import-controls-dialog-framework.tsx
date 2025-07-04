@@ -17,7 +17,7 @@ import { Input } from '@repo/ui/input'
 import { getColumnsForImportControlsDialogFramework } from '../columns'
 import { SelectedItem, TSharedImportControlsComponentsProps } from '../shared/program-settings-import-controls-shared-props'
 
-const ImportControlsDialogFramework: React.FC<TSharedImportControlsComponentsProps> = ({ setSelectedItems, selectedItems }) => {
+const ImportControlsDialogFramework = ({ setSelectedItems, selectedItems }: TSharedImportControlsComponentsProps) => {
   const { data } = useGetStandards({})
 
   const [selectedFrameworkIds, setSelectedFrameworkIds] = useState<string[]>([])
