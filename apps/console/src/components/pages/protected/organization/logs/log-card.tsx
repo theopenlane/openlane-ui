@@ -1,5 +1,5 @@
 import React from 'react'
-import { FilePenLine, ArrowRight, ChevronDown } from 'lucide-react'
+import { ArrowRight, ChevronDown, Copy } from 'lucide-react'
 import { AuditLog, User } from '@repo/codegen/src/schema.ts'
 import { Card } from '@repo/ui/cardpanel'
 import { formatDateTime } from '@/utils/date.ts'
@@ -7,6 +7,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@r
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { AuditLogOperator, AuditLogOperatorMapper } from '@/components/shared/icon-enum/audit-log-enum.tsx'
+import { useNotification } from '@/hooks/useNotification.tsx'
 
 type TLogCardProps = {
   log: AuditLog
@@ -15,6 +16,7 @@ type TLogCardProps = {
 
 const LogCardComponent = ({ log, user }: TLogCardProps) => {
   const { convertToReadOnly } = usePlateEditor()
+  const { successNotification } = useNotification()
 
   const getOperation = (operation?: string) => {
     if (!operation) {
@@ -22,6 +24,16 @@ const LogCardComponent = ({ log, user }: TLogCardProps) => {
     }
 
     return operation.charAt(0).toUpperCase() + operation.slice(1).toLowerCase()
+  }
+
+  const handleCopyToClipboard = () => {
+    if (log.updatedBy) {
+      navigator.clipboard.writeText(log.updatedBy)
+      successNotification({
+        title: 'Copied to clipboard',
+        variant: 'success',
+      })
+    }
   }
 
   return (
@@ -45,7 +57,9 @@ const LogCardComponent = ({ log, user }: TLogCardProps) => {
                   )}
                 </p>
               </div>
-              <p className="text-sm text-muted-foreground">ID: {log.id}</p>
+              <p className="font-normal text-sm flex items-center gap-2">
+                ID: {log.updatedBy} <Copy size={12} className="cursor-pointer" onClick={handleCopyToClipboard} />
+              </p>
             </div>
 
             <div className="text-sm">
