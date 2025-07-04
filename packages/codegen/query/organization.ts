@@ -244,8 +244,8 @@ export const UPDATE_ORG_SETTING = gql`
 `
 
 export const GET_LOGS = gql`
-  query getLogs($where: AuditLogWhereInput) {
-    auditLogs(where: $where) {
+  query getLogs($where: AuditLogWhereInput, $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    auditLogs(where: $where, first: $first, after: $after, last: $last, before: $before) {
       edges {
         node {
           changes

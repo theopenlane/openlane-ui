@@ -1,29 +1,57 @@
 'use client'
-import React, { useMemo, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { useGetAuditLogs } from '@/lib/graphql-hooks/organization.ts'
+import { useGetAuditLogsInfinite } from '@/lib/graphql-hooks/organization.ts'
 import LogsTableToolbar from '@/components/pages/protected/organization/logs/logs-table-toolbar.tsx'
 import LogCards from '@/components/pages/protected/organization/logs/log-cards.tsx'
+import InfiniteScroll from '@repo/ui/infinite-scroll'
+import { AuditLogWhereInput } from '@repo/codegen/src/schema.ts'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 
 const LogsPage: React.FC = () => {
-  const [filters, setFilters] = useState<Record<string, any>>({})
+  const { setCrumbs } = useContext(BreadcrumbContext)
+  const [filters, setFilters] = useState<AuditLogWhereInput | null>(null)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
-
   const whereFilter = useMemo(() => {
-    const conditions: Record<string, any> = {
+    if (!filters?.table) {
+      return undefined
+    }
+
+    const conditions: AuditLogWhereInput = {
       ...filters,
     }
 
     return conditions
   }, [filters])
 
-  const { logs, isLoading: fetching } = useGetAuditLogs({ where: whereFilter, pagination })
+  const { logs, isLoading: fetching, paginationMeta, fetchNextPage } = useGetAuditLogsInfinite({ where: whereFilter, pagination, enabled: !!whereFilter })
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Organization Settings', href: '/organization-settings' },
+      { label: 'Audit Logs', href: '/logs' },
+    ])
+  }, [setCrumbs])
+
+  useEffect(() => {
+    if (pagination.page === 1) {
+      return
+    }
+    fetchNextPage()
+  }, [pagination, fetchNextPage])
+
+  const handlePaginationChange = (pagination: TPagination) => {
+    setPagination(pagination)
+  }
 
   return (
     <>
       <LogsTableToolbar onFilterChange={setFilters} />
-      <LogCards logs={logs} loading={fetching} />
+      <InfiniteScroll pagination={pagination} onPaginationChange={handlePaginationChange} paginationMeta={paginationMeta} key="card">
+        <LogCards logs={logs} loading={fetching} />
+      </InfiniteScroll>
     </>
   )
 }
