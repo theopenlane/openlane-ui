@@ -1,3 +1,4 @@
+import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
@@ -9,11 +10,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Token is required' }, { status: 400 })
     }
 
-    const verificationResponse = await fetch(`${process.env.API_REST_URL}/v1/subscribe/verify?token=${token}`, {
+    const verificationResponse = await secureFetch(`${process.env.API_REST_URL}/v1/subscribe/verify?token=${token}`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
     })
 
     const data = await verificationResponse.json()

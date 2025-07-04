@@ -5,6 +5,7 @@ import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@repo/
 import { useNotification } from '@/hooks/useNotification'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 
 const TfaPage: React.FC = () => {
   const [otpValue, setOtpValue] = useState('')
@@ -81,11 +82,8 @@ const TfaPage: React.FC = () => {
   const verifyOTP = async (otp: string) => {
     try {
       const payload = isSecret ? { recovery_code: otp } : { totp_code: otp }
-      const response = await fetch('/api/verifyOTP', {
+      const response = await secureFetch('/api/verifyOTP', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(payload),
       })
 

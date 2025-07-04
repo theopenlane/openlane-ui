@@ -64,8 +64,6 @@ const MapControlCategoriesAccordion = ({ controlData, droppedControls, expandedI
     return Object.fromEntries(Object.entries(map).filter(([, list]) => list.length > 0))
   }, [availableControls, categories])
 
-  console.log('controlsByCategory', controlsByCategory)
-
   const openKeys = useMemo(
     () =>
       Object.entries(expandedItems)
