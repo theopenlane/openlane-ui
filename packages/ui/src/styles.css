@@ -39,8 +39,11 @@
   --color-button-secondary: #d9ae40;
   --color-button-back: #e2efeb;
 
+  /* Assets */
+  --asset-color-bg: #dae3e7;
+
   /* Background */
-  --color-bg: #e9f1f5;
+  --color-bg: #f9fbfc;
   --color-bg-dark: #1c2630;
   --color-bg-light: #e9f1f5;
   --color-bg-primary: #2ccbab;
@@ -54,10 +57,10 @@
   --color-accent-secondary-muted: #75d2bf;
 
   /* Border */
-  --color-border: #aabec5;
+  --color-border: #e1e9ec;
   --color-border-light: #aabec5;
   --color-border-dark: #303e4a;
-  --color-separator: #b4c1d5;
+  --color-separator: #e1e9ec;
   --color-separator-light: #b4c1d5;
   --color-separator-dark: #273344;
   --color-separator-edit: #bfbfbf;
@@ -71,6 +74,7 @@
   --color-text-light: #aabec5;
   --color-text-nav-link: #303e4a;
   --color-text-dimmed: #8998a9;
+  --color-text-informational: #798695;
 
   /* Panel */
   --color-panel-bg: #ffffff;
@@ -100,7 +104,7 @@
   --color-table-row-bg-even: #ffffff;
   --color-table-border-muted: #e9f1f5;
   --color-table-border: #b3c8d1;
-  --color-table-header-bg: #f5f5f5;
+  --color-table-header-bg: #e4edf1;
   --color-table-header-text: #303e4a;
 
   /* Gradient */
@@ -152,6 +156,10 @@
 
   --color-warning-banner: #d8ae3f;
 
+  /* auth */
+
+  --color-background-auth: #eff4f7;
+
   /* JSON Editor */
   .svc-json-editor-tab__content-area {
     background-color: var(--color-bg);
@@ -167,6 +175,9 @@
   --color-button-secondary: #b48f31;
   --color-button-back: #96a09d;
 
+  /* Assets */
+  --asset-color-bg: #374a52;
+
   /* Background */
   --color-bg: #0d1117;
   --color-bg-dark: #0d1117;
@@ -181,7 +192,7 @@
 
   /* Border */
   --color-border: #303e4a;
-  --color-separator: #b4c1d5;
+  --color-separator: #303e4a;
   --color-separator-light: #b4c1d5;
   --color-separator-dark: #273344;
 
@@ -190,6 +201,7 @@
   --color-text-paragraph: #bdd9e1;
   --color-text-nav-link: #bdd9e1;
   --color-text-dimmed: #5c6c70;
+  --color-text-informational: #7a8588;
 
   /* Panel */
   --color-panel-bg: #1c2630;
@@ -219,7 +231,7 @@
   --color-table-row-bg-even: #354755;
   --color-table-border: #998da0;
   --color-table-border-muted: #395365;
-  --color-table-header-bg: #303e4a;
+  --color-table-header-bg: #3b4b59;
   --color-table-header-text: #d0f3ea;
 
   /* Gradient */
@@ -266,8 +278,22 @@
 
   --color-warning-banner: #d8ae3f;
 
+  /* auth */
+
+  --color-background-auth: #23282f;
+
   /* JSON Editor */
   .svc-json-editor-tab__content-area {
     background-color: var(--color-bg);
   }
+}
+
+@keyframes custom-pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-custom-pulse {
+  animation: custom-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

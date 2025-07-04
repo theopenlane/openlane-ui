@@ -1,8 +1,10 @@
 import React from 'react'
-import { PageHeading } from '@repo/ui/page-heading'
+import LogsPage from '@/components/pages/protected/logs/logs-page'
+import { Metadata } from 'next'
 
-const Page: React.FC = () => {
-  return <PageHeading heading="Audit Logs" eyebrow="Organization Settings" />
+export const metadata: Metadata = {
+  title: 'Audit Logs',
 }
+const Page: React.FC = () => <LogsPage />
 
 export default Page

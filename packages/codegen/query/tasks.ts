@@ -3,12 +3,6 @@ import { gql } from 'graphql-request'
 export const TASKS_WITH_FILTER = gql`
   query TasksWithFilter($where: TaskWhereInput, $orderBy: [TaskOrder!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
     tasks(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
-      pageInfo {
-        endCursor
-        startCursor
-        hasPreviousPage
-        hasNextPage
-      }
       totalCount
       edges {
         node {
@@ -22,8 +16,6 @@ export const TASKS_WITH_FILTER = gql`
           category
           assigner {
             displayName
-            firstName
-            lastName
             avatarRemoteURL
             avatarFile {
               presignedURL
@@ -31,8 +23,6 @@ export const TASKS_WITH_FILTER = gql`
           }
           assignee {
             displayName
-            firstName
-            lastName
             avatarRemoteURL
             avatarFile {
               presignedURL
@@ -40,6 +30,13 @@ export const TASKS_WITH_FILTER = gql`
           }
         }
       }
+      pageInfo {
+        endCursor
+        startCursor
+        hasPreviousPage
+        hasNextPage
+      }
+      totalCount
     }
   }
 `
@@ -78,15 +75,11 @@ export const TASK = gql`
       tags
       assignee {
         displayName
-        firstName
-        lastName
         avatarRemoteURL
         id
       }
       assigner {
         avatarRemoteURL
-        lastName
-        firstName
         displayName
         id
       }
@@ -98,8 +91,24 @@ export const TASK = gql`
         edges {
           node {
             id
-
             refCode
+            controlID
+          }
+        }
+      }
+      controls {
+        edges {
+          node {
+            id
+            refCode
+          }
+        }
+      }
+      risks {
+        edges {
+          node {
+            id
+            name
           }
         }
       }

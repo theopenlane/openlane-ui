@@ -4,11 +4,13 @@ import { useSession } from 'next-auth/react'
 import { Button } from '@repo/ui/button'
 import { useRouter } from 'next/navigation'
 import { useNotification } from '@/hooks/useNotification'
-import { useUserHasOrganizationDeletePermissions } from '@/lib/authz/utils'
-import { useDeleteOrganization, useGetOrganizationNameById } from '@/lib/graphql-hooks/organization'
+import { useDeleteOrganization } from '@/lib/graphql-hooks/organization'
 import { useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { useOrganizationRole } from '@/lib/authz/access-api.ts'
+import { canDelete } from '@/lib/authz/utils.ts'
+import { useOrganization } from '@/hooks/useOrganization'
 
 const OrganizationDelete = () => {
   const { successNotification, errorNotification } = useNotification()
@@ -16,16 +18,16 @@ const OrganizationDelete = () => {
   const queryClient = useQueryClient()
   const { mutateAsync: deleteOrganization } = useDeleteOrganization()
   const { data: sessionData, update } = useSession()
-  const currentOrgId = sessionData?.user.activeOrganizationId
-  const { data: org } = useGetOrganizationNameById(currentOrgId)
-  const { data, isLoading, error } = useUserHasOrganizationDeletePermissions(sessionData)
+  const { data } = useOrganizationRole(sessionData)
+  const { currentOrgId, allOrgs } = useOrganization()
+  const currentOrganization = allOrgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const clickHandler = async () => {
     try {
       const response = await deleteOrganization({
-        deleteOrganizationId: currentOrgId,
+        deleteOrganizationId: currentOrgId || '',
       })
 
       if (response.extensions && sessionData) {
@@ -55,7 +57,7 @@ const OrganizationDelete = () => {
     }
   }
 
-  if (error || !data?.allowed) {
+  if (!canDelete(data?.roles)) {
     return null
   }
 
@@ -64,7 +66,7 @@ const OrganizationDelete = () => {
       <PanelHeader heading="Delete organization" noBorder />
       <Panel align="start" destructive>
         <p className="text-red-600">Deleting your organization is irreversible.</p>
-        <Button variant="redOutline" type="button" loading={isLoading} onClick={() => setIsDialogOpen(true)}>
+        <Button variant="redOutline" type="button" onClick={() => setIsDialogOpen(true)}>
           Delete this organization
         </Button>
 
@@ -72,8 +74,14 @@ const OrganizationDelete = () => {
           open={isDialogOpen}
           onOpenChange={setIsDialogOpen}
           onConfirm={clickHandler}
-          title="Are you absolutely sure?"
-          description="This action cannot be undone. This will permanently delete your organization and remove your data from our servers."
+          confirmationText="Delete"
+          title={`Delete Organization ${currentOrganization?.displayName}`}
+          description={
+            <>
+              This action is irreversible and will permanently delete the organization <b>{currentOrganization?.displayName}</b> and all associated data.
+            </>
+          }
+          showInput={true}
         />
       </Panel>
     </Panel>

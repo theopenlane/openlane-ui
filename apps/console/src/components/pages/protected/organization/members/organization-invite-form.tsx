@@ -68,11 +68,11 @@ const OrganizationInviteForm = ({ inviteAdmins }: { inviteAdmins: boolean }) => 
       successNotification({
         title: `Invite${emails.length > 1 ? 's' : ''} sent successfully`,
       })
+      setEmails([])
     } catch {
       errorNotification({
-        title: 'Error, Ivites not sent',
+        title: 'Unexpected error occured, invites not sent',
       })
-      setEmails([])
     }
   }
   const errorMessage = errors.emails && Array.isArray(errors.emails) && errors.emails.length > 0 ? errors.emails[0]?.message : null

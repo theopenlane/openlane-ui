@@ -15,11 +15,10 @@ import {
   CreateBulkCsvTaskMutation,
   CreateBulkCsvTaskMutationVariables,
   Task,
-  TaskTaskStatus,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task.ts'
 import { TPagination } from '@repo/ui/pagination-types'
+import { invalidateTaskAssociations } from '@/components/shared/objectAssociation/object-assoiation-config'
 
 type GetAllTasksArgs = {
   where?: TasksWithFilterQueryVariables['where']
@@ -40,7 +39,6 @@ export const useTasksWithFilter = ({ where, orderBy, pagination, enabled = true 
   const tasks = (queryResult.data?.tasks?.edges?.map((edge) => {
     return {
       ...edge?.node,
-      status: TaskStatusMapper[edge?.node?.status as TaskTaskStatus],
     }
   }) ?? []) as Task[]
 
@@ -53,7 +51,7 @@ export const useTasksWithFilterInfinite = ({ where, orderBy, pagination, enabled
   const queryResult = useInfiniteQuery({
     initialData: undefined,
     initialPageParam: 1,
-    queryKey: ['tasksInfinite', where, orderBy],
+    queryKey: ['tasks', where, orderBy],
     queryFn: () =>
       client.request(TASKS_WITH_FILTER, {
         where,
@@ -89,8 +87,8 @@ export const useCreateTask = () => {
 
   return useMutation<CreateTaskMutation, unknown, CreateTaskMutationVariables>({
     mutationFn: async (variables) => client.request(CREATE_TASK, variables),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] })
+    onSuccess: (_, variables) => {
+      invalidateTaskAssociations(variables.input, queryClient)
     },
   })
 }

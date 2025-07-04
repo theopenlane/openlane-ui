@@ -24,14 +24,12 @@ type ProgramDetailValues = zInfer<typeof programDetailSchema>
 export function ProgramDetailsComponent() {
   return (
     <Panel className="border-none p-2">
-      <PanelHeader heading="" subheading="Configure the details of the program" noBorder />
       <div className="overflow-y-auto">
         <Grid>
-          <GridRow columns={2}>
+          <GridRow className="grid grid-cols-1 2xl:grid-cols-2 gap-10">
             <GridCell>
               <AuditPartner />
             </GridCell>
-            <GridCell>{null}</GridCell>
             <GridCell>
               <AuditorPermissionsComponent />
             </GridCell>

@@ -6,18 +6,19 @@ export default auth(async (req) => {
   req.headers.append('next-url', req.nextUrl.toString())
 
   //IF YOU ADD PUBLIC PAGE, ITS REQUIRED TO CHANGE IT IN Providers.tsx
-  const publicPages = ['/login', '/tfa', '/invite', '/subscriber-verify', '/verify', '/resend-verify', '/waitlist', '/unsubscribe', '/forgot-password', '/password-reset']
+  const publicPages = ['/login', '/tfa', '/invite', '/subscriber-verify', '/verify', '/resend-verify', '/waitlist', '/unsubscribe', '/forgot-password', '/password-reset', '/signup']
 
   const path = req.nextUrl.pathname
   const isPublicPage = publicPages.includes(path)
   const isInvite = path === '/invite'
   const isUnsubscribe = path === '/unsubscribe'
+  const isWaitlist = path === '/waitlist'
 
   const session = await auth()
 
   const isLoggedIn = req.auth?.user
-  const isTfaEnabled = session?.user.isTfaEnabled
-  const isOnboarding = session?.user.isOnboarding
+  const isTfaEnabled = session?.user?.isTfaEnabled
+  const isOnboarding = session?.user?.isOnboarding
 
   if (!isLoggedIn) {
     return isPublicPage ? NextResponse.next() : NextResponse.redirect(new URL('/login', req.url))
@@ -27,7 +28,7 @@ export default auth(async (req) => {
     return path === '/tfa' || path === '/login' ? NextResponse.next() : NextResponse.redirect(new URL('/tfa', req.url))
   }
 
-  if (isInvite || isUnsubscribe) {
+  if (isInvite || isUnsubscribe || isWaitlist) {
     return NextResponse.next()
   }
 
@@ -54,6 +55,6 @@ export const config = {
      * - public/icons (images)
      */
 
-    '/((?!api|_next/static|_next/image|favicon.ico|backgrounds|backgrounds/|icons|icons/).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|backgrounds|backgrounds/|icons|icons/|images|images/).*)',
   ],
 }

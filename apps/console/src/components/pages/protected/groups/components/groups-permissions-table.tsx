@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/selec
 import { DataTable } from '@repo/ui/data-table'
 import { useNotification } from '@/hooks/useNotification'
 import { Trash2 } from 'lucide-react'
-import { OBJECT_TYPE_CONFIG, ObjectTypes } from '@/constants/groups'
+import { OBJECT_TYPE_CONFIG, objectTypeInputToEnumMap, ObjectTypes } from '@/constants/groups'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { useGetGroupPermissions, useUpdateGroup } from '@/lib/graphql-hooks/groups'
 import { useQueryClient } from '@tanstack/react-query'
@@ -39,12 +39,11 @@ const GroupsPermissionsTable = () => {
   }
 
   const permissions =
-    data?.group?.permissions?.map((perm) => ({
-      id: perm.id ?? 'unknown-id',
-      displayID: perm.displayID || 'N/A',
-      name: perm.name || 'Unknown',
-      objectType: perm.objectType || 'Unknown',
-      role: perm.permissions as Permission,
+    data?.group.permissions.edges?.map((edge) => ({
+      id: edge?.node?.id ?? 'unknown-id',
+      name: edge?.node?.name || 'Unknown',
+      objectType: edge?.node?.objectType || 'Unknown',
+      role: edge?.node?.permissions as Permission,
     })) || []
 
   const handleRoleChange = async (id: string, newRoleLabel: string, objectType: string) => {
@@ -91,22 +90,22 @@ const GroupsPermissionsTable = () => {
     }
   }
 
-  const columns: ColumnDef<{ id: string; displayID: string; name: string; objectType: string; role: Permission }>[] = [
-    { header: 'Display ID', accessorKey: 'displayID' },
+  const columns: ColumnDef<{ id: string; name: string; objectType: string; role: Permission }>[] = [
     { header: 'Name', accessorKey: 'name' },
     { header: 'Object Type', accessorKey: 'objectType' },
     {
       header: 'Role',
       accessorKey: 'role',
       cell: ({ row }) => {
-        const objectType = row.original.objectType as ObjectTypes
-        const roleOptions = OBJECT_TYPE_CONFIG[objectType]?.roleOptions || []
+        const rawObjectType = row.original.objectType as ObjectTypes
+        const objectType = objectTypeInputToEnumMap[rawObjectType]
+        const roleOptions = objectType ? OBJECT_TYPE_CONFIG[objectType].roleOptions : []
 
         return (
           <Select defaultValue={PERMISSION_LABELS[row.original.role]} onValueChange={(value) => handleRoleChange(row.original.id, value, row.original.objectType)}>
             <SelectTrigger className="w-full">{PERMISSION_LABELS[row.original.role]}</SelectTrigger>
             <SelectContent>
-              {roleOptions.map((role) => (
+              {roleOptions.map((role: string) => (
                 <SelectItem key={role} value={role}>
                   {role}
                 </SelectItem>
@@ -119,7 +118,7 @@ const GroupsPermissionsTable = () => {
     {
       id: 'actions',
       cell: ({ row }) => (
-        <button className="text-brand flex justify-self-end " onClick={() => handleDelete(row.original.id, row.original.objectType, row.original.role)}>
+        <button type="button" className="text-brand flex justify-self-end " onClick={() => handleDelete(row.original.id, row.original.objectType, row.original.role)}>
           <Trash2 className="h-4 w-4" />
         </button>
       ),

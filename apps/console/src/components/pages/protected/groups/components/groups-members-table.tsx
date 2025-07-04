@@ -6,11 +6,12 @@ import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { Trash2 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { GroupMembershipRole, UserRole } from '@repo/codegen/src/schema'
+import { GroupMembershipRole, User } from '@repo/codegen/src/schema'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { useSession } from 'next-auth/react'
-import { useGetGroupDetails, useUpdateGroupMembership } from '@/lib/graphql-hooks/groups'
+import { useDeleteGroupMembership, useGetGroupDetails, useUpdateGroupMembership } from '@/lib/graphql-hooks/groups'
 import { useQueryClient } from '@tanstack/react-query'
+import { useNotification } from '@/hooks/useNotification.tsx'
 
 interface Member {
   id: string
@@ -26,18 +27,26 @@ const GroupsMembersTable = () => {
   const { members, isManaged, id } = data?.group || {}
   const [users, setUsers] = useState<Member[]>([])
   const { mutateAsync: updateMembership } = useUpdateGroupMembership()
+  const { mutateAsync: deleteMembership, isPending: isDeleting } = useDeleteGroupMembership()
+  const { successNotification, errorNotification } = useNotification()
+
   const queryClient = useQueryClient()
 
   useEffect(() => {
     if (selectedGroup) {
-      const membersList = members || []
+      const membersList =
+        members?.edges?.map((edge) => ({
+          user: edge?.node?.user as User,
+          role: edge?.node?.role,
+          membershipID: edge?.node?.id,
+        })) || []
 
       const sortedMembers = membersList
-        .filter((member) => member.user.id !== session?.user.userId)
+        .filter((member) => member.user.id !== session?.user?.userId)
         .map((member) => ({
-          id: member.id,
-          name: member.user.firstName || 'Unknown Member',
-          role: member.role,
+          id: member.membershipID || '',
+          name: member.user.displayName || 'Unknown Member',
+          role: member.role as GroupMembershipRole,
           avatar: member.user.avatarFile?.presignedURL || member.user.avatarRemoteURL || '',
         }))
         .sort((a, b) => {
@@ -61,8 +70,13 @@ const GroupsMembersTable = () => {
     queryClient.invalidateQueries({ queryKey: ['groups', id] })
   }
 
-  const handleDelete = (id: string) => {
-    setUsers((prev) => prev.filter((user) => user.id !== id))
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteMembership({ deleteGroupMembershipId: id })
+      successNotification({ title: `Group membership deleted successfully.` })
+    } catch (error) {
+      errorNotification({ title: 'Failed to delete group membership.' })
+    }
   }
 
   const userRoleOptions = Object.values(GroupMembershipRole)
@@ -113,7 +127,8 @@ const GroupsMembersTable = () => {
 
         return (
           <button
-            disabled={!!isManaged || !isAdmin}
+            disabled={!!isManaged || !isAdmin || isDeleting}
+            type="button"
             onClick={() => handleDelete(user.id)}
             className={`text-brand flex justify-end mt-2.5 ${isManaged || !isAdmin ? 'cursor-not-allowed' : 'cursor-pointer'}`}
           >

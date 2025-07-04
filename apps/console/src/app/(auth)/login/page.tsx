@@ -1,48 +1,25 @@
-'use client'
-
-import { Logo } from '@repo/ui/logo'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
-import { Suspense, useState } from 'react'
-import { pageStyles } from './page.styles'
+import { Suspense } from 'react'
 import { LoginPage } from '@/components/pages/auth/login/login'
-import { SignupPage } from '@/components/pages/auth/signup/signup'
+import AuthMarketingPanel from '@/components/shared/AuthMarketingPanel.tsx/auth-marketing-panel'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Login',
+}
 
 const AuthLogin: React.FC = () => {
-  const defaultTab = 'login'
-  const { bg, content, logo } = pageStyles()
-  const [activeTab, setActiveTab] = useState(defaultTab)
   return (
     <>
       <Suspense>
-        <div className={content()}>
-          <div className={logo()}>
-            <Logo width={300} theme="light" />
-          </div>
-          <Tabs
-            variant="underline"
-            defaultValue={defaultTab}
-            onValueChange={(value) => {
-              setActiveTab(value)
-            }}
-          >
-            <TabsList>
-              <TabsTrigger className="text-text-dark shadow-[inset_0_-1px_0_0_var(--color-border-light)]" value="login">
-                Login
-              </TabsTrigger>
-              <TabsTrigger value="signup" className="text-text-dark shadow-[inset_0_-1px_0_0_var(--color-border-light)]">
-                Signup
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="login">
-              <LoginPage />
-            </TabsContent>
-            <TabsContent value="signup">
-              <SignupPage />
-            </TabsContent>
-          </Tabs>
+        <div className="flex h-full w-full min-h-screen gap-4 sm:gap-8 md:gap-12 lg:gap-20 xl:gap-60 justify-center lg:justify-start">
+          <AuthMarketingPanel>
+            <h2 className="text-4xl font-normal">
+              Checkboxes don’t
+              <br /> build trust. We do.
+            </h2>
+          </AuthMarketingPanel>{' '}
+          <LoginPage />
         </div>
-        <div className={bg({ activeBg: activeTab === 'login' })}></div>
-        <div className={bg({ activeBg: activeTab === 'signup' })}></div>
       </Suspense>
     </>
   )

@@ -2,15 +2,26 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Info, Upload } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { cloneElement, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { Card } from '@repo/ui/cardpanel'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useCreateBulkCSVTask } from '@/lib/graphql-hooks/tasks'
 import { useNotification } from '@/hooks/useNotification'
 import { exportCSV } from '@/lib/export'
+import { DOCS_URL, GRAPHQL_OBJECT_DOCS } from '@/constants'
 
-const BulkCSVCreateTaskDialog = () => {
+type BulkCsvCreateTaskDialogProps = {
+  trigger?: React.ReactElement<
+    Partial<{
+      onClick: React.MouseEventHandler
+      disabled: boolean
+      loading: boolean
+    }>
+  >
+}
+
+const BulkCSVCreateTaskDialog: React.FC<BulkCsvCreateTaskDialogProps> = ({ trigger }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [uploadedFile, setUploadedFile] = useState<TUploadedFile | null>(null)
   const { successNotification, errorNotification } = useNotification()
@@ -46,11 +57,21 @@ const BulkCSVCreateTaskDialog = () => {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button icon={<Upload />} iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
-          Bulk Upload
-        </Button>
-      </DialogTrigger>
+      {trigger ? (
+        <DialogTrigger>
+          {cloneElement(trigger, {
+            onClick: () => setIsOpen(true),
+            disabled: isSubmitting,
+          })}
+        </DialogTrigger>
+      ) : (
+        <DialogTrigger asChild>
+          <Button icon={<Upload />} className="h-8 !px-2" iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
+            Bulk Upload
+          </Button>
+        </DialogTrigger>
+      )}
+
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Bulk Upload</DialogTitle>
@@ -61,7 +82,7 @@ const BulkCSVCreateTaskDialog = () => {
             <p className="font-semibold">Column format</p>
             <p className="text-sm">
               You can upload a csv containing tasks. Please refer to our{' '}
-              <a href="https://docs.theopenlane.io/docs/api/graph-api/objects#task" target="_blank" className="text-brand hover:underline">
+              <a href={`${DOCS_URL}${GRAPHQL_OBJECT_DOCS}#task`} target="_blank" className="text-brand hover:underline">
                 documentation
               </a>{' '}
               for column format. We also provide a{' '}

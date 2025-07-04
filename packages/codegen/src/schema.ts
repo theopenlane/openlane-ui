@@ -13,6 +13,7 @@ export interface Scalars {
   Boolean: { input: boolean; output: boolean }
   Int: { input: number; output: number }
   Float: { input: number; output: number }
+  /** AAGUID (Authenticator Attestation Global Unique Identifier) is a 128-bit identifier used in the WebAuthn and FIDO2 protocols to uniquely identify the model of an authenticator device */
   AAGUID: { input: any; output: any }
   /**
    * The `Address` scalar type represents a physical or mailing address.
@@ -25,11 +26,16 @@ export interface Scalars {
   /** The `AssessmentObjective` scalar type represents objectives that are validated during the audit to ensure the control is implemented */
   AssessmentObjective: { input: any; output: any }
   /**
+   * Change is a difference between two updates to an object used by
+   * the audit history resolvers
+   */
+  Change: { input: any; output: any }
+  /**
    * Define a Relay Cursor type:
    * https://relay.dev/graphql/connections.htm#sec-Cursor
    */
   Cursor: { input: any; output: any }
-  /** DateTime allows clients to use multiple time/date formats ( 2006-01-10 or 2025-04-28T04:00:00Z )  */
+  /** DateTime allows clients to use multiple time/date formats ( 2006-01-10 or 2025-04-28T04:00:00Z ) */
   DateTime: { input: string; output: string }
   /** The `ExampleEvidence` scalar type represents example evidence that can be used to satisfy the control */
   ExampleEvidence: { input: any; output: any }
@@ -37,6 +43,10 @@ export interface Scalars {
   ImplementationGuidance: { input: any; output: any }
   /** A valid JSON string. */
   JSON: { input: any; output: any }
+  /** JobCadence is when a job should be scheduled to run */
+  JobCadence: { input: any; output: any }
+  /** JobConfiguration is the configuration for an automated job */
+  JobConfiguration: { input: any; output: any }
   /** The builtin Map type */
   Map: { input: any; output: any }
   /** The `Price` scalar type represents a monetary value for a subscription, including the numerical amount, the interval of recurrence and the currency to be charged in (e.g. USD) */
@@ -58,8 +68,6 @@ export interface ApiToken extends Node {
   __typename?: 'APIToken'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** a description of the token's purpose */
   description?: Maybe<Scalars['String']['output']>
   /** when the token expires */
@@ -186,33 +194,6 @@ export interface ApiTokenWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** expires_at field predicates */
   expiresAt?: InputMaybe<Scalars['Time']['input']>
   expiresAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -368,6 +349,8 @@ export interface ActionPlan extends Node {
   approver?: Maybe<Group>
   /** the id of the group responsible for approving the action_plan */
   approverID?: Maybe<Scalars['ID']['output']>
+  /** proposed controls referenced in the action_plan */
+  controlSuggestions?: Maybe<Array<Scalars['String']['output']>>
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
@@ -375,13 +358,19 @@ export interface ActionPlan extends Node {
   delegate?: Maybe<Group>
   /** the id of the group responsible for approving the action_plan */
   delegateID?: Maybe<Scalars['ID']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** details of the action_plan */
   details?: Maybe<Scalars['String']['output']>
+  /** control suggestions dismissed by the user for the action_plan */
+  dismissedControlSuggestions?: Maybe<Array<Scalars['String']['output']>>
+  /** improvement suggestions dismissed by the user for the action_plan */
+  dismissedImprovementSuggestions?: Maybe<Array<Scalars['String']['output']>>
+  /** tag suggestions dismissed by the user for the action_plan */
+  dismissedTagSuggestions?: Maybe<Array<Scalars['String']['output']>>
   /** due date of the action plan */
   dueDate?: Maybe<Scalars['Time']['output']>
   id: Scalars['ID']['output']
+  /** suggested improvements for the action_plan */
+  improvementSuggestions?: Maybe<Array<Scalars['String']['output']>>
   /** the name of the action_plan */
   name: Scalars['String']['output']
   owner?: Maybe<Organization>
@@ -401,6 +390,9 @@ export interface ActionPlan extends Node {
   source?: Maybe<Scalars['String']['output']>
   /** status of the action_plan, e.g. draft, published, archived, etc. */
   status?: Maybe<ActionPlanDocumentStatus>
+  summary?: Maybe<Scalars['String']['output']>
+  /** auto-generated tag suggestions for the action_plan */
+  tagSuggestions?: Maybe<Array<Scalars['String']['output']>>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
@@ -510,18 +502,26 @@ export interface ActionPlanHistory extends Node {
   approvalRequired?: Maybe<Scalars['Boolean']['output']>
   /** the id of the group responsible for approving the action_plan */
   approverID?: Maybe<Scalars['String']['output']>
+  /** proposed controls referenced in the action_plan */
+  controlSuggestions?: Maybe<Array<Scalars['String']['output']>>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** the id of the group responsible for approving the action_plan */
   delegateID?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** details of the action_plan */
   details?: Maybe<Scalars['String']['output']>
+  /** control suggestions dismissed by the user for the action_plan */
+  dismissedControlSuggestions?: Maybe<Array<Scalars['String']['output']>>
+  /** improvement suggestions dismissed by the user for the action_plan */
+  dismissedImprovementSuggestions?: Maybe<Array<Scalars['String']['output']>>
+  /** tag suggestions dismissed by the user for the action_plan */
+  dismissedTagSuggestions?: Maybe<Array<Scalars['String']['output']>>
   /** due date of the action plan */
   dueDate?: Maybe<Scalars['Time']['output']>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
+  /** suggested improvements for the action_plan */
+  improvementSuggestions?: Maybe<Array<Scalars['String']['output']>>
   /** the name of the action_plan */
   name: Scalars['String']['output']
   operation: ActionPlanHistoryOpType
@@ -540,6 +540,9 @@ export interface ActionPlanHistory extends Node {
   source?: Maybe<Scalars['String']['output']>
   /** status of the action_plan, e.g. draft, published, archived, etc. */
   status?: Maybe<ActionPlanHistoryDocumentStatus>
+  summary?: Maybe<Scalars['String']['output']>
+  /** auto-generated tag suggestions for the action_plan */
+  tagSuggestions?: Maybe<Array<Scalars['String']['output']>>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
@@ -605,6 +608,7 @@ export enum ActionPlanHistoryOrderField {
   STATUS = 'STATUS',
   created_at = 'created_at',
   due_date = 'due_date',
+  history_time = 'history_time',
   name = 'name',
   review_due = 'review_due',
   revision = 'revision',
@@ -706,33 +710,6 @@ export interface ActionPlanHistoryWhereInput {
   delegateIDNEQ?: InputMaybe<Scalars['String']['input']>
   delegateIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   delegateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** details field predicates */
   details?: InputMaybe<Scalars['String']['input']>
   detailsContains?: InputMaybe<Scalars['String']['input']>
@@ -1049,33 +1026,6 @@ export interface ActionPlanWhereInput {
   delegateIDNEQ?: InputMaybe<Scalars['ID']['input']>
   delegateIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   delegateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** details field predicates */
   details?: InputMaybe<Scalars['String']['input']>
   detailsContains?: InputMaybe<Scalars['String']['input']>
@@ -1260,9 +1210,622 @@ export interface ActionPlanWhereInput {
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+/** AddProgramMembershipInput is used for create ProgramMembership object under an existing program */
+export interface AddProgramMembershipInput {
+  role?: InputMaybe<ProgramMembershipRole>
+  userID: Scalars['ID']['input']
+}
+
+export interface Asset extends Node {
+  __typename?: 'Asset'
+  /** the type of the asset, e.g. technology, domain, device, etc */
+  assetType: AssetAssetType
+  blockedGroups: GroupConnection
+  /** the categories of the asset, e.g. web server, database, etc */
+  categories?: Maybe<Array<Scalars['String']['output']>>
+  controls: ControlConnection
+  /** the CPE (Common Platform Enumeration) of the asset, if applicable */
+  cpe?: Maybe<Scalars['String']['output']>
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  description?: Maybe<Scalars['String']['output']>
+  editors: GroupConnection
+  entities: EntityConnection
+  id: Scalars['ID']['output']
+  /** unique identifier like domain, device id, etc */
+  identifier?: Maybe<Scalars['String']['output']>
+  /** the name of the asset, e.g. matts computer, office router, IP address, etc */
+  name: Scalars['String']['output']
+  owner?: Maybe<Organization>
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['ID']['output']>
+  scans: ScanConnection
+  /** tags associated with the object */
+  tags?: Maybe<Array<Scalars['String']['output']>>
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+  viewers: GroupConnection
+  /** the website of the asset, if applicable */
+  website?: Maybe<Scalars['String']['output']>
+}
+
+export interface AssetBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface AssetControlsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlOrder>>
+  where?: InputMaybe<ControlWhereInput>
+}
+
+export interface AssetEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface AssetEntitiesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<EntityOrder>>
+  where?: InputMaybe<EntityWhereInput>
+}
+
+export interface AssetScansArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ScanOrder>>
+  where?: InputMaybe<ScanWhereInput>
+}
+
+export interface AssetViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+/** AssetAssetType is enum for the field asset_type */
+export enum AssetAssetType {
+  DEVICE = 'DEVICE',
+  DOMAIN = 'DOMAIN',
+  TECHNOLOGY = 'TECHNOLOGY',
+  TELEPHONE = 'TELEPHONE',
+}
+
+/** Return response for createBulkAsset mutation */
+export interface AssetBulkCreatePayload {
+  __typename?: 'AssetBulkCreatePayload'
+  /** Created assets */
+  assets?: Maybe<Array<Asset>>
+}
+
+/** A connection to a list of items. */
+export interface AssetConnection {
+  __typename?: 'AssetConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<AssetEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** Return response for createAsset mutation */
+export interface AssetCreatePayload {
+  __typename?: 'AssetCreatePayload'
+  /** Created asset */
+  asset: Asset
+}
+
+/** Return response for deleteAsset mutation */
+export interface AssetDeletePayload {
+  __typename?: 'AssetDeletePayload'
+  /** Deleted asset ID */
+  deletedID: Scalars['ID']['output']
+}
+
+/** An edge in a connection. */
+export interface AssetEdge {
+  __typename?: 'AssetEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<Asset>
+}
+
+export interface AssetHistory extends Node {
+  __typename?: 'AssetHistory'
+  /** the type of the asset, e.g. technology, domain, device, etc */
+  assetType: AssetHistoryAssetType
+  /** the categories of the asset, e.g. web server, database, etc */
+  categories?: Maybe<Array<Scalars['String']['output']>>
+  /** the CPE (Common Platform Enumeration) of the asset, if applicable */
+  cpe?: Maybe<Scalars['String']['output']>
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  description?: Maybe<Scalars['String']['output']>
+  historyTime: Scalars['Time']['output']
+  id: Scalars['ID']['output']
+  /** unique identifier like domain, device id, etc */
+  identifier?: Maybe<Scalars['String']['output']>
+  /** the name of the asset, e.g. matts computer, office router, IP address, etc */
+  name: Scalars['String']['output']
+  operation: AssetHistoryOpType
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['String']['output']>
+  ref?: Maybe<Scalars['String']['output']>
+  /** tags associated with the object */
+  tags?: Maybe<Array<Scalars['String']['output']>>
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+  /** the website of the asset, if applicable */
+  website?: Maybe<Scalars['String']['output']>
+}
+
+/** AssetHistoryAssetType is enum for the field asset_type */
+export enum AssetHistoryAssetType {
+  DEVICE = 'DEVICE',
+  DOMAIN = 'DOMAIN',
+  TECHNOLOGY = 'TECHNOLOGY',
+  TELEPHONE = 'TELEPHONE',
+}
+
+/** A connection to a list of items. */
+export interface AssetHistoryConnection {
+  __typename?: 'AssetHistoryConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<AssetHistoryEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** An edge in a connection. */
+export interface AssetHistoryEdge {
+  __typename?: 'AssetHistoryEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<AssetHistory>
+}
+
+/** AssetHistoryOpType is enum for the field operation */
+export enum AssetHistoryOpType {
+  DELETE = 'DELETE',
+  INSERT = 'INSERT',
+  UPDATE = 'UPDATE',
+}
+
+/** Ordering options for AssetHistory connections */
+export interface AssetHistoryOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order AssetHistories. */
+  field: AssetHistoryOrderField
+}
+
+/** Properties by which AssetHistory connections can be ordered. */
+export enum AssetHistoryOrderField {
+  ASSET_TYPE = 'ASSET_TYPE',
+  created_at = 'created_at',
+  history_time = 'history_time',
+  name = 'name',
+  updated_at = 'updated_at',
+}
+
+/**
+ * AssetHistoryWhereInput is used for filtering AssetHistory objects.
+ * Input was generated by ent.
+ */
+export interface AssetHistoryWhereInput {
+  and?: InputMaybe<Array<AssetHistoryWhereInput>>
+  /** asset_type field predicates */
+  assetType?: InputMaybe<AssetHistoryAssetType>
+  assetTypeIn?: InputMaybe<Array<AssetHistoryAssetType>>
+  assetTypeNEQ?: InputMaybe<AssetHistoryAssetType>
+  assetTypeNotIn?: InputMaybe<Array<AssetHistoryAssetType>>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** description field predicates */
+  description?: InputMaybe<Scalars['String']['input']>
+  descriptionContains?: InputMaybe<Scalars['String']['input']>
+  descriptionContainsFold?: InputMaybe<Scalars['String']['input']>
+  descriptionEqualFold?: InputMaybe<Scalars['String']['input']>
+  descriptionGT?: InputMaybe<Scalars['String']['input']>
+  descriptionGTE?: InputMaybe<Scalars['String']['input']>
+  descriptionHasPrefix?: InputMaybe<Scalars['String']['input']>
+  descriptionHasSuffix?: InputMaybe<Scalars['String']['input']>
+  descriptionIn?: InputMaybe<Array<Scalars['String']['input']>>
+  descriptionIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  descriptionLT?: InputMaybe<Scalars['String']['input']>
+  descriptionLTE?: InputMaybe<Scalars['String']['input']>
+  descriptionNEQ?: InputMaybe<Scalars['String']['input']>
+  descriptionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  descriptionNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** history_time field predicates */
+  historyTime?: InputMaybe<Scalars['Time']['input']>
+  historyTimeGT?: InputMaybe<Scalars['Time']['input']>
+  historyTimeGTE?: InputMaybe<Scalars['Time']['input']>
+  historyTimeIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  historyTimeLT?: InputMaybe<Scalars['Time']['input']>
+  historyTimeLTE?: InputMaybe<Scalars['Time']['input']>
+  historyTimeNEQ?: InputMaybe<Scalars['Time']['input']>
+  historyTimeNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** identifier field predicates */
+  identifier?: InputMaybe<Scalars['String']['input']>
+  identifierContains?: InputMaybe<Scalars['String']['input']>
+  identifierContainsFold?: InputMaybe<Scalars['String']['input']>
+  identifierEqualFold?: InputMaybe<Scalars['String']['input']>
+  identifierGT?: InputMaybe<Scalars['String']['input']>
+  identifierGTE?: InputMaybe<Scalars['String']['input']>
+  identifierHasPrefix?: InputMaybe<Scalars['String']['input']>
+  identifierHasSuffix?: InputMaybe<Scalars['String']['input']>
+  identifierIn?: InputMaybe<Array<Scalars['String']['input']>>
+  identifierIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  identifierLT?: InputMaybe<Scalars['String']['input']>
+  identifierLTE?: InputMaybe<Scalars['String']['input']>
+  identifierNEQ?: InputMaybe<Scalars['String']['input']>
+  identifierNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  identifierNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** name field predicates */
+  name?: InputMaybe<Scalars['String']['input']>
+  nameContains?: InputMaybe<Scalars['String']['input']>
+  nameContainsFold?: InputMaybe<Scalars['String']['input']>
+  nameEqualFold?: InputMaybe<Scalars['String']['input']>
+  nameGT?: InputMaybe<Scalars['String']['input']>
+  nameGTE?: InputMaybe<Scalars['String']['input']>
+  nameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  nameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  nameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  nameLT?: InputMaybe<Scalars['String']['input']>
+  nameLTE?: InputMaybe<Scalars['String']['input']>
+  nameNEQ?: InputMaybe<Scalars['String']['input']>
+  nameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  not?: InputMaybe<AssetHistoryWhereInput>
+  /** operation field predicates */
+  operation?: InputMaybe<AssetHistoryOpType>
+  operationIn?: InputMaybe<Array<AssetHistoryOpType>>
+  operationNEQ?: InputMaybe<AssetHistoryOpType>
+  operationNotIn?: InputMaybe<Array<AssetHistoryOpType>>
+  or?: InputMaybe<Array<AssetHistoryWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['String']['input']>
+  ownerIDContains?: InputMaybe<Scalars['String']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  ownerIDGT?: InputMaybe<Scalars['String']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['String']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['String']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['String']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** ref field predicates */
+  ref?: InputMaybe<Scalars['String']['input']>
+  refContains?: InputMaybe<Scalars['String']['input']>
+  refContainsFold?: InputMaybe<Scalars['String']['input']>
+  refEqualFold?: InputMaybe<Scalars['String']['input']>
+  refGT?: InputMaybe<Scalars['String']['input']>
+  refGTE?: InputMaybe<Scalars['String']['input']>
+  refHasPrefix?: InputMaybe<Scalars['String']['input']>
+  refHasSuffix?: InputMaybe<Scalars['String']['input']>
+  refIn?: InputMaybe<Array<Scalars['String']['input']>>
+  refIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  refLT?: InputMaybe<Scalars['String']['input']>
+  refLTE?: InputMaybe<Scalars['String']['input']>
+  refNEQ?: InputMaybe<Scalars['String']['input']>
+  refNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  refNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** website field predicates */
+  website?: InputMaybe<Scalars['String']['input']>
+  websiteContains?: InputMaybe<Scalars['String']['input']>
+  websiteContainsFold?: InputMaybe<Scalars['String']['input']>
+  websiteEqualFold?: InputMaybe<Scalars['String']['input']>
+  websiteGT?: InputMaybe<Scalars['String']['input']>
+  websiteGTE?: InputMaybe<Scalars['String']['input']>
+  websiteHasPrefix?: InputMaybe<Scalars['String']['input']>
+  websiteHasSuffix?: InputMaybe<Scalars['String']['input']>
+  websiteIn?: InputMaybe<Array<Scalars['String']['input']>>
+  websiteIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  websiteLT?: InputMaybe<Scalars['String']['input']>
+  websiteLTE?: InputMaybe<Scalars['String']['input']>
+  websiteNEQ?: InputMaybe<Scalars['String']['input']>
+  websiteNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  websiteNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+/** Ordering options for Asset connections */
+export interface AssetOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order Assets. */
+  field: AssetOrderField
+}
+
+/** Properties by which Asset connections can be ordered. */
+export enum AssetOrderField {
+  ASSET_TYPE = 'ASSET_TYPE',
+  created_at = 'created_at',
+  name = 'name',
+  updated_at = 'updated_at',
+}
+
+/** Return response for updateAsset mutation */
+export interface AssetUpdatePayload {
+  __typename?: 'AssetUpdatePayload'
+  /** Updated asset */
+  asset: Asset
+}
+
+/**
+ * AssetWhereInput is used for filtering Asset objects.
+ * Input was generated by ent.
+ */
+export interface AssetWhereInput {
+  and?: InputMaybe<Array<AssetWhereInput>>
+  /** asset_type field predicates */
+  assetType?: InputMaybe<AssetAssetType>
+  assetTypeIn?: InputMaybe<Array<AssetAssetType>>
+  assetTypeNEQ?: InputMaybe<AssetAssetType>
+  assetTypeNotIn?: InputMaybe<Array<AssetAssetType>>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** description field predicates */
+  description?: InputMaybe<Scalars['String']['input']>
+  descriptionContains?: InputMaybe<Scalars['String']['input']>
+  descriptionContainsFold?: InputMaybe<Scalars['String']['input']>
+  descriptionEqualFold?: InputMaybe<Scalars['String']['input']>
+  descriptionGT?: InputMaybe<Scalars['String']['input']>
+  descriptionGTE?: InputMaybe<Scalars['String']['input']>
+  descriptionHasPrefix?: InputMaybe<Scalars['String']['input']>
+  descriptionHasSuffix?: InputMaybe<Scalars['String']['input']>
+  descriptionIn?: InputMaybe<Array<Scalars['String']['input']>>
+  descriptionIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  descriptionLT?: InputMaybe<Scalars['String']['input']>
+  descriptionLTE?: InputMaybe<Scalars['String']['input']>
+  descriptionNEQ?: InputMaybe<Scalars['String']['input']>
+  descriptionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  descriptionNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** blocked_groups edge predicates */
+  hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** controls edge predicates */
+  hasControls?: InputMaybe<Scalars['Boolean']['input']>
+  hasControlsWith?: InputMaybe<Array<ControlWhereInput>>
+  /** editors edge predicates */
+  hasEditors?: InputMaybe<Scalars['Boolean']['input']>
+  hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** entities edge predicates */
+  hasEntities?: InputMaybe<Scalars['Boolean']['input']>
+  hasEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
+  /** owner edge predicates */
+  hasOwner?: InputMaybe<Scalars['Boolean']['input']>
+  hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** scans edge predicates */
+  hasScans?: InputMaybe<Scalars['Boolean']['input']>
+  hasScansWith?: InputMaybe<Array<ScanWhereInput>>
+  /** viewers edge predicates */
+  hasViewers?: InputMaybe<Scalars['Boolean']['input']>
+  hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** identifier field predicates */
+  identifier?: InputMaybe<Scalars['String']['input']>
+  identifierContains?: InputMaybe<Scalars['String']['input']>
+  identifierContainsFold?: InputMaybe<Scalars['String']['input']>
+  identifierEqualFold?: InputMaybe<Scalars['String']['input']>
+  identifierGT?: InputMaybe<Scalars['String']['input']>
+  identifierGTE?: InputMaybe<Scalars['String']['input']>
+  identifierHasPrefix?: InputMaybe<Scalars['String']['input']>
+  identifierHasSuffix?: InputMaybe<Scalars['String']['input']>
+  identifierIn?: InputMaybe<Array<Scalars['String']['input']>>
+  identifierIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  identifierLT?: InputMaybe<Scalars['String']['input']>
+  identifierLTE?: InputMaybe<Scalars['String']['input']>
+  identifierNEQ?: InputMaybe<Scalars['String']['input']>
+  identifierNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  identifierNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** name field predicates */
+  name?: InputMaybe<Scalars['String']['input']>
+  nameContains?: InputMaybe<Scalars['String']['input']>
+  nameContainsFold?: InputMaybe<Scalars['String']['input']>
+  nameEqualFold?: InputMaybe<Scalars['String']['input']>
+  nameGT?: InputMaybe<Scalars['String']['input']>
+  nameGTE?: InputMaybe<Scalars['String']['input']>
+  nameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  nameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  nameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  nameLT?: InputMaybe<Scalars['String']['input']>
+  nameLTE?: InputMaybe<Scalars['String']['input']>
+  nameNEQ?: InputMaybe<Scalars['String']['input']>
+  nameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  not?: InputMaybe<AssetWhereInput>
+  or?: InputMaybe<Array<AssetWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContains?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** website field predicates */
+  website?: InputMaybe<Scalars['String']['input']>
+  websiteContains?: InputMaybe<Scalars['String']['input']>
+  websiteContainsFold?: InputMaybe<Scalars['String']['input']>
+  websiteEqualFold?: InputMaybe<Scalars['String']['input']>
+  websiteGT?: InputMaybe<Scalars['String']['input']>
+  websiteGTE?: InputMaybe<Scalars['String']['input']>
+  websiteHasPrefix?: InputMaybe<Scalars['String']['input']>
+  websiteHasSuffix?: InputMaybe<Scalars['String']['input']>
+  websiteIn?: InputMaybe<Array<Scalars['String']['input']>>
+  websiteIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  websiteLT?: InputMaybe<Scalars['String']['input']>
+  websiteLTE?: InputMaybe<Scalars['String']['input']>
+  websiteNEQ?: InputMaybe<Scalars['String']['input']>
+  websiteNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  websiteNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
 export interface AuditLog extends Node {
   __typename?: 'AuditLog'
-  changes?: Maybe<Array<Scalars['String']['output']>>
+  changes?: Maybe<Array<Scalars['Change']['output']>>
   id: Scalars['ID']['output']
   operation?: Maybe<Scalars['String']['output']>
   table?: Maybe<Scalars['String']['output']>
@@ -1290,12 +1853,31 @@ export interface AuditLogEdge {
   node?: Maybe<AuditLog>
 }
 
+/** Ordering options for AuditLog connections */
+export interface AuditLogOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order AuditLogs. */
+  field: AuditLogOrderField
+}
+
+/** Properties by which AuditLog connections can be ordered. */
+export enum AuditLogOrderField {
+  history_time = 'history_time',
+}
+
 export interface AuditLogWhereInput {
+  /** After time to look for results */
   after?: InputMaybe<Scalars['Time']['input']>
+  /** Before time to look for results */
   before?: InputMaybe<Scalars['Time']['input']>
+  /** Operation of the entry, INSERT, DELETE, or UPDATE */
   operation?: InputMaybe<Scalars['String']['input']>
+  /** reference ID from the main object table unique ID */
   refID?: InputMaybe<Scalars['ID']['input']>
-  table?: InputMaybe<Scalars['ID']['input']>
+  /** Table (Object) that was updated. Required. */
+  table: Scalars['String']['input']
+  /** User or service ID that made the update */
   updatedBy?: InputMaybe<Scalars['ID']['input']>
 }
 
@@ -1304,9 +1886,14 @@ export interface AuditLogWhereInput {
  * under an organization (ownerID)
  */
 export interface CloneControlInput {
+  /** controlIDs are the ids of the control to clone. If standardID is passed, this is ignored */
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** organization ID that the controls will be under */
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** optional program ID to associate to the controls */
   programID?: InputMaybe<Scalars['ID']['input']>
+  /** standardID to clone all controls from into the organization */
+  standardID?: InputMaybe<Scalars['ID']['input']>
 }
 
 export interface Contact extends Node {
@@ -1317,8 +1904,6 @@ export interface Contact extends Node {
   company?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the email of the contact */
   email?: Maybe<Scalars['String']['output']>
   entities: EntityConnection
@@ -1408,8 +1993,6 @@ export interface ContactHistory extends Node {
   company?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the email of the contact */
   email?: Maybe<Scalars['String']['output']>
   /** the full name of the contact */
@@ -1474,6 +2057,7 @@ export enum ContactHistoryOrderField {
   created_at = 'created_at',
   email = 'email',
   full_name = 'full_name',
+  history_time = 'history_time',
   title = 'title',
   updated_at = 'updated_at',
 }
@@ -1552,33 +2136,6 @@ export interface ContactHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** email field predicates */
   email?: InputMaybe<Scalars['String']['input']>
   emailContains?: InputMaybe<Scalars['String']['input']>
@@ -1834,33 +2391,6 @@ export interface ContactWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** email field predicates */
   email?: InputMaybe<Scalars['String']['input']>
   emailContains?: InputMaybe<Scalars['String']['input']>
@@ -2002,10 +2532,10 @@ export interface Control extends Node {
   assessmentMethods?: Maybe<Array<Scalars['AssessmentMethod']['output']>>
   /** objectives of the audit assessment for the control */
   assessmentObjectives?: Maybe<Array<Scalars['AssessmentObjective']['output']>>
+  assets: AssetConnection
   /** external auditor id of the control, can be used to map to external audit partner mappings */
   auditorReferenceID?: Maybe<Scalars['String']['output']>
-  /** groups that are blocked from viewing or editing the risk */
-  blockedGroups?: Maybe<Array<Group>>
+  blockedGroups: GroupConnection
   /** category of the control */
   category?: Maybe<Scalars['String']['output']>
   /** category id of the control */
@@ -2026,14 +2556,11 @@ export interface Control extends Node {
   delegate?: Maybe<Group>
   /** the id of the group that is temporarily delegated to own the control */
   delegateID?: Maybe<Scalars['ID']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** description of what the control is supposed to accomplish */
   description?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
-  /** provides edit access to the risk to members of the group */
-  editors?: Maybe<Array<Group>>
+  editors: GroupConnection
   evidence: EvidenceConnection
   /** examples of evidence for the control */
   exampleEvidence?: Maybe<Array<Scalars['ExampleEvidence']['output']>>
@@ -2043,7 +2570,6 @@ export interface Control extends Node {
   internalPolicies: InternalPolicyConnection
   /** mapped categories of the control to other standards */
   mappedCategories?: Maybe<Array<Scalars['String']['output']>>
-  mappedControls: MappedControlConnection
   narratives: NarrativeConnection
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
@@ -2052,11 +2578,15 @@ export interface Control extends Node {
   programs: ProgramConnection
   /** the unique reference code for the control */
   refCode: Scalars['String']['output']
+  /** the reference framework for the control if it came from a standard, empty if not associated with a standard */
+  referenceFramework?: Maybe<Scalars['String']['output']>
   /** internal reference id of the control, can be used for internal tracking */
   referenceID?: Maybe<Scalars['String']['output']>
   /** references for the control */
   references?: Maybe<Array<Scalars['Reference']['output']>>
   risks: RiskConnection
+  scans: ScanConnection
+  scheduledJobs: ControlScheduledJobConnection
   /** source of the control, e.g. framework, template, custom, etc. */
   source?: Maybe<ControlControlSource>
   standard?: Maybe<Standard>
@@ -2072,8 +2602,6 @@ export interface Control extends Node {
   tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
-  /** provides view access to the risk to members of the group */
-  viewers?: Maybe<Array<Group>>
 }
 
 export interface ControlActionPlansArgs {
@@ -2083,6 +2611,24 @@ export interface ControlActionPlansArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ActionPlanOrder>>
   where?: InputMaybe<ActionPlanWhereInput>
+}
+
+export interface ControlAssetsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<AssetOrder>>
+  where?: InputMaybe<AssetWhereInput>
+}
+
+export interface ControlBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface ControlControlImplementationsArgs {
@@ -2103,6 +2649,15 @@ export interface ControlControlObjectivesArgs {
   where?: InputMaybe<ControlObjectiveWhereInput>
 }
 
+export interface ControlEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface ControlEvidenceArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -2119,15 +2674,6 @@ export interface ControlInternalPoliciesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<InternalPolicyOrder>>
   where?: InputMaybe<InternalPolicyWhereInput>
-}
-
-export interface ControlMappedControlsArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<MappedControlOrder>>
-  where?: InputMaybe<MappedControlWhereInput>
 }
 
 export interface ControlNarrativesArgs {
@@ -2164,6 +2710,24 @@ export interface ControlRisksArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<RiskOrder>>
   where?: InputMaybe<RiskWhereInput>
+}
+
+export interface ControlScansArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ScanOrder>>
+  where?: InputMaybe<ScanWhereInput>
+}
+
+export interface ControlScheduledJobsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlScheduledJobOrder>>
+  where?: InputMaybe<ControlScheduledJobWhereInput>
 }
 
 export interface ControlSubcontrolsArgs {
@@ -2216,7 +2780,7 @@ export enum ControlControlStatus {
   ARCHIVED = 'ARCHIVED',
   CHANGES_REQUESTED = 'CHANGES_REQUESTED',
   NEEDS_APPROVAL = 'NEEDS_APPROVAL',
-  NULL = 'NULL',
+  NOT_IMPLEMENTED = 'NOT_IMPLEMENTED',
   PREPARING = 'PREPARING',
 }
 
@@ -2273,8 +2837,6 @@ export interface ControlHistory extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** the id of the group that is temporarily delegated to own the control */
   delegateID?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** description of what the control is supposed to accomplish */
   description?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -2293,6 +2855,8 @@ export interface ControlHistory extends Node {
   ref?: Maybe<Scalars['String']['output']>
   /** the unique reference code for the control */
   refCode: Scalars['String']['output']
+  /** the reference framework for the control if it came from a standard, empty if not associated with a standard */
+  referenceFramework?: Maybe<Scalars['String']['output']>
   /** internal reference id of the control, can be used for internal tracking */
   referenceID?: Maybe<Scalars['String']['output']>
   /** references for the control */
@@ -2336,7 +2900,7 @@ export enum ControlHistoryControlStatus {
   ARCHIVED = 'ARCHIVED',
   CHANGES_REQUESTED = 'CHANGES_REQUESTED',
   NEEDS_APPROVAL = 'NEEDS_APPROVAL',
-  NULL = 'NULL',
+  NOT_IMPLEMENTED = 'NOT_IMPLEMENTED',
   PREPARING = 'PREPARING',
 }
 
@@ -2375,10 +2939,12 @@ export interface ControlHistoryOrder {
 /** Properties by which ControlHistory connections can be ordered. */
 export enum ControlHistoryOrderField {
   CONTROL_TYPE = 'CONTROL_TYPE',
+  REFERENCE_FRAMEWORK = 'REFERENCE_FRAMEWORK',
   SOURCE = 'SOURCE',
   STATUS = 'STATUS',
   category = 'category',
   created_at = 'created_at',
+  history_time = 'history_time',
   ref_code = 'ref_code',
   subcategory = 'subcategory',
   updated_at = 'updated_at',
@@ -2504,33 +3070,6 @@ export interface ControlHistoryWhereInput {
   delegateIDNEQ?: InputMaybe<Scalars['String']['input']>
   delegateIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   delegateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -2634,6 +3173,22 @@ export interface ControlHistoryWhereInput {
   refNEQ?: InputMaybe<Scalars['String']['input']>
   refNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   refNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** reference_framework field predicates */
+  referenceFramework?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkContains?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkContainsFold?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkEqualFold?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkGT?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkGTE?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkHasPrefix?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkHasSuffix?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceFrameworkIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  referenceFrameworkLT?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkLTE?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkNEQ?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceFrameworkNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** reference_id field predicates */
   referenceID?: InputMaybe<Scalars['String']['input']>
   referenceIDContains?: InputMaybe<Scalars['String']['input']>
@@ -2727,13 +3282,13 @@ export interface ControlHistoryWhereInput {
 
 export interface ControlImplementation extends Node {
   __typename?: 'ControlImplementation'
+  blockedGroups: GroupConnection
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** details of the control implementation */
   details?: Maybe<Scalars['String']['output']>
+  editors: GroupConnection
   id: Scalars['ID']['output']
   /** date the control was implemented */
   implementationDate?: Maybe<Scalars['Time']['output']>
@@ -2751,6 +3306,16 @@ export interface ControlImplementation extends Node {
   verificationDate?: Maybe<Scalars['Time']['output']>
   /** set to true if the control implementation has been verified */
   verified?: Maybe<Scalars['Boolean']['output']>
+  viewers: GroupConnection
+}
+
+export interface ControlImplementationBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface ControlImplementationControlsArgs {
@@ -2762,6 +3327,15 @@ export interface ControlImplementationControlsArgs {
   where?: InputMaybe<ControlWhereInput>
 }
 
+export interface ControlImplementationEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface ControlImplementationSubcontrolsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -2769,6 +3343,15 @@ export interface ControlImplementationSubcontrolsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<SubcontrolOrder>>
   where?: InputMaybe<SubcontrolWhereInput>
+}
+
+export interface ControlImplementationViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 /** Return response for createBulkControlImplementation mutation */
@@ -2825,8 +3408,6 @@ export interface ControlImplementationHistory extends Node {
   __typename?: 'ControlImplementationHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** details of the control implementation */
   details?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
@@ -2897,6 +3478,7 @@ export interface ControlImplementationHistoryOrder {
 export enum ControlImplementationHistoryOrderField {
   STATUS = 'STATUS',
   created_at = 'created_at',
+  history_time = 'history_time',
   implementation_date = 'implementation_date',
   updated_at = 'updated_at',
   verification_date = 'verification_date',
@@ -2936,33 +3518,6 @@ export interface ControlImplementationHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** details field predicates */
   details?: InputMaybe<Scalars['String']['input']>
   detailsContains?: InputMaybe<Scalars['String']['input']>
@@ -3159,33 +3714,6 @@ export interface ControlImplementationWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** details field predicates */
   details?: InputMaybe<Scalars['String']['input']>
   detailsContains?: InputMaybe<Scalars['String']['input']>
@@ -3202,15 +3730,24 @@ export interface ControlImplementationWhereInput {
   detailsNEQ?: InputMaybe<Scalars['String']['input']>
   detailsNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   detailsNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** blocked_groups edge predicates */
+  hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
   /** controls edge predicates */
   hasControls?: InputMaybe<Scalars['Boolean']['input']>
   hasControlsWith?: InputMaybe<Array<ControlWhereInput>>
+  /** editors edge predicates */
+  hasEditors?: InputMaybe<Scalars['Boolean']['input']>
+  hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
   /** subcontrols edge predicates */
   hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
+  /** viewers edge predicates */
+  hasViewers?: InputMaybe<Scalars['Boolean']['input']>
+  hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -3305,8 +3842,7 @@ export interface ControlImplementationWhereInput {
 
 export interface ControlObjective extends Node {
   __typename?: 'ControlObjective'
-  /** groups that are blocked from viewing or editing the risk */
-  blockedGroups?: Maybe<Array<Group>>
+  blockedGroups: GroupConnection
   /** category of the control */
   category?: Maybe<Scalars['String']['output']>
   /** type of the control objective e.g. compliance, financial, operational, etc. */
@@ -3314,14 +3850,11 @@ export interface ControlObjective extends Node {
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the desired outcome or target of the control objective */
   desiredOutcome?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
-  /** provides edit access to the risk to members of the group */
-  editors?: Maybe<Array<Group>>
+  editors: GroupConnection
   evidence: EvidenceConnection
   id: Scalars['ID']['output']
   internalPolicies: InternalPolicyConnection
@@ -3348,8 +3881,16 @@ export interface ControlObjective extends Node {
   tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
-  /** provides view access to the risk to members of the group */
-  viewers?: Maybe<Array<Group>>
+  viewers: GroupConnection
+}
+
+export interface ControlObjectiveBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface ControlObjectiveControlsArgs {
@@ -3359,6 +3900,15 @@ export interface ControlObjectiveControlsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ControlOrder>>
   where?: InputMaybe<ControlWhereInput>
+}
+
+export interface ControlObjectiveEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface ControlObjectiveEvidenceArgs {
@@ -3433,6 +3983,15 @@ export interface ControlObjectiveTasksArgs {
   where?: InputMaybe<TaskWhereInput>
 }
 
+export interface ControlObjectiveViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 /** Return response for createBulkControlObjective mutation */
 export interface ControlObjectiveBulkCreatePayload {
   __typename?: 'ControlObjectiveBulkCreatePayload'
@@ -3490,8 +4049,6 @@ export interface ControlObjectiveHistory extends Node {
   controlObjectiveType?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the desired outcome or target of the control objective */
   desiredOutcome?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -3574,6 +4131,7 @@ export enum ControlObjectiveHistoryOrderField {
   category = 'category',
   control_objective_type = 'control_objective_type',
   created_at = 'created_at',
+  history_time = 'history_time',
   name = 'name',
   revision = 'revision',
   status = 'status',
@@ -3646,33 +4204,6 @@ export interface ControlObjectiveHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** desired_outcome field predicates */
   desiredOutcome?: InputMaybe<Scalars['String']['input']>
   desiredOutcomeContains?: InputMaybe<Scalars['String']['input']>
@@ -3951,33 +4482,6 @@ export interface ControlObjectiveWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** desired_outcome field predicates */
   desiredOutcome?: InputMaybe<Scalars['String']['input']>
   desiredOutcomeContains?: InputMaybe<Scalars['String']['input']>
@@ -4175,7 +4679,9 @@ export interface ControlOrder {
 
 /** Properties by which Control connections can be ordered. */
 export enum ControlOrderField {
+  CONTROL_OWNER_name = 'CONTROL_OWNER_name',
   CONTROL_TYPE = 'CONTROL_TYPE',
+  REFERENCE_FRAMEWORK = 'REFERENCE_FRAMEWORK',
   SOURCE = 'SOURCE',
   STATUS = 'STATUS',
   category = 'category',
@@ -4183,6 +4689,465 @@ export enum ControlOrderField {
   ref_code = 'ref_code',
   subcategory = 'subcategory',
   updated_at = 'updated_at',
+}
+
+export interface ControlScheduledJob extends Node {
+  __typename?: 'ControlScheduledJob'
+  /** the schedule to run this job. If not provided, it would inherit the cadence of the parent job */
+  cadence?: Maybe<Scalars['JobCadence']['output']>
+  /** the configuration to run this job */
+  configuration: Scalars['JobConfiguration']['output']
+  controls: ControlConnection
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  /** cron syntax. If not provided, it would inherit the cron of the parent job */
+  cron?: Maybe<Scalars['String']['output']>
+  id: Scalars['ID']['output']
+  job: ScheduledJob
+  /** the scheduled_job id to take the script to run from */
+  jobID: Scalars['ID']['output']
+  jobRunner?: Maybe<JobRunner>
+  /** the runner that this job will run on. If not set, it will scheduled on a general runner instead */
+  jobRunnerID?: Maybe<Scalars['ID']['output']>
+  owner?: Maybe<Organization>
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['ID']['output']>
+  subcontrols: SubcontrolConnection
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+}
+
+export interface ControlScheduledJobControlsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlOrder>>
+  where?: InputMaybe<ControlWhereInput>
+}
+
+export interface ControlScheduledJobSubcontrolsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<SubcontrolOrder>>
+  where?: InputMaybe<SubcontrolWhereInput>
+}
+
+/** Return response for createBulkControlScheduledJob mutation */
+export interface ControlScheduledJobBulkCreatePayload {
+  __typename?: 'ControlScheduledJobBulkCreatePayload'
+  /** Created controlScheduledJobs */
+  controlScheduledJobs?: Maybe<Array<ControlScheduledJob>>
+}
+
+/** A connection to a list of items. */
+export interface ControlScheduledJobConnection {
+  __typename?: 'ControlScheduledJobConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<ControlScheduledJobEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** Return response for createControlScheduledJob mutation */
+export interface ControlScheduledJobCreatePayload {
+  __typename?: 'ControlScheduledJobCreatePayload'
+  /** Created controlScheduledJob */
+  controlScheduledJob: ControlScheduledJob
+}
+
+/** Return response for deleteControlScheduledJob mutation */
+export interface ControlScheduledJobDeletePayload {
+  __typename?: 'ControlScheduledJobDeletePayload'
+  /** Deleted controlScheduledJob ID */
+  deletedID: Scalars['ID']['output']
+}
+
+/** An edge in a connection. */
+export interface ControlScheduledJobEdge {
+  __typename?: 'ControlScheduledJobEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<ControlScheduledJob>
+}
+
+export interface ControlScheduledJobHistory extends Node {
+  __typename?: 'ControlScheduledJobHistory'
+  /** the schedule to run this job. If not provided, it would inherit the cadence of the parent job */
+  cadence?: Maybe<Scalars['JobCadence']['output']>
+  /** the configuration to run this job */
+  configuration: Scalars['JobConfiguration']['output']
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  /** cron syntax. If not provided, it would inherit the cron of the parent job */
+  cron?: Maybe<Scalars['String']['output']>
+  historyTime: Scalars['Time']['output']
+  id: Scalars['ID']['output']
+  /** the scheduled_job id to take the script to run from */
+  jobID: Scalars['String']['output']
+  /** the runner that this job will run on. If not set, it will scheduled on a general runner instead */
+  jobRunnerID?: Maybe<Scalars['String']['output']>
+  operation: ControlScheduledJobHistoryOpType
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['String']['output']>
+  ref?: Maybe<Scalars['String']['output']>
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+}
+
+/** A connection to a list of items. */
+export interface ControlScheduledJobHistoryConnection {
+  __typename?: 'ControlScheduledJobHistoryConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<ControlScheduledJobHistoryEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** An edge in a connection. */
+export interface ControlScheduledJobHistoryEdge {
+  __typename?: 'ControlScheduledJobHistoryEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<ControlScheduledJobHistory>
+}
+
+/** ControlScheduledJobHistoryOpType is enum for the field operation */
+export enum ControlScheduledJobHistoryOpType {
+  DELETE = 'DELETE',
+  INSERT = 'INSERT',
+  UPDATE = 'UPDATE',
+}
+
+/** Ordering options for ControlScheduledJobHistory connections */
+export interface ControlScheduledJobHistoryOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order ControlScheduledJobHistories. */
+  field: ControlScheduledJobHistoryOrderField
+}
+
+/** Properties by which ControlScheduledJobHistory connections can be ordered. */
+export enum ControlScheduledJobHistoryOrderField {
+  created_at = 'created_at',
+  history_time = 'history_time',
+  updated_at = 'updated_at',
+}
+
+/**
+ * ControlScheduledJobHistoryWhereInput is used for filtering ControlScheduledJobHistory objects.
+ * Input was generated by ent.
+ */
+export interface ControlScheduledJobHistoryWhereInput {
+  and?: InputMaybe<Array<ControlScheduledJobHistoryWhereInput>>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** history_time field predicates */
+  historyTime?: InputMaybe<Scalars['Time']['input']>
+  historyTimeGT?: InputMaybe<Scalars['Time']['input']>
+  historyTimeGTE?: InputMaybe<Scalars['Time']['input']>
+  historyTimeIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  historyTimeLT?: InputMaybe<Scalars['Time']['input']>
+  historyTimeLTE?: InputMaybe<Scalars['Time']['input']>
+  historyTimeNEQ?: InputMaybe<Scalars['Time']['input']>
+  historyTimeNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** job_id field predicates */
+  jobID?: InputMaybe<Scalars['String']['input']>
+  jobIDContains?: InputMaybe<Scalars['String']['input']>
+  jobIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  jobIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  jobIDGT?: InputMaybe<Scalars['String']['input']>
+  jobIDGTE?: InputMaybe<Scalars['String']['input']>
+  jobIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  jobIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  jobIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  jobIDLT?: InputMaybe<Scalars['String']['input']>
+  jobIDLTE?: InputMaybe<Scalars['String']['input']>
+  jobIDNEQ?: InputMaybe<Scalars['String']['input']>
+  jobIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** job_runner_id field predicates */
+  jobRunnerID?: InputMaybe<Scalars['String']['input']>
+  jobRunnerIDContains?: InputMaybe<Scalars['String']['input']>
+  jobRunnerIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  jobRunnerIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  jobRunnerIDGT?: InputMaybe<Scalars['String']['input']>
+  jobRunnerIDGTE?: InputMaybe<Scalars['String']['input']>
+  jobRunnerIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  jobRunnerIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  jobRunnerIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  jobRunnerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  jobRunnerIDLT?: InputMaybe<Scalars['String']['input']>
+  jobRunnerIDLTE?: InputMaybe<Scalars['String']['input']>
+  jobRunnerIDNEQ?: InputMaybe<Scalars['String']['input']>
+  jobRunnerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  jobRunnerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  not?: InputMaybe<ControlScheduledJobHistoryWhereInput>
+  /** operation field predicates */
+  operation?: InputMaybe<ControlScheduledJobHistoryOpType>
+  operationIn?: InputMaybe<Array<ControlScheduledJobHistoryOpType>>
+  operationNEQ?: InputMaybe<ControlScheduledJobHistoryOpType>
+  operationNotIn?: InputMaybe<Array<ControlScheduledJobHistoryOpType>>
+  or?: InputMaybe<Array<ControlScheduledJobHistoryWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['String']['input']>
+  ownerIDContains?: InputMaybe<Scalars['String']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  ownerIDGT?: InputMaybe<Scalars['String']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['String']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['String']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['String']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** ref field predicates */
+  ref?: InputMaybe<Scalars['String']['input']>
+  refContains?: InputMaybe<Scalars['String']['input']>
+  refContainsFold?: InputMaybe<Scalars['String']['input']>
+  refEqualFold?: InputMaybe<Scalars['String']['input']>
+  refGT?: InputMaybe<Scalars['String']['input']>
+  refGTE?: InputMaybe<Scalars['String']['input']>
+  refHasPrefix?: InputMaybe<Scalars['String']['input']>
+  refHasSuffix?: InputMaybe<Scalars['String']['input']>
+  refIn?: InputMaybe<Array<Scalars['String']['input']>>
+  refIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  refLT?: InputMaybe<Scalars['String']['input']>
+  refLTE?: InputMaybe<Scalars['String']['input']>
+  refNEQ?: InputMaybe<Scalars['String']['input']>
+  refNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  refNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+/** Ordering options for ControlScheduledJob connections */
+export interface ControlScheduledJobOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order ControlScheduledJobs. */
+  field: ControlScheduledJobOrderField
+}
+
+/** Properties by which ControlScheduledJob connections can be ordered. */
+export enum ControlScheduledJobOrderField {
+  created_at = 'created_at',
+  updated_at = 'updated_at',
+}
+
+/** Return response for updateControlScheduledJob mutation */
+export interface ControlScheduledJobUpdatePayload {
+  __typename?: 'ControlScheduledJobUpdatePayload'
+  /** Updated controlScheduledJob */
+  controlScheduledJob: ControlScheduledJob
+}
+
+/**
+ * ControlScheduledJobWhereInput is used for filtering ControlScheduledJob objects.
+ * Input was generated by ent.
+ */
+export interface ControlScheduledJobWhereInput {
+  and?: InputMaybe<Array<ControlScheduledJobWhereInput>>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** controls edge predicates */
+  hasControls?: InputMaybe<Scalars['Boolean']['input']>
+  hasControlsWith?: InputMaybe<Array<ControlWhereInput>>
+  /** job edge predicates */
+  hasJob?: InputMaybe<Scalars['Boolean']['input']>
+  /** job_runner edge predicates */
+  hasJobRunner?: InputMaybe<Scalars['Boolean']['input']>
+  hasJobRunnerWith?: InputMaybe<Array<JobRunnerWhereInput>>
+  hasJobWith?: InputMaybe<Array<ScheduledJobWhereInput>>
+  /** owner edge predicates */
+  hasOwner?: InputMaybe<Scalars['Boolean']['input']>
+  hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** subcontrols edge predicates */
+  hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** job_id field predicates */
+  jobID?: InputMaybe<Scalars['ID']['input']>
+  jobIDContains?: InputMaybe<Scalars['ID']['input']>
+  jobIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  jobIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  jobIDGT?: InputMaybe<Scalars['ID']['input']>
+  jobIDGTE?: InputMaybe<Scalars['ID']['input']>
+  jobIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  jobIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  jobIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  jobIDLT?: InputMaybe<Scalars['ID']['input']>
+  jobIDLTE?: InputMaybe<Scalars['ID']['input']>
+  jobIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  jobIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** job_runner_id field predicates */
+  jobRunnerID?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDContains?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDGT?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDGTE?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  jobRunnerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  jobRunnerIDLT?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDLTE?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  jobRunnerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  not?: InputMaybe<ControlScheduledJobWhereInput>
+  or?: InputMaybe<Array<ControlScheduledJobWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContains?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 /** Return response for updateControl mutation */
@@ -4312,33 +5277,6 @@ export interface ControlWhereInput {
   delegateIDNEQ?: InputMaybe<Scalars['ID']['input']>
   delegateIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   delegateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -4372,6 +5310,9 @@ export interface ControlWhereInput {
   /** action_plans edge predicates */
   hasActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   hasActionPlansWith?: InputMaybe<Array<ActionPlanWhereInput>>
+  /** assets edge predicates */
+  hasAssets?: InputMaybe<Scalars['Boolean']['input']>
+  hasAssetsWith?: InputMaybe<Array<AssetWhereInput>>
   /** blocked_groups edge predicates */
   hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
@@ -4396,9 +5337,6 @@ export interface ControlWhereInput {
   /** internal_policies edge predicates */
   hasInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalPoliciesWith?: InputMaybe<Array<InternalPolicyWhereInput>>
-  /** mapped_controls edge predicates */
-  hasMappedControls?: InputMaybe<Scalars['Boolean']['input']>
-  hasMappedControlsWith?: InputMaybe<Array<MappedControlWhereInput>>
   /** narratives edge predicates */
   hasNarratives?: InputMaybe<Scalars['Boolean']['input']>
   hasNarrativesWith?: InputMaybe<Array<NarrativeWhereInput>>
@@ -4414,6 +5352,12 @@ export interface ControlWhereInput {
   /** risks edge predicates */
   hasRisks?: InputMaybe<Scalars['Boolean']['input']>
   hasRisksWith?: InputMaybe<Array<RiskWhereInput>>
+  /** scans edge predicates */
+  hasScans?: InputMaybe<Scalars['Boolean']['input']>
+  hasScansWith?: InputMaybe<Array<ScanWhereInput>>
+  /** scheduled_jobs edge predicates */
+  hasScheduledJobs?: InputMaybe<Scalars['Boolean']['input']>
+  hasScheduledJobsWith?: InputMaybe<Array<ControlScheduledJobWhereInput>>
   /** standard edge predicates */
   hasStandard?: InputMaybe<Scalars['Boolean']['input']>
   hasStandardWith?: InputMaybe<Array<StandardWhereInput>>
@@ -4423,9 +5367,6 @@ export interface ControlWhereInput {
   /** tasks edge predicates */
   hasTasks?: InputMaybe<Scalars['Boolean']['input']>
   hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
-  /** viewers edge predicates */
-  hasViewers?: InputMaybe<Scalars['Boolean']['input']>
-  hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -4469,6 +5410,22 @@ export interface ControlWhereInput {
   refCodeLTE?: InputMaybe<Scalars['String']['input']>
   refCodeNEQ?: InputMaybe<Scalars['String']['input']>
   refCodeNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** reference_framework field predicates */
+  referenceFramework?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkContains?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkContainsFold?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkEqualFold?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkGT?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkGTE?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkHasPrefix?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkHasSuffix?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceFrameworkIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  referenceFrameworkLT?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkLTE?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkNEQ?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceFrameworkNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** reference_id field predicates */
   referenceID?: InputMaybe<Scalars['String']['input']>
   referenceIDContains?: InputMaybe<Scalars['String']['input']>
@@ -4597,11 +5554,21 @@ export interface CreateActionPlanInput {
   approvalRequired?: InputMaybe<Scalars['Boolean']['input']>
   approverID?: InputMaybe<Scalars['ID']['input']>
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** proposed controls referenced in the action_plan */
+  controlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   delegateID?: InputMaybe<Scalars['ID']['input']>
   /** details of the action_plan */
   details?: InputMaybe<Scalars['String']['input']>
+  /** control suggestions dismissed by the user for the action_plan */
+  dismissedControlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  /** improvement suggestions dismissed by the user for the action_plan */
+  dismissedImprovementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  /** tag suggestions dismissed by the user for the action_plan */
+  dismissedTagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** due date of the action plan */
   dueDate?: InputMaybe<Scalars['Time']['input']>
+  /** suggested improvements for the action_plan */
+  improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** the name of the action_plan */
   name: Scalars['String']['input']
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -4619,9 +5586,40 @@ export interface CreateActionPlanInput {
   source?: InputMaybe<Scalars['String']['input']>
   /** status of the action_plan, e.g. draft, published, archived, etc. */
   status?: InputMaybe<ActionPlanDocumentStatus>
+  /** auto-generated tag suggestions for the action_plan */
+  tagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   userIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+}
+
+/**
+ * CreateAssetInput is used for create Asset object.
+ * Input was generated by ent.
+ */
+export interface CreateAssetInput {
+  /** the type of the asset, e.g. technology, domain, device, etc */
+  assetType?: InputMaybe<AssetAssetType>
+  blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the categories of the asset, e.g. web server, database, etc */
+  categories?: InputMaybe<Array<Scalars['String']['input']>>
+  controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the CPE (Common Platform Enumeration) of the asset, if applicable */
+  cpe?: InputMaybe<Scalars['String']['input']>
+  description?: InputMaybe<Scalars['String']['input']>
+  editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** unique identifier like domain, device id, etc */
+  identifier?: InputMaybe<Scalars['String']['input']>
+  /** the name of the asset, e.g. matts computer, office router, IP address, etc */
+  name: Scalars['String']['input']
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  scanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+  viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the website of the asset, if applicable */
+  website?: InputMaybe<Scalars['String']['input']>
 }
 
 /**
@@ -4655,9 +5653,11 @@ export interface CreateContactInput {
  * Input was generated by ent.
  */
 export interface CreateControlImplementationInput {
+  blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** details of the control implementation */
   details?: InputMaybe<Scalars['String']['input']>
+  editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** date the control was implemented */
   implementationDate?: InputMaybe<Scalars['Time']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -4670,6 +5670,7 @@ export interface CreateControlImplementationInput {
   verificationDate?: InputMaybe<Scalars['Time']['input']>
   /** set to true if the control implementation has been verified */
   verified?: InputMaybe<Scalars['Boolean']['input']>
+  viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
 /**
@@ -4682,6 +5683,7 @@ export interface CreateControlInput {
   assessmentMethods?: InputMaybe<Array<Scalars['AssessmentMethod']['input']>>
   /** objectives of the audit assessment for the control */
   assessmentObjectives?: InputMaybe<Array<Scalars['AssessmentObjective']['input']>>
+  assetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** external auditor id of the control, can be used to map to external audit partner mappings */
   auditorReferenceID?: InputMaybe<Scalars['String']['input']>
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -4708,7 +5710,6 @@ export interface CreateControlInput {
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** mapped categories of the control to other standards */
   mappedCategories?: InputMaybe<Array<Scalars['String']['input']>>
-  mappedControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   narrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   procedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -4720,6 +5721,8 @@ export interface CreateControlInput {
   /** references for the control */
   references?: InputMaybe<Array<Scalars['Reference']['input']>>
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scheduledJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** source of the control, e.g. framework, template, custom, etc. */
   source?: InputMaybe<ControlControlSource>
   standardID?: InputMaybe<Scalars['ID']['input']>
@@ -4731,7 +5734,6 @@ export interface CreateControlInput {
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
 /**
@@ -4772,9 +5774,68 @@ export interface CreateControlObjectiveInput {
   viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
+/**
+ * CreateControlScheduledJobInput is used for create ControlScheduledJob object.
+ * Input was generated by ent.
+ */
+export interface CreateControlScheduledJobInput {
+  /** the schedule to run this job. If not provided, it would inherit the cadence of the parent job */
+  cadence?: InputMaybe<Scalars['JobCadence']['input']>
+  /** the configuration to run this job */
+  configuration: Scalars['JobConfiguration']['input']
+  controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** cron syntax. If not provided, it would inherit the cron of the parent job */
+  cron?: InputMaybe<Scalars['String']['input']>
+  jobID: Scalars['ID']['input']
+  jobRunnerID?: InputMaybe<Scalars['ID']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+}
+
 export interface CreateControlWithSubcontrolsInput {
   control?: InputMaybe<CreateControlInput>
   subcontrols?: InputMaybe<Array<CreateSubcontrolInput>>
+}
+
+/**
+ * CreateCustomDomainInput is used for create CustomDomain object.
+ * Input was generated by ent.
+ */
+export interface CreateCustomDomainInput {
+  /** the name of the custom domain */
+  cnameRecord: Scalars['String']['input']
+  dnsVerificationID?: InputMaybe<Scalars['ID']['input']>
+  mappableDomainID: Scalars['ID']['input']
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+}
+
+/**
+ * CreateDNSVerificationInput is used for create DNSVerification object.
+ * Input was generated by ent.
+ */
+export interface CreateDnsVerificationInput {
+  /** Path under /.well-known/acme-challenge/ to serve the ACME challenge */
+  acmeChallengePath?: InputMaybe<Scalars['String']['input']>
+  /** Status of the ACME challenge validation */
+  acmeChallengeStatus?: InputMaybe<DnsVerificationSslVerificationStatus>
+  /** The ID of the custom domain in cloudflare */
+  cloudflareHostnameID: Scalars['String']['input']
+  customDomainIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the name of the dns txt record */
+  dnsTxtRecord: Scalars['String']['input']
+  /** the expected value of the dns txt record */
+  dnsTxtValue: Scalars['String']['input']
+  /** Status of the domain verification */
+  dnsVerificationStatus?: InputMaybe<DnsVerificationDnsVerificationStatus>
+  /** Reason of the dns verification status, for giving the user diagnostic info */
+  dnsVerificationStatusReason?: InputMaybe<Scalars['String']['input']>
+  /** the expected value of the acme challenge record */
+  expectedAcmeChallengeValue?: InputMaybe<Scalars['String']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
 }
 
 /**
@@ -4797,6 +5858,8 @@ export interface CreateDocumentDataInput {
  * Input was generated by ent.
  */
 export interface CreateEntityInput {
+  assetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   contactIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** An optional description of the entity */
   description?: InputMaybe<Scalars['String']['input']>
@@ -4805,6 +5868,7 @@ export interface CreateEntityInput {
   documentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** domains associated with the entity */
   domains?: InputMaybe<Array<Scalars['String']['input']>>
+  editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   entityTypeID?: InputMaybe<Scalars['ID']['input']>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the name of the entity */
@@ -4812,10 +5876,12 @@ export interface CreateEntityInput {
   note?: InputMaybe<CreateNoteInput>
   noteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  scanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** status of the entity */
   status?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
+  viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
 /**
@@ -4941,6 +6007,7 @@ export interface CreateFullProgramInput {
   procedures?: InputMaybe<Array<CreateProcedureInput>>
   program: CreateProgramInput
   risks?: InputMaybe<Array<CreateRiskInput>>
+  standardID?: InputMaybe<Scalars['ID']['input']>
 }
 
 /**
@@ -4950,10 +6017,12 @@ export interface CreateFullProgramInput {
 export interface CreateGroupInput {
   controlBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  controlImplementationBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  controlImplementationEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  controlImplementationViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlObjectiveBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlObjectiveEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlObjectiveViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  controlViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   createGroupSettings?: InputMaybe<CreateGroupSettingInput>
   /** the groups description */
   description?: InputMaybe<Scalars['String']['input']>
@@ -4966,6 +6035,8 @@ export interface CreateGroupInput {
   internalPolicyEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the URL to an image uploaded by the customer for the groups avatar image */
   logoURL?: InputMaybe<Scalars['String']['input']>
+  mappedControlBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  mappedControlEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the name of the group - must be unique within the organization */
   name: Scalars['String']['input']
   narrativeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -4980,6 +6051,9 @@ export interface CreateGroupInput {
   riskBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scanBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scanEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scanViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   settingID?: InputMaybe<Scalars['ID']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
@@ -5061,10 +6135,20 @@ export interface CreateInternalPolicyInput {
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** proposed controls referenced in the policy */
+  controlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   delegateID?: InputMaybe<Scalars['ID']['input']>
   /** details of the policy */
   details?: InputMaybe<Scalars['String']['input']>
+  /** control suggestions dismissed by the user for the policy */
+  dismissedControlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  /** improvement suggestions dismissed by the user for the policy */
+  dismissedImprovementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  /** tag suggestions dismissed by the user for the policy */
+  dismissedTagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** suggested improvements for the policy */
+  improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** the name of the policy */
   name: Scalars['String']['input']
   narrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -5083,6 +6167,8 @@ export interface CreateInternalPolicyInput {
   /** status of the policy, e.g. draft, published, archived, etc. */
   status?: InputMaybe<InternalPolicyDocumentStatus>
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** auto-generated tag suggestions for the policy */
+  tagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -5109,18 +6195,108 @@ export interface CreateInviteInput {
 }
 
 /**
+ * CreateJobResultInput is used for create JobResult object.
+ * Input was generated by ent.
+ */
+export interface CreateJobResultInput {
+  /** the exit code from the script that was executed */
+  exitCode: Scalars['Int']['input']
+  fileID: Scalars['ID']['input']
+  /** The time the job finished it's execution. This is different from the db insertion time */
+  finishedAt?: InputMaybe<Scalars['Time']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  scheduledJobID: Scalars['ID']['input']
+  /** The time the job started it's execution. This is different from the db insertion time */
+  startedAt?: InputMaybe<Scalars['Time']['input']>
+  /** the status of this job. did it fail? did it succeed? */
+  status: JobResultJobExecutionStatus
+}
+
+/**
+ * CreateJobRunnerInput is used for create JobRunner object.
+ * Input was generated by ent.
+ */
+export interface CreateJobRunnerInput {
+  /** the IP address of this runner */
+  ipAddress: Scalars['String']['input']
+  jobRunnerTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the name of the runner */
+  name: Scalars['String']['input']
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+}
+
+/**
+ * CreateJobRunnerRegistrationTokenInput is used for create JobRunnerRegistrationToken object.
+ * Input was generated by ent.
+ */
+export interface CreateJobRunnerRegistrationTokenInput {
+  jobRunnerID?: InputMaybe<Scalars['ID']['input']>
+  lastUsedAt?: InputMaybe<Scalars['Time']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+}
+
+/**
+ * CreateJobRunnerTokenInput is used for create JobRunnerToken object.
+ * Input was generated by ent.
+ */
+export interface CreateJobRunnerTokenInput {
+  /** when the token expires */
+  expiresAt?: InputMaybe<Scalars['Time']['input']>
+  /** whether the token is active */
+  isActive?: InputMaybe<Scalars['Boolean']['input']>
+  jobRunnerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  lastUsedAt?: InputMaybe<Scalars['Time']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** when the token was revoked */
+  revokedAt?: InputMaybe<Scalars['Time']['input']>
+  /** the user who revoked the token */
+  revokedBy?: InputMaybe<Scalars['String']['input']>
+  /** the reason the token was revoked */
+  revokedReason?: InputMaybe<Scalars['String']['input']>
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+}
+
+/**
+ * CreateMappableDomainInput is used for create MappableDomain object.
+ * Input was generated by ent.
+ */
+export interface CreateMappableDomainInput {
+  customDomainIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** Name of the mappable domain */
+  name: Scalars['String']['input']
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+  /** DNS Zone ID of the mappable domain. */
+  zoneID: Scalars['String']['input']
+}
+
+/**
  * CreateMappedControlInput is used for create MappedControl object.
  * Input was generated by ent.
  */
 export interface CreateMappedControlInput {
-  controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** percentage (0-100) of confidence in the mapping */
+  confidence?: InputMaybe<Scalars['Int']['input']>
+  editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  fromControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  fromSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the type of mapping between the two controls, e.g. subset, intersect, equal, superset */
-  mappingType?: InputMaybe<Scalars['String']['input']>
+  mappingType?: InputMaybe<MappedControlMappingType>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
   /** description of how the two controls are related */
   relation?: InputMaybe<Scalars['String']['input']>
-  subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** source of the mapping, e.g. manual, suggested, etc. */
+  source?: InputMaybe<MappedControlMappingSource>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
+  toControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  toSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
 export interface CreateMemberWithProgramInput {
@@ -5199,6 +6375,7 @@ export interface CreateOrgMembershipInput {
 export interface CreateOrganizationInput {
   actionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   apiTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  assetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   avatarFileID?: InputMaybe<Scalars['ID']['input']>
   /** URL of the user's remote avatar */
   avatarRemoteURL?: InputMaybe<Scalars['String']['input']>
@@ -5207,20 +6384,24 @@ export interface CreateOrganizationInput {
   contactIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  controlImplementationCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlObjectiveCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   createOrgSettings?: InputMaybe<CreateOrganizationSettingInput>
+  customDomainIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** Whether the organization has a dedicated database */
   dedicatedDb?: InputMaybe<Scalars['Boolean']['input']>
   /** An optional description of the organization */
   description?: InputMaybe<Scalars['String']['input']>
   /** The organization's displayed 'friendly' name */
   displayName?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   documentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   entityTypeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   eventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  evidenceCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   evidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   groupCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -5229,6 +6410,13 @@ export interface CreateOrganizationInput {
   internalPolicyCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   inviteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  jobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  jobResultIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  jobRunnerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  jobRunnerRegistrationTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  jobRunnerTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  mappedControlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  mappedControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the name of the organization */
   name: Scalars['String']['input']
   narrativeCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -5245,8 +6433,13 @@ export interface CreateOrganizationInput {
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scheduledJobCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scheduledJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scheduledJobRunIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   secretIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   settingID?: InputMaybe<Scalars['ID']['input']>
+  standardCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   standardIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   subscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -5255,6 +6448,7 @@ export interface CreateOrganizationInput {
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   templateCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   templateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
 /**
@@ -5274,11 +6468,27 @@ export interface CreateOrganizationSettingInput {
   billingNotificationsEnabled?: InputMaybe<Scalars['Boolean']['input']>
   /** Phone number to contact for billing */
   billingPhone?: InputMaybe<Scalars['String']['input']>
+  /** unique token used to receive compliance webhook events */
+  complianceWebhookToken?: InputMaybe<Scalars['String']['input']>
   /** domains associated with the organization */
   domains?: InputMaybe<Array<Scalars['String']['input']>>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** geographical location of the organization */
   geoLocation?: InputMaybe<OrganizationSettingRegion>
+  /** SSO provider type for the organization */
+  identityProvider?: InputMaybe<OrganizationSettingSsoProvider>
+  /** client ID for SSO integration */
+  identityProviderClientID?: InputMaybe<Scalars['String']['input']>
+  /** client secret for SSO integration */
+  identityProviderClientSecret?: InputMaybe<Scalars['String']['input']>
+  /** SAML entity ID for the SSO provider */
+  identityProviderEntityID?: InputMaybe<Scalars['String']['input']>
+  /** enforce SSO authentication for organization members */
+  identityProviderLoginEnforced?: InputMaybe<Scalars['Boolean']['input']>
+  /** metadata URL for the SSO provider */
+  identityProviderMetadataEndpoint?: InputMaybe<Scalars['String']['input']>
+  /** OIDC discovery URL for the SSO provider */
+  oidcDiscoveryEndpoint?: InputMaybe<Scalars['String']['input']>
   organizationID?: InputMaybe<Scalars['ID']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
@@ -5317,10 +6527,20 @@ export interface CreateProcedureInput {
   approverID?: InputMaybe<Scalars['ID']['input']>
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** proposed controls referenced in the procedure */
+  controlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   delegateID?: InputMaybe<Scalars['ID']['input']>
   /** details of the procedure */
   details?: InputMaybe<Scalars['String']['input']>
+  /** control suggestions dismissed by the user for the procedure */
+  dismissedControlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  /** improvement suggestions dismissed by the user for the procedure */
+  dismissedImprovementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  /** tag suggestions dismissed by the user for the procedure */
+  dismissedTagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** suggested improvements for the procedure */
+  improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the name of the procedure */
   name: Scalars['String']['input']
@@ -5339,6 +6559,8 @@ export interface CreateProcedureInput {
   /** status of the procedure, e.g. draft, published, archived, etc. */
   status?: InputMaybe<ProcedureDocumentStatus>
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** auto-generated tag suggestions for the procedure */
+  tagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -5408,6 +6630,7 @@ export interface CreateProgramMembershipInput {
 export interface CreateProgramWithMembersInput {
   members?: InputMaybe<Array<CreateMemberWithProgramInput>>
   program: CreateProgramInput
+  standardID?: InputMaybe<Scalars['ID']['input']>
 }
 
 /**
@@ -5416,6 +6639,7 @@ export interface CreateProgramWithMembersInput {
  */
 export interface CreateRiskInput {
   actionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  assetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** business costs associated with the risk */
   businessCosts?: InputMaybe<Scalars['String']['input']>
@@ -5426,6 +6650,7 @@ export interface CreateRiskInput {
   /** details of the risk */
   details?: InputMaybe<Scalars['String']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** impact of the risk -critical, high, medium, low */
   impact?: InputMaybe<RiskRiskImpact>
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -5440,6 +6665,7 @@ export interface CreateRiskInput {
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** type of the risk, e.g. strategic, operational, financial, external, etc. */
   riskType?: InputMaybe<Scalars['String']['input']>
+  scanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** score of the risk based on impact and likelihood (1-4 unlikely, 5-9 likely, 10-16 highly likely, 17-20 critical) */
   score?: InputMaybe<Scalars['Int']['input']>
   stakeholderID?: InputMaybe<Scalars['ID']['input']>
@@ -5448,7 +6674,77 @@ export interface CreateRiskInput {
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
+  taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+}
+
+/**
+ * CreateScanInput is used for create Scan object.
+ * Input was generated by ent.
+ */
+export interface CreateScanInput {
+  assetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** additional metadata for the scan, e.g., scan configuration, options, etc */
+  metadata?: InputMaybe<Scalars['Map']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** the type of scan, e.g., domain scan, vulnerability scan, provider scan */
+  scanType?: InputMaybe<ScanScanType>
+  /** the status of the scan, e.g., processing, completed, failed */
+  status?: InputMaybe<ScanScanStatus>
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+  /** the target of the scan, e.g., a domain name or IP address, codebase */
+  target: Scalars['String']['input']
+  viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+}
+
+/**
+ * CreateScheduledJobInput is used for create ScheduledJob object.
+ * Input was generated by ent.
+ */
+export interface CreateScheduledJobInput {
+  /** the schedule to run this job */
+  cadence?: InputMaybe<Scalars['JobCadence']['input']>
+  /** the configuration to run this job */
+  configuration: Scalars['JobConfiguration']['input']
+  /** cron syntax */
+  cron?: InputMaybe<Scalars['String']['input']>
+  /** the description of the job */
+  description?: InputMaybe<Scalars['String']['input']>
+  /** the type of this job */
+  jobType?: InputMaybe<ScheduledJobJobType>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** the script to run */
+  script?: InputMaybe<Scalars['String']['input']>
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+  /** the title of the job */
+  title: Scalars['String']['input']
+}
+
+/**
+ * CreateScheduledJobRunInput is used for create ScheduledJobRun object.
+ * Input was generated by ent.
+ */
+export interface CreateScheduledJobRunInput {
+  /** When should this job execute on the agent. Since we might potentially schedule a few minutes before */
+  expectedExecutionTime: Scalars['Time']['input']
+  jobRunnerID: Scalars['ID']['input']
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  scheduledJobID: Scalars['ID']['input']
+  /**
+   * the script that will be executed by the agent.
+   * This script will be templated with the values from the configuration on the job
+   */
+  script: Scalars['String']['input']
+  /**
+   * The status of the job to be executed. By default will be pending but when
+   * 			scheduled on a runner, this will change to acquired.
+   */
+  status?: InputMaybe<ScheduledJobRunScheduledJobRunStatus>
 }
 
 /**
@@ -5456,6 +6752,7 @@ export interface CreateRiskInput {
  * Input was generated by ent.
  */
 export interface CreateStandardInput {
+  controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** long description of the standard with details of what is covered */
   description?: InputMaybe<Scalars['String']['input']>
   /** domains the standard covers, e.g. availability, confidentiality, etc. */
@@ -5524,7 +6821,6 @@ export interface CreateSubcontrolInput {
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** mapped categories of the control to other standards */
   mappedCategories?: InputMaybe<Array<Scalars['String']['input']>>
-  mappedControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   narrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   procedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -5535,6 +6831,7 @@ export interface CreateSubcontrolInput {
   /** references for the control */
   references?: InputMaybe<Array<Scalars['Reference']['input']>>
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scheduledJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** source of the control, e.g. framework, template, custom, etc. */
   source?: InputMaybe<SubcontrolControlSource>
   /** status of the control */
@@ -5594,6 +6891,7 @@ export interface CreateTaskInput {
   ownerID?: InputMaybe<Scalars['ID']['input']>
   procedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the status of the task */
   status?: InputMaybe<TaskTaskStatus>
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -5626,6 +6924,33 @@ export interface CreateTemplateInput {
 }
 
 /**
+ * CreateTrustCenterInput is used for create TrustCenter object.
+ * Input was generated by ent.
+ */
+export interface CreateTrustCenterInput {
+  createTrustCenterSetting?: InputMaybe<CreateTrustCenterSettingInput>
+  customDomainID?: InputMaybe<Scalars['ID']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  settingID?: InputMaybe<Scalars['ID']['input']>
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+}
+
+/**
+ * CreateTrustCenterSettingInput is used for create TrustCenterSetting object.
+ * Input was generated by ent.
+ */
+export interface CreateTrustCenterSettingInput {
+  /** overview of the trust center */
+  overview?: InputMaybe<Scalars['String']['input']>
+  /** primary color for the trust center */
+  primaryColor?: InputMaybe<Scalars['String']['input']>
+  /** title of the trust center */
+  title?: InputMaybe<Scalars['String']['input']>
+  trustCenterID?: InputMaybe<Scalars['ID']['input']>
+}
+
+/**
  * CreateUserInput is used for create User object.
  * Input was generated by ent.
  */
@@ -5643,7 +6968,6 @@ export interface CreateUserInput {
   /** The user's displayed 'friendly' name */
   displayName: Scalars['String']['input']
   email: Scalars['String']['input']
-  emailVerificationTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   eventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   firstName?: InputMaybe<Scalars['String']['input']>
@@ -5656,7 +6980,6 @@ export interface CreateUserInput {
   organizationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** user password hash */
   password?: InputMaybe<Scalars['String']['input']>
-  passwordResetTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   personalAccessTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the user's role */
@@ -5695,14 +7018,1191 @@ export interface CreateUserSettingInput {
   userID?: InputMaybe<Scalars['ID']['input']>
 }
 
+export interface CustomDomain extends Node {
+  __typename?: 'CustomDomain'
+  /** the name of the custom domain */
+  cnameRecord: Scalars['String']['output']
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  dnsVerification?: Maybe<DnsVerification>
+  /** The ID of the dns verification record */
+  dnsVerificationID?: Maybe<Scalars['ID']['output']>
+  id: Scalars['ID']['output']
+  mappableDomain: MappableDomain
+  /** The mappable domain id that this custom domain maps to */
+  mappableDomainID: Scalars['ID']['output']
+  owner?: Maybe<Organization>
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['ID']['output']>
+  /** tags associated with the object */
+  tags?: Maybe<Array<Scalars['String']['output']>>
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+}
+
+/** Return response for createBulkCustomDomain mutation */
+export interface CustomDomainBulkCreatePayload {
+  __typename?: 'CustomDomainBulkCreatePayload'
+  /** Created customDomains */
+  customDomains?: Maybe<Array<CustomDomain>>
+}
+
+/** A connection to a list of items. */
+export interface CustomDomainConnection {
+  __typename?: 'CustomDomainConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<CustomDomainEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** Return response for createCustomDomain mutation */
+export interface CustomDomainCreatePayload {
+  __typename?: 'CustomDomainCreatePayload'
+  /** Created customDomain */
+  customDomain: CustomDomain
+}
+
+/** Return response for deleteCustomDomain mutation */
+export interface CustomDomainDeletePayload {
+  __typename?: 'CustomDomainDeletePayload'
+  /** Deleted customDomain ID */
+  deletedID: Scalars['ID']['output']
+}
+
+/** An edge in a connection. */
+export interface CustomDomainEdge {
+  __typename?: 'CustomDomainEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<CustomDomain>
+}
+
+export interface CustomDomainHistory extends Node {
+  __typename?: 'CustomDomainHistory'
+  /** the name of the custom domain */
+  cnameRecord: Scalars['String']['output']
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  /** The ID of the dns verification record */
+  dnsVerificationID?: Maybe<Scalars['String']['output']>
+  historyTime: Scalars['Time']['output']
+  id: Scalars['ID']['output']
+  /** The mappable domain id that this custom domain maps to */
+  mappableDomainID: Scalars['String']['output']
+  operation: CustomDomainHistoryOpType
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['String']['output']>
+  ref?: Maybe<Scalars['String']['output']>
+  /** tags associated with the object */
+  tags?: Maybe<Array<Scalars['String']['output']>>
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+}
+
+/** A connection to a list of items. */
+export interface CustomDomainHistoryConnection {
+  __typename?: 'CustomDomainHistoryConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<CustomDomainHistoryEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** An edge in a connection. */
+export interface CustomDomainHistoryEdge {
+  __typename?: 'CustomDomainHistoryEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<CustomDomainHistory>
+}
+
+/** CustomDomainHistoryOpType is enum for the field operation */
+export enum CustomDomainHistoryOpType {
+  DELETE = 'DELETE',
+  INSERT = 'INSERT',
+  UPDATE = 'UPDATE',
+}
+
+/** Ordering options for CustomDomainHistory connections */
+export interface CustomDomainHistoryOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order CustomDomainHistories. */
+  field: CustomDomainHistoryOrderField
+}
+
+/** Properties by which CustomDomainHistory connections can be ordered. */
+export enum CustomDomainHistoryOrderField {
+  cname_record = 'cname_record',
+  created_at = 'created_at',
+  history_time = 'history_time',
+  updated_at = 'updated_at',
+}
+
+/**
+ * CustomDomainHistoryWhereInput is used for filtering CustomDomainHistory objects.
+ * Input was generated by ent.
+ */
+export interface CustomDomainHistoryWhereInput {
+  and?: InputMaybe<Array<CustomDomainHistoryWhereInput>>
+  /** cname_record field predicates */
+  cnameRecord?: InputMaybe<Scalars['String']['input']>
+  cnameRecordContains?: InputMaybe<Scalars['String']['input']>
+  cnameRecordContainsFold?: InputMaybe<Scalars['String']['input']>
+  cnameRecordEqualFold?: InputMaybe<Scalars['String']['input']>
+  cnameRecordGT?: InputMaybe<Scalars['String']['input']>
+  cnameRecordGTE?: InputMaybe<Scalars['String']['input']>
+  cnameRecordHasPrefix?: InputMaybe<Scalars['String']['input']>
+  cnameRecordHasSuffix?: InputMaybe<Scalars['String']['input']>
+  cnameRecordIn?: InputMaybe<Array<Scalars['String']['input']>>
+  cnameRecordLT?: InputMaybe<Scalars['String']['input']>
+  cnameRecordLTE?: InputMaybe<Scalars['String']['input']>
+  cnameRecordNEQ?: InputMaybe<Scalars['String']['input']>
+  cnameRecordNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** dns_verification_id field predicates */
+  dnsVerificationID?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationIDContains?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationIDGT?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationIDGTE?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  dnsVerificationIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  dnsVerificationIDLT?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationIDLTE?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationIDNEQ?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  dnsVerificationIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** history_time field predicates */
+  historyTime?: InputMaybe<Scalars['Time']['input']>
+  historyTimeGT?: InputMaybe<Scalars['Time']['input']>
+  historyTimeGTE?: InputMaybe<Scalars['Time']['input']>
+  historyTimeIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  historyTimeLT?: InputMaybe<Scalars['Time']['input']>
+  historyTimeLTE?: InputMaybe<Scalars['Time']['input']>
+  historyTimeNEQ?: InputMaybe<Scalars['Time']['input']>
+  historyTimeNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** mappable_domain_id field predicates */
+  mappableDomainID?: InputMaybe<Scalars['String']['input']>
+  mappableDomainIDContains?: InputMaybe<Scalars['String']['input']>
+  mappableDomainIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  mappableDomainIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  mappableDomainIDGT?: InputMaybe<Scalars['String']['input']>
+  mappableDomainIDGTE?: InputMaybe<Scalars['String']['input']>
+  mappableDomainIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  mappableDomainIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  mappableDomainIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  mappableDomainIDLT?: InputMaybe<Scalars['String']['input']>
+  mappableDomainIDLTE?: InputMaybe<Scalars['String']['input']>
+  mappableDomainIDNEQ?: InputMaybe<Scalars['String']['input']>
+  mappableDomainIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  not?: InputMaybe<CustomDomainHistoryWhereInput>
+  /** operation field predicates */
+  operation?: InputMaybe<CustomDomainHistoryOpType>
+  operationIn?: InputMaybe<Array<CustomDomainHistoryOpType>>
+  operationNEQ?: InputMaybe<CustomDomainHistoryOpType>
+  operationNotIn?: InputMaybe<Array<CustomDomainHistoryOpType>>
+  or?: InputMaybe<Array<CustomDomainHistoryWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['String']['input']>
+  ownerIDContains?: InputMaybe<Scalars['String']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  ownerIDGT?: InputMaybe<Scalars['String']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['String']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['String']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['String']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** ref field predicates */
+  ref?: InputMaybe<Scalars['String']['input']>
+  refContains?: InputMaybe<Scalars['String']['input']>
+  refContainsFold?: InputMaybe<Scalars['String']['input']>
+  refEqualFold?: InputMaybe<Scalars['String']['input']>
+  refGT?: InputMaybe<Scalars['String']['input']>
+  refGTE?: InputMaybe<Scalars['String']['input']>
+  refHasPrefix?: InputMaybe<Scalars['String']['input']>
+  refHasSuffix?: InputMaybe<Scalars['String']['input']>
+  refIn?: InputMaybe<Array<Scalars['String']['input']>>
+  refIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  refLT?: InputMaybe<Scalars['String']['input']>
+  refLTE?: InputMaybe<Scalars['String']['input']>
+  refNEQ?: InputMaybe<Scalars['String']['input']>
+  refNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  refNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+/** Ordering options for CustomDomain connections */
+export interface CustomDomainOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order CustomDomains. */
+  field: CustomDomainOrderField
+}
+
+/** Properties by which CustomDomain connections can be ordered. */
+export enum CustomDomainOrderField {
+  cname_record = 'cname_record',
+  created_at = 'created_at',
+  updated_at = 'updated_at',
+}
+
+/** Return response for updateCustomDomain mutation */
+export interface CustomDomainUpdatePayload {
+  __typename?: 'CustomDomainUpdatePayload'
+  /** Updated customDomain */
+  customDomain: CustomDomain
+}
+
+/**
+ * CustomDomainWhereInput is used for filtering CustomDomain objects.
+ * Input was generated by ent.
+ */
+export interface CustomDomainWhereInput {
+  and?: InputMaybe<Array<CustomDomainWhereInput>>
+  /** cname_record field predicates */
+  cnameRecord?: InputMaybe<Scalars['String']['input']>
+  cnameRecordContains?: InputMaybe<Scalars['String']['input']>
+  cnameRecordContainsFold?: InputMaybe<Scalars['String']['input']>
+  cnameRecordEqualFold?: InputMaybe<Scalars['String']['input']>
+  cnameRecordGT?: InputMaybe<Scalars['String']['input']>
+  cnameRecordGTE?: InputMaybe<Scalars['String']['input']>
+  cnameRecordHasPrefix?: InputMaybe<Scalars['String']['input']>
+  cnameRecordHasSuffix?: InputMaybe<Scalars['String']['input']>
+  cnameRecordIn?: InputMaybe<Array<Scalars['String']['input']>>
+  cnameRecordLT?: InputMaybe<Scalars['String']['input']>
+  cnameRecordLTE?: InputMaybe<Scalars['String']['input']>
+  cnameRecordNEQ?: InputMaybe<Scalars['String']['input']>
+  cnameRecordNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** dns_verification_id field predicates */
+  dnsVerificationID?: InputMaybe<Scalars['ID']['input']>
+  dnsVerificationIDContains?: InputMaybe<Scalars['ID']['input']>
+  dnsVerificationIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  dnsVerificationIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  dnsVerificationIDGT?: InputMaybe<Scalars['ID']['input']>
+  dnsVerificationIDGTE?: InputMaybe<Scalars['ID']['input']>
+  dnsVerificationIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  dnsVerificationIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  dnsVerificationIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  dnsVerificationIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  dnsVerificationIDLT?: InputMaybe<Scalars['ID']['input']>
+  dnsVerificationIDLTE?: InputMaybe<Scalars['ID']['input']>
+  dnsVerificationIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  dnsVerificationIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  dnsVerificationIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** dns_verification edge predicates */
+  hasDNSVerification?: InputMaybe<Scalars['Boolean']['input']>
+  hasDNSVerificationWith?: InputMaybe<Array<DnsVerificationWhereInput>>
+  /** mappable_domain edge predicates */
+  hasMappableDomain?: InputMaybe<Scalars['Boolean']['input']>
+  hasMappableDomainWith?: InputMaybe<Array<MappableDomainWhereInput>>
+  /** owner edge predicates */
+  hasOwner?: InputMaybe<Scalars['Boolean']['input']>
+  hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** mappable_domain_id field predicates */
+  mappableDomainID?: InputMaybe<Scalars['ID']['input']>
+  mappableDomainIDContains?: InputMaybe<Scalars['ID']['input']>
+  mappableDomainIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  mappableDomainIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  mappableDomainIDGT?: InputMaybe<Scalars['ID']['input']>
+  mappableDomainIDGTE?: InputMaybe<Scalars['ID']['input']>
+  mappableDomainIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  mappableDomainIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  mappableDomainIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  mappableDomainIDLT?: InputMaybe<Scalars['ID']['input']>
+  mappableDomainIDLTE?: InputMaybe<Scalars['ID']['input']>
+  mappableDomainIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  mappableDomainIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  not?: InputMaybe<CustomDomainWhereInput>
+  or?: InputMaybe<Array<CustomDomainWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContains?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+export interface DnsVerification extends Node {
+  __typename?: 'DNSVerification'
+  /** Path under /.well-known/acme-challenge/ to serve the ACME challenge */
+  acmeChallengePath?: Maybe<Scalars['String']['output']>
+  /** Status of the ACME challenge validation */
+  acmeChallengeStatus: DnsVerificationSslVerificationStatus
+  /** Reason of the ACME status, for giving the user diagnostic info */
+  acmeChallengeStatusReason?: Maybe<Scalars['String']['output']>
+  /** The ID of the custom domain in cloudflare */
+  cloudflareHostnameID: Scalars['String']['output']
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  customDomains: CustomDomainConnection
+  /** the name of the dns txt record */
+  dnsTxtRecord: Scalars['String']['output']
+  /** the expected value of the dns txt record */
+  dnsTxtValue: Scalars['String']['output']
+  /** Status of the domain verification */
+  dnsVerificationStatus: DnsVerificationDnsVerificationStatus
+  /** Reason of the dns verification status, for giving the user diagnostic info */
+  dnsVerificationStatusReason?: Maybe<Scalars['String']['output']>
+  /** the expected value of the acme challenge record */
+  expectedAcmeChallengeValue?: Maybe<Scalars['String']['output']>
+  id: Scalars['ID']['output']
+  owner?: Maybe<Organization>
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['ID']['output']>
+  /** tags associated with the object */
+  tags?: Maybe<Array<Scalars['String']['output']>>
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+}
+
+export interface DnsVerificationCustomDomainsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<CustomDomainOrder>>
+  where?: InputMaybe<CustomDomainWhereInput>
+}
+
+/** Return response for createBulkDNSVerification mutation */
+export interface DnsVerificationBulkCreatePayload {
+  __typename?: 'DNSVerificationBulkCreatePayload'
+  /** Created dnsVerifications */
+  dnsVerifications?: Maybe<Array<DnsVerification>>
+}
+
+/** A connection to a list of items. */
+export interface DnsVerificationConnection {
+  __typename?: 'DNSVerificationConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<DnsVerificationEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** Return response for createDNSVerification mutation */
+export interface DnsVerificationCreatePayload {
+  __typename?: 'DNSVerificationCreatePayload'
+  /** Created dnsVerification */
+  dnsVerification: DnsVerification
+}
+
+/** DNSVerificationDNSVerificationStatus is enum for the field dns_verification_status */
+export enum DnsVerificationDnsVerificationStatus {
+  active = 'active',
+  active_redeploying = 'active_redeploying',
+  blocked = 'blocked',
+  deleted = 'deleted',
+  moved = 'moved',
+  pending = 'pending',
+  pending_blocked = 'pending_blocked',
+  pending_deletion = 'pending_deletion',
+  pending_migration = 'pending_migration',
+  pending_provisioned = 'pending_provisioned',
+  provisioned = 'provisioned',
+  test_active = 'test_active',
+  test_active_apex = 'test_active_apex',
+  test_blocked = 'test_blocked',
+  test_failed = 'test_failed',
+  test_pending = 'test_pending',
+}
+
+/** Return response for deleteDNSVerification mutation */
+export interface DnsVerificationDeletePayload {
+  __typename?: 'DNSVerificationDeletePayload'
+  /** Deleted dnsVerification ID */
+  deletedID: Scalars['ID']['output']
+}
+
+/** An edge in a connection. */
+export interface DnsVerificationEdge {
+  __typename?: 'DNSVerificationEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<DnsVerification>
+}
+
+export interface DnsVerificationHistory extends Node {
+  __typename?: 'DNSVerificationHistory'
+  /** Path under /.well-known/acme-challenge/ to serve the ACME challenge */
+  acmeChallengePath?: Maybe<Scalars['String']['output']>
+  /** Status of the ACME challenge validation */
+  acmeChallengeStatus: DnsVerificationHistorySslVerificationStatus
+  /** Reason of the ACME status, for giving the user diagnostic info */
+  acmeChallengeStatusReason?: Maybe<Scalars['String']['output']>
+  /** The ID of the custom domain in cloudflare */
+  cloudflareHostnameID: Scalars['String']['output']
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  /** the name of the dns txt record */
+  dnsTxtRecord: Scalars['String']['output']
+  /** the expected value of the dns txt record */
+  dnsTxtValue: Scalars['String']['output']
+  /** Status of the domain verification */
+  dnsVerificationStatus: DnsVerificationHistoryDnsVerificationStatus
+  /** Reason of the dns verification status, for giving the user diagnostic info */
+  dnsVerificationStatusReason?: Maybe<Scalars['String']['output']>
+  /** the expected value of the acme challenge record */
+  expectedAcmeChallengeValue?: Maybe<Scalars['String']['output']>
+  historyTime: Scalars['Time']['output']
+  id: Scalars['ID']['output']
+  operation: DnsVerificationHistoryOpType
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['String']['output']>
+  ref?: Maybe<Scalars['String']['output']>
+  /** tags associated with the object */
+  tags?: Maybe<Array<Scalars['String']['output']>>
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+}
+
+/** A connection to a list of items. */
+export interface DnsVerificationHistoryConnection {
+  __typename?: 'DNSVerificationHistoryConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<DnsVerificationHistoryEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** DNSVerificationHistoryDNSVerificationStatus is enum for the field dns_verification_status */
+export enum DnsVerificationHistoryDnsVerificationStatus {
+  active = 'active',
+  active_redeploying = 'active_redeploying',
+  blocked = 'blocked',
+  deleted = 'deleted',
+  moved = 'moved',
+  pending = 'pending',
+  pending_blocked = 'pending_blocked',
+  pending_deletion = 'pending_deletion',
+  pending_migration = 'pending_migration',
+  pending_provisioned = 'pending_provisioned',
+  provisioned = 'provisioned',
+  test_active = 'test_active',
+  test_active_apex = 'test_active_apex',
+  test_blocked = 'test_blocked',
+  test_failed = 'test_failed',
+  test_pending = 'test_pending',
+}
+
+/** An edge in a connection. */
+export interface DnsVerificationHistoryEdge {
+  __typename?: 'DNSVerificationHistoryEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<DnsVerificationHistory>
+}
+
+/** DNSVerificationHistoryOpType is enum for the field operation */
+export enum DnsVerificationHistoryOpType {
+  DELETE = 'DELETE',
+  INSERT = 'INSERT',
+  UPDATE = 'UPDATE',
+}
+
+/** Ordering options for DNSVerificationHistory connections */
+export interface DnsVerificationHistoryOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order DNSVerificationHistories. */
+  field: DnsVerificationHistoryOrderField
+}
+
+/** Properties by which DNSVerificationHistory connections can be ordered. */
+export enum DnsVerificationHistoryOrderField {
+  created_at = 'created_at',
+  history_time = 'history_time',
+  updated_at = 'updated_at',
+}
+
+/** DNSVerificationHistorySSLVerificationStatus is enum for the field acme_challenge_status */
+export enum DnsVerificationHistorySslVerificationStatus {
+  active = 'active',
+  backup_issued = 'backup_issued',
+  deactivating = 'deactivating',
+  deleted = 'deleted',
+  deletion_timed_out = 'deletion_timed_out',
+  deployment_timed_out = 'deployment_timed_out',
+  expired = 'expired',
+  holding_deployment = 'holding_deployment',
+  inactive = 'inactive',
+  initializing = 'initializing',
+  initializing_timed_out = 'initializing_timed_out',
+  issuance_timed_out = 'issuance_timed_out',
+  pending_cleanup = 'pending_cleanup',
+  pending_deletion = 'pending_deletion',
+  pending_deployment = 'pending_deployment',
+  pending_expiration = 'pending_expiration',
+  pending_issuance = 'pending_issuance',
+  pending_validation = 'pending_validation',
+  staging_active = 'staging_active',
+  staging_deployment = 'staging_deployment',
+  validation_timed_out = 'validation_timed_out',
+}
+
+/**
+ * DNSVerificationHistoryWhereInput is used for filtering DNSVerificationHistory objects.
+ * Input was generated by ent.
+ */
+export interface DnsVerificationHistoryWhereInput {
+  /** acme_challenge_path field predicates */
+  acmeChallengePath?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathContains?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathContainsFold?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathEqualFold?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathGT?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathGTE?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathHasPrefix?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathHasSuffix?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathIn?: InputMaybe<Array<Scalars['String']['input']>>
+  acmeChallengePathIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  acmeChallengePathLT?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathLTE?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathNEQ?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  acmeChallengePathNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** acme_challenge_status field predicates */
+  acmeChallengeStatus?: InputMaybe<DnsVerificationHistorySslVerificationStatus>
+  acmeChallengeStatusIn?: InputMaybe<Array<DnsVerificationHistorySslVerificationStatus>>
+  acmeChallengeStatusNEQ?: InputMaybe<DnsVerificationHistorySslVerificationStatus>
+  acmeChallengeStatusNotIn?: InputMaybe<Array<DnsVerificationHistorySslVerificationStatus>>
+  /** acme_challenge_status_reason field predicates */
+  acmeChallengeStatusReason?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonContains?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonContainsFold?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonEqualFold?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonGT?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonGTE?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonHasPrefix?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonHasSuffix?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonIn?: InputMaybe<Array<Scalars['String']['input']>>
+  acmeChallengeStatusReasonIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  acmeChallengeStatusReasonLT?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonLTE?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonNEQ?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  acmeChallengeStatusReasonNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  and?: InputMaybe<Array<DnsVerificationHistoryWhereInput>>
+  /** cloudflare_hostname_id field predicates */
+  cloudflareHostnameID?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDContains?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDGT?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDGTE?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  cloudflareHostnameIDLT?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDLTE?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDNEQ?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** dns_txt_record field predicates */
+  dnsTxtRecord?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordContains?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordContainsFold?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordEqualFold?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordGT?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordGTE?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordHasPrefix?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordHasSuffix?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordIn?: InputMaybe<Array<Scalars['String']['input']>>
+  dnsTxtRecordLT?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordLTE?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordNEQ?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** dns_txt_value field predicates */
+  dnsTxtValue?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueContains?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueContainsFold?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueEqualFold?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueGT?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueGTE?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueHasPrefix?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueHasSuffix?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueIn?: InputMaybe<Array<Scalars['String']['input']>>
+  dnsTxtValueLT?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueLTE?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueNEQ?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** dns_verification_status field predicates */
+  dnsVerificationStatus?: InputMaybe<DnsVerificationHistoryDnsVerificationStatus>
+  dnsVerificationStatusIn?: InputMaybe<Array<DnsVerificationHistoryDnsVerificationStatus>>
+  dnsVerificationStatusNEQ?: InputMaybe<DnsVerificationHistoryDnsVerificationStatus>
+  dnsVerificationStatusNotIn?: InputMaybe<Array<DnsVerificationHistoryDnsVerificationStatus>>
+  /** dns_verification_status_reason field predicates */
+  dnsVerificationStatusReason?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonContains?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonContainsFold?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonEqualFold?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonGT?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonGTE?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonHasPrefix?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonHasSuffix?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonIn?: InputMaybe<Array<Scalars['String']['input']>>
+  dnsVerificationStatusReasonIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  dnsVerificationStatusReasonLT?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonLTE?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonNEQ?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  dnsVerificationStatusReasonNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** expected_acme_challenge_value field predicates */
+  expectedAcmeChallengeValue?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueContains?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueContainsFold?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueEqualFold?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueGT?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueGTE?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueHasPrefix?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueHasSuffix?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueIn?: InputMaybe<Array<Scalars['String']['input']>>
+  expectedAcmeChallengeValueIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  expectedAcmeChallengeValueLT?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueLTE?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueNEQ?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  expectedAcmeChallengeValueNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** history_time field predicates */
+  historyTime?: InputMaybe<Scalars['Time']['input']>
+  historyTimeGT?: InputMaybe<Scalars['Time']['input']>
+  historyTimeGTE?: InputMaybe<Scalars['Time']['input']>
+  historyTimeIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  historyTimeLT?: InputMaybe<Scalars['Time']['input']>
+  historyTimeLTE?: InputMaybe<Scalars['Time']['input']>
+  historyTimeNEQ?: InputMaybe<Scalars['Time']['input']>
+  historyTimeNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  not?: InputMaybe<DnsVerificationHistoryWhereInput>
+  /** operation field predicates */
+  operation?: InputMaybe<DnsVerificationHistoryOpType>
+  operationIn?: InputMaybe<Array<DnsVerificationHistoryOpType>>
+  operationNEQ?: InputMaybe<DnsVerificationHistoryOpType>
+  operationNotIn?: InputMaybe<Array<DnsVerificationHistoryOpType>>
+  or?: InputMaybe<Array<DnsVerificationHistoryWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['String']['input']>
+  ownerIDContains?: InputMaybe<Scalars['String']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  ownerIDGT?: InputMaybe<Scalars['String']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['String']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['String']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['String']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** ref field predicates */
+  ref?: InputMaybe<Scalars['String']['input']>
+  refContains?: InputMaybe<Scalars['String']['input']>
+  refContainsFold?: InputMaybe<Scalars['String']['input']>
+  refEqualFold?: InputMaybe<Scalars['String']['input']>
+  refGT?: InputMaybe<Scalars['String']['input']>
+  refGTE?: InputMaybe<Scalars['String']['input']>
+  refHasPrefix?: InputMaybe<Scalars['String']['input']>
+  refHasSuffix?: InputMaybe<Scalars['String']['input']>
+  refIn?: InputMaybe<Array<Scalars['String']['input']>>
+  refIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  refLT?: InputMaybe<Scalars['String']['input']>
+  refLTE?: InputMaybe<Scalars['String']['input']>
+  refNEQ?: InputMaybe<Scalars['String']['input']>
+  refNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  refNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+/** Ordering options for DNSVerification connections */
+export interface DnsVerificationOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order DNSVerifications. */
+  field: DnsVerificationOrderField
+}
+
+/** Properties by which DNSVerification connections can be ordered. */
+export enum DnsVerificationOrderField {
+  created_at = 'created_at',
+  updated_at = 'updated_at',
+}
+
+/** DNSVerificationSSLVerificationStatus is enum for the field acme_challenge_status */
+export enum DnsVerificationSslVerificationStatus {
+  active = 'active',
+  backup_issued = 'backup_issued',
+  deactivating = 'deactivating',
+  deleted = 'deleted',
+  deletion_timed_out = 'deletion_timed_out',
+  deployment_timed_out = 'deployment_timed_out',
+  expired = 'expired',
+  holding_deployment = 'holding_deployment',
+  inactive = 'inactive',
+  initializing = 'initializing',
+  initializing_timed_out = 'initializing_timed_out',
+  issuance_timed_out = 'issuance_timed_out',
+  pending_cleanup = 'pending_cleanup',
+  pending_deletion = 'pending_deletion',
+  pending_deployment = 'pending_deployment',
+  pending_expiration = 'pending_expiration',
+  pending_issuance = 'pending_issuance',
+  pending_validation = 'pending_validation',
+  staging_active = 'staging_active',
+  staging_deployment = 'staging_deployment',
+  validation_timed_out = 'validation_timed_out',
+}
+
+/** Return response for updateDNSVerification mutation */
+export interface DnsVerificationUpdatePayload {
+  __typename?: 'DNSVerificationUpdatePayload'
+  /** Updated dnsVerification */
+  dnsVerification: DnsVerification
+}
+
+/**
+ * DNSVerificationWhereInput is used for filtering DNSVerification objects.
+ * Input was generated by ent.
+ */
+export interface DnsVerificationWhereInput {
+  /** acme_challenge_path field predicates */
+  acmeChallengePath?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathContains?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathContainsFold?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathEqualFold?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathGT?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathGTE?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathHasPrefix?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathHasSuffix?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathIn?: InputMaybe<Array<Scalars['String']['input']>>
+  acmeChallengePathIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  acmeChallengePathLT?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathLTE?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathNEQ?: InputMaybe<Scalars['String']['input']>
+  acmeChallengePathNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  acmeChallengePathNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** acme_challenge_status field predicates */
+  acmeChallengeStatus?: InputMaybe<DnsVerificationSslVerificationStatus>
+  acmeChallengeStatusIn?: InputMaybe<Array<DnsVerificationSslVerificationStatus>>
+  acmeChallengeStatusNEQ?: InputMaybe<DnsVerificationSslVerificationStatus>
+  acmeChallengeStatusNotIn?: InputMaybe<Array<DnsVerificationSslVerificationStatus>>
+  /** acme_challenge_status_reason field predicates */
+  acmeChallengeStatusReason?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonContains?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonContainsFold?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonEqualFold?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonGT?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonGTE?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonHasPrefix?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonHasSuffix?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonIn?: InputMaybe<Array<Scalars['String']['input']>>
+  acmeChallengeStatusReasonIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  acmeChallengeStatusReasonLT?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonLTE?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonNEQ?: InputMaybe<Scalars['String']['input']>
+  acmeChallengeStatusReasonNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  acmeChallengeStatusReasonNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  and?: InputMaybe<Array<DnsVerificationWhereInput>>
+  /** cloudflare_hostname_id field predicates */
+  cloudflareHostnameID?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDContains?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDGT?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDGTE?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  cloudflareHostnameIDLT?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDLTE?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDNEQ?: InputMaybe<Scalars['String']['input']>
+  cloudflareHostnameIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** dns_txt_record field predicates */
+  dnsTxtRecord?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordContains?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordContainsFold?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordEqualFold?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordGT?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordGTE?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordHasPrefix?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordHasSuffix?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordIn?: InputMaybe<Array<Scalars['String']['input']>>
+  dnsTxtRecordLT?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordLTE?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordNEQ?: InputMaybe<Scalars['String']['input']>
+  dnsTxtRecordNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** dns_txt_value field predicates */
+  dnsTxtValue?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueContains?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueContainsFold?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueEqualFold?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueGT?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueGTE?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueHasPrefix?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueHasSuffix?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueIn?: InputMaybe<Array<Scalars['String']['input']>>
+  dnsTxtValueLT?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueLTE?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueNEQ?: InputMaybe<Scalars['String']['input']>
+  dnsTxtValueNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** dns_verification_status field predicates */
+  dnsVerificationStatus?: InputMaybe<DnsVerificationDnsVerificationStatus>
+  dnsVerificationStatusIn?: InputMaybe<Array<DnsVerificationDnsVerificationStatus>>
+  dnsVerificationStatusNEQ?: InputMaybe<DnsVerificationDnsVerificationStatus>
+  dnsVerificationStatusNotIn?: InputMaybe<Array<DnsVerificationDnsVerificationStatus>>
+  /** dns_verification_status_reason field predicates */
+  dnsVerificationStatusReason?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonContains?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonContainsFold?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonEqualFold?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonGT?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonGTE?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonHasPrefix?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonHasSuffix?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonIn?: InputMaybe<Array<Scalars['String']['input']>>
+  dnsVerificationStatusReasonIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  dnsVerificationStatusReasonLT?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonLTE?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonNEQ?: InputMaybe<Scalars['String']['input']>
+  dnsVerificationStatusReasonNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  dnsVerificationStatusReasonNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** expected_acme_challenge_value field predicates */
+  expectedAcmeChallengeValue?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueContains?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueContainsFold?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueEqualFold?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueGT?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueGTE?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueHasPrefix?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueHasSuffix?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueIn?: InputMaybe<Array<Scalars['String']['input']>>
+  expectedAcmeChallengeValueIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  expectedAcmeChallengeValueLT?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueLTE?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueNEQ?: InputMaybe<Scalars['String']['input']>
+  expectedAcmeChallengeValueNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  expectedAcmeChallengeValueNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** custom_domains edge predicates */
+  hasCustomDomains?: InputMaybe<Scalars['Boolean']['input']>
+  hasCustomDomainsWith?: InputMaybe<Array<CustomDomainWhereInput>>
+  /** owner edge predicates */
+  hasOwner?: InputMaybe<Scalars['Boolean']['input']>
+  hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  not?: InputMaybe<DnsVerificationWhereInput>
+  or?: InputMaybe<Array<DnsVerificationWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContains?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
 export interface DocumentData extends Node {
   __typename?: 'DocumentData'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** the json data of the document */
   data: Scalars['Map']['output']
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   entities: EntityConnection
   files: FileConnection
   id: Scalars['ID']['output']
@@ -5783,8 +8283,6 @@ export interface DocumentDataHistory extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** the json data of the document */
   data: Scalars['Map']['output']
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
   operation: DocumentDataHistoryOpType
@@ -5837,6 +8335,7 @@ export interface DocumentDataHistoryOrder {
 /** Properties by which DocumentDataHistory connections can be ordered. */
 export enum DocumentDataHistoryOrderField {
   created_at = 'created_at',
+  history_time = 'history_time',
   updated_at = 'updated_at',
 }
 
@@ -5873,33 +8372,6 @@ export interface DocumentDataHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** history_time field predicates */
   historyTime?: InputMaybe<Scalars['Time']['input']>
   historyTimeGT?: InputMaybe<Scalars['Time']['input']>
@@ -6056,33 +8528,6 @@ export interface DocumentDataWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** entities edge predicates */
   hasEntities?: InputMaybe<Scalars['Boolean']['input']>
   hasEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
@@ -6169,11 +8614,11 @@ export interface DocumentDataWhereInput {
 
 export interface Entity extends Node {
   __typename?: 'Entity'
+  assets: AssetConnection
+  blockedGroups: GroupConnection
   contacts: ContactConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** An optional description of the entity */
   description?: Maybe<Scalars['String']['output']>
   /** The entity's displayed 'friendly' name */
@@ -6181,6 +8626,7 @@ export interface Entity extends Node {
   documents: DocumentDataConnection
   /** domains associated with the entity */
   domains?: Maybe<Array<Scalars['String']['output']>>
+  editors: GroupConnection
   entityType?: Maybe<EntityType>
   /** The type of the entity */
   entityTypeID?: Maybe<Scalars['ID']['output']>
@@ -6192,12 +8638,32 @@ export interface Entity extends Node {
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  scans: ScanConnection
   /** status of the entity */
   status?: Maybe<Scalars['String']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  viewers: GroupConnection
+}
+
+export interface EntityAssetsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<AssetOrder>>
+  where?: InputMaybe<AssetWhereInput>
+}
+
+export interface EntityBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface EntityContactsArgs {
@@ -6218,6 +8684,15 @@ export interface EntityDocumentsArgs {
   where?: InputMaybe<DocumentDataWhereInput>
 }
 
+export interface EntityEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface EntityFilesArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -6234,6 +8709,24 @@ export interface EntityNotesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<NoteOrder>>
   where?: InputMaybe<NoteWhereInput>
+}
+
+export interface EntityScansArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ScanOrder>>
+  where?: InputMaybe<ScanWhereInput>
+}
+
+export interface EntityViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 /** Return response for createBulkEntity mutation */
@@ -6281,8 +8774,6 @@ export interface EntityHistory extends Node {
   __typename?: 'EntityHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** An optional description of the entity */
   description?: Maybe<Scalars['String']['output']>
   /** The entity's displayed 'friendly' name */
@@ -6346,6 +8837,7 @@ export interface EntityHistoryOrder {
 export enum EntityHistoryOrderField {
   created_at = 'created_at',
   display_name = 'display_name',
+  history_time = 'history_time',
   name = 'name',
   status = 'status',
   updated_at = 'updated_at',
@@ -6384,33 +8876,6 @@ export interface EntityHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_name field predicates */
   displayName?: InputMaybe<Scalars['String']['input']>
   displayNameContains?: InputMaybe<Scalars['String']['input']>
@@ -6584,8 +9049,6 @@ export interface EntityType extends Node {
   __typename?: 'EntityType'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   entities: EntityConnection
   id: Scalars['ID']['output']
   /** the name of the entity */
@@ -6653,8 +9116,6 @@ export interface EntityTypeHistory extends Node {
   __typename?: 'EntityTypeHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
   /** the name of the entity */
@@ -6707,6 +9168,7 @@ export interface EntityTypeHistoryOrder {
 /** Properties by which EntityTypeHistory connections can be ordered. */
 export enum EntityTypeHistoryOrderField {
   created_at = 'created_at',
+  history_time = 'history_time',
   name = 'name',
   updated_at = 'updated_at',
 }
@@ -6744,33 +9206,6 @@ export interface EntityTypeHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** history_time field predicates */
   historyTime?: InputMaybe<Scalars['Time']['input']>
   historyTimeGT?: InputMaybe<Scalars['Time']['input']>
@@ -6928,33 +9363,6 @@ export interface EntityTypeWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** entities edge predicates */
   hasEntities?: InputMaybe<Scalars['Boolean']['input']>
   hasEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
@@ -7073,33 +9481,6 @@ export interface EntityWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_name field predicates */
   displayName?: InputMaybe<Scalars['String']['input']>
   displayNameContains?: InputMaybe<Scalars['String']['input']>
@@ -7132,12 +9513,21 @@ export interface EntityWhereInput {
   entityTypeIDNEQ?: InputMaybe<Scalars['ID']['input']>
   entityTypeIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   entityTypeIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** assets edge predicates */
+  hasAssets?: InputMaybe<Scalars['Boolean']['input']>
+  hasAssetsWith?: InputMaybe<Array<AssetWhereInput>>
+  /** blocked_groups edge predicates */
+  hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
   /** contacts edge predicates */
   hasContacts?: InputMaybe<Scalars['Boolean']['input']>
   hasContactsWith?: InputMaybe<Array<ContactWhereInput>>
   /** documents edge predicates */
   hasDocuments?: InputMaybe<Scalars['Boolean']['input']>
   hasDocumentsWith?: InputMaybe<Array<DocumentDataWhereInput>>
+  /** editors edge predicates */
+  hasEditors?: InputMaybe<Scalars['Boolean']['input']>
+  hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** entity_type edge predicates */
   hasEntityType?: InputMaybe<Scalars['Boolean']['input']>
   hasEntityTypeWith?: InputMaybe<Array<EntityTypeWhereInput>>
@@ -7150,6 +9540,12 @@ export interface EntityWhereInput {
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** scans edge predicates */
+  hasScans?: InputMaybe<Scalars['Boolean']['input']>
+  hasScansWith?: InputMaybe<Array<ScanWhereInput>>
+  /** viewers edge predicates */
+  hasViewers?: InputMaybe<Scalars['Boolean']['input']>
+  hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -7416,216 +9812,6 @@ export interface EventEdge {
   node?: Maybe<Event>
 }
 
-export interface EventHistory extends Node {
-  __typename?: 'EventHistory'
-  correlationID?: Maybe<Scalars['String']['output']>
-  createdAt?: Maybe<Scalars['Time']['output']>
-  createdBy?: Maybe<Scalars['String']['output']>
-  eventID?: Maybe<Scalars['String']['output']>
-  eventType: Scalars['String']['output']
-  historyTime: Scalars['Time']['output']
-  id: Scalars['ID']['output']
-  metadata?: Maybe<Scalars['Map']['output']>
-  operation: EventHistoryOpType
-  ref?: Maybe<Scalars['String']['output']>
-  /** tags associated with the object */
-  tags?: Maybe<Array<Scalars['String']['output']>>
-  updatedAt?: Maybe<Scalars['Time']['output']>
-  updatedBy?: Maybe<Scalars['String']['output']>
-}
-
-/** A connection to a list of items. */
-export interface EventHistoryConnection {
-  __typename?: 'EventHistoryConnection'
-  /** A list of edges. */
-  edges?: Maybe<Array<Maybe<EventHistoryEdge>>>
-  /** Information to aid in pagination. */
-  pageInfo: PageInfo
-  /** Identifies the total count of items in the connection. */
-  totalCount: Scalars['Int']['output']
-}
-
-/** An edge in a connection. */
-export interface EventHistoryEdge {
-  __typename?: 'EventHistoryEdge'
-  /** A cursor for use in pagination. */
-  cursor: Scalars['Cursor']['output']
-  /** The item at the end of the edge. */
-  node?: Maybe<EventHistory>
-}
-
-/** EventHistoryOpType is enum for the field operation */
-export enum EventHistoryOpType {
-  DELETE = 'DELETE',
-  INSERT = 'INSERT',
-  UPDATE = 'UPDATE',
-}
-
-/** Ordering options for EventHistory connections */
-export interface EventHistoryOrder {
-  /** The ordering direction. */
-  direction?: OrderDirection
-  /** The field by which to order EventHistories. */
-  field: EventHistoryOrderField
-}
-
-/** Properties by which EventHistory connections can be ordered. */
-export enum EventHistoryOrderField {
-  created_at = 'created_at',
-  updated_at = 'updated_at',
-}
-
-/**
- * EventHistoryWhereInput is used for filtering EventHistory objects.
- * Input was generated by ent.
- */
-export interface EventHistoryWhereInput {
-  and?: InputMaybe<Array<EventHistoryWhereInput>>
-  /** correlation_id field predicates */
-  correlationID?: InputMaybe<Scalars['String']['input']>
-  correlationIDContains?: InputMaybe<Scalars['String']['input']>
-  correlationIDContainsFold?: InputMaybe<Scalars['String']['input']>
-  correlationIDEqualFold?: InputMaybe<Scalars['String']['input']>
-  correlationIDGT?: InputMaybe<Scalars['String']['input']>
-  correlationIDGTE?: InputMaybe<Scalars['String']['input']>
-  correlationIDHasPrefix?: InputMaybe<Scalars['String']['input']>
-  correlationIDHasSuffix?: InputMaybe<Scalars['String']['input']>
-  correlationIDIn?: InputMaybe<Array<Scalars['String']['input']>>
-  correlationIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  correlationIDLT?: InputMaybe<Scalars['String']['input']>
-  correlationIDLTE?: InputMaybe<Scalars['String']['input']>
-  correlationIDNEQ?: InputMaybe<Scalars['String']['input']>
-  correlationIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  correlationIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** created_at field predicates */
-  createdAt?: InputMaybe<Scalars['Time']['input']>
-  createdAtGT?: InputMaybe<Scalars['Time']['input']>
-  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
-  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  createdAtLT?: InputMaybe<Scalars['Time']['input']>
-  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
-  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** created_by field predicates */
-  createdBy?: InputMaybe<Scalars['String']['input']>
-  createdByContains?: InputMaybe<Scalars['String']['input']>
-  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
-  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
-  createdByGT?: InputMaybe<Scalars['String']['input']>
-  createdByGTE?: InputMaybe<Scalars['String']['input']>
-  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  createdByLT?: InputMaybe<Scalars['String']['input']>
-  createdByLTE?: InputMaybe<Scalars['String']['input']>
-  createdByNEQ?: InputMaybe<Scalars['String']['input']>
-  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** event_id field predicates */
-  eventID?: InputMaybe<Scalars['String']['input']>
-  eventIDContains?: InputMaybe<Scalars['String']['input']>
-  eventIDContainsFold?: InputMaybe<Scalars['String']['input']>
-  eventIDEqualFold?: InputMaybe<Scalars['String']['input']>
-  eventIDGT?: InputMaybe<Scalars['String']['input']>
-  eventIDGTE?: InputMaybe<Scalars['String']['input']>
-  eventIDHasPrefix?: InputMaybe<Scalars['String']['input']>
-  eventIDHasSuffix?: InputMaybe<Scalars['String']['input']>
-  eventIDIn?: InputMaybe<Array<Scalars['String']['input']>>
-  eventIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  eventIDLT?: InputMaybe<Scalars['String']['input']>
-  eventIDLTE?: InputMaybe<Scalars['String']['input']>
-  eventIDNEQ?: InputMaybe<Scalars['String']['input']>
-  eventIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  eventIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** event_type field predicates */
-  eventType?: InputMaybe<Scalars['String']['input']>
-  eventTypeContains?: InputMaybe<Scalars['String']['input']>
-  eventTypeContainsFold?: InputMaybe<Scalars['String']['input']>
-  eventTypeEqualFold?: InputMaybe<Scalars['String']['input']>
-  eventTypeGT?: InputMaybe<Scalars['String']['input']>
-  eventTypeGTE?: InputMaybe<Scalars['String']['input']>
-  eventTypeHasPrefix?: InputMaybe<Scalars['String']['input']>
-  eventTypeHasSuffix?: InputMaybe<Scalars['String']['input']>
-  eventTypeIn?: InputMaybe<Array<Scalars['String']['input']>>
-  eventTypeLT?: InputMaybe<Scalars['String']['input']>
-  eventTypeLTE?: InputMaybe<Scalars['String']['input']>
-  eventTypeNEQ?: InputMaybe<Scalars['String']['input']>
-  eventTypeNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  /** history_time field predicates */
-  historyTime?: InputMaybe<Scalars['Time']['input']>
-  historyTimeGT?: InputMaybe<Scalars['Time']['input']>
-  historyTimeGTE?: InputMaybe<Scalars['Time']['input']>
-  historyTimeIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  historyTimeLT?: InputMaybe<Scalars['Time']['input']>
-  historyTimeLTE?: InputMaybe<Scalars['Time']['input']>
-  historyTimeNEQ?: InputMaybe<Scalars['Time']['input']>
-  historyTimeNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  /** id field predicates */
-  id?: InputMaybe<Scalars['ID']['input']>
-  idContainsFold?: InputMaybe<Scalars['ID']['input']>
-  idEqualFold?: InputMaybe<Scalars['ID']['input']>
-  idGT?: InputMaybe<Scalars['ID']['input']>
-  idGTE?: InputMaybe<Scalars['ID']['input']>
-  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  idLT?: InputMaybe<Scalars['ID']['input']>
-  idLTE?: InputMaybe<Scalars['ID']['input']>
-  idNEQ?: InputMaybe<Scalars['ID']['input']>
-  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  not?: InputMaybe<EventHistoryWhereInput>
-  /** operation field predicates */
-  operation?: InputMaybe<EventHistoryOpType>
-  operationIn?: InputMaybe<Array<EventHistoryOpType>>
-  operationNEQ?: InputMaybe<EventHistoryOpType>
-  operationNotIn?: InputMaybe<Array<EventHistoryOpType>>
-  or?: InputMaybe<Array<EventHistoryWhereInput>>
-  /** ref field predicates */
-  ref?: InputMaybe<Scalars['String']['input']>
-  refContains?: InputMaybe<Scalars['String']['input']>
-  refContainsFold?: InputMaybe<Scalars['String']['input']>
-  refEqualFold?: InputMaybe<Scalars['String']['input']>
-  refGT?: InputMaybe<Scalars['String']['input']>
-  refGTE?: InputMaybe<Scalars['String']['input']>
-  refHasPrefix?: InputMaybe<Scalars['String']['input']>
-  refHasSuffix?: InputMaybe<Scalars['String']['input']>
-  refIn?: InputMaybe<Array<Scalars['String']['input']>>
-  refIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  refLT?: InputMaybe<Scalars['String']['input']>
-  refLTE?: InputMaybe<Scalars['String']['input']>
-  refNEQ?: InputMaybe<Scalars['String']['input']>
-  refNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  refNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** updated_at field predicates */
-  updatedAt?: InputMaybe<Scalars['Time']['input']>
-  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
-  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
-  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** updated_by field predicates */
-  updatedBy?: InputMaybe<Scalars['String']['input']>
-  updatedByContains?: InputMaybe<Scalars['String']['input']>
-  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  updatedByGT?: InputMaybe<Scalars['String']['input']>
-  updatedByGTE?: InputMaybe<Scalars['String']['input']>
-  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  updatedByLT?: InputMaybe<Scalars['String']['input']>
-  updatedByLTE?: InputMaybe<Scalars['String']['input']>
-  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
-  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-}
-
 /** Ordering options for Event connections */
 export interface EventOrder {
   /** The ordering direction. */
@@ -7814,8 +10000,6 @@ export interface Evidence extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** the date the evidence was retrieved */
   creationDate: Scalars['Time']['output']
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the description of the evidence, what is contained in the uploaded file(s) or url(s) */
   description?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -7958,8 +10142,6 @@ export interface EvidenceHistory extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** the date the evidence was retrieved */
   creationDate: Scalars['Time']['output']
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the description of the evidence, what is contained in the uploaded file(s) or url(s) */
   description?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -8037,6 +10219,7 @@ export enum EvidenceHistoryOrderField {
   STATUS = 'STATUS',
   created_at = 'created_at',
   creation_date = 'creation_date',
+  history_time = 'history_time',
   name = 'name',
   renewal_date = 'renewal_date',
   updated_at = 'updated_at',
@@ -8100,33 +10283,6 @@ export interface EvidenceHistoryWhereInput {
   creationDateLTE?: InputMaybe<Scalars['Time']['input']>
   creationDateNEQ?: InputMaybe<Scalars['Time']['input']>
   creationDateNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -8397,33 +10553,6 @@ export interface EvidenceWhereInput {
   creationDateLTE?: InputMaybe<Scalars['Time']['input']>
   creationDateNEQ?: InputMaybe<Scalars['Time']['input']>
   creationDateNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -8609,8 +10738,6 @@ export interface File extends Node {
   contact?: Maybe<Array<Contact>>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the content type of the HTTP request - may be different than MIME type as multipart-form can transmit multiple files and different types */
   detectedContentType: Scalars['String']['output']
   /** the mime type detected by the system */
@@ -8704,8 +10831,6 @@ export interface FileHistory extends Node {
   categoryType?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the content type of the HTTP request - may be different than MIME type as multipart-form can transmit multiple files and different types */
   detectedContentType: Scalars['String']['output']
   /** the mime type detected by the system */
@@ -8777,6 +10902,7 @@ export interface FileHistoryOrder {
 /** Properties by which FileHistory connections can be ordered. */
 export enum FileHistoryOrderField {
   created_at = 'created_at',
+  history_time = 'history_time',
   updated_at = 'updated_at',
 }
 
@@ -8829,33 +10955,6 @@ export interface FileHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** detected_content_type field predicates */
   detectedContentType?: InputMaybe<Scalars['String']['input']>
   detectedContentTypeContains?: InputMaybe<Scalars['String']['input']>
@@ -9167,33 +11266,6 @@ export interface FileWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** detected_content_type field predicates */
   detectedContentType?: InputMaybe<Scalars['String']['input']>
   detectedContentTypeContains?: InputMaybe<Scalars['String']['input']>
@@ -9450,16 +11522,16 @@ export interface FileWhereInput {
 
 export interface Group extends Node {
   __typename?: 'Group'
-  controlBlockedGroups?: Maybe<Array<Control>>
-  controlEditors?: Maybe<Array<Control>>
-  controlObjectiveBlockedGroups?: Maybe<Array<ControlObjective>>
-  controlObjectiveEditors?: Maybe<Array<ControlObjective>>
-  controlObjectiveViewers?: Maybe<Array<ControlObjective>>
-  controlViewers?: Maybe<Array<Control>>
+  controlBlockedGroups: ControlConnection
+  controlEditors: ControlConnection
+  controlImplementationBlockedGroups: ControlImplementationConnection
+  controlImplementationEditors: ControlImplementationConnection
+  controlImplementationViewers: ControlImplementationConnection
+  controlObjectiveBlockedGroups: ControlObjectiveConnection
+  controlObjectiveEditors: ControlObjectiveConnection
+  controlObjectiveViewers: ControlObjectiveConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the groups description */
   description?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -9472,38 +11544,115 @@ export interface Group extends Node {
   gravatarLogoURL?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
   integrations: IntegrationConnection
-  internalPolicyBlockedGroups?: Maybe<Array<InternalPolicy>>
-  internalPolicyEditors?: Maybe<Array<InternalPolicy>>
+  internalPolicyBlockedGroups: InternalPolicyConnection
+  internalPolicyEditors: InternalPolicyConnection
   /** whether the group is managed by the system */
   isManaged?: Maybe<Scalars['Boolean']['output']>
   /** the URL to an image uploaded by the customer for the groups avatar image */
   logoURL?: Maybe<Scalars['String']['output']>
-  members?: Maybe<Array<GroupMembership>>
+  mappedControlBlockedGroups: MappedControlConnection
+  mappedControlEditors: MappedControlConnection
+  members: GroupMembershipConnection
   /** the name of the group - must be unique within the organization */
   name: Scalars['String']['output']
-  narrativeBlockedGroups?: Maybe<Array<Narrative>>
-  narrativeEditors?: Maybe<Array<Narrative>>
-  narrativeViewers?: Maybe<Array<Narrative>>
+  narrativeBlockedGroups: NarrativeConnection
+  narrativeEditors: NarrativeConnection
+  narrativeViewers: NarrativeConnection
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
   /** permissions the group provides */
-  permissions?: Maybe<Array<GroupPermissions>>
-  procedureBlockedGroups?: Maybe<Array<Procedure>>
-  procedureEditors?: Maybe<Array<Procedure>>
-  programBlockedGroups?: Maybe<Array<Program>>
-  programEditors?: Maybe<Array<Program>>
-  programViewers?: Maybe<Array<Program>>
-  riskBlockedGroups?: Maybe<Array<Risk>>
-  riskEditors?: Maybe<Array<Risk>>
-  riskViewers?: Maybe<Array<Risk>>
+  permissions: GroupPermissionConnection
+  procedureBlockedGroups: ProcedureConnection
+  procedureEditors: ProcedureConnection
+  programBlockedGroups: ProgramConnection
+  programEditors: ProgramConnection
+  programViewers: ProgramConnection
+  riskBlockedGroups: RiskConnection
+  riskEditors: RiskConnection
+  riskViewers: RiskConnection
+  scanBlockedGroups: ScanConnection
+  scanEditors: ScanConnection
+  scanViewers: ScanConnection
   setting?: Maybe<GroupSetting>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
-  users?: Maybe<Array<User>>
+  users: UserConnection
+}
+
+export interface GroupControlBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlOrder>>
+  where?: InputMaybe<ControlWhereInput>
+}
+
+export interface GroupControlEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlOrder>>
+  where?: InputMaybe<ControlWhereInput>
+}
+
+export interface GroupControlImplementationBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlImplementationOrder>>
+  where?: InputMaybe<ControlImplementationWhereInput>
+}
+
+export interface GroupControlImplementationEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlImplementationOrder>>
+  where?: InputMaybe<ControlImplementationWhereInput>
+}
+
+export interface GroupControlImplementationViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlImplementationOrder>>
+  where?: InputMaybe<ControlImplementationWhereInput>
+}
+
+export interface GroupControlObjectiveBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlObjectiveOrder>>
+  where?: InputMaybe<ControlObjectiveWhereInput>
+}
+
+export interface GroupControlObjectiveEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlObjectiveOrder>>
+  where?: InputMaybe<ControlObjectiveWhereInput>
+}
+
+export interface GroupControlObjectiveViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlObjectiveOrder>>
+  where?: InputMaybe<ControlObjectiveWhereInput>
 }
 
 export interface GroupEventsArgs {
@@ -9533,6 +11682,184 @@ export interface GroupIntegrationsArgs {
   where?: InputMaybe<IntegrationWhereInput>
 }
 
+export interface GroupInternalPolicyBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<InternalPolicyOrder>>
+  where?: InputMaybe<InternalPolicyWhereInput>
+}
+
+export interface GroupInternalPolicyEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<InternalPolicyOrder>>
+  where?: InputMaybe<InternalPolicyWhereInput>
+}
+
+export interface GroupMappedControlBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<MappedControlOrder>>
+  where?: InputMaybe<MappedControlWhereInput>
+}
+
+export interface GroupMappedControlEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<MappedControlOrder>>
+  where?: InputMaybe<MappedControlWhereInput>
+}
+
+export interface GroupMembersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupMembershipOrder>>
+  where?: InputMaybe<GroupMembershipWhereInput>
+}
+
+export interface GroupNarrativeBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<NarrativeOrder>>
+  where?: InputMaybe<NarrativeWhereInput>
+}
+
+export interface GroupNarrativeEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<NarrativeOrder>>
+  where?: InputMaybe<NarrativeWhereInput>
+}
+
+export interface GroupNarrativeViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<NarrativeOrder>>
+  where?: InputMaybe<NarrativeWhereInput>
+}
+
+export interface GroupPermissionsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+}
+
+export interface GroupProcedureBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ProcedureOrder>>
+  where?: InputMaybe<ProcedureWhereInput>
+}
+
+export interface GroupProcedureEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ProcedureOrder>>
+  where?: InputMaybe<ProcedureWhereInput>
+}
+
+export interface GroupProgramBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ProgramOrder>>
+  where?: InputMaybe<ProgramWhereInput>
+}
+
+export interface GroupProgramEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ProgramOrder>>
+  where?: InputMaybe<ProgramWhereInput>
+}
+
+export interface GroupProgramViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ProgramOrder>>
+  where?: InputMaybe<ProgramWhereInput>
+}
+
+export interface GroupRiskBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<RiskOrder>>
+  where?: InputMaybe<RiskWhereInput>
+}
+
+export interface GroupRiskEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<RiskOrder>>
+  where?: InputMaybe<RiskWhereInput>
+}
+
+export interface GroupRiskViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<RiskOrder>>
+  where?: InputMaybe<RiskWhereInput>
+}
+
+export interface GroupScanBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ScanOrder>>
+  where?: InputMaybe<ScanWhereInput>
+}
+
+export interface GroupScanEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ScanOrder>>
+  where?: InputMaybe<ScanWhereInput>
+}
+
+export interface GroupScanViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ScanOrder>>
+  where?: InputMaybe<ScanWhereInput>
+}
+
 export interface GroupTasksArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -9540,6 +11867,15 @@ export interface GroupTasksArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<TaskOrder>>
   where?: InputMaybe<TaskWhereInput>
+}
+
+export interface GroupUsersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<UserOrder>>
+  where?: InputMaybe<UserWhereInput>
 }
 
 /** Return response for createBulkGroup mutation */
@@ -9587,8 +11923,6 @@ export interface GroupHistory extends Node {
   __typename?: 'GroupHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the groups description */
   description?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -9654,6 +11988,7 @@ export interface GroupHistoryOrder {
 export enum GroupHistoryOrderField {
   created_at = 'created_at',
   display_name = 'display_name',
+  history_time = 'history_time',
   name = 'name',
   updated_at = 'updated_at',
 }
@@ -9691,33 +12026,6 @@ export interface GroupHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_id field predicates */
   displayID?: InputMaybe<Scalars['String']['input']>
   displayIDContains?: InputMaybe<Scalars['String']['input']>
@@ -9866,8 +12174,6 @@ export interface GroupMembership extends Node {
   __typename?: 'GroupMembership'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   events: EventConnection
   group: Group
   groupID: Scalars['ID']['output']
@@ -9933,8 +12239,6 @@ export interface GroupMembershipHistory extends Node {
   __typename?: 'GroupMembershipHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   groupID: Scalars['String']['output']
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
@@ -9985,6 +12289,7 @@ export interface GroupMembershipHistoryOrder {
 export enum GroupMembershipHistoryOrderField {
   ROLE = 'ROLE',
   created_at = 'created_at',
+  history_time = 'history_time',
   updated_at = 'updated_at',
 }
 
@@ -10027,33 +12332,6 @@ export interface GroupMembershipHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** group_id field predicates */
   groupID?: InputMaybe<Scalars['String']['input']>
   groupIDContains?: InputMaybe<Scalars['String']['input']>
@@ -10220,33 +12498,6 @@ export interface GroupMembershipWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   groupID?: InputMaybe<Scalars['String']['input']>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
@@ -10313,25 +12564,116 @@ export enum GroupOrderField {
 }
 
 /**
- * GroupPermissions contains details for the related object and the permissions
+ * GroupPermission contains details for the related object and the permissions
  * the group provides (or removes in the case of blocked) to the object within the
  * organization
  */
-export interface GroupPermissions {
-  __typename?: 'GroupPermissions'
+export interface GroupPermission extends Node {
+  __typename?: 'GroupPermission'
+  /** the displayID of the object the group was given permissions to */
   displayID?: Maybe<Scalars['String']['output']>
-  id?: Maybe<Scalars['ID']['output']>
+  /** the ID of the object the group was given permissions to */
+  id: Scalars['ID']['output']
+  /** the  name of the object the group was given permissions to */
   name?: Maybe<Scalars['String']['output']>
+  /** the type of object the permissions are for, e.g. Program, Control, etc. */
   objectType: Scalars['String']['output']
+  /** the permissions the group has in relation to the object, e.g. EDITOR, VIEWER, BLOCKED */
   permissions: Permission
+}
+
+/** A connection to a list of items. */
+export interface GroupPermissionConnection {
+  __typename?: 'GroupPermissionConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<GroupPermissionEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** An edge in a connection. */
+export interface GroupPermissionEdge {
+  __typename?: 'GroupPermissionEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<GroupPermission>
+}
+
+/** Ordering options for GroupPermission connections */
+export interface GroupPermissionOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order GroupPermission. */
+  field: GroupPermissionOrderField
+}
+
+/** Properties by which GroupPermission connections can be ordered. */
+export enum GroupPermissionOrderField {
+  name = 'name',
+  objectType = 'objectType',
+  permission = 'permission',
+}
+
+/** GroupPermissionWhereInput is used for filtering GroupPermission objects. */
+export interface GroupPermissionWhereInput {
+  and?: InputMaybe<Array<GroupPermissionWhereInput>>
+  /** name field predicates */
+  name?: InputMaybe<Scalars['String']['input']>
+  nameContains?: InputMaybe<Scalars['String']['input']>
+  nameContainsFold?: InputMaybe<Scalars['String']['input']>
+  nameEqualFold?: InputMaybe<Scalars['String']['input']>
+  nameGT?: InputMaybe<Scalars['String']['input']>
+  nameGTE?: InputMaybe<Scalars['String']['input']>
+  nameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  nameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  nameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  nameLT?: InputMaybe<Scalars['String']['input']>
+  nameLTE?: InputMaybe<Scalars['String']['input']>
+  nameNEQ?: InputMaybe<Scalars['String']['input']>
+  nameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  not?: InputMaybe<GroupPermissionWhereInput>
+  /** objectType field predicates */
+  objectType?: InputMaybe<Scalars['String']['input']>
+  objectTypeContains?: InputMaybe<Scalars['String']['input']>
+  objectTypeContainsFold?: InputMaybe<Scalars['String']['input']>
+  objectTypeEqualFold?: InputMaybe<Scalars['String']['input']>
+  objectTypeGT?: InputMaybe<Scalars['String']['input']>
+  objectTypeGTE?: InputMaybe<Scalars['String']['input']>
+  objectTypeHasPrefix?: InputMaybe<Scalars['String']['input']>
+  objectTypeHasSuffix?: InputMaybe<Scalars['String']['input']>
+  objectTypeIn?: InputMaybe<Array<Scalars['String']['input']>>
+  objectTypeIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  objectTypeLT?: InputMaybe<Scalars['String']['input']>
+  objectTypeLTE?: InputMaybe<Scalars['String']['input']>
+  objectTypeNEQ?: InputMaybe<Scalars['String']['input']>
+  objectTypeNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  objectTypeNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  or?: InputMaybe<Array<GroupPermissionWhereInput>>
+  /** permission field predicates */
+  permission?: InputMaybe<Scalars['String']['input']>
+  permissionContains?: InputMaybe<Scalars['String']['input']>
+  permissionContainsFold?: InputMaybe<Scalars['String']['input']>
+  permissionEqualFold?: InputMaybe<Scalars['String']['input']>
+  permissionGT?: InputMaybe<Scalars['String']['input']>
+  permissionGTE?: InputMaybe<Scalars['String']['input']>
+  permissionHasPrefix?: InputMaybe<Scalars['String']['input']>
+  permissionHasSuffix?: InputMaybe<Scalars['String']['input']>
+  permissionIn?: InputMaybe<Array<Scalars['String']['input']>>
+  permissionIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  permissionLT?: InputMaybe<Scalars['String']['input']>
+  permissionLTE?: InputMaybe<Scalars['String']['input']>
+  permissionNEQ?: InputMaybe<Scalars['String']['input']>
+  permissionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  permissionNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 export interface GroupSetting extends Node {
   __typename?: 'GroupSetting'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   group?: Maybe<Group>
   /** the group id associated with the settings */
   groupID?: Maybe<Scalars['ID']['output']>
@@ -10393,8 +12735,6 @@ export interface GroupSettingHistory extends Node {
   __typename?: 'GroupSettingHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the group id associated with the settings */
   groupID?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
@@ -10459,6 +12799,7 @@ export interface GroupSettingHistoryOrder {
 /** Properties by which GroupSettingHistory connections can be ordered. */
 export enum GroupSettingHistoryOrderField {
   created_at = 'created_at',
+  history_time = 'history_time',
   updated_at = 'updated_at',
 }
 
@@ -10501,33 +12842,6 @@ export interface GroupSettingHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** group_id field predicates */
   groupID?: InputMaybe<Scalars['String']['input']>
   groupIDContains?: InputMaybe<Scalars['String']['input']>
@@ -10704,33 +13018,6 @@ export interface GroupSettingWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** group_id field predicates */
   groupID?: InputMaybe<Scalars['ID']['input']>
   groupIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -10852,33 +13139,6 @@ export interface GroupWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_id field predicates */
   displayID?: InputMaybe<Scalars['String']['input']>
   displayIDContains?: InputMaybe<Scalars['String']['input']>
@@ -10913,6 +13173,15 @@ export interface GroupWhereInput {
   /** control_editors edge predicates */
   hasControlEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasControlEditorsWith?: InputMaybe<Array<ControlWhereInput>>
+  /** control_implementation_blocked_groups edge predicates */
+  hasControlImplementationBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  hasControlImplementationBlockedGroupsWith?: InputMaybe<Array<ControlImplementationWhereInput>>
+  /** control_implementation_editors edge predicates */
+  hasControlImplementationEditors?: InputMaybe<Scalars['Boolean']['input']>
+  hasControlImplementationEditorsWith?: InputMaybe<Array<ControlImplementationWhereInput>>
+  /** control_implementation_viewers edge predicates */
+  hasControlImplementationViewers?: InputMaybe<Scalars['Boolean']['input']>
+  hasControlImplementationViewersWith?: InputMaybe<Array<ControlImplementationWhereInput>>
   /** control_objective_blocked_groups edge predicates */
   hasControlObjectiveBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasControlObjectiveBlockedGroupsWith?: InputMaybe<Array<ControlObjectiveWhereInput>>
@@ -10922,9 +13191,6 @@ export interface GroupWhereInput {
   /** control_objective_viewers edge predicates */
   hasControlObjectiveViewers?: InputMaybe<Scalars['Boolean']['input']>
   hasControlObjectiveViewersWith?: InputMaybe<Array<ControlObjectiveWhereInput>>
-  /** control_viewers edge predicates */
-  hasControlViewers?: InputMaybe<Scalars['Boolean']['input']>
-  hasControlViewersWith?: InputMaybe<Array<ControlWhereInput>>
   /** events edge predicates */
   hasEvents?: InputMaybe<Scalars['Boolean']['input']>
   hasEventsWith?: InputMaybe<Array<EventWhereInput>>
@@ -10940,6 +13206,12 @@ export interface GroupWhereInput {
   /** internal_policy_editors edge predicates */
   hasInternalPolicyEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalPolicyEditorsWith?: InputMaybe<Array<InternalPolicyWhereInput>>
+  /** mapped_control_blocked_groups edge predicates */
+  hasMappedControlBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  hasMappedControlBlockedGroupsWith?: InputMaybe<Array<MappedControlWhereInput>>
+  /** mapped_control_editors edge predicates */
+  hasMappedControlEditors?: InputMaybe<Scalars['Boolean']['input']>
+  hasMappedControlEditorsWith?: InputMaybe<Array<MappedControlWhereInput>>
   /** members edge predicates */
   hasMembers?: InputMaybe<Scalars['Boolean']['input']>
   hasMembersWith?: InputMaybe<Array<GroupMembershipWhereInput>>
@@ -10979,6 +13251,15 @@ export interface GroupWhereInput {
   /** risk_viewers edge predicates */
   hasRiskViewers?: InputMaybe<Scalars['Boolean']['input']>
   hasRiskViewersWith?: InputMaybe<Array<RiskWhereInput>>
+  /** scan_blocked_groups edge predicates */
+  hasScanBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  hasScanBlockedGroupsWith?: InputMaybe<Array<ScanWhereInput>>
+  /** scan_editors edge predicates */
+  hasScanEditors?: InputMaybe<Scalars['Boolean']['input']>
+  hasScanEditorsWith?: InputMaybe<Array<ScanWhereInput>>
+  /** scan_viewers edge predicates */
+  hasScanViewers?: InputMaybe<Scalars['Boolean']['input']>
+  hasScanViewersWith?: InputMaybe<Array<ScanWhereInput>>
   /** setting edge predicates */
   hasSetting?: InputMaybe<Scalars['Boolean']['input']>
   hasSettingWith?: InputMaybe<Array<GroupSettingWhereInput>>
@@ -11069,8 +13350,6 @@ export interface Hush extends Node {
   __typename?: 'Hush'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** a description of the hush value or purpose, such as github PAT */
   description?: Maybe<Scalars['String']['output']>
   events: EventConnection
@@ -11152,8 +13431,6 @@ export interface HushHistory extends Node {
   __typename?: 'HushHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** a description of the hush value or purpose, such as github PAT */
   description?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
@@ -11210,6 +13487,7 @@ export interface HushHistoryOrder {
 /** Properties by which HushHistory connections can be ordered. */
 export enum HushHistoryOrderField {
   created_at = 'created_at',
+  history_time = 'history_time',
   kind = 'kind',
   name = 'name',
   updated_at = 'updated_at',
@@ -11248,33 +13526,6 @@ export interface HushHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** history_time field predicates */
   historyTime?: InputMaybe<Scalars['Time']['input']>
   historyTimeGT?: InputMaybe<Scalars['Time']['input']>
@@ -11465,33 +13716,6 @@ export interface HushWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** events edge predicates */
   hasEvents?: InputMaybe<Scalars['Boolean']['input']>
   hasEventsWith?: InputMaybe<Array<EventWhereInput>>
@@ -11609,8 +13833,6 @@ export interface Integration extends Node {
   __typename?: 'Integration'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** a description of the integration */
   description?: Maybe<Scalars['String']['output']>
   events: EventConnection
@@ -11691,8 +13913,6 @@ export interface IntegrationHistory extends Node {
   __typename?: 'IntegrationHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** a description of the integration */
   description?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
@@ -11748,6 +13968,7 @@ export interface IntegrationHistoryOrder {
 /** Properties by which IntegrationHistory connections can be ordered. */
 export enum IntegrationHistoryOrderField {
   created_at = 'created_at',
+  history_time = 'history_time',
   kind = 'kind',
   name = 'name',
   updated_at = 'updated_at',
@@ -11786,33 +14007,6 @@ export interface IntegrationHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** history_time field predicates */
   historyTime?: InputMaybe<Scalars['Time']['input']>
   historyTimeGT?: InputMaybe<Scalars['Time']['input']>
@@ -11987,33 +14181,6 @@ export interface IntegrationWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** events edge predicates */
   hasEvents?: InputMaybe<Scalars['Boolean']['input']>
   hasEventsWith?: InputMaybe<Array<EventWhereInput>>
@@ -12119,9 +14286,10 @@ export interface InternalPolicy extends Node {
   approver?: Maybe<Group>
   /** the id of the group responsible for approving the policy */
   approverID?: Maybe<Scalars['ID']['output']>
-  /** groups that are blocked from viewing or editing the risk */
-  blockedGroups?: Maybe<Array<Group>>
+  blockedGroups: GroupConnection
   controlObjectives: ControlObjectiveConnection
+  /** proposed controls referenced in the policy */
+  controlSuggestions?: Maybe<Array<Scalars['String']['output']>>
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
@@ -12129,15 +14297,20 @@ export interface InternalPolicy extends Node {
   delegate?: Maybe<Group>
   /** the id of the group responsible for approving the policy */
   delegateID?: Maybe<Scalars['ID']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** details of the policy */
   details?: Maybe<Scalars['String']['output']>
+  /** control suggestions dismissed by the user for the policy */
+  dismissedControlSuggestions?: Maybe<Array<Scalars['String']['output']>>
+  /** improvement suggestions dismissed by the user for the policy */
+  dismissedImprovementSuggestions?: Maybe<Array<Scalars['String']['output']>>
+  /** tag suggestions dismissed by the user for the policy */
+  dismissedTagSuggestions?: Maybe<Array<Scalars['String']['output']>>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
-  /** provides edit access to the risk to members of the group */
-  editors?: Maybe<Array<Group>>
+  editors: GroupConnection
   id: Scalars['ID']['output']
+  /** suggested improvements for the policy */
+  improvementSuggestions?: Maybe<Array<Scalars['String']['output']>>
   /** the name of the policy */
   name: Scalars['String']['output']
   narratives: NarrativeConnection
@@ -12158,11 +14331,23 @@ export interface InternalPolicy extends Node {
   /** status of the policy, e.g. draft, published, archived, etc. */
   status?: Maybe<InternalPolicyDocumentStatus>
   subcontrols: SubcontrolConnection
+  summary?: Maybe<Scalars['String']['output']>
+  /** auto-generated tag suggestions for the policy */
+  tagSuggestions?: Maybe<Array<Scalars['String']['output']>>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+}
+
+export interface InternalPolicyBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface InternalPolicyControlObjectivesArgs {
@@ -12181,6 +14366,15 @@ export interface InternalPolicyControlsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ControlOrder>>
   where?: InputMaybe<ControlWhereInput>
+}
+
+export interface InternalPolicyEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface InternalPolicyNarrativesArgs {
@@ -12301,18 +14495,26 @@ export interface InternalPolicyHistory extends Node {
   approvalRequired?: Maybe<Scalars['Boolean']['output']>
   /** the id of the group responsible for approving the policy */
   approverID?: Maybe<Scalars['String']['output']>
+  /** proposed controls referenced in the policy */
+  controlSuggestions?: Maybe<Array<Scalars['String']['output']>>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** the id of the group responsible for approving the policy */
   delegateID?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** details of the policy */
   details?: Maybe<Scalars['String']['output']>
+  /** control suggestions dismissed by the user for the policy */
+  dismissedControlSuggestions?: Maybe<Array<Scalars['String']['output']>>
+  /** improvement suggestions dismissed by the user for the policy */
+  dismissedImprovementSuggestions?: Maybe<Array<Scalars['String']['output']>>
+  /** tag suggestions dismissed by the user for the policy */
+  dismissedTagSuggestions?: Maybe<Array<Scalars['String']['output']>>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
+  /** suggested improvements for the policy */
+  improvementSuggestions?: Maybe<Array<Scalars['String']['output']>>
   /** the name of the policy */
   name: Scalars['String']['output']
   operation: InternalPolicyHistoryOpType
@@ -12329,6 +14531,9 @@ export interface InternalPolicyHistory extends Node {
   revision?: Maybe<Scalars['String']['output']>
   /** status of the policy, e.g. draft, published, archived, etc. */
   status?: Maybe<InternalPolicyHistoryDocumentStatus>
+  summary?: Maybe<Scalars['String']['output']>
+  /** auto-generated tag suggestions for the policy */
+  tagSuggestions?: Maybe<Array<Scalars['String']['output']>>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
@@ -12392,6 +14597,7 @@ export enum InternalPolicyHistoryOrderField {
   REVIEW_FREQUENCY = 'REVIEW_FREQUENCY',
   STATUS = 'STATUS',
   created_at = 'created_at',
+  history_time = 'history_time',
   name = 'name',
   review_due = 'review_due',
   revision = 'revision',
@@ -12468,33 +14674,6 @@ export interface InternalPolicyHistoryWhereInput {
   delegateIDNEQ?: InputMaybe<Scalars['String']['input']>
   delegateIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   delegateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** details field predicates */
   details?: InputMaybe<Scalars['String']['input']>
   detailsContains?: InputMaybe<Scalars['String']['input']>
@@ -12780,33 +14959,6 @@ export interface InternalPolicyWhereInput {
   delegateIDNEQ?: InputMaybe<Scalars['ID']['input']>
   delegateIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   delegateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** details field predicates */
   details?: InputMaybe<Scalars['String']['input']>
   detailsContains?: InputMaybe<Scalars['String']['input']>
@@ -13009,8 +15161,6 @@ export interface Invite extends Node {
   __typename?: 'Invite'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   events: EventConnection
   /** the expiration date of the invitation token which defaults to 14 days in the future from creation */
   expires?: Maybe<Scalars['Time']['output']>
@@ -13152,33 +15302,6 @@ export interface InviteWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** expires field predicates */
   expires?: InputMaybe<Scalars['Time']['input']>
   expiresGT?: InputMaybe<Scalars['Time']['input']>
@@ -13303,26 +15426,1371 @@ export interface InviteWhereInput {
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
-export interface MappedControl extends Node {
-  __typename?: 'MappedControl'
-  controls: ControlConnection
+export interface JobResult extends Node {
+  __typename?: 'JobResult'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
+  /** the exit code from the script that was executed */
+  exitCode: Scalars['Int']['output']
+  file: File
+  fileID: Scalars['ID']['output']
+  /** The time the job finished it's execution. This is different from the db insertion time */
+  finishedAt: Scalars['Time']['output']
   id: Scalars['ID']['output']
-  /** the type of mapping between the two controls, e.g. subset, intersect, equal, superset */
-  mappingType?: Maybe<Scalars['String']['output']>
-  /** description of how the two controls are related */
-  relation?: Maybe<Scalars['String']['output']>
-  subcontrols: SubcontrolConnection
+  owner?: Maybe<Organization>
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['ID']['output']>
+  scheduledJob: ControlScheduledJob
+  /** the job this result belongs to */
+  scheduledJobID: Scalars['ID']['output']
+  /** The time the job started it's execution. This is different from the db insertion time */
+  startedAt: Scalars['Time']['output']
+  /** the status of this job. did it fail? did it succeed? */
+  status: JobResultJobExecutionStatus
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+}
+
+/** A connection to a list of items. */
+export interface JobResultConnection {
+  __typename?: 'JobResultConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<JobResultEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** An edge in a connection. */
+export interface JobResultEdge {
+  __typename?: 'JobResultEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<JobResult>
+}
+
+/** JobResultJobExecutionStatus is enum for the field status */
+export enum JobResultJobExecutionStatus {
+  CANCELED = 'CANCELED',
+  FAILED = 'FAILED',
+  PENDING = 'PENDING',
+  SUCCESS = 'SUCCESS',
+}
+
+/** Ordering options for JobResult connections */
+export interface JobResultOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order JobResults. */
+  field: JobResultOrderField
+}
+
+/** Properties by which JobResult connections can be ordered. */
+export enum JobResultOrderField {
+  STATUS = 'STATUS',
+  created_at = 'created_at',
+  exit_code = 'exit_code',
+  finished_at = 'finished_at',
+  started_at = 'started_at',
+  updated_at = 'updated_at',
+}
+
+/**
+ * JobResultWhereInput is used for filtering JobResult objects.
+ * Input was generated by ent.
+ */
+export interface JobResultWhereInput {
+  and?: InputMaybe<Array<JobResultWhereInput>>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** exit_code field predicates */
+  exitCode?: InputMaybe<Scalars['Int']['input']>
+  exitCodeGT?: InputMaybe<Scalars['Int']['input']>
+  exitCodeGTE?: InputMaybe<Scalars['Int']['input']>
+  exitCodeIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  exitCodeLT?: InputMaybe<Scalars['Int']['input']>
+  exitCodeLTE?: InputMaybe<Scalars['Int']['input']>
+  exitCodeNEQ?: InputMaybe<Scalars['Int']['input']>
+  exitCodeNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  /** file_id field predicates */
+  fileID?: InputMaybe<Scalars['ID']['input']>
+  fileIDContains?: InputMaybe<Scalars['ID']['input']>
+  fileIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  fileIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  fileIDGT?: InputMaybe<Scalars['ID']['input']>
+  fileIDGTE?: InputMaybe<Scalars['ID']['input']>
+  fileIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  fileIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  fileIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  fileIDLT?: InputMaybe<Scalars['ID']['input']>
+  fileIDLTE?: InputMaybe<Scalars['ID']['input']>
+  fileIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  fileIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** finished_at field predicates */
+  finishedAt?: InputMaybe<Scalars['Time']['input']>
+  finishedAtGT?: InputMaybe<Scalars['Time']['input']>
+  finishedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  finishedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  finishedAtLT?: InputMaybe<Scalars['Time']['input']>
+  finishedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  finishedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  finishedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  /** file edge predicates */
+  hasFile?: InputMaybe<Scalars['Boolean']['input']>
+  hasFileWith?: InputMaybe<Array<FileWhereInput>>
+  /** owner edge predicates */
+  hasOwner?: InputMaybe<Scalars['Boolean']['input']>
+  hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** scheduled_job edge predicates */
+  hasScheduledJob?: InputMaybe<Scalars['Boolean']['input']>
+  hasScheduledJobWith?: InputMaybe<Array<ControlScheduledJobWhereInput>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  not?: InputMaybe<JobResultWhereInput>
+  or?: InputMaybe<Array<JobResultWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContains?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scheduled_job_id field predicates */
+  scheduledJobID?: InputMaybe<Scalars['ID']['input']>
+  scheduledJobIDContains?: InputMaybe<Scalars['ID']['input']>
+  scheduledJobIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  scheduledJobIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  scheduledJobIDGT?: InputMaybe<Scalars['ID']['input']>
+  scheduledJobIDGTE?: InputMaybe<Scalars['ID']['input']>
+  scheduledJobIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  scheduledJobIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  scheduledJobIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scheduledJobIDLT?: InputMaybe<Scalars['ID']['input']>
+  scheduledJobIDLTE?: InputMaybe<Scalars['ID']['input']>
+  scheduledJobIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  scheduledJobIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** started_at field predicates */
+  startedAt?: InputMaybe<Scalars['Time']['input']>
+  startedAtGT?: InputMaybe<Scalars['Time']['input']>
+  startedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  startedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  startedAtLT?: InputMaybe<Scalars['Time']['input']>
+  startedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  startedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  startedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  /** status field predicates */
+  status?: InputMaybe<JobResultJobExecutionStatus>
+  statusIn?: InputMaybe<Array<JobResultJobExecutionStatus>>
+  statusNEQ?: InputMaybe<JobResultJobExecutionStatus>
+  statusNotIn?: InputMaybe<Array<JobResultJobExecutionStatus>>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+export interface JobRunner extends Node {
+  __typename?: 'JobRunner'
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  /** a shortened prefixed id field to use as a human readable identifier */
+  displayID: Scalars['String']['output']
+  id: Scalars['ID']['output']
+  /** the IP address of this runner */
+  ipAddress: Scalars['String']['output']
+  jobRunnerTokens: JobRunnerTokenConnection
+  /** the name of the runner */
+  name: Scalars['String']['output']
+  owner?: Maybe<Organization>
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['ID']['output']>
+  /** the status of this runner */
+  status: JobRunnerJobRunnerStatus
+  /** indicates if the record is owned by the the openlane system and not by an organization */
+  systemOwned?: Maybe<Scalars['Boolean']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
 }
 
-export interface MappedControlControlsArgs {
+export interface JobRunnerJobRunnerTokensArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<JobRunnerTokenOrder>>
+  where?: InputMaybe<JobRunnerTokenWhereInput>
+}
+
+/** A connection to a list of items. */
+export interface JobRunnerConnection {
+  __typename?: 'JobRunnerConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<JobRunnerEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** Return response for deleteJobRunner mutation */
+export interface JobRunnerDeletePayload {
+  __typename?: 'JobRunnerDeletePayload'
+  /** Deleted jobRunner ID */
+  deletedID: Scalars['ID']['output']
+}
+
+/** An edge in a connection. */
+export interface JobRunnerEdge {
+  __typename?: 'JobRunnerEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<JobRunner>
+}
+
+/** JobRunnerJobRunnerStatus is enum for the field status */
+export enum JobRunnerJobRunnerStatus {
+  OFFLINE = 'OFFLINE',
+  ONLINE = 'ONLINE',
+}
+
+/** Ordering options for JobRunner connections */
+export interface JobRunnerOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order JobRunners. */
+  field: JobRunnerOrderField
+}
+
+/** Properties by which JobRunner connections can be ordered. */
+export enum JobRunnerOrderField {
+  created_at = 'created_at',
+  name = 'name',
+  updated_at = 'updated_at',
+}
+
+export interface JobRunnerRegistrationToken extends Node {
+  __typename?: 'JobRunnerRegistrationToken'
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  /** when the token expires */
+  expiresAt: Scalars['Time']['output']
+  id: Scalars['ID']['output']
+  jobRunner?: Maybe<JobRunner>
+  /** the ID of the runner this token was used to register */
+  jobRunnerID?: Maybe<Scalars['ID']['output']>
+  lastUsedAt?: Maybe<Scalars['Time']['output']>
+  owner?: Maybe<Organization>
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['ID']['output']>
+  /** tags associated with the object */
+  tags?: Maybe<Array<Scalars['String']['output']>>
+  token: Scalars['String']['output']
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+}
+
+/** Return response for createBulkJobRunnerRegistrationToken mutation */
+export interface JobRunnerRegistrationTokenBulkCreatePayload {
+  __typename?: 'JobRunnerRegistrationTokenBulkCreatePayload'
+  /** Created jobRunnerRegistrationTokens */
+  jobRunnerRegistrationTokens?: Maybe<Array<JobRunnerRegistrationToken>>
+}
+
+/** A connection to a list of items. */
+export interface JobRunnerRegistrationTokenConnection {
+  __typename?: 'JobRunnerRegistrationTokenConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<JobRunnerRegistrationTokenEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** Return response for createJobRunnerRegistrationToken mutation */
+export interface JobRunnerRegistrationTokenCreatePayload {
+  __typename?: 'JobRunnerRegistrationTokenCreatePayload'
+  /** Created jobRunnerRegistrationToken */
+  jobRunnerRegistrationToken: JobRunnerRegistrationToken
+}
+
+/** Return response for deleteJobRunnerRegistrationToken mutation */
+export interface JobRunnerRegistrationTokenDeletePayload {
+  __typename?: 'JobRunnerRegistrationTokenDeletePayload'
+  /** Deleted jobRunnerRegistrationToken ID */
+  deletedID: Scalars['ID']['output']
+}
+
+/** An edge in a connection. */
+export interface JobRunnerRegistrationTokenEdge {
+  __typename?: 'JobRunnerRegistrationTokenEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<JobRunnerRegistrationToken>
+}
+
+/** Ordering options for JobRunnerRegistrationToken connections */
+export interface JobRunnerRegistrationTokenOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order JobRunnerRegistrationTokens. */
+  field: JobRunnerRegistrationTokenOrderField
+}
+
+/** Properties by which JobRunnerRegistrationToken connections can be ordered. */
+export enum JobRunnerRegistrationTokenOrderField {
+  created_at = 'created_at',
+  last_used_at = 'last_used_at',
+  updated_at = 'updated_at',
+}
+
+/**
+ * JobRunnerRegistrationTokenWhereInput is used for filtering JobRunnerRegistrationToken objects.
+ * Input was generated by ent.
+ */
+export interface JobRunnerRegistrationTokenWhereInput {
+  and?: InputMaybe<Array<JobRunnerRegistrationTokenWhereInput>>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** job_runner edge predicates */
+  hasJobRunner?: InputMaybe<Scalars['Boolean']['input']>
+  hasJobRunnerWith?: InputMaybe<Array<JobRunnerWhereInput>>
+  /** owner edge predicates */
+  hasOwner?: InputMaybe<Scalars['Boolean']['input']>
+  hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** job_runner_id field predicates */
+  jobRunnerID?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDContains?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDGT?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDGTE?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  jobRunnerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  jobRunnerIDLT?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDLTE?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  jobRunnerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** last_used_at field predicates */
+  lastUsedAt?: InputMaybe<Scalars['Time']['input']>
+  lastUsedAtGT?: InputMaybe<Scalars['Time']['input']>
+  lastUsedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  lastUsedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  lastUsedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  lastUsedAtLT?: InputMaybe<Scalars['Time']['input']>
+  lastUsedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  lastUsedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  lastUsedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  lastUsedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  not?: InputMaybe<JobRunnerRegistrationTokenWhereInput>
+  or?: InputMaybe<Array<JobRunnerRegistrationTokenWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContains?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+export interface JobRunnerToken extends Node {
+  __typename?: 'JobRunnerToken'
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  /** when the token expires */
+  expiresAt?: Maybe<Scalars['Time']['output']>
+  id: Scalars['ID']['output']
+  /** whether the token is active */
+  isActive?: Maybe<Scalars['Boolean']['output']>
+  jobRunners: JobRunnerConnection
+  lastUsedAt?: Maybe<Scalars['Time']['output']>
+  owner?: Maybe<Organization>
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['ID']['output']>
+  /** when the token was revoked */
+  revokedAt?: Maybe<Scalars['Time']['output']>
+  /** the user who revoked the token */
+  revokedBy?: Maybe<Scalars['String']['output']>
+  /** the reason the token was revoked */
+  revokedReason?: Maybe<Scalars['String']['output']>
+  /** tags associated with the object */
+  tags?: Maybe<Array<Scalars['String']['output']>>
+  token: Scalars['String']['output']
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+}
+
+export interface JobRunnerTokenJobRunnersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<JobRunnerOrder>>
+  where?: InputMaybe<JobRunnerWhereInput>
+}
+
+/** A connection to a list of items. */
+export interface JobRunnerTokenConnection {
+  __typename?: 'JobRunnerTokenConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<JobRunnerTokenEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** Return response for createJobRunnerToken mutation */
+export interface JobRunnerTokenCreatePayload {
+  __typename?: 'JobRunnerTokenCreatePayload'
+  /** Created jobRunnerToken */
+  jobRunnerToken: JobRunnerToken
+}
+
+/** Return response for deleteJobRunnerToken mutation */
+export interface JobRunnerTokenDeletePayload {
+  __typename?: 'JobRunnerTokenDeletePayload'
+  /** Deleted jobRunnerToken ID */
+  deletedID: Scalars['ID']['output']
+}
+
+/** An edge in a connection. */
+export interface JobRunnerTokenEdge {
+  __typename?: 'JobRunnerTokenEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<JobRunnerToken>
+}
+
+/** Ordering options for JobRunnerToken connections */
+export interface JobRunnerTokenOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order JobRunnerTokens. */
+  field: JobRunnerTokenOrderField
+}
+
+/** Properties by which JobRunnerToken connections can be ordered. */
+export enum JobRunnerTokenOrderField {
+  created_at = 'created_at',
+  expires_at = 'expires_at',
+  last_used_at = 'last_used_at',
+  updated_at = 'updated_at',
+}
+
+/** Return response for updateJobRunnerToken mutation */
+export interface JobRunnerTokenUpdatePayload {
+  __typename?: 'JobRunnerTokenUpdatePayload'
+  /** Updated jobRunnerToken */
+  jobRunnerToken: JobRunnerToken
+}
+
+/**
+ * JobRunnerTokenWhereInput is used for filtering JobRunnerToken objects.
+ * Input was generated by ent.
+ */
+export interface JobRunnerTokenWhereInput {
+  and?: InputMaybe<Array<JobRunnerTokenWhereInput>>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** expires_at field predicates */
+  expiresAt?: InputMaybe<Scalars['Time']['input']>
+  expiresAtGT?: InputMaybe<Scalars['Time']['input']>
+  expiresAtGTE?: InputMaybe<Scalars['Time']['input']>
+  expiresAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  expiresAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  expiresAtLT?: InputMaybe<Scalars['Time']['input']>
+  expiresAtLTE?: InputMaybe<Scalars['Time']['input']>
+  expiresAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  expiresAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  expiresAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** job_runners edge predicates */
+  hasJobRunners?: InputMaybe<Scalars['Boolean']['input']>
+  hasJobRunnersWith?: InputMaybe<Array<JobRunnerWhereInput>>
+  /** owner edge predicates */
+  hasOwner?: InputMaybe<Scalars['Boolean']['input']>
+  hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** is_active field predicates */
+  isActive?: InputMaybe<Scalars['Boolean']['input']>
+  isActiveIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  isActiveNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  isActiveNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** last_used_at field predicates */
+  lastUsedAt?: InputMaybe<Scalars['Time']['input']>
+  lastUsedAtGT?: InputMaybe<Scalars['Time']['input']>
+  lastUsedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  lastUsedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  lastUsedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  lastUsedAtLT?: InputMaybe<Scalars['Time']['input']>
+  lastUsedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  lastUsedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  lastUsedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  lastUsedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  not?: InputMaybe<JobRunnerTokenWhereInput>
+  or?: InputMaybe<Array<JobRunnerTokenWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContains?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** revoked_at field predicates */
+  revokedAt?: InputMaybe<Scalars['Time']['input']>
+  revokedAtGT?: InputMaybe<Scalars['Time']['input']>
+  revokedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  revokedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  revokedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  revokedAtLT?: InputMaybe<Scalars['Time']['input']>
+  revokedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  revokedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  revokedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  revokedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** revoked_by field predicates */
+  revokedBy?: InputMaybe<Scalars['String']['input']>
+  revokedByContains?: InputMaybe<Scalars['String']['input']>
+  revokedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  revokedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  revokedByGT?: InputMaybe<Scalars['String']['input']>
+  revokedByGTE?: InputMaybe<Scalars['String']['input']>
+  revokedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  revokedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  revokedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  revokedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  revokedByLT?: InputMaybe<Scalars['String']['input']>
+  revokedByLTE?: InputMaybe<Scalars['String']['input']>
+  revokedByNEQ?: InputMaybe<Scalars['String']['input']>
+  revokedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  revokedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** revoked_reason field predicates */
+  revokedReason?: InputMaybe<Scalars['String']['input']>
+  revokedReasonContains?: InputMaybe<Scalars['String']['input']>
+  revokedReasonContainsFold?: InputMaybe<Scalars['String']['input']>
+  revokedReasonEqualFold?: InputMaybe<Scalars['String']['input']>
+  revokedReasonGT?: InputMaybe<Scalars['String']['input']>
+  revokedReasonGTE?: InputMaybe<Scalars['String']['input']>
+  revokedReasonHasPrefix?: InputMaybe<Scalars['String']['input']>
+  revokedReasonHasSuffix?: InputMaybe<Scalars['String']['input']>
+  revokedReasonIn?: InputMaybe<Array<Scalars['String']['input']>>
+  revokedReasonIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  revokedReasonLT?: InputMaybe<Scalars['String']['input']>
+  revokedReasonLTE?: InputMaybe<Scalars['String']['input']>
+  revokedReasonNEQ?: InputMaybe<Scalars['String']['input']>
+  revokedReasonNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  revokedReasonNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+/** Return response for updateJobRunner mutation */
+export interface JobRunnerUpdatePayload {
+  __typename?: 'JobRunnerUpdatePayload'
+  /** Updated jobRunner */
+  jobRunner: JobRunner
+}
+
+/**
+ * JobRunnerWhereInput is used for filtering JobRunner objects.
+ * Input was generated by ent.
+ */
+export interface JobRunnerWhereInput {
+  and?: InputMaybe<Array<JobRunnerWhereInput>>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** display_id field predicates */
+  displayID?: InputMaybe<Scalars['String']['input']>
+  displayIDContains?: InputMaybe<Scalars['String']['input']>
+  displayIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  displayIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  displayIDGT?: InputMaybe<Scalars['String']['input']>
+  displayIDGTE?: InputMaybe<Scalars['String']['input']>
+  displayIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  displayIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  displayIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  displayIDLT?: InputMaybe<Scalars['String']['input']>
+  displayIDLTE?: InputMaybe<Scalars['String']['input']>
+  displayIDNEQ?: InputMaybe<Scalars['String']['input']>
+  displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** job_runner_tokens edge predicates */
+  hasJobRunnerTokens?: InputMaybe<Scalars['Boolean']['input']>
+  hasJobRunnerTokensWith?: InputMaybe<Array<JobRunnerTokenWhereInput>>
+  /** owner edge predicates */
+  hasOwner?: InputMaybe<Scalars['Boolean']['input']>
+  hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** ip_address field predicates */
+  ipAddress?: InputMaybe<Scalars['String']['input']>
+  ipAddressContains?: InputMaybe<Scalars['String']['input']>
+  ipAddressContainsFold?: InputMaybe<Scalars['String']['input']>
+  ipAddressEqualFold?: InputMaybe<Scalars['String']['input']>
+  ipAddressGT?: InputMaybe<Scalars['String']['input']>
+  ipAddressGTE?: InputMaybe<Scalars['String']['input']>
+  ipAddressHasPrefix?: InputMaybe<Scalars['String']['input']>
+  ipAddressHasSuffix?: InputMaybe<Scalars['String']['input']>
+  ipAddressIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ipAddressLT?: InputMaybe<Scalars['String']['input']>
+  ipAddressLTE?: InputMaybe<Scalars['String']['input']>
+  ipAddressNEQ?: InputMaybe<Scalars['String']['input']>
+  ipAddressNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** name field predicates */
+  name?: InputMaybe<Scalars['String']['input']>
+  nameContains?: InputMaybe<Scalars['String']['input']>
+  nameContainsFold?: InputMaybe<Scalars['String']['input']>
+  nameEqualFold?: InputMaybe<Scalars['String']['input']>
+  nameGT?: InputMaybe<Scalars['String']['input']>
+  nameGTE?: InputMaybe<Scalars['String']['input']>
+  nameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  nameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  nameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  nameLT?: InputMaybe<Scalars['String']['input']>
+  nameLTE?: InputMaybe<Scalars['String']['input']>
+  nameNEQ?: InputMaybe<Scalars['String']['input']>
+  nameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  not?: InputMaybe<JobRunnerWhereInput>
+  or?: InputMaybe<Array<JobRunnerWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContains?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** status field predicates */
+  status?: InputMaybe<JobRunnerJobRunnerStatus>
+  statusIn?: InputMaybe<Array<JobRunnerJobRunnerStatus>>
+  statusNEQ?: InputMaybe<JobRunnerJobRunnerStatus>
+  statusNotIn?: InputMaybe<Array<JobRunnerJobRunnerStatus>>
+  /** system_owned field predicates */
+  systemOwned?: InputMaybe<Scalars['Boolean']['input']>
+  systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+export interface MappableDomain extends Node {
+  __typename?: 'MappableDomain'
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  customDomains: CustomDomainConnection
+  id: Scalars['ID']['output']
+  /** Name of the mappable domain */
+  name: Scalars['String']['output']
+  /** tags associated with the object */
+  tags?: Maybe<Array<Scalars['String']['output']>>
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+  /** DNS Zone ID of the mappable domain. */
+  zoneID: Scalars['String']['output']
+}
+
+export interface MappableDomainCustomDomainsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<CustomDomainOrder>>
+  where?: InputMaybe<CustomDomainWhereInput>
+}
+
+/** Return response for createBulkMappableDomain mutation */
+export interface MappableDomainBulkCreatePayload {
+  __typename?: 'MappableDomainBulkCreatePayload'
+  /** Created mappableDomains */
+  mappableDomains?: Maybe<Array<MappableDomain>>
+}
+
+/** A connection to a list of items. */
+export interface MappableDomainConnection {
+  __typename?: 'MappableDomainConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<MappableDomainEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** Return response for createMappableDomain mutation */
+export interface MappableDomainCreatePayload {
+  __typename?: 'MappableDomainCreatePayload'
+  /** Created mappableDomain */
+  mappableDomain: MappableDomain
+}
+
+/** Return response for deleteMappableDomain mutation */
+export interface MappableDomainDeletePayload {
+  __typename?: 'MappableDomainDeletePayload'
+  /** Deleted mappableDomain ID */
+  deletedID: Scalars['ID']['output']
+}
+
+/** An edge in a connection. */
+export interface MappableDomainEdge {
+  __typename?: 'MappableDomainEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<MappableDomain>
+}
+
+export interface MappableDomainHistory extends Node {
+  __typename?: 'MappableDomainHistory'
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  historyTime: Scalars['Time']['output']
+  id: Scalars['ID']['output']
+  /** Name of the mappable domain */
+  name: Scalars['String']['output']
+  operation: MappableDomainHistoryOpType
+  ref?: Maybe<Scalars['String']['output']>
+  /** tags associated with the object */
+  tags?: Maybe<Array<Scalars['String']['output']>>
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+  /** DNS Zone ID of the mappable domain. */
+  zoneID: Scalars['String']['output']
+}
+
+/** A connection to a list of items. */
+export interface MappableDomainHistoryConnection {
+  __typename?: 'MappableDomainHistoryConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<MappableDomainHistoryEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** An edge in a connection. */
+export interface MappableDomainHistoryEdge {
+  __typename?: 'MappableDomainHistoryEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<MappableDomainHistory>
+}
+
+/** MappableDomainHistoryOpType is enum for the field operation */
+export enum MappableDomainHistoryOpType {
+  DELETE = 'DELETE',
+  INSERT = 'INSERT',
+  UPDATE = 'UPDATE',
+}
+
+/** Ordering options for MappableDomainHistory connections */
+export interface MappableDomainHistoryOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order MappableDomainHistories. */
+  field: MappableDomainHistoryOrderField
+}
+
+/** Properties by which MappableDomainHistory connections can be ordered. */
+export enum MappableDomainHistoryOrderField {
+  created_at = 'created_at',
+  history_time = 'history_time',
+  name = 'name',
+  updated_at = 'updated_at',
+}
+
+/**
+ * MappableDomainHistoryWhereInput is used for filtering MappableDomainHistory objects.
+ * Input was generated by ent.
+ */
+export interface MappableDomainHistoryWhereInput {
+  and?: InputMaybe<Array<MappableDomainHistoryWhereInput>>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** history_time field predicates */
+  historyTime?: InputMaybe<Scalars['Time']['input']>
+  historyTimeGT?: InputMaybe<Scalars['Time']['input']>
+  historyTimeGTE?: InputMaybe<Scalars['Time']['input']>
+  historyTimeIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  historyTimeLT?: InputMaybe<Scalars['Time']['input']>
+  historyTimeLTE?: InputMaybe<Scalars['Time']['input']>
+  historyTimeNEQ?: InputMaybe<Scalars['Time']['input']>
+  historyTimeNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** name field predicates */
+  name?: InputMaybe<Scalars['String']['input']>
+  nameContains?: InputMaybe<Scalars['String']['input']>
+  nameContainsFold?: InputMaybe<Scalars['String']['input']>
+  nameEqualFold?: InputMaybe<Scalars['String']['input']>
+  nameGT?: InputMaybe<Scalars['String']['input']>
+  nameGTE?: InputMaybe<Scalars['String']['input']>
+  nameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  nameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  nameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  nameLT?: InputMaybe<Scalars['String']['input']>
+  nameLTE?: InputMaybe<Scalars['String']['input']>
+  nameNEQ?: InputMaybe<Scalars['String']['input']>
+  nameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  not?: InputMaybe<MappableDomainHistoryWhereInput>
+  /** operation field predicates */
+  operation?: InputMaybe<MappableDomainHistoryOpType>
+  operationIn?: InputMaybe<Array<MappableDomainHistoryOpType>>
+  operationNEQ?: InputMaybe<MappableDomainHistoryOpType>
+  operationNotIn?: InputMaybe<Array<MappableDomainHistoryOpType>>
+  or?: InputMaybe<Array<MappableDomainHistoryWhereInput>>
+  /** ref field predicates */
+  ref?: InputMaybe<Scalars['String']['input']>
+  refContains?: InputMaybe<Scalars['String']['input']>
+  refContainsFold?: InputMaybe<Scalars['String']['input']>
+  refEqualFold?: InputMaybe<Scalars['String']['input']>
+  refGT?: InputMaybe<Scalars['String']['input']>
+  refGTE?: InputMaybe<Scalars['String']['input']>
+  refHasPrefix?: InputMaybe<Scalars['String']['input']>
+  refHasSuffix?: InputMaybe<Scalars['String']['input']>
+  refIn?: InputMaybe<Array<Scalars['String']['input']>>
+  refIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  refLT?: InputMaybe<Scalars['String']['input']>
+  refLTE?: InputMaybe<Scalars['String']['input']>
+  refNEQ?: InputMaybe<Scalars['String']['input']>
+  refNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  refNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** zone_id field predicates */
+  zoneID?: InputMaybe<Scalars['String']['input']>
+  zoneIDContains?: InputMaybe<Scalars['String']['input']>
+  zoneIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  zoneIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  zoneIDGT?: InputMaybe<Scalars['String']['input']>
+  zoneIDGTE?: InputMaybe<Scalars['String']['input']>
+  zoneIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  zoneIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  zoneIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  zoneIDLT?: InputMaybe<Scalars['String']['input']>
+  zoneIDLTE?: InputMaybe<Scalars['String']['input']>
+  zoneIDNEQ?: InputMaybe<Scalars['String']['input']>
+  zoneIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+}
+
+/** Ordering options for MappableDomain connections */
+export interface MappableDomainOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order MappableDomains. */
+  field: MappableDomainOrderField
+}
+
+/** Properties by which MappableDomain connections can be ordered. */
+export enum MappableDomainOrderField {
+  created_at = 'created_at',
+  name = 'name',
+  updated_at = 'updated_at',
+}
+
+/** Return response for updateMappableDomain mutation */
+export interface MappableDomainUpdatePayload {
+  __typename?: 'MappableDomainUpdatePayload'
+  /** Updated mappableDomain */
+  mappableDomain: MappableDomain
+}
+
+/**
+ * MappableDomainWhereInput is used for filtering MappableDomain objects.
+ * Input was generated by ent.
+ */
+export interface MappableDomainWhereInput {
+  and?: InputMaybe<Array<MappableDomainWhereInput>>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** custom_domains edge predicates */
+  hasCustomDomains?: InputMaybe<Scalars['Boolean']['input']>
+  hasCustomDomainsWith?: InputMaybe<Array<CustomDomainWhereInput>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** name field predicates */
+  name?: InputMaybe<Scalars['String']['input']>
+  nameContains?: InputMaybe<Scalars['String']['input']>
+  nameContainsFold?: InputMaybe<Scalars['String']['input']>
+  nameEqualFold?: InputMaybe<Scalars['String']['input']>
+  nameGT?: InputMaybe<Scalars['String']['input']>
+  nameGTE?: InputMaybe<Scalars['String']['input']>
+  nameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  nameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  nameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  nameLT?: InputMaybe<Scalars['String']['input']>
+  nameLTE?: InputMaybe<Scalars['String']['input']>
+  nameNEQ?: InputMaybe<Scalars['String']['input']>
+  nameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  not?: InputMaybe<MappableDomainWhereInput>
+  or?: InputMaybe<Array<MappableDomainWhereInput>>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** zone_id field predicates */
+  zoneID?: InputMaybe<Scalars['String']['input']>
+  zoneIDContains?: InputMaybe<Scalars['String']['input']>
+  zoneIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  zoneIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  zoneIDGT?: InputMaybe<Scalars['String']['input']>
+  zoneIDGTE?: InputMaybe<Scalars['String']['input']>
+  zoneIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  zoneIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  zoneIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  zoneIDLT?: InputMaybe<Scalars['String']['input']>
+  zoneIDLTE?: InputMaybe<Scalars['String']['input']>
+  zoneIDNEQ?: InputMaybe<Scalars['String']['input']>
+  zoneIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+}
+
+export interface MappedControl extends Node {
+  __typename?: 'MappedControl'
+  blockedGroups: GroupConnection
+  /** percentage (0-100) of confidence in the mapping */
+  confidence?: Maybe<Scalars['Int']['output']>
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  editors: GroupConnection
+  fromControls: ControlConnection
+  fromSubcontrols: SubcontrolConnection
+  id: Scalars['ID']['output']
+  /** the type of mapping between the two controls, e.g. subset, intersect, equal, superset */
+  mappingType: MappedControlMappingType
+  owner?: Maybe<Organization>
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['ID']['output']>
+  /** description of how the two controls are related */
+  relation?: Maybe<Scalars['String']['output']>
+  /** source of the mapping, e.g. manual, suggested, etc. */
+  source?: Maybe<MappedControlMappingSource>
+  /** tags associated with the object */
+  tags?: Maybe<Array<Scalars['String']['output']>>
+  toControls: ControlConnection
+  toSubcontrols: SubcontrolConnection
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+}
+
+export interface MappedControlBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface MappedControlEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface MappedControlFromControlsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
   first?: InputMaybe<Scalars['Int']['input']>
@@ -13331,7 +16799,25 @@ export interface MappedControlControlsArgs {
   where?: InputMaybe<ControlWhereInput>
 }
 
-export interface MappedControlSubcontrolsArgs {
+export interface MappedControlFromSubcontrolsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<SubcontrolOrder>>
+  where?: InputMaybe<SubcontrolWhereInput>
+}
+
+export interface MappedControlToControlsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlOrder>>
+  where?: InputMaybe<ControlWhereInput>
+}
+
+export interface MappedControlToSubcontrolsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
   first?: InputMaybe<Scalars['Int']['input']>
@@ -13383,18 +16869,22 @@ export interface MappedControlEdge {
 
 export interface MappedControlHistory extends Node {
   __typename?: 'MappedControlHistory'
+  /** percentage (0-100) of confidence in the mapping */
+  confidence?: Maybe<Scalars['Int']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
   /** the type of mapping between the two controls, e.g. subset, intersect, equal, superset */
-  mappingType?: Maybe<Scalars['String']['output']>
+  mappingType: MappedControlHistoryMappingType
   operation: MappedControlHistoryOpType
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['String']['output']>
   ref?: Maybe<Scalars['String']['output']>
   /** description of how the two controls are related */
   relation?: Maybe<Scalars['String']['output']>
+  /** source of the mapping, e.g. manual, suggested, etc. */
+  source?: Maybe<MappedControlHistoryMappingSource>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
@@ -13421,6 +16911,22 @@ export interface MappedControlHistoryEdge {
   node?: Maybe<MappedControlHistory>
 }
 
+/** MappedControlHistoryMappingSource is enum for the field source */
+export enum MappedControlHistoryMappingSource {
+  IMPORTED = 'IMPORTED',
+  MANUAL = 'MANUAL',
+  SUGGESTED = 'SUGGESTED',
+}
+
+/** MappedControlHistoryMappingType is enum for the field mapping_type */
+export enum MappedControlHistoryMappingType {
+  EQUAL = 'EQUAL',
+  INTERSECT = 'INTERSECT',
+  PARTIAL = 'PARTIAL',
+  SUBSET = 'SUBSET',
+  SUPERSET = 'SUPERSET',
+}
+
 /** MappedControlHistoryOpType is enum for the field operation */
 export enum MappedControlHistoryOpType {
   DELETE = 'DELETE',
@@ -13438,8 +16944,10 @@ export interface MappedControlHistoryOrder {
 
 /** Properties by which MappedControlHistory connections can be ordered. */
 export enum MappedControlHistoryOrderField {
+  MAPPING_TYPE = 'MAPPING_TYPE',
+  SOURCE = 'SOURCE',
   created_at = 'created_at',
-  mapping_type = 'mapping_type',
+  history_time = 'history_time',
   updated_at = 'updated_at',
 }
 
@@ -13449,6 +16957,17 @@ export enum MappedControlHistoryOrderField {
  */
 export interface MappedControlHistoryWhereInput {
   and?: InputMaybe<Array<MappedControlHistoryWhereInput>>
+  /** confidence field predicates */
+  confidence?: InputMaybe<Scalars['Int']['input']>
+  confidenceGT?: InputMaybe<Scalars['Int']['input']>
+  confidenceGTE?: InputMaybe<Scalars['Int']['input']>
+  confidenceIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  confidenceIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  confidenceLT?: InputMaybe<Scalars['Int']['input']>
+  confidenceLTE?: InputMaybe<Scalars['Int']['input']>
+  confidenceNEQ?: InputMaybe<Scalars['Int']['input']>
+  confidenceNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  confidenceNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -13476,33 +16995,6 @@ export interface MappedControlHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** history_time field predicates */
   historyTime?: InputMaybe<Scalars['Time']['input']>
   historyTimeGT?: InputMaybe<Scalars['Time']['input']>
@@ -13524,21 +17016,10 @@ export interface MappedControlHistoryWhereInput {
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   /** mapping_type field predicates */
-  mappingType?: InputMaybe<Scalars['String']['input']>
-  mappingTypeContains?: InputMaybe<Scalars['String']['input']>
-  mappingTypeContainsFold?: InputMaybe<Scalars['String']['input']>
-  mappingTypeEqualFold?: InputMaybe<Scalars['String']['input']>
-  mappingTypeGT?: InputMaybe<Scalars['String']['input']>
-  mappingTypeGTE?: InputMaybe<Scalars['String']['input']>
-  mappingTypeHasPrefix?: InputMaybe<Scalars['String']['input']>
-  mappingTypeHasSuffix?: InputMaybe<Scalars['String']['input']>
-  mappingTypeIn?: InputMaybe<Array<Scalars['String']['input']>>
-  mappingTypeIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  mappingTypeLT?: InputMaybe<Scalars['String']['input']>
-  mappingTypeLTE?: InputMaybe<Scalars['String']['input']>
-  mappingTypeNEQ?: InputMaybe<Scalars['String']['input']>
-  mappingTypeNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  mappingTypeNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  mappingType?: InputMaybe<MappedControlHistoryMappingType>
+  mappingTypeIn?: InputMaybe<Array<MappedControlHistoryMappingType>>
+  mappingTypeNEQ?: InputMaybe<MappedControlHistoryMappingType>
+  mappingTypeNotIn?: InputMaybe<Array<MappedControlHistoryMappingType>>
   not?: InputMaybe<MappedControlHistoryWhereInput>
   /** operation field predicates */
   operation?: InputMaybe<MappedControlHistoryOpType>
@@ -13546,6 +17027,22 @@ export interface MappedControlHistoryWhereInput {
   operationNEQ?: InputMaybe<MappedControlHistoryOpType>
   operationNotIn?: InputMaybe<Array<MappedControlHistoryOpType>>
   or?: InputMaybe<Array<MappedControlHistoryWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['String']['input']>
+  ownerIDContains?: InputMaybe<Scalars['String']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  ownerIDGT?: InputMaybe<Scalars['String']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['String']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['String']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['String']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** ref field predicates */
   ref?: InputMaybe<Scalars['String']['input']>
   refContains?: InputMaybe<Scalars['String']['input']>
@@ -13578,6 +17075,13 @@ export interface MappedControlHistoryWhereInput {
   relationNEQ?: InputMaybe<Scalars['String']['input']>
   relationNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   relationNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** source field predicates */
+  source?: InputMaybe<MappedControlHistoryMappingSource>
+  sourceIn?: InputMaybe<Array<MappedControlHistoryMappingSource>>
+  sourceIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  sourceNEQ?: InputMaybe<MappedControlHistoryMappingSource>
+  sourceNotIn?: InputMaybe<Array<MappedControlHistoryMappingSource>>
+  sourceNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -13607,6 +17111,22 @@ export interface MappedControlHistoryWhereInput {
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+/** MappedControlMappingSource is enum for the field source */
+export enum MappedControlMappingSource {
+  IMPORTED = 'IMPORTED',
+  MANUAL = 'MANUAL',
+  SUGGESTED = 'SUGGESTED',
+}
+
+/** MappedControlMappingType is enum for the field mapping_type */
+export enum MappedControlMappingType {
+  EQUAL = 'EQUAL',
+  INTERSECT = 'INTERSECT',
+  PARTIAL = 'PARTIAL',
+  SUBSET = 'SUBSET',
+  SUPERSET = 'SUPERSET',
+}
+
 /** Ordering options for MappedControl connections */
 export interface MappedControlOrder {
   /** The ordering direction. */
@@ -13617,8 +17137,9 @@ export interface MappedControlOrder {
 
 /** Properties by which MappedControl connections can be ordered. */
 export enum MappedControlOrderField {
+  MAPPING_TYPE = 'MAPPING_TYPE',
+  SOURCE = 'SOURCE',
   created_at = 'created_at',
-  mapping_type = 'mapping_type',
   updated_at = 'updated_at',
 }
 
@@ -13635,6 +17156,17 @@ export interface MappedControlUpdatePayload {
  */
 export interface MappedControlWhereInput {
   and?: InputMaybe<Array<MappedControlWhereInput>>
+  /** confidence field predicates */
+  confidence?: InputMaybe<Scalars['Int']['input']>
+  confidenceGT?: InputMaybe<Scalars['Int']['input']>
+  confidenceGTE?: InputMaybe<Scalars['Int']['input']>
+  confidenceIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  confidenceIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  confidenceLT?: InputMaybe<Scalars['Int']['input']>
+  confidenceLTE?: InputMaybe<Scalars['Int']['input']>
+  confidenceNEQ?: InputMaybe<Scalars['Int']['input']>
+  confidenceNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  confidenceNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -13662,39 +17194,27 @@ export interface MappedControlWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** controls edge predicates */
-  hasControls?: InputMaybe<Scalars['Boolean']['input']>
-  hasControlsWith?: InputMaybe<Array<ControlWhereInput>>
-  /** subcontrols edge predicates */
-  hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
-  hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
+  /** blocked_groups edge predicates */
+  hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** editors edge predicates */
+  hasEditors?: InputMaybe<Scalars['Boolean']['input']>
+  hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** from_controls edge predicates */
+  hasFromControls?: InputMaybe<Scalars['Boolean']['input']>
+  hasFromControlsWith?: InputMaybe<Array<ControlWhereInput>>
+  /** from_subcontrols edge predicates */
+  hasFromSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  hasFromSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
+  /** owner edge predicates */
+  hasOwner?: InputMaybe<Scalars['Boolean']['input']>
+  hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** to_controls edge predicates */
+  hasToControls?: InputMaybe<Scalars['Boolean']['input']>
+  hasToControlsWith?: InputMaybe<Array<ControlWhereInput>>
+  /** to_subcontrols edge predicates */
+  hasToSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  hasToSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -13707,23 +17227,28 @@ export interface MappedControlWhereInput {
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   /** mapping_type field predicates */
-  mappingType?: InputMaybe<Scalars['String']['input']>
-  mappingTypeContains?: InputMaybe<Scalars['String']['input']>
-  mappingTypeContainsFold?: InputMaybe<Scalars['String']['input']>
-  mappingTypeEqualFold?: InputMaybe<Scalars['String']['input']>
-  mappingTypeGT?: InputMaybe<Scalars['String']['input']>
-  mappingTypeGTE?: InputMaybe<Scalars['String']['input']>
-  mappingTypeHasPrefix?: InputMaybe<Scalars['String']['input']>
-  mappingTypeHasSuffix?: InputMaybe<Scalars['String']['input']>
-  mappingTypeIn?: InputMaybe<Array<Scalars['String']['input']>>
-  mappingTypeIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  mappingTypeLT?: InputMaybe<Scalars['String']['input']>
-  mappingTypeLTE?: InputMaybe<Scalars['String']['input']>
-  mappingTypeNEQ?: InputMaybe<Scalars['String']['input']>
-  mappingTypeNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  mappingTypeNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  mappingType?: InputMaybe<MappedControlMappingType>
+  mappingTypeIn?: InputMaybe<Array<MappedControlMappingType>>
+  mappingTypeNEQ?: InputMaybe<MappedControlMappingType>
+  mappingTypeNotIn?: InputMaybe<Array<MappedControlMappingType>>
   not?: InputMaybe<MappedControlWhereInput>
   or?: InputMaybe<Array<MappedControlWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContains?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** relation field predicates */
   relation?: InputMaybe<Scalars['String']['input']>
   relationContains?: InputMaybe<Scalars['String']['input']>
@@ -13740,6 +17265,13 @@ export interface MappedControlWhereInput {
   relationNEQ?: InputMaybe<Scalars['String']['input']>
   relationNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   relationNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** source field predicates */
+  source?: InputMaybe<MappedControlMappingSource>
+  sourceIn?: InputMaybe<Array<MappedControlMappingSource>>
+  sourceIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  sourceNEQ?: InputMaybe<MappedControlMappingSource>
+  sourceNotIn?: InputMaybe<Array<MappedControlMappingSource>>
+  sourceNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -13775,14 +17307,20 @@ export interface Mutation {
   createAPIToken: ApiTokenCreatePayload
   /** Create a new actionPlan */
   createActionPlan: ActionPlanCreatePayload
+  /** Create a new asset */
+  createAsset: AssetCreatePayload
   /** Create multiple new apiTokens */
   createBulkAPIToken: ApiTokenBulkCreatePayload
   /** Create multiple new actionPlans */
   createBulkActionPlan: ActionPlanBulkCreatePayload
+  /** Create multiple new assets */
+  createBulkAsset: AssetBulkCreatePayload
   /** Create multiple new apiTokens via file upload */
   createBulkCSVAPIToken: ApiTokenBulkCreatePayload
   /** Create multiple new actionPlans via file upload */
   createBulkCSVActionPlan: ActionPlanBulkCreatePayload
+  /** Create multiple new assets via file upload */
+  createBulkCSVAsset: AssetBulkCreatePayload
   /** Create multiple new contacts via file upload */
   createBulkCSVContact: ContactBulkCreatePayload
   /** Create multiple new controls via file upload */
@@ -13791,6 +17329,12 @@ export interface Mutation {
   createBulkCSVControlImplementation: ControlImplementationBulkCreatePayload
   /** Create multiple new controlObjectives via file upload */
   createBulkCSVControlObjective: ControlObjectiveBulkCreatePayload
+  /** Create multiple new controlScheduledJobs via file upload */
+  createBulkCSVControlScheduledJob: ControlScheduledJobBulkCreatePayload
+  /** Create multiple new customDomains via file upload */
+  createBulkCSVCustomDomain: CustomDomainBulkCreatePayload
+  /** Create multiple new dnsVerifications via file upload */
+  createBulkCSVDNSVerification: DnsVerificationBulkCreatePayload
   /** Create multiple new documentData via file upload */
   createBulkCSVDocumentData: DocumentDataBulkCreatePayload
   /** Create multiple new entities via file upload */
@@ -13813,6 +17357,8 @@ export interface Mutation {
   createBulkCSVInternalPolicy: InternalPolicyBulkCreatePayload
   /** Create multiple new invites via file upload */
   createBulkCSVInvite: InviteBulkCreatePayload
+  /** Create multiple new mappableDomains via file upload */
+  createBulkCSVMappableDomain: MappableDomainBulkCreatePayload
   /** Create multiple new mappedControls via file upload */
   createBulkCSVMappedControl: MappedControlBulkCreatePayload
   /** Create multiple new narratives via file upload */
@@ -13829,6 +17375,10 @@ export interface Mutation {
   createBulkCSVProgramMembership: ProgramMembershipBulkCreatePayload
   /** Create multiple new risks via file upload */
   createBulkCSVRisk: RiskBulkCreatePayload
+  /** Create multiple new scans via file upload */
+  createBulkCSVScan: ScanBulkCreatePayload
+  /** Create multiple new scheduledJobs via file upload */
+  createBulkCSVScheduledJob: ScheduledJobBulkCreatePayload
   /** Create multiple new subcontrols via file upload */
   createBulkCSVSubcontrol: SubcontrolBulkCreatePayload
   /** Create new subscribers via CSV file */
@@ -13847,6 +17397,12 @@ export interface Mutation {
   createBulkControlImplementation: ControlImplementationBulkCreatePayload
   /** Create multiple new controlObjectives */
   createBulkControlObjective: ControlObjectiveBulkCreatePayload
+  /** Create multiple new controlScheduledJobs */
+  createBulkControlScheduledJob: ControlScheduledJobBulkCreatePayload
+  /** Create multiple new customDomains */
+  createBulkCustomDomain: CustomDomainBulkCreatePayload
+  /** Create multiple new dnsVerifications */
+  createBulkDNSVerification: DnsVerificationBulkCreatePayload
   /** Create multiple new documentData */
   createBulkDocumentData: DocumentDataBulkCreatePayload
   /** Create multiple new entities */
@@ -13869,6 +17425,8 @@ export interface Mutation {
   createBulkInternalPolicy: InternalPolicyBulkCreatePayload
   /** Create multiple new invites */
   createBulkInvite: InviteBulkCreatePayload
+  /** Create multiple new mappableDomains */
+  createBulkMappableDomain: MappableDomainBulkCreatePayload
   /** Create multiple new mappedControls */
   createBulkMappedControl: MappedControlBulkCreatePayload
   /** Create multiple new narratives */
@@ -13885,6 +17443,10 @@ export interface Mutation {
   createBulkProgramMembership: ProgramMembershipBulkCreatePayload
   /** Create multiple new risks */
   createBulkRisk: RiskBulkCreatePayload
+  /** Create multiple new scans */
+  createBulkScan: ScanBulkCreatePayload
+  /** Create multiple new scheduledJobs */
+  createBulkScheduledJob: ScheduledJobBulkCreatePayload
   /** Create multiple new subcontrols */
   createBulkSubcontrol: SubcontrolBulkCreatePayload
   /** Create new subscribers */
@@ -13903,10 +17465,16 @@ export interface Mutation {
   createControlImplementation: ControlImplementationCreatePayload
   /** Create a new controlObjective */
   createControlObjective: ControlObjectiveCreatePayload
+  /** Create a new controlScheduledJob */
+  createControlScheduledJob: ControlScheduledJobCreatePayload
   /** Create a controls with subcontrols */
   createControlWithSubcontrols: ControlCreatePayload
   /** Create a new controls based on existing control ID(s) */
   createControlsByClone: ControlBulkCreatePayload
+  /** Create a new customDomain */
+  createCustomDomain: CustomDomainCreatePayload
+  /** Create a new dnsVerification */
+  createDNSVerification: DnsVerificationCreatePayload
   /** Create a new documentData */
   createDocumentData: DocumentDataCreatePayload
   /** Create a new entity */
@@ -13937,6 +17505,12 @@ export interface Mutation {
   createInternalPolicy: InternalPolicyCreatePayload
   /** Create a new invite */
   createInvite: InviteCreatePayload
+  /** Create a new jobRunnerRegistrationToken */
+  createJobRunnerRegistrationToken: JobRunnerRegistrationTokenCreatePayload
+  /** Create a new jobRunnerToken */
+  createJobRunnerToken: JobRunnerTokenCreatePayload
+  /** Create a new mappableDomain */
+  createMappableDomain: MappableDomainCreatePayload
   /** Create a new mappedControl */
   createMappedControl: MappedControlCreatePayload
   /** Create a new narrative */
@@ -13963,6 +17537,10 @@ export interface Mutation {
   createProgramWithMembers: ProgramCreatePayload
   /** Create a new risk */
   createRisk: RiskCreatePayload
+  /** Create a new scan */
+  createScan: ScanCreatePayload
+  /** Create a new scheduledJob */
+  createScheduledJob: ScheduledJobCreatePayload
   /** Create a new standard */
   createStandard: StandardCreatePayload
   /** Create a new subcontrol */
@@ -13975,6 +17553,10 @@ export interface Mutation {
   createTask: TaskCreatePayload
   /** Create a new template */
   createTemplate: TemplateCreatePayload
+  /** Create a new trustCenter */
+  createTrustCenter: TrustCenterCreatePayload
+  /** Create a new trustCenterSetting */
+  createTrustCenterSetting: TrustCenterSettingCreatePayload
   /** Create a new user */
   createUser: UserCreatePayload
   /** Create a new userSetting */
@@ -13983,6 +17565,8 @@ export interface Mutation {
   deleteAPIToken: ApiTokenDeletePayload
   /** Delete an existing actionPlan */
   deleteActionPlan: ActionPlanDeletePayload
+  /** Delete an existing asset */
+  deleteAsset: AssetDeletePayload
   /** Delete an existing contact */
   deleteContact: ContactDeletePayload
   /** Delete an existing control */
@@ -13991,6 +17575,12 @@ export interface Mutation {
   deleteControlImplementation: ControlImplementationDeletePayload
   /** Delete an existing controlObjective */
   deleteControlObjective: ControlObjectiveDeletePayload
+  /** Delete an existing controlScheduledJob */
+  deleteControlScheduledJob: ControlScheduledJobDeletePayload
+  /** Delete an existing customDomain */
+  deleteCustomDomain: CustomDomainDeletePayload
+  /** Delete an existing dnsVerification */
+  deleteDNSVerification: DnsVerificationDeletePayload
   /** Delete an existing documentData */
   deleteDocumentData: DocumentDataDeletePayload
   /** Delete an existing entity */
@@ -14017,6 +17607,14 @@ export interface Mutation {
   deleteInternalPolicy: InternalPolicyDeletePayload
   /** Delete an existing invite */
   deleteInvite: InviteDeletePayload
+  /** Delete an existing jobRunner */
+  deleteJobRunner: JobRunnerDeletePayload
+  /** Delete an existing jobRunnerRegistrationToken */
+  deleteJobRunnerRegistrationToken: JobRunnerRegistrationTokenDeletePayload
+  /** Delete an existing jobRunnerToken */
+  deleteJobRunnerToken: JobRunnerTokenDeletePayload
+  /** Delete an existing mappableDomain */
+  deleteMappableDomain: MappableDomainDeletePayload
   /** Delete an existing mappedControl */
   deleteMappedControl: MappedControlDeletePayload
   /** Delete an existing narrative */
@@ -14037,6 +17635,10 @@ export interface Mutation {
   deleteProgramMembership: ProgramMembershipDeletePayload
   /** Delete an existing risk */
   deleteRisk: RiskDeletePayload
+  /** Delete an existing scan */
+  deleteScan: ScanDeletePayload
+  /** Delete an existing scheduledJob */
+  deleteScheduledJob: ScheduledJobDeletePayload
   /** Delete an existing standard */
   deleteStandard: StandardDeletePayload
   /** Delete an existing subcontrol */
@@ -14047,6 +17649,10 @@ export interface Mutation {
   deleteTask: TaskDeletePayload
   /** Delete an existing template */
   deleteTemplate: TemplateDeletePayload
+  /** Delete an existing trustCenter */
+  deleteTrustCenter: TrustCenterDeletePayload
+  /** Delete an existing trustCenterSetting */
+  deleteTrustCenterSetting: TrustCenterSettingDeletePayload
   /** Delete an existing user */
   deleteUser: UserDeletePayload
   /** Delete an existing webauthn */
@@ -14055,6 +17661,8 @@ export interface Mutation {
   updateAPIToken: ApiTokenUpdatePayload
   /** Update an existing actionPlan */
   updateActionPlan: ActionPlanUpdatePayload
+  /** Update an existing asset */
+  updateAsset: AssetUpdatePayload
   /** Update an existing contact */
   updateContact: ContactUpdatePayload
   /** Update an existing control */
@@ -14063,6 +17671,12 @@ export interface Mutation {
   updateControlImplementation: ControlImplementationUpdatePayload
   /** Update an existing controlObjective */
   updateControlObjective: ControlObjectiveUpdatePayload
+  /** Update an existing controlScheduledJob */
+  updateControlScheduledJob: ControlScheduledJobUpdatePayload
+  /** Update an existing customDomain */
+  updateCustomDomain: CustomDomainUpdatePayload
+  /** Update an existing dnsVerification */
+  updateDNSVerification: DnsVerificationUpdatePayload
   /** Update an existing documentData */
   updateDocumentData: DocumentDataUpdatePayload
   /** Update an existing entity */
@@ -14087,6 +17701,10 @@ export interface Mutation {
   updateInternalPolicy: InternalPolicyUpdatePayload
   /** Update an existing invite */
   updateInvite: InviteUpdatePayload
+  /** Update an existing jobRunner */
+  updateJobRunner: JobRunnerUpdatePayload
+  /** Update an existing mappableDomain */
+  updateMappableDomain: MappableDomainUpdatePayload
   /** Update an existing mappedControl */
   updateMappedControl: MappedControlUpdatePayload
   /** Update an existing narrative */
@@ -14107,6 +17725,10 @@ export interface Mutation {
   updateProgramMembership: ProgramMembershipUpdatePayload
   /** Update an existing risk */
   updateRisk: RiskUpdatePayload
+  /** Update an existing scan */
+  updateScan: ScanUpdatePayload
+  /** Update an existing scheduledJob */
+  updateScheduledJob: ScheduledJobUpdatePayload
   /** Update an existing standard */
   updateStandard: StandardUpdatePayload
   /** Update an existing subcontrol */
@@ -14121,6 +17743,10 @@ export interface Mutation {
   updateTaskComment: TaskUpdatePayload
   /** Update an existing template */
   updateTemplate: TemplateUpdatePayload
+  /** Update an existing trustCenter */
+  updateTrustCenter: TrustCenterUpdatePayload
+  /** Update an existing trustCenterSetting */
+  updateTrustCenterSetting: TrustCenterSettingUpdatePayload
   /** Update an existing user */
   updateUser: UserUpdatePayload
   /** Update an existing userSetting */
@@ -14135,6 +17761,10 @@ export interface MutationCreateActionPlanArgs {
   input: CreateActionPlanInput
 }
 
+export interface MutationCreateAssetArgs {
+  input: CreateAssetInput
+}
+
 export interface MutationCreateBulkApiTokenArgs {
   input?: InputMaybe<Array<CreateApiTokenInput>>
 }
@@ -14143,11 +17773,19 @@ export interface MutationCreateBulkActionPlanArgs {
   input?: InputMaybe<Array<CreateActionPlanInput>>
 }
 
+export interface MutationCreateBulkAssetArgs {
+  input?: InputMaybe<Array<CreateAssetInput>>
+}
+
 export interface MutationCreateBulkCsvapiTokenArgs {
   input: Scalars['Upload']['input']
 }
 
 export interface MutationCreateBulkCsvActionPlanArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationCreateBulkCsvAssetArgs {
   input: Scalars['Upload']['input']
 }
 
@@ -14164,6 +17802,18 @@ export interface MutationCreateBulkCsvControlImplementationArgs {
 }
 
 export interface MutationCreateBulkCsvControlObjectiveArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationCreateBulkCsvControlScheduledJobArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationCreateBulkCsvCustomDomainArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationCreateBulkCsvdnsVerificationArgs {
   input: Scalars['Upload']['input']
 }
 
@@ -14211,6 +17861,10 @@ export interface MutationCreateBulkCsvInviteArgs {
   input: Scalars['Upload']['input']
 }
 
+export interface MutationCreateBulkCsvMappableDomainArgs {
+  input: Scalars['Upload']['input']
+}
+
 export interface MutationCreateBulkCsvMappedControlArgs {
   input: Scalars['Upload']['input']
 }
@@ -14240,6 +17894,14 @@ export interface MutationCreateBulkCsvProgramMembershipArgs {
 }
 
 export interface MutationCreateBulkCsvRiskArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationCreateBulkCsvScanArgs {
+  input: Scalars['Upload']['input']
+}
+
+export interface MutationCreateBulkCsvScheduledJobArgs {
   input: Scalars['Upload']['input']
 }
 
@@ -14277,6 +17939,18 @@ export interface MutationCreateBulkControlImplementationArgs {
 
 export interface MutationCreateBulkControlObjectiveArgs {
   input?: InputMaybe<Array<CreateControlObjectiveInput>>
+}
+
+export interface MutationCreateBulkControlScheduledJobArgs {
+  input?: InputMaybe<Array<CreateControlScheduledJobInput>>
+}
+
+export interface MutationCreateBulkCustomDomainArgs {
+  input?: InputMaybe<Array<CreateCustomDomainInput>>
+}
+
+export interface MutationCreateBulkDnsVerificationArgs {
+  input?: InputMaybe<Array<CreateDnsVerificationInput>>
 }
 
 export interface MutationCreateBulkDocumentDataArgs {
@@ -14323,6 +17997,10 @@ export interface MutationCreateBulkInviteArgs {
   input?: InputMaybe<Array<CreateInviteInput>>
 }
 
+export interface MutationCreateBulkMappableDomainArgs {
+  input?: InputMaybe<Array<CreateMappableDomainInput>>
+}
+
 export interface MutationCreateBulkMappedControlArgs {
   input?: InputMaybe<Array<CreateMappedControlInput>>
 }
@@ -14353,6 +18031,14 @@ export interface MutationCreateBulkProgramMembershipArgs {
 
 export interface MutationCreateBulkRiskArgs {
   input?: InputMaybe<Array<CreateRiskInput>>
+}
+
+export interface MutationCreateBulkScanArgs {
+  input?: InputMaybe<Array<CreateScanInput>>
+}
+
+export interface MutationCreateBulkScheduledJobArgs {
+  input?: InputMaybe<Array<CreateScheduledJobInput>>
 }
 
 export interface MutationCreateBulkSubcontrolArgs {
@@ -14391,12 +18077,24 @@ export interface MutationCreateControlObjectiveArgs {
   input: CreateControlObjectiveInput
 }
 
+export interface MutationCreateControlScheduledJobArgs {
+  input: CreateControlScheduledJobInput
+}
+
 export interface MutationCreateControlWithSubcontrolsArgs {
   input: CreateControlWithSubcontrolsInput
 }
 
 export interface MutationCreateControlsByCloneArgs {
   input?: InputMaybe<CloneControlInput>
+}
+
+export interface MutationCreateCustomDomainArgs {
+  input: CreateCustomDomainInput
+}
+
+export interface MutationCreateDnsVerificationArgs {
+  input: CreateDnsVerificationInput
 }
 
 export interface MutationCreateDocumentDataArgs {
@@ -14464,6 +18162,18 @@ export interface MutationCreateInviteArgs {
   input: CreateInviteInput
 }
 
+export interface MutationCreateJobRunnerRegistrationTokenArgs {
+  input: CreateJobRunnerRegistrationTokenInput
+}
+
+export interface MutationCreateJobRunnerTokenArgs {
+  input: CreateJobRunnerTokenInput
+}
+
+export interface MutationCreateMappableDomainArgs {
+  input: CreateMappableDomainInput
+}
+
 export interface MutationCreateMappedControlArgs {
   input: CreateMappedControlInput
 }
@@ -14519,6 +18229,14 @@ export interface MutationCreateRiskArgs {
   input: CreateRiskInput
 }
 
+export interface MutationCreateScanArgs {
+  input: CreateScanInput
+}
+
+export interface MutationCreateScheduledJobArgs {
+  input: CreateScheduledJobInput
+}
+
 export interface MutationCreateStandardArgs {
   input: CreateStandardInput
 }
@@ -14543,6 +18261,14 @@ export interface MutationCreateTemplateArgs {
   input: CreateTemplateInput
 }
 
+export interface MutationCreateTrustCenterArgs {
+  input: CreateTrustCenterInput
+}
+
+export interface MutationCreateTrustCenterSettingArgs {
+  input: CreateTrustCenterSettingInput
+}
+
 export interface MutationCreateUserArgs {
   avatarFile?: InputMaybe<Scalars['Upload']['input']>
   input: CreateUserInput
@@ -14560,6 +18286,10 @@ export interface MutationDeleteActionPlanArgs {
   id: Scalars['ID']['input']
 }
 
+export interface MutationDeleteAssetArgs {
+  id: Scalars['ID']['input']
+}
+
 export interface MutationDeleteContactArgs {
   id: Scalars['ID']['input']
 }
@@ -14573,6 +18303,18 @@ export interface MutationDeleteControlImplementationArgs {
 }
 
 export interface MutationDeleteControlObjectiveArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface MutationDeleteControlScheduledJobArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface MutationDeleteCustomDomainArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface MutationDeleteDnsVerificationArgs {
   id: Scalars['ID']['input']
 }
 
@@ -14628,6 +18370,22 @@ export interface MutationDeleteInviteArgs {
   id: Scalars['ID']['input']
 }
 
+export interface MutationDeleteJobRunnerArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface MutationDeleteJobRunnerRegistrationTokenArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface MutationDeleteJobRunnerTokenArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface MutationDeleteMappableDomainArgs {
+  id: Scalars['ID']['input']
+}
+
 export interface MutationDeleteMappedControlArgs {
   id: Scalars['ID']['input']
 }
@@ -14668,6 +18426,14 @@ export interface MutationDeleteRiskArgs {
   id: Scalars['ID']['input']
 }
 
+export interface MutationDeleteScanArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface MutationDeleteScheduledJobArgs {
+  id: Scalars['ID']['input']
+}
+
 export interface MutationDeleteStandardArgs {
   id: Scalars['ID']['input']
 }
@@ -14689,6 +18455,14 @@ export interface MutationDeleteTemplateArgs {
   id: Scalars['ID']['input']
 }
 
+export interface MutationDeleteTrustCenterArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface MutationDeleteTrustCenterSettingArgs {
+  id: Scalars['ID']['input']
+}
+
 export interface MutationDeleteUserArgs {
   id: Scalars['ID']['input']
 }
@@ -14705,6 +18479,11 @@ export interface MutationUpdateApiTokenArgs {
 export interface MutationUpdateActionPlanArgs {
   id: Scalars['ID']['input']
   input: UpdateActionPlanInput
+}
+
+export interface MutationUpdateAssetArgs {
+  id: Scalars['ID']['input']
+  input: UpdateAssetInput
 }
 
 export interface MutationUpdateContactArgs {
@@ -14725,6 +18504,21 @@ export interface MutationUpdateControlImplementationArgs {
 export interface MutationUpdateControlObjectiveArgs {
   id: Scalars['ID']['input']
   input: UpdateControlObjectiveInput
+}
+
+export interface MutationUpdateControlScheduledJobArgs {
+  id: Scalars['ID']['input']
+  input: UpdateControlScheduledJobInput
+}
+
+export interface MutationUpdateCustomDomainArgs {
+  id: Scalars['ID']['input']
+  input: UpdateCustomDomainInput
+}
+
+export interface MutationUpdateDnsVerificationArgs {
+  id: Scalars['ID']['input']
+  input: UpdateDnsVerificationInput
 }
 
 export interface MutationUpdateDocumentDataArgs {
@@ -14788,6 +18582,16 @@ export interface MutationUpdateInviteArgs {
   input: UpdateInviteInput
 }
 
+export interface MutationUpdateJobRunnerArgs {
+  id: Scalars['ID']['input']
+  input: UpdateJobRunnerInput
+}
+
+export interface MutationUpdateMappableDomainArgs {
+  id: Scalars['ID']['input']
+  input: UpdateMappableDomainInput
+}
+
 export interface MutationUpdateMappedControlArgs {
   id: Scalars['ID']['input']
   input: UpdateMappedControlInput
@@ -14839,6 +18643,16 @@ export interface MutationUpdateRiskArgs {
   input: UpdateRiskInput
 }
 
+export interface MutationUpdateScanArgs {
+  id: Scalars['ID']['input']
+  input: UpdateScanInput
+}
+
+export interface MutationUpdateScheduledJobArgs {
+  id: Scalars['ID']['input']
+  input: UpdateScheduledJobInput
+}
+
 export interface MutationUpdateStandardArgs {
   id: Scalars['ID']['input']
   input: UpdateStandardInput
@@ -14874,6 +18688,16 @@ export interface MutationUpdateTemplateArgs {
   input: UpdateTemplateInput
 }
 
+export interface MutationUpdateTrustCenterArgs {
+  id: Scalars['ID']['input']
+  input: UpdateTrustCenterInput
+}
+
+export interface MutationUpdateTrustCenterSettingArgs {
+  id: Scalars['ID']['input']
+  input: UpdateTrustCenterSettingInput
+}
+
 export interface MutationUpdateUserArgs {
   avatarFile?: InputMaybe<Scalars['Upload']['input']>
   id: Scalars['ID']['input']
@@ -14887,20 +18711,16 @@ export interface MutationUpdateUserSettingArgs {
 
 export interface Narrative extends Node {
   __typename?: 'Narrative'
-  /** groups that are blocked from viewing or editing the risk */
-  blockedGroups?: Maybe<Array<Group>>
+  blockedGroups: GroupConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the description of the narrative */
   description?: Maybe<Scalars['String']['output']>
   /** text data for the narrative document */
   details?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
-  /** provides edit access to the risk to members of the group */
-  editors?: Maybe<Array<Group>>
+  editors: GroupConnection
   id: Scalars['ID']['output']
   internalPolicies: InternalPolicyConnection
   /** the name of the narrative */
@@ -14915,8 +18735,25 @@ export interface Narrative extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
-  /** provides view access to the risk to members of the group */
-  viewers?: Maybe<Array<Group>>
+  viewers: GroupConnection
+}
+
+export interface NarrativeBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface NarrativeEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface NarrativeInternalPoliciesArgs {
@@ -14953,6 +18790,15 @@ export interface NarrativeSatisfiesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ControlOrder>>
   where?: InputMaybe<ControlWhereInput>
+}
+
+export interface NarrativeViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 /** Return response for createBulkNarrative mutation */
@@ -15000,8 +18846,6 @@ export interface NarrativeHistory extends Node {
   __typename?: 'NarrativeHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the description of the narrative */
   description?: Maybe<Scalars['String']['output']>
   /** text data for the narrative document */
@@ -15060,6 +18904,7 @@ export interface NarrativeHistoryOrder {
 /** Properties by which NarrativeHistory connections can be ordered. */
 export enum NarrativeHistoryOrderField {
   created_at = 'created_at',
+  history_time = 'history_time',
   name = 'name',
   updated_at = 'updated_at',
 }
@@ -15097,33 +18942,6 @@ export interface NarrativeHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -15327,33 +19145,6 @@ export interface NarrativeWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -15509,8 +19300,6 @@ export interface Note extends Node {
   __typename?: 'Note'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   files: FileConnection
@@ -15558,8 +19347,6 @@ export interface NoteHistory extends Node {
   __typename?: 'NoteHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   historyTime: Scalars['Time']['output']
@@ -15612,6 +19399,7 @@ export interface NoteHistoryOrder {
 /** Properties by which NoteHistory connections can be ordered. */
 export enum NoteHistoryOrderField {
   created_at = 'created_at',
+  history_time = 'history_time',
   updated_at = 'updated_at',
 }
 
@@ -15648,33 +19436,6 @@ export interface NoteHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_id field predicates */
   displayID?: InputMaybe<Scalars['String']['input']>
   displayIDContains?: InputMaybe<Scalars['String']['input']>
@@ -15838,33 +19599,6 @@ export interface NoteWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_id field predicates */
   displayID?: InputMaybe<Scalars['String']['input']>
   displayIDContains?: InputMaybe<Scalars['String']['input']>
@@ -15968,8 +19702,6 @@ export interface Onboarding extends Node {
   companyName: Scalars['String']['output']
   /** details given about the compliance requirements during the onboarding process, such as coming with existing policies, controls, risk assessments, etc */
   compliance?: Maybe<Scalars['Map']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** domains associated with the company */
   domains?: Maybe<Array<Scalars['String']['output']>>
   id: Scalars['ID']['output']
@@ -16006,33 +19738,6 @@ export interface OnboardingWhereInput {
   companyNameLTE?: InputMaybe<Scalars['String']['input']>
   companyNameNEQ?: InputMaybe<Scalars['String']['input']>
   companyNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** organization edge predicates */
   hasOrganization?: InputMaybe<Scalars['Boolean']['input']>
   hasOrganizationWith?: InputMaybe<Array<OrganizationWhereInput>>
@@ -16088,8 +19793,6 @@ export interface OrgMembership extends Node {
   __typename?: 'OrgMembership'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   events: EventConnection
   id: Scalars['ID']['output']
   organization: Organization
@@ -16155,8 +19858,6 @@ export interface OrgMembershipHistory extends Node {
   __typename?: 'OrgMembershipHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
   operation: OrgMembershipHistoryOpType
@@ -16207,6 +19908,7 @@ export interface OrgMembershipHistoryOrder {
 export enum OrgMembershipHistoryOrderField {
   ROLE = 'ROLE',
   created_at = 'created_at',
+  history_time = 'history_time',
   updated_at = 'updated_at',
 }
 
@@ -16250,33 +19952,6 @@ export interface OrgMembershipHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** history_time field predicates */
   historyTime?: InputMaybe<Scalars['Time']['input']>
   historyTimeGT?: InputMaybe<Scalars['Time']['input']>
@@ -16444,33 +20119,6 @@ export interface OrgMembershipWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   hasUserWith?: InputMaybe<Array<UserWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
@@ -16530,8 +20178,6 @@ export interface OrgSubscription extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** number of days until there is a due payment */
   daysUntilDue?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   events: EventConnection
   /** the time the subscription is set to expire; only populated if subscription is cancelled */
   expiresAt?: Maybe<Scalars['Time']['output']>
@@ -16604,8 +20250,6 @@ export interface OrgSubscriptionHistory extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** number of days until there is a due payment */
   daysUntilDue?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the time the subscription is set to expire; only populated if subscription is cancelled */
   expiresAt?: Maybe<Scalars['Time']['output']>
   /** the feature lookup keys associated with the subscription */
@@ -16681,6 +20325,7 @@ export enum OrgSubscriptionHistoryOrderField {
   created_at = 'created_at',
   days_until_due = 'days_until_due',
   expires_at = 'expires_at',
+  history_time = 'history_time',
   product_tier = 'product_tier',
   stripe_subscription_status = 'stripe_subscription_status',
   trial_expires_at = 'trial_expires_at',
@@ -16739,33 +20384,6 @@ export interface OrgSubscriptionHistoryWhereInput {
   daysUntilDueNEQ?: InputMaybe<Scalars['String']['input']>
   daysUntilDueNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   daysUntilDueNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** expires_at field predicates */
   expiresAt?: InputMaybe<Scalars['Time']['input']>
   expiresAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -17033,33 +20651,6 @@ export interface OrgSubscriptionWhereInput {
   daysUntilDueNEQ?: InputMaybe<Scalars['String']['input']>
   daysUntilDueNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   daysUntilDueNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** expires_at field predicates */
   expiresAt?: InputMaybe<Scalars['Time']['input']>
   expiresAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -17235,6 +20826,7 @@ export interface Organization extends Node {
   __typename?: 'Organization'
   actionPlans: ActionPlanConnection
   apiTokens: ApiTokenConnection
+  assets: AssetConnection
   avatarFile?: Maybe<File>
   /** The organizations's local avatar file id, takes precedence over the avatar remote URL */
   avatarLocalFileID?: Maybe<Scalars['ID']['output']>
@@ -17244,43 +20836,47 @@ export interface Organization extends Node {
   avatarUpdatedAt?: Maybe<Scalars['Time']['output']>
   children: OrganizationConnection
   contacts: ContactConnection
-  /** groups that are allowed to create controls */
-  controlCreators?: Maybe<Array<Group>>
+  controlCreators: GroupConnection
+  controlImplementationCreators: GroupConnection
   controlImplementations: ControlImplementationConnection
-  /** groups that are allowed to create control_objectives */
-  controlObjectiveCreators?: Maybe<Array<Group>>
+  controlObjectiveCreators: GroupConnection
   controlObjectives: ControlObjectiveConnection
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
+  customDomains: CustomDomainConnection
   /** Whether the organization has a dedicated database */
   dedicatedDb: Scalars['Boolean']['output']
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** An optional description of the organization */
   description?: Maybe<Scalars['String']['output']>
   /** The organization's displayed 'friendly' name */
   displayName: Scalars['String']['output']
+  dnsVerifications: DnsVerificationConnection
   documents: DocumentDataConnection
   entities: EntityConnection
   entityTypes: EntityTypeConnection
   events: EventConnection
   evidence: EvidenceConnection
+  evidenceCreators: GroupConnection
   files: FileConnection
-  /** groups that are allowed to create groups */
-  groupCreators?: Maybe<Array<Group>>
+  groupCreators: GroupConnection
   groups: GroupConnection
   id: Scalars['ID']['output']
   integrations: IntegrationConnection
   internalPolicies: InternalPolicyConnection
-  /** groups that are allowed to create internal_policys */
-  internalPolicyCreators?: Maybe<Array<Group>>
+  internalPolicyCreators: GroupConnection
   invites: InviteConnection
+  jobResults: JobResultConnection
+  jobRunnerRegistrationTokens: JobRunnerRegistrationTokenConnection
+  jobRunnerTokens: JobRunnerTokenConnection
+  jobRunners: JobRunnerConnection
+  jobs: ScheduledJobConnection
+  mappedControlCreators: GroupConnection
+  mappedControls: MappedControlConnection
   members: OrgMembershipConnection
   /** the name of the organization */
   name: Scalars['String']['output']
-  /** groups that are allowed to create narratives */
-  narrativeCreators?: Maybe<Array<Group>>
+  narrativeCreators: GroupConnection
   narratives: NarrativeConnection
   notes: NoteConnection
   orgSubscriptions?: Maybe<Array<OrgSubscription>>
@@ -17288,26 +20884,28 @@ export interface Organization extends Node {
   personalAccessTokens: PersonalAccessTokenConnection
   /** orgs directly associated with a user */
   personalOrg?: Maybe<Scalars['Boolean']['output']>
-  /** groups that are allowed to create procedures */
-  procedureCreators?: Maybe<Array<Group>>
+  procedureCreators: GroupConnection
   procedures: ProcedureConnection
-  /** groups that are allowed to create programs */
-  programCreators?: Maybe<Array<Group>>
+  programCreators: GroupConnection
   programs: ProgramConnection
-  /** groups that are allowed to create risks */
-  riskCreators?: Maybe<Array<Group>>
+  riskCreators: GroupConnection
   risks: RiskConnection
+  scans: ScanConnection
+  scheduledJobCreators: GroupConnection
+  scheduledJobRuns: ScheduledJobRunConnection
+  scheduledJobs: ControlScheduledJobConnection
   secrets: HushConnection
   setting?: Maybe<OrganizationSetting>
+  standardCreators: GroupConnection
   standards: StandardConnection
   subcontrols: SubcontrolConnection
   subscribers: SubscriberConnection
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   tasks: TaskConnection
-  /** groups that are allowed to create templates */
-  templateCreators?: Maybe<Array<Group>>
+  templateCreators: GroupConnection
   templates: TemplateConnection
+  trustCenters: TrustCenterConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   users: UserConnection
@@ -17331,6 +20929,15 @@ export interface OrganizationApiTokensArgs {
   where?: InputMaybe<ApiTokenWhereInput>
 }
 
+export interface OrganizationAssetsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<AssetOrder>>
+  where?: InputMaybe<AssetWhereInput>
+}
+
 export interface OrganizationChildrenArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -17349,6 +20956,24 @@ export interface OrganizationContactsArgs {
   where?: InputMaybe<ContactWhereInput>
 }
 
+export interface OrganizationControlCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface OrganizationControlImplementationCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationControlImplementationsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -17356,6 +20981,15 @@ export interface OrganizationControlImplementationsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ControlImplementationOrder>>
   where?: InputMaybe<ControlImplementationWhereInput>
+}
+
+export interface OrganizationControlObjectiveCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationControlObjectivesArgs {
@@ -17374,6 +21008,24 @@ export interface OrganizationControlsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ControlOrder>>
   where?: InputMaybe<ControlWhereInput>
+}
+
+export interface OrganizationCustomDomainsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<CustomDomainOrder>>
+  where?: InputMaybe<CustomDomainWhereInput>
+}
+
+export interface OrganizationDnsVerificationsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<DnsVerificationOrder>>
+  where?: InputMaybe<DnsVerificationWhereInput>
 }
 
 export interface OrganizationDocumentsArgs {
@@ -17421,6 +21073,15 @@ export interface OrganizationEvidenceArgs {
   where?: InputMaybe<EvidenceWhereInput>
 }
 
+export interface OrganizationEvidenceCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationFilesArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -17428,6 +21089,15 @@ export interface OrganizationFilesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<FileOrder>>
   where?: InputMaybe<FileWhereInput>
+}
+
+export interface OrganizationGroupCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationGroupsArgs {
@@ -17457,6 +21127,15 @@ export interface OrganizationInternalPoliciesArgs {
   where?: InputMaybe<InternalPolicyWhereInput>
 }
 
+export interface OrganizationInternalPolicyCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationInvitesArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -17466,6 +21145,69 @@ export interface OrganizationInvitesArgs {
   where?: InputMaybe<InviteWhereInput>
 }
 
+export interface OrganizationJobResultsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<JobResultOrder>>
+  where?: InputMaybe<JobResultWhereInput>
+}
+
+export interface OrganizationJobRunnerRegistrationTokensArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<JobRunnerRegistrationTokenOrder>>
+  where?: InputMaybe<JobRunnerRegistrationTokenWhereInput>
+}
+
+export interface OrganizationJobRunnerTokensArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<JobRunnerTokenOrder>>
+  where?: InputMaybe<JobRunnerTokenWhereInput>
+}
+
+export interface OrganizationJobRunnersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<JobRunnerOrder>>
+  where?: InputMaybe<JobRunnerWhereInput>
+}
+
+export interface OrganizationJobsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ScheduledJobOrder>>
+  where?: InputMaybe<ScheduledJobWhereInput>
+}
+
+export interface OrganizationMappedControlCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface OrganizationMappedControlsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<MappedControlOrder>>
+  where?: InputMaybe<MappedControlWhereInput>
+}
+
 export interface OrganizationMembersArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -17473,6 +21215,15 @@ export interface OrganizationMembersArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<OrgMembershipOrder>>
   where?: InputMaybe<OrgMembershipWhereInput>
+}
+
+export interface OrganizationNarrativeCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationNarrativesArgs {
@@ -17502,6 +21253,15 @@ export interface OrganizationPersonalAccessTokensArgs {
   where?: InputMaybe<PersonalAccessTokenWhereInput>
 }
 
+export interface OrganizationProcedureCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationProceduresArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -17509,6 +21269,15 @@ export interface OrganizationProceduresArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ProcedureOrder>>
   where?: InputMaybe<ProcedureWhereInput>
+}
+
+export interface OrganizationProgramCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationProgramsArgs {
@@ -17520,6 +21289,15 @@ export interface OrganizationProgramsArgs {
   where?: InputMaybe<ProgramWhereInput>
 }
 
+export interface OrganizationRiskCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationRisksArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -17529,6 +21307,42 @@ export interface OrganizationRisksArgs {
   where?: InputMaybe<RiskWhereInput>
 }
 
+export interface OrganizationScansArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ScanOrder>>
+  where?: InputMaybe<ScanWhereInput>
+}
+
+export interface OrganizationScheduledJobCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface OrganizationScheduledJobRunsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ScheduledJobRunOrder>>
+  where?: InputMaybe<ScheduledJobRunWhereInput>
+}
+
+export interface OrganizationScheduledJobsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlScheduledJobOrder>>
+  where?: InputMaybe<ControlScheduledJobWhereInput>
+}
+
 export interface OrganizationSecretsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -17536,6 +21350,15 @@ export interface OrganizationSecretsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<HushOrder>>
   where?: InputMaybe<HushWhereInput>
+}
+
+export interface OrganizationStandardCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationStandardsArgs {
@@ -17574,6 +21397,15 @@ export interface OrganizationTasksArgs {
   where?: InputMaybe<TaskWhereInput>
 }
 
+export interface OrganizationTemplateCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationTemplatesArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -17581,6 +21413,15 @@ export interface OrganizationTemplatesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<TemplateOrder>>
   where?: InputMaybe<TemplateWhereInput>
+}
+
+export interface OrganizationTrustCentersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<TrustCenterOrder>>
+  where?: InputMaybe<TrustCenterWhereInput>
 }
 
 export interface OrganizationUsersArgs {
@@ -17645,8 +21486,6 @@ export interface OrganizationHistory extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** Whether the organization has a dedicated database */
   dedicatedDb: Scalars['Boolean']['output']
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** An optional description of the organization */
   description?: Maybe<Scalars['String']['output']>
   /** The organization's displayed 'friendly' name */
@@ -17704,6 +21543,7 @@ export interface OrganizationHistoryOrder {
 export enum OrganizationHistoryOrderField {
   created_at = 'created_at',
   display_name = 'display_name',
+  history_time = 'history_time',
   name = 'name',
   updated_at = 'updated_at',
 }
@@ -17784,33 +21624,6 @@ export interface OrganizationHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_name field predicates */
   displayName?: InputMaybe<Scalars['String']['input']>
   displayNameContains?: InputMaybe<Scalars['String']['input']>
@@ -17948,16 +21761,26 @@ export interface OrganizationSetting extends Node {
   billingNotificationsEnabled: Scalars['Boolean']['output']
   /** Phone number to contact for billing */
   billingPhone?: Maybe<Scalars['String']['output']>
+  /** unique token used to receive compliance webhook events */
+  complianceWebhookToken?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** domains associated with the organization */
   domains?: Maybe<Array<Scalars['String']['output']>>
   files: FileConnection
   /** geographical location of the organization */
   geoLocation?: Maybe<OrganizationSettingRegion>
   id: Scalars['ID']['output']
+  /** SSO provider type for the organization */
+  identityProvider?: Maybe<OrganizationSettingSsoProvider>
+  /** SAML entity ID for the SSO provider */
+  identityProviderEntityID?: Maybe<Scalars['String']['output']>
+  /** enforce SSO authentication for organization members */
+  identityProviderLoginEnforced: Scalars['Boolean']['output']
+  /** metadata URL for the SSO provider */
+  identityProviderMetadataEndpoint?: Maybe<Scalars['String']['output']>
+  /** OIDC discovery URL for the SSO provider */
+  oidcDiscoveryEndpoint?: Maybe<Scalars['String']['output']>
   organization?: Maybe<Organization>
   /** the ID of the organization the settings belong to */
   organizationID?: Maybe<Scalars['ID']['output']>
@@ -18033,16 +21856,26 @@ export interface OrganizationSettingHistory extends Node {
   billingNotificationsEnabled: Scalars['Boolean']['output']
   /** Phone number to contact for billing */
   billingPhone?: Maybe<Scalars['String']['output']>
+  /** unique token used to receive compliance webhook events */
+  complianceWebhookToken?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** domains associated with the organization */
   domains?: Maybe<Array<Scalars['String']['output']>>
   /** geographical location of the organization */
   geoLocation?: Maybe<OrganizationSettingHistoryRegion>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
+  /** SSO provider type for the organization */
+  identityProvider?: Maybe<OrganizationSettingHistorySsoProvider>
+  /** SAML entity ID for the SSO provider */
+  identityProviderEntityID?: Maybe<Scalars['String']['output']>
+  /** enforce SSO authentication for organization members */
+  identityProviderLoginEnforced: Scalars['Boolean']['output']
+  /** metadata URL for the SSO provider */
+  identityProviderMetadataEndpoint?: Maybe<Scalars['String']['output']>
+  /** OIDC discovery URL for the SSO provider */
+  oidcDiscoveryEndpoint?: Maybe<Scalars['String']['output']>
   operation: OrganizationSettingHistoryOpType
   /** the ID of the organization the settings belong to */
   organizationID?: Maybe<Scalars['String']['output']>
@@ -18093,6 +21926,7 @@ export interface OrganizationSettingHistoryOrder {
 /** Properties by which OrganizationSettingHistory connections can be ordered. */
 export enum OrganizationSettingHistoryOrderField {
   created_at = 'created_at',
+  history_time = 'history_time',
   updated_at = 'updated_at',
 }
 
@@ -18101,6 +21935,16 @@ export enum OrganizationSettingHistoryRegion {
   AMER = 'AMER',
   APAC = 'APAC',
   EMEA = 'EMEA',
+}
+
+/** OrganizationSettingHistorySSOProvider is enum for the field identity_provider */
+export enum OrganizationSettingHistorySsoProvider {
+  GITHUB = 'GITHUB',
+  GOOGLEWORKSPACE = 'GOOGLEWORKSPACE',
+  NONE = 'NONE',
+  OKTA = 'OKTA',
+  ONELOGIN = 'ONELOGIN',
+  SLACK = 'SLACK',
 }
 
 /**
@@ -18160,6 +22004,22 @@ export interface OrganizationSettingHistoryWhereInput {
   billingPhoneNEQ?: InputMaybe<Scalars['String']['input']>
   billingPhoneNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   billingPhoneNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** compliance_webhook_token field predicates */
+  complianceWebhookToken?: InputMaybe<Scalars['String']['input']>
+  complianceWebhookTokenContains?: InputMaybe<Scalars['String']['input']>
+  complianceWebhookTokenContainsFold?: InputMaybe<Scalars['String']['input']>
+  complianceWebhookTokenEqualFold?: InputMaybe<Scalars['String']['input']>
+  complianceWebhookTokenGT?: InputMaybe<Scalars['String']['input']>
+  complianceWebhookTokenGTE?: InputMaybe<Scalars['String']['input']>
+  complianceWebhookTokenHasPrefix?: InputMaybe<Scalars['String']['input']>
+  complianceWebhookTokenHasSuffix?: InputMaybe<Scalars['String']['input']>
+  complianceWebhookTokenIn?: InputMaybe<Array<Scalars['String']['input']>>
+  complianceWebhookTokenIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  complianceWebhookTokenLT?: InputMaybe<Scalars['String']['input']>
+  complianceWebhookTokenLTE?: InputMaybe<Scalars['String']['input']>
+  complianceWebhookTokenNEQ?: InputMaybe<Scalars['String']['input']>
+  complianceWebhookTokenNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  complianceWebhookTokenNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -18187,33 +22047,6 @@ export interface OrganizationSettingHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** geo_location field predicates */
   geoLocation?: InputMaybe<OrganizationSettingHistoryRegion>
   geoLocationIn?: InputMaybe<Array<OrganizationSettingHistoryRegion>>
@@ -18241,7 +22074,65 @@ export interface OrganizationSettingHistoryWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** identity_provider field predicates */
+  identityProvider?: InputMaybe<OrganizationSettingHistorySsoProvider>
+  /** identity_provider_entity_id field predicates */
+  identityProviderEntityID?: InputMaybe<Scalars['String']['input']>
+  identityProviderEntityIDContains?: InputMaybe<Scalars['String']['input']>
+  identityProviderEntityIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  identityProviderEntityIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  identityProviderEntityIDGT?: InputMaybe<Scalars['String']['input']>
+  identityProviderEntityIDGTE?: InputMaybe<Scalars['String']['input']>
+  identityProviderEntityIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  identityProviderEntityIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  identityProviderEntityIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  identityProviderEntityIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  identityProviderEntityIDLT?: InputMaybe<Scalars['String']['input']>
+  identityProviderEntityIDLTE?: InputMaybe<Scalars['String']['input']>
+  identityProviderEntityIDNEQ?: InputMaybe<Scalars['String']['input']>
+  identityProviderEntityIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  identityProviderEntityIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  identityProviderIn?: InputMaybe<Array<OrganizationSettingHistorySsoProvider>>
+  identityProviderIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** identity_provider_login_enforced field predicates */
+  identityProviderLoginEnforced?: InputMaybe<Scalars['Boolean']['input']>
+  identityProviderLoginEnforcedNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  /** identity_provider_metadata_endpoint field predicates */
+  identityProviderMetadataEndpoint?: InputMaybe<Scalars['String']['input']>
+  identityProviderMetadataEndpointContains?: InputMaybe<Scalars['String']['input']>
+  identityProviderMetadataEndpointContainsFold?: InputMaybe<Scalars['String']['input']>
+  identityProviderMetadataEndpointEqualFold?: InputMaybe<Scalars['String']['input']>
+  identityProviderMetadataEndpointGT?: InputMaybe<Scalars['String']['input']>
+  identityProviderMetadataEndpointGTE?: InputMaybe<Scalars['String']['input']>
+  identityProviderMetadataEndpointHasPrefix?: InputMaybe<Scalars['String']['input']>
+  identityProviderMetadataEndpointHasSuffix?: InputMaybe<Scalars['String']['input']>
+  identityProviderMetadataEndpointIn?: InputMaybe<Array<Scalars['String']['input']>>
+  identityProviderMetadataEndpointIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  identityProviderMetadataEndpointLT?: InputMaybe<Scalars['String']['input']>
+  identityProviderMetadataEndpointLTE?: InputMaybe<Scalars['String']['input']>
+  identityProviderMetadataEndpointNEQ?: InputMaybe<Scalars['String']['input']>
+  identityProviderMetadataEndpointNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  identityProviderMetadataEndpointNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  identityProviderNEQ?: InputMaybe<OrganizationSettingHistorySsoProvider>
+  identityProviderNotIn?: InputMaybe<Array<OrganizationSettingHistorySsoProvider>>
+  identityProviderNotNil?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<OrganizationSettingHistoryWhereInput>
+  /** oidc_discovery_endpoint field predicates */
+  oidcDiscoveryEndpoint?: InputMaybe<Scalars['String']['input']>
+  oidcDiscoveryEndpointContains?: InputMaybe<Scalars['String']['input']>
+  oidcDiscoveryEndpointContainsFold?: InputMaybe<Scalars['String']['input']>
+  oidcDiscoveryEndpointEqualFold?: InputMaybe<Scalars['String']['input']>
+  oidcDiscoveryEndpointGT?: InputMaybe<Scalars['String']['input']>
+  oidcDiscoveryEndpointGTE?: InputMaybe<Scalars['String']['input']>
+  oidcDiscoveryEndpointHasPrefix?: InputMaybe<Scalars['String']['input']>
+  oidcDiscoveryEndpointHasSuffix?: InputMaybe<Scalars['String']['input']>
+  oidcDiscoveryEndpointIn?: InputMaybe<Array<Scalars['String']['input']>>
+  oidcDiscoveryEndpointIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  oidcDiscoveryEndpointLT?: InputMaybe<Scalars['String']['input']>
+  oidcDiscoveryEndpointLTE?: InputMaybe<Scalars['String']['input']>
+  oidcDiscoveryEndpointNEQ?: InputMaybe<Scalars['String']['input']>
+  oidcDiscoveryEndpointNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  oidcDiscoveryEndpointNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** operation field predicates */
   operation?: InputMaybe<OrganizationSettingHistoryOpType>
   operationIn?: InputMaybe<Array<OrganizationSettingHistoryOpType>>
@@ -18346,6 +22237,16 @@ export enum OrganizationSettingRegion {
   EMEA = 'EMEA',
 }
 
+/** OrganizationSettingSSOProvider is enum for the field identity_provider */
+export enum OrganizationSettingSsoProvider {
+  GITHUB = 'GITHUB',
+  GOOGLEWORKSPACE = 'GOOGLEWORKSPACE',
+  NONE = 'NONE',
+  OKTA = 'OKTA',
+  ONELOGIN = 'ONELOGIN',
+  SLACK = 'SLACK',
+}
+
 /** Return response for updateOrganizationSetting mutation */
 export interface OrganizationSettingUpdatePayload {
   __typename?: 'OrganizationSettingUpdatePayload'
@@ -18410,6 +22311,22 @@ export interface OrganizationSettingWhereInput {
   billingPhoneNEQ?: InputMaybe<Scalars['String']['input']>
   billingPhoneNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   billingPhoneNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** compliance_webhook_token field predicates */
+  complianceWebhookToken?: InputMaybe<Scalars['String']['input']>
+  complianceWebhookTokenContains?: InputMaybe<Scalars['String']['input']>
+  complianceWebhookTokenContainsFold?: InputMaybe<Scalars['String']['input']>
+  complianceWebhookTokenEqualFold?: InputMaybe<Scalars['String']['input']>
+  complianceWebhookTokenGT?: InputMaybe<Scalars['String']['input']>
+  complianceWebhookTokenGTE?: InputMaybe<Scalars['String']['input']>
+  complianceWebhookTokenHasPrefix?: InputMaybe<Scalars['String']['input']>
+  complianceWebhookTokenHasSuffix?: InputMaybe<Scalars['String']['input']>
+  complianceWebhookTokenIn?: InputMaybe<Array<Scalars['String']['input']>>
+  complianceWebhookTokenIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  complianceWebhookTokenLT?: InputMaybe<Scalars['String']['input']>
+  complianceWebhookTokenLTE?: InputMaybe<Scalars['String']['input']>
+  complianceWebhookTokenNEQ?: InputMaybe<Scalars['String']['input']>
+  complianceWebhookTokenNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  complianceWebhookTokenNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -18437,33 +22354,6 @@ export interface OrganizationSettingWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** geo_location field predicates */
   geoLocation?: InputMaybe<OrganizationSettingRegion>
   geoLocationIn?: InputMaybe<Array<OrganizationSettingRegion>>
@@ -18488,7 +22378,65 @@ export interface OrganizationSettingWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** identity_provider field predicates */
+  identityProvider?: InputMaybe<OrganizationSettingSsoProvider>
+  /** identity_provider_entity_id field predicates */
+  identityProviderEntityID?: InputMaybe<Scalars['String']['input']>
+  identityProviderEntityIDContains?: InputMaybe<Scalars['String']['input']>
+  identityProviderEntityIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  identityProviderEntityIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  identityProviderEntityIDGT?: InputMaybe<Scalars['String']['input']>
+  identityProviderEntityIDGTE?: InputMaybe<Scalars['String']['input']>
+  identityProviderEntityIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  identityProviderEntityIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  identityProviderEntityIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  identityProviderEntityIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  identityProviderEntityIDLT?: InputMaybe<Scalars['String']['input']>
+  identityProviderEntityIDLTE?: InputMaybe<Scalars['String']['input']>
+  identityProviderEntityIDNEQ?: InputMaybe<Scalars['String']['input']>
+  identityProviderEntityIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  identityProviderEntityIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  identityProviderIn?: InputMaybe<Array<OrganizationSettingSsoProvider>>
+  identityProviderIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** identity_provider_login_enforced field predicates */
+  identityProviderLoginEnforced?: InputMaybe<Scalars['Boolean']['input']>
+  identityProviderLoginEnforcedNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  /** identity_provider_metadata_endpoint field predicates */
+  identityProviderMetadataEndpoint?: InputMaybe<Scalars['String']['input']>
+  identityProviderMetadataEndpointContains?: InputMaybe<Scalars['String']['input']>
+  identityProviderMetadataEndpointContainsFold?: InputMaybe<Scalars['String']['input']>
+  identityProviderMetadataEndpointEqualFold?: InputMaybe<Scalars['String']['input']>
+  identityProviderMetadataEndpointGT?: InputMaybe<Scalars['String']['input']>
+  identityProviderMetadataEndpointGTE?: InputMaybe<Scalars['String']['input']>
+  identityProviderMetadataEndpointHasPrefix?: InputMaybe<Scalars['String']['input']>
+  identityProviderMetadataEndpointHasSuffix?: InputMaybe<Scalars['String']['input']>
+  identityProviderMetadataEndpointIn?: InputMaybe<Array<Scalars['String']['input']>>
+  identityProviderMetadataEndpointIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  identityProviderMetadataEndpointLT?: InputMaybe<Scalars['String']['input']>
+  identityProviderMetadataEndpointLTE?: InputMaybe<Scalars['String']['input']>
+  identityProviderMetadataEndpointNEQ?: InputMaybe<Scalars['String']['input']>
+  identityProviderMetadataEndpointNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  identityProviderMetadataEndpointNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  identityProviderNEQ?: InputMaybe<OrganizationSettingSsoProvider>
+  identityProviderNotIn?: InputMaybe<Array<OrganizationSettingSsoProvider>>
+  identityProviderNotNil?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<OrganizationSettingWhereInput>
+  /** oidc_discovery_endpoint field predicates */
+  oidcDiscoveryEndpoint?: InputMaybe<Scalars['String']['input']>
+  oidcDiscoveryEndpointContains?: InputMaybe<Scalars['String']['input']>
+  oidcDiscoveryEndpointContainsFold?: InputMaybe<Scalars['String']['input']>
+  oidcDiscoveryEndpointEqualFold?: InputMaybe<Scalars['String']['input']>
+  oidcDiscoveryEndpointGT?: InputMaybe<Scalars['String']['input']>
+  oidcDiscoveryEndpointGTE?: InputMaybe<Scalars['String']['input']>
+  oidcDiscoveryEndpointHasPrefix?: InputMaybe<Scalars['String']['input']>
+  oidcDiscoveryEndpointHasSuffix?: InputMaybe<Scalars['String']['input']>
+  oidcDiscoveryEndpointIn?: InputMaybe<Array<Scalars['String']['input']>>
+  oidcDiscoveryEndpointIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  oidcDiscoveryEndpointLT?: InputMaybe<Scalars['String']['input']>
+  oidcDiscoveryEndpointLTE?: InputMaybe<Scalars['String']['input']>
+  oidcDiscoveryEndpointNEQ?: InputMaybe<Scalars['String']['input']>
+  oidcDiscoveryEndpointNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  oidcDiscoveryEndpointNotNil?: InputMaybe<Scalars['Boolean']['input']>
   or?: InputMaybe<Array<OrganizationSettingWhereInput>>
   /** organization_id field predicates */
   organizationID?: InputMaybe<Scalars['ID']['input']>
@@ -18634,33 +22582,6 @@ export interface OrganizationWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_name field predicates */
   displayName?: InputMaybe<Scalars['String']['input']>
   displayNameContains?: InputMaybe<Scalars['String']['input']>
@@ -18681,6 +22602,9 @@ export interface OrganizationWhereInput {
   /** action_plans edge predicates */
   hasActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   hasActionPlansWith?: InputMaybe<Array<ActionPlanWhereInput>>
+  /** assets edge predicates */
+  hasAssets?: InputMaybe<Scalars['Boolean']['input']>
+  hasAssetsWith?: InputMaybe<Array<AssetWhereInput>>
   /** avatar_file edge predicates */
   hasAvatarFile?: InputMaybe<Scalars['Boolean']['input']>
   hasAvatarFileWith?: InputMaybe<Array<FileWhereInput>>
@@ -18693,6 +22617,9 @@ export interface OrganizationWhereInput {
   /** control_creators edge predicates */
   hasControlCreators?: InputMaybe<Scalars['Boolean']['input']>
   hasControlCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** control_implementation_creators edge predicates */
+  hasControlImplementationCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasControlImplementationCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** control_implementations edge predicates */
   hasControlImplementations?: InputMaybe<Scalars['Boolean']['input']>
   hasControlImplementationsWith?: InputMaybe<Array<ControlImplementationWhereInput>>
@@ -18705,6 +22632,12 @@ export interface OrganizationWhereInput {
   /** controls edge predicates */
   hasControls?: InputMaybe<Scalars['Boolean']['input']>
   hasControlsWith?: InputMaybe<Array<ControlWhereInput>>
+  /** custom_domains edge predicates */
+  hasCustomDomains?: InputMaybe<Scalars['Boolean']['input']>
+  hasCustomDomainsWith?: InputMaybe<Array<CustomDomainWhereInput>>
+  /** dns_verifications edge predicates */
+  hasDNSVerifications?: InputMaybe<Scalars['Boolean']['input']>
+  hasDNSVerificationsWith?: InputMaybe<Array<DnsVerificationWhereInput>>
   /** documents edge predicates */
   hasDocuments?: InputMaybe<Scalars['Boolean']['input']>
   hasDocumentsWith?: InputMaybe<Array<DocumentDataWhereInput>>
@@ -18719,6 +22652,9 @@ export interface OrganizationWhereInput {
   hasEventsWith?: InputMaybe<Array<EventWhereInput>>
   /** evidence edge predicates */
   hasEvidence?: InputMaybe<Scalars['Boolean']['input']>
+  /** evidence_creators edge predicates */
+  hasEvidenceCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasEvidenceCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   hasEvidenceWith?: InputMaybe<Array<EvidenceWhereInput>>
   /** files edge predicates */
   hasFiles?: InputMaybe<Scalars['Boolean']['input']>
@@ -18741,6 +22677,27 @@ export interface OrganizationWhereInput {
   /** invites edge predicates */
   hasInvites?: InputMaybe<Scalars['Boolean']['input']>
   hasInvitesWith?: InputMaybe<Array<InviteWhereInput>>
+  /** job_results edge predicates */
+  hasJobResults?: InputMaybe<Scalars['Boolean']['input']>
+  hasJobResultsWith?: InputMaybe<Array<JobResultWhereInput>>
+  /** job_runner_registration_tokens edge predicates */
+  hasJobRunnerRegistrationTokens?: InputMaybe<Scalars['Boolean']['input']>
+  hasJobRunnerRegistrationTokensWith?: InputMaybe<Array<JobRunnerRegistrationTokenWhereInput>>
+  /** job_runner_tokens edge predicates */
+  hasJobRunnerTokens?: InputMaybe<Scalars['Boolean']['input']>
+  hasJobRunnerTokensWith?: InputMaybe<Array<JobRunnerTokenWhereInput>>
+  /** job_runners edge predicates */
+  hasJobRunners?: InputMaybe<Scalars['Boolean']['input']>
+  hasJobRunnersWith?: InputMaybe<Array<JobRunnerWhereInput>>
+  /** jobs edge predicates */
+  hasJobs?: InputMaybe<Scalars['Boolean']['input']>
+  hasJobsWith?: InputMaybe<Array<ScheduledJobWhereInput>>
+  /** mapped_control_creators edge predicates */
+  hasMappedControlCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasMappedControlCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** mapped_controls edge predicates */
+  hasMappedControls?: InputMaybe<Scalars['Boolean']['input']>
+  hasMappedControlsWith?: InputMaybe<Array<MappedControlWhereInput>>
   /** members edge predicates */
   hasMembers?: InputMaybe<Scalars['Boolean']['input']>
   hasMembersWith?: InputMaybe<Array<OrgMembershipWhereInput>>
@@ -18780,12 +22737,27 @@ export interface OrganizationWhereInput {
   /** risks edge predicates */
   hasRisks?: InputMaybe<Scalars['Boolean']['input']>
   hasRisksWith?: InputMaybe<Array<RiskWhereInput>>
+  /** scans edge predicates */
+  hasScans?: InputMaybe<Scalars['Boolean']['input']>
+  hasScansWith?: InputMaybe<Array<ScanWhereInput>>
+  /** scheduled_job_creators edge predicates */
+  hasScheduledJobCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasScheduledJobCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** scheduled_job_runs edge predicates */
+  hasScheduledJobRuns?: InputMaybe<Scalars['Boolean']['input']>
+  hasScheduledJobRunsWith?: InputMaybe<Array<ScheduledJobRunWhereInput>>
+  /** scheduled_jobs edge predicates */
+  hasScheduledJobs?: InputMaybe<Scalars['Boolean']['input']>
+  hasScheduledJobsWith?: InputMaybe<Array<ControlScheduledJobWhereInput>>
   /** secrets edge predicates */
   hasSecrets?: InputMaybe<Scalars['Boolean']['input']>
   hasSecretsWith?: InputMaybe<Array<HushWhereInput>>
   /** setting edge predicates */
   hasSetting?: InputMaybe<Scalars['Boolean']['input']>
   hasSettingWith?: InputMaybe<Array<OrganizationSettingWhereInput>>
+  /** standard_creators edge predicates */
+  hasStandardCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasStandardCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** standards edge predicates */
   hasStandards?: InputMaybe<Scalars['Boolean']['input']>
   hasStandardsWith?: InputMaybe<Array<StandardWhereInput>>
@@ -18804,6 +22776,9 @@ export interface OrganizationWhereInput {
   /** templates edge predicates */
   hasTemplates?: InputMaybe<Scalars['Boolean']['input']>
   hasTemplatesWith?: InputMaybe<Array<TemplateWhereInput>>
+  /** trust_centers edge predicates */
+  hasTrustCenters?: InputMaybe<Scalars['Boolean']['input']>
+  hasTrustCentersWith?: InputMaybe<Array<TrustCenterWhereInput>>
   /** users edge predicates */
   hasUsers?: InputMaybe<Scalars['Boolean']['input']>
   hasUsersWith?: InputMaybe<Array<UserWhereInput>>
@@ -18898,8 +22873,6 @@ export interface PersonalAccessToken extends Node {
   __typename?: 'PersonalAccessToken'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** a description of the token's purpose */
   description?: Maybe<Scalars['String']['output']>
   events: EventConnection
@@ -19044,33 +23017,6 @@ export interface PersonalAccessTokenWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** expires_at field predicates */
   expiresAt?: InputMaybe<Scalars['Time']['input']>
   expiresAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -19214,8 +23160,9 @@ export interface Procedure extends Node {
   approver?: Maybe<Group>
   /** the id of the group responsible for approving the procedure */
   approverID?: Maybe<Scalars['ID']['output']>
-  /** groups that are blocked from viewing or editing the risk */
-  blockedGroups?: Maybe<Array<Group>>
+  blockedGroups: GroupConnection
+  /** proposed controls referenced in the procedure */
+  controlSuggestions?: Maybe<Array<Scalars['String']['output']>>
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
@@ -19223,15 +23170,20 @@ export interface Procedure extends Node {
   delegate?: Maybe<Group>
   /** the id of the group responsible for approving the procedure */
   delegateID?: Maybe<Scalars['ID']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** details of the procedure */
   details?: Maybe<Scalars['String']['output']>
+  /** control suggestions dismissed by the user for the procedure */
+  dismissedControlSuggestions?: Maybe<Array<Scalars['String']['output']>>
+  /** improvement suggestions dismissed by the user for the procedure */
+  dismissedImprovementSuggestions?: Maybe<Array<Scalars['String']['output']>>
+  /** tag suggestions dismissed by the user for the procedure */
+  dismissedTagSuggestions?: Maybe<Array<Scalars['String']['output']>>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
-  /** provides edit access to the risk to members of the group */
-  editors?: Maybe<Array<Group>>
+  editors: GroupConnection
   id: Scalars['ID']['output']
+  /** suggested improvements for the procedure */
+  improvementSuggestions?: Maybe<Array<Scalars['String']['output']>>
   internalPolicies: InternalPolicyConnection
   /** the name of the procedure */
   name: Scalars['String']['output']
@@ -19252,11 +23204,23 @@ export interface Procedure extends Node {
   /** status of the procedure, e.g. draft, published, archived, etc. */
   status?: Maybe<ProcedureDocumentStatus>
   subcontrols: SubcontrolConnection
+  summary?: Maybe<Scalars['String']['output']>
+  /** auto-generated tag suggestions for the procedure */
+  tagSuggestions?: Maybe<Array<Scalars['String']['output']>>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+}
+
+export interface ProcedureBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface ProcedureControlsArgs {
@@ -19266,6 +23230,15 @@ export interface ProcedureControlsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ControlOrder>>
   where?: InputMaybe<ControlWhereInput>
+}
+
+export interface ProcedureEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface ProcedureInternalPoliciesArgs {
@@ -19386,18 +23359,26 @@ export interface ProcedureHistory extends Node {
   approvalRequired?: Maybe<Scalars['Boolean']['output']>
   /** the id of the group responsible for approving the procedure */
   approverID?: Maybe<Scalars['String']['output']>
+  /** proposed controls referenced in the procedure */
+  controlSuggestions?: Maybe<Array<Scalars['String']['output']>>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** the id of the group responsible for approving the procedure */
   delegateID?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** details of the procedure */
   details?: Maybe<Scalars['String']['output']>
+  /** control suggestions dismissed by the user for the procedure */
+  dismissedControlSuggestions?: Maybe<Array<Scalars['String']['output']>>
+  /** improvement suggestions dismissed by the user for the procedure */
+  dismissedImprovementSuggestions?: Maybe<Array<Scalars['String']['output']>>
+  /** tag suggestions dismissed by the user for the procedure */
+  dismissedTagSuggestions?: Maybe<Array<Scalars['String']['output']>>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
+  /** suggested improvements for the procedure */
+  improvementSuggestions?: Maybe<Array<Scalars['String']['output']>>
   /** the name of the procedure */
   name: Scalars['String']['output']
   operation: ProcedureHistoryOpType
@@ -19414,6 +23395,9 @@ export interface ProcedureHistory extends Node {
   revision?: Maybe<Scalars['String']['output']>
   /** status of the procedure, e.g. draft, published, archived, etc. */
   status?: Maybe<ProcedureHistoryDocumentStatus>
+  summary?: Maybe<Scalars['String']['output']>
+  /** auto-generated tag suggestions for the procedure */
+  tagSuggestions?: Maybe<Array<Scalars['String']['output']>>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
@@ -19477,6 +23461,7 @@ export enum ProcedureHistoryOrderField {
   REVIEW_FREQUENCY = 'REVIEW_FREQUENCY',
   STATUS = 'STATUS',
   created_at = 'created_at',
+  history_time = 'history_time',
   name = 'name',
   review_due = 'review_due',
   revision = 'revision',
@@ -19553,33 +23538,6 @@ export interface ProcedureHistoryWhereInput {
   delegateIDNEQ?: InputMaybe<Scalars['String']['input']>
   delegateIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   delegateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** details field predicates */
   details?: InputMaybe<Scalars['String']['input']>
   detailsContains?: InputMaybe<Scalars['String']['input']>
@@ -19865,33 +23823,6 @@ export interface ProcedureWhereInput {
   delegateIDNEQ?: InputMaybe<Scalars['ID']['input']>
   delegateIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   delegateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** details field predicates */
   details?: InputMaybe<Scalars['String']['input']>
   detailsContains?: InputMaybe<Scalars['String']['input']>
@@ -20102,20 +24033,16 @@ export interface Program extends Node {
   auditorReady: Scalars['Boolean']['output']
   /** can the auditor write comments */
   auditorWriteComments: Scalars['Boolean']['output']
-  /** groups that are blocked from viewing or editing the risk */
-  blockedGroups?: Maybe<Array<Group>>
+  blockedGroups: GroupConnection
   controlObjectives: ControlObjectiveConnection
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the description of the program */
   description?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
-  /** provides edit access to the risk to members of the group */
-  editors?: Maybe<Array<Group>>
+  editors: GroupConnection
   /** the end date of the period */
   endDate?: Maybe<Scalars['Time']['output']>
   evidence: EvidenceConnection
@@ -20147,8 +24074,7 @@ export interface Program extends Node {
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   users: UserConnection
-  /** provides view access to the risk to members of the group */
-  viewers?: Maybe<Array<Group>>
+  viewers: GroupConnection
 }
 
 export interface ProgramActionPlansArgs {
@@ -20158,6 +24084,15 @@ export interface ProgramActionPlansArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ActionPlanOrder>>
   where?: InputMaybe<ActionPlanWhereInput>
+}
+
+export interface ProgramBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface ProgramControlObjectivesArgs {
@@ -20176,6 +24111,15 @@ export interface ProgramControlsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ControlOrder>>
   where?: InputMaybe<ControlWhereInput>
+}
+
+export interface ProgramEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface ProgramEvidenceArgs {
@@ -20277,6 +24221,15 @@ export interface ProgramUsersArgs {
   where?: InputMaybe<UserWhereInput>
 }
 
+export interface ProgramViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 /** Return response for createBulkProgram mutation */
 export interface ProgramBulkCreatePayload {
   __typename?: 'ProgramBulkCreatePayload'
@@ -20334,8 +24287,6 @@ export interface ProgramHistory extends Node {
   auditorWriteComments: Scalars['Boolean']['output']
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the description of the program */
   description?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -20406,6 +24357,7 @@ export enum ProgramHistoryOrderField {
   created_at = 'created_at',
   end_date = 'end_date',
   framework = 'framework',
+  history_time = 'history_time',
   name = 'name',
   start_date = 'start_date',
   updated_at = 'updated_at',
@@ -20518,33 +24470,6 @@ export interface ProgramHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -20729,8 +24654,6 @@ export interface ProgramMembership extends Node {
   __typename?: 'ProgramMembership'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
   program: Program
   programID: Scalars['ID']['output']
@@ -20786,8 +24709,6 @@ export interface ProgramMembershipHistory extends Node {
   __typename?: 'ProgramMembershipHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
   operation: ProgramMembershipHistoryOpType
@@ -20838,6 +24759,7 @@ export interface ProgramMembershipHistoryOrder {
 export enum ProgramMembershipHistoryOrderField {
   ROLE = 'ROLE',
   created_at = 'created_at',
+  history_time = 'history_time',
   updated_at = 'updated_at',
 }
 
@@ -20880,33 +24802,6 @@ export interface ProgramMembershipHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** history_time field predicates */
   historyTime?: InputMaybe<Scalars['Time']['input']>
   historyTimeGT?: InputMaybe<Scalars['Time']['input']>
@@ -21073,33 +24968,6 @@ export interface ProgramMembershipWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -21283,33 +25151,6 @@ export interface ProgramWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -21526,6 +25367,8 @@ export interface Query {
   adminAPITokenSearch?: Maybe<ApiTokenConnection>
   /** Search across ActionPlan objects */
   adminActionPlanSearch?: Maybe<ActionPlanConnection>
+  /** Search across Asset objects */
+  adminAssetSearch?: Maybe<AssetConnection>
   /** Search across Contact objects */
   adminContactSearch?: Maybe<ContactConnection>
   /** Search across ControlImplementation objects */
@@ -21534,6 +25377,10 @@ export interface Query {
   adminControlObjectiveSearch?: Maybe<ControlObjectiveConnection>
   /** Search across Control objects */
   adminControlSearch?: Maybe<ControlConnection>
+  /** Search across CustomDomain objects */
+  adminCustomDomainSearch?: Maybe<CustomDomainConnection>
+  /** Search across DNSVerification objects */
+  adminDNSVerificationSearch?: Maybe<DnsVerificationConnection>
   /** Search across DocumentData objects */
   adminDocumentDataSearch?: Maybe<DocumentDataConnection>
   /** Search across Entity objects */
@@ -21554,6 +25401,14 @@ export interface Query {
   adminInternalPolicySearch?: Maybe<InternalPolicyConnection>
   /** Search across Invite objects */
   adminInviteSearch?: Maybe<InviteConnection>
+  /** Search across JobRunnerRegistrationToken objects */
+  adminJobRunnerRegistrationTokenSearch?: Maybe<JobRunnerRegistrationTokenConnection>
+  /** Search across JobRunner objects */
+  adminJobRunnerSearch?: Maybe<JobRunnerConnection>
+  /** Search across JobRunnerToken objects */
+  adminJobRunnerTokenSearch?: Maybe<JobRunnerTokenConnection>
+  /** Search across MappableDomain objects */
+  adminMappableDomainSearch?: Maybe<MappableDomainConnection>
   /** Search across MappedControl objects */
   adminMappedControlSearch?: Maybe<MappedControlConnection>
   /** Search across Narrative objects */
@@ -21572,6 +25427,10 @@ export interface Query {
   adminProgramSearch?: Maybe<ProgramConnection>
   /** Search across Risk objects */
   adminRiskSearch?: Maybe<RiskConnection>
+  /** Search across Scan objects */
+  adminScanSearch?: Maybe<ScanConnection>
+  /** Search across ScheduledJob objects */
+  adminScheduledJobSearch?: Maybe<ScheduledJobConnection>
   /** Admin search across all objects */
   adminSearch?: Maybe<SearchResults>
   /** Search across Standard objects */
@@ -21584,6 +25443,8 @@ export interface Query {
   adminTaskSearch?: Maybe<TaskConnection>
   /** Search across Template objects */
   adminTemplateSearch?: Maybe<TemplateConnection>
+  /** Search across TrustCenter objects */
+  adminTrustCenterSearch?: Maybe<TrustCenterConnection>
   /** Search across User objects */
   adminUserSearch?: Maybe<UserConnection>
   /** Search across UserSetting objects */
@@ -21595,6 +25456,12 @@ export interface Query {
   /** Search across APIToken objects */
   apiTokenSearch?: Maybe<ApiTokenConnection>
   apiTokens: ApiTokenConnection
+  /** Look up asset by ID */
+  asset: Asset
+  assetHistories: AssetHistoryConnection
+  /** Search across Asset objects */
+  assetSearch?: Maybe<AssetConnection>
+  assets: AssetConnection
   auditLogs: AuditLogConnection
   /** Look up contact by ID */
   contact: Contact
@@ -21604,6 +25471,8 @@ export interface Query {
   contacts: ContactConnection
   /** Look up control by ID */
   control: Control
+  /** Existing categories or domains for controls used in the organization */
+  controlCategories?: Maybe<Array<Scalars['String']['output']>>
   controlHistories: ControlHistoryConnection
   /** Look up controlImplementation by ID */
   controlImplementation: ControlImplementation
@@ -21617,9 +25486,27 @@ export interface Query {
   /** Search across ControlObjective objects */
   controlObjectiveSearch?: Maybe<ControlObjectiveConnection>
   controlObjectives: ControlObjectiveConnection
+  /** Look up controlScheduledJob by ID */
+  controlScheduledJob: ControlScheduledJob
+  controlScheduledJobHistories: ControlScheduledJobHistoryConnection
+  controlScheduledJobs: ControlScheduledJobConnection
   /** Search across Control objects */
   controlSearch?: Maybe<ControlConnection>
+  /** Existing subcategories or subdomains for controls used in the organization */
+  controlSubcategories?: Maybe<Array<Scalars['String']['output']>>
   controls: ControlConnection
+  /** Look up customDomain by ID */
+  customDomain: CustomDomain
+  customDomainHistories: CustomDomainHistoryConnection
+  /** Search across CustomDomain objects */
+  customDomainSearch?: Maybe<CustomDomainConnection>
+  customDomains: CustomDomainConnection
+  /** Look up dnsVerification by ID */
+  dnsVerification: DnsVerification
+  dnsVerificationHistories: DnsVerificationHistoryConnection
+  /** Search across DNSVerification objects */
+  dnsVerificationSearch?: Maybe<DnsVerificationConnection>
+  dnsVerifications: DnsVerificationConnection
   /** Look up documentData by ID */
   documentData: DocumentData
   documentDataHistories: DocumentDataHistoryConnection
@@ -21640,7 +25527,6 @@ export interface Query {
   entityTypes: EntityTypeConnection
   /** Look up event by ID */
   event: Event
-  eventHistories: EventHistoryConnection
   /** Search across Event objects */
   eventSearch?: Maybe<EventConnection>
   events: EventConnection
@@ -21691,6 +25577,30 @@ export interface Query {
   /** Search across Invite objects */
   inviteSearch?: Maybe<InviteConnection>
   invites: InviteConnection
+  /** Look up jobResult by ID */
+  jobResult: JobResult
+  jobResults: JobResultConnection
+  /** Look up jobRunner by ID */
+  jobRunner: JobRunner
+  /** Look up jobRunnerRegistrationToken by ID */
+  jobRunnerRegistrationToken: JobRunnerRegistrationToken
+  /** Search across JobRunnerRegistrationToken objects */
+  jobRunnerRegistrationTokenSearch?: Maybe<JobRunnerRegistrationTokenConnection>
+  jobRunnerRegistrationTokens: JobRunnerRegistrationTokenConnection
+  /** Search across JobRunner objects */
+  jobRunnerSearch?: Maybe<JobRunnerConnection>
+  /** Look up jobRunnerToken by ID */
+  jobRunnerToken: JobRunnerToken
+  /** Search across JobRunnerToken objects */
+  jobRunnerTokenSearch?: Maybe<JobRunnerTokenConnection>
+  jobRunnerTokens: JobRunnerTokenConnection
+  jobRunners: JobRunnerConnection
+  /** Look up mappableDomain by ID */
+  mappableDomain: MappableDomain
+  mappableDomainHistories: MappableDomainHistoryConnection
+  /** Search across MappableDomain objects */
+  mappableDomainSearch?: Maybe<MappableDomainConnection>
+  mappableDomains: MappableDomainConnection
   /** Look up mappedControl by ID */
   mappedControl: MappedControl
   mappedControlHistories: MappedControlHistoryConnection
@@ -21760,6 +25670,21 @@ export interface Query {
   /** Search across Risk objects */
   riskSearch?: Maybe<RiskConnection>
   risks: RiskConnection
+  /** Look up scan by ID */
+  scan: Scan
+  scanHistories: ScanHistoryConnection
+  /** Search across Scan objects */
+  scanSearch?: Maybe<ScanConnection>
+  scans: ScanConnection
+  /** Look up scheduledJob by ID */
+  scheduledJob: ScheduledJob
+  scheduledJobHistories: ScheduledJobHistoryConnection
+  /** Look up scheduledJobRun by ID */
+  scheduledJobRun: ScheduledJobRun
+  scheduledJobRuns: ScheduledJobRunConnection
+  /** Search across ScheduledJob objects */
+  scheduledJobSearch?: Maybe<ScheduledJobConnection>
+  scheduledJobs: ScheduledJobConnection
   /** Search across all objects */
   search?: Maybe<SearchResults>
   /** Look up user authorized user */
@@ -21796,6 +25721,16 @@ export interface Query {
   /** Look up tfaSetting for the current user */
   tfaSetting: TfaSetting
   tfaSettings: TfaSettingConnection
+  /** Look up trustCenter by ID */
+  trustCenter: TrustCenter
+  trustCenterHistories: TrustCenterHistoryConnection
+  /** Search across TrustCenter objects */
+  trustCenterSearch?: Maybe<TrustCenterConnection>
+  /** Look up trustCenterSetting by ID */
+  trustCenterSetting: TrustCenterSetting
+  trustCenterSettingHistories: TrustCenterSettingHistoryConnection
+  trustCenterSettings: TrustCenterSettingConnection
+  trustCenters: TrustCenterConnection
   /** Look up user by ID */
   user: User
   userHistories: UserHistoryConnection
@@ -21859,6 +25794,14 @@ export interface QueryAdminActionPlanSearchArgs {
   query: Scalars['String']['input']
 }
 
+export interface QueryAdminAssetSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  query: Scalars['String']['input']
+}
+
 export interface QueryAdminContactSearchArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -21884,6 +25827,22 @@ export interface QueryAdminControlObjectiveSearchArgs {
 }
 
 export interface QueryAdminControlSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  query: Scalars['String']['input']
+}
+
+export interface QueryAdminCustomDomainSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  query: Scalars['String']['input']
+}
+
+export interface QueryAdminDnsVerificationSearchArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
   first?: InputMaybe<Scalars['Int']['input']>
@@ -21971,6 +25930,38 @@ export interface QueryAdminInviteSearchArgs {
   query: Scalars['String']['input']
 }
 
+export interface QueryAdminJobRunnerRegistrationTokenSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  query: Scalars['String']['input']
+}
+
+export interface QueryAdminJobRunnerSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  query: Scalars['String']['input']
+}
+
+export interface QueryAdminJobRunnerTokenSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  query: Scalars['String']['input']
+}
+
+export interface QueryAdminMappableDomainSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  query: Scalars['String']['input']
+}
+
 export interface QueryAdminMappedControlSearchArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -22043,6 +26034,22 @@ export interface QueryAdminRiskSearchArgs {
   query: Scalars['String']['input']
 }
 
+export interface QueryAdminScanSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  query: Scalars['String']['input']
+}
+
+export interface QueryAdminScheduledJobSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  query: Scalars['String']['input']
+}
+
 export interface QueryAdminSearchArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -22084,6 +26091,14 @@ export interface QueryAdminTaskSearchArgs {
 }
 
 export interface QueryAdminTemplateSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  query: Scalars['String']['input']
+}
+
+export interface QueryAdminTrustCenterSearchArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
   first?: InputMaybe<Scalars['Int']['input']>
@@ -22136,11 +26151,42 @@ export interface QueryApiTokensArgs {
   where?: InputMaybe<ApiTokenWhereInput>
 }
 
+export interface QueryAssetArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface QueryAssetHistoriesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<AssetHistoryOrder>
+  where?: InputMaybe<AssetHistoryWhereInput>
+}
+
+export interface QueryAssetSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  query: Scalars['String']['input']
+}
+
+export interface QueryAssetsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<AssetOrder>>
+  where?: InputMaybe<AssetWhereInput>
+}
+
 export interface QueryAuditLogsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
   first?: InputMaybe<Scalars['Int']['input']>
   last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<AuditLogOrder>
   where?: InputMaybe<AuditLogWhereInput>
 }
 
@@ -22247,6 +26293,28 @@ export interface QueryControlObjectivesArgs {
   where?: InputMaybe<ControlObjectiveWhereInput>
 }
 
+export interface QueryControlScheduledJobArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface QueryControlScheduledJobHistoriesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<ControlScheduledJobHistoryOrder>
+  where?: InputMaybe<ControlScheduledJobHistoryWhereInput>
+}
+
+export interface QueryControlScheduledJobsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlScheduledJobOrder>>
+  where?: InputMaybe<ControlScheduledJobWhereInput>
+}
+
 export interface QueryControlSearchArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -22262,6 +26330,66 @@ export interface QueryControlsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ControlOrder>>
   where?: InputMaybe<ControlWhereInput>
+}
+
+export interface QueryCustomDomainArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface QueryCustomDomainHistoriesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<CustomDomainHistoryOrder>
+  where?: InputMaybe<CustomDomainHistoryWhereInput>
+}
+
+export interface QueryCustomDomainSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  query: Scalars['String']['input']
+}
+
+export interface QueryCustomDomainsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<CustomDomainOrder>>
+  where?: InputMaybe<CustomDomainWhereInput>
+}
+
+export interface QueryDnsVerificationArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface QueryDnsVerificationHistoriesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<DnsVerificationHistoryOrder>
+  where?: InputMaybe<DnsVerificationHistoryWhereInput>
+}
+
+export interface QueryDnsVerificationSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  query: Scalars['String']['input']
+}
+
+export interface QueryDnsVerificationsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<DnsVerificationOrder>>
+  where?: InputMaybe<DnsVerificationWhereInput>
 }
 
 export interface QueryDocumentDataArgs {
@@ -22356,15 +26484,6 @@ export interface QueryEntityTypesArgs {
 
 export interface QueryEventArgs {
   id: Scalars['ID']['input']
-}
-
-export interface QueryEventHistoriesArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<EventHistoryOrder>
-  where?: InputMaybe<EventHistoryWhereInput>
 }
 
 export interface QueryEventSearchArgs {
@@ -22619,6 +26738,112 @@ export interface QueryInvitesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<InviteOrder>>
   where?: InputMaybe<InviteWhereInput>
+}
+
+export interface QueryJobResultArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface QueryJobResultsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<JobResultOrder>>
+  where?: InputMaybe<JobResultWhereInput>
+}
+
+export interface QueryJobRunnerArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface QueryJobRunnerRegistrationTokenArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface QueryJobRunnerRegistrationTokenSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  query: Scalars['String']['input']
+}
+
+export interface QueryJobRunnerRegistrationTokensArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<JobRunnerRegistrationTokenOrder>>
+  where?: InputMaybe<JobRunnerRegistrationTokenWhereInput>
+}
+
+export interface QueryJobRunnerSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  query: Scalars['String']['input']
+}
+
+export interface QueryJobRunnerTokenArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface QueryJobRunnerTokenSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  query: Scalars['String']['input']
+}
+
+export interface QueryJobRunnerTokensArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<JobRunnerTokenOrder>>
+  where?: InputMaybe<JobRunnerTokenWhereInput>
+}
+
+export interface QueryJobRunnersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<JobRunnerOrder>>
+  where?: InputMaybe<JobRunnerWhereInput>
+}
+
+export interface QueryMappableDomainArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface QueryMappableDomainHistoriesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<MappableDomainHistoryOrder>
+  where?: InputMaybe<MappableDomainHistoryWhereInput>
+}
+
+export interface QueryMappableDomainSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  query: Scalars['String']['input']
+}
+
+export interface QueryMappableDomainsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<MappableDomainOrder>>
+  where?: InputMaybe<MappableDomainWhereInput>
 }
 
 export interface QueryMappedControlArgs {
@@ -22956,6 +27181,79 @@ export interface QueryRisksArgs {
   where?: InputMaybe<RiskWhereInput>
 }
 
+export interface QueryScanArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface QueryScanHistoriesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<ScanHistoryOrder>
+  where?: InputMaybe<ScanHistoryWhereInput>
+}
+
+export interface QueryScanSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  query: Scalars['String']['input']
+}
+
+export interface QueryScansArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ScanOrder>>
+  where?: InputMaybe<ScanWhereInput>
+}
+
+export interface QueryScheduledJobArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface QueryScheduledJobHistoriesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<ScheduledJobHistoryOrder>
+  where?: InputMaybe<ScheduledJobHistoryWhereInput>
+}
+
+export interface QueryScheduledJobRunArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface QueryScheduledJobRunsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ScheduledJobRunOrder>>
+  where?: InputMaybe<ScheduledJobRunWhereInput>
+}
+
+export interface QueryScheduledJobSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  query: Scalars['String']['input']
+}
+
+export interface QueryScheduledJobsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ScheduledJobOrder>>
+  where?: InputMaybe<ScheduledJobWhereInput>
+}
+
 export interface QuerySearchArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -23118,6 +27416,58 @@ export interface QueryTfaSettingsArgs {
   where?: InputMaybe<TfaSettingWhereInput>
 }
 
+export interface QueryTrustCenterArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface QueryTrustCenterHistoriesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<TrustCenterHistoryOrder>
+  where?: InputMaybe<TrustCenterHistoryWhereInput>
+}
+
+export interface QueryTrustCenterSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  query: Scalars['String']['input']
+}
+
+export interface QueryTrustCenterSettingArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface QueryTrustCenterSettingHistoriesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<TrustCenterSettingHistoryOrder>
+  where?: InputMaybe<TrustCenterSettingHistoryWhereInput>
+}
+
+export interface QueryTrustCenterSettingsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<TrustCenterSettingOrder>>
+  where?: InputMaybe<TrustCenterSettingWhereInput>
+}
+
+export interface QueryTrustCentersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<TrustCenterOrder>>
+  where?: InputMaybe<TrustCenterWhereInput>
+}
+
 export interface QueryUserArgs {
   id: Scalars['ID']['input']
 }
@@ -23198,8 +27548,8 @@ export interface QueryWebauthnsArgs {
 export interface Risk extends Node {
   __typename?: 'Risk'
   actionPlans: ActionPlanConnection
-  /** groups that are blocked from viewing or editing the risk */
-  blockedGroups?: Maybe<Array<Group>>
+  assets: AssetConnection
+  blockedGroups: GroupConnection
   /** business costs associated with the risk */
   businessCosts?: Maybe<Scalars['String']['output']>
   /** category of the risk, e.g. human resources, operations, IT, etc. */
@@ -23211,14 +27561,12 @@ export interface Risk extends Node {
   delegate?: Maybe<Group>
   /** the id of the group responsible for risk oversight on behalf of the stakeholder */
   delegateID?: Maybe<Scalars['ID']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** details of the risk */
   details?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
-  /** provides edit access to the risk to members of the group */
-  editors?: Maybe<Array<Group>>
+  editors: GroupConnection
+  entities: EntityConnection
   id: Scalars['ID']['output']
   /** impact of the risk -critical, high, medium, low */
   impact?: Maybe<RiskRiskImpact>
@@ -23236,6 +27584,7 @@ export interface Risk extends Node {
   programs: ProgramConnection
   /** type of the risk, e.g. strategic, operational, financial, external, etc. */
   riskType?: Maybe<Scalars['String']['output']>
+  scans: ScanConnection
   /** score of the risk based on impact and likelihood (1-4 unlikely, 5-9 likely, 10-16 highly likely, 17-20 critical) */
   score?: Maybe<Scalars['Int']['output']>
   /** the group of users who are responsible for risk oversight */
@@ -23247,10 +27596,10 @@ export interface Risk extends Node {
   subcontrols: SubcontrolConnection
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
+  tasks: TaskConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
-  /** provides view access to the risk to members of the group */
-  viewers?: Maybe<Array<Group>>
+  viewers: GroupConnection
 }
 
 export interface RiskActionPlansArgs {
@@ -23262,6 +27611,24 @@ export interface RiskActionPlansArgs {
   where?: InputMaybe<ActionPlanWhereInput>
 }
 
+export interface RiskAssetsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<AssetOrder>>
+  where?: InputMaybe<AssetWhereInput>
+}
+
+export interface RiskBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface RiskControlsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -23269,6 +27636,24 @@ export interface RiskControlsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ControlOrder>>
   where?: InputMaybe<ControlWhereInput>
+}
+
+export interface RiskEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface RiskEntitiesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<EntityOrder>>
+  where?: InputMaybe<EntityWhereInput>
 }
 
 export interface RiskInternalPoliciesArgs {
@@ -23298,6 +27683,15 @@ export interface RiskProgramsArgs {
   where?: InputMaybe<ProgramWhereInput>
 }
 
+export interface RiskScansArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ScanOrder>>
+  where?: InputMaybe<ScanWhereInput>
+}
+
 export interface RiskSubcontrolsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -23305,6 +27699,24 @@ export interface RiskSubcontrolsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<SubcontrolOrder>>
   where?: InputMaybe<SubcontrolWhereInput>
+}
+
+export interface RiskTasksArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<TaskOrder>>
+  where?: InputMaybe<TaskWhereInput>
+}
+
+export interface RiskViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 /** Return response for createBulkRisk mutation */
@@ -23358,8 +27770,6 @@ export interface RiskHistory extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** the id of the group responsible for risk oversight on behalf of the stakeholder */
   delegateID?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** details of the risk */
   details?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -23435,6 +27845,7 @@ export enum RiskHistoryOrderField {
   business_costs = 'business_costs',
   category = 'category',
   created_at = 'created_at',
+  history_time = 'history_time',
   name = 'name',
   risk_type = 'risk_type',
   score = 'score',
@@ -23546,33 +27957,6 @@ export interface RiskHistoryWhereInput {
   delegateIDNEQ?: InputMaybe<Scalars['String']['input']>
   delegateIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   delegateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** details field predicates */
   details?: InputMaybe<Scalars['String']['input']>
   detailsContains?: InputMaybe<Scalars['String']['input']>
@@ -23919,33 +28303,6 @@ export interface RiskWhereInput {
   delegateIDNEQ?: InputMaybe<Scalars['ID']['input']>
   delegateIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   delegateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** details field predicates */
   details?: InputMaybe<Scalars['String']['input']>
   detailsContains?: InputMaybe<Scalars['String']['input']>
@@ -23979,6 +28336,9 @@ export interface RiskWhereInput {
   /** action_plans edge predicates */
   hasActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   hasActionPlansWith?: InputMaybe<Array<ActionPlanWhereInput>>
+  /** assets edge predicates */
+  hasAssets?: InputMaybe<Scalars['Boolean']['input']>
+  hasAssetsWith?: InputMaybe<Array<AssetWhereInput>>
   /** blocked_groups edge predicates */
   hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
@@ -23991,6 +28351,9 @@ export interface RiskWhereInput {
   /** editors edge predicates */
   hasEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** entities edge predicates */
+  hasEntities?: InputMaybe<Scalars['Boolean']['input']>
+  hasEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
   /** internal_policies edge predicates */
   hasInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalPoliciesWith?: InputMaybe<Array<InternalPolicyWhereInput>>
@@ -24003,12 +28366,18 @@ export interface RiskWhereInput {
   /** programs edge predicates */
   hasPrograms?: InputMaybe<Scalars['Boolean']['input']>
   hasProgramsWith?: InputMaybe<Array<ProgramWhereInput>>
+  /** scans edge predicates */
+  hasScans?: InputMaybe<Scalars['Boolean']['input']>
+  hasScansWith?: InputMaybe<Array<ScanWhereInput>>
   /** stakeholder edge predicates */
   hasStakeholder?: InputMaybe<Scalars['Boolean']['input']>
   hasStakeholderWith?: InputMaybe<Array<GroupWhereInput>>
   /** subcontrols edge predicates */
   hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
+  /** tasks edge predicates */
+  hasTasks?: InputMaybe<Scalars['Boolean']['input']>
+  hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
   /** viewers edge predicates */
   hasViewers?: InputMaybe<Scalars['Boolean']['input']>
   hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
@@ -24164,14 +28533,1264 @@ export interface RiskWhereInput {
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+export interface Scan extends Node {
+  __typename?: 'Scan'
+  assets: AssetConnection
+  blockedGroups: GroupConnection
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  editors: GroupConnection
+  entities: EntityConnection
+  id: Scalars['ID']['output']
+  /** additional metadata for the scan, e.g., scan configuration, options, etc */
+  metadata?: Maybe<Scalars['Map']['output']>
+  owner?: Maybe<Organization>
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['ID']['output']>
+  /** the type of scan, e.g., domain scan, vulnerability scan, provider scan */
+  scanType: ScanScanType
+  /** the status of the scan, e.g., processing, completed, failed */
+  status: ScanScanStatus
+  /** tags associated with the object */
+  tags?: Maybe<Array<Scalars['String']['output']>>
+  /** the target of the scan, e.g., a domain name or IP address, codebase */
+  target: Scalars['String']['output']
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+  viewers: GroupConnection
+}
+
+export interface ScanAssetsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<AssetOrder>>
+  where?: InputMaybe<AssetWhereInput>
+}
+
+export interface ScanBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface ScanEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface ScanEntitiesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<EntityOrder>>
+  where?: InputMaybe<EntityWhereInput>
+}
+
+export interface ScanViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+/** Return response for createBulkScan mutation */
+export interface ScanBulkCreatePayload {
+  __typename?: 'ScanBulkCreatePayload'
+  /** Created scans */
+  scans?: Maybe<Array<Scan>>
+}
+
+/** A connection to a list of items. */
+export interface ScanConnection {
+  __typename?: 'ScanConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<ScanEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** Return response for createScan mutation */
+export interface ScanCreatePayload {
+  __typename?: 'ScanCreatePayload'
+  /** Created scan */
+  scan: Scan
+}
+
+/** Return response for deleteScan mutation */
+export interface ScanDeletePayload {
+  __typename?: 'ScanDeletePayload'
+  /** Deleted scan ID */
+  deletedID: Scalars['ID']['output']
+}
+
+/** An edge in a connection. */
+export interface ScanEdge {
+  __typename?: 'ScanEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<Scan>
+}
+
+export interface ScanHistory extends Node {
+  __typename?: 'ScanHistory'
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  historyTime: Scalars['Time']['output']
+  id: Scalars['ID']['output']
+  /** additional metadata for the scan, e.g., scan configuration, options, etc */
+  metadata?: Maybe<Scalars['Map']['output']>
+  operation: ScanHistoryOpType
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['String']['output']>
+  ref?: Maybe<Scalars['String']['output']>
+  /** the type of scan, e.g., domain scan, vulnerability scan, provider scan */
+  scanType: ScanHistoryScanType
+  /** the status of the scan, e.g., processing, completed, failed */
+  status: ScanHistoryScanStatus
+  /** tags associated with the object */
+  tags?: Maybe<Array<Scalars['String']['output']>>
+  /** the target of the scan, e.g., a domain name or IP address, codebase */
+  target: Scalars['String']['output']
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+}
+
+/** A connection to a list of items. */
+export interface ScanHistoryConnection {
+  __typename?: 'ScanHistoryConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<ScanHistoryEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** An edge in a connection. */
+export interface ScanHistoryEdge {
+  __typename?: 'ScanHistoryEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<ScanHistory>
+}
+
+/** ScanHistoryOpType is enum for the field operation */
+export enum ScanHistoryOpType {
+  DELETE = 'DELETE',
+  INSERT = 'INSERT',
+  UPDATE = 'UPDATE',
+}
+
+/** Ordering options for ScanHistory connections */
+export interface ScanHistoryOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order ScanHistories. */
+  field: ScanHistoryOrderField
+}
+
+/** Properties by which ScanHistory connections can be ordered. */
+export enum ScanHistoryOrderField {
+  SCAN_TYPE = 'SCAN_TYPE',
+  STATUS = 'STATUS',
+  created_at = 'created_at',
+  history_time = 'history_time',
+  updated_at = 'updated_at',
+}
+
+/** ScanHistoryScanStatus is enum for the field status */
+export enum ScanHistoryScanStatus {
+  COMPLETED = 'COMPLETED',
+  FAILED = 'FAILED',
+  PENDING = 'PENDING',
+  PROCESSING = 'PROCESSING',
+}
+
+/** ScanHistoryScanType is enum for the field scan_type */
+export enum ScanHistoryScanType {
+  DOMAIN = 'DOMAIN',
+  PROVIDER = 'PROVIDER',
+  VENDOR = 'VENDOR',
+  VULNERABILITY = 'VULNERABILITY',
+}
+
+/**
+ * ScanHistoryWhereInput is used for filtering ScanHistory objects.
+ * Input was generated by ent.
+ */
+export interface ScanHistoryWhereInput {
+  and?: InputMaybe<Array<ScanHistoryWhereInput>>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** history_time field predicates */
+  historyTime?: InputMaybe<Scalars['Time']['input']>
+  historyTimeGT?: InputMaybe<Scalars['Time']['input']>
+  historyTimeGTE?: InputMaybe<Scalars['Time']['input']>
+  historyTimeIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  historyTimeLT?: InputMaybe<Scalars['Time']['input']>
+  historyTimeLTE?: InputMaybe<Scalars['Time']['input']>
+  historyTimeNEQ?: InputMaybe<Scalars['Time']['input']>
+  historyTimeNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  not?: InputMaybe<ScanHistoryWhereInput>
+  /** operation field predicates */
+  operation?: InputMaybe<ScanHistoryOpType>
+  operationIn?: InputMaybe<Array<ScanHistoryOpType>>
+  operationNEQ?: InputMaybe<ScanHistoryOpType>
+  operationNotIn?: InputMaybe<Array<ScanHistoryOpType>>
+  or?: InputMaybe<Array<ScanHistoryWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['String']['input']>
+  ownerIDContains?: InputMaybe<Scalars['String']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  ownerIDGT?: InputMaybe<Scalars['String']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['String']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['String']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['String']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** ref field predicates */
+  ref?: InputMaybe<Scalars['String']['input']>
+  refContains?: InputMaybe<Scalars['String']['input']>
+  refContainsFold?: InputMaybe<Scalars['String']['input']>
+  refEqualFold?: InputMaybe<Scalars['String']['input']>
+  refGT?: InputMaybe<Scalars['String']['input']>
+  refGTE?: InputMaybe<Scalars['String']['input']>
+  refHasPrefix?: InputMaybe<Scalars['String']['input']>
+  refHasSuffix?: InputMaybe<Scalars['String']['input']>
+  refIn?: InputMaybe<Array<Scalars['String']['input']>>
+  refIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  refLT?: InputMaybe<Scalars['String']['input']>
+  refLTE?: InputMaybe<Scalars['String']['input']>
+  refNEQ?: InputMaybe<Scalars['String']['input']>
+  refNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  refNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scan_type field predicates */
+  scanType?: InputMaybe<ScanHistoryScanType>
+  scanTypeIn?: InputMaybe<Array<ScanHistoryScanType>>
+  scanTypeNEQ?: InputMaybe<ScanHistoryScanType>
+  scanTypeNotIn?: InputMaybe<Array<ScanHistoryScanType>>
+  /** status field predicates */
+  status?: InputMaybe<ScanHistoryScanStatus>
+  statusIn?: InputMaybe<Array<ScanHistoryScanStatus>>
+  statusNEQ?: InputMaybe<ScanHistoryScanStatus>
+  statusNotIn?: InputMaybe<Array<ScanHistoryScanStatus>>
+  /** target field predicates */
+  target?: InputMaybe<Scalars['String']['input']>
+  targetContains?: InputMaybe<Scalars['String']['input']>
+  targetContainsFold?: InputMaybe<Scalars['String']['input']>
+  targetEqualFold?: InputMaybe<Scalars['String']['input']>
+  targetGT?: InputMaybe<Scalars['String']['input']>
+  targetGTE?: InputMaybe<Scalars['String']['input']>
+  targetHasPrefix?: InputMaybe<Scalars['String']['input']>
+  targetHasSuffix?: InputMaybe<Scalars['String']['input']>
+  targetIn?: InputMaybe<Array<Scalars['String']['input']>>
+  targetLT?: InputMaybe<Scalars['String']['input']>
+  targetLTE?: InputMaybe<Scalars['String']['input']>
+  targetNEQ?: InputMaybe<Scalars['String']['input']>
+  targetNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+/** Ordering options for Scan connections */
+export interface ScanOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order Scans. */
+  field: ScanOrderField
+}
+
+/** Properties by which Scan connections can be ordered. */
+export enum ScanOrderField {
+  SCAN_TYPE = 'SCAN_TYPE',
+  STATUS = 'STATUS',
+  created_at = 'created_at',
+  updated_at = 'updated_at',
+}
+
+/** ScanScanStatus is enum for the field status */
+export enum ScanScanStatus {
+  COMPLETED = 'COMPLETED',
+  FAILED = 'FAILED',
+  PENDING = 'PENDING',
+  PROCESSING = 'PROCESSING',
+}
+
+/** ScanScanType is enum for the field scan_type */
+export enum ScanScanType {
+  DOMAIN = 'DOMAIN',
+  PROVIDER = 'PROVIDER',
+  VENDOR = 'VENDOR',
+  VULNERABILITY = 'VULNERABILITY',
+}
+
+/** Return response for updateScan mutation */
+export interface ScanUpdatePayload {
+  __typename?: 'ScanUpdatePayload'
+  /** Updated scan */
+  scan: Scan
+}
+
+/**
+ * ScanWhereInput is used for filtering Scan objects.
+ * Input was generated by ent.
+ */
+export interface ScanWhereInput {
+  and?: InputMaybe<Array<ScanWhereInput>>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** assets edge predicates */
+  hasAssets?: InputMaybe<Scalars['Boolean']['input']>
+  hasAssetsWith?: InputMaybe<Array<AssetWhereInput>>
+  /** blocked_groups edge predicates */
+  hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** editors edge predicates */
+  hasEditors?: InputMaybe<Scalars['Boolean']['input']>
+  hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** entities edge predicates */
+  hasEntities?: InputMaybe<Scalars['Boolean']['input']>
+  hasEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
+  /** owner edge predicates */
+  hasOwner?: InputMaybe<Scalars['Boolean']['input']>
+  hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** viewers edge predicates */
+  hasViewers?: InputMaybe<Scalars['Boolean']['input']>
+  hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  not?: InputMaybe<ScanWhereInput>
+  or?: InputMaybe<Array<ScanWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContains?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scan_type field predicates */
+  scanType?: InputMaybe<ScanScanType>
+  scanTypeIn?: InputMaybe<Array<ScanScanType>>
+  scanTypeNEQ?: InputMaybe<ScanScanType>
+  scanTypeNotIn?: InputMaybe<Array<ScanScanType>>
+  /** status field predicates */
+  status?: InputMaybe<ScanScanStatus>
+  statusIn?: InputMaybe<Array<ScanScanStatus>>
+  statusNEQ?: InputMaybe<ScanScanStatus>
+  statusNotIn?: InputMaybe<Array<ScanScanStatus>>
+  /** target field predicates */
+  target?: InputMaybe<Scalars['String']['input']>
+  targetContains?: InputMaybe<Scalars['String']['input']>
+  targetContainsFold?: InputMaybe<Scalars['String']['input']>
+  targetEqualFold?: InputMaybe<Scalars['String']['input']>
+  targetGT?: InputMaybe<Scalars['String']['input']>
+  targetGTE?: InputMaybe<Scalars['String']['input']>
+  targetHasPrefix?: InputMaybe<Scalars['String']['input']>
+  targetHasSuffix?: InputMaybe<Scalars['String']['input']>
+  targetIn?: InputMaybe<Array<Scalars['String']['input']>>
+  targetLT?: InputMaybe<Scalars['String']['input']>
+  targetLTE?: InputMaybe<Scalars['String']['input']>
+  targetNEQ?: InputMaybe<Scalars['String']['input']>
+  targetNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+export interface ScheduledJob extends Node {
+  __typename?: 'ScheduledJob'
+  /** the schedule to run this job */
+  cadence?: Maybe<Scalars['JobCadence']['output']>
+  /** the configuration to run this job */
+  configuration: Scalars['JobConfiguration']['output']
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  /** cron syntax */
+  cron?: Maybe<Scalars['String']['output']>
+  /** the description of the job */
+  description?: Maybe<Scalars['String']['output']>
+  /** a shortened prefixed id field to use as a human readable identifier */
+  displayID: Scalars['String']['output']
+  id: Scalars['ID']['output']
+  /** the type of this job */
+  jobType: ScheduledJobJobType
+  owner?: Maybe<Organization>
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['ID']['output']>
+  /** the script to run */
+  script?: Maybe<Scalars['String']['output']>
+  /** indicates if the record is owned by the the openlane system and not by an organization */
+  systemOwned?: Maybe<Scalars['Boolean']['output']>
+  /** tags associated with the object */
+  tags?: Maybe<Array<Scalars['String']['output']>>
+  /** the title of the job */
+  title: Scalars['String']['output']
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+}
+
+/** Return response for createBulkScheduledJob mutation */
+export interface ScheduledJobBulkCreatePayload {
+  __typename?: 'ScheduledJobBulkCreatePayload'
+  /** Created scheduledJobs */
+  scheduledJobs?: Maybe<Array<ScheduledJob>>
+}
+
+/** A connection to a list of items. */
+export interface ScheduledJobConnection {
+  __typename?: 'ScheduledJobConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<ScheduledJobEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** Return response for createScheduledJob mutation */
+export interface ScheduledJobCreatePayload {
+  __typename?: 'ScheduledJobCreatePayload'
+  /** Created scheduledJob */
+  scheduledJob: ScheduledJob
+}
+
+/** Return response for deleteScheduledJob mutation */
+export interface ScheduledJobDeletePayload {
+  __typename?: 'ScheduledJobDeletePayload'
+  /** Deleted scheduledJob ID */
+  deletedID: Scalars['ID']['output']
+}
+
+/** An edge in a connection. */
+export interface ScheduledJobEdge {
+  __typename?: 'ScheduledJobEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<ScheduledJob>
+}
+
+export interface ScheduledJobHistory extends Node {
+  __typename?: 'ScheduledJobHistory'
+  /** the schedule to run this job */
+  cadence?: Maybe<Scalars['JobCadence']['output']>
+  /** the configuration to run this job */
+  configuration: Scalars['JobConfiguration']['output']
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  /** cron syntax */
+  cron?: Maybe<Scalars['String']['output']>
+  /** the description of the job */
+  description?: Maybe<Scalars['String']['output']>
+  /** a shortened prefixed id field to use as a human readable identifier */
+  displayID: Scalars['String']['output']
+  historyTime: Scalars['Time']['output']
+  id: Scalars['ID']['output']
+  /** the type of this job */
+  jobType: ScheduledJobHistoryJobType
+  operation: ScheduledJobHistoryOpType
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['String']['output']>
+  ref?: Maybe<Scalars['String']['output']>
+  /** the script to run */
+  script?: Maybe<Scalars['String']['output']>
+  /** indicates if the record is owned by the the openlane system and not by an organization */
+  systemOwned?: Maybe<Scalars['Boolean']['output']>
+  /** tags associated with the object */
+  tags?: Maybe<Array<Scalars['String']['output']>>
+  /** the title of the job */
+  title: Scalars['String']['output']
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+}
+
+/** A connection to a list of items. */
+export interface ScheduledJobHistoryConnection {
+  __typename?: 'ScheduledJobHistoryConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<ScheduledJobHistoryEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** An edge in a connection. */
+export interface ScheduledJobHistoryEdge {
+  __typename?: 'ScheduledJobHistoryEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<ScheduledJobHistory>
+}
+
+/** ScheduledJobHistoryJobType is enum for the field job_type */
+export enum ScheduledJobHistoryJobType {
+  SSL = 'SSL',
+}
+
+/** ScheduledJobHistoryOpType is enum for the field operation */
+export enum ScheduledJobHistoryOpType {
+  DELETE = 'DELETE',
+  INSERT = 'INSERT',
+  UPDATE = 'UPDATE',
+}
+
+/** Ordering options for ScheduledJobHistory connections */
+export interface ScheduledJobHistoryOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order ScheduledJobHistories. */
+  field: ScheduledJobHistoryOrderField
+}
+
+/** Properties by which ScheduledJobHistory connections can be ordered. */
+export enum ScheduledJobHistoryOrderField {
+  JOB_TYPE = 'JOB_TYPE',
+  created_at = 'created_at',
+  history_time = 'history_time',
+  title = 'title',
+  updated_at = 'updated_at',
+}
+
+/**
+ * ScheduledJobHistoryWhereInput is used for filtering ScheduledJobHistory objects.
+ * Input was generated by ent.
+ */
+export interface ScheduledJobHistoryWhereInput {
+  and?: InputMaybe<Array<ScheduledJobHistoryWhereInput>>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** description field predicates */
+  description?: InputMaybe<Scalars['String']['input']>
+  descriptionContains?: InputMaybe<Scalars['String']['input']>
+  descriptionContainsFold?: InputMaybe<Scalars['String']['input']>
+  descriptionEqualFold?: InputMaybe<Scalars['String']['input']>
+  descriptionGT?: InputMaybe<Scalars['String']['input']>
+  descriptionGTE?: InputMaybe<Scalars['String']['input']>
+  descriptionHasPrefix?: InputMaybe<Scalars['String']['input']>
+  descriptionHasSuffix?: InputMaybe<Scalars['String']['input']>
+  descriptionIn?: InputMaybe<Array<Scalars['String']['input']>>
+  descriptionIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  descriptionLT?: InputMaybe<Scalars['String']['input']>
+  descriptionLTE?: InputMaybe<Scalars['String']['input']>
+  descriptionNEQ?: InputMaybe<Scalars['String']['input']>
+  descriptionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  descriptionNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** display_id field predicates */
+  displayID?: InputMaybe<Scalars['String']['input']>
+  displayIDContains?: InputMaybe<Scalars['String']['input']>
+  displayIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  displayIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  displayIDGT?: InputMaybe<Scalars['String']['input']>
+  displayIDGTE?: InputMaybe<Scalars['String']['input']>
+  displayIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  displayIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  displayIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  displayIDLT?: InputMaybe<Scalars['String']['input']>
+  displayIDLTE?: InputMaybe<Scalars['String']['input']>
+  displayIDNEQ?: InputMaybe<Scalars['String']['input']>
+  displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** history_time field predicates */
+  historyTime?: InputMaybe<Scalars['Time']['input']>
+  historyTimeGT?: InputMaybe<Scalars['Time']['input']>
+  historyTimeGTE?: InputMaybe<Scalars['Time']['input']>
+  historyTimeIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  historyTimeLT?: InputMaybe<Scalars['Time']['input']>
+  historyTimeLTE?: InputMaybe<Scalars['Time']['input']>
+  historyTimeNEQ?: InputMaybe<Scalars['Time']['input']>
+  historyTimeNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** job_type field predicates */
+  jobType?: InputMaybe<ScheduledJobHistoryJobType>
+  jobTypeIn?: InputMaybe<Array<ScheduledJobHistoryJobType>>
+  jobTypeNEQ?: InputMaybe<ScheduledJobHistoryJobType>
+  jobTypeNotIn?: InputMaybe<Array<ScheduledJobHistoryJobType>>
+  not?: InputMaybe<ScheduledJobHistoryWhereInput>
+  /** operation field predicates */
+  operation?: InputMaybe<ScheduledJobHistoryOpType>
+  operationIn?: InputMaybe<Array<ScheduledJobHistoryOpType>>
+  operationNEQ?: InputMaybe<ScheduledJobHistoryOpType>
+  operationNotIn?: InputMaybe<Array<ScheduledJobHistoryOpType>>
+  or?: InputMaybe<Array<ScheduledJobHistoryWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['String']['input']>
+  ownerIDContains?: InputMaybe<Scalars['String']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  ownerIDGT?: InputMaybe<Scalars['String']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['String']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['String']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['String']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** ref field predicates */
+  ref?: InputMaybe<Scalars['String']['input']>
+  refContains?: InputMaybe<Scalars['String']['input']>
+  refContainsFold?: InputMaybe<Scalars['String']['input']>
+  refEqualFold?: InputMaybe<Scalars['String']['input']>
+  refGT?: InputMaybe<Scalars['String']['input']>
+  refGTE?: InputMaybe<Scalars['String']['input']>
+  refHasPrefix?: InputMaybe<Scalars['String']['input']>
+  refHasSuffix?: InputMaybe<Scalars['String']['input']>
+  refIn?: InputMaybe<Array<Scalars['String']['input']>>
+  refIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  refLT?: InputMaybe<Scalars['String']['input']>
+  refLTE?: InputMaybe<Scalars['String']['input']>
+  refNEQ?: InputMaybe<Scalars['String']['input']>
+  refNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  refNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** system_owned field predicates */
+  systemOwned?: InputMaybe<Scalars['Boolean']['input']>
+  systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** title field predicates */
+  title?: InputMaybe<Scalars['String']['input']>
+  titleContains?: InputMaybe<Scalars['String']['input']>
+  titleContainsFold?: InputMaybe<Scalars['String']['input']>
+  titleEqualFold?: InputMaybe<Scalars['String']['input']>
+  titleGT?: InputMaybe<Scalars['String']['input']>
+  titleGTE?: InputMaybe<Scalars['String']['input']>
+  titleHasPrefix?: InputMaybe<Scalars['String']['input']>
+  titleHasSuffix?: InputMaybe<Scalars['String']['input']>
+  titleIn?: InputMaybe<Array<Scalars['String']['input']>>
+  titleLT?: InputMaybe<Scalars['String']['input']>
+  titleLTE?: InputMaybe<Scalars['String']['input']>
+  titleNEQ?: InputMaybe<Scalars['String']['input']>
+  titleNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+/** ScheduledJobJobType is enum for the field job_type */
+export enum ScheduledJobJobType {
+  SSL = 'SSL',
+}
+
+/** Ordering options for ScheduledJob connections */
+export interface ScheduledJobOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order ScheduledJobs. */
+  field: ScheduledJobOrderField
+}
+
+/** Properties by which ScheduledJob connections can be ordered. */
+export enum ScheduledJobOrderField {
+  JOB_TYPE = 'JOB_TYPE',
+  created_at = 'created_at',
+  title = 'title',
+  updated_at = 'updated_at',
+}
+
+export interface ScheduledJobRun extends Node {
+  __typename?: 'ScheduledJobRun'
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  /** When should this job execute on the agent. Since we might potentially schedule a few minutes before */
+  expectedExecutionTime: Scalars['Time']['output']
+  id: Scalars['ID']['output']
+  jobRunner: JobRunner
+  /** The runner that this job will be executed on. Useful to know because of self hosted runners */
+  jobRunnerID: Scalars['ID']['output']
+  owner?: Maybe<Organization>
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['ID']['output']>
+  scheduledJob: ControlScheduledJob
+  /** the parent job for this run */
+  scheduledJobID: Scalars['ID']['output']
+  /**
+   * the script that will be executed by the agent.
+   * This script will be templated with the values from the configuration on the job
+   */
+  script: Scalars['String']['output']
+  /**
+   * The status of the job to be executed. By default will be pending but when
+   * 			scheduled on a runner, this will change to acquired.
+   */
+  status: ScheduledJobRunScheduledJobRunStatus
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+}
+
+/** A connection to a list of items. */
+export interface ScheduledJobRunConnection {
+  __typename?: 'ScheduledJobRunConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<ScheduledJobRunEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** An edge in a connection. */
+export interface ScheduledJobRunEdge {
+  __typename?: 'ScheduledJobRunEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<ScheduledJobRun>
+}
+
+/** Ordering options for ScheduledJobRun connections */
+export interface ScheduledJobRunOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order ScheduledJobRuns. */
+  field: ScheduledJobRunOrderField
+}
+
+/** Properties by which ScheduledJobRun connections can be ordered. */
+export enum ScheduledJobRunOrderField {
+  created_at = 'created_at',
+  updated_at = 'updated_at',
+}
+
+/** ScheduledJobRunScheduledJobRunStatus is enum for the field status */
+export enum ScheduledJobRunScheduledJobRunStatus {
+  ACQUIRED = 'ACQUIRED',
+  PENDING = 'PENDING',
+}
+
+/**
+ * ScheduledJobRunWhereInput is used for filtering ScheduledJobRun objects.
+ * Input was generated by ent.
+ */
+export interface ScheduledJobRunWhereInput {
+  and?: InputMaybe<Array<ScheduledJobRunWhereInput>>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** expected_execution_time field predicates */
+  expectedExecutionTime?: InputMaybe<Scalars['Time']['input']>
+  expectedExecutionTimeGT?: InputMaybe<Scalars['Time']['input']>
+  expectedExecutionTimeGTE?: InputMaybe<Scalars['Time']['input']>
+  expectedExecutionTimeIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  expectedExecutionTimeLT?: InputMaybe<Scalars['Time']['input']>
+  expectedExecutionTimeLTE?: InputMaybe<Scalars['Time']['input']>
+  expectedExecutionTimeNEQ?: InputMaybe<Scalars['Time']['input']>
+  expectedExecutionTimeNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  /** job_runner edge predicates */
+  hasJobRunner?: InputMaybe<Scalars['Boolean']['input']>
+  hasJobRunnerWith?: InputMaybe<Array<JobRunnerWhereInput>>
+  /** owner edge predicates */
+  hasOwner?: InputMaybe<Scalars['Boolean']['input']>
+  hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** scheduled_job edge predicates */
+  hasScheduledJob?: InputMaybe<Scalars['Boolean']['input']>
+  hasScheduledJobWith?: InputMaybe<Array<ControlScheduledJobWhereInput>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** job_runner_id field predicates */
+  jobRunnerID?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDContains?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDGT?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDGTE?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  jobRunnerIDLT?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDLTE?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  not?: InputMaybe<ScheduledJobRunWhereInput>
+  or?: InputMaybe<Array<ScheduledJobRunWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContains?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** scheduled_job_id field predicates */
+  scheduledJobID?: InputMaybe<Scalars['ID']['input']>
+  scheduledJobIDContains?: InputMaybe<Scalars['ID']['input']>
+  scheduledJobIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  scheduledJobIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  scheduledJobIDGT?: InputMaybe<Scalars['ID']['input']>
+  scheduledJobIDGTE?: InputMaybe<Scalars['ID']['input']>
+  scheduledJobIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  scheduledJobIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  scheduledJobIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  scheduledJobIDLT?: InputMaybe<Scalars['ID']['input']>
+  scheduledJobIDLTE?: InputMaybe<Scalars['ID']['input']>
+  scheduledJobIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  scheduledJobIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** script field predicates */
+  script?: InputMaybe<Scalars['String']['input']>
+  scriptContains?: InputMaybe<Scalars['String']['input']>
+  scriptContainsFold?: InputMaybe<Scalars['String']['input']>
+  scriptEqualFold?: InputMaybe<Scalars['String']['input']>
+  scriptGT?: InputMaybe<Scalars['String']['input']>
+  scriptGTE?: InputMaybe<Scalars['String']['input']>
+  scriptHasPrefix?: InputMaybe<Scalars['String']['input']>
+  scriptHasSuffix?: InputMaybe<Scalars['String']['input']>
+  scriptIn?: InputMaybe<Array<Scalars['String']['input']>>
+  scriptLT?: InputMaybe<Scalars['String']['input']>
+  scriptLTE?: InputMaybe<Scalars['String']['input']>
+  scriptNEQ?: InputMaybe<Scalars['String']['input']>
+  scriptNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** status field predicates */
+  status?: InputMaybe<ScheduledJobRunScheduledJobRunStatus>
+  statusIn?: InputMaybe<Array<ScheduledJobRunScheduledJobRunStatus>>
+  statusNEQ?: InputMaybe<ScheduledJobRunScheduledJobRunStatus>
+  statusNotIn?: InputMaybe<Array<ScheduledJobRunScheduledJobRunStatus>>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+/** Return response for updateScheduledJob mutation */
+export interface ScheduledJobUpdatePayload {
+  __typename?: 'ScheduledJobUpdatePayload'
+  /** Updated scheduledJob */
+  scheduledJob: ScheduledJob
+}
+
+/**
+ * ScheduledJobWhereInput is used for filtering ScheduledJob objects.
+ * Input was generated by ent.
+ */
+export interface ScheduledJobWhereInput {
+  and?: InputMaybe<Array<ScheduledJobWhereInput>>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** description field predicates */
+  description?: InputMaybe<Scalars['String']['input']>
+  descriptionContains?: InputMaybe<Scalars['String']['input']>
+  descriptionContainsFold?: InputMaybe<Scalars['String']['input']>
+  descriptionEqualFold?: InputMaybe<Scalars['String']['input']>
+  descriptionGT?: InputMaybe<Scalars['String']['input']>
+  descriptionGTE?: InputMaybe<Scalars['String']['input']>
+  descriptionHasPrefix?: InputMaybe<Scalars['String']['input']>
+  descriptionHasSuffix?: InputMaybe<Scalars['String']['input']>
+  descriptionIn?: InputMaybe<Array<Scalars['String']['input']>>
+  descriptionIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  descriptionLT?: InputMaybe<Scalars['String']['input']>
+  descriptionLTE?: InputMaybe<Scalars['String']['input']>
+  descriptionNEQ?: InputMaybe<Scalars['String']['input']>
+  descriptionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  descriptionNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** display_id field predicates */
+  displayID?: InputMaybe<Scalars['String']['input']>
+  displayIDContains?: InputMaybe<Scalars['String']['input']>
+  displayIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  displayIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  displayIDGT?: InputMaybe<Scalars['String']['input']>
+  displayIDGTE?: InputMaybe<Scalars['String']['input']>
+  displayIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  displayIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  displayIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  displayIDLT?: InputMaybe<Scalars['String']['input']>
+  displayIDLTE?: InputMaybe<Scalars['String']['input']>
+  displayIDNEQ?: InputMaybe<Scalars['String']['input']>
+  displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** owner edge predicates */
+  hasOwner?: InputMaybe<Scalars['Boolean']['input']>
+  hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** job_type field predicates */
+  jobType?: InputMaybe<ScheduledJobJobType>
+  jobTypeIn?: InputMaybe<Array<ScheduledJobJobType>>
+  jobTypeNEQ?: InputMaybe<ScheduledJobJobType>
+  jobTypeNotIn?: InputMaybe<Array<ScheduledJobJobType>>
+  not?: InputMaybe<ScheduledJobWhereInput>
+  or?: InputMaybe<Array<ScheduledJobWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContains?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** system_owned field predicates */
+  systemOwned?: InputMaybe<Scalars['Boolean']['input']>
+  systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** title field predicates */
+  title?: InputMaybe<Scalars['String']['input']>
+  titleContains?: InputMaybe<Scalars['String']['input']>
+  titleContainsFold?: InputMaybe<Scalars['String']['input']>
+  titleEqualFold?: InputMaybe<Scalars['String']['input']>
+  titleGT?: InputMaybe<Scalars['String']['input']>
+  titleGTE?: InputMaybe<Scalars['String']['input']>
+  titleHasPrefix?: InputMaybe<Scalars['String']['input']>
+  titleHasSuffix?: InputMaybe<Scalars['String']['input']>
+  titleIn?: InputMaybe<Array<Scalars['String']['input']>>
+  titleLT?: InputMaybe<Scalars['String']['input']>
+  titleLTE?: InputMaybe<Scalars['String']['input']>
+  titleNEQ?: InputMaybe<Scalars['String']['input']>
+  titleNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
 export interface SearchResults {
   __typename?: 'SearchResults'
   actionPlans?: Maybe<ActionPlanConnection>
   apiTokens?: Maybe<ApiTokenConnection>
+  assets?: Maybe<AssetConnection>
   contacts?: Maybe<ContactConnection>
   controlImplementations?: Maybe<ControlImplementationConnection>
   controlObjectives?: Maybe<ControlObjectiveConnection>
   controls?: Maybe<ControlConnection>
+  customDomains?: Maybe<CustomDomainConnection>
+  dnsVerifications?: Maybe<DnsVerificationConnection>
   documentData?: Maybe<DocumentDataConnection>
   entities?: Maybe<EntityConnection>
   entityTypes?: Maybe<EntityTypeConnection>
@@ -24182,6 +29801,10 @@ export interface SearchResults {
   integrations?: Maybe<IntegrationConnection>
   internalPolicies?: Maybe<InternalPolicyConnection>
   invites?: Maybe<InviteConnection>
+  jobRunnerRegistrationTokens?: Maybe<JobRunnerRegistrationTokenConnection>
+  jobRunnerTokens?: Maybe<JobRunnerTokenConnection>
+  jobRunners?: Maybe<JobRunnerConnection>
+  mappableDomains?: Maybe<MappableDomainConnection>
   mappedControls?: Maybe<MappedControlConnection>
   narratives?: Maybe<NarrativeConnection>
   orgSubscriptions?: Maybe<OrgSubscriptionConnection>
@@ -24193,6 +29816,8 @@ export interface SearchResults {
   procedures?: Maybe<ProcedureConnection>
   programs?: Maybe<ProgramConnection>
   risks?: Maybe<RiskConnection>
+  scans?: Maybe<ScanConnection>
+  scheduledJobs?: Maybe<ScheduledJobConnection>
   standards?: Maybe<StandardConnection>
   subcontrols?: Maybe<SubcontrolConnection>
   subscribers?: Maybe<SubscriberConnection>
@@ -24200,6 +29825,7 @@ export interface SearchResults {
   templates?: Maybe<TemplateConnection>
   /** Identifies the total count of items in the connection. */
   totalCount: Scalars['Int']['output']
+  trustCenters?: Maybe<TrustCenterConnection>
   userSettings?: Maybe<UserSettingConnection>
   users?: Maybe<UserConnection>
   webauthns?: Maybe<WebauthnConnection>
@@ -24210,8 +29836,6 @@ export interface Standard extends Node {
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** long description of the standard with details of what is covered */
   description?: Maybe<Scalars['String']['output']>
   /** domains the standard covers, e.g. availability, confidentiality, etc. */
@@ -24306,8 +29930,6 @@ export interface StandardHistory extends Node {
   __typename?: 'StandardHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** long description of the standard with details of what is covered */
   description?: Maybe<Scalars['String']['output']>
   /** domains the standard covers, e.g. availability, confidentiality, etc. */
@@ -24391,6 +30013,7 @@ export enum StandardHistoryOrderField {
   created_at = 'created_at',
   framework = 'framework',
   governing_body = 'governing_body',
+  history_time = 'history_time',
   name = 'name',
   revision = 'revision',
   short_name = 'short_name',
@@ -24438,33 +30061,6 @@ export interface StandardHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -24801,33 +30397,6 @@ export interface StandardWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -25104,8 +30673,6 @@ export interface Subcontrol extends Node {
   delegate?: Maybe<Group>
   /** the id of the group that is temporarily delegated to own the control */
   delegateID?: Maybe<Scalars['ID']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** description of what the control is supposed to accomplish */
   description?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -25119,7 +30686,6 @@ export interface Subcontrol extends Node {
   internalPolicies: InternalPolicyConnection
   /** mapped categories of the control to other standards */
   mappedCategories?: Maybe<Array<Scalars['String']['output']>>
-  mappedControls: MappedControlConnection
   narratives: NarrativeConnection
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
@@ -25127,11 +30693,14 @@ export interface Subcontrol extends Node {
   procedures: ProcedureConnection
   /** the unique reference code for the control */
   refCode: Scalars['String']['output']
+  /** the reference framework for the control if it came from a standard, empty if not associated with a standard */
+  referenceFramework?: Maybe<Scalars['String']['output']>
   /** internal reference id of the control, can be used for internal tracking */
   referenceID?: Maybe<Scalars['String']['output']>
   /** references for the control */
   references?: Maybe<Array<Scalars['Reference']['output']>>
   risks: RiskConnection
+  scheduledJobs: ControlScheduledJobConnection
   /** source of the control, e.g. framework, template, custom, etc. */
   source?: Maybe<SubcontrolControlSource>
   /** status of the control */
@@ -25190,15 +30759,6 @@ export interface SubcontrolInternalPoliciesArgs {
   where?: InputMaybe<InternalPolicyWhereInput>
 }
 
-export interface SubcontrolMappedControlsArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<MappedControlOrder>>
-  where?: InputMaybe<MappedControlWhereInput>
-}
-
 export interface SubcontrolNarrativesArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -25224,6 +30784,15 @@ export interface SubcontrolRisksArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<RiskOrder>>
   where?: InputMaybe<RiskWhereInput>
+}
+
+export interface SubcontrolScheduledJobsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlScheduledJobOrder>>
+  where?: InputMaybe<ControlScheduledJobWhereInput>
 }
 
 export interface SubcontrolTasksArgs {
@@ -25267,7 +30836,7 @@ export enum SubcontrolControlStatus {
   ARCHIVED = 'ARCHIVED',
   CHANGES_REQUESTED = 'CHANGES_REQUESTED',
   NEEDS_APPROVAL = 'NEEDS_APPROVAL',
-  NULL = 'NULL',
+  NOT_IMPLEMENTED = 'NOT_IMPLEMENTED',
   PREPARING = 'PREPARING',
 }
 
@@ -25326,8 +30895,6 @@ export interface SubcontrolHistory extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** the id of the group that is temporarily delegated to own the control */
   delegateID?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** description of what the control is supposed to accomplish */
   description?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -25346,6 +30913,8 @@ export interface SubcontrolHistory extends Node {
   ref?: Maybe<Scalars['String']['output']>
   /** the unique reference code for the control */
   refCode: Scalars['String']['output']
+  /** the reference framework for the control if it came from a standard, empty if not associated with a standard */
+  referenceFramework?: Maybe<Scalars['String']['output']>
   /** internal reference id of the control, can be used for internal tracking */
   referenceID?: Maybe<Scalars['String']['output']>
   /** references for the control */
@@ -25387,7 +30956,7 @@ export enum SubcontrolHistoryControlStatus {
   ARCHIVED = 'ARCHIVED',
   CHANGES_REQUESTED = 'CHANGES_REQUESTED',
   NEEDS_APPROVAL = 'NEEDS_APPROVAL',
-  NULL = 'NULL',
+  NOT_IMPLEMENTED = 'NOT_IMPLEMENTED',
   PREPARING = 'PREPARING',
 }
 
@@ -25426,10 +30995,12 @@ export interface SubcontrolHistoryOrder {
 /** Properties by which SubcontrolHistory connections can be ordered. */
 export enum SubcontrolHistoryOrderField {
   CONTROL_TYPE = 'CONTROL_TYPE',
+  REFERENCE_FRAMEWORK = 'REFERENCE_FRAMEWORK',
   SOURCE = 'SOURCE',
   STATUS = 'STATUS',
   category = 'category',
   created_at = 'created_at',
+  history_time = 'history_time',
   ref_code = 'ref_code',
   subcategory = 'subcategory',
   updated_at = 'updated_at',
@@ -25569,33 +31140,6 @@ export interface SubcontrolHistoryWhereInput {
   delegateIDNEQ?: InputMaybe<Scalars['String']['input']>
   delegateIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   delegateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -25699,6 +31243,22 @@ export interface SubcontrolHistoryWhereInput {
   refNEQ?: InputMaybe<Scalars['String']['input']>
   refNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   refNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** reference_framework field predicates */
+  referenceFramework?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkContains?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkContainsFold?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkEqualFold?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkGT?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkGTE?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkHasPrefix?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkHasSuffix?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceFrameworkIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  referenceFrameworkLT?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkLTE?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkNEQ?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceFrameworkNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** reference_id field predicates */
   referenceID?: InputMaybe<Scalars['String']['input']>
   referenceIDContains?: InputMaybe<Scalars['String']['input']>
@@ -25784,7 +31344,9 @@ export interface SubcontrolOrder {
 
 /** Properties by which Subcontrol connections can be ordered. */
 export enum SubcontrolOrderField {
+  CONTROL_OWNER_name = 'CONTROL_OWNER_name',
   CONTROL_TYPE = 'CONTROL_TYPE',
+  REFERENCE_FRAMEWORK = 'REFERENCE_FRAMEWORK',
   SOURCE = 'SOURCE',
   STATUS = 'STATUS',
   category = 'category',
@@ -25935,33 +31497,6 @@ export interface SubcontrolWhereInput {
   delegateIDNEQ?: InputMaybe<Scalars['ID']['input']>
   delegateIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   delegateIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -26016,9 +31551,6 @@ export interface SubcontrolWhereInput {
   /** internal_policies edge predicates */
   hasInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalPoliciesWith?: InputMaybe<Array<InternalPolicyWhereInput>>
-  /** mapped_controls edge predicates */
-  hasMappedControls?: InputMaybe<Scalars['Boolean']['input']>
-  hasMappedControlsWith?: InputMaybe<Array<MappedControlWhereInput>>
   /** narratives edge predicates */
   hasNarratives?: InputMaybe<Scalars['Boolean']['input']>
   hasNarrativesWith?: InputMaybe<Array<NarrativeWhereInput>>
@@ -26031,6 +31563,9 @@ export interface SubcontrolWhereInput {
   /** risks edge predicates */
   hasRisks?: InputMaybe<Scalars['Boolean']['input']>
   hasRisksWith?: InputMaybe<Array<RiskWhereInput>>
+  /** scheduled_jobs edge predicates */
+  hasScheduledJobs?: InputMaybe<Scalars['Boolean']['input']>
+  hasScheduledJobsWith?: InputMaybe<Array<ControlScheduledJobWhereInput>>
   /** tasks edge predicates */
   hasTasks?: InputMaybe<Scalars['Boolean']['input']>
   hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
@@ -26077,6 +31612,22 @@ export interface SubcontrolWhereInput {
   refCodeLTE?: InputMaybe<Scalars['String']['input']>
   refCodeNEQ?: InputMaybe<Scalars['String']['input']>
   refCodeNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** reference_framework field predicates */
+  referenceFramework?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkContains?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkContainsFold?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkEqualFold?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkGT?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkGTE?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkHasPrefix?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkHasSuffix?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceFrameworkIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  referenceFrameworkLT?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkLTE?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkNEQ?: InputMaybe<Scalars['String']['input']>
+  referenceFrameworkNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  referenceFrameworkNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** reference_id field predicates */
   referenceID?: InputMaybe<Scalars['String']['input']>
   referenceIDContains?: InputMaybe<Scalars['String']['input']>
@@ -26158,8 +31709,6 @@ export interface Subscriber extends Node {
   active: Scalars['Boolean']['output']
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** email address of the subscriber */
   email: Scalars['String']['output']
   events: EventConnection
@@ -26294,33 +31843,6 @@ export interface SubscriberWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** email field predicates */
   email?: InputMaybe<Scalars['String']['input']>
   emailContains?: InputMaybe<Scalars['String']['input']>
@@ -26437,8 +31959,6 @@ export interface TfaSetting extends Node {
   __typename?: 'TFASetting'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
   owner?: Maybe<User>
   /** specifies a user may complete authentication by verifying a TOTP code delivered through an authenticator app */
@@ -26535,33 +32055,6 @@ export interface TfaSettingWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<UserWhereInput>>
@@ -26632,8 +32125,6 @@ export interface Task extends Node {
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the details of the task */
   details?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -26649,6 +32140,7 @@ export interface Task extends Node {
   ownerID?: Maybe<Scalars['ID']['output']>
   procedures: ProcedureConnection
   programs: ProgramConnection
+  risks: RiskConnection
   /** the status of the task */
   status: TaskTaskStatus
   subcontrols: SubcontrolConnection
@@ -26732,6 +32224,15 @@ export interface TaskProgramsArgs {
   where?: InputMaybe<ProgramWhereInput>
 }
 
+export interface TaskRisksArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<RiskOrder>>
+  where?: InputMaybe<RiskWhereInput>
+}
+
 export interface TaskSubcontrolsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -26794,8 +32295,6 @@ export interface TaskHistory extends Node {
   completed?: Maybe<Scalars['DateTime']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the details of the task */
   details?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -26860,6 +32359,7 @@ export enum TaskHistoryOrderField {
   completed = 'completed',
   created_at = 'created_at',
   due = 'due',
+  history_time = 'history_time',
   title = 'title',
   updated_at = 'updated_at',
 }
@@ -26965,33 +32465,6 @@ export interface TaskHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** details field predicates */
   details?: InputMaybe<Scalars['String']['input']>
   detailsContains?: InputMaybe<Scalars['String']['input']>
@@ -27267,33 +32740,6 @@ export interface TaskWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** details field predicates */
   details?: InputMaybe<Scalars['String']['input']>
   detailsContains?: InputMaybe<Scalars['String']['input']>
@@ -27368,6 +32814,9 @@ export interface TaskWhereInput {
   /** programs edge predicates */
   hasPrograms?: InputMaybe<Scalars['Boolean']['input']>
   hasProgramsWith?: InputMaybe<Array<ProgramWhereInput>>
+  /** risks edge predicates */
+  hasRisks?: InputMaybe<Scalars['Boolean']['input']>
+  hasRisksWith?: InputMaybe<Array<RiskWhereInput>>
   /** subcontrols edge predicates */
   hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
@@ -27452,8 +32901,6 @@ export interface Template extends Node {
   __typename?: 'Template'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the description of the template */
   description?: Maybe<Scalars['String']['output']>
   documents: DocumentDataConnection
@@ -27545,8 +32992,6 @@ export interface TemplateHistory extends Node {
   __typename?: 'TemplateHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** the description of the template */
   description?: Maybe<Scalars['String']['output']>
   historyTime: Scalars['Time']['output']
@@ -27614,6 +33059,7 @@ export interface TemplateHistoryOrder {
 export enum TemplateHistoryOrderField {
   TEMPLATE_TYPE = 'TEMPLATE_TYPE',
   created_at = 'created_at',
+  history_time = 'history_time',
   name = 'name',
   updated_at = 'updated_at',
 }
@@ -27651,33 +33097,6 @@ export interface TemplateHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -27857,33 +33276,6 @@ export interface TemplateWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -27986,6 +33378,881 @@ export interface TemplateWhereInput {
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+export interface TrustCenter extends Node {
+  __typename?: 'TrustCenter'
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  customDomain?: Maybe<CustomDomain>
+  /** custom domain id for the trust center */
+  customDomainID?: Maybe<Scalars['ID']['output']>
+  id: Scalars['ID']['output']
+  owner?: Maybe<Organization>
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['ID']['output']>
+  setting?: Maybe<TrustCenterSetting>
+  /** Slug for the trust center */
+  slug?: Maybe<Scalars['String']['output']>
+  /** tags associated with the object */
+  tags?: Maybe<Array<Scalars['String']['output']>>
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+}
+
+/** A connection to a list of items. */
+export interface TrustCenterConnection {
+  __typename?: 'TrustCenterConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<TrustCenterEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** Return response for createTrustCenter mutation */
+export interface TrustCenterCreatePayload {
+  __typename?: 'TrustCenterCreatePayload'
+  /** Created trustCenter */
+  trustCenter: TrustCenter
+}
+
+/** Return response for deleteTrustCenter mutation */
+export interface TrustCenterDeletePayload {
+  __typename?: 'TrustCenterDeletePayload'
+  /** Deleted trustCenter ID */
+  deletedID: Scalars['ID']['output']
+}
+
+/** An edge in a connection. */
+export interface TrustCenterEdge {
+  __typename?: 'TrustCenterEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<TrustCenter>
+}
+
+export interface TrustCenterHistory extends Node {
+  __typename?: 'TrustCenterHistory'
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  /** custom domain id for the trust center */
+  customDomainID?: Maybe<Scalars['String']['output']>
+  historyTime: Scalars['Time']['output']
+  id: Scalars['ID']['output']
+  operation: TrustCenterHistoryOpType
+  /** the organization id that owns the object */
+  ownerID?: Maybe<Scalars['String']['output']>
+  ref?: Maybe<Scalars['String']['output']>
+  /** Slug for the trust center */
+  slug?: Maybe<Scalars['String']['output']>
+  /** tags associated with the object */
+  tags?: Maybe<Array<Scalars['String']['output']>>
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+}
+
+/** A connection to a list of items. */
+export interface TrustCenterHistoryConnection {
+  __typename?: 'TrustCenterHistoryConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<TrustCenterHistoryEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** An edge in a connection. */
+export interface TrustCenterHistoryEdge {
+  __typename?: 'TrustCenterHistoryEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<TrustCenterHistory>
+}
+
+/** TrustCenterHistoryOpType is enum for the field operation */
+export enum TrustCenterHistoryOpType {
+  DELETE = 'DELETE',
+  INSERT = 'INSERT',
+  UPDATE = 'UPDATE',
+}
+
+/** Ordering options for TrustCenterHistory connections */
+export interface TrustCenterHistoryOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order TrustCenterHistories. */
+  field: TrustCenterHistoryOrderField
+}
+
+/** Properties by which TrustCenterHistory connections can be ordered. */
+export enum TrustCenterHistoryOrderField {
+  created_at = 'created_at',
+  history_time = 'history_time',
+  updated_at = 'updated_at',
+}
+
+/**
+ * TrustCenterHistoryWhereInput is used for filtering TrustCenterHistory objects.
+ * Input was generated by ent.
+ */
+export interface TrustCenterHistoryWhereInput {
+  and?: InputMaybe<Array<TrustCenterHistoryWhereInput>>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** custom_domain_id field predicates */
+  customDomainID?: InputMaybe<Scalars['String']['input']>
+  customDomainIDContains?: InputMaybe<Scalars['String']['input']>
+  customDomainIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  customDomainIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  customDomainIDGT?: InputMaybe<Scalars['String']['input']>
+  customDomainIDGTE?: InputMaybe<Scalars['String']['input']>
+  customDomainIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  customDomainIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  customDomainIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  customDomainIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  customDomainIDLT?: InputMaybe<Scalars['String']['input']>
+  customDomainIDLTE?: InputMaybe<Scalars['String']['input']>
+  customDomainIDNEQ?: InputMaybe<Scalars['String']['input']>
+  customDomainIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  customDomainIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** history_time field predicates */
+  historyTime?: InputMaybe<Scalars['Time']['input']>
+  historyTimeGT?: InputMaybe<Scalars['Time']['input']>
+  historyTimeGTE?: InputMaybe<Scalars['Time']['input']>
+  historyTimeIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  historyTimeLT?: InputMaybe<Scalars['Time']['input']>
+  historyTimeLTE?: InputMaybe<Scalars['Time']['input']>
+  historyTimeNEQ?: InputMaybe<Scalars['Time']['input']>
+  historyTimeNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  not?: InputMaybe<TrustCenterHistoryWhereInput>
+  /** operation field predicates */
+  operation?: InputMaybe<TrustCenterHistoryOpType>
+  operationIn?: InputMaybe<Array<TrustCenterHistoryOpType>>
+  operationNEQ?: InputMaybe<TrustCenterHistoryOpType>
+  operationNotIn?: InputMaybe<Array<TrustCenterHistoryOpType>>
+  or?: InputMaybe<Array<TrustCenterHistoryWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['String']['input']>
+  ownerIDContains?: InputMaybe<Scalars['String']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  ownerIDGT?: InputMaybe<Scalars['String']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['String']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['String']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['String']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['String']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** ref field predicates */
+  ref?: InputMaybe<Scalars['String']['input']>
+  refContains?: InputMaybe<Scalars['String']['input']>
+  refContainsFold?: InputMaybe<Scalars['String']['input']>
+  refEqualFold?: InputMaybe<Scalars['String']['input']>
+  refGT?: InputMaybe<Scalars['String']['input']>
+  refGTE?: InputMaybe<Scalars['String']['input']>
+  refHasPrefix?: InputMaybe<Scalars['String']['input']>
+  refHasSuffix?: InputMaybe<Scalars['String']['input']>
+  refIn?: InputMaybe<Array<Scalars['String']['input']>>
+  refIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  refLT?: InputMaybe<Scalars['String']['input']>
+  refLTE?: InputMaybe<Scalars['String']['input']>
+  refNEQ?: InputMaybe<Scalars['String']['input']>
+  refNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  refNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** slug field predicates */
+  slug?: InputMaybe<Scalars['String']['input']>
+  slugContains?: InputMaybe<Scalars['String']['input']>
+  slugContainsFold?: InputMaybe<Scalars['String']['input']>
+  slugEqualFold?: InputMaybe<Scalars['String']['input']>
+  slugGT?: InputMaybe<Scalars['String']['input']>
+  slugGTE?: InputMaybe<Scalars['String']['input']>
+  slugHasPrefix?: InputMaybe<Scalars['String']['input']>
+  slugHasSuffix?: InputMaybe<Scalars['String']['input']>
+  slugIn?: InputMaybe<Array<Scalars['String']['input']>>
+  slugIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  slugLT?: InputMaybe<Scalars['String']['input']>
+  slugLTE?: InputMaybe<Scalars['String']['input']>
+  slugNEQ?: InputMaybe<Scalars['String']['input']>
+  slugNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  slugNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+/** Ordering options for TrustCenter connections */
+export interface TrustCenterOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order TrustCenters. */
+  field: TrustCenterOrderField
+}
+
+/** Properties by which TrustCenter connections can be ordered. */
+export enum TrustCenterOrderField {
+  created_at = 'created_at',
+  updated_at = 'updated_at',
+}
+
+export interface TrustCenterSetting extends Node {
+  __typename?: 'TrustCenterSetting'
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  id: Scalars['ID']['output']
+  /** overview of the trust center */
+  overview?: Maybe<Scalars['String']['output']>
+  /** primary color for the trust center */
+  primaryColor?: Maybe<Scalars['String']['output']>
+  /** title of the trust center */
+  title?: Maybe<Scalars['String']['output']>
+  trustCenter?: Maybe<TrustCenter>
+  /** the ID of the trust center the settings belong to */
+  trustCenterID?: Maybe<Scalars['ID']['output']>
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+}
+
+/** Return response for createBulkTrustCenterSetting mutation */
+export interface TrustCenterSettingBulkCreatePayload {
+  __typename?: 'TrustCenterSettingBulkCreatePayload'
+  /** Created trustCenterSettings */
+  trustCenterSettings?: Maybe<Array<TrustCenterSetting>>
+}
+
+/** A connection to a list of items. */
+export interface TrustCenterSettingConnection {
+  __typename?: 'TrustCenterSettingConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<TrustCenterSettingEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** Return response for createTrustCenterSetting mutation */
+export interface TrustCenterSettingCreatePayload {
+  __typename?: 'TrustCenterSettingCreatePayload'
+  /** Created trustCenterSetting */
+  trustCenterSetting: TrustCenterSetting
+}
+
+/** Return response for deleteTrustCenterSetting mutation */
+export interface TrustCenterSettingDeletePayload {
+  __typename?: 'TrustCenterSettingDeletePayload'
+  /** Deleted trustCenterSetting ID */
+  deletedID: Scalars['ID']['output']
+}
+
+/** An edge in a connection. */
+export interface TrustCenterSettingEdge {
+  __typename?: 'TrustCenterSettingEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<TrustCenterSetting>
+}
+
+export interface TrustCenterSettingHistory extends Node {
+  __typename?: 'TrustCenterSettingHistory'
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  historyTime: Scalars['Time']['output']
+  id: Scalars['ID']['output']
+  operation: TrustCenterSettingHistoryOpType
+  /** overview of the trust center */
+  overview?: Maybe<Scalars['String']['output']>
+  /** primary color for the trust center */
+  primaryColor?: Maybe<Scalars['String']['output']>
+  ref?: Maybe<Scalars['String']['output']>
+  /** title of the trust center */
+  title?: Maybe<Scalars['String']['output']>
+  /** the ID of the trust center the settings belong to */
+  trustCenterID?: Maybe<Scalars['String']['output']>
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+}
+
+/** A connection to a list of items. */
+export interface TrustCenterSettingHistoryConnection {
+  __typename?: 'TrustCenterSettingHistoryConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<TrustCenterSettingHistoryEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** An edge in a connection. */
+export interface TrustCenterSettingHistoryEdge {
+  __typename?: 'TrustCenterSettingHistoryEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<TrustCenterSettingHistory>
+}
+
+/** TrustCenterSettingHistoryOpType is enum for the field operation */
+export enum TrustCenterSettingHistoryOpType {
+  DELETE = 'DELETE',
+  INSERT = 'INSERT',
+  UPDATE = 'UPDATE',
+}
+
+/** Ordering options for TrustCenterSettingHistory connections */
+export interface TrustCenterSettingHistoryOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order TrustCenterSettingHistories. */
+  field: TrustCenterSettingHistoryOrderField
+}
+
+/** Properties by which TrustCenterSettingHistory connections can be ordered. */
+export enum TrustCenterSettingHistoryOrderField {
+  created_at = 'created_at',
+  history_time = 'history_time',
+  updated_at = 'updated_at',
+}
+
+/**
+ * TrustCenterSettingHistoryWhereInput is used for filtering TrustCenterSettingHistory objects.
+ * Input was generated by ent.
+ */
+export interface TrustCenterSettingHistoryWhereInput {
+  and?: InputMaybe<Array<TrustCenterSettingHistoryWhereInput>>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** history_time field predicates */
+  historyTime?: InputMaybe<Scalars['Time']['input']>
+  historyTimeGT?: InputMaybe<Scalars['Time']['input']>
+  historyTimeGTE?: InputMaybe<Scalars['Time']['input']>
+  historyTimeIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  historyTimeLT?: InputMaybe<Scalars['Time']['input']>
+  historyTimeLTE?: InputMaybe<Scalars['Time']['input']>
+  historyTimeNEQ?: InputMaybe<Scalars['Time']['input']>
+  historyTimeNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  not?: InputMaybe<TrustCenterSettingHistoryWhereInput>
+  /** operation field predicates */
+  operation?: InputMaybe<TrustCenterSettingHistoryOpType>
+  operationIn?: InputMaybe<Array<TrustCenterSettingHistoryOpType>>
+  operationNEQ?: InputMaybe<TrustCenterSettingHistoryOpType>
+  operationNotIn?: InputMaybe<Array<TrustCenterSettingHistoryOpType>>
+  or?: InputMaybe<Array<TrustCenterSettingHistoryWhereInput>>
+  /** overview field predicates */
+  overview?: InputMaybe<Scalars['String']['input']>
+  overviewContains?: InputMaybe<Scalars['String']['input']>
+  overviewContainsFold?: InputMaybe<Scalars['String']['input']>
+  overviewEqualFold?: InputMaybe<Scalars['String']['input']>
+  overviewGT?: InputMaybe<Scalars['String']['input']>
+  overviewGTE?: InputMaybe<Scalars['String']['input']>
+  overviewHasPrefix?: InputMaybe<Scalars['String']['input']>
+  overviewHasSuffix?: InputMaybe<Scalars['String']['input']>
+  overviewIn?: InputMaybe<Array<Scalars['String']['input']>>
+  overviewIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  overviewLT?: InputMaybe<Scalars['String']['input']>
+  overviewLTE?: InputMaybe<Scalars['String']['input']>
+  overviewNEQ?: InputMaybe<Scalars['String']['input']>
+  overviewNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  overviewNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** primary_color field predicates */
+  primaryColor?: InputMaybe<Scalars['String']['input']>
+  primaryColorContains?: InputMaybe<Scalars['String']['input']>
+  primaryColorContainsFold?: InputMaybe<Scalars['String']['input']>
+  primaryColorEqualFold?: InputMaybe<Scalars['String']['input']>
+  primaryColorGT?: InputMaybe<Scalars['String']['input']>
+  primaryColorGTE?: InputMaybe<Scalars['String']['input']>
+  primaryColorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  primaryColorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  primaryColorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  primaryColorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  primaryColorLT?: InputMaybe<Scalars['String']['input']>
+  primaryColorLTE?: InputMaybe<Scalars['String']['input']>
+  primaryColorNEQ?: InputMaybe<Scalars['String']['input']>
+  primaryColorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  primaryColorNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** ref field predicates */
+  ref?: InputMaybe<Scalars['String']['input']>
+  refContains?: InputMaybe<Scalars['String']['input']>
+  refContainsFold?: InputMaybe<Scalars['String']['input']>
+  refEqualFold?: InputMaybe<Scalars['String']['input']>
+  refGT?: InputMaybe<Scalars['String']['input']>
+  refGTE?: InputMaybe<Scalars['String']['input']>
+  refHasPrefix?: InputMaybe<Scalars['String']['input']>
+  refHasSuffix?: InputMaybe<Scalars['String']['input']>
+  refIn?: InputMaybe<Array<Scalars['String']['input']>>
+  refIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  refLT?: InputMaybe<Scalars['String']['input']>
+  refLTE?: InputMaybe<Scalars['String']['input']>
+  refNEQ?: InputMaybe<Scalars['String']['input']>
+  refNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  refNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** title field predicates */
+  title?: InputMaybe<Scalars['String']['input']>
+  titleContains?: InputMaybe<Scalars['String']['input']>
+  titleContainsFold?: InputMaybe<Scalars['String']['input']>
+  titleEqualFold?: InputMaybe<Scalars['String']['input']>
+  titleGT?: InputMaybe<Scalars['String']['input']>
+  titleGTE?: InputMaybe<Scalars['String']['input']>
+  titleHasPrefix?: InputMaybe<Scalars['String']['input']>
+  titleHasSuffix?: InputMaybe<Scalars['String']['input']>
+  titleIn?: InputMaybe<Array<Scalars['String']['input']>>
+  titleIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  titleLT?: InputMaybe<Scalars['String']['input']>
+  titleLTE?: InputMaybe<Scalars['String']['input']>
+  titleNEQ?: InputMaybe<Scalars['String']['input']>
+  titleNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  titleNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** trust_center_id field predicates */
+  trustCenterID?: InputMaybe<Scalars['String']['input']>
+  trustCenterIDContains?: InputMaybe<Scalars['String']['input']>
+  trustCenterIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  trustCenterIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  trustCenterIDGT?: InputMaybe<Scalars['String']['input']>
+  trustCenterIDGTE?: InputMaybe<Scalars['String']['input']>
+  trustCenterIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  trustCenterIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  trustCenterIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  trustCenterIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  trustCenterIDLT?: InputMaybe<Scalars['String']['input']>
+  trustCenterIDLTE?: InputMaybe<Scalars['String']['input']>
+  trustCenterIDNEQ?: InputMaybe<Scalars['String']['input']>
+  trustCenterIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  trustCenterIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+/** Ordering options for TrustCenterSetting connections */
+export interface TrustCenterSettingOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order TrustCenterSettings. */
+  field: TrustCenterSettingOrderField
+}
+
+/** Properties by which TrustCenterSetting connections can be ordered. */
+export enum TrustCenterSettingOrderField {
+  created_at = 'created_at',
+  updated_at = 'updated_at',
+}
+
+/** Return response for updateTrustCenterSetting mutation */
+export interface TrustCenterSettingUpdatePayload {
+  __typename?: 'TrustCenterSettingUpdatePayload'
+  /** Updated trustCenterSetting */
+  trustCenterSetting: TrustCenterSetting
+}
+
+/**
+ * TrustCenterSettingWhereInput is used for filtering TrustCenterSetting objects.
+ * Input was generated by ent.
+ */
+export interface TrustCenterSettingWhereInput {
+  and?: InputMaybe<Array<TrustCenterSettingWhereInput>>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** trust_center edge predicates */
+  hasTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
+  hasTrustCenterWith?: InputMaybe<Array<TrustCenterWhereInput>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  not?: InputMaybe<TrustCenterSettingWhereInput>
+  or?: InputMaybe<Array<TrustCenterSettingWhereInput>>
+  /** overview field predicates */
+  overview?: InputMaybe<Scalars['String']['input']>
+  overviewContains?: InputMaybe<Scalars['String']['input']>
+  overviewContainsFold?: InputMaybe<Scalars['String']['input']>
+  overviewEqualFold?: InputMaybe<Scalars['String']['input']>
+  overviewGT?: InputMaybe<Scalars['String']['input']>
+  overviewGTE?: InputMaybe<Scalars['String']['input']>
+  overviewHasPrefix?: InputMaybe<Scalars['String']['input']>
+  overviewHasSuffix?: InputMaybe<Scalars['String']['input']>
+  overviewIn?: InputMaybe<Array<Scalars['String']['input']>>
+  overviewIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  overviewLT?: InputMaybe<Scalars['String']['input']>
+  overviewLTE?: InputMaybe<Scalars['String']['input']>
+  overviewNEQ?: InputMaybe<Scalars['String']['input']>
+  overviewNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  overviewNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** primary_color field predicates */
+  primaryColor?: InputMaybe<Scalars['String']['input']>
+  primaryColorContains?: InputMaybe<Scalars['String']['input']>
+  primaryColorContainsFold?: InputMaybe<Scalars['String']['input']>
+  primaryColorEqualFold?: InputMaybe<Scalars['String']['input']>
+  primaryColorGT?: InputMaybe<Scalars['String']['input']>
+  primaryColorGTE?: InputMaybe<Scalars['String']['input']>
+  primaryColorHasPrefix?: InputMaybe<Scalars['String']['input']>
+  primaryColorHasSuffix?: InputMaybe<Scalars['String']['input']>
+  primaryColorIn?: InputMaybe<Array<Scalars['String']['input']>>
+  primaryColorIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  primaryColorLT?: InputMaybe<Scalars['String']['input']>
+  primaryColorLTE?: InputMaybe<Scalars['String']['input']>
+  primaryColorNEQ?: InputMaybe<Scalars['String']['input']>
+  primaryColorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  primaryColorNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** title field predicates */
+  title?: InputMaybe<Scalars['String']['input']>
+  titleContains?: InputMaybe<Scalars['String']['input']>
+  titleContainsFold?: InputMaybe<Scalars['String']['input']>
+  titleEqualFold?: InputMaybe<Scalars['String']['input']>
+  titleGT?: InputMaybe<Scalars['String']['input']>
+  titleGTE?: InputMaybe<Scalars['String']['input']>
+  titleHasPrefix?: InputMaybe<Scalars['String']['input']>
+  titleHasSuffix?: InputMaybe<Scalars['String']['input']>
+  titleIn?: InputMaybe<Array<Scalars['String']['input']>>
+  titleIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  titleLT?: InputMaybe<Scalars['String']['input']>
+  titleLTE?: InputMaybe<Scalars['String']['input']>
+  titleNEQ?: InputMaybe<Scalars['String']['input']>
+  titleNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  titleNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** trust_center_id field predicates */
+  trustCenterID?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDContains?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDGT?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDGTE?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  trustCenterIDLT?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDLTE?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  trustCenterIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
+/** Return response for updateTrustCenter mutation */
+export interface TrustCenterUpdatePayload {
+  __typename?: 'TrustCenterUpdatePayload'
+  /** Updated trustCenter */
+  trustCenter: TrustCenter
+}
+
+/**
+ * TrustCenterWhereInput is used for filtering TrustCenter objects.
+ * Input was generated by ent.
+ */
+export interface TrustCenterWhereInput {
+  and?: InputMaybe<Array<TrustCenterWhereInput>>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** custom_domain_id field predicates */
+  customDomainID?: InputMaybe<Scalars['ID']['input']>
+  customDomainIDContains?: InputMaybe<Scalars['ID']['input']>
+  customDomainIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  customDomainIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  customDomainIDGT?: InputMaybe<Scalars['ID']['input']>
+  customDomainIDGTE?: InputMaybe<Scalars['ID']['input']>
+  customDomainIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  customDomainIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  customDomainIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  customDomainIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  customDomainIDLT?: InputMaybe<Scalars['ID']['input']>
+  customDomainIDLTE?: InputMaybe<Scalars['ID']['input']>
+  customDomainIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  customDomainIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  customDomainIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** custom_domain edge predicates */
+  hasCustomDomain?: InputMaybe<Scalars['Boolean']['input']>
+  hasCustomDomainWith?: InputMaybe<Array<CustomDomainWhereInput>>
+  /** owner edge predicates */
+  hasOwner?: InputMaybe<Scalars['Boolean']['input']>
+  hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** setting edge predicates */
+  hasSetting?: InputMaybe<Scalars['Boolean']['input']>
+  hasSettingWith?: InputMaybe<Array<TrustCenterSettingWhereInput>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  not?: InputMaybe<TrustCenterWhereInput>
+  or?: InputMaybe<Array<TrustCenterWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContains?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** slug field predicates */
+  slug?: InputMaybe<Scalars['String']['input']>
+  slugContains?: InputMaybe<Scalars['String']['input']>
+  slugContainsFold?: InputMaybe<Scalars['String']['input']>
+  slugEqualFold?: InputMaybe<Scalars['String']['input']>
+  slugGT?: InputMaybe<Scalars['String']['input']>
+  slugGTE?: InputMaybe<Scalars['String']['input']>
+  slugHasPrefix?: InputMaybe<Scalars['String']['input']>
+  slugHasSuffix?: InputMaybe<Scalars['String']['input']>
+  slugIn?: InputMaybe<Array<Scalars['String']['input']>>
+  slugIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  slugLT?: InputMaybe<Scalars['String']['input']>
+  slugLTE?: InputMaybe<Scalars['String']['input']>
+  slugNEQ?: InputMaybe<Scalars['String']['input']>
+  slugNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  slugNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
 /**
  * UpdateAPITokenInput is used for update APIToken object.
  * Input was generated by ent.
@@ -28033,6 +34300,12 @@ export interface UpdateActionPlanInput {
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addUserIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  appendControlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  appendDismissedControlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  appendDismissedImprovementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  appendDismissedTagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  appendImprovementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  appendTagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   /** whether approval is required for edits to the action_plan */
   approvalRequired?: InputMaybe<Scalars['Boolean']['input']>
@@ -28040,10 +34313,15 @@ export interface UpdateActionPlanInput {
   clearActionPlanType?: InputMaybe<Scalars['Boolean']['input']>
   clearApprovalRequired?: InputMaybe<Scalars['Boolean']['input']>
   clearApprover?: InputMaybe<Scalars['Boolean']['input']>
+  clearControlSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
   clearDelegate?: InputMaybe<Scalars['Boolean']['input']>
   clearDetails?: InputMaybe<Scalars['Boolean']['input']>
+  clearDismissedControlSuggestions?: InputMaybe<Scalars['Boolean']['input']>
+  clearDismissedImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
+  clearDismissedTagSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearDueDate?: InputMaybe<Scalars['Boolean']['input']>
+  clearImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearPriority?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
@@ -28053,13 +34331,24 @@ export interface UpdateActionPlanInput {
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
   clearSource?: InputMaybe<Scalars['Boolean']['input']>
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
+  clearTagSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearUsers?: InputMaybe<Scalars['Boolean']['input']>
+  /** proposed controls referenced in the action_plan */
+  controlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   delegateID?: InputMaybe<Scalars['ID']['input']>
   /** details of the action_plan */
   details?: InputMaybe<Scalars['String']['input']>
+  /** control suggestions dismissed by the user for the action_plan */
+  dismissedControlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  /** improvement suggestions dismissed by the user for the action_plan */
+  dismissedImprovementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  /** tag suggestions dismissed by the user for the action_plan */
+  dismissedTagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** due date of the action plan */
   dueDate?: InputMaybe<Scalars['Time']['input']>
+  /** suggested improvements for the action_plan */
+  improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** the name of the action_plan */
   name?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -28079,8 +34368,60 @@ export interface UpdateActionPlanInput {
   source?: InputMaybe<Scalars['String']['input']>
   /** status of the action_plan, e.g. draft, published, archived, etc. */
   status?: InputMaybe<ActionPlanDocumentStatus>
+  /** auto-generated tag suggestions for the action_plan */
+  tagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
+}
+
+/**
+ * UpdateAssetInput is used for update Asset object.
+ * Input was generated by ent.
+ */
+export interface UpdateAssetInput {
+  addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  appendCategories?: InputMaybe<Array<Scalars['String']['input']>>
+  appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  /** the type of the asset, e.g. technology, domain, device, etc */
+  assetType?: InputMaybe<AssetAssetType>
+  /** the categories of the asset, e.g. web server, database, etc */
+  categories?: InputMaybe<Array<Scalars['String']['input']>>
+  clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearCategories?: InputMaybe<Scalars['Boolean']['input']>
+  clearControls?: InputMaybe<Scalars['Boolean']['input']>
+  clearCpe?: InputMaybe<Scalars['Boolean']['input']>
+  clearDescription?: InputMaybe<Scalars['Boolean']['input']>
+  clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearEntities?: InputMaybe<Scalars['Boolean']['input']>
+  clearIdentifier?: InputMaybe<Scalars['Boolean']['input']>
+  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearScans?: InputMaybe<Scalars['Boolean']['input']>
+  clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  clearViewers?: InputMaybe<Scalars['Boolean']['input']>
+  clearWebsite?: InputMaybe<Scalars['Boolean']['input']>
+  /** the CPE (Common Platform Enumeration) of the asset, if applicable */
+  cpe?: InputMaybe<Scalars['String']['input']>
+  description?: InputMaybe<Scalars['String']['input']>
+  /** unique identifier like domain, device id, etc */
+  identifier?: InputMaybe<Scalars['String']['input']>
+  /** the name of the asset, e.g. matts computer, office router, IP address, etc */
+  name?: InputMaybe<Scalars['String']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+  /** the website of the asset, if applicable */
+  website?: InputMaybe<Scalars['String']['input']>
 }
 
 /**
@@ -28126,23 +34467,32 @@ export interface UpdateContactInput {
  * Input was generated by ent.
  */
 export interface UpdateControlImplementationInput {
+  addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
   clearDetails?: InputMaybe<Scalars['Boolean']['input']>
+  clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearImplementationDate?: InputMaybe<Scalars['Boolean']['input']>
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearVerificationDate?: InputMaybe<Scalars['Boolean']['input']>
   clearVerified?: InputMaybe<Scalars['Boolean']['input']>
+  clearViewers?: InputMaybe<Scalars['Boolean']['input']>
   /** details of the control implementation */
   details?: InputMaybe<Scalars['String']['input']>
   /** date the control was implemented */
   implementationDate?: InputMaybe<Scalars['Time']['input']>
+  removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** status of the %s, e.g. draft, published, archived, etc. */
   status?: InputMaybe<ControlImplementationDocumentStatus>
   /** tags associated with the object */
@@ -28159,20 +34509,21 @@ export interface UpdateControlImplementationInput {
  */
 export interface UpdateControlInput {
   addActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addMappedControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addScheduledJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendAssessmentMethods?: InputMaybe<Array<Scalars['AssessmentMethod']['input']>>
   appendAssessmentObjectives?: InputMaybe<Array<Scalars['AssessmentObjective']['input']>>
   appendControlQuestions?: InputMaybe<Array<Scalars['String']['input']>>
@@ -28194,6 +34545,7 @@ export interface UpdateControlInput {
   clearActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   clearAssessmentMethods?: InputMaybe<Scalars['Boolean']['input']>
   clearAssessmentObjectives?: InputMaybe<Scalars['Boolean']['input']>
+  clearAssets?: InputMaybe<Scalars['Boolean']['input']>
   clearAuditorReferenceID?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearCategory?: InputMaybe<Scalars['Boolean']['input']>
@@ -28211,13 +34563,14 @@ export interface UpdateControlInput {
   clearImplementationGuidance?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearMappedCategories?: InputMaybe<Scalars['Boolean']['input']>
-  clearMappedControls?: InputMaybe<Scalars['Boolean']['input']>
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
   clearReferenceID?: InputMaybe<Scalars['Boolean']['input']>
   clearReferences?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
+  clearScans?: InputMaybe<Scalars['Boolean']['input']>
+  clearScheduledJobs?: InputMaybe<Scalars['Boolean']['input']>
   clearSource?: InputMaybe<Scalars['Boolean']['input']>
   clearStandard?: InputMaybe<Scalars['Boolean']['input']>
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
@@ -28225,7 +34578,6 @@ export interface UpdateControlInput {
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
-  clearViewers?: InputMaybe<Scalars['Boolean']['input']>
   controlOwnerID?: InputMaybe<Scalars['ID']['input']>
   /** questions to ask to verify the control */
   controlQuestions?: InputMaybe<Array<Scalars['String']['input']>>
@@ -28247,20 +34599,21 @@ export interface UpdateControlInput {
   /** references for the control */
   references?: InputMaybe<Array<Scalars['Reference']['input']>>
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeMappedControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeScheduledJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** source of the control, e.g. framework, template, custom, etc. */
   source?: InputMaybe<ControlControlSource>
   standardID?: InputMaybe<Scalars['ID']['input']>
@@ -28344,6 +34697,83 @@ export interface UpdateControlObjectiveInput {
 }
 
 /**
+ * UpdateControlScheduledJobInput is used for update ControlScheduledJob object.
+ * Input was generated by ent.
+ */
+export interface UpdateControlScheduledJobInput {
+  addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the schedule to run this job. If not provided, it would inherit the cadence of the parent job */
+  cadence?: InputMaybe<Scalars['JobCadence']['input']>
+  clearCadence?: InputMaybe<Scalars['Boolean']['input']>
+  clearControls?: InputMaybe<Scalars['Boolean']['input']>
+  clearCron?: InputMaybe<Scalars['Boolean']['input']>
+  clearJobRunner?: InputMaybe<Scalars['Boolean']['input']>
+  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  /** the configuration to run this job */
+  configuration?: InputMaybe<Scalars['JobConfiguration']['input']>
+  /** cron syntax. If not provided, it would inherit the cron of the parent job */
+  cron?: InputMaybe<Scalars['String']['input']>
+  jobID?: InputMaybe<Scalars['ID']['input']>
+  jobRunnerID?: InputMaybe<Scalars['ID']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+}
+
+/**
+ * UpdateCustomDomainInput is used for update CustomDomain object.
+ * Input was generated by ent.
+ */
+export interface UpdateCustomDomainInput {
+  appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  clearDNSVerification?: InputMaybe<Scalars['Boolean']['input']>
+  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  dnsVerificationID?: InputMaybe<Scalars['ID']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+}
+
+/**
+ * UpdateDNSVerificationInput is used for update DNSVerification object.
+ * Input was generated by ent.
+ */
+export interface UpdateDnsVerificationInput {
+  /** Path under /.well-known/acme-challenge/ to serve the ACME challenge */
+  acmeChallengePath?: InputMaybe<Scalars['String']['input']>
+  /** Status of the ACME challenge validation */
+  acmeChallengeStatus?: InputMaybe<DnsVerificationSslVerificationStatus>
+  /** Reason of the ACME status, for giving the user diagnostic info */
+  acmeChallengeStatusReason?: InputMaybe<Scalars['String']['input']>
+  addCustomDomainIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  clearAcmeChallengePath?: InputMaybe<Scalars['Boolean']['input']>
+  clearAcmeChallengeStatusReason?: InputMaybe<Scalars['Boolean']['input']>
+  clearCustomDomains?: InputMaybe<Scalars['Boolean']['input']>
+  clearDNSVerificationStatusReason?: InputMaybe<Scalars['Boolean']['input']>
+  clearExpectedAcmeChallengeValue?: InputMaybe<Scalars['Boolean']['input']>
+  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  /** the name of the dns txt record */
+  dnsTxtRecord?: InputMaybe<Scalars['String']['input']>
+  /** the expected value of the dns txt record */
+  dnsTxtValue?: InputMaybe<Scalars['String']['input']>
+  /** Status of the domain verification */
+  dnsVerificationStatus?: InputMaybe<DnsVerificationDnsVerificationStatus>
+  /** Reason of the dns verification status, for giving the user diagnostic info */
+  dnsVerificationStatusReason?: InputMaybe<Scalars['String']['input']>
+  /** the expected value of the acme challenge record */
+  expectedAcmeChallengeValue?: InputMaybe<Scalars['String']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  removeCustomDomainIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+}
+
+/**
  * UpdateDocumentDataInput is used for update DocumentData object.
  * Input was generated by ent.
  */
@@ -28368,24 +34798,34 @@ export interface UpdateDocumentDataInput {
  * Input was generated by ent.
  */
 export interface UpdateEntityInput {
+  addAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addContactIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addDocumentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNoteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendDomains?: InputMaybe<Array<Scalars['String']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  clearAssets?: InputMaybe<Scalars['Boolean']['input']>
+  clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearContacts?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearDisplayName?: InputMaybe<Scalars['Boolean']['input']>
   clearDocuments?: InputMaybe<Scalars['Boolean']['input']>
   clearDomains?: InputMaybe<Scalars['Boolean']['input']>
+  clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearEntityType?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearName?: InputMaybe<Scalars['Boolean']['input']>
   clearNotes?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearScans?: InputMaybe<Scalars['Boolean']['input']>
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  clearViewers?: InputMaybe<Scalars['Boolean']['input']>
   /** An optional description of the entity */
   description?: InputMaybe<Scalars['String']['input']>
   /** The entity's displayed 'friendly' name */
@@ -28397,10 +34837,15 @@ export interface UpdateEntityInput {
   name?: InputMaybe<Scalars['String']['input']>
   note?: InputMaybe<CreateNoteInput>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  removeAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeContactIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeDocumentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNoteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** status of the entity */
   status?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
@@ -28616,16 +35061,20 @@ export interface UpdateFileInput {
 export interface UpdateGroupInput {
   addControlBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addControlImplementationBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addControlImplementationEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addControlImplementationViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlObjectiveBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlObjectiveEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlObjectiveViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addControlViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addGroupMembers?: InputMaybe<Array<CreateGroupMembershipInput>>
   addIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addMappedControlBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addMappedControlEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -28637,14 +35086,19 @@ export interface UpdateGroupInput {
   addRiskBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addScanBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addScanEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addScanViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearControlBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearControlEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearControlImplementationBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearControlImplementationEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearControlImplementationViewers?: InputMaybe<Scalars['Boolean']['input']>
   clearControlObjectiveBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearControlObjectiveEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearControlObjectiveViewers?: InputMaybe<Scalars['Boolean']['input']>
-  clearControlViewers?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
@@ -28652,6 +35106,8 @@ export interface UpdateGroupInput {
   clearInternalPolicyBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicyEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearLogoURL?: InputMaybe<Scalars['Boolean']['input']>
+  clearMappedControlBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearMappedControlEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearNarrativeBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearNarrativeEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearNarrativeViewers?: InputMaybe<Scalars['Boolean']['input']>
@@ -28664,6 +35120,9 @@ export interface UpdateGroupInput {
   clearRiskBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearRiskEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearRiskViewers?: InputMaybe<Scalars['Boolean']['input']>
+  clearScanBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearScanEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearScanViewers?: InputMaybe<Scalars['Boolean']['input']>
   clearSetting?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
@@ -28683,16 +35142,20 @@ export interface UpdateGroupInput {
   ownerID?: InputMaybe<Scalars['ID']['input']>
   removeControlBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeControlImplementationBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeControlImplementationEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeControlImplementationViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeControlViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupMembers?: InputMaybe<Array<Scalars['ID']['input']>>
   removeIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeMappedControlBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeMappedControlEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -28704,6 +35167,9 @@ export interface UpdateGroupInput {
   removeRiskBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeScanBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeScanEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeScanViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   settingID?: InputMaybe<Scalars['ID']['input']>
   /** tags associated with the object */
@@ -28806,6 +35272,12 @@ export interface UpdateInternalPolicyInput {
   addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  appendControlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  appendDismissedControlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  appendDismissedImprovementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  appendDismissedTagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  appendImprovementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  appendTagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   /** whether approval is required for edits to the policy */
   approvalRequired?: InputMaybe<Scalars['Boolean']['input']>
@@ -28814,10 +35286,15 @@ export interface UpdateInternalPolicyInput {
   clearApprover?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearControlObjectives?: InputMaybe<Scalars['Boolean']['input']>
+  clearControlSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
   clearDelegate?: InputMaybe<Scalars['Boolean']['input']>
   clearDetails?: InputMaybe<Scalars['Boolean']['input']>
+  clearDismissedControlSuggestions?: InputMaybe<Scalars['Boolean']['input']>
+  clearDismissedImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
+  clearDismissedTagSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearPolicyType?: InputMaybe<Scalars['Boolean']['input']>
@@ -28829,11 +35306,22 @@ export interface UpdateInternalPolicyInput {
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  clearTagSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
+  /** proposed controls referenced in the policy */
+  controlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   delegateID?: InputMaybe<Scalars['ID']['input']>
   /** details of the policy */
   details?: InputMaybe<Scalars['String']['input']>
+  /** control suggestions dismissed by the user for the policy */
+  dismissedControlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  /** improvement suggestions dismissed by the user for the policy */
+  dismissedImprovementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  /** tag suggestions dismissed by the user for the policy */
+  dismissedTagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  /** suggested improvements for the policy */
+  improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** the name of the policy */
   name?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -28857,6 +35345,8 @@ export interface UpdateInternalPolicyInput {
   revision?: InputMaybe<Scalars['String']['input']>
   /** status of the policy, e.g. draft, published, archived, etc. */
   status?: InputMaybe<InternalPolicyDocumentStatus>
+  /** auto-generated tag suggestions for the policy */
+  tagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
 }
@@ -28882,24 +35372,135 @@ export interface UpdateInviteInput {
 }
 
 /**
+ * UpdateJobResultInput is used for update JobResult object.
+ * Input was generated by ent.
+ */
+export interface UpdateJobResultInput {
+  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
+  fileID?: InputMaybe<Scalars['ID']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  scheduledJobID?: InputMaybe<Scalars['ID']['input']>
+  /** the status of this job. did it fail? did it succeed? */
+  status?: InputMaybe<JobResultJobExecutionStatus>
+}
+
+/**
+ * UpdateJobRunnerInput is used for update JobRunner object.
+ * Input was generated by ent.
+ */
+export interface UpdateJobRunnerInput {
+  addJobRunnerTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  clearJobRunnerTokens?: InputMaybe<Scalars['Boolean']['input']>
+  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  /** the name of the runner */
+  name?: InputMaybe<Scalars['String']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  removeJobRunnerTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+}
+
+/**
+ * UpdateJobRunnerRegistrationTokenInput is used for update JobRunnerRegistrationToken object.
+ * Input was generated by ent.
+ */
+export interface UpdateJobRunnerRegistrationTokenInput {
+  appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  clearJobRunner?: InputMaybe<Scalars['Boolean']['input']>
+  clearLastUsedAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  jobRunnerID?: InputMaybe<Scalars['ID']['input']>
+  lastUsedAt?: InputMaybe<Scalars['Time']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+}
+
+/**
+ * UpdateJobRunnerTokenInput is used for update JobRunnerToken object.
+ * Input was generated by ent.
+ */
+export interface UpdateJobRunnerTokenInput {
+  addJobRunnerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  clearIsActive?: InputMaybe<Scalars['Boolean']['input']>
+  clearJobRunners?: InputMaybe<Scalars['Boolean']['input']>
+  clearLastUsedAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearRevokedAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearRevokedBy?: InputMaybe<Scalars['Boolean']['input']>
+  clearRevokedReason?: InputMaybe<Scalars['Boolean']['input']>
+  clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  /** whether the token is active */
+  isActive?: InputMaybe<Scalars['Boolean']['input']>
+  lastUsedAt?: InputMaybe<Scalars['Time']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  removeJobRunnerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** when the token was revoked */
+  revokedAt?: InputMaybe<Scalars['Time']['input']>
+  /** the user who revoked the token */
+  revokedBy?: InputMaybe<Scalars['String']['input']>
+  /** the reason the token was revoked */
+  revokedReason?: InputMaybe<Scalars['String']['input']>
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+}
+
+/**
+ * UpdateMappableDomainInput is used for update MappableDomain object.
+ * Input was generated by ent.
+ */
+export interface UpdateMappableDomainInput {
+  addCustomDomainIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  clearCustomDomains?: InputMaybe<Scalars['Boolean']['input']>
+  clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  removeCustomDomainIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+}
+
+/**
  * UpdateMappedControlInput is used for update MappedControl object.
  * Input was generated by ent.
  */
 export interface UpdateMappedControlInput {
-  addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addFromControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addFromSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addToControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addToSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
-  clearControls?: InputMaybe<Scalars['Boolean']['input']>
-  clearMappingType?: InputMaybe<Scalars['Boolean']['input']>
+  clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearConfidence?: InputMaybe<Scalars['Boolean']['input']>
+  clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearFromControls?: InputMaybe<Scalars['Boolean']['input']>
+  clearFromSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearRelation?: InputMaybe<Scalars['Boolean']['input']>
-  clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  clearSource?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  clearToControls?: InputMaybe<Scalars['Boolean']['input']>
+  clearToSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  /** percentage (0-100) of confidence in the mapping */
+  confidence?: InputMaybe<Scalars['Int']['input']>
   /** the type of mapping between the two controls, e.g. subset, intersect, equal, superset */
-  mappingType?: InputMaybe<Scalars['String']['input']>
+  mappingType?: InputMaybe<MappedControlMappingType>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
   /** description of how the two controls are related */
   relation?: InputMaybe<Scalars['String']['input']>
-  removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeFromControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeFromSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeToControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeToSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** source of the mapping, e.g. manual, suggested, etc. */
+  source?: InputMaybe<MappedControlMappingSource>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
 }
@@ -28976,16 +35577,21 @@ export interface UpdateOrgMembershipInput {
 export interface UpdateOrganizationInput {
   addAPITokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addContactIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addControlImplementationCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlObjectiveCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addCustomDomainIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addDNSVerificationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addDocumentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEntityTypeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEvidenceCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addGroupCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -28994,6 +35600,13 @@ export interface UpdateOrganizationInput {
   addInternalPolicyCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInviteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addJobResultIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addJobRunnerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addJobRunnerRegistrationTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addJobRunnerTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addMappedControlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addMappedControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNoteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -29006,13 +35619,19 @@ export interface UpdateOrganizationInput {
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addScheduledJobCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addScheduledJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addScheduledJobRunIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSecretIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addStandardCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addStandardIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTemplateCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addTrustCenterIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   avatarFileID?: InputMaybe<Scalars['ID']['input']>
   /** URL of the user's remote avatar */
@@ -29021,21 +35640,26 @@ export interface UpdateOrganizationInput {
   avatarUpdatedAt?: InputMaybe<Scalars['Time']['input']>
   clearAPITokens?: InputMaybe<Scalars['Boolean']['input']>
   clearActionPlans?: InputMaybe<Scalars['Boolean']['input']>
+  clearAssets?: InputMaybe<Scalars['Boolean']['input']>
   clearAvatarFile?: InputMaybe<Scalars['Boolean']['input']>
   clearAvatarRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
   clearAvatarUpdatedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearContacts?: InputMaybe<Scalars['Boolean']['input']>
   clearControlCreators?: InputMaybe<Scalars['Boolean']['input']>
+  clearControlImplementationCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearControlImplementations?: InputMaybe<Scalars['Boolean']['input']>
   clearControlObjectiveCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearControlObjectives?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
+  clearCustomDomains?: InputMaybe<Scalars['Boolean']['input']>
+  clearDNSVerifications?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearDocuments?: InputMaybe<Scalars['Boolean']['input']>
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
   clearEntityTypes?: InputMaybe<Scalars['Boolean']['input']>
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
   clearEvidence?: InputMaybe<Scalars['Boolean']['input']>
+  clearEvidenceCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearGroupCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearGroups?: InputMaybe<Scalars['Boolean']['input']>
@@ -29043,6 +35667,13 @@ export interface UpdateOrganizationInput {
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicyCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearInvites?: InputMaybe<Scalars['Boolean']['input']>
+  clearJobResults?: InputMaybe<Scalars['Boolean']['input']>
+  clearJobRunnerRegistrationTokens?: InputMaybe<Scalars['Boolean']['input']>
+  clearJobRunnerTokens?: InputMaybe<Scalars['Boolean']['input']>
+  clearJobRunners?: InputMaybe<Scalars['Boolean']['input']>
+  clearJobs?: InputMaybe<Scalars['Boolean']['input']>
+  clearMappedControlCreators?: InputMaybe<Scalars['Boolean']['input']>
+  clearMappedControls?: InputMaybe<Scalars['Boolean']['input']>
   clearNarrativeCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
   clearNotes?: InputMaybe<Scalars['Boolean']['input']>
@@ -29054,8 +35685,13 @@ export interface UpdateOrganizationInput {
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
   clearRiskCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
+  clearScans?: InputMaybe<Scalars['Boolean']['input']>
+  clearScheduledJobCreators?: InputMaybe<Scalars['Boolean']['input']>
+  clearScheduledJobRuns?: InputMaybe<Scalars['Boolean']['input']>
+  clearScheduledJobs?: InputMaybe<Scalars['Boolean']['input']>
   clearSecrets?: InputMaybe<Scalars['Boolean']['input']>
   clearSetting?: InputMaybe<Scalars['Boolean']['input']>
+  clearStandardCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearStandards?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearSubscribers?: InputMaybe<Scalars['Boolean']['input']>
@@ -29063,6 +35699,7 @@ export interface UpdateOrganizationInput {
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearTemplateCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearTemplates?: InputMaybe<Scalars['Boolean']['input']>
+  clearTrustCenters?: InputMaybe<Scalars['Boolean']['input']>
   /** An optional description of the organization */
   description?: InputMaybe<Scalars['String']['input']>
   /** The organization's displayed 'friendly' name */
@@ -29071,16 +35708,21 @@ export interface UpdateOrganizationInput {
   name?: InputMaybe<Scalars['String']['input']>
   removeAPITokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeContactIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeControlImplementationCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeCustomDomainIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeDNSVerificationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeDocumentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEntityTypeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEvidenceCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -29089,6 +35731,13 @@ export interface UpdateOrganizationInput {
   removeInternalPolicyCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInviteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeJobResultIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeJobRunnerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeJobRunnerRegistrationTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeJobRunnerTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeMappedControlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeMappedControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNoteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -29101,13 +35750,19 @@ export interface UpdateOrganizationInput {
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeScheduledJobCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeScheduledJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeScheduledJobRunIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSecretIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeStandardCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeStandardIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTemplateCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeTrustCenterIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   settingID?: InputMaybe<Scalars['ID']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
@@ -29140,16 +35795,39 @@ export interface UpdateOrganizationSettingInput {
   clearBillingContact?: InputMaybe<Scalars['Boolean']['input']>
   clearBillingEmail?: InputMaybe<Scalars['Boolean']['input']>
   clearBillingPhone?: InputMaybe<Scalars['Boolean']['input']>
+  clearComplianceWebhookToken?: InputMaybe<Scalars['Boolean']['input']>
   clearDomains?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearGeoLocation?: InputMaybe<Scalars['Boolean']['input']>
+  clearIdentityProvider?: InputMaybe<Scalars['Boolean']['input']>
+  clearIdentityProviderClientID?: InputMaybe<Scalars['Boolean']['input']>
+  clearIdentityProviderClientSecret?: InputMaybe<Scalars['Boolean']['input']>
+  clearIdentityProviderEntityID?: InputMaybe<Scalars['Boolean']['input']>
+  clearIdentityProviderMetadataEndpoint?: InputMaybe<Scalars['Boolean']['input']>
+  clearOidcDiscoveryEndpoint?: InputMaybe<Scalars['Boolean']['input']>
   clearOrganization?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTaxIdentifier?: InputMaybe<Scalars['Boolean']['input']>
+  /** unique token used to receive compliance webhook events */
+  complianceWebhookToken?: InputMaybe<Scalars['String']['input']>
   /** domains associated with the organization */
   domains?: InputMaybe<Array<Scalars['String']['input']>>
   /** geographical location of the organization */
   geoLocation?: InputMaybe<OrganizationSettingRegion>
+  /** SSO provider type for the organization */
+  identityProvider?: InputMaybe<OrganizationSettingSsoProvider>
+  /** client ID for SSO integration */
+  identityProviderClientID?: InputMaybe<Scalars['String']['input']>
+  /** client secret for SSO integration */
+  identityProviderClientSecret?: InputMaybe<Scalars['String']['input']>
+  /** SAML entity ID for the SSO provider */
+  identityProviderEntityID?: InputMaybe<Scalars['String']['input']>
+  /** enforce SSO authentication for organization members */
+  identityProviderLoginEnforced?: InputMaybe<Scalars['Boolean']['input']>
+  /** metadata URL for the SSO provider */
+  identityProviderMetadataEndpoint?: InputMaybe<Scalars['String']['input']>
+  /** OIDC discovery URL for the SSO provider */
+  oidcDiscoveryEndpoint?: InputMaybe<Scalars['String']['input']>
   organizationID?: InputMaybe<Scalars['ID']['input']>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** tags associated with the object */
@@ -29203,6 +35881,12 @@ export interface UpdateProcedureInput {
   addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  appendControlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  appendDismissedControlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  appendDismissedImprovementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  appendDismissedTagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  appendImprovementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  appendTagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   /** whether approval is required for edits to the procedure */
   approvalRequired?: InputMaybe<Scalars['Boolean']['input']>
@@ -29210,10 +35894,15 @@ export interface UpdateProcedureInput {
   clearApprovalRequired?: InputMaybe<Scalars['Boolean']['input']>
   clearApprover?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearControlSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
   clearDelegate?: InputMaybe<Scalars['Boolean']['input']>
   clearDetails?: InputMaybe<Scalars['Boolean']['input']>
+  clearDismissedControlSuggestions?: InputMaybe<Scalars['Boolean']['input']>
+  clearDismissedImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
+  clearDismissedTagSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
@@ -29225,11 +35914,22 @@ export interface UpdateProcedureInput {
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  clearTagSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
+  /** proposed controls referenced in the procedure */
+  controlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   delegateID?: InputMaybe<Scalars['ID']['input']>
   /** details of the procedure */
   details?: InputMaybe<Scalars['String']['input']>
+  /** control suggestions dismissed by the user for the procedure */
+  dismissedControlSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  /** improvement suggestions dismissed by the user for the procedure */
+  dismissedImprovementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  /** tag suggestions dismissed by the user for the procedure */
+  dismissedTagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  /** suggested improvements for the procedure */
+  improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** the name of the procedure */
   name?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -29252,6 +35952,8 @@ export interface UpdateProcedureInput {
   revision?: InputMaybe<Scalars['String']['input']>
   /** status of the procedure, e.g. draft, published, archived, etc. */
   status?: InputMaybe<ProcedureDocumentStatus>
+  /** auto-generated tag suggestions for the procedure */
+  tagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
 }
@@ -29272,7 +35974,7 @@ export interface UpdateProgramInput {
   addNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNoteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addProgramMembers?: InputMaybe<Array<CreateProgramMembershipInput>>
+  addProgramMembers?: InputMaybe<Array<AddProgramMembershipInput>>
   addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -29363,13 +36065,17 @@ export interface UpdateProgramMembershipInput {
  */
 export interface UpdateRiskInput {
   addActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   /** business costs associated with the risk */
@@ -29377,6 +36083,7 @@ export interface UpdateRiskInput {
   /** category of the risk, e.g. human resources, operations, IT, etc. */
   category?: InputMaybe<Scalars['String']['input']>
   clearActionPlans?: InputMaybe<Scalars['Boolean']['input']>
+  clearAssets?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearBusinessCosts?: InputMaybe<Scalars['Boolean']['input']>
   clearCategory?: InputMaybe<Scalars['Boolean']['input']>
@@ -29384,6 +36091,7 @@ export interface UpdateRiskInput {
   clearDelegate?: InputMaybe<Scalars['Boolean']['input']>
   clearDetails?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearEntities?: InputMaybe<Scalars['Boolean']['input']>
   clearImpact?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearLikelihood?: InputMaybe<Scalars['Boolean']['input']>
@@ -29391,11 +36099,13 @@ export interface UpdateRiskInput {
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
   clearRiskType?: InputMaybe<Scalars['Boolean']['input']>
+  clearScans?: InputMaybe<Scalars['Boolean']['input']>
   clearScore?: InputMaybe<Scalars['Boolean']['input']>
   clearStakeholder?: InputMaybe<Scalars['Boolean']['input']>
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
   delegateID?: InputMaybe<Scalars['ID']['input']>
   /** details of the risk */
@@ -29409,13 +36119,17 @@ export interface UpdateRiskInput {
   /** the name of the risk */
   name?: InputMaybe<Scalars['String']['input']>
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** type of the risk, e.g. strategic, operational, financial, external, etc. */
   riskType?: InputMaybe<Scalars['String']['input']>
@@ -29429,13 +36143,99 @@ export interface UpdateRiskInput {
 }
 
 /**
+ * UpdateScanInput is used for update Scan object.
+ * Input was generated by ent.
+ */
+export interface UpdateScanInput {
+  addAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  clearAssets?: InputMaybe<Scalars['Boolean']['input']>
+  clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearEntities?: InputMaybe<Scalars['Boolean']['input']>
+  clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
+  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  clearViewers?: InputMaybe<Scalars['Boolean']['input']>
+  /** additional metadata for the scan, e.g., scan configuration, options, etc */
+  metadata?: InputMaybe<Scalars['Map']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  removeAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the type of scan, e.g., domain scan, vulnerability scan, provider scan */
+  scanType?: InputMaybe<ScanScanType>
+  /** the status of the scan, e.g., processing, completed, failed */
+  status?: InputMaybe<ScanScanStatus>
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+  /** the target of the scan, e.g., a domain name or IP address, codebase */
+  target?: InputMaybe<Scalars['String']['input']>
+}
+
+/**
+ * UpdateScheduledJobInput is used for update ScheduledJob object.
+ * Input was generated by ent.
+ */
+export interface UpdateScheduledJobInput {
+  appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  /** the schedule to run this job */
+  cadence?: InputMaybe<Scalars['JobCadence']['input']>
+  clearCadence?: InputMaybe<Scalars['Boolean']['input']>
+  clearCron?: InputMaybe<Scalars['Boolean']['input']>
+  clearDescription?: InputMaybe<Scalars['Boolean']['input']>
+  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearScript?: InputMaybe<Scalars['Boolean']['input']>
+  clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  /** the configuration to run this job */
+  configuration?: InputMaybe<Scalars['JobConfiguration']['input']>
+  /** cron syntax */
+  cron?: InputMaybe<Scalars['String']['input']>
+  /** the description of the job */
+  description?: InputMaybe<Scalars['String']['input']>
+  /** the type of this job */
+  jobType?: InputMaybe<ScheduledJobJobType>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** the script to run */
+  script?: InputMaybe<Scalars['String']['input']>
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+  /** the title of the job */
+  title?: InputMaybe<Scalars['String']['input']>
+}
+
+/**
+ * UpdateScheduledJobRunInput is used for update ScheduledJobRun object.
+ * Input was generated by ent.
+ */
+export interface UpdateScheduledJobRunInput {
+  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
+  jobRunnerID?: InputMaybe<Scalars['ID']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  scheduledJobID?: InputMaybe<Scalars['ID']['input']>
+  /**
+   * The status of the job to be executed. By default will be pending but when
+   * 			scheduled on a runner, this will change to acquired.
+   */
+  status?: InputMaybe<ScheduledJobRunScheduledJobRunStatus>
+}
+
+/**
  * UpdateStandardInput is used for update Standard object.
  * Input was generated by ent.
  */
 export interface UpdateStandardInput {
   RevisionBump?: InputMaybe<Scalars['VersionBump']['input']>
+  addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendDomains?: InputMaybe<Array<Scalars['String']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  clearControls?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearDomains?: InputMaybe<Scalars['Boolean']['input']>
   clearFramework?: InputMaybe<Scalars['Boolean']['input']>
@@ -29470,6 +36270,7 @@ export interface UpdateStandardInput {
   /** the long name of the standard body */
   name?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
   revision?: InputMaybe<Scalars['String']['input']>
   /** short name of the standard, e.g. SOC 2, ISO 27001, etc. */
@@ -29494,10 +36295,10 @@ export interface UpdateSubcontrolInput {
   addControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addMappedControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addScheduledJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendAssessmentMethods?: InputMaybe<Array<Scalars['AssessmentMethod']['input']>>
   appendAssessmentObjectives?: InputMaybe<Array<Scalars['AssessmentObjective']['input']>>
@@ -29535,12 +36336,12 @@ export interface UpdateSubcontrolInput {
   clearImplementationGuidance?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearMappedCategories?: InputMaybe<Scalars['Boolean']['input']>
-  clearMappedControls?: InputMaybe<Scalars['Boolean']['input']>
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
   clearReferenceID?: InputMaybe<Scalars['Boolean']['input']>
   clearReferences?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
+  clearScheduledJobs?: InputMaybe<Scalars['Boolean']['input']>
   clearSource?: InputMaybe<Scalars['Boolean']['input']>
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcategory?: InputMaybe<Scalars['Boolean']['input']>
@@ -29572,10 +36373,10 @@ export interface UpdateSubcontrolInput {
   removeControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeMappedControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeScheduledJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** source of the control, e.g. framework, template, custom, etc. */
   source?: InputMaybe<SubcontrolControlSource>
@@ -29638,6 +36439,7 @@ export interface UpdateTaskInput {
   addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   assigneeID?: InputMaybe<Scalars['ID']['input']>
@@ -29658,6 +36460,7 @@ export interface UpdateTaskInput {
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
+  clearRisks?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   /** the completion date of the task */
@@ -29675,6 +36478,7 @@ export interface UpdateTaskInput {
   removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the status of the task */
   status?: InputMaybe<TaskTaskStatus>
@@ -29716,6 +36520,42 @@ export interface UpdateTemplateInput {
 }
 
 /**
+ * UpdateTrustCenterInput is used for update TrustCenter object.
+ * Input was generated by ent.
+ */
+export interface UpdateTrustCenterInput {
+  appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  clearCustomDomain?: InputMaybe<Scalars['Boolean']['input']>
+  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearSetting?: InputMaybe<Scalars['Boolean']['input']>
+  clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  customDomainID?: InputMaybe<Scalars['ID']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  settingID?: InputMaybe<Scalars['ID']['input']>
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+  updateTrustCenterSetting?: InputMaybe<UpdateTrustCenterSettingInput>
+}
+
+/**
+ * UpdateTrustCenterSettingInput is used for update TrustCenterSetting object.
+ * Input was generated by ent.
+ */
+export interface UpdateTrustCenterSettingInput {
+  clearOverview?: InputMaybe<Scalars['Boolean']['input']>
+  clearPrimaryColor?: InputMaybe<Scalars['Boolean']['input']>
+  clearTitle?: InputMaybe<Scalars['Boolean']['input']>
+  clearTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
+  /** overview of the trust center */
+  overview?: InputMaybe<Scalars['String']['input']>
+  /** primary color for the trust center */
+  primaryColor?: InputMaybe<Scalars['String']['input']>
+  /** title of the trust center */
+  title?: InputMaybe<Scalars['String']['input']>
+  trustCenterID?: InputMaybe<Scalars['ID']['input']>
+}
+
+/**
  * UpdateUserInput is used for update User object.
  * Input was generated by ent.
  */
@@ -29723,12 +36563,10 @@ export interface UpdateUserInput {
   addActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addAssigneeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addAssignerTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addEmailVerificationTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addOrganizationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addPasswordResetTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addPersonalAccessTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -29748,7 +36586,6 @@ export interface UpdateUserInput {
   clearAvatarFile?: InputMaybe<Scalars['Boolean']['input']>
   clearAvatarRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
   clearAvatarUpdatedAt?: InputMaybe<Scalars['Boolean']['input']>
-  clearEmailVerificationTokens?: InputMaybe<Scalars['Boolean']['input']>
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearFirstName?: InputMaybe<Scalars['Boolean']['input']>
@@ -29758,7 +36595,6 @@ export interface UpdateUserInput {
   clearLastSeen?: InputMaybe<Scalars['Boolean']['input']>
   clearOrganizations?: InputMaybe<Scalars['Boolean']['input']>
   clearPassword?: InputMaybe<Scalars['Boolean']['input']>
-  clearPasswordResetTokens?: InputMaybe<Scalars['Boolean']['input']>
   clearPersonalAccessTokens?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
   clearRole?: InputMaybe<Scalars['Boolean']['input']>
@@ -29781,12 +36617,10 @@ export interface UpdateUserInput {
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAssigneeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAssignerTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeEmailVerificationTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeOrganizationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removePasswordResetTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removePersonalAccessTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -29850,8 +36684,6 @@ export interface User extends Node {
   avatarUpdatedAt?: Maybe<Scalars['Time']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   /** The user's displayed 'friendly' name */
@@ -29871,8 +36703,8 @@ export interface User extends Node {
   orgMemberships: OrgMembershipConnection
   organizations: OrganizationConnection
   personalAccessTokens: PersonalAccessTokenConnection
-  programMemberships?: Maybe<Array<ProgramMembership>>
-  programs?: Maybe<Array<Program>>
+  programMemberships: ProgramMembershipConnection
+  programs: ProgramConnection
   /** the user's role */
   role?: Maybe<UserRole>
   setting: UserSetting
@@ -29977,6 +36809,24 @@ export interface UserPersonalAccessTokensArgs {
   where?: InputMaybe<PersonalAccessTokenWhereInput>
 }
 
+export interface UserProgramMembershipsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ProgramMembershipOrder>>
+  where?: InputMaybe<ProgramMembershipWhereInput>
+}
+
+export interface UserProgramsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ProgramOrder>>
+  where?: InputMaybe<ProgramWhereInput>
+}
+
 export interface UserSubcontrolsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -30065,8 +36915,6 @@ export interface UserHistory extends Node {
   avatarUpdatedAt?: Maybe<Scalars['Time']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   /** The user's displayed 'friendly' name */
@@ -30140,6 +36988,7 @@ export enum UserHistoryOrderField {
   created_at = 'created_at',
   display_name = 'display_name',
   first_name = 'first_name',
+  history_time = 'history_time',
   last_name = 'last_name',
   updated_at = 'updated_at',
 }
@@ -30232,33 +37081,6 @@ export interface UserHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_id field predicates */
   displayID?: InputMaybe<Scalars['String']['input']>
   displayIDContains?: InputMaybe<Scalars['String']['input']>
@@ -30476,8 +37298,6 @@ export interface UserSetting extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** organization to load on user login */
   defaultOrg?: Maybe<Organization>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** whether the user has confirmed their email address */
   emailConfirmed: Scalars['Boolean']['output']
   files: FileConnection
@@ -30549,8 +37369,6 @@ export interface UserSettingHistory extends Node {
   __typename?: 'UserSettingHistory'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  deletedAt?: Maybe<Scalars['Time']['output']>
-  deletedBy?: Maybe<Scalars['String']['output']>
   /** whether the user has confirmed their email address */
   emailConfirmed: Scalars['Boolean']['output']
   historyTime: Scalars['Time']['output']
@@ -30614,6 +37432,7 @@ export interface UserSettingHistoryOrder {
 /** Properties by which UserSettingHistory connections can be ordered. */
 export enum UserSettingHistoryOrderField {
   created_at = 'created_at',
+  history_time = 'history_time',
   updated_at = 'updated_at',
 }
 
@@ -30659,33 +37478,6 @@ export interface UserSettingHistoryWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** email_confirmed field predicates */
   emailConfirmed?: InputMaybe<Scalars['Boolean']['input']>
   emailConfirmedNEQ?: InputMaybe<Scalars['Boolean']['input']>
@@ -30875,33 +37667,6 @@ export interface UserSettingWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** email_confirmed field predicates */
   emailConfirmed?: InputMaybe<Scalars['Boolean']['input']>
   emailConfirmedNEQ?: InputMaybe<Scalars['Boolean']['input']>
@@ -31095,33 +37860,6 @@ export interface UserWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_at field predicates */
-  deletedAt?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedAtLT?: InputMaybe<Scalars['Time']['input']>
-  deletedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  deletedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  deletedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** deleted_by field predicates */
-  deletedBy?: InputMaybe<Scalars['String']['input']>
-  deletedByContains?: InputMaybe<Scalars['String']['input']>
-  deletedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  deletedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  deletedByGT?: InputMaybe<Scalars['String']['input']>
-  deletedByGTE?: InputMaybe<Scalars['String']['input']>
-  deletedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  deletedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  deletedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  deletedByLT?: InputMaybe<Scalars['String']['input']>
-  deletedByLTE?: InputMaybe<Scalars['String']['input']>
-  deletedByNEQ?: InputMaybe<Scalars['String']['input']>
-  deletedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  deletedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_id field predicates */
   displayID?: InputMaybe<Scalars['String']['input']>
   displayIDContains?: InputMaybe<Scalars['String']['input']>
@@ -31467,17 +38205,189 @@ export interface WebauthnWhereInput {
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
+export type ControlImplementationFieldsFragment = {
+  __typename?: 'ControlImplementation'
+  id: string
+  details?: string | null
+  status?: ControlImplementationDocumentStatus | null
+  implementationDate?: any | null
+  verified?: boolean | null
+  controls: {
+    __typename?: 'ControlConnection'
+    edges?: Array<{
+      __typename?: 'ControlEdge'
+      node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; standard?: { __typename?: 'Standard'; shortName?: string | null } | null } | null
+    } | null> | null
+  }
+  subcontrols: {
+    __typename?: 'SubcontrolConnection'
+    edges?: Array<{
+      __typename?: 'SubcontrolEdge'
+      node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; refCode: string; description?: string | null; id: string } } | null
+    } | null> | null
+  }
+}
+
+export type GetAllControlImplementationsQueryVariables = Exact<{
+  where?: InputMaybe<ControlImplementationWhereInput>
+}>
+
+export type GetAllControlImplementationsQuery = {
+  __typename?: 'Query'
+  controlImplementations: {
+    __typename?: 'ControlImplementationConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'ControlImplementationEdge'
+      node?: {
+        __typename?: 'ControlImplementation'
+        id: string
+        details?: string | null
+        status?: ControlImplementationDocumentStatus | null
+        implementationDate?: any | null
+        verified?: boolean | null
+        controls: {
+          __typename?: 'ControlConnection'
+          edges?: Array<{
+            __typename?: 'ControlEdge'
+            node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; standard?: { __typename?: 'Standard'; shortName?: string | null } | null } | null
+          } | null> | null
+        }
+        subcontrols: {
+          __typename?: 'SubcontrolConnection'
+          edges?: Array<{
+            __typename?: 'SubcontrolEdge'
+            node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; refCode: string; description?: string | null; id: string } } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type CreateControlImplementationMutationVariables = Exact<{
+  input: CreateControlImplementationInput
+}>
+
+export type CreateControlImplementationMutation = {
+  __typename?: 'Mutation'
+  createControlImplementation: { __typename?: 'ControlImplementationCreatePayload'; controlImplementation: { __typename?: 'ControlImplementation'; id: string } }
+}
+
+export type UpdateControlImplementationMutationVariables = Exact<{
+  updateControlImplementationId: Scalars['ID']['input']
+  input: UpdateControlImplementationInput
+}>
+
+export type UpdateControlImplementationMutation = {
+  __typename?: 'Mutation'
+  updateControlImplementation: { __typename?: 'ControlImplementationUpdatePayload'; controlImplementation: { __typename?: 'ControlImplementation'; id: string } }
+}
+
+export type DeleteControlImplementationMutationVariables = Exact<{
+  deleteControlImplementationId: Scalars['ID']['input']
+}>
+
+export type DeleteControlImplementationMutation = { __typename?: 'Mutation'; deleteControlImplementation: { __typename?: 'ControlImplementationDeletePayload'; deletedID: string } }
+
+export type ControlObjectiveFieldsFragment = {
+  __typename?: 'ControlObjective'
+  id: string
+  name: string
+  status?: ControlObjectiveObjectiveStatus | null
+  controlObjectiveType?: string | null
+  source?: ControlObjectiveControlSource | null
+  category?: string | null
+  revision?: string | null
+  subcategory?: string | null
+  desiredOutcome?: string | null
+  controls: {
+    __typename?: 'ControlConnection'
+    edges?: Array<{
+      __typename?: 'ControlEdge'
+      node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; standard?: { __typename?: 'Standard'; shortName?: string | null } | null } | null
+    } | null> | null
+  }
+  subcontrols: {
+    __typename?: 'SubcontrolConnection'
+    edges?: Array<{
+      __typename?: 'SubcontrolEdge'
+      node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; id: string; refCode: string; description?: string | null } } | null
+    } | null> | null
+  }
+}
+
 export type GetAllControlObjectivesQueryVariables = Exact<{
   where?: InputMaybe<ControlObjectiveWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type GetAllControlObjectivesQuery = {
   __typename?: 'Query'
   controlObjectives: {
     __typename?: 'ControlObjectiveConnection'
-    edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string; name: string; displayID: string } | null } | null> | null
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'ControlObjectiveEdge'
+      node?: {
+        __typename?: 'ControlObjective'
+        id: string
+        name: string
+        status?: ControlObjectiveObjectiveStatus | null
+        controlObjectiveType?: string | null
+        source?: ControlObjectiveControlSource | null
+        category?: string | null
+        revision?: string | null
+        subcategory?: string | null
+        desiredOutcome?: string | null
+        controls: {
+          __typename?: 'ControlConnection'
+          edges?: Array<{
+            __typename?: 'ControlEdge'
+            node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; standard?: { __typename?: 'Standard'; shortName?: string | null } | null } | null
+          } | null> | null
+        }
+        subcontrols: {
+          __typename?: 'SubcontrolConnection'
+          edges?: Array<{
+            __typename?: 'SubcontrolEdge'
+            node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; id: string; refCode: string; description?: string | null } } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
+
+export type CreateControlObjectiveMutationVariables = Exact<{
+  input: CreateControlObjectiveInput
+}>
+
+export type CreateControlObjectiveMutation = {
+  __typename?: 'Mutation'
+  createControlObjective: { __typename?: 'ControlObjectiveCreatePayload'; controlObjective: { __typename?: 'ControlObjective'; id: string } }
+}
+
+export type UpdateControlObjectiveMutationVariables = Exact<{
+  updateControlObjectiveId: Scalars['ID']['input']
+  input: UpdateControlObjectiveInput
+}>
+
+export type UpdateControlObjectiveMutation = {
+  __typename?: 'Mutation'
+  updateControlObjective: { __typename?: 'ControlObjectiveUpdatePayload'; controlObjective: { __typename?: 'ControlObjective'; id: string } }
+}
+
+export type DeleteControlObjectiveMutationVariables = Exact<{
+  deleteControlObjectiveId: Scalars['ID']['input']
+}>
+
+export type DeleteControlObjectiveMutation = { __typename?: 'Mutation'; deleteControlObjective: { __typename?: 'ControlObjectiveDeletePayload'; deletedID: string } }
 
 export type ControlListFieldsFragment = {
   __typename?: 'Control'
@@ -31489,8 +38399,28 @@ export type ControlListFieldsFragment = {
   subcategory?: string | null
   tags?: Array<string> | null
   mappedCategories?: Array<string> | null
-  subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
+  referenceFramework?: string | null
+  referenceID?: string | null
+  auditorReferenceID?: string | null
+  source?: ControlControlSource | null
+  controlType?: ControlControlType | null
+  subcontrols: {
+    __typename?: 'SubcontrolConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null
+  }
   controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
+}
+
+export type ControlListStandardFieldsFragment = {
+  __typename?: 'Control'
+  id: string
+  refCode: string
+  description?: string | null
+  category?: string | null
+  subcategory?: string | null
+  mappedCategories?: Array<string> | null
+  subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
 }
 
 export type ControlDetailsFieldsFragment = {
@@ -31509,6 +38439,11 @@ export type ControlDetailsFieldsFragment = {
   assessmentMethods?: Array<any> | null
   assessmentObjectives?: Array<any> | null
   displayID: string
+  source?: ControlControlSource | null
+  controlType?: ControlControlType | null
+  auditorReferenceID?: string | null
+  referenceID?: string | null
+  standard?: { __typename?: 'Standard'; shortName?: string | null } | null
   controlObjectives: {
     __typename?: 'ControlObjectiveConnection'
     edges?: Array<{
@@ -31525,7 +38460,7 @@ export type ControlDetailsFieldsFragment = {
   }
   evidence: {
     __typename?: 'EvidenceConnection'
-    edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; displayID: string; name: string; creationDate: any } | null } | null> | null
+    edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; displayID: string; name: string; creationDate: any } | null } | null> | null
   }
   subcontrols: {
     __typename?: 'SubcontrolConnection'
@@ -31616,7 +38551,16 @@ export type GetAllControlsQuery = {
         subcategory?: string | null
         tags?: Array<string> | null
         mappedCategories?: Array<string> | null
-        subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
+        referenceFramework?: string | null
+        referenceID?: string | null
+        auditorReferenceID?: string | null
+        source?: ControlControlSource | null
+        controlType?: ControlControlType | null
+        subcontrols: {
+          __typename?: 'SubcontrolConnection'
+          totalCount: number
+          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null
+        }
         controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
       } | null
     } | null> | null
@@ -31646,6 +38590,11 @@ export type GetControlByIdQuery = {
     assessmentMethods?: Array<any> | null
     assessmentObjectives?: Array<any> | null
     displayID: string
+    source?: ControlControlSource | null
+    controlType?: ControlControlType | null
+    auditorReferenceID?: string | null
+    referenceID?: string | null
+    standard?: { __typename?: 'Standard'; shortName?: string | null } | null
     controlObjectives: {
       __typename?: 'ControlObjectiveConnection'
       edges?: Array<{
@@ -31662,7 +38611,7 @@ export type GetControlByIdQuery = {
     }
     evidence: {
       __typename?: 'EvidenceConnection'
-      edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; displayID: string; name: string; creationDate: any } | null } | null> | null
+      edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; displayID: string; name: string; creationDate: any } | null } | null> | null
     }
     subcontrols: {
       __typename?: 'SubcontrolConnection'
@@ -31746,6 +38695,106 @@ export type GetControlCountsByStatusQuery = {
   approved: { __typename?: 'ControlConnection'; totalCount: number }
 }
 
+export type CreateBulkCsvControlMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvControlMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVControl: { __typename?: 'ControlBulkCreatePayload'; controls?: Array<{ __typename?: 'Control'; id: string }> | null }
+}
+
+export type DeleteControlMutationVariables = Exact<{
+  deleteControlId: Scalars['ID']['input']
+}>
+
+export type DeleteControlMutation = { __typename?: 'Mutation'; deleteControl: { __typename?: 'ControlDeletePayload'; deletedID: string } }
+
+export type CreateControlMutationVariables = Exact<{
+  input: CreateControlInput
+}>
+
+export type CreateControlMutation = { __typename?: 'Mutation'; createControl: { __typename?: 'ControlCreatePayload'; control: { __typename?: 'Control'; id: string } } }
+
+export type GetControlSelectOptionsQueryVariables = Exact<{
+  where?: InputMaybe<ControlWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+}>
+
+export type GetControlSelectOptionsQuery = {
+  __typename?: 'Query'
+  controls: {
+    __typename?: 'ControlConnection'
+    edges?: Array<{
+      __typename?: 'ControlEdge'
+      node?: { __typename?: 'Control'; id: string; refCode: string; category?: string | null; subcategory?: string | null; referenceFramework?: string | null } | null
+    } | null> | null
+  }
+}
+
+export type GetControlCategoriesQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetControlCategoriesQuery = { __typename?: 'Query'; controlCategories?: Array<string> | null }
+
+export type GetControlSubcategoriesQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetControlSubcategoriesQuery = { __typename?: 'Query'; controlSubcategories?: Array<string> | null }
+
+export type GetControlsPaginatedQueryVariables = Exact<{
+  where?: InputMaybe<ControlWhereInput>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type GetControlsPaginatedQuery = {
+  __typename?: 'Query'
+  controls: {
+    __typename?: 'ControlConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'ControlEdge'
+      node?: { __typename: 'Control'; id: string; refCode: string; category?: string | null; subcategory?: string | null; referenceFramework?: string | null } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; endCursor?: any | null }
+  }
+}
+
+export type GetControlByIdMinifiedQueryVariables = Exact<{
+  controlId: Scalars['ID']['input']
+}>
+
+export type GetControlByIdMinifiedQuery = {
+  __typename?: 'Query'
+  control: { __typename?: 'Control'; id: string; refCode: string; standardID?: string | null; category?: string | null; subcategory?: string | null; description?: string | null }
+}
+
+export type GetControlsPaginatedWithListFieldsQueryVariables = Exact<{
+  where?: InputMaybe<ControlWhereInput>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type GetControlsPaginatedWithListFieldsQuery = {
+  __typename?: 'Query'
+  controls: {
+    __typename?: 'ControlConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'ControlEdge'
+      cursor: any
+      node?: {
+        __typename?: 'Control'
+        id: string
+        refCode: string
+        description?: string | null
+        category?: string | null
+        subcategory?: string | null
+        mappedCategories?: Array<string> | null
+        subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; endCursor?: any | null }
+  }
+}
+
 export type CreateEvidenceMutationVariables = Exact<{
   input: CreateEvidenceInput
   evidenceFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
@@ -31768,15 +38817,142 @@ export type GetEvidenceFilesQuery = {
 
 export type GetAllEvidencesQueryVariables = Exact<{
   where?: InputMaybe<EvidenceWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type GetAllEvidencesQuery = {
   __typename?: 'Query'
   evidences: {
     __typename?: 'EvidenceConnection'
+    totalCount: number
     edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string; displayID: string; description?: string | null } | null } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
+
+export type EvidenceFieldsFragment = {
+  __typename?: 'Evidence'
+  collectionProcedure?: string | null
+  createdAt?: any | null
+  createdBy?: string | null
+  creationDate: any
+  description?: string | null
+  displayID: string
+  id: string
+  name: string
+  ownerID?: string | null
+  renewalDate?: any | null
+  source?: string | null
+  status?: EvidenceEvidenceStatus | null
+  tags?: Array<string> | null
+  url?: string | null
+  updatedBy?: string | null
+  updatedAt?: any | null
+}
+
+export type GetEvidenceQueryVariables = Exact<{
+  evidenceId: Scalars['ID']['input']
+}>
+
+export type GetEvidenceQuery = {
+  __typename?: 'Query'
+  evidence: {
+    __typename?: 'Evidence'
+    collectionProcedure?: string | null
+    createdAt?: any | null
+    createdBy?: string | null
+    creationDate: any
+    description?: string | null
+    displayID: string
+    id: string
+    name: string
+    ownerID?: string | null
+    renewalDate?: any | null
+    source?: string | null
+    status?: EvidenceEvidenceStatus | null
+    tags?: Array<string> | null
+    url?: string | null
+    updatedBy?: string | null
+    updatedAt?: any | null
+  }
+}
+
+export type GetRenewEvidenceQueryVariables = Exact<{
+  evidenceId: Scalars['ID']['input']
+}>
+
+export type GetRenewEvidenceQuery = {
+  __typename?: 'Query'
+  evidence: {
+    __typename?: 'Evidence'
+    collectionProcedure?: string | null
+    createdAt?: any | null
+    createdBy?: string | null
+    creationDate: any
+    description?: string | null
+    displayID: string
+    id: string
+    name: string
+    ownerID?: string | null
+    renewalDate?: any | null
+    source?: string | null
+    status?: EvidenceEvidenceStatus | null
+    tags?: Array<string> | null
+    url?: string | null
+    updatedBy?: string | null
+    updatedAt?: any | null
+    programs: { __typename?: 'ProgramConnection'; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string } | null } | null> | null }
+    subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string } | null } | null> | null }
+    tasks: { __typename?: 'TaskConnection'; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string } | null } | null> | null }
+    controlObjectives: {
+      __typename?: 'ControlObjectiveConnection'
+      edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string } | null } | null> | null
+    }
+    controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string } | null } | null> | null }
+  }
+}
+
+export type GetEvidenceFilesPaginatedQueryVariables = Exact<{
+  evidenceId: Scalars['ID']['input']
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<FileOrder> | FileOrder>
+}>
+
+export type GetEvidenceFilesPaginatedQuery = {
+  __typename?: 'Query'
+  evidence: {
+    __typename?: 'Evidence'
+    files: {
+      __typename?: 'FileConnection'
+      totalCount: number
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+      edges?: Array<{
+        __typename?: 'FileEdge'
+        node?: { __typename?: 'File'; providedFileName: string; providedFileSize?: number | null; providedFileExtension: string; id: string; uri?: string | null; presignedURL?: string | null } | null
+      } | null> | null
+    }
+  }
+}
+
+export type UpdateEvidenceMutationVariables = Exact<{
+  updateEvidenceId: Scalars['ID']['input']
+  input: UpdateEvidenceInput
+  evidenceFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
+}>
+
+export type UpdateEvidenceMutation = { __typename?: 'Mutation'; updateEvidence: { __typename?: 'EvidenceUpdatePayload'; evidence: { __typename?: 'Evidence'; id: string } } }
+
+export type DeleteEvidenceMutationVariables = Exact<{
+  deleteEvidenceId: Scalars['ID']['input']
+}>
+
+export type DeleteEvidenceMutation = { __typename?: 'Mutation'; deleteEvidence: { __typename?: 'EvidenceDeletePayload'; deletedID: string } }
 
 export type GetAllGroupsQueryVariables = Exact<{
   where?: InputMaybe<GroupWhereInput>
@@ -31797,27 +38973,27 @@ export type GetAllGroupsQuery = {
       node?: {
         __typename?: 'Group'
         id: string
-        name: string
         description?: string | null
-        displayName: string
-        logoURL?: string | null
-        isManaged?: boolean | null
-        tags?: Array<string> | null
-        members?: Array<{
-          __typename?: 'GroupMembership'
-          id: string
-          role: GroupMembershipRole
-          user: {
-            __typename?: 'User'
-            id: string
-            firstName?: string | null
-            lastName?: string | null
-            displayName: string
-            avatarRemoteURL?: string | null
-            role?: UserRole | null
-            avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
-          }
-        }> | null
+        name: string
+        members: {
+          __typename?: 'GroupMembershipConnection'
+          edges?: Array<{
+            __typename?: 'GroupMembershipEdge'
+            node?: {
+              __typename?: 'GroupMembership'
+              id: string
+              role: GroupMembershipRole
+              user: {
+                __typename?: 'User'
+                id: string
+                displayName: string
+                avatarRemoteURL?: string | null
+                role?: UserRole | null
+                avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+              }
+            } | null
+          } | null> | null
+        }
         setting?: {
           __typename?: 'GroupSetting'
           visibility: GroupSettingVisibility
@@ -31867,20 +39043,25 @@ export type GetGroupDetailsQuery = {
     logoURL?: string | null
     isManaged?: boolean | null
     tags?: Array<string> | null
-    members?: Array<{
-      __typename?: 'GroupMembership'
-      id: string
-      role: GroupMembershipRole
-      user: {
-        __typename?: 'User'
-        id: string
-        firstName?: string | null
-        lastName?: string | null
-        avatarRemoteURL?: string | null
-        role?: UserRole | null
-        avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
-      }
-    }> | null
+    members: {
+      __typename?: 'GroupMembershipConnection'
+      edges?: Array<{
+        __typename?: 'GroupMembershipEdge'
+        node?: {
+          __typename?: 'GroupMembership'
+          id: string
+          role: GroupMembershipRole
+          user: {
+            __typename?: 'User'
+            id: string
+            displayName: string
+            avatarRemoteURL?: string | null
+            role?: UserRole | null
+            avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+          }
+        } | null
+      } | null> | null
+    }
     setting?: { __typename?: 'GroupSetting'; visibility: GroupSettingVisibility; joinPolicy: GroupSettingJoinPolicy; syncToSlack?: boolean | null; syncToGithub?: boolean | null; id: string } | null
   }
 }
@@ -31903,9 +39084,121 @@ export type GetGroupPermissionsQuery = {
   __typename?: 'Query'
   group: {
     __typename?: 'Group'
-    permissions?: Array<{ __typename?: 'GroupPermissions'; displayID?: string | null; id?: string | null; name?: string | null; objectType: string; permissions: Permission }> | null
+    permissions: {
+      __typename?: 'GroupPermissionConnection'
+      edges?: Array<{
+        __typename?: 'GroupPermissionEdge'
+        node?: { __typename?: 'GroupPermission'; id: string; name?: string | null; objectType: string; permissions: Permission } | null
+      } | null> | null
+    }
   }
 }
+
+export type DeleteGroupMembershipMutationVariables = Exact<{
+  deleteGroupMembershipId: Scalars['ID']['input']
+}>
+
+export type DeleteGroupMembershipMutation = { __typename?: 'Mutation'; deleteGroupMembership: { __typename?: 'GroupMembershipDeletePayload'; deletedID: string } }
+
+export type CreateMappedControlMutationVariables = Exact<{
+  input: CreateMappedControlInput
+}>
+
+export type CreateMappedControlMutation = { __typename?: 'Mutation'; createMappedControl: { __typename?: 'MappedControlCreatePayload'; mappedControl: { __typename?: 'MappedControl'; id: string } } }
+
+export type GetMappedControlsQueryVariables = Exact<{
+  where?: InputMaybe<MappedControlWhereInput>
+}>
+
+export type GetMappedControlsQuery = {
+  __typename?: 'Query'
+  mappedControls: {
+    __typename?: 'MappedControlConnection'
+    edges?: Array<{
+      __typename?: 'MappedControlEdge'
+      node?: {
+        __typename?: 'MappedControl'
+        id: string
+        relation?: string | null
+        confidence?: number | null
+        mappingType: MappedControlMappingType
+        fromSubcontrols: {
+          __typename?: 'SubcontrolConnection'
+          edges?: Array<{
+            __typename?: 'SubcontrolEdge'
+            node?: { __typename?: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; control: { __typename?: 'Control'; id: string } } | null
+          } | null> | null
+        }
+        toSubcontrols: {
+          __typename?: 'SubcontrolConnection'
+          edges?: Array<{
+            __typename?: 'SubcontrolEdge'
+            node?: { __typename?: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; control: { __typename?: 'Control'; id: string } } | null
+          } | null> | null
+        }
+        fromControls: {
+          __typename?: 'ControlConnection'
+          edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; referenceFramework?: string | null } | null } | null> | null
+        }
+        toControls: {
+          __typename?: 'ControlConnection'
+          edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; referenceFramework?: string | null } | null } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetMappedControlByIdQueryVariables = Exact<{
+  mappedControlId: Scalars['ID']['input']
+}>
+
+export type GetMappedControlByIdQuery = {
+  __typename?: 'Query'
+  mappedControl: {
+    __typename?: 'MappedControl'
+    id: string
+    relation?: string | null
+    confidence?: number | null
+    mappingType: MappedControlMappingType
+    source?: MappedControlMappingSource | null
+    fromSubcontrols: {
+      __typename?: 'SubcontrolConnection'
+      edges?: Array<{
+        __typename?: 'SubcontrolEdge'
+        node?: { __typename: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; control: { __typename?: 'Control'; id: string } } | null
+      } | null> | null
+    }
+    toSubcontrols: {
+      __typename?: 'SubcontrolConnection'
+      edges?: Array<{
+        __typename?: 'SubcontrolEdge'
+        node?: { __typename: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; control: { __typename?: 'Control'; id: string } } | null
+      } | null> | null
+    }
+    fromControls: {
+      __typename?: 'ControlConnection'
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename: 'Control'; id: string; refCode: string; referenceFramework?: string | null } | null } | null> | null
+    }
+    toControls: {
+      __typename?: 'ControlConnection'
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename: 'Control'; id: string; refCode: string; referenceFramework?: string | null } | null } | null> | null
+    }
+  }
+}
+
+export type UpdateMappedControlMutationVariables = Exact<{
+  updateMappedControlId: Scalars['ID']['input']
+  input: UpdateMappedControlInput
+}>
+
+export type UpdateMappedControlMutation = { __typename?: 'Mutation'; updateMappedControl: { __typename?: 'MappedControlUpdatePayload'; mappedControl: { __typename?: 'MappedControl'; id: string } } }
+
+export type DeleteMappedControlMutationVariables = Exact<{
+  deleteMappedControlId: Scalars['ID']['input']
+}>
+
+export type DeleteMappedControlMutation = { __typename?: 'Mutation'; deleteMappedControl: { __typename?: 'MappedControlDeletePayload'; deletedID: string } }
 
 export type UpdateUserRoleInOrgMutationVariables = Exact<{
   updateOrgMemberId: Scalars['ID']['input']
@@ -31922,6 +39215,61 @@ export type RemoveUserFromOrgMutationVariables = Exact<{
 }>
 
 export type RemoveUserFromOrgMutation = { __typename?: 'Mutation'; deleteOrgMembership: { __typename?: 'OrgMembershipDeletePayload'; deletedID: string } }
+
+export type OrgMembershipsQueryVariables = Exact<{
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  where?: InputMaybe<OrgMembershipWhereInput>
+}>
+
+export type OrgMembershipsQuery = {
+  __typename?: 'Query'
+  orgMemberships: {
+    __typename?: 'OrgMembershipConnection'
+    totalCount: number
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+    edges?: Array<{
+      __typename?: 'OrgMembershipEdge'
+      node?: {
+        __typename?: 'OrgMembership'
+        id: string
+        createdAt?: any | null
+        role: OrgMembershipRole
+        user: {
+          __typename?: 'User'
+          id: string
+          displayName: string
+          authProvider: UserAuthProvider
+          avatarRemoteURL?: string | null
+          email: string
+          role?: UserRole | null
+          createdAt?: any | null
+          avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type OrgMembershipsByIdsQueryVariables = Exact<{
+  where?: InputMaybe<OrgMembershipWhereInput>
+}>
+
+export type OrgMembershipsByIdsQuery = {
+  __typename?: 'Query'
+  orgMemberships: {
+    __typename?: 'OrgMembershipConnection'
+    edges?: Array<{
+      __typename?: 'OrgMembershipEdge'
+      node?: {
+        __typename?: 'OrgMembership'
+        user: { __typename?: 'User'; id: string; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null }
+      } | null
+    } | null> | null
+  }
+}
 
 export type GetAllNarrativesQueryVariables = Exact<{
   where?: InputMaybe<NarrativeWhereInput>
@@ -32008,8 +39356,7 @@ export type GetSingleOrganizationMembersQuery = {
           user: {
             __typename?: 'User'
             id: string
-            firstName?: string | null
-            lastName?: string | null
+            displayName: string
             authProvider: UserAuthProvider
             avatarRemoteURL?: string | null
             email: string
@@ -32024,7 +39371,9 @@ export type GetSingleOrganizationMembersQuery = {
   }
 }
 
-export type GetAllOrganizationsWithMembersQueryVariables = Exact<{ [key: string]: never }>
+export type GetAllOrganizationsWithMembersQueryVariables = Exact<{
+  membersWhere?: InputMaybe<OrgMembershipWhereInput>
+}>
 
 export type GetAllOrganizationsWithMembersQuery = {
   __typename?: 'Query'
@@ -32040,7 +39389,13 @@ export type GetAllOrganizationsWithMembersQuery = {
         name: string
         avatarRemoteURL?: string | null
         avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
-        members: { __typename?: 'OrgMembershipConnection'; edges?: Array<{ __typename?: 'OrgMembershipEdge'; node?: { __typename?: 'OrgMembership'; role: OrgMembershipRole } | null } | null> | null }
+        members: {
+          __typename?: 'OrgMembershipConnection'
+          edges?: Array<{
+            __typename?: 'OrgMembershipEdge'
+            node?: { __typename?: 'OrgMembership'; id: string; role: OrgMembershipRole; user: { __typename?: 'User'; id: string } } | null
+          } | null> | null
+        }
       } | null
     } | null> | null
   }
@@ -32049,6 +39404,10 @@ export type GetAllOrganizationsWithMembersQuery = {
 export type GetInvitesQueryVariables = Exact<{
   where?: InputMaybe<InviteWhereInput>
   orderBy?: InputMaybe<Array<InviteOrder> | InviteOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type GetInvitesQuery = {
@@ -32084,6 +39443,7 @@ export type GetOrganizationBillingQuery = {
       features?: Array<string> | null
       managePaymentMethods?: string | null
       cancellation?: string | null
+      trialExpiresAt?: any | null
     }> | null
   }
 }
@@ -32097,7 +39457,13 @@ export type GetOrganizationBillingBannerQuery = {
   organization: {
     __typename?: 'Organization'
     personalOrg?: boolean | null
-    orgSubscriptions?: Array<{ __typename?: 'OrgSubscription'; expiresAt?: any | null; stripeSubscriptionStatus?: string | null; paymentMethodAdded?: boolean | null }> | null
+    orgSubscriptions?: Array<{
+      __typename?: 'OrgSubscription'
+      trialExpiresAt?: any | null
+      expiresAt?: any | null
+      stripeSubscriptionStatus?: string | null
+      paymentMethodAdded?: boolean | null
+    }> | null
   }
 }
 
@@ -32111,6 +39477,7 @@ export type GetOrganizationSettingQuery = {
     __typename?: 'Organization'
     setting?: {
       __typename?: 'OrganizationSetting'
+      id: string
       createdAt?: any | null
       updatedAt?: any | null
       createdBy?: string | null
@@ -32124,6 +39491,7 @@ export type GetOrganizationSettingQuery = {
       tags?: Array<string> | null
       geoLocation?: OrganizationSettingRegion | null
       billingNotificationsEnabled: boolean
+      allowedEmailDomains?: Array<string> | null
     } | null
   }
 }
@@ -32165,6 +39533,16 @@ export type DeleteOrganizationMutationVariables = Exact<{
 }>
 
 export type DeleteOrganizationMutation = { __typename?: 'Mutation'; deleteOrganization: { __typename?: 'OrganizationDeletePayload'; deletedID: string } }
+
+export type UpdateOrganizationSettingMutationVariables = Exact<{
+  updateOrganizationSettingId: Scalars['ID']['input']
+  input: UpdateOrganizationSettingInput
+}>
+
+export type UpdateOrganizationSettingMutation = {
+  __typename?: 'Mutation'
+  updateOrganizationSetting: { __typename?: 'OrganizationSettingUpdatePayload'; organizationSetting: { __typename?: 'OrganizationSetting'; id: string } }
+}
 
 export type GetPasskeysQueryVariables = Exact<{ [key: string]: never }>
 
@@ -32230,28 +39608,32 @@ export type GetInternalPoliciesListQuery = {
         __typename?: 'InternalPolicy'
         id: string
         name: string
-        displayID: string
-        status?: InternalPolicyDocumentStatus | null
-        revision?: string | null
         updatedAt?: any | null
         updatedBy?: string | null
         createdAt?: any | null
         createdBy?: string | null
-        tags?: Array<string> | null
-        details?: string | null
+        summary?: string | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
 
-export type GetAllInternalPoliciesQueryVariables = Exact<{ [key: string]: never }>
+export type GetAllInternalPoliciesQueryVariables = Exact<{
+  where?: InputMaybe<InternalPolicyWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
 
 export type GetAllInternalPoliciesQuery = {
   __typename?: 'Query'
   internalPolicies: {
     __typename?: 'InternalPolicyConnection'
-    edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
+    totalCount: number
+    edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; summary?: string | null } | null } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
 
@@ -32278,7 +39660,7 @@ export type InternalPolicyByIdFragment = {
   procedures: {
     __typename?: 'ProcedureConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string } | null } | null> | null
+    edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string; summary?: string | null } | null } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
   }
   controls: {
@@ -32287,16 +39669,22 @@ export type InternalPolicyByIdFragment = {
     edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
   }
+  subcontrols: {
+    __typename?: 'SubcontrolConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string } | null } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+  }
   programs: {
     __typename?: 'ProgramConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string } | null } | null> | null
+    edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string; description?: string | null } | null } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
   }
   tasks: {
     __typename?: 'TaskConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string } | null } | null> | null
+    edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; details?: string | null } | null } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
   }
   controlObjectives: {
@@ -32336,7 +39724,7 @@ export type GetInternalPolicyDetailsByIdQuery = {
     procedures: {
       __typename?: 'ProcedureConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string; summary?: string | null } | null } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     controls: {
@@ -32345,16 +39733,22 @@ export type GetInternalPolicyDetailsByIdQuery = {
       edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
+    subcontrols: {
+      __typename?: 'SubcontrolConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string } | null } | null> | null
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+    }
     programs: {
       __typename?: 'ProgramConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string; description?: string | null } | null } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     tasks: {
       __typename?: 'TaskConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; details?: string | null } | null } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     controlObjectives: {
@@ -32415,6 +39809,37 @@ export type GetAllProceduresWithDetailsQuery = {
   }
 }
 
+export type GetProceduresTableListQueryVariables = Exact<{
+  orderBy?: InputMaybe<Array<ProcedureOrder> | ProcedureOrder>
+  where?: InputMaybe<ProcedureWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type GetProceduresTableListQuery = {
+  __typename?: 'Query'
+  procedures: {
+    __typename?: 'ProcedureConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'ProcedureEdge'
+      node?: {
+        __typename?: 'Procedure'
+        id: string
+        name: string
+        updatedAt?: any | null
+        updatedBy?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        summary?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
 export type GetProceduresListQueryVariables = Exact<{
   orderBy?: InputMaybe<Array<ProcedureOrder> | ProcedureOrder>
   where?: InputMaybe<ProcedureWhereInput>
@@ -32444,6 +39869,7 @@ export type GetProceduresListQuery = {
         createdBy?: string | null
         tags?: Array<string> | null
         details?: string | null
+        summary?: string | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -32478,12 +39904,20 @@ export type ProcedureByIdFragment = {
   internalPolicies: {
     __typename?: 'InternalPolicyConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; displayID: string } | null } | null> | null
+    edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; displayID: string; summary?: string | null } | null } | null> | null
   }
   controls: {
     __typename?: 'ControlConnection'
     totalCount: number
     edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
+  }
+  subcontrols: {
+    __typename?: 'SubcontrolConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'SubcontrolEdge'
+      node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; control: { __typename?: 'Control'; id: string } } | null
+    } | null> | null
   }
   programs: {
     __typename?: 'ProgramConnection'
@@ -32531,12 +39965,20 @@ export type GetProcedureDetailsByIdQuery = {
     internalPolicies: {
       __typename?: 'InternalPolicyConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; displayID: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; displayID: string; summary?: string | null } | null } | null> | null
     }
     controls: {
       __typename?: 'ControlConnection'
       totalCount: number
       edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
+    }
+    subcontrols: {
+      __typename?: 'SubcontrolConnection'
+      totalCount: number
+      edges?: Array<{
+        __typename?: 'SubcontrolEdge'
+        node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; control: { __typename?: 'Control'; id: string } } | null
+      } | null> | null
     }
     programs: {
       __typename?: 'ProgramConnection'
@@ -32585,12 +40027,17 @@ export type UpdateProgramMutation = { __typename?: 'Mutation'; updateProgram: { 
 export type GetAllProgramsQueryVariables = Exact<{
   where?: InputMaybe<ProgramWhereInput>
   orderBy?: InputMaybe<Array<ProgramOrder> | ProgramOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type GetAllProgramsQuery = {
   __typename?: 'Query'
   programs: {
     __typename?: 'ProgramConnection'
+    totalCount: number
     edges?: Array<{
       __typename?: 'ProgramEdge'
       node?: {
@@ -32606,6 +40053,7 @@ export type GetAllProgramsQuery = {
         displayID: string
       } | null
     } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
 
@@ -32624,7 +40072,7 @@ export type GetProgramEdgesForWizardQuery = {
     __typename?: 'OrgMembershipConnection'
     edges?: Array<{
       __typename?: 'OrgMembershipEdge'
-      node?: { __typename?: 'OrgMembership'; user: { __typename?: 'User'; id: string; firstName?: string | null; lastName?: string | null; role?: UserRole | null } } | null
+      node?: { __typename?: 'OrgMembership'; user: { __typename?: 'User'; id: string; role?: UserRole | null; displayName: string } } | null
     } | null> | null
   }
 }
@@ -32658,8 +40106,8 @@ export type GetProgramDetailsByIdQuery = {
           status: TaskTaskStatus
           due?: string | null
           details?: string | null
-          assignee?: { __typename?: 'User'; id: string; firstName?: string | null; lastName?: string | null; email: string } | null
-          assigner?: { __typename?: 'User'; id: string; firstName?: string | null; lastName?: string | null; email: string } | null
+          assignee?: { __typename?: 'User'; displayName: string; id: string; email: string } | null
+          assigner?: { __typename?: 'User'; displayName: string; id: string; email: string } | null
         } | null
       } | null> | null
     }
@@ -32694,7 +40142,115 @@ export type GetProgramBasicInfoQuery = {
     auditor?: string | null
     auditorEmail?: string | null
     auditorReady: boolean
+    displayID: string
+    tags?: Array<string> | null
+    frameworkName?: string | null
+    status: ProgramProgramStatus
+    programType: ProgramProgramType
   }
+}
+
+export type GetProgramSettingsQueryVariables = Exact<{
+  programId: Scalars['ID']['input']
+}>
+
+export type GetProgramSettingsQuery = {
+  __typename?: 'Query'
+  program: {
+    __typename?: 'Program'
+    viewers: {
+      __typename?: 'GroupConnection'
+      edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null } | null> | null
+    }
+    editors: {
+      __typename?: 'GroupConnection'
+      edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null } | null> | null
+    }
+    members: {
+      __typename?: 'ProgramMembershipConnection'
+      totalCount: number
+      edges?: Array<{
+        __typename?: 'ProgramMembershipEdge'
+        node?: {
+          __typename?: 'ProgramMembership'
+          id: string
+          role: ProgramMembershipRole
+          user: {
+            __typename?: 'User'
+            email: string
+            id: string
+            displayName: string
+            avatarRemoteURL?: string | null
+            avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+          }
+        } | null
+      } | null> | null
+    }
+  }
+}
+
+export type GetProgramMembersQueryVariables = Exact<{
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  where?: InputMaybe<ProgramMembershipWhereInput>
+}>
+
+export type GetProgramMembersQuery = {
+  __typename?: 'Query'
+  programMemberships: {
+    __typename?: 'ProgramMembershipConnection'
+    totalCount: number
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+    edges?: Array<{
+      __typename?: 'ProgramMembershipEdge'
+      node?: {
+        __typename?: 'ProgramMembership'
+        id: string
+        role: ProgramMembershipRole
+        user: { __typename?: 'User'; id: string; displayName: string; email: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetProgramGroupsQueryVariables = Exact<{
+  programId: Scalars['ID']['input']
+}>
+
+export type GetProgramGroupsQuery = {
+  __typename?: 'Query'
+  program: {
+    __typename?: 'Program'
+    id: string
+    viewers: {
+      __typename?: 'GroupConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; name: string; id: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null } | null> | null
+    }
+    editors: {
+      __typename?: 'GroupConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; name: string; id: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null } | null> | null
+    }
+  }
+}
+
+export type DeleteProgramMutationVariables = Exact<{
+  deleteProgramId: Scalars['ID']['input']
+}>
+
+export type DeleteProgramMutation = { __typename?: 'Mutation'; deleteProgram: { __typename?: 'ProgramDeletePayload'; deletedID: string } }
+
+export type UpdateProgramMembershipMutationVariables = Exact<{
+  updateProgramMembershipId: Scalars['ID']['input']
+  input: UpdateProgramMembershipInput
+}>
+
+export type UpdateProgramMembershipMutation = {
+  __typename?: 'Mutation'
+  updateProgramMembership: { __typename?: 'ProgramMembershipUpdatePayload'; programMembership: { __typename?: 'ProgramMembership'; id: string } }
 }
 
 export type GetEvidenceStatsQueryVariables = Exact<{
@@ -32734,9 +40290,55 @@ export type RiskFieldsFragment = {
   likelihood?: RiskRiskLikelihood | null
   impact?: RiskRiskImpact | null
   mitigation?: string | null
-  stakeholder?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
-  controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
-  subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null }
+  stakeholder?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+  delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+  procedures: {
+    __typename?: 'ProcedureConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string; summary?: string | null } | null } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+  }
+  controls: {
+    __typename?: 'ControlConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+  }
+  subcontrols: {
+    __typename?: 'SubcontrolConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string } | null } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+  }
+  programs: {
+    __typename?: 'ProgramConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string; description?: string | null } | null } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+  }
+  tasks: {
+    __typename?: 'TaskConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; details?: string | null } | null } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+  }
+  internalPolicies: {
+    __typename?: 'InternalPolicyConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; displayID: string; name: string } | null } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+  }
+}
+
+export type RiskTableFieldsFragment = {
+  __typename?: 'Risk'
+  id: string
+  name: string
+  category?: string | null
+  riskType?: string | null
+  score?: number | null
+  status?: RiskRiskStatus | null
+  stakeholder?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
 }
 
 export type GetRiskByIdQueryVariables = Exact<{
@@ -32760,15 +40362,54 @@ export type GetRiskByIdQuery = {
     likelihood?: RiskRiskLikelihood | null
     impact?: RiskRiskImpact | null
     mitigation?: string | null
-    stakeholder?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
-    controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
-    subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null }
+    stakeholder?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+    delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+    procedures: {
+      __typename?: 'ProcedureConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string; summary?: string | null } | null } | null> | null
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+    }
+    controls: {
+      __typename?: 'ControlConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+    }
+    subcontrols: {
+      __typename?: 'SubcontrolConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string } | null } | null> | null
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+    }
+    programs: {
+      __typename?: 'ProgramConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string; description?: string | null } | null } | null> | null
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+    }
+    tasks: {
+      __typename?: 'TaskConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; details?: string | null } | null } | null> | null
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+    }
+    internalPolicies: {
+      __typename?: 'InternalPolicyConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; displayID: string; name: string } | null } | null> | null
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+    }
   }
 }
 
 export type GetAllRisksQueryVariables = Exact<{
   where?: InputMaybe<RiskWhereInput>
   orderBy?: InputMaybe<Array<RiskOrder> | RiskOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type GetAllRisksQuery = {
@@ -32776,7 +40417,7 @@ export type GetAllRisksQuery = {
   risks: {
     __typename?: 'RiskConnection'
     totalCount: number
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
     edges?: Array<{
       __typename?: 'RiskEdge'
       node?: {
@@ -32794,9 +40435,75 @@ export type GetAllRisksQuery = {
         likelihood?: RiskRiskLikelihood | null
         impact?: RiskRiskImpact | null
         mitigation?: string | null
-        stakeholder?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
-        controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
-        subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null }
+        stakeholder?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+        delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+        procedures: {
+          __typename?: 'ProcedureConnection'
+          totalCount: number
+          edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string; summary?: string | null } | null } | null> | null
+          pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+        }
+        controls: {
+          __typename?: 'ControlConnection'
+          totalCount: number
+          edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
+          pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+        }
+        subcontrols: {
+          __typename?: 'SubcontrolConnection'
+          totalCount: number
+          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string } | null } | null> | null
+          pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+        }
+        programs: {
+          __typename?: 'ProgramConnection'
+          totalCount: number
+          edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string; description?: string | null } | null } | null> | null
+          pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+        }
+        tasks: {
+          __typename?: 'TaskConnection'
+          totalCount: number
+          edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; details?: string | null } | null } | null> | null
+          pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+        }
+        internalPolicies: {
+          __typename?: 'InternalPolicyConnection'
+          totalCount: number
+          edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; displayID: string; name: string } | null } | null> | null
+          pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetTableRisksQueryVariables = Exact<{
+  where?: InputMaybe<RiskWhereInput>
+  orderBy?: InputMaybe<Array<RiskOrder> | RiskOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type GetTableRisksQuery = {
+  __typename?: 'Query'
+  risks: {
+    __typename?: 'RiskConnection'
+    totalCount: number
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+    edges?: Array<{
+      __typename?: 'RiskEdge'
+      node?: {
+        __typename?: 'Risk'
+        id: string
+        name: string
+        category?: string | null
+        riskType?: string | null
+        score?: number | null
+        status?: RiskRiskStatus | null
+        stakeholder?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
       } | null
     } | null> | null
   }
@@ -32808,6 +40515,24 @@ export type UpdateRiskMutationVariables = Exact<{
 }>
 
 export type UpdateRiskMutation = { __typename?: 'Mutation'; updateRisk: { __typename?: 'RiskUpdatePayload'; risk: { __typename?: 'Risk'; id: string } } }
+
+export type CreateBulkCsvRiskMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvRiskMutation = { __typename?: 'Mutation'; createBulkCSVRisk: { __typename?: 'RiskBulkCreatePayload'; risks?: Array<{ __typename?: 'Risk'; id: string }> | null } }
+
+export type DeleteRiskMutationVariables = Exact<{
+  deleteRiskId: Scalars['ID']['input']
+}>
+
+export type DeleteRiskMutation = { __typename?: 'Mutation'; deleteRisk: { __typename?: 'RiskDeletePayload'; deletedID: string } }
+
+export type CreateRiskMutationVariables = Exact<{
+  input: CreateRiskInput
+}>
+
+export type CreateRiskMutation = { __typename?: 'Mutation'; createRisk: { __typename?: 'RiskCreatePayload'; risk: { __typename?: 'Risk'; id: string } } }
 
 export type SearchQueryVariables = Exact<{
   query: Scalars['String']['input']
@@ -32844,7 +40569,7 @@ export type SearchQuery = {
     subcontrols?: {
       __typename?: 'SubcontrolConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; id: string } } | null } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
     } | null
     risks?: {
@@ -32929,6 +40654,15 @@ export type CreateControlsByCloneMutation = {
   createControlsByClone: { __typename?: 'ControlBulkCreatePayload'; controls?: Array<{ __typename?: 'Control'; id: string }> | null }
 }
 
+export type GetAllStandardsSelectQueryVariables = Exact<{
+  where?: InputMaybe<StandardWhereInput>
+}>
+
+export type GetAllStandardsSelectQuery = {
+  __typename?: 'Query'
+  standards: { __typename?: 'StandardConnection'; edges?: Array<{ __typename?: 'StandardEdge'; node?: { __typename?: 'Standard'; id: string; shortName?: string | null } | null } | null> | null }
+}
+
 export type GetAllSubcontrolsQueryVariables = Exact<{
   where?: InputMaybe<SubcontrolWhereInput>
 }>
@@ -32937,7 +40671,9 @@ export type GetAllSubcontrolsQuery = {
   __typename?: 'Query'
   subcontrols: {
     __typename?: 'SubcontrolConnection'
-    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; description?: string | null } | null } | null> | null
+    totalCount: number
+    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; description?: string | null; refCode: string } | null } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
 
@@ -32963,7 +40699,11 @@ export type GetSubcontrolByIdQuery = {
     assessmentMethods?: Array<any> | null
     assessmentObjectives?: Array<any> | null
     displayID: string
-    control: { __typename?: 'Control'; refCode: string; id: string }
+    source?: SubcontrolControlSource | null
+    controlType?: SubcontrolControlType | null
+    auditorReferenceID?: string | null
+    referenceID?: string | null
+    control: { __typename?: 'Control'; refCode: string; id: string; standard?: { __typename?: 'Standard'; id: string; shortName?: string | null } | null }
     controlObjectives: {
       __typename?: 'ControlObjectiveConnection'
       edges?: Array<{
@@ -32980,7 +40720,7 @@ export type GetSubcontrolByIdQuery = {
     }
     evidence: {
       __typename?: 'EvidenceConnection'
-      edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; displayID: string; name: string; creationDate: any } | null } | null> | null
+      edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; displayID: string; name: string; creationDate: any } | null } | null> | null
     }
     internalPolicies: {
       __typename?: 'InternalPolicyConnection'
@@ -33042,6 +40782,68 @@ export type UpdateSubcontrolMutationVariables = Exact<{
 
 export type UpdateSubcontrolMutation = { __typename?: 'Mutation'; updateSubcontrol: { __typename?: 'SubcontrolUpdatePayload'; subcontrol: { __typename?: 'Subcontrol'; id: string } } }
 
+export type DeleteSubcontrolMutationVariables = Exact<{
+  deleteSubcontrolId: Scalars['ID']['input']
+}>
+
+export type DeleteSubcontrolMutation = { __typename?: 'Mutation'; deleteSubcontrol: { __typename?: 'SubcontrolDeletePayload'; deletedID: string } }
+
+export type CreateSubcontrolMutationVariables = Exact<{
+  input: CreateSubcontrolInput
+}>
+
+export type CreateSubcontrolMutation = { __typename?: 'Mutation'; createSubcontrol: { __typename?: 'SubcontrolCreatePayload'; subcontrol: { __typename?: 'Subcontrol'; id: string } } }
+
+export type GetSubcontrolSelectOptionsQueryVariables = Exact<{
+  where?: InputMaybe<SubcontrolWhereInput>
+}>
+
+export type GetSubcontrolSelectOptionsQuery = {
+  __typename?: 'Query'
+  subcontrols: {
+    __typename?: 'SubcontrolConnection'
+    edges?: Array<{
+      __typename?: 'SubcontrolEdge'
+      node?: { __typename?: 'Subcontrol'; id: string; refCode: string; category?: string | null; subcategory?: string | null; referenceFramework?: string | null } | null
+    } | null> | null
+  }
+}
+
+export type GetSubcontrolsPaginatedQueryVariables = Exact<{
+  where?: InputMaybe<SubcontrolWhereInput>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type GetSubcontrolsPaginatedQuery = {
+  __typename?: 'Query'
+  subcontrols: {
+    __typename?: 'SubcontrolConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'SubcontrolEdge'
+      node?: { __typename: 'Subcontrol'; id: string; refCode: string; category?: string | null; subcategory?: string | null; referenceFramework?: string | null } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; endCursor?: any | null }
+  }
+}
+
+export type GetSubcontrolByIdMinifiedQueryVariables = Exact<{
+  subcontrolId: Scalars['ID']['input']
+}>
+
+export type GetSubcontrolByIdMinifiedQuery = {
+  __typename?: 'Query'
+  subcontrol: {
+    __typename?: 'Subcontrol'
+    id: string
+    refCode: string
+    category?: string | null
+    subcategory?: string | null
+    description?: string | null
+    control: { __typename?: 'Control'; id: string; standardID?: string | null }
+  }
+}
+
 export type CreateSubscriberMutationVariables = Exact<{
   input: CreateSubscriberInput
 }>
@@ -33051,6 +40853,10 @@ export type CreateSubscriberMutation = { __typename?: 'Mutation'; createSubscrib
 export type GetAllSubscribersQueryVariables = Exact<{
   where?: InputMaybe<SubscriberWhereInput>
   orderBy?: InputMaybe<Array<SubscriberOrder> | SubscriberOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type GetAllSubscribersQuery = {
@@ -33058,7 +40864,10 @@ export type GetAllSubscribersQuery = {
   subscribers: {
     __typename?: 'SubscriberConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'SubscriberEdge'; node?: { __typename?: 'Subscriber'; active: boolean; email: string; id: string; verifiedEmail: boolean } | null } | null> | null
+    edges?: Array<{
+      __typename?: 'SubscriberEdge'
+      node?: { __typename?: 'Subscriber'; active: boolean; email: string; id: string; verifiedEmail: boolean; createdAt?: any | null } | null
+    } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
   }
 }
@@ -33076,6 +40885,15 @@ export type UpdateSubscriberMutationVariables = Exact<{
 
 export type UpdateSubscriberMutation = { __typename?: 'Mutation'; updateSubscriber: { __typename?: 'SubscriberUpdatePayload'; subscriber: { __typename?: 'Subscriber'; id: string } } }
 
+export type CreateBulkCsvSubscriberMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvSubscriberMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVSubscriber: { __typename?: 'SubscriberBulkCreatePayload'; subscribers?: Array<{ __typename?: 'Subscriber'; id: string }> | null }
+}
+
 export type TasksWithFilterQueryVariables = Exact<{
   where?: InputMaybe<TaskWhereInput>
   orderBy?: InputMaybe<Array<TaskOrder> | TaskOrder>
@@ -33090,7 +40908,6 @@ export type TasksWithFilterQuery = {
   tasks: {
     __typename?: 'TaskConnection'
     totalCount: number
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
     edges?: Array<{
       __typename?: 'TaskEdge'
       node?: {
@@ -33103,24 +40920,11 @@ export type TasksWithFilterQuery = {
         due?: string | null
         displayID: string
         category?: string | null
-        assigner?: {
-          __typename?: 'User'
-          displayName: string
-          firstName?: string | null
-          lastName?: string | null
-          avatarRemoteURL?: string | null
-          avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
-        } | null
-        assignee?: {
-          __typename?: 'User'
-          displayName: string
-          firstName?: string | null
-          lastName?: string | null
-          avatarRemoteURL?: string | null
-          avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
-        } | null
+        assigner?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
+        assignee?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
       } | null
     } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
 
@@ -33159,9 +40963,14 @@ export type TaskQuery = {
     due?: string | null
     displayID: string
     details?: string | null
-    assignee?: { __typename?: 'User'; displayName: string; firstName?: string | null; lastName?: string | null; avatarRemoteURL?: string | null; id: string } | null
-    assigner?: { __typename?: 'User'; avatarRemoteURL?: string | null; lastName?: string | null; firstName?: string | null; displayName: string; id: string } | null
-    subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null }
+    assignee?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; id: string } | null
+    assigner?: { __typename?: 'User'; avatarRemoteURL?: string | null; displayName: string; id: string } | null
+    subcontrols: {
+      __typename?: 'SubcontrolConnection'
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; controlID: string } | null } | null> | null
+    }
+    controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
+    risks: { __typename?: 'RiskConnection'; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
     programs: { __typename?: 'ProgramConnection'; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string } | null } | null> | null }
     procedures: { __typename?: 'ProcedureConnection'; edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; displayID: string } | null } | null> | null }
     internalPolicies: {
@@ -33325,6 +41134,15 @@ export type SearchTemplatesQuery = {
   } | null
 }
 
+export type CreateBulkCsvTemplateMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvTemplateMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVTemplate: { __typename?: 'TemplateBulkCreatePayload'; templates?: Array<{ __typename?: 'Template'; id: string }> | null }
+}
+
 export type GetTfaSettingsQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetTfaSettingsQuery = {
@@ -33444,6 +41262,16 @@ export type DeleteApiTokenMutationVariables = Exact<{
 
 export type DeleteApiTokenMutation = { __typename?: 'Mutation'; deleteAPIToken: { __typename?: 'APITokenDeletePayload'; deletedID: string } }
 
+export type GetApiTokensByIdsQueryVariables = Exact<{
+  where?: InputMaybe<ApiTokenWhereInput>
+  orderBy?: InputMaybe<Array<ApiTokenOrder> | ApiTokenOrder>
+}>
+
+export type GetApiTokensByIdsQuery = {
+  __typename?: 'Query'
+  apiTokens: { __typename?: 'APITokenConnection'; edges?: Array<{ __typename?: 'APITokenEdge'; node?: { __typename?: 'APIToken'; id: string; name: string } | null } | null> | null }
+}
+
 export type GetUserProfileQueryVariables = Exact<{
   userId: Scalars['ID']['input']
 }>
@@ -33499,15 +41327,7 @@ export type GetAllUsersQuery = {
     __typename?: 'UserConnection'
     edges?: Array<{
       __typename?: 'UserEdge'
-      node?: {
-        __typename?: 'User'
-        id: string
-        firstName?: string | null
-        lastName?: string | null
-        displayName: string
-        avatarRemoteURL?: string | null
-        avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
-      } | null
+      node?: { __typename?: 'User'; id: string; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
     } | null> | null
   }
 }

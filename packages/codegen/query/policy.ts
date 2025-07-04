@@ -42,15 +42,11 @@ export const GET_INTERNAL_POLICIES_LIST = gql`
         node {
           id
           name
-          displayID
-          status
-          revision
           updatedAt
           updatedBy
           createdAt
           createdBy
-          tags
-          details
+          summary
         }
       }
       pageInfo {
@@ -65,14 +61,22 @@ export const GET_INTERNAL_POLICIES_LIST = gql`
 `
 
 export const GET_ALL_INTERNAL_POLICIES = gql`
-  query GetAllInternalPolicies {
-    internalPolicies {
+  query GetAllInternalPolicies($where: InternalPolicyWhereInput, $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    internalPolicies(where: $where, first: $first, after: $after, last: $last, before: $before) {
       edges {
         node {
           id
           name
+          summary
         }
       }
+      pageInfo {
+        endCursor
+        startCursor
+        hasPreviousPage
+        hasNextPage
+      }
+      totalCount
     }
   }
 `
@@ -121,6 +125,7 @@ export const INTERNAL_POLICY_BY_ID = gql`
           id
           name
           displayID
+          summary
         }
       }
       pageInfo {
@@ -147,12 +152,29 @@ export const INTERNAL_POLICY_BY_ID = gql`
       }
       totalCount
     }
+    subcontrols {
+      edges {
+        node {
+          id
+          displayID
+          refCode
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      totalCount
+    }
     programs {
       edges {
         node {
           id
           displayID
           name
+          description
         }
       }
       pageInfo {
@@ -169,6 +191,7 @@ export const INTERNAL_POLICY_BY_ID = gql`
           id
           displayID
           title
+          details
         }
       }
       pageInfo {

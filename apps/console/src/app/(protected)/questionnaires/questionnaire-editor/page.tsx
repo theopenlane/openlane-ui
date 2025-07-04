@@ -1,26 +1,11 @@
-'use client'
-
 import React from 'react'
-import { PageHeading } from '@repo/ui/page-heading'
-import dynamic from 'next/dynamic'
-import { useSearchParams } from 'next/navigation'
+import QuestionnaireEditorPage from '@/components/pages/protected/questionnaire/questionnaire-editor-page'
+import { Metadata } from 'next'
 
-const QuestionnaireEditor = dynamic(() => import('@/components/pages/protected/questionnaire/questionnaire-editor'), {
-  ssr: false,
-})
-
-const Page: React.FC = () => {
-  const searchParams = useSearchParams()
-  const existingId = searchParams.get('id') as string
-  const templateId = searchParams.get('template_id') as string
-
-  return (
-    <>
-      <PageHeading eyebrow="Questionnaires" heading="Editor" />
-
-      <QuestionnaireEditor templateId={templateId} existingId={existingId} />
-    </>
-  )
+export const metadata: Metadata = {
+  title: 'Questionnaire Editor',
 }
+
+const Page: React.FC = () => <QuestionnaireEditorPage />
 
 export default Page

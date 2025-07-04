@@ -1,54 +1,74 @@
 import { ColumnDef } from '@tanstack/react-table'
-import React from 'react'
-import { InternalPolicy } from '@repo/codegen/src/schema.ts'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
-import { Actions } from '@/components/pages/protected/policies/table/actions/actions.tsx'
+import { ApiToken, InternalPolicy, User } from '@repo/codegen/src/schema.ts'
 import { formatTimeSince } from '@/utils/date'
+import { Avatar } from '@/components/shared/avatar/avatar.tsx'
+import { Glasses, KeyRound } from 'lucide-react'
+import React from 'react'
 
-export const policiesColumns: ColumnDef<InternalPolicy>[] = [
-  {
-    accessorKey: 'displayID',
-    header: 'Display ID',
-    cell: ({ cell, row }) => {
-      return <span className="whitespace-nowrap">{cell.getValue() as string}</span>
-    },
-  },
-  {
-    accessorKey: 'name',
-    header: 'Name',
-    cell: ({ cell, row }) => {
-      return <div>{cell.getValue() as string}</div>
-    },
-  },
-  {
-    accessorKey: 'details',
-    header: 'Details',
-    cell: ({ cell }) => {
-      const plateEditorHelper = usePlateEditor()
+type TPoliciesColumnsProps = {
+  users?: User[]
+  tokens?: ApiToken[]
+}
 
-      return <div className="line-clamp-4">{plateEditorHelper.convertToReadOnly(cell.getValue() as string, 0)}</div>
+export const getPoliciesColumns = ({ users, tokens }: TPoliciesColumnsProps) => {
+  const columns: ColumnDef<InternalPolicy>[] = [
+    {
+      accessorKey: 'name',
+      header: 'Name',
+      cell: ({ cell }) => {
+        return <div className="font-bold">{cell.getValue() as string}</div>
+      },
+      minSize: 100,
+      size: 180,
     },
-  },
-  {
-    accessorKey: 'updatedAt',
-    header: 'Updated At',
-    cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
-    size: 140,
-  },
-  {
-    accessorKey: 'createdAt',
-    header: 'Created At',
-    cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
-    size: 140,
-  },
-  {
-    accessorKey: 'id',
-    header: '',
-    cell: ({ cell }) => (
-      <div onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
-        <Actions policyId={cell.getValue() as string} />
-      </div>
-    ),
-    size: 40,
-  },
-]
+    {
+      accessorKey: 'summary',
+      header: 'Summary',
+      enableResizing: true,
+      minSize: 300,
+      size: 400,
+      cell: ({ cell }) => {
+        const summary = cell.getValue() as string
+        return <div className="line-clamp-4 text-justify">{summary === '' ? 'N/A' : summary}</div>
+      },
+    },
+    {
+      accessorKey: 'updatedBy',
+      header: 'Last Updated By',
+      cell: ({ row }) => {
+        const userId = row.original.updatedBy
+        const token = tokens?.find((item) => item.id === userId)
+        const user = users?.find((item) => item.id === userId)
+
+        if (!token && !user) {
+          return 'Deleted user'
+        }
+
+        return (
+          <div className="flex items-center gap-2">
+            {token ? <KeyRound size={18} /> : <Avatar entity={user} />}
+            {token ? token.name : user?.displayName || '—'}
+          </div>
+        )
+      },
+      size: 150,
+      maxSize: 180,
+    },
+    {
+      accessorKey: 'updatedAt',
+      header: 'Last Updated',
+      cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
+      size: 120,
+      maxSize: 120,
+    },
+  ]
+
+  const mappedColumns = columns
+    .filter((column): column is { accessorKey: string; header: string } => 'accessorKey' in column && typeof column.accessorKey === 'string' && 'header' in column && typeof column.header === 'string')
+    .map((column) => ({
+      accessorKey: column.accessorKey,
+      header: column.header,
+    }))
+
+  return { columns, mappedColumns }
+}

@@ -7,7 +7,7 @@ import { GroupOrder } from '@repo/codegen/src/schema.ts'
 import { CARD_DEFAULT_PAGINATION } from '@/constants/pagination.ts'
 
 type TGroupInfiniteCardsProps = {
-  whereFilter: Record<string, any>
+  whereFilter: Record<string, any> | null
   orderByFilter: GroupOrder[] | GroupOrder | undefined
 }
 
@@ -17,6 +17,7 @@ const GroupInfiniteCards = ({ whereFilter, orderByFilter }: TGroupInfiniteCardsP
     where: whereFilter,
     orderBy: orderByFilter,
     pagination: cardPagination,
+    enabled: !!whereFilter,
   })
 
   const handlePaginationChange = (pagination: TPagination) => {

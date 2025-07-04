@@ -17,14 +17,14 @@ const ROWS_PER_PAGE = 5
 const MappedCategoriesDialog = () => {
   const { id } = useParams<{ id: string }>()
   const [open, setOpen] = useState(false)
-  const [selected, setSelected] = useState<string[]>([]) // now stores domain only
+  const [selected, setSelected] = useState<string[]>([])
   const [selectedStandardId, setSelectedStandardId] = useState<string | 'all'>('all')
   const [page, setPage] = useState(0)
 
   const { mutateAsync: updateControl, isPending } = useUpdateControl()
 
   const { setValue, getValues } = useFormContext()
-  const { data } = useGetStandards()
+  const { data } = useGetStandards({})
 
   const standards = useMemo(() => {
     return data?.standards?.edges?.map((edge) => edge?.node!) || []
@@ -59,6 +59,9 @@ const MappedCategoriesDialog = () => {
   const handleSave = async () => {
     setValue('mappedCategories', selected)
     setOpen(false)
+    if (!id) {
+      return
+    }
     await updateControl({
       updateControlId: id!,
       input: {

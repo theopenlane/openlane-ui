@@ -3,6 +3,8 @@ import { SquareArrowDown, SquareArrowRight, SquareArrowUpRight, SquareArrowUp, R
 import { RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Input } from '@repo/ui/input'
+import { RiskIconMapper } from '@/components/shared/icon-enum/risk-enum.tsx'
+import { RisksStatusMapper } from '@/components/pages/protected/risks/risks.ts'
 
 interface RiskLabelProps {
   score?: number
@@ -17,15 +19,17 @@ export const RiskLabel = ({ score, impact, likelihood, status, isEditing, onChan
   if (isEditing) {
     if (typeof score === 'number') {
       return (
-        <Input
-          type="text"
-          className="w-[120px]"
-          value={String(score)}
-          onChange={(e) => {
-            const numeric = e.target.value.replace(/\D/g, '')
-            onChange?.(numeric ? Number(numeric) : 0)
-          }}
-        />
+        <div className="w-full flex items-center gap-4">
+          <input
+            type="range"
+            min={0}
+            max={20}
+            value={score}
+            onChange={(e) => onChange?.(Number(e.target.value))}
+            className="accent-brand w-full h-2 bg-input-slider rounded-lg appearance-none cursor-pointer "
+          />
+          <span className="text-sm w-8 text-right">{score}</span>
+        </div>
       )
     }
 
@@ -172,43 +176,12 @@ export const RiskLabel = ({ score, impact, likelihood, status, isEditing, onChan
   }
 
   if (status) {
-    switch (status) {
-      case RiskRiskStatus.OPEN:
-        return (
-          <div className="flex gap-2 items-center text-sm">
-            <RotateCcw size={16} />
-            Open
-          </div>
-        )
-      case RiskRiskStatus.MITIGATED:
-        return (
-          <div className="flex gap-2 items-center text-sm">
-            <Umbrella size={16} />
-            Mitigated
-          </div>
-        )
-      case RiskRiskStatus.ONGOING:
-        return (
-          <div className="flex gap-2 items-center text-sm">
-            <RefreshCw size={16} />
-            Ongoing
-          </div>
-        )
-      case RiskRiskStatus.IN_PROGRESS:
-        return (
-          <div className="flex gap-2 items-center text-sm">
-            <CirclePlay size={16} />
-            In-progress
-          </div>
-        )
-      case RiskRiskStatus.ARCHIVED:
-        return (
-          <div className="flex gap-2 items-center text-sm">
-            <Archive size={16} />
-            Archived
-          </div>
-        )
-    }
+    return (
+      <div className="flex gap-2 items-center text-sm">
+        {RiskIconMapper[status]}
+        {RisksStatusMapper[status]}
+      </div>
+    )
   }
 
   return null

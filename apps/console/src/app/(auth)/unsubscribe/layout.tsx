@@ -13,17 +13,6 @@ const layout = ({ children }: { children: ReactNode }) => {
         <div className="flex flex-col text-center text-sm mt-20">
           <Link href="/login">Back to login</Link>
         </div>
-        <div className="text-[10px] text-gray-500 mt-5 text-center">
-          This site is protected by reCAPTCHA and the Google{' '}
-          <a className="text-blue-500 underline" href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
-            Privacy Policy
-          </a>{' '}
-          and{' '}
-          <a className="text-blue-500 underline" href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer">
-            Terms of Service
-          </a>{' '}
-          apply.
-        </div>
       </div>
     </main>
   )

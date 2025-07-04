@@ -3,7 +3,7 @@ import { PageHeading } from '@repo/ui/page-heading'
 import type { Metadata } from 'next/types'
 
 export const metadata: Metadata = {
-  title: 'Organization settings',
+  title: 'Developers | API Tokens',
 }
 
 const Page: React.FC = () => {

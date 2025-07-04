@@ -6,9 +6,9 @@ import { Badge } from '@repo/ui/badge'
 import { Cog, FileQuestion, SquareCheck, SquareX } from 'lucide-react'
 import { ColumnDef } from '@tanstack/table-core'
 import { ProgressCircle } from '@repo/ui/progress-circle'
-import { format } from 'date-fns'
 import { Template } from '@repo/codegen/src/schema'
 import { useTemplates } from '@/lib/graphql-hooks/templates'
+import Link from 'next/link'
 
 const columns: ColumnDef<Template>[] = [
   {
@@ -103,9 +103,11 @@ const Questionnaire = () => {
           <div className="flex flex-col items-center justify-center text-center py-16">
             <FileQuestion size={89} strokeWidth={1} className="text-border mb-4" />
             <h2 className="text-lg font-semibold">No questionnaires</h2>
-            <Button variant="outline" className="mt-4">
-              Take me there
-            </Button>
+            <Link href={'/questionnaires'}>
+              <Button variant="outline" className="mt-4">
+                Take me there
+              </Button>
+            </Link>
           </div>
         </CardContent>
       )}

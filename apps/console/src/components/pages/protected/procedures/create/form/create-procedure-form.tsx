@@ -11,7 +11,7 @@ import { Button } from '@repo/ui/button'
 import { CreateProcedureInput, ProcedureByIdFragment, ProcedureDocumentStatus, ProcedureFrequency, UpdateProcedureInput } from '@repo/codegen/src/schema.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { useNotification } from '@/hooks/useNotification.tsx'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
 import { useQueryClient } from '@tanstack/react-query'
 import useFormSchema, { CreateProcedureFormData, EditProcedureFormData } from '../hooks/use-form-schema'
@@ -20,6 +20,13 @@ import StatusCard from '@/components/pages/protected/procedures/create/cards/sta
 import AssociationCard from '@/components/pages/protected/procedures/create/cards/association-card.tsx'
 import TagsCard from '@/components/pages/protected/procedures/create/cards/tags-card.tsx'
 import { useCreateProcedure, useUpdateProcedure } from '@/lib/graphql-hooks/procedures.ts'
+import { DOCS_URL } from '@/constants/index.ts'
+import AuthorityCard from '@/components/pages/protected/procedures/view/cards/authority-card.tsx'
+import { useGetInternalPolicyDetailsById } from '@/lib/graphql-hooks/policy.ts'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
+import { Loading } from '@/components/shared/loading/loading'
+import { useOrganization } from '@/hooks/useOrganization.ts'
+import { useGetOrganizationNameById } from '@/lib/graphql-hooks/organization.ts'
 
 type TCreateProcedureFormProps = {
   procedure?: ProcedureByIdFragment
@@ -32,9 +39,11 @@ export type TMetadata = {
 }
 
 const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure }) => {
+  const path = usePathname()
   const { form } = useFormSchema()
   const router = useRouter()
   const queryClient = useQueryClient()
+  const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { mutateAsync: createProcedure, isPending: isCreating } = useCreateProcedure()
   const { mutateAsync: updateProcedure, isPending: isSaving } = useUpdateProcedure()
   const isSubmitting = isCreating || isSaving
@@ -45,8 +54,28 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   const [metadata, setMetadata] = useState<TMetadata>()
   const isEditable = !!procedure
   const [initialAssociations, setInitialAssociations] = useState<TObjectAssociationMap>({})
+  const searchParams = useSearchParams()
+  const policyId = searchParams.get('policyId')
+  const { data, isLoading } = useGetInternalPolicyDetailsById(policyId)
+  const { currentOrgId } = useOrganization()
+  const { data: orgNameData } = useGetOrganizationNameById(currentOrgId)
+
+  const isProcedureCreate = path === '/procedures/create'
 
   useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Procedures', href: '/procedures' },
+    ])
+  }, [setCrumbs])
+
+  useEffect(() => {
+    if (isProcedureCreate) {
+      setInitialAssociations({})
+      procedureState.setAssociations({})
+      procedureState.setAssociationRefCodes({})
+      return
+    }
     if (procedure) {
       const procedureAssociations: TObjectAssociationMap = {
         controlIDs: procedure?.controls?.edges?.map((item) => item?.node?.id!) || [],
@@ -85,7 +114,21 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
       procedureState.setAssociations(procedureAssociations)
       procedureState.setAssociationRefCodes(procedureAssociationsRefCodes)
     }
-  }, [])
+  }, [isProcedureCreate])
+
+  useEffect(() => {
+    if (data) {
+      const procedureAssociations: TObjectAssociationMap = {
+        internalPolicyIDs: data?.internalPolicy?.id ? [data.internalPolicy.id] : [],
+      }
+      const procedureAssociationsRefCodes: TObjectAssociationMap = {
+        internalPolicyIDs: data?.internalPolicy?.displayID ? [data.internalPolicy.displayID] : [],
+      }
+      setInitialAssociations(procedureAssociations)
+      procedureState.setAssociations(procedureAssociations)
+      procedureState.setAssociationRefCodes(procedureAssociationsRefCodes)
+    }
+  }, [data])
 
   const onCreateHandler = async (data: CreateProcedureFormData) => {
     try {
@@ -216,83 +259,87 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(isEditable ? onSaveHandler : onCreateHandler)} className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
-        <div className="space-y-6">
-          {isEditable && (
-            <Alert>
-              <Info className="h-4 w-4" />
-              <AlertTitle>Edit & draft approval process</AlertTitle>
-              <AlertDescription>
-                <p>Editing Title, Procedure will trigger a draft creation and require approval.</p>
-              </AlertDescription>
-            </Alert>
-          )}
-          {!isEditable && (
-            <Alert>
-              <Info className="h-4 w-4" />
-              <AlertTitle>Not sure what to write?</AlertTitle>
-              <AlertDescription>
-                <p>
-                  For template library and help docs, please refer to our{' '}
-                  <a className="text-blue-600" href="https://docs.theopenlane.io/docs/category/policies-and-procedures" target="_blank">
-                    documentation
-                  </a>
-                  .
-                </p>
-              </AlertDescription>
-            </Alert>
-          )}
-          {/* Title Field */}
-          <InputRow className="w-full">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem className="w-full">
-                  <div className="flex items-center">
-                    <FormLabel>Title</FormLabel>
-                    <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a brief, descriptive title to help easily identify the procedure later.</p>} />
-                  </div>
-                  <FormControl>
-                    <Input variant="medium" {...field} className="w-full" />
-                  </FormControl>
-                  {form.formState.errors.name && <p className="text-red-500 text-sm">{form.formState.errors.name.message}</p>}
-                </FormItem>
-              )}
-            />
-          </InputRow>
+    <>
+      {isEditable && <title>{`${orgNameData?.organization.displayName}: Procedures - ${procedure?.name}`}</title>}
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(isEditable ? onSaveHandler : onCreateHandler)} className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
+          <div className="space-y-6">
+            {isEditable && (
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertTitle>Edit & draft approval process</AlertTitle>
+                <AlertDescription>
+                  <p>Editing Title, Procedure will trigger a draft creation and require approval.</p>
+                </AlertDescription>
+              </Alert>
+            )}
+            {!isEditable && (
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertTitle>Not sure what to write?</AlertTitle>
+                <AlertDescription>
+                  <p>
+                    For template library and help docs, please refer to our{' '}
+                    <a className="text-blue-600" href={`${DOCS_URL}/docs/category/policies-and-procedures`} target="_blank">
+                      documentation
+                    </a>
+                    .
+                  </p>
+                </AlertDescription>
+              </Alert>
+            )}
+            {/* Title Field */}
+            <InputRow className="w-full">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <div className="flex items-center">
+                      <FormLabel>Title</FormLabel>
+                      <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a brief, descriptive title to help easily identify the procedure later.</p>} />
+                    </div>
+                    <FormControl>
+                      <Input variant="medium" {...field} className="w-full" />
+                    </FormControl>
+                    {form.formState.errors.name && <p className="text-red-500 text-sm">{form.formState.errors.name.message}</p>}
+                  </FormItem>
+                )}
+              />
+            </InputRow>
 
-          {/* details Field */}
-          <InputRow className="w-full">
-            <FormField
-              control={form.control}
-              name="details"
-              render={({ field }) => (
-                <FormItem className="w-full">
-                  <FormLabel>Procedure</FormLabel>
-                  <SystemTooltip
-                    icon={<InfoIcon size={14} className="mx-1 mt-1" />}
-                    content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
-                  />
-                  <PlateEditor onChange={handleDetailsChange} variant="basic" initialValue={procedure?.details ?? undefined} />
-                  {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
-                </FormItem>
-              )}
-            />
-          </InputRow>
+            {/* details Field */}
+            <InputRow className="w-full">
+              <FormField
+                control={form.control}
+                name="details"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>Procedure</FormLabel>
+                    <SystemTooltip
+                      icon={<InfoIcon size={14} className="mx-1 mt-1" />}
+                      content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
+                    />
+                    <PlateEditor onChange={handleDetailsChange} variant="basic" initialValue={procedure?.details ?? undefined} />
+                    {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
+                  </FormItem>
+                )}
+              />
+            </InputRow>
 
-          <Button className="mt-4" type="submit" variant="filled" disabled={isSubmitting}>
-            {isSubmitting ? (isEditable ? 'Saving' : 'Creating procedure') : isEditable ? 'Save' : 'Create Procedure'}
-          </Button>
-        </div>
-        <div className="space-y-4">
-          <StatusCard form={form} metadata={metadata} />
-          <AssociationCard isEditable={true} />
-          <TagsCard form={form} />
-        </div>
-      </form>
-    </Form>
+            <Button className="mt-4" type="submit" variant="filled" disabled={isSubmitting}>
+              {isSubmitting ? (isEditable ? 'Saving' : 'Creating procedure') : isEditable ? 'Save' : 'Create Procedure'}
+            </Button>
+          </div>
+          <div className="space-y-4">
+            <AuthorityCard form={form} isEditing={true} inputClassName="!w-[162px]" />
+            <StatusCard form={form} metadata={metadata} />
+            <AssociationCard />
+            <TagsCard form={form} />
+          </div>
+        </form>
+      </Form>
+    </>
   )
 }
 

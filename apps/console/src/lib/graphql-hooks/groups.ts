@@ -1,6 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { GET_ALL_GROUPS, GET_GROUP_DETAILS, GET_GROUP_PERMISSIONS, CREATE_GROUP_WITH_MEMBERS, UPDATE_GROUP, DELETE_GROUP, UPDATE_GROUP_MEMBERSHIP } from '@repo/codegen/query/group' // adjust path as needed
+import {
+  GET_ALL_GROUPS,
+  GET_GROUP_DETAILS,
+  GET_GROUP_PERMISSIONS,
+  CREATE_GROUP_WITH_MEMBERS,
+  UPDATE_GROUP,
+  DELETE_GROUP,
+  UPDATE_GROUP_MEMBERSHIP,
+  DELETE_GROUP_MEMBERSHIP,
+} from '@repo/codegen/query/group'
 
 import {
   GetAllGroupsQuery,
@@ -18,8 +27,11 @@ import {
   UpdateGroupMembershipMutation,
   UpdateGroupMembershipMutationVariables,
   Group,
+  DeleteGroupMembershipMutation,
+  DeleteGroupMembershipMutationVariables,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
+import { useInfiniteQuery } from '@tanstack/react-query'
 
 type GroupsArgs = {
   where?: GetAllGroupsQueryVariables['where']
@@ -57,7 +69,19 @@ export const useGetAllGroups = ({ where, orderBy, pagination, enabled = true }: 
   }
 }
 
-import { useInfiniteQuery } from '@tanstack/react-query'
+export const useGroupSelect = () => {
+  const { data, ...rest } = useGetAllGroups({})
+
+  const groupOptions =
+    data?.groups?.edges
+      ?.filter((edge) => !!edge?.node)
+      ?.map((edge) => ({
+        label: edge?.node?.name || '',
+        value: edge?.node?.id || '',
+      })) ?? []
+
+  return { groupOptions, ...rest }
+}
 
 export const useGetAllGroupsInfinite = ({ where, orderBy, pagination, enabled = true }: GroupsArgs) => {
   const { client } = useGraphQLClient()
@@ -153,6 +177,18 @@ export const useUpdateGroupMembership = () => {
 
   return useMutation<UpdateGroupMembershipMutation, unknown, UpdateGroupMembershipMutationVariables>({
     mutationFn: (variables) => client.request(UPDATE_GROUP_MEMBERSHIP, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['groups'] })
+    },
+  })
+}
+
+export const useDeleteGroupMembership = () => {
+  const { client } = useGraphQLClient()
+  const queryClient = useQueryClient()
+
+  return useMutation<DeleteGroupMembershipMutation, unknown, DeleteGroupMembershipMutationVariables>({
+    mutationFn: (variables) => client.request(DELETE_GROUP_MEMBERSHIP, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['groups'] })
     },

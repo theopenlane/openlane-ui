@@ -35,11 +35,22 @@ export function ControlsSummaryCard() {
   const donutChartData = totalValue > 0 ? chartData : [{ name: 'No data', value: 1 }]
   const donutChartColors = totalValue > 0 ? chartColors : ['#E5E7EB'] // Tailwind gray-200
 
+  const filters = [
+    {
+      field: 'hasProgramsWith',
+      value: programId,
+      type: 'selectIs',
+      operator: 'EQ',
+    },
+  ]
+
+  const encodedFilters = encodeURIComponent(JSON.stringify(filters))
+
   return (
     <Card className="p-6">
       <div className="flex justify-between items-center">
         <p className="text-lg">Control status</p>
-        <Link href="/controls">
+        <Link href={`/controls?filters=${encodedFilters}`}>
           <Button iconPosition="left" icon={<Settings2 size={16} />}>
             Go to controls
           </Button>

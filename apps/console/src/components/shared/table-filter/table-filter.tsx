@@ -1,16 +1,19 @@
-import React, { useState, useEffect } from 'react'
-import { ListFilter, Trash2 } from 'lucide-react'
-import { Popover, PopoverTrigger, PopoverContent } from '@repo/ui/popover'
+import React, { useState, useEffect, useCallback, startTransition, useRef } from 'react'
+import { ChevronDown, ChevronUp, ListFilter, Plus, X } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Input } from '@repo/ui/input'
-import { Button } from '@repo/ui/button'
 import { Filter, FilterField, WhereCondition } from '@/types'
 import { tableFilterStyles } from '@/components/shared/table-filter/table-filter-styles'
-import { useDebounce } from '@uidotdev/usehooks'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { format, startOfDay, addDays } from 'date-fns'
+import { usePathname, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
+import AdvancedFilterPopover from '@/components/shared/table-filter/advanced-filter-popover.tsx'
+import Menu from '@/components/shared/menu/menu.tsx'
+import RegularFilterPopover from '@/components/shared/table-filter/regular-filter-popover.tsx'
+import FilterPortal from './filter-portal'
 
-const getOperatorsForType = (type: Filter['type']) => {
+export const getOperatorsForType = (type: Filter['type']) => {
   const operatorMap = {
     containsText: [{ value: 'Contains', label: 'Contains' }],
     text: [
@@ -42,17 +45,31 @@ const getOperatorsForType = (type: Filter['type']) => {
   return operatorMap[type] || []
 }
 
-interface TableFilterProps {
+export type TAppliedFilters = {
+  regularFilters: Filter[]
+  advancedFilters: Filter[]
+}
+
+type TTableFilterProps = {
   filterFields: FilterField[]
   onFilterChange?: (whereCondition: WhereCondition) => void
 }
 
-export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilterChange }) => {
-  const [filters, setFilters] = useState<Filter[]>([])
+export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilterChange }) => {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const [regularFilters, setRegularFilters] = useState<Filter[] | null>(null)
+  const [advancedFilters, setAdvancedFilters] = useState<Filter[] | null>(null)
+  const [activeRegularFilterKey, setActiveRegularFilterKey] = useState<string | null>(null)
+  const [activeAdvancedFilter, setActiveAdvancedFilter] = useState(false)
+  const [appliedFilters, setAppliedFilters] = useState<TAppliedFilters>({
+    advancedFilters: [],
+    regularFilters: [],
+  })
   const [conjunction, setConjunction] = useState<'and' | 'or'>('and')
-
-  const debouncedFilters = useDebounce(filters, 300)
-  const { prefixes, columnName, operator, value } = tableFilterStyles()
+  const { value } = tableFilterStyles()
+  const filtersActive = searchParams.get('filterActive') === '1'
 
   const handleDateEQOperator = (value: string, field: string) => {
     const start = format(startOfDay(new Date(value)), "yyyy-MM-dd'T'HH:mm:ss'Z'")
@@ -60,214 +77,505 @@ export const TableFilter: React.FC<TableFilterProps> = ({ filterFields, onFilter
     return [{ [`${field}GTE`]: start }, { [`${field}LT`]: end }]
   }
 
-  const generateWhereCondition = (filters: Filter[], conjunction: 'and' | 'or') => {
-    const conditions = filters
-      .filter(({ value }) => value !== '')
-      .flatMap(({ field, type, operator, value }) => {
-        if (field === 'hasProgramsWith') {
-          return [{ hasProgramsWith: [{ id: value }] }]
-        }
+  const generateWhereCondition = useCallback((regularFilters: Filter[], advancedFilters: Filter[], conjunction: 'and' | 'or') => {
+    const conditions = (filters: Filter[]) => {
+      return filters
+        ?.filter(({ value }) => value !== '')
+        .flatMap(({ field, type, operator, value }) => {
+          if (field === 'hasProgramsWith') {
+            return [{ hasProgramsWith: [{ id: value }] }]
+          }
+          const operatorMapping = getOperatorsForType(type).find((op) => op.value === operator)
+          if (!operatorMapping) return []
 
-        const operatorMapping = getOperatorsForType(type).find((op) => op.value === operator)
-        if (!operatorMapping) return []
+          if (type === 'date' && operator === 'EQ') {
+            return handleDateEQOperator(value, field)
+          }
 
-        if (type === 'date' && operator === 'EQ') {
-          return handleDateEQOperator(value, field)
-        }
+          const queryField = operatorMapping.value !== 'EQ' ? `${field}${operatorMapping.value}` : field
+          return [{ [queryField]: value }]
+        })
+    }
 
-        const queryField = operatorMapping.value !== 'EQ' ? `${field}${operatorMapping.value}` : field
-        return [{ [queryField]: value }]
-      })
+    const regular = conditions(regularFilters)
+    const advanced = conditions(advancedFilters)
+    const regularCondition = regular.length > 1 ? { and: regular } : regular[0] || null
+    const advancedCondition = advanced.length > 1 ? { [conjunction]: advanced } : advanced[0] || null
 
-    return conditions.length > 1 ? { [conjunction]: conditions } : conditions[0] || {}
-  }
+    if (regularCondition && advancedCondition) {
+      return { and: [regularCondition, advancedCondition] }
+    }
+
+    return regularCondition || advancedCondition || {}
+  }, [])
 
   useEffect(() => {
-    onFilterChange?.(generateWhereCondition(debouncedFilters, conjunction))
-  }, [debouncedFilters, conjunction, onFilterChange])
+    const advancedFilterParams = searchParams.get('advancedFilters')
+    const regularFilterParams = searchParams.get('regularFilters')
+    const advancedParsedFilters = advancedFilterParams ? handleParseURLFilter(advancedFilterParams) : []
+    const regularParsedFilters = regularFilterParams ? handleParseURLFilter(regularFilterParams) : []
+    const appliedFilters: TAppliedFilters = {
+      regularFilters: regularParsedFilters,
+      advancedFilters: advancedParsedFilters,
+    }
 
-  const updateFilters = (updatedFilters: Filter[]) => {
-    setFilters(updatedFilters)
-  }
+    setAppliedFilters(appliedFilters)
+    setAdvancedFilters(advancedParsedFilters)
+    setRegularFilters(regularParsedFilters)
+    onFilterChange?.(generateWhereCondition(regularParsedFilters, advancedParsedFilters, conjunction))
+  }, [])
 
-  const addFilter = () => {
-    if (!filterFields.length) return
-    const firstField = filterFields[0]
-    updateFilters([
-      ...filters,
-      {
-        id: crypto.randomUUID(),
-        field: firstField.key,
-        value: '',
-        type: firstField.type,
-        operator: 'EQ',
-      },
-    ])
-  }
+  const handleParseURLFilter = (searchParam: string) => {
+    try {
+      const parsedFilters = JSON.parse(decodeURIComponent(searchParam))
+      if (Array.isArray(parsedFilters)) {
+        return parsedFilters
+      }
 
-  const resetFilters = () => {
-    if (!filterFields.length) return
-    const firstField = filterFields[0]
-    setFilters([
-      {
-        id: crypto.randomUUID(),
-        field: firstField.key,
-        value: '',
-        type: firstField.type,
-        operator: 'EQ',
-      },
-    ])
-  }
-
-  const handleFilterChange = (index: number, field: Partial<Filter>) => {
-    setFilters(filters.map((filter, i) => (i === index ? { ...filter, ...field } : filter)))
-  }
-
-  const removeFilter = (index: number) => {
-    updateFilters(filters.filter((_, i) => i !== index))
-  }
-
-  const renderFilterInput = (filter: Filter, index: number) => {
-    const filterField = filterFields.find((f) => f.key === filter.field)
-    if (!filterField) return null
-
-    switch (filter.type) {
-      case 'text':
-      case 'number':
-      case 'containsText':
-        return <Input className={value()} type={filter.type} placeholder="Enter a value..." value={filter.value} onChange={(e) => handleFilterChange(index, { value: e.target.value })} />
-      case 'selectIs':
-      case 'select':
-        return (
-          <Select value={filter.value} onValueChange={(value) => handleFilterChange(index, { value })}>
-            <SelectTrigger className={value()}>
-              <SelectValue placeholder="Select an option..." />
-            </SelectTrigger>
-            <SelectContent>
-              {filterField.options?.map((option: any) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )
-      case 'date':
-        return (
-          <CalendarPopover
-            defaultToday
-            field={{
-              value: filter.value ? new Date(filter.value) : null,
-              onChange: (selectedDate) => handleFilterChange(index, { value: selectedDate ? format(selectedDate, "yyyy-MM-dd'T'HH:mm:ss'Z'") : '' }),
-              name: filter.field,
-              onBlur: () => {},
-              ref: () => {},
-            }}
-          />
-        )
-      case 'boolean':
-        return (
-          <Select value={String(filter.value)} onValueChange={(value) => handleFilterChange(index, { value: value === 'true' })}>
-            <SelectTrigger className={value()}>
-              <SelectValue placeholder="Select..." />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="true">True</SelectItem>
-              <SelectItem value="false">False</SelectItem>
-            </SelectContent>
-          </Select>
-        )
-      default:
-        return null
+      return []
+    } catch (err) {
+      console.error('Invalid filters in URL', err)
+      return []
     }
   }
 
+  const onSubmitHandler = (advancedFiltersProp?: Filter[], regularFiltersProp?: Filter[]) => {
+    setAppliedFilters((prev) => {
+      const currentRegular = regularFiltersProp ?? regularFilters ?? []
+      const currentAdvanced = advancedFiltersProp ?? advancedFilters ?? []
+
+      const mergeByField = (prevArr: Filter[], currentArr: Filter[]) => [...currentArr, ...prevArr.filter((prevItem) => !currentArr.some((currItem) => currItem.field === prevItem.field))]
+
+      return {
+        ...prev,
+        regularFilters: mergeByField(prev.regularFilters ?? [], currentRegular),
+        advancedFilters: mergeByField(prev.advancedFilters ?? [], currentAdvanced),
+      }
+    })
+
+    onFilterChange?.(generateWhereCondition(regularFiltersProp ?? regularFilters ?? [], advancedFiltersProp ?? advancedFilters ?? [], conjunction))
+  }
+
+  const handleSaveAdvancedFilters = () => {
+    if (!advancedFilters) {
+      return
+    }
+
+    const params = new URLSearchParams(searchParams.toString())
+    advancedFilters.length > 0 ? params.set('advancedFilters', JSON.stringify(advancedFilters)) : params.delete('advancedFilters')
+    router.replace(`${pathname}?${params.toString()}`)
+    setAdvancedFilters(advancedFilters)
+    onSubmitHandler(advancedFilters)
+  }
+
+  const handleSaveRegularFilters = () => {
+    if (!regularFilters) {
+      return
+    }
+
+    const params = new URLSearchParams(searchParams.toString())
+    regularFilters.length > 0 ? params.set('regularFilters', JSON.stringify(regularFilters)) : params.delete('regularFilters')
+    router.replace(`${pathname}?${params.toString()}`)
+    setRegularFilters(regularFilters)
+    onSubmitHandler(undefined, regularFilters)
+  }
+
+  const handleAddAdvancedFilter = () => {
+    if (!filterFields.length) {
+      return
+    }
+
+    const firstField = filterFields[0]
+    setAdvancedFilters([
+      ...(advancedFilters || []),
+      {
+        field: firstField.key,
+        value: '',
+        type: firstField.type,
+        operator: 'EQ',
+      },
+    ])
+  }
+
+  const handleAddRegularFilter = (filter: Filter) => {
+    if (!filterFields.length) {
+      return
+    }
+
+    const filterField = filterFields.find((filterField) => filterField.key === filter.field)
+    if (!filterField) {
+      return
+    }
+
+    const exists = (regularFilters || []).some((f) => f.field === filterField.key)
+    if (exists) {
+      return
+    }
+
+    setRegularFilters([
+      ...(regularFilters || []),
+      {
+        field: filterField.key,
+        value: '',
+        type: filterField.type,
+        operator: getOperatorsForType(filterField.type)[0]?.value || 'equals',
+      },
+    ])
+  }
+
+  const handleRemoveAdvancedFilter = (index: number) => {
+    if (!advancedFilters) {
+      return
+    }
+
+    if (advancedFilters.length === 1) {
+      handleDeleteAdvancedFilter()
+      return
+    }
+
+    const updatedAdvancedFilters = advancedFilters.filter((_, i) => i !== index)
+    setAdvancedFilters(updatedAdvancedFilters)
+  }
+
+  const handleDeleteAdvancedFilter = () => {
+    if (!advancedFilters) {
+      return
+    }
+
+    setAppliedFilters((prev) => ({
+      ...prev,
+      advancedFilters: [],
+    }))
+    setAdvancedFilters([])
+    onSubmitHandler([])
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete('advancedFilters')
+    router.replace(`${pathname}?${params.toString()}`)
+  }
+
+  const handleDeleteRegularFilter = (filter: Filter) => {
+    if (!regularFilters) {
+      return
+    }
+
+    const editedRegularFilters = appliedFilters.regularFilters.filter((f) => f.field !== filter.field)
+    setAppliedFilters((prev) => ({
+      ...prev,
+      regularFilters: editedRegularFilters,
+    }))
+    const updatedFilters = regularFilters.filter((regularFilter) => regularFilter.field !== filter.field)
+    setRegularFilters(updatedFilters)
+    onSubmitHandler(undefined, updatedFilters)
+    const params = new URLSearchParams(searchParams.toString())
+    updatedFilters.length > 0 ? params.set('regularFilters', JSON.stringify(updatedFilters)) : params.delete('regularFilters')
+    router.replace(`${pathname}?${params.toString()}`)
+  }
+
+  const handleChangeAdvancedFilter = (filter: Filter, index: number) => {
+    if (advancedFilters) {
+      const editedAdvancedFilters = advancedFilters.map((advancedFilter, i) => (filter.field === advancedFilter.field && i === index ? { ...advancedFilter, ...filter } : advancedFilter))
+      setAdvancedFilters(editedAdvancedFilters)
+    }
+  }
+
+  const handleChangeRegularFilter = (filter: Filter) => {
+    if (regularFilters) {
+      const editedRegularFilters = regularFilters.map((regularFilter) => (filter.field === regularFilter.field ? { ...regularFilter, ...filter } : regularFilter))
+      setRegularFilters(editedRegularFilters)
+    }
+  }
+
+  const resetAdvancedFilters = () => {
+    if (!advancedFilters) {
+      return
+    }
+
+    if (appliedFilters.advancedFilters.length === 1 && appliedFilters.advancedFilters[0].value === '') {
+      handleDeleteAdvancedFilter()
+      return
+    }
+
+    setAdvancedFilters(appliedFilters.advancedFilters)
+  }
+
+  const resetRegularFilters = (filter: Filter) => {
+    if (!appliedFilters?.regularFilters) {
+      return
+    }
+
+    const original = appliedFilters.regularFilters.find((f) => f.field === filter.field)
+    if (!original) {
+      return
+    }
+
+    if (original.value === '') {
+      handleDeleteRegularFilter(filter)
+      return
+    }
+
+    setRegularFilters((prev) => {
+      if (!prev) {
+        return prev
+      }
+      return prev.map((f) => (f.field === filter.field ? original : f))
+    })
+  }
+
+  const handleAddAppliedFilter = (isAdvanced: boolean = false, filterField?: FilterField) => {
+    if (isAdvanced && appliedFilters.advancedFilters.length === 0) {
+      handleAddAdvancedFilter()
+      setAppliedFilters((prevState) => {
+        const firstField = filterFields[0]!
+        const newFilter: Filter = {
+          field: firstField.key,
+          value: '',
+          type: firstField.type,
+          operator: 'EQ',
+        }
+
+        return {
+          ...prevState,
+          advancedFilters: [...prevState.advancedFilters, newFilter],
+        }
+      })
+
+      setActiveAdvancedFilter(true)
+    }
+
+    if (!isAdvanced && filterField) {
+      const filterExists = appliedFilters.regularFilters.some((filter) => filter.field === filterField.key)
+
+      if (filterExists) {
+        setActiveRegularFilterKey(filterField.key)
+        return
+      }
+
+      const newFilter: Filter = {
+        field: filterField.key,
+        value: '',
+        type: filterField.type,
+        operator: getOperatorsForType(filterField.type)[0]?.value || 'equals',
+      }
+
+      setAppliedFilters((prevState) => ({
+        ...prevState,
+        regularFilters: [...prevState.regularFilters, newFilter],
+      }))
+
+      setActiveRegularFilterKey(newFilter.field)
+      handleAddRegularFilter(newFilter)
+    }
+  }
+
+  const handleInputFilterChange = (filter: Filter, isAdvanced: boolean = false, index?: number) => {
+    if (!isAdvanced && regularFilters) {
+      const changedRegularFilters = regularFilters.map((regularFilter) => (regularFilter.field === filter.field ? { ...regularFilter, ...filter } : regularFilter))
+      setRegularFilters(changedRegularFilters)
+    }
+
+    if (isAdvanced && advancedFilters) {
+      const changedAdvancedFilters = advancedFilters.map((advancedFilter, i) => (advancedFilter.field === filter.field && index === i ? { ...advancedFilter, ...filter } : advancedFilter))
+      setAdvancedFilters(changedAdvancedFilters)
+    }
+  }
+
+  const getFilterCount = () => {
+    return appliedFilters.advancedFilters.length + appliedFilters.regularFilters.length
+  }
+
+  const toggleFilterActive = useCallback(() => {
+    startTransition(() => {
+      const params = new URLSearchParams(searchParams.toString())
+      params.get('filterActive') === '1' ? params.delete('filterActive') : params.set('filterActive', '1')
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+    })
+  }, [searchParams, pathname, router])
+
+  const renderFilterInput = useCallback(
+    (filter: Filter, isAdvanced: boolean = false, onClose: () => void, index?: number) => {
+      const filterField = filterFields.find((f) => f.key === filter.field)
+      if (!filterField) {
+        return null
+      }
+
+      switch (filter.type) {
+        case 'text':
+        case 'number':
+        case 'containsText':
+          return (
+            <Input
+              className={value()}
+              type={filter.type}
+              placeholder="Enter a value..."
+              value={filter.value}
+              onChange={(e) => handleInputFilterChange({ ...filter, value: e.target.value }, isAdvanced, index)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  isAdvanced ? handleSaveAdvancedFilters() : handleSaveRegularFilters()
+                  onClose()
+                }
+              }}
+            />
+          )
+        case 'selectIs':
+        case 'select':
+          return (
+            <Select value={filter.value} onValueChange={(value) => handleInputFilterChange({ ...filter, value: value }, isAdvanced, index)}>
+              <SelectTrigger
+                className={value()}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    isAdvanced ? handleSaveAdvancedFilters() : handleSaveRegularFilters()
+                    onClose()
+                  }
+                }}
+              >
+                <SelectValue placeholder="Select an option..." />
+              </SelectTrigger>
+              <SelectContent>
+                {filterField.options?.map((option: any) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )
+        case 'date':
+          return (
+            <CalendarPopover
+              buttonClassName={`${value()} w-40 flex justify-between items-center`}
+              defaultToday
+              field={{
+                value: filter.value ? new Date(filter.value) : null,
+                onChange: (selectedDate) => handleInputFilterChange({ ...filter, value: selectedDate ? format(selectedDate, "yyyy-MM-dd'T'HH:mm:ss'Z'") : '' }, isAdvanced, index),
+                name: filter.field,
+                onBlur: () => {},
+                ref: () => {},
+              }}
+            />
+          )
+        case 'boolean':
+          return (
+            <Select value={String(filter.value)} onValueChange={(value) => handleInputFilterChange({ ...filter, value: value === 'true' }, isAdvanced, index)}>
+              <SelectTrigger
+                className={value()}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    isAdvanced ? handleSaveAdvancedFilters() : handleSaveRegularFilters()
+                    onClose()
+                  }
+                }}
+              >
+                <SelectValue placeholder="Select..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="true">True</SelectItem>
+                <SelectItem value="false">False</SelectItem>
+              </SelectContent>
+            </Select>
+          )
+        default:
+          return null
+      }
+    },
+    [filterFields, handleInputFilterChange],
+  )
+
   return (
-    <Popover onOpenChange={(open) => open && filters.length === 0 && addFilter()}>
-      <PopoverTrigger asChild>
-        <button className="gap-2 flex items-center py-1.5 px-3 border rounded-lg">
-          <ListFilter size={16} />
-          <p className="text-sm whitespace-nowrap">Add Filter</p>
-          <div className="border h-4" />
-          <p className="text-sm">{filters.filter((filter) => filter.value !== '').length}</p>
-        </button>
-      </PopoverTrigger>
-      <PopoverContent align="start" side="bottom" sideOffset={8} asChild className="size-fit p-4 ">
-        <div className="flex flex-col gap-2">
-          {filters.map((filter, index) => {
-            const filterField = filterFields.find((f) => f.key === filter.field)
-            const operators = filterField ? getOperatorsForType(filterField.type) : []
-
-            return (
-              <div key={filter.id} className="flex items-center gap-2">
-                {index === 0 && <p className={prefixes()}>Where</p>}
-                {index === 1 && (
-                  <Select value={conjunction} onValueChange={(val: 'and' | 'or') => setConjunction(val)}>
-                    <SelectTrigger className={prefixes()}>
-                      <SelectValue placeholder="And/Or" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="and">And</SelectItem>
-                      <SelectItem value="or">Or</SelectItem>
-                    </SelectContent>
-                  </Select>
+    <div>
+      <button className="flex gap-1 size-fit bg-transparent py-1 px-2 border rounded-md items-center" onClick={toggleFilterActive}>
+        <ListFilter size={16} />
+        <p className="text-sm whitespace-nowrap ">Filters</p>
+        {filtersActive ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+        <span className="border-l pl-2">
+          <span className="bg-background-secondary rounded-md p-1 pl-2 pr-2 text-sm">{getFilterCount()}</span>
+        </span>
+      </button>
+      {filtersActive && (
+        <FilterPortal>
+          <div className="text-xs leading-6 bg-background-secondary p-2 rounded-lg shadow-md transition-all z-50 mb-2">
+            <div className="flex items-center flex-wrap gap-2">
+              <Menu
+                closeOnSelect={true}
+                align="start"
+                trigger={
+                  <div className="flex gap-2 border rounded-lg px-2 py-1 cursor-pointer">
+                    <Plus size={16} />
+                    <span className="text-xs">Filter</span>
+                  </div>
+                }
+                content={(close) => (
+                  <>
+                    {filterFields?.map((filterField, index) => (
+                      <span
+                        key={index}
+                        className="text-sm cursor-pointer hover:bg-muted"
+                        onClick={() => {
+                          handleAddAppliedFilter(false, filterField)
+                          close()
+                        }}
+                      >
+                        {filterField?.label}
+                      </span>
+                    ))}
+                  </>
                 )}
-                {index > 1 && <p className={prefixes()}>{conjunction}</p>}
-                <Select
-                  value={filter.field}
-                  onValueChange={(value) => {
-                    const selectedField = filterFields.find((f) => f.key === value)
-                    if (selectedField) {
-                      handleFilterChange(index, {
-                        field: value,
-                        type: selectedField.type,
-                        value: '',
-                        operator: getOperatorsForType(selectedField.type)[0]?.value || 'equals', // Reset to default operator
-                      })
-                    }
-                  }}
-                >
-                  <SelectTrigger className={columnName()}>
-                    <SelectValue placeholder="Select field" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {filterFields.map((field) => (
-                      <SelectItem key={field.key} value={field.key}>
-                        {field.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                extraContent={(close) => (
+                  <div
+                    className="flex items-center justify-between cursor-pointer hover:bg-muted"
+                    onClick={() => {
+                      handleAddAppliedFilter(true)
+                      close()
+                    }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <ListFilter size={16} />
+                      <span className="text-xs">Advanced</span>
+                    </div>
+                    <span className="text-xs">{appliedFilters?.advancedFilters.length === 0 ? 'No rules' : `${advancedFilters?.length} ${advancedFilters?.length === 1 ? ' rule' : ' rules'}`}</span>
+                  </div>
+                )}
+              />
 
-                <Select value={filter.operator} onValueChange={(value) => handleFilterChange(index, { operator: value })}>
-                  <SelectTrigger className={operator()}>
-                    <SelectValue placeholder="Select operator" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {operators.map((operator) => (
-                      <SelectItem key={operator.value} value={operator.value}>
-                        {operator.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              {appliedFilters?.advancedFilters?.length > 0 && (
+                <AdvancedFilterPopover
+                  onAddFilter={handleAddAdvancedFilter}
+                  onHandleFilterChange={handleChangeAdvancedFilter}
+                  filters={advancedFilters}
+                  filterFields={filterFields}
+                  conjunction={conjunction}
+                  onSetConjunction={setConjunction}
+                  renderFilterInput={renderFilterInput}
+                  onRemoveFilter={handleRemoveAdvancedFilter}
+                  onDeleteFilter={handleDeleteAdvancedFilter}
+                  onHandleSaveFilters={handleSaveAdvancedFilters}
+                  onResetFilters={resetAdvancedFilters}
+                  isActive={activeAdvancedFilter}
+                />
+              )}
 
-                {renderFilterInput(filter, index)}
-
-                <Button variant="outline" onClick={() => removeFilter(index)}>
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            )
-          })}
-          <div className="flex gap-2">
-            <Button onClick={addFilter}>Add Filter</Button>
-            <Button variant="outline" onClick={resetFilters}>
-              Reset Filters
-            </Button>
+              {appliedFilters?.regularFilters?.map((regularFilterItem, index) => (
+                <RegularFilterPopover
+                  key={`regular-${index}`}
+                  regularFilterItem={regularFilterItem}
+                  filter={regularFilters?.find((regularFilter) => regularFilter.field === regularFilterItem.field) ?? null}
+                  onHandleFilterChange={handleChangeRegularFilter}
+                  filterFields={filterFields}
+                  renderFilterInput={renderFilterInput}
+                  onDeleteFilter={handleDeleteRegularFilter}
+                  onHandleSaveFilters={handleSaveRegularFilters}
+                  onResetFilters={resetRegularFilters}
+                  isActive={activeRegularFilterKey === regularFilterItem.field}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      </PopoverContent>
-    </Popover>
+        </FilterPortal>
+      )}
+    </div>
   )
 }

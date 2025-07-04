@@ -50,7 +50,6 @@ export type FilterField = SelectFilterField | StandardFilterField | SelectIsFilt
 
 // Filter definition
 export type Filter = {
-  id: string
   field: string
   value: any
   type: FilterType
@@ -67,3 +66,19 @@ export type WhereCondition =
       or?: Condition[]
     }
   | Condition
+
+export type RoutePage = {
+  route: string
+  name: string
+  keywords?: string[]
+  hidden?: undefined
+}
+
+export type MapControl = {
+  __typename?: 'Control' | 'Subcontrol'
+  id: string
+  refCode: string
+  category?: string | null
+  subcategory?: string | null
+  referenceFramework?: string | null
+}

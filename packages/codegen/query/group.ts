@@ -6,25 +6,24 @@ export const GET_ALL_GROUPS = gql`
       edges {
         node {
           id
-          name
           description
-          displayName
-          logoURL
-          isManaged
-          tags
+          name
           members {
-            id
-            role
-            user {
-              id
-              firstName
-              lastName
-              avatarFile {
-                presignedURL
+            edges {
+              node {
+                id
+                role
+                user {
+                  id
+
+                  avatarFile {
+                    presignedURL
+                  }
+                  displayName
+                  avatarRemoteURL
+                  role
+                }
               }
-              displayName
-              avatarRemoteURL
-              role
             }
           }
           setting {
@@ -87,17 +86,20 @@ export const GET_GROUP_DETAILS = gql`
       isManaged
       tags
       members {
-        id
-        role
-        user {
-          id
-          firstName
-          lastName
-          avatarFile {
-            presignedURL
+        edges {
+          node {
+            id
+            role
+            user {
+              id
+              displayName
+              avatarFile {
+                presignedURL
+              }
+              avatarRemoteURL
+              role
+            }
           }
-          avatarRemoteURL
-          role
         }
       }
       setting {
@@ -125,12 +127,22 @@ export const GET_GROUP_PERMISSIONS = gql`
   query GetGroupPermissions($groupId: ID!) {
     group(id: $groupId) {
       permissions {
-        displayID
-        id
-        name
-        objectType
-        permissions
+        edges {
+          node {
+            id
+            name
+            objectType
+            permissions
+          }
+        }
       }
+    }
+  }
+`
+export const DELETE_GROUP_MEMBERSHIP = gql`
+  mutation DeleteGroupMembership($deleteGroupMembershipId: ID!) {
+    deleteGroupMembership(id: $deleteGroupMembershipId) {
+      deletedID
     }
   }
 `

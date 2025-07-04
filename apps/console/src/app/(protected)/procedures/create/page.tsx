@@ -1,15 +1,10 @@
-'use client'
 import React from 'react'
-import { PageHeading } from '@repo/ui/page-heading'
-import CreateProcedureForm from '@/components/pages/protected/procedures/create/form/create-procedure-form.tsx'
+import CreateProcedurePage from '@/components/pages/protected/procedures/create/create-procedure-page'
+import { Metadata } from 'next'
 
-const Page: React.FC = () => {
-  return (
-    <>
-      <PageHeading heading="Create a new procedure" />
-      <CreateProcedureForm />
-    </>
-  )
+export const metadata: Metadata = {
+  title: 'Create Procedure',
 }
+const Page: React.FC = () => <CreateProcedurePage />
 
 export default Page

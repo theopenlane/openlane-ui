@@ -94,16 +94,6 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
           </div>
         </div>
 
-        {/* Set Approval group */}
-        <div className="grid grid-cols-[1fr_auto] items-center gap-2">
-          <div className="flex gap-2 items-center">
-            <Stamp size={16} className="text-brand" />
-            <span>Set approval group</span>
-          </div>
-
-          <div className="flex gap-2"></div>
-        </div>
-
         {/* Review Frequency */}
         <div className="grid grid-cols-[1fr_auto] items-center gap-2">
           <div className="flex gap-2 items-center">

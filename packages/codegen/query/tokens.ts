@@ -84,3 +84,16 @@ export const DELETE_API_TOKEN = gql`
     }
   }
 `
+
+export const GET_API_TOKENS_BY_IDS = gql`
+  query GetApiTokensByIds($where: APITokenWhereInput, $orderBy: [APITokenOrder!]) {
+    apiTokens(where: $where, orderBy: $orderBy) {
+      edges {
+        node {
+          id
+          name
+        }
+      }
+    }
+  }
+`

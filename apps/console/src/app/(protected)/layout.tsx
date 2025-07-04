@@ -1,9 +1,44 @@
 import type { Metadata } from 'next'
 import { DashboardLayout } from '@/components/layouts/dashboard/dashboard'
+import { auth } from '@/lib/auth/auth'
+import { sessionCookieName } from '@repo/dally/auth'
+import { getDashboardData } from '../api/getDashboardData/route'
+import { cookies } from 'next/headers'
 
-export const metadata: Metadata = {
-  title: 'Dashboard',
-  description: 'The open source foundation of a sustainable digital world',
+interface OrganizationNode {
+  id: string
+  displayName: string
+}
+
+interface OrganizationEdge {
+  node: OrganizationNode
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const session = await auth()
+  const cookieStore = await cookies()
+  const cookieSession = cookieStore.get(sessionCookieName as string)
+
+  const token = session?.user?.accessToken
+  const organizationId = session?.user?.activeOrganizationId
+  const dashboardData = await getDashboardData(token, cookieSession?.value!)
+  if (!session || !dashboardData) {
+    return {
+      title: {
+        template: 'Openlane: %s',
+        default: '',
+      },
+    }
+  }
+
+  const organizations: OrganizationEdge[] = dashboardData.organizations.edges
+  const org = organizations.find(({ node }) => node.id === organizationId)
+  return {
+    title: {
+      template: `${org?.node.displayName}: %s`,
+      default: '',
+    },
+  }
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }): React.ReactNode {

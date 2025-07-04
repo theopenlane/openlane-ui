@@ -20,3 +20,56 @@ export const REMOVE_USER_FROM_ORG = gql`
     }
   }
 `
+
+export const GET_ORG_MEMBERSHIPS = gql`
+  query OrgMemberships($after: Cursor, $first: Int, $before: Cursor, $last: Int, $where: OrgMembershipWhereInput) {
+    orgMemberships(after: $after, first: $first, before: $before, last: $last, where: $where) {
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      totalCount
+      edges {
+        node {
+          id
+          createdAt
+          role
+          user {
+            id
+            displayName
+            authProvider
+            avatarRemoteURL
+            email
+            role
+            createdAt
+            avatarFile {
+              id
+              presignedURL
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_ORG_USER_LIST = gql`
+  query OrgMembershipsByIds($where: OrgMembershipWhereInput) {
+    orgMemberships(where: $where) {
+      edges {
+        node {
+          user {
+            id
+            displayName
+            avatarRemoteURL
+            avatarFile {
+              presignedURL
+            }
+          }
+        }
+      }
+    }
+  }
+`

@@ -7,24 +7,22 @@ import { usePathname } from 'next/navigation'
 import { ReactNode, useEffect, useState } from 'react'
 import { Loading } from '@/components/shared/loading/loading'
 import { NavigationGuardProvider } from 'next-navigation-guard'
+import { BreadcrumbProvider } from '@/providers/BreadcrumbContext.tsx'
 
 interface ProvidersProps {
   children: ReactNode
 }
 
-const publicPages = ['/login', '/verify', '/resend-verify', '/invite', '/subscriber-verify', '/tfa', '/waitlist', '/unsubscribe', '/forgot-password', '/password-reset']
+const publicPages = ['/login', '/verify', '/resend-verify', '/invite', '/subscriber-verify', '/tfa', '/waitlist', '/unsubscribe', '/forgot-password', '/password-reset', '/signup']
 
 const Providers = ({ children }: ProvidersProps) => {
   const { data: session, status } = useSession()
   const pathname = usePathname()
   const [queryClient, setQueryClient] = useState<QueryClient | null>(null)
-  const [accessToken, setAccessToken] = useState<string | null>(null)
   const isPublicPage = publicPages.includes(pathname)
 
   useEffect(() => {
     if (status === 'authenticated' && !queryClient) {
-      setAccessToken(session.user.accessToken)
-
       const newQueryClient = new QueryClient({
         defaultOptions: {
           queries: {
@@ -36,7 +34,7 @@ const Providers = ({ children }: ProvidersProps) => {
       })
       setQueryClient(newQueryClient)
     }
-  }, [session?.user.accessToken, status, accessToken])
+  }, [session?.user.accessToken, status, queryClient])
 
   if (isPublicPage) {
     return (
@@ -53,7 +51,9 @@ const Providers = ({ children }: ProvidersProps) => {
   return (
     <NavigationGuardProvider>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+        <QueryClientProvider client={queryClient}>
+          <BreadcrumbProvider>{children}</BreadcrumbProvider>
+        </QueryClientProvider>
       </ThemeProvider>
     </NavigationGuardProvider>
   )

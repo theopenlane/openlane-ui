@@ -10,6 +10,7 @@ import { FormControl, FormField, FormItem } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { EditProcedureMetadataFormData } from '@/components/pages/protected/procedures/view/hooks/use-form-schema.ts'
 import { formatDate } from '@/utils/date'
+import { DocumentIconMapper } from '@/components/shared/icon-enum/policy-enum.tsx'
 
 type TPropertiesCardProps = {
   form: UseFormReturn<EditProcedureMetadataFormData>
@@ -19,7 +20,10 @@ type TPropertiesCardProps = {
 
 const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, procedure }) => {
   const statusOptions = Object.values(ProcedureDocumentStatus).map((value) => ({
-    label: value.charAt(0) + value.slice(1).toLowerCase(),
+    label: value
+      .split('_')
+      .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
+      .join(' '),
     value,
   }))
 
@@ -63,8 +67,9 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, proce
             )}
 
             {!isEditing && (
-              <div className="flex gap-2">
-                <span>{statusOptions.find((item) => item.value === procedure.status)?.label}</span>
+              <div className="flex items-center space-x-2">
+                {DocumentIconMapper[procedure.status as ProcedureDocumentStatus]}
+                <p>{statusOptions.find((item) => item.value === procedure.status)?.label}</p>
               </div>
             )}
           </div>

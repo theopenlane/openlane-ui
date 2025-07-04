@@ -11,15 +11,17 @@ import { Option } from '@repo/ui/multiple-selector'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { useGetAllGroups } from '@/lib/graphql-hooks/groups.ts'
 import { EditProcedureMetadataFormData } from '@/components/pages/protected/procedures/view/hooks/use-form-schema.ts'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 
 type TAuthorityCardProps = {
   form: UseFormReturn<EditProcedureMetadataFormData>
-  approver: ProcedureByIdFragment['approver']
-  delegate: ProcedureByIdFragment['delegate']
+  approver?: ProcedureByIdFragment['approver']
+  delegate?: ProcedureByIdFragment['delegate']
   isEditing: boolean
+  inputClassName?: string
 }
 
-const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approver, delegate }) => {
+const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approver, delegate, inputClassName }) => {
   const { data } = useGetAllGroups({ where: {}, enabled: isEditing })
   const groups = data?.groups?.edges?.map((edge) => edge?.node!) || []
 
@@ -29,7 +31,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
       <div className="flex flex-col gap-4">
         {/* Approver */}
         <div className="flex justify-between items-center">
-          <div className="flex gap-2 w-[200px] items-center">
+          <div className={`flex gap-2 w-[200px] items-center ${inputClassName ?? ''} `}>
             <Stamp size={16} className="text-brand" />
             <span>Approver</span>
           </div>
@@ -40,25 +42,30 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
               fieldName="approverID"
               placeholder="Select approver"
               options={groups.map((g) => ({
-                label: g.displayName,
+                label: g.name,
                 value: g.id,
               }))}
             />
           )}
 
           {!isEditing && (
-            <div className="w-[200px]">
-              <div className="flex gap-2">
-                <Avatar entity={approver as Group} variant="small" />
-                <span>{approver?.displayName || 'No Approver'}</span>
-              </div>
-            </div>
+            <TooltipProvider disableHoverableContent>
+              <Tooltip>
+                <TooltipTrigger className="w-[200px] cursor-default min-w-[160px] max-w-[160px]">
+                  <div className="flex gap-2">
+                    <Avatar entity={approver as Group} variant="small" />
+                    <span className="truncate">{approver?.displayName || 'No Approver'} </span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{approver?.displayName || 'No Approver'}</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
         </div>
 
         {/* Delegate */}
         <div className="flex justify-between items-center">
-          <div className="flex gap-2 w-[200px] items-center">
+          <div className={`flex gap-2 w-[200px] items-center ${inputClassName ?? ''}`}>
             <CircleArrowRight size={16} className="text-brand" />
             <span>Delegate</span>
           </div>
@@ -69,19 +76,24 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
               fieldName="delegateID"
               placeholder="Select delegate"
               options={groups.map((g) => ({
-                label: g.displayName,
+                label: g.name,
                 value: g.id,
               }))}
             />
           )}
 
           {!isEditing && (
-            <div className="w-[200px]">
-              <div className="flex gap-2">
-                <Avatar entity={delegate as Group} variant="small" />
-                <span>{delegate?.displayName || 'No Delegate'}</span>
-              </div>
-            </div>
+            <TooltipProvider disableHoverableContent>
+              <Tooltip>
+                <TooltipTrigger className="w-[200px] cursor-default  min-w-[160px] max-w-[160px]">
+                  <div className="flex gap-2">
+                    <Avatar entity={delegate as Group} variant="small" />
+                    <span className="truncate">{delegate?.displayName || 'No Delegate'} </span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{delegate?.displayName || 'No Delegate'}</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
         </div>
       </div>
@@ -109,9 +121,9 @@ export const SearchableSingleSelect: React.FC<SearchableSingleSelectProps> = ({ 
         return (
           <div className="w-[200px]">
             <Popover open={open} onOpenChange={setOpen}>
-              <PopoverTrigger asChild className="flex">
-                <div className="w-full flex text-sm h-10 px-3 !py-0 justify-between border bg-input-background rounded-md items-center cursor-pointer ">
-                  <span>{selected?.label || placeholder}</span>
+              <PopoverTrigger asChild>
+                <div className="w-full h-10 px-3 border bg-input-background rounded-md flex items-center justify-between cursor-pointer overflow-hidden min-w-[180px]">
+                  <span className="block truncate whitespace-nowrap overflow-hidden text-ellipsis max-w-[150px]">{selected?.label || placeholder}</span>
                   <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </div>
               </PopoverTrigger>

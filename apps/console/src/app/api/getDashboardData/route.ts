@@ -8,6 +8,7 @@ const GetDashboardDataDocument = `
       edges {
         node {
           id
+          displayName
         }
       }
     }

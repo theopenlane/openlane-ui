@@ -1,5 +1,5 @@
 'use server'
-import { sessionCookieName, sessionCookieExpiration, isDevelopment, isVercelDev } from '@repo/dally/auth'
+import { sessionCookieName, sessionCookieExpiration, isDevelopment, isVercelDev, sessionCookieDomain } from '@repo/dally/auth'
 import { cookies } from 'next/headers'
 
 export const setSessionCookie = async (session: string) => {
@@ -23,7 +23,7 @@ export const setSessionCookie = async (session: string) => {
     })
   } else {
     cookieStore.set(`${sessionCookieName}`, session, {
-      domain: '.theopenlane.io',
+      domain: `${sessionCookieDomain}`,
       httpOnly: true,
       secure: true,
       path: '/',

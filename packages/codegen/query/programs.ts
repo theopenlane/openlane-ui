@@ -23,8 +23,8 @@ export const UPDATE_PROGRAM = gql`
 `
 
 export const GET_ALL_PROGRAMS = gql`
-  query GetAllPrograms($where: ProgramWhereInput, $orderBy: [ProgramOrder!]) {
-    programs(where: $where, orderBy: $orderBy) {
+  query GetAllPrograms($where: ProgramWhereInput, $orderBy: [ProgramOrder!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    programs(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
       edges {
         node {
           id
@@ -38,6 +38,13 @@ export const GET_ALL_PROGRAMS = gql`
           displayID
         }
       }
+      pageInfo {
+        endCursor
+        startCursor
+        hasPreviousPage
+        hasNextPage
+      }
+      totalCount
     }
   }
 `
@@ -82,9 +89,8 @@ export const GET_PROGRAM_EDGES_FOR_WIZARD = gql`
         node {
           user {
             id
-            firstName
-            lastName
             role
+            displayName
           }
         }
       }
@@ -114,15 +120,13 @@ export const GET_PROGRAM_DETAILS_BY_ID = gql`
             due
             details
             assignee {
+              displayName
               id
-              firstName
-              lastName
               email
             }
             assigner {
+              displayName
               id
-              firstName
-              lastName
               email
             }
           }
@@ -189,6 +193,133 @@ export const GET_PROGRAM_BASIC_INFO = gql`
       auditor
       auditorEmail
       auditorReady
+      displayID
+      tags
+      frameworkName
+      status
+      programType
+    }
+  }
+`
+
+export const GET_PROGRAM_SETTINGS = gql`
+  query GetProgramSettings($programId: ID!) {
+    program(id: $programId) {
+      viewers {
+        edges {
+          node {
+            id
+            displayName
+            gravatarLogoURL
+            logoURL
+          }
+        }
+      }
+      editors {
+        edges {
+          node {
+            id
+            displayName
+            gravatarLogoURL
+            logoURL
+          }
+        }
+      }
+      members {
+        totalCount
+        edges {
+          node {
+            id
+            role
+            user {
+              email
+              id
+              displayName
+              avatarRemoteURL
+              avatarFile {
+                id
+                presignedURL
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+export const GET_PROGRAM_MEMBERS = gql`
+  query GetProgramMembers($after: Cursor, $first: Int, $before: Cursor, $last: Int, $where: ProgramMembershipWhereInput) {
+    programMemberships(after: $after, first: $first, before: $before, last: $last, where: $where) {
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      totalCount
+      edges {
+        node {
+          id
+          role
+          user {
+            id
+            displayName
+            email
+            avatarFile {
+              presignedURL
+            }
+            avatarRemoteURL
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_PROGRAM_GROUPS = gql`
+  query GetProgramGroups($programId: ID!) {
+    program(id: $programId) {
+      id
+      viewers {
+        totalCount
+        edges {
+          node {
+            name
+            id
+            gravatarLogoURL
+            logoURL
+          }
+        }
+      }
+      editors {
+        totalCount
+        edges {
+          node {
+            name
+            id
+            gravatarLogoURL
+            logoURL
+          }
+        }
+      }
+    }
+  }
+`
+
+export const DELETE_PROGRAM = gql`
+  mutation DeleteProgram($deleteProgramId: ID!) {
+    deleteProgram(id: $deleteProgramId) {
+      deletedID
+    }
+  }
+`
+
+export const UPDATE_PROGRAM_MEMBERSHIP = gql`
+  mutation UpdateProgramMembership($updateProgramMembershipId: ID!, $input: UpdateProgramMembershipInput!) {
+    updateProgramMembership(id: $updateProgramMembershipId, input: $input) {
+      programMembership {
+        id
+      }
     }
   }
 `

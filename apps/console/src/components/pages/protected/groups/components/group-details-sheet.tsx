@@ -15,7 +15,6 @@ import GroupsPermissionsTable from './groups-permissions-table'
 import InheritPermissionDialog from './dialogs/inherit-permission-dialog'
 import { GroupSettingVisibility, GroupMembershipRole } from '@repo/codegen/src/schema'
 import { Loading } from '@/components/shared/loading/loading'
-import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { z } from 'zod'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -27,6 +26,9 @@ import { useSession } from 'next-auth/react'
 import { useGetGroupDetails, useUpdateGroup } from '@/lib/graphql-hooks/groups'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
+import { DOCS_URL } from '@/constants'
+import { useGroupsStore } from '@/hooks/useGroupsStore'
+import { useSmartRouter } from '@/hooks/useSmartRouter'
 
 const EditGroupSchema = z.object({
   groupName: z.string().min(1, 'Group name is required'),
@@ -46,6 +48,7 @@ const GroupDetailsSheet = () => {
   const { selectedGroup, setSelectedGroup, setIsAdmin, isAdmin } = useGroupsStore()
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
+  const { replace } = useSmartRouter()
 
   const { data, isPending: fetching } = useGetGroupDetails(selectedGroup)
 
@@ -89,10 +92,7 @@ const GroupDetailsSheet = () => {
 
     setSelectedGroup(null)
     setIsEditing(false)
-
-    const newSearchParams = new URLSearchParams(searchParams.toString())
-    newSearchParams.delete('groupid')
-    router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
+    replace({ id: null })
   }
   const onSubmit = async (data: EditGroupFormData) => {
     if (!selectedGroup || !id) return
@@ -132,7 +132,7 @@ const GroupDetailsSheet = () => {
         visibility: setting?.visibility === GroupSettingVisibility.PUBLIC ? 'Public' : 'Private',
         tags: tags?.map((tag) => ({ value: tag, label: tag })) || [],
       })
-      const userRole = data.group.members?.find((membership) => membership.user.id === sessionData?.user.userId)?.role
+      const userRole = data.group.members?.edges?.find((membership) => membership?.node?.user.id === sessionData?.user.userId)?.node?.role
       if (userRole) {
         setIsAdmin(userRole === GroupMembershipRole.ADMIN)
       }
@@ -140,7 +140,7 @@ const GroupDetailsSheet = () => {
   }, [data, reset, name, description, setting, tags])
 
   useEffect(() => {
-    const groupId = searchParams.get('groupid')
+    const groupId = searchParams.get('id')
     if (groupId) {
       setSelectedGroup(groupId)
     }
@@ -212,7 +212,7 @@ const GroupDetailsSheet = () => {
                   <div className="flex items-center gap-4">
                     <User height={16} width={16} color="#2CCBAB" />
                     <p className="text-sm">Members:</p>
-                    <p className="text-sm">{members?.length}</p>
+                    <p className="text-sm">{members?.edges?.length}</p>
                   </div>
 
                   <div className="flex items-center gap-4">
@@ -244,7 +244,7 @@ const GroupDetailsSheet = () => {
                     <p className="font-semibold">Did you know?</p>
                     <p className="text-sm">
                       Groups can be used to assign specific access to objects within the system. Please refer to our{' '}
-                      <a href="https://docs.theopenlane.io/docs/docs/platform/security/authorization/permissions" target="_blank" className="text-brand hover:underline">
+                      <a href={`${DOCS_URL}/docs/docs/platform/security/authorization/permissions`} target="_blank" className="text-brand hover:underline">
                         documentation
                       </a>
                       .

@@ -12,6 +12,8 @@ import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
 import { Avatar } from '../avatar/avatar'
 import { User } from '@repo/codegen/src/schema'
 import { BookText, BriefcaseBusiness, Keyboard, LogOut, NotebookPen, Paintbrush, UserRoundCog } from 'lucide-react'
+import { DOCS_URL, SUPPORT_EMAIL } from '@/constants'
+import { useShortcutSuffix } from '@/components/shared/shortcut-suffix/shortcut-suffix.tsx'
 
 export const UserMenu = () => {
   const { setTheme, theme } = useTheme()
@@ -19,6 +21,7 @@ export const UserMenu = () => {
   const { trigger, email, userSettingsLink, themeRow, themeDropdown, commandRow, commands } = userMenuStyles()
   const userId = sessionData?.user.userId
   const { data } = useGetCurrentUser(userId)
+  const { suffix } = useShortcutSuffix()
 
   return (
     <DropdownMenu>
@@ -30,7 +33,7 @@ export const UserMenu = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent className="min-w-64 border shadow-md">
         <div className="text-sm px-2">
-          {`${data?.user.firstName} ${data?.user.lastName}`}
+          {`${data?.user.displayName}`}
           <br />
           <div className={email()}>{data?.user.email}</div>
         </div>
@@ -71,13 +74,13 @@ export const UserMenu = () => {
         <DropdownMenuSeparator spacing="md" className="border-b" />
 
         <DropdownMenuItem asChild>
-          <Link href="mailto:support@theopenlane.io" className={userSettingsLink()}>
+          <Link href={SUPPORT_EMAIL} className={userSettingsLink()}>
             <NotebookPen className="text-input-text" size={14} />
             Feedback
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="https://docs.theopenlane.io" target="_blank" rel="noopener noreferrer" className={userSettingsLink()}>
+          <Link href={DOCS_URL} target="_blank" rel="noopener noreferrer" className={userSettingsLink()}>
             <BookText className="text-input-text" size={14} />
             Docs
           </Link>
@@ -88,7 +91,7 @@ export const UserMenu = () => {
           <Keyboard size={14} />
           <p>Command menu</p>
           <div className={commands()}>
-            <span className="text-[10px]">⌘</span>
+            <span className="text-[10px]">{suffix}</span>
             <span>K</span>
           </div>
         </div>
@@ -96,7 +99,7 @@ export const UserMenu = () => {
           <Keyboard size={14} />
           <p>Search menu</p>
           <div className={commands()}>
-            <span className="text-[10px]">⌘</span>
+            <span className="text-[10px]">{suffix}</span>
             <span>/</span>
           </div>
         </div>

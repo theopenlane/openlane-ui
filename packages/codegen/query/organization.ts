@@ -40,8 +40,7 @@ export const GET_SINGLE_ORGANIZATION_MEMBERS = gql`
             role
             user {
               id
-              firstName
-              lastName
+              displayName
               authProvider
               avatarRemoteURL
               email
@@ -67,7 +66,7 @@ export const GET_SINGLE_ORGANIZATION_MEMBERS = gql`
 `
 
 export const GET_ALL_ORGANIZATIONS_WITH_MEMBERS = gql`
-  query GetAllOrganizationsWithMembers {
+  query GetAllOrganizationsWithMembers($membersWhere: OrgMembershipWhereInput) {
     organizations {
       edges {
         node {
@@ -80,10 +79,14 @@ export const GET_ALL_ORGANIZATIONS_WITH_MEMBERS = gql`
             id
             presignedURL
           }
-          members {
+          members(where: $membersWhere) {
             edges {
               node {
+                id
                 role
+                user {
+                  id
+                }
               }
             }
           }
@@ -94,8 +97,8 @@ export const GET_ALL_ORGANIZATIONS_WITH_MEMBERS = gql`
 `
 
 export const GET_INVITES = gql`
-  query GetInvites($where: InviteWhereInput, $orderBy: [InviteOrder!]) {
-    invites(where: $where, orderBy: $orderBy) {
+  query GetInvites($where: InviteWhereInput, $orderBy: [InviteOrder!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    invites(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
       edges {
         node {
           id
@@ -130,6 +133,7 @@ export const GET_ORGANIZATION_BILLING = gql`
         features
         managePaymentMethods
         cancellation
+        trialExpiresAt
       }
     }
   }
@@ -140,6 +144,7 @@ export const GET_ORGANIZATION_BILLING_BANNER = gql`
     organization(id: $organizationId) {
       personalOrg
       orgSubscriptions {
+        trialExpiresAt
         expiresAt
         stripeSubscriptionStatus
         paymentMethodAdded
@@ -152,6 +157,7 @@ export const GET_ORGANIZATION_SETTING = gql`
   query GetOrganizationSetting($organizationId: ID!) {
     organization(id: $organizationId) {
       setting {
+        id
         createdAt
         updatedAt
         createdBy
@@ -165,6 +171,7 @@ export const GET_ORGANIZATION_SETTING = gql`
         tags
         geoLocation
         billingNotificationsEnabled
+        allowedEmailDomains
       }
     }
   }
@@ -222,6 +229,16 @@ export const DELETE_ORGANIZATION = gql`
   mutation DeleteOrganization($deleteOrganizationId: ID!) {
     deleteOrganization(id: $deleteOrganizationId) {
       deletedID
+    }
+  }
+`
+
+export const UPDATE_ORG_SETTING = gql`
+  mutation UpdateOrganizationSetting($updateOrganizationSettingId: ID!, $input: UpdateOrganizationSettingInput!) {
+    updateOrganizationSetting(id: $updateOrganizationSettingId, input: $input) {
+      organizationSetting {
+        id
+      }
     }
   }
 `

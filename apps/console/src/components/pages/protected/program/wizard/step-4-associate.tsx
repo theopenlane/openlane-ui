@@ -5,15 +5,15 @@ import { Grid } from '@repo/ui/grid'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { CheckIcon, ChevronsUpDownIcon, InfoIcon } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
+import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Button } from '@repo/ui/button'
 import { cn } from '@repo/ui/lib/utils'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
-import { Node } from '../nodes'
 import { Checkbox } from '@repo/ui/checkbox'
-
-type ObjectAssociationProps = { risks: Node[]; policies: Node[]; procedures: Node[] }
+import { useRiskSelect } from '@/lib/graphql-hooks/risks'
+import { usePolicySelect } from '@/lib/graphql-hooks/policy'
+import { useProcedureSelect } from '@/lib/graphql-hooks/procedures'
 
 export const programObjectAssociationSchema = z.object({
   risks: z.array(z.string()).optional(),
@@ -24,28 +24,31 @@ export const programObjectAssociationSchema = z.object({
 
 type ProgramObjectAssociationValues = zInfer<typeof programObjectAssociationSchema>
 
-export const ProgramObjectAssociationComponent: React.FC<ObjectAssociationProps> = ({ risks, policies, procedures }) => {
+export const ProgramObjectAssociationComponent = () => {
   return (
     <Panel className="border-none p-2">
       <PanelHeader heading="Associate Existing Objects" subheading="Pull in existing objects to associate with the program or use the provided templates" noBorder />
       <div className="max-h-100 overflow-y-auto">
-        <ObjectAssociationComponent risks={risks} policies={policies} procedures={procedures} />
+        <ObjectAssociationComponent />
       </div>
     </Panel>
   )
 }
 
 // ObjectAssociationComponent contains the object association form
-export const ObjectAssociationComponent: React.FC<ObjectAssociationProps> = ({ risks, policies, procedures }) => {
+export const ObjectAssociationComponent = () => {
   const { register, control, setValue } = useFormContext<ProgramObjectAssociationValues>()
+  const { riskOptions } = useRiskSelect()
+  const { policyOptions } = usePolicySelect()
+  const { procedureOptions } = useProcedureSelect()
 
   return (
     <>
       <Card className="px-5 pb-6 bg-background-secondary">
         <Grid className="gap-0 mb-8">
-          <AddObjectDropdown values={risks} fieldName="risks" formLabel="Associate Existing Risks" />
-          <AddObjectDropdown values={policies} fieldName="policies" formLabel="Associate Existing Policies" />
-          <AddObjectDropdown values={procedures} fieldName="procedures" formLabel="Associate Existing Procedures" />
+          <AddObjectDropdown options={riskOptions} fieldName="risks" formLabel="Associate Existing Risks" />
+          <AddObjectDropdown options={policyOptions} fieldName="policies" formLabel="Associate Existing Policies" />
+          <AddObjectDropdown options={procedureOptions} fieldName="procedures" formLabel="Associate Existing Procedures" />
         </Grid>
         <FormItem>
           <Controller
@@ -75,11 +78,10 @@ export const ObjectAssociationComponent: React.FC<ObjectAssociationProps> = ({ r
   )
 }
 
-const AddObjectDropdown: React.FC<{ values: Node[]; fieldName: keyof Omit<ProgramObjectAssociationValues, 'useTemplate'>; formLabel: string }> = ({ values, fieldName, formLabel }) => {
+type Option = { label: string; value: string }
+
+const AddObjectDropdown = ({ options, fieldName, formLabel }: { options: Option[]; fieldName: keyof Omit<ProgramObjectAssociationValues, 'useTemplate'>; formLabel: string }) => {
   const { register, control, watch } = useFormContext<ProgramObjectAssociationValues>()
-
-  const placeholder = `Search ${fieldName}(s) ...`
-
   const useTemplate = watch('useTemplate')
 
   return (
@@ -106,33 +108,30 @@ const AddObjectDropdown: React.FC<{ values: Node[]; fieldName: keyof Omit<Progra
               <FormControl>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button variant="outlineInput" role="combobox" className={cn('w-[300px] justify-between flex', !field.value && 'text-muted-foreground')}>
-                        <span className="flex">
-                          <ChevronsUpDownIcon className="opacity-50 h-8 w-8 mr-2 mt-1" />
-                          {field.value && field.value.length > 0 ? `${field.value.length} ${fieldName}(s) selected` : `Select ${fieldName}(s)`}
-                        </span>
-                      </Button>
-                    </FormControl>
+                    <Button variant="outlineInput" role="combobox" className={cn('w-[300px] justify-between flex', !field.value?.length && 'text-muted-foreground')}>
+                      <span className="flex">
+                        <ChevronsUpDownIcon className="opacity-50 h-8 w-8 mr-2 mt-1" />
+                        {Array.isArray(field.value) && field.value.length > 0 ? `${field.value.length} ${fieldName}(s) selected` : `Select ${fieldName}(s)`}
+                      </span>
+                    </Button>
                   </PopoverTrigger>
                   <PopoverContent className="bg-background w-[300px]">
                     <Command>
-                      <CommandInput placeholder={placeholder} />
+                      <CommandInput placeholder={`Search ${fieldName}(s)...`} />
                       <CommandList>
                         <CommandEmpty>No {fieldName} found.</CommandEmpty>
                         <CommandGroup>
-                          {values?.map((value) => (
+                          {options.map((option) => (
                             <CommandItem
-                              className="flex items-center text-white"
-                              value={value.node.name}
-                              key={value.node.name}
+                              key={option.value}
+                              value={option.label}
                               onSelect={() => {
-                                const newValue = field.value?.includes(value.node.id) ? field.value.filter((id) => id !== value.node.id) : [...(field.value || []), value.node.id]
+                                const newValue = field.value?.includes(option.value) ? field.value.filter((id) => id !== option.value) : [...(field.value || []), option.value]
                                 field.onChange(newValue)
                               }}
                             >
-                              {value.node.name}
-                              <CheckIcon className={cn('ml-auto', field.value && field.value.includes(value.node.id) ? 'opacity-100' : 'opacity-0')} />
+                              {option.label}
+                              <CheckIcon className={cn('ml-auto', field.value?.includes(option.value) ? 'opacity-100' : 'opacity-0')} />
                             </CommandItem>
                           ))}
                         </CommandGroup>

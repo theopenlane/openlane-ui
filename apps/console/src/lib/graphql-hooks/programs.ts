@@ -10,6 +10,11 @@ import {
   GET_PROGRAM_BASIC_INFO,
   GET_EVIDENCE_STATS,
   GET_GLOBAL_EVIDENCE_STATS,
+  GET_PROGRAM_SETTINGS,
+  GET_PROGRAM_MEMBERS,
+  GET_PROGRAM_GROUPS,
+  DELETE_PROGRAM,
+  UPDATE_PROGRAM_MEMBERSHIP,
 } from '@repo/codegen/query/programs'
 
 import {
@@ -26,7 +31,17 @@ import {
   GetProgramBasicInfoQueryVariables,
   GetEvidenceStatsQuery,
   GetGlobalEvidenceStatsQuery,
+  GetProgramSettingsQuery,
+  GetProgramSettingsQueryVariables,
+  ProgramMembershipWhereInput,
+  GetProgramMembersQuery,
+  GetProgramMembersQueryVariables,
+  GetProgramGroupsQuery,
+  GetProgramGroupsQueryVariables,
+  DeleteProgramMutationVariables,
+  UpdateProgramMembershipMutationVariables,
 } from '@repo/codegen/src/schema'
+import { TPagination } from '@repo/ui/pagination-types'
 
 interface UseGetAllProgramsArgs {
   where?: GetAllProgramsQueryVariables['where']
@@ -40,15 +55,6 @@ export const useGetAllPrograms = ({ where, orderBy }: UseGetAllProgramsArgs = {}
     queryKey: ['programs', { where, orderBy }],
     queryFn: async () => client.request(GET_ALL_PROGRAMS, { where, orderBy }),
     enabled: true,
-  })
-}
-
-export const useGetProgramEdgesForWizard = () => {
-  const { client } = useGraphQLClient()
-
-  return useQuery<GetProgramEdgesForWizardQuery>({
-    queryKey: ['programEdgesForWizard'],
-    queryFn: async () => client.request(GET_PROGRAM_EDGES_FOR_WIZARD),
   })
 }
 
@@ -86,13 +92,13 @@ export const useUpdateProgram = () => {
   })
 }
 
-export const useGetProgramBasicInfo = (programId: string | null) => {
+export const useGetProgramBasicInfo = (programId: string | null, enabled: boolean = true) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetProgramBasicInfoQuery, GetProgramBasicInfoQueryVariables>({
     queryKey: ['programs', programId, 'basic'],
     queryFn: async () => client.request(GET_PROGRAM_BASIC_INFO, { programId }),
-    enabled: !!programId,
+    enabled: !!programId && enabled,
   })
 }
 
@@ -138,5 +144,65 @@ export const useGlobalEvidenceStats = ({ enabled = true }) => {
       }
     },
     enabled,
+  })
+}
+
+export const useProgramSelect = () => {
+  const { data, ...rest } = useGetAllPrograms({})
+
+  const programOptions = data?.programs?.edges?.flatMap((edge) => (edge?.node?.id && edge?.node?.name ? [{ label: edge.node.name, value: edge.node.id }] : [])) || []
+
+  return { programOptions, ...rest }
+}
+
+export const useGetProgramSettings = (programId: string | null) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetProgramSettingsQuery, GetProgramSettingsQueryVariables>({
+    queryKey: ['programs', programId, 'settings'],
+    queryFn: async () => client.request(GET_PROGRAM_SETTINGS, { programId }),
+    enabled: !!programId,
+  })
+}
+
+export const useGetProgramMembers = ({ pagination, where, enabled = true }: { pagination?: TPagination; where?: ProgramMembershipWhereInput; enabled?: boolean }) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetProgramMembersQuery, GetProgramMembersQueryVariables>({
+    queryKey: ['programMemberships', pagination?.pageSize, pagination?.page, where],
+    queryFn: () => client.request(GET_PROGRAM_MEMBERS, { ...pagination?.query, where }),
+    enabled,
+  })
+}
+
+export const useGetProgramGroups = ({ programId, enabled = true }: { programId: string | null; pagination?: TPagination; enabled?: boolean }) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetProgramGroupsQuery, GetProgramGroupsQueryVariables>({
+    queryKey: ['programs', programId, 'groups'],
+    queryFn: () =>
+      client.request(GET_PROGRAM_GROUPS, {
+        programId,
+      }),
+    enabled: enabled && !!programId,
+  })
+}
+
+export const useDeleteProgram = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<void, Error, DeleteProgramMutationVariables>({
+    mutationFn: ({ deleteProgramId }) => client.request(DELETE_PROGRAM, { deleteProgramId }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['programs'] }),
+  })
+}
+
+export const useUpdateProgramMembership = () => {
+  const { client } = useGraphQLClient()
+
+  return useMutation({
+    mutationFn: async (variables: UpdateProgramMembershipMutationVariables) => {
+      return client.request(UPDATE_PROGRAM_MEMBERSHIP, variables)
+    },
   })
 }

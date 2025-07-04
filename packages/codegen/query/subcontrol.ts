@@ -8,8 +8,16 @@ export const GET_ALL_SUBCONTROLS = gql`
           id
           displayID
           description
+          refCode
         }
       }
+      pageInfo {
+        endCursor
+        startCursor
+        hasPreviousPage
+        hasNextPage
+      }
+      totalCount
     }
   }
 `
@@ -31,9 +39,17 @@ export const GET_SUBCONTROL_BY_ID = gql`
       assessmentMethods
       assessmentObjectives
       displayID
+      source
+      controlType
+      auditorReferenceID
+      referenceID
       control {
         refCode
         id
+        standard {
+          id
+          shortName
+        }
       }
       controlObjectives {
         edges {
@@ -60,6 +76,7 @@ export const GET_SUBCONTROL_BY_ID = gql`
       evidence {
         edges {
           node {
+            id
             displayID
             name
             creationDate
@@ -153,6 +170,77 @@ export const UPDATE_SUBCONTROL = gql`
       subcontrol {
         id
       }
+    }
+  }
+`
+
+export const DELETE_SUBCONTROL = gql`
+  mutation DeleteSubcontrol($deleteSubcontrolId: ID!) {
+    deleteSubcontrol(id: $deleteSubcontrolId) {
+      deletedID
+    }
+  }
+`
+export const CREATE_SUBCONTROL = gql`
+  mutation CreateSubcontrol($input: CreateSubcontrolInput!) {
+    createSubcontrol(input: $input) {
+      subcontrol {
+        id
+      }
+    }
+  }
+`
+
+export const GET_SUBCONTROL_SELECT_OPTIONS = gql`
+  query GetSubcontrolSelectOptions($where: SubcontrolWhereInput) {
+    subcontrols(where: $where) {
+      edges {
+        node {
+          id
+          refCode
+          category
+          subcategory
+          referenceFramework
+        }
+      }
+    }
+  }
+`
+
+export const GET_SUBCONTROLS_PAGINATED = gql`
+  query GetSubcontrolsPaginated($where: SubcontrolWhereInput, $after: Cursor) {
+    subcontrols(where: $where, after: $after) {
+      totalCount
+      edges {
+        node {
+          __typename
+          id
+          refCode
+          category
+          subcategory
+          referenceFramework
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+    }
+  }
+`
+
+export const GET_SUBCONTROL_BY_ID_MINIFIED = gql`
+  query GetSubcontrolByIdMinified($subcontrolId: ID!) {
+    subcontrol(id: $subcontrolId) {
+      id
+      refCode
+      control {
+        id
+        standardID
+      }
+      category
+      subcategory
+      description
     }
   }
 `

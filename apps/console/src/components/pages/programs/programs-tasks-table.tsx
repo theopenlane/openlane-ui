@@ -10,19 +10,20 @@ import { TableCell, TableRow } from '@repo/ui/table'
 import { ColumnDef } from '@tanstack/table-core'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useTasksWithFilter } from '@/lib/graphql-hooks/tasks'
-import { OrderDirection, TaskOrderField, TasksWithFilterQueryVariables, TaskWhereInput, User } from '@repo/codegen/src/schema'
+import { OrderDirection, TaskOrderField, TasksWithFilterQueryVariables, TaskTaskStatus, TaskWhereInput, User } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { TaskStatusIconMapper } from '../protected/tasks/table/columns'
 import { TASK_SORT_FIELDS } from '../protected/tasks/table/table-config'
 import { useSearchParams } from 'next/navigation'
 import Frame from '@/assets/Frame'
+import { TaskStatusIconMapper } from '@/components/shared/icon-enum/task-enum.tsx'
+import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task.ts'
 
 type FormattedTask = {
   id: string
   title: string
   category: string
-  status: string
+  status: TaskTaskStatus
   due?: string
   assignee?: User
 }
@@ -34,7 +35,7 @@ const columns: ColumnDef<FormattedTask>[] = [
     cell: ({ row }) => {
       const task = row.original
       return (
-        <Link href={`/tasks?taskId=${task.id}`} className="text-blue-500 hover:underline">
+        <Link href={`/tasks?id=${task.id}`} className="text-blue-500 hover:underline">
           {task.title}
         </Link>
       )
@@ -56,7 +57,7 @@ const columns: ColumnDef<FormattedTask>[] = [
       return (
         <span className="flex items-center gap-2 capitalize">
           {icon}
-          {status}
+          {TaskStatusMapper[status]}
         </span>
       )
     },
@@ -88,13 +89,19 @@ const TasksTable = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
   const [pagination, setPagination] = useState<TPagination>({ ...DEFAULT_PAGINATION, pageSize: 5 })
-  const where: TaskWhereInput = programId ? { hasProgramsWith: [{ id: programId }] } : {}
+  const where: TaskWhereInput = programId
+    ? {
+        hasProgramsWith: [{ id: programId }],
+        statusNotIn: [TaskTaskStatus.COMPLETED, TaskTaskStatus.WONT_DO],
+      }
+    : {}
   const [orderBy, setOrderBy] = useState<TasksWithFilterQueryVariables['orderBy']>([
     {
       field: TaskOrderField.due,
       direction: OrderDirection.ASC,
     },
   ])
+
   const { data, tasks, isLoading, isFetching } = useTasksWithFilter({ where, pagination, orderBy, enabled: !!programId })
 
   const formattedTasks: FormattedTask[] = useMemo(() => {
@@ -108,11 +115,22 @@ const TasksTable = () => {
     }))
   }, [tasks])
 
+  const filters = [
+    {
+      field: 'hasProgramsWith',
+      value: programId,
+      type: 'selectIs',
+      operator: 'EQ',
+    },
+  ]
+
+  const encodedFilters = encodeURIComponent(JSON.stringify(filters))
+
   return (
     <div className="p-6 bg-muted rounded-lg">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Outstanding tasks</h2>
-        <Link href={`/tasks?programId=${programId}`}>
+        <Link href={`/tasks?filters=${encodedFilters}`}>
           <Button icon={<Frame size={16} />} iconPosition="left">
             View Tasks
           </Button>

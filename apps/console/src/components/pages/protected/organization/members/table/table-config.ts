@@ -1,5 +1,28 @@
-import { FilterField, SelectFilterField } from '@/types'
-import { InviteInviteStatus, OrderDirection } from '@repo/codegen/src/schema'
+import { FilterField, SelectFilterField, SelectIsFilterField } from '@/types'
+import { InviteInviteStatus, OrderDirection, OrgMembershipRole, UserAuthProvider } from '@repo/codegen/src/schema'
+
+export const MEMBERS_FILTER_FIELDS: FilterField[] = [
+  {
+    key: 'providers',
+    label: 'Providers',
+    type: 'selectIs',
+    options: [
+      { label: 'GitHub', value: UserAuthProvider.GITHUB },
+      { label: 'Google', value: UserAuthProvider.GOOGLE },
+      { label: 'Credentials', value: UserAuthProvider.CREDENTIALS },
+    ],
+  } as SelectIsFilterField,
+  {
+    key: 'role',
+    label: 'Role',
+    type: 'select',
+    options: [
+      { label: 'Member', value: OrgMembershipRole.MEMBER },
+      { label: 'Owner', value: OrgMembershipRole.OWNER },
+      { label: 'Admin', value: OrgMembershipRole.ADMIN },
+    ],
+  } as SelectFilterField,
+]
 
 export const INVITES_FILTER_FIELDS: FilterField[] = [
   { key: 'createdAt', label: 'Created At', type: 'date' },

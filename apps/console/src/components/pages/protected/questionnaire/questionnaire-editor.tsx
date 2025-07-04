@@ -1,9 +1,11 @@
 'use client'
 
+import { useContext, useEffect } from 'react'
 import { SurveyCreatorComponent, SurveyCreator } from 'survey-creator-react'
 import { ITheme, slk } from 'survey-core'
 import { editorLocalization } from 'survey-creator-core'
 import { useTheme } from 'next-themes'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 import 'survey-core/defaultV2.min.css'
 import 'survey-creator-core/survey-creator-core.min.css'
@@ -34,11 +36,21 @@ const creatorOptions = {
 slk(surveyLicenseKey as string)
 
 export default function CreateQuestionnaire(input: { templateId: string; existingId: string }) {
+  const { setCrumbs } = useContext(BreadcrumbContext)
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
 
   const creator = new SurveyCreator(creatorOptions)
   const themeTabPlugin = creator.themeEditor
+  creator.toolbox.forceCompact = false
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Questionnaires', href: '/questionnaires' },
+      { label: 'Questionnaire Editor', href: '/questionnaire-editor' },
+    ])
+  }, [setCrumbs])
 
   function addCustomTheme(theme: ITheme, userFriendlyThemeName: string) {
     // Add a localized user-friendly theme name
@@ -57,9 +69,9 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
   const theme = themeContext.resolvedTheme as 'light' | 'dark' | 'white' | undefined
 
   if (theme === 'dark') {
-    creator.applyTheme(darkTheme)
+    creator.applyCreatorTheme(darkTheme)
   } else {
-    creator.applyTheme(lightTheme)
+    creator.applyCreatorTheme(lightTheme)
   }
 
   const { data: templateResult } = useGetTemplate(input.existingId || input.templateId)
@@ -74,7 +86,7 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
   const saveTemplate = async (data: any, saveNo: string, callback: any) => {
     const variables = {
       input: {
-        name: data.title,
+        name: data.title || 'Untitled Questionnaire',
         jsonconfig: data,
         templateType: TemplateDocumentType.DOCUMENT,
         description: data.description,

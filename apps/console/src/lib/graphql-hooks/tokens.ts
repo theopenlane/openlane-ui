@@ -1,6 +1,14 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { GET_PERSONAL_ACCESS_TOKENS, CREATE_PERSONAL_ACCESS_TOKEN, DELETE_PERSONAL_ACCESS_TOKEN, CREATE_API_TOKEN, GET_API_TOKENS, DELETE_API_TOKEN } from '@repo/codegen/query/tokens'
+import {
+  GET_PERSONAL_ACCESS_TOKENS,
+  CREATE_PERSONAL_ACCESS_TOKEN,
+  DELETE_PERSONAL_ACCESS_TOKEN,
+  CREATE_API_TOKEN,
+  GET_API_TOKENS,
+  DELETE_API_TOKEN,
+  GET_API_TOKENS_BY_IDS,
+} from '@repo/codegen/query/tokens'
 import {
   GetPersonalAccessTokensQuery,
   CreatePersonalAccessTokenMutation,
@@ -14,6 +22,10 @@ import {
   DeleteApiTokenMutationVariables,
   GetApiTokensQueryVariables,
   GetPersonalAccessTokensQueryVariables,
+  GetApiTokensByIdsQuery,
+  GetApiTokensByIdsQueryVariables,
+  User,
+  ApiToken,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 
@@ -21,9 +33,10 @@ type UseGetPersonalAccessTokensArgs = {
   where?: GetPersonalAccessTokensQueryVariables['where']
   orderBy?: GetPersonalAccessTokensQueryVariables['orderBy']
   pagination?: TPagination
+  enabled?: boolean
 }
 
-export const useGetPersonalAccessTokens = ({ where, orderBy, pagination }: UseGetPersonalAccessTokensArgs) => {
+export const useGetPersonalAccessTokens = ({ where, orderBy, pagination, enabled = true }: UseGetPersonalAccessTokensArgs) => {
   const { client } = useGraphQLClient()
   return useQuery<GetPersonalAccessTokensQuery>({
     queryKey: ['personalAccessTokens', where, orderBy, pagination?.pageSize, pagination?.page],
@@ -33,6 +46,7 @@ export const useGetPersonalAccessTokens = ({ where, orderBy, pagination }: UseGe
         orderBy,
         ...pagination?.query,
       }),
+    enabled,
   })
 }
 
@@ -60,9 +74,10 @@ type UseGetApiTokensArgs = {
   where?: GetApiTokensQueryVariables['where']
   orderBy?: GetApiTokensQueryVariables['orderBy']
   pagination?: TPagination
+  enabled?: boolean
 }
 
-export const useGetApiTokens = ({ where, orderBy, pagination }: UseGetApiTokensArgs) => {
+export const useGetApiTokens = ({ where, orderBy, pagination, enabled = true }: UseGetApiTokensArgs) => {
   const { client } = useGraphQLClient()
   return useQuery<GetApiTokensQuery>({
     queryKey: ['apiTokens', where, orderBy, pagination?.pageSize, pagination?.page],
@@ -72,6 +87,7 @@ export const useGetApiTokens = ({ where, orderBy, pagination }: UseGetApiTokensA
         orderBy,
         ...pagination?.query,
       }),
+    enabled,
   })
 }
 
@@ -93,4 +109,26 @@ export const useDeleteApiToken = () => {
       queryClient.invalidateQueries({ queryKey: ['apiTokens'] })
     },
   })
+}
+
+export const useGetApiTokensByIds = ({ where, enabled = true }: UseGetApiTokensArgs) => {
+  const idInNotEmpty = Array.isArray(where?.idIn) && where.idIn.length > 0
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetApiTokensByIdsQuery, GetApiTokensByIdsQueryVariables>({
+    queryKey: ['apiTokens', where],
+    queryFn: async () =>
+      client.request(GET_API_TOKENS_BY_IDS, {
+        where,
+      }),
+    enabled: idInNotEmpty,
+  })
+
+  const tokens = (queryResult.data?.apiTokens?.edges ?? []).map((edge) => edge?.node) as ApiToken[]
+
+  return {
+    ...queryResult,
+    tokens,
+    isLoading: queryResult.isFetching,
+  }
 }

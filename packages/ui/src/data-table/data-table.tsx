@@ -1,6 +1,19 @@
 'use client'
 
-import { ColumnDef, ColumnFiltersState, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, useReactTable, VisibilityState } from '@tanstack/react-table'
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  ColumnResizeDirection,
+  ColumnResizeMode,
+  ColumnSizing,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+  VisibilityState,
+} from '@tanstack/react-table'
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../table/table'
 import { Button } from '../button/button'
@@ -11,6 +24,9 @@ import { ArrowDown, ArrowUp, ArrowUpDown, EyeIcon } from 'lucide-react'
 import { OrderDirection } from '@repo/codegen/src/schema.ts'
 import Pagination from '../pagination/pagination'
 import { TPagination, TPaginationMeta } from '../pagination/types'
+import { cn } from '../../lib/utils'
+import { useSearchParams } from 'next/navigation'
+import { Filter } from 'console/src/types'
 
 type CustomColumnDef<TData, TValue> = ColumnDef<TData, TValue> & {
   meta?: {
@@ -32,6 +48,10 @@ interface DataTableProps<TData, TValue> {
   pagination?: TPagination | null
   onPaginationChange?: (arg: TPagination) => void
   paginationMeta?: TPaginationMeta
+  wrapperClass?: string
+  columnVisibility?: VisibilityState
+  setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
+  footer?: ReactElement | null
 }
 
 export function DataTable<TData, TValue>({
@@ -48,16 +68,28 @@ export function DataTable<TData, TValue>({
   pagination,
   onPaginationChange,
   paginationMeta,
+  wrapperClass,
+  setColumnVisibility,
+  columnVisibility,
+  footer,
 }: DataTableProps<TData, TValue>) {
   const [sortConditions, setSortConditions] = useState<{ field: string; direction?: OrderDirection }[]>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = useState({})
+  const [filterActive, setFilterActive] = useState(false)
+  const searchParams = useSearchParams()
 
   const currentPage = pagination?.page || 1
   const currentPageSize = pagination?.pageSize || 10
 
+  const [columnSizes, setColumnSizes] = useState<Record<string, number>>({})
+  const [hasFilters, setHasFilters] = useState<boolean>(false)
+
   const { totalCount, pageInfo, isLoading } = paginationMeta || {}
+
+  const [columnResizeMode, setColumnResizeMode] = useState<ColumnResizeMode>('onChange')
+
+  const [columnResizeDirection, setColumnResizeDirection] = useState<ColumnResizeDirection>('ltr')
 
   const totalPages = useMemo(() => {
     return totalCount ? Math.ceil(totalCount / currentPageSize) : 1
@@ -90,10 +122,16 @@ export function DataTable<TData, TValue>({
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    onColumnSizingChange: setColumnSizes,
+    columnResizeMode,
+    columnResizeDirection,
+
+    enableColumnResizing: true,
     state: {
       columnFilters,
       columnVisibility,
       rowSelection,
+      columnSizing: columnSizes,
       pagination: {
         pageSize: pagination?.pageSize || 10,
         pageIndex: 0,
@@ -200,9 +238,17 @@ export function DataTable<TData, TValue>({
     }
   }, [sortConditions])
 
+  useEffect(() => {
+    const filtersParam = searchParams.get('filters')
+    const filterActive = searchParams.get('filterActive')
+    filterActive && filterActive === '1' ? setFilterActive(true) : setFilterActive(false)
+    const parsedFilters: Filter[] | null = filtersParam ? JSON.parse(decodeURIComponent(filtersParam)) : null
+    parsedFilters && parsedFilters?.filter((filter) => filter.value !== '').length > 0 ? setHasFilters(true) : setHasFilters(false)
+  }, [searchParams])
+
   return (
     <>
-      <div className="overflow-hidden rounded-md border bg-background-secondary">
+      <div className={cn(`overflow-hidden rounded-lg border bg-background-secondary`, wrapperClass)}>
         {(showFilter || showVisibility) && (
           <div className="flex items-center py-4">
             {showFilter && (
@@ -216,8 +262,7 @@ export function DataTable<TData, TValue>({
             {showVisibility && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="md" className="ml-auto">
-                    <EyeIcon />
+                  <Button icon={<EyeIcon />} iconPosition="left" variant="outline" size="md" className="ml-auto mr-2">
                     Visibility
                   </Button>
                 </DropdownMenuTrigger>
@@ -238,30 +283,54 @@ export function DataTable<TData, TValue>({
 
         {/* Apply opacity and disable interactions while loading */}
         <div className={isLoading ? 'opacity-50 pointer-events-none transition-opacity duration-300' : 'transition-opacity duration-300'}>
-          <Table>
-            <TableHeader>
+          <Table variant="data">
+            <TableHeader variant="data">
               {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
+                <TableRow variant="data" key={headerGroup.id}>
                   {headerGroup.headers.map((header, index) => {
                     const normalizeKey = (key: string) => key.replace(/_/g, '').toLowerCase()
                     const sortField = sortFields?.find((sf) => normalizeKey(sf.key) === normalizeKey(header.column.id))
                     const columnWidth = header.getSize() === 20 ? 'auto' : `${header.getSize()}px`
 
-                    if (!sortField) {
-                      return (
-                        <TableHead key={`${header.id}-${index}`} style={{ width: columnWidth }}>
-                          {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                        </TableHead>
-                      )
-                    }
-
-                    const sorting = sortConditions.find((sc) => sc.field === sortField.key)?.direction
+                    const sorting = sortConditions.find((sc) => sc.field === sortField?.key)?.direction || undefined
                     return (
-                      <TableHead key={`${header.id}-${index}`} style={{ width: columnWidth, cursor: 'pointer' }} onClick={() => handleSortChange(sortField.key)}>
+                      <TableHead variant="data" key={`${header.id}-${index}`} style={{ position: 'relative', width: columnWidth }}>
                         {header.isPlaceholder ? null : (
                           <div className="flex items-center gap-1" style={{ width: columnWidth }}>
-                            {flexRender(header.column.columnDef.header, header.getContext())}
-                            {sorting === OrderDirection.ASC ? <ArrowUp size={16} /> : sorting === OrderDirection.DESC ? <ArrowDown size={16} /> : <ArrowUpDown size={16} className="text-gray-400" />}
+                            {/* Sorting Area */}
+                            <div onClick={() => sortField?.key && handleSortChange(sortField.key)} className="flex items-center gap-1 cursor-pointer select-none" style={{ flex: '1 1 auto' }}>
+                              {flexRender(header.column.columnDef.header, header.getContext())}
+                              {sortField &&
+                                (sorting === OrderDirection.ASC ? (
+                                  <ArrowUp size={16} />
+                                ) : sorting === OrderDirection.DESC ? (
+                                  <ArrowDown size={16} />
+                                ) : (
+                                  <ArrowUpDown size={16} className="text-gray-400" />
+                                ))}
+                            </div>
+
+                            {/* Resizing Area */}
+                            {index < headerGroup.headers.length - 1 && (
+                              <div
+                                {...{
+                                  onDoubleClick: () => header.column.resetSize(),
+                                  onMouseDown: header.getResizeHandler(),
+                                  onTouchStart: header.getResizeHandler(),
+                                  className: `resizer ${table.options.columnResizeDirection} ${header.column.getIsResizing() ? 'isResizing' : ''}`,
+                                  style: {
+                                    transform:
+                                      columnResizeMode === 'onEnd' && header.column.getIsResizing()
+                                        ? `translateX(${(table.options.columnResizeDirection === 'rtl' ? -1 : 1) * (table.getState().columnSizingInfo.deltaOffset ?? 0)}px)`
+                                        : '',
+                                  },
+                                }}
+                              >
+                                <div className="absolute right-0 top-0 bottom-0 cursor-col-resize w-[25%]">
+                                  <div className="absolute right-0 top-0 bottom-0 w-[0.25px] bg-[var(--color-border)]" />
+                                </div>
+                              </div>
+                            )}
                           </div>
                         )}
                       </TableHead>
@@ -270,10 +339,11 @@ export function DataTable<TData, TValue>({
                 </TableRow>
               ))}
             </TableHeader>
-            <TableBody>
+            <TableBody variant="data">
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
                   <TableRow
+                    variant="data"
                     onClick={() => onRowClick?.(row.original)}
                     className={`hover:bg-table-row-bg-hover ${onRowClick ? 'cursor-pointer' : ''}`}
                     key={row.id}
@@ -281,7 +351,7 @@ export function DataTable<TData, TValue>({
                   >
                     {row.getVisibleCells().map((cell) => (
                       // @ts-ignore
-                      <TableCell key={cell.id} className={cell.column.columnDef.meta?.className || ''}>
+                      <TableCell variant="data" key={cell.id} className={cell.column.columnDef.meta?.className || ''}>
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                       </TableCell>
                     ))}
@@ -293,6 +363,7 @@ export function DataTable<TData, TValue>({
             </TableBody>
           </Table>
         </div>
+        {footer}
       </div>
 
       {/* Pagination also gets opacity and interaction block on loading */}
@@ -318,8 +389,8 @@ const NoData = ({ loading, colLength, noDataMarkup, noResultsText }: NoDataProps
   }
 
   return (
-    <TableRow>
-      <TableCell colSpan={colLength} className="h-24 text-center">
+    <TableRow variant="data">
+      <TableCell variant="data" colSpan={colLength} className="h-24 text-center">
         {loading ? 'Loading' : noResultsText}
       </TableCell>
     </TableRow>

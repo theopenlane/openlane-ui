@@ -106,3 +106,13 @@ export const SEARCH_TEMPLATE = gql`
     }
   }
 `
+
+export const CREATE_CSV_BULK_TEMPLATE = gql`
+  mutation CreateBulkCSVTemplate($input: Upload!) {
+    createBulkCSVTemplate(input: $input) {
+      templates {
+        id
+      }
+    }
+  }
+`

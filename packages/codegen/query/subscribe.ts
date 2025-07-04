@@ -11,14 +11,15 @@ export const CREATE_SUBSCRIBER = gql`
 `
 
 export const GET_ALL_SUBSCRIBERS = gql`
-  query GetAllSubscribers($where: SubscriberWhereInput, $orderBy: [SubscriberOrder!]) {
-    subscribers(where: $where, orderBy: $orderBy) {
+  query GetAllSubscribers($where: SubscriberWhereInput, $orderBy: [SubscriberOrder!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    subscribers(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
       edges {
         node {
           active
           email
           id
           verifiedEmail
+          createdAt
         }
       }
       pageInfo {
@@ -42,6 +43,16 @@ export const UNSUBSCRIBE_MUTATION = gql`
   mutation UpdateSubscriber($email: String!, $input: UpdateSubscriberInput!) {
     updateSubscriber(email: $email, input: $input) {
       subscriber {
+        id
+      }
+    }
+  }
+`
+
+export const CREATE_CSV_BULK_SUBSCRIBER = gql`
+  mutation CreateBulkCSVSubscriber($input: Upload!) {
+    createBulkCSVSubscriber(input: $input) {
+      subscribers {
         id
       }
     }

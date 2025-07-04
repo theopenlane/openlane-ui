@@ -7,13 +7,13 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, DialogTitle } from '@repo/ui/dialog'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
-import { Switch } from '@repo/ui/switch'
 import { useUpdateProgram } from '@/lib/graphql-hooks/programs'
 import { useSearchParams } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
 import MessageBox from '@repo/ui/message-box'
 import { Label } from '@repo/ui/label'
-import { Info } from 'lucide-react'
+import { Info, InfoIcon } from 'lucide-react'
+import { SystemTooltip } from '@repo/ui/system-tooltip'
 
 const setAuditorSchema = z.object({
   auditorName: z.string().min(1, 'Name is required'),
@@ -71,7 +71,7 @@ export const SetAuditorDialog = () => {
         <Button className="w-fit">Set auditor</Button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-[497px]">
+      <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="max-w-[497px]">
         <DialogHeader>
           <DialogTitle>Set auditor</DialogTitle>
         </DialogHeader>
@@ -91,18 +91,38 @@ export const SetAuditorDialog = () => {
         <div className="flex flex-col gap-4 mt-4">
           {errorMessages.length > 0 && <MessageBox className="p-4 ml-1" message={errorMessages.join(', ')} variant="error" />}
           <div className="flex flex-col gap-2">
-            <Label htmlFor="auditFirm">Firm</Label>
-            <Input id="auditFirm" {...form.register('auditFirm')} placeholder="Firm" />
+            <div>
+              <Label htmlFor="auditFirm">Firm</Label>
+              <SystemTooltip
+                icon={<InfoIcon size={14} className="mx-1 mt-1" />}
+                content={
+                  <p>
+                    Enter the name of the firm responsible for conducting your audit or certification. This helps ensure accurate record-keeping, allows you to manage audit partners, and provides
+                    access to audit documents when needed (e.g., SecureSphere Compliance").
+                  </p>
+                }
+              />
+            </div>
+            <Input id="auditFirm" {...form.register('auditFirm')} placeholder="SecureSphere Compliance" />
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label htmlFor="auditorName">Name</Label>
-            <Input id="auditorName" {...form.register('auditorName')} placeholder="Name" />
+            <div>
+              <Label htmlFor="auditorName">Name</Label>
+              <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Enter the name of your primary contact at the audit firm (e.g. Amy Shields).</p>} />
+            </div>
+            <Input id="auditorName" {...form.register('auditorName')} placeholder="Amy Shields" />
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label htmlFor="auditorEmail">Email</Label>
-            <Input id="auditorEmail" {...form.register('auditorEmail')} placeholder="Email" />
+            <div>
+              <Label htmlFor="auditorEmail">Email</Label>
+              <SystemTooltip
+                icon={<InfoIcon size={14} className="mx-1 mt-1" />}
+                content={<p>Enter the email address of your primary contact at the audit firm (e.g. amy.shields@securesphere.io).</p>}
+              />
+            </div>
+            <Input id="auditorEmail" {...form.register('auditorEmail')} placeholder="amy.shields@securesphere.io" />
           </div>
         </div>
 

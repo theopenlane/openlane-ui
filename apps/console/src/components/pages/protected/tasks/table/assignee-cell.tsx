@@ -24,11 +24,7 @@ const AssigneeCell: React.FC<TProps> = (props: TProps) => {
   const queryClient = useQueryClient()
   const { orgMembers } = useTaskStore()
 
-  const firstName = props.assignee?.firstName
-  const lastName = props.assignee?.lastName
-  const displayName = props.assignee?.displayName
-
-  const fullName = !firstName && !lastName ? displayName : `${firstName ?? ''} ${lastName ?? ''}`
+  const fullName = props.assignee?.displayName
 
   const onSubmit = async (data: EditTaskAssigneeFormData) => {
     try {

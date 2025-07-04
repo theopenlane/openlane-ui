@@ -16,6 +16,7 @@ import {
   DELETE_ORGANIZATION,
   UPDATE_ORGANIZATION,
   GET_ORGANIZATION_BILLING_BANNER,
+  UPDATE_ORG_SETTING,
   GET_LOGS,
 } from '@repo/codegen/query/organization'
 import {
@@ -45,6 +46,9 @@ import {
   GetInvitesQueryVariables,
   GetOrganizationBillingBannerQuery,
   GetOrganizationBillingBannerQueryVariables,
+  OrgMembershipWhereInput,
+  UpdateOrganizationSettingMutationVariables,
+  UpdateOrganizationSettingMutation,
   GetLogsQueryVariables,
   GetLogsQuery,
   AuditLog,
@@ -63,7 +67,7 @@ export const useGetAllOrganizations = () => {
   })
 }
 
-export const useGetOrganizationNameById = (organizationId: string) => {
+export const useGetOrganizationNameById = (organizationId: string | undefined) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetOrganizationNameByIdQuery, GetOrganizationNameByIdQueryVariables>({
@@ -83,12 +87,12 @@ export const useGetSingleOrganizationMembers = ({ organizationId, pagination }: 
   })
 }
 
-export const useGetAllOrganizationsWithMembers = () => {
+export const useGetAllOrganizationsWithMembers = (membersWhere: OrgMembershipWhereInput = {}) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetAllOrganizationsWithMembersQuery>({
-    queryKey: ['organizationsWithMembers'],
-    queryFn: async () => client.request(GET_ALL_ORGANIZATIONS_WITH_MEMBERS),
+    queryKey: ['organizationsWithMembers', membersWhere],
+    queryFn: async () => client.request(GET_ALL_ORGANIZATIONS_WITH_MEMBERS, { membersWhere }),
   })
 }
 
@@ -96,14 +100,16 @@ type useGetInvitesProp = {
   where: GetInvitesQueryVariables['where']
   orderBy?: GetInvitesQueryVariables['orderBy']
   pagination?: TPagination
+  enabled?: boolean
 }
 
-export const useGetInvites = ({ where, orderBy, pagination }: useGetInvitesProp) => {
+export const useGetInvites = ({ where, orderBy, pagination, enabled = true }: useGetInvitesProp) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetInvitesQuery>({
     queryKey: ['invites', where, orderBy, pagination?.pageSize, pagination?.page],
     queryFn: async () => client.request(GET_INVITES, { where, orderBy, ...pagination?.query }),
+    enabled,
   })
 }
 
@@ -205,6 +211,14 @@ export const useUpdateOrgAvatar = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user'] })
     },
+  })
+}
+
+export const useUpdateOrganizationSetting = () => {
+  const { client } = useGraphQLClient()
+
+  return useMutation({
+    mutationFn: (payload: UpdateOrganizationSettingMutationVariables) => client.request<UpdateOrganizationSettingMutation>(UPDATE_ORG_SETTING, payload),
   })
 }
 

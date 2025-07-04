@@ -23,30 +23,33 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z, infer as zInfer } from 'zod'
 import { useSession } from 'next-auth/react'
-import { useUserHasOrganizationEditPermissions } from '@/lib/authz/utils'
 import { useQueryClient } from '@tanstack/react-query'
 import { OrgMembershipRole } from '@repo/codegen/src/schema'
 import { useRemoveUserFromOrg, useUpdateUserRoleInOrg } from '@/lib/graphql-hooks/members'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { useOrganizationRole } from '@/lib/authz/access-api.ts'
+import { canEdit } from '@/lib/authz/utils.ts'
 
 type MemberActionsProps = {
   memberId: string
+  memberUserId: string
   memberRole: OrgMembershipRole
+  memberName: string
 }
 
 const ICON_SIZE = 12
 
-export const MemberActions = ({ memberId, memberRole }: MemberActionsProps) => {
+export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }: MemberActionsProps) => {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
-  const { actionIcon, roleRow, buttonRow } = pageStyles()
+  const { actionIcon, roleRow } = pageStyles()
   const { mutateAsync: deleteMember } = useRemoveUserFromOrg()
   const { data: sessionData } = useSession()
   const userId = sessionData?.user.userId
   const queryClient = useQueryClient()
   const { errorNotification, successNotification } = useNotification()
   const { data: userData } = useGetCurrentUser(userId)
-  const { data } = useUserHasOrganizationEditPermissions(sessionData)
+  const { data } = useOrganizationRole(sessionData)
 
   const handleDeleteMember = async () => {
     try {
@@ -54,7 +57,10 @@ export const MemberActions = ({ memberId, memberRole }: MemberActionsProps) => {
       successNotification({
         title: 'Member deleted successfully',
       })
-      queryClient.invalidateQueries({ queryKey: ['organizationsWithMembers', sessionData?.user.activeOrganizationId] })
+
+      queryClient.invalidateQueries({
+        predicate: (query) => ['memberships', 'organizationsWithMembers', 'groups'].includes(query.queryKey[0] as string),
+      })
     } catch {
       errorNotification({
         title: 'There was a problem deleting the member, please try again',
@@ -71,7 +77,9 @@ export const MemberActions = ({ memberId, memberRole }: MemberActionsProps) => {
         variant: 'success',
       })
 
-      queryClient.invalidateQueries({ queryKey: ['organizationsWithMembers', sessionData?.user.activeOrganizationId] })
+      queryClient.invalidateQueries({
+        predicate: (query) => ['memberships', 'organizationsWithMembers', 'groups'].includes(query.queryKey[0] as string),
+      })
     } catch (error) {
       errorNotification({
         title: 'There was a problem updating the member, please try again',
@@ -108,12 +116,13 @@ export const MemberActions = ({ memberId, memberRole }: MemberActionsProps) => {
     //CANT EDIT OWNER
     return null
   }
-  if (memberId === userData?.user.id) {
+
+  if (memberUserId === userData?.user.id) {
     //CANT EDIT YOURSELF
     return null
   }
 
-  if (!data?.allowed) {
+  if (!canEdit(data?.roles)) {
     //MEMBERS CANT EDIT ANYONE
     return null
   }
@@ -137,7 +146,12 @@ export const MemberActions = ({ memberId, memberRole }: MemberActionsProps) => {
               open={showDeleteConfirmation}
               onOpenChange={setShowDeleteConfirmation}
               onConfirm={handleDeleteMember}
-              description="This action cannot be undone, this will permanently remove the member from the organization."
+              title={`Delete Member`}
+              description={
+                <>
+                  This action cannot be undone. This will permanently remove <b>{memberName}</b> from the organization.
+                </>
+              }
             />
           </DropdownMenuItem>
         </DropdownMenuGroup>

@@ -1,7 +1,7 @@
 'use client'
 import { Grid, GridCell, GridRow } from '@repo/ui/grid'
-import React, { Fragment, useEffect, useState } from 'react'
-import { ChevronDown, InfoIcon } from 'lucide-react'
+import React, { useContext, useEffect, useState } from 'react'
+import { InfoIcon } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import useFormSchema, { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { Input, InputRow } from '@repo/ui/input'
@@ -22,18 +22,18 @@ import ObjectAssociation from '@/components/shared/objectAssociation/object-asso
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 import { Panel, PanelHeader } from '@repo/ui/panel'
-import { Card } from '@repo/ui/cardpanel'
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { Badge } from '@repo/ui/badge'
 import { useQueryClient } from '@tanstack/react-query'
+import HeadsUpDisplay from '@/components/shared/heads-up/heads-up'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 type TProps = {
   formData?: TFormEvidenceData
   onEvidenceCreateSuccess?: () => void
   excludeObjectTypes?: ObjectTypeObjects[]
+  defaultSelectedObject?: ObjectTypeObjects
 }
 
-const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSuccess, excludeObjectTypes }: TProps) => {
+const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSuccess, excludeObjectTypes, defaultSelectedObject }: TProps) => {
   const { form } = useFormSchema()
   const { successNotification, errorNotification } = useNotification()
   const [tagValues, setTagValues] = useState<Option[]>([])
@@ -41,6 +41,9 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
   const [evidenceObjectTypes, setEvidenceObjectTypes] = useState<TObjectAssociationMap>()
   const { data: sessionData } = useSession()
   const { mutateAsync: createEvidence, isPending } = useCreateEvidence()
+  const [associationResetTrigger, setAssociationResetTrigger] = useState(0)
+  const { setCrumbs } = useContext(BreadcrumbContext)
+
   const queryClient = useQueryClient()
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
@@ -84,6 +87,7 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
     form.reset()
     setTagValues([])
     setResetEvidenceFiles(true)
+    setAssociationResetTrigger((prev) => prev + 1)
   }
 
   useEffect(() => {
@@ -105,6 +109,13 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
       }
     }
   }, [])
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Evidence', href: '/evidence' },
+    ])
+  }, [setCrumbs])
 
   const handleEvidenceObjectIdsChange = (updatedMap: TObjectAssociationMap) => {
     setEvidenceObjectTypes(updatedMap)
@@ -255,7 +266,7 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
                             Creation Date
                             <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>The date the evidence was collected, generally the current date but can be adjusted.</p>} />
                           </FormLabel>
-                          <CalendarPopover field={field} defaultToday required />
+                          <CalendarPopover field={field} defaultToday required disableFuture />
                           {form.formState.errors.creationDate && <p className="text-red-500 text-sm">{form.formState.errors.creationDate.message}</p>}
                         </FormItem>
                       )}
@@ -277,7 +288,7 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
                             />
                           </FormLabel>
 
-                          <CalendarPopover field={field} defaultAddDays={365} />
+                          <CalendarPopover field={field} defaultAddDays={365} disabledFrom={new Date()} />
                           {field.value !== null && (
                             <p>
                               Don't want to renew this evidence?{' '}
@@ -301,36 +312,19 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
               <Panel>
                 <PanelHeader heading="Object association" noBorder />
                 {formData && formData?.objectAssociationsDisplayIDs && (
-                  <Card className="p-4 flex gap-3 bg-note">
-                    <div>
-                      <p className="font-semibold">Heads up!</p>
-                      <p className="text-sm ">This requested evidence you are submitting will also be used by other tasks, controls. We have pre-selected the object association below.</p>
-                      <div className="w-3/5 pt-3">
-                        <Accordion type="single" collapsible className="w-full">
-                          <AccordionItem value="objects">
-                            <AccordionTrigger className="py-2 w-full flex justify-between items-center gap-2 group border p-3 bg-background-secondary">
-                              <span className="text-sm">Show objects linked to this evidence</span>
-                              <ChevronDown className="h-4 w-4 group-data-[state=open]:rotate-180" />
-                            </AccordionTrigger>
-                            <AccordionContent className="my-3">
-                              {formData?.objectAssociationsDisplayIDs &&
-                                formData?.objectAssociationsDisplayIDs.map((item, index) => (
-                                  <Fragment key={index}>
-                                    {item && (
-                                      <Badge className="bg-background-secondary mr-1" variant="outline">
-                                        {item}
-                                      </Badge>
-                                    )}
-                                  </Fragment>
-                                ))}
-                            </AccordionContent>
-                          </AccordionItem>
-                        </Accordion>
-                      </div>
-                    </div>
-                  </Card>
+                  <HeadsUpDisplay
+                    accordionLabel={'Show objects linked to this evidence'}
+                    descriptionText={'This requested evidence you are submitting will also be used by other tasks, controls. We have pre-selected the object association below.'}
+                    displayIDs={formData?.objectAssociationsDisplayIDs}
+                  ></HeadsUpDisplay>
                 )}
-                <ObjectAssociation onIdChange={handleEvidenceObjectIdsChange} excludeObjectTypes={excludeObjectTypes || []} initialData={formData?.objectAssociations} />
+                <ObjectAssociation
+                  key={associationResetTrigger}
+                  onIdChange={handleEvidenceObjectIdsChange}
+                  excludeObjectTypes={excludeObjectTypes || []}
+                  initialData={formData?.objectAssociations}
+                  defaultSelectedObject={defaultSelectedObject}
+                />
               </Panel>
             </div>
           </div>

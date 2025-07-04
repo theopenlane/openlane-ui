@@ -1,7 +1,5 @@
 'use client'
-import React, { useState } from 'react'
-import { Panel } from '@repo/ui/panel'
-import { Switch } from '@repo/ui/switch'
+import React, { useState, useContext, useEffect } from 'react'
 import BillingEmailDialog from './billing-email-dialog'
 import BillingContactDialog from './billing-contract-dialog'
 import { useOrganization } from '@/hooks/useOrganization'
@@ -10,6 +8,7 @@ import { cn } from '@repo/ui/lib/utils'
 import { useGetOrganizationBilling, useGetOrganizationSetting, useUpdateOrganization } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
 import { ExternalLink } from 'lucide-react'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const BillingSettings: React.FC = () => {
   const { panel, section, sectionContent, sectionTitle, emailText, paragraph, switchContainer, text } = billingSettingsStyles()
@@ -21,8 +20,17 @@ const BillingSettings: React.FC = () => {
   const { successNotification, errorNotification } = useNotification()
   const formattedAddress = [billingAddress?.line1, billingAddress?.city, billingAddress?.postalCode].filter(Boolean).join(', ')
   const email = settingData?.organization.setting?.billingEmail || ''
+  const { setCrumbs } = useContext(BreadcrumbContext)
 
   const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(settingData?.organization.setting?.billingNotificationsEnabled || false)
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Organization Settings', href: '/organization-settings' },
+      { label: 'Billing', href: '/billing' },
+    ])
+  }, [setCrumbs])
 
   const onToggleNotifications = async (checked: boolean) => {
     setNotificationsEnabled(checked)
@@ -87,7 +95,7 @@ const BillingSettings: React.FC = () => {
       </div>
 
       {/* Billing Alert Section */}
-      <div className={cn(section())}>
+      {/* <div className={cn(section())}>
         <div className="flex gap-10 w-full">
           <h3 className={cn(sectionTitle())}>Billing Alert</h3>
           <div className={cn(switchContainer())}>
@@ -95,7 +103,9 @@ const BillingSettings: React.FC = () => {
             <Switch checked={notificationsEnabled} onCheckedChange={onToggleNotifications} disabled={isPending} />
           </div>
         </div>
-      </div>
+      </div> */}
+
+      {/* Cancel Section */}
       <div className={cn(section())}>
         <div className="flex gap-10 w-full items-start">
           <h3 className={cn(sectionTitle())}>Cancel Subscription</h3>

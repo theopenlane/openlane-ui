@@ -1,6 +1,6 @@
 'use client'
 
-import React, { Suspense, useMemo, useState } from 'react'
+import React, { Suspense, useMemo, useState, useEffect, useContext } from 'react'
 import { ProfileNameForm } from './profile-name-form'
 import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
 import { useSession } from 'next-auth/react'
@@ -14,9 +14,11 @@ import { Badge } from '@repo/ui/badge'
 import { useGetCurrentUser, useUpdateUserAvatar, useUpdateUserSetting } from '@/lib/graphql-hooks/user'
 import { useCreateTfaSetting, useGetUserTFASettings, useUpdateTfaSetting } from '@/lib/graphql-hooks/tfa'
 import PasskeySection from './passkeys-section'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const ProfilePage = () => {
   const { data: sessionData } = useSession()
+  const { setCrumbs } = useContext(BreadcrumbContext)
   const { successNotification, errorNotification } = useNotification()
   const userId = sessionData?.user.userId
 
@@ -36,6 +38,14 @@ const ProfilePage = () => {
   const { isPending: updatingUser, mutateAsync: updateUserSetting } = useUpdateUserSetting()
 
   const isVerified = !!tfaSettings?.verified
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'User Settings', href: '/user-settings' },
+      { label: 'Profile', href: '/profile' },
+    ])
+  }, [setCrumbs])
 
   const handleUploadAvatar = async (file: File) => {
     if (!userId) return
@@ -191,10 +201,13 @@ const ProfilePage = () => {
     <>
       <ProfileNameForm />
       <AvatarUpload
-        fallbackString={userData?.user?.firstName?.substring(0, 2)}
+        fallbackString={userData?.user?.displayName?.substring(0, 2)}
         uploadCallback={handleUploadAvatar || 'N/A'}
         placeholderImage={userData?.user.avatarFile?.presignedURL || sessionData?.user?.image}
       />
+      <Suspense fallback={<Loader />}>
+        <DefaultOrgForm />
+      </Suspense>
       <Panel>
         <PanelHeader heading="Two Factor Authentication" noBorder />
         <div className="flex w-full justify-between">
@@ -228,10 +241,6 @@ const ProfilePage = () => {
       )}
 
       <PasskeySection userData={userData} />
-
-      <Suspense fallback={<Loader />}>
-        <DefaultOrgForm />
-      </Suspense>
     </>
   )
 }

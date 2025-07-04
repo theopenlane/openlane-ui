@@ -29,6 +29,8 @@ const formSchema = z.object({
   controlObjectiveIDs: z.array(z.any()).optional(),
   controlIDs: z.array(z.any()).optional(),
   taskIDs: z.array(z.any()).optional(),
+  approverID: z.string().optional(),
+  delegateID: z.string().optional(),
 })
 
 export type CreatePolicyFormData = z.infer<typeof formSchema>

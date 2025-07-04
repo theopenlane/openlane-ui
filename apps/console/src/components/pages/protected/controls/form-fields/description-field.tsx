@@ -4,10 +4,11 @@ import React from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { Value } from '@udecode/plate-common'
 
 interface DescriptionFieldProps {
   isEditing: boolean
-  initialValue: string
+  initialValue: string | Value
 }
 
 const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialValue }) => {
@@ -26,7 +27,7 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialV
       />
     </div>
   ) : (
-    <div>{plateEditorHelper.convertToReadOnly(initialValue)}</div>
+    <div>{plateEditorHelper.convertToReadOnly(initialValue as string)}</div>
   )
 }
 

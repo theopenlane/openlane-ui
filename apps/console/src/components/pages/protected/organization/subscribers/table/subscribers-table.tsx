@@ -3,22 +3,23 @@
 import { useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import { useGetAllSubscribers } from '@/lib/graphql-hooks/subscribes'
-import { subscribersColumns } from '@/components/pages/protected/organization/subscribers/table/columns.tsx'
+import { exportableSubscriberColumns, subscribersColumns } from '@/components/pages/protected/organization/subscribers/table/columns.tsx'
 import SubscribersTableToolbar from '@/components/pages/protected/organization/subscribers/table/subscribers-table-toolbar.tsx'
 import { GetAllSubscribersQueryVariables, OrderDirection, SubscriberOrderField } from '@repo/codegen/src/schema.ts'
 import { SUBSCRIBERS_SORT_FIELDS } from '@/components/pages/protected/organization/subscribers/table/table-config.ts'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TPagination } from '@repo/ui/pagination-types'
 import { useDebounce } from '@uidotdev/usehooks'
+import { exportToCSV } from '@/utils/exportToCSV'
 
 export const SubscribersTable = () => {
-  const [filters, setFilters] = useState<Record<string, any>>({})
+  const [filters, setFilters] = useState<Record<string, any> | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const debouncedSearch = useDebounce(searchTerm, 300)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [orderBy, setOrderBy] = useState<GetAllSubscribersQueryVariables['orderBy']>([
     {
-      field: SubscriberOrderField.email,
+      field: SubscriberOrderField.created_at,
       direction: OrderDirection.DESC,
     },
   ])
@@ -34,7 +35,12 @@ export const SubscribersTable = () => {
     where: whereFilter,
     orderBy,
     pagination,
+    enabled: !!filters,
   })
+
+  const handleExport = () => {
+    exportToCSV(subscribers, exportableSubscriberColumns, 'subscribers')
+  }
 
   return (
     <div>
@@ -45,6 +51,7 @@ export const SubscribersTable = () => {
           setSearchTerm(inputVal)
           setPagination(DEFAULT_PAGINATION)
         }}
+        handleExport={handleExport}
       />
       <DataTable
         columns={subscribersColumns}

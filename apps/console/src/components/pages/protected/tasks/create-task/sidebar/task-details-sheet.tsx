@@ -1,9 +1,9 @@
 'use client'
 
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
-import { ArrowDownUp, ArrowUpDown, ArrowRight, BookText, CalendarCheck2, Check, Circle, CircleUser, Folder, InfoIcon, Link, Pencil, Tag, UserRoundPen } from 'lucide-react'
+import { ArrowDownUp, ArrowUpDown, ArrowRight, BookText, CalendarCheck2, Check, Circle, CircleUser, Folder, InfoIcon, LinkIcon, Pencil, Tag, UserRoundPen } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { CreateNoteInput, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { Input } from '@repo/ui/input'
@@ -18,7 +18,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { TaskStatusMapper, TaskTypes } from '@/components/pages/protected/tasks/util/task'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
-import ControlObjectTaskForm from '@/components/pages/protected/tasks/create-task/form/control-object-task-form'
 import DeleteTaskDialog from '@/components/pages/protected/tasks/create-task/dialog/delete-task-dialog'
 import { useTask, useUpdateTask } from '@/lib/graphql-hooks/tasks'
 import { useQueryClient } from '@tanstack/react-query'
@@ -33,9 +32,14 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import EvidenceCreateFormDialog from '../../../evidence/evidence-create-form-dialog'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
-import { TaskStatusIconMapper } from '../../table/columns'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
 import { formatDate } from '@/utils/date'
+import { TaskStatusIconMapper } from '@/components/shared/icon-enum/task-enum.tsx'
+import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
+import { Panel, PanelHeader } from '@repo/ui/panel'
+import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
+import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
+import Link from 'next/link'
 
 const TaskDetailsSheet = () => {
   const [isEditing, setIsEditing] = useState(false)
@@ -45,20 +49,37 @@ const TaskDetailsSheet = () => {
   const plateEditorHelper = usePlateEditor()
   const taskTypeOptions = Object.values(TaskTypes)
   const statusOptions = Object.values(TaskTaskStatus)
-  const searchParams = useSearchParams()
   const router = useRouter()
-  const { selectedTask, setSelectedTask, orgMembers } = useTaskStore()
+  const { orgMembers } = useTaskStore()
   const { successNotification, errorNotification } = useNotification()
   const [comments, setComments] = useState<TCommentData[]>([])
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
+  const [associations, setAssociations] = useState<TObjectAssociationMap>({})
+  const { mutateAsync: updateTask, isPending } = useUpdateTask()
 
-  const { mutateAsync: updateTask } = useUpdateTask()
-  const { data, isLoading: fetching } = useTask(selectedTask as string)
+  const searchParams = useSearchParams()
+  const id = searchParams.get('id')
+
+  const { data, isLoading: fetching } = useTask(id as string)
 
   const taskData = data?.task
   const { form } = useFormSchema()
   const where = taskData?.comments ? { idIn: taskData?.comments?.edges?.map((item) => item?.node?.createdBy!) } : undefined
   const { data: userData } = useGetUsers(where)
+
+  const initialAssociations = useMemo(
+    () => ({
+      programIDs: (taskData?.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      procedureIDs: (taskData?.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      internalPolicyIDs: (taskData?.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      controlObjectiveIDs: (taskData?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      groupIDs: (taskData?.groups?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
+      subcontrolIDs: (taskData?.subcontrols?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
+      controlIDs: (taskData?.controls?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
+      riskIDs: (taskData?.risks?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
+    }),
+    [taskData],
+  )
 
   useEffect(() => {
     if (taskData) {
@@ -68,13 +89,6 @@ const TaskDetailsSheet = () => {
         due: taskData.due ? new Date(taskData.due as string) : undefined,
         assigneeID: taskData.assignee?.id,
         category: taskData?.category ? Object.values(TaskTypes).find((type) => type === taskData?.category) : undefined,
-        controlObjectiveIDs: taskData?.controlObjectives?.edges?.map((item) => item?.node?.id) || [],
-        subcontrolIDs: taskData?.subcontrols?.edges?.map((item) => item?.node?.id) || [],
-        programIDs: taskData?.programs?.edges?.map((item) => item?.node?.id) || [],
-        procedureIDs: taskData?.procedures?.edges?.map((item) => item?.node?.id) || [],
-        internalPolicyIDs: taskData?.internalPolicies?.edges?.map((item) => item?.node?.id) || [],
-        evidenceIDs: taskData?.evidence?.edges?.map((item) => item?.node?.id) || [],
-        groupIDs: taskData?.groups?.edges?.map((item) => item?.node?.id) || [],
         status: taskData?.status ? Object.values(TaskTaskStatus).find((type) => type === taskData?.status) : undefined,
         tags: taskData?.tags ?? [],
       })
@@ -98,7 +112,7 @@ const TaskDetailsSheet = () => {
           comment: item?.node?.text,
           avatarUrl: avatarUrl,
           createdAt: item?.node?.createdAt,
-          userName: user?.firstName ? `${user.firstName} ${user?.lastName}` : user.displayName,
+          userName: user.displayName,
         } as TCommentData
       })
       const sortedComments = comments?.sort((a, b) => new Date(!commentSortIsAsc ? b.createdAt : a.createdAt).getTime() - new Date(!commentSortIsAsc ? a.createdAt : b.createdAt).getTime())
@@ -107,11 +121,11 @@ const TaskDetailsSheet = () => {
   }, [taskData, form])
 
   const handleCopyLink = () => {
-    if (!selectedTask) {
+    if (!id) {
       return
     }
 
-    const url = `${window.location.origin}${window.location.pathname}?taskId=${selectedTask}`
+    const url = `${window.location.origin}${window.location.pathname}?id=${id}`
     navigator.clipboard
       .writeText(url)
       .then(() => {
@@ -131,21 +145,18 @@ const TaskDetailsSheet = () => {
       setIsDiscardDialogOpen(true)
       return
     }
-
     handleCloseParams()
   }
 
   const handleCloseParams = () => {
-    setSelectedTask(null)
-    setIsEditing(false)
-
     const newSearchParams = new URLSearchParams(searchParams.toString())
-    newSearchParams.delete('taskId')
+    newSearchParams.delete('id')
     router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
+    setIsEditing(false)
   }
 
   const onSubmit = async (data: EditTaskFormData) => {
-    if (!selectedTask) {
+    if (!id) {
       return
     }
 
@@ -155,54 +166,9 @@ const TaskDetailsSheet = () => {
       detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
     }
 
-    const taskObjects = data?.taskObjects?.reduce(
-      (acc, item) => {
-        acc[item.inputName] = item.objectIds
-        return acc
-      },
-      {} as Record<string, string[]>,
-    )
+    const associationPayload = generateAssociationPayload(initialAssociations, associations)
 
-    const generatePayload = (existing: Record<string, string[]>, newValues: Record<string, string[]>) => {
-      const payload: Record<string, string[]> = {}
-
-      Object.keys(newValues).forEach((key) => {
-        const newIds = newValues[key] || []
-        const existingIds = existing[key] || []
-
-        const addIds = newIds.filter((id) => !existingIds.includes(id))
-
-        const removeIds = existingIds.filter((id) => !newIds.includes(id))
-
-        if (addIds.length > 0) payload[`add${capitalizeFirstLetter(key)}`] = addIds
-        if (removeIds.length > 0) payload[`remove${capitalizeFirstLetter(key)}`] = removeIds
-      })
-
-      return payload
-    }
-
-    const capitalizeFirstLetter = (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
-
-    const existingTaskObjectsData = [
-      ...[{ inputName: 'controlObjectiveIDs', objectIds: data.controlObjectiveIDs ?? [] }],
-      ...[{ inputName: 'subcontrolIDs', objectIds: data.subcontrolIDs ?? [] }],
-      ...[{ inputName: 'programIDs', objectIds: data.programIDs ?? [] }],
-      ...[{ inputName: 'procedureIDs', objectIds: data.procedureIDs ?? [] }],
-      ...[{ inputName: 'internalPolicyIDs', objectIds: data.internalPolicyIDs ?? [] }],
-      ...[{ inputName: 'evidenceIDs', objectIds: data.evidenceIDs ?? [] }],
-      ...[{ inputName: 'groupIDs', objectIds: data.groupIDs ?? [] }],
-    ]
-
-    const existingTaskObjects = existingTaskObjectsData?.reduce(
-      (acc, item) => {
-        acc[item.inputName] = item.objectIds
-        return acc
-      },
-      {} as Record<string, string[]>,
-    )
-
-    const taskObjectPayload = generatePayload(existingTaskObjects, taskObjects ?? {})
-
+    // 2. Build main payload
     const formData = {
       category: data?.category,
       due: data?.due ? data.due.toISOString() : undefined,
@@ -212,12 +178,12 @@ const TaskDetailsSheet = () => {
       status: data?.status,
       clearAssignee: !data?.assigneeID,
       clearDue: !data?.due,
-      ...taskObjectPayload,
+      ...associationPayload,
     }
 
     try {
       await updateTask({
-        updateTaskId: selectedTask as string,
+        updateTaskId: id as string,
         input: formData,
       })
 
@@ -239,7 +205,7 @@ const TaskDetailsSheet = () => {
   const handleMarkAsComplete = async () => {
     try {
       await updateTask({
-        updateTaskId: selectedTask as string,
+        updateTaskId: id as string,
         input: {
           status: TaskTaskStatus.COMPLETED,
         },
@@ -261,17 +227,119 @@ const TaskDetailsSheet = () => {
   }
 
   const handleRelatedObjects = () => {
-    const items = [
-      ...(taskData?.controlObjectives?.edges?.map((item) => item?.node?.displayID) || []),
-      ...(taskData?.subcontrols?.edges?.map((item) => item?.node?.refCode) || []),
-      ...(taskData?.programs?.edges?.map((item) => item?.node?.displayID) || []),
-      ...(taskData?.procedures?.edges?.map((item) => item?.node?.displayID) || []),
-      ...(taskData?.internalPolicies?.edges?.map((item) => item?.node?.displayID) || []),
-      ...(taskData?.evidence?.edges?.map((item) => item?.node?.displayID) || []),
-      ...(taskData?.groups?.edges?.map((item) => item?.node?.displayID) || []),
-    ]
+    const itemsDictionary: Record<string, { id: string; value: string; controlId?: string }> = {
+      ...taskData?.controlObjectives?.edges?.reduce(
+        (acc, item) => {
+          const key = item?.node?.displayID
+          const id = item?.node?.id
+          if (key && id) acc[key] = { id, value: 'controlObjectives' }
+          return acc
+        },
+        {} as Record<string, { id: string; value: string }>,
+      ),
 
-    return <div className="flex flex-wrap gap-2">{items?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}</div>
+      ...taskData?.controls?.edges?.reduce(
+        (acc, item) => {
+          const key = item?.node?.refCode
+          const id = item?.node?.id
+          if (key && id) acc[key] = { id, value: 'controls' }
+          return acc
+        },
+        {} as Record<string, { id: string; value: string }>,
+      ),
+
+      ...taskData?.subcontrols?.edges?.reduce(
+        (acc: Record<string, { id: string; value: string; controlId?: string }>, item) => {
+          const key = item?.node?.refCode
+          const id = item?.node?.id
+          const controlId = item?.node?.controlID
+          if (key && id) {
+            acc[key] = { id, value: 'subcontrols', controlId }
+          }
+          return acc
+        },
+        {} as Record<string, { id: string; value: string; controlId?: string }>,
+      ),
+
+      ...taskData?.programs?.edges?.reduce(
+        (acc, item) => {
+          const key = item?.node?.displayID
+          const id = item?.node?.id
+          if (key && id) acc[key] = { id, value: 'programs' }
+          return acc
+        },
+        {} as Record<string, { id: string; value: string }>,
+      ),
+
+      ...taskData?.procedures?.edges?.reduce(
+        (acc, item) => {
+          const key = item?.node?.displayID
+          const id = item?.node?.id
+          if (key && id) acc[key] = { id, value: 'procedures' }
+          return acc
+        },
+        {} as Record<string, { id: string; value: string }>,
+      ),
+
+      ...taskData?.internalPolicies?.edges?.reduce(
+        (acc, item) => {
+          const key = item?.node?.displayID
+          const id = item?.node?.id
+          if (key && id) acc[key] = { id, value: 'policies' }
+          return acc
+        },
+        {} as Record<string, { id: string; value: string }>,
+      ),
+
+      ...taskData?.evidence?.edges?.reduce(
+        (acc, item) => {
+          const key = item?.node?.displayID
+          const id = item?.node?.id
+          if (key && id) acc[key] = { id, value: 'evidence' }
+          return acc
+        },
+        {} as Record<string, { id: string; value: string }>,
+      ),
+
+      ...taskData?.groups?.edges?.reduce(
+        (acc, item) => {
+          const key = item?.node?.displayID
+          const id = item?.node?.id
+          if (key && id) acc[key] = { id, value: 'groups' }
+          return acc
+        },
+        {} as Record<string, { id: string; value: string }>,
+      ),
+
+      ...taskData?.risks?.edges?.reduce(
+        (acc, item) => {
+          const key = item?.node?.name
+          const id = item?.node?.id
+          if (key && id) acc[key] = { id, value: 'risks' }
+          return acc
+        },
+        {} as Record<string, { id: string; value: string }>,
+      ),
+    }
+
+    return (
+      <div className="flex flex-wrap gap-2">
+        {Object.entries(itemsDictionary).map(([key, { id, value, controlId }]) => {
+          const href = getHrefForObjectType(value, {
+            id,
+            control: controlId ? { id: controlId } : undefined,
+          })
+
+          const linkClass = !href ? 'pointer-events-none' : ''
+
+          return (
+            <Link className={linkClass} href={href} key={key}>
+              <Badge variant="outline">{key}</Badge>
+            </Link>
+          )
+        })}
+      </div>
+    )
   }
 
   const handleTags = () => {
@@ -285,7 +353,7 @@ const TaskDetailsSheet = () => {
       const comment = await plateEditorHelper.convertToHtml(data.comment)
 
       await updateTask({
-        updateTaskId: selectedTask as string,
+        updateTaskId: id as string,
         input: {
           addComment: {
             text: comment,
@@ -314,7 +382,7 @@ const TaskDetailsSheet = () => {
   }
 
   return (
-    <Sheet open={!!selectedTask} onOpenChange={handleSheetClose}>
+    <Sheet open={!!id} onOpenChange={handleSheetClose}>
       <SheetContent className="bg-card flex flex-col">
         {fetching ? (
           <Loading />
@@ -324,16 +392,16 @@ const TaskDetailsSheet = () => {
               <div className="flex items-center justify-between">
                 <ArrowRight size={16} className="cursor-pointer" onClick={handleSheetClose} />
                 <div className="flex justify-end gap-2">
-                  <Button icon={<Link />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
+                  <Button icon={<LinkIcon />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
                     Copy link
                   </Button>
                   {isEditing ? (
                     <div className="flex gap-2">
-                      <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
+                      <Button disabled={isPending} type="button" variant="outline" onClick={() => setIsEditing(false)}>
                         Cancel
                       </Button>
-                      <Button onClick={form.handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
-                        Save
+                      <Button loading={isPending} disabled={isPending} onClick={form.handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
+                        {isPending ? 'Saving...' : 'Save'}
                       </Button>
                     </div>
                   ) : (
@@ -341,7 +409,7 @@ const TaskDetailsSheet = () => {
                       Edit
                     </Button>
                   )}
-                  {taskData?.displayID && <DeleteTaskDialog taskName={taskData.displayID} />}
+                  {taskData?.displayID && id && <DeleteTaskDialog taskName={taskData.displayID} taskId={id} />}
                 </div>
               </div>
             </SheetHeader>
@@ -391,7 +459,7 @@ const TaskDetailsSheet = () => {
                     )}
                   />
                 ) : (
-                  <>{!!taskData?.details && <div>{plateEditorHelper.convertToReadOnly(taskData.details)}</div>}</>
+                  <>{!!taskData?.details && <div>{plateEditorHelper.convertToReadOnly(taskData.details, 0, { paddingTop: 16, paddingRight: 16, paddingBottom: 16, paddingLeft: 0 })}</div>}</>
                 )}
               </form>
             </Form>
@@ -419,7 +487,7 @@ const TaskDetailsSheet = () => {
                     excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.RISK, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.GROUP, ObjectTypeObjects.INTERNAL_POLICY]}
                   />
                 )}
-                <Button disabled={taskData?.status === TaskTaskStatus.COMPLETED} icon={<Check />} iconPosition="left" variant="outline" onClick={() => handleMarkAsComplete()}>
+                <Button className="h-8 !px-2" disabled={taskData?.status === TaskTaskStatus.COMPLETED} icon={<Check />} iconPosition="left" variant="outline" onClick={() => handleMarkAsComplete()}>
                   Mark as complete
                 </Button>
               </div>
@@ -479,7 +547,7 @@ const TaskDetailsSheet = () => {
                       render={({ field }) => (
                         <>
                           <CalendarPopover field={field} disabledFrom={new Date()} buttonClassName="w-1/3 flex justify-between items-center" />
-                          {form.formState.errors.due && <p className="text-red-500 text-sm">{form.formState.errors.due.message}</p>}
+                          {form.formState.errors.due && <p className="text-red-500 text-sm">{form.formState.errors.due.message as string}</p>}
                         </>
                       )}
                     />
@@ -515,8 +583,8 @@ const TaskDetailsSheet = () => {
                     />
                   ) : (
                     <div className="flex items-center space-x-2">
-                      {taskData?.status && TaskStatusIconMapper[TaskStatusMapper[taskData?.status as TaskTaskStatus]]}
-                      <p className="text-sm">{TaskStatusMapper[taskData?.status as TaskTaskStatus]}</p>
+                      {taskData?.status && TaskStatusIconMapper[taskData.status]}
+                      {taskData?.status && <p className="text-sm">{TaskStatusMapper[taskData.status]}</p>}
                     </div>
                   )}
                 </div>
@@ -601,7 +669,17 @@ const TaskDetailsSheet = () => {
               </div>
             </div>
 
-            {isEditing && <ControlObjectTaskForm form={form} />}
+            {isEditing && (
+              <Panel>
+                <PanelHeader heading="Object association" noBorder />
+                <p>Associating objects will allow users with access to the object to see the created task.</p>
+                <ObjectAssociation
+                  initialData={initialAssociations}
+                  onIdChange={(updatedMap) => setAssociations(updatedMap)}
+                  excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.TASK]}
+                />
+              </Panel>
+            )}
           </>
         )}
         {!isEditing && (
@@ -634,3 +712,24 @@ const TaskDetailsSheet = () => {
 }
 
 export default TaskDetailsSheet
+
+const capitalizeFirstLetter = (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
+
+const generateAssociationPayload = (original: TObjectAssociationMap, updated: TObjectAssociationMap) => {
+  const payload: Record<string, string[]> = {}
+
+  const allKeys = new Set([...Object.keys(original), ...Object.keys(updated)])
+
+  allKeys.forEach((key) => {
+    const prev = original[key] ?? []
+    const next = updated[key] ?? []
+
+    const add = next.filter((id) => !prev.includes(id))
+    const remove = prev.filter((id) => !next.includes(id))
+
+    if (add.length > 0) payload[`add${capitalizeFirstLetter(key)}`] = add
+    if (remove.length > 0) payload[`remove${capitalizeFirstLetter(key)}`] = remove
+  })
+
+  return payload
+}

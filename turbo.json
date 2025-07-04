@@ -1,7 +1,7 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": ["**/.env.*local", "**/.env"],
-  "pipeline": {
+  "globalDependencies": ["**/.env.*local", "**/.env", ".env"],
+  "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "env": [
@@ -13,7 +13,9 @@
         "AUTH_GOOGLE_ID",
         "AUTH_GOOGLE_SECRET",
         "SESSION_COOKIE_NAME",
-        "NEXT_PUBLIC_ALLOWED_LOGIN_DOMAINS"
+        "SESSION_COOKIE_DOMAIN",
+        "NEXT_PUBLIC_ALLOWED_LOGIN_DOMAINS",
+        "SESSION_NEXAUTH_MAX_AGE"
       ],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**", "storybook-static/**"]
     },

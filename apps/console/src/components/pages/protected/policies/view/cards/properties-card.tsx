@@ -3,13 +3,14 @@
 import React from 'react'
 import { InternalPolicyByIdFragment, InternalPolicyDocumentStatus } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
-import { Binoculars, Calendar, FileStack, ScrollText, Stamp } from 'lucide-react'
+import { Binoculars, Calendar, FileStack, ScrollText } from 'lucide-react'
 import { Controller, UseFormReturn } from 'react-hook-form'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { FormControl, FormField, FormItem } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import { formatDate } from '@/utils/date'
+import { DocumentIconMapper } from '@/components/shared/icon-enum/policy-enum.tsx'
 
 type TPropertiesCardProps = {
   form: UseFormReturn<EditPolicyMetadataFormData>
@@ -19,7 +20,10 @@ type TPropertiesCardProps = {
 
 const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, policy }) => {
   const statusOptions = Object.values(InternalPolicyDocumentStatus).map((value) => ({
-    label: value.charAt(0) + value.slice(1).toLowerCase(),
+    label: value
+      .split('_')
+      .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
+      .join(' '),
     value,
   }))
 
@@ -63,8 +67,9 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, polic
             )}
 
             {!isEditing && (
-              <div className="flex gap-2">
-                <span>{statusOptions.find((item) => item.value === policy.status)?.label}</span>
+              <div className="flex items-center space-x-2">
+                {DocumentIconMapper[policy.status as InternalPolicyDocumentStatus]}
+                <p>{statusOptions.find((item) => item.value === policy.status)?.label}</p>
               </div>
             )}
           </div>
