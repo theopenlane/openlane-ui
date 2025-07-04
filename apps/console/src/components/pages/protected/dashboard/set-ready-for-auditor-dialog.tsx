@@ -28,7 +28,7 @@ const SetReadyForAuditorDialog: React.FC = () => {
   }
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>
+      <DialogTrigger asChild>
         <Button className="!h-8 !p-2" variant="outline" type="button" icon={<Pencil />} iconPosition="left">
           Ready for Auditor
         </Button>
