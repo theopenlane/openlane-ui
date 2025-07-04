@@ -61,15 +61,6 @@ const ImportControlsDialogFramework = ({ setSelectedItems, selectedItems }: TSha
     setShowCheckboxes((prev) => (prev = !prev))
   }
 
-  // const tableData: SelectedItem[] = useMemo(() => {
-  //   if (!allControls) return []
-  //   return allControls.map((control) => ({
-  //     id: control.id,
-  //     name: control.refCode,
-  //     source: control.referenceFramework || undefined,
-  //   }))
-  // }, [allControls])
-
   const tableData: SelectedItem[] = useMemo(() => {
     if (!selectedFrameworkIds.length || !allControls) return []
     return allControls.map((control) => ({
