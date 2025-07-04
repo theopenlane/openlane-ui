@@ -50,7 +50,7 @@ export const useTasksWithFilterInfinite = ({ where, orderBy, pagination, enabled
 
   const queryResult = useInfiniteQuery<TasksWithFilterQuery, Error, InfiniteData<TasksWithFilterQuery>>({
     initialPageParam: 1,
-    queryKey: ['tasksInfinite', where, orderBy],
+    queryKey: ['tasks', 'infinite', where, orderBy],
     queryFn: () =>
       client.request<TasksWithFilterQuery, TasksWithFilterQueryVariables>(TASKS_WITH_FILTER, {
         where,
