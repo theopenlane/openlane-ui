@@ -5,6 +5,7 @@ import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@repo/
 import { useNotification } from '@/hooks/useNotification'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 
 const TfaPage: React.FC = () => {
   const [otpValue, setOtpValue] = useState('')
@@ -13,7 +14,7 @@ const TfaPage: React.FC = () => {
   const router = useRouter()
   const [isSecret, setIsSecret] = useState(false)
   const [error, setError] = useState<string>('')
-  const { successNotification, errorNotification } = useNotification()
+  const { errorNotification } = useNotification()
 
   const otpLength = isSecret ? 8 : 6
 
@@ -42,7 +43,7 @@ const TfaPage: React.FC = () => {
           title: `Enter an authenticator app code: `,
           bottomText: (
             <>
-              <p className="text-sm text-text-light">Don't have access to your app? Click&nbsp;</p>
+              <p className="text-sm text-text-light">Don&apos;t have access to your app? Click&nbsp;</p>
               <p
                 onClick={() => {
                   setIsSecret(true)
@@ -57,7 +58,7 @@ const TfaPage: React.FC = () => {
             </>
           ),
         }
-  }, [isSecret, otpLength])
+  }, [isSecret])
 
   const onVerified = async () => {
     if (!sessionData || !sessionData.user) {
@@ -81,11 +82,8 @@ const TfaPage: React.FC = () => {
   const verifyOTP = async (otp: string) => {
     try {
       const payload = isSecret ? { recovery_code: otp } : { totp_code: otp }
-      const response = await fetch('/api/verifyOTP', {
+      const response = await secureFetch('/api/verifyOTP', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(payload),
       })
 

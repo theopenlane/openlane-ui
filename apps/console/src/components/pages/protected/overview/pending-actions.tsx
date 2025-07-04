@@ -1,4 +1,3 @@
-import { Avatar } from '@repo/ui/avatar'
 import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { CalendarDays, ChevronRight, Inbox } from 'lucide-react'
@@ -8,21 +7,27 @@ import { ColumnDef } from '@tanstack/table-core'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 
+type PendingAction = {
+  date: string
+  type: string
+  name: string
+  submitter?: string
+  approver?: string
+}
+
 const PendingActions = () => {
   const [tab, setTab] = useState('waiting-on-you')
 
-  const pendingActions: any = [
+  const pendingActions: PendingAction[] = [
     // {
     //   date: 'Jan 11, 2025',
     //   type: 'Procedure',
     //   name: 'Steamed qui est strong shop crema fair cappuccino',
     //   submitter: 'Sally Shell',
-    //   submitterInitial: 'S',
-    //   submitterColor: 'bg-purple-500',
     // },
   ]
 
-  const approvalsWaitingFor: any = [
+  const approvalsWaitingFor: PendingAction[] = [
     // {
     //   date: 'Jan 11, 2025',
     //   type: 'Procedure',
@@ -31,7 +36,7 @@ const PendingActions = () => {
     // },
   ]
 
-  const columns: ColumnDef<any>[] = [
+  const columns: ColumnDef<PendingAction>[] = [
     {
       header: 'Date Submitted',
       accessorKey: 'date',
@@ -59,12 +64,7 @@ const PendingActions = () => {
     {
       header: 'Submitter/Approver',
       accessorKey: 'submitter',
-      cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-          {/* <Avatar entity={user}/>  TODO: IMPLEMENT AVATAR WITH REAL DATA*/}
-          {row.getValue('submitter') || row.getValue('approver')}
-        </div>
-      ),
+      cell: ({ row }) => <div className="flex items-center gap-2">{row.getValue('submitter') || row.getValue('approver')}</div>,
     },
   ]
 
@@ -78,7 +78,7 @@ const PendingActions = () => {
           <div className="flex flex-col items-center justify-center text-center">
             <Inbox size={89} strokeWidth={1} className="text-border" />
             <h3 className="mt-4 text-lg font-semibold">No pending actions</h3>
-            <p className="text-sm text-muted-foreground mt-1">Maybe it's time to review some policies and procedures that haven't been updated in a while?</p>
+            <p className="text-sm text-muted-foreground mt-1">Maybe it&apos;s time to review some policies and procedures that haven&apos;t been updated in a while?</p>
             <Button variant="outline" className="mt-4">
               Take me there
             </Button>

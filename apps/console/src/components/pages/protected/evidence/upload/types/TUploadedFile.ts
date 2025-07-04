@@ -1,4 +1,4 @@
-type TUploadedFile = {
+export type TUploadedFile = {
   name?: string
   size?: number | undefined
   url?: string

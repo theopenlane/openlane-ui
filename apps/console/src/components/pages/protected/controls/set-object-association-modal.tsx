@@ -120,7 +120,7 @@ export function SetObjectAssociationDialog() {
 
       successNotification({ title: `${isControl ? 'Control' : 'Subcontrol'} updated` })
       setOpen(false)
-    } catch (error) {
+    } catch {
       errorNotification({ title: `Could not update ${isControl ? 'Control' : 'Subcontrol'}, please try again later` })
     } finally {
       setIsSaving(false)

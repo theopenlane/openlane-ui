@@ -1,13 +1,13 @@
 import { Loading } from '@/components/shared/loading/loading'
 import { useDeleteInternalPolicy, useGetInternalPolicyDetailsById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useState } from 'react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import useFormSchema, { EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import { Form } from '@repo/ui/form'
 import DetailsField from '@/components/pages/protected/policies/view/fields/details-field.tsx'
 import TitleField from '@/components/pages/protected/policies/view/fields/title-field.tsx'
 import { Button } from '@repo/ui/button'
-import { PencilIcon, Router, SaveIcon, Trash2, XIcon } from 'lucide-react'
+import { PencilIcon, SaveIcon, Trash2, XIcon } from 'lucide-react'
 import AuthorityCard from '@/components/pages/protected/policies/view/cards/authority-card.tsx'
 import PropertiesCard from '@/components/pages/protected/policies/view/cards/properties-card.tsx'
 import { InternalPolicyDocumentStatus, InternalPolicyFrequency, UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
@@ -57,6 +57,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { currentOrgId } = useOrganization()
   const { data: orgNameData } = useGetOrganizationNameById(currentOrgId)
+  const [dataInitialized, setDataInitialized] = useState(false)
 
   useEffect(() => {
     setCrumbs([
@@ -67,21 +68,21 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   }, [setCrumbs, policy, isLoading])
 
   useEffect(() => {
-    if (policy) {
+    if (policy && !dataInitialized) {
       const policyAssociations: TObjectAssociationMap = {
-        controlIDs: policy?.controls?.edges?.map((item) => item?.node?.id!) || [],
-        procedureIDs: policy?.procedures?.edges?.map((item) => item?.node?.id!) || [],
-        programIDs: policy?.programs?.edges?.map((item) => item?.node?.id!) || [],
-        controlObjectiveIDs: policy?.controlObjectives?.edges?.map((item) => item?.node?.id!) || [],
-        taskIDs: policy?.tasks?.edges?.map((item) => item?.node?.id!) || [],
+        controlIDs: policy?.controls?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
+        procedureIDs: policy?.procedures?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
+        programIDs: policy?.programs?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
+        controlObjectiveIDs: policy?.controlObjectives?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
+        taskIDs: policy?.tasks?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
       }
 
       const policyAssociationsRefCodes: TObjectAssociationMap = {
-        controlIDs: policy?.controls?.edges?.map((item) => item?.node?.refCode!) || [],
-        procedureIDs: policy?.procedures?.edges?.map((item) => item?.node?.displayID!) || [],
-        programIDs: policy?.programs?.edges?.map((item) => item?.node?.displayID!) || [],
-        controlObjectiveIDs: policy?.controlObjectives?.edges?.map((item) => item?.node?.displayID!) || [],
-        taskIDs: policy?.tasks?.edges?.map((item) => item?.node?.displayID!) || [],
+        controlIDs: policy?.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => typeof id === 'string') || [],
+        procedureIDs: policy?.procedures?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
+        programIDs: policy?.programs?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
+        controlObjectiveIDs: policy?.controlObjectives?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
+        taskIDs: policy?.tasks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
       }
 
       form.reset({
@@ -100,8 +101,9 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
       policyState.setInitialAssociations(policyAssociations)
       policyState.setAssociations(policyAssociations)
       policyState.setAssociationRefCodes(policyAssociationsRefCodes)
+      setDataInitialized(true)
     }
-  }, [policy])
+  }, [policy, form, policyState, dataInitialized])
 
   const initialData: TObjectAssociationMap = {
     ...(policyId ? { internalPolicyIDs: [policyId] } : {}),
@@ -130,6 +132,9 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   }
 
   const onSubmitHandler = async (data: EditPolicyMetadataFormData) => {
+    if (!policy?.id) {
+      return
+    }
     try {
       let detailsField = data?.details
 
@@ -141,7 +146,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         updateInternalPolicyId: string
         input: UpdateInternalPolicyInput
       } = {
-        updateInternalPolicyId: policy?.id!,
+        updateInternalPolicyId: policy?.id,
         input: {
           ...data,
           details: detailsField,
@@ -160,8 +165,8 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
 
       setIsEditing(false)
       queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
-      queryClient.invalidateQueries({ queryKey: ['internalPolicy', policy?.id!] })
-    } catch (error) {
+      queryClient.invalidateQueries({ queryKey: ['internalPolicy', policy?.id] })
+    } catch {
       errorNotification({
         title: 'Error',
         description: 'There was an error updating the policy. Please try again.',

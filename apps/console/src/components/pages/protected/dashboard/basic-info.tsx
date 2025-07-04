@@ -16,6 +16,7 @@ import { Textarea } from '@repo/ui/textarea'
 import { Pencil } from 'lucide-react'
 import { Badge } from '@repo/ui/badge'
 import { PROGRAM_TYPE_LABELS } from '@/components/shared/icon-enum/program-enum'
+import { GqlError } from '@/types'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -105,7 +106,7 @@ const BasicInformation = () => {
     } catch (error) {
       errorNotification({
         title: 'Failed to update program',
-        gqlError: error,
+        gqlError: error as GqlError,
       })
     }
   }

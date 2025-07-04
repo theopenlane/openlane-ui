@@ -43,7 +43,7 @@ const AssigneeCell: React.FC<TProps> = (props: TProps) => {
       })
 
       setIsEditing(false)
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Error',
         description: 'There was an unexpected error. Please try again later.',

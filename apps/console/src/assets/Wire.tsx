@@ -1,6 +1,9 @@
 import React from 'react'
 
-const Wire = ({ className = '' }) => {
+type Props = {
+  className?: string
+}
+const Wire = ({ className = '' }: Props) => {
   return (
     <svg className={className} width="132" height="342" viewBox="0 0 132 342" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path

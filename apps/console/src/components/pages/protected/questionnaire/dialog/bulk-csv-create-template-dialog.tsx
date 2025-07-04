@@ -10,6 +10,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { exportCSV } from '@/lib/export'
 import { DOCS_URL, GRAPHQL_OBJECT_DOCS } from '@/constants'
 import { useCreateBulkCSVTemplate } from '@/lib/graphql-hooks/templates'
+import { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
 
 type BulkCsvCreateTemplateDialogProps = {
   trigger?: React.ReactElement<
@@ -39,7 +40,7 @@ const BulkCSVCreateTemplatelDialog: React.FC<BulkCsvCreateTemplateDialogProps> =
         description: `Templates has been successfully created`,
       })
       setIsOpen(false)
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Error',
         description: 'There was an error creating the templates. Please try again.',
@@ -52,7 +53,7 @@ const BulkCSVCreateTemplatelDialog: React.FC<BulkCsvCreateTemplateDialogProps> =
   }
 
   const handleCSVExport = async () => {
-    const data = await exportCSV({ filename: 'template' })
+    await exportCSV({ filename: 'template' })
   }
 
   return (
@@ -82,9 +83,9 @@ const BulkCSVCreateTemplatelDialog: React.FC<BulkCsvCreateTemplateDialogProps> =
             <p className="font-semibold">Column format</p>
             <p className="text-sm">
               You can upload a csv containing templates. Please refer to our{' '}
-              <a href={`${DOCS_URL}${GRAPHQL_OBJECT_DOCS}#template`} target="_blank" className="text-brand hover:underline">
+              <a href={`${DOCS_URL}${GRAPHQL_OBJECT_DOCS}#template`} target="_blank" rel="noreferrer" className="text-brand hover:underline">
                 documentation
-              </a>{' '}
+              </a>
               for column format. We also provide a{' '}
               <span className="text-brand hover:underline cursor-pointer" onClick={() => handleCSVExport()}>
                 template csv file

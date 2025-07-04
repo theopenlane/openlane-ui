@@ -48,7 +48,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, polic
                     <Select
                       value={field.value}
                       onValueChange={(value) => {
-                        value && field.onChange(value)
+                        field.onChange(value)
                       }}
                     >
                       <SelectTrigger className="w-full">{statusOptions.find((item) => item.value === field.value)?.label}</SelectTrigger>

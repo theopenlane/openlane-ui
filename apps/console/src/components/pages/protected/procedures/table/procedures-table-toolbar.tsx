@@ -1,7 +1,6 @@
 import React from 'react'
-import { cn } from '@repo/ui/lib/utils'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
-import { CirclePlus, DownloadIcon, Import, LoaderCircle, PlusCircle, SearchIcon } from 'lucide-react'
+import { CirclePlus, DownloadIcon, Import, LoaderCircle, SearchIcon } from 'lucide-react'
 import { PROCEDURES_FILTERABLE_FIELDS } from '@/components/pages/protected/procedures/table/table-config.ts'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -14,13 +13,14 @@ import Menu from '@/components/shared/menu/menu.tsx'
 import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
+import { ProcedureWhereInput } from '@repo/codegen/src/schema'
 
 type TProceduresTableToolbarProps = {
   className?: string
   searching?: boolean
   searchTerm: string
   setSearchTerm: (searchTerm: string) => void
-  setFilters: (filters: Record<string, any>) => void
+  setFilters: (filters: ProcedureWhereInput) => void
   handleCreateNew: () => void
   handleExport: () => void
   columnVisibility?: VisibilityState
@@ -32,7 +32,6 @@ type TProceduresTableToolbarProps = {
 }
 
 const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
-  className,
   searching,
   searchTerm,
   handleCreateNew,

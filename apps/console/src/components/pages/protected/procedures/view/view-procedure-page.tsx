@@ -59,6 +59,7 @@ const ViewProcedurePage: React.FC = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const { currentOrgId } = useOrganization()
   const { data: orgNameData } = useGetOrganizationNameById(currentOrgId)
+  const [dataInitialized, setDataInitialized] = useState(false)
 
   useEffect(() => {
     setCrumbs([
@@ -69,21 +70,21 @@ const ViewProcedurePage: React.FC = () => {
   }, [setCrumbs, procedure, isLoading])
 
   useEffect(() => {
-    if (procedure) {
+    if (procedure && !dataInitialized) {
       const procedureAssociations: TObjectAssociationMap = {
-        controlIDs: procedure?.controls?.edges?.map((item) => item?.node?.id!) || [],
-        riskIDs: procedure?.risks?.edges?.map((item) => item?.node?.id!) || [],
-        programIDs: procedure?.programs?.edges?.map((item) => item?.node?.id!) || [],
-        internalPolicyIDs: procedure?.internalPolicies?.edges?.map((item) => item?.node?.id!) || [],
-        taskIDs: procedure?.tasks?.edges?.map((item) => item?.node?.id!) || [],
+        controlIDs: procedure?.controls?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+        riskIDs: procedure?.risks?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+        programIDs: procedure?.programs?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+        internalPolicyIDs: procedure?.internalPolicies?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+        taskIDs: procedure?.tasks?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
       }
 
       const procedureAssociationsRefCodes: TObjectAssociationMap = {
-        controlIDs: procedure?.controls?.edges?.map((item) => item?.node?.refCode!) || [],
-        riskIDs: procedure?.risks?.edges?.map((item) => item?.node?.displayID!) || [],
-        programIDs: procedure?.programs?.edges?.map((item) => item?.node?.displayID!) || [],
-        internalPolicyIDs: procedure?.internalPolicies?.edges?.map((item) => item?.node?.displayID!) || [],
-        taskIDs: procedure?.tasks?.edges?.map((item) => item?.node?.displayID!) || [],
+        controlIDs: procedure?.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
+        riskIDs: procedure?.risks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
+        programIDs: procedure?.programs?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
+        internalPolicyIDs: procedure?.internalPolicies?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
+        taskIDs: procedure?.tasks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
       }
 
       form.reset({
@@ -102,8 +103,9 @@ const ViewProcedurePage: React.FC = () => {
       procedureState.setInitialAssociations(procedureAssociations)
       procedureState.setAssociations(procedureAssociations)
       procedureState.setAssociationRefCodes(procedureAssociationsRefCodes)
+      setDataInitialized(true)
     }
-  }, [procedure])
+  }, [procedure, form, procedureState, dataInitialized])
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -128,6 +130,9 @@ const ViewProcedurePage: React.FC = () => {
   }
 
   const onSubmitHandler = async (data: EditProcedureMetadataFormData) => {
+    if (!procedure?.id) {
+      return
+    }
     try {
       let detailsField = data?.details
 
@@ -139,7 +144,7 @@ const ViewProcedurePage: React.FC = () => {
         updateProcedureId: string
         input: UpdateProcedureInput
       } = {
-        updateProcedureId: procedure?.id!,
+        updateProcedureId: procedure?.id,
         input: {
           ...data,
           details: detailsField,
@@ -158,8 +163,8 @@ const ViewProcedurePage: React.FC = () => {
 
       setIsEditing(false)
       queryClient.invalidateQueries({ queryKey: ['procedures'] })
-      queryClient.invalidateQueries({ queryKey: ['procedure', procedure?.id!] })
-    } catch (error) {
+      queryClient.invalidateQueries({ queryKey: ['procedure', procedure.id] })
+    } catch {
       errorNotification({
         title: 'Error',
         description: 'There was an error updating the procedure. Please try again.',

@@ -1,7 +1,7 @@
-import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
+import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { useFormContext } from 'react-hook-form'
 import { z, infer as zInfer } from 'zod'
-import { Panel, PanelHeader } from '@repo/ui/panel'
+import { Panel } from '@repo/ui/panel'
 import { wizardStyles } from './wizard.styles'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { InfoIcon } from 'lucide-react'
@@ -44,11 +44,7 @@ export function ProgramDetailsComponent() {
 export const AuditorPermissionsComponent = () => {
   const { switchRow } = wizardStyles()
 
-  const {
-    register,
-    control,
-    formState: { errors },
-  } = useFormContext<ProgramDetailValues>()
+  const { register, control } = useFormContext<ProgramDetailValues>()
 
   return (
     <>
@@ -162,12 +158,7 @@ export const AuditorPermissionsComponent = () => {
 }
 
 const AuditPartner = () => {
-  const {
-    register,
-    control,
-    formState: { errors },
-    trigger,
-  } = useFormContext<ProgramDetailValues>()
+  const { register, control, trigger } = useFormContext<ProgramDetailValues>()
   const { inputRow, formRow } = wizardStyles()
 
   return (

@@ -30,7 +30,7 @@ export async function exportCSV<T>(arg: TExportCSV): Promise<void | { message: s
     link.click()
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
-  } catch (error) {
+  } catch {
     return { message: 'error' }
   }
 }

@@ -16,7 +16,7 @@ type TSetObjectAssociationDialogProps = {
   policyId?: string
 }
 
-const SetObjectAssociationDialog: React.FC<TSetObjectAssociationDialogProps> = ({ policyId }) => {
+const SetObjectAssociationDialog = ({ policyId }: TSetObjectAssociationDialogProps) => {
   const policyState = usePolicy()
   const queryClient = useQueryClient()
   const associationsState = usePolicy((state) => state.associations)
@@ -115,7 +115,7 @@ const SetObjectAssociationDialog: React.FC<TSetObjectAssociationDialogProps> = (
       queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
       queryClient.invalidateQueries({ queryKey: ['internalPolicy', policyId!] })
       setOpen(false)
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Error',
         description: 'There was an error updating the policy. Please try again.',

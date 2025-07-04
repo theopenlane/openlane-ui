@@ -58,7 +58,9 @@ const Waitlist: React.FC = () => {
             <Link href={`${OPENLANE_WEBSITE_URL}/legal/terms-of-service`}>Terms of Service</Link>
           </div>
         </div>
+
         <div className="max-w-xxl">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img className="hidden md:block " src="/icons/settings-bg.svg" alt="Background pattern" />
         </div>
       </div>

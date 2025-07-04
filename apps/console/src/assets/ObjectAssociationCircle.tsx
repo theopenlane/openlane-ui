@@ -1,6 +1,11 @@
 import React from 'react'
 
-const ObjectAssociationCircle = ({ className = '', triangleClassName = '' }) => {
+type Props = {
+  className?: string
+  triangleClassName?: string
+}
+
+const ObjectAssociationCircle = ({ className = '', triangleClassName = '' }: Props) => {
   return (
     <svg width="342" height="219" viewBox="0 0 342 219" xmlns="http://www.w3.org/2000/svg" fill="none" className={className} stroke="currentColor">
       <circle opacity="0.3" cx="171" cy="106" r="105.5" />

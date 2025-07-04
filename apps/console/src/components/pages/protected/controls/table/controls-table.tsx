@@ -5,11 +5,10 @@ import { useGetAllControls } from '@/lib/graphql-hooks/controls'
 import { Badge } from '@repo/ui/badge'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
-import { ControlControlStatus, ControlListFieldsFragment, ControlOrderField, GetAllControlsQueryVariables, Group, OrderDirection } from '@repo/codegen/src/schema'
+import { ControlControlStatus, ControlListFieldsFragment, ControlOrderField, ControlWhereInput, GetAllControlsQueryVariables, Group, OrderDirection } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useRouter } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { Value } from '@udecode/plate-common'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import ControlsTableToolbar from './controls-table-toolbar'
@@ -33,7 +32,7 @@ export const ControlStatusLabels: Record<ControlControlStatus, string> = {
 const ControlsTable: React.FC = () => {
   const { push } = useRouter()
   const plateEditorHelper = usePlateEditor()
-  const [filters, setFilters] = useState<Record<string, any> | null>(null)
+  const [filters, setFilters] = useState<ControlWhereInput | null>(null)
   const { setCrumbs } = useContext(BreadcrumbContext)
   const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>([
     {
@@ -52,7 +51,8 @@ const ControlsTable: React.FC = () => {
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const debouncedSearch = useDebounce(searchTerm, 300)
   const whereFilter = useMemo(() => {
-    const conditions: Record<string, any> = {}
+    const conditions: ControlWhereInput = {}
+
     Object.entries(filters || {}).forEach(([key, value]) => {
       if (!value) {
         return
@@ -63,7 +63,7 @@ const ControlsTable: React.FC = () => {
       } else if (key === 'standardContains') {
         conditions.hasStandardWith = [{ nameContainsFold: value }]
       } else {
-        conditions[key] = value
+        conditions[key as keyof ControlWhereInput] = value
       }
     })
 
@@ -100,7 +100,7 @@ const ControlsTable: React.FC = () => {
         cell: ({ row }) => {
           const tags = row.original.tags
           const description = () => {
-            return plateEditorHelper.convertToReadOnly(row.getValue('description') as Value | any, 0)
+            return plateEditorHelper.convertToReadOnly(row.getValue('description') as string, 0)
           }
 
           return (

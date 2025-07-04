@@ -7,7 +7,7 @@ const ObjectAssociationPlaceholder: React.FC = () => {
       <ObjectAssociationCircle className="text-border" triangleClassName="text-border-light" />
       <div className="absolute flex flex-col items-center mt-[120px]">
         <p className="text-md font-semibold leading-6">Please select an object first</p>
-        <p className="text-sm font-normal">List of objects you'll select will be displayed here</p>
+        <p className="text-sm font-normal">List of objects you&apos;ll select will be displayed here</p>
       </div>
     </div>
   )

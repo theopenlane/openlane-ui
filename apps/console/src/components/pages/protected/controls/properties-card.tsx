@@ -6,7 +6,7 @@ import { Card } from '@repo/ui/cardpanel'
 import { Input } from '@repo/ui/input'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@repo/ui/select'
 import { FolderIcon, BinocularsIcon, CopyIcon, InfoIcon, PlusIcon, ChevronDown } from 'lucide-react'
-import { Control, ControlControlSource, ControlControlStatus, ControlControlType, GetControlCategoriesQuery, GetControlSubcategoriesQuery, SubcontrolControlStatus } from '@repo/codegen/src/schema'
+import { Control, ControlControlSource, ControlControlStatus, ControlControlType, SubcontrolControlStatus } from '@repo/codegen/src/schema'
 import MappedCategoriesDialog from './mapped-categories-dialog'
 import Link from 'next/link'
 import { ControlIconMapper } from '@/components/shared/icon-enum/control-enum.tsx'
@@ -14,7 +14,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/
 import { useNotification } from '@/hooks/useNotification'
 import { useGetControlCategories, useGetControlSubcategories } from '@/lib/graphql-hooks/controls'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
-import { Button } from '@repo/ui/button'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 
 interface PropertiesCardProps {
@@ -162,7 +161,7 @@ const LinkedProperty = ({ label, href, value, icon }: { label: string; href: str
 )
 
 const EditableSelect = ({ label, name, isEditing, options, labels }: { label: string; name: string; isEditing: boolean; options: string[]; labels: Record<string, string> }) => {
-  const { control } = useFormContext()
+  const { control, getValues } = useFormContext()
 
   return (
     <div className="grid grid-cols-[110px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
@@ -191,7 +190,7 @@ const EditableSelect = ({ label, name, isEditing, options, labels }: { label: st
             )}
           />
         ) : (
-          <span>{labels[useFormContext().getValues(name)] ?? '-'}</span>
+          <span>{labels[getValues(name)] ?? '-'}</span>
         )}
       </div>
     </div>

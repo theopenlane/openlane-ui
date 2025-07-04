@@ -73,8 +73,13 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const evidence = data?.evidence
 
   const userIds = []
-  evidence?.updatedBy && userIds.push(evidence.updatedBy)
-  evidence?.createdBy && userIds.push(evidence.createdBy)
+  if (evidence?.updatedBy) {
+    userIds.push(evidence.updatedBy)
+  }
+  if (evidence?.createdBy) {
+    userIds.push(evidence.createdBy)
+  }
+
   const { users } = useGetOrgUserList({ where: { hasUserWith: [{ idIn: userIds }] } })
   const updatedByUser = users?.find((item) => item.id === evidence?.updatedBy)
   const createdByUser = users?.find((item) => item.id === evidence?.createdBy)
@@ -88,7 +93,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     if (controlEvidenceIdParam) {
       setSelectedControlEvidence(controlEvidenceIdParam)
     }
-  }, [controlEvidenceIdParam])
+  }, [controlEvidenceIdParam, setSelectedControlEvidence])
 
   useEffect(() => {
     if (evidence) {
@@ -103,7 +108,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       })
 
       if (evidence?.tags) {
-        const tags = evidence.tags.map((item: any) => {
+        const tags = evidence.tags.map((item) => {
           return {
             value: item,
             label: item,
@@ -112,7 +117,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
         setTagValues(tags)
       }
     }
-  }, [evidence])
+  }, [evidence, form])
 
   const handleCopyLink = () => {
     if (!selectedControlEvidence) {
@@ -166,7 +171,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       })
 
       setIsEditing(false)
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Error',
         description: 'There was an unexpected error. Please try again later.',
@@ -180,7 +185,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       successNotification({ title: `Evidence "${evidence?.name}" deleted successfully` })
       queryClient.invalidateQueries({ queryKey: ['controls', controlId] })
       setSelectedControlEvidence(null)
-    } catch (error) {
+    } catch {
       errorNotification({ title: 'Failed to delete evidence.' })
     }
   }

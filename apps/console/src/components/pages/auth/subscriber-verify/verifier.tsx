@@ -20,6 +20,7 @@ import { GraphQlResponseError } from '@/constants/graphQlResponseError'
 import { useNotification } from '@/hooks/useNotification'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -39,7 +40,7 @@ export const TokenVerifier = () => {
 
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null)
 
-  const { successNotification, errorNotification } = useNotification()
+  const { errorNotification } = useNotification()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -50,7 +51,7 @@ export const TokenVerifier = () => {
     try {
       setIsPending(true)
 
-      const res = await fetch('/api/graphql', {
+      const res = await secureFetch('/api/graphql', {
         method: 'POST',
         body: JSON.stringify({
           query: CREATE_SUBSCRIBER,
@@ -91,7 +92,7 @@ export const TokenVerifier = () => {
     const verifyToken = async () => {
       if (token) {
         try {
-          const response = await fetch(`/api/subscriber-verify?token=${token}`)
+          const response = await secureFetch(`/api/subscriber-verify?token=${token}`)
           if (!response.ok) {
             setError('Verification failed. Please try again.')
           } else {
@@ -115,7 +116,8 @@ export const TokenVerifier = () => {
         <div className={messageWrapper()}>
           {submittedEmail ? (
             <p className="text-sm">
-              You're on the list! We just sent a confirmation to <span className="underline">{submittedEmail}</span>.<br /> Hang tight — we'll be in touch when it's your turn to try the beta.
+              You&apos;re on the list! We just sent a confirmation to <span className="underline">{submittedEmail}</span>.<br /> Hang tight — we&apos;ll be in touch when it&apos;s your turn to try the
+              beta.
             </p>
           ) : (
             <>

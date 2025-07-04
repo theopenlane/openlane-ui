@@ -3,7 +3,7 @@
 import React from 'react'
 import { ProcedureDocumentStatus, ProcedureFrequency } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
-import { Binoculars, ScanEye, Stamp, ClockArrowUp, FileStack, ScrollText, Calendar, CalendarCheck2, CalendarClock } from 'lucide-react'
+import { Binoculars, ScanEye, ClockArrowUp, FileStack, ScrollText, Calendar, CalendarCheck2, CalendarClock } from 'lucide-react'
 import { Controller, UseFormReturn } from 'react-hook-form'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { FormControl, FormField, FormItem } from '@repo/ui/form'
@@ -48,7 +48,9 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
                   <Select
                     value={field.value}
                     onValueChange={(value) => {
-                      value && field.onChange(value)
+                      if (value) {
+                        field.onChange(value)
+                      }
                     }}
                   >
                     <SelectTrigger className="w-full">{statusOptions.find((item) => item.value === field.value)?.label}</SelectTrigger>
@@ -110,7 +112,9 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
                   <Select
                     value={field.value.toString()}
                     onValueChange={(value) => {
-                      value && field.onChange(value)
+                      if (value) {
+                        field.onChange(value)
+                      }
                     }}
                   >
                     <SelectTrigger className="w-full">{reviewFrequencyOptions.find((item) => item.value === field.value)?.label}</SelectTrigger>

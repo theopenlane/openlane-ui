@@ -39,6 +39,13 @@ export const GET_ALL_PROCEDURES_WITH_DETAILS = gql`
           tags
         }
       }
+      pageInfo {
+        endCursor
+        startCursor
+        hasPreviousPage
+        hasNextPage
+      }
+      totalCount
     }
   }
 `

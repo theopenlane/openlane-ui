@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { GlobeIcon, Info, Link, Tag, User, Pencil, Check, ArrowRight } from 'lucide-react'
@@ -44,7 +44,6 @@ const GroupDetailsSheet = () => {
   const [activeTab, setActiveTab] = useState<'Members' | 'Permissions'>('Members')
   const [isEditing, setIsEditing] = useState(false)
   const searchParams = useSearchParams()
-  const router = useRouter()
   const { selectedGroup, setSelectedGroup, setIsAdmin, isAdmin } = useGroupsStore()
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
@@ -137,7 +136,7 @@ const GroupDetailsSheet = () => {
         setIsAdmin(userRole === GroupMembershipRole.ADMIN)
       }
     }
-  }, [data, reset, name, description, setting, tags])
+  }, [data, reset, name, description, setting, tags, sessionData?.user.userId, setIsAdmin])
 
   useEffect(() => {
     const groupId = searchParams.get('id')
@@ -244,7 +243,7 @@ const GroupDetailsSheet = () => {
                     <p className="font-semibold">Did you know?</p>
                     <p className="text-sm">
                       Groups can be used to assign specific access to objects within the system. Please refer to our{' '}
-                      <a href={`${DOCS_URL}/docs/docs/platform/security/authorization/permissions`} target="_blank" className="text-brand hover:underline">
+                      <a href={`${DOCS_URL}/docs/docs/platform/security/authorization/permissions`} target="_blank" rel="noreferrer" className="text-brand hover:underline">
                         documentation
                       </a>
                       .

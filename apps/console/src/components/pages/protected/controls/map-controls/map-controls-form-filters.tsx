@@ -5,7 +5,7 @@ import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
 import { ControlWhereInput } from '@repo/codegen/src/schema'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
-import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
+import { Option } from '@repo/ui/multiple-selector'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Checkbox } from '@repo/ui/checkbox'
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { GetInvitesQueryVariables, InviteInviteStatus, InviteOrderField, InviteRole, OrderDirection, TaskOrderField } from '@repo/codegen/src/schema'
+import { GetInvitesQueryVariables, InviteInviteStatus, InviteOrderField, InviteRole, InviteWhereInput, OrderDirection } from '@repo/codegen/src/schema'
 import { DataTable } from '@repo/ui/data-table'
 import { useGetInvites } from '@/lib/graphql-hooks/organization'
 import { invitesColumns } from '@/components/pages/protected/organization/members/table/columns.tsx'
@@ -15,13 +15,13 @@ type InviteNode = {
   id: string
   recipient: string
   status: InviteInviteStatus
-  createdAt?: any
+  createdAt?: string
   role: InviteRole
   sendAttempts?: number
 }
 
 export const OrganizationInvitesTable = () => {
-  const [filters, setFilters] = useState<Record<string, any> | null>(null)
+  const [filters, setFilters] = useState<InviteWhereInput | null>(null)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
 
   const [orderBy, setOrderBy] = useState<GetInvitesQueryVariables['orderBy']>([
@@ -32,7 +32,7 @@ export const OrganizationInvitesTable = () => {
   ])
 
   const whereFilter = useMemo(() => {
-    const conditions: Record<string, any> = {
+    const conditions: InviteWhereInput = {
       ...filters,
     }
 
@@ -43,7 +43,7 @@ export const OrganizationInvitesTable = () => {
     return orderBy || undefined
   }, [orderBy])
 
-  const { data, isLoading, isError, isFetching } = useGetInvites({ where: whereFilter, orderBy: orderByFilter, pagination, enabled: !!filters })
+  const { data, isLoading, isFetching } = useGetInvites({ where: whereFilter, orderBy: orderByFilter, pagination, enabled: !!filters })
 
   const invites: InviteNode[] = data?.invites.edges?.filter((edge) => edge !== null && edge.node !== null).map((edge) => edge?.node as InviteNode) || []
 

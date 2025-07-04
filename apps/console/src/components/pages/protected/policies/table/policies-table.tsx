@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { DataTable } from '@repo/ui/data-table'
 import React, { useState, useMemo, useEffect, useContext } from 'react'
-import { GetInternalPoliciesListQueryVariables, InternalPolicy, InternalPolicyOrderField, Maybe, OrderDirection } from '@repo/codegen/src/schema'
+import { GetInternalPoliciesListQueryVariables, InternalPolicy, InternalPolicyOrderField, InternalPolicyWhereInput, Maybe, OrderDirection } from '@repo/codegen/src/schema'
 import PoliciesTableToolbar from '@/components/pages/protected/policies/table/policies-table-toolbar.tsx'
 import { INTERNAL_POLICIES_SORTABLE_FIELDS } from '@/components/pages/protected/policies/table/table-config.ts'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -22,7 +22,7 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 export const PoliciesTable = () => {
   const router = useRouter()
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
-  const [filters, setFilters] = useState<Record<string, any> | null>(null)
+  const [filters, setFilters] = useState<InternalPolicyWhereInput | null>(null)
   const [memberIds, setMemberIds] = useState<(Maybe<string> | undefined)[]>()
   const [searchTerm, setSearchTerm] = useState('')
   const { setCrumbs } = useContext(BreadcrumbContext)
@@ -36,7 +36,7 @@ export const PoliciesTable = () => {
   const debouncedSearch = useDebounce(searchTerm, 300)
 
   const where = useMemo(() => {
-    const conditions: Record<string, any> = {
+    const conditions: InternalPolicyWhereInput = {
       ...filters,
       nameContainsFold: debouncedSearch,
     }
@@ -46,10 +46,10 @@ export const PoliciesTable = () => {
 
   const userListWhere = useMemo(() => {
     if (!memberIds) {
-      return undefined
+      return {}
     }
 
-    const conditions: Record<string, any> = {
+    const conditions = {
       hasUserWith: [{ idIn: memberIds }],
     }
 
@@ -58,10 +58,10 @@ export const PoliciesTable = () => {
 
   const tokensWhere = useMemo(() => {
     if (!memberIds) {
-      return undefined
+      return {}
     }
 
-    const conditions: Record<string, any> = {
+    const conditions = {
       idIn: memberIds,
     }
 
@@ -86,11 +86,16 @@ export const PoliciesTable = () => {
   }, [setCrumbs])
 
   useEffect(() => {
-    if (policies && (!memberIds || memberIds.length === 0)) {
-      const userIds = [...new Set(policies.map((item) => item.updatedBy))]
-      setMemberIds(userIds)
+    if (!policies || policies.length === 0) {
+      return
     }
-  }, [policies?.length])
+    if (memberIds && memberIds.length > 0) {
+      return
+    }
+
+    const userIds = [...new Set(policies.map((item) => item.updatedBy).filter(Boolean))]
+    setMemberIds(userIds)
+  }, [policies, memberIds])
 
   const handleCreateNew = async () => {
     router.push(`/policies/create`)
