@@ -8,5 +8,9 @@ export const useOrganization = () => {
   const { data } = useGetAllOrganizations()
   const organizations = data?.organizations.edges || []
 
-  return { currentOrgId, allOrgs: organizations }
+  const getOrganizationByID = (organizationID: string) => {
+    return organizations.find((item) => item?.node?.id === organizationID)
+  }
+
+  return { currentOrgId, allOrgs: organizations, getOrganizationByID }
 }

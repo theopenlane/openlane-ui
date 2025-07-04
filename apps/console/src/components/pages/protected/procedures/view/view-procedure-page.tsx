@@ -34,7 +34,6 @@ import Menu from '@/components/shared/menu/menu.tsx'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
-import { useGetOrganizationNameById } from '@/lib/graphql-hooks/organization'
 
 const ViewProcedurePage: React.FC = () => {
   const { id } = useParams()
@@ -57,8 +56,8 @@ const ViewProcedurePage: React.FC = () => {
   const editAllowed = canEdit(permission?.roles)
   const { mutateAsync: deleteProcedure } = useDeleteProcedure()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const { currentOrgId } = useOrganization()
-  const { data: orgNameData } = useGetOrganizationNameById(currentOrgId)
+  const { currentOrgId, getOrganizationByID } = useOrganization()
+  const currentOrganization = getOrganizationByID(currentOrgId!)
 
   useEffect(() => {
     setCrumbs([
@@ -247,7 +246,7 @@ const ViewProcedurePage: React.FC = () => {
 
   return (
     <>
-      <title>{`${orgNameData?.organization.displayName}: Procedures - ${data.procedure.name}`}</title>
+      <title>{`${currentOrganization?.node?.displayName}: Procedures - ${data.procedure.name}`}</title>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmitHandler)}>
           <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>

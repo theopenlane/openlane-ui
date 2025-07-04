@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Button } from '@repo/ui/button'
+import ImportControlsDialog from './program-settings-import-controls-dialog'
 
 export const ProgramSettingsImportControls = () => {
   return (
@@ -12,7 +12,7 @@ export const ProgramSettingsImportControls = () => {
 
       <div className="space-y-2 w-full">
         <p className="text-base">Import from frameworks or another programs</p>
-        <Button className="h-8 !px-2">Import</Button>
+        <ImportControlsDialog />
       </div>
     </section>
   )
