@@ -1,15 +1,14 @@
-import { FileCheck2, FilePen, ScanEye, Stamp } from 'lucide-react'
+import { FilePenLine, FilePlus2, FileX2 } from 'lucide-react'
+import React from 'react'
 
 export enum AuditLogOperator {
-  CREATE = 'Create',
   DELETE = 'Delete',
   UPDATE = 'Update',
-  INSERT = 'Insert',
+  INSERT = 'Create',
 }
 
-export const AuditLogOperatorMapper: Record<AuditLogOperator, React.ReactNode> = {
-  [AuditLogOperator.CREATE]: <Stamp height={16} width={16} />,
-  [AuditLogOperator.DELETE]: <FilePen height={16} width={16} />,
-  [AuditLogOperator.UPDATE]: <ScanEye height={16} width={16} />,
-  [AuditLogOperator.INSERT]: <FileCheck2 height={16} width={16} />,
+export const AuditLogOperatorMapper: Record<keyof typeof AuditLogOperator, React.ReactNode> = {
+  INSERT: <FilePlus2 size={16} className="text-accent-secondary" />,
+  DELETE: <FileX2 size={16} className="text-accent-secondary" />,
+  UPDATE: <FilePenLine size={16} className="text-accent-secondary" />,
 }

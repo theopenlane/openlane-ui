@@ -6,10 +6,18 @@ import { useGetAuditLogsInfinite } from '@/lib/graphql-hooks/organization.ts'
 import LogsTableToolbar from '@/components/pages/protected/organization/logs/logs-table-toolbar.tsx'
 import LogCards from '@/components/pages/protected/organization/logs/log-cards.tsx'
 import InfiniteScroll from '@repo/ui/infinite-scroll'
-import { AuditLogWhereInput } from '@repo/codegen/src/schema.ts'
+import { AuditLog, AuditLogWhereInput } from '@repo/codegen/src/schema.ts'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
+import { exportToCSV } from '@/utils/exportToCSV.ts'
+import { useSession } from 'next-auth/react'
+import { useOrganizationRole } from '@/lib/authz/access-api.ts'
+import { isAuditLogViewer } from '@/lib/authz/utils.ts'
+import ProtectedArea from '@/components/shared/protected-area/protected-area.tsx'
+import { exportToJSON } from '@/utils/exportToJSON.ts'
 
 const LogsPage: React.FC = () => {
+  const { data: session } = useSession()
+  const { data: permission, isLoading } = useOrganizationRole(session)
   const { setCrumbs } = useContext(BreadcrumbContext)
   const [filters, setFilters] = useState<AuditLogWhereInput | null>(null)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
@@ -26,6 +34,40 @@ const LogsPage: React.FC = () => {
   }, [filters])
 
   const { logs, isLoading: fetching, paginationMeta, fetchNextPage } = useGetAuditLogsInfinite({ where: whereFilter, pagination, enabled: !!whereFilter })
+  const exportableColumns = [
+    {
+      label: 'ID',
+      accessor: (log: AuditLog) => log.id,
+    },
+    {
+      label: 'Operation',
+      accessor: (log: AuditLog) => log.operation ?? '',
+    },
+    {
+      label: 'Object',
+      accessor: (log: AuditLog) => log.table ?? '',
+    },
+    {
+      label: 'Time',
+      accessor: (log: AuditLog) => log.time ?? '',
+    },
+    {
+      label: 'Updated By',
+      accessor: (log: AuditLog) => log.updatedBy ?? '',
+    },
+    {
+      label: 'Field Name(s)',
+      accessor: (log: AuditLog) => log.changes?.map((c) => c.FieldName).join('; ') ?? '',
+    },
+    {
+      label: 'Old Value(s)',
+      accessor: (log: AuditLog) => log.changes?.map((c) => c.Old ?? '').join('; ') ?? '',
+    },
+    {
+      label: 'New Value(s)',
+      accessor: (log: AuditLog) => log.changes?.map((c) => c.New ?? '').join('; ') ?? '',
+    },
+  ]
 
   useEffect(() => {
     setCrumbs([
@@ -46,12 +88,25 @@ const LogsPage: React.FC = () => {
     setPagination(pagination)
   }
 
+  const handleCSVExport = () => {
+    exportToCSV(logs, exportableColumns, 'audit_logs')
+  }
+
+  const handleJSONExport = () => {
+    exportToJSON(logs, exportableColumns, 'audit_logs')
+  }
+
   return (
     <>
-      <LogsTableToolbar onFilterChange={setFilters} />
-      <InfiniteScroll pagination={pagination} onPaginationChange={handlePaginationChange} paginationMeta={paginationMeta} key="card">
-        <LogCards logs={logs} loading={fetching} />
-      </InfiniteScroll>
+      {!isLoading && !isAuditLogViewer(permission?.roles) && <ProtectedArea />}
+      {!isLoading && isAuditLogViewer(permission?.roles) && (
+        <>
+          <LogsTableToolbar onFilterChange={setFilters} handleCSVExport={handleCSVExport} handleJSONExport={handleJSONExport} />
+          <InfiniteScroll pagination={pagination} onPaginationChange={handlePaginationChange} paginationMeta={paginationMeta} key="card">
+            <LogCards logs={logs} loading={fetching} />
+          </InfiniteScroll>
+        </>
+      )}
     </>
   )
 }
