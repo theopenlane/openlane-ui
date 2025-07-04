@@ -2,13 +2,14 @@ import { openlaneAPIUrl } from '@repo/dally/auth'
 import Credentials from 'next-auth/providers/credentials'
 import { setSessionCookie } from '../utils/set-session-cookie'
 import { getDashboardData } from '@/app/api/getDashboardData/route'
-import { CredentialsSignin } from 'next-auth'
+import { secureFetch } from '../utils/secure-fetch'
 
 // Standard username and password credentials provider
 export const credentialsProvider = Credentials({
   id: 'credentials',
   name: 'credentials',
   credentials: {},
+
   async authorize(credentials: any) {
     let accessToken = ''
     let refreshToken = ''
@@ -24,9 +25,9 @@ export const credentialsProvider = Credentials({
          * route in an env var that way we don't expose
          * your API login routes to our end users
          */
-        const fData = await fetch(`${openlaneAPIUrl}/v1/login`, {
+
+        const fData = await secureFetch(`${openlaneAPIUrl}/v1/login`, {
           method: 'POST',
-          headers: { 'content-type': 'application/json' },
           body: JSON.stringify({
             username: credentials.username,
             password: credentials.password,
@@ -50,9 +51,11 @@ export const credentialsProvider = Credentials({
         session = credentials.session
       }
 
-      const uData = await fetch(`${openlaneAPIUrl}/oauth/userinfo`, {
+      const uData = await secureFetch(`${openlaneAPIUrl}/oauth/userinfo`, {
         method: 'GET',
-        headers: { Authorization: `Bearer ${accessToken}` },
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       })
 
       if (!uData.ok) {
