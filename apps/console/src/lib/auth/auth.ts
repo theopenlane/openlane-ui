@@ -94,7 +94,7 @@ export const config = {
             refreshToken: data.refresh_token,
             session: data.session,
             isTfaEnabled: data.tfa_enabled,
-            isOnboarding: dashboardData.organizations?.edges?.length == 1,
+            isOnboarding: dashboardData?.organizations?.edges?.length == 1,
           })
 
           // Store session in a cookie
