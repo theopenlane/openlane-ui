@@ -2,6 +2,7 @@ import { openlaneAPIUrl } from '@repo/dally/auth'
 import Credentials from 'next-auth/providers/credentials'
 import { setSessionCookie } from '../utils/set-session-cookie'
 import { getDashboardData } from '@/app/api/getDashboardData/route'
+import { secureFetch } from '../utils/secure-fetch'
 
 export const credentialsProvider = Credentials({
   id: 'credentials',
@@ -29,7 +30,7 @@ export const credentialsProvider = Credentials({
         session = credentials.session
       } else {
         // handle login from login form
-        const fData = await fetch(`${openlaneAPIUrl}/v1/login`, {
+        const fData = await secureFetch(`${openlaneAPIUrl}/v1/login`, {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify({
@@ -49,7 +50,7 @@ export const credentialsProvider = Credentials({
         session = data?.session
       }
 
-      const uData = await fetch(`${openlaneAPIUrl}/oauth/userinfo`, {
+      const uData = await secureFetch(`${openlaneAPIUrl}/oauth/userinfo`, {
         method: 'GET',
         headers: { Authorization: `Bearer ${accessToken}` },
       })

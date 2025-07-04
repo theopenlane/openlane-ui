@@ -1,5 +1,8 @@
 import { getSession } from 'next-auth/react'
 import { ensureAuth } from './auth/utils/tokenValidator'
+import { fetchCSRFToken } from './auth/utils/secure-fetch'
+import { csrfCookieName, csrfHeader } from '@repo/dally/auth'
+import { getCookie } from './auth/utils/getCookie'
 
 export const fetchGraphQLWithUpload = async ({ query, variables = {} }: { query: string; variables?: Record<string, unknown> }) => {
   const session = await getSession()
@@ -12,6 +15,15 @@ export const fetchGraphQLWithUpload = async ({ query, variables = {} }: { query:
   const headers: HeadersInit = {
     Authorization: `Bearer ${accessToken}`,
   }
+
+  let csrfToken = getCookie(csrfCookieName)
+  if (!csrfToken) {
+    // If CSRF token is not found in cookies, fetch a new one
+    csrfToken = await fetchCSRFToken()
+  }
+
+  headers[csrfHeader] = csrfToken // Ensure CSRF token is in the headers
+  headers['cookie'] = `${csrfCookieName}=${csrfToken}`
 
   let body: BodyInit
   const formData = new FormData()

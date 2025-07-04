@@ -68,9 +68,6 @@ export async function registerUser<T>(arg: RegisterUser): Promise<RegisterUserRe
 export async function resendVerification<T>(arg: ResendVerificationEmail) {
   const fData: HttpResponse<T> = await fetch('/api/auth/resend', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify(arg),
   })
   try {
@@ -190,7 +187,6 @@ export async function verifyAuthentication<T>(arg: AuthVerificationInput) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(arg.assertionResponse),
-    credentials: 'include',
   })
   try {
     return await fData.json()
@@ -206,7 +202,6 @@ export async function switchOrganization<T>(arg: SwitchOrganization) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(arg),
-    credentials: 'include',
   })
   try {
     const fDataMessage = await fData.json()

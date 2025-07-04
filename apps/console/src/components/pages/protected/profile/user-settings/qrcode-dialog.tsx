@@ -10,6 +10,7 @@ import { useCopyToClipboard } from '@uidotdev/usehooks'
 import { Copy } from 'lucide-react'
 import { useUpdateTfaSetting } from '@/lib/graphql-hooks/tfa'
 import { useQueryClient } from '@tanstack/react-query'
+import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 
 interface QRCodeProps {
   qrcode: string | null
@@ -40,11 +41,9 @@ const QRCodeDialog = ({ qrcode, secret, onClose, regeneratedCodes }: QRCodeProps
   const verifyOTP = useCallback(
     async (otp: string) => {
       try {
-        const response = await fetch('/api/verifyOTP', {
+        const response = await secureFetch('/api/verifyOTP', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+
           body: JSON.stringify({ totp_code: otp }),
         })
 

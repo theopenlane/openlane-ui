@@ -1,4 +1,5 @@
 import { openlaneAPIUrl } from '@repo/dally/auth'
+import { secureFetch } from './secure-fetch'
 
 // getTokenFromOpenlaneAPI is a function that takes an oauth user and registers them
 // with the openlane API to get an access token and refresh token
@@ -13,9 +14,8 @@ export interface OAuthUserRequest {
 
 export const getTokenFromOpenlaneAPI = async (reqBody: OAuthUserRequest) => {
   try {
-    const response = await fetch(`${openlaneAPIUrl}/oauth/register`, {
+    const response = await secureFetch(`${openlaneAPIUrl}/oauth/register`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
         externalUserId: reqBody.externalUserID.toString() as string,
         email: reqBody.email as string,
