@@ -1,6 +1,6 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React from 'react'
-import { CirclePlus, CreditCard as CardIcon, DownloadIcon, LoaderCircle, SearchIcon, Table as TableIcon, Upload } from 'lucide-react'
+import { CirclePlus, DownloadIcon, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { RISKS_FILTER_FIELDS } from './table-config'
 import { SelectIsFilterField } from '@/types'
@@ -16,9 +16,10 @@ import { useSession } from 'next-auth/react'
 import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { TaskIconBtn } from '@/components/shared/icon-enum/task-enum.tsx'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog.tsx'
+import { RiskWhereInput } from '@repo/codegen/src/schema'
 
 type TProps = {
-  onFilterChange: (filters: Record<string, any>) => void
+  onFilterChange: (filters: RiskWhereInput) => void
   searching?: boolean
   searchTerm: string
   setSearchTerm: (searchTerm: string) => void

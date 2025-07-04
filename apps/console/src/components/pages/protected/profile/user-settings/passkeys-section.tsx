@@ -78,18 +78,20 @@ const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefine
       })
 
       setLoading(false)
-    } catch (err: any) {
+    } catch (err: unknown) {
       setLoading(false)
       console.error('Error during passkey creation:', err)
 
-      if (err.name === 'AbortError' || err.name === 'NotAllowedError') {
-        errorNotification({ title: 'User canceled setting up Passkeys set up' })
-        return
-      }
+      if (err instanceof DOMException) {
+        if (err.name === 'AbortError' || err.name === 'NotAllowedError') {
+          errorNotification({ title: 'User canceled setting up Passkeys set up' })
+          return
+        }
 
-      if (err.name === 'InvalidStateError') {
-        errorNotification({ title: 'You have previously added a passkey using this device' })
-        return
+        if (err.name === 'InvalidStateError') {
+          errorNotification({ title: 'You have previously added a passkey using this device' })
+          return
+        }
       }
 
       errorNotification({ title: 'An error occurred while setting up your passkey' })
@@ -110,7 +112,7 @@ const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefine
       text: <p className="text-sm">Be sure to keep your screen locks private and security keys safe, so only you can use them.</p>,
       buttons: [],
     }
-  }, [userData?.user.setting.isWebauthnAllowed, loading])
+  }, [userData?.user.setting.isWebauthnAllowed])
 
   return (
     <Panel>
@@ -161,7 +163,7 @@ const PasskeyItem = ({ passkey }: { passkey: Webauthn }) => {
       successNotification({
         title: `Your passkeys have been removed`,
       })
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Failed to delete your passkey device',
       })
@@ -170,7 +172,10 @@ const PasskeyItem = ({ passkey }: { passkey: Webauthn }) => {
   return (
     <div className="flex items-center justify-between p-3 border-b last:border-b-0">
       <div className="flex items-center gap-2">
-        {iconSrc && <img src={iconSrc} alt="Passkey icon" className="w-5 h-5" />}
+        {iconSrc && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={iconSrc} alt="Passkey icon" className="w-5 h-5" />
+        )}
         <div>
           <p className="font-medium">{passkeyData.name || 'Passkey device'}</p>
           <p className="text-sm text-muted-foreground">Added on {new Date(passkey.createdAt).toLocaleDateString()}</p>

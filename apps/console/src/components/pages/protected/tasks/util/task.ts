@@ -59,7 +59,7 @@ export type AllQueriesDataKey = keyof AllQueriesData
 
 type TTaskObjectTypeConfig = {
   responseObjectKey: AllQueriesDataKey
-  queryDocument: any
+  queryDocument: string
   inputName: string
   placeholder: string
   searchAttribute: string

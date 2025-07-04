@@ -55,27 +55,21 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   const isPoliciesCreate = path === '/policies/create'
 
   useEffect(() => {
-    if (isPoliciesCreate) {
-      setInitialAssociations({})
-      policyState.setAssociations({})
-      policyState.setAssociationRefCodes({})
-      return
-    }
     if (policy) {
       const policyAssociations: TObjectAssociationMap = {
-        controlIDs: policy?.controls?.edges?.map((item) => item?.node?.id!) || [],
-        procedureIDs: policy?.procedures?.edges?.map((item) => item?.node?.id!) || [],
-        programIDs: policy?.programs?.edges?.map((item) => item?.node?.id!) || [],
-        controlObjectiveIDs: policy?.controlObjectives?.edges?.map((item) => item?.node?.id!) || [],
-        taskIDs: policy?.tasks?.edges?.map((item) => item?.node?.id!) || [],
+        controlIDs: (policy?.controls?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
+        procedureIDs: (policy?.procedures?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
+        programIDs: (policy?.programs?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
+        controlObjectiveIDs: (policy?.controlObjectives?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
+        taskIDs: (policy?.tasks?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
       }
 
       const policyAssociationsRefCodes: TObjectAssociationMap = {
-        controlIDs: policy?.controls?.edges?.map((item) => item?.node?.refCode!) || [],
-        procedureIDs: policy?.procedures?.edges?.map((item) => item?.node?.displayID!) || [],
-        programIDs: policy?.programs?.edges?.map((item) => item?.node?.displayID!) || [],
-        controlObjectiveIDs: policy?.controlObjectives?.edges?.map((item) => item?.node?.displayID!) || [],
-        taskIDs: policy?.tasks?.edges?.map((item) => item?.node?.displayID!) || [],
+        controlIDs: (policy?.controls?.edges?.map((item) => item?.node?.refCode).filter(Boolean) as string[]) || [],
+        procedureIDs: (policy?.procedures?.edges?.map((item) => item?.node?.displayID).filter(Boolean) as string[]) || [],
+        programIDs: (policy?.programs?.edges?.map((item) => item?.node?.displayID).filter(Boolean) as string[]) || [],
+        controlObjectiveIDs: (policy?.controlObjectives?.edges?.map((item) => item?.node?.displayID).filter(Boolean) as string[]) || [],
+        taskIDs: (policy?.tasks?.edges?.map((item) => item?.node?.displayID).filter(Boolean) as string[]) || [],
       }
 
       form.reset({
@@ -99,7 +93,16 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
       policyState.setAssociations(policyAssociations)
       policyState.setAssociationRefCodes(policyAssociationsRefCodes)
     }
-  }, [isPoliciesCreate])
+  }, [isPoliciesCreate, form, policy, policyState])
+
+  useEffect(() => {
+    if (isPoliciesCreate && Object.keys(policyState.associations).length > 0) {
+      setInitialAssociations({})
+      policyState.setAssociations({})
+      policyState.setAssociationRefCodes({})
+      return
+    }
+  }, [isPoliciesCreate, policyState])
 
   const onCreateHandler = async (data: CreatePolicyFormData) => {
     try {
@@ -127,7 +130,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
 
       form.reset()
       router.push(`/policies/${createdPolicy.createInternalPolicy.internalPolicy.id}/view`)
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Error',
         description: 'There was an error creating the policy. Please try again.',
@@ -160,6 +163,9 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   }
 
   const onSaveHandler = async (data: EditPolicyFormData) => {
+    if (!policy) {
+      return
+    }
     try {
       let detailsField = data?.details
 
@@ -197,7 +203,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
         updateInternalPolicyId: string
         input: UpdateInternalPolicyInput
       } = {
-        updateInternalPolicyId: policy?.id!,
+        updateInternalPolicyId: policy.id,
         input: {
           ...data,
           details: detailsField,
@@ -215,9 +221,9 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
 
       form.reset()
       queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
-      queryClient.invalidateQueries({ queryKey: ['internalPolicy', policy?.id!] })
+      queryClient.invalidateQueries({ queryKey: ['internalPolicy', policy.id] })
       router.push(`/policies`)
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Error',
         description: 'There was an error updating the policy. Please try again.',

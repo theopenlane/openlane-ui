@@ -10,6 +10,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { exportCSV } from '@/lib/export'
 import { DOCS_URL, GRAPHQL_OBJECT_DOCS } from '@/constants'
 import { useCreateBulkCSVRisk } from '@/lib/graphql-hooks/risks.ts'
+import { TUploadedFile } from '../evidence/upload/types/TUploadedFile'
 
 type BulkCsvCreateRiskDialogProps = {
   trigger?: React.ReactElement<
@@ -39,7 +40,7 @@ const BulkCSVCreateRiskDialog: React.FC<BulkCsvCreateRiskDialogProps> = ({ trigg
         description: `Risks has been successfully created`,
       })
       setIsOpen(false)
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Error',
         description: 'There was an error creating the risks. Please try again.',
@@ -52,7 +53,7 @@ const BulkCSVCreateRiskDialog: React.FC<BulkCsvCreateRiskDialogProps> = ({ trigg
   }
 
   const handleCSVExport = async () => {
-    const data = await exportCSV({ filename: 'risk' })
+    await exportCSV({ filename: 'risk' })
   }
 
   return (
@@ -82,7 +83,7 @@ const BulkCSVCreateRiskDialog: React.FC<BulkCsvCreateRiskDialogProps> = ({ trigg
             <p className="font-semibold">Column format</p>
             <p className="text-sm">
               You can upload a csv containing risks. Please refer to our{' '}
-              <a href={`${DOCS_URL}${GRAPHQL_OBJECT_DOCS}#risk`} target="_blank" className="text-brand hover:underline">
+              <a href={`${DOCS_URL}${GRAPHQL_OBJECT_DOCS}#risk`} target="_blank" className="text-brand hover:underline" rel="noreferrer">
                 documentation
               </a>{' '}
               for column format. We also provide a{' '}

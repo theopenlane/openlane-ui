@@ -1,5 +1,3 @@
-import { useState } from 'react'
-
 const Slider = ({ value, onChange }: { value: number; onChange?: (value: number) => void }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = Number(e.target.value)

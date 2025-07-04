@@ -1,10 +1,10 @@
 'use client'
-import React, { useState } from 'react'
+import React from 'react'
 import { useParams } from 'next/navigation'
 import { useGetStandardDetails } from '@/lib/graphql-hooks/standards'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Badge } from '@repo/ui/badge'
-import { ExternalLink, TextCursorInput, Hammer, BookKey, FileStack, Link, Tag, ShieldPlus } from 'lucide-react'
+import { ExternalLink, TextCursorInput, Hammer, BookKey, FileStack, Link, Tag } from 'lucide-react'
 import { Table, TableBody, TableCell, TableRow } from '@repo/ui/table'
 import { standardDetailsStyles } from './standard-details-card-styles'
 

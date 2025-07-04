@@ -35,13 +35,7 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
   const [associations, setAssociations] = useState<TObjectAssociationMap>(initialAssociations)
   const { convertToHtml } = usePlateEditor()
   const { form } = useFormSchema()
-  const {
-    register,
-    handleSubmit,
-    control,
-    reset,
-    formState: { errors },
-  } = form
+  const { handleSubmit, control, reset } = form
   const { mutate: createImplementation } = useCreateControlImplementation()
   const { mutate: updateImplementation } = useUpdateControlImplementation()
   const { mutate: deleteImplementation } = useDeleteControlImplementation()

@@ -40,7 +40,7 @@ export const TokenVerifier = () => {
 
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null)
 
-  const { successNotification, errorNotification } = useNotification()
+  const { errorNotification } = useNotification()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -116,7 +116,8 @@ export const TokenVerifier = () => {
         <div className={messageWrapper()}>
           {submittedEmail ? (
             <p className="text-sm">
-              You're on the list! We just sent a confirmation to <span className="underline">{submittedEmail}</span>.<br /> Hang tight — we'll be in touch when it's your turn to try the beta.
+              You&apos;re on the list! We just sent a confirmation to <span className="underline">{submittedEmail}</span>.<br /> Hang tight — we&apos;ll be in touch when it&apos;s your turn to try the
+              beta.
             </p>
           ) : (
             <>

@@ -5,7 +5,6 @@ import EvidenceCreateForm from '@/components/pages/protected/evidence/evidence-c
 import { FilePlus } from 'lucide-react'
 import { dialogStyles } from '@/components/pages/protected/program/dialog.styles.tsx'
 import { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
-import { useParams, usePathname } from 'next/navigation'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
 
 type TProps = {
@@ -14,7 +13,6 @@ type TProps = {
 }
 
 const EvidenceCreateFormDialog: React.FC<TProps> = (props: TProps) => {
-  const path = usePathname()
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const { formInput } = dialogStyles()
 
@@ -40,7 +38,7 @@ const EvidenceCreateFormDialog: React.FC<TProps> = (props: TProps) => {
         </Button>
       ),
     }
-  }, [path])
+  }, [props.formData])
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

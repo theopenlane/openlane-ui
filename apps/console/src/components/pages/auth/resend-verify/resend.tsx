@@ -31,7 +31,7 @@ export const Resend = () => {
   })
 
   const onSubmit = ({ email }: z.infer<typeof formSchema>) => {
-    const result = resendVerification({ email })
+    resendVerification({ email })
     router.push('/verify')
   }
 
@@ -41,7 +41,7 @@ export const Resend = () => {
         <div className={logo()}>
           <Logo width={300} />
         </div>
-        <h2 className={header()}>Can't find that email?</h2>
+        <h2 className={header()}>Can t find that email?</h2>
         <p className={text()}>
           We got you, enter your email to have our robots <br />
           resend that verification email right over to you.{' '}

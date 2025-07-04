@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback, startTransition, useRef } from 'react'
-import { ChevronDown, ChevronUp, ListFilter, Plus, X } from 'lucide-react'
+import React, { useState, useEffect, useCallback, startTransition } from 'react'
+import { ChevronDown, ChevronUp, ListFilter, Plus } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Input } from '@repo/ui/input'
 import { Filter, FilterField, WhereCondition } from '@/types'
@@ -89,7 +89,7 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
           if (!operatorMapping) return []
 
           if (type === 'date' && operator === 'EQ') {
-            return handleDateEQOperator(value, field)
+            return handleDateEQOperator(value as string, field)
           }
 
           const queryField = operatorMapping.value !== 'EQ' ? `${field}${operatorMapping.value}` : field
@@ -130,7 +130,7 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
     setAdvancedFilters(advancedParsedFilters)
     setRegularFilters(regularParsedFilters)
     onFilterChange?.(generateWhereCondition(regularParsedFilters, advancedParsedFilters, conjunction))
-  }, [])
+  }, [conjunction, generateWhereCondition, onFilterChange, searchParams])
 
   const handleParseURLFilter = (searchParam: string) => {
     try {
@@ -146,46 +146,57 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
     }
   }
 
-  const onSubmitHandler = (advancedFiltersProp?: Filter[], regularFiltersProp?: Filter[]) => {
-    setAppliedFilters((prev) => {
-      const currentRegular = regularFiltersProp ?? regularFilters ?? []
-      const currentAdvanced = advancedFiltersProp ?? advancedFilters ?? []
+  const onSubmitHandler = useCallback(
+    (advancedFiltersProp?: Filter[], regularFiltersProp?: Filter[]) => {
+      setAppliedFilters((prev) => {
+        const currentRegular = regularFiltersProp ?? regularFilters ?? []
+        const currentAdvanced = advancedFiltersProp ?? advancedFilters ?? []
 
-      const mergeByField = (prevArr: Filter[], currentArr: Filter[]) => [...currentArr, ...prevArr.filter((prevItem) => !currentArr.some((currItem) => currItem.field === prevItem.field))]
+        const mergeByField = (prevArr: Filter[], currentArr: Filter[]) => [...currentArr, ...prevArr.filter((prevItem) => !currentArr.some((currItem) => currItem.field === prevItem.field))]
 
-      return {
-        ...prev,
-        regularFilters: mergeByField(prev.regularFilters ?? [], currentRegular),
-        advancedFilters: mergeByField(prev.advancedFilters ?? [], currentAdvanced),
-      }
-    })
+        return {
+          ...prev,
+          regularFilters: mergeByField(prev.regularFilters ?? [], currentRegular),
+          advancedFilters: mergeByField(prev.advancedFilters ?? [], currentAdvanced),
+        }
+      })
 
-    onFilterChange?.(generateWhereCondition(regularFiltersProp ?? regularFilters ?? [], advancedFiltersProp ?? advancedFilters ?? [], conjunction))
-  }
+      onFilterChange?.(generateWhereCondition(regularFiltersProp ?? regularFilters ?? [], advancedFiltersProp ?? advancedFilters ?? [], conjunction))
+    },
+    [advancedFilters, conjunction, generateWhereCondition, onFilterChange, regularFilters],
+  )
 
-  const handleSaveAdvancedFilters = () => {
+  const handleSaveAdvancedFilters = useCallback(() => {
     if (!advancedFilters) {
       return
     }
 
     const params = new URLSearchParams(searchParams.toString())
-    advancedFilters.length > 0 ? params.set('advancedFilters', JSON.stringify(advancedFilters)) : params.delete('advancedFilters')
+    if (advancedFilters.length > 0) {
+      params.set('advancedFilters', JSON.stringify(advancedFilters))
+    } else {
+      params.delete('advancedFilters')
+    }
     router.replace(`${pathname}?${params.toString()}`)
     setAdvancedFilters(advancedFilters)
     onSubmitHandler(advancedFilters)
-  }
+  }, [advancedFilters, onSubmitHandler, pathname, router, searchParams])
 
-  const handleSaveRegularFilters = () => {
+  const handleSaveRegularFilters = useCallback(() => {
     if (!regularFilters) {
       return
     }
 
     const params = new URLSearchParams(searchParams.toString())
-    regularFilters.length > 0 ? params.set('regularFilters', JSON.stringify(regularFilters)) : params.delete('regularFilters')
+    if (regularFilters.length > 0) {
+      params.set('regularFilters', JSON.stringify(regularFilters))
+    } else {
+      params.delete('regularFilters')
+    }
     router.replace(`${pathname}?${params.toString()}`)
     setRegularFilters(regularFilters)
     onSubmitHandler(undefined, regularFilters)
-  }
+  }, [onSubmitHandler, pathname, regularFilters, router, searchParams])
 
   const handleAddAdvancedFilter = () => {
     if (!filterFields.length) {
@@ -275,7 +286,11 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
     setRegularFilters(updatedFilters)
     onSubmitHandler(undefined, updatedFilters)
     const params = new URLSearchParams(searchParams.toString())
-    updatedFilters.length > 0 ? params.set('regularFilters', JSON.stringify(updatedFilters)) : params.delete('regularFilters')
+    if (updatedFilters.length > 0) {
+      params.set('regularFilters', JSON.stringify(updatedFilters))
+    } else {
+      params.delete('regularFilters')
+    }
     router.replace(`${pathname}?${params.toString()}`)
   }
 
@@ -376,17 +391,20 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
     }
   }
 
-  const handleInputFilterChange = (filter: Filter, isAdvanced: boolean = false, index?: number) => {
-    if (!isAdvanced && regularFilters) {
-      const changedRegularFilters = regularFilters.map((regularFilter) => (regularFilter.field === filter.field ? { ...regularFilter, ...filter } : regularFilter))
-      setRegularFilters(changedRegularFilters)
-    }
+  const handleInputFilterChange = useCallback(
+    (filter: Filter, isAdvanced: boolean = false, index?: number) => {
+      if (!isAdvanced && regularFilters) {
+        const changedRegularFilters = regularFilters.map((regularFilter) => (regularFilter.field === filter.field ? { ...regularFilter, ...filter } : regularFilter))
+        setRegularFilters(changedRegularFilters)
+      }
 
-    if (isAdvanced && advancedFilters) {
-      const changedAdvancedFilters = advancedFilters.map((advancedFilter, i) => (advancedFilter.field === filter.field && index === i ? { ...advancedFilter, ...filter } : advancedFilter))
-      setAdvancedFilters(changedAdvancedFilters)
-    }
-  }
+      if (isAdvanced && advancedFilters) {
+        const changedAdvancedFilters = advancedFilters.map((advancedFilter, i) => (advancedFilter.field === filter.field && index === i ? { ...advancedFilter, ...filter } : advancedFilter))
+        setAdvancedFilters(changedAdvancedFilters)
+      }
+    },
+    [advancedFilters, regularFilters],
+  )
 
   const getFilterCount = () => {
     return appliedFilters.advancedFilters.length + appliedFilters.regularFilters.length
@@ -395,7 +413,11 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
   const toggleFilterActive = useCallback(() => {
     startTransition(() => {
       const params = new URLSearchParams(searchParams.toString())
-      params.get('filterActive') === '1' ? params.delete('filterActive') : params.set('filterActive', '1')
+      if (params.get('filterActive') === '1') {
+        params.delete('filterActive')
+      } else {
+        params.set('filterActive', '1')
+      }
       router.replace(`${pathname}?${params.toString()}`, { scroll: false })
     })
   }, [searchParams, pathname, router])
@@ -416,12 +438,16 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
               className={value()}
               type={filter.type}
               placeholder="Enter a value..."
-              value={filter.value}
+              value={filter.value as string}
               onChange={(e) => handleInputFilterChange({ ...filter, value: e.target.value }, isAdvanced, index)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault()
-                  isAdvanced ? handleSaveAdvancedFilters() : handleSaveRegularFilters()
+                  if (isAdvanced) {
+                    handleSaveAdvancedFilters()
+                  } else {
+                    handleSaveRegularFilters()
+                  }
                   onClose()
                 }
               }}
@@ -430,13 +456,17 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
         case 'selectIs':
         case 'select':
           return (
-            <Select value={filter.value} onValueChange={(value) => handleInputFilterChange({ ...filter, value: value }, isAdvanced, index)}>
+            <Select value={filter.value as string} onValueChange={(value) => handleInputFilterChange({ ...filter, value: value }, isAdvanced, index)}>
               <SelectTrigger
                 className={value()}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault()
-                    isAdvanced ? handleSaveAdvancedFilters() : handleSaveRegularFilters()
+                    if (isAdvanced) {
+                      handleSaveAdvancedFilters()
+                    } else {
+                      handleSaveRegularFilters()
+                    }
                     onClose()
                   }
                 }}
@@ -444,7 +474,7 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
                 <SelectValue placeholder="Select an option..." />
               </SelectTrigger>
               <SelectContent>
-                {filterField.options?.map((option: any) => (
+                {filterField.options?.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
                   </SelectItem>
@@ -458,7 +488,7 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
               buttonClassName={`${value()} w-40 flex justify-between items-center`}
               defaultToday
               field={{
-                value: filter.value ? new Date(filter.value) : null,
+                value: filter.value ? new Date(filter.value as string) : null,
                 onChange: (selectedDate) => handleInputFilterChange({ ...filter, value: selectedDate ? format(selectedDate, "yyyy-MM-dd'T'HH:mm:ss'Z'") : '' }, isAdvanced, index),
                 name: filter.field,
                 onBlur: () => {},
@@ -474,7 +504,12 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault()
-                    isAdvanced ? handleSaveAdvancedFilters() : handleSaveRegularFilters()
+                    if (isAdvanced) {
+                      handleSaveAdvancedFilters()
+                    } else {
+                      handleSaveRegularFilters()
+                    }
+
                     onClose()
                   }
                 }}
@@ -491,7 +526,7 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
           return null
       }
     },
-    [filterFields, handleInputFilterChange],
+    [filterFields, handleInputFilterChange, handleSaveAdvancedFilters, handleSaveRegularFilters, value],
   )
 
   return (

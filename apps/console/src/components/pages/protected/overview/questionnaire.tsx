@@ -35,7 +35,7 @@ const columns: ColumnDef<Template>[] = [
   {
     header: 'Completed Pending Review',
     accessorKey: 'pendingReview',
-    cell: ({ row }) => (
+    cell: () => (
       <div className="flex items-center gap-2">
         <SquareX size={16} /> <span>Deny</span>
       </div>
@@ -44,7 +44,7 @@ const columns: ColumnDef<Template>[] = [
   {
     header: 'Completed Accepted',
     accessorKey: 'accepted',
-    cell: ({ row }) => (
+    cell: () => (
       <div className="flex items-center gap-2">
         <SquareCheck size={16} /> <span>Approve</span>
       </div>

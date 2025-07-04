@@ -6,13 +6,14 @@ const nextEndpoint = '/api/chat'
 
 export default function ChatBot() {
   // if the model is not set, return null
-  if (enableChat == 'false') {
-    return
-  }
 
   const runtime = useEdgeRuntime({
     api: nextEndpoint,
   })
+
+  if (enableChat == 'false') {
+    return
+  }
 
   const welcome = {
     message: 'Here to help, how can I assist you today?',

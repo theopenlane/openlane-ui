@@ -77,7 +77,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
         delegateID: risk.delegate?.id,
       })
     }
-  }, [risk])
+  }, [risk, form])
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -142,7 +142,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
       })
 
       setIsEditing(false)
-    } catch (err) {
+    } catch {
       errorNotification({
         title: 'Error updating risk',
         description: 'Something went wrong.',

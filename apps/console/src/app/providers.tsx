@@ -37,7 +37,7 @@ const Providers = ({ children }: ProvidersProps) => {
         defaultOptions: {
           queries: {
             staleTime: 60 * 1000,
-            placeholderData: (prev: any) => prev,
+            placeholderData: (prev: unknown) => prev,
             refetchOnWindowFocus: false,
           },
         },

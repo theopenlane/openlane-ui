@@ -1,6 +1,5 @@
 import { Copy } from 'lucide-react'
 import { pageStyles } from '@/components/pages/protected/organization/subscribers/page.styles.tsx'
-import { useCopyToClipboard } from '@uidotdev/usehooks'
 import { useNotification } from '@/hooks/useNotification.tsx'
 
 type TEmailCellProps = {
@@ -9,12 +8,10 @@ type TEmailCellProps = {
 
 const EmailCell: React.FC<TEmailCellProps> = (props: TEmailCellProps) => {
   const { nameRow, copyIcon } = pageStyles()
-  const [copiedText, copyToClipboard] = useCopyToClipboard()
   const { successNotification } = useNotification()
 
   const handleCopyToClipboard = () => {
-    //@todo probably needs to be re-implemented and added to clipboard not to state
-    copyToClipboard(props.email)
+    navigator.clipboard.writeText(props.email)
     successNotification({
       title: 'Copied to clipboard',
     })

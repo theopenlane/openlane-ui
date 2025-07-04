@@ -39904,6 +39904,7 @@ export type GetAllProceduresWithDetailsQuery = {
   __typename?: 'Query'
   procedures: {
     __typename?: 'ProcedureConnection'
+    totalCount: number
     edges?: Array<{
       __typename?: 'ProcedureEdge'
       node?: {
@@ -39919,6 +39920,7 @@ export type GetAllProceduresWithDetailsQuery = {
         tags?: Array<string> | null
       } | null
     } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
 

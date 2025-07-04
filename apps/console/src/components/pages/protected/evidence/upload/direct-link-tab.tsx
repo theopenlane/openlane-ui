@@ -6,6 +6,7 @@ import { Input } from '@repo/ui/input'
 import { PlusCircle } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
+import { TUploadedFile } from './types/TUploadedFile'
 
 type TProps = {
   directLink: (uploadedFile: TUploadedFile) => void
@@ -19,9 +20,12 @@ const DirectLinkTab: React.FC<TProps> = (props: TProps) => {
 
   useEffect(() => {
     const linkAdded = props.evidenceFiles?.some((item) => item.type === 'link')
-    linkAdded && setEvidenceLinkAdded(true)
-    !linkAdded && setEvidenceLinkAdded(false)
-  }, [props.evidenceFiles?.length])
+    if (linkAdded) {
+      setEvidenceLinkAdded(true)
+    } else {
+      setEvidenceLinkAdded(false)
+    }
+  }, [props.evidenceFiles?.length, props.evidenceFiles])
 
   const handleAddLink = async () => {
     if (evidenceLinkAdded || evidenceDirectLink.trim() === '') {
