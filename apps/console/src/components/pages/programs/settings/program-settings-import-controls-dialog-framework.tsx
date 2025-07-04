@@ -2,40 +2,29 @@
 import { useGetStandards } from '@/lib/graphql-hooks/standards'
 import { ControlWhereInput, Standard } from '@repo/codegen/src/schema'
 import React, { useMemo, useState } from 'react'
-import { SelectedItem } from './program-settings-import-controls-dialog'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { statCardStyles } from '@/components/shared/stats-cards/stats-cards-styles'
 import { Hourglass } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
 import { Label } from '@repo/ui/label'
-import { ColumnDef } from '@tanstack/react-table'
 import { DataTable } from '@repo/ui/data-table'
 import { Button } from '@repo/ui/button'
-import { useAllControlsGrouped } from '@/lib/graphql-hooks/controls'
+import { useAllControlsGroupedWithListFields } from '@/lib/graphql-hooks/controls'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
+import { useDebounce } from '@uidotdev/usehooks'
+import { Input } from '@repo/ui/input'
+import { getColumnsForImportControlsDialogFramework } from '../columns'
+import { SelectedItem, TSharedImportControlsComponentsProps } from '../shared/program-settings-import-controls-shared-props'
 
-type TFrameworkComponentProps = {
-  selectedItems: SelectedItem[]
-  setSelectedItems: React.Dispatch<React.SetStateAction<SelectedItem[]>>
-}
-
-// const generateWhere = (id: string[], searchValue: string) => ({
-//   and: [
-//     { standardIDIn: id },
-//     {
-//       or: [{ refCodeContainsFold: searchValue }, { categoryContainsFold: searchValue }, { subcategoryContainsFold: searchValue }, { descriptionContainsFold: searchValue }],
-//     },
-//   ],
-// })
-
-const ImportControlsDialogFramework: React.FC<TFrameworkComponentProps> = ({ setSelectedItems, selectedItems }) => {
+const ImportControlsDialogFramework: React.FC<TSharedImportControlsComponentsProps> = ({ setSelectedItems, selectedItems }) => {
   const { data } = useGetStandards({})
 
   const [selectedFrameworkIds, setSelectedFrameworkIds] = useState<string[]>([])
   const [showCheckboxes, setShowCheckboxes] = useState<boolean>(false)
   const frameworks = data?.standards?.edges?.map((edge) => edge?.node as Standard) || []
   const { wrapper, content } = statCardStyles({ color: 'green' })
+
   const [pagination, setPagination] = useState<TPagination>({
     ...DEFAULT_PAGINATION,
     page: 1,
@@ -43,82 +32,65 @@ const ImportControlsDialogFramework: React.FC<TFrameworkComponentProps> = ({ set
     query: { first: 5 },
   })
 
-  // const [searchQuery, setSearchQuery] = useState<string>('')
-  // const debouncedSearchQuery = useDebounce(searchQuery, 300)
+  const [searchQuery, setSearchQuery] = useState<string>('')
+  const debouncedSearchQuery = useDebounce(searchQuery, 300)
 
-  const where: ControlWhereInput = {}
+  const where: ControlWhereInput = useMemo(() => {
+    const whereFilters: ControlWhereInput[] = []
+    if (selectedFrameworkIds.length > 0) whereFilters.push({ standardIDIn: selectedFrameworkIds })
+    if (debouncedSearchQuery) {
+      whereFilters.push({
+        or: [
+          { refCodeContainsFold: debouncedSearchQuery },
+          { categoryContainsFold: debouncedSearchQuery },
+          { subcategoryContainsFold: debouncedSearchQuery },
+          { descriptionContainsFold: debouncedSearchQuery },
+        ],
+      })
+    }
+    if (whereFilters.length === 0) return {}
+    if (whereFilters.length === 1) return whereFilters[0]
+    return { and: whereFilters }
+  }, [selectedFrameworkIds, debouncedSearchQuery])
+
   const handleToggle = (id: string) => {
     setSelectedFrameworkIds((prev) => (prev.includes(id) ? prev.filter((fid) => fid !== id) : [...prev, id]))
   }
-  const { allControls } = useAllControlsGrouped({ where: where as ControlWhereInput })
+  const { allControls } = useAllControlsGroupedWithListFields({ where: where as ControlWhereInput, enabled: selectedFrameworkIds.length > 0 })
   const handleCheckboxShowToggle = () => {
     setShowCheckboxes((prev) => (prev = !prev))
   }
 
+  // const tableData: SelectedItem[] = useMemo(() => {
+  //   if (!allControls) return []
+  //   return allControls.map((control) => ({
+  //     id: control.id,
+  //     name: control.refCode,
+  //     source: control.referenceFramework || undefined,
+  //   }))
+  // }, [allControls])
+
   const tableData: SelectedItem[] = useMemo(() => {
+    if (!selectedFrameworkIds.length || !allControls) return []
     return allControls.map((control) => ({
       id: control.id,
       name: control.refCode,
-      source: control.referenceFramework ?? 'N/A',
+      source: control.referenceFramework || undefined,
     }))
-  }, [allControls])
+  }, [allControls, selectedFrameworkIds])
 
   const pagedData = useMemo(() => {
     const start = (pagination.page - 1) * pagination.pageSize
     return tableData.slice(start, start + pagination.pageSize)
   }, [tableData, pagination.page, pagination.pageSize])
 
-  const columns: ColumnDef<SelectedItem>[] = [
-    {
-      id: 'select',
-      header: () => {
-        const isAllSelected = pagedData.length > 0 && pagedData.every((item) => selectedItems.some((sel) => sel.id === item.id))
-        const handleSelectAll = (checked: boolean) => {
-          const pagedIds = new Set(pagedData.map((i) => i.id))
+  const columns = useMemo(() => {
+    return getColumnsForImportControlsDialogFramework({ selectedItems, setSelectedItems, tableData })
+  }, [selectedItems, setSelectedItems, tableData])
 
-          setSelectedItems((prev) => {
-            if (checked) {
-              const newItems = pagedData.filter((item) => !prev.some((p) => p.id === item.id))
-              return [...prev, ...newItems]
-            } else {
-              return prev.filter((item) => !pagedIds.has(item.id))
-            }
-          })
-        }
-
-        return <Checkbox checked={isAllSelected} onCheckedChange={(checked) => handleSelectAll(!!checked)} />
-      },
-      cell: ({ row }) => {
-        const item = row.original
-        const isChecked = selectedItems.some((sel) => sel.id === item.id)
-
-        const handleToggle = (checked: boolean) => {
-          setSelectedItems((prev) => {
-            if (checked) {
-              if (prev.some((p) => p.id === item.id)) return prev
-              return [...prev, item]
-            } else {
-              return prev.filter((sel) => sel.id !== item.id)
-            }
-          })
-        }
-
-        return <Checkbox checked={isChecked} onCheckedChange={(checked) => handleToggle(!!checked)} />
-      },
-      size: 50,
-    },
-    {
-      accessorKey: 'name',
-      header: 'Ref Code',
-    },
-    {
-      accessorKey: 'source',
-      header: 'Source',
-    },
-  ]
   return (
     <>
-      <Button onClick={handleCheckboxShowToggle} variant="outline" className="h-8 !px-2 !pl-3">
+      <Button onClick={handleCheckboxShowToggle} variant="outline" className="w-[200px] min-w-16 h-8 pt-[6px] pr-2 pb-[6px] pl-2">
         {selectedFrameworkIds.length ? `${selectedFrameworkIds.length} frameworks selected` : 'Select framework'}
       </Button>
       {showCheckboxes && (
@@ -144,6 +116,10 @@ const ImportControlsDialogFramework: React.FC<TFrameworkComponentProps> = ({ set
           </CardContent>
         </Card>
       )}
+      <div>
+        <Label>Search</Label>
+        <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Type" className="h-10 w-[200px] mt-1" />
+      </div>
       <DataTable columns={columns} data={pagedData} paginationMeta={{ totalCount: tableData.length }} pagination={pagination} onPaginationChange={setPagination} />
     </>
   )
