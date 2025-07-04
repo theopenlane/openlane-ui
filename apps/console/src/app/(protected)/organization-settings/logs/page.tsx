@@ -1,6 +1,6 @@
 import React from 'react'
-import LogsPage from '@/components/pages/protected/logs/logs-page'
 import { Metadata } from 'next'
+import LogsPage from '@/components/pages/protected/organization/logs/logs-page.tsx'
 
 export const metadata: Metadata = {
   title: 'Audit Logs',

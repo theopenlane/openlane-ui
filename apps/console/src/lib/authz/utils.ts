@@ -16,3 +16,7 @@ export const canView = (accessRole: TAccessRole[]) => {
 export const canEdit = (accessRole: TAccessRole[]) => {
   return accessRole ? accessRole.includes(AccessEnum.CanEdit) : false
 }
+
+export const isAuditLogViewer = (accessRole: TAccessRole[]) => {
+  return accessRole ? accessRole.includes(AccessEnum.AuditLogViewer) : false
+}

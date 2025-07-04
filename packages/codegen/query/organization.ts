@@ -242,3 +242,27 @@ export const UPDATE_ORG_SETTING = gql`
     }
   }
 `
+
+export const GET_LOGS = gql`
+  query getLogs($where: AuditLogWhereInput, $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    auditLogs(where: $where, first: $first, after: $after, last: $last, before: $before) {
+      edges {
+        node {
+          changes
+          id
+          operation
+          table
+          time
+          updatedBy
+        }
+      }
+      pageInfo {
+        startCursor
+        hasPreviousPage
+        hasNextPage
+        endCursor
+      }
+      totalCount
+    }
+  }
+`

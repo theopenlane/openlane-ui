@@ -17,6 +17,7 @@ import {
   UPDATE_ORGANIZATION,
   GET_ORGANIZATION_BILLING_BANNER,
   UPDATE_ORG_SETTING,
+  GET_LOGS,
 } from '@repo/codegen/query/organization'
 import {
   GetAllOrganizationsQuery,
@@ -48,8 +49,11 @@ import {
   OrgMembershipWhereInput,
   UpdateOrganizationSettingMutationVariables,
   UpdateOrganizationSettingMutation,
+  GetLogsQueryVariables,
+  GetLogsQuery,
+  AuditLog,
 } from '@repo/codegen/src/schema'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { InfiniteData, useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query'
 import { Variables } from 'graphql-request'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -216,4 +220,46 @@ export const useUpdateOrganizationSetting = () => {
   return useMutation({
     mutationFn: (payload: UpdateOrganizationSettingMutationVariables) => client.request<UpdateOrganizationSettingMutation>(UPDATE_ORG_SETTING, payload),
   })
+}
+
+type TGetAuditLogsProp = {
+  where: GetLogsQueryVariables['where']
+  pagination?: TPagination
+  enabled: boolean
+}
+
+export const useGetAuditLogsInfinite = ({ where, pagination, enabled }: TGetAuditLogsProp) => {
+  const { client } = useGraphQLClient()
+  const queryKey = ['logs', where]
+
+  const queryResult = useInfiniteQuery<GetLogsQuery, Error, InfiniteData<GetLogsQuery>, typeof queryKey, number>({
+    initialData: undefined,
+    initialPageParam: 1,
+    queryKey,
+    queryFn: () =>
+      client.request(GET_LOGS, {
+        where,
+        ...pagination?.query,
+      }),
+    getNextPageParam(lastPage, allPages) {
+      return lastPage?.auditLogs?.pageInfo?.hasNextPage ? allPages.length + 1 : undefined
+    },
+    staleTime: Infinity,
+    enabled,
+  })
+
+  const logs = queryResult.data?.pages.flatMap((page) => page.auditLogs?.edges?.map((edge) => edge?.node).filter((node): node is AuditLog => node !== undefined) ?? []) ?? []
+
+  const lastPage = queryResult.data?.pages.at(-1)
+  const paginationMeta = {
+    totalCount: lastPage?.auditLogs?.totalCount ?? 0,
+    pageInfo: lastPage?.auditLogs?.pageInfo,
+    isLoading: queryResult.isFetching,
+  }
+
+  return {
+    ...queryResult,
+    logs,
+    paginationMeta,
+  }
 }
