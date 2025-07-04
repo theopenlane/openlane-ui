@@ -1,10 +1,20 @@
-export const getHrefForObjectType = (
-  kind: string,
-  row: {
-    id: string
-    control?: { id: string }
-  },
-): string => {
+export type NormalizedObject = {
+  id: string
+  refCode?: string
+  controlId?: string
+  name?: string
+  title?: string
+  description?: string
+  summary?: string
+  details?: string
+  control?: {
+    id?: string
+  }
+}
+
+export const getHrefForObjectType = (kind: string, row?: NormalizedObject): string => {
+  if (!row) return ''
+
   switch (kind) {
     case 'policies':
       return `/policies/${row.id}/view`
@@ -22,8 +32,7 @@ export const getHrefForObjectType = (
       return `/programs?id=${row.id}`
     case 'groups':
       return `/groups?id=${row.id}`
-
     default:
-      return ``
+      return ''
   }
 }

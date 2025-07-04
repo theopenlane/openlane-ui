@@ -10,6 +10,7 @@ import { CreateBtn } from '@/components/shared/icon-enum/common-enum'
 import Menu from '@/components/shared/menu/menu.tsx'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
+import { TemplateWhereInput } from '@repo/codegen/src/schema'
 import { BulkCSVCreateTemplatelDialog } from '../dialog/bulk-csv-create-template-dialog'
 
 type TQuestionnaireTableToolbarProps = {
@@ -17,7 +18,7 @@ type TQuestionnaireTableToolbarProps = {
   searching?: boolean
   searchTerm: string
   setSearchTerm: (searchTerm: string) => void
-  setFilters: (filters: Record<string, any>) => void
+  setFilters: (filters: TemplateWhereInput) => void
   columnVisibility?: VisibilityState
   handleExport: () => void
   setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>

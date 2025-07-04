@@ -15,7 +15,7 @@ type TSetObjectAssociationDialogProps = {
   riskId?: string
 }
 
-const SetObjectAssociationDialog: React.FC<TSetObjectAssociationDialogProps> = ({ riskId }) => {
+const SetObjectAssociationDialog = ({ riskId }: TSetObjectAssociationDialogProps) => {
   const riskState = useRisk()
   const associationsState = useRisk((state) => state.associations)
   const initialAssociationsState = useRisk((state) => state.initialAssociations)
@@ -111,7 +111,7 @@ const SetObjectAssociationDialog: React.FC<TSetObjectAssociationDialogProps> = (
       })
 
       setOpen(false)
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Error',
         description: 'There was an error updating the risk. Please try again.',

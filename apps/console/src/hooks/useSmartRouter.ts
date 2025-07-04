@@ -1,7 +1,7 @@
 import { useRouter } from 'next/navigation'
 
 export const useSmartRouter = () => {
-  const { replace: nextReplace, push: nextPush } = useRouter()
+  const { replace: nextReplace } = useRouter()
 
   const replace = (newParams: Record<string, string | number | null>) => {
     const params = new URLSearchParams(window.location.search)

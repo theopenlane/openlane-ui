@@ -16,7 +16,7 @@ interface Props {
 }
 
 export function LinkControlsModal({ initialData, updateControlImplementationId }: Props) {
-  const { id, subcontrolId } = useParams<{ id: string; subcontrolId: string }>()
+  const { subcontrolId } = useParams<{ id: string; subcontrolId: string }>()
   const isSubcontrol = !!subcontrolId
 
   const [open, setOpen] = useState(false)
@@ -79,7 +79,7 @@ export function LinkControlsModal({ initialData, updateControlImplementationId }
 
       successNotification({ title: 'Associations updated successfully.' })
       setOpen(false)
-    } catch (err) {
+    } catch {
       errorNotification({
         title: 'Failed to update associations',
         description: 'Please try again later.',

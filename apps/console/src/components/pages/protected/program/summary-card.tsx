@@ -1,6 +1,8 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { AlertTriangle, CheckIcon, ChevronDown, XCircle } from 'lucide-react'
-import { FieldValues, FormProvider, useForm, useFormState } from 'react-hook-form'
+import { FieldValues } from 'react-hook-form'
+import { steps } from './wizard'
+import { Stepper } from '@stepperize/react'
 
 const stepMapping: Record<string, string> = {
   'program-type': 'init',
@@ -9,9 +11,20 @@ const stepMapping: Record<string, string> = {
   'audit-period': 'init',
   'audit-partner': 'details',
   'team-members': 'invite',
+} as const
+
+type StepId = (typeof steps)[number]['id']
+
+interface AccordionItemComponentProps {
+  value: string
+  label: string
+  icon: React.ReactNode
+  description?: React.ReactNode
+  link?: string | null
+  onClick?: () => void
 }
 
-const AccordionItemComponent = ({ value, label, icon, description, link, onClick }: any) => (
+const AccordionItemComponent = ({ value, label, icon, description, link, onClick }: AccordionItemComponentProps) => (
   <AccordionItem value={value} className="border-b">
     <AccordionTrigger className="py-4 w-full flex justify-between items-center group">
       <div className="flex items-center gap-2">
@@ -37,7 +50,7 @@ const AccordionItemComponent = ({ value, label, icon, description, link, onClick
 
 interface SummaryCardProps {
   formData: FieldValues
-  stepper: any
+  stepper: Stepper<typeof steps>
 }
 
 export const SummaryCard = ({ formData, stepper }: SummaryCardProps) => {
@@ -123,9 +136,8 @@ export const SummaryCard = ({ formData, stepper }: SummaryCardProps) => {
             {...item}
             onClick={() => {
               const stepId = stepMapping[item.value]
-
               if (stepId) {
-                stepper.goTo(stepId)
+                stepper.goTo(stepId as StepId)
               }
             }}
           />

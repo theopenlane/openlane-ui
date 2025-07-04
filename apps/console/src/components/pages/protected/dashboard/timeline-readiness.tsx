@@ -18,6 +18,7 @@ import { ProgramProgramStatus } from '@repo/codegen/src/schema'
 import { PROGRAM_STATUS_LABELS, ProgramIconMapper } from '@/components/shared/icon-enum/program-enum'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
+import { GqlError } from '@/types'
 
 const formSchema = z.object({
   startDate: z.date().nullable().optional(),
@@ -73,7 +74,7 @@ const TimelineReadiness = () => {
     } catch (error) {
       errorNotification({
         title: 'Failed to update program',
-        gqlError: error,
+        gqlError: error as GqlError,
       })
     }
   }

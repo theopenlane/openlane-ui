@@ -48,7 +48,7 @@ const RegularFilterPopover: React.FC<TRegularFilterPopover> = ({
 
   const renderActiveFilterType = (filter: Filter) => {
     if (filter.type === 'date') {
-      return formatDate(filter.value)
+      return formatDate(filter.value as string)
     }
 
     return filter.value

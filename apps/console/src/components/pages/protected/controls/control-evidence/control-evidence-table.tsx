@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import EvidenceCreateFormDialog from '@/components/pages/protected/evidence/evidence-create-form-dialog'
 import { EvidenceEdge } from '@repo/codegen/src/schema'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
-import { useParams, usePathname } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { formatDateSince } from '@/utils/date'
 import { useControlEvidenceStore } from '@/components/pages/protected/controls/hooks/useControlEvidenceStore.ts'
 import { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
@@ -17,7 +17,6 @@ type Props = {
 }
 
 const ControlEvidenceTable = ({ evidences, control, canEdit }: Props) => {
-  const pathname = usePathname()
   const { subcontrolId } = useParams()
   const { setSelectedControlEvidence } = useControlEvidenceStore()
   const isSubcontrol = !!subcontrolId

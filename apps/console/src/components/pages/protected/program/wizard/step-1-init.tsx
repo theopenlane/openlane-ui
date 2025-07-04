@@ -2,7 +2,7 @@ import { ProgramProgramStatus, ProgramProgramType, Standard } from '@repo/codege
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
-import { Panel, PanelHeader } from '@repo/ui/panel'
+import { Panel } from '@repo/ui/panel'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -47,7 +47,7 @@ type InitProgramValues = zInfer<typeof initProgramSchema>
 export function ProgramInitComponent() {
   const { formRow } = wizardStyles()
 
-  const { control, watch } = useFormContext()
+  const { control } = useFormContext()
 
   const programType = useWatch({ control, name: 'programType' })
   const isFrameworkOrGap = programType === ProgramProgramType.FRAMEWORK || programType === ProgramProgramType.GAP_ANALYSIS
@@ -251,7 +251,7 @@ const FrameworkSelect = () => {
   } = useFormContext<InitProgramValues>()
 
   const { inputRow } = wizardStyles()
-  const { data, isLoading, isError } = useGetStandards({})
+  const { data } = useGetStandards({})
   const currentYear = new Date().getFullYear()
   const programType = useWatch({ control, name: 'programType' })
 
@@ -407,11 +407,7 @@ const StatusSelect = () => {
 }
 
 const PeriodFrom = () => {
-  const {
-    register,
-    control,
-    formState: { errors },
-  } = useFormContext<InitProgramValues>()
+  const { register, control } = useFormContext<InitProgramValues>()
 
   const { dateInput } = wizardStyles()
 
@@ -453,11 +449,7 @@ const PeriodFrom = () => {
 }
 
 const PeriodTo = () => {
-  const {
-    register,
-    control,
-    formState: { errors },
-  } = useFormContext<InitProgramValues>()
+  const { register, control } = useFormContext<InitProgramValues>()
 
   const { dateInput } = wizardStyles()
 

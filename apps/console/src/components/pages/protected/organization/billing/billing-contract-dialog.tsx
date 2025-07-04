@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react'
-import { Data, useLoadScript } from '@react-google-maps/api'
+import { Libraries, useLoadScript } from '@react-google-maps/api'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Input } from '@repo/ui/input'
@@ -11,7 +11,7 @@ import { useGetOrganizationSetting, useUpdateOrganization } from '@/lib/graphql-
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
 
-const libraries: any = ['places']
+const libraries: Libraries = ['places']
 
 const BillingContactDialog = () => {
   const queryClient = useQueryClient()
@@ -63,8 +63,8 @@ const BillingContactDialog = () => {
     placesService.getDetails({ placeId }, (place) => {
       if (!place || !place.address_components) return
 
-      let line1 = description.split(',')[0]
-      let line2 = ''
+      const line1 = description.split(',')[0]
+      const line2 = ''
       let city = ''
       let state = ''
       let postalCode = ''
@@ -112,7 +112,7 @@ const BillingContactDialog = () => {
       successNotification({
         title: `Successfully saved your billing address!`,
       })
-    } catch (error) {
+    } catch {
       errorNotification({
         title: `Something went wrong with saving your billing address!`,
         variant: 'destructive',

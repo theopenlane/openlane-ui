@@ -30,7 +30,7 @@ const DeleteGroupDialog = () => {
       setSelectedGroup(null)
       setIsOpen(false)
       queryClient.invalidateQueries({ queryKey: ['groups'] })
-    } catch (error) {
+    } catch {
       errorNotification({ title: 'Failed to delete group.' })
     }
   }

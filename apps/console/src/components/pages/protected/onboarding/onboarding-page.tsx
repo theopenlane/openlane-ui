@@ -95,7 +95,7 @@ export default function MultiStepForm() {
           router.push('/dashboard')
         }
       }
-    } catch (err) {
+    } catch {
       errorNotification({
         title: 'There was an error while submitting the form. Please try again.',
       })
@@ -130,7 +130,7 @@ export default function MultiStepForm() {
     <div className="flex justify-center flex-col items-center max-w-[545px] m-auto">
       <div>
         <h1 className="text-2xl py-3">Welcome to Openlane 🙇‍♀️</h1>
-        <p className="text-sm pb-5">We are glad to have you! Let's get started with a few questions.</p>
+        <p className="text-sm pb-5">We are glad to have you! Let&apos;s get started with a few questions.</p>
       </div>
       {isLoading && isLastStep && (
         <Card className="p-7 flex flex-col gap-2 items-center w-full">

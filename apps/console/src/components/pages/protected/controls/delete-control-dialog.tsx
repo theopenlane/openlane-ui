@@ -25,7 +25,7 @@ const DeleteControlDialog: React.FC<{ controlId: string; refCode: string }> = ({
       router.push('/controls')
       await deleteControl({ deleteControlId: controlId })
       successNotification({ title: `Control deleted successfully.` })
-    } catch (error) {
+    } catch {
       errorNotification({ title: 'Failed to delete control.' })
     } finally {
       setIsOpen(false)

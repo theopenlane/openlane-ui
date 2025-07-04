@@ -4,7 +4,7 @@ import React from 'react'
 import { Badge } from '@repo/ui/badge'
 import { GlobeIcon, LockIcon } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
-import { Group, User } from '@repo/codegen/src/schema'
+import { Group } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
@@ -50,7 +50,7 @@ const MyGroupsCard = ({ groups, isError }: Props) => {
               )}
               {group.members && (group.members?.edges?.length || 0) > 0 ? (
                 <div className="flex items-center gap-2">
-                  {group.members.edges?.slice(0, 9).map((member: any, index: number) => <Avatar key={index} className="h-8 w-8" entity={member.user as User} />)}
+                  {group.members.edges?.slice(0, 9).map((member, index: number) => <Avatar key={index} className="h-8 w-8" entity={member?.node?.user} />)}
 
                   {(group.members?.edges?.length || 0) > 9 && (
                     <TooltipProvider disableHoverableContent={false}>
@@ -60,10 +60,10 @@ const MyGroupsCard = ({ groups, isError }: Props) => {
                         </TooltipTrigger>
                         <TooltipContent side="bottom" className="text-sm max-h-[300px] overflow-y-auto" avoidCollisions={false}>
                           <div className="flex flex-col gap-1">
-                            {group.members?.edges?.slice(9).map((member: any, idx: number) => (
+                            {group.members?.edges?.slice(9).map((edge, idx: number) => (
                               <div key={idx} className="flex items-center gap-2 border-b h-11">
-                                <Avatar className="h-8 w-8" entity={member.user as User} />
-                                <p>{member?.user?.displayName}</p>
+                                <Avatar className="h-8 w-8" entity={edge?.node?.user} />
+                                <p>{edge?.node?.user?.displayName}</p>
                               </div>
                             ))}
                           </div>

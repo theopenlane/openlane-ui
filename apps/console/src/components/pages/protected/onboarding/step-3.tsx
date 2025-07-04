@@ -39,7 +39,7 @@ export default function Step3() {
         <Switch checked={watch('compliance.completed_gap_analysis') ?? false} onCheckedChange={(value) => setValue('compliance.completed_gap_analysis', value)} />
       </div>
       <div className="flex items-center justify-between">
-        <Label>Do you have existing controls you'd like to import?</Label>
+        <Label>Do you have existing controls you&apos;d like to import?</Label>
         <Switch checked={watch('compliance.existing_controls') ?? false} onCheckedChange={(value) => setValue('compliance.existing_controls', value)} />
       </div>
       <div className="flex items-center justify-between">

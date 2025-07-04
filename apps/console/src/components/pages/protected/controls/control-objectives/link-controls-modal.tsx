@@ -91,7 +91,7 @@ export function LinkControlsModal({ controlObjectiveData }: { controlObjectiveDa
 
       successNotification({ title: 'Control Objective updated' })
       setOpen(false)
-    } catch (error) {
+    } catch {
       errorNotification({ title: `Could not update Control Objective, please try again later` })
     } finally {
       setIsSaving(false)

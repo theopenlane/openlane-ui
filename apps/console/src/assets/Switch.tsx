@@ -1,6 +1,10 @@
 import React from 'react'
 
-const Switch = ({ className = '' }) => {
+type Props = {
+  className?: string
+}
+
+const Switch = ({ className = '' }: Props) => {
   return (
     <svg className={className} width="121" height="60" viewBox="0 0 121 60" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import dynamic from 'next/dynamic'
 import { useSearchParams, useRouter } from 'next/navigation'
@@ -97,7 +97,7 @@ const QuestionnaireViewerPage: React.FC = () => {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Send Questionnaire</AlertDialogTitle>
-            <AlertDialogDescription>Enter the recipient's email to send the questionnaire.</AlertDialogDescription>
+            <AlertDialogDescription>Enter the recipient&apos;s email to send the questionnaire.</AlertDialogDescription>
           </AlertDialogHeader>
           <Form {...form}>
             <FormField

@@ -16,7 +16,7 @@ type TSetObjectAssociationDialog = {
   procedureId?: string
 }
 
-const SetObjectAssociationDialog: React.FC<TSetObjectAssociationDialog> = ({ procedureId }) => {
+const SetObjectAssociationDialog = ({ procedureId }: TSetObjectAssociationDialog) => {
   const procedureState = useProcedure()
   const queryClient = useQueryClient()
   const associationsState = useProcedure((state) => state.associations)
@@ -115,7 +115,7 @@ const SetObjectAssociationDialog: React.FC<TSetObjectAssociationDialog> = ({ pro
       queryClient.invalidateQueries({ queryKey: ['procedures'] })
       queryClient.invalidateQueries({ queryKey: ['procedure', procedureId!] })
       setOpen(false)
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Error',
         description: 'There was an error updating the procedure. Please try again.',

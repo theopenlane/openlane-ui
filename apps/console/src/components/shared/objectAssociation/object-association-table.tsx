@@ -1,4 +1,5 @@
 'use client'
+
 import React, { useEffect, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
@@ -6,10 +7,11 @@ import { Checkbox } from '@repo/ui/checkbox'
 import { TObjectAssociationMap } from './types/TObjectAssociationMap'
 import { TPagination, TPaginationMeta } from '@repo/ui/pagination-types'
 import usePlateEditor from '../plate/usePlateEditor'
+import { TableRow } from './object-assoiation-config'
 
 type Props = {
-  data: TObjectAssociationColumn[]
-  onIDsChange: (updatedMap: TObjectAssociationMap, refCodes?: any) => void
+  data: TableRow[]
+  onIDsChange: (updatedMap: TObjectAssociationMap, refCodes: Partial<Record<string, string[]>>) => void
   initialData?: TObjectAssociationMap
   refCodeInitialData?: TObjectAssociationMap
   pagination?: TPagination | null
@@ -21,51 +23,45 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
   const [selectedIdsMap, setSelectedIdsMap] = useState<TObjectAssociationMap>({})
   const [selectedRefCodeMap, setSelectedRefCodeMap] = useState<TObjectAssociationMap>({})
   const { convertToReadOnly } = usePlateEditor()
+
   useEffect(() => {
-    if (initialData) {
-      setSelectedIdsMap(initialData)
-    }
-    if (refCodeInitialData) {
-      setSelectedRefCodeMap(refCodeInitialData)
-    }
-  }, [initialData])
+    if (initialData) setSelectedIdsMap(initialData)
+    if (refCodeInitialData) setSelectedRefCodeMap(refCodeInitialData)
+  }, [initialData, refCodeInitialData])
 
   useEffect(() => {
     onIDsChange(selectedIdsMap, selectedRefCodeMap)
-  }, [selectedIdsMap, data])
-  const columns: ColumnDef<TObjectAssociationColumn>[] = [
+  }, [selectedIdsMap, selectedRefCodeMap, onIDsChange])
+
+  const columns: ColumnDef<TableRow>[] = [
     {
       accessorKey: 'name',
       header: 'Name',
       cell: ({ row }) => {
-        const id = row.original.id!
-        const refCode = row.original.refCode
-        const name = row.original.name
-        const inputName = row.original.inputName
+        const { id, refCode, name, inputName } = row.original
+
+        if (!id || !inputName) return null
+
         const checked = selectedIdsMap[inputName]?.includes(id) ?? false
+
         const toggleChecked = (isChecked: boolean) => {
-          setSelectedRefCodeMap((prev) => {
-            const currentList = prev[inputName] ?? []
-
-            if (isChecked) {
-              if (currentList.includes(refCode)) return prev
-              return { ...prev, [inputName]: [...currentList, refCode] }
-            } else {
-              const updatedList = currentList.filter((i) => i !== refCode)
-              return { ...prev, [inputName]: updatedList }
-            }
-          })
           setSelectedIdsMap((prev) => {
-            const currentList = prev[inputName] ?? []
-
-            if (isChecked) {
-              if (currentList.includes(id)) return prev
-              return { ...prev, [inputName]: [...currentList, id] }
-            } else {
-              const updatedList = currentList.filter((i) => i !== id)
-              return { ...prev, [inputName]: updatedList }
+            const current = prev[inputName] ?? []
+            return {
+              ...prev,
+              [inputName]: isChecked ? (current.includes(id) ? current : [...current, id]) : current.filter((v) => v !== id),
             }
           })
+
+          if (refCode) {
+            setSelectedRefCodeMap((prev) => {
+              const current = prev[inputName] ?? []
+              return {
+                ...prev,
+                [inputName]: isChecked ? (current.includes(refCode) ? current : [...current, refCode]) : current.filter((v) => v !== refCode),
+              }
+            })
+          }
         }
 
         return (
@@ -79,7 +75,10 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
     {
       accessorKey: 'description',
       header: 'Description',
-      cell: ({ row }) => <span className="line-clamp-2 overflow-hidden">{convertToReadOnly(row.original.description || row.original.details, 0)}</span>,
+      cell: ({ row }) => {
+        const { description, details } = row.original
+        return <span className="line-clamp-2 overflow-hidden">{convertToReadOnly(description || details || '', 0)}</span>
+      },
     },
   ]
 

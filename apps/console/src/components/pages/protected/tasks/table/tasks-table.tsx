@@ -2,7 +2,7 @@
 
 import { DataTable } from '@repo/ui/data-table'
 import React, { forwardRef, useImperativeHandle } from 'react'
-import { TaskOrder } from '@repo/codegen/src/schema'
+import { TaskOrder, TaskWhereInput } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { taskColumns } from '@/components/pages/protected/tasks/table/columns.tsx'
 import { TASK_SORT_FIELDS } from '@/components/pages/protected/tasks/table/table-config.ts'
@@ -11,10 +11,10 @@ import { VisibilityState } from '@tanstack/react-table'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 
 type TTasksTableProps = {
-  onSortChange?: (sortCondition: any[]) => void
+  onSortChange?: (sortCondition: TaskOrder[] | TaskOrder | undefined) => void
   pagination: TPagination
   onPaginationChange: (pagination: TPagination) => void
-  whereFilter: Record<string, any> | null
+  whereFilter: TaskWhereInput | null
   orderByFilter: TaskOrder[] | TaskOrder | undefined
   columnVisibility?: VisibilityState
   setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>

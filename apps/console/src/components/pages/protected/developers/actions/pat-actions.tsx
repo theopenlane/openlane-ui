@@ -27,6 +27,7 @@ export const TokenAction = ({ tokenId, tokenName }: TokenActionProps) => {
       if (isOrg) {
         await deleteApiToken({ deleteAPITokenId: tokenId })
       } else {
+        await deletePersonalToken({ deletePersonalAccessTokenId: tokenId })
       }
 
       successNotification({

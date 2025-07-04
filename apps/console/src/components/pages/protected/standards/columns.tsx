@@ -1,18 +1,21 @@
-// components/StandardDetailsAccordion/columns.tsx
 'use client'
 
 import React from 'react'
 import { Checkbox } from '@repo/ui/checkbox'
 import { ControlListFieldsFragment } from '@repo/codegen/src/schema'
 
+import { ColumnDef } from '@tanstack/react-table'
+
+type ControlSelection = { id: string; refCode: string }
+
 type GetColumnsProps = {
-  selectedControls: { id: string; refCode: string }[]
-  toggleSelection: (control: { id: string; refCode: string }) => void
-  setSelectedControls: React.Dispatch<React.SetStateAction<{ id: string; refCode: string }[]>>
+  selectedControls: ControlSelection[]
+  toggleSelection: (control: ControlSelection) => void
+  setSelectedControls: React.Dispatch<React.SetStateAction<ControlSelection[]>>
   controls: ControlListFieldsFragment[]
 }
 
-export const getColumns = ({ selectedControls, toggleSelection, setSelectedControls, controls }: GetColumnsProps) => {
+export const getColumns = ({ controls, setSelectedControls, toggleSelection, selectedControls }: GetColumnsProps): ColumnDef<ControlListFieldsFragment>[] => {
   return [
     {
       id: 'select',
@@ -38,7 +41,7 @@ export const getColumns = ({ selectedControls, toggleSelection, setSelectedContr
           />
         )
       },
-      cell: ({ row }: any) => {
+      cell: ({ row }) => {
         const { id, refCode } = row.original
         const isChecked = selectedControls.some((c) => c.id === id)
         return <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id, refCode })} />
@@ -48,12 +51,12 @@ export const getColumns = ({ selectedControls, toggleSelection, setSelectedContr
     {
       accessorKey: 'refCode',
       header: 'Ref Code',
-      cell: (info: any) => <span className="text-blue-400 whitespace-nowrap">{info.getValue()}</span>,
+      cell: (info) => <span className="text-blue-400 whitespace-nowrap">{info.getValue() as string}</span>,
     },
     {
       accessorKey: 'description',
       header: 'Description',
-      cell: (info: any) => (
+      cell: (info) => (
         <>
           {(info.getValue() as string)?.split('\n').map((line: string, idx: number) => (
             <React.Fragment key={idx}>
@@ -71,12 +74,12 @@ export const getColumns = ({ selectedControls, toggleSelection, setSelectedContr
     {
       accessorKey: 'mappedCategories',
       header: 'Mapped Categories',
-      cell: (info: any) => (info.getValue() as string[])?.join(', '),
+      cell: (info) => (info.getValue() as string[])?.join(', '),
     },
     {
       accessorKey: 'subcontrols.totalCount',
       header: '# of Sub controls',
-      cell: (info: any) => info.row.original.subcontrols.totalCount,
+      cell: (info) => info.row.original.subcontrols.totalCount,
     },
   ]
 }

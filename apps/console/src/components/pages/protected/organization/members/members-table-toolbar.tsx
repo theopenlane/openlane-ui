@@ -5,17 +5,18 @@ import { LoaderCircle, PlusIcon, SearchIcon } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import { MEMBERS_FILTER_FIELDS } from '@/components/pages/protected/organization/members/table/table-config.ts'
+import { ExtendedOrgMembershipWhereInput } from './members-table'
 
 type TMembersTableToolbarProps = {
   className?: string
   searching?: boolean
   searchTerm: string
   setSearchTerm: (searchTerm: string) => void
-  setFilters: (filters: Record<string, any>) => void
+  setFilters: (filters: ExtendedOrgMembershipWhereInput) => void
   onSetActiveTab: (activeTab: string) => void
 }
 
-const MembersTableToolbar: React.FC<TMembersTableToolbarProps> = ({ className, searching, searchTerm, setFilters, setSearchTerm, onSetActiveTab }) => {
+const MembersTableToolbar: React.FC<TMembersTableToolbarProps> = ({ searching, searchTerm, setFilters, setSearchTerm, onSetActiveTab }) => {
   const isSearching = useDebounce(searching, 200)
 
   return (

@@ -6,7 +6,7 @@ export const fileDownload = async (presignedURL: string, fileName: string, error
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-  } catch (error) {
+  } catch {
     errorNotification({
       title: 'An error occurred while downloading file. Please try again.',
       variant: 'destructive',

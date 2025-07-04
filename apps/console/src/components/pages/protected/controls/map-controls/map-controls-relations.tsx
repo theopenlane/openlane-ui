@@ -18,11 +18,7 @@ const relationTypes = [
   { label: 'Superset', value: MappedControlMappingType.SUPERSET },
 ]
 
-interface Props {
-  handleSave?: () => void
-}
-
-const MapControlsRelations = ({ handleSave }: Props) => {
+const MapControlsRelations = () => {
   const { control, setValue } = useFormContext()
   const router = useRouter()
 

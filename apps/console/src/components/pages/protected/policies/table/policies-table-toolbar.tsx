@@ -1,5 +1,4 @@
 import React from 'react'
-import { cn } from '@repo/ui/lib/utils'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
 import { CirclePlus, DownloadIcon, Import, LoaderCircle, SearchIcon } from 'lucide-react'
 import { INTERNAL_POLICIES_FILTERABLE_FIELDS } from '@/components/pages/protected/policies/table/table-config.ts'
@@ -20,7 +19,7 @@ type TPoliciesTableToolbarProps = {
   searching?: boolean
   searchTerm: string
   setSearchTerm: (searchTerm: string) => void
-  setFilters: (filters: Record<string, any>) => void
+  setFilters: (filters: Record<string, unknown>) => void
   handleCreateNew: () => void
   handleExport: () => void
   columnVisibility?: VisibilityState
@@ -32,7 +31,6 @@ type TPoliciesTableToolbarProps = {
 }
 
 const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
-  className,
   searching,
   searchTerm,
   handleCreateNew,

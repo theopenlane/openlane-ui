@@ -3,6 +3,7 @@ import React from 'react'
 import { TabsContent } from '@repo/ui/tabs'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { acceptedFileTypes, acceptedFileTypesShort } from './evidence-upload-config'
+import { TUploadedFile } from './types/TUploadedFile'
 type TProps = {
   uploadedFile: (uploadedFile: TUploadedFile) => void
 }

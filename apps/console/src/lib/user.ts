@@ -1,3 +1,4 @@
+import { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/types'
 import useSWR from 'swr'
 
 export interface LoginUser {
@@ -10,6 +11,7 @@ export interface RegisterUser {
   password: string
   confirmedPassword?: string
   token?: string
+  email: string
 }
 
 export interface ResendVerificationEmail {
@@ -26,13 +28,14 @@ export interface PasskeySignInOptionsInput {
 }
 
 export interface RegistrationVerificationInput {
-  attestationResponse: any
+  attestationResponse: RegistrationResponseJSON
 }
 
 export interface AuthVerificationInput {
-  assertionResponse: any
+  assertionResponse: AuthenticationResponseJSON
 }
-interface HttpResponse<T> extends Response {
+
+export interface HttpResponse<T> extends Response {
   message?: T
 }
 
@@ -40,20 +43,25 @@ export interface SwitchOrganization {
   target_organization_id: string
 }
 
-export async function registerUser<T>(arg: RegisterUser) {
-  const fData: HttpResponse<T> = await fetch('/api/auth/register', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(arg),
-  })
+type RegisterUserResponse<T> = { ok: true; data: T } | { ok: false; message: string }
+
+export async function registerUser<T>(arg: RegisterUser): Promise<RegisterUserResponse<T>> {
   try {
-    const fDataMessage = await fData.json()
-    fData.message = fDataMessage.error
-    return fData
-  } catch (error) {
-    return { message: 'error' }
+    const response = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(arg),
+    })
+
+    const json = await response.json()
+
+    if (response.ok) {
+      return { ok: true, data: json }
+    } else {
+      return { ok: false, message: json?.error ?? 'Unknown error' }
+    }
+  } catch {
+    return { ok: false, message: 'Network error' }
   }
 }
 
@@ -69,7 +77,7 @@ export async function resendVerification<T>(arg: ResendVerificationEmail) {
     const fDataMessage = await fData.json()
     fData.message = fDataMessage.error
     return fData
-  } catch (error) {
+  } catch {
     return { message: 'error' }
   }
 }
@@ -136,7 +144,7 @@ export async function getPasskeyRegOptions<T>(arg: PasskeyRegOptionsInput) {
   const data = await fData.json()
   try {
     return data
-  } catch (error) {
+  } catch {
     return { message: 'error' }
   }
 }
@@ -152,7 +160,7 @@ export async function verifyRegistration<T>(arg: RegistrationVerificationInput) 
   })
   try {
     return await fData.json()
-  } catch (error) {
+  } catch {
     return { message: 'error' }
   }
 }
@@ -170,7 +178,7 @@ export async function getPasskeySignInOptions<T>(arg: PasskeySignInOptionsInput)
   const data = await fData.json()
   try {
     return data
-  } catch (error) {
+  } catch {
     return { message: 'error' }
   }
 }
@@ -186,7 +194,7 @@ export async function verifyAuthentication<T>(arg: AuthVerificationInput) {
   })
   try {
     return await fData.json()
-  } catch (error) {
+  } catch {
     return { message: 'error' }
   }
 }
@@ -204,7 +212,7 @@ export async function switchOrganization<T>(arg: SwitchOrganization) {
     const fDataMessage = await fData.json()
     fData.message = fDataMessage.error
     return fDataMessage
-  } catch (error) {
+  } catch {
     return { message: 'error' }
   }
 }

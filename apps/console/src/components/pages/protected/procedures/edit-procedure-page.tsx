@@ -6,7 +6,7 @@ type TEditProcedurePage = {
   procedureId: string
 }
 
-const EditProcedurePage: React.FC<TEditProcedurePage> = ({ procedureId }) => {
+const EditProcedurePage = ({ procedureId }: TEditProcedurePage) => {
   const { data, isLoading } = useGetProcedureDetailsById(procedureId)
 
   return (

@@ -58,7 +58,7 @@ export const passKeyProvider = Credentials({
         id: data.id || credentials.email,
         email: credentials.email,
         isTfaEnabled,
-        isOnboarding: dashboardData.organizations?.edges?.length === 1,
+        isOnboarding: dashboardData?.organizations?.edges?.length === 1,
         accessToken: credentials.accessToken,
         refreshToken: credentials.refreshToken,
         ...data,

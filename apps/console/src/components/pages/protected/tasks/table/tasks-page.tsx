@@ -2,7 +2,7 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react'
 import TaskTableToolbar from '@/components/pages/protected/tasks/table/task-table-toolbar'
 import { useTaskStore, TOrgMembers } from '@/components/pages/protected/tasks/hooks/useTaskStore'
-import { OrderDirection, Task, TaskOrderField, TasksWithFilterQueryVariables, TaskTaskStatus } from '@repo/codegen/src/schema'
+import { OrderDirection, Task, TaskOrderField, TasksWithFilterQueryVariables, TaskTaskStatus, TaskWhereInput } from '@repo/codegen/src/schema'
 import { taskColumns } from '@/components/pages/protected/tasks/table/columns.tsx'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
@@ -23,7 +23,7 @@ const TasksPage: React.FC = () => {
   const tableRef = useRef<{ exportData: () => Task[] }>(null)
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
   const [showCompletedTasks, setShowCompletedTasks] = useState<boolean>(false)
-  const [filters, setFilters] = useState<Record<string, any> | null>(null)
+  const [filters, setFilters] = useState<TaskWhereInput | null>(null)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const searchParams = useSearchParams()
   const { data: session } = useSession()
@@ -47,7 +47,7 @@ const TasksPage: React.FC = () => {
     if (!filters) {
       return null
     }
-    const conditions: Record<string, any> = {
+    const conditions = {
       ...(showCompletedTasks ? { statusIn: allStatuses } : { statusIn: statusesWithoutComplete }),
       ...filters,
       ...{ titleContainsFold: debouncedSearch },
@@ -80,7 +80,7 @@ const TasksPage: React.FC = () => {
         }) as TOrgMembers,
     )
     setOrgMembers(members)
-  }, [membersData])
+  }, [membersData, setOrgMembers])
 
   const orderByFilter = useMemo(() => {
     return orderBy || undefined

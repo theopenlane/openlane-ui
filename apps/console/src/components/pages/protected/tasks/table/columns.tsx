@@ -24,7 +24,7 @@ export const taskColumns: ColumnDef<Task>[] = [
   {
     accessorKey: 'status',
     header: 'Status',
-    cell: ({ cell, row }) => {
+    cell: ({ row }) => {
       const status = row.original.status!
       return (
         <div className="flex items-center space-x-2">

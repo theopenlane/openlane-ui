@@ -9,7 +9,7 @@ import { Input } from '@repo/ui/input'
 import { Clock8, LoaderCircle, SearchIcon } from 'lucide-react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useSearch } from '@/lib/graphql-hooks/search'
-import { SearchQuery } from '@repo/codegen/src/schema'
+import { Organization, SearchQuery } from '@repo/codegen/src/schema'
 import { Avatar } from '../avatar/avatar'
 import { useShortcutSuffix } from '@/components/shared/shortcut-suffix/shortcut-suffix.tsx'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
@@ -18,6 +18,22 @@ import { generateSelectOptions, getSearchResultCount, searchTypeIcons } from './
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { RoutePage } from '@/types'
 import { useSearchHistory } from './useSearchHistory'
+
+type ProgramNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['programs']>['edges']>[number]>['node']
+
+type GroupNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['groups']>['edges']>[number]>['node']
+
+type TaskNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['tasks']>['edges']>[number]>['node']
+
+type ControlObjectiveNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['controlObjectives']>['edges']>[number]>['node']
+
+type ControlNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['controls']>['edges']>[number]>['node']
+
+type SubcontrolNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['subcontrols']>['edges']>[number]>['node']
+
+type RiskNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['risks']>['edges']>[number]>['node']
+
+type OrganizationNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['organizations']>['edges']>[number]>['node']
 
 export const GlobalSearch = () => {
   const [open, setOpen] = useState(false)
@@ -288,61 +304,119 @@ const renderSearchResults = ({ data, handleOrganizationSwitch, setQuery, query, 
       <CommandList key="search-results" className="max-h-[600px] overflow-auto px-2">
         {/* Pages */}
         {shouldRenderSection('Pages') && !!pages.length && renderRouteResults(pages, query, close)}
-
-        {/* Organizations */}
+        {/* /* Organizations */}
         {shouldRenderSection('Organizations') &&
           !!search?.organizations?.edges?.length &&
-          renderOrgResults({ close, searchType: 'Organizations', node: search.organizations?.edges?.map((edge) => edge?.node!) ?? [], handleOrganizationSwitch, setQuery })}
-
-        {/* Programs */}
-        {shouldRenderSection('Programs') && !!search.programs?.edges?.length && renderResults({ close, searchType: 'Programs', node: (search.programs.edges ?? []).map((edge) => edge?.node!) ?? [] })}
-
-        {/* Groups */}
-        {shouldRenderSection('Groups') && !!search.groups?.edges?.length && renderResults({ close, searchType: 'Groups', node: (search.groups.edges ?? []).map((edge) => edge?.node!) ?? [] })}
-
-        {/* Tasks */}
-        {shouldRenderSection('Tasks') && !!search.tasks?.edges?.length && renderResults({ close, searchType: 'Tasks', node: (search.tasks.edges ?? []).map((edge) => edge?.node!) ?? [] })}
-
-        {/* Control Objectives */}
+          renderOrgResults({
+            close,
+            searchType: 'Organizations',
+            nodes: (search.organizations.edges ?? []).map((edge): OrganizationNode => edge?.node),
+            handleOrganizationSwitch,
+            setQuery,
+          })}
+        {/* /* Programs */}
+        {shouldRenderSection('Programs') &&
+          !!search.programs?.edges?.length &&
+          renderResults({
+            close,
+            searchType: 'Programs',
+            nodes: (search.programs.edges ?? []).map((edge) => edge?.node),
+          })}
+        {/* /* Groups */}
+        {shouldRenderSection('Groups') &&
+          !!search.groups?.edges?.length &&
+          renderResults({
+            close,
+            searchType: 'Groups',
+            nodes: (search.groups.edges ?? []).map((edge) => edge?.node),
+          })}
+        {/* /* Tasks */}
+        {shouldRenderSection('Tasks') &&
+          !!search.tasks?.edges?.length &&
+          renderResults({
+            close,
+            searchType: 'Tasks',
+            nodes: (search.tasks.edges ?? []).map((edge) => edge?.node),
+          })}
+        {/* /* Control Objectives */}
         {shouldRenderSection('ControlObjectives') &&
           !!search.controlObjectives?.edges?.length &&
-          renderResults({ close, searchType: 'ControlObjectives', node: (search.controlObjectives.edges ?? []).map((edge) => edge?.node!) ?? [] })}
-
-        {/* Controls */}
-        {shouldRenderSection('Controls') && !!search.controls?.edges?.length && renderResults({ close, searchType: 'Controls', node: (search.controls.edges ?? []).map((edge) => edge?.node!) ?? [] })}
-
-        {/* Subcontrols */}
+          renderResults({
+            close,
+            searchType: 'ControlObjectives',
+            nodes: (search.controlObjectives.edges ?? []).map((edge) => edge?.node),
+          })}
+        {/* /* Controls */}
+        {shouldRenderSection('Controls') &&
+          !!search.controls?.edges?.length &&
+          renderResults({
+            close,
+            searchType: 'Controls',
+            nodes: (search.controls.edges ?? []).map((edge) => edge?.node),
+          })}
+        {/* /* Subcontrols */}
         {shouldRenderSection('Subcontrols') &&
           !!search.subcontrols?.edges?.length &&
-          renderResults({ close, searchType: 'Subcontrols', node: (search.subcontrols.edges ?? []).map((edge) => edge?.node!) ?? [] })}
-
-        {/* Risks */}
-        {shouldRenderSection('Risks') && !!search.risks?.edges?.length && renderResults({ close, searchType: 'Risks', node: (search.risks.edges ?? []).map((edge) => edge?.node!) ?? [] })}
+          renderResults({
+            close,
+            searchType: 'Subcontrols',
+            nodes: (search.subcontrols.edges ?? []).map((edge) => edge?.node),
+          })}
+        {/* /* Risks */}
+        {shouldRenderSection('Risks') &&
+          !!search.risks?.edges?.length &&
+          renderResults({
+            close,
+            searchType: 'Risks',
+            nodes: (search.risks.edges ?? []).map((edge) => edge?.node),
+          })}
       </CommandList>
     </div>
   )
 }
 
+type ResponseNodes = ProgramNode[] | GroupNode[] | TaskNode[] | ControlObjectiveNode[] | ControlNode[] | SubcontrolNode[] | RiskNode[]
+
 interface SearchNodeProps {
   searchType: string
-  node: any
+  nodes: ResponseNodes
   handleOrganizationSwitch?: (orgId?: string) => Promise<void>
   setQuery?: React.Dispatch<React.SetStateAction<string>>
   close: () => void
 }
 
-const renderResults = ({ searchType, node, close }: SearchNodeProps) => {
+const renderResults = ({ searchType, nodes, close }: SearchNodeProps) => {
   const { icon, leftFlex } = searchStyles()
 
   const groupKey = `${searchType.toLowerCase()}`
   const Icon = searchTypeIcons[searchType]
 
+  const renderName = (searchNode: ResponseNodes[number]): string => {
+    switch (searchNode?.__typename) {
+      case 'Control':
+      case 'Subcontrol':
+        return searchNode.refCode
+      case 'Program':
+      case 'Group':
+        return searchNode.name
+      case 'ControlObjective':
+      case 'Risk':
+        return searchNode.name
+      case 'Task':
+        return searchNode.title
+      default:
+        return 'Unnamed'
+    }
+  }
+
   return (
     <>
-      {node.map((searchNode: any, i: number) => {
+      {nodes?.map((searchNode, i: number) => {
         const nodeType = searchType.toLowerCase()
-        const href = getHrefForObjectType(nodeType, searchNode)
-
+        let href
+        if (searchNode) {
+          href = getHrefForObjectType(nodeType, searchNode)
+        }
         const content = (
           <div className="border-b py-1">
             <CommandItem className="cursor-pointer py-2 rounded-md">
@@ -351,7 +425,7 @@ const renderResults = ({ searchType, node, close }: SearchNodeProps) => {
                   {Icon && <Icon className={icon()} />}
                   <p className="font-medium text-text-informational">{searchType}</p>
                 </div>
-                <p className="text-input-text">{searchNode.name || searchNode.refCode || searchNode.title || 'Unnamed'}</p>
+                <p className="text-input-text">{renderName(searchNode)}</p>
               </div>
             </CommandItem>
           </div>
@@ -369,7 +443,15 @@ const renderResults = ({ searchType, node, close }: SearchNodeProps) => {
   )
 }
 
-const renderOrgResults = ({ searchType, node, handleOrganizationSwitch, setQuery }: SearchNodeProps) => {
+interface SearchOrgNodeProps {
+  searchType: string
+  nodes: OrganizationNode[]
+  handleOrganizationSwitch?: (orgId?: string) => Promise<void>
+  setQuery?: React.Dispatch<React.SetStateAction<string>>
+  close: () => void
+}
+
+const renderOrgResults = ({ searchType, nodes, handleOrganizationSwitch, setQuery }: SearchOrgNodeProps) => {
   const { avatarRow, icon, leftFlex } = searchStyles()
 
   if (!handleOrganizationSwitch || !setQuery) return
@@ -378,14 +460,14 @@ const renderOrgResults = ({ searchType, node, handleOrganizationSwitch, setQuery
 
   return (
     <>
-      {node.map((searchNode: any, i: number) => {
+      {nodes.map((searchNode: OrganizationNode) => {
         return (
-          <div key={searchNode.id} className="border-b py-1">
+          <div key={searchNode?.id} className="border-b py-1">
             <CommandItem
               className="cursor-pointer py-2 rounded-md bg-panel"
               onSelect={() => {
                 setQuery('')
-                handleOrganizationSwitch(searchNode.id)
+                handleOrganizationSwitch(searchNode?.id)
               }}
             >
               <div className="flex">
@@ -394,8 +476,8 @@ const renderOrgResults = ({ searchType, node, handleOrganizationSwitch, setQuery
                   <p className="font-medium">{searchType}</p>
                 </div>
                 <div className={avatarRow()}>
-                  <Avatar entity={searchNode} />
-                  <p className="text-input-text">{searchNode.displayName}</p>
+                  <Avatar entity={searchNode as Organization} />
+                  <p className="text-input-text">{searchNode?.displayName}</p>
                 </div>
               </div>
             </CommandItem>

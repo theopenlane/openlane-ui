@@ -50,7 +50,6 @@ import {
   UpdateOrganizationSettingMutation,
 } from '@repo/codegen/src/schema'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { Variables } from 'graphql-request'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
 
@@ -149,13 +148,27 @@ export const useGetBillingEmail = (organizationId: string | undefined) => {
   })
 }
 
+type CreateOrgExtensions = {
+  auth?: {
+    access_token: string
+    refresh_token: string
+    authorized_organization: string
+  }
+}
+
 export const useCreateOrganization = () => {
   const { client, queryClient } = useGraphQLClient()
 
-  return useMutation<{ data: CreateOrganizationMutation; extensions?: Record<string, any> }, unknown, CreateOrganizationMutationVariables>({
+  return useMutation<{ data: CreateOrganizationMutation; extensions?: CreateOrgExtensions }, unknown, CreateOrganizationMutationVariables>({
     mutationFn: async (input) => {
-      const response: any = await client.rawRequest(CREATE_ORGANIZATION, input)
-      return { data: response.data, extensions: response.extensions ?? {} }
+      const response = await client.rawRequest<CreateOrganizationMutation, CreateOrganizationMutationVariables>(CREATE_ORGANIZATION, input)
+
+      const typedExtensions = response.extensions as CreateOrgExtensions | undefined
+
+      return {
+        data: response.data,
+        extensions: typedExtensions,
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['organizationsWithMembers'] })
@@ -187,13 +200,34 @@ export const useDeleteOrganizationInvite = () => {
   })
 }
 
+type DeleteOrgAuthExtensions = {
+  auth: {
+    access_token: string
+    refresh_token: string
+    authorized_organization: string
+  }
+}
+
 export const useDeleteOrganization = () => {
   const { client } = useGraphQLClient()
 
-  return useMutation<{ data: DeleteOrganizationMutation; extensions?: Record<string, any> }, unknown, DeleteOrganizationMutationVariables>({
+  return useMutation<
+    {
+      data: DeleteOrganizationMutation
+      extensions?: DeleteOrgAuthExtensions
+    },
+    unknown,
+    DeleteOrganizationMutationVariables
+  >({
     mutationFn: async (variables) => {
-      const response = await client.rawRequest<DeleteOrganizationMutation, Variables>(DELETE_ORGANIZATION as string, variables)
-      return { data: response.data, extensions: response.extensions as Record<string, any> | undefined }
+      const response = await client.rawRequest<DeleteOrganizationMutation, DeleteOrganizationMutationVariables>(DELETE_ORGANIZATION, variables)
+
+      const typedExtensions = response.extensions as DeleteOrgAuthExtensions | undefined
+
+      return {
+        data: response.data,
+        extensions: typedExtensions,
+      }
     },
   })
 }

@@ -1,11 +1,24 @@
 import { GraphQlResponseError } from '@/constants/graphQlResponseError'
 
+export interface GraphQLErrorExtension {
+  code: GraphQlResponseError
+}
+
+export interface GraphQLError {
+  message: string
+  extensions: GraphQLErrorExtension
+}
+
+export interface GraphQLResponse {
+  errors?: GraphQLError[]
+}
+
 export const graphQlErrorMatcher = async (response: Response, graphQlErrors: GraphQlResponseError[]): Promise<boolean> => {
-  const json = await response.json()
+  const json: GraphQLResponse = await response.json()
 
   if (json.errors?.length) {
-    return json.errors.some((err: any) => {
-      return err.extensions.code.length && graphQlErrors.includes(err.extensions.code)
+    return json.errors.some((err) => {
+      return err.extensions?.code && graphQlErrors.includes(err.extensions.code)
     })
   }
 

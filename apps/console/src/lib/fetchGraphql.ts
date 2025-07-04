@@ -1,7 +1,7 @@
 import { getSession } from 'next-auth/react'
 import { ensureAuth } from './auth/utils/tokenValidator'
 
-export const fetchGraphQLWithUpload = async ({ query, variables = {} }: { query: string; variables?: Record<string, any> }) => {
+export const fetchGraphQLWithUpload = async ({ query, variables = {} }: { query: string; variables?: Record<string, unknown> }) => {
   const session = await getSession()
 
   const accessToken = await ensureAuth(session)
@@ -49,7 +49,7 @@ export const fetchGraphQLWithUpload = async ({ query, variables = {} }: { query:
 
     // Append FILES LAST
     fileIndex = 0
-    Object.entries(variables).forEach(([key, value]) => {
+    Object.entries(variables).forEach(([, value]) => {
       if (value instanceof File) {
         formData.append(fileIndex.toString(), value)
         fileIndex++
