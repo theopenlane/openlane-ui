@@ -5,7 +5,6 @@ import { dashboardStyles } from './dashboard.styles'
 import Sidebar from '@/components/shared/sidebar/sidebar'
 import ChatBot from '@/components/shared/chat/chat'
 import { CommandMenu } from '@/components/shared/search/command'
-import { NavItems } from '@/routes/dashboard'
 import { useSubscriptionBanner } from '@/hooks/useSubscriptionBanner'
 import { CreditCard } from 'lucide-react'
 import Link from 'next/link'
@@ -15,6 +14,7 @@ import { useSession } from 'next-auth/react'
 import { jwtDecode } from 'jwt-decode'
 import { fromUnixTime, differenceInMilliseconds, isAfter } from 'date-fns'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { useNavItems } from '@/routes/dashboard.tsx'
 
 export interface DashboardLayoutProps {
   children?: React.ReactNode
@@ -22,6 +22,7 @@ export interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ children, error }: DashboardLayoutProps) {
+  const navItems = useNavItems()
   const { bannerText } = useSubscriptionBanner()
   const { base, main } = dashboardStyles({ hasBanner: !!bannerText })
   const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(false)
@@ -82,7 +83,7 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
           <Sidebar />
           <main className={main()}>{error ?? children}</main>
           <ChatBot />
-          <CommandMenu items={NavItems} />
+          <CommandMenu items={navItems} />
         </div>
       </div>
     </>
