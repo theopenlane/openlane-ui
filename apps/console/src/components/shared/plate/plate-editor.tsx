@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { createPlateEditor, Plate } from '@udecode/plate/react'
@@ -23,6 +23,7 @@ export type TPlateEditorProps = {
 
 const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, variant, styleVariant, clearData, onClear, placeholder, isScrollable }) => {
   const editor = useCreateEditor({ variant })
+  const [initialized, setInitialized] = useState(false)
 
   const debouncedOnChange = useRef(
     debounce((val: Value) => {
@@ -30,8 +31,9 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, vari
     }, 300),
   ).current
 
-  useMemo(() => {
-    if (initialValue) {
+  useEffect(() => {
+    if (initialValue && !initialized) {
+      setInitialized(true)
       const plateEditor = createPlateEditor({
         plugins: [...viewPlugins],
       })
@@ -40,7 +42,6 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, vari
         element: initialValue,
       }) as Value
 
-      // Check if initialValue is plain text e.g. when uploading through csv
       if (Array.isArray(slateNodes) && slateNodes.length === 1 && typeof (slateNodes[0] as TElement).text === 'string' && !(slateNodes[0] as TElement).type) {
         editor.children = [
           {
@@ -52,7 +53,7 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, vari
         editor.children = slateNodes
       }
     }
-  }, [editor, initialValue])
+  }, [editor, initialValue, initialized])
 
   useEffect(() => {
     if (clearData) {
