@@ -67,7 +67,7 @@ export const credentialsProvider = Credentials({
 
       return {
         isTfaEnabled,
-        isOnboarding: dashboardData.organizations?.edges?.length === 1,
+        isOnboarding: dashboardData?.organizations?.edges?.length === 1,
         accessToken,
         refreshToken,
         session,
