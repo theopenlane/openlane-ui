@@ -1,6 +1,6 @@
 import React from 'react'
 
-const Cat = ({ className = '' }) => {
+const Cat = ({ className = '' }: { className?: string }) => {
   return (
     <svg width="82" height="66" viewBox="0 0 82 66" fill="none" xmlns="http://www.w3.org/2000/svg">
       <g clipPath="url(#clip0_9872_50656)">

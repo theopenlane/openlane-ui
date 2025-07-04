@@ -75,7 +75,7 @@ const ProgramsPage: React.FC = () => {
 
   useEffect(() => {
     if (basicInfoData) document.title = `${orgNameData?.organization.displayName}: Programs - ${basicInfoData.program.name}`
-  }, [basicInfoData])
+  }, [basicInfoData, orgNameData?.organization.displayName])
 
   useEffect(() => {
     if (!data?.programs?.edges?.length) return

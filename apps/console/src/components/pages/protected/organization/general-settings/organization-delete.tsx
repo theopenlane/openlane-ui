@@ -50,7 +50,7 @@ const OrganizationDelete = () => {
         queryClient?.invalidateQueries()
       })
       push('/organization')
-    } catch (err) {
+    } catch {
       errorNotification({
         title: 'Failed to delete organization',
       })

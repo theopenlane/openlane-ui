@@ -20,7 +20,7 @@ export default function ForgotPasswordComponent() {
   const [cooldown, setCooldown] = useState(0)
   const { form, input } = loginStyles()
   const { successNotification } = useNotification()
-  const { bg, content, logo } = pageStyles()
+  const { content, logo } = pageStyles()
 
   useEffect(() => {
     if (cooldown > 0) {
@@ -40,7 +40,6 @@ export default function ForgotPasswordComponent() {
     let recaptchaToken = ''
 
     if (recaptchaSiteKey) {
-      // @ts-ignore
       recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'forgot_password' })
       const validationRes = await fetch('/api/recaptchaVerify', {
         method: 'POST',

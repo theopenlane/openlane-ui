@@ -9,7 +9,7 @@ import { Label } from '@repo/ui/label'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
-import { AllQueriesData, generateColumns, generateGroupsPermissionsWhere, OBJECT_TYPE_CONFIG, ObjectTypes, TableDataItem } from '@/constants/groups'
+import { AllQueriesData, generateColumns, generateGroupsPermissionsWhere, OBJECT_TYPE_CONFIG, ObjectDataNode, ObjectTypes, TableDataItem } from '@/constants/groups'
 import { useUpdateGroup } from '@/lib/graphql-hooks/groups'
 import { useQuery } from '@tanstack/react-query'
 import { GET_ALL_RISKS } from '@repo/codegen/query/risks'
@@ -17,6 +17,7 @@ import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { useNotification } from '@/hooks/useNotification'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
+import { Control } from '@repo/codegen/src/schema'
 
 const options = Object.values(ObjectTypes)
 
@@ -44,8 +45,7 @@ const AssignPermissionsDialog = () => {
   const selectedConfig = selectedObject ? OBJECT_TYPE_CONFIG[selectedObject] : null
   const selectedQuery = selectedConfig?.queryDocument
 
-  const objectName = selectedConfig?.objectName!
-
+  const objectName = selectedConfig?.objectName
   const objectKey = selectedObject ? OBJECT_TYPE_CONFIG[selectedObject]?.responseObjectKey : null
   const where = generateGroupsPermissionsWhere({
     debouncedSearchValue,
@@ -84,14 +84,22 @@ const AssignPermissionsDialog = () => {
   )
 
   const tableData: TableDataItem[] = useMemo(() => {
+    if (!objectName) {
+      return []
+    }
+
     return (
-      objectDataList?.map((item: any) => ({
-        id: item?.node?.id,
-        name: item?.node?.[objectName] || '',
-        checked: selectedPermissions.some((perm) => perm.id === item?.node?.id),
-        togglePermission,
-        referenceFramework: item?.node?.referenceFramework || '',
-      })) || []
+      objectDataList?.map((item) => {
+        const node = item?.node as ObjectDataNode
+
+        return {
+          id: node?.id,
+          name: (node?.[objectName as keyof ObjectDataNode] as string) || '',
+          checked: selectedPermissions.some((perm) => perm.id === node?.id),
+          togglePermission,
+          referenceFramework: (node as Partial<Control>)?.referenceFramework || '',
+        }
+      }) || []
     )
   }, [objectDataList, selectedPermissions, togglePermission, objectName])
 
@@ -145,7 +153,7 @@ const AssignPermissionsDialog = () => {
       }
     })
 
-    const cleanedPermissionMap = Object.fromEntries(Object.entries(permissionMap).filter(([_, value]) => value.length > 0))
+    const cleanedPermissionMap = Object.fromEntries(Object.entries(permissionMap).filter(([, value]) => value.length > 0))
 
     try {
       await updateGroup({

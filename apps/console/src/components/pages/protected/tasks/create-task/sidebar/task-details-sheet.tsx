@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { ArrowDownUp, ArrowUpDown, ArrowRight, BookText, CalendarCheck2, Check, Circle, CircleUser, Folder, InfoIcon, LinkIcon, Pencil, Tag, UserRoundPen } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { CreateNoteInput, TaskTaskStatus } from '@repo/codegen/src/schema'
+import { CreateNoteInput, TaskTaskStatus, UserWhereInput } from '@repo/codegen/src/schema'
 import { Input } from '@repo/ui/input'
 import { useNotification } from '@/hooks/useNotification'
 import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
@@ -64,7 +64,11 @@ const TaskDetailsSheet = () => {
 
   const taskData = data?.task
   const { form } = useFormSchema()
-  const where = taskData?.comments ? { idIn: taskData?.comments?.edges?.map((item) => item?.node?.createdBy!) } : undefined
+  const where: UserWhereInput | undefined = taskData?.comments
+    ? {
+        idIn: taskData.comments.edges?.map((item) => item?.node?.createdBy).filter((id): id is string => typeof id === 'string'),
+      }
+    : undefined
   const { data: userData } = useGetUsers(where)
 
   const initialAssociations = useMemo(
@@ -106,19 +110,19 @@ const TaskDetailsSheet = () => {
 
     if (taskData && userData && userData?.users?.edges?.length) {
       const comments = (taskData?.comments || [])?.edges?.map((item) => {
-        const user = userData.users!.edges!.find((user) => user!.node!.id === item?.node?.createdBy)?.node!
-        const avatarUrl = user!.avatarFile?.presignedURL || user.avatarRemoteURL
+        const user = userData.users!.edges!.find((user) => user!.node!.id === item?.node?.createdBy)?.node
+        const avatarUrl = user!.avatarFile?.presignedURL || user?.avatarRemoteURL
         return {
           comment: item?.node?.text,
           avatarUrl: avatarUrl,
           createdAt: item?.node?.createdAt,
-          userName: user.displayName,
+          userName: user?.displayName,
         } as TCommentData
       })
       const sortedComments = comments?.sort((a, b) => new Date(!commentSortIsAsc ? b.createdAt : a.createdAt).getTime() - new Date(!commentSortIsAsc ? a.createdAt : b.createdAt).getTime())
       setComments(sortedComments || [])
     }
-  }, [taskData, form])
+  }, [taskData, form, commentSortIsAsc, userData])
 
   const handleCopyLink = () => {
     if (!id) {
@@ -194,7 +198,7 @@ const TaskDetailsSheet = () => {
       })
 
       setIsEditing(false)
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Error',
         description: 'There was an unexpected error. Please try again later.',
@@ -218,7 +222,7 @@ const TaskDetailsSheet = () => {
       })
 
       setIsEditing(false)
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Error',
         description: 'There was an unexpected error. Please try again later.',
@@ -362,7 +366,7 @@ const TaskDetailsSheet = () => {
       })
 
       queryClient.invalidateQueries({ queryKey: ['tasks'] })
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Error',
         description: 'There was an unexpected error. Please try again later.',
@@ -442,7 +446,7 @@ const TaskDetailsSheet = () => {
                   <FormField
                     control={form.control}
                     name="details"
-                    render={({ field }) => (
+                    render={() => (
                       <FormItem className="w-full pt-4">
                         <div className="flex items-center">
                           <FormLabel>Details</FormLabel>
@@ -472,16 +476,15 @@ const TaskDetailsSheet = () => {
                       displayID: taskData!.displayID,
                       tags: taskData!.tags ?? undefined,
                       objectAssociations: {
-                        controlObjectiveIDs: taskData?.controlObjectives?.edges?.map((item) => item?.node?.id!) || [],
-                        subcontrolIDs: taskData?.subcontrols?.edges?.map((item) => item?.node?.id!) || [],
-                        programIDs: taskData?.programs?.edges?.map((item) => item?.node?.id!) || [],
-                        taskIDs: [taskData.id],
+                        controlObjectiveIDs: taskData?.controlObjectives?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+                        subcontrolIDs: taskData?.subcontrols?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+                        programIDs: taskData?.programs?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
                       },
                       objectAssociationsDisplayIDs: [
-                        ...(taskData?.controlObjectives?.edges?.map((item) => item?.node?.displayID!) || []),
-                        ...(taskData?.subcontrols?.edges?.map((item) => item?.node?.refCode!) || []),
-                        ...(taskData?.programs?.edges?.map((item) => item?.node?.displayID!) || []),
-                        ...[taskData.displayID],
+                        ...(taskData?.controlObjectives?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || []),
+                        ...(taskData?.subcontrols?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || []),
+                        ...(taskData?.programs?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || []),
+                        taskData.displayID,
                       ],
                     }}
                     excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.RISK, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.GROUP, ObjectTypeObjects.INTERNAL_POLICY]}

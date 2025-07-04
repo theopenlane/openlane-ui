@@ -1,19 +1,16 @@
 'use client'
 
 import React, { useState } from 'react'
-import Link from 'next/link'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/table'
 import { Button } from '@repo/ui/button'
 import { ChevronDown, ChevronsDownUp, List } from 'lucide-react'
 import { ProcedureByIdFragment } from '@repo/codegen/src/schema'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import SetObjectAssociationDialog from '@/components/pages/protected/procedures/modal/set-object-association-modal.tsx'
 import { useSession } from 'next-auth/react'
 import { useAccountRole } from '@/lib/authz/access-api.ts'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
 import { canEdit } from '@/lib/authz/utils.ts'
-import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
+import { getHrefForObjectType, NormalizedObject } from '@/utils/getHrefForObjectType'
 import ObjectAssociationChip from '@/components/shared/objectAssociation/object-association-chip.tsx'
 
 type AssociatedObjectsAccordionProps = {
@@ -50,7 +47,7 @@ const AssociatedObjectsViewAccordion: React.FC<AssociatedObjectsAccordionProps> 
                 details: row?.details,
                 description: row?.description,
                 summary: row?.summary,
-                link: getHrefForObjectType(kind, row),
+                link: getHrefForObjectType(kind, row as NormalizedObject),
               }}
             ></ObjectAssociationChip>
           )

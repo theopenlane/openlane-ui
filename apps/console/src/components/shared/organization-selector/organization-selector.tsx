@@ -47,7 +47,7 @@ export const OrganizationSelector = () => {
         currentOrgName: currentOrg?.displayName ?? '',
       })
     }
-  }, [currentOrg])
+  }, [currentOrg, nonPersonalOrgs.length])
 
   const handleOrganizationSwitch = async (orgId?: string) => {
     if (orgId && orgId !== currentOrgId) {

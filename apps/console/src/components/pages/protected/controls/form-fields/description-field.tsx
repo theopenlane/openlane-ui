@@ -12,7 +12,7 @@ interface DescriptionFieldProps {
 }
 
 const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialValue }) => {
-  const { control, getValues } = useFormContext()
+  const { control } = useFormContext()
   const plateEditorHelper = usePlateEditor()
 
   return isEditing ? (

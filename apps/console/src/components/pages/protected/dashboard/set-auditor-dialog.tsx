@@ -98,7 +98,7 @@ export const SetAuditorDialog = () => {
                 content={
                   <p>
                     Enter the name of the firm responsible for conducting your audit or certification. This helps ensure accurate record-keeping, allows you to manage audit partners, and provides
-                    access to audit documents when needed (e.g., SecureSphere Compliance").
+                    access to audit documents when needed (e.g., SecureSphere Compliance&quot;).
                   </p>
                 }
               />
