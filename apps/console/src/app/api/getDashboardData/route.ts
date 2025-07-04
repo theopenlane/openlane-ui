@@ -1,5 +1,6 @@
 'use server'
 
+import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 import { sessionCookieName } from '@repo/dally/auth'
 
 const GetDashboardDataDocument = `
@@ -17,10 +18,9 @@ const GetDashboardDataDocument = `
 
 export async function getDashboardData(accessToken: string, session: string) {
   try {
-    const response = await fetch(process.env.NEXT_PUBLIC_API_GQL_URL!, {
+    const response = await secureFetch(process.env.NEXT_PUBLIC_API_GQL_URL!, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken}`,
         Cookie: `${sessionCookieName}=${session}`,
       },
