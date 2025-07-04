@@ -23,7 +23,7 @@ export const ProceduresTable = () => {
   const router = useRouter()
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<ProcedureWhereInput | null>(null)
-  const [memberIds, setMemberIds] = useState<(Maybe<string> | undefined)[]>()
+  const [memberIds, setMemberIds] = useState<(Maybe<string> | undefined)[] | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const { setCrumbs } = useContext(BreadcrumbContext)
   const [orderBy, setOrderBy] = useState<GetProceduresListQueryVariables['orderBy']>([
@@ -73,11 +73,11 @@ export const ProceduresTable = () => {
   const { columns, mappedColumns } = getProceduresColumns({ users, tokens })
 
   useEffect(() => {
-    if (procedures && (!memberIds || memberIds.length === 0)) {
+    if (procedures.length > 0 && !memberIds) {
       const userIds = [...new Set(procedures.map((item) => item.updatedBy))]
       setMemberIds(userIds)
     }
-  }, [procedures?.length, memberIds, procedures])
+  }, [procedures, memberIds, filters])
 
   useEffect(() => {
     setCrumbs([

@@ -71,7 +71,7 @@ export const PersonalAccessTokenTable = () => {
     enabled: !!filters && !isOrg,
   })
 
-  const data = orgTokensResponse.data || personalTokensResponse.data
+  const data = isOrg ? orgTokensResponse.data : personalTokensResponse.data
   const isFetching = orgTokensResponse.isFetching || personalTokensResponse.isFetching
 
   const paginationMeta = useMemo(() => {
