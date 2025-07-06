@@ -122,7 +122,7 @@ const Risks = () => {
   ]
 
   const encodedFilters = encodeURIComponent(JSON.stringify(filters))
-  const risksRedirectURL = programId ? `/risks?filters=${encodedFilters}` : '/risks'
+  const risksRedirectURL = programId ? `/risks?regularFilters=${encodedFilters}` : '/risks'
 
   const hasData = formattedRisks.length > 0
 

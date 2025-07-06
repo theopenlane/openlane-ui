@@ -59,7 +59,7 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
   ]
 
   const encodedFilters = encodeURIComponent(JSON.stringify(filters))
-  const tasksRedirectURL = programId ? `/tasks?filters=${encodedFilters}` : '/tasks'
+  const tasksRedirectURL = programId ? `/tasks?regularFilters=${encodedFilters}` : '/tasks'
 
   if (dueSoonCount === 0 && upcomingCount === 0 && overdueCount === 0) {
     return (
