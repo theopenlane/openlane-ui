@@ -8,22 +8,58 @@ import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import ImportControlsDialogFramework from './program-settings-import-controls-dialog-framework'
 import ImportControlsDialogProgram from './program-settings-import-controls-dialog-program'
 import { SelectedItem } from '../shared/program-settings-import-controls-shared-props'
+import { useUpdateProgram } from '@/lib/graphql-hooks/programs'
+import { useNotification } from '@/hooks/useNotification'
+import { useQueryClient } from '@tanstack/react-query'
+import { useSearchParams } from 'next/navigation'
 
 const ImportControlsDialog: React.FC = () => {
   const [open, setOpen] = useState(false)
   const [selectedItems, setSelectedItems] = useState<SelectedItem[]>([])
+  const [selectedProgramIds, setSelectedProgramIds] = useState<string[]>([])
+  const [selectedFrameworkIds, setSelectedFrameworkIds] = useState<string[]>([])
   const [selectedImportControlsFrom, setSelectedImportControlsFrom] = useState<ObjectEnum>(ObjectEnum.STANDARD)
-  // const { successNotification, errorNotification } = useNotification()
-
+  const { mutateAsync: updateProgram } = useUpdateProgram()
+  const { successNotification, errorNotification } = useNotification()
+  const searchParams = useSearchParams()
+  const programId = searchParams.get('id')
+  const queryClient = useQueryClient()
   const handleImport = async () => {
-    // try {
-    // } catch (error) {}
-    // setSelectedItems([])
-    // setSelectedImportControlsFrom(ObjectEnum.STANDARD)
+    if (!programId) {
+      errorNotification({
+        title: 'Missing Program ID',
+        description: 'Cannot import without a valid program ID.',
+      })
+      return
+    }
+
+    try {
+      await updateProgram({
+        updateProgramId: programId,
+        input: {
+          addControlIDs: selectedItems.map((item) => item.id),
+        },
+      })
+      queryClient.invalidateQueries({ queryKey: ['programs'] })
+      successNotification({
+        title: 'Controls Imported',
+        description: `${selectedItems.length} control(s) successfully imported to the program.`,
+      })
+    } catch {
+      errorNotification({
+        title: 'Failed to Import Controls',
+      })
+    }
+    setSelectedItems([])
+    setSelectedProgramIds([])
+    setSelectedFrameworkIds([])
+    setSelectedImportControlsFrom(ObjectEnum.STANDARD)
   }
 
   const handleBack = async () => {
     setSelectedItems([])
+    setSelectedProgramIds([])
+    setSelectedFrameworkIds([])
     setSelectedImportControlsFrom(ObjectEnum.STANDARD)
     setOpen(false)
   }
@@ -49,9 +85,14 @@ const ImportControlsDialog: React.FC = () => {
         </Select>
         <p className="text-sm font-medium leading-5">Type</p>
         {selectedImportControlsFrom === ObjectEnum.STANDARD ? (
-          <ImportControlsDialogFramework setSelectedItems={setSelectedItems} selectedItems={selectedItems} />
+          <ImportControlsDialogFramework
+            setSelectedItems={setSelectedItems}
+            selectedItems={selectedItems}
+            selectedFrameworkIds={selectedFrameworkIds}
+            setSelectedFrameworkIds={setSelectedFrameworkIds}
+          />
         ) : (
-          <ImportControlsDialogProgram setSelectedItems={setSelectedItems} selectedItems={selectedItems} />
+          <ImportControlsDialogProgram setSelectedItems={setSelectedItems} selectedItems={selectedItems} selectedProgramIds={selectedProgramIds} setSelectedProgramIds={setSelectedProgramIds} />
         )}
         <DialogFooter className="mt-6 flex gap-2">
           <Button onClick={handleImport} disabled={selectedItems.length === 0}>

@@ -15,12 +15,11 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
 import { Input } from '@repo/ui/input'
 import { getColumnsForImportControlsDialogFramework } from '../columns'
-import { SelectedItem, TSharedImportControlsComponentsProps } from '../shared/program-settings-import-controls-shared-props'
+import { SelectedItem, TSharedImportControlsComponentsPropsFrameworks } from '../shared/program-settings-import-controls-shared-props'
 
-const ImportControlsDialogFramework = ({ setSelectedItems, selectedItems }: TSharedImportControlsComponentsProps) => {
+const ImportControlsDialogFramework = ({ setSelectedItems, selectedItems, selectedFrameworkIds, setSelectedFrameworkIds }: TSharedImportControlsComponentsPropsFrameworks) => {
   const { data } = useGetStandards({})
 
-  const [selectedFrameworkIds, setSelectedFrameworkIds] = useState<string[]>([])
   const [showCheckboxes, setShowCheckboxes] = useState<boolean>(false)
   const frameworks = data?.standards?.edges?.map((edge) => edge?.node as Standard) || []
   const { wrapper, content } = statCardStyles({ color: 'green' })

@@ -34,8 +34,6 @@ const AddToOrganizationDialog: React.FC<AddToOrganizationDialogProps> = ({ open,
   }, [programsData])
 
   const handleAddToOrg = async () => {
-    console.log('currentOrgId', currentOrgId)
-    console.log('selectedProgram', selectedProgram)
     try {
       await cloneControls({
         input: {

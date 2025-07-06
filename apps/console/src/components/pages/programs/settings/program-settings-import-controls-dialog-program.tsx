@@ -1,7 +1,7 @@
 'use client'
 
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
-import { SelectedItem, TSharedImportControlsComponentsProps } from '../shared/program-settings-import-controls-shared-props'
+import { SelectedItem, TSharedImportControlsComponentsPropsPrograms } from '../shared/program-settings-import-controls-shared-props'
 import { useMemo, useState } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { ControlWhereInput } from '@repo/codegen/src/schema'
@@ -18,9 +18,8 @@ import { Label } from '@repo/ui/label'
 import { Input } from '@repo/ui/input'
 import { DataTable } from '@repo/ui/data-table'
 
-const ImportControlsDialogProgram = ({ setSelectedItems, selectedItems }: TSharedImportControlsComponentsProps) => {
+const ImportControlsDialogProgram = ({ setSelectedItems, selectedItems, selectedProgramIds, setSelectedProgramIds }: TSharedImportControlsComponentsPropsPrograms) => {
   const { programOptions } = useProgramSelect()
-  const [selectedProgramIds, setSelectedProgramIIds] = useState<string[]>([])
   const [showCheckboxes, setShowCheckboxes] = useState<boolean>(false)
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
@@ -52,7 +51,7 @@ const ImportControlsDialogProgram = ({ setSelectedItems, selectedItems }: TShare
   }, [selectedProgramIds, debouncedSearchQuery])
 
   const handleToggle = (id: string) => {
-    setSelectedProgramIIds((prev) => (prev.includes(id) ? prev.filter((fid) => fid !== id) : [...prev, id]))
+    setSelectedProgramIds((prev) => (prev.includes(id) ? prev.filter((fid) => fid !== id) : [...prev, id]))
   }
   const { allControls } = useAllControlsGroupedWithListFields({ where: where as ControlWhereInput, enabled: selectedProgramIds.length > 0 })
   const handleCheckboxShowToggle = () => {
