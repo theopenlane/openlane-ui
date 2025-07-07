@@ -8,7 +8,7 @@ import { ReactNode, useEffect, useState } from 'react'
 import { Loading } from '@/components/shared/loading/loading'
 import { NavigationGuardProvider } from 'next-navigation-guard'
 import { BreadcrumbProvider } from '@/providers/BreadcrumbContext.tsx'
-import { chatAppId } from '@repo/dally/auth'
+import { InitPlugSDK } from '@/providers/chatSdk'
 
 // Extend the Window interface to include plugSDK
 declare global {
@@ -32,33 +32,17 @@ const Providers = ({ children }: ProvidersProps) => {
   const isPublicPage = publicPages.includes(pathname)
 
   useEffect(() => {
-    if (status === 'authenticated') {
-      if (!queryClient) {
-        const newQueryClient = new QueryClient({
-          defaultOptions: {
-            queries: {
-              staleTime: 60 * 1000,
-              placeholderData: (prev: any) => prev,
-              refetchOnWindowFocus: false,
-            },
+    if (status === 'authenticated' && !queryClient) {
+      const newQueryClient = new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 60 * 1000,
+            placeholderData: (prev: any) => prev,
+            refetchOnWindowFocus: false,
           },
-        })
-        setQueryClient(newQueryClient)
-      }
-
-      if (chatAppId) {
-        window.plugSDK?.init({
-          app_id: chatAppId,
-          identity: {
-            user_ref: session?.user?.name || 'Anonymous',
-            user_traits: {
-              display_name: session?.user?.name,
-              email: session?.user?.email,
-              custom_fields: {},
-            },
-          },
-        })
-      }
+        },
+      })
+      setQueryClient(newQueryClient)
     }
   }, [session?.user.accessToken, status, queryClient])
 
@@ -78,7 +62,10 @@ const Providers = ({ children }: ProvidersProps) => {
     <NavigationGuardProvider>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
         <QueryClientProvider client={queryClient}>
-          <BreadcrumbProvider>{children}</BreadcrumbProvider>
+          <BreadcrumbProvider>
+            <InitPlugSDK />
+            {children}
+          </BreadcrumbProvider>
         </QueryClientProvider>
       </ThemeProvider>
     </NavigationGuardProvider>
