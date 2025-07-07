@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth/auth'
 import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
-import { fetchCSRFToken, secureFetch } from '@/lib/auth/utils/secure-fetch'
-import { getCookie } from '@/lib/auth/utils/getCookie'
-import { csrfCookieName, csrfHeader } from '@repo/dally/auth'
-import { getCSRFCookie, setCSRFCookie } from '@/lib/auth/utils/set-csrf-cookie'
+import { csrfHeader } from '@repo/dally/auth'
+import { getCSRFCookie } from '@/lib/auth/utils/set-csrf-cookie'
 
 export async function POST(request: Request) {
   const bodyData = await request.json()
