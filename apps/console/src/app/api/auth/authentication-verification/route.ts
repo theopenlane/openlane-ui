@@ -1,4 +1,6 @@
-import { secureFetch } from '@/lib/auth/utils/secure-fetch'
+import { getCSRFCookie } from '@/lib/auth/utils/set-csrf-cookie'
+import { csrfHeader } from '@repo/dally/auth'
+
 import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
@@ -9,9 +11,14 @@ export async function POST(request: Request) {
 
   if (cookies) {
     headers['cookie'] = cookies
+
+    const csrfToken = await getCSRFCookie(cookies)
+    if (csrfToken) {
+      headers[csrfHeader] = csrfToken
+    }
   }
 
-  const fData = await secureFetch(`${process.env.API_REST_URL}/authentication/verification`, {
+  const fData = await fetch(`${process.env.API_REST_URL}/authentication/verification`, {
     method: 'POST',
     headers,
     body: JSON.stringify(bodyData),
