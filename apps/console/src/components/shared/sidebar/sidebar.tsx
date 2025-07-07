@@ -4,7 +4,7 @@ import { useSidebar } from '@/hooks/useSidebar'
 import { cn } from '@repo/ui/lib/utils'
 import { sidebarStyles } from './sidebar.styles'
 import { SideNav } from './sidebar-nav/sidebar-nav'
-import { NavItems, PersonalNavItems } from '@/routes/dashboard'
+import { PersonalNavItems, useNavItems } from '@/routes/dashboard'
 import { useSession } from 'next-auth/react'
 import { useOrganization } from '@/hooks/useOrganization'
 
@@ -13,6 +13,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ className }: SidebarProps) {
+  const navItems = useNavItems()
   const { data: session } = useSession()
   const { isOpen } = useSidebar()
   const { currentOrgId, allOrgs } = useOrganization()
@@ -31,7 +32,7 @@ export default function Sidebar({ className }: SidebarProps) {
 
   return (
     <div className={cn(nav(), className)}>
-      <SideNav className={sideNav()} items={isOrganizationSelected ? NavItems : PersonalNavItems} />
+      <SideNav className={sideNav()} items={isOrganizationSelected ? navItems : PersonalNavItems} />
     </div>
   )
 }
