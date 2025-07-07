@@ -1,6 +1,6 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
-import React from 'react'
-import { SelectFilterField, SelectIsFilterField } from '@/types'
+import React, { useEffect, useMemo, useState } from 'react'
+import { FilterField, SelectFilterField, SelectIsFilterField } from '@/types'
 import { CirclePlus, DownloadIcon, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
 import { CONTROLS_FILTER_FIELDS } from './table-config'
 import { Input } from '@repo/ui/input'
@@ -32,25 +32,33 @@ type TProps = {
 const ControlsTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, searchTerm, setSearchTerm, handleExport, columnVisibility, setColumnVisibility, mappedColumns }: TProps) => {
   const { programOptions } = useProgramSelect()
   const { groupOptions } = useGroupSelect()
-  const groups = groupOptions || []
-  const filterFields = [
-    ...CONTROLS_FILTER_FIELDS,
-    {
-      key: 'controlOwnerID',
-      label: 'Owners',
-      type: 'select',
-      options: groups.map((group) => ({
-        value: group.value,
-        label: group.label,
-      })),
-    } as SelectFilterField,
-    {
-      key: 'hasProgramsWith',
-      label: 'Program Name',
-      type: 'selectIs',
-      options: programOptions,
-    } as SelectIsFilterField,
-  ]
+  const groups = useMemo(() => groupOptions || [], [groupOptions])
+  const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
+
+  useEffect(() => {
+    if (filterFields || !groups || !programOptions) {
+      return
+    }
+
+    setFilterFields([
+      ...CONTROLS_FILTER_FIELDS,
+      {
+        key: 'controlOwnerID',
+        label: 'Owners',
+        type: 'select',
+        options: groups.map((group) => ({
+          value: group.value,
+          label: group.label,
+        })),
+      } as SelectFilterField,
+      {
+        key: 'hasProgramsWith',
+        label: 'Program Name',
+        type: 'selectIs',
+        options: programOptions,
+      } as SelectIsFilterField,
+    ])
+  }, [groups, programOptions, filterFields])
 
   return (
     <>
@@ -59,7 +67,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, sea
           {mappedColumns && columnVisibility && setColumnVisibility && (
             <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
           )}
-          <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} />
+          {filterFields && <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} />}
           <Input
             icon={searching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
             placeholder="Search"

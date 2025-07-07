@@ -130,7 +130,7 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
     setAdvancedFilters(advancedParsedFilters)
     setRegularFilters(regularParsedFilters)
     onFilterChange?.(generateWhereCondition(regularParsedFilters, advancedParsedFilters, conjunction))
-  }, [conjunction, generateWhereCondition, onFilterChange, searchParams])
+  }, [conjunction, filterFields, generateWhereCondition, onFilterChange, searchParams])
 
   const handleParseURLFilter = (searchParam: string) => {
     try {
