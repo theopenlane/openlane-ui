@@ -11,11 +11,11 @@ import Ccm from '@/assets/Ccm'
 import Hipaa from '@/assets/Hipaa'
 import Sox from '@/assets/Sox'
 
-type StandardsIconMapperProps = {
+type TStandardsIconMapperProps = {
   shortName: string
 }
 
-export const StandardsIconMapper = ({ shortName }: StandardsIconMapperProps) => {
+export const StandardsIconMapper = ({ shortName }: TStandardsIconMapperProps) => {
   const icon = useMemo(() => {
     const iconMap: Record<string, React.ReactNode> = {
       'ISO 27001': <Iso27001 />,
