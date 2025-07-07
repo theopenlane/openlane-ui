@@ -1,12 +1,11 @@
 'use client'
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { QRCodeSVG } from 'qrcode.react'
 import { Button } from '@repo/ui/button'
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@repo/ui/input-otp'
 import { useNotification } from '@/hooks/useNotification'
-import { useCopyToClipboard } from '@uidotdev/usehooks'
 import { Copy } from 'lucide-react'
 import { useUpdateTfaSetting } from '@/lib/graphql-hooks/tfa'
 import { useQueryClient } from '@tanstack/react-query'
@@ -30,14 +29,27 @@ const QRCodeDialog = ({ qrcode, secret, onClose, regeneratedCodes }: QRCodeProps
 
   const { mutateAsync: updateTfaSetting } = useUpdateTfaSetting()
 
-  const [copiedText, copyToClipboard] = useCopyToClipboard()
-
   const resetState = () => {
     setTimeout(() => {
       setRecoveryCodes(null)
       setIsSecretKeySetup(false)
     }, 300)
   }
+
+  const copyToClipboard = useCallback(
+    async (text: string) => {
+      try {
+        await navigator.clipboard.writeText(text)
+        successNotification({ title: 'Copied to clipboard' })
+        setModalClosable(true)
+      } catch (error) {
+        console.error('Failed to copy to clipboard:', error)
+        errorNotification({ title: 'Failed to copy to clipboard' })
+      }
+    },
+    [errorNotification, successNotification],
+  )
+
   const verifyOTP = useCallback(
     async (otp: string) => {
       try {
@@ -118,15 +130,6 @@ const QRCodeDialog = ({ qrcode, secret, onClose, regeneratedCodes }: QRCodeProps
     },
     [onClose],
   )
-
-  useEffect(() => {
-    if (copiedText) {
-      successNotification({
-        title: 'Copied to clipboard',
-      })
-      setModalClosable(true)
-    }
-  }, [copiedText, successNotification])
 
   const config = useMemo(() => {
     const codes = recoveryCodes || regeneratedCodes
