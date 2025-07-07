@@ -26,7 +26,6 @@ import { useGetInternalPolicyDetailsById } from '@/lib/graphql-hooks/policy.ts'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { Loading } from '@/components/shared/loading/loading'
 import { useOrganization } from '@/hooks/useOrganization.ts'
-import { useGetOrganizationNameById } from '@/lib/graphql-hooks/organization.ts'
 
 type TCreateProcedureFormProps = {
   procedure?: ProcedureByIdFragment
@@ -57,8 +56,8 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   const searchParams = useSearchParams()
   const policyId = searchParams.get('policyId')
   const { data, isLoading } = useGetInternalPolicyDetailsById(policyId)
-  const { currentOrgId } = useOrganization()
-  const { data: orgNameData } = useGetOrganizationNameById(currentOrgId)
+  const { currentOrgId, getOrganizationByID } = useOrganization()
+  const currentOrganization = getOrganizationByID(currentOrgId!)
 
   const isProcedureCreate = path === '/procedures/create'
 
@@ -260,7 +259,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
 
   return (
     <>
-      {isEditable && <title>{`${orgNameData?.organization.displayName}: Procedures - ${procedure?.name}`}</title>}
+      {isEditable && <title>{`${currentOrganization?.node?.displayName}: Procedures - ${procedure?.name}`}</title>}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(isEditable ? onSaveHandler : onCreateHandler)} className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
           <div className="space-y-6">
