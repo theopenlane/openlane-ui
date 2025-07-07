@@ -167,7 +167,7 @@ export const useControlSelect = ({ where, enabled = true }: { where?: ControlWhe
   const controlOptions = useMemo(
     () =>
       data?.controls?.edges?.flatMap((edge) =>
-        edge?.node?.id && edge.node.refCode ? [{ label: `${edge.node.refCode}${edge.node.referenceFramework ? `( ${edge.node.referenceFramework})` : ''}`, value: edge.node.id }] : [],
+        edge?.node?.id && edge.node.refCode ? [{ label: `${edge.node.refCode}${edge.node.referenceFramework ? ` (${edge.node.referenceFramework})` : ' (CUSTOM)'}`, value: edge.node.id }] : [],
       ) ?? [],
     [data],
   )
