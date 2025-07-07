@@ -151,7 +151,7 @@ export default function CreateControlForm() {
 
   useEffect(() => {
     if (controlData?.control && !dataInitialized) {
-      const label = `${controlData.control.refCode}${controlData.control?.standard?.shortName ? `( ${controlData.control.standard?.shortName})` : ''}`
+      const label = `${controlData.control.refCode} ${controlData.control?.referenceFramework ? `(${controlData.control?.referenceFramework.trim()})` : '(CUSTOM)'}`
       fillCategoryAndSubcategory(form, controlData.control)
       setSearch(label)
       setSelectedParentControlLabel(label)
@@ -212,7 +212,7 @@ export default function CreateControlForm() {
                           <CommandItem onSelect={() => setSearch(selectedParentControlLabel)}>
                             <div className="flex gap-1 items-center opacity-50">
                               <Check size={12} />
-                              <p>{selectedParentControlLabel}</p>{' '}
+                              <p>{selectedParentControlLabel}</p>
                             </div>
                           </CommandItem>
                           {controlOptions

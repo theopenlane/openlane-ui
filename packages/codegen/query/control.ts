@@ -70,9 +70,7 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
     controlType
     auditorReferenceID
     referenceID
-    standard {
-      shortName
-    }
+    referenceFramework
     controlObjectives {
       edges {
         node {
