@@ -1,5 +1,4 @@
 import { DefaultUser } from 'next-auth'
-import { JwtPayload } from 'jsonwebtoken'
 
 /**
  * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context

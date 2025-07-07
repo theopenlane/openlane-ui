@@ -10,11 +10,11 @@ export async function POST(request: Request) {
 
   if (cookies) {
     headers['cookie'] = cookies
-  }
 
-  const csrfToken = await getCSRFCookie(cookies)
-  if (csrfToken) {
-    headers[csrfHeader] = csrfToken
+    const csrfToken = await getCSRFCookie(cookies)
+    if (csrfToken) {
+      headers[csrfHeader] = csrfToken
+    }
   }
 
   const fData = await fetch(`${process.env.API_REST_URL}/registration/verification`, {

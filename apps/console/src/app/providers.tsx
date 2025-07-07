@@ -10,15 +10,6 @@ import { NavigationGuardProvider } from 'next-navigation-guard'
 import { BreadcrumbProvider } from '@/providers/BreadcrumbContext.tsx'
 import { InitPlugSDK } from '@/providers/chatSdk'
 
-// Extend the Window interface to include plugSDK
-declare global {
-  interface Window {
-    plugSDK?: {
-      init: (config: any) => void
-    }
-  }
-}
-
 interface ProvidersProps {
   children: ReactNode
 }
