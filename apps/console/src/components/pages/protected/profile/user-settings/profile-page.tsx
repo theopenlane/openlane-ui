@@ -1,6 +1,6 @@
 'use client'
 
-import React, { Suspense, useMemo, useState, useEffect, useContext } from 'react'
+import React, { Suspense, useMemo, useState, useEffect, useContext, useCallback } from 'react'
 import { ProfileNameForm } from './profile-name-form'
 import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
 import { useSession } from 'next-auth/react'
@@ -28,14 +28,14 @@ const ProfilePage = () => {
 
   const { data: userData } = useGetCurrentUser(userId)
 
-  const { isPending, mutateAsync: updateUserAvatar } = useUpdateUserAvatar()
+  const { mutateAsync: updateUserAvatar } = useUpdateUserAvatar()
 
   const { data: tfaData } = useGetUserTFASettings(userId)
   const tfaSettings = tfaData?.user?.tfaSettings?.edges?.[0]?.node
 
-  const { isPending: isTfaSubmitting, mutateAsync: updateTfaSetting } = useUpdateTfaSetting()
-  const { isPending: isTfaCreating, mutateAsync: createTfaSetting } = useCreateTfaSetting()
-  const { isPending: updatingUser, mutateAsync: updateUserSetting } = useUpdateUserSetting()
+  const { mutateAsync: updateTfaSetting } = useUpdateTfaSetting()
+  const { mutateAsync: createTfaSetting } = useCreateTfaSetting()
+  const { mutateAsync: updateUserSetting } = useUpdateUserSetting()
 
   const isVerified = !!tfaSettings?.verified
 
@@ -60,7 +60,7 @@ const ProfilePage = () => {
       successNotification({
         title: 'Avatar updated successfully',
       })
-    } catch (error) {
+    } catch {
       console.error('file upload error')
       errorNotification({
         title: 'Failed to update avatar',
@@ -68,7 +68,7 @@ const ProfilePage = () => {
     }
   }
 
-  const handleConfigure = async () => {
+  const handleConfigure = useCallback(async () => {
     let qrcode
     let secret
     if (!tfaSettings) {
@@ -91,29 +91,32 @@ const ProfilePage = () => {
 
     setQrcode(qrcode || null)
     setSecret(secret || null)
-  }
+  }, [createTfaSetting, isVerified, tfaSettings, updateTfaSetting])
 
-  const handleTfaChange = async (checked: boolean) => {
-    try {
-      await updateUserSetting({
-        updateUserSettingId: userData?.user?.setting?.id ?? '',
-        input: {
-          isTfaEnabled: checked,
-        },
-      })
+  const handleTfaChange = useCallback(
+    async (checked: boolean) => {
+      try {
+        await updateUserSetting({
+          updateUserSettingId: userData?.user?.setting?.id ?? '',
+          input: {
+            isTfaEnabled: checked,
+          },
+        })
 
-      successNotification({
-        title: `Two-factor authentication ${checked ? 'enabled' : 'disabled'} successfully`,
-      })
-    } catch (error) {
-      console.error('Error updating TFA setting:', error)
-      errorNotification({
-        title: 'Failed to update TFA setting',
-      })
-    }
-  }
+        successNotification({
+          title: `Two-factor authentication ${checked ? 'enabled' : 'disabled'} successfully`,
+        })
+      } catch (error) {
+        console.error('Error updating TFA setting:', error)
+        errorNotification({
+          title: 'Failed to update TFA setting',
+        })
+      }
+    },
+    [errorNotification, successNotification, updateUserSetting, userData?.user?.setting?.id],
+  )
 
-  const removeTfa = async () => {
+  const removeTfa = useCallback(async () => {
     try {
       await updateTfaSetting({
         input: {
@@ -123,21 +126,21 @@ const ProfilePage = () => {
       successNotification({
         title: `Two-factor authentication removed successfully`,
       })
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Failed to remove Two-factor authentication ',
       })
     }
-  }
+  }, [errorNotification, successNotification, updateTfaSetting])
 
-  const regenerateCodes = async () => {
+  const regenerateCodes = useCallback(async () => {
     const resp = await updateTfaSetting({
       input: {
         regenBackupCodes: true,
       },
     })
     setRegeneratedCodes(resp?.updateTFASetting?.recoveryCodes || null)
-  }
+  }, [updateTfaSetting])
 
   const twoFAConfig = useMemo(() => {
     if (!tfaSettings || !isVerified) {
@@ -195,7 +198,7 @@ const ProfilePage = () => {
         </Button>,
       ],
     }
-  }, [tfaSettings, isVerified, userData?.user.setting.isTfaEnabled])
+  }, [tfaSettings, isVerified, userData?.user.setting.isTfaEnabled, handleConfigure, handleTfaChange, regenerateCodes, removeTfa])
 
   return (
     <>
@@ -230,7 +233,6 @@ const ProfilePage = () => {
         <QRCodeDialog
           qrcode={qrcode}
           secret={secret}
-          refetch={() => {}}
           onClose={() => {
             setQrcode('')
             setSecret('')

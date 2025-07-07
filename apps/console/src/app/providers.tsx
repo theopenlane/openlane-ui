@@ -8,6 +8,16 @@ import { ReactNode, useEffect, useState } from 'react'
 import { Loading } from '@/components/shared/loading/loading'
 import { NavigationGuardProvider } from 'next-navigation-guard'
 import { BreadcrumbProvider } from '@/providers/BreadcrumbContext.tsx'
+import { InitPlugSDK } from '@/providers/chatSdk'
+
+// Extend the Window interface to include plugSDK
+declare global {
+  interface Window {
+    plugSDK?: {
+      init: (config: any) => void
+    }
+  }
+}
 
 interface ProvidersProps {
   children: ReactNode
@@ -27,7 +37,7 @@ const Providers = ({ children }: ProvidersProps) => {
         defaultOptions: {
           queries: {
             staleTime: 60 * 1000,
-            placeholderData: (prev: any) => prev,
+            placeholderData: (prev: unknown) => prev,
             refetchOnWindowFocus: false,
           },
         },
@@ -52,7 +62,10 @@ const Providers = ({ children }: ProvidersProps) => {
     <NavigationGuardProvider>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
         <QueryClientProvider client={queryClient}>
-          <BreadcrumbProvider>{children}</BreadcrumbProvider>
+          <BreadcrumbProvider>
+            <InitPlugSDK />
+            {children}
+          </BreadcrumbProvider>
         </QueryClientProvider>
       </ThemeProvider>
     </NavigationGuardProvider>

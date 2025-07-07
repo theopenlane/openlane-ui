@@ -25,10 +25,10 @@ export const step1Schema = z.object({
 type Step1Values = zInfer<typeof step1Schema>
 
 const companySizes = [
-  { value: '1–10', label: '1–10 employees (Freelancers, solo entrepreneurs, or small startups)' },
-  { value: '11–50', label: '11–50 employees (Small businesses or growing teams)' },
-  { value: '51–200', label: '51–200 employees (Mid-sized companies or established startups)' },
-  { value: '201-1000', label: '201–1,000 employees (Small to mid-sized enterprises)' },
+  { value: '1-10', label: '1-10 employees (Freelancers, solo entrepreneurs, or small startups)' },
+  { value: '11-50', label: '11-50 employees (Small businesses or growing teams)' },
+  { value: '51-200', label: '51-200 employees (Mid-sized companies or established startups)' },
+  { value: '201-1000', label: '201-1,000 employees (Small to mid-sized enterprises)' },
   { value: '1000+', label: '1,000+ employees (Large enterprises or corporations)' },
 ]
 
@@ -63,13 +63,15 @@ export default function Step1() {
 
   const [domainInput, setDomainInput] = useState('')
   const userDomain = sessionData?.user.email.split('@')[1]
+
   const domains = watch('domains') || []
 
   useEffect(() => {
-    if (userDomain && !domains.includes(userDomain)) {
-      setValue('domains', [...domains, userDomain])
+    const currentDomains = watch('domains') || []
+    if (userDomain && !currentDomains.includes(userDomain)) {
+      setValue('domains', [...currentDomains, userDomain])
     }
-  }, [userDomain, setValue])
+  }, [userDomain, setValue, watch])
 
   const addDomain = () => {
     if (!domainInput.trim()) return
@@ -129,7 +131,7 @@ export default function Step1() {
           {domains.map((domain) => (
             <Badge key={domain} className="flex items-center gap-1">
               {domain}
-              <button onClick={() => removeDomain(domain)} className="ml-1">
+              <button type="button" onClick={() => removeDomain(domain)} className="ml-1">
                 <X size={12} />
               </button>
             </Badge>

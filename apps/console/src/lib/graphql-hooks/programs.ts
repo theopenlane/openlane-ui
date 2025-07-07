@@ -5,7 +5,6 @@ import {
   CREATE_PROGRAM_WITH_MEMBERS,
   UPDATE_PROGRAM,
   GET_ALL_PROGRAMS,
-  GET_PROGRAM_EDGES_FOR_WIZARD,
   GET_PROGRAM_DETAILS_BY_ID,
   GET_PROGRAM_BASIC_INFO,
   GET_EVIDENCE_STATS,
@@ -20,7 +19,6 @@ import {
 import {
   GetAllProgramsQuery,
   GetAllProgramsQueryVariables,
-  GetProgramEdgesForWizardQuery,
   GetProgramDetailsByIdQuery,
   GetProgramDetailsByIdQueryVariables,
   CreateProgramWithMembersMutation,

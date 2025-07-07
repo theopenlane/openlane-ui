@@ -13,13 +13,14 @@ import { CREATE_SUBSCRIBER } from '@repo/codegen/query/subscribe'
 import { GraphQlResponseError } from '@/constants/graphQlResponseError'
 import { extractGraphQlResponseError } from '@/utils/graphQlErrorMatcher'
 import { SUPPORT_EMAIL } from '@/constants'
+import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 
 const formSchema = z.object({
   email: z.string().email(),
 })
 
 export const Subscribe = () => {
-  const { wrapper, button, errorMessage, success, successMessage, successIcon } = newsletterStyles()
+  const { wrapper, button } = newsletterStyles()
 
   const [isPending, setIsPending] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -38,7 +39,6 @@ export const Subscribe = () => {
       setIsPending(true)
 
       if (recaptchaSiteKey) {
-        // @ts-ignore
         const recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'subscribe' })
 
         const recaptchaValidation = await fetch('/api/recaptchaVerify', {
@@ -54,13 +54,17 @@ export const Subscribe = () => {
         }
       }
 
-      const res = await fetch('/api/graphql', {
+      const res = await secureFetch('/api/graphql', {
         method: 'POST',
         body: JSON.stringify({
           query: CREATE_SUBSCRIBER,
           variables: { input: { email } },
         }),
       })
+
+      if (!res.ok) {
+        return { success: false, message: 'An error occurred while subscribing.' }
+      }
 
       const graphQlCreateSubscriberError = await extractGraphQlResponseError(res)
 
@@ -98,7 +102,7 @@ export const Subscribe = () => {
             <div className="flex items-center justify-center w-7 h-7 rounded-full border ">
               <CheckCircle className="text-brand" size={37} />
             </div>
-            <p className="text-sm leading-snug">You're on the list! Hang tight — we'll be in touch when it's your turn to try the beta.</p>
+            <p className="text-sm leading-snug">You&apos;re on the list! Hang tight — we&apos;ll be in touch when it&apos;s your turn to try the beta.</p>
           </div>
         ) : maxAttemptsReached ? (
           <div className="flex items-center gap-4 px-4 py-3 border rounded-lg max-w-xl mx-auto bg-card">
@@ -106,7 +110,7 @@ export const Subscribe = () => {
               <CheckCircle className="text-brand" size={37} />
             </div>
             <p className="text-sm leading-snug">
-              You're on the list! We previously sent a confirmation to <span className="underline">{form.getValues('email')}</span>. If you haven't received the email, please reach out to{' '}
+              You&apos;re on the list! We previously sent a confirmation to <span className="underline">{form.getValues('email')}</span>. If you haven&apos;t received the email, please reach out to{' '}
               <a href={SUPPORT_EMAIL} className="underline">
                 support
               </a>
@@ -119,7 +123,8 @@ export const Subscribe = () => {
               <CheckCircle className="text-brand" size={37} />
             </div>
             <p className="text-sm leading-snug">
-              You're on the list! We just sent a confirmation to <span className="underline">{form.getValues('email')}</span>. Hang tight — we'll be in touch when it's your turn to try the beta.
+              You&apos;re on the list! We just sent a confirmation to <span className="underline">{form.getValues('email')}</span>. Hang tight — we&apos;ll be in touch when it&apos;s your turn to try
+              the beta.
             </p>
           </div>
         )

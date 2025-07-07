@@ -16,7 +16,7 @@ import PropertiesCard from '../../../../components/pages/protected/controls/prop
 import DetailsCard from '../../../../components/pages/protected/controls/details.tsx'
 import InfoCard from '../../../../components/pages/protected/controls/info-card.tsx'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
-import { ControlControlSource, ControlControlStatus, ControlControlType, EvidenceEdge } from '@repo/codegen/src/schema.ts'
+import { Control, ControlControlSource, ControlControlStatus, ControlControlType, EvidenceEdge } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import SubcontrolsTable from '@/components/pages/protected/controls/subcontrols-table.tsx'
@@ -37,11 +37,9 @@ import { useNotification } from '@/hooks/useNotification.tsx'
 import CreateControlObjectiveSheet from '@/components/pages/protected/controls/control-objectives/create-control-objective-sheet'
 import CreateControlImplementationSheet from '@/components/pages/protected/controls/control-implementation/create-control-implementation-sheet.tsx'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
-import { Control } from '@repo/codegen/src/schema.ts'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 import RelatedControls from '@/components/pages/protected/controls/related-controls.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
-import { useGetOrganizationNameById } from '@/lib/graphql-hooks/organization.ts'
 
 interface FormValues {
   refCode: string
@@ -90,8 +88,8 @@ const ControlDetailsPage: React.FC = () => {
   const isSourceFramework = data?.control.source === ControlControlSource.FRAMEWORK
   const { mutateAsync: updateControl } = useUpdateControl()
   const plateEditorHelper = usePlateEditor()
-  const { currentOrgId } = useOrganization()
-  const { data: orgNameData } = useGetOrganizationNameById(currentOrgId)
+  const { currentOrgId, getOrganizationByID } = useOrganization()
+  const currentOrganization = getOrganizationByID(currentOrgId!)
 
   const form = useForm<FormValues>({
     defaultValues: initialDataObj,
@@ -304,15 +302,8 @@ const ControlDetailsPage: React.FC = () => {
   const sidebarContent = (
     <>
       <AuthorityCard controlOwner={control.controlOwner} delegate={control.delegate} isEditing={isEditing} />
-      <PropertiesCard
-        category={control.category}
-        subcategory={control.subcategory}
-        status={control.status}
-        mappedCategories={control.mappedCategories}
-        controlData={control as Control}
-        isEditing={isEditing}
-        isSourceFramework={isSourceFramework}
-      />
+      <PropertiesCard data={control as Control} isEditing={isEditing} />
+
       <RelatedControls />
       <DetailsCard />
       {hasInfoData && (
@@ -338,7 +329,7 @@ const ControlDetailsPage: React.FC = () => {
 
   return (
     <>
-      <title>{`${orgNameData?.organization.displayName}: Controls - ${data.control.refCode}`}</title>
+      <title>{`${currentOrganization?.node?.displayName}: Controls - ${data.control.refCode}`}</title>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>

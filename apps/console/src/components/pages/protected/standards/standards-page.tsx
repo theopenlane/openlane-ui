@@ -16,6 +16,7 @@ import Link from 'next/link'
 import { formatDateSince } from '@/utils/date'
 import { INFO_EMAIL } from '@/constants'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { StandardWhereInput } from '@repo/codegen/src/schema'
 import { StandardsIconMapper } from '@/components/shared/standardsIconMapper/standardsIconMapper'
 
 const filterFields: FilterField[] = [
@@ -30,7 +31,7 @@ const filterFields: FilterField[] = [
 const StandardsPage = () => {
   const { setCrumbs } = useContext(BreadcrumbContext)
   const [searchQuery, setSearchQuery] = useState('')
-  const [filters, setFilters] = useState<Record<string, any> | null>(null)
+  const [filters, setFilters] = useState<StandardWhereInput | null>(null)
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
 
   useEffect(() => {
@@ -41,7 +42,7 @@ const StandardsPage = () => {
   }, [setCrumbs])
 
   const whereFilter = useMemo(() => {
-    const conditions: Record<string, any> = {
+    const conditions: StandardWhereInput = {
       ...(debouncedSearchQuery ? { shortNameContainsFold: debouncedSearchQuery } : {}),
       ...filters,
     }

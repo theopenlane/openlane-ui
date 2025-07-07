@@ -78,7 +78,7 @@ const Risks = () => {
   const { groups } = useGetAllGroups({ where: {} })
   const [tab, setTab] = useState<'created' | 'assigned'>('created')
 
-  const stakeholderGroupIds = groups?.map((group) => group.id) ?? []
+  const stakeholderGroupIds = useMemo(() => groups?.map((group) => group.id) ?? [], [groups])
 
   const where: RiskWhereInput = useMemo(() => {
     if (tab === 'assigned') {
@@ -90,7 +90,7 @@ const Risks = () => {
     }
 
     return {
-      createdBy: session?.user?.userId!,
+      createdBy: session?.user?.userId,
       statusNEQ: RiskRiskStatus.MITIGATED,
       hasProgramsWith: programId ? [{ id: programId }] : undefined,
     }
@@ -146,7 +146,7 @@ const Risks = () => {
           className="px-6"
         >
           <TabsList>
-            <TabsTrigger value="created">Risks I've Created</TabsTrigger>
+            <TabsTrigger value="created">Risks I&apos;ve Created</TabsTrigger>
             <TabsTrigger value="assigned">Risks Assigned to Me</TabsTrigger>
           </TabsList>
         </Tabs>

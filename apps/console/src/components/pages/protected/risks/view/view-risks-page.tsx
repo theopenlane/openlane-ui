@@ -26,7 +26,6 @@ import BusinessCostField from '@/components/pages/protected/risks/view/fields/bu
 import MitigationField from '@/components/pages/protected/risks/view/fields/mitigation-field.tsx'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
-import { useGetOrganizationNameById } from '@/lib/graphql-hooks/organization'
 import { useOrganization } from '@/hooks/useOrganization'
 
 type TRisksPageProps = {
@@ -49,8 +48,8 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   const editAllowed = canEdit(permission?.roles)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const router = useRouter()
-  const { currentOrgId } = useOrganization()
-  const { data: orgNameData } = useGetOrganizationNameById(currentOrgId)
+  const { currentOrgId, getOrganizationByID } = useOrganization()
+  const currentOrganization = getOrganizationByID(currentOrgId!)
 
   useEffect(() => {
     setCrumbs([
@@ -78,7 +77,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
         delegateID: risk.delegate?.id,
       })
     }
-  }, [risk])
+  }, [risk, form])
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -143,7 +142,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
       })
 
       setIsEditing(false)
-    } catch (err) {
+    } catch {
       errorNotification({
         title: 'Error updating risk',
         description: 'Something went wrong.',
@@ -232,7 +231,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
 
   return (
     <>
-      <title>{`${orgNameData?.organization.displayName}: Risks - ${risk.name}`}</title>
+      <title>{`${currentOrganization?.node?.displayName}: Risks - ${risk.name}`}</title>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmitHandler)}>
           <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>

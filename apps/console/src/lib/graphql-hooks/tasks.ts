@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery, InfiniteData } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { TASKS_WITH_FILTER, CREATE_TASK, UPDATE_TASK, DELETE_TASK, TASK, CREATE_CSV_BULK_TASK } from '@repo/codegen/query/tasks'
 import {
@@ -48,26 +48,24 @@ export const useTasksWithFilter = ({ where, orderBy, pagination, enabled = true 
 export const useTasksWithFilterInfinite = ({ where, orderBy, pagination, enabled = true }: GetAllTasksArgs) => {
   const { client } = useGraphQLClient()
 
-  const queryResult = useInfiniteQuery({
-    initialData: undefined,
+  const queryResult = useInfiniteQuery<TasksWithFilterQuery, Error, InfiniteData<TasksWithFilterQuery>>({
     initialPageParam: 1,
-    queryKey: ['tasks', where, orderBy],
+    queryKey: ['tasks', 'infinite', where, orderBy],
     queryFn: () =>
-      client.request(TASKS_WITH_FILTER, {
+      client.request<TasksWithFilterQuery, TasksWithFilterQueryVariables>(TASKS_WITH_FILTER, {
         where,
         orderBy,
         ...pagination?.query,
       }),
-    getNextPageParam(lastPage: any, allPages) {
-      return lastPage?.tasks?.pageInfo?.hasNextPage ? allPages.length + 1 : undefined
-    },
+    getNextPageParam: (lastPage, allPages) => (lastPage.tasks?.pageInfo?.hasNextPage ? allPages.length + 1 : undefined),
     staleTime: Infinity,
     enabled,
   })
 
-  const tasks = (queryResult.data?.pages.flatMap((page: any) => page?.tasks?.edges?.map((edge: any) => edge?.node) ?? []) ?? []) as Task[]
+  const tasks: Task[] = queryResult.data?.pages.flatMap((page) => (page.tasks?.edges ?? []).map((edge) => edge?.node).filter((node): node is Task => node !== undefined)) ?? []
 
-  const lastPage: any = queryResult.data?.pages[queryResult.data.pages.length - 1]
+  const lastPage = queryResult.data?.pages.at(-1)
+
   const paginationMeta = {
     totalCount: lastPage?.tasks?.totalCount ?? 0,
     pageInfo: lastPage?.tasks?.pageInfo,
@@ -88,7 +86,7 @@ export const useCreateTask = () => {
   return useMutation<CreateTaskMutation, unknown, CreateTaskMutationVariables>({
     mutationFn: async (variables) => client.request(CREATE_TASK, variables),
     onSuccess: (_, variables) => {
-      invalidateTaskAssociations(variables.input, queryClient)
+      invalidateTaskAssociations(variables, queryClient)
     },
   })
 }

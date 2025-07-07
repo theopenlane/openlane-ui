@@ -8,7 +8,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { ArrowRight, PencilIcon, SaveIcon, XIcon, CirclePlus } from 'lucide-react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
-import { Control, EvidenceEdge, SubcontrolControlSource, SubcontrolControlStatus, SubcontrolControlType } from '@repo/codegen/src/schema.ts'
+import { EvidenceEdge, Subcontrol, SubcontrolControlSource, SubcontrolControlStatus, SubcontrolControlType } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { useGetSubcontrolById, useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol.ts'
@@ -36,7 +36,6 @@ import RelatedControls from '@/components/pages/protected/controls/related-contr
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useOrganization } from '@/hooks/useOrganization'
-import { useGetOrganizationNameById } from '@/lib/graphql-hooks/organization'
 
 interface FormValues {
   refCode: string
@@ -86,13 +85,14 @@ const ControlDetailsPage: React.FC = () => {
 
   const { data, isLoading, isError } = useGetSubcontrolById(subcontrolId)
   const { data: controlData, isLoading: isLoadingControl } = useGetControlById(id)
-  const { currentOrgId } = useOrganization()
-  const { data: orgNameData } = useGetOrganizationNameById(currentOrgId)
-  const isSourceFramework = data?.subcontrol.source === SubcontrolControlSource.FRAMEWORK
+  const { currentOrgId, getOrganizationByID } = useOrganization()
+  const currentOrganization = getOrganizationByID(currentOrgId!)
 
   const form = useForm<FormValues>({
     defaultValues: initialDataObj,
   })
+
+  const isSourceFramework = data?.subcontrol.source === SubcontrolControlSource.FRAMEWORK
 
   const { isDirty } = form.formState
 
@@ -288,15 +288,7 @@ const ControlDetailsPage: React.FC = () => {
   const sidebarContent = (
     <>
       <AuthorityCard controlOwner={subcontrol.controlOwner} delegate={subcontrol.delegate} isEditing={isEditing} />
-      <PropertiesCard
-        controlData={subcontrol.control as Control}
-        category={subcontrol.category}
-        subcategory={subcontrol.subcategory}
-        status={subcontrol.status}
-        mappedCategories={subcontrol.mappedCategories}
-        isEditing={isEditing}
-        isSourceFramework={isSourceFramework}
-      />
+      <PropertiesCard data={subcontrol as Subcontrol} isEditing={isEditing} />
       <RelatedControls />
 
       <DetailsCard />
@@ -316,7 +308,7 @@ const ControlDetailsPage: React.FC = () => {
 
   return (
     <>
-      <title>{`${orgNameData?.organization.displayName}: Subcontrols - ${data.subcontrol.refCode}`}</title>
+      <title>{`${currentOrganization?.node?.displayName}: Subcontrols - ${data.subcontrol.refCode}`}</title>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>

@@ -14,9 +14,10 @@ import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { Input } from '@repo/ui/input'
+import { TaskWhereInput } from '@repo/codegen/src/schema'
 
 type TProps = {
-  onFilterChange: (filters: Record<string, any>) => void
+  onFilterChange: (filters: TaskWhereInput) => void
   members: TOrgMembers[] | undefined
   onTabChange: (tab: 'table' | 'card') => void
   onShowCompletedTasksChange: (val: boolean) => void

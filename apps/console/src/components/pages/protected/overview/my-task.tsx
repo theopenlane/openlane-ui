@@ -77,7 +77,7 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
               <span className="text-2xl font-bold">0</span>
             </div>
           </div>
-          <p className="text-lg font-medium">🎉 Yay! You're all caught up!</p>
+          <p className="text-lg font-medium">🎉 Yay! You&apos;re all caught up!</p>
           <p className="text-sm text-muted-foreground mt-1">No tasks to do—enjoy the peace and quiet.</p>
         </CardContent>
       </Card>
@@ -145,7 +145,7 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
   )
 }
 
-const MyTask = ({ status = 'default' }) => {
+const MyTask = () => {
   const { data: sessionData } = useSession()
   const userId = sessionData?.user?.userId
 

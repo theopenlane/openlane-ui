@@ -4,9 +4,9 @@ import { useRouter } from 'next/navigation'
 import { Dialog, DialogContent } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Timer } from 'lucide-react'
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { addHours, differenceInMilliseconds } from 'date-fns'
-import { useSession, signOut } from 'next-auth/react'
+import { signOut } from 'next-auth/react'
 
 interface SessionExpiredModalProps {
   open: boolean
@@ -14,6 +14,11 @@ interface SessionExpiredModalProps {
 
 const SessionExpiredModal = ({ open }: SessionExpiredModalProps) => {
   const router = useRouter()
+
+  const handleSignOut = useCallback(async () => {
+    await signOut()
+    router.push('/login')
+  }, [router])
 
   useEffect(() => {
     if (!open) return
@@ -27,12 +32,7 @@ const SessionExpiredModal = ({ open }: SessionExpiredModalProps) => {
     }, timeoutDuration)
 
     return () => clearTimeout(id)
-  }, [open])
-
-  const handleSignOut = async () => {
-    await signOut()
-    router.push('/login')
-  }
+  }, [open, handleSignOut])
 
   const signoutNoRedirect = async () => {
     await signOut({ redirect: false })

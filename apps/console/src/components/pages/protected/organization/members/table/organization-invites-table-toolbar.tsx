@@ -1,9 +1,10 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React from 'react'
 import { INVITES_FILTER_FIELDS } from '@/components/pages/protected/organization/members/table/table-config.ts'
+import { InviteWhereInput } from '@repo/codegen/src/schema'
 
 type TProps = {
-  onFilterChange: (filters: Record<string, any>) => void
+  onFilterChange: (filters: InviteWhereInput) => void
 }
 
 const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {

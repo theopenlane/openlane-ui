@@ -21,21 +21,24 @@ export async function generateMetadata(): Promise<Metadata> {
 
   const token = session?.user?.accessToken
   const organizationId = session?.user?.activeOrganizationId
-  const dashboardData = await getDashboardData(token, cookieSession?.value!)
-  if (!session || !dashboardData) {
-    return {
-      title: {
-        template: 'Openlane: %s',
-        default: '',
-      },
+
+  if (cookieSession?.value && token) {
+    const dashboardData = await getDashboardData(token, cookieSession?.value)
+    if (dashboardData) {
+      const organizations: OrganizationEdge[] = dashboardData.organizations.edges
+      const org = organizations.find(({ node }) => node.id === organizationId)
+      return {
+        title: {
+          template: `${org?.node.displayName}: %s`,
+          default: '',
+        },
+      }
     }
   }
 
-  const organizations: OrganizationEdge[] = dashboardData.organizations.edges
-  const org = organizations.find(({ node }) => node.id === organizationId)
   return {
     title: {
-      template: `${org?.node.displayName}: %s`,
+      template: 'Openlane: %s',
       default: '',
     },
   }

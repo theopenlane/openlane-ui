@@ -8,6 +8,7 @@ import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
 import { acceptedFileTypes, acceptedFileTypesShort } from '@/components/pages/protected/evidence/upload/evidence-upload-config.ts'
 import { useUploadEvidenceFiles } from '@/lib/graphql-hooks/evidence.ts'
+import { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
 
 type TControlEvidenceUploadDialog = {
   controlEvidenceID: string

@@ -1,6 +1,6 @@
 'use client'
 
-import data, { Emoji } from '@emoji-mart/data'
+import { Emoji } from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
 import React, { useEffect, useState } from 'react'
 
@@ -19,7 +19,7 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({ isOpen, onClose, onSelect }) 
     }
   }, [isOpen])
 
-  const handleEmojiSelect = (data: any) => {
+  const handleEmojiSelect = (data: Emoji) => {
     onSelect(data)
     onClose()
     setIsEmojiOpen(false)
@@ -30,7 +30,7 @@ const EmojiPicker: React.FC<EmojiPickerProps> = ({ isOpen, onClose, onSelect }) 
     setIsEmojiOpen(false)
   }
 
-  return <div className="relative">{isEmojiOpen && <Picker navPosition="top" onEmojiSelect={(emoji: any) => handleEmojiSelect(emoji)} onClickOutside={handleOutsideClick} />}</div>
+  return <div className="relative">{isEmojiOpen && <Picker navPosition="top" onEmojiSelect={(emoji: Emoji) => handleEmojiSelect(emoji)} onClickOutside={handleOutsideClick} />}</div>
 }
 
 export default EmojiPicker

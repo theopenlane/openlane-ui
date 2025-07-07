@@ -43,6 +43,7 @@ export const CONTROL_LIST_STANDARDS_FIELDS_FRAGMENT = gql`
     category
     subcategory
     mappedCategories
+    referenceFramework
     subcontrols {
       totalCount
     }
@@ -69,9 +70,7 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
     controlType
     auditorReferenceID
     referenceID
-    standard {
-      shortName
-    }
+    referenceFramework
     controlObjectives {
       edges {
         node {

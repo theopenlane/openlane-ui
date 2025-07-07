@@ -25,6 +25,7 @@ export const GET_ALL_SUBCONTROLS = gql`
 export const GET_SUBCONTROL_BY_ID = gql`
   query GetSubcontrolById($subcontrolId: ID!) {
     subcontrol(id: $subcontrolId) {
+      __typename
       id
       category
       refCode
@@ -43,13 +44,10 @@ export const GET_SUBCONTROL_BY_ID = gql`
       controlType
       auditorReferenceID
       referenceID
+      referenceFramework
       control {
         refCode
         id
-        standard {
-          id
-          shortName
-        }
       }
       controlObjectives {
         edges {
