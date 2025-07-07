@@ -62,6 +62,10 @@ export const Subscribe = () => {
         }),
       })
 
+      if (!res.ok) {
+        return { success: false, message: 'An error occurred while subscribing.' }
+      }
+
       const graphQlCreateSubscriberError = await extractGraphQlResponseError(res)
 
       if (graphQlCreateSubscriberError && graphQlCreateSubscriberError === GraphQlResponseError.AlreadyExistsErrorCode) {
