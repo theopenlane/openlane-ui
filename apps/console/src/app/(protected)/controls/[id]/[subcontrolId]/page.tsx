@@ -8,7 +8,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { ArrowRight, PencilIcon, SaveIcon, XIcon, CirclePlus } from 'lucide-react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
-import { Control, EvidenceEdge, SubcontrolControlSource, SubcontrolControlStatus, SubcontrolControlType } from '@repo/codegen/src/schema.ts'
+import { EvidenceEdge, Subcontrol, SubcontrolControlSource, SubcontrolControlStatus, SubcontrolControlType } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { useGetSubcontrolById, useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol.ts'
@@ -88,11 +88,12 @@ const ControlDetailsPage: React.FC = () => {
   const { data: controlData, isLoading: isLoadingControl } = useGetControlById(id)
   const { currentOrgId } = useOrganization()
   const { data: orgNameData } = useGetOrganizationNameById(currentOrgId)
-  const isSourceFramework = data?.subcontrol.source === SubcontrolControlSource.FRAMEWORK
 
   const form = useForm<FormValues>({
     defaultValues: initialDataObj,
   })
+
+  const isSourceFramework = data?.subcontrol.source === SubcontrolControlSource.FRAMEWORK
 
   const { isDirty } = form.formState
 
@@ -288,15 +289,7 @@ const ControlDetailsPage: React.FC = () => {
   const sidebarContent = (
     <>
       <AuthorityCard controlOwner={subcontrol.controlOwner} delegate={subcontrol.delegate} isEditing={isEditing} />
-      <PropertiesCard
-        controlData={subcontrol.control as Control}
-        category={subcontrol.category}
-        subcategory={subcontrol.subcategory}
-        status={subcontrol.status}
-        mappedCategories={subcontrol.mappedCategories}
-        isEditing={isEditing}
-        isSourceFramework={isSourceFramework}
-      />
+      <PropertiesCard data={subcontrol as Subcontrol} isEditing={isEditing} />
       <RelatedControls />
 
       <DetailsCard />

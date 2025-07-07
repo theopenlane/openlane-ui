@@ -6,7 +6,7 @@ import { Card } from '@repo/ui/cardpanel'
 import { Input } from '@repo/ui/input'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@repo/ui/select'
 import { FolderIcon, BinocularsIcon, CopyIcon, InfoIcon, PlusIcon, ChevronDown } from 'lucide-react'
-import { Control, ControlControlSource, ControlControlStatus, ControlControlType, GetControlCategoriesQuery, GetControlSubcategoriesQuery, SubcontrolControlStatus } from '@repo/codegen/src/schema'
+import { Control, ControlControlSource, ControlControlStatus, ControlControlType, GetControlByIdQuery, GetSubcontrolByIdQuery, Subcontrol, SubcontrolControlSource } from '@repo/codegen/src/schema'
 import MappedCategoriesDialog from './mapped-categories-dialog'
 import Link from 'next/link'
 import { ControlIconMapper } from '@/components/shared/icon-enum/control-enum.tsx'
@@ -14,17 +14,11 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/
 import { useNotification } from '@/hooks/useNotification'
 import { useGetControlCategories, useGetControlSubcategories } from '@/lib/graphql-hooks/controls'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
-import { Button } from '@repo/ui/button'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 
 interface PropertiesCardProps {
-  category?: string | null
-  subcategory?: string | null
-  status?: ControlControlStatus | SubcontrolControlStatus | null
-  mappedCategories?: string[] | null
   isEditing: boolean
-  controlData?: Control
-  isSourceFramework?: boolean
+  data?: Control | Subcontrol
 }
 
 const statusLabels: Record<ControlControlStatus, string> = {
@@ -53,21 +47,27 @@ const typeLabels: Record<ControlControlType, string> = {
 const statusOptions = Object.values(ControlControlStatus)
 
 const iconsMap: Record<string, React.ReactNode> = {
+  Framework: <FolderIcon size={16} className="text-brand" />,
   Category: <FolderIcon size={16} className="text-brand" />,
   Subcategory: <FolderIcon size={16} className="text-brand" />,
   Status: <BinocularsIcon size={16} className="text-brand" />,
   'Mapped categories': <FolderIcon size={16} className="text-brand" />,
 }
 
-const PropertiesCard: React.FC<PropertiesCardProps> = ({ status, mappedCategories, isEditing, controlData, isSourceFramework }) => {
+const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing }) => {
   const { control } = useFormContext()
+
+  const isSourceFramework = data?.source === ControlControlSource.FRAMEWORK
   const isEditAllowed = !isSourceFramework && isEditing
 
   return (
     <Card className="p-4 bg-muted rounded-xl shadow-sm">
       <h3 className="text-lg font-medium mb-4">Properties</h3>
       <div className="space-y-3">
-        {controlData && <LinkedProperty label="Control" href={`/controls/${controlData.id}`} value={controlData.refCode} icon={<FolderIcon size={16} className="text-brand" />} />}
+        {data && <Property value={data.referenceFramework || 'CUSTOM'} label="Framework"></Property>}
+        {data?.__typename === 'Subcontrol' && (
+          <LinkedProperty label="Control" href={`/controls/${data.control.id}/`} value={data.control.refCode} icon={<FolderIcon size={16} className="text-brand" />} />
+        )}
         <EditableSelectFromQuery label="Category" name="category" isEditing={isEditAllowed} icon={iconsMap.Category} />
         <EditableSelectFromQuery label="Subcategory" name="subcategory" isEditing={isEditAllowed} icon={iconsMap.Subcategory} />
         <div className="grid grid-cols-[110px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
@@ -103,7 +103,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ status, mappedCategorie
             )}
           </div>
         </div>
-        {isEditing ? <MappedCategoriesDialog /> : <Property label="Mapped categories" value={(mappedCategories ?? []).join(',\n')} />}{' '}
+        {isEditing ? <MappedCategoriesDialog /> : <Property label="Mapped categories" value={(data?.mappedCategories ?? []).join(',\n')} />}{' '}
         <EditableSelect
           label="Source"
           name="source"
@@ -112,21 +112,15 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ status, mappedCategorie
           labels={sourceLabels}
         />
         <EditableSelect label="Type" name="controlType" isEditing={isEditing} options={Object.values(ControlControlType)} labels={typeLabels} />
-        {isEditing || controlData?.referenceID ? (
-          <ReferenceProperty
-            name="referenceID"
-            label="Ref ID"
-            tooltip="Internal reference id of the control, used to map across internal systems"
-            value={controlData?.referenceID}
-            isEditing={isEditing}
-          />
+        {isEditing || data?.referenceID ? (
+          <ReferenceProperty name="referenceID" label="Ref ID" tooltip="Internal reference id of the control, used to map across internal systems" value={data?.referenceID} isEditing={isEditing} />
         ) : null}
-        {isEditing || controlData?.auditorReferenceID ? (
+        {isEditing || data?.auditorReferenceID ? (
           <ReferenceProperty
             name="auditorReferenceID"
             label="Auditor ID"
             tooltip="Reference ID used by auditor, may vary from defined reference code from standard"
-            value={controlData?.auditorReferenceID}
+            value={data?.auditorReferenceID}
             isEditing={isEditing}
           />
         ) : null}

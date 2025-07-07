@@ -151,7 +151,7 @@ export default function CreateControlForm() {
 
   useEffect(() => {
     if (controlData?.control && !dataInitialized) {
-      const label = `${controlData.control.refCode}${controlData.control?.standard?.shortName ? `( ${controlData.control.standard?.shortName})` : ''}`
+      const label = `${controlData.control.refCode}${controlData.control?.referenceFramework || 'CUSTOM'}`
       fillCategoryAndSubcategory(form, controlData.control)
       setSearch(label)
       setSelectedParentControlLabel(label)
