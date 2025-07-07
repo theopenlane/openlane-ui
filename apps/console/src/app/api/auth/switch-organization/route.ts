@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth/auth'
 import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
+import { csrfHeader } from '@repo/dally/auth'
+import { getCSRFCookie } from '@/lib/auth/utils/set-csrf-cookie'
 
 export async function POST(request: Request) {
   const bodyData = await request.json()
@@ -12,8 +14,14 @@ export async function POST(request: Request) {
     'content-type': 'application/json',
     Authorization: `Bearer ${token}`,
   }
+
   if (cookies) {
     headers['cookie'] = cookies
+  }
+
+  const csrfToken = await getCSRFCookie(cookies)
+  if (csrfToken) {
+    headers[csrfHeader] = csrfToken
   }
 
   const fData = await fetch(`${process.env.API_REST_URL}/v1/switch`, {
@@ -27,6 +35,7 @@ export async function POST(request: Request) {
 
   if (fData.ok) {
     setSessionCookie(fetchedData.session)
+
     return NextResponse.json(fetchedData, { status: 200 })
   }
 

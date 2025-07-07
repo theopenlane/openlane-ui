@@ -27,3 +27,11 @@ repos:
         name: run unit tests
         language: node
         entry: bun test
+  - repo: local
+    hooks:
+      - id: eslint-console
+        name: eslint check for console app
+        language: node
+        entry: npx eslint --config apps/console/eslint.config.js --max-warnings=0
+        pass_filenames: true
+        files: ^apps/console/.*\.(js|jsx|ts|tsx)$

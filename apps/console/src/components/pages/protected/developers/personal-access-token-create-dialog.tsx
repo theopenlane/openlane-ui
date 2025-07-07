@@ -131,7 +131,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
       } else {
         throw new Error('Failed to create token')
       }
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Error creating Token!',
         description: 'Something went wrong. Please try again.',
@@ -220,20 +220,20 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
                             <Button variant="outlineInput" full>
                               {field.value && field.value.length > 0
                                 ? Object.entries(orgs)
-                                    .filter(([key, value]) => field?.value?.includes(value?.node?.id ?? ''))
-                                    .map(([key, value]) => value?.node?.name)
+                                    .filter(([, value]) => field?.value?.includes(value?.node?.id ?? ''))
+                                    .map(([, value]) => value?.node?.name)
                                     .join(', ')
                                 : 'Select organization(s)'}
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent>
-                            {Object.entries(orgs).map(([key, value]) => {
+                            {Object.entries(orgs).map(([, value]) => {
                               return (
                                 <DropdownMenuCheckboxItem
                                   key={value?.node?.id}
                                   checked={field?.value?.includes(value?.node?.id ?? '')}
                                   onCheckedChange={(checked) => {
-                                    const newValue = checked ? [...(field?.value ?? []), value?.node?.id!] : field?.value?.filter((id) => id !== value?.node?.id)
+                                    const newValue = checked ? [...(field?.value ?? []), value?.node?.id] : field?.value?.filter((id) => id !== value?.node?.id)
                                     field.onChange(newValue)
                                   }}
                                 >

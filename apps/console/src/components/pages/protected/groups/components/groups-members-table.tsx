@@ -24,7 +24,7 @@ const GroupsMembersTable = () => {
   const { data: session } = useSession()
   const { selectedGroup, isAdmin } = useGroupsStore()
   const { data } = useGetGroupDetails(selectedGroup)
-  const { members, isManaged, id } = data?.group || {}
+  const { members, isManaged } = data?.group || {}
   const [users, setUsers] = useState<Member[]>([])
   const { mutateAsync: updateMembership } = useUpdateGroupMembership()
   const { mutateAsync: deleteMembership, isPending: isDeleting } = useDeleteGroupMembership()
@@ -57,7 +57,7 @@ const GroupsMembersTable = () => {
 
       setUsers(sortedMembers)
     }
-  }, [selectedGroup, members])
+  }, [selectedGroup, members, session?.user?.userId])
 
   const handleRoleChange = async (id: string, newRole: GroupMembershipRole) => {
     setUsers((prev) => prev.map((user) => (user.id === id ? { ...user, role: newRole } : user)))
@@ -74,7 +74,7 @@ const GroupsMembersTable = () => {
     try {
       await deleteMembership({ deleteGroupMembershipId: id })
       successNotification({ title: `Group membership deleted successfully.` })
-    } catch (error) {
+    } catch {
       errorNotification({ title: 'Failed to delete group membership.' })
     }
   }

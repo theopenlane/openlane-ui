@@ -26,7 +26,7 @@ const DeleteSubcontrolDialog: React.FC<{ subcontrolId: string; controlId: string
       await deleteSubcontrol({ deleteSubcontrolId: subcontrolId })
       successNotification({ title: `Subcontrol deleted successfully.` })
       router.push(`/controls/${controlId}`)
-    } catch (error) {
+    } catch {
       errorNotification({ title: 'Failed to delete Subcontrol.' })
     } finally {
       setIsOpen(false)

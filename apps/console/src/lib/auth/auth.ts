@@ -6,12 +6,13 @@ import { isDevelopment } from '@repo/dally/auth'
 import { jwtDecode } from 'jwt-decode'
 import { JwtPayload } from 'jsonwebtoken'
 import { credentialsProvider } from './providers/credentials'
-import { getTokenFromOpenlaneAPI } from './utils/get-openlane-token'
+import { getTokenFromOpenlaneAPI, OAuthUserRequest } from './utils/get-openlane-token'
 import { setSessionCookie } from './utils/set-session-cookie'
 import { cookies } from 'next/headers'
 import { sessionCookieName, allowedLoginDomains } from '@repo/dally/auth'
 import { getDashboardData } from '@/app/api/getDashboardData/route'
 import { passKeyProvider } from './providers/passkey'
+import { skipCSRFCheck } from '@auth/core'
 
 import { CredentialsSignin } from 'next-auth'
 
@@ -49,6 +50,9 @@ export const config = {
     credentialsProvider,
     passKeyProvider,
   ],
+  // we have our own CSRF protection on the server side that is used
+  // instead of the default NextAuth CSRF protection
+  skipCSRFCheck: skipCSRFCheck,
   events: {
     async signOut() {
       const cookieStore = await cookies()
@@ -59,10 +63,10 @@ export const config = {
   },
   callbacks: {
     async signIn({ user, account, profile }) {
-      if ((user as any)?.error) {
-        throw new InvalidLoginError((user as any).error)
+      if ('error' in user && typeof user.error === 'string') {
+        throw new InvalidLoginError(user.error)
       }
-      let email = profile?.email || user?.email || ''
+      const email = profile?.email || user?.email || ''
 
       // Allow only specific domains if configured
       const allow = allowedLoginDomains.length === 0 || allowedLoginDomains.some((domain) => email.endsWith(domain))
@@ -81,7 +85,7 @@ export const config = {
         }
 
         try {
-          const data = await getTokenFromOpenlaneAPI(oauthUser)
+          const data = await getTokenFromOpenlaneAPI(oauthUser as OAuthUserRequest)
           const dashboardData = await getDashboardData(data.access_token, data.session)
 
           if (!data) throw new Error(' ❌ Failed to fetch Openlane token')

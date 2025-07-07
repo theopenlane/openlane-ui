@@ -12,9 +12,10 @@ import Link from 'next/link'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { useGroupSelect } from '@/lib/graphql-hooks/groups'
+import { ControlWhereInput } from '@repo/codegen/src/schema'
 
 type TProps = {
-  onFilterChange: (filters: Record<string, any>) => void
+  onFilterChange: (filters: ControlWhereInput) => void
   owners?: { value: string; label: string }[]
   searching?: boolean
   searchTerm: string
@@ -28,7 +29,7 @@ type TProps = {
   }[]
 }
 
-const ControlsTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, searchTerm, setSearchTerm, owners, handleExport, columnVisibility, setColumnVisibility, mappedColumns }: TProps) => {
+const ControlsTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, searchTerm, setSearchTerm, handleExport, columnVisibility, setColumnVisibility, mappedColumns }: TProps) => {
   const { programOptions } = useProgramSelect()
   const { groupOptions } = useGroupSelect()
   const groups = groupOptions || []

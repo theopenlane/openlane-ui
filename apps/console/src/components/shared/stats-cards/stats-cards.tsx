@@ -1,6 +1,6 @@
 import React from 'react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
-import { ArrowUpRight, ArrowDownRight, Hourglass } from 'lucide-react'
+import { Hourglass } from 'lucide-react'
 import { statCardStyles } from './stats-cards-styles'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { useGlobalEvidenceStats, useProgramEvidenceStats } from '@/lib/graphql-hooks/programs'
@@ -16,8 +16,8 @@ interface Stat {
 }
 
 const StatCard: React.FC<{ stat: Stat; hasData: boolean }> = ({ stat, hasData }) => {
-  const { title, percentage, count, total, trend, trendType, color } = stat
-  const { wrapper, content, title: titleClass, trendBadge, percentage: percentageClass, statDetails, progressWrapper, progressBar } = statCardStyles({ color })
+  const { title, percentage, count, total, color } = stat
+  const { wrapper, content, title: titleClass, percentage: percentageClass, statDetails, progressWrapper, progressBar } = statCardStyles({ color })
 
   return (
     <Card className={wrapper()}>

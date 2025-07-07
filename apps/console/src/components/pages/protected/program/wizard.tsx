@@ -25,12 +25,13 @@ import { addYears } from 'date-fns'
 
 export type FormFields = z.infer<typeof initProgramSchema & typeof programDetailSchema & typeof programInviteSchema & typeof programObjectAssociationSchema>
 
-const { useStepper, steps } = defineStepper(
+export const { useStepper, steps } = defineStepper(
   { id: 'init', label: 'Basic information', schema: initProgramSchema },
   { id: 'details', label: 'Auditors', schema: programDetailSchema },
   { id: 'invite', label: 'Add team members', schema: programInviteSchema },
   { id: 'link', label: 'Associate existing objects', schema: programObjectAssociationSchema },
 )
+
 const today = new Date()
 const oneYearFromToday = addYears(new Date(), 1)
 
@@ -65,8 +66,7 @@ const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardPro
 
   const { handleSubmit, getValues, setValue } = form
 
-  const { isValid, isDirty } = useFormState({ control: form.control })
-  const { isValid: isFullFormValid } = useFormState({ control: fullForm.control })
+  const { isDirty } = useFormState({ control: form.control })
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const currentIndex = stepper.all.findIndex((item) => item.id === stepper.current.id)
@@ -99,7 +99,7 @@ const ProgramWizard = ({ onSuccess, requestClose, blockClose }: ProgramWizardPro
       fullForm.reset(getValues())
       router.push(`/programs?id=${resp?.createProgramWithMembers.program.id}`)
       onSuccess?.()
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Error',
         description: 'There was an error creating the program. Please try again.',

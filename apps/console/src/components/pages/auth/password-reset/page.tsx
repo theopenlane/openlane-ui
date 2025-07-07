@@ -11,6 +11,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { loginStyles } from '@/components/pages/auth/login/login.styles'
 import { pageStyles } from '@/app/(auth)/login/page.styles'
 import { PasswordInput } from '@repo/ui/password-input'
+import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 
 export default function PasswordResetPage() {
   const [password, setPassword] = useState('')
@@ -41,11 +42,8 @@ export default function PasswordResetPage() {
 
     try {
       setIsSubmitting(true)
-      const res = await fetch(`${openlaneAPIUrl}/v1/password-reset`, {
+      const res = await secureFetch(`${openlaneAPIUrl}/v1/password-reset`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ token, password }),
       })
 
@@ -70,7 +68,7 @@ export default function PasswordResetPage() {
         })
       })
     }
-  }, [token])
+  }, [token, errorNotification])
 
   return (
     <div className={content()}>

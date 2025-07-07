@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { Label } from '@repo/ui/label'
 import { Input } from '@repo/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
-import { AllObjectQueriesData, OBJECT_QUERY_CONFIG, ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
+import { extractTableRows, getPagination, OBJECT_QUERY_CONFIG, ObjectTypeObjects, QueryResponse, TableRow } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { useQuery } from '@tanstack/react-query'
 import ObjectAssociationTable from '@/components/shared/objectAssociation/object-association-table'
 import ObjectAssociationPlaceholder from '@/components/shared/object-association/object-association-placeholder'
@@ -17,7 +17,7 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 const initialPagination = { ...DEFAULT_PAGINATION, pageSize: 5, query: { first: 5 } }
 
 type Props = {
-  onIdChange: (updatedMap: TObjectAssociationMap, refCodes?: any) => void
+  onIdChange: (updatedMap: TObjectAssociationMap, refCodes: Partial<Record<string, string[]>>) => void
   excludeObjectTypes?: ObjectTypeObjects[]
   initialData?: TObjectAssociationMap
   refCodeInitialData?: TObjectAssociationMap
@@ -28,51 +28,42 @@ const ObjectAssociation = ({ onIdChange, excludeObjectTypes, initialData, refCod
   const { client } = useGraphQLClient()
   const [selectedObject, setSelectedObject] = useState<ObjectTypeObjects | null>(defaultSelectedObject || null)
   const [searchValue, setSearchValue] = useState('')
-  const [TableData, setTableData] = useState<any[]>([])
   const [pagination, setPagination] = useState<TPagination>(initialPagination)
   const debouncedSearchValue = useDebounce(searchValue, 300)
 
   const selectedConfig = selectedObject ? OBJECT_QUERY_CONFIG[selectedObject] : null
-  const selectedQuery = selectedConfig?.queryDocument
+  const selectedQuery = selectedConfig?.queryDocument || ''
   const objectKey = selectedConfig?.responseObjectKey
   const inputName = selectedConfig?.inputName
   const inputPlaceholder = selectedConfig?.placeholder
   const searchAttribute = selectedConfig?.searchAttribute
-  const objectName = selectedConfig?.objectName!
+  const objectName = selectedConfig?.objectName
 
   const whereFilter = {
     ...(selectedConfig?.defaultWhere || {}),
     ...(searchAttribute && debouncedSearchValue ? { [searchAttribute]: debouncedSearchValue } : {}),
   }
 
-  const { data, isLoading } = useQuery<AllObjectQueriesData>({
+  const { data, isLoading, isFetching } = useQuery<QueryResponse>({
     queryKey: [objectKey, 'objectAssociation', whereFilter, pagination.page, pagination.pageSize],
     queryFn: async () => client.request(selectedQuery, { where: whereFilter, ...pagination?.query }),
     enabled: !!selectedQuery,
   })
 
-  const pageInfo = objectKey ? data?.[objectKey]?.pageInfo : undefined
-  const totalCount = objectKey ? data?.[objectKey]?.totalCount : undefined
+  const pageInfo = objectKey && !isLoading && !isFetching ? getPagination(objectKey, data).pageInfo : undefined
+  const totalCount = objectKey && !isLoading && !isFetching ? getPagination(objectKey, data).totalCount : undefined
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value
     setSearchValue(value)
   }
 
+  const [tableData, setTableData] = useState<TableRow[]>([])
+
   useEffect(() => {
-    if (objectKey && data) {
-      const updatedData =
-        data[objectKey]?.edges?.map((item: any) => ({
-          id: item?.node?.id || '',
-          name: item?.node?.[objectName] || '',
-          description: item?.node?.description || item.node.summary || '',
-          inputName: inputName || '',
-          refCode: item?.node?.refCode ?? item?.node?.displayID ?? '',
-          details: item?.node?.details || '',
-        })) || []
-      setTableData(updatedData)
-    }
-  }, [data, objectKey])
+    const rows = extractTableRows(objectKey, data, objectName, inputName)
+    setTableData(rows)
+  }, [data, objectKey, inputName, objectName])
 
   return (
     <div className="space-y-4">
@@ -113,7 +104,7 @@ const ObjectAssociation = ({ onIdChange, excludeObjectTypes, initialData, refCod
           onPaginationChange={setPagination}
           pagination={pagination}
           paginationMeta={{ totalCount, pageInfo, isLoading }}
-          data={TableData}
+          data={tableData}
           onIDsChange={onIdChange}
           initialData={initialData}
           refCodeInitialData={refCodeInitialData}

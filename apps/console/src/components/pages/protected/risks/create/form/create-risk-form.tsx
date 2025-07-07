@@ -57,7 +57,7 @@ const CreateRiskForm: React.FC = () => {
       })
 
       router.push(`/risks/${createdRisk.createRisk.risk.id}`)
-    } catch (err) {
+    } catch {
       errorNotification({
         title: 'Error creating risk',
         description: 'Something went wrong.',

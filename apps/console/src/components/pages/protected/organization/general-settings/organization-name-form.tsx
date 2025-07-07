@@ -19,7 +19,7 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 const OrganizationNameForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
   const { isPending, mutateAsync: updateOrg } = useUpdateOrganization()
-  const { isPending: uploading, mutateAsync: uploadAvatar } = useUpdateOrgAvatar()
+  const { mutateAsync: uploadAvatar } = useUpdateOrgAvatar()
   const { setCrumbs } = useContext(BreadcrumbContext)
 
   const queryClient = useQueryClient()
@@ -55,7 +55,7 @@ const OrganizationNameForm = () => {
         displayName: currentOrganization.displayName,
       })
     }
-  }, [currentOrganization])
+  }, [currentOrganization, form])
 
   const updateOrganization = async ({ displayName }: { displayName: string }) => {
     if (!currentOrgId) {
@@ -92,7 +92,7 @@ const OrganizationNameForm = () => {
       successNotification({
         title: 'Avatar updated successfully',
       })
-    } catch (error) {
+    } catch {
       console.error('file upload error')
       errorNotification({
         title: 'Failed to update avatar',

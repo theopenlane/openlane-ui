@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient, InfiniteData } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   GET_ALL_GROUPS,
@@ -86,26 +86,25 @@ export const useGroupSelect = () => {
 export const useGetAllGroupsInfinite = ({ where, orderBy, pagination, enabled = true }: GroupsArgs) => {
   const { client } = useGraphQLClient()
 
-  const queryResult = useInfiniteQuery({
-    initialData: undefined,
+  const queryKey = ['groupsInfinite', where, orderBy]
+
+  const queryResult = useInfiniteQuery<GetAllGroupsQuery, Error, InfiniteData<GetAllGroupsQuery>, typeof queryKey, number>({
+    queryKey,
     initialPageParam: 1,
-    queryKey: ['groupsInfinite', where, orderBy],
     queryFn: () =>
-      client.request(GET_ALL_GROUPS, {
+      client.request<GetAllGroupsQuery, GetAllGroupsQueryVariables>(GET_ALL_GROUPS, {
         where,
         orderBy,
         ...pagination?.query,
       }),
-    getNextPageParam(lastPage: any, allPages) {
-      return lastPage?.groups?.pageInfo?.hasNextPage ? allPages.length + 1 : undefined
-    },
+    getNextPageParam: (lastPage, allPages) => (lastPage.groups?.pageInfo?.hasNextPage ? allPages.length + 1 : undefined),
     staleTime: Infinity,
     enabled,
   })
 
-  const groups = (queryResult.data?.pages.flatMap((page: any) => page?.groups?.edges?.map((edge: any) => edge?.node) ?? []) ?? []) as Group[]
+  const groups = queryResult.data?.pages.flatMap((page) => page.groups?.edges?.map((edge) => edge?.node).filter((node): node is Group => node !== undefined) ?? []) ?? []
+  const lastPage = queryResult.data?.pages.at(-1)
 
-  const lastPage: any = queryResult.data?.pages[queryResult.data.pages.length - 1]
   const paginationMeta = {
     totalCount: lastPage?.groups?.totalCount ?? 0,
     pageInfo: lastPage?.groups?.pageInfo,

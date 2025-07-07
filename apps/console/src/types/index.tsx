@@ -48,10 +48,12 @@ export interface StandardFilterField extends FilterFieldBase {
 // Union type for all possible filter fields
 export type FilterField = SelectFilterField | StandardFilterField | SelectIsFilterField
 
+export type FilterValue = string | number | boolean | string[] | number[] | null
+
 // Filter definition
 export type Filter = {
   field: string
-  value: any
+  value: unknown
   type: FilterType
   operator: string
   options?: { value: string; label: string }[]
@@ -82,4 +84,26 @@ export type MapControl = {
   category?: string | null
   subcategory?: string | null
   referenceFramework?: string | null
+}
+
+type GraphQLErrorItem = {
+  message: string
+  path?: Array<string | number>
+  extensions?: {
+    code?: string
+    exception?: {
+      stacktrace?: string[]
+      name?: string
+    }
+    [ext: string]: unknown
+  }
+}
+
+export type GqlError = {
+  graphQLErrors?: GraphQLErrorItem[]
+  networkError?: {
+    message: string
+    name?: string
+    stack?: string
+  }
 }
