@@ -54,6 +54,7 @@ export type Filter = {
   value: any
   type: FilterType
   operator: string
+  options?: { value: string; label: string }[]
 }
 
 export type Condition = {
