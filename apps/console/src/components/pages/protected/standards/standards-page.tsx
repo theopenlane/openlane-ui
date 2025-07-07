@@ -16,6 +16,7 @@ import Link from 'next/link'
 import { formatDateSince } from '@/utils/date'
 import { INFO_EMAIL } from '@/constants'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { StandardsIconMapper } from '@/components/shared/standardsIconMapper/standardsIconMapper'
 
 const filterFields: FilterField[] = [
   { key: 'systemOwned', label: 'System Owned', type: 'boolean' },
@@ -85,7 +86,7 @@ const StandardsPage = () => {
                 <h3 className="font-semibold text-base">{standard?.node?.shortName}</h3>
                 <span className="text-xs">version: {standard?.node?.version}</span>
               </div>
-              {standard?.node?.governingBodyLogoURL && <img src={standard?.node?.governingBodyLogoURL} alt="logo" className="h-8" />}
+              {<StandardsIconMapper key={standard?.node?.id} shortName={standard?.node?.shortName ?? ''} />}
             </div>
             <div className="text-sm space-y-1 mb-3">
               <p className="flex items-center gap-1">

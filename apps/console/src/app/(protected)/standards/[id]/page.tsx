@@ -13,6 +13,7 @@ import AddToOrganizationDialog from '@/components/pages/protected/standards/add-
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useGetOrganizationNameById } from '@/lib/graphql-hooks/organization'
+import { StandardsIconMapper } from '@/components/shared/standardsIconMapper/standardsIconMapper'
 
 const StandardDetailsPage = () => {
   const { id } = useParams()
@@ -48,6 +49,9 @@ const StandardDetailsPage = () => {
           <StandardDetailsAccordion />
         </div>
         <div>
+          <div className="inline-flex justify-end w-full">
+            <StandardsIconMapper shortName={standard?.shortName ?? ''} />
+          </div>
           <div className="flex justify-end pb-2">
             <Button icon={<ShieldPlus />} iconPosition="left" onClick={() => setIsDialogOpen(true)}>
               Add Controls
