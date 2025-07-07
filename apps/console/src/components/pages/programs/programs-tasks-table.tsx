@@ -130,7 +130,7 @@ const TasksTable = () => {
     <div className="p-6 bg-muted rounded-lg">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Outstanding tasks</h2>
-        <Link href={`/tasks?filters=${encodedFilters}`}>
+        <Link href={`/tasks?regularFilters=${encodedFilters}`}>
           <Button icon={<Frame size={16} />} iconPosition="left">
             View Tasks
           </Button>

@@ -47,6 +47,10 @@ const RegularFilterPopover: React.FC<TRegularFilterPopover> = ({
   }
 
   const renderActiveFilterType = (filter: Filter) => {
+    if (filter?.options && filter?.value) {
+      return filter.options.find((item) => item.value === filter.value)?.label
+    }
+
     if (filter.type === 'date') {
       return formatDate(filter.value)
     }
