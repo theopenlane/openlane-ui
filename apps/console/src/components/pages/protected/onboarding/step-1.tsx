@@ -129,7 +129,7 @@ export default function Step1() {
           {domains.map((domain) => (
             <Badge key={domain} className="flex items-center gap-1">
               {domain}
-              <button onClick={() => removeDomain(domain)} className="ml-1">
+              <button type="button" onClick={() => removeDomain(domain)} className="ml-1">
                 <X size={12} />
               </button>
             </Badge>

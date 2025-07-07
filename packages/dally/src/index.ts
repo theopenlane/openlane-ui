@@ -19,3 +19,5 @@ export const isVercelDev = process.env.VERCEL_ENV === 'development' || process.e
 export const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY
 
 export const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3001')
+
+export const chatAppId = process.env.NEXT_PUBLIC_CHAT_APP_ID
