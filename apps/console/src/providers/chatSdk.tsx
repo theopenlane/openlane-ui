@@ -1,25 +1,20 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useTheme } from 'next-themes'
 import { chatAppId } from '@repo/dally/auth'
 
 export const InitPlugSDK = () => {
-  if (!chatAppId) return null
-
   const { resolvedTheme } = useTheme()
   const { data: session, status } = useSession()
-  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    if (status !== 'authenticated' || !resolvedTheme || !chatAppId || typeof window === 'undefined' || typeof window.plugSDK?.init !== 'function' || window.plugSDK.__plug_initialized__) {
+      return
+    }
 
-  useEffect(() => {
-    if (status !== 'authenticated' || !mounted || !resolvedTheme) return
-
-    window.plugSDK?.init({
+    window.plugSDK.init({
       app_id: chatAppId,
       theme: resolvedTheme,
       identity: {
@@ -31,7 +26,8 @@ export const InitPlugSDK = () => {
         },
       },
     })
-  }, [mounted, status, session, resolvedTheme])
+    window.plugSDK.__plug_initialized__ = true
+  }, [status, resolvedTheme, session])
 
   return null
 }
