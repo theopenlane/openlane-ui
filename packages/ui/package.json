@@ -112,7 +112,7 @@
     "@types/prismjs": "^1.26.5",
     "@udecode/cmdk": "^0.2.0",
     "@udecode/cn": "^44.0.1",
-    "@udecode/plate": "^46.0.4",
+    "@udecode/plate": "^49.0.0",
     "@udecode/plate-ai": "^46.0.8",
     "@udecode/plate-alignment": "^44.0.0",
     "@udecode/plate-autoformat": "^44.0.0",
