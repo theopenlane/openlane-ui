@@ -6,7 +6,6 @@ import './globals.css'
 import { pirschAnalyticsKey, recaptchaSiteKey } from '@repo/dally/auth'
 import Script from 'next/script'
 import type { Metadata } from 'next'
-import { useEffect } from 'react'
 
 const imageWidth = '1200'
 const imageHeight = '628'
