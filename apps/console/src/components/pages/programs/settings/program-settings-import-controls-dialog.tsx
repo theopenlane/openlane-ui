@@ -50,13 +50,14 @@ const ImportControlsDialog: React.FC = () => {
         title: 'Failed to Import Controls',
       })
     }
-    setSelectedItems([])
-    setSelectedProgramIds([])
-    setSelectedFrameworkIds([])
-    setSelectedImportControlsFrom(ObjectEnum.STANDARD)
+    handleResetState()
   }
 
   const handleBack = async () => {
+    handleResetState()
+  }
+
+  const handleResetState = () => {
     setSelectedItems([])
     setSelectedProgramIds([])
     setSelectedFrameworkIds([])
