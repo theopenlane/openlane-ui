@@ -7,7 +7,6 @@ import {
   GET_PROCEDURE_DETAILS_BY_ID,
   DELETE_PROCEDURE,
   CREATE_CSV_BULK_PROCEDURE,
-  GET_ALL_PROCEDURES,
   GET_TABLE_PROCEDURES,
 } from '@repo/codegen/query/procedure'
 
@@ -24,7 +23,6 @@ import {
   Procedure,
   CreateBulkCsvProcedureMutation,
   CreateBulkCsvProcedureMutationVariables,
-  GetProceduresListQuery,
   GetProceduresListQueryVariables,
   GetProceduresTableListQuery,
 } from '@repo/codegen/src/schema'

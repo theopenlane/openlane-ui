@@ -1,13 +1,14 @@
 import { GET_ALL_CONTROLS } from '@repo/codegen/query/control'
-import { GET_ALL_CONTROL_IMPLEMENTATIONS } from '@repo/codegen/query/control-implementation'
 import { GET_ALL_CONTROL_OBJECTIVES } from '@repo/codegen/query/control-objective'
 import { GET_ALL_INTERNAL_POLICIES } from '@repo/codegen/query/policy'
 import { GET_ALL_PROCEDURES } from '@repo/codegen/query/procedure'
 import { GET_ALL_PROGRAMS } from '@repo/codegen/query/programs'
 import { GET_ALL_RISKS } from '@repo/codegen/query/risks'
-import { Program, Risk, Control, ControlObjective, InternalPolicy, Procedure, PageInfo, ControlImplementation } from '@repo/codegen/src/schema'
+import { Program, Risk, Control, ControlObjective, InternalPolicy, Procedure, PageInfo, GroupPermissionWhereInput } from '@repo/codegen/src/schema'
 import { Checkbox } from '@repo/ui/checkbox'
 import { ColumnDef } from '@tanstack/table-core'
+
+export type ObjectDataNode = Program | Risk | Control | ControlObjective | InternalPolicy | Procedure
 
 export type TableDataItem = {
   id: string
@@ -76,7 +77,7 @@ export type AllQueriesDataKey = keyof AllQueriesData
 export type ObjectPermissionConfig = {
   roleOptions: string[]
   responseObjectKey: AllQueriesDataKey
-  queryDocument: any
+  queryDocument: string
   objectName: string
   searchAttribute: string
   inputPlaceholder: string
@@ -170,7 +171,7 @@ export const generateGroupsPermissionsWhere = ({
   debouncedSearchValue: string
   selectedGroup: string | null
   selectedObject: ObjectTypes | null
-}): { where: Record<string, any> } => {
+}): { where: GroupPermissionWhereInput } => {
   if (!selectedObject || !selectedGroup) return { where: {} }
 
   const config = OBJECT_TYPE_CONFIG[selectedObject]
@@ -180,7 +181,11 @@ export const generateGroupsPermissionsWhere = ({
 
   const exclusionFilter = {
     not: {
-      or: [{ hasEditorsWith: [{ id: selectedGroup }] }, { hasBlockedGroupsWith: [{ id: selectedGroup }] }, ...(config.excludeViewersInFilter ? [] : [{ hasViewersWith: [{ id: selectedGroup }] }])],
+      or: [
+        { hasEditorsWith: [{ id: selectedGroup }] } as GroupPermissionWhereInput,
+        { hasBlockedGroupsWith: [{ id: selectedGroup }] } as GroupPermissionWhereInput,
+        ...(config.excludeViewersInFilter ? [] : [{ hasViewersWith: [{ id: selectedGroup }] } as GroupPermissionWhereInput]),
+      ],
     },
   }
 

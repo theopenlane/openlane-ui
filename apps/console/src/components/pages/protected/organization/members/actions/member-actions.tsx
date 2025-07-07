@@ -80,7 +80,7 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
       queryClient.invalidateQueries({
         predicate: (query) => ['memberships', 'organizationsWithMembers', 'groups'].includes(query.queryKey[0] as string),
       })
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'There was a problem updating the member, please try again',
         variant: 'destructive',
@@ -105,12 +105,7 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
     },
   })
 
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = form
+  const { control, handleSubmit } = form
 
   if (memberRole === OrgMembershipRole.OWNER) {
     //CANT EDIT OWNER

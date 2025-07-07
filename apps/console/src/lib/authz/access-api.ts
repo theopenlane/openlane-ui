@@ -3,6 +3,7 @@ import { Session } from 'next-auth'
 import { RelationEnum } from '@/lib/authz/enums/relation-enum.ts'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
 import useSWR from 'swr'
+import { secureFetch } from '../auth/utils/secure-fetch'
 
 export type TAccessRole =
   | 'can_create_standard'
@@ -45,7 +46,6 @@ export const useAccessPermission = (session: Session | null, relation: RelationE
   const currentOrgId = session?.user?.activeOrganizationId
 
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
     Authorization: `Bearer ${accessToken}`,
   }
 
@@ -56,11 +56,10 @@ export const useAccessPermission = (session: Session | null, relation: RelationE
   }
 
   const fetcher = async (url: string) => {
-    const response = await fetch(url, {
+    const response = await secureFetch(url, {
       method: 'POST',
       headers: headers,
       body: JSON.stringify(payload),
-      credentials: 'include',
     })
     return response.json()
   }
@@ -83,7 +82,6 @@ export const useAccountRole = (session: Session | null, objectType: ObjectEnum, 
   const accessToken = session?.user?.accessToken
 
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
     Authorization: `Bearer ${accessToken}`,
   }
 
@@ -93,11 +91,10 @@ export const useAccountRole = (session: Session | null, objectType: ObjectEnum, 
   }
 
   const fetcher = async (url: string) => {
-    const response = await fetch(url, {
+    const response = await secureFetch(url, {
       method: 'POST',
       headers: headers,
       body: JSON.stringify(payload),
-      credentials: 'include',
     })
     return response.json()
   }
@@ -120,15 +117,13 @@ export const useOrganizationRole = (session: Session | null) => {
   const accessToken = session?.user?.accessToken
 
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
     Authorization: `Bearer ${accessToken}`,
   }
 
   const fetcher = async (url: string) => {
-    const response = await fetch(url, {
+    const response = await secureFetch(url, {
       method: 'GET',
       headers: headers,
-      credentials: 'include',
     })
     return response.json()
   }

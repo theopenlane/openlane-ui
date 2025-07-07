@@ -1,6 +1,6 @@
 'use client'
 
-import { Model } from 'survey-core'
+import { ITheme, Model } from 'survey-core'
 import { Survey } from 'survey-react-ui'
 
 import 'survey-core/defaultV2.min.css'
@@ -30,7 +30,7 @@ export default function ViewQuestionnaire(input: { existingId: string }) {
   }, [setCrumbs])
 
   if (theme === 'dark') {
-    survey.applyTheme(darkTheme)
+    survey.applyTheme(darkTheme as ITheme)
   } else {
     survey.applyTheme(lightTheme)
   }

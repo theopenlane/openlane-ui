@@ -6,7 +6,7 @@ import { Card } from '@repo/ui/cardpanel'
 import { Input } from '@repo/ui/input'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@repo/ui/select'
 import { FolderIcon, BinocularsIcon, CopyIcon, InfoIcon, PlusIcon, ChevronDown } from 'lucide-react'
-import { Control, ControlControlSource, ControlControlStatus, ControlControlType, GetControlByIdQuery, GetSubcontrolByIdQuery, Subcontrol, SubcontrolControlSource } from '@repo/codegen/src/schema'
+import { Control, ControlControlSource, ControlControlStatus, ControlControlType, Subcontrol } from '@repo/codegen/src/schema'
 import MappedCategoriesDialog from './mapped-categories-dialog'
 import Link from 'next/link'
 import { ControlIconMapper } from '@/components/shared/icon-enum/control-enum.tsx'
@@ -156,7 +156,7 @@ const LinkedProperty = ({ label, href, value, icon }: { label: string; href: str
 )
 
 const EditableSelect = ({ label, name, isEditing, options, labels }: { label: string; name: string; isEditing: boolean; options: string[]; labels: Record<string, string> }) => {
-  const { control } = useFormContext()
+  const { control, getValues } = useFormContext()
 
   return (
     <div className="grid grid-cols-[110px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
@@ -185,7 +185,7 @@ const EditableSelect = ({ label, name, isEditing, options, labels }: { label: st
             )}
           />
         ) : (
-          <span>{labels[useFormContext().getValues(name)] ?? '-'}</span>
+          <span>{labels[getValues(name)] ?? '-'}</span>
         )}
       </div>
     </div>

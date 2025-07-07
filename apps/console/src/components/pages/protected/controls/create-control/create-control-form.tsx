@@ -106,7 +106,7 @@ export default function CreateControlForm() {
         successNotification({ title: 'Control created successfully, redirecting...' })
         router.push(`/controls/${newId}`)
       }
-    } catch (err) {
+    } catch {
       errorNotification({
         title: 'Failed to create control',
         description: 'Something went wrong. Please try again.',

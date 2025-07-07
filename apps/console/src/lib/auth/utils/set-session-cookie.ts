@@ -1,5 +1,5 @@
 'use server'
-import { sessionCookieName, sessionCookieExpiration, isDevelopment, isVercelDev, sessionCookieDomain } from '@repo/dally/auth'
+import { sessionCookieName, sessionCookieExpiration, isDevelopment, cookieDomain } from '@repo/dally/auth'
 import { cookies } from 'next/headers'
 
 export const setSessionCookie = async (session: string) => {
@@ -14,17 +14,11 @@ export const setSessionCookie = async (session: string) => {
     cookieStore.set(`${sessionCookieName}`, session, {
       expires,
     })
-  } else if (isVercelDev) {
-    cookieStore.set(`${sessionCookieName}`, session, {
-      path: '/',
-      httpOnly: true,
-      secure: true,
-      expires,
-    })
   } else {
     cookieStore.set(`${sessionCookieName}`, session, {
-      domain: `${sessionCookieDomain}`,
+      domain: `${cookieDomain}`,
       httpOnly: true,
+      sameSite: 'none',
       secure: true,
       path: '/',
       expires,

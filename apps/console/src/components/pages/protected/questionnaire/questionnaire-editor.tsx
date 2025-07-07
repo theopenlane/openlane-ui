@@ -15,7 +15,6 @@ import { darkTheme } from './theme-dark'
 import { TemplateDocumentType } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { Panel } from '@repo/ui/panel'
-import { pageStyles } from './page.styles'
 import { useRouter } from 'next/navigation'
 
 import './custom.css'
@@ -63,13 +62,13 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
 
   // Register a custom theme with Dark and Light variations
   addCustomTheme(lightTheme, customThemeName)
-  addCustomTheme(darkTheme, customThemeName)
+  addCustomTheme(darkTheme as ITheme, customThemeName)
 
   const themeContext = useTheme()
   const theme = themeContext.resolvedTheme as 'light' | 'dark' | 'white' | undefined
 
   if (theme === 'dark') {
-    creator.applyCreatorTheme(darkTheme)
+    creator.applyCreatorTheme(darkTheme as ITheme)
   } else {
     creator.applyCreatorTheme(lightTheme)
   }
@@ -83,7 +82,7 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
   const { mutateAsync: createTemplateData } = useCreateTemplate()
   const { mutateAsync: updateTemplateData } = useUpdateTemplate()
 
-  const saveTemplate = async (data: any, saveNo: string, callback: any) => {
+  const saveTemplate = async (data: { title?: string; description?: string }) => {
     const variables = {
       input: {
         name: data.title || 'Untitled Questionnaire',
@@ -123,8 +122,8 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
     }
   }
 
-  creator.saveSurveyFunc = (saveNo: string, callback: any) => {
-    saveTemplate(creator.JSON, saveNo, callback)
+  creator.saveSurveyFunc = () => {
+    saveTemplate(creator.JSON)
   }
 
   return (

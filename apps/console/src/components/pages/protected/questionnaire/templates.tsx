@@ -12,8 +12,6 @@ import { AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDes
 import { Button } from '@repo/ui/button'
 import { useTemplates } from '@/lib/graphql-hooks/templates'
 
-const ICON_SIZE = 12
-
 export const TemplateList = () => {
   const router = useRouter()
 

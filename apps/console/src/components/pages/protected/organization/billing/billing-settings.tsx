@@ -1,28 +1,23 @@
 'use client'
-import React, { useState, useContext, useEffect } from 'react'
+import React, { useContext, useEffect } from 'react'
 import BillingEmailDialog from './billing-email-dialog'
 import BillingContactDialog from './billing-contract-dialog'
 import { useOrganization } from '@/hooks/useOrganization'
 import { billingSettingsStyles } from './billing-settings.styles'
 import { cn } from '@repo/ui/lib/utils'
-import { useGetOrganizationBilling, useGetOrganizationSetting, useUpdateOrganization } from '@/lib/graphql-hooks/organization'
-import { useNotification } from '@/hooks/useNotification'
+import { useGetOrganizationBilling, useGetOrganizationSetting } from '@/lib/graphql-hooks/organization'
 import { ExternalLink } from 'lucide-react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const BillingSettings: React.FC = () => {
-  const { panel, section, sectionContent, sectionTitle, emailText, paragraph, switchContainer, text } = billingSettingsStyles()
+  const { panel, section, sectionContent, sectionTitle, emailText, paragraph, text } = billingSettingsStyles()
   const { currentOrgId } = useOrganization()
   const { data } = useGetOrganizationBilling(currentOrgId)
   const { data: settingData } = useGetOrganizationSetting(currentOrgId)
-  const { isPending, mutateAsync: updateOrg } = useUpdateOrganization()
   const billingAddress = settingData?.organization.setting?.billingAddress
-  const { successNotification, errorNotification } = useNotification()
   const formattedAddress = [billingAddress?.line1, billingAddress?.city, billingAddress?.postalCode].filter(Boolean).join(', ')
   const email = settingData?.organization.setting?.billingEmail || ''
   const { setCrumbs } = useContext(BreadcrumbContext)
-
-  const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(settingData?.organization.setting?.billingNotificationsEnabled || false)
 
   useEffect(() => {
     setCrumbs([
@@ -31,28 +26,6 @@ const BillingSettings: React.FC = () => {
       { label: 'Billing', href: '/billing' },
     ])
   }, [setCrumbs])
-
-  const onToggleNotifications = async (checked: boolean) => {
-    setNotificationsEnabled(checked)
-
-    try {
-      await updateOrg({
-        updateOrganizationId: currentOrgId!,
-        input: {
-          updateOrgSettings: { billingNotificationsEnabled: checked },
-        },
-      })
-      successNotification({
-        title: `Billing alerts successfully turned ${checked ? 'on' : 'off'}`,
-      })
-    } catch (error) {
-      console.error('Error updating billing notifications:', error)
-      setNotificationsEnabled(!checked)
-      errorNotification({
-        title: `Something went wrong with turning ${checked ? 'on' : 'off'} the billing alerts!`,
-      })
-    }
-  }
 
   return (
     <div className={cn(panel())}>
@@ -93,17 +66,6 @@ const BillingSettings: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* Billing Alert Section */}
-      {/* <div className={cn(section())}>
-        <div className="flex gap-10 w-full">
-          <h3 className={cn(sectionTitle())}>Billing Alert</h3>
-          <div className={cn(switchContainer())}>
-            <p className={cn(text())}>Set up automated billing alerts to receive emails when a specified usage amount is reached for spend across your entire team.</p>
-            <Switch checked={notificationsEnabled} onCheckedChange={onToggleNotifications} disabled={isPending} />
-          </div>
-        </div>
-      </div> */}
 
       {/* Cancel Section */}
       <div className={cn(section())}>

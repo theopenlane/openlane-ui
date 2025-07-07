@@ -1,9 +1,10 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React from 'react'
 import { TOKEN_FILTER_FIELDS } from '@/components/pages/protected/developers/table/table-config.ts'
+import { PersonalAccessTokenWhereInput } from '@repo/codegen/src/schema'
 
 type TProps = {
-  onFilterChange: (filters: Record<string, any>) => void
+  onFilterChange: (filters: PersonalAccessTokenWhereInput) => void
 }
 
 const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {

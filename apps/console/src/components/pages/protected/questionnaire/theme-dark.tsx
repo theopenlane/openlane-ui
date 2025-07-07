@@ -1,29 +1,47 @@
-import { ITheme } from 'survey-core'
-
 import resolveConfig from 'tailwindcss/resolveConfig'
 import tailwindConfig from '../../../../../tailwind.config'
-export const fullConfig = resolveConfig(tailwindConfig) as {
+
+type TailwindColorScale = Record<string, string>
+type TailwindColors = {
+  jade?: TailwindColorScale
+  saffron?: TailwindColorScale
+  background?: {
+    dark?: string
+    secondary?: string
+  }
+  border?: {
+    dark?: string
+  }
+  text?: {
+    light?: string
+  }
+  button?: {
+    muted?: string
+  }
+}
+
+export const fullConfig = resolveConfig(tailwindConfig) as unknown as {
   theme: {
-    colors: Record<string, any>
-    fontSize: Record<string, any>
-    spacing: Record<string, any>
+    colors: TailwindColors
+    fontSize: Record<string, unknown>
+    spacing: Record<string, unknown>
   }
 }
 
 const colors = {
-  primary: fullConfig.theme.colors.jade['400'],
-  secondary: fullConfig.theme.colors.jade['500'],
-  yellow: fullConfig.theme.colors.saffron['400'],
+  primary: fullConfig?.theme?.colors?.jade?.['400'],
+  secondary: fullConfig?.theme?.colors?.jade?.['500'],
+  yellow: fullConfig?.theme?.colors?.saffron?.['400'],
 
-  surface: fullConfig.theme.colors.background['dark'],
-  background: fullConfig.theme.colors.background['dark'],
-  backgroundDim: fullConfig.theme.colors.background['secondary'],
-  borderColor: fullConfig.theme.colors.border['dark'],
-  backgroundLight: fullConfig.theme.colors.jade['700'],
-  textColor: fullConfig.theme.colors.text['light'],
-  textColorDim: fullConfig.theme.colors.text['light'],
-  inputPlaceholderColor: fullConfig.theme.colors.text['light'],
-  iconColor: fullConfig.theme.colors.button['muted'],
+  surface: fullConfig?.theme?.colors?.background?.['dark'],
+  background: fullConfig?.theme?.colors?.background?.['dark'],
+  backgroundDim: fullConfig?.theme?.colors?.background?.['secondary'],
+  borderColor: fullConfig?.theme?.colors?.border?.['dark'],
+  backgroundLight: fullConfig?.theme?.colors?.jade?.['700'],
+  textColor: fullConfig?.theme?.colors?.text?.['light'],
+  textColorDim: fullConfig?.theme?.colors?.text?.['light'],
+  inputPlaceholderColor: fullConfig?.theme?.colors?.text?.['light'],
+  iconColor: fullConfig?.theme?.colors?.button?.['muted'],
 }
 
 // https://github.com/surveyjs/survey-creator/blob/master/packages/survey-creator-core/src/themes/predefined-themes/default/dark.css
@@ -80,7 +98,7 @@ const SJS_THEME = {
 
 // this theme is from the suveyjs creator colors
 // the default theme variables are here: https://github.com/surveyjs/survey-creator/blob/master/packages/survey-creator-core/src/themes/default.ts
-export const darkTheme: ITheme = {
+export const darkTheme = {
   backgroundImageFit: 'cover',
   backgroundImageAttachment: 'scroll',
   backgroundOpacity: 1,

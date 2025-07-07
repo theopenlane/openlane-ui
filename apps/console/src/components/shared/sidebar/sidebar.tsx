@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 
 import { useSidebar } from '@/hooks/useSidebar'
 import { cn } from '@repo/ui/lib/utils'

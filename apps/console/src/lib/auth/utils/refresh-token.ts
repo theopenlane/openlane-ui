@@ -1,4 +1,5 @@
 import { openlaneAPIUrl } from '@repo/dally/auth'
+import { secureFetch } from './secure-fetch'
 
 export interface Tokens {
   accessToken: string
@@ -9,10 +10,8 @@ export const fetchNewAccessToken = async (refreshToken: string): Promise<Tokens 
   try {
     // Determine API URL: Absolute URL on server, relative on client
     const apiUrl = `${openlaneAPIUrl}/v1/refresh`
-    const response = await fetch(apiUrl, {
+    const response = await secureFetch(apiUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
       body: JSON.stringify({ refresh_token: refreshToken }),
     })
 

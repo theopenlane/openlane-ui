@@ -31,7 +31,7 @@ const DeleteTaskDialog: React.FC<{ taskName: string; taskId: string }> = ({ task
       router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
       await deleteTask({ deleteTaskId: taskId })
       successNotification({ title: `Task deleted successfully.` })
-    } catch (error) {
+    } catch {
       errorNotification({ title: 'Failed to delete task.' })
     } finally {
       setIsOpen(false)

@@ -17,7 +17,6 @@ import {
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { useSession } from 'next-auth/react'
-import { Option } from '@repo/ui/multiple-selector'
 
 export const useUpdateUserRoleInOrg = () => {
   const { client } = useGraphQLClient()

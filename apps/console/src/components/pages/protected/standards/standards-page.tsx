@@ -16,6 +16,8 @@ import Link from 'next/link'
 import { formatDateSince } from '@/utils/date'
 import { INFO_EMAIL } from '@/constants'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import Image from 'next/image'
+import { StandardWhereInput } from '@repo/codegen/src/schema'
 
 const filterFields: FilterField[] = [
   { key: 'systemOwned', label: 'System Owned', type: 'boolean' },
@@ -29,7 +31,7 @@ const filterFields: FilterField[] = [
 const StandardsPage = () => {
   const { setCrumbs } = useContext(BreadcrumbContext)
   const [searchQuery, setSearchQuery] = useState('')
-  const [filters, setFilters] = useState<Record<string, any> | null>(null)
+  const [filters, setFilters] = useState<StandardWhereInput | null>(null)
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
 
   useEffect(() => {
@@ -40,7 +42,7 @@ const StandardsPage = () => {
   }, [setCrumbs])
 
   const whereFilter = useMemo(() => {
-    const conditions: Record<string, any> = {
+    const conditions: StandardWhereInput = {
       ...(debouncedSearchQuery ? { shortNameContainsFold: debouncedSearchQuery } : {}),
       ...filters,
     }
@@ -85,7 +87,7 @@ const StandardsPage = () => {
                 <h3 className="font-semibold text-base">{standard?.node?.shortName}</h3>
                 <span className="text-xs">version: {standard?.node?.version}</span>
               </div>
-              {standard?.node?.governingBodyLogoURL && <img src={standard?.node?.governingBodyLogoURL} alt="logo" className="h-8" />}
+              {standard?.node?.governingBodyLogoURL && <Image src={standard?.node?.governingBodyLogoURL} alt="logo" height={32} width={32} />}
             </div>
             <div className="text-sm space-y-1 mb-3">
               <p className="flex items-center gap-1">
