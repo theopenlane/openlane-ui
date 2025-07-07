@@ -18,7 +18,7 @@ import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organizatio
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 
 const TasksPage: React.FC = () => {
-  const { setSelectedTask, setOrgMembers, orgMembers } = useTaskStore()
+  const { setSelectedTask, setOrgMembers } = useTaskStore()
   const [searchQuery, setSearchQuery] = useState('')
   const tableRef = useRef<{ exportData: () => Task[] }>(null)
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
@@ -141,7 +141,6 @@ const TasksPage: React.FC = () => {
     <>
       <TaskTableToolbar
         onFilterChange={setFilters}
-        members={orgMembers}
         onTabChange={handleTabChange}
         onShowCompletedTasksChange={handleShowCompletedTasks}
         handleExport={handleExport}
