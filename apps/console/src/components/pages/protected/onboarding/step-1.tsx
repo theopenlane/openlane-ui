@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { InfoIcon, X } from 'lucide-react'
 import { useSession } from 'next-auth/react'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { z, infer as zInfer } from 'zod'
 
@@ -63,13 +63,15 @@ export default function Step1() {
 
   const [domainInput, setDomainInput] = useState('')
   const userDomain = sessionData?.user.email.split('@')[1]
-  const domains = useMemo(() => watch('domains') || [], [watch])
+
+  const domains = watch('domains') || []
 
   useEffect(() => {
-    if (userDomain && !domains.includes(userDomain)) {
-      setValue('domains', [...domains, userDomain])
+    const currentDomains = watch('domains') || []
+    if (userDomain && !currentDomains.includes(userDomain)) {
+      setValue('domains', [...currentDomains, userDomain])
     }
-  }, [userDomain, setValue, domains])
+  }, [userDomain, setValue, watch])
 
   const addDomain = () => {
     if (!domainInput.trim()) return
