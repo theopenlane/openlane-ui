@@ -74,7 +74,6 @@ export default function Step1() {
   }, [userDomain, setValue, watch])
 
   const addDomain = () => {
-    console.log('domainInput', domainInput)
     if (!domainInput.trim()) return
 
     const isValidDomain = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(domainInput)
@@ -102,7 +101,6 @@ export default function Step1() {
     }
     if (e.key === 'Enter' || e.key === 'Tab') {
       e.preventDefault()
-      console.log('handleKeyDown')
       addDomain()
     }
   }
