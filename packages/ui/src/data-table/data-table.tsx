@@ -98,7 +98,7 @@ export function DataTable<TData, TValue>({
   const handleSortChange = (field: string) => {
     setSortConditions((prev) => {
       const existingIndex = prev.findIndex((sc) => sc.field === field)
-      let newSortConditions = [...prev]
+      const newSortConditions = [...prev]
 
       if (existingIndex === -1) {
         newSortConditions.push({ field, direction: OrderDirection.ASC })
@@ -233,7 +233,7 @@ export function DataTable<TData, TValue>({
   }, [sortFields])
 
   useEffect(() => {
-    if (sortConditions.every(({ direction }) => direction !== undefined)) {
+    if (sortConditions && sortConditions.length > 0 && sortConditions.every(({ direction }) => direction !== undefined)) {
       onSortChange?.(sortConditions as { field: string; direction: OrderDirection }[])
     }
   }, [sortConditions])

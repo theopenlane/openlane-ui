@@ -119,6 +119,13 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
       advancedFilters: advancedParsedFilters,
     }
 
+    regularParsedFilters.map((parsedFilter) => {
+      const options = filterFields.find((filterField) => filterField.key === parsedFilter.field)?.options
+      if (options) {
+        parsedFilter.options = options
+      }
+    })
+
     setAppliedFilters(appliedFilters)
     setAdvancedFilters(advancedParsedFilters)
     setRegularFilters(regularParsedFilters)
@@ -219,6 +226,7 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
         value: '',
         type: filterField.type,
         operator: getOperatorsForType(filterField.type)[0]?.value || 'equals',
+        options: filterField?.options,
       },
     ])
   }
@@ -273,7 +281,7 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
 
   const handleChangeAdvancedFilter = (filter: Filter, index: number) => {
     if (advancedFilters) {
-      const editedAdvancedFilters = advancedFilters.map((advancedFilter, i) => (filter.field === advancedFilter.field && i === index ? { ...advancedFilter, ...filter } : advancedFilter))
+      const editedAdvancedFilters = advancedFilters.map((advancedFilter, i) => (i === index ? { ...advancedFilter, ...filter } : advancedFilter))
       setAdvancedFilters(editedAdvancedFilters)
     }
   }
@@ -355,6 +363,7 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
         value: '',
         type: filterField.type,
         operator: getOperatorsForType(filterField.type)[0]?.value || 'equals',
+        options: filterField?.options,
       }
 
       setAppliedFilters((prevState) => ({

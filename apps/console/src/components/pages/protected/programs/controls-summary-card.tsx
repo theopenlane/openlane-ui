@@ -50,7 +50,7 @@ export function ControlsSummaryCard() {
     <Card className="p-6">
       <div className="flex justify-between items-center">
         <p className="text-lg">Control status</p>
-        <Link href={`/controls?filters=${encodedFilters}`}>
+        <Link href={`/controls?regularFilters=${encodedFilters}`}>
           <Button iconPosition="left" icon={<Settings2 size={16} />}>
             Go to controls
           </Button>
