@@ -1,6 +1,6 @@
 'use server'
 
-import { cookieDomain, csrfCookieName, isDevelopment, isVercelDev } from '@repo/dally/auth'
+import { cookieDomain, csrfCookieName, isDevelopment } from '@repo/dally/auth'
 import { cookies } from 'next/headers'
 
 export const setCSRFCookie = async (csrfToken: string) => {
