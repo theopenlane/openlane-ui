@@ -3,7 +3,7 @@
 import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 import { useProcedure } from '@/components/pages/protected/procedures/create/hooks/use-procedure.tsx'
@@ -133,6 +133,10 @@ const SetObjectAssociationDialog = ({ procedureId }: TSetObjectAssociationDialog
     setOpen(isOpen)
   }
 
+  const handleIdChange = useCallback((updatedMap: TObjectAssociationMap, refCodes: TObjectAssociationMap) => {
+    setAssociations({ associations: updatedMap, refCodes })
+  }, [])
+
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogTrigger asChild>
@@ -144,9 +148,7 @@ const SetObjectAssociationDialog = ({ procedureId }: TSetObjectAssociationDialog
         </DialogHeader>
 
         <ObjectAssociation
-          onIdChange={(updatedMap, refCodes) => {
-            setAssociations({ associations: updatedMap, refCodes: refCodes })
-          }}
+          onIdChange={handleIdChange}
           initialData={associationsState}
           refCodeInitialData={refCodeAssociationsState}
           excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP, ObjectTypeObjects.CONTROL_OBJECTIVE, ObjectTypeObjects.PROCEDURE]}
