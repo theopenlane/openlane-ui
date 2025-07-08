@@ -79,7 +79,7 @@ const MapControlPage = () => {
       { label: 'Home', href: '/dashboard' },
       { label: 'Controls', href: '/controls' },
       { label: controlData?.control?.refCode, isLoading: isLoading, href: `/controls/${id}` },
-      { label: 'Create Map Control', href: '/map-control' },
+      { label: 'Create Map Control' },
     ])
   }, [controlData?.control?.refCode, isLoading, setCrumbs, id])
 
@@ -88,7 +88,7 @@ const MapControlPage = () => {
       { label: 'Home', href: '/dashboard' },
       { label: 'Controls', href: '/controls' },
       { label: subcontrolData?.subcontrol?.refCode, isLoading: isLoading, href: `/controls/${id}/${subcontrolId}` },
-      { label: 'Create Map Control', href: '/map-control' },
+      { label: 'Create Map Control' },
     ])
   }, [isLoading, setCrumbs, subcontrolData?.subcontrol?.refCode, id, subcontrolId])
 
