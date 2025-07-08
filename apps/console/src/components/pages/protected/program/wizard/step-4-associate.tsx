@@ -66,9 +66,9 @@ export const ObjectAssociationComponent = () => {
                     }
                   }}
                 />
-                <FormLabel htmlFor="useTemplate" className="ml-2 cursor-pointer">
+                {/* <FormLabel htmlFor="useTemplate" className="ml-2 cursor-pointer">
                   Use provided templates
-                </FormLabel>
+                </FormLabel> */}
               </div>
             )}
           />

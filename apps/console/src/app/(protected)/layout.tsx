@@ -4,6 +4,7 @@ import { auth } from '@/lib/auth/auth'
 import { sessionCookieName } from '@repo/dally/auth'
 import { getDashboardData } from '../api/getDashboardData/route'
 import { cookies } from 'next/headers'
+import { capitalizeFirstLetter } from '@/lib/auth/utils/strings'
 
 interface OrganizationNode {
   id: string
@@ -29,8 +30,8 @@ export async function generateMetadata(): Promise<Metadata> {
       const org = organizations.find(({ node }) => node.id === organizationId)
       return {
         title: {
-          template: `${org?.node.displayName}: %s`,
-          default: '',
+          template: `${capitalizeFirstLetter(org?.node.displayName || '')} | %s`,
+          default: '%s',
         },
       }
     }
@@ -38,8 +39,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: {
-      template: 'Openlane: %s',
-      default: '',
+      template: 'Openlane | %s',
+      default: 'Openlane',
     },
   }
 }
