@@ -104,13 +104,13 @@ const ControlTooltipContent: React.FC<{ control: NonNullable<ControlChipProps['c
           <FileText size={12} />
           <span className="font-medium">Standard</span>
         </div>
-        <div className="w-full border-b">
+        <div className="flex items-center gap-1 border-b pb-2">
           {control.referenceFramework ? (
             <Link href={standardHref} className=" size-fit pb-2 hover:underline flex items-center gap-1" target="_blank" rel="noopener">
               <span className="pl-3 text-brand ">{control.referenceFramework}</span> <ExternalLink size={12} />
             </Link>
           ) : (
-            <span className="pl-3 text-brand ">CUSTOM</span>
+            <span className="pl-3 text-brand">CUSTOM</span>
           )}
         </div>
 
@@ -118,13 +118,13 @@ const ControlTooltipContent: React.FC<{ control: NonNullable<ControlChipProps['c
           <Folder size={12} />
           <span className="font-medium">Category</span>
         </div>
-        <span className="pl-3 pb-2 border-b">{details.category}</span>
+        <span className="flex pl-3 gap-1 border-b pb-2">{details.category || '-'}</span>
 
         <div className="flex items-center gap-1 border-b pb-2">
           <FolderPlus size={12} />
           <span className="font-medium">Subcategory</span>
         </div>
-        <span className="pl-3 pb-2 border-b">{details.subcategory}</span>
+        <span className="flex pl-3 gap-1 border-b pb-2">{details.subcategory || '-'}</span>
       </div>
 
       <div className="flex flex-col pt-2">
