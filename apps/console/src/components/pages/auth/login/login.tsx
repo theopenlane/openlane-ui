@@ -7,7 +7,7 @@ import SimpleForm from '@repo/ui/simple-form'
 import { ArrowRightCircle, KeyRoundIcon } from 'lucide-react'
 import { signIn, SignInResponse } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Separator } from '@repo/ui/separator'
 import { loginStyles } from './login.styles'
 import { GoogleIcon } from '@repo/ui/icons/google'
@@ -34,7 +34,18 @@ export const LoginPage = () => {
   const { errorNotification } = useNotification()
   const searchParams = useSearchParams()
   const token = searchParams?.get('token')
-  const redirectUrl = token ? `/invite?token=${token}` : '/'
+  const redirect = searchParams?.get('redirect')
+
+  const redirectUrl = useMemo(() => {
+    if (token) {
+      return `/invite?token=${token}`
+    }
+    if (redirect) {
+      return redirect
+    }
+
+    return '/'
+  }, [redirect, token])
 
   const submit = async (payload: LoginUser) => {
     setSignInLoading(true)
@@ -66,8 +77,7 @@ export const LoginPage = () => {
       })
 
       if (res.ok && !res.error) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        token ? router.push(`/invite?token=${token}`) : router.push(`/`)
+        router.push(redirectUrl)
       } else {
         let errMsg = 'There was an error. Please try again.'
 
