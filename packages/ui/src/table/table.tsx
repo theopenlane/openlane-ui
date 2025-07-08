@@ -4,8 +4,8 @@ import { tableStyles, type TableVariants } from './table-styles'
 
 const { container, table, tableHeader, tableBody, tableFooter, tableRow, tableHead, tableCell, tableCaption } = tableStyles()
 
-const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement> & TableVariants>(({ className, striped, compact, variant, ...props }, ref) => (
-  <div className={cn(container())}>
+const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement> & TableVariants>(({ className, striped, compact, variant, sticky, stickyDialog, ...props }, ref) => (
+  <div className={cn(container({ sticky, stickyDialog }))}>
     <table ref={ref} className={cn(table({ striped, compact, variant }), className)} {...props} />
   </div>
 ))

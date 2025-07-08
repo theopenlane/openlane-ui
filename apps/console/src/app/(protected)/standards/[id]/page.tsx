@@ -12,7 +12,7 @@ import { useState, useEffect, useContext } from 'react'
 import AddToOrganizationDialog from '@/components/pages/protected/standards/add-to-organization-dialog'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
-import { StandardsIconMapper } from '@/components/shared/standardsIconMapper/standardsIconMapper'
+import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
 
 const StandardDetailsPage = () => {
   const { id } = useParams()
@@ -51,12 +51,12 @@ const StandardDetailsPage = () => {
           <div className="inline-flex justify-end w-full">
             <StandardsIconMapper shortName={standard?.shortName ?? ''} />
           </div>
-          <div className="flex justify-end pb-2">
+          <StandardDetailsCard />
+          <div className="flex justify-end pt-2">
             <Button icon={<ShieldPlus />} iconPosition="left" onClick={() => setIsDialogOpen(true)}>
               Add Controls
             </Button>
           </div>
-          <StandardDetailsCard />
         </div>
       </div>
       {standard && <AddToOrganizationDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} standardId={standard.id} standardName={standard.shortName ?? standard.name} selectedControls={[]} />}

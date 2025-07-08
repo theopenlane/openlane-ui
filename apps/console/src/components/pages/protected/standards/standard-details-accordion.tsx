@@ -199,6 +199,7 @@ const StandardDetailsAccordion: FC = () => {
                     }}
                     pagination={paginations[category] ?? DEFAULT_PAGINATION}
                     onPaginationChange={(newPagination) => handlePaginationChange(category, newPagination)}
+                    stickyHeader
                   />
                 </div>
               </AccordionContent>
