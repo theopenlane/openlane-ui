@@ -31,7 +31,7 @@ export async function generateMetadata(): Promise<Metadata> {
       return {
         title: {
           template: `${capitalizeFirstLetter(org?.node.displayName || '')} | %s`,
-          default: '%s',
+          default: '',
         },
       }
     }
