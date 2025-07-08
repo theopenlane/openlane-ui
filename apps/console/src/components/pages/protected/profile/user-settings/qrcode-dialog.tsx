@@ -1,12 +1,11 @@
 'use client'
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { QRCodeSVG } from 'qrcode.react'
 import { Button } from '@repo/ui/button'
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@repo/ui/input-otp'
 import { useNotification } from '@/hooks/useNotification'
-import { useCopyToClipboard } from '@uidotdev/usehooks'
 import { Copy } from 'lucide-react'
 import { useUpdateTfaSetting } from '@/lib/graphql-hooks/tfa'
 import { useQueryClient } from '@tanstack/react-query'
@@ -30,20 +29,18 @@ const QRCodeDialog = ({ qrcode, secret, onClose, regeneratedCodes }: QRCodeProps
 
   const { mutateAsync: updateTfaSetting } = useUpdateTfaSetting()
 
-  const [copiedText, copyToClipboard] = useCopyToClipboard()
-
   const resetState = () => {
     setTimeout(() => {
       setRecoveryCodes(null)
       setIsSecretKeySetup(false)
     }, 300)
   }
+
   const verifyOTP = useCallback(
     async (otp: string) => {
       try {
         const response = await secureFetch('/api/verifyOTP', {
           method: 'POST',
-
           body: JSON.stringify({ totp_code: otp }),
         })
 
@@ -51,13 +48,13 @@ const QRCodeDialog = ({ qrcode, secret, onClose, regeneratedCodes }: QRCodeProps
 
         if (response.ok) {
           successNotification({ title: 'OTP validated successfully' })
+
           const resp = await updateTfaSetting({
             input: {
               verified: true,
             },
           })
 
-          // ensure recovery codes are available
           if (!resp?.updateTFASetting?.recoveryCodes) {
             errorNotification({ title: 'Failed to retrieve recovery codes' })
           }
@@ -108,6 +105,19 @@ const QRCodeDialog = ({ qrcode, secret, onClose, regeneratedCodes }: QRCodeProps
     }
   }, [recoveryCodes, regeneratedCodes])
 
+  const handleCopy = useCallback(
+    async (text: string) => {
+      try {
+        await navigator.clipboard.writeText(text)
+        successNotification({ title: 'Copied to clipboard' })
+        setModalClosable(true)
+      } catch {
+        errorNotification({ title: 'Failed to copy to clipboard' })
+      }
+    },
+    [successNotification, errorNotification],
+  )
+
   const handleOpenChange = useCallback(
     (isOpen: boolean) => {
       setIsOpen(isOpen)
@@ -118,15 +128,6 @@ const QRCodeDialog = ({ qrcode, secret, onClose, regeneratedCodes }: QRCodeProps
     },
     [onClose],
   )
-
-  useEffect(() => {
-    if (copiedText) {
-      successNotification({
-        title: 'Copied to clipboard',
-      })
-      setModalClosable(true)
-    }
-  }, [copiedText, successNotification])
 
   const config = useMemo(() => {
     const codes = recoveryCodes || regeneratedCodes
@@ -141,7 +142,7 @@ const QRCodeDialog = ({ qrcode, secret, onClose, regeneratedCodes }: QRCodeProps
               ))}
             </div>
             <div className="flex gap-2">
-              <Button onClick={() => copyToClipboard(codes.join(' '))}>Copy Recovery Codes</Button>
+              <Button onClick={() => handleCopy(codes.join(' '))}>Copy Recovery Codes</Button>
               <Button onClick={handleDownloadRecoveryCodes}>Download Recovery Codes</Button>
             </div>
           </>
@@ -152,7 +153,7 @@ const QRCodeDialog = ({ qrcode, secret, onClose, regeneratedCodes }: QRCodeProps
         title: 'Scan this QR Code',
         body: (
           <>
-            <p className="text-sm ">Use your authenticator app to scan this QR code.</p>
+            <p className="text-sm">Use your authenticator app to scan this QR code.</p>
             {qrcode && <QRCodeSVG value={qrcode} size={180} className="shadow-lg" />}
 
             {isSecretKeySetup ? (
@@ -160,16 +161,16 @@ const QRCodeDialog = ({ qrcode, secret, onClose, regeneratedCodes }: QRCodeProps
                 <p>Configure your authenticator app manually using this code:</p>
                 <div className="flex items-center gap-1">
                   <p>{secret}</p>
-                  {secret && <Copy width={16} height={16} className={'text-accent-secondary-muted cursor-pointer'} onClick={() => copyToClipboard(secret)} />}
+                  {secret && <Copy width={16} height={16} className="text-accent-secondary-muted cursor-pointer" onClick={() => handleCopy(secret)} />}
                 </div>
               </div>
             ) : (
               <div className="flex">
-                <p className="text-sm ">Unable to scan? You can use the &nbsp; </p>
-                <p onClick={() => setIsSecretKeySetup(true)} className="text-sm underline text-accent-secondary cursor-pointer ">
+                <p className="text-sm">Unable to scan? You can use the&nbsp;</p>
+                <p onClick={() => setIsSecretKeySetup(true)} className="text-sm underline text-accent-secondary cursor-pointer">
                   setup key
                 </p>
-                <p className="text-sm "> &nbsp;to manually configure your authenticator app.</p>
+                <p className="text-sm">&nbsp;to manually configure your authenticator app.</p>
               </div>
             )}
 
@@ -188,7 +189,7 @@ const QRCodeDialog = ({ qrcode, secret, onClose, regeneratedCodes }: QRCodeProps
         ),
       }
     }
-  }, [handleOtpChange, handleDownloadRecoveryCodes, recoveryCodes, regeneratedCodes, copyToClipboard, handleOpenChange, isSecretKeySetup, isSubmitting, qrcode, secret])
+  }, [handleOtpChange, handleDownloadRecoveryCodes, recoveryCodes, regeneratedCodes, handleCopy, handleOpenChange, isSecretKeySetup, isSubmitting, qrcode, secret])
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
