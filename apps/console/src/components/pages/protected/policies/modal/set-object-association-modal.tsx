@@ -3,7 +3,7 @@
 import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 import { usePolicy } from '@/components/pages/protected/policies/create/hooks/use-policy.tsx'
@@ -133,6 +133,10 @@ const SetObjectAssociationDialog = ({ policyId }: TSetObjectAssociationDialogPro
     setOpen(isOpen)
   }
 
+  const handleIdChange = useCallback((updatedMap: TObjectAssociationMap, refCodes: TObjectAssociationMap) => {
+    setAssociations({ associations: updatedMap, refCodes })
+  }, [])
+
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogTrigger asChild>
@@ -142,11 +146,8 @@ const SetObjectAssociationDialog = ({ policyId }: TSetObjectAssociationDialogPro
         <DialogHeader>
           <DialogTitle>Set Association</DialogTitle>
         </DialogHeader>
-
         <ObjectAssociation
-          onIdChange={(updatedMap, refCodes) => {
-            setAssociations({ associations: updatedMap, refCodes: refCodes })
-          }}
+          onIdChange={handleIdChange}
           initialData={associationsState}
           refCodeInitialData={refCodeAssociationsState}
           excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP, ObjectTypeObjects.RISK, ObjectTypeObjects.INTERNAL_POLICY]}
