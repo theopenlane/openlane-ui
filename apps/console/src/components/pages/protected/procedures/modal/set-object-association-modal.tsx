@@ -68,7 +68,6 @@ const SetObjectAssociationDialog = ({ procedureId }: TSetObjectAssociationDialog
   }
 
   const onSubmitHandler = async (associations: TObjectAssociationMap) => {
-    console.log('onSubmitHandler')
     try {
       const { added, removed } = getAssociationDiffs(initialAssociationsState, associations)
 
