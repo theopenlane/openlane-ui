@@ -73,7 +73,7 @@ const ProgramsPage: React.FC = () => {
   }, [setCrumbs, basicInfoData, isLoading])
 
   useEffect(() => {
-    if (basicInfoData) document.title = `${currentOrganization?.node?.displayName}: Programs - ${basicInfoData.program.name}`
+    if (basicInfoData) document.title = `${currentOrganization?.node?.displayName ?? 'Openlane'} | Programs - ${basicInfoData.program.name}`
   }, [basicInfoData, currentOrganization?.node?.displayName])
 
   useEffect(() => {

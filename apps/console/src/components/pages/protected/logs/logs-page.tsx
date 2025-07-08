@@ -14,7 +14,12 @@ const LogsPage: React.FC = () => {
     ])
   }, [setCrumbs])
 
-  return <PageHeading heading="Audit Logs" eyebrow="Organization Settings" />
+  return (
+    <>
+      <PageHeading heading="Audit Logs" eyebrow="Organization Settings" />
+      <div>Coming Soon</div>
+    </>
+  )
 }
 
 export default LogsPage
