@@ -5,7 +5,7 @@ import { useFormContext, Controller } from 'react-hook-form'
 import { Card } from '@repo/ui/cardpanel'
 import { Input } from '@repo/ui/input'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@repo/ui/select'
-import { FolderIcon, BinocularsIcon, CopyIcon, InfoIcon, PlusIcon, ChevronDown } from 'lucide-react'
+import { FolderIcon, BinocularsIcon, CopyIcon, InfoIcon, PlusIcon, ChevronDown, FileBadge2, Settings2, FolderSymlink, ArrowUpFromDot, Shapes } from 'lucide-react'
 import { Control, ControlControlSource, ControlControlStatus, ControlControlType, Subcontrol } from '@repo/codegen/src/schema'
 import MappedCategoriesDialog from './mapped-categories-dialog'
 import Link from 'next/link'
@@ -47,11 +47,14 @@ const typeLabels: Record<ControlControlType, string> = {
 const statusOptions = Object.values(ControlControlStatus)
 
 const iconsMap: Record<string, React.ReactNode> = {
-  Framework: <FolderIcon size={16} className="text-brand" />,
+  Framework: <FileBadge2 size={16} className="text-brand" />,
+  Control: <Settings2 size={16} className="text-brand" />,
   Category: <FolderIcon size={16} className="text-brand" />,
   Subcategory: <FolderIcon size={16} className="text-brand" />,
   Status: <BinocularsIcon size={16} className="text-brand" />,
-  'Mapped categories': <FolderIcon size={16} className="text-brand" />,
+  'Mapped categories': <FolderSymlink size={16} className="text-brand" />,
+  Source: <ArrowUpFromDot size={16} className="text-brand" />,
+  Type: <Shapes size={16} className="text-brand" />,
 }
 
 const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing }) => {
@@ -65,9 +68,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing }) => {
       <h3 className="text-lg font-medium mb-4">Properties</h3>
       <div className="space-y-3">
         {data && <Property value={data.referenceFramework || 'CUSTOM'} label="Framework"></Property>}
-        {data?.__typename === 'Subcontrol' && (
-          <LinkedProperty label="Control" href={`/controls/${data.control.id}/`} value={data.control.refCode} icon={<FolderIcon size={16} className="text-brand" />} />
-        )}
+        {data?.__typename === 'Subcontrol' && <LinkedProperty label="Control" href={`/controls/${data.control.id}/`} value={data.control.refCode} icon={iconsMap.Control} />}
         <EditableSelectFromQuery label="Category" name="category" isEditing={isEditAllowed} icon={iconsMap.Category} />
         <EditableSelectFromQuery label="Subcategory" name="subcategory" isEditing={isEditAllowed} icon={iconsMap.Subcategory} />
         <div className="grid grid-cols-[110px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">

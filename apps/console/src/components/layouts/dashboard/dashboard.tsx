@@ -56,7 +56,6 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
     }
 
     const delay = differenceInMilliseconds(expirationDate, now)
-
     const id = setTimeout(() => {
       setShowSessionExpiredModal(true)
     }, delay)

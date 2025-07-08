@@ -40,7 +40,7 @@ const StandardDetailsPage = () => {
 
   return (
     <>
-      <title>{`${currentOrganization?.node?.displayName ?? 'Openlane'}: Standards - ${standard?.shortName ?? standard?.name}`}</title>
+      <title>{`${currentOrganization?.node?.displayName ?? 'Openlane'} | Standards - ${standard?.shortName ?? standard?.name}`}</title>
       <div className="flex gap-14">
         <div className="flex flex-col gap-7 ">
           <PageHeading heading={data?.standard.name || 'Standard Details'} className="mb-3" />
