@@ -259,6 +259,7 @@ const ControlsTable: React.FC = () => {
         onSortChange={setOrderBy}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
+        stickyHeader
       />
     </div>
   )

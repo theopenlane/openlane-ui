@@ -128,6 +128,7 @@ const RiskTable: React.FC = () => {
         paginationMeta={paginationMeta}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
+        stickyHeader
       />
     </>
   )

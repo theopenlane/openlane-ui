@@ -4,7 +4,7 @@ export const tableStyles = tv({
   slots: {
     container: 'relative w-full overflow-auto',
     table: 'w-full caption-bottom text-sm',
-    tableHeader: '[&_tr]:border-b',
+    tableHeader: '[&_tr]:border-b [&_tr]:sticky [&_tr]:top-0 [&_tr]:z-10',
     tableBody: '[&_tr:last-child]:border-0',
     tableFooter: 'border-t bg-muted/50 font-medium [&>tr]:last:border-b-0',
     tableRow: 'border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted',
@@ -34,10 +34,24 @@ export const tableStyles = tv({
         tableHead: 'h-8 px-2 text-xs',
       },
     },
+    stickyHeader: {
+      true: {
+        container: 'max-h-[80vh]',
+        stickyDialog: false,
+      },
+    },
+    stickyDialogHeader: {
+      true: {
+        container: 'max-h-96',
+        sticky: false,
+      },
+    },
   },
   defaultVariants: {
     striped: false,
     compact: false,
+    sticky: false,
+    stickyDialog: false,
   },
 })
 
