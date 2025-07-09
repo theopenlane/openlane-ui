@@ -1,15 +1,20 @@
 import { ColumnDef } from '@tanstack/react-table'
-import { Template } from '@repo/codegen/src/schema'
-import { formatTimeSince } from '@/utils/date'
+import { Template, User } from '@repo/codegen/src/schema'
+import { formatDate, formatTimeSince } from '@/utils/date'
+import { Avatar } from '@/components/shared/avatar/avatar'
 
-export const getQuestionnaireColumns = () => {
+type Params = {
+  userMap?: Record<string, User>
+}
+
+export const getQuestionnaireColumns = (params?: Params) => {
+  const userMap = params?.userMap || {}
+
   const columns: ColumnDef<Template>[] = [
     {
       accessorKey: 'name',
       header: 'Name',
-      cell: ({ cell }) => {
-        return <div className="font-bold">{cell.getValue() as string}</div>
-      },
+      cell: ({ cell }) => <div className="font-bold">{cell.getValue() as string}</div>,
       size: 180,
     },
     {
@@ -17,14 +22,48 @@ export const getQuestionnaireColumns = () => {
       header: 'Description',
     },
     {
-      accessorKey: 'updatedAt',
-      header: 'Updated At',
-      cell: ({ cell }) => formatTimeSince(cell.getValue() as string),
-      size: 120,
+      accessorKey: 'createdBy',
+      header: 'Created By',
+      size: 160,
+      cell: ({ row }) => {
+        const userId = row.original.createdBy
+        const user = userMap?.[userId ?? '']
+        return user ? (
+          <div className="flex items-center gap-2">
+            <Avatar entity={user} className="w-[24px] h-[24px]" />
+            {user.displayName}
+          </div>
+        ) : (
+          <span className="text-muted-foreground italic">Deleted user</span>
+        )
+      },
     },
     {
       accessorKey: 'createdAt',
       header: 'Created At',
+      cell: ({ cell }) => formatDate(cell.getValue() as string),
+      size: 120,
+    },
+    {
+      accessorKey: 'updatedBy',
+      header: 'Updated By',
+      size: 160,
+      cell: ({ row }) => {
+        const userId = row.original.updatedBy
+        const user = userMap?.[userId ?? '']
+        return user ? (
+          <div className="flex items-center gap-2">
+            <Avatar entity={user} className="w-[24px] h-[24px]" />
+            {user.displayName}
+          </div>
+        ) : (
+          <span className="text-muted-foreground italic">Deleted user</span>
+        )
+      },
+    },
+    {
+      accessorKey: 'updatedAt',
+      header: 'Last updated',
       cell: ({ cell }) => formatTimeSince(cell.getValue() as string),
       size: 120,
     },

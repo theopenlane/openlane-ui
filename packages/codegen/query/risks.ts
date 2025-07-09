@@ -21,6 +21,10 @@ const RISK_FIELDS = gql`
       gravatarLogoURL
       logoURL
     }
+    updatedAt
+    updatedBy
+    createdAt
+    createdBy
     delegate {
       id
       displayName
@@ -142,6 +146,20 @@ const RISK_TABLE_FIELDS = gql`
     riskType
     score
     status
+    businessCosts
+    delegate {
+      displayName
+      gravatarLogoURL
+      logoURL
+    }
+    details
+    impact
+    likelihood
+    mitigation
+    updatedAt
+    updatedBy
+    createdAt
+    createdBy
     stakeholder {
       id
       displayName

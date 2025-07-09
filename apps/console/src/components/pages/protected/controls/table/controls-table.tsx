@@ -2,36 +2,24 @@
 
 import React, { useMemo, useState, useEffect, useContext } from 'react'
 import { useGetAllControls } from '@/lib/graphql-hooks/controls'
-import { Badge } from '@repo/ui/badge'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
-import { ControlControlStatus, ControlListFieldsFragment, ControlOrderField, ControlWhereInput, GetAllControlsQueryVariables, Group, OrderDirection } from '@repo/codegen/src/schema'
-import { Avatar } from '@/components/shared/avatar/avatar'
+import { ControlListFieldsFragment, ControlOrderField, ControlWhereInput, GetAllControlsQueryVariables, OrderDirection } from '@repo/codegen/src/schema'
 import { useRouter } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import ControlsTableToolbar from './controls-table-toolbar'
-import { CONTROLS_SORT_FIELDS } from './table-config'
+import { CONTROLS_SORT_FIELDS, getControlColumns } from './table-config'
 import { useDebounce } from '@uidotdev/usehooks'
-import { ControlIconMapper } from '@/components/shared/icon-enum/control-enum.tsx'
 import { VisibilityState } from '@tanstack/react-table'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import SubcontrolCell from './subcontrol-cell'
-
-export const ControlStatusLabels: Record<ControlControlStatus, string> = {
-  [ControlControlStatus.APPROVED]: 'Approved',
-  [ControlControlStatus.ARCHIVED]: 'Archived',
-  [ControlControlStatus.CHANGES_REQUESTED]: 'Changes Requested',
-  [ControlControlStatus.NEEDS_APPROVAL]: 'Needs Approval',
-  [ControlControlStatus.NOT_IMPLEMENTED]: 'Not Implemented',
-  [ControlControlStatus.PREPARING]: 'Preparing',
-}
+import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 
 const ControlsTable: React.FC = () => {
   const { push } = useRouter()
-  const plateEditorHelper = usePlateEditor()
+  const { convertToReadOnly } = usePlateEditor()
   const [filters, setFilters] = useState<ControlWhereInput | null>(null)
   const { setCrumbs } = useContext(BreadcrumbContext)
   const [orderBy, setOrderBy] = useState<GetAllControlsQueryVariables['orderBy']>([
@@ -46,6 +34,11 @@ const ControlsTable: React.FC = () => {
     source: false,
     controlType: false,
     referenceFramework: false,
+    delegate: false,
+    createdBy: false,
+    createdAt: false,
+    updatedBy: false,
+    updatedAt: false,
   })
   const [searchTerm, setSearchTerm] = useState('')
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
@@ -77,127 +70,36 @@ const ControlsTable: React.FC = () => {
     ])
   }, [setCrumbs])
 
-  const { controls, isError, paginationMeta } = useGetAllControls({
+  const { controls, isError, paginationMeta, isLoading, isFetching } = useGetAllControls({
     where: { ownerIDNEQ: '', refCodeContainsFold: debouncedSearch, ...whereFilter },
     orderBy,
     pagination,
     enabled: !!filters,
   })
 
-  const columns: ColumnDef<ControlListFieldsFragment>[] = useMemo(
-    () => [
-      {
-        header: 'Name',
-        accessorKey: 'refCode',
-        cell: ({ row }) => <div className="font-bold">{row.getValue('refCode')}</div>,
-        size: 50,
-        maxSize: 90,
-      },
-      {
-        header: 'Description',
-        accessorKey: 'description',
-        size: 400,
-        cell: ({ row }) => {
-          const tags = row.original.tags
-          const description = () => {
-            return plateEditorHelper.convertToReadOnly(row.getValue('description') as string, 0)
-          }
+  const userIds = useMemo(() => {
+    if (!controls) return []
+    const ids = new Set<string>()
+    controls.forEach((task) => {
+      if (task.createdBy) ids.add(task.createdBy)
+      if (task.updatedBy) ids.add(task.updatedBy)
+    })
+    return Array.from(ids)
+  }, [controls])
 
-          return (
-            <div>
-              <div className="line-clamp-3 text-justify">{description()}</div>
-              <div className="mt-2 border-t border-dotted pt-2 flex flex-wrap gap-2">
-                {tags?.map((tag, index) => (
-                  <Badge key={index} variant="outline">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          )
-        },
-      },
-      {
-        header: 'Status',
-        accessorKey: 'status',
-        cell: ({ row }) => {
-          const value: ControlControlStatus = row.getValue('status')
-          const label = ControlStatusLabels[value] ?? value
+  const { users, isFetching: fetchingUsers } = useGetOrgUserList({
+    where: { hasUserWith: [{ idIn: userIds }] },
+  })
 
-          return (
-            <div className="flex items-center space-x-2">
-              {ControlIconMapper[value]}
-              <p>{label}</p>
-            </div>
-          )
-        },
-        size: 100,
-      },
-      {
-        header: 'Category',
-        accessorKey: 'category',
-        cell: ({ row }) => <div>{row.getValue('category') || '-'}</div>,
-        size: 120,
-      },
-      {
-        header: 'Subcategory',
-        accessorKey: 'subcategory',
-        cell: ({ row }) => <div>{row.getValue('subcategory') || '-'}</div>,
-        size: 120,
-      },
-      {
-        header: 'Owner',
-        accessorKey: ControlOrderField.CONTROL_OWNER_name,
-        cell: ({ row }) => {
-          const owner = row.original.controlOwner
-          return (
-            <div className="flex items-center gap-2">
-              <Avatar entity={owner as Group} variant="small" />
-              <span>{owner?.displayName ?? '-'}</span>
-            </div>
-          )
-        },
-        size: 100,
-      },
-      {
-        header: 'Reference ID',
-        accessorKey: 'referenceID',
-        cell: ({ row }) => <div>{row.getValue('referenceID') || '-'}</div>,
-        size: 120,
-      },
-      {
-        header: 'Auditor Reference ID',
-        accessorKey: 'auditorReferenceID',
-        cell: ({ row }) => <div>{row.getValue('auditorReferenceID') || '-'}</div>,
-        size: 120,
-      },
-      {
-        header: 'Source',
-        accessorKey: 'source',
-        cell: ({ row }) => <div>{row.getValue('source') || '-'}</div>,
-        size: 120,
-      },
-      {
-        header: 'Control Type',
-        accessorKey: 'controlType',
-        cell: ({ row }) => <div>{row.getValue('controlType') || '-'}</div>,
-        size: 120,
-      },
-      {
-        header: 'Reference Framework',
-        accessorKey: 'referenceFramework',
-        cell: ({ row }) => <div>{row.getValue('referenceFramework') || '-'}</div>,
-        size: 120,
-      },
-      {
-        header: 'Subcontrol',
-        accessorKey: 'subcontrol',
-        cell: SubcontrolCell,
-        size: 200,
-      },
-    ],
-    [plateEditorHelper],
-  )
+  const userMap = useMemo(() => {
+    const map: Record<string, (typeof users)[0]> = {}
+    users?.forEach((u) => {
+      map[u.id] = u
+    })
+    return map
+  }, [users])
+
+  const columns = useMemo(() => getControlColumns({ convertToReadOnly, userMap }), [convertToReadOnly, userMap])
 
   const mappedColumns: { accessorKey: string; header: string }[] = columns
     .filter((column): column is { accessorKey: string; header: string } => 'accessorKey' in column && typeof column.accessorKey === 'string' && typeof column.header === 'string')
@@ -259,6 +161,7 @@ const ControlsTable: React.FC = () => {
         onSortChange={setOrderBy}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
+        loading={fetchingUsers || isLoading || isFetching}
         stickyHeader
       />
     </div>
