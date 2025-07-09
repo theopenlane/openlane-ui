@@ -40889,6 +40889,10 @@ export type GetAllGroupsQuery = {
         id: string
         description?: string | null
         name: string
+        updatedAt?: any | null
+        updatedBy?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
         members: {
           __typename?: 'GroupMembershipConnection'
           edges?: Array<{
@@ -42224,6 +42228,10 @@ export type RiskFieldsFragment = {
   likelihood?: RiskRiskLikelihood | null
   impact?: RiskRiskImpact | null
   mitigation?: string | null
+  updatedAt?: any | null
+  updatedBy?: string | null
+  createdAt?: any | null
+  createdBy?: string | null
   stakeholder?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
   delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
   procedures: {
@@ -42306,6 +42314,10 @@ export type GetRiskByIdQuery = {
     likelihood?: RiskRiskLikelihood | null
     impact?: RiskRiskImpact | null
     mitigation?: string | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+    createdAt?: any | null
+    createdBy?: string | null
     stakeholder?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
     delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
     procedures: {
@@ -42379,6 +42391,10 @@ export type GetAllRisksQuery = {
         likelihood?: RiskRiskLikelihood | null
         impact?: RiskRiskImpact | null
         mitigation?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
         stakeholder?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
         delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
         procedures: {
@@ -43046,6 +43062,8 @@ export type FilterTemplatesQuery = {
         uischema?: any | null
         createdAt?: any | null
         updatedAt?: any | null
+        updatedBy?: string | null
+        createdBy?: string | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }

@@ -21,6 +21,10 @@ const RISK_FIELDS = gql`
       gravatarLogoURL
       logoURL
     }
+    updatedAt
+    updatedBy
+    createdAt
+    createdBy
     delegate {
       id
       displayName

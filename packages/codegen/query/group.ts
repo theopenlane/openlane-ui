@@ -33,6 +33,10 @@ export const GET_ALL_GROUPS = gql`
             syncToGithub
             id
           }
+          updatedAt
+          updatedBy
+          createdAt
+          createdBy
         }
       }
       pageInfo {

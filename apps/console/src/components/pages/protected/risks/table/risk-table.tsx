@@ -43,7 +43,7 @@ const RiskTable: React.FC = () => {
     updatedBy: false,
     createdAt: false,
     createdBy: false,
-    delegate: false, // if you later implement a 'delegate' column
+    delegate: false,
   })
 
   const debouncedSearch = useDebounce(searchQuery, 300)

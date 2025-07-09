@@ -146,7 +146,7 @@ export const getProceduresColumns = ({ users, tokens }: TProceduresColumnsProps)
       header: 'Created At',
       size: 120,
       maxSize: 120,
-      cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
+      cell: ({ cell }) => <span className="whitespace-nowrap">{formatDate(cell.getValue() as string)}</span>,
     },
     {
       accessorKey: 'updatedBy',

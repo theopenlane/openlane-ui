@@ -2,72 +2,20 @@ import React, { useMemo, useState } from 'react'
 import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
 import { DataTable } from '@repo/ui/data-table'
 import { Button } from '@repo/ui/button'
-import { Cog, AlertTriangle } from 'lucide-react'
-import { ColumnDef } from '@tanstack/table-core'
+import { AlertTriangle } from 'lucide-react'
+import { VisibilityState } from '@tanstack/table-core'
 import { useRisksWithFilter } from '@/lib/graphql-hooks/risks'
 import { useSearchParams } from 'next/navigation'
-import { Group, RiskRiskStatus, RiskWhereInput } from '@repo/codegen/src/schema'
-import { Avatar } from '@/components/shared/avatar/avatar'
+import { RiskRiskStatus, RiskWhereInput } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
-
-type Stakeholder = {
-  id: string
-  displayName: string
-  avatarUrl?: string
-}
-
-type FormattedRisk = {
-  id: string
-  name: string
-  for: string[]
-  score: number | null
-  stakeholder?: Stakeholder | null
-}
-
-const columns: ColumnDef<FormattedRisk>[] = [
-  {
-    header: 'Name',
-    accessorKey: 'name',
-    cell: ({ row }) => {
-      const id = row.original.id
-      const name: string = row.getValue('name')
-
-      return (
-        <Link href={`/risks/${id}`} className="text-blue-600 hover:underline">
-          {name}
-        </Link>
-      )
-    },
-  },
-  {
-    header: 'For',
-    accessorKey: 'for',
-    cell: ({ row }) => row.original.for?.join(', ') || '—',
-  },
-  {
-    header: 'Stakeholder',
-    accessorKey: 'stakeholder',
-    cell: ({ row }) => {
-      const stakeholder = row.getValue('stakeholder') as Stakeholder | null
-
-      return (
-        <div className="flex items-center gap-2">
-          {stakeholder && <Avatar entity={stakeholder as Group} />}
-          {stakeholder?.displayName || '—'}
-        </div>
-      )
-    },
-  },
-  {
-    header: 'Score',
-    accessorKey: 'score',
-  },
-]
+import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
+import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
+import { FormattedRisk, getRiskColumns } from './risks-table-config'
 
 const Risks = () => {
   const { data: session } = useSession()
@@ -77,6 +25,13 @@ const Risks = () => {
 
   const { groups } = useGetAllGroups({ where: {} })
   const [tab, setTab] = useState<'created' | 'assigned'>('created')
+
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    createdBy: false,
+    createdAt: false,
+    updatedBy: false,
+    updatedAt: false,
+  })
 
   const stakeholderGroupIds = useMemo(() => groups?.map((group) => group.id) ?? [], [groups])
 
@@ -109,6 +64,10 @@ const Risks = () => {
         for: [...controls, ...subcontrols],
         score: risk.score ?? null,
         stakeholder: risk?.stakeholder,
+        createdBy: risk.createdBy ?? undefined,
+        updatedBy: risk.updatedBy ?? undefined,
+        createdAt: risk.createdAt ?? undefined,
+        updatedAt: risk.updatedAt ?? undefined,
       }
     }) || []
 
@@ -126,14 +85,42 @@ const Risks = () => {
 
   const hasData = formattedRisks.length > 0
 
+  const userIds = useMemo(() => {
+    if (!risks) return []
+    const ids = new Set<string>()
+    risks.forEach((risk) => {
+      if (risk.createdBy) ids.add(risk.createdBy)
+      if (risk.updatedBy) ids.add(risk.updatedBy)
+    })
+    return Array.from(ids)
+  }, [risks])
+
+  const { users, isFetching: fetchingUsers } = useGetOrgUserList({
+    where: { hasUserWith: [{ idIn: userIds }] },
+  })
+
+  const userMap = useMemo(() => {
+    const map: Record<string, (typeof users)[0]> = {}
+    users?.forEach((u) => {
+      map[u.id] = u
+    })
+    return map
+  }, [users])
+
+  const { columns, mappedColumns } = useMemo(() => getRiskColumns({ userMap }), [userMap])
+
   return (
     <Card className="shadow-md rounded-lg flex-1">
       <div className="flex flex-col gap-2">
-        <div className="flex justify-between items-center px-6 pt-6">
+        <div className="flex justify-between items-center px-6">
           <CardTitle className="text-lg font-semibold">Risks</CardTitle>
-          <Button variant="outline" className="flex items-center gap-2" icon={<Cog size={16} />} iconPosition="left">
+          {/* <Button variant="outline" className="flex items-center gap-2" icon={<Cog size={16} />} iconPosition="left">
             Edit
-          </Button>
+          </Button> */}
+
+          {mappedColumns && columnVisibility && setColumnVisibility && (
+            <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
+          )}
         </div>
 
         <Tabs
@@ -153,7 +140,16 @@ const Risks = () => {
 
         <CardContent>
           {hasData ? (
-            <DataTable columns={columns} data={formattedRisks} pagination={pagination} onPaginationChange={setPagination} paginationMeta={paginationMeta} />
+            <DataTable
+              columns={columns}
+              data={formattedRisks}
+              pagination={pagination}
+              onPaginationChange={setPagination}
+              paginationMeta={paginationMeta}
+              loading={fetchingUsers}
+              columnVisibility={columnVisibility}
+              setColumnVisibility={setColumnVisibility}
+            />
           ) : (
             <div className="flex flex-col items-center justify-center text-center py-16">
               <AlertTriangle size={89} strokeWidth={1} className="text-border mb-4" />

@@ -122,7 +122,7 @@ export const getPoliciesColumns = ({ users, tokens }: TPoliciesColumnsProps) => 
     },
     {
       accessorKey: 'updatedBy',
-      header: 'Last Updated By',
+      header: 'Updated By',
       size: 150,
       maxSize: 180,
       cell: ({ row }) => {
