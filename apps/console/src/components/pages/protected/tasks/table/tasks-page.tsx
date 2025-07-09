@@ -3,7 +3,7 @@ import React, { useMemo, useRef, useState, useEffect } from 'react'
 import TaskTableToolbar from '@/components/pages/protected/tasks/table/task-table-toolbar'
 import { useTaskStore, TOrgMembers } from '@/components/pages/protected/tasks/hooks/useTaskStore'
 import { OrderDirection, Task, TaskOrderField, TasksWithFilterQueryVariables, TaskTaskStatus, TaskWhereInput } from '@repo/codegen/src/schema'
-import { taskColumns } from '@/components/pages/protected/tasks/table/columns.tsx'
+import { getTaskColumns } from '@/components/pages/protected/tasks/table/columns.tsx'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { exportToCSV } from '@/utils/exportToCSV'
@@ -38,8 +38,15 @@ const TasksPage: React.FC = () => {
   const allStatuses = useMemo(() => [TaskTaskStatus.COMPLETED, TaskTaskStatus.OPEN, TaskTaskStatus.IN_PROGRESS, TaskTaskStatus.IN_REVIEW, TaskTaskStatus.WONT_DO], [])
   const statusesWithoutComplete = useMemo(() => [TaskTaskStatus.OPEN, TaskTaskStatus.IN_PROGRESS, TaskTaskStatus.IN_REVIEW], [])
 
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
-
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    createdAt: false,
+    createdBy: false,
+    updatedAt: false,
+    updatedBy: false,
+    details: false,
+    completed: false,
+    tags: false,
+  })
   const debouncedSearch = useDebounce(searchQuery, 300)
   const searching = searchQuery !== debouncedSearch
 
@@ -98,7 +105,8 @@ const TasksPage: React.FC = () => {
     return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
   }
 
-  const mappedColumns: { accessorKey: string; header: string }[] = taskColumns
+  const emptyUserMap = {}
+  const mappedColumns: { accessorKey: string; header: string }[] = getTaskColumns({ userMap: emptyUserMap })
     .filter((column): column is { accessorKey: string; header: string } => 'accessorKey' in column && typeof column.accessorKey === 'string' && typeof column.header === 'string')
     .map((column) => ({
       accessorKey: column.accessorKey,
@@ -108,31 +116,33 @@ const TasksPage: React.FC = () => {
   const handleExport = () => {
     const tasks = tableRef.current?.exportData?.() ?? []
 
-    const exportableColumns = taskColumns.filter(isVisibleColumn).map((col) => {
-      const key = col.accessorKey as keyof Task
-      const label = col.header
+    const exportableColumns = getTaskColumns({ userMap: emptyUserMap })
+      .filter(isVisibleColumn)
+      .map((col) => {
+        const key = col.accessorKey as keyof Task
+        const label = col.header
 
-      return {
-        label,
-        accessor: (task: Task) => {
-          const value = task[key]
+        return {
+          label,
+          accessor: (task: Task) => {
+            const value = task[key]
 
-          if (key === 'due' && value) {
-            return formatDate(value)
-          }
+            if (key === 'due' && value) {
+              return formatDate(value)
+            }
 
-          if (key === 'assignee') {
-            return task.assignee?.displayName || '-'
-          }
+            if (key === 'assignee') {
+              return task.assignee?.displayName || '-'
+            }
 
-          if (key === 'assigner') {
-            return task.assigner?.displayName
-          }
+            if (key === 'assigner') {
+              return task.assigner?.displayName
+            }
 
-          return typeof value === 'string' || typeof value === 'number' ? value : ''
-        },
-      }
-    })
+            return typeof value === 'string' || typeof value === 'number' ? value : ''
+          },
+        }
+      })
 
     exportToCSV(tasks, exportableColumns, 'task_list')
   }
