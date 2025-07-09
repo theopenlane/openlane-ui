@@ -82,17 +82,19 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({ st
     }
   }, [isLoadingPermission, permission])
 
-  const columns = useMemo(() => {
-    const controlsList = allControls?.allControls ?? []
-    if (!controlsList || controlsList.length === 0) return []
-    const columns = getColumns({
-      selectedControls,
-      toggleSelection,
-      setSelectedControls,
-      controls: controlsList,
-    })
-    return columns
-  }, [allControls, selectedControls])
+  const columnsByCategory = useMemo(() => {
+    return Object.fromEntries(
+      Object.entries(groupedControls).map(([category, controls]) => {
+        const columns = getColumns({
+          selectedControls,
+          toggleSelection,
+          setSelectedControls,
+          controls,
+        })
+        return [category, columns]
+      }),
+    )
+  }, [groupedControls, selectedControls])
 
   const allSectionKeys = useMemo(() => Object.keys(groupedControls), [groupedControls])
 
@@ -196,6 +198,7 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({ st
         </div>
 
         {Object.entries(groupedControls).map(([category, controls]) => {
+          const columns = columnsByCategory[category]
           const isOpen = openSections.includes(category)
           return (
             <AccordionItem key={category} value={category}>

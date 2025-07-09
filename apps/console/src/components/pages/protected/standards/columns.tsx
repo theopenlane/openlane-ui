@@ -20,18 +20,19 @@ export const getColumns = ({ controls, setSelectedControls, toggleSelection, sel
     {
       id: 'select',
       header: () => {
-        const allControlIds = new Set(controls.map((c) => c.id))
         const isAllSelected = controls.length > 0 && controls.every((c) => selectedControls.some((sel) => sel.id === c.id))
         return (
           <Checkbox
             checked={isAllSelected}
             onCheckedChange={(checked: boolean) => {
               setSelectedControls((prev) => {
+                const categoryItems = controls.map((c) => ({ id: c.id, refCode: c.refCode }))
+                const categoryIds = new Set(categoryItems.map((item) => item.id))
                 if (checked) {
-                  const newItems = controls.map((c) => ({ id: c.id, refCode: c.refCode })).filter((item) => !prev.some((p) => p.id === item.id))
+                  const newItems = categoryItems.filter((item) => !prev.some((p) => p.id === item.id))
                   return [...prev, ...newItems]
                 } else {
-                  return prev.filter((item) => !allControlIds.has(item.id))
+                  return prev.filter((item) => !categoryIds.has(item.id))
                 }
               })
             }}
