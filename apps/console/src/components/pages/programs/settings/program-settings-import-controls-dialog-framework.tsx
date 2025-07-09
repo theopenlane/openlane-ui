@@ -110,7 +110,7 @@ const ImportControlsDialogFramework = ({ setSelectedItems, selectedItems, select
         <Label>Search</Label>
         <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Type" className="h-10 w-[200px] mt-1" />
       </div>
-      <DataTable columns={columns} data={pagedData} paginationMeta={{ totalCount: tableData.length }} pagination={pagination} onPaginationChange={setPagination} />
+      <DataTable columns={columns} data={pagedData} paginationMeta={{ totalCount: tableData.length }} pagination={pagination} onPaginationChange={setPagination} stickyDialogHeader />
     </>
   )
 }

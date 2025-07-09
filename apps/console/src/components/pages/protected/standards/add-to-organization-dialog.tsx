@@ -28,7 +28,6 @@ const AddToOrganizationDialog: React.FC<AddToOrganizationDialogProps> = ({ open,
   const { successNotification, errorNotification } = useNotification()
   const queryClient = useQueryClient()
   const controlIDs = useMemo(() => selectedControls?.map((c) => c.id) ?? [], [selectedControls])
-
   const programs = useMemo(() => {
     return programsData?.programs?.edges?.map((edge) => edge?.node) || []
   }, [programsData])
@@ -63,9 +62,9 @@ const AddToOrganizationDialog: React.FC<AddToOrganizationDialogProps> = ({ open,
           {selectedControls && selectedControls.length > 0 ? (
             <div>
               <p className="font-semibold">Selected controls ({selectedControls.length})</p>
-              <div className="flex flex-wrap gap-2 mt-1">
-                {selectedControls.map(({ refCode }) => (
-                  <div key={refCode} className="inline-flex px-2.5 py-0.5 border text-xs hover:text-brand hover:border-brand rounded-full items-center justify-center">
+              <div className="flex flex-wrap gap-2 mt-1 max-h-40 overflow-auto">
+                {selectedControls.map(({ id, refCode }) => (
+                  <div key={id} className="inline-flex px-2.5 py-0.5 border text-xs hover:text-brand hover:border-brand rounded-full items-center justify-center">
                     {refCode}
                   </div>
                 ))}
