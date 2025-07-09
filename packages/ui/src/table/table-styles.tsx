@@ -36,7 +36,7 @@ export const tableStyles = tv({
     },
     stickyHeader: {
       true: {
-        container: 'max-h-[80vh]',
+        container: 'max-h-[70vh]',
         stickyDialog: false,
       },
     },
