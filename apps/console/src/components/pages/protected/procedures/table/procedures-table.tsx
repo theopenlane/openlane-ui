@@ -69,22 +69,20 @@ export const ProceduresTable = () => {
   const { procedures, isLoading: fetching, paginationMeta } = useProcedures({ where: whereFilter, orderBy, pagination, enabled: !!filters })
   const { users } = useGetOrgUserList({ where: userListWhere })
   const { tokens } = useGetApiTokensByIds({ where: tokensWhere })
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    approvalRequired: false,
+    approver: false,
+    delegate: false,
+    procedureType: false,
+    reviewDue: false,
+    reviewFrequency: false,
+    revision: false,
+    status: false,
+    tags: false,
+    createdAt: false,
+    createdBy: false,
+  })
   const { columns, mappedColumns } = getProceduresColumns({ users, tokens })
-
-  useEffect(() => {
-    if (procedures.length > 0 && !memberIds) {
-      const userIds = [...new Set(procedures.map((item) => item.updatedBy))]
-      setMemberIds(userIds)
-    }
-  }, [procedures, memberIds, filters])
-
-  useEffect(() => {
-    setCrumbs([
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Procedures', href: '/procedures' },
-    ])
-  }, [setCrumbs])
 
   const handleCreateNew = async () => {
     router.push(`/procedures/create`)
@@ -123,6 +121,20 @@ export const ProceduresTable = () => {
 
     exportToCSV(procedures, exportableColumns, 'procedures')
   }
+
+  useEffect(() => {
+    if (procedures.length > 0 && !memberIds) {
+      const userIds = [...new Set(procedures.map((item) => item.updatedBy))]
+      setMemberIds(userIds)
+    }
+  }, [procedures, memberIds, filters])
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Procedures', href: '/procedures' },
+    ])
+  }, [setCrumbs])
 
   return (
     <>
