@@ -10,10 +10,16 @@ export const TASKS_WITH_FILTER = gql`
           title
           status
           tags
-          details
           due
           displayID
           category
+          details
+          updatedAt
+          updatedBy
+          createdAt
+          createdBy
+          category
+          completed
           assigner {
             displayName
             avatarRemoteURL

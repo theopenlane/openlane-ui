@@ -49,6 +49,8 @@ export const GET_ALL_TEMPLATES = gql`
           uischema
           createdAt
           updatedAt
+          updatedBy
+          createdBy
         }
       }
       pageInfo {

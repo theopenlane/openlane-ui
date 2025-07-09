@@ -47,6 +47,23 @@ export const GET_INTERNAL_POLICIES_LIST = gql`
           createdAt
           createdBy
           summary
+          approvalRequired
+          approver {
+            displayName
+            gravatarLogoURL
+            logoURL
+          }
+          delegate {
+            displayName
+            gravatarLogoURL
+            logoURL
+          }
+          policyType
+          reviewDue
+          reviewFrequency
+          revision
+          status
+          tags
         }
       }
       pageInfo {

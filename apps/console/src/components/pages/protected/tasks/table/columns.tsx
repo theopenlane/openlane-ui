@@ -1,20 +1,25 @@
+// columns.tsx
+
 import { ColumnDef } from '@tanstack/react-table'
-import { Avatar } from '@/components/shared/avatar/avatar'
-import AssigneeCell from '@/components/pages/protected/tasks/table/assignee-cell.tsx'
-import { Task } from '@repo/codegen/src/schema.ts'
+import { Task, User } from '@repo/codegen/src/schema'
+import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { formatDate } from '@/utils/date'
 import { TaskStatusIconMapper } from '@/components/shared/icon-enum/task-enum.tsx'
 import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task.ts'
+import AssigneeCell from './assignee-cell'
+import { Badge } from '@repo/ui/badge'
 
-export const taskColumns: ColumnDef<Task>[] = [
+type ColumnOptions = {
+  userMap: Record<string, User>
+  convertToReadOnly?: (data: string, padding?: number, style?: React.CSSProperties) => React.JSX.Element
+}
+
+export const getTaskColumns = ({ userMap, convertToReadOnly }: ColumnOptions): ColumnDef<Task>[] => [
   {
     accessorKey: 'title',
     header: 'Title',
-    cell: ({ cell }) => {
-      return <div className="font-bold">{cell.getValue() as string}</div>
-    },
+    cell: ({ cell }) => <div className="font-bold">{cell.getValue() as string}</div>,
     size: 200,
-    minSize: 100,
   },
   {
     accessorKey: 'category',
@@ -40,10 +45,9 @@ export const taskColumns: ColumnDef<Task>[] = [
     header: 'Assigner',
     cell: ({ row }) => {
       const fullName = row.original.assigner?.displayName
-
       return (
         <div className="flex items-center space-x-1">
-          <Avatar entity={row?.original?.assigner} className="w-[28px] h-[28px]" />
+          <Avatar entity={row.original.assigner} className="w-[28px] h-[28px]" />
           <p>{fullName}</p>
         </div>
       )
@@ -53,18 +57,88 @@ export const taskColumns: ColumnDef<Task>[] = [
   {
     accessorKey: 'assignee',
     header: 'Assignee',
-    cell: ({ row }) => {
-      return <AssigneeCell assignee={row.original.assignee!} taskId={row.original.id!} />
-    },
+    cell: ({ row }) => <AssigneeCell assignee={row.original.assignee!} taskId={row.original.id!} />,
     size: 160,
   },
   {
     accessorKey: 'due',
     header: 'Due Date',
-    cell: ({ cell }) => {
-      const value = cell.getValue() as string | null
-      return formatDate(value)
-    },
+    cell: ({ cell }) => formatDate(cell.getValue() as string | null),
     size: 100,
+  },
+  {
+    accessorKey: 'details',
+    header: 'Details',
+    cell: ({ cell }) => convertToReadOnly?.(cell.getValue() as string, 0) || '',
+    size: 200,
+  },
+  {
+    accessorKey: 'completed',
+    header: 'Completed',
+    cell: ({ cell }) => formatDate(cell.getValue() as string | null),
+  },
+  {
+    accessorKey: 'tags',
+    header: 'Tags',
+    size: 140,
+    cell: ({ row }) => {
+      const tags = row?.original?.tags
+      if (!tags?.length) {
+        return '-'
+      }
+      return (
+        <div className="flex gap-2">
+          {row?.original?.tags?.map((tag, i) => (
+            <Badge variant={'outline'} key={i}>
+              {tag}
+            </Badge>
+          ))}
+        </div>
+      )
+    },
+  },
+  {
+    accessorKey: 'createdBy',
+    header: 'Created By',
+    cell: ({ row }) => {
+      const user = userMap[row.original.createdBy ?? '']
+      return user ? (
+        <div className="flex items-center space-x-1">
+          <Avatar entity={user} className="w-[24px] h-[24px]" />
+          <p>{user.displayName}</p>
+        </div>
+      ) : (
+        <span className="text-muted-foreground italic">Deleted user</span>
+      )
+    },
+    size: 160,
+  },
+  {
+    accessorKey: 'createdAt',
+    header: 'Created At',
+    cell: ({ cell }) => formatDate(cell.getValue() as string),
+    size: 130,
+  },
+  {
+    accessorKey: 'updatedBy',
+    header: 'Updated By',
+    cell: ({ row }) => {
+      const user = userMap[row.original.updatedBy ?? '']
+      return user ? (
+        <div className="flex items-center space-x-1">
+          <Avatar entity={user} className="w-[24px] h-[24px]" />
+          <p>{user.displayName}</p>
+        </div>
+      ) : (
+        <span className="text-muted-foreground italic">Deleted user</span>
+      )
+    },
+    size: 160,
+  },
+  {
+    accessorKey: 'updatedAt',
+    header: 'Updated At',
+    cell: ({ cell }) => formatDate(cell.getValue() as string),
+    size: 130,
   },
 ]

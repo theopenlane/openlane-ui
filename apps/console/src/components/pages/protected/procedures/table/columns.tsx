@@ -1,9 +1,10 @@
 import { ColumnDef } from '@tanstack/react-table'
 import React from 'react'
 import { ApiToken, Procedure, User } from '@repo/codegen/src/schema.ts'
-import { formatTimeSince } from '@/utils/date'
+import { formatDate, formatTimeSince } from '@/utils/date'
 import { KeyRound } from 'lucide-react'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
+import { Badge } from '@repo/ui/badge'
 
 type TProceduresColumnsProps = {
   users?: User[]
@@ -30,8 +31,105 @@ export const getProceduresColumns = ({ users, tokens }: TProceduresColumnsProps)
       },
     },
     {
-      accessorKey: 'updatedBy',
-      header: 'Last Updated By',
+      accessorKey: 'approvalRequired',
+      header: 'Approval Required',
+      size: 140,
+      cell: ({ cell }) => (cell.getValue() ? 'Yes' : 'No'),
+    },
+    {
+      accessorKey: 'approver',
+      header: 'Approver',
+      size: 160,
+      cell: ({ row }) => {
+        const approver = row.original.approver
+        return approver ? (
+          <div className="flex items-center gap-2">
+            <Avatar entity={approver} />
+            {approver.displayName || '-'}
+          </div>
+        ) : (
+          <span className="text-muted-foreground italic">-</span>
+        )
+      },
+    },
+    {
+      accessorKey: 'delegate',
+      header: 'Delegate',
+      size: 160,
+      cell: ({ row }) => {
+        const delegate = row.original.delegate
+        return delegate ? (
+          <div className="flex items-center gap-2">
+            <Avatar entity={delegate} />
+            {delegate.displayName || '-'}
+          </div>
+        ) : (
+          <span className="text-muted-foreground italic">-</span>
+        )
+      },
+    },
+    {
+      accessorKey: 'procedureType',
+      header: 'Type',
+      size: 120,
+      cell: ({ cell }) => cell.getValue() || '-',
+    },
+    {
+      accessorKey: 'reviewDue',
+      header: 'Review Due',
+      size: 130,
+      cell: ({ cell }) => {
+        const value = cell.getValue() as string | null
+        return value ? formatDate(value) : '-'
+      },
+    },
+    {
+      accessorKey: 'reviewFrequency',
+      header: 'Review Frequency',
+      size: 140,
+      cell: ({ cell }) => {
+        const value = cell.getValue<string>()
+        return <span className="capitalize">{value ? value.toLowerCase() : '-'}</span>
+      },
+    },
+    {
+      accessorKey: 'revision',
+      header: 'Revision',
+      size: 100,
+      cell: ({ cell }) => cell.getValue()?.toString() ?? '-',
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      size: 120,
+      cell: ({ cell }) => {
+        const value = cell.getValue<string>()
+        return <span className="capitalize">{value ? value.split('_').join(' ').toLowerCase() : '-'}</span>
+      },
+    },
+    {
+      accessorKey: 'tags',
+      header: 'Tags',
+      size: 140,
+      cell: ({ row }) => {
+        const tags = row.original.tags
+        if (!tags?.length) return '-'
+        return (
+          <div className="flex flex-wrap gap-2">
+            {tags.map((tag, i) => (
+              <Badge key={i} variant="outline">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: 'createdBy',
+      header: 'Created by',
+      size: 150,
+      maxSize: 180,
       cell: ({ row }) => {
         const userId = row.original.updatedBy
         const token = tokens?.find((item) => item.id === userId)
@@ -44,19 +142,46 @@ export const getProceduresColumns = ({ users, tokens }: TProceduresColumnsProps)
         return (
           <div className="flex items-center gap-2">
             {token ? <KeyRound size={18} /> : <Avatar entity={user} />}
-            {token ? token.name : user?.displayName || '—'}
+            {token ? token.name : user?.displayName || '-'}
           </div>
         )
       },
+    },
+    {
+      accessorKey: 'createdAt',
+      header: 'Created At',
+      size: 120,
+      maxSize: 120,
+      cell: ({ cell }) => <span className="whitespace-nowrap">{formatDate(cell.getValue() as string)}</span>,
+    },
+    {
+      accessorKey: 'updatedBy',
+      header: 'Updated by',
       size: 150,
       maxSize: 180,
+      cell: ({ row }) => {
+        const userId = row.original.updatedBy
+        const token = tokens?.find((item) => item.id === userId)
+        const user = users?.find((item) => item.id === userId)
+
+        if (!token && !user) {
+          return 'Deleted user'
+        }
+
+        return (
+          <div className="flex items-center gap-2">
+            {token ? <KeyRound size={18} /> : <Avatar entity={user} />}
+            {token ? token.name : user?.displayName || '-'}
+          </div>
+        )
+      },
     },
     {
       accessorKey: 'updatedAt',
       header: 'Last Updated',
-      cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
       size: 120,
       maxSize: 120,
+      cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
     },
   ]
 

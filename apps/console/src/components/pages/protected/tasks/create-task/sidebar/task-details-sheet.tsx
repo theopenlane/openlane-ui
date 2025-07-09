@@ -183,6 +183,7 @@ const TaskDetailsSheet = () => {
       status: data?.status,
       clearAssignee: !data?.assigneeID,
       clearDue: !data?.due,
+      tags: data.tags,
       ...associationPayload,
     }
 
