@@ -289,7 +289,7 @@ export function DataTable<TData, TValue>({
 
         {/* Apply opacity and disable interactions while loading */}
         <div className={isLoading ? 'opacity-50 pointer-events-none transition-opacity duration-300' : 'transition-opacity duration-300'}>
-          <Table variant="data" sticky={stickyHeader} stickyDialog={stickyDialogHeader}>
+          <Table variant="data" stickyHeader={stickyHeader} stickyDialogHeader={stickyDialogHeader}>
             <TableHeader variant="data">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow variant="data" key={headerGroup.id}>

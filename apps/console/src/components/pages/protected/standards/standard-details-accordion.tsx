@@ -1,6 +1,5 @@
 'use client'
 import React, { useState, useMemo, useEffect } from 'react'
-import type { FC } from 'react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { Button } from '@repo/ui/button'
 import { ChevronDown, ChevronRight, ChevronsDownUp, List, SearchIcon, ShieldPlus } from 'lucide-react'
@@ -18,6 +17,7 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { ControlWhereInput } from '@repo/codegen/src/schema'
 import { useAllControlsGroupedWithListFields } from '@/lib/graphql-hooks/controls'
+import { VisibilityState } from '@tanstack/react-table'
 
 const generateWhere = (id: string, searchValue: string) => ({
   and: [
@@ -28,7 +28,10 @@ const generateWhere = (id: string, searchValue: string) => ({
   ],
 })
 
-const StandardDetailsAccordion: FC = () => {
+type TStandardDetailsAccordionProps = {
+  standardName?: string | undefined
+}
+const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({ standardName }) => {
   const params = useParams()
   const id = typeof params?.id === 'string' ? params.id : ''
   const [hasInitialized, setHasInitialized] = useState(false)
@@ -37,14 +40,16 @@ const StandardDetailsAccordion: FC = () => {
   const [openSections, setOpenSections] = useState<string[]>([])
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [dialogCategory, setDialogCategory] = useState<string | null>(null)
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
-
   const where = generateWhere(id, debouncedSearchQuery)
   const { data: session } = useSession()
-  const { data: permission } = useOrganizationRole(session)
+  const { data: permission, isLoading: isLoadingPermission } = useOrganizationRole(session)
   const hasFilters = Object.keys(where).length > 0
   const allControls = useAllControlsGroupedWithListFields({ where: where as ControlWhereInput, enabled: hasFilters })
+
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    select: true,
+  })
 
   const groupedControls = useMemo(() => {
     const controlsList = allControls?.allControls ?? []
@@ -66,19 +71,28 @@ const StandardDetailsAccordion: FC = () => {
     })
   }
 
-  const columnsByCategory = useMemo(() => {
-    return Object.fromEntries(
-      Object.entries(groupedControls).map(([category, controls]) => {
-        const columns = getColumns({
-          selectedControls,
-          toggleSelection,
-          setSelectedControls,
-          controls,
-        })
-        return [category, columns]
-      }),
-    )
-  }, [groupedControls, selectedControls])
+  useEffect(() => {
+    if (!isLoadingPermission) {
+      const canEditPermission = canEdit(permission?.roles)
+
+      setColumnVisibility((prev) => ({
+        ...prev,
+        select: canEditPermission,
+      }))
+    }
+  }, [isLoadingPermission, permission])
+
+  const columns = useMemo(() => {
+    const controlsList = allControls?.allControls ?? []
+    if (!controlsList || controlsList.length === 0) return []
+    const columns = getColumns({
+      selectedControls,
+      toggleSelection,
+      setSelectedControls,
+      controls: controlsList,
+    })
+    return columns
+  }, [allControls, selectedControls])
 
   const allSectionKeys = useMemo(() => Object.keys(groupedControls), [groupedControls])
 
@@ -131,57 +145,58 @@ const StandardDetailsAccordion: FC = () => {
   return (
     <div className="relative">
       <Accordion type="multiple" value={openSections} onValueChange={setOpenSections} className="w-full">
-        <div className="flex gap-2.5 items-center absolute right-0 mt-2">
-          <Input
-            value={searchQuery}
-            name="standardSearch"
-            placeholder="Search ..."
-            onChange={(e) => {
-              const newValue = e.target.value
-              setSearchQuery(newValue)
-              setPaginations((prev) => {
-                const updated: Record<string, TPagination> = {}
-                for (const category of Object.keys(groupedControls)) {
-                  updated[category] = {
-                    ...DEFAULT_PAGINATION,
-                    pageSize: prev[category]?.pageSize || DEFAULT_PAGINATION.pageSize,
+        <div className="flex gap-2.5 items-center justify-between right-0 mt-2">
+          <div className="flex col gap-2.5 items-center justify-between">
+            <p className="">Domains</p>
+            <Button type="button" className="h-8 !px-2" variant="outline" onClick={toggleAllSections}>
+              <div className="flex">
+                <List size={16} />
+                <ChevronsDownUp size={16} />
+              </div>
+            </Button>
+          </div>
+          <div className="flex col gap-2.5 items-center justify-between">
+            <Input
+              value={searchQuery}
+              name="standardSearch"
+              placeholder="Search ..."
+              onChange={(e) => {
+                const newValue = e.target.value
+                setSearchQuery(newValue)
+                setPaginations((prev) => {
+                  const updated: Record<string, TPagination> = {}
+                  for (const category of Object.keys(groupedControls)) {
+                    updated[category] = {
+                      ...DEFAULT_PAGINATION,
+                      pageSize: prev[category]?.pageSize || DEFAULT_PAGINATION.pageSize,
+                    }
                   }
-                }
-                return updated
-              })
-            }}
-            icon={<SearchIcon size={16} />}
-            iconPosition="left"
-            variant="searchTable"
-            className="!border-brand"
-          />
-          <Button type="button" className="h-8 !px-2" variant="outline" onClick={toggleAllSections}>
-            <div className="flex">
-              <List size={16} />
-              <ChevronsDownUp size={16} />
-            </div>
-          </Button>
-        </div>
-        {Object.entries(groupedControls).map(([category, controls]) => {
-          const columns = columnsByCategory[category]
-          const isOpen = openSections.includes(category)
-          const selectedInCategory = selectedControls.filter((sel) => controls.some((c) => c.id === sel.id))
-          const tableFooter =
-            canEdit(permission?.roles) && selectedInCategory.length > 0 ? (
-              <div className="flex justify-between items-center mt-3 p-2 border-t">
-                <span>Add selected controls to Organization</span>
+                  return updated
+                })
+              }}
+              icon={<SearchIcon size={16} />}
+              iconPosition="left"
+              variant="searchTable"
+              className="!border-brand"
+            />
+            {canEdit(permission?.roles) && (
+              <div className="flex justify-between items-center">
                 <Button
                   icon={<ShieldPlus />}
                   iconPosition="left"
                   onClick={() => {
-                    setDialogCategory(category)
                     setIsDialogOpen(true)
                   }}
                 >
-                  Add to Organization ({selectedInCategory.length})
+                  {selectedControls.length > 0 ? `Add Controls (${selectedControls.length})` : 'Add Controls'}
                 </Button>
               </div>
-            ) : null
+            )}
+          </div>
+        </div>
+
+        {Object.entries(groupedControls).map(([category, controls]) => {
+          const isOpen = openSections.includes(category)
           return (
             <AccordionItem key={category} value={category}>
               <AccordionTrigger className="flex items-center gap-2 text-lg font-semibold w-full p-4 cursor-pointer rounded-lg">
@@ -193,11 +208,11 @@ const StandardDetailsAccordion: FC = () => {
                   <DataTable
                     columns={columns}
                     data={getPaginatedControls(category, controls)}
-                    footer={tableFooter}
                     paginationMeta={{
                       totalCount: controls.length,
                     }}
                     pagination={paginations[category] ?? DEFAULT_PAGINATION}
+                    columnVisibility={columnVisibility}
                     onPaginationChange={(newPagination) => handlePaginationChange(category, newPagination)}
                     stickyHeader
                   />
@@ -211,7 +226,9 @@ const StandardDetailsAccordion: FC = () => {
       <AddToOrganizationDialog
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        selectedControls={dialogCategory ? selectedControls.filter((sel) => groupedControls[dialogCategory].some((c) => c.id === sel.id)) : []}
+        standardId={selectedControls.length === 0 ? id : undefined}
+        selectedControls={selectedControls.length > 0 ? selectedControls : []}
+        standardName={selectedControls.length === 0 ? standardName : undefined}
       />
     </div>
   )

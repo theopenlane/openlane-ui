@@ -34,13 +34,13 @@ export const tableStyles = tv({
         tableHead: 'h-8 px-2 text-xs',
       },
     },
-    sticky: {
+    stickyHeader: {
       true: {
-        container: 'max-h-[1500px]',
+        container: 'max-h-[80vh]',
         stickyDialog: false,
       },
     },
-    stickyDialog: {
+    stickyDialogHeader: {
       true: {
         container: 'max-h-96',
         sticky: false,
