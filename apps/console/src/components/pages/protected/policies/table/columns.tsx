@@ -88,7 +88,10 @@ export const getPoliciesColumns = ({ users, tokens }: TPoliciesColumnsProps) => 
       accessorKey: 'reviewFrequency',
       header: 'Review Frequency',
       size: 140,
-      cell: ({ cell }) => cell.getValue() || '-',
+      cell: ({ cell }) => {
+        const value = cell.getValue<string>()
+        return <span className="capitalize">{value ? value.toLowerCase() : '-'}</span>
+      },
     },
     {
       accessorKey: 'revision',
@@ -100,7 +103,10 @@ export const getPoliciesColumns = ({ users, tokens }: TPoliciesColumnsProps) => 
       accessorKey: 'status',
       header: 'Status',
       size: 120,
-      cell: ({ cell }) => cell.getValue() || '-',
+      cell: ({ cell }) => {
+        const value = cell.getValue<string>()
+        return <span className="capitalize">{value ? value.split('_').join(' ').toLowerCase() : '-'}</span>
+      },
     },
     {
       accessorKey: 'tags',
