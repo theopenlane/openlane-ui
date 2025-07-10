@@ -78,7 +78,6 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
   }
 
   const generateWhereCondition = useCallback((regularFilters: Filter[], advancedFilters: Filter[], conjunction: 'and' | 'or') => {
-    console.log('regularFilters', regularFilters)
     const conditions = (filters: Filter[]) => {
       return filters
         ?.filter(({ value }) => value !== '')
@@ -91,10 +90,6 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
           }
 
           if (field === 'hasSubcontrolWith.refCodeContainsFold') {
-            console.log('brah', field)
-            const operatorMapping = getOperatorsForType(type).find((op) => op.value === operator)
-            console.log('operatorMapping', operatorMapping)
-
             return [{ hasSubcontrolsWith: [{ refCodeContainsFold: value }] }]
           }
           const operatorMapping = getOperatorsForType(type).find((op) => op.value === operator)
