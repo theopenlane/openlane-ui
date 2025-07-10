@@ -11,7 +11,7 @@ import { VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetEvidenceList } from '@/lib/graphql-hooks/evidence.ts'
 import { getEvidenceColumns } from '@/components/pages/protected/evidence/table/columns.tsx'
-import { EVIDENCE_FILTERABLE_FIELDS } from '@/components/pages/protected/evidence/table/table-config.ts'
+import { EVIDENCE_SORTABLE_FIELDS } from '@/components/pages/protected/evidence/table/table-config.ts'
 import EvidenceTableToolbar from '@/components/pages/protected/evidence/table/evidence-table-toolbar.tsx'
 
 export const EvidenceTable = () => {
@@ -82,7 +82,7 @@ export const EvidenceTable = () => {
       />
 
       <DataTable
-        sortFields={EVIDENCE_FILTERABLE_FIELDS}
+        sortFields={EVIDENCE_SORTABLE_FIELDS}
         onSortChange={setOrderBy}
         columns={columns}
         data={evidences}

@@ -1,14 +1,32 @@
-import { FilterField } from '@/types'
-import { EvidenceOrderField, OrderDirection } from '@repo/codegen/src/schema.ts'
+import { FilterField, SelectFilterField } from '@/types'
+import { EvidenceEvidenceStatus, EvidenceOrderField, OrderDirection } from '@repo/codegen/src/schema.ts'
+
+const statusLabels: Record<EvidenceEvidenceStatus, string> = {
+  [EvidenceEvidenceStatus.APPROVED]: 'Approved',
+  [EvidenceEvidenceStatus.REJECTED]: 'Rejected',
+  [EvidenceEvidenceStatus.NEEDS_RENEWAL]: 'Needs Renewal',
+  [EvidenceEvidenceStatus.READY]: 'Ready',
+  [EvidenceEvidenceStatus.MISSING_ARTIFACT]: 'Missing Artifact',
+}
+
+const statusOptions = Object.values(EvidenceEvidenceStatus).map((status) => ({
+  label: statusLabels[status],
+  value: status,
+}))
 
 export const EVIDENCE_FILTERABLE_FIELDS: FilterField[] = [
   { key: 'name', label: 'Name', type: 'text' },
-  { key: 'updatedBy', label: 'Last Updated By', type: 'date' },
-  { key: 'updatedAt', label: 'Last Updated', type: 'date' },
+  { key: 'description', label: 'Description', type: 'text' },
+  { key: 'isAutomated', label: 'Is Automated', type: 'boolean' },
+  {
+    key: 'status',
+    label: 'Status',
+    type: 'select',
+    options: statusOptions,
+  } as SelectFilterField,
 ]
 
 export const EVIDENCE_SORTABLE_FIELDS = [
-  { key: 'REVIEW_FREQUENCY', label: 'Review Frequency' },
   { key: 'STATUS', label: 'Status' },
   {
     key: 'name',
@@ -18,5 +36,4 @@ export const EVIDENCE_SORTABLE_FIELDS = [
       direction: OrderDirection.ASC,
     },
   },
-  { key: 'review_due', label: 'Review Due Date' },
 ]

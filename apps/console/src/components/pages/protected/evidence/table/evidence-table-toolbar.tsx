@@ -1,11 +1,11 @@
 import React from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
 import { LoaderCircle, SearchIcon } from 'lucide-react'
-import { INTERNAL_POLICIES_FILTERABLE_FIELDS } from '@/components/pages/protected/policies/table/table-config.ts'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
+import { EVIDENCE_FILTERABLE_FIELDS } from '@/components/pages/protected/evidence/table/table-config.ts'
 
 type TEvidenceTableToolbarProps = {
   className?: string
@@ -32,7 +32,7 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({ searching,
           {mappedColumns && columnVisibility && setColumnVisibility && (
             <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} />
           )}
-          <TableFilter filterFields={INTERNAL_POLICIES_FILTERABLE_FIELDS} onFilterChange={setFilters} />
+          <TableFilter filterFields={EVIDENCE_FILTERABLE_FIELDS} onFilterChange={setFilters} />
           <Input
             icon={isSearching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
             placeholder="Search"
