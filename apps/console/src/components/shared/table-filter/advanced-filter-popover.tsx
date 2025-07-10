@@ -99,6 +99,7 @@ const AdvancedFilterPopover: React.FC<TAdvancedFilterPopover> = ({
                           type: selectedField.type,
                           value: '',
                           operator: getOperatorsForType(selectedField.type)[0]?.value || 'equals',
+                          label: selectedField.label,
                         },
                         index,
                       )
