@@ -5,7 +5,6 @@ import {
   ColumnFiltersState,
   ColumnResizeDirection,
   ColumnResizeMode,
-  ColumnSizing,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -25,8 +24,6 @@ import { OrderDirection } from '@repo/codegen/src/schema.ts'
 import Pagination from '../pagination/pagination'
 import { TPagination, TPaginationMeta } from '../pagination/types'
 import { cn } from '../../lib/utils'
-import { useSearchParams } from 'next/navigation'
-import { Filter } from 'console/src/types'
 
 type CustomColumnDef<TData, TValue> = ColumnDef<TData, TValue> & {
   meta?: {
@@ -82,20 +79,17 @@ export function DataTable<TData, TValue>({
   const [sortConditions, setSortConditions] = useState<{ field: string; direction?: OrderDirection }[]>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [rowSelection, setRowSelection] = useState({})
-  const [filterActive, setFilterActive] = useState(false)
-  const searchParams = useSearchParams()
 
   const currentPage = pagination?.page || 1
   const currentPageSize = pagination?.pageSize || 10
 
   const [columnSizes, setColumnSizes] = useState<Record<string, number>>({})
-  const [hasFilters, setHasFilters] = useState<boolean>(false)
 
   const { totalCount, pageInfo, isLoading } = paginationMeta || {}
 
-  const [columnResizeMode, setColumnResizeMode] = useState<ColumnResizeMode>('onChange')
+  const [columnResizeMode] = useState<ColumnResizeMode>('onChange')
 
-  const [columnResizeDirection, setColumnResizeDirection] = useState<ColumnResizeDirection>('ltr')
+  const [columnResizeDirection] = useState<ColumnResizeDirection>('ltr')
 
   const totalPages = useMemo(() => {
     return totalCount ? Math.ceil(totalCount / currentPageSize) : 1
@@ -242,15 +236,7 @@ export function DataTable<TData, TValue>({
     if (sortConditions && sortConditions.length > 0 && sortConditions.every(({ direction }) => direction !== undefined)) {
       onSortChange?.(sortConditions as { field: string; direction: OrderDirection }[])
     }
-  }, [sortConditions])
-
-  useEffect(() => {
-    const filtersParam = searchParams.get('filters')
-    const filterActive = searchParams.get('filterActive')
-    filterActive && filterActive === '1' ? setFilterActive(true) : setFilterActive(false)
-    const parsedFilters: Filter[] | null = filtersParam ? JSON.parse(decodeURIComponent(filtersParam)) : null
-    parsedFilters && parsedFilters?.filter((filter) => filter.value !== '').length > 0 ? setHasFilters(true) : setHasFilters(false)
-  }, [searchParams])
+  }, [onSortChange, sortConditions])
 
   return (
     <>
