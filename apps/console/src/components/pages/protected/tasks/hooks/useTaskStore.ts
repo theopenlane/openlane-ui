@@ -17,7 +17,7 @@ interface ITaskStoreState {
 export const useTaskStore = create<ITaskStoreState>((set) => ({
   selectedTask: null,
   setSelectedTask: (taskId) => set({ selectedTask: taskId }),
-  orgMembers: [],
+  orgMembers: undefined,
   setOrgMembers: (members) => set({ orgMembers: members }),
   clearSelectedTask: () => set({ selectedTask: null }),
 }))
