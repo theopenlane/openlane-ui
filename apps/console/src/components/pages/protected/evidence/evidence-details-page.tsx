@@ -11,11 +11,11 @@ import { Loading } from '@/components/shared/loading/loading.tsx'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Button } from '@repo/ui/button'
+import EvidenceDetailsSheet from '@/components/pages/protected/controls/control-evidence/evidence-details-sheet.tsx'
 
 const EvidenceDetailsPage = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
-
   const programId = searchParams.get('programId')
   const { data, isLoading } = useGetAllPrograms({
     where: { statusNEQ: ProgramProgramStatus.COMPLETED },
@@ -114,6 +114,7 @@ const EvidenceDetailsPage = () => {
       />
       <EvidenceSummaryCard />
       <EvidenceTable />
+      <EvidenceDetailsSheet />
     </>
   )
 }

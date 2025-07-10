@@ -197,6 +197,7 @@ export const GET_EVIDENCE_LIST = gql`
           isAutomated
           name
           status
+          description
           controls {
             edges {
               node {

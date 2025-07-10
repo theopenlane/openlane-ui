@@ -13,9 +13,11 @@ import { useGetEvidenceList } from '@/lib/graphql-hooks/evidence.ts'
 import { getEvidenceColumns } from '@/components/pages/protected/evidence/table/columns.tsx'
 import { EVIDENCE_SORTABLE_FIELDS } from '@/components/pages/protected/evidence/table/table-config.ts'
 import EvidenceTableToolbar from '@/components/pages/protected/evidence/table/evidence-table-toolbar.tsx'
+import { useControlEvidenceStore } from '@/components/pages/protected/controls/hooks/useControlEvidenceStore.ts'
 
 export const EvidenceTable = () => {
   const searchParams = useSearchParams()
+  const { setSelectedControlEvidence } = useControlEvidenceStore()
   const programId = searchParams.get('programId')
   const router = useRouter()
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
@@ -62,7 +64,7 @@ export const EvidenceTable = () => {
   }
 
   const handleRowClick = (rowData: Evidence) => {
-    router.push(`/evidences/${rowData.id}/view`)
+    setSelectedControlEvidence(rowData.id)
   }
 
   return (

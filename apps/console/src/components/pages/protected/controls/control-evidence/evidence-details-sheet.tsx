@@ -51,7 +51,7 @@ import { EvidenceIconMapper } from '@/components/shared/icon-enum/evidence-enum.
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
 
 type TEvidenceDetailsSheet = {
-  controlId: string
+  controlId?: string
 }
 
 const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) => {
@@ -183,7 +183,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     try {
       await deleteEvidence({ deleteEvidenceId: selectedControlEvidence as string })
       successNotification({ title: `Evidence "${evidence?.name}" deleted successfully` })
-      queryClient.invalidateQueries({ queryKey: ['controls', controlId] })
+      if (controlId) {
+        queryClient.invalidateQueries({ queryKey: ['controls', controlId] })
+      }
       setSelectedControlEvidence(null)
     } catch {
       errorNotification({ title: 'Failed to delete evidence.' })
