@@ -5,7 +5,7 @@ export const INTERNAL_POLICIES_FILTERABLE_FIELDS: FilterField[] = [
   { key: 'name', label: 'Name', type: 'text' },
   { key: 'updatedBy', label: 'Last Updated By', type: 'date' },
   { key: 'updatedAt', label: 'Last Updated', type: 'date' },
-  { key: 'hasProgramsWith', label: 'Program Name', type: 'selectIs' },
+  // { key: 'hasProgramsWith', label: 'Program Name', type: 'selectIs' },
 ]
 
 export const INTERNAL_POLICIES_SORTABLE_FIELDS = [
