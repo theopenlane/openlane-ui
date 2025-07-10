@@ -149,6 +149,7 @@ const ControlsTable: React.FC = () => {
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         mappedColumns={mappedColumns}
+        exportEnabled={controls && controls.length > 0}
       />
       <DataTable
         columns={columns}

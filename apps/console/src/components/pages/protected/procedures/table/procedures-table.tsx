@@ -152,6 +152,7 @@ export const ProceduresTable = () => {
         mappedColumns={mappedColumns}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
+        exportEnabled={procedures && procedures.length > 0}
       />
 
       <DataTable

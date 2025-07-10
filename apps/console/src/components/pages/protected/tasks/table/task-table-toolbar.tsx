@@ -30,6 +30,7 @@ type TProps = {
   searchTerm: string
   setSearchTerm: (searchTerm: string) => void
   searching?: boolean
+  exportEnabled: boolean
 }
 
 const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
@@ -118,7 +119,7 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
                     </div>
                   }
                 />
-                <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={props.handleExport}>
+                <div className={`flex items-center space-x-2 hover:bg-muted cursor-pointer ${!props.exportEnabled ? 'pointer-events-none opacity-50' : ''}`} onClick={props.handleExport}>
                   <DownloadIcon size={16} strokeWidth={2} />
                   <span>Export</span>
                 </div>

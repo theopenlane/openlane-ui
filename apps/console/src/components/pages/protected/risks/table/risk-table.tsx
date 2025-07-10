@@ -153,6 +153,7 @@ const RiskTable: React.FC = () => {
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         mappedColumns={mappedColumns}
+        exportEnabled={risks && risks.length > 0}
       />
       <DataTable
         sortFields={RISKS_SORT_FIELDS}

@@ -27,9 +27,20 @@ type TProps = {
     accessorKey: string
     header: string
   }[]
+  exportEnabled: boolean
 }
 
-const ControlsTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, searchTerm, setSearchTerm, handleExport, columnVisibility, setColumnVisibility, mappedColumns }: TProps) => {
+const ControlsTableToolbar: React.FC<TProps> = ({
+  onFilterChange,
+  searching,
+  searchTerm,
+  setSearchTerm,
+  handleExport,
+  columnVisibility,
+  setColumnVisibility,
+  mappedColumns,
+  exportEnabled,
+}: TProps) => {
   const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect()
   const { groupOptions, isSuccess: isGroupSuccess } = useGroupSelect()
   const groups = useMemo(() => groupOptions || [], [groupOptions])
@@ -100,7 +111,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, sea
           <Menu
             content={
               <>
-                <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleExport}>
+                <div className={`flex items-center space-x-2 hover:bg-muted cursor-pointer ${!exportEnabled ? 'pointer-events-none opacity-50' : ''}`} onClick={handleExport}>
                   <DownloadIcon size={16} strokeWidth={2} />
                   <span>Export</span>
                 </div>

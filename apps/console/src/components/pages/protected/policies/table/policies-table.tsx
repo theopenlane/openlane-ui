@@ -163,6 +163,7 @@ export const PoliciesTable = () => {
         mappedColumns={mappedColumns}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
+        exportEnabled={policies && policies.length > 0}
       />
 
       <DataTable

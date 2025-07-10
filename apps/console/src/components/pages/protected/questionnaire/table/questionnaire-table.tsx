@@ -120,6 +120,7 @@ export const QuestionnairesTable = () => {
         mappedColumns={mappedColumns}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
+        exportEnabled={templates && templates.length > 0}
       />
       <DataTable
         sortFields={QUESTIONNAIRE_SORT_FIELDS}
