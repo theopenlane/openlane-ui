@@ -40887,6 +40887,65 @@ export type DeleteEvidenceMutationVariables = Exact<{
 
 export type DeleteEvidenceMutation = { __typename?: 'Mutation'; deleteEvidence: { __typename?: 'EvidenceDeletePayload'; deletedID: string } }
 
+export type GetEvidenceListQueryVariables = Exact<{
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  orderBy?: InputMaybe<Array<EvidenceOrder> | EvidenceOrder>
+  where?: InputMaybe<EvidenceWhereInput>
+}>
+
+export type GetEvidenceListQuery = {
+  __typename?: 'Query'
+  evidences: {
+    __typename?: 'EvidenceConnection'
+    totalCount: number
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean }
+    edges?: Array<{
+      __typename?: 'EvidenceEdge'
+      node?: {
+        __typename?: 'Evidence'
+        id: string
+        isAutomated?: boolean | null
+        name: string
+        status?: EvidenceEvidenceStatus | null
+        description?: string | null
+        updatedBy?: string | null
+        updatedAt?: any | null
+        createdAt?: any | null
+        createdBy?: string | null
+        tags?: Array<string> | null
+        source?: string | null
+        creationDate: any
+        renewalDate?: any | null
+        collectionProcedure?: string | null
+        controls: {
+          __typename?: 'ControlConnection'
+          edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename: 'Control'; id: string; refCode: string; referenceFramework?: string | null } | null } | null> | null
+        }
+        subcontrols: {
+          __typename?: 'SubcontrolConnection'
+          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null } | null } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetEvidenceCountsByStatusQueryVariables = Exact<{
+  programId: Scalars['ID']['input']
+}>
+
+export type GetEvidenceCountsByStatusQuery = {
+  __typename?: 'Query'
+  approved: { __typename?: 'EvidenceConnection'; totalCount: number }
+  rejected: { __typename?: 'EvidenceConnection'; totalCount: number }
+  ready: { __typename?: 'EvidenceConnection'; totalCount: number }
+  missingArtifact: { __typename?: 'EvidenceConnection'; totalCount: number }
+  needsRenewal: { __typename?: 'EvidenceConnection'; totalCount: number }
+}
+
 export type GetAllGroupsQueryVariables = Exact<{
   where?: InputMaybe<GroupWhereInput>
   orderBy?: InputMaybe<Array<GroupOrder> | GroupOrder>

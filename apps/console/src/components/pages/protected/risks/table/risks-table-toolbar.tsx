@@ -53,7 +53,7 @@ const RisksTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, search
         options: programOptions,
       } as SelectIsFilterField,
     ])
-  }, [programOptions, filterFields])
+  }, [programOptions, filterFields, isSuccess])
 
   return (
     <>

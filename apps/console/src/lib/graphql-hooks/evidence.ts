@@ -1,6 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { CREATE_EVIDENCE, DELETE_EVIDENCE, GET_ALL_EVIDENCES, GET_EVIDENCE, GET_EVIDENCE_FILES, GET_EVIDENCE_FILES_PAGINATED, GET_RENEW_EVIDENCE, UPDATE_EVIDENCE } from '@repo/codegen/query/evidence'
+import {
+  CREATE_EVIDENCE,
+  DELETE_EVIDENCE,
+  GET_ALL_EVIDENCES,
+  GET_EVIDENCE,
+  GET_EVIDENCE_COUNTS_BY_STATUS,
+  GET_EVIDENCE_FILES,
+  GET_EVIDENCE_FILES_PAGINATED,
+  GET_EVIDENCE_LIST,
+  GET_RENEW_EVIDENCE,
+  UPDATE_EVIDENCE,
+} from '@repo/codegen/query/evidence'
 import {
   CreateEvidenceMutation,
   CreateEvidenceMutationVariables,
@@ -17,6 +28,10 @@ import {
   DeleteEvidenceMutationVariables,
   GetRenewEvidenceQuery,
   GetRenewEvidenceQueryVariables,
+  GetEvidenceListQuery,
+  EvidenceOrder,
+  Evidence,
+  GetEvidenceCountsByStatusQuery,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -139,5 +154,50 @@ export const useDeleteEvidence = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['evidences'] })
     },
+  })
+}
+
+type TGetEvidenceListProps = {
+  orderBy?: EvidenceOrder | EvidenceOrder[]
+  pagination?: TPagination
+  where?: EvidenceWhereInput
+  enabled?: boolean
+}
+
+export const useGetEvidenceList = ({ orderBy, pagination, where, enabled = true }: TGetEvidenceListProps) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetEvidenceListQuery, unknown>({
+    queryKey: ['evidences', orderBy, pagination?.page, pagination?.pageSize, where],
+    queryFn: async () =>
+      client.request(GET_EVIDENCE_LIST, {
+        where,
+        orderBy,
+        ...pagination?.query,
+      }),
+    enabled,
+  })
+
+  const evidences = (queryResult.data?.evidences?.edges?.map((edge) => edge?.node) ?? []) as Evidence[]
+
+  const paginationMeta = {
+    totalCount: queryResult.data?.evidences?.totalCount ?? 0,
+    pageInfo: queryResult.data?.evidences?.pageInfo,
+    isLoading: queryResult.isFetching,
+  }
+  return {
+    ...queryResult,
+    evidences,
+    paginationMeta,
+  }
+}
+
+export const useGetEvidenceCountsByStatus = (programId?: string | null) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetEvidenceCountsByStatusQuery, unknown>({
+    queryKey: ['evidences', 'counts', programId],
+    queryFn: async () => client.request(GET_EVIDENCE_COUNTS_BY_STATUS, { programId }),
+    enabled: !!programId,
   })
 }

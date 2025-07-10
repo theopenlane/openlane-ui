@@ -17,7 +17,7 @@ import { useCreateEvidence, useGetRenewEvidenceById } from '@/lib/graphql-hooks/
 import { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
 
 type TControlEvidenceRenewDialog = {
-  controlId: string
+  controlId?: string
   evidenceId: string
 }
 
@@ -58,7 +58,9 @@ const ControlEvidenceRenewDialog: React.FC<TControlEvidenceRenewDialog> = ({ evi
     try {
       await createEvidence(formData)
       setIsOpen(false)
-      queryClient.invalidateQueries({ queryKey: ['controls', controlId] })
+      if (controlId) {
+        queryClient.invalidateQueries({ queryKey: ['controls', controlId] })
+      }
       queryClient.invalidateQueries({ queryKey: ['evidences'] })
       successNotification({
         title: 'Evidence Created',

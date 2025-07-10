@@ -65,7 +65,7 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
         options: programOptions,
       } as SelectIsFilterField,
     ])
-  }, [orgMembers, programOptions, filterFields])
+  }, [orgMembers, programOptions, filterFields, isSuccess])
 
   const handleTabChange = (tab: 'table' | 'card') => {
     setActiveTab(tab)
