@@ -36,11 +36,11 @@ type TProps = {
 const RisksTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, searchTerm, setSearchTerm, handleExport, columnVisibility, setColumnVisibility, mappedColumns, handleCreateNew }: TProps) => {
   const { data: session } = useSession()
   const { data: permission } = useOrganizationRole(session)
-  const { programOptions } = useProgramSelect()
+  const { programOptions, isSuccess } = useProgramSelect()
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
 
   useEffect(() => {
-    if (filterFields || !programOptions) {
+    if (filterFields || !isSuccess) {
       return
     }
 
@@ -53,7 +53,7 @@ const RisksTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, search
         options: programOptions,
       } as SelectIsFilterField,
     ])
-  }, [programOptions, filterFields])
+  }, [programOptions, filterFields, isSuccess])
 
   return (
     <>

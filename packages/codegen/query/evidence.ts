@@ -180,3 +180,76 @@ export const DELETE_EVIDENCE = gql`
     }
   }
 `
+
+export const GET_EVIDENCE_LIST = gql`
+  query GetEvidenceList($last: Int, $before: Cursor, $first: Int, $after: Cursor, $orderBy: [EvidenceOrder!], $where: EvidenceWhereInput) {
+    evidences(last: $last, before: $before, first: $first, after: $after, orderBy: $orderBy, where: $where) {
+      totalCount
+      pageInfo {
+        endCursor
+        startCursor
+        hasNextPage
+        hasPreviousPage
+      }
+      edges {
+        node {
+          id
+          isAutomated
+          name
+          status
+          description
+          updatedBy
+          updatedBy
+          updatedAt
+          createdAt
+          createdBy
+          tags
+          source
+          creationDate
+          renewalDate
+          collectionProcedure
+          controls {
+            edges {
+              node {
+                __typename
+                id
+                refCode
+                referenceFramework
+              }
+            }
+          }
+          subcontrols {
+            edges {
+              node {
+                __typename
+                id
+                refCode
+                referenceFramework
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_EVIDENCE_COUNTS_BY_STATUS = gql`
+  query GetEvidenceCountsByStatus($programId: ID!) {
+    approved: evidences(where: { status: APPROVED, hasProgramsWith: [{ id: $programId }] }) {
+      totalCount
+    }
+    rejected: evidences(where: { status: REJECTED, hasProgramsWith: [{ id: $programId }] }) {
+      totalCount
+    }
+    ready: evidences(where: { status: READY, hasProgramsWith: [{ id: $programId }] }) {
+      totalCount
+    }
+    missingArtifact: evidences(where: { status: MISSING_ARTIFACT, hasProgramsWith: [{ id: $programId }] }) {
+      totalCount
+    }
+    needsRenewal: evidences(where: { status: NEEDS_RENEWAL, hasProgramsWith: [{ id: $programId }] }) {
+      totalCount
+    }
+  }
+`

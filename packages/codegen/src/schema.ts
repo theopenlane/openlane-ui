@@ -10855,6 +10855,13 @@ export interface ExportBulkCreatePayload {
   exports?: Maybe<Array<Export>>
 }
 
+/** Return response for deleteBulkExport mutation */
+export interface ExportBulkDeletePayload {
+  __typename?: 'ExportBulkDeletePayload'
+  /** Deleted export IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
+}
+
 /** A connection to a list of items. */
 export interface ExportConnection {
   __typename?: 'ExportConnection'
@@ -17919,6 +17926,8 @@ export interface Mutation {
   deleteActionPlan: ActionPlanDeletePayload
   /** Delete an existing asset */
   deleteAsset: AssetDeletePayload
+  /** Delete multiple exports */
+  deleteBulkExport: ExportBulkDeletePayload
   /** Delete an existing contact */
   deleteContact: ContactDeletePayload
   /** Delete an existing control */
@@ -17943,6 +17952,8 @@ export interface Mutation {
   deleteEvent: EventDeletePayload
   /** Delete an existing evidence */
   deleteEvidence: EvidenceDeletePayload
+  /** Delete an existing export */
+  deleteExport: ExportDeletePayload
   /** Delete an existing file */
   deleteFile: FileDeletePayload
   /** Delete an existing group */
@@ -18683,6 +18694,10 @@ export interface MutationDeleteAssetArgs {
   id: Scalars['ID']['input']
 }
 
+export interface MutationDeleteBulkExportArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
 export interface MutationDeleteContactArgs {
   id: Scalars['ID']['input']
 }
@@ -18728,6 +18743,10 @@ export interface MutationDeleteEventArgs {
 }
 
 export interface MutationDeleteEvidenceArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface MutationDeleteExportArgs {
   id: Scalars['ID']['input']
 }
 
@@ -40867,6 +40886,65 @@ export type DeleteEvidenceMutationVariables = Exact<{
 }>
 
 export type DeleteEvidenceMutation = { __typename?: 'Mutation'; deleteEvidence: { __typename?: 'EvidenceDeletePayload'; deletedID: string } }
+
+export type GetEvidenceListQueryVariables = Exact<{
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  orderBy?: InputMaybe<Array<EvidenceOrder> | EvidenceOrder>
+  where?: InputMaybe<EvidenceWhereInput>
+}>
+
+export type GetEvidenceListQuery = {
+  __typename?: 'Query'
+  evidences: {
+    __typename?: 'EvidenceConnection'
+    totalCount: number
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean }
+    edges?: Array<{
+      __typename?: 'EvidenceEdge'
+      node?: {
+        __typename?: 'Evidence'
+        id: string
+        isAutomated?: boolean | null
+        name: string
+        status?: EvidenceEvidenceStatus | null
+        description?: string | null
+        updatedBy?: string | null
+        updatedAt?: any | null
+        createdAt?: any | null
+        createdBy?: string | null
+        tags?: Array<string> | null
+        source?: string | null
+        creationDate: any
+        renewalDate?: any | null
+        collectionProcedure?: string | null
+        controls: {
+          __typename?: 'ControlConnection'
+          edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename: 'Control'; id: string; refCode: string; referenceFramework?: string | null } | null } | null> | null
+        }
+        subcontrols: {
+          __typename?: 'SubcontrolConnection'
+          edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null } | null } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetEvidenceCountsByStatusQueryVariables = Exact<{
+  programId: Scalars['ID']['input']
+}>
+
+export type GetEvidenceCountsByStatusQuery = {
+  __typename?: 'Query'
+  approved: { __typename?: 'EvidenceConnection'; totalCount: number }
+  rejected: { __typename?: 'EvidenceConnection'; totalCount: number }
+  ready: { __typename?: 'EvidenceConnection'; totalCount: number }
+  missingArtifact: { __typename?: 'EvidenceConnection'; totalCount: number }
+  needsRenewal: { __typename?: 'EvidenceConnection'; totalCount: number }
+}
 
 export type GetAllGroupsQueryVariables = Exact<{
   where?: InputMaybe<GroupWhereInput>

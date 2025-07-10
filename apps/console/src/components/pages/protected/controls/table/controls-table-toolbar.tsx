@@ -30,13 +30,13 @@ type TProps = {
 }
 
 const ControlsTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, searchTerm, setSearchTerm, handleExport, columnVisibility, setColumnVisibility, mappedColumns }: TProps) => {
-  const { programOptions } = useProgramSelect()
-  const { groupOptions } = useGroupSelect()
+  const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect()
+  const { groupOptions, isSuccess: isGroupSuccess } = useGroupSelect()
   const groups = useMemo(() => groupOptions || [], [groupOptions])
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
 
   useEffect(() => {
-    if (filterFields || !groups || !programOptions) {
+    if (filterFields || !isProgramSuccess || !isGroupSuccess) {
       return
     }
 
@@ -58,7 +58,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, sea
         options: programOptions,
       } as SelectIsFilterField,
     ])
-  }, [groups, programOptions, filterFields])
+  }, [groups, programOptions, filterFields, isGroupSuccess, isProgramSuccess])
 
   return (
     <>
