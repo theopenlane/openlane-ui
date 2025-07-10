@@ -22,22 +22,9 @@ export interface ControlChipProps {
   className?: string
   onClick?: (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => void
   onContextMenu?: (e: React.MouseEvent<HTMLSpanElement>, control: MapControl) => void
-  disableTooltip?: boolean
 }
 
-const ControlChip: React.FC<ControlChipProps> = ({
-  control,
-  draggable = false,
-  onDragStart,
-  onDragEnd,
-  removable = false,
-  onRemove,
-  className = '',
-  selected,
-  onClick,
-  onContextMenu,
-  disableTooltip,
-}) => {
+const ControlChip: React.FC<ControlChipProps> = ({ control, draggable = false, onDragStart, onDragEnd, removable = false, onRemove, className = '', selected, onClick, onContextMenu }) => {
   const [tooltipOpen, setTooltipOpen] = useState(false)
 
   const baseClasses = 'bg-background-secondary flex gap-1 items-center'
@@ -72,7 +59,7 @@ const ControlChip: React.FC<ControlChipProps> = ({
           </Badge>
         </TooltipTrigger>
 
-        {!disableTooltip && tooltipOpen && (
+        {tooltipOpen && (
           <TooltipContent side="top">
             <ControlTooltipContent control={control} />
           </TooltipContent>

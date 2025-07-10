@@ -198,9 +198,21 @@ export const GET_EVIDENCE_LIST = gql`
           name
           status
           description
+          updatedBy
+          updatedBy
+          updatedAt
+          createdAt
+          createdBy
+          tags
+          source
+          creationDate
+          renewalDate
+          collectionProcedure
           controls {
             edges {
               node {
+                __typename
+                id
                 refCode
                 referenceFramework
               }
@@ -209,6 +221,8 @@ export const GET_EVIDENCE_LIST = gql`
           subcontrols {
             edges {
               node {
+                __typename
+                id
                 refCode
                 referenceFramework
               }

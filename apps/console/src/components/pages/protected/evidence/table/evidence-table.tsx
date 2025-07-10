@@ -14,6 +14,7 @@ import { getEvidenceColumns } from '@/components/pages/protected/evidence/table/
 import { EVIDENCE_SORTABLE_FIELDS } from '@/components/pages/protected/evidence/table/table-config.ts'
 import EvidenceTableToolbar from '@/components/pages/protected/evidence/table/evidence-table-toolbar.tsx'
 import { useControlEvidenceStore } from '@/components/pages/protected/controls/hooks/useControlEvidenceStore.ts'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
 
 export const EvidenceTable = () => {
   const searchParams = useSearchParams()
@@ -49,8 +50,42 @@ export const EvidenceTable = () => {
   }, [orderBy])
 
   const { evidences, isLoading: fetching, paginationMeta } = useGetEvidenceList({ where, orderBy: orderByFilter, pagination, enabled: !!filters })
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
-  const { columns, mappedColumns } = getEvidenceColumns()
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    collectionProcedure: false,
+    source: false,
+    creationDate: false,
+    renewalDate: false,
+    tags: false,
+    createdBy: false,
+    createdAt: false,
+    updatedBy: false,
+    updatedAt: false,
+  })
+
+  const userIds = useMemo(() => {
+    if (!evidences) return []
+    const ids = new Set<string>()
+    evidences.forEach((evidence) => {
+      if (evidence.createdBy) ids.add(evidence.createdBy)
+      if (evidence.updatedBy) ids.add(evidence.updatedBy)
+    })
+
+    return Array.from(ids)
+  }, [evidences])
+
+  const { users, isFetching: fetchingUsers } = useGetOrgUserList({
+    where: { hasUserWith: [{ idIn: userIds }] },
+  })
+
+  const userMap = useMemo(() => {
+    const map: Record<string, (typeof users)[0]> = {}
+    users?.forEach((u) => {
+      map[u.id] = u
+    })
+    return map
+  }, [users])
+
+  const { columns, mappedColumns } = useMemo(() => getEvidenceColumns({ userMap }), [userMap])
 
   useEffect(() => {
     setCrumbs([
@@ -89,7 +124,7 @@ export const EvidenceTable = () => {
         columns={columns}
         data={evidences}
         onRowClick={handleRowClick}
-        loading={fetching}
+        loading={fetching || fetchingUsers}
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
         paginationMeta={paginationMeta}
