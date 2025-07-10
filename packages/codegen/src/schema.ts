@@ -10855,6 +10855,13 @@ export interface ExportBulkCreatePayload {
   exports?: Maybe<Array<Export>>
 }
 
+/** Return response for deleteBulkExport mutation */
+export interface ExportBulkDeletePayload {
+  __typename?: 'ExportBulkDeletePayload'
+  /** Deleted export IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
+}
+
 /** A connection to a list of items. */
 export interface ExportConnection {
   __typename?: 'ExportConnection'
@@ -17919,6 +17926,8 @@ export interface Mutation {
   deleteActionPlan: ActionPlanDeletePayload
   /** Delete an existing asset */
   deleteAsset: AssetDeletePayload
+  /** Delete multiple exports */
+  deleteBulkExport: ExportBulkDeletePayload
   /** Delete an existing contact */
   deleteContact: ContactDeletePayload
   /** Delete an existing control */
@@ -17943,6 +17952,8 @@ export interface Mutation {
   deleteEvent: EventDeletePayload
   /** Delete an existing evidence */
   deleteEvidence: EvidenceDeletePayload
+  /** Delete an existing export */
+  deleteExport: ExportDeletePayload
   /** Delete an existing file */
   deleteFile: FileDeletePayload
   /** Delete an existing group */
@@ -18683,6 +18694,10 @@ export interface MutationDeleteAssetArgs {
   id: Scalars['ID']['input']
 }
 
+export interface MutationDeleteBulkExportArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
 export interface MutationDeleteContactArgs {
   id: Scalars['ID']['input']
 }
@@ -18728,6 +18743,10 @@ export interface MutationDeleteEventArgs {
 }
 
 export interface MutationDeleteEvidenceArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface MutationDeleteExportArgs {
   id: Scalars['ID']['input']
 }
 

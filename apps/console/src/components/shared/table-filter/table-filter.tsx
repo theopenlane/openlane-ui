@@ -211,6 +211,7 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
         value: '',
         type: firstField.type,
         operator: 'EQ',
+        label: firstField.label,
       },
     ])
   }
@@ -238,6 +239,7 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
         type: filterField.type,
         operator: getOperatorsForType(filterField.type)[0]?.value || 'equals',
         options: filterField?.options,
+        label: filterField.label,
       },
     ])
   }
@@ -354,6 +356,7 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
           value: '',
           type: firstField.type,
           operator: 'EQ',
+          label: firstField.label,
         }
 
         return {
@@ -379,6 +382,7 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
         type: filterField.type,
         operator: getOperatorsForType(filterField.type)[0]?.value || 'equals',
         options: filterField?.options,
+        label: filterField.label,
       }
 
       setAppliedFilters((prevState) => ({
