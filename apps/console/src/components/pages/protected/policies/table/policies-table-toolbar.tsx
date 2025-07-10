@@ -1,7 +1,7 @@
 import React from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
 import { CirclePlus, DownloadIcon, Import, LoaderCircle, SearchIcon } from 'lucide-react'
-import { INTERNAL_POLICIES_FILTERABLE_FIELDS } from '@/components/pages/protected/policies/table/table-config.ts'
+import { usePoliciesFilters } from '@/components/pages/protected/policies/table/table-config.ts'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import BulkCSVCreatePolicyDialog from '@/components/pages/protected/policies/create/form/bulk-csv-create-policy-dialog.tsx'
@@ -46,6 +46,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
   const isSearching = useDebounce(searching, 200)
   const { data: session } = useSession()
   const { data: permission } = useOrganizationRole(session)
+  const filterFields = usePoliciesFilters()
 
   return (
     <>
@@ -54,7 +55,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
           {mappedColumns && columnVisibility && setColumnVisibility && (
             <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
           )}
-          <TableFilter filterFields={INTERNAL_POLICIES_FILTERABLE_FIELDS} onFilterChange={setFilters} />
+          {filterFields && <TableFilter filterFields={filterFields} onFilterChange={setFilters} />}
           <Input
             icon={isSearching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
             placeholder="Search"

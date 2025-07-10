@@ -85,6 +85,13 @@ export const TableFilter: React.FC<TTableFilterProps> = ({ filterFields, onFilte
           if (field === 'hasProgramsWith') {
             return [{ hasProgramsWith: [{ id: value }] }]
           }
+          if (field === 'hasControlWith.refCodeContainsFold') {
+            return [{ hasControlsWith: [{ refCodeContainsFold: value }] }]
+          }
+
+          if (field === 'hasSubcontrolWith.refCodeContainsFold') {
+            return [{ hasSubcontrolsWith: [{ refCodeContainsFold: value }] }]
+          }
           const operatorMapping = getOperatorsForType(type).find((op) => op.value === operator)
           if (!operatorMapping) return []
 

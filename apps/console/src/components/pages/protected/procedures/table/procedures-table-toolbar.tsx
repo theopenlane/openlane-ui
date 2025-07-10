@@ -1,7 +1,6 @@
 import React from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
 import { CirclePlus, DownloadIcon, Import, LoaderCircle, SearchIcon } from 'lucide-react'
-import { PROCEDURES_FILTERABLE_FIELDS } from '@/components/pages/protected/procedures/table/table-config.ts'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import BulkCSVCreateProcedureDialog from '@/components/pages/protected/procedures/create/form/bulk-c-s-v-create-procedure-dialog.tsx'
@@ -14,6 +13,7 @@ import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { ProcedureWhereInput } from '@repo/codegen/src/schema'
+import { usePoliciesFilters } from '../../policies/table/table-config'
 
 type TProceduresTableToolbarProps = {
   className?: string
@@ -47,6 +47,7 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
   const isSearching = useDebounce(searching, 200)
   const { data: session } = useSession()
   const { data: permission } = useOrganizationRole(session)
+  const filters = usePoliciesFilters()
 
   return (
     <>
@@ -55,7 +56,7 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
           {mappedColumns && columnVisibility && setColumnVisibility && (
             <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
           )}
-          <TableFilter filterFields={PROCEDURES_FILTERABLE_FIELDS} onFilterChange={setFilters} />
+          {filters && <TableFilter filterFields={filters} onFilterChange={setFilters} />}
           <Input
             icon={isSearching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
             placeholder="Search"
