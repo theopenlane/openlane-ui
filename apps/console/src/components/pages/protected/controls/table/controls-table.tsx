@@ -117,6 +117,7 @@ const ControlsTable: React.FC = () => {
   }
 
   const handleExport = () => {
+    if (!controls || controls.length === 0) return
     const exportableColumns = columns.filter(isVisibleColumn).map((col) => {
       const key = col.accessorKey as keyof ControlListFieldsFragment
       const label = col.header
@@ -149,6 +150,7 @@ const ControlsTable: React.FC = () => {
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         mappedColumns={mappedColumns}
+        exportEnabled={controls && controls.length > 0}
       />
       <DataTable
         columns={columns}

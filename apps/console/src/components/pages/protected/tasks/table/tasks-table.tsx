@@ -1,7 +1,7 @@
 'use client'
 
 import { DataTable } from '@repo/ui/data-table'
-import React, { forwardRef, useImperativeHandle, useMemo } from 'react'
+import React, { forwardRef, useEffect, useImperativeHandle, useMemo } from 'react'
 import { TaskOrder, TaskWhereInput } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { getTaskColumns } from '@/components/pages/protected/tasks/table/columns.tsx'
@@ -20,9 +20,10 @@ type TTasksTableProps = {
   orderByFilter: TaskOrder[] | TaskOrder | undefined
   columnVisibility?: VisibilityState
   setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
+  onHasTasksChange?: (hasTasks: boolean) => void
 }
 
-const TasksTable = forwardRef(({ onSortChange, pagination, onPaginationChange, whereFilter, orderByFilter, columnVisibility, setColumnVisibility }: TTasksTableProps, ref) => {
+const TasksTable = forwardRef(({ onSortChange, pagination, onPaginationChange, whereFilter, orderByFilter, columnVisibility, setColumnVisibility, onHasTasksChange }: TTasksTableProps, ref) => {
   const { replace } = useSmartRouter()
   const {
     tasks,
@@ -48,6 +49,16 @@ const TasksTable = forwardRef(({ onSortChange, pagination, onPaginationChange, w
     })
     return Array.from(ids)
   }, [tasks])
+
+  const hasTasks = useMemo(() => {
+    return tasks && tasks.length > 0
+  }, [tasks])
+
+  useEffect(() => {
+    if (onHasTasksChange) {
+      onHasTasksChange(hasTasks)
+    }
+  }, [hasTasks, onHasTasksChange])
 
   const { users, isFetching: fetchingUsers } = useGetOrgUserList({
     where: { hasUserWith: [{ idIn: userIds }] },

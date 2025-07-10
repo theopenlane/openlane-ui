@@ -49,7 +49,7 @@ const TasksPage: React.FC = () => {
   })
   const debouncedSearch = useDebounce(searchQuery, 300)
   const searching = searchQuery !== debouncedSearch
-
+  const [hasTasks, setHasTasks] = useState(false)
   const whereFilter = useMemo(() => {
     if (!filters) {
       return null
@@ -114,6 +114,7 @@ const TasksPage: React.FC = () => {
     }))
 
   const handleExport = () => {
+    if (!hasTasks) return
     const tasks = tableRef.current?.exportData?.() ?? []
 
     const exportableColumns = getTaskColumns({ userMap: emptyUserMap })
@@ -163,6 +164,7 @@ const TasksPage: React.FC = () => {
           setPagination(DEFAULT_PAGINATION)
         }}
         searching={searching}
+        exportEnabled={hasTasks}
       />
       {activeTab === 'table' ? (
         <TasksTable
@@ -174,6 +176,7 @@ const TasksPage: React.FC = () => {
           onSortChange={setOrderBy}
           columnVisibility={columnVisibility}
           setColumnVisibility={setColumnVisibility}
+          onHasTasksChange={setHasTasks}
         />
       ) : (
         <TaskInfiniteCards ref={tableRef} whereFilter={whereFilter} orderByFilter={orderByFilter} />

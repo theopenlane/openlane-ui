@@ -26,6 +26,7 @@ type TQuestionnaireTableToolbarProps = {
     accessorKey: string
     header: string
   }[]
+  exportEnabled: boolean
 }
 const createDropdown = () => {
   if (includeQuestionnaireCreation == 'true') {
@@ -42,6 +43,7 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
   setColumnVisibility,
   mappedColumns,
   handleExport,
+  exportEnabled,
 }) => {
   const isSearching = useDebounce(searching, 200)
 
@@ -67,7 +69,7 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
           <Menu
             content={
               <>
-                <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleExport}>
+                <div className={`flex items-center space-x-2 hover:bg-muted cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`} onClick={handleExport}>
                   <DownloadIcon size={16} strokeWidth={2} />
                   <span>Export</span>
                 </div>

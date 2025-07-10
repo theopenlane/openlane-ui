@@ -104,6 +104,7 @@ export const PoliciesTable = () => {
   }
 
   const handleExport = () => {
+    if (!policies || policies.length === 0) return
     const exportableColumns = columns.filter(isVisibleColumn).map((col) => {
       const key = col.accessorKey as keyof InternalPolicy
       const label = col.header
@@ -163,6 +164,7 @@ export const PoliciesTable = () => {
         mappedColumns={mappedColumns}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
+        exportEnabled={policies && policies.length > 0}
       />
 
       <DataTable

@@ -29,6 +29,7 @@ type TProceduresTableToolbarProps = {
     accessorKey: string
     header: string
   }[]
+  exportEnabled: boolean
 }
 
 const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
@@ -41,6 +42,7 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
   columnVisibility,
   setColumnVisibility,
   mappedColumns,
+  exportEnabled,
 }) => {
   const isSearching = useDebounce(searching, 200)
   const { data: session } = useSession()
@@ -89,7 +91,7 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
                     }
                   />
                 )}
-                <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={handleExport}>
+                <div className={`flex items-center space-x-2 hover:bg-muted cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`} onClick={handleExport}>
                   <DownloadIcon size={16} strokeWidth={2} />
                   <span>Export</span>
                 </div>

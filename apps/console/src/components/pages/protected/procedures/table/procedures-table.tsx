@@ -97,6 +97,7 @@ export const ProceduresTable = () => {
   }
 
   const handleExport = () => {
+    if (!procedures || procedures.length === 0) return
     const exportableColumns = columns.filter(isVisibleColumn).map((col) => {
       const key = col.accessorKey as keyof Procedure
       const label = col.header
@@ -152,6 +153,7 @@ export const ProceduresTable = () => {
         mappedColumns={mappedColumns}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
+        exportEnabled={procedures && procedures.length > 0}
       />
 
       <DataTable
