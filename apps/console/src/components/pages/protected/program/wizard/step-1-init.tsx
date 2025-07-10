@@ -254,7 +254,7 @@ const FrameworkSelect = () => {
   const { data } = useGetStandards({})
   const currentYear = new Date().getFullYear()
   const programType = useWatch({ control, name: 'programType' })
-
+  const [selectedFrameworkData, setSelectedFrameworkData] = useState<{ shortName: string; description: string } | null>(null)
   const frameworks = data?.standards?.edges?.map((edge) => edge?.node as Standard) || []
 
   return (
@@ -271,7 +271,7 @@ const FrameworkSelect = () => {
                   <InfoIcon size={14} className="mx-1" />
                 </TooltipTrigger>
                 <TooltipContent side="right">
-                  <p>The audit framework to use for the program (required)</p>
+                  <p>{selectedFrameworkData ? `${selectedFrameworkData.shortName} - ${selectedFrameworkData.description}` : 'The audit framework to use for the program (required)'}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -281,6 +281,7 @@ const FrameworkSelect = () => {
               value={field.value}
               onValueChange={(value) => {
                 const selectedFramework = frameworks.find((f) => f.shortName === value)
+                setSelectedFrameworkData({ shortName: selectedFramework?.shortName ?? '', description: selectedFramework?.description ?? '' })
                 field.onChange(value)
                 setValue('name', `${value} - ${currentYear}`)
                 setValue('standardID', selectedFramework?.id ?? '')
@@ -295,18 +296,6 @@ const FrameworkSelect = () => {
                 {frameworks.map((framework) => (
                   <SelectItem key={framework.id} value={framework?.shortName ?? ''}>
                     {framework.shortName} {framework.version ? `(${framework.version})` : ''}
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger type={'button'}>
-                          <InfoIcon size={14} className="mx-1" />
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom">
-                          <p>
-                            {framework.shortName} - {framework.description}
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
                   </SelectItem>
                 ))}
               </SelectContent>
