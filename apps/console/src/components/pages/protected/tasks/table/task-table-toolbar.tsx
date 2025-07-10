@@ -36,11 +36,11 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
   const [showCompletedTasks, setShowCompletedTasks] = useState<boolean>(false)
   const { orgMembers } = useTaskStore()
-  const { programOptions } = useProgramSelect()
+  const { programOptions, isSuccess } = useProgramSelect()
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
 
   useEffect(() => {
-    if (filterFields || !orgMembers || !programOptions) {
+    if (filterFields || !orgMembers || !isSuccess) {
       return
     }
 

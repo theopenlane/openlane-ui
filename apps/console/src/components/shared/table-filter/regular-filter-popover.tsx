@@ -41,7 +41,7 @@ const RegularFilterPopover: React.FC<TRegularFilterPopover> = ({
   }, [isActive])
 
   const normalizeFilter = (item: Filter) => {
-    return `${item.field.charAt(0).toUpperCase() + item.field.slice(1)} ${getOperatorsForType(item.type)
+    return `${item.label} ${getOperatorsForType(item.type)
       .find((op) => op.value === item.operator)
       ?.label.toLowerCase()} ${renderActiveFilterType(item)}`
   }
