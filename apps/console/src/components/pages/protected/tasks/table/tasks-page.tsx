@@ -114,6 +114,7 @@ const TasksPage: React.FC = () => {
     }))
 
   const handleExport = () => {
+    if (!hasTasks) return
     const tasks = tableRef.current?.exportData?.() ?? []
 
     const exportableColumns = getTaskColumns({ userMap: emptyUserMap })

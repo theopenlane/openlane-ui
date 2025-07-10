@@ -82,6 +82,7 @@ export const QuestionnairesTable = () => {
     return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
   }
   const handleExport = () => {
+    if (!templates || templates.length === 0) return
     const exportableColumns = columns.filter(isVisibleColumn).map((col) => {
       const key = col.accessorKey as keyof Template
       const label = col.header

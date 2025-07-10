@@ -97,6 +97,7 @@ export const ProceduresTable = () => {
   }
 
   const handleExport = () => {
+    if (!procedures || procedures.length === 0) return
     const exportableColumns = columns.filter(isVisibleColumn).map((col) => {
       const key = col.accessorKey as keyof Procedure
       const label = col.header

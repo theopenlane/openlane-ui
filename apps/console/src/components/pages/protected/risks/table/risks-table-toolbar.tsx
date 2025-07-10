@@ -100,7 +100,7 @@ const RisksTableToolbar: React.FC<TProps> = ({
         <Menu
           content={
             <>
-              <div className={`flex items-center space-x-2 hover:bg-muted cursor-pointer ${!exportEnabled ? 'pointer-events-none opacity-50' : ''}`} onClick={handleExport}>
+              <div className={`flex items-center space-x-2 hover:bg-muted cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`} onClick={handleExport}>
                 <DownloadIcon size={16} strokeWidth={2} />
                 <span>Export</span>
               </div>

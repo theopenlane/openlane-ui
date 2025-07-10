@@ -111,6 +111,7 @@ const RiskTable: React.FC = () => {
   }
 
   const handleExport = () => {
+    if (!risks || risks.length === 0) return
     const exportableColumns = columns.filter(isVisibleColumn).map((col) => {
       const key = col.accessorKey as keyof RiskTableFieldsFragment
       const label = col.header
