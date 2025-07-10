@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { getRiskColumns } from '@/components/pages/protected/risks/table/columns.tsx'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination.ts'
-import { GetAllRisksQueryVariables, OrderDirection, RiskFieldsFragment, RiskOrderField, RiskWhereInput } from '@repo/codegen/src/schema.ts'
+import { GetAllRisksQueryVariables, OrderDirection, RiskTableFieldsFragment, RiskWhereInput, RiskOrderField } from '@repo/codegen/src/schema.ts'
 import { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useTableRisks } from '@/lib/graphql-hooks/risks.ts'
@@ -15,10 +15,13 @@ import RisksTableToolbar from '@/components/pages/protected/risks/table/risks-ta
 import { DataTable } from '@repo/ui/data-table'
 import { RISKS_SORT_FIELDS } from '@/components/pages/protected/risks/table/table-config.ts'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 
 const RiskTable: React.FC = () => {
   const router = useRouter()
-  const { columns, mappedColumns } = getRiskColumns()
+  const { convertToReadOnly } = usePlateEditor()
+
   const [searchQuery, setSearchQuery] = useState('')
   const [filters, setFilters] = useState<RiskWhereInput | null>(null)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
@@ -30,7 +33,18 @@ const RiskTable: React.FC = () => {
     },
   ])
 
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    businessCosts: false,
+    details: false,
+    impact: false,
+    likelihood: false,
+    mitigation: false,
+    updatedAt: false,
+    updatedBy: false,
+    createdAt: false,
+    createdBy: false,
+    delegate: false,
+  })
 
   const debouncedSearch = useDebounce(searchQuery, 300)
   const searching = searchQuery !== debouncedSearch
@@ -53,6 +67,30 @@ const RiskTable: React.FC = () => {
     enabled: !!filters,
   })
 
+  const userIds = useMemo(() => {
+    if (!risks) return []
+    const ids = new Set<string>()
+    risks.forEach((task) => {
+      if (task.createdBy) ids.add(task.createdBy)
+      if (task.updatedBy) ids.add(task.updatedBy)
+    })
+    return Array.from(ids)
+  }, [risks])
+
+  const { users, isFetching: fetchingUsers } = useGetOrgUserList({
+    where: { hasUserWith: [{ idIn: userIds }] },
+  })
+
+  const userMap = useMemo(() => {
+    const map: Record<string, (typeof users)[0]> = {}
+    users?.forEach((u) => {
+      map[u.id] = u
+    })
+    return map
+  }, [users])
+
+  const { columns, mappedColumns } = useMemo(() => getRiskColumns({ userMap, convertToReadOnly }), [userMap, convertToReadOnly])
+
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
@@ -64,7 +102,7 @@ const RiskTable: React.FC = () => {
     return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
   }
 
-  const handleRowClick = (rowData: RiskFieldsFragment) => {
+  const handleRowClick = (rowData: RiskTableFieldsFragment) => {
     router.push(`/risks/${rowData.id}`)
   }
 
@@ -74,12 +112,12 @@ const RiskTable: React.FC = () => {
 
   const handleExport = () => {
     const exportableColumns = columns.filter(isVisibleColumn).map((col) => {
-      const key = col.accessorKey as keyof RiskFieldsFragment
+      const key = col.accessorKey as keyof RiskTableFieldsFragment
       const label = col.header
 
       return {
         label,
-        accessor: (risk: RiskFieldsFragment) => {
+        accessor: (risk: RiskTableFieldsFragment) => {
           const value = risk[key]
 
           if (key === 'details') {
@@ -122,12 +160,13 @@ const RiskTable: React.FC = () => {
         columns={columns}
         data={risks || []}
         onRowClick={handleRowClick}
-        loading={!risks && !isError}
+        loading={fetchingUsers || (!risks && !isError)}
         pagination={pagination}
         onPaginationChange={setPagination}
         paginationMeta={paginationMeta}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
+        stickyHeader
       />
     </>
   )

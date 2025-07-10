@@ -285,7 +285,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       const items = (data as GetAllControlsQuery).controls?.edges ?? []
       return items.map((item) => ({
         id: item?.node?.id || '',
-        name: '',
+        name: item?.node?.refCode,
         description: item?.node?.description ?? '',
         inputName: inputName || '',
         refCode: item?.node?.refCode ?? '',
@@ -296,7 +296,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       const items = (data as GetAllSubcontrolsQuery).subcontrols?.edges ?? []
       return items.map((item) => ({
         id: item?.node?.id || '',
-        name: '',
+        name: item?.node?.refCode,
         description: item?.node?.description ?? '',
         inputName: inputName || '',
         refCode: item?.node?.refCode ?? '',

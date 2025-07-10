@@ -2,7 +2,7 @@
 
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Group, GroupOrder, GroupWhereInput } from '@repo/codegen/src/schema'
 import { GROUP_SORT_FIELDS } from '@/components/pages/protected/groups/table/table-config.ts'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -10,6 +10,7 @@ import { useGetAllGroups } from '@/lib/graphql-hooks/groups.ts'
 import { VisibilityState } from '@tanstack/react-table'
 import { getGroupTableColumns } from '../table/columns'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 
 type TGroupsTableProps = {
   onSortChange?: (sortCondition: GroupOrder | GroupOrder[]) => void
@@ -28,9 +29,32 @@ const GroupsTable = ({ onSortChange, pagination, onPaginationChange, whereFilter
     pagination: pagination,
     enabled: !!whereFilter,
   })
+
   const { replace } = useSmartRouter()
 
-  const { columns } = getGroupTableColumns()
+  const userIds = useMemo(() => {
+    if (!groups) return []
+    const ids = new Set<string>()
+    groups.forEach((group) => {
+      if (group.createdBy) ids.add(group.createdBy)
+      if (group.updatedBy) ids.add(group.updatedBy)
+    })
+    return Array.from(ids)
+  }, [groups])
+
+  const { users, isFetching: fetchingUsers } = useGetOrgUserList({
+    where: { hasUserWith: [{ idIn: userIds }] },
+  })
+
+  const userMap = useMemo(() => {
+    const map: Record<string, (typeof users)[0]> = {}
+    users?.forEach((u) => {
+      map[u.id] = u
+    })
+    return map
+  }, [users])
+
+  const { columns } = useMemo(() => getGroupTableColumns({ userMap }), [userMap])
 
   const handleRowClick = (group: Group) => {
     replace({ id: group.id })
@@ -52,6 +76,7 @@ const GroupsTable = ({ onSortChange, pagination, onPaginationChange, whereFilter
       paginationMeta={paginationMeta}
       columnVisibility={columnVisibility}
       setColumnVisibility={setColumnVisibility}
+      loading={fetchingUsers}
     />
   )
 }

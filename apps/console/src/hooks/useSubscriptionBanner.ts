@@ -23,6 +23,7 @@ export function useSubscriptionBanner() {
   const subEnded = (daysLeft && daysLeft < 0) || false
 
   const bannerText = (() => {
+    return '' // TODO: ENABLE THIS. temporary hidden, requested by Sarah
     if (!isTrial && isExpiringSoon) {
       return `Your subscription ends in ${daysLeft} days, update your plan to avoid losing access`
     }

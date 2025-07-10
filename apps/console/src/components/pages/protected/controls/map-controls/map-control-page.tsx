@@ -18,19 +18,22 @@ import { MapControlsFormData, mapControlsSchema } from './use-form-schema'
 import MapControlsRelations from './map-controls-relations'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import { MapControl } from '@/types'
+import { useOrganization } from '@/hooks/useOrganization'
 
 const MapControlPage = () => {
   const [expandedCard, setExpandedCard] = useState<'From' | 'To' | ''>('To')
   const { errorNotification, successNotification } = useNotification()
   const { mutateAsync: create } = useCreateMappedControl()
   const { id, subcontrolId } = useParams()
-  const shouldFetchControl = !subcontrolId && !!id
-  const shouldFetchSubcontrol = !!subcontrolId
-  const { data: controlData, isLoading } = useGetControlById(shouldFetchControl ? (id as string) : null)
-  const { data: subcontrolData, isLoading: isLoadingSubcontrol } = useGetSubcontrolById(shouldFetchSubcontrol ? (subcontrolId as string) : null)
+  const isControl = !subcontrolId && !!id
+  const isSubControl = !!subcontrolId
+  const { data: controlData, isLoading } = useGetControlById(isControl ? (id as string) : null)
+  const { data: subcontrolData, isLoading: isLoadingSubcontrol } = useGetSubcontrolById(isSubControl ? (subcontrolId as string) : null)
   const [presetControls, setPresetControls] = useState<MapControl[]>()
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const router = useRouter()
+  const { currentOrgId, getOrganizationByID } = useOrganization()
+  const currentOrganization = getOrganizationByID(currentOrgId!)
 
   const handleCardToggle = (title: 'From' | 'To') => {
     if (expandedCard === title) {
@@ -79,7 +82,7 @@ const MapControlPage = () => {
       { label: 'Home', href: '/dashboard' },
       { label: 'Controls', href: '/controls' },
       { label: controlData?.control?.refCode, isLoading: isLoading, href: `/controls/${id}` },
-      { label: 'Create Map Control', href: '/map-control' },
+      { label: 'Create Map Control' },
     ])
   }, [controlData?.control?.refCode, isLoading, setCrumbs, id])
 
@@ -88,7 +91,7 @@ const MapControlPage = () => {
       { label: 'Home', href: '/dashboard' },
       { label: 'Controls', href: '/controls' },
       { label: subcontrolData?.subcontrol?.refCode, isLoading: isLoading, href: `/controls/${id}/${subcontrolId}` },
-      { label: 'Create Map Control', href: '/map-control' },
+      { label: 'Create Map Control' },
     ])
   }, [isLoading, setCrumbs, subcontrolData?.subcontrol?.refCode, id, subcontrolId])
 
@@ -106,32 +109,36 @@ const MapControlPage = () => {
   }, [setCrumbs, controlData, subcontrolData, form, isLoading, isLoadingSubcontrol, setControlsCrumbs, setSubControlsCrumbs])
 
   return (
-    <FormProvider {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col space-y-6">
-        <SlideBarLayout sidebarContent={<MapControlsRelations />}>
-          <div className="p-8 space-y-6">
-            <div>
-              <h1 className="text-2xl font-bold">Map Controls</h1>
-              <p className="text-muted-foreground mt-1">
-                Define how controls relate across frameworks – custom sets—whether they’re equivalent, overlapping, or one is a subset of another. Use these mappings to reduce duplication, surface
-                gaps, and create a unified view of your compliance posture.
-              </p>
+    <>
+      <title>{`${currentOrganization?.node?.displayName ?? 'Openlane'} | Controls - ${isSubControl ? subcontrolData?.subcontrol?.refCode : controlData?.control?.refCode}`}</title>
+
+      <FormProvider {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col space-y-6">
+          <SlideBarLayout sidebarContent={<MapControlsRelations />}>
+            <div className="p-8 space-y-6">
+              <div>
+                <h1 className="text-2xl font-bold">Map Controls</h1>
+                <p className="text-muted-foreground mt-1">
+                  Define how controls relate across frameworks – custom sets—whether they’re equivalent, overlapping, or one is a subset of another. Use these mappings to reduce duplication, surface
+                  gaps, and create a unified view of your compliance posture.
+                </p>
+              </div>
+              <div className="flex flex-col">
+                <Accordion type="single" collapsible value={expandedCard} className="w-full">
+                  <MapControlsCard title="From" expandedCard={expandedCard} setExpandedCard={() => handleCardToggle('From')} presetControls={presetControls} />
+                  <div className="flex flex-col items-center">
+                    <div className="border-l h-4" />
+                    <div className="h-12 w-12 bg-card flex items-center justify-center rounded-full">{MappingIconMapper[mappingType]}</div>
+                    <div className="border-l h-4" />
+                  </div>
+                  <MapControlsCard title="To" expandedCard={expandedCard} setExpandedCard={() => handleCardToggle('To')} />
+                </Accordion>
+              </div>
             </div>
-            <div className="flex flex-col">
-              <Accordion type="single" collapsible value={expandedCard} className="w-full">
-                <MapControlsCard title="From" expandedCard={expandedCard} setExpandedCard={() => handleCardToggle('From')} presetControls={presetControls} />
-                <div className="flex flex-col items-center">
-                  <div className="border-l h-4" />
-                  <div className="h-12 w-12 bg-card flex items-center justify-center rounded-full">{MappingIconMapper[mappingType]}</div>
-                  <div className="border-l h-4" />
-                </div>
-                <MapControlsCard title="To" expandedCard={expandedCard} setExpandedCard={() => handleCardToggle('To')} />
-              </Accordion>
-            </div>
-          </div>
-        </SlideBarLayout>
-      </form>
-    </FormProvider>
+          </SlideBarLayout>
+        </form>
+      </FormProvider>
+    </>
   )
 }
 

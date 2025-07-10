@@ -63,6 +63,23 @@ export const GET_TABLE_PROCEDURES = gql`
           createdAt
           createdBy
           summary
+          approvalRequired
+          approver {
+            displayName
+            gravatarLogoURL
+            logoURL
+          }
+          delegate {
+            displayName
+            gravatarLogoURL
+            logoURL
+          }
+          procedureType
+          reviewDue
+          reviewFrequency
+          revision
+          status
+          tags
         }
       }
       pageInfo {

@@ -251,7 +251,7 @@ const ViewProcedurePage: React.FC = () => {
 
   return (
     <>
-      <title>{`${currentOrganization?.node?.displayName}: Procedures - ${data.procedure.name}`}</title>
+      <title>{`${currentOrganization?.node?.displayName ?? 'Openlane'} | Procedures - ${data.procedure.name}`}</title>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmitHandler)}>
           <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>

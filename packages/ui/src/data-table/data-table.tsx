@@ -34,7 +34,9 @@ type CustomColumnDef<TData, TValue> = ColumnDef<TData, TValue> & {
   }
 }
 
-interface DataTableProps<TData, TValue> {
+type TStickyOption = { stickyHeader: true; stickyDialogHeader?: false } | { stickyHeader?: false; stickyDialogHeader: true } | { stickyHeader?: false; stickyDialogHeader?: false }
+
+interface BaseDataTableProps<TData, TValue> {
   columns: CustomColumnDef<TData, TValue>[]
   loading?: boolean
   data: TData[]
@@ -54,6 +56,8 @@ interface DataTableProps<TData, TValue> {
   footer?: ReactElement | null
 }
 
+type DataTableProps<TData, TValue> = BaseDataTableProps<TData, TValue> & TStickyOption
+
 export function DataTable<TData, TValue>({
   columns,
   loading = false,
@@ -72,6 +76,8 @@ export function DataTable<TData, TValue>({
   setColumnVisibility,
   columnVisibility,
   footer,
+  stickyHeader = false,
+  stickyDialogHeader = false,
 }: DataTableProps<TData, TValue>) {
   const [sortConditions, setSortConditions] = useState<{ field: string; direction?: OrderDirection }[]>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -283,7 +289,7 @@ export function DataTable<TData, TValue>({
 
         {/* Apply opacity and disable interactions while loading */}
         <div className={isLoading ? 'opacity-50 pointer-events-none transition-opacity duration-300' : 'transition-opacity duration-300'}>
-          <Table variant="data">
+          <Table variant="data" stickyHeader={stickyHeader} stickyDialogHeader={stickyDialogHeader}>
             <TableHeader variant="data">
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow variant="data" key={headerGroup.id}>

@@ -75,27 +75,21 @@ export const PoliciesTable = () => {
   const { policies, isLoading: fetching, paginationMeta } = useInternalPolicies({ where, orderBy: orderByFilter, pagination, enabled: !!filters })
   const { users } = useGetOrgUserList({ where: userListWhere })
   const { tokens } = useGetApiTokensByIds({ where: tokensWhere })
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    approvalRequired: false,
+    approver: false,
+    delegate: false,
+    policyType: false,
+    reviewDue: false,
+    reviewFrequency: false,
+    revision: false,
+    status: false,
+    tags: false,
+    createdAt: false,
+    createdBy: false,
+  })
+
   const { columns, mappedColumns } = getPoliciesColumns({ users, tokens })
-
-  useEffect(() => {
-    setCrumbs([
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Policies', href: '/policies' },
-    ])
-  }, [setCrumbs])
-
-  useEffect(() => {
-    if (!policies || policies.length === 0) {
-      return
-    }
-    if (memberIds && memberIds.length > 0) {
-      return
-    }
-
-    const userIds = [...new Set(policies.map((item) => item.updatedBy).filter(Boolean))]
-    setMemberIds(userIds)
-  }, [policies, memberIds])
 
   const handleCreateNew = async () => {
     router.push(`/policies/create`)
@@ -134,6 +128,25 @@ export const PoliciesTable = () => {
 
     exportToCSV(policies, exportableColumns, 'internal_policies')
   }
+
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Policies', href: '/policies' },
+    ])
+  }, [setCrumbs])
+
+  useEffect(() => {
+    if (!policies || policies.length === 0) {
+      return
+    }
+    if (memberIds && memberIds.length > 0) {
+      return
+    }
+
+    const userIds = [...new Set(policies.map((item) => item.updatedBy).filter(Boolean))]
+    setMemberIds(userIds)
+  }, [policies, memberIds])
 
   return (
     <>

@@ -16,8 +16,8 @@ import Link from 'next/link'
 import { formatDateSince } from '@/utils/date'
 import { INFO_EMAIL } from '@/constants'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import Image from 'next/image'
 import { StandardWhereInput } from '@repo/codegen/src/schema'
+import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
 
 const filterFields: FilterField[] = [
   { key: 'systemOwned', label: 'System Owned', type: 'boolean' },
@@ -82,24 +82,29 @@ const StandardsPage = () => {
       <div className="my-2 grid gap-7 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-2">
         {data?.standards?.edges?.map((standard) => (
           <Card key={standard?.node?.id} className="bg-card p-4 rounded-lg shadow">
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <h3 className="font-semibold text-base">{standard?.node?.shortName}</h3>
-                <span className="text-xs">version: {standard?.node?.version}</span>
+            <div className="flex flex-row justify-between">
+              <div className="flex flex-col">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <h3 className="font-semibold text-base">{standard?.node?.shortName}</h3>
+                    <span className="text-xs">version: {standard?.node?.version}</span>
+                  </div>
+                </div>
+                <div className="text-sm space-y-1 mb-3">
+                  <p className="flex items-center gap-1">
+                    <SettingsIcon className="text-brand" size={16} /> {standard?.node?.standardType}
+                  </p>
+                  <p className="flex items-center gap-1">
+                    <Settings2 className="text-brand" size={16} /> Controls: {standard?.node?.controls.totalCount}
+                  </p>
+                  <p className="flex items-center gap-1">
+                    <CheckCircleIcon className="text-brand" size={16} /> Last updated: {formatDateSince(standard?.node?.updatedAt)}
+                  </p>
+                </div>
               </div>
-              {standard?.node?.governingBodyLogoURL && <Image src={standard?.node?.governingBodyLogoURL} alt="logo" height={32} width={32} />}
+              {<StandardsIconMapper key={standard?.node?.id} shortName={standard?.node?.shortName ?? ''} />}
             </div>
-            <div className="text-sm space-y-1 mb-3">
-              <p className="flex items-center gap-1">
-                <SettingsIcon className="text-brand" size={16} /> {standard?.node?.standardType}
-              </p>
-              <p className="flex items-center gap-1">
-                <Settings2 className="text-brand" size={16} /> Controls: {standard?.node?.controls.totalCount}
-              </p>
-              <p className="flex items-center gap-1">
-                <CheckCircleIcon className="text-brand" size={16} /> Last updated: {formatDateSince(standard?.node?.updatedAt)}
-              </p>
-            </div>
+
             <div className="border-t pt-3 mb-3 flex flex-wrap gap-2">
               {standard?.node?.tags?.map((tag, index) => (
                 <Badge key={index} variant="outline" className="rounded-full">

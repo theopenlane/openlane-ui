@@ -22,8 +22,9 @@ const ColumnVisibilityMenu: React.FC<TColumnVisibilityMenuProps> = ({ mappedColu
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="border shadow-md p-0" align="start">
-        {mappedColumns.map((column, index) => {
-          return (
+        {[...mappedColumns]
+          .sort((a, b) => a.header.localeCompare(b.header))
+          .map((column, index) => (
             <div key={`${column.accessorKey}-${index}`} className="flex items-center gap-x-3 p-1">
               <Checkbox
                 className="capitalize h-4 w-4 text-sm"
@@ -38,8 +39,7 @@ const ColumnVisibilityMenu: React.FC<TColumnVisibilityMenuProps> = ({ mappedColu
               />
               <div className="text-sm">{column.header}</div>
             </div>
-          )
-        })}
+          ))}
       </DropdownMenuContent>
     </DropdownMenu>
   )

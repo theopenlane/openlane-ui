@@ -6,6 +6,8 @@ import React, { useState } from 'react'
 import { ColumnDef } from '@tanstack/table-core'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
+import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 
 type PendingAction = {
   date: string
@@ -17,6 +19,18 @@ type PendingAction = {
 
 const PendingActions = () => {
   const [tab, setTab] = useState('waiting-on-you')
+
+  const searchParams = useSearchParams()
+  const programId = searchParams.get('id')
+
+  const filters = [
+    {
+      field: 'hasProgramsWith',
+      value: programId,
+      type: 'selectIs',
+      operator: 'EQ',
+    },
+  ]
 
   const pendingActions: PendingAction[] = [
     // {
@@ -70,6 +84,9 @@ const PendingActions = () => {
 
   const noData = pendingActions.length === 0 && approvalsWaitingFor.length === 0
 
+  const encodedFilters = encodeURIComponent(JSON.stringify(filters))
+  const policiesRedirectURL = programId ? `/policies?filters=${encodedFilters}` : '/policies'
+
   return (
     <Card className=" rounded-lg border flex-1">
       <CardTitle className="text-lg font-semibold">Pending Actions</CardTitle>
@@ -79,9 +96,11 @@ const PendingActions = () => {
             <Inbox size={89} strokeWidth={1} className="text-border" />
             <h3 className="mt-4 text-lg font-semibold">No pending actions</h3>
             <p className="text-sm text-muted-foreground mt-1">Maybe it&apos;s time to review some policies and procedures that haven&apos;t been updated in a while?</p>
-            <Button variant="outline" className="mt-4">
-              Take me there
-            </Button>
+            <Link href={policiesRedirectURL} className="mt-4">
+              <Button variant="outline" className="mt-4">
+                Take me there
+              </Button>
+            </Link>
           </div>
         ) : (
           <Tabs defaultValue={tab} onValueChange={setTab}>

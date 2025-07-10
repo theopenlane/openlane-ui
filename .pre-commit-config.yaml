@@ -27,6 +27,7 @@ repos:
         name: run unit tests
         language: node
         entry: bun test
+        pass_filenames: false
   - repo: local
     hooks:
       - id: eslint-console

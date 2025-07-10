@@ -40,6 +40,7 @@ import { Panel, PanelHeader } from '@repo/ui/panel'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 import Link from 'next/link'
+import { capitalizeFirstLetter } from '@/lib/auth/utils/strings'
 
 const TaskDetailsSheet = () => {
   const [isEditing, setIsEditing] = useState(false)
@@ -182,6 +183,7 @@ const TaskDetailsSheet = () => {
       status: data?.status,
       clearAssignee: !data?.assigneeID,
       clearDue: !data?.due,
+      tags: data.tags,
       ...associationPayload,
     }
 
@@ -715,8 +717,6 @@ const TaskDetailsSheet = () => {
 }
 
 export default TaskDetailsSheet
-
-const capitalizeFirstLetter = (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
 
 const generateAssociationPayload = (original: TObjectAssociationMap, updated: TObjectAssociationMap) => {
   const payload: Record<string, string[]> = {}

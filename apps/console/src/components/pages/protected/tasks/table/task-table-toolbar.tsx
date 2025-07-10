@@ -1,9 +1,9 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { TASK_FILTER_FIELDS } from '@/components/pages/protected/tasks/table/table-config'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
-import { SelectFilterField, SelectIsFilterField } from '@/types'
-import { TOrgMembers, useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
+import { FilterField, SelectFilterField, SelectIsFilterField } from '@/types'
+import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
 import { CreditCard as CardIcon, DownloadIcon, LoaderCircle, SearchIcon, Table as TableIcon, Upload } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
 import { BulkCSVCreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/bulk-csv-create-task-dialog'
@@ -18,7 +18,6 @@ import { TaskWhereInput } from '@repo/codegen/src/schema'
 
 type TProps = {
   onFilterChange: (filters: TaskWhereInput) => void
-  members: TOrgMembers[] | undefined
   onTabChange: (tab: 'table' | 'card') => void
   onShowCompletedTasksChange: (val: boolean) => void
   handleExport: () => void
@@ -38,28 +37,35 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
   const [showCompletedTasks, setShowCompletedTasks] = useState<boolean>(false)
   const { orgMembers } = useTaskStore()
   const { programOptions } = useProgramSelect()
+  const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
 
-  const filterFields = [
-    ...TASK_FILTER_FIELDS,
-    {
-      key: 'assignerID',
-      label: 'Assigner',
-      type: 'select',
-      options: props.members,
-    } as SelectFilterField,
-    {
-      key: 'assigneeID',
-      label: 'Assignee',
-      type: 'select',
-      options: orgMembers,
-    } as SelectFilterField,
-    {
-      key: 'hasProgramsWith',
-      label: 'Program Name',
-      type: 'selectIs',
-      options: programOptions,
-    } as SelectIsFilterField,
-  ]
+  useEffect(() => {
+    if (filterFields || !orgMembers || !programOptions) {
+      return
+    }
+
+    setFilterFields([
+      ...TASK_FILTER_FIELDS,
+      {
+        key: 'assignerID',
+        label: 'Assigner',
+        type: 'select',
+        options: orgMembers,
+      } as SelectFilterField,
+      {
+        key: 'assigneeID',
+        label: 'Assignee',
+        type: 'select',
+        options: orgMembers,
+      } as SelectFilterField,
+      {
+        key: 'hasProgramsWith',
+        label: 'Program Name',
+        type: 'selectIs',
+        options: programOptions,
+      } as SelectIsFilterField,
+    ])
+  }, [orgMembers, programOptions, filterFields])
 
   const handleTabChange = (tab: 'table' | 'card') => {
     setActiveTab(tab)
@@ -86,7 +92,7 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
           {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
             <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility}></ColumnVisibilityMenu>
           )}
-          <TableFilter filterFields={filterFields} onFilterChange={props.onFilterChange} />
+          {filterFields && <TableFilter filterFields={filterFields} onFilterChange={props.onFilterChange} />}
           <Input
             icon={props.searching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
             placeholder="Search"

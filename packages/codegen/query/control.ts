@@ -32,6 +32,15 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
         }
       }
     }
+    delegate {
+      displayName
+      logoURL
+      gravatarLogoURL
+    }
+    updatedAt
+    updatedBy
+    createdAt
+    createdBy
   }
 `
 

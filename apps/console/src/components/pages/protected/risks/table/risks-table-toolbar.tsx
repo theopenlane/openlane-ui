@@ -1,9 +1,9 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { CirclePlus, DownloadIcon, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { RISKS_FILTER_FIELDS } from './table-config'
-import { SelectIsFilterField } from '@/types'
+import { FilterField, SelectIsFilterField } from '@/types'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
 import Menu from '@/components/shared/menu/menu.tsx'
 import BulkCSVCreateRiskDialog from '@/components/pages/protected/risks/bulk-csv-create-risk-dialog.tsx'
@@ -37,17 +37,24 @@ const RisksTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, search
   const { data: session } = useSession()
   const { data: permission } = useOrganizationRole(session)
   const { programOptions } = useProgramSelect()
+  const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
 
-  const filterFields = [
-    ...RISKS_FILTER_FIELDS,
+  useEffect(() => {
+    if (filterFields || !programOptions) {
+      return
+    }
 
-    {
-      key: 'hasProgramsWith',
-      label: 'Program Name',
-      type: 'selectIs',
-      options: programOptions,
-    } as SelectIsFilterField,
-  ]
+    setFilterFields([
+      ...RISKS_FILTER_FIELDS,
+      {
+        key: 'hasProgramsWith',
+        label: 'Program Name',
+        type: 'selectIs',
+        options: programOptions,
+      } as SelectIsFilterField,
+    ])
+  }, [programOptions, filterFields])
+
   return (
     <>
       <div className="flex items-center gap-2 my-2">
@@ -55,7 +62,7 @@ const RisksTableToolbar: React.FC<TProps> = ({ onFilterChange, searching, search
           {mappedColumns && columnVisibility && setColumnVisibility && (
             <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
           )}
-          <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} />
+          {filterFields && <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} />}
           <Input
             icon={searching ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}
             placeholder="Search"

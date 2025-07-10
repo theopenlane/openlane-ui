@@ -14,6 +14,7 @@ import { useRouter } from 'next/navigation'
 import { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { exportToCSV } from '@/utils/exportToCSV'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 
 export const QuestionnairesTable = () => {
   const router = useRouter()
@@ -29,7 +30,7 @@ export const QuestionnairesTable = () => {
 
   const orderByFilter = useMemo(() => orderBy || undefined, [orderBy])
 
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({ updatedBy: false, createdBy: false })
 
   const [searchTerm, setSearchTerm] = useState('')
   const debouncedSearch = useDebounce(searchTerm, 300)
@@ -42,14 +43,41 @@ export const QuestionnairesTable = () => {
     }
   }, [filters, debouncedSearch])
 
-  useEffect(() => {
-    setCrumbs([
-      { label: 'Home', href: '/dashboard' },
-      { label: 'Questionnaires', href: '/questionnaires' },
-    ])
-  }, [setCrumbs])
+  const {
+    templates,
+    isLoading: fetching,
+    paginationMeta,
+  } = useTemplates({
+    where: whereFilter,
+    orderBy: orderByFilter,
+    pagination,
+    enabled: !!filters,
+  })
 
-  const { columns, mappedColumns } = getQuestionnaireColumns()
+  const userIds = useMemo(() => {
+    if (!templates) return []
+    const ids = new Set<string>()
+    templates.forEach((template) => {
+      if (template.createdBy) ids.add(template.createdBy)
+      if (template.updatedBy) ids.add(template.updatedBy)
+    })
+    return Array.from(ids)
+  }, [templates])
+
+  const { users, isFetching: fetchingUsers } = useGetOrgUserList({
+    where: { hasUserWith: [{ idIn: userIds }] },
+  })
+
+  const userMap = useMemo(() => {
+    const map: Record<string, (typeof users)[0]> = {}
+    users?.forEach((u) => {
+      map[u.id] = u
+    })
+    return map
+  }, [users])
+
+  const { columns, mappedColumns } = getQuestionnaireColumns({ userMap })
+
   function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
     return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
   }
@@ -72,17 +100,12 @@ export const QuestionnairesTable = () => {
     router.push(`/questionnaires/questionnaire-viewer?id=${row.id}`)
   }
 
-  const {
-    templates,
-    isLoading: fetching,
-    paginationMeta,
-  } = useTemplates({
-    where: whereFilter,
-    orderBy: orderByFilter,
-    pagination,
-    enabled: !!filters,
-  })
-
+  useEffect(() => {
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Questionnaires', href: '/questionnaires' },
+    ])
+  }, [setCrumbs])
   return (
     <div>
       <QuestionnaireTableToolbar
@@ -103,7 +126,7 @@ export const QuestionnairesTable = () => {
         onSortChange={setOrderBy}
         columns={columns}
         data={templates}
-        loading={fetching}
+        loading={fetching || fetchingUsers}
         pagination={pagination}
         onPaginationChange={setPagination}
         paginationMeta={paginationMeta}
