@@ -1,11 +1,88 @@
-import { FilterField } from '@/types'
+import { FilterField, SelectFilterField, SelectIsFilterField } from '@/types'
 import { OrderDirection, ProcedureOrderField } from '@repo/codegen/src/schema.ts'
 
-export const PROCEDURES_FILTERABLE_FIELDS: FilterField[] = [
-  { key: 'name', label: 'Name', type: 'text' },
-  { key: 'updatedBy', label: 'Last Updated By', type: 'date' },
-  { key: 'updatedAt', label: 'Last Updated', type: 'date' },
-]
+import { useEffect, useState } from 'react'
+import { useProgramSelect } from '@/lib/graphql-hooks/programs'
+import { useGroupSelect } from '@/lib/graphql-hooks/groups'
+import { ProcedureDocumentStatus } from '@repo/codegen/src/schema.ts'
+
+export function useProceduresFilters(): FilterField[] | null {
+  const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect()
+  const { groupOptions, isSuccess: isGroupSuccess } = useGroupSelect()
+  const [filters, setFilters] = useState<FilterField[] | null>(null)
+
+  useEffect(() => {
+    if (!isProgramSuccess || !isGroupSuccess || filters) return
+
+    const statusOptions = Object.entries(ProcedureDocumentStatus).map(([key, value]) => ({
+      label: key
+        .replace(/_/g, ' ')
+        .toLowerCase()
+        .replace(/\b\w/g, (c) => c.toUpperCase()),
+      value,
+    }))
+
+    const newFilters: FilterField[] = [
+      {
+        key: 'approverID',
+        label: 'Approver Group',
+        type: 'select',
+        options: groupOptions,
+      } as SelectFilterField,
+      {
+        key: 'hasControlWith.refCodeContainsFold',
+        label: 'Control',
+        type: 'containsText',
+      },
+      {
+        key: 'hasProgramsWith',
+        label: 'Program Name',
+        type: 'selectIs',
+        options: programOptions,
+      } as SelectIsFilterField,
+      {
+        key: 'hasSubcontrolWith.refCodeContainsFold',
+        label: 'Subcontrol',
+        type: 'containsText',
+      },
+      {
+        key: 'name',
+        label: 'Name',
+        type: 'text',
+      },
+      {
+        key: 'policyType',
+        label: 'Policy Type',
+        type: 'text',
+      },
+      {
+        key: 'reviewDue',
+        label: 'Review Due',
+        type: 'date',
+      },
+      {
+        key: 'status',
+        label: 'Status',
+        type: 'select',
+        options: statusOptions,
+      },
+      {
+        key: 'updatedAt',
+        label: 'Last Updated',
+        type: 'date',
+      },
+      {
+        key: 'updatedBy',
+        label: 'Last Updated By',
+        type: 'date',
+      },
+    ]
+
+    setFilters(newFilters)
+  }, [isProgramSuccess, isGroupSuccess, programOptions, groupOptions, filters])
+
+  return filters
+}
 
 export const PROCEDURES_SORTABLE_FIELDS = [
   { key: 'REVIEW_FREQUENCY', label: 'Review Frequency' },
