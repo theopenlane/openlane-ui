@@ -54,7 +54,7 @@ const MatchedControls = ({ controlData, droppedControls, where, subcontrolData, 
     }
 
     const queryFramework = !!where.referenceFramework || where.referenceFrameworkIsNil
-    const queryKeywordOrCategory = !!where.or
+    const queryKeywordOrCategory = !!where.or || !!where.and
 
     if (queryFramework && queryKeywordOrCategory) {
       return <MapControlResults droppedControls={droppedControls} controlData={controlData} subcontrolData={subcontrolData} title={title} setDroppedControls={setDroppedControls} />
