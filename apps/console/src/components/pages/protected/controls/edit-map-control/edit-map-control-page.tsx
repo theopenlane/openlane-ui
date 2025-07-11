@@ -40,6 +40,8 @@ const EditMapControlPage = () => {
   const [expandedCard, setExpandedCard] = useState<'From' | 'To' | ''>('From')
   const [presetControlsFrom, setPresetControlsFrom] = useState<MapControl[]>([])
   const [presetControlsTo, setPresetControlsTo] = useState<MapControl[]>([])
+  const [droppedControlsFrom, setDroppedControlsFrom] = useState<MapControl[]>([])
+  const [droppedControlsTo, setDroppedControlsTo] = useState<MapControl[]>([])
   const { mutateAsync: update, data: updateData, isPending } = useUpdateMappedControl()
 
   const isControl = !subcontrolId && !!id
@@ -246,13 +248,29 @@ const EditMapControlPage = () => {
               </div>
               <div className="flex flex-col">
                 <Accordion type="single" collapsible value={expandedCard} className="w-full">
-                  <MapControlsCard title="From" expandedCard={expandedCard} setExpandedCard={() => handleCardToggle('From')} presetControls={presetControlsFrom} />
+                  <MapControlsCard
+                    title="From"
+                    expandedCard={expandedCard}
+                    setExpandedCard={() => handleCardToggle('From')}
+                    presetControls={presetControlsFrom}
+                    droppedControls={droppedControlsFrom}
+                    setDroppedControls={setDroppedControlsFrom}
+                    oppositeControls={droppedControlsTo}
+                  />
                   <div className="flex flex-col items-center">
                     <div className="border-l h-4" />
                     <div className="h-12 w-12 bg-card flex items-center justify-center rounded-full">{MappingIconMapper[mappingType]}</div>
                     <div className="border-l h-4" />
                   </div>
-                  <MapControlsCard title="To" expandedCard={expandedCard} setExpandedCard={() => handleCardToggle('To')} presetControls={presetControlsTo} />
+                  <MapControlsCard
+                    title="To"
+                    expandedCard={expandedCard}
+                    setExpandedCard={() => handleCardToggle('To')}
+                    presetControls={presetControlsTo}
+                    droppedControls={droppedControlsTo}
+                    setDroppedControls={setDroppedControlsTo}
+                    oppositeControls={droppedControlsFrom}
+                  />
                 </Accordion>
               </div>
             </div>
