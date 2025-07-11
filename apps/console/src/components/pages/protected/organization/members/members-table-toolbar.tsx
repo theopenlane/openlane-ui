@@ -1,7 +1,6 @@
 import React from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
-import { Button } from '@repo/ui/button'
-import { LoaderCircle, PlusIcon, SearchIcon } from 'lucide-react'
+import { LoaderCircle, SearchIcon } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import { MEMBERS_FILTER_FIELDS } from '@/components/pages/protected/organization/members/table/table-config.ts'
@@ -13,10 +12,9 @@ type TMembersTableToolbarProps = {
   searchTerm: string
   setSearchTerm: (searchTerm: string) => void
   setFilters: (filters: ExtendedOrgMembershipWhereInput) => void
-  onSetActiveTab: (activeTab: string) => void
 }
 
-const MembersTableToolbar: React.FC<TMembersTableToolbarProps> = ({ searching, searchTerm, setFilters, setSearchTerm, onSetActiveTab }) => {
+const MembersTableToolbar: React.FC<TMembersTableToolbarProps> = ({ searching, searchTerm, setFilters, setSearchTerm }) => {
   const isSearching = useDebounce(searching, 200)
 
   return (
@@ -32,9 +30,6 @@ const MembersTableToolbar: React.FC<TMembersTableToolbarProps> = ({ searching, s
             variant="searchTable"
           />
         </div>
-        <Button size="md" icon={<PlusIcon />} iconPosition="left" onClick={() => onSetActiveTab('invites')}>
-          Send an invite
-        </Button>
       </div>
       <div id="datatable-filter-portal" />
     </>
