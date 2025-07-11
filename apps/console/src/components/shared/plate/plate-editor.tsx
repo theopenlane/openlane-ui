@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { createPlateEditor, Plate } from '@udecode/plate/react'
@@ -23,23 +23,27 @@ export type TPlateEditorProps = {
 
 const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, variant, styleVariant, clearData, onClear, placeholder, isScrollable }) => {
   const editor = useCreateEditor({ variant })
-  const [initialized, setInitialized] = useState(false)
+  const [plateEditor, setPlateEditor] = useState<ReturnType<typeof createPlateEditor> | null>(null)
+  const [initialValueSet, setInitialValueSet] = useState(false)
 
-  const debouncedOnChange = useRef(
+  const debouncedOnChange = useState(() =>
     debounce((val: Value) => {
       onChange?.(val)
     }, 300),
-  ).current
+  )[0]
 
   useEffect(() => {
-    if (initialValue && !initialized) {
-      setInitialized(true)
-      const plateEditor = createPlateEditor({
-        plugins: [...viewPlugins],
-      })
+    const instance = createPlateEditor({
+      plugins: [...viewPlugins],
+    })
+    setPlateEditor(instance)
+  }, [])
 
+  useEffect(() => {
+    if (plateEditor && !initialValueSet) {
+      setInitialValueSet(true)
       const slateNodes = plateEditor.api.html.deserialize({
-        element: initialValue,
+        element: initialValue || '',
       }) as Value
 
       if (Array.isArray(slateNodes) && slateNodes.length === 1 && typeof (slateNodes[0] as TElement).text === 'string' && !(slateNodes[0] as TElement).type) {
@@ -53,7 +57,7 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, vari
         editor.children = slateNodes
       }
     }
-  }, [editor, initialValue, initialized])
+  }, [editor, initialValue, plateEditor, initialValueSet])
 
   useEffect(() => {
     if (clearData) {

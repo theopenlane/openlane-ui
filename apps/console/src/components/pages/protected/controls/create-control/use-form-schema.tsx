@@ -15,6 +15,8 @@ export const controlFormSchema = z.object({
   controlType: z.nativeEnum(ControlControlType).optional(),
   referenceID: z.string().optional(),
   auditorReferenceID: z.string().optional(),
+  desiredOutcome: z.any(),
+  details: z.any(),
 })
 
 export const createControlFormSchema = (isCreateSubcontrol: boolean) =>
