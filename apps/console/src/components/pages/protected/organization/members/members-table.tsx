@@ -2,7 +2,7 @@
 
 import { OrgMembership, OrgMembershipRole, OrgMembershipWhereInput, User, UserAuthProvider, UserWhereInput } from '@repo/codegen/src/schema'
 import { pageStyles } from './page.styles'
-import React, { useState, useEffect, Dispatch, SetStateAction, useMemo } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { Copy, KeyRoundIcon } from 'lucide-react'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
@@ -18,15 +18,11 @@ import { UserRoleIconMapper } from '@/components/shared/icon-enum/user-role-enum
 import { useGetOrgMemberships } from '@/lib/graphql-hooks/members.ts'
 import MembersTableToolbar from '@/components/pages/protected/organization/members/members-table-toolbar.tsx'
 
-type MembersTableProps = {
-  setActiveTab: Dispatch<SetStateAction<string>>
-}
-
 export type ExtendedOrgMembershipWhereInput = OrgMembershipWhereInput & {
   providers?: string
 }
 
-export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
+export const MembersTable = () => {
   const { nameRow, copyIcon } = pageStyles()
   const [filters, setFilters] = useState<ExtendedOrgMembershipWhereInput | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
@@ -156,7 +152,6 @@ export const MembersTable = ({ setActiveTab }: MembersTableProps) => {
           setSearchTerm(inputVal)
           setPagination(DEFAULT_PAGINATION)
         }}
-        onSetActiveTab={setActiveTab}
       />
 
       <DataTable
