@@ -23,7 +23,7 @@ import useClickOutside from '@/hooks/useClickOutside'
 import { Option } from '@repo/ui/multiple-selector'
 import { useCreateSubcontrol } from '@/lib/graphql-hooks/subcontrol'
 import { Check } from 'lucide-react'
-import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
+import { BreadcrumbContext, Crumb } from '@/providers/BreadcrumbContext.tsx'
 import { useCreateControlImplementation } from '@/lib/graphql-hooks/control-implementations'
 import { useCreateControlObjective } from '@/lib/graphql-hooks/control-objectives'
 
@@ -172,13 +172,17 @@ export default function CreateControlForm() {
   }
 
   useEffect(() => {
-    setCrumbs([
+    const crumbs: Crumb[] = [
       { label: 'Home', href: '/dashboard' },
       { label: 'Controls', href: '/controls' },
-      { label: controlData?.control?.refCode, isLoading: isLoading },
-      { label: 'Create Subcontrol', href: '/create-subcontrol' },
-    ])
-  }, [setCrumbs, controlData, isLoading])
+    ]
+    if (id) {
+      crumbs.push({ label: controlData?.control?.refCode, isLoading, href: `/controls/${controlData?.control.id}` })
+    }
+    const lastCrumb = isCreateSubcontrol ? { label: 'Create Subcontrol' } : { label: 'Create Subcontrol' }
+    crumbs.push(lastCrumb)
+    setCrumbs(crumbs)
+  }, [setCrumbs, controlData, isLoading, isCreateSubcontrol, id])
 
   useEffect(() => {
     if (controlData?.control && !dataInitialized) {

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState, useContext } from 'react'
 import { useParams } from 'next/navigation'
 import { useGetAllControlObjectives, useUpdateControlObjective } from '@/lib/graphql-hooks/control-objectives'
 import { ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
@@ -13,6 +13,9 @@ import { ControlObjectiveCard } from './control-objective-card'
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@radix-ui/react-accordion'
 import { Checkbox } from '@repo/ui/checkbox'
 import { useNotification } from '@/hooks/useNotification'
+import { useGetControlById } from '@/lib/graphql-hooks/controls'
+import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const ControlObjectivePage = () => {
   const params = useParams()
@@ -25,6 +28,11 @@ const ControlObjectivePage = () => {
   const [editData, setEditData] = useState<ControlObjectiveFieldsFragment | null>(null)
   const [archivedChecked, setArchivedChecked] = useState(false)
   const { successNotification, errorNotification } = useNotification()
+  const { setCrumbs } = useContext(BreadcrumbContext)
+  const isControl = !subcontrolId && !!id
+  const isSubControl = !!subcontrolId
+  const { data: controlData, isLoading: isControlLoading } = useGetControlById(isControl ? (id as string) : null)
+  const { data: subcontrolData, isLoading: isSubcontrolLoading } = useGetSubcontrolById(isSubControl ? (subcontrolId as string) : null)
 
   const { data, isLoading } = useGetAllControlObjectives({
     ...(subcontrolId ? { hasSubcontrolsWith: [{ id: subcontrolId }] } : { hasControlsWith: [{ id }] }),
@@ -94,6 +102,25 @@ const ControlObjectivePage = () => {
   useEffect(() => {
     handleControlObjectivesUpdate()
   }, [handleControlObjectivesUpdate])
+
+  useEffect(() => {
+    if (controlData) {
+      setCrumbs([
+        { label: 'Home', href: '/dashboard' },
+        { label: 'Controls', href: '/controls' },
+        { label: controlData?.control?.refCode, isLoading: isControlLoading, href: `/controls/${id}` },
+        { label: 'Control Objective' },
+      ])
+    }
+    if (subcontrolData) {
+      setCrumbs([
+        { label: 'Home', href: '/dashboard' },
+        { label: 'Controls', href: '/controls' },
+        { label: subcontrolData?.subcontrol?.refCode, isLoading: isSubcontrolLoading, href: `/controls/${id}/${subcontrolId}` },
+        { label: 'Control Objective' },
+      ])
+    }
+  }, [setCrumbs, controlData, subcontrolData, id, isControlLoading, isSubcontrolLoading, subcontrolId])
 
   if (isLoading) {
     return <Loading />
