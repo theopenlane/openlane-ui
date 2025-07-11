@@ -22,6 +22,10 @@ import { useOrganization } from '@/hooks/useOrganization'
 
 const MapControlPage = () => {
   const [expandedCard, setExpandedCard] = useState<'From' | 'To' | ''>('To')
+  const [presetControls, setPresetControls] = useState<MapControl[]>()
+  const [droppedControlsFrom, setDroppedControlsFrom] = useState<MapControl[]>([])
+  const [droppedControlsTo, setDroppedControlsTo] = useState<MapControl[]>([])
+
   const { errorNotification, successNotification } = useNotification()
   const { mutateAsync: create } = useCreateMappedControl()
   const { id, subcontrolId } = useParams()
@@ -29,7 +33,6 @@ const MapControlPage = () => {
   const isSubControl = !!subcontrolId
   const { data: controlData, isLoading } = useGetControlById(isControl ? (id as string) : null)
   const { data: subcontrolData, isLoading: isLoadingSubcontrol } = useGetSubcontrolById(isSubControl ? (subcontrolId as string) : null)
-  const [presetControls, setPresetControls] = useState<MapControl[]>()
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const router = useRouter()
   const { currentOrgId, getOrganizationByID } = useOrganization()
@@ -125,13 +128,28 @@ const MapControlPage = () => {
               </div>
               <div className="flex flex-col">
                 <Accordion type="single" collapsible value={expandedCard} className="w-full">
-                  <MapControlsCard title="From" expandedCard={expandedCard} setExpandedCard={() => handleCardToggle('From')} presetControls={presetControls} />
+                  <MapControlsCard
+                    title="From"
+                    expandedCard={expandedCard}
+                    setExpandedCard={() => handleCardToggle('From')}
+                    presetControls={presetControls}
+                    droppedControls={droppedControlsFrom}
+                    setDroppedControls={setDroppedControlsFrom}
+                    oppositeControls={droppedControlsTo}
+                  />
                   <div className="flex flex-col items-center">
                     <div className="border-l h-4" />
                     <div className="h-12 w-12 bg-card flex items-center justify-center rounded-full">{MappingIconMapper[mappingType]}</div>
                     <div className="border-l h-4" />
                   </div>
-                  <MapControlsCard title="To" expandedCard={expandedCard} setExpandedCard={() => handleCardToggle('To')} />
+                  <MapControlsCard
+                    title="To"
+                    expandedCard={expandedCard}
+                    setExpandedCard={() => handleCardToggle('To')}
+                    droppedControls={droppedControlsTo}
+                    setDroppedControls={setDroppedControlsTo}
+                    oppositeControls={droppedControlsFrom}
+                  />
                 </Accordion>
               </div>
             </div>

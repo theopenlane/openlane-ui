@@ -18,11 +18,13 @@ interface Props {
   setExpandedCard: () => void
   expandedCard: string
   presetControls?: MapControl[]
+  droppedControls: MapControl[]
+  setDroppedControls: React.Dispatch<React.SetStateAction<MapControl[]>>
+  oppositeControls: MapControl[]
 }
 
-const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard, presetControls }) => {
+const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard, presetControls, droppedControls, setDroppedControls, oppositeControls }) => {
   const [where, setWhere] = useState<ControlWhereInput | SubcontrolWhereInput>({})
-  const [droppedControls, setDroppedControls] = useState<MapControl[]>([])
   const [enableSubcontrols, setEnableSubcontrols] = useState(false)
   const { setValue, getValues } = useFormContext<MapControlsFormData>()
 
@@ -104,7 +106,7 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
     if (presetControls) {
       setDroppedControls([...presetControls])
     }
-  }, [presetControls])
+  }, [presetControls, setDroppedControls])
 
   return (
     <Card className="p-4">
@@ -140,7 +142,7 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
           {expandedCard === title && (
             <CardContent className="grid grid-cols-[2fr_325px] gap-x-8 p-0 mt-5">
               <div>
-                <MapControlsFormFilters enableSubcontrols={enableSubcontrols} setEnableSubcontrols={setEnableSubcontrols} onFilterChange={setWhere} />
+                <MapControlsFormFilters enableSubcontrols={enableSubcontrols} setEnableSubcontrols={setEnableSubcontrols} onFilterChange={setWhere} oppositeControls={oppositeControls} />
                 <MatchedControls
                   isLoading={queriesLoading}
                   where={where}
