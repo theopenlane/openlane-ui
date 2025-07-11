@@ -27,7 +27,7 @@ export const InitPlugSDK = () => {
         user_traits: {
           display_name: session?.user?.name,
           email: session?.user?.email,
-          custom_fields: { orgName, orgID: currentOrgId },
+          custom_fields: { tnt__orgname: orgName, tnt__orgid: currentOrgId },
         },
       },
     })
