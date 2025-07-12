@@ -8,14 +8,16 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { Option } from '@repo/ui/multiple-selector'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Checkbox } from '@repo/ui/checkbox'
+import { MapControl } from '@/types'
 
 interface Props {
   onFilterChange: (where: ControlWhereInput) => void
   enableSubcontrols: boolean
   setEnableSubcontrols: (arg: boolean) => void
+  oppositeControls: MapControl[]
 }
 
-const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange, enableSubcontrols, setEnableSubcontrols }) => {
+const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange, enableSubcontrols, setEnableSubcontrols, oppositeControls }) => {
   const { currentOrgId } = useOrganization()
 
   const [referenceFramework, setReferenceFramework] = useState<string>('')
@@ -39,8 +41,18 @@ const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange, enableSubcont
     enabled: Boolean(currentOrgId),
   })
 
+  const excludedFrameworks = useMemo(() => {
+    return new Set(oppositeControls.map((c) => c.referenceFramework).filter((f): f is string => Boolean(f) && f !== 'Custom'))
+  }, [oppositeControls])
+
+  const filteredStandardOptions = useMemo(() => {
+    return standardOptions.filter((opt) => !excludedFrameworks.has(opt.label))
+  }, [standardOptions, excludedFrameworks])
+
   useEffect(() => {
     const where: ControlWhereInput = {}
+
+    const excludedFrameworks = Array.from(new Set(oppositeControls.map((c) => c.referenceFramework).filter(Boolean))) as string[]
 
     if (referenceFramework && referenceFramework !== 'Custom') {
       where.referenceFramework = referenceFramework
@@ -61,11 +73,22 @@ const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange, enableSubcont
     }
 
     if (orClauses.length) {
-      where.or = orClauses
+      if (!referenceFramework && excludedFrameworks.length > 0) {
+        where.and = [
+          {
+            or: [{ referenceFrameworkIsNil: true }, { referenceFrameworkNotIn: excludedFrameworks }],
+          },
+          {
+            or: orClauses,
+          },
+        ]
+      } else {
+        where.or = orClauses
+      }
     }
 
     onFilterChange(where)
-  }, [referenceFramework, debouncedKeyword, onFilterChange, selectedCategoryValues])
+  }, [referenceFramework, debouncedKeyword, onFilterChange, selectedCategoryValues, oppositeControls])
 
   return (
     <div className="grid grid-cols-[150px_1fr] gap-x-4 gap-y-2 items-center mb-4">
@@ -76,7 +99,7 @@ const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange, enableSubcont
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="Custom">Custom</SelectItem>
-          {standardOptions.map((opt) => (
+          {filteredStandardOptions.map((opt) => (
             <SelectItem key={opt.value} value={opt.label}>
               {opt.label}
             </SelectItem>

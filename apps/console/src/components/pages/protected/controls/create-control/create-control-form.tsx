@@ -11,7 +11,7 @@ import AuthorityCard from '@/components/pages/protected/controls/authority-card'
 import PropertiesCard from '@/components/pages/protected/controls/properties-card'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ControlFormData, createControlFormSchema } from './use-form-schema'
-import { ControlControlStatus, CreateControlInput, CreateSubcontrolInput } from '@repo/codegen/src/schema'
+import { ControlControlStatus, CreateControlImplementationInput, CreateControlInput, CreateControlObjectiveInput, CreateSubcontrolInput } from '@repo/codegen/src/schema'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useControlSelect, useCreateControl, useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useNotification } from '@/hooks/useNotification'
@@ -23,7 +23,9 @@ import useClickOutside from '@/hooks/useClickOutside'
 import { Option } from '@repo/ui/multiple-selector'
 import { useCreateSubcontrol } from '@/lib/graphql-hooks/subcontrol'
 import { Check } from 'lucide-react'
-import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
+import { BreadcrumbContext, Crumb } from '@/providers/BreadcrumbContext.tsx'
+import { useCreateControlImplementation } from '@/lib/graphql-hooks/control-implementations'
+import { useCreateControlObjective } from '@/lib/graphql-hooks/control-objectives'
 
 export default function CreateControlForm() {
   const { id } = useParams<{ id: string | undefined }>()
@@ -38,6 +40,11 @@ export default function CreateControlForm() {
   const [selectedParentControlLabel, setSelectedParentControlLabel] = useState('')
   const [dataInitialized, setDataInitialized] = useState(false)
   const [clearData, setClearData] = useState<boolean>(false)
+  const [createObjective, setCreateObjective] = useState(false)
+  const [createImplementation, setCreateImplementation] = useState(false)
+
+  const { mutateAsync: createControlImplementation } = useCreateControlImplementation()
+  const { mutateAsync: createControlObjective } = useCreateControlObjective()
 
   const dropdownRef = useClickOutside(() => setOpen(false))
   const searchRef = useRef(null)
@@ -75,7 +82,8 @@ export default function CreateControlForm() {
     const controlID = form.getValues('controlID')
     reset({ controlID })
   }
-  const onSubmit = async (data: ControlFormData) => {
+  const onSubmit = async (formData: ControlFormData) => {
+    const { desiredOutcome, details, ...data } = formData
     try {
       const description = await convertToHtml(data.description)
 
@@ -94,6 +102,29 @@ export default function CreateControlForm() {
       } else {
         const response = await createControl({ input: commonInput as CreateControlInput })
         newId = response?.createControl?.control?.id
+      }
+
+      if (desiredOutcome && createObjective) {
+        const controlObjectiveOutcome = await convertToHtml(desiredOutcome as ControlFormData['desiredOutcome'])
+
+        const payload: CreateControlObjectiveInput = {
+          name: `${data.refCode} Objective`,
+          desiredOutcome: controlObjectiveOutcome,
+          ...(isCreateSubcontrol ? { subcontrolIDs: [newId] } : { controlIDs: [newId] }),
+          category: data.category,
+        }
+
+        await createControlObjective(payload)
+      }
+
+      if (details && createImplementation) {
+        const controlImplementationDetails = await convertToHtml(details as ControlFormData['details'])
+        const payload: CreateControlImplementationInput = {
+          details: controlImplementationDetails,
+          implementationDate: new Date().toISOString(),
+          ...(isCreateSubcontrol ? { subcontrolIDs: [newId] } : { controlIDs: [newId] }),
+        }
+        await createControlImplementation(payload)
       }
 
       if (createMultiple) {
@@ -141,13 +172,17 @@ export default function CreateControlForm() {
   }
 
   useEffect(() => {
-    setCrumbs([
+    const crumbs: Crumb[] = [
       { label: 'Home', href: '/dashboard' },
       { label: 'Controls', href: '/controls' },
-      { label: controlData?.control?.refCode, isLoading: isLoading },
-      { label: 'Create Subcontrol', href: '/create-subcontrol' },
-    ])
-  }, [setCrumbs, controlData, isLoading])
+    ]
+    if (id) {
+      crumbs.push({ label: controlData?.control?.refCode, isLoading, href: `/controls/${controlData?.control.id}` })
+    }
+    const lastCrumb = isCreateSubcontrol ? { label: 'Create Subcontrol' } : { label: 'Create Subcontrol' }
+    crumbs.push(lastCrumb)
+    setCrumbs(crumbs)
+  }, [setCrumbs, controlData, isLoading, isCreateSubcontrol, id])
 
   useEffect(() => {
     if (controlData?.control && !dataInitialized) {
@@ -245,6 +280,53 @@ export default function CreateControlForm() {
                 control={control}
                 render={({ field }) => <PlateEditor variant="basic" initialValue={field.value as string} clearData={clearData} onClear={() => setClearData(false)} onChange={field.onChange} />}
               />
+            </div>
+
+            {/* Optional Creation: Control Objective & Implementation */}
+            <div className="mt-4 space-y-4">
+              {/* Create Objective Checkbox */}
+              <div className="flex items-center gap-2">
+                <Switch checked={createObjective} onCheckedChange={setCreateObjective} />
+                <Label>Create Control Objective</Label>
+              </div>
+              {createObjective && (
+                <Controller
+                  name="desiredOutcome"
+                  control={control}
+                  render={({ field }) => (
+                    <PlateEditor
+                      variant="basic"
+                      initialValue={field.value as string}
+                      clearData={clearData}
+                      onClear={() => setClearData(false)}
+                      onChange={field.onChange}
+                      placeholder="Enter the control objective"
+                    />
+                  )}
+                />
+              )}
+
+              {/* Create Implementation Checkbox */}
+              <div className="flex items-center gap-2">
+                <Switch checked={createImplementation} onCheckedChange={setCreateImplementation} />
+                <Label>Create Control Implementation</Label>
+              </div>
+              {createImplementation && (
+                <Controller
+                  name="details"
+                  control={control}
+                  render={({ field }) => (
+                    <PlateEditor
+                      variant="basic"
+                      initialValue={field.value as string}
+                      clearData={clearData}
+                      onClear={() => setClearData(false)}
+                      onChange={field.onChange}
+                      placeholder="Enter the implementation details"
+                    />
+                  )}
+                />
+              )}
             </div>
 
             {/* Actions */}
