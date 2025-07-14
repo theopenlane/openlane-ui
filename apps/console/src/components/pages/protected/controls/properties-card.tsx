@@ -46,7 +46,7 @@ const typeLabels: Record<ControlControlType, string> = {
 
 const statusOptions = Object.values(ControlControlStatus)
 
-const iconsMap: Record<string, React.ReactNode> = {
+export const controlIconsMap: Record<string, React.ReactNode> = {
   Framework: <FileBadge2 size={16} className="text-brand" />,
   Control: <Settings2 size={16} className="text-brand" />,
   Category: <FolderIcon size={16} className="text-brand" />,
@@ -68,12 +68,12 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing }) => {
       <h3 className="text-lg font-medium mb-4">Properties</h3>
       <div className="space-y-3">
         {data && <Property value={data.referenceFramework || 'CUSTOM'} label="Framework"></Property>}
-        {data?.__typename === 'Subcontrol' && <LinkedProperty label="Control" href={`/controls/${data.control.id}/`} value={data.control.refCode} icon={iconsMap.Control} />}
-        <EditableSelectFromQuery label="Category" name="category" isEditing={isEditAllowed} icon={iconsMap.Category} />
-        <EditableSelectFromQuery label="Subcategory" name="subcategory" isEditing={isEditAllowed} icon={iconsMap.Subcategory} />
+        {data?.__typename === 'Subcontrol' && <LinkedProperty label="Control" href={`/controls/${data.control.id}/`} value={data.control.refCode} icon={controlIconsMap.Control} />}
+        <EditableSelectFromQuery label="Category" name="category" isEditing={isEditAllowed} icon={controlIconsMap.Category} />
+        <EditableSelectFromQuery label="Subcategory" name="subcategory" isEditing={isEditAllowed} icon={controlIconsMap.Subcategory} />
         <div className="grid grid-cols-[110px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
           <div className="flex items-start gap-2">
-            <div className="pt-0.5">{iconsMap.Status}</div>
+            <div className="pt-0.5">{controlIconsMap.Status}</div>
             <div className="text-sm">Status</div>
           </div>
           <div className="text-sm">
@@ -135,7 +135,7 @@ export default PropertiesCard
 const Property = ({ label, value }: { label: string; value?: string | null }) => (
   <div className="grid grid-cols-[110px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
     <div className="flex items-start gap-2">
-      <div className="pt-0.5">{iconsMap[label]}</div>
+      <div className="pt-0.5">{controlIconsMap[label]}</div>
       <div className="text-sm">{label}</div>
     </div>
     <div className="text-sm whitespace-pre-line">{value || '-'}</div>
@@ -162,7 +162,7 @@ const EditableSelect = ({ label, name, isEditing, options, labels }: { label: st
   return (
     <div className="grid grid-cols-[110px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
       <div className="flex items-start gap-2">
-        <div className="pt-0.5">{iconsMap[label] ?? <FolderIcon size={16} className="text-brand" />}</div>
+        <div className="pt-0.5">{controlIconsMap[label] ?? <FolderIcon size={16} className="text-brand" />}</div>
         <div className="text-sm">{label}</div>
       </div>
       <div className="text-sm">
