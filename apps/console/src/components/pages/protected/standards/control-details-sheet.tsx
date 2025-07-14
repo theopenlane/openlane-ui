@@ -170,12 +170,14 @@ const ControlDetailsSheet = () => {
           <div className="flex flex-col gap-1.5">
             <p className="mb-1.5 text-xl">Sub Controls</p>
             {data?.control?.subcontrols?.edges?.length ? (
-              data.control.subcontrols.edges.map((edge) => (
-                <div key={edge?.node?.id} className="flex pb-1 border-b gap-2">
-                  {edge?.node && <ControlChip control={edge.node} hideStandard />}
-                  {!!edge?.node?.description && <div>{plateEditorHelper.convertToReadOnly(edge.node.description as string, 0)}</div>}
-                </div>
-              ))
+              <div className="flex gap-2 flex-wrap">
+                {data.control.subcontrols.edges.map((edge) => {
+                  if (!edge?.node) {
+                    return null
+                  }
+                  return <ControlChip key={edge?.node?.id} control={edge?.node} hideStandard />
+                })}
+              </div>
             ) : (
               <div className="text-sm italic text-muted-foreground">No available subcontrols.</div>
             )}
