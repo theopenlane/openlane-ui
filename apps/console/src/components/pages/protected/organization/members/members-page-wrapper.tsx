@@ -2,7 +2,6 @@
 import { PageHeading } from '@repo/ui/page-heading'
 import MembersPage from './members-page'
 import { Button } from '@repo/ui/button'
-import { PlusIcon } from 'lucide-react'
 import { useState } from 'react'
 
 const MembersPageWrapper = () => {
@@ -11,8 +10,8 @@ const MembersPageWrapper = () => {
     <>
       <div className="flex items-center justify-between">
         <PageHeading eyebrow="Organization settings" heading="Members" />
-        <Button size="md" icon={<PlusIcon />} iconPosition="left" onClick={() => setIsMemberSheetOpen(true)}>
-          Send an invite
+        <Button size="md" iconPosition="left" onClick={() => setIsMemberSheetOpen(true)}>
+          Invite member
         </Button>
       </div>
       <MembersPage isMemberSheetOpen={isMemberSheetOpen} setIsMemberSheetOpen={setIsMemberSheetOpen} />

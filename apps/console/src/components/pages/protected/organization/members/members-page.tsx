@@ -8,6 +8,7 @@ import { useGetInvites } from '@/lib/graphql-hooks/organization'
 import { OrganizationInvitesTable } from './table/organization-invites-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import MembersInviteSheet from './sidebar/members-invite-sheet'
+import { Separator } from '@repo/ui/separator'
 
 type TMembersPage = {
   isMemberSheetOpen: boolean
@@ -40,23 +41,25 @@ const MembersPage = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMembersPage) 
           setActiveTab(value)
         }}
       >
-        <TabsList>
-          <TabsTrigger value="members">Member list</TabsTrigger>
-          <TabsTrigger value="invites">
-            <div className={inviteRow()}>
-              <span>Invitations</span>
-              {numInvites > 0 && <div className={inviteCount({ activeBg: activeTab === 'invites' })}>{numInvites}</div>}
-            </div>
-          </TabsTrigger>
-        </TabsList>
+        <div className="flex flex-row items-center mb-3">
+          <div className="w-2/5">
+            <TabsList>
+              <TabsTrigger value="members">Member list</TabsTrigger>
+              <TabsTrigger value="invites">
+                <div className={inviteRow()}>
+                  <span>Invitations</span>
+                  {numInvites > 0 && <div className={inviteCount({ activeBg: activeTab === 'invites' })}>{numInvites}</div>}
+                </div>
+              </TabsTrigger>
+            </TabsList>
+          </div>
+        </div>
+        <Separator className="mb-5" full />
         <TabsContent value="members">
           <MembersTable />
         </TabsContent>
         <TabsContent value="invites">
-          <div>
-            {/* <OrganizationInviteForm inviteAdmins={true} /> */}
-            <OrganizationInvitesTable />
-          </div>
+          <OrganizationInvitesTable />
         </TabsContent>
       </Tabs>
       <MembersInviteSheet isMemberSheetOpen={isMemberSheetOpen} setIsMemberSheetOpen={setIsMemberSheetOpen} />
