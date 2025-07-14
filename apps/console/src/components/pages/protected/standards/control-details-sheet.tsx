@@ -169,28 +169,38 @@ const ControlDetailsSheet = () => {
           </div>
           <div className="flex flex-col gap-1.5">
             <p className="mb-1.5 text-xl">Sub Controls</p>
-            {data?.control?.subcontrols?.edges?.map((edge) => (
-              <div key={edge?.node?.id} className="flex pb-1 border-b gap-2">
-                {edge?.node && <ControlChip control={edge?.node} hideStandard />}
-                {!!edge?.node?.description && <div className="">{plateEditorHelper.convertToReadOnly(edge?.node?.description as string, 0)}</div>}
-              </div>
-            ))}
+            {data?.control?.subcontrols?.edges?.length ? (
+              data.control.subcontrols.edges.map((edge) => (
+                <div key={edge?.node?.id} className="flex pb-1 border-b gap-2">
+                  {edge?.node && <ControlChip control={edge.node} hideStandard />}
+                  {!!edge?.node?.description && <div>{plateEditorHelper.convertToReadOnly(edge.node.description as string, 0)}</div>}
+                </div>
+              ))
+            ) : (
+              <div className="text-sm italic text-muted-foreground">No available subcontrols.</div>
+            )}
           </div>
+
           <div>
             <p className="mb-5 text-xl">Related Controls</p>
 
-            {Object.entries(grouped).map(([framework, nodes], index, array) => (
-              <div key={framework} className={`mb-2 flex gap-5 items-center pb-2 ${index < array.length - 1 ? 'border-b' : ''}`}>
-                <h3 className="font-semibold min-w-24 text-text-informational text-xs">{framework}</h3>
-                <div className="flex gap-2.5 flex-wrap">
-                  {nodes.map((node) => {
-                    const href = node.type === 'Subcontrol' ? `/controls/${node.controlId}/${node.id}` : `/controls/${node.id}`
-                    return <RelatedControlChip key={node.refCode} refCode={node.refCode} href={href} mappingType={node.mappingType} relation={node.relation} />
-                  })}
+            {Object.keys(grouped).length ? (
+              Object.entries(grouped).map(([framework, nodes], index, array) => (
+                <div key={framework} className={`mb-2 flex gap-5 items-center pb-2 ${index < array.length - 1 ? 'border-b' : ''}`}>
+                  <h3 className="font-semibold min-w-24 text-text-informational text-xs">{framework}</h3>
+                  <div className="flex gap-2.5 flex-wrap">
+                    {nodes.map((node) => {
+                      const href = node.type === 'Subcontrol' ? `/controls/${node.controlId}/${node.id}` : `/controls/${node.id}`
+                      return <RelatedControlChip key={node.refCode} refCode={node.refCode} href={href} mappingType={node.mappingType} relation={node.relation} />
+                    })}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <div className="text-sm italic text-muted-foreground">No related controls found.</div>
+            )}
           </div>
+
           <div>
             <AccordionInfo
               implementationGuidance={data?.control.implementationGuidance}
