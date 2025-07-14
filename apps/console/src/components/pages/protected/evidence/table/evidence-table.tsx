@@ -36,6 +36,10 @@ export const EvidenceTable = () => {
   const debouncedSearch = useDebounce(searchTerm, 300)
 
   const where = useMemo(() => {
+    if (!programId) {
+      return undefined
+    }
+
     const conditions: EvidenceWhereInput = {
       ...filters,
       hasProgramsWith: [{ id: programId }],
