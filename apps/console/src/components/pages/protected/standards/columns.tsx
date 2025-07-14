@@ -5,6 +5,7 @@ import { Checkbox } from '@repo/ui/checkbox'
 import { ControlListFieldsFragment } from '@repo/codegen/src/schema'
 
 import { ColumnDef } from '@tanstack/react-table'
+import Link from 'next/link'
 
 type ControlSelection = { id: string; refCode: string }
 
@@ -49,7 +50,14 @@ export const getColumns = ({ controls, setSelectedControls, toggleSelection, sel
     {
       accessorKey: 'refCode',
       header: 'Ref Code',
-      cell: (info) => <span className="text-blue-400 whitespace-nowrap">{info.getValue() as string}</span>,
+      cell: ({ row, cell }) => {
+        const control = row.original
+        return (
+          <Link href={`?controlId=${control.id}`}>
+            <span className="text-blue-500 whitespace-nowrap">{cell.getValue() as string}</span>
+          </Link>
+        )
+      },
     },
     {
       accessorKey: 'description',

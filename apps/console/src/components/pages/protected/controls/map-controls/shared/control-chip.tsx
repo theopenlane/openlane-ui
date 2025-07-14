@@ -22,9 +22,22 @@ export interface ControlChipProps {
   className?: string
   onClick?: (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => void
   onContextMenu?: (e: React.MouseEvent<HTMLSpanElement>, control: MapControl) => void
+  hideStandard?: boolean
 }
 
-const ControlChip: React.FC<ControlChipProps> = ({ control, draggable = false, onDragStart, onDragEnd, removable = false, onRemove, className = '', selected, onClick, onContextMenu }) => {
+const ControlChip: React.FC<ControlChipProps> = ({
+  control,
+  draggable = false,
+  onDragStart,
+  onDragEnd,
+  removable = false,
+  onRemove,
+  className = '',
+  selected,
+  onClick,
+  onContextMenu,
+  hideStandard,
+}) => {
   const [tooltipOpen, setTooltipOpen] = useState(false)
 
   const baseClasses = 'bg-background-secondary flex gap-1 items-center'
@@ -52,8 +65,12 @@ const ControlChip: React.FC<ControlChipProps> = ({ control, draggable = false, o
             }}
           >
             {draggable && <Drag strokeWidth={1} className="text-border" />}
-            <span className="text-text-informational">{control.referenceFramework || 'CUSTOM'}</span>
-            <span className="text-border">|</span>
+            {!hideStandard && (
+              <>
+                <span className="text-text-informational">{control.referenceFramework || 'CUSTOM'}</span>
+                <span className="text-border">|</span>
+              </>
+            )}
             <span>{control.refCode || ''}</span>
             {removable && onRemove && <XIcon size={12} className="cursor-pointer ml-1" onClick={() => onRemove(control)} />}
           </Badge>
@@ -82,7 +99,7 @@ const ControlTooltipContent: React.FC<{ control: NonNullable<ControlChipProps['c
 
   const nameHref = control.__typename === 'Control' ? `/controls/${ctrlData?.control.id}` : `/controls/${subData?.subcontrol.control.id}/${subData?.subcontrol.id}`
 
-  const standardHref = control.__typename === 'Subcontrol' ? `/standards/${ctrlData?.control.standardID}` : `/standards/${subData?.subcontrol.control.standardID}`
+  const standardHref = control.__typename === 'Subcontrol' ? `/standards/${subData?.subcontrol?.control?.standardID}` : `/standards/${ctrlData?.control.standardID}`
 
   if (loading) return <p className="text-xs">Loading details…</p>
   if (!details) return <p className="text-xs">No details available.</p>
@@ -105,9 +122,9 @@ const ControlTooltipContent: React.FC<{ control: NonNullable<ControlChipProps['c
           <span className="font-medium">Standard</span>
         </div>
         <div className="flex items-center gap-1 border-b pb-2">
-          {control.referenceFramework ? (
+          {details.referenceFramework ? (
             <Link href={standardHref} className=" size-fit pb-2 hover:underline flex items-center gap-1" target="_blank" rel="noopener">
-              <span className="pl-3 text-brand ">{control.referenceFramework}</span> <ExternalLink size={12} />
+              <span className="pl-3 text-brand ">{details.referenceFramework}</span> <ExternalLink size={12} />
             </Link>
           ) : (
             <span className="pl-3 text-brand">CUSTOM</span>

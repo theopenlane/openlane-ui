@@ -115,6 +115,7 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
       totalCount
       edges {
         node {
+          __typename
           id
           refCode
           description
@@ -350,6 +351,7 @@ export const GET_CONTROL_BY_ID_MINIFIED = gql`
       category
       subcategory
       description
+      referenceFramework
     }
   }
 `
