@@ -5,19 +5,19 @@ import { Card } from '@repo/ui/cardpanel'
 import { PanelRightOpenIcon } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 
-interface AssessmentMethod {
+export interface AssessmentMethod {
   id: string
   type: string
   method: string
 }
 
-interface AssessmentObjective {
+export interface AssessmentObjective {
   id: string
   class: string
   objective: string
 }
 
-interface ExampleEvidence {
+export interface ExampleEvidence {
   documentationType: string
   description: string
 }

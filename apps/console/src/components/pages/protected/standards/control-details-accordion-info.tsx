@@ -3,6 +3,7 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { ChevronDown } from 'lucide-react'
 import * as React from 'react'
+import { AssessmentMethod, AssessmentObjective, ExampleEvidence } from '../controls/info-card'
 
 interface AccordionInfoProps {
   implementationGuidance: { referenceId: string; guidance: string[] }[] | null | undefined
@@ -10,23 +11,6 @@ interface AccordionInfoProps {
   controlQuestions: string[] | null | undefined
   assessmentMethods: AssessmentMethod[] | string | string[] | null | undefined
   assessmentObjectives: AssessmentObjective[] | string | string[] | null | undefined
-}
-
-interface AssessmentMethod {
-  id: string
-  type: string
-  method: string
-}
-
-interface AssessmentObjective {
-  id: string
-  class: string
-  objective: string
-}
-
-interface ExampleEvidence {
-  documentationType: string
-  description: string
 }
 
 const AccordionInfo: React.FC<AccordionInfoProps> = ({ implementationGuidance, exampleEvidence, controlQuestions, assessmentMethods, assessmentObjectives }) => {
