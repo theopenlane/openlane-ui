@@ -63,19 +63,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
     check: true,
   })
 
-  const where: GroupWhereInput = useMemo(() => {
-    const whereFilters: GroupWhereInput[] = []
-
-    if (debouncedSearchQuery) {
-      whereFilters.push({
-        or: [{ nameContainsFold: debouncedSearchQuery }],
-      })
-    }
-
-    if (whereFilters.length === 0) return {}
-    if (whereFilters.length === 1) return whereFilters[0]
-    return { and: whereFilters }
-  }, [debouncedSearchQuery])
+  const where: GroupWhereInput = useMemo(() => (debouncedSearchQuery ? { nameContainsFold: debouncedSearchQuery } : {}), [debouncedSearchQuery])
 
   useEffect(() => {
     if (!isLoadingPermission) {
