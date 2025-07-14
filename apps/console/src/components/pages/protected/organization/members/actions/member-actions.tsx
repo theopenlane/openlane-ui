@@ -125,7 +125,9 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
-        <MoreVertical className={actionIcon()} />
+        <div className="border border-solid rounded-md py-1.5 px-2 text-brand-100">
+          <MoreVertical className={actionIcon()} />
+        </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-10">
         <DropdownMenuGroup>

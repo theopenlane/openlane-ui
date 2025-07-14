@@ -44,11 +44,11 @@ const MembersPage = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMembersPage) 
         <div className="flex flex-row items-center mb-3">
           <div className="w-2/5">
             <TabsList>
-              <TabsTrigger value="members">Member list</TabsTrigger>
+              <TabsTrigger value="members">Member List</TabsTrigger>
               <TabsTrigger value="invites">
                 <div className={inviteRow()}>
-                  <span>Invitations</span>
-                  {numInvites > 0 && <div className={inviteCount({ activeBg: activeTab === 'invites' })}>{numInvites}</div>}
+                  <span>Awaiting Response</span>
+                  {numInvites > 0 && <div className={inviteCount({ activeBg: true })}>{numInvites}</div>}
                 </div>
               </TabsTrigger>
             </TabsList>

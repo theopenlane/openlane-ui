@@ -1,6 +1,16 @@
 'use client'
 
-import { OrgMembership, OrgMembershipRole, OrgMembershipWhereInput, User, UserAuthProvider, UserWhereInput } from '@repo/codegen/src/schema'
+import {
+  OrderDirection,
+  OrgMembership,
+  OrgMembershipOrderField,
+  OrgMembershipRole,
+  OrgMembershipsQueryVariables,
+  OrgMembershipWhereInput,
+  User,
+  UserAuthProvider,
+  UserWhereInput,
+} from '@repo/codegen/src/schema'
 import { pageStyles } from './page.styles'
 import React, { useState, useEffect, useMemo } from 'react'
 import { Copy, KeyRoundIcon } from 'lucide-react'
@@ -17,6 +27,7 @@ import { formatDateSince } from '@/utils/date'
 import { UserRoleIconMapper } from '@/components/shared/icon-enum/user-role-enum.tsx'
 import { useGetOrgMemberships } from '@/lib/graphql-hooks/members.ts'
 import MembersTableToolbar from '@/components/pages/protected/organization/members/members-table-toolbar.tsx'
+import { MEMBERS_SORT_FIELDS } from './table/table-config'
 
 export type ExtendedOrgMembershipWhereInput = OrgMembershipWhereInput & {
   providers?: string
@@ -30,6 +41,13 @@ export const MembersTable = () => {
   const { successNotification } = useNotification()
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const debouncedSearch = useDebounce(searchTerm, 300)
+
+  const [orderBy, setOrderBy] = useState<OrgMembershipsQueryVariables['orderBy']>([
+    {
+      field: OrgMembershipOrderField.created_at,
+      direction: OrderDirection.DESC,
+    },
+  ])
 
   const whereFilters: OrgMembershipWhereInput = useMemo(() => {
     if (!filters) return {}
@@ -60,7 +78,7 @@ export const MembersTable = () => {
     }
   }, [filters, debouncedSearch])
 
-  const { members, isLoading, paginationMeta } = useGetOrgMemberships({ where: whereFilters, pagination, enabled: !!filters })
+  const { members, isLoading, paginationMeta } = useGetOrgMemberships({ where: whereFilters, orderBy: orderBy, pagination, enabled: !!filters })
 
   useEffect(() => {
     if (copiedText) {
@@ -103,10 +121,19 @@ export const MembersTable = () => {
           </div>
         )
       },
+      size: 180,
     },
     {
       accessorKey: 'user.email',
       header: 'Email',
+      cell: ({ row }) => {
+        return (
+          <div className={nameRow()}>
+            {row.original.user.email}
+            <Copy width={16} height={16} className={copyIcon()} onClick={() => copyToClipboard(row.original.user.email)} />
+          </div>
+        )
+      },
     },
     {
       accessorKey: 'createdAt',
@@ -116,18 +143,26 @@ export const MembersTable = () => {
     {
       accessorKey: 'user.authProvider',
       header: 'Provider',
-      cell: ({ cell }) => <>{providerIcon(cell.getValue() as UserAuthProvider)}</>,
+      cell: ({ cell }) => {
+        const provider = cell.getValue() as UserAuthProvider
+        return (
+          <div className={nameRow()}>
+            {providerIcon(provider)}
+            {provider}
+          </div>
+        )
+      },
     },
     {
       accessorKey: 'role',
       header: 'Role',
       cell: ({ cell }) => {
         const role = cell.getValue() as OrgMembershipRole
-
+        const formattedRole = role.charAt(0).toUpperCase() + role.slice(1).toLowerCase()
         return (
           <div className="flex gap-2 items-center">
             {UserRoleIconMapper[role]}
-            {role}
+            {formattedRole}
           </div>
         )
       },
@@ -157,6 +192,8 @@ export const MembersTable = () => {
       <DataTable
         loading={isLoading}
         columns={columns}
+        sortFields={MEMBERS_SORT_FIELDS}
+        onSortChange={setOrderBy}
         data={members}
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}

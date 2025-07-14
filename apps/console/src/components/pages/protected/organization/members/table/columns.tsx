@@ -2,13 +2,11 @@
 
 import { ColumnDef } from '@tanstack/react-table'
 import { AllGroupsPaginatedFieldsFragment, InviteInviteStatus, InviteRole } from '@repo/codegen/src/schema.ts'
-import { Tag } from '@repo/ui/tag'
 import { InviteActions } from '../actions/invite-actions'
 import { formatDateSince } from '@/utils/date'
 import { InvitationIconMapper } from '@/components/shared/icon-enum/invitation-enum.tsx'
 import { UserRoleIconMapper } from '@/components/shared/icon-enum/user-role-enum.tsx'
 import { GlobeIcon, LockIcon, StarsIcon } from 'lucide-react'
-import { Badge } from '@repo/ui/badge'
 import React from 'react'
 import { Checkbox } from '@repo/ui/checkbox'
 
@@ -34,6 +32,20 @@ export const invitesColumns: ColumnDef<InviteNode>[] = [
     header: 'Invited user',
   },
   {
+    accessorKey: 'role',
+    header: 'Role',
+    cell: ({ cell }) => {
+      const role = cell.getValue() as InviteRole
+
+      return (
+        <div className="flex gap-2 items-center">
+          {UserRoleIconMapper[role]}
+          {role}
+        </div>
+      )
+    },
+  },
+  {
     accessorKey: 'status',
     header: 'Status',
     cell: ({ cell }) => {
@@ -54,12 +66,10 @@ export const invitesColumns: ColumnDef<InviteNode>[] = [
           break
       }
       return (
-        <Tag>
-          <div className="flex gap-2 items-center">
-            {InvitationIconMapper[status]}
-            {statusLabel}
-          </div>
-        </Tag>
+        <div className="flex gap-2 items-center">
+          {InvitationIconMapper[status]}
+          {statusLabel}
+        </div>
       )
     },
   },
@@ -68,20 +78,7 @@ export const invitesColumns: ColumnDef<InviteNode>[] = [
     header: 'Sent',
     cell: ({ cell }) => formatDateSince(cell.getValue() as string),
   },
-  {
-    accessorKey: 'role',
-    header: 'Role',
-    cell: ({ cell }) => {
-      const role = cell.getValue() as InviteRole
 
-      return (
-        <div className="flex gap-2 items-center">
-          {UserRoleIconMapper[role]}
-          {role}
-        </div>
-      )
-    },
-  },
   {
     accessorKey: 'sendAttempts',
     header: 'Resend Attempts',
@@ -163,20 +160,6 @@ export const groupTableForInvitesColumns = ({ allGroups, selectedGroups, setSele
     {
       header: 'Description',
       accessorKey: 'description',
-      cell: ({ row }) => (
-        <div>
-          <p>{row.getValue('description')}</p>
-          {!!row.original?.tags?.length && (
-            <div className="mt-2 border-t border-dashed pt-2 flex flex-wrap gap-2">
-              {row.original.tags.map((tag: string, index: number) => (
-                <Badge key={index} variant="outline">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          )}
-        </div>
-      ),
     },
     {
       header: 'Visibility',

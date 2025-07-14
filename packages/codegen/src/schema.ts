@@ -41648,6 +41648,7 @@ export type AllGroupsPaginatedFieldsFragment = {
   __typename?: 'Group'
   id: string
   name: string
+  displayName: string
   description?: string | null
   isManaged?: boolean | null
   tags?: Array<string> | null
@@ -41657,6 +41658,7 @@ export type AllGroupsPaginatedFieldsFragment = {
 export type GetAllGroupsPaginatedQueryVariables = Exact<{
   where?: InputMaybe<GroupWhereInput>
   after?: InputMaybe<Scalars['Cursor']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder> | GroupOrder>
 }>
 
 export type GetAllGroupsPaginatedQuery = {
@@ -41671,6 +41673,7 @@ export type GetAllGroupsPaginatedQuery = {
         __typename?: 'Group'
         id: string
         name: string
+        displayName: string
         description?: string | null
         isManaged?: boolean | null
         tags?: Array<string> | null
@@ -41803,6 +41806,7 @@ export type OrgMembershipsQueryVariables = Exact<{
   before?: InputMaybe<Scalars['Cursor']['input']>
   last?: InputMaybe<Scalars['Int']['input']>
   where?: InputMaybe<OrgMembershipWhereInput>
+  orderBy?: InputMaybe<Array<OrgMembershipOrder> | OrgMembershipOrder>
 }>
 
 export type OrgMembershipsQuery = {

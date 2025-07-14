@@ -201,7 +201,7 @@ export const useDeleteGroupMembership = () => {
   })
 }
 
-export function useFetchAllGroupsInfinite(where?: GroupWhereInput, enabled = true) {
+export function useFetchAllGroupsInfinite(where?: GroupWhereInput, enabled = true, orderBy?: GetAllGroupsPaginatedQueryVariables['orderBy']) {
   const { client } = useGraphQLClient()
 
   return useInfiniteQuery<GetAllGroupsPaginatedQuery['groups'], Error, InfiniteData<GetAllGroupsPaginatedQuery['groups']>, ['groups', 'infinite', GroupWhereInput?]>({
@@ -210,6 +210,7 @@ export function useFetchAllGroupsInfinite(where?: GroupWhereInput, enabled = tru
       const { groups } = await client.request<GetAllGroupsPaginatedQuery, GetAllGroupsPaginatedQueryVariables>(GET_ALL_GROUPS_PAGINATED, {
         where,
         after: pageParam,
+        orderBy,
       })
       return groups
     },
@@ -219,8 +220,8 @@ export function useFetchAllGroupsInfinite(where?: GroupWhereInput, enabled = tru
   })
 }
 
-export function useAllGroupsGrouped({ where, enabled = true }: { where?: ControlWhereInput; enabled?: boolean }) {
-  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, isFetching, ...rest } = useFetchAllGroupsInfinite(where, enabled)
+export function useAllGroupsGrouped({ where, enabled = true, orderBy }: { where?: ControlWhereInput; enabled?: boolean; orderBy: GetAllGroupsPaginatedQueryVariables['orderBy'] }) {
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, isFetching, ...rest } = useFetchAllGroupsInfinite(where, enabled, orderBy)
 
   useEffect(() => {
     if (hasNextPage && !isFetchingNextPage) {
