@@ -16,6 +16,7 @@ import { useGetAllOrganizationsWithMembers } from '@/lib/graphql-hooks/organizat
 import { useQueryClient } from '@tanstack/react-query'
 import { Organization } from '@repo/codegen/src/schema'
 import { Avatar } from '../avatar/avatar'
+import { useParams, usePathname, useRouter } from 'next/navigation'
 
 export const OrganizationSelector = () => {
   const { data: sessionData, update: updateSession } = useSession()
@@ -49,11 +50,28 @@ export const OrganizationSelector = () => {
     }
   }, [currentOrg, nonPersonalOrgs.length])
 
+  const pathname = usePathname()
+  const router = useRouter()
+  const params = useParams()
+
+  const redirectWithoutParams = () => {
+    const paramValues = Object.values(params)
+    let redirectPath = pathname
+
+    for (const param of paramValues) {
+      const index = redirectPath.indexOf(`/${param}`)
+      if (index !== -1) {
+        redirectPath = redirectPath.slice(0, index)
+        break
+      }
+    }
+
+    router.push(redirectPath || '/')
+  }
+
   const handleOrganizationSwitch = async (orgId?: string) => {
     if (orgId && orgId !== currentOrgId) {
-      const response = await switchOrganization({
-        target_organization_id: orgId,
-      })
+      const response = await switchOrganization({ target_organization_id: orgId })
 
       if (sessionData && response) {
         await updateSession({
@@ -70,11 +88,12 @@ export const OrganizationSelector = () => {
           queryClient?.invalidateQueries()
         })
 
+        redirectWithoutParams()
+
         setIsPopoverOpened(false)
       }
     }
   }
-
   if (!orgs) return <Loading />
 
   if (orgs.length < 2) {
