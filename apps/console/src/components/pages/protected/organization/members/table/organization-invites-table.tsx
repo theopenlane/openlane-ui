@@ -3,7 +3,7 @@
 import { GetInvitesQueryVariables, InviteInviteStatus, InviteOrderField, InviteRole, InviteWhereInput, OrderDirection } from '@repo/codegen/src/schema'
 import { DataTable } from '@repo/ui/data-table'
 import { useGetInvites } from '@/lib/graphql-hooks/organization'
-import { invitesColumns } from '@/components/pages/protected/organization/members/table/columns.tsx'
+import { InvitesColumns } from '@/components/pages/protected/organization/members/table/columns.tsx'
 import OrganizationInvitesTableToolbar from '@/components/pages/protected/organization/members/table/organization-invites-table-toolbar.tsx'
 import { useMemo, useState } from 'react'
 import { INVITES_SORT_FIELDS } from '@/components/pages/protected/organization/members/table/table-config.ts'
@@ -23,6 +23,7 @@ type InviteNode = {
 export const OrganizationInvitesTable = () => {
   const [filters, setFilters] = useState<InviteWhereInput | null>(null)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const { columns } = InvitesColumns()
 
   const [orderBy, setOrderBy] = useState<GetInvitesQueryVariables['orderBy']>([
     {
@@ -54,7 +55,7 @@ export const OrganizationInvitesTable = () => {
         loading={isLoading}
         sortFields={INVITES_SORT_FIELDS}
         onSortChange={setOrderBy}
-        columns={invitesColumns}
+        columns={columns}
         data={invites}
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}

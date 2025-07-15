@@ -41653,6 +41653,46 @@ export type DeleteGroupMembershipMutationVariables = Exact<{
 
 export type DeleteGroupMembershipMutation = { __typename?: 'Mutation'; deleteGroupMembership: { __typename?: 'GroupMembershipDeletePayload'; deletedID: string } }
 
+export type AllGroupsPaginatedFieldsFragment = {
+  __typename?: 'Group'
+  id: string
+  name: string
+  displayName: string
+  description?: string | null
+  isManaged?: boolean | null
+  tags?: Array<string> | null
+  setting?: { __typename?: 'GroupSetting'; visibility: GroupSettingVisibility } | null
+}
+
+export type GetAllGroupsPaginatedQueryVariables = Exact<{
+  where?: InputMaybe<GroupWhereInput>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder> | GroupOrder>
+}>
+
+export type GetAllGroupsPaginatedQuery = {
+  __typename?: 'Query'
+  groups: {
+    __typename?: 'GroupConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'GroupEdge'
+      cursor: any
+      node?: {
+        __typename?: 'Group'
+        id: string
+        name: string
+        displayName: string
+        description?: string | null
+        isManaged?: boolean | null
+        tags?: Array<string> | null
+        setting?: { __typename?: 'GroupSetting'; visibility: GroupSettingVisibility } | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; endCursor?: any | null }
+  }
+}
+
 export type CreateMappedControlMutationVariables = Exact<{
   input: CreateMappedControlInput
 }>
@@ -41775,6 +41815,7 @@ export type OrgMembershipsQueryVariables = Exact<{
   before?: InputMaybe<Scalars['Cursor']['input']>
   last?: InputMaybe<Scalars['Int']['input']>
   where?: InputMaybe<OrgMembershipWhereInput>
+  orderBy?: InputMaybe<Array<OrgMembershipOrder> | OrgMembershipOrder>
 }>
 
 export type OrgMembershipsQuery = {

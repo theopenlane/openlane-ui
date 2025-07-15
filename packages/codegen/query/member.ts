@@ -22,8 +22,8 @@ export const REMOVE_USER_FROM_ORG = gql`
 `
 
 export const GET_ORG_MEMBERSHIPS = gql`
-  query OrgMemberships($after: Cursor, $first: Int, $before: Cursor, $last: Int, $where: OrgMembershipWhereInput) {
-    orgMemberships(after: $after, first: $first, before: $before, last: $last, where: $where) {
+  query OrgMemberships($after: Cursor, $first: Int, $before: Cursor, $last: Int, $where: OrgMembershipWhereInput, $orderBy: [OrgMembershipOrder!]) {
+    orgMemberships(after: $after, first: $first, before: $before, last: $last, where: $where, orderBy: $orderBy) {
       pageInfo {
         endCursor
         hasNextPage

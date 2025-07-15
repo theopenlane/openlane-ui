@@ -1,6 +1,6 @@
 'use client'
 
-import { MoreHorizontal, RotateCw, Trash2 } from 'lucide-react'
+import { MoreVertical, RotateCw, Trash2 } from 'lucide-react'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { useCreateBulkInvite, useDeleteOrganizationInvite } from '@/lib/graphql-hooks/organization'
@@ -61,7 +61,9 @@ export const InviteActions = ({ inviteId, recipient, role }: InviteActionsProps)
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild className="flex justify-self-end">
-        <MoreHorizontal className={actionIcon()} />
+        <div className="border border-solid rounded-md py-1.5 px-2 text-brand-100">
+          <MoreVertical className={actionIcon()} />
+        </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-10">
         <DropdownMenuGroup>

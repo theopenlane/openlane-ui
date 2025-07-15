@@ -150,3 +150,36 @@ export const DELETE_GROUP_MEMBERSHIP = gql`
     }
   }
 `
+
+export const ALL_GROUPS_PAGINATED_FIELDS_FRAGMENT = gql`
+  fragment AllGroupsPaginatedFields on Group {
+    id
+    name
+    displayName
+    description
+    isManaged
+    tags
+    setting {
+      visibility
+    }
+  }
+`
+
+export const GET_ALL_GROUPS_PAGINATED = gql`
+  ${ALL_GROUPS_PAGINATED_FIELDS_FRAGMENT}
+  query GetAllGroupsPaginated($where: GroupWhereInput, $after: Cursor, $orderBy: [GroupOrder!]) {
+    groups(where: $where, after: $after, orderBy: $orderBy) {
+      edges {
+        node {
+          ...AllGroupsPaginatedFields
+        }
+        cursor
+      }
+      totalCount
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+    }
+  }
+`

@@ -16,6 +16,7 @@ const config: Pick<Config, 'darkMode' | 'content' | 'presets' | 'prefix' | 'them
         brand: {
           DEFAULT: 'var(--color-brand)',
           secondary: 'var(--color-brand-secondary)',
+          100: 'var(--color-brand-100)',
         },
         standard: {
           iso27001: 'var(--color-iso27001)',

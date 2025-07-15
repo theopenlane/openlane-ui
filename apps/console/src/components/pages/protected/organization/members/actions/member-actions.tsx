@@ -1,6 +1,6 @@
 'use client'
 
-import { MoreHorizontal, Trash2, UserRoundPen } from 'lucide-react'
+import { MoreVertical, Trash2, UserRoundPen } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
@@ -125,7 +125,9 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
-        <MoreHorizontal className={actionIcon()} />
+        <div className="border border-solid rounded-md py-1.5 px-2 text-brand-100">
+          <MoreVertical className={actionIcon()} />
+        </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-10">
         <DropdownMenuGroup>

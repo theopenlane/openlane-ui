@@ -9,6 +9,7 @@ import {
   DELETE_GROUP,
   UPDATE_GROUP_MEMBERSHIP,
   DELETE_GROUP_MEMBERSHIP,
+  GET_ALL_GROUPS_PAGINATED,
 } from '@repo/codegen/query/group'
 
 import {
@@ -29,9 +30,15 @@ import {
   Group,
   DeleteGroupMembershipMutation,
   DeleteGroupMembershipMutationVariables,
+  GroupWhereInput,
+  ControlWhereInput,
+  GetAllGroupsPaginatedQueryVariables,
+  GetAllGroupsPaginatedQuery,
+  AllGroupsPaginatedFieldsFragment,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { useInfiniteQuery } from '@tanstack/react-query'
+import { useEffect, useMemo } from 'react'
 
 type GroupsArgs = {
   where?: GetAllGroupsQueryVariables['where']
@@ -192,4 +199,48 @@ export const useDeleteGroupMembership = () => {
       queryClient.invalidateQueries({ queryKey: ['groups'] })
     },
   })
+}
+
+export function useFetchAllGroupsInfinite(where?: GroupWhereInput, enabled = true, orderBy?: GetAllGroupsPaginatedQueryVariables['orderBy']) {
+  const { client } = useGraphQLClient()
+
+  return useInfiniteQuery<GetAllGroupsPaginatedQuery['groups'], Error, InfiniteData<GetAllGroupsPaginatedQuery['groups']>, ['groups', 'infinite', GroupWhereInput?]>({
+    queryKey: ['groups', 'infinite', where],
+    queryFn: async ({ pageParam }) => {
+      const { groups } = await client.request<GetAllGroupsPaginatedQuery, GetAllGroupsPaginatedQueryVariables>(GET_ALL_GROUPS_PAGINATED, {
+        where,
+        after: pageParam,
+        orderBy,
+      })
+      return groups
+    },
+    initialPageParam: undefined,
+    getNextPageParam: (last) => (last.pageInfo.hasNextPage ? last.pageInfo.endCursor : undefined),
+    enabled,
+  })
+}
+
+export function useAllGroupsGrouped({ where, enabled = true, orderBy }: { where?: ControlWhereInput; enabled?: boolean; orderBy: GetAllGroupsPaginatedQueryVariables['orderBy'] }) {
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, isFetching, ...rest } = useFetchAllGroupsInfinite(where, enabled, orderBy)
+
+  useEffect(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage()
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+
+  const allGroups = useMemo(() => {
+    const raw = data?.pages.flatMap((page) => page.edges?.map((edge) => edge?.node) ?? []) ?? []
+    return raw.filter((c): c is AllGroupsPaginatedFieldsFragment => c != null)
+  }, [data?.pages])
+
+  const isLoadingAll = isLoading || isFetchingNextPage || hasNextPage || isFetching
+
+  return {
+    isLoading: isLoadingAll,
+    allGroups,
+    hasNextPage,
+    fetchNextPage,
+    ...rest,
+  }
 }
