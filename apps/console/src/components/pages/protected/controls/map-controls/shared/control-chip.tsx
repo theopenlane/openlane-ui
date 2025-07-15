@@ -5,11 +5,11 @@ import { PencilLine, XIcon } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { SlidersHorizontal, FileText, Folder, FolderPlus, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
-
 import { useGetControlMinifiedById } from '@/lib/graphql-hooks/controls'
 import { useGetSubcontrolMinifiedById } from '@/lib/graphql-hooks/subcontrol'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { MapControl } from '@/types'
+import { StandardsColorSpan, StandardsHexagon } from '@/components/shared/standards-color-mapper/standards-color-mapper'
 
 export interface ControlChipProps {
   control: MapControl
@@ -65,9 +65,10 @@ const ControlChip: React.FC<ControlChipProps> = ({
             }}
           >
             {draggable && <Drag strokeWidth={1} className="text-border" />}
+            <StandardsHexagon shortName={control.referenceFramework ?? ''} />
             {!hideStandard && (
               <>
-                <span className="text-text-informational">{control.referenceFramework || 'CUSTOM'}</span>
+                <StandardsColorSpan shortName={control.referenceFramework || ''}>{control.referenceFramework || 'CUSTOM'}</StandardsColorSpan>
                 <span className="text-border">|</span>
               </>
             )}
