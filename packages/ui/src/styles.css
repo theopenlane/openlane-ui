@@ -161,6 +161,19 @@
 
   --color-background-auth: #eff4f7;
 
+  /* standards */
+  --color-iso27001: #4d77b0;
+  --color-nist80053: #388426;
+  --color-nistcsf: #388426;
+  --color-soc2: #4ab1bd;
+  --color-nistssdf: #388426;
+  --color-gdpr: #d9ae40;
+  --color-cis: #00549f;
+  --color-ccm: #f6a15b;
+  --color-hippa: #3578be;
+  --color-sox: #a42f00;
+  --color-custom: #d9ae40;
+
   /* JSON Editor */
   .svc-json-editor-tab__content-area {
     background-color: var(--color-bg);

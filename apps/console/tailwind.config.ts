@@ -18,6 +18,19 @@ const config: Pick<Config, 'darkMode' | 'content' | 'presets' | 'prefix' | 'them
           secondary: 'var(--color-brand-secondary)',
           100: 'var(--color-brand-100)',
         },
+        standard: {
+          iso27001: 'var(--color-iso27001)',
+          nist80053: 'var(--color-nist80053)',
+          nistcsf: 'var(--color-nistcsf)',
+          soc2: 'var(--color-soc2)',
+          nistssdf: 'var(--color-nistssdf)',
+          gdpr: 'var(--color-gdpr)',
+          cis: 'var(--color-cis)',
+          ccm: 'var(--color-ccm)',
+          hippa: 'var(--color-hippa)',
+          sox: 'var(--color-sox)',
+          custom: 'var(--color-custom)',
+        },
       },
 
       keyframes: {

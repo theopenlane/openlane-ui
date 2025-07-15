@@ -13,23 +13,26 @@ import Sox from '@/assets/Sox'
 
 type TStandardsIconMapperProps = {
   shortName: string
+  height?: number
+  width?: number
 }
 
-export const StandardsIconMapper = ({ shortName }: TStandardsIconMapperProps) => {
+export const StandardsIconMapper = ({ shortName, height, width }: TStandardsIconMapperProps) => {
   const icon = useMemo(() => {
+    const sizeProps = { height, width }
     const iconMap: Record<string, React.ReactNode> = {
-      'ISO 27001': <Iso27001 />,
-      'NIST 800-53': <Nist80053 />,
-      'NIST CSF': <NistCsf />,
-      'SOC 2': <Soc2 />,
-      'NIST SSDF': <NistSsdf />,
-      GDPR: <Gdpr />,
-      'CIS Benchmarks': <Cis />,
-      CCM: <Ccm />,
-      HIPPA: <Hipaa />,
-      SOX: <Sox />,
+      'ISO 27001': <Iso27001 {...sizeProps} />,
+      'NIST 800-53': <Nist80053 {...sizeProps} />,
+      'NIST CSF': <NistCsf {...sizeProps} />,
+      'SOC 2': <Soc2 {...sizeProps} />,
+      'NIST SSDF': <NistSsdf {...sizeProps} />,
+      GDPR: <Gdpr {...sizeProps} />,
+      'CIS Benchmarks': <Cis {...sizeProps} />,
+      CCM: <Ccm {...sizeProps} />,
+      HIPPA: <Hipaa {...sizeProps} />,
+      SOX: <Sox {...sizeProps} />,
     }
-    return iconMap[shortName] || <Custom />
-  }, [shortName])
+    return iconMap[shortName] || <Custom {...sizeProps} />
+  }, [shortName, width, height])
   return <>{icon}</>
 }
