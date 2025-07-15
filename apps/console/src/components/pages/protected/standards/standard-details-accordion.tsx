@@ -18,6 +18,7 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { ControlWhereInput } from '@repo/codegen/src/schema'
 import { useAllControlsGroupedWithListFields } from '@/lib/graphql-hooks/controls'
 import { VisibilityState } from '@tanstack/react-table'
+import ControlDetailsSheet from './control-details-sheet'
 
 const generateWhere = (id: string, searchValue: string) => ({
   and: [
@@ -34,6 +35,7 @@ type TStandardDetailsAccordionProps = {
 const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({ standardName }) => {
   const params = useParams()
   const id = typeof params?.id === 'string' ? params.id : ''
+
   const [hasInitialized, setHasInitialized] = useState(false)
   const [paginations, setPaginations] = useState<Record<string, TPagination>>({})
   const [selectedControls, setSelectedControls] = useState<{ id: string; refCode: string }[]>([])
@@ -233,6 +235,7 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({ st
         selectedControls={selectedControls.length > 0 ? selectedControls : []}
         standardName={selectedControls.length === 0 ? standardName : undefined}
       />
+      <ControlDetailsSheet />
     </div>
   )
 }

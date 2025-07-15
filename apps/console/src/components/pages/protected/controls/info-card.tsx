@@ -5,21 +5,26 @@ import { Card } from '@repo/ui/cardpanel'
 import { PanelRightOpenIcon } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 
-interface AssessmentMethod {
+export interface AssessmentMethod {
   id: string
   type: string
   method: string
 }
 
-interface AssessmentObjective {
+export interface AssessmentObjective {
   id: string
   class: string
   objective: string
 }
 
+export interface ExampleEvidence {
+  documentationType: string
+  description: string
+}
+
 interface InfoCardWithSheetProps {
   implementationGuidance: { referenceId: string; guidance: string[] }[] | null | undefined
-  exampleEvidence: string | string[] | null | undefined
+  exampleEvidence: string | ExampleEvidence[] | null | undefined
   controlQuestions: string[] | null | undefined
   assessmentMethods: AssessmentMethod[] | string | string[] | null | undefined
   assessmentObjectives: AssessmentObjective[] | string | string[] | null | undefined
@@ -55,13 +60,16 @@ const InfoCardWithSheet: React.FC<InfoCardWithSheetProps> = ({ implementationGui
       hasData: Array.isArray(exampleEvidence) ? exampleEvidence.length > 0 : !!exampleEvidence,
       render: () =>
         Array.isArray(exampleEvidence) ? (
-          <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+          <ul className="list-none text-sm text-muted-foreground space-y-3">
             {exampleEvidence.map((item, i) => (
-              <li key={i}>{item}</li>
+              <li key={i}>
+                <p className="font-medium">{item.documentationType}</p>
+                <p className="text-muted-foreground">{item.description}</p>
+              </li>
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-muted-foreground">{exampleEvidence || 'No example evidence provided.'}</p>
+          <p className="text-sm text-muted-foreground">{typeof exampleEvidence === 'string' ? exampleEvidence : 'No example evidence provided.'}</p>
         ),
     },
     {

@@ -44,6 +44,13 @@ export const initProgramSchema = z
 
 type InitProgramValues = zInfer<typeof initProgramSchema>
 
+const programTypes = [
+  { value: ProgramProgramType.FRAMEWORK, label: 'Framework' },
+  { value: ProgramProgramType.GAP_ANALYSIS, label: 'Gap Analysis' },
+  { value: ProgramProgramType.RISK_ASSESSMENT, label: 'Risk Assessment' },
+  { value: ProgramProgramType.OTHER, label: 'Other - Please Specify' },
+]
+
 export function ProgramInitComponent() {
   const { formRow } = wizardStyles()
 
@@ -113,13 +120,6 @@ export function ProgramInitComponent() {
 }
 
 const ProgramTypeSelect = () => {
-  const programTypes = [
-    { value: ProgramProgramType.FRAMEWORK, label: 'Framework' },
-    { value: ProgramProgramType.GAP_ANALYSIS, label: 'Gap Analysis' },
-    { value: ProgramProgramType.RISK_ASSESSMENT, label: 'Risk Assessment' },
-    { value: ProgramProgramType.OTHER, label: 'Other - Please Specify' },
-  ]
-
   const [customProgram, setCustomProgram] = useState('')
   const {
     register,
@@ -283,7 +283,11 @@ const FrameworkSelect = () => {
                 const selectedFramework = frameworks.find((f) => f.shortName === value)
                 setSelectedFrameworkData({ shortName: selectedFramework?.shortName ?? '', description: selectedFramework?.description ?? '' })
                 field.onChange(value)
-                setValue('name', `${value} - ${currentYear}`)
+                const getLabelNameForGapAnalysis = () => {
+                  const selectedLabel = programTypes.find((type) => type.value === programType)?.label
+                  return `${selectedLabel} - ${value} - ${currentYear}`
+                }
+                setValue('name', programType === ProgramProgramType.GAP_ANALYSIS ? getLabelNameForGapAnalysis() : `${value} - ${currentYear}`)
                 setValue('standardID', selectedFramework?.id ?? '')
                 trigger('name')
               }}

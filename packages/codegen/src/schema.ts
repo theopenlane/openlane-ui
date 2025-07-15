@@ -40940,7 +40940,7 @@ export type ControlDetailsFieldsFragment = {
   subcontrols: {
     __typename?: 'SubcontrolConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; description?: string | null } | null } | null> | null
+    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename: 'Subcontrol'; id: string; refCode: string; description?: string | null } | null } | null> | null
   }
   internalPolicies: {
     __typename?: 'InternalPolicyConnection'
@@ -41096,7 +41096,7 @@ export type GetControlByIdQuery = {
     subcontrols: {
       __typename?: 'SubcontrolConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; description?: string | null } | null } | null> | null
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename: 'Subcontrol'; id: string; refCode: string; description?: string | null } | null } | null> | null
     }
     internalPolicies: {
       __typename?: 'InternalPolicyConnection'
@@ -41244,7 +41244,16 @@ export type GetControlByIdMinifiedQueryVariables = Exact<{
 
 export type GetControlByIdMinifiedQuery = {
   __typename?: 'Query'
-  control: { __typename?: 'Control'; id: string; refCode: string; standardID?: string | null; category?: string | null; subcategory?: string | null; description?: string | null }
+  control: {
+    __typename?: 'Control'
+    id: string
+    refCode: string
+    standardID?: string | null
+    category?: string | null
+    subcategory?: string | null
+    description?: string | null
+    referenceFramework?: string | null
+  }
 }
 
 export type GetControlsPaginatedWithListFieldsQueryVariables = Exact<{
@@ -43478,6 +43487,7 @@ export type GetSubcontrolByIdMinifiedQuery = {
     category?: string | null
     subcategory?: string | null
     description?: string | null
+    referenceFramework?: string | null
     control: { __typename?: 'Control'; id: string; standardID?: string | null }
   }
 }
