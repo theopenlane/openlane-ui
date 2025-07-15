@@ -12,7 +12,7 @@ import {
   UserWhereInput,
 } from '@repo/codegen/src/schema'
 import { pageStyles } from './page.styles'
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
 import { Copy, KeyRoundIcon } from 'lucide-react'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
@@ -37,7 +37,7 @@ export const MembersTable = () => {
   const { nameRow, copyIcon } = pageStyles()
   const [filters, setFilters] = useState<ExtendedOrgMembershipWhereInput | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
-  const [copiedText, copyToClipboard] = useCopyToClipboard()
+  const [, copyToClipboard] = useCopyToClipboard()
   const { successNotification } = useNotification()
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const debouncedSearch = useDebounce(searchTerm, 300)
@@ -80,14 +80,13 @@ export const MembersTable = () => {
 
   const { members, isLoading, paginationMeta } = useGetOrgMemberships({ where: whereFilters, orderBy: orderBy, pagination, enabled: !!filters })
 
-  useEffect(() => {
-    if (copiedText) {
-      successNotification({
-        title: 'Copied to clipboard',
-        variant: 'success',
-      })
-    }
-  }, [copiedText, successNotification])
+  const handleCopy = (text: string) => {
+    copyToClipboard(text)
+    successNotification({
+      title: 'Copied to clipboard',
+      variant: 'success',
+    })
+  }
 
   const providerIcon = (provider: UserAuthProvider) => {
     switch (provider) {
@@ -102,26 +101,19 @@ export const MembersTable = () => {
 
   const columns: ColumnDef<OrgMembership>[] = [
     {
-      accessorKey: 'user.id',
-      header: '',
-      cell: ({ row }) => {
-        return <Avatar variant="small" entity={row.original.user as User} />
-      },
-      size: 40,
-    },
-    {
       accessorKey: 'user.displayName',
       header: 'Name',
       cell: ({ row }) => {
         const fullName = `${row.original.user.displayName}` || `${row.original.user.email}`
         return (
           <div className={nameRow()}>
+            <Avatar variant="small" entity={row.original.user as User} />
             {fullName}
-            <Copy width={16} height={16} className={copyIcon()} onClick={() => copyToClipboard(fullName)} />
+            <Copy width={16} height={16} className={copyIcon()} onClick={() => handleCopy(fullName)} />
           </div>
         )
       },
-      size: 180,
+      size: 200,
     },
     {
       accessorKey: 'user.email',
@@ -130,7 +122,7 @@ export const MembersTable = () => {
         return (
           <div className={nameRow()}>
             {row.original.user.email}
-            <Copy width={16} height={16} className={copyIcon()} onClick={() => copyToClipboard(row.original.user.email)} />
+            <Copy width={16} height={16} className={copyIcon()} onClick={() => handleCopy(row.original.user.email)} />
           </div>
         )
       },
@@ -145,10 +137,11 @@ export const MembersTable = () => {
       header: 'Provider',
       cell: ({ cell }) => {
         const provider = cell.getValue() as UserAuthProvider
+        const formattedProvider = provider.charAt(0).toUpperCase() + provider.slice(1).toLowerCase()
         return (
           <div className={nameRow()}>
             {providerIcon(provider)}
-            {provider}
+            {formattedProvider}
           </div>
         )
       },

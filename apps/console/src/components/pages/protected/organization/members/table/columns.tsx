@@ -6,9 +6,12 @@ import { InviteActions } from '../actions/invite-actions'
 import { formatDateSince } from '@/utils/date'
 import { InvitationIconMapper } from '@/components/shared/icon-enum/invitation-enum.tsx'
 import { UserRoleIconMapper } from '@/components/shared/icon-enum/user-role-enum.tsx'
-import { GlobeIcon, LockIcon, StarsIcon } from 'lucide-react'
+import { GlobeIcon, LockIcon, StarsIcon, Copy } from 'lucide-react'
 import React from 'react'
 import { Checkbox } from '@repo/ui/checkbox'
+import { pageStyles } from '../page.styles'
+import { useCopyToClipboard } from '@uidotdev/usehooks'
+import { useNotification } from '@/hooks/useNotification'
 
 export type InviteNode = {
   __typename?: 'Invite' | undefined
@@ -26,73 +29,98 @@ type TGroupTableForInvitesColumns = {
   allGroups: AllGroupsPaginatedFieldsFragment[]
 }
 
-export const invitesColumns: ColumnDef<InviteNode>[] = [
-  {
-    accessorKey: 'recipient',
-    header: 'Invited user',
-  },
-  {
-    accessorKey: 'role',
-    header: 'Role',
-    cell: ({ cell }) => {
-      const role = cell.getValue() as InviteRole
+export const InvitesColumns = () => {
+  const { copyIcon, nameRow } = pageStyles()
+  const [, copyToClipboard] = useCopyToClipboard()
+  const { successNotification } = useNotification()
 
-      return (
-        <div className="flex gap-2 items-center">
-          {UserRoleIconMapper[role]}
-          {role}
-        </div>
-      )
-    },
-  },
-  {
-    accessorKey: 'status',
-    header: 'Status',
-    cell: ({ cell }) => {
-      const status = cell.getValue() as InviteInviteStatus
-      let statusLabel
-      switch (status) {
-        case InviteInviteStatus.APPROVAL_REQUIRED:
-          statusLabel = 'Approval required'
-          break
-        case InviteInviteStatus.INVITATION_ACCEPTED:
-          statusLabel = 'Accepted'
-          break
-        case InviteInviteStatus.INVITATION_EXPIRED:
-          statusLabel = 'Expired'
-          break
-        case InviteInviteStatus.INVITATION_SENT:
-          statusLabel = 'Outstanding'
-          break
-      }
-      return (
-        <div className="flex gap-2 items-center">
-          {InvitationIconMapper[status]}
-          {statusLabel}
-        </div>
-      )
-    },
-  },
-  {
-    accessorKey: 'createdAt',
-    header: 'Sent',
-    cell: ({ cell }) => formatDateSince(cell.getValue() as string),
-  },
+  const handleCopy = (text: string) => {
+    copyToClipboard(text)
+    successNotification({
+      title: 'Copied to clipboard',
+      variant: 'success',
+    })
+  }
 
-  {
-    accessorKey: 'sendAttempts',
-    header: 'Resend Attempts',
-    cell: ({ cell }) => `${cell.getValue() || 0}/5`,
-  },
-  {
-    accessorKey: 'id',
-    header: 'Action',
-    cell: ({ row }) => {
-      const invite = row.original
-      return <InviteActions inviteId={invite.id} recipient={invite.recipient} role={invite.role} />
+  const columns: ColumnDef<InviteNode>[] = [
+    {
+      accessorKey: 'recipient',
+      header: 'Invited user',
+      cell: ({ row }) => {
+        return (
+          <div className={nameRow()}>
+            {row.original.recipient}
+            <Copy width={16} height={16} className={copyIcon()} onClick={() => handleCopy(row.original.recipient)} />
+          </div>
+        )
+      },
     },
-  },
-]
+    {
+      accessorKey: 'role',
+      header: 'Role',
+      cell: ({ cell }) => {
+        const role = cell.getValue() as InviteRole
+        const formattedRole = role.charAt(0).toUpperCase() + role.slice(1).toLowerCase()
+
+        return (
+          <div className="flex gap-2 items-center">
+            {UserRoleIconMapper[role]}
+            {formattedRole}
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ cell }) => {
+        const status = cell.getValue() as InviteInviteStatus
+        let statusLabel
+        switch (status) {
+          case InviteInviteStatus.APPROVAL_REQUIRED:
+            statusLabel = 'Approval required'
+            break
+          case InviteInviteStatus.INVITATION_ACCEPTED:
+            statusLabel = 'Accepted'
+            break
+          case InviteInviteStatus.INVITATION_EXPIRED:
+            statusLabel = 'Expired'
+            break
+          case InviteInviteStatus.INVITATION_SENT:
+            statusLabel = 'Outstanding'
+            break
+        }
+        return (
+          <div className="flex gap-2 items-center">
+            {InvitationIconMapper[status]}
+            {statusLabel}
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: 'createdAt',
+      header: 'Sent',
+      cell: ({ cell }) => formatDateSince(cell.getValue() as string),
+    },
+
+    {
+      accessorKey: 'sendAttempts',
+      header: 'Resend Attempts',
+      cell: ({ cell }) => `${cell.getValue() || 0}/5`,
+    },
+    {
+      accessorKey: 'id',
+      header: 'Action',
+      cell: ({ row }) => {
+        const invite = row.original
+        return <InviteActions inviteId={invite.id} recipient={invite.recipient} role={invite.role} />
+      },
+    },
+  ]
+
+  return { columns }
+}
 
 export const groupTableForInvitesColumns = ({ allGroups, selectedGroups, setSelectedGroups }: TGroupTableForInvitesColumns) => {
   const columns: ColumnDef<AllGroupsPaginatedFieldsFragment>[] = [
