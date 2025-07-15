@@ -135,7 +135,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
 
       return baseInvite
     })
-    console.log(inviteInput)
+
     try {
       await inviteMembers({
         input: inviteInput,
