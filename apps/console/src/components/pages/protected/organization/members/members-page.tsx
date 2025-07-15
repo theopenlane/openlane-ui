@@ -1,15 +1,21 @@
 'use client'
 
 import { pageStyles } from './page.styles'
-import { OrganizationInviteForm } from '@/components/pages/protected/organization/members/organization-invite-form'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { useState, useContext, useEffect } from 'react'
 import { MembersTable } from './members-table'
 import { useGetInvites } from '@/lib/graphql-hooks/organization'
 import { OrganizationInvitesTable } from './table/organization-invites-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import MembersInviteSheet from './sidebar/members-invite-sheet'
+import { Separator } from '@repo/ui/separator'
 
-const MembersPage: React.FC = () => {
+type TMembersPage = {
+  isMemberSheetOpen: boolean
+  setIsMemberSheetOpen: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+const MembersPage = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMembersPage) => {
   const { inviteCount, inviteRow } = pageStyles()
   const defaultTab = 'members'
   const [activeTab, setActiveTab] = useState(defaultTab)
@@ -29,31 +35,34 @@ const MembersPage: React.FC = () => {
   return (
     <>
       <Tabs
-        variant="solid"
+        variant="underline"
         value={activeTab}
         onValueChange={(value) => {
           setActiveTab(value)
         }}
       >
-        <TabsList>
-          <TabsTrigger value="members">Member list</TabsTrigger>
-          <TabsTrigger value="invites">
-            <div className={inviteRow()}>
-              <span>Invitations</span>
-              {numInvites > 0 && <div className={inviteCount({ activeBg: activeTab === 'invites' })}>{numInvites}</div>}
-            </div>
-          </TabsTrigger>
-        </TabsList>
+        <div className="flex flex-row items-center mb-3">
+          <div className="w-2/5">
+            <TabsList>
+              <TabsTrigger value="members">Member List</TabsTrigger>
+              <TabsTrigger value="invites">
+                <div className={inviteRow()}>
+                  <span>Awaiting Response</span>
+                  {numInvites > 0 && <div className={inviteCount({ activeBg: true })}>{numInvites}</div>}
+                </div>
+              </TabsTrigger>
+            </TabsList>
+          </div>
+        </div>
+        <Separator className="mb-5" full />
         <TabsContent value="members">
-          <MembersTable setActiveTab={setActiveTab} />
+          <MembersTable />
         </TabsContent>
         <TabsContent value="invites">
-          <div>
-            <OrganizationInviteForm inviteAdmins={true} />
-            <OrganizationInvitesTable />
-          </div>
+          <OrganizationInvitesTable />
         </TabsContent>
       </Tabs>
+      <MembersInviteSheet isMemberSheetOpen={isMemberSheetOpen} setIsMemberSheetOpen={setIsMemberSheetOpen} />
     </>
   )
 }

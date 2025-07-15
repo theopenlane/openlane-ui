@@ -38,14 +38,15 @@ type TUseGetOrgMemberships = {
   where?: OrgMembershipWhereInput
   pagination?: TPagination
   enabled?: boolean
+  orderBy?: OrgMembershipsQueryVariables['orderBy']
 }
 
-export const useGetOrgMemberships = ({ where, pagination, enabled }: TUseGetOrgMemberships) => {
+export const useGetOrgMemberships = ({ where, pagination, enabled, orderBy }: TUseGetOrgMemberships) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<OrgMembershipsQuery, OrgMembershipsQueryVariables>({
     queryKey: ['memberships', where, pagination?.pageSize, pagination?.page],
-    queryFn: () => client.request(GET_ORG_MEMBERSHIPS, { where, ...pagination?.query }),
+    queryFn: () => client.request(GET_ORG_MEMBERSHIPS, { where, ...pagination?.query, orderBy }),
     enabled,
   })
 
