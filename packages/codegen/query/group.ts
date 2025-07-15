@@ -8,6 +8,8 @@ export const GET_ALL_GROUPS = gql`
           id
           description
           name
+          gravatarLogoURL
+          logoURL
           members {
             edges {
               node {
@@ -15,7 +17,6 @@ export const GET_ALL_GROUPS = gql`
                 role
                 user {
                   id
-
                   avatarFile {
                     presignedURL
                   }

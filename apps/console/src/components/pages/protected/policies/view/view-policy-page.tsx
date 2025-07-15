@@ -7,7 +7,7 @@ import { Form } from '@repo/ui/form'
 import DetailsField from '@/components/pages/protected/policies/view/fields/details-field.tsx'
 import TitleField from '@/components/pages/protected/policies/view/fields/title-field.tsx'
 import { Button } from '@repo/ui/button'
-import { PencilIcon, SaveIcon, Trash2, XIcon } from 'lucide-react'
+import { LockOpen, PencilIcon, SaveIcon, Trash2, XIcon } from 'lucide-react'
 import AuthorityCard from '@/components/pages/protected/policies/view/cards/authority-card.tsx'
 import PropertiesCard from '@/components/pages/protected/policies/view/cards/properties-card.tsx'
 import { InternalPolicyDocumentStatus, InternalPolicyFrequency, UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
@@ -30,6 +30,7 @@ import CreateItemsFromPolicyToolbar from './create-items-from-policy-toolbar'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
+import { ManagePermissionSheet } from './manage-permissions-sheet'
 
 type TViewPolicyPage = {
   policyId: string
@@ -57,6 +58,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const [dataInitialized, setDataInitialized] = useState(false)
+  const [showPermissionsSheet, setShowPermissionsSheet] = useState(false)
 
   useEffect(() => {
     setCrumbs([
@@ -239,6 +241,10 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
                       />
                     </>
                   )}
+                  <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={() => setShowPermissionsSheet(true)}>
+                    <LockOpen size={16} strokeWidth={2} />
+                    <span>Manage Permissions</span>
+                  </div>
                 </>
               }
             />
@@ -275,6 +281,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
           </SlideBarLayout>
         </form>
       </Form>
+      <ManagePermissionSheet open={showPermissionsSheet} onOpenChange={(val) => setShowPermissionsSheet(val)} />
     </>
   )
 }
