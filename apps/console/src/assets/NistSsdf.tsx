@@ -1,6 +1,11 @@
-const NistSsdf = () => {
+interface NistSsdfProps {
+  width?: number
+  height?: number
+}
+
+const NistSsdf = ({ height = 88, width = 78 }: NistSsdfProps) => {
   return (
-    <svg width="78" height="88" viewBox="0 0 78 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width={width} height={height} viewBox="0 0 78 88" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         d="M33.1152 4.51855C36.9145 2.49073 41.5034 2.55859 45.25 4.72168L69.0254 18.4482C72.8927 20.6812 75.2754 24.8078 75.2754 29.2734V56.7266C75.2754 61.1922 72.8927 65.3188 69.0254 67.5518L45.25 81.2783C41.5034 83.4414 36.9145 83.5093 33.1152 81.4814L32.75 81.2783L8.97461 67.5518C5.10731 65.3188 2.72463 61.1922 2.72461 56.7266V29.2734C2.72463 24.8078 5.10731 20.6812 8.97461 18.4482L32.75 4.72168L33.1152 4.51855Z"
         fill="#388426"

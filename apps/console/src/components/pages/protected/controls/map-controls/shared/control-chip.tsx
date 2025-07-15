@@ -10,6 +10,8 @@ import { useGetControlMinifiedById } from '@/lib/graphql-hooks/controls'
 import { useGetSubcontrolMinifiedById } from '@/lib/graphql-hooks/subcontrol'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { MapControl } from '@/types'
+import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
+import { StandardsColorSpan } from '@/components/shared/standards-color-mapper/standards-color-mapper'
 
 export interface ControlChipProps {
   control: MapControl
@@ -65,9 +67,10 @@ const ControlChip: React.FC<ControlChipProps> = ({
             }}
           >
             {draggable && <Drag strokeWidth={1} className="text-border" />}
+            <StandardsIconMapper height={10} width={10} key={control.id} shortName={control.referenceFramework ?? ''} />
             {!hideStandard && (
               <>
-                <span className="text-text-informational">{control.referenceFramework || 'CUSTOM'}</span>
+                <StandardsColorSpan shortName={control.referenceFramework || ''}>{control.referenceFramework || 'CUSTOM'}</StandardsColorSpan>
                 <span className="text-border">|</span>
               </>
             )}
