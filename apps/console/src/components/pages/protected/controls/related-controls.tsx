@@ -38,7 +38,7 @@ const RelatedControls = () => {
       }
     : undefined
 
-  const { data } = useGetMappedControls(where)
+  const { data } = useGetMappedControls({ where, enabled: !!where })
 
   const grouped: GroupedControls = {}
 

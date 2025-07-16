@@ -24,13 +24,13 @@ export const useCreateMappedControl = () => {
   })
 }
 
-export const useGetMappedControls = (where?: GetMappedControlsQueryVariables['where']) => {
+export const useGetMappedControls = ({ where, enabled = true }: { where: GetMappedControlsQueryVariables['where']; enabled?: boolean }) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetMappedControlsQuery>({
     queryKey: ['mappedControls', where],
     queryFn: () => client.request(GET_MAPPED_CONTROLS, { where }),
-    enabled: !!where,
+    enabled,
   })
 }
 
