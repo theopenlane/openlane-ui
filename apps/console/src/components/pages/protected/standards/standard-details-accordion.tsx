@@ -186,6 +186,7 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({ st
             {canEdit(permission?.roles) && (
               <div className="flex justify-between items-center">
                 <Button
+                  className="h-[34px]"
                   icon={<ShieldPlus />}
                   iconPosition="left"
                   onClick={() => {
