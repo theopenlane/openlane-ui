@@ -18,7 +18,7 @@ const config: Pick<Config, 'prefix' | 'content' | 'presets' | 'extend' | 'plugin
       },
       colors: {
         checkbox: {
-          DEFAULT: 'var(--color-bg-checkbox, red)',
+          DEFAULT: 'var(--color-bg-checkbox)',
         },
         brand: {
           DEFAULT: 'var(--color-brand)',
