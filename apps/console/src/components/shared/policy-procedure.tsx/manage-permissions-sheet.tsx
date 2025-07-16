@@ -3,11 +3,10 @@
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { ArrowRight } from 'lucide-react'
 import { Button } from '@repo/ui/button'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import { AssignPermissionsDialog } from './assign-permission-dialog'
-import { GroupWhereInput } from '@repo/codegen/src/schema'
-import { useParams } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
 import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
 import { useGroupColumns } from './permissions-table-config'
 import { Group } from './assign-permissions-table-config'
@@ -15,8 +14,12 @@ import { useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy'
 import { useNotification } from '@/hooks/useNotification'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useQueryClient } from '@tanstack/react-query'
+import { useUpdateProcedure } from '@/lib/graphql-hooks/procedures'
 
 export function ManagePermissionSheet({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+  const pathname = usePathname()
+  const isProcedurePage = pathname.includes('/procedures')
+
   const queryClient = useQueryClient()
   const { id } = useParams<{ id: string }>()
   const [assignDialogOpen, setAssignDialogOpen] = useState(false)
@@ -25,17 +28,58 @@ export function ManagePermissionSheet({ open, onOpenChange }: { open: boolean; o
   const [groupToRemove, setGroupToRemove] = useState<Group | null>(null)
 
   const { mutateAsync: updatePolicy } = useUpdateInternalPolicy()
+  const { mutateAsync: updateProcedure } = useUpdateProcedure()
+
   const { errorNotification, successNotification } = useNotification()
 
-  const where: GroupWhereInput = {
-    hasInternalPolicyEditorsWith: [
-      {
-        idIn: [id],
+  const config = useMemo(() => {
+    if (isProcedurePage) {
+      return {
+        where: {
+          hasProcedureEditorsWith: [
+            {
+              idIn: [id],
+            },
+          ],
+        },
+        invalidate: () => {
+          queryClient.invalidateQueries({ queryKey: ['groups'] })
+          queryClient.invalidateQueries({ queryKey: ['procedures'] })
+        },
+        update: async () => {
+          await updateProcedure({
+            updateProcedureId: id,
+            input: {
+              removeEditorIDs: [groupToRemove?.id || ''],
+            },
+          })
+        },
+      }
+    }
+    return {
+      where: {
+        hasInternalPolicyEditorsWith: [
+          {
+            idIn: [id],
+          },
+        ],
       },
-    ],
-  }
+      invalidate: () => {
+        queryClient.invalidateQueries({ queryKey: ['groups'] })
+        queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+      },
+      update: async () => {
+        await updatePolicy({
+          updateInternalPolicyId: id,
+          input: {
+            removeEditorIDs: [groupToRemove?.id || ''],
+          },
+        })
+      },
+    }
+  }, [id, isProcedurePage, queryClient, groupToRemove?.id, updatePolicy, updateProcedure])
 
-  const { isLoading, groups } = useGetAllGroups({ where })
+  const { isLoading, groups } = useGetAllGroups({ where: config.where })
 
   const handleRemoveGroup = (group: Group) => {
     setGroupToRemove(group)
@@ -45,18 +89,12 @@ export function ManagePermissionSheet({ open, onOpenChange }: { open: boolean; o
   const handleConfirmDelete = async () => {
     if (!groupToRemove) return
     try {
-      await updatePolicy({
-        updateInternalPolicyId: id,
-        input: {
-          removeEditorIDs: [groupToRemove.id],
-        },
-      })
+      await config.update()
       successNotification({
         title: 'Permission removed',
         description: `${groupToRemove.name} no longer has edit access.`,
       })
-      queryClient.invalidateQueries({ queryKey: ['groups'] })
-      queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+      config.invalidate()
     } catch {
       errorNotification({
         title: 'Failed to remove permission',

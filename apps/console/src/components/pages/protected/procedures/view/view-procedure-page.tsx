@@ -9,7 +9,7 @@ import { Form } from '@repo/ui/form'
 import DetailsField from '@/components/pages/protected/procedures/view/fields/details-field.tsx'
 import TitleField from '@/components/pages/protected/procedures/view/fields/title-field.tsx'
 import { Button } from '@repo/ui/button'
-import { PencilIcon, SaveIcon, XIcon } from 'lucide-react'
+import { LockOpen, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
 import AuthorityCard from '@/components/pages/protected/procedures/view/cards/authority-card.tsx'
 import PropertiesCard from '@/components/pages/protected/procedures/view/cards/properties-card.tsx'
 import HistoricalCard from '@/components/pages/protected/procedures/view/cards/historical-card.tsx'
@@ -34,6 +34,7 @@ import Menu from '@/components/shared/menu/menu.tsx'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
+import { ManagePermissionSheet } from '@/components/shared/policy-procedure.tsx/manage-permissions-sheet'
 
 const ViewProcedurePage: React.FC = () => {
   const { id } = useParams()
@@ -59,6 +60,7 @@ const ViewProcedurePage: React.FC = () => {
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const [dataInitialized, setDataInitialized] = useState(false)
+  const [showPermissionsSheet, setShowPermissionsSheet] = useState(false)
 
   useEffect(() => {
     setCrumbs([
@@ -221,6 +223,10 @@ const ViewProcedurePage: React.FC = () => {
                           </>
                         }
                       />
+                      <div className="flex items-center space-x-2 hover:bg-muted cursor-pointer" onClick={() => setShowPermissionsSheet(true)}>
+                        <LockOpen size={16} strokeWidth={2} />
+                        <span>Manage Permissions</span>
+                      </div>
                     </>
                   )}
                 </>
@@ -259,6 +265,7 @@ const ViewProcedurePage: React.FC = () => {
           </SlideBarLayout>
         </form>
       </Form>
+      <ManagePermissionSheet open={showPermissionsSheet} onOpenChange={(val) => setShowPermissionsSheet(val)} />
     </>
   )
 }

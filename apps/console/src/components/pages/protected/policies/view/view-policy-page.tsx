@@ -30,7 +30,7 @@ import CreateItemsFromPolicyToolbar from './create-items-from-policy-toolbar'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
-import { ManagePermissionSheet } from './manage-permissions-sheet'
+import { ManagePermissionSheet } from '@/components/shared/policy-procedure.tsx/manage-permissions-sheet'
 
 type TViewPolicyPage = {
   policyId: string
