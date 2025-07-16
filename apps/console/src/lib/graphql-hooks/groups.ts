@@ -45,7 +45,6 @@ type GroupsArgs = {
   orderBy?: GetAllGroupsQueryVariables['orderBy']
   enabled?: boolean
   pagination?: TPagination
-  search?: string
 }
 
 export const useGetAllGroups = ({ where, orderBy, pagination, enabled = true }: GroupsArgs) => {
