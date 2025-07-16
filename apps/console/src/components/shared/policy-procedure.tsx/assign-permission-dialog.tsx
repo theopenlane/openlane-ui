@@ -8,11 +8,12 @@ import { useState, useMemo } from 'react'
 import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
 import { useDebounce } from '@uidotdev/usehooks'
 import { GroupWhereInput } from '@repo/codegen/src/schema'
-import { useParams } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
 import { useGroupSelectionColumns } from './assign-permissions-table-config'
 import { Group } from './assign-permissions-table-config'
 import Pagination from '@repo/ui/pagination'
 import { useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy'
+import { useUpdateProcedure } from '@/lib/graphql-hooks/procedures'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
 import { SearchIcon } from 'lucide-react'
@@ -24,31 +25,66 @@ interface AssignPermissionsDialogProps {
 
 export function AssignPermissionsDialog({ open, onOpenChange }: AssignPermissionsDialogProps) {
   const { id } = useParams<{ id: string }>()
+  const pathname = usePathname()
+  const isProcedurePage = pathname.includes('/procedures')
+
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
 
   const [selectedGroupIds, setSelectedGroupIds] = useState<string[]>([])
   const [search, setSearch] = useState('')
-  const [pagination, setPagination] = useState({
-    page: 1,
-    pageSize: 5,
-  })
+  const [pagination, setPagination] = useState({ page: 1, pageSize: 5 })
   const debouncedSearch = useDebounce(search, 300)
 
-  const where: GroupWhereInput = {
-    not: {
-      hasInternalPolicyEditorsWith: [
-        {
-          idIn: [id],
+  const { mutateAsync: updatePolicy, isPending: isSavingPolicy } = useUpdateInternalPolicy()
+  const { mutateAsync: updateProcedure, isPending: isSavingProcedure } = useUpdateProcedure()
+
+  const config = useMemo(() => {
+    if (isProcedurePage) {
+      return {
+        where: {
+          not: {
+            hasProcedureEditorsWith: [{ idIn: [id] }],
+          },
+          displayNameContainsFold: debouncedSearch,
+        } satisfies GroupWhereInput,
+        update: () =>
+          updateProcedure({
+            updateProcedureId: id,
+            input: {
+              addEditorIDs: selectedGroupIds,
+            },
+          }),
+        invalidate: () => {
+          queryClient.invalidateQueries({ queryKey: ['groups'] })
+          queryClient.invalidateQueries({ queryKey: ['procedures'] })
         },
-      ],
-    },
-    displayNameContainsFold: debouncedSearch,
-  }
+        isSaving: isSavingProcedure,
+      }
+    }
+    return {
+      where: {
+        not: {
+          hasInternalPolicyEditorsWith: [{ idIn: [id] }],
+        },
+        displayNameContainsFold: debouncedSearch,
+      } satisfies GroupWhereInput,
+      update: () =>
+        updatePolicy({
+          updateInternalPolicyId: id,
+          input: {
+            addEditorIDs: selectedGroupIds,
+          },
+        }),
+      invalidate: () => {
+        queryClient.invalidateQueries({ queryKey: ['groups'] })
+        queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+      },
+      isSaving: isSavingPolicy,
+    }
+  }, [debouncedSearch, id, isProcedurePage, queryClient, selectedGroupIds, updatePolicy, updateProcedure, isSavingPolicy, isSavingProcedure])
 
-  const { data, isLoading } = useGetAllGroups({ where })
-
-  const { mutateAsync: updatePolicy, isPending: isSaving } = useUpdateInternalPolicy()
+  const { data, isLoading } = useGetAllGroups({ where: config.where })
 
   const groups: Group[] = useMemo(() => {
     return (data?.groups?.edges?.map((edge) => edge?.node).filter(Boolean) as Group[]) || []
@@ -58,32 +94,21 @@ export function AssignPermissionsDialog({ open, onOpenChange }: AssignPermission
   const columns = useGroupSelectionColumns(selectedGroupIds, setSelectedGroupIds, allGroupIds)
 
   const totalPages = Math.ceil(groups.length / pagination.pageSize)
-
   const startIndex = (pagination.page - 1) * pagination.pageSize
   const endIndex = pagination.page * pagination.pageSize
   const pageData = groups.slice(startIndex, endIndex)
 
   const handleSave = async () => {
     try {
-      await updatePolicy({
-        updateInternalPolicyId: id,
-        input: {
-          addEditorIDs: selectedGroupIds,
-        },
-      })
-
+      await config.update()
       successNotification({
         title: 'Permissions Assigned',
         description: 'Groups have been successfully added as editors.',
       })
-      queryClient.invalidateQueries({ queryKey: ['groups'] })
-      queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
-
+      config.invalidate()
       onOpenChange(false)
     } catch {
-      errorNotification({
-        title: 'Failed to assign permissions',
-      })
+      errorNotification({ title: 'Failed to assign permissions' })
     }
   }
 
@@ -136,8 +161,8 @@ export function AssignPermissionsDialog({ open, onOpenChange }: AssignPermission
           <Button variant="outline" onClick={handleCancel}>
             Cancel
           </Button>
-          <Button disabled={selectedGroupIds.length === 0 || isSaving} onClick={handleSave}>
-            {isSaving ? 'Saving...' : 'Save'}
+          <Button disabled={selectedGroupIds.length === 0 || config.isSaving} onClick={handleSave}>
+            {config.isSaving ? 'Saving...' : 'Save'}
           </Button>
         </DialogFooter>
       </DialogContent>
