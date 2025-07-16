@@ -159,6 +159,7 @@ export const INTERNAL_POLICY_BY_ID = gql`
           id
           displayID
           refCode
+          description
         }
       }
       pageInfo {
@@ -175,6 +176,7 @@ export const INTERNAL_POLICY_BY_ID = gql`
           id
           displayID
           refCode
+          description
         }
       }
       pageInfo {

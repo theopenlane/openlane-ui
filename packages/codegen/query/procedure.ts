@@ -166,6 +166,7 @@ export const PROCEDURE_BY_ID = gql`
           id
           name
           displayID
+          details
         }
       }
       totalCount
@@ -187,6 +188,7 @@ export const PROCEDURE_BY_ID = gql`
           id
           displayID
           refCode
+          description
         }
       }
       totalCount
@@ -197,6 +199,7 @@ export const PROCEDURE_BY_ID = gql`
           id
           displayID
           refCode
+          description
           control {
             id
           }
@@ -210,6 +213,7 @@ export const PROCEDURE_BY_ID = gql`
           id
           displayID
           name
+          description
         }
       }
       totalCount
@@ -220,6 +224,7 @@ export const PROCEDURE_BY_ID = gql`
           id
           displayID
           title
+          details
         }
       }
       totalCount
