@@ -1,33 +1,33 @@
 'use client'
 import { Button } from '@repo/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, SearchIcon } from 'lucide-react'
 import { SubmitHandler, Control, useForm } from 'react-hook-form'
 import { z, infer as zInfer } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CreateInviteInput, InputMaybe, InviteRole } from '@repo/codegen/src/schema'
+import { AllGroupsPaginatedFieldsFragment, CreateInviteInput, GetAllGroupsPaginatedQueryVariables, GroupOrderField, InputMaybe, InviteRole, OrderDirection } from '@repo/codegen/src/schema'
 import { useCreateBulkInvite } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
 import { Tag } from 'emblor'
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { InfoIcon } from 'lucide-react'
 import { TagInput } from '@repo/ui/tag-input'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { Form, FormItem, FormField, FormControl, FormMessage } from '@repo/ui/form'
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@repo/ui/select'
-// import { useAllGroupsGrouped } from '@/lib/graphql-hooks/groups.ts'
-// import { GroupWhereInput } from '@repo/codegen/src/schema'
-// import { useSession } from 'next-auth/react'
-// import { useDebounce } from '@uidotdev/usehooks'
-// import { TPagination } from '@repo/ui/pagination-types'
-// import { DEFAULT_PAGINATION } from '@/constants/pagination'
-// import { groupTableForInvitesColumns } from '../table/columns'
-// import { VisibilityState } from '@tanstack/react-table'
-// import { useOrganizationRole } from '@/lib/authz/access-api.ts'
-// import { canEdit } from '@/lib/authz/utils.ts'
-
-/*TODO: UNCOMMENT EVERYTHING WHEN BACKEND IS READY*/
+import { useAllGroupsGrouped } from '@/lib/graphql-hooks/groups.ts'
+import { GroupWhereInput } from '@repo/codegen/src/schema'
+import { useSession } from 'next-auth/react'
+import { useDebounce } from '@uidotdev/usehooks'
+import { TPagination } from '@repo/ui/pagination-types'
+import { DEFAULT_PAGINATION } from '@/constants/pagination'
+import { groupTableForInvitesColumns } from '../table/columns'
+import { VisibilityState } from '@tanstack/react-table'
+import { useOrganizationRole } from '@/lib/authz/access-api.ts'
+import { canEdit } from '@/lib/authz/utils.ts'
+import { DataTable } from '@repo/ui/data-table'
+import { Input } from '@repo/ui/input'
 
 const formSchema = z.object({
   emails: z.array(z.string().email({ message: 'Invalid email address' })),
@@ -53,53 +53,53 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
   const [activeTagIndex, setActiveTagIndex] = useState<number | null>(null)
   const [currentValue, setCurrentValue] = useState('')
   const [invalidEmail, setInvalidEmail] = useState<string | null>(null)
-  // const { data: session } = useSession()
-  // const [searchQuery, setSearchQuery] = useState('')
-  // const debouncedSearchQuery = useDebounce(searchQuery, 300)
-  // const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
-  // const [selectedGroups, setSelectedGroups] = useState<AllGroupsPaginatedFieldsFragment[]>([])
-  // const { data: permission, isLoading: isLoadingPermission } = useOrganizationRole(session)
-  // const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
-  //   check: true,
-  // })
+  const { data: session } = useSession()
+  const [searchQuery, setSearchQuery] = useState('')
+  const debouncedSearchQuery = useDebounce(searchQuery, 300)
+  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+  const [selectedGroups, setSelectedGroups] = useState<AllGroupsPaginatedFieldsFragment[]>([])
+  const { data: permission, isLoading: isLoadingPermission } = useOrganizationRole(session)
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    check: true,
+  })
 
-  // const [orderBy, setOrderBy] = useState<GetAllGroupsPaginatedQueryVariables['orderBy']>([
-  //   {
-  //     field: GroupOrderField.display_name,
-  //     direction: OrderDirection.ASC,
-  //   },
-  // ])
+  const [orderBy, setOrderBy] = useState<GetAllGroupsPaginatedQueryVariables['orderBy']>([
+    {
+      field: GroupOrderField.display_name,
+      direction: OrderDirection.ASC,
+    },
+  ])
 
-  // const orderByFilter = useMemo(() => {
-  //   return orderBy || undefined
-  // }, [orderBy])
+  const orderByFilter = useMemo(() => {
+    return orderBy || undefined
+  }, [orderBy])
 
-  // const where: GroupWhereInput = useMemo(() => {
-  //   const whereFilters: GroupWhereInput[] = []
-  //   if (debouncedSearchQuery) {
-  //     whereFilters.push({ nameContainsFold: debouncedSearchQuery })
-  //   }
-  //   whereFilters.push({ isManaged: false })
-  //   return { and: whereFilters }
-  // }, [debouncedSearchQuery])
+  const where: GroupWhereInput = useMemo(() => {
+    const whereFilters: GroupWhereInput[] = []
+    if (debouncedSearchQuery) {
+      whereFilters.push({ nameContainsFold: debouncedSearchQuery })
+    }
+    whereFilters.push({ isManaged: false })
+    return { and: whereFilters }
+  }, [debouncedSearchQuery])
 
-  // useEffect(() => {
-  //   if (!isLoadingPermission) {
-  //     const canEditPermission = canEdit(permission?.roles)
+  useEffect(() => {
+    if (!isLoadingPermission) {
+      const canEditPermission = canEdit(permission?.roles)
 
-  //     setColumnVisibility((prev) => ({
-  //       ...prev,
-  //       check: canEditPermission,
-  //     }))
-  //   }
-  // }, [isLoadingPermission, permission])
+      setColumnVisibility((prev) => ({
+        ...prev,
+        check: canEditPermission,
+      }))
+    }
+  }, [isLoadingPermission, permission])
 
-  // const { allGroups, isLoading } = useAllGroupsGrouped({ where: where as GroupWhereInput, enabled: isMemberSheetOpen, orderBy: orderByFilter })
+  const { allGroups, isLoading } = useAllGroupsGrouped({ where: where as GroupWhereInput, enabled: isMemberSheetOpen, orderBy: orderByFilter })
 
-  // const pagedData = useMemo(() => {
-  //   const start = (pagination.page - 1) * pagination.pageSize
-  //   return allGroups.slice(start, start + pagination.pageSize)
-  // }, [allGroups, pagination.page, pagination.pageSize])
+  const pagedData = useMemo(() => {
+    const start = (pagination.page - 1) * pagination.pageSize
+    return allGroups.slice(start, start + pagination.pageSize)
+  }, [allGroups, pagination.page, pagination.pageSize])
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -108,9 +108,9 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
     },
   })
 
-  // const columns = useMemo(() => {
-  //   return groupTableForInvitesColumns({ allGroups, selectedGroups, setSelectedGroups })
-  // }, [allGroups, selectedGroups])
+  const columns = useMemo(() => {
+    return groupTableForInvitesColumns({ allGroups, selectedGroups, setSelectedGroups })
+  }, [allGroups, selectedGroups])
 
   const {
     control,
@@ -120,14 +120,25 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
   } = form
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-    const inviteInput: InputMaybe<Array<CreateInviteInput> | CreateInviteInput> = data.emails.map((email) => ({
-      recipient: email,
-      role: data.role,
-    }))
+    const inviteInput: InputMaybe<Array<CreateInviteInput> | CreateInviteInput> = data.emails.map((email) => {
+      const baseInvite = {
+        recipient: email,
+        role: data.role,
+      }
+
+      if (selectedGroups.length > 0) {
+        return {
+          ...baseInvite,
+          groupIDs: selectedGroups.map((group) => group.id),
+        }
+      }
+
+      return baseInvite
+    })
+
     try {
       await inviteMembers({
         input: inviteInput,
-        /*TODO: ADD GROUPS WHEN BACKEND EXPANDS*/
       })
 
       queryClient.invalidateQueries({ queryKey: ['invites'] })
@@ -167,8 +178,8 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
 
   const handleClose = () => {
     setEmails([])
-    // setSearchQuery('')
-    // setSelectedGroups([])
+    setSearchQuery('')
+    setSelectedGroups([])
     setIsMemberSheetOpen(false)
   }
 
@@ -286,8 +297,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
               </div>
             </form>
           </Form>
-          {/* TODO: Uncomment when backend ready */}
-          {/* <div className="grid grid-cols-4 gap-y-6 items-start">
+          <div className="grid grid-cols-4 gap-y-6 items-start">
             <div className="flex items-center gap-1">
               <p>Assign to group(s)</p>
               <SystemTooltip icon={<InfoIcon size={14} />} content={<p>Assign to group</p>} />
@@ -316,7 +326,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
                 stickyDialogHeader
               />
             </div>
-          </div> */}
+          </div>
         </>
       </SheetContent>
     </Sheet>
