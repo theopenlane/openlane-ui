@@ -29,7 +29,7 @@ const ControlDetailsSheet = () => {
     or: [{ hasFromControlsWith: [{ id: controlId }] }, { hasToControlsWith: [{ id: controlId }] }],
   }
 
-  const { data: mappedControlsData } = useGetMappedControls(where)
+  const { data: mappedControlsData } = useGetMappedControls({ where, enabled: !!controlId })
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
