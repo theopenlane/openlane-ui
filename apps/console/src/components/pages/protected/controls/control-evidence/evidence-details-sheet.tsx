@@ -200,51 +200,55 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   return (
     <Sheet open={!!selectedControlEvidence} onOpenChange={handleSheetClose}>
-      <SheetContent className="bg-card flex flex-col">
+      <SheetContent
+        className="bg-card flex flex-col"
+        minWidth={600}
+        header={
+          <SheetHeader>
+            <div className="flex items-center justify-between">
+              <ArrowRight size={16} className="cursor-pointer" onClick={handleSheetClose} />
+              <div className="flex justify-end gap-2">
+                <Button icon={<Link />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
+                  Copy link
+                </Button>
+                {isEditing ? (
+                  <div className="flex gap-2">
+                    <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={form.handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
+                      Save
+                    </Button>
+                  </div>
+                ) : (
+                  <Button icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
+                    Edit
+                  </Button>
+                )}
+                {evidence && <ControlEvidenceRenewDialog evidenceId={evidence.id} controlId={controlId} />}
+                <Button icon={<Trash2 />} iconPosition="left" variant="outline" onClick={() => setDeleteDialogIsOpen(true)}>
+                  Delete
+                </Button>
+                <ConfirmationDialog
+                  open={deleteDialogIsOpen}
+                  onOpenChange={setDeleteDialogIsOpen}
+                  onConfirm={handleDelete}
+                  title={`Delete Evidence`}
+                  description={
+                    <>
+                      This action cannot be undone. This will permanently remove <b>{evidenceName} </b>from the control.
+                    </>
+                  }
+                />
+              </div>
+            </div>
+          </SheetHeader>
+        }
+      >
         {fetching ? (
           <Loading />
         ) : (
           <>
-            <SheetHeader>
-              <div className="flex items-center justify-between">
-                <ArrowRight size={16} className="cursor-pointer" onClick={handleSheetClose} />
-                <div className="flex justify-end gap-2">
-                  <Button icon={<Link />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
-                    Copy link
-                  </Button>
-                  {isEditing ? (
-                    <div className="flex gap-2">
-                      <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
-                        Cancel
-                      </Button>
-                      <Button onClick={form.handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
-                        Save
-                      </Button>
-                    </div>
-                  ) : (
-                    <Button icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
-                      Edit
-                    </Button>
-                  )}
-                  {evidence && <ControlEvidenceRenewDialog evidenceId={evidence.id} controlId={controlId} />}
-                  <Button icon={<Trash2 />} iconPosition="left" variant="outline" onClick={() => setDeleteDialogIsOpen(true)}>
-                    Delete
-                  </Button>
-                  <ConfirmationDialog
-                    open={deleteDialogIsOpen}
-                    onOpenChange={setDeleteDialogIsOpen}
-                    onConfirm={handleDelete}
-                    title={`Delete Evidence`}
-                    description={
-                      <>
-                        This action cannot be undone. This will permanently remove <b>{evidenceName} </b>from the control.
-                      </>
-                    }
-                  />
-                </div>
-              </div>
-            </SheetHeader>
-
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
                 <SheetTitle>

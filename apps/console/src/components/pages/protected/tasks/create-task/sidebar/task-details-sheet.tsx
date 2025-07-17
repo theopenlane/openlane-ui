@@ -389,37 +389,42 @@ const TaskDetailsSheet = () => {
 
   return (
     <Sheet open={!!id} onOpenChange={handleSheetClose}>
-      <SheetContent className="bg-card flex flex-col">
+      <SheetContent
+        side="right"
+        className="bg-card flex flex-col"
+        minWidth={470}
+        header={
+          <SheetHeader>
+            <div className="flex items-center justify-between">
+              <ArrowRight size={16} className="cursor-pointer" onClick={handleSheetClose} />
+              <div className="flex justify-end gap-2">
+                <Button icon={<LinkIcon />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
+                  Copy link
+                </Button>
+                {isEditing ? (
+                  <div className="flex gap-2">
+                    <Button disabled={isPending} type="button" variant="outline" onClick={() => setIsEditing(false)}>
+                      Cancel
+                    </Button>
+                    <Button loading={isPending} disabled={isPending} onClick={form.handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
+                      {isPending ? 'Saving...' : 'Save'}
+                    </Button>
+                  </div>
+                ) : (
+                  <Button icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
+                    Edit
+                  </Button>
+                )}
+                {taskData?.displayID && id && <DeleteTaskDialog taskName={taskData.displayID} taskId={id} />}
+              </div>
+            </div>
+          </SheetHeader>
+        }
+      >
         {fetching ? (
           <Loading />
         ) : (
           <>
-            <SheetHeader>
-              <div className="flex items-center justify-between">
-                <ArrowRight size={16} className="cursor-pointer" onClick={handleSheetClose} />
-                <div className="flex justify-end gap-2">
-                  <Button icon={<LinkIcon />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
-                    Copy link
-                  </Button>
-                  {isEditing ? (
-                    <div className="flex gap-2">
-                      <Button disabled={isPending} type="button" variant="outline" onClick={() => setIsEditing(false)}>
-                        Cancel
-                      </Button>
-                      <Button loading={isPending} disabled={isPending} onClick={form.handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
-                        {isPending ? 'Saving...' : 'Save'}
-                      </Button>
-                    </div>
-                  ) : (
-                    <Button icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
-                      Edit
-                    </Button>
-                  )}
-                  {taskData?.displayID && id && <DeleteTaskDialog taskName={taskData.displayID} taskId={id} />}
-                </div>
-              </div>
-            </SheetHeader>
-
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
                 <SheetTitle>
@@ -675,7 +680,7 @@ const TaskDetailsSheet = () => {
             </div>
 
             {isEditing && (
-              <Panel>
+              <Panel className="mt-20">
                 <PanelHeader heading="Object association" noBorder />
                 <p>Associating objects will allow users with access to the object to see the created task.</p>
                 <ObjectAssociation
@@ -689,7 +694,7 @@ const TaskDetailsSheet = () => {
         )}
         {!isEditing && (
           <>
-            <div className="p-2 w-full">
+            <div className="p-2 w-full mt-5">
               <div className="flex justify-between items-end">
                 <p className="text-lg">Conversation</p>
                 <div className="flex items-center gap-1 text-right cursor-pointer" onClick={handleCommentSort}>
