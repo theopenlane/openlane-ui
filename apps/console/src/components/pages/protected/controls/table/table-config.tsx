@@ -5,7 +5,7 @@ import SubcontrolCell from './subcontrol-cell'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { formatDate } from '@/utils/date'
 import { ControlIconMapper } from '@/components/shared/icon-enum/control-enum'
-import { Badge } from '@repo/ui/badge'
+import StandardChip from '../../standards/shared/standard-chip'
 
 const statusLabels: Record<ControlControlStatus, string> = {
   APPROVED: 'Approved',
@@ -71,22 +71,20 @@ export const getControlColumns = ({ convertToReadOnly, userMap }: Params): Colum
       header: 'Description',
       accessorKey: 'description',
       cell: ({ row }) => {
-        const tags = row.original.tags
+        const referenceFramework = row.original.referenceFramework
         const description = convertToReadOnly(row.getValue('description') as string, 0)
 
         return (
           <div>
             <div className="line-clamp-3 text-justify">{description}</div>
             <div className="mt-2 border-t border-dotted pt-2 flex flex-wrap gap-2">
-              {tags?.map((tag, index) => (
-                <Badge key={index} variant="outline">
-                  {tag}
-                </Badge>
-              ))}
+              <StandardChip referenceFramework={referenceFramework ?? ''} />
             </div>
           </div>
         )
       },
+      size: 200,
+      minSize: 150,
     },
     {
       header: 'Status',

@@ -108,6 +108,7 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
           name
           creationDate
           displayID
+          description
         }
       }
     }
@@ -129,6 +130,7 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
           id
           name
           displayID
+          details
           approver {
             gravatarLogoURL
             logoURL
@@ -144,6 +146,7 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
           id
           name
           displayID
+          details
           approver {
             gravatarLogoURL
             logoURL
@@ -178,6 +181,7 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
           name
           displayID
           status
+          description
         }
       }
     }
