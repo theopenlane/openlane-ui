@@ -7,6 +7,7 @@ import { Badge } from '@repo/ui/badge'
 import { ExternalLink, TextCursorInput, Hammer, BookKey, FileStack, Link, Tag } from 'lucide-react'
 import { Table, TableBody, TableCell, TableRow } from '@repo/ui/table'
 import { standardDetailsStyles } from './standard-details-card-styles'
+import StandardChip from './shared/standard-chip'
 
 const icons = {
   shortName: TextCursorInput,
@@ -48,7 +49,7 @@ const StandardDetailsCard = () => {
                     {Icon && <Icon size={16} className={icon()} />}
                     {label}
                   </TableCell>
-                  <TableCell className={valueCell()}>{value}</TableCell>
+                  <TableCell className={valueCell()}>{label === 'Short name' ? <StandardChip referenceFramework={standard.shortName ?? ''} /> : value}</TableCell>
                 </TableRow>
               ))}
               <TableRow>

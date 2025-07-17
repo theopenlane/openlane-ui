@@ -10,6 +10,7 @@ import { useGetSubcontrolMinifiedById } from '@/lib/graphql-hooks/subcontrol'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { MapControl } from '@/types'
 import { StandardsColorSpan, StandardsHexagon } from '@/components/shared/standards-color-mapper/standards-color-mapper'
+import StandardChip from '../../../standards/shared/standard-chip'
 
 export interface ControlChipProps {
   control: MapControl
@@ -128,7 +129,7 @@ const ControlTooltipContent: React.FC<{ control: NonNullable<ControlChipProps['c
               <span className="pl-3 text-brand ">{details.referenceFramework}</span> <ExternalLink size={12} />
             </Link>
           ) : (
-            <span className="pl-3 text-brand">CUSTOM</span>
+            <StandardChip referenceFramework={details.referenceFramework ?? ''} />
           )}
         </div>
 

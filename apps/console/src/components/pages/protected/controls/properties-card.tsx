@@ -15,6 +15,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { useGetControlCategories, useGetControlSubcategories } from '@/lib/graphql-hooks/controls'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
+import StandardChip from '../standards/shared/standard-chip'
 
 interface PropertiesCardProps {
   isEditing: boolean
@@ -138,7 +139,7 @@ const Property = ({ label, value }: { label: string; value?: string | null }) =>
       <div className="pt-0.5">{controlIconsMap[label]}</div>
       <div className="text-sm">{label}</div>
     </div>
-    <div className="text-sm whitespace-pre-line">{value || '-'}</div>
+    <div className="text-sm whitespace-pre-line">{label === 'Framework' ? <StandardChip referenceFramework={value ?? ''} /> : <div className="text-sm whitespace-pre-line">{value || '-'}</div>}</div>
   </div>
 )
 
