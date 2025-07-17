@@ -147,15 +147,21 @@ const ControlDetailsSheet = () => {
 
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
-      <SheetContent side="right" className="w-full max-w-2xl" onOpenAutoFocus={(e) => e.preventDefault()}>
-        <SheetHeader>
-          <div className="flex items-center justify-between">
-            <ArrowRight size={16} className="cursor-pointer" onClick={() => handleOpenChange(false)} />
-            <Button className="h-8 p-2" icon={<LinkIcon />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
-              Copy link
-            </Button>
-          </div>
-        </SheetHeader>
+      <SheetContent
+        side="right"
+        className="bg-card flex flex-col"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+        header={
+          <SheetHeader>
+            <div className="flex items-center justify-between">
+              <ArrowRight size={16} className="cursor-pointer" onClick={() => handleOpenChange(false)} />
+              <Button className="h-8 p-2" icon={<LinkIcon />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
+                Copy link
+              </Button>
+            </div>
+          </SheetHeader>
+        }
+      >
         <SheetTitle className="text-2xl text-start">{data?.control.refCode}</SheetTitle>
         <div className="flex flex-col gap-8">
           {data?.control.description && <div className="mt-5">{plateEditorHelper.convertToReadOnly(data?.control.description as string, 0)}</div>}

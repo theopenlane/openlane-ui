@@ -341,11 +341,14 @@ const ControlDetailsPage: React.FC = () => {
       <CancelDialog isOpen={navGuard.active} onConfirm={navGuard.accept} onCancel={navGuard.reject} />
 
       <Sheet open={showSheet} onOpenChange={handleSheetClose}>
-        <SheetContent>
-          <SheetHeader>
-            <ArrowRight size={16} className="cursor-pointer" onClick={() => handleSheetClose(false)} />
-            <SheetTitle>{sheetData?.refCode}</SheetTitle>
-          </SheetHeader>
+        <SheetContent
+          header={
+            <SheetHeader>
+              <ArrowRight size={16} className="cursor-pointer" onClick={() => handleSheetClose(false)} />
+              <SheetTitle>{sheetData?.refCode}</SheetTitle>
+            </SheetHeader>
+          }
+        >
           <div className="py-4">{sheetData?.content}</div>
         </SheetContent>
       </Sheet>

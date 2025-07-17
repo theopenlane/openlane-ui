@@ -318,11 +318,14 @@ const ControlDetailsPage: React.FC = () => {
       </FormProvider>
 
       <Sheet open={showSheet} onOpenChange={handleSheetClose}>
-        <SheetContent>
-          <SheetHeader>
-            <ArrowRight size={16} className="cursor-pointer" onClick={() => handleSheetClose(false)} />
-            <SheetTitle>{sheetData?.refCode}</SheetTitle>
-          </SheetHeader>
+        <SheetContent
+          header={
+            <SheetHeader>
+              <ArrowRight size={16} className="cursor-pointer" onClick={() => handleSheetClose(false)} />
+              <SheetTitle>{sheetData?.refCode}</SheetTitle>
+            </SheetHeader>
+          }
+        >
           <div className="py-4">{sheetData?.content}</div>
         </SheetContent>
       </Sheet>

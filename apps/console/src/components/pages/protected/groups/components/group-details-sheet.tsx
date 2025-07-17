@@ -147,38 +147,42 @@ const GroupDetailsSheet = () => {
 
   return (
     <Sheet open={!!selectedGroup} onOpenChange={handleSheetClose}>
-      <SheetContent className="bg-card">
+      <SheetContent
+        className="bg-card flex flex-col"
+        header={
+          <SheetHeader>
+            <div className="flex items-center justify-between">
+              <ArrowRight size={16} className="cursor-pointer" onClick={handleSheetClose} />
+
+              <div className="flex justify-end gap-2">
+                <Button icon={<Link />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
+                  Copy link
+                </Button>
+                {isEditing ? (
+                  <div className="flex gap-2">
+                    <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
+                      Save
+                    </Button>
+                  </div>
+                ) : (
+                  <Button disabled={!!isManaged || !isAdmin} icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
+                    Edit Group
+                  </Button>
+                )}
+
+                <DeleteGroupDialog />
+              </div>
+            </div>
+          </SheetHeader>
+        }
+      >
         {fetching ? (
           <Loading />
         ) : (
           <>
-            <SheetHeader>
-              <div className="flex items-center justify-between">
-                <ArrowRight size={16} className="cursor-pointer" onClick={handleSheetClose} />
-
-                <div className="flex justify-end gap-2">
-                  <Button icon={<Link />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
-                    Copy link
-                  </Button>
-                  {isEditing ? (
-                    <div className="flex gap-2">
-                      <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
-                        Cancel
-                      </Button>
-                      <Button onClick={handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
-                        Save
-                      </Button>
-                    </div>
-                  ) : (
-                    <Button disabled={!!isManaged || !isAdmin} icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
-                      Edit Group
-                    </Button>
-                  )}
-
-                  <DeleteGroupDialog />
-                </div>
-              </div>
-            </SheetHeader>
             <form onSubmit={handleSubmit(onSubmit)}>
               <SheetTitle>{isEditing ? <Controller name="groupName" control={control} render={({ field }) => <Input {...field} placeholder="Group name" />} /> : name}</SheetTitle>
               <SheetDescription>
