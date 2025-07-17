@@ -159,7 +159,7 @@ const ControlReportPage = () => {
                           </div>
                           <div className="flex flex-wrap gap-2">
                             {controls.map((c) => (
-                              <ControlChip key={c.id} control={c} />
+                              <ControlChip key={c.id} control={c} hideStandard />
                             ))}
                           </div>
                         </div>
