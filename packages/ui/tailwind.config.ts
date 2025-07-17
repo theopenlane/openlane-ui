@@ -17,6 +17,9 @@ const config: Pick<Config, 'prefix' | 'content' | 'presets' | 'extend' | 'plugin
         sm: 'calc(var(--radius) - 4px)',
       },
       colors: {
+        checkbox: {
+          DEFAULT: 'var(--color-bg-checkbox)',
+        },
         brand: {
           DEFAULT: 'var(--color-brand)',
           secondary: 'var(--color-brand-secondary)',
