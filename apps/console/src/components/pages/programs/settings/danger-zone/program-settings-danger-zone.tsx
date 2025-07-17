@@ -75,11 +75,11 @@ export const ProgramSettingsDangerZone = () => {
             </Button>
           </div> */}
 
-          <div>
+          <div className="space-y-2">
             <p className="text-base">
               Proceed with caution, deleting a program is <strong>permanent and irreversible</strong>.
             </p>
-            <Button variant="destructive" className="mt-2 h-8 !px-2" onClick={() => setDialogOpen(true)} disabled={isPending}>
+            <Button variant="destructive" className="w-fit" onClick={() => setDialogOpen(true)} disabled={isPending}>
               {isPending ? 'Deleting... ' : 'Delete'}
             </Button>
           </div>

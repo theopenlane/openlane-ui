@@ -140,7 +140,7 @@
   /* Alert */
   --color-destructive: #dc2626;
   --color-destructive-transparent: #dc26261a;
-  --color-destrucitve-border: #fecaca;
+  --color-destructive-border: #fecaca;
   --color-destructive-foreground: #f0fdf9;
 
   /* progressbar */
@@ -277,7 +277,7 @@
   /* Alert */
   --color-destructive: #ef4444;
   --color-destructive-transparent: #ef44441a;
-  --color-destrucitve-border: #7f1d1d;
+  --color-destructive-border: #7f1d1d;
   --color-destructive-foreground: #f0fdf9;
 
   /* progressbar */

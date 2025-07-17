@@ -179,8 +179,8 @@ export const config: Partial<Config> = {
         destructive: {
           DEFAULT: 'var(--color-destructive)',
           transparent: 'var(--color-destructive-transparent)',
-          border: 'var(--color-destrucitve-border)',
-          foreground: 'var(--destructive-foreground)',
+          border: 'var(--color-destructive-border)',
+          foreground: 'var(--color-destructive-foreground)',
         },
         progressbar: {
           DEFAULT: 'var(--color-progressbar-empty)',
