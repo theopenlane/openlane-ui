@@ -1,4 +1,4 @@
-import { Controller, useFormContext } from 'react-hook-form'
+import { useFormContext } from 'react-hook-form'
 import { z, infer as zInfer } from 'zod'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Grid } from '@repo/ui/grid'
@@ -10,7 +10,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Button } from '@repo/ui/button'
 import { cn } from '@repo/ui/lib/utils'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
-import { Checkbox } from '@repo/ui/checkbox'
 import { useRiskSelect } from '@/lib/graphql-hooks/risks'
 import { usePolicySelect } from '@/lib/graphql-hooks/policy'
 import { useProcedureSelect } from '@/lib/graphql-hooks/procedures'
@@ -37,7 +36,7 @@ export const ProgramObjectAssociationComponent = () => {
 
 // ObjectAssociationComponent contains the object association form
 export const ObjectAssociationComponent = () => {
-  const { register, control, setValue } = useFormContext<ProgramObjectAssociationValues>()
+  // const { register, control } = useFormContext<ProgramObjectAssociationValues>()
   const { riskOptions } = useRiskSelect()
   const { policyOptions } = usePolicySelect()
   const { procedureOptions } = useProcedureSelect()
@@ -50,29 +49,29 @@ export const ObjectAssociationComponent = () => {
           <AddObjectDropdown options={policyOptions} fieldName="policies" formLabel="Associate Existing Policies" />
           <AddObjectDropdown options={procedureOptions} fieldName="procedures" formLabel="Associate Existing Procedures" />
         </Grid>
-        <FormItem>
-          <Controller
-            control={control}
-            name={register('useTemplate').name}
-            render={({ field }) => (
-              <div>
-                <Checkbox
-                  id={field.name}
-                  checked={field.value}
-                  onCheckedChange={(checked) => {
-                    field.onChange(checked)
-                    if (checked) {
-                      setValue('useTemplate', true)
-                    }
-                  }}
-                />
-                {/* <FormLabel htmlFor="useTemplate" className="ml-2 cursor-pointer">
-                  Use provided templates
-                </FormLabel> */}
-              </div>
-            )}
-          />
-        </FormItem>
+        {/* <FormItem>
+            <Controller
+              control={control}
+              name={register('useTemplate').name}
+              render={({ field }) => (
+                <div>
+                  <Checkbox
+                    id={field.name}
+                    checked={field.value}
+                    onCheckedChange={(checked) => {
+                      field.onChange(checked)
+                      if (checked) {
+                        setValue('useTemplate', true)
+                      }
+                    }}
+                  />
+                  <FormLabel htmlFor="useTemplate" className="ml-2 cursor-pointer">
+                    Use provided templates
+                  </FormLabel>
+                </div>
+              )}
+            />
+          </FormItem> */}
       </Card>
     </>
   )
