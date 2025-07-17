@@ -43,7 +43,7 @@ export const NavItems: (NavItem | Separator | NavHeading)[] = [
   },
   {
     title: 'Controls',
-    href: '/controls',
+    href: '/control-report',
     icon: Settings2,
   },
   {

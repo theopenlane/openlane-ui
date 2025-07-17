@@ -114,7 +114,7 @@ const ControlTooltipContent: React.FC<{ control: NonNullable<ControlChipProps['c
           <span className="font-medium">Name</span>
         </div>
         <div className="w-full border-b">
-          <Link href={nameHref} className="size-fit pl-3 pb-2 hover:underline flex items-center gap-1" target="_blank" rel="noopener">
+          <Link href={nameHref} className="size-fit pl-3 hover:underline flex items-center gap-1" target="_blank" rel="noopener">
             <span className="text-brand">{details.refCode}</span> <ExternalLink size={12} />
           </Link>
         </div>
@@ -125,8 +125,8 @@ const ControlTooltipContent: React.FC<{ control: NonNullable<ControlChipProps['c
         </div>
         <div className="flex items-center gap-1 border-b pb-2">
           {details.referenceFramework ? (
-            <Link href={standardHref} className=" size-fit pb-2 hover:underline flex items-center gap-1" target="_blank" rel="noopener">
-              <StandardChip referenceFramework={details.referenceFramework ?? ''} /> <ExternalLink size={12} />
+            <Link href={standardHref} className=" size-fit hover:underline flex items-center gap-1" target="_blank" rel="noopener">
+              <span className="pl-3 text-brand ">{details.referenceFramework}</span> <ExternalLink size={12} />
             </Link>
           ) : (
             <StandardChip referenceFramework={details.referenceFramework ?? ''} />
