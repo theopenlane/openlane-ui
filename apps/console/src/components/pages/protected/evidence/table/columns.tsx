@@ -41,7 +41,7 @@ export const getEvidenceColumns = ({ userMap }: TGetEvidenceColumnsProps) => {
         const allControls = [...controlEdges, ...subcontrolEdges]
 
         return (
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-1" onClick={(e) => e.stopPropagation()}>
             {allControls.map((control, index) => {
               return (
                 <ControlChip
@@ -155,7 +155,7 @@ export const getEvidenceColumns = ({ userMap }: TGetEvidenceColumnsProps) => {
     },
     {
       accessorKey: 'updatedBy',
-      header: 'Updated By',
+      header: 'Last Updated By',
       cell: ({ row }) => {
         const user = userMap?.[row.original.updatedBy ?? '']
         return user ? (
