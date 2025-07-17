@@ -2762,6 +2762,44 @@ export interface ControlBulkCreatePayload {
   controls?: Maybe<Array<Control>>
 }
 
+export interface ControlCategory {
+  __typename?: 'ControlCategory'
+  name: Scalars['String']['output']
+  referenceFramework?: Maybe<Scalars['String']['output']>
+}
+
+/** A connection to a list of items. */
+export interface ControlCategoryConnection {
+  __typename?: 'ControlCategoryConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<ControlCategoryEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** An edge in a connection. */
+export interface ControlCategoryEdge {
+  __typename?: 'ControlCategoryEdge'
+  /** The item at the end of the edge. */
+  node: ControlCategory
+}
+
+/** Ordering options for ControlCategory connections */
+export interface ControlCategoryOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order ControlCategories. */
+  field: ControlCategoryOrderField
+}
+
+/** Properties by which ControlCategory connections can be ordered. */
+export enum ControlCategoryOrderField {
+  category = 'category',
+  referenceFramework = 'referenceFramework',
+}
+
 /** A connection to a list of items. */
 export interface ControlConnection {
   __typename?: 'ControlConnection'
@@ -2820,6 +2858,23 @@ export interface ControlEdge {
   cursor: Scalars['Cursor']['output']
   /** The item at the end of the edge. */
   node?: Maybe<Control>
+}
+
+export interface ControlGroup {
+  __typename?: 'ControlGroup'
+  category: Scalars['String']['output']
+  controls: ControlConnection
+}
+
+export interface ControlGroupConnection {
+  __typename?: 'ControlGroupConnection'
+  edges: Array<ControlGroupEdge>
+}
+
+export interface ControlGroupEdge {
+  __typename?: 'ControlGroupEdge'
+  node: ControlGroup
+  pageInfo: PageInfo
 }
 
 export interface ControlHistory extends Node {
@@ -5970,6 +6025,8 @@ export interface CreateExportInput {
   /** the specific fields to include in the export (defaults to only the id if not provided) */
   fields?: InputMaybe<Array<Scalars['String']['input']>>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the specific filters to run against the exported data. This should be a well formatted graphql query */
+  filters?: InputMaybe<Scalars['String']['input']>
   /** the format of export, e.g., csv and others */
   format: ExportExportFormat
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -6744,8 +6801,6 @@ export interface CreateScheduledJobInput {
   description?: InputMaybe<Scalars['String']['input']>
   /** the url from where to download the script from */
   downloadURL: Scalars['String']['input']
-  /** the type of this job */
-  jobType?: InputMaybe<ScheduledJobJobType>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   /** the platform to use to execute this job */
   platform: ScheduledJobJobPlatformType
@@ -10828,12 +10883,16 @@ export interface Export extends Node {
   __typename?: 'Export'
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
+  /** if we try to export and it fails, the error message will be stored here */
+  errorMessage?: Maybe<Scalars['String']['output']>
   events: EventConnection
   /** the type of export, e.g., control, policy, etc. */
   exportType: ExportExportType
   /** the specific fields to include in the export (defaults to only the id if not provided) */
   fields?: Maybe<Array<Scalars['String']['output']>>
   files: FileConnection
+  /** the specific filters to run against the exported data. This should be a well formatted graphql query */
+  filters?: Maybe<Scalars['String']['output']>
   /** the format of export, e.g., csv and others */
   format: ExportExportFormat
   id: Scalars['ID']['output']
@@ -10995,11 +11054,43 @@ export interface ExportWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** error_message field predicates */
+  errorMessage?: InputMaybe<Scalars['String']['input']>
+  errorMessageContains?: InputMaybe<Scalars['String']['input']>
+  errorMessageContainsFold?: InputMaybe<Scalars['String']['input']>
+  errorMessageEqualFold?: InputMaybe<Scalars['String']['input']>
+  errorMessageGT?: InputMaybe<Scalars['String']['input']>
+  errorMessageGTE?: InputMaybe<Scalars['String']['input']>
+  errorMessageHasPrefix?: InputMaybe<Scalars['String']['input']>
+  errorMessageHasSuffix?: InputMaybe<Scalars['String']['input']>
+  errorMessageIn?: InputMaybe<Array<Scalars['String']['input']>>
+  errorMessageIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  errorMessageLT?: InputMaybe<Scalars['String']['input']>
+  errorMessageLTE?: InputMaybe<Scalars['String']['input']>
+  errorMessageNEQ?: InputMaybe<Scalars['String']['input']>
+  errorMessageNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  errorMessageNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** export_type field predicates */
   exportType?: InputMaybe<ExportExportType>
   exportTypeIn?: InputMaybe<Array<ExportExportType>>
   exportTypeNEQ?: InputMaybe<ExportExportType>
   exportTypeNotIn?: InputMaybe<Array<ExportExportType>>
+  /** filters field predicates */
+  filters?: InputMaybe<Scalars['String']['input']>
+  filtersContains?: InputMaybe<Scalars['String']['input']>
+  filtersContainsFold?: InputMaybe<Scalars['String']['input']>
+  filtersEqualFold?: InputMaybe<Scalars['String']['input']>
+  filtersGT?: InputMaybe<Scalars['String']['input']>
+  filtersGTE?: InputMaybe<Scalars['String']['input']>
+  filtersHasPrefix?: InputMaybe<Scalars['String']['input']>
+  filtersHasSuffix?: InputMaybe<Scalars['String']['input']>
+  filtersIn?: InputMaybe<Array<Scalars['String']['input']>>
+  filtersIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  filtersLT?: InputMaybe<Scalars['String']['input']>
+  filtersLTE?: InputMaybe<Scalars['String']['input']>
+  filtersNEQ?: InputMaybe<Scalars['String']['input']>
+  filtersNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  filtersNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** format field predicates */
   format?: InputMaybe<ExportExportFormat>
   formatIn?: InputMaybe<Array<ExportExportFormat>>
@@ -26083,8 +26174,10 @@ export interface Query {
   contacts: ContactConnection
   /** Look up control by ID */
   control: Control
-  /** Existing categories or domains for controls used in the organization */
+  /** All existing categories or domains used in the organization @deprecated */
   controlCategories?: Maybe<Array<Scalars['String']['output']>>
+  /** Existing categories or domains for controls used in the organization */
+  controlCategoriesByFramework?: Maybe<Array<ControlCategoryEdge>>
   controlHistories: ControlHistoryConnection
   /** Look up controlImplementation by ID */
   controlImplementation: ControlImplementation
@@ -26104,9 +26197,13 @@ export interface Query {
   controlScheduledJobs: ControlScheduledJobConnection
   /** Search across Control objects */
   controlSearch?: Maybe<ControlConnection>
-  /** Existing subcategories or subdomains for controls used in the organization */
+  /** All existing subcategories or domains used in the organization @deprecated */
   controlSubcategories?: Maybe<Array<Scalars['String']['output']>>
+  /** Existing subcategories or subdomains for controls used in the organization */
+  controlSubcategoriesByFramework?: Maybe<Array<ControlCategoryEdge>>
   controls: ControlConnection
+  /** Get controls grouped by category */
+  controlsGroupByCategory: ControlGroupConnection
   /** Look up customDomain by ID */
   customDomain: CustomDomain
   customDomainHistories: CustomDomainHistoryConnection
@@ -26871,6 +26968,11 @@ export interface QueryControlArgs {
   id: Scalars['ID']['input']
 }
 
+export interface QueryControlCategoriesByFrameworkArgs {
+  orderBy?: InputMaybe<Array<ControlCategoryOrder>>
+  where?: InputMaybe<ControlWhereInput>
+}
+
 export interface QueryControlHistoriesArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -26970,9 +27072,24 @@ export interface QueryControlSearchArgs {
   query: Scalars['String']['input']
 }
 
+export interface QueryControlSubcategoriesByFrameworkArgs {
+  orderBy?: InputMaybe<Array<ControlCategoryOrder>>
+  where?: InputMaybe<ControlWhereInput>
+}
+
 export interface QueryControlsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ControlOrder>>
+  where?: InputMaybe<ControlWhereInput>
+}
+
+export interface QueryControlsGroupByCategoryArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  category?: InputMaybe<Scalars['String']['input']>
   first?: InputMaybe<Scalars['Int']['input']>
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ControlOrder>>
@@ -29806,8 +29923,6 @@ export interface ScheduledJob extends Node {
   /** the url from where to download the script from */
   downloadURL: Scalars['String']['output']
   id: Scalars['ID']['output']
-  /** the type of this job */
-  jobType: ScheduledJobJobType
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
@@ -29886,8 +30001,6 @@ export interface ScheduledJobHistory extends Node {
   downloadURL: Scalars['String']['output']
   historyTime: Scalars['Time']['output']
   id: Scalars['ID']['output']
-  /** the type of this job */
-  jobType: ScheduledJobHistoryJobType
   operation: ScheduledJobHistoryOpType
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['String']['output']>
@@ -29934,11 +30047,6 @@ export enum ScheduledJobHistoryJobPlatformType {
   TS = 'TS',
 }
 
-/** ScheduledJobHistoryJobType is enum for the field job_type */
-export enum ScheduledJobHistoryJobType {
-  SSL = 'SSL',
-}
-
 /** ScheduledJobHistoryOpType is enum for the field operation */
 export enum ScheduledJobHistoryOpType {
   DELETE = 'DELETE',
@@ -29956,7 +30064,6 @@ export interface ScheduledJobHistoryOrder {
 
 /** Properties by which ScheduledJobHistory connections can be ordered. */
 export enum ScheduledJobHistoryOrderField {
-  JOB_TYPE = 'JOB_TYPE',
   created_at = 'created_at',
   history_time = 'history_time',
   platform = 'platform',
@@ -30047,11 +30154,6 @@ export interface ScheduledJobHistoryWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  /** job_type field predicates */
-  jobType?: InputMaybe<ScheduledJobHistoryJobType>
-  jobTypeIn?: InputMaybe<Array<ScheduledJobHistoryJobType>>
-  jobTypeNEQ?: InputMaybe<ScheduledJobHistoryJobType>
-  jobTypeNotIn?: InputMaybe<Array<ScheduledJobHistoryJobType>>
   not?: InputMaybe<ScheduledJobHistoryWhereInput>
   /** operation field predicates */
   operation?: InputMaybe<ScheduledJobHistoryOpType>
@@ -30150,11 +30252,6 @@ export enum ScheduledJobJobPlatformType {
   TS = 'TS',
 }
 
-/** ScheduledJobJobType is enum for the field job_type */
-export enum ScheduledJobJobType {
-  SSL = 'SSL',
-}
-
 /** Ordering options for ScheduledJob connections */
 export interface ScheduledJobOrder {
   /** The ordering direction. */
@@ -30165,7 +30262,6 @@ export interface ScheduledJobOrder {
 
 /** Properties by which ScheduledJob connections can be ordered. */
 export enum ScheduledJobOrderField {
-  JOB_TYPE = 'JOB_TYPE',
   created_at = 'created_at',
   platform = 'platform',
   title = 'title',
@@ -30482,11 +30578,6 @@ export interface ScheduledJobWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  /** job_type field predicates */
-  jobType?: InputMaybe<ScheduledJobJobType>
-  jobTypeIn?: InputMaybe<Array<ScheduledJobJobType>>
-  jobTypeNEQ?: InputMaybe<ScheduledJobJobType>
-  jobTypeNotIn?: InputMaybe<Array<ScheduledJobJobType>>
   not?: InputMaybe<ScheduledJobWhereInput>
   or?: InputMaybe<Array<ScheduledJobWhereInput>>
   /** owner_id field predicates */
@@ -37374,9 +37465,12 @@ export interface UpdateEvidenceInput {
 export interface UpdateExportInput {
   addEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  clearErrorMessage?: InputMaybe<Scalars['Boolean']['input']>
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
+  /** if we try to export and it fails, the error message will be stored here */
+  errorMessage?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -38633,8 +38727,6 @@ export interface UpdateScheduledJobInput {
   description?: InputMaybe<Scalars['String']['input']>
   /** the url from where to download the script from */
   downloadURL?: InputMaybe<Scalars['String']['input']>
-  /** the type of this job */
-  jobType?: InputMaybe<ScheduledJobJobType>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   /** the script to run */
   script?: InputMaybe<Scalars['String']['input']>
@@ -41339,6 +41431,33 @@ export type GetControlsPaginatedWithListFieldsQuery = {
   }
 }
 
+export type GetControlsGroupedByCategoryResolverQueryVariables = Exact<{
+  where?: InputMaybe<ControlWhereInput>
+}>
+
+export type GetControlsGroupedByCategoryResolverQuery = {
+  __typename?: 'Query'
+  controlsGroupByCategory: {
+    __typename?: 'ControlGroupConnection'
+    edges: Array<{
+      __typename?: 'ControlGroupEdge'
+      node: {
+        __typename?: 'ControlGroup'
+        category: string
+        controls: {
+          __typename?: 'ControlConnection'
+          totalCount: number
+          pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean }
+          edges?: Array<{
+            __typename?: 'ControlEdge'
+            node?: { __typename: 'Control'; id: string; refCode: string; status?: ControlControlStatus | null; referenceFramework?: string | null } | null
+          } | null> | null
+        }
+      }
+    }>
+  }
+}
+
 export type CreateEvidenceMutationVariables = Exact<{
   input: CreateEvidenceInput
   evidenceFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
@@ -42325,13 +42444,13 @@ export type InternalPolicyByIdFragment = {
   controls: {
     __typename?: 'ControlConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
+    edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string; description?: string | null } | null } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
   }
   subcontrols: {
     __typename?: 'SubcontrolConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string } | null } | null> | null
+    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; description?: string | null } | null } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
   }
   programs: {
@@ -42389,13 +42508,13 @@ export type GetInternalPolicyDetailsByIdQuery = {
     controls: {
       __typename?: 'ControlConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string; description?: string | null } | null } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     subcontrols: {
       __typename?: 'SubcontrolConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; description?: string | null } | null } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     }
     programs: {
@@ -42569,7 +42688,7 @@ export type ProcedureByIdFragment = {
   risks: {
     __typename?: 'RiskConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string; displayID: string } | null } | null> | null
+    edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string; displayID: string; details?: string | null } | null } | null> | null
   }
   internalPolicies: {
     __typename?: 'InternalPolicyConnection'
@@ -42579,25 +42698,25 @@ export type ProcedureByIdFragment = {
   controls: {
     __typename?: 'ControlConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
+    edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string; description?: string | null } | null } | null> | null
   }
   subcontrols: {
     __typename?: 'SubcontrolConnection'
     totalCount: number
     edges?: Array<{
       __typename?: 'SubcontrolEdge'
-      node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; control: { __typename?: 'Control'; id: string } } | null
+      node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; description?: string | null; control: { __typename?: 'Control'; id: string } } | null
     } | null> | null
   }
   programs: {
     __typename?: 'ProgramConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string } | null } | null> | null
+    edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string; description?: string | null } | null } | null> | null
   }
   tasks: {
     __typename?: 'TaskConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string } | null } | null> | null
+    edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; details?: string | null } | null } | null> | null
   }
 }
 
@@ -42630,7 +42749,7 @@ export type GetProcedureDetailsByIdQuery = {
     risks: {
       __typename?: 'RiskConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string; displayID: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string; displayID: string; details?: string | null } | null } | null> | null
     }
     internalPolicies: {
       __typename?: 'InternalPolicyConnection'
@@ -42640,25 +42759,25 @@ export type GetProcedureDetailsByIdQuery = {
     controls: {
       __typename?: 'ControlConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string; description?: string | null } | null } | null> | null
     }
     subcontrols: {
       __typename?: 'SubcontrolConnection'
       totalCount: number
       edges?: Array<{
         __typename?: 'SubcontrolEdge'
-        node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; control: { __typename?: 'Control'; id: string } } | null
+        node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; description?: string | null; control: { __typename?: 'Control'; id: string } } | null
       } | null> | null
     }
     programs: {
       __typename?: 'ProgramConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string; description?: string | null } | null } | null> | null
     }
     tasks: {
       __typename?: 'TaskConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; details?: string | null } | null } | null> | null
     }
   }
 }
