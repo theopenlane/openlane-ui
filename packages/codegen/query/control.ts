@@ -374,3 +374,31 @@ export const GET_CONTROLS_PAGINATED_WITH_LIST_FIELDS = gql`
     }
   }
 `
+
+export const GET_CONTROLS_GROUPED_BY_CATEGORY_RESOLVER = gql`
+  query GetControlsGroupedByCategoryResolver($where: ControlWhereInput) {
+    controlsGroupByCategory(where: $where) {
+      edges {
+        node {
+          category
+          controls {
+            totalCount
+            pageInfo {
+              endCursor
+              hasNextPage
+            }
+            edges {
+              node {
+                __typename
+                id
+                refCode
+                status
+                referenceFramework
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`

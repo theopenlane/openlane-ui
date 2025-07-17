@@ -44,14 +44,14 @@ export const useStandardsSelect = ({ where, enabled = true }: { where?: GetAllSt
   })
 
   const standardOptions = useMemo(() => {
-    const frameworks = res.data?.standards?.edges?.map((edge) => edge?.node as Standard) || []
+    const frameworks = res.data?.standards?.edges?.map((edge) => edge?.node as Standard).filter(Boolean) ?? []
 
-    return (
-      frameworks.map((framework) => ({
-        label: framework.shortName || '',
-        value: framework.id || '',
-      })) ?? []
-    )
+    const sorted = frameworks.sort((a, b) => (a.shortName || '').localeCompare(b.shortName || ''))
+
+    return sorted.map((framework) => ({
+      label: framework.shortName || '',
+      value: framework.id || '',
+    }))
   }, [res.data])
 
   return {
