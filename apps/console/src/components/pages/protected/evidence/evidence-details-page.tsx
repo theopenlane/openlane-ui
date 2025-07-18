@@ -1,6 +1,6 @@
 'use client'
 import { EvidenceTable } from '@/components/pages/protected/evidence/table/evidence-table.tsx'
-import { EvidenceSummaryCard } from '@/components/pages/protected/procedures/chart/evidence-summary-card.tsx'
+import { EvidenceSummaryCard } from '@/components/pages/protected/evidence/chart/evidence-summary-card.tsx'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useGetAllPrograms, useGetProgramBasicInfo } from '@/lib/graphql-hooks/programs.ts'
