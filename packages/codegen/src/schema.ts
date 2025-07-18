@@ -43683,7 +43683,7 @@ export type GetSubcontrolsPaginatedQuery = {
     totalCount: number
     edges?: Array<{
       __typename?: 'SubcontrolEdge'
-      node?: { __typename: 'Subcontrol'; id: string; refCode: string; category?: string | null; subcategory?: string | null; referenceFramework?: string | null } | null
+      node?: { __typename: 'Subcontrol'; id: string; refCode: string; category?: string | null; subcategory?: string | null; referenceFramework?: string | null; controlID: string } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; hasNextPage: boolean; endCursor?: any | null }
   }
