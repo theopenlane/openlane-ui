@@ -77,6 +77,12 @@ const ControlReportPage = () => {
     ])
   }, [setCrumbs])
 
+  useEffect(() => {
+    if (standardOptions?.[0]?.label) {
+      setReferenceFramework(standardOptions[0].label)
+    }
+  }, [standardOptions])
+
   return (
     <TooltipProvider>
       <div className="space-y-2">
@@ -86,12 +92,12 @@ const ControlReportPage = () => {
             <SelectValue placeholder="Select Framework" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="Custom">Custom</SelectItem>
             {filteredStandardOptions.map((opt) => (
               <SelectItem key={opt.value} value={opt.value}>
                 {opt.label}
               </SelectItem>
             ))}
+            <SelectItem value="CUSTOM">CUSTOM</SelectItem>
           </SelectContent>
         </Select>
 
