@@ -8,7 +8,7 @@ import { useGetControlsGroupedByCategoryResolver } from '@/lib/graphql-hooks/con
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { ControlControlStatus } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, ChevronsDownUp, List } from 'lucide-react'
 import ControlChip from '../controls/map-controls/shared/control-chip'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
@@ -18,8 +18,9 @@ import { Button } from '@repo/ui/button'
 
 const ControlReportPage = () => {
   const { currentOrgId } = useOrganization()
-  const [referenceFramework, setReferenceFramework] = useState<string | undefined>()
   const { setCrumbs } = useContext(BreadcrumbContext)
+  const [referenceFramework, setReferenceFramework] = useState<string | undefined>()
+  const [expandedItems, setExpandedItems] = useState<string[]>([])
 
   const { standardOptions } = useStandardsSelect({
     where: {
@@ -72,6 +73,15 @@ const ControlReportPage = () => {
     )
   }
 
+  const toggleAll = () => {
+    if (!grouped) return
+
+    const allCategories = grouped.map((g) => g.category)
+    const hasAllExpanded = allCategories.every((cat) => expandedItems.includes(cat))
+
+    setExpandedItems(hasAllExpanded ? [] : allCategories)
+  }
+
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
@@ -103,6 +113,12 @@ const ControlReportPage = () => {
               <SelectItem value="CUSTOM">CUSTOM</SelectItem>
             </SelectContent>
           </Select>
+          <Button type="button" className="h-8 !px-2" variant="outline" onClick={toggleAll}>
+            <div className="flex">
+              <List size={16} />
+              <ChevronsDownUp size={16} />
+            </div>
+          </Button>
         </div>
         <Link href={'/controls'}>
           <Button className="h-8 p-2">View All Controls</Button>
@@ -114,7 +130,7 @@ const ControlReportPage = () => {
         ) : grouped?.length === 0 ? (
           <div className="mt-6 text-muted-foreground text-sm">No controls found for the selected framework.</div>
         ) : (
-          <Accordion type="multiple">
+          <Accordion type="multiple" value={expandedItems} onValueChange={setExpandedItems}>
             {grouped?.map(({ category, controls }) => {
               const controlsByStatus = groupControlsByStatus(controls)
 
