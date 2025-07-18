@@ -3,7 +3,7 @@
 import React from 'react'
 import { Group, ProcedureByIdFragment } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
-import { ChevronDown, Stamp, CircleArrowRight } from 'lucide-react'
+import { ChevronDown, Stamp, CircleArrowRight, HelpCircle } from 'lucide-react'
 import { Controller, UseFormReturn } from 'react-hook-form'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
@@ -33,7 +33,19 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
         <div className="flex justify-between items-center">
           <div className={`flex gap-2 w-[200px] items-center ${inputClassName ?? ''} `}>
             <Stamp size={16} className="text-brand" />
-            <span>Approver</span>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-1">
+                    <span className="cursor-help">Approver</span>
+                    <HelpCircle size={12} className="text-muted-foreground" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>The group responsible for approving this procedure before it can be published.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
 
           {isEditing && (
@@ -67,7 +79,19 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
         <div className="flex justify-between items-center">
           <div className={`flex gap-2 w-[200px] items-center ${inputClassName ?? ''}`}>
             <CircleArrowRight size={16} className="text-brand" />
-            <span>Delegate</span>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-1">
+                    <span className="cursor-help">Delegate</span>
+                    <HelpCircle size={12} className="text-muted-foreground" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>The group who can act on behalf of the approver when they are unavailable.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
 
           {isEditing && (

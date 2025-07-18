@@ -335,7 +335,7 @@ export const GET_EVIDENCE_STATS = gql`
     accepted: controls(where: { hasProgramsWith: [{ id: $programId }], hasEvidenceWith: [{ statusIn: APPROVED }] }) {
       totalCount
     }
-    overdue: controls(where: { hasProgramsWith: [{ id: $programId }], hasEvidenceWith: [{ statusNotIn: [APPROVED, READY] }], statusNotIn: [ARCHIVED, APPROVED] }) {
+    rejected: controls(where: { hasProgramsWith: [{ id: $programId }], hasEvidenceWith: [{ statusIn: REJECTED }] }) {
       totalCount
     }
   }
@@ -352,7 +352,7 @@ export const GET_GLOBAL_EVIDENCE_STATS = gql`
     accepted: controls(where: { hasEvidenceWith: [{ statusIn: APPROVED }] }) {
       totalCount
     }
-    overdue: controls(where: { hasEvidenceWith: [{ statusNotIn: [APPROVED, READY] }], statusNotIn: [ARCHIVED, APPROVED] }) {
+    rejected: controls(where: { hasEvidenceWith: [{ statusIn: REJECTED }] }) {
       totalCount
     }
   }

@@ -14,6 +14,7 @@ import React, { useState } from 'react'
 import { getYear } from 'date-fns'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { useGetStandards } from '@/lib/graphql-hooks/standards'
+import { ProgramTypeOptions } from '@/components/shared/enum-mapper/program-enum'
 
 const currentYear = getYear(new Date())
 
@@ -43,13 +44,6 @@ export const initProgramSchema = z
   })
 
 type InitProgramValues = zInfer<typeof initProgramSchema>
-
-const programTypes = [
-  { value: ProgramProgramType.FRAMEWORK, label: 'Framework' },
-  { value: ProgramProgramType.GAP_ANALYSIS, label: 'Gap Analysis' },
-  { value: ProgramProgramType.RISK_ASSESSMENT, label: 'Risk Assessment' },
-  { value: ProgramProgramType.OTHER, label: 'Other - Please Specify' },
-]
 
 export function ProgramInitComponent() {
   const { formRow } = wizardStyles()
@@ -160,7 +154,7 @@ const ProgramTypeSelect = () => {
                 setValue('programType', value)
                 trigger('programType')
                 if (value === ProgramProgramType.RISK_ASSESSMENT || value === ProgramProgramType.GAP_ANALYSIS) {
-                  const selectedLabel = programTypes.find((type) => type.value === value)?.label
+                  const selectedLabel = ProgramTypeOptions.find((type) => type.value === value)?.label
                   setValue('name', `${selectedLabel} - ${currentYear}`)
                 }
               }}
@@ -170,7 +164,7 @@ const ProgramTypeSelect = () => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {programTypes.map((type) => (
+                {ProgramTypeOptions.map((type) => (
                   <SelectItem key={type.value} value={type.value}>
                     {type.label}
                   </SelectItem>
@@ -284,7 +278,7 @@ const FrameworkSelect = () => {
                 setSelectedFrameworkData({ shortName: selectedFramework?.shortName ?? '', description: selectedFramework?.description ?? '' })
                 field.onChange(value)
                 const getLabelNameForGapAnalysis = () => {
-                  const selectedLabel = programTypes.find((type) => type.value === programType)?.label
+                  const selectedLabel = ProgramTypeOptions.find((type) => type.value === programType)?.label
                   return `${selectedLabel} - ${value} - ${currentYear}`
                 }
                 setValue('name', programType === ProgramProgramType.GAP_ANALYSIS ? getLabelNameForGapAnalysis() : `${value} - ${currentYear}`)
@@ -384,9 +378,9 @@ const StatusSelect = () => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(ProgramProgramStatus).map(([key, value], i) => (
-                  <SelectItem key={i} value={value}>
-                    {key[0].toUpperCase() + key.slice(1).replaceAll('_', ' ').toLowerCase()}
+                {ProgramTypeOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
                   </SelectItem>
                 ))}
               </SelectContent>

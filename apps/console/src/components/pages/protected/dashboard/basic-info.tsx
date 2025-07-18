@@ -15,7 +15,7 @@ import MultipleSelector from '@repo/ui/multiple-selector'
 import { Textarea } from '@repo/ui/textarea'
 import { Pencil } from 'lucide-react'
 import { Badge } from '@repo/ui/badge'
-import { PROGRAM_TYPE_LABELS } from '@/components/shared/icon-enum/program-enum'
+import { ProgramTypeLabels } from '@/components/shared/enum-mapper/program-enum'
 import { GqlError } from '@/types'
 
 const formSchema = z.object({
@@ -148,7 +148,7 @@ const BasicInformation = () => {
           {/* Type */}
           <div className="flex border-b pb-2.5">
             <span className="block w-32 shrink-0">Type</span>
-            {program?.programType && <span>{PROGRAM_TYPE_LABELS[program.programType] || '-'}</span>}
+            {program?.programType && <span>{ProgramTypeLabels[program.programType] || '-'}</span>}
           </div>
 
           {/* Framework */}

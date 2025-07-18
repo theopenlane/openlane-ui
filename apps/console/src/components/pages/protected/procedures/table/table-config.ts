@@ -4,7 +4,7 @@ import { OrderDirection, ProcedureOrderField } from '@repo/codegen/src/schema.ts
 import { useEffect, useState } from 'react'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
 import { useGroupSelect } from '@/lib/graphql-hooks/groups'
-import { ProcedureDocumentStatus } from '@repo/codegen/src/schema.ts'
+import { ProcedureStatusFilterOptions } from '@/components/shared/enum-mapper/policy-enum'
 
 export function useProceduresFilters(): FilterField[] | null {
   const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect()
@@ -14,13 +14,7 @@ export function useProceduresFilters(): FilterField[] | null {
   useEffect(() => {
     if (!isProgramSuccess || !isGroupSuccess || filters) return
 
-    const statusOptions = Object.entries(ProcedureDocumentStatus).map(([key, value]) => ({
-      label: key
-        .replace(/_/g, ' ')
-        .toLowerCase()
-        .replace(/\b\w/g, (c) => c.toUpperCase()),
-      value,
-    }))
+    const statusOptions = ProcedureStatusFilterOptions
 
     const newFilters: FilterField[] = [
       {

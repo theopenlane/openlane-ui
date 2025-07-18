@@ -5,6 +5,8 @@ import { formatDate, formatTimeSince } from '@/utils/date'
 import { KeyRound } from 'lucide-react'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { Badge } from '@repo/ui/badge'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { DocumentIconMapper, DocumentStatusMapper, DocumentStatusTooltips } from '@/components/shared/enum-mapper/policy-enum'
 
 type TProceduresColumnsProps = {
   users?: User[]
@@ -16,15 +18,39 @@ export const getProceduresColumns = ({ users, tokens }: TProceduresColumnsProps)
     {
       accessorKey: 'name',
       header: 'Name',
-      cell: ({ cell }) => {
-        return <div className="font-bold">{cell.getValue() as string}</div>
-      },
+      cell: ({ cell }) => (
+        <div>
+          <div className="font-bold">{cell.getValue() as string}</div>
+          <div className="mt-2 border-t border-dotted pt-2 flex flex-wrap gap-2">
+            {cell.row.original.status && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant={'outline'}>
+                      <span className="flex items-center gap-2">
+                        {DocumentIconMapper[cell.row.original.status]} {DocumentStatusMapper[cell.row.original.status]}
+                      </span>
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{DocumentStatusTooltips[cell.row.original.status]}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
+        </div>
+      ),
       size: 180,
     },
     {
       accessorKey: 'summary',
       size: 300,
+      minSize: 300,
       header: 'Summary',
+      meta: {
+        className: 'w-[40%] min-w-[300px]', // CSS class for responsive width
+      },
       cell: ({ cell }) => {
         const summary = cell.getValue() as string
         return <div className="line-clamp-4">{summary === '' ? 'N/A' : summary}</div>

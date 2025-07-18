@@ -41081,7 +41081,7 @@ export type ControlDetailsFieldsFragment = {
   }
   evidence: {
     __typename?: 'EvidenceConnection'
-    edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; displayID: string; name: string; creationDate: any } | null } | null> | null
+    edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; displayID: string; name: string; creationDate: any; description?: string | null } | null } | null> | null
   }
   subcontrols: {
     __typename?: 'SubcontrolConnection'
@@ -41098,6 +41098,7 @@ export type ControlDetailsFieldsFragment = {
         id: string
         name: string
         displayID: string
+        details?: string | null
         approver?: { __typename?: 'Group'; gravatarLogoURL?: string | null; logoURL?: string | null; displayName: string } | null
       } | null
     } | null> | null
@@ -41112,6 +41113,7 @@ export type ControlDetailsFieldsFragment = {
         id: string
         name: string
         displayID: string
+        details?: string | null
         approver?: { __typename?: 'Group'; gravatarLogoURL?: string | null; logoURL?: string | null; displayName: string } | null
       } | null
     } | null> | null
@@ -41134,7 +41136,10 @@ export type ControlDetailsFieldsFragment = {
   programs: {
     __typename?: 'ProgramConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string; displayID: string; status: ProgramProgramStatus } | null } | null> | null
+    edges?: Array<{
+      __typename?: 'ProgramEdge'
+      node?: { __typename?: 'Program'; id: string; name: string; displayID: string; status: ProgramProgramStatus; description?: string | null } | null
+    } | null> | null
   }
   risks: {
     __typename?: 'RiskConnection'
@@ -41237,7 +41242,10 @@ export type GetControlByIdQuery = {
     }
     evidence: {
       __typename?: 'EvidenceConnection'
-      edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; displayID: string; name: string; creationDate: any } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'EvidenceEdge'
+        node?: { __typename?: 'Evidence'; id: string; displayID: string; name: string; creationDate: any; description?: string | null } | null
+      } | null> | null
     }
     subcontrols: {
       __typename?: 'SubcontrolConnection'
@@ -41254,6 +41262,7 @@ export type GetControlByIdQuery = {
           id: string
           name: string
           displayID: string
+          details?: string | null
           approver?: { __typename?: 'Group'; gravatarLogoURL?: string | null; logoURL?: string | null; displayName: string } | null
         } | null
       } | null> | null
@@ -41268,6 +41277,7 @@ export type GetControlByIdQuery = {
           id: string
           name: string
           displayID: string
+          details?: string | null
           approver?: { __typename?: 'Group'; gravatarLogoURL?: string | null; logoURL?: string | null; displayName: string } | null
         } | null
       } | null> | null
@@ -41290,7 +41300,10 @@ export type GetControlByIdQuery = {
     programs: {
       __typename?: 'ProgramConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string; displayID: string; status: ProgramProgramStatus } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'ProgramEdge'
+        node?: { __typename?: 'Program'; id: string; name: string; displayID: string; status: ProgramProgramStatus; description?: string | null } | null
+      } | null> | null
     }
     risks: {
       __typename?: 'RiskConnection'
@@ -41674,6 +41687,33 @@ export type GetEvidenceCountsByStatusQuery = {
   ready: { __typename?: 'EvidenceConnection'; totalCount: number }
   missingArtifact: { __typename?: 'EvidenceConnection'; totalCount: number }
   needsRenewal: { __typename?: 'EvidenceConnection'; totalCount: number }
+}
+
+export type GetEvidenceTrendDataQueryVariables = Exact<{
+  currentWeekStart: Scalars['Time']['input']
+  previousWeekStart: Scalars['Time']['input']
+  previousWeekEnd: Scalars['Time']['input']
+  status?: InputMaybe<EvidenceEvidenceStatus>
+}>
+
+export type GetEvidenceTrendDataQuery = {
+  __typename?: 'Query'
+  currentWeek: { __typename?: 'EvidenceConnection'; totalCount: number }
+  previousWeek: { __typename?: 'EvidenceConnection'; totalCount: number }
+}
+
+export type GetProgramEvidenceTrendDataQueryVariables = Exact<{
+  programId: Scalars['ID']['input']
+  currentWeekStart: Scalars['Time']['input']
+  previousWeekStart: Scalars['Time']['input']
+  previousWeekEnd: Scalars['Time']['input']
+  status?: InputMaybe<EvidenceEvidenceStatus>
+}>
+
+export type GetProgramEvidenceTrendDataQuery = {
+  __typename?: 'Query'
+  currentWeek: { __typename?: 'EvidenceConnection'; totalCount: number }
+  previousWeek: { __typename?: 'EvidenceConnection'; totalCount: number }
 }
 
 export type GetAllGroupsQueryVariables = Exact<{
@@ -43051,7 +43091,7 @@ export type GetEvidenceStatsQuery = {
   totalControls: { __typename?: 'ControlConnection'; totalCount: number }
   submitted: { __typename?: 'ControlConnection'; totalCount: number }
   accepted: { __typename?: 'ControlConnection'; totalCount: number }
-  overdue: { __typename?: 'ControlConnection'; totalCount: number }
+  rejected: { __typename?: 'ControlConnection'; totalCount: number }
 }
 
 export type GetGlobalEvidenceStatsQueryVariables = Exact<{ [key: string]: never }>
@@ -43061,7 +43101,7 @@ export type GetGlobalEvidenceStatsQuery = {
   totalControls: { __typename?: 'ControlConnection'; totalCount: number }
   submitted: { __typename?: 'ControlConnection'; totalCount: number }
   accepted: { __typename?: 'ControlConnection'; totalCount: number }
-  overdue: { __typename?: 'ControlConnection'; totalCount: number }
+  rejected: { __typename?: 'ControlConnection'; totalCount: number }
 }
 
 export type RiskFieldsFragment = {

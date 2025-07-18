@@ -16,7 +16,7 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TASK_SORT_FIELDS } from '../protected/tasks/table/table-config'
 import { useSearchParams } from 'next/navigation'
 import Frame from '@/assets/Frame'
-import { TaskStatusIconMapper } from '@/components/shared/icon-enum/task-enum.tsx'
+import { TaskStatusIconMapper } from '@/components/shared/enum-mapper/task-enum'
 import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task.ts'
 
 type FormattedTask = {

@@ -1,7 +1,7 @@
 import { MappedControlMappingType } from '@repo/codegen/src/schema'
 import { usePathname } from 'next/navigation'
 import { RelatedControlChip } from './shared/related-control-chip'
-import { MappingIconMapper } from '@/components/shared/icon-enum/map-control-enum'
+import { MappingIconMapper } from '@/components/shared/enum-mapper/map-control-enum'
 import Link from 'next/link'
 import { Pencil, Trash2 } from 'lucide-react'
 import { useState } from 'react'

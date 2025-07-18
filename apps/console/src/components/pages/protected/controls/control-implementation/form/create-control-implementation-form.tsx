@@ -7,7 +7,6 @@ import { Button } from '@repo/ui/button'
 import { Label } from '@repo/ui/label'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import { SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { ControlImplementationDocumentStatus } from '@repo/codegen/src/schema'
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Value } from '@udecode/plate-common'
@@ -21,6 +20,7 @@ import { SetObjectAssociationDialog } from '../set-object-association-dialog'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 import { useCreateControlImplementation, useDeleteControlImplementation, useUpdateControlImplementation } from '@/lib/graphql-hooks/control-implementations'
 import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
+import { ControlImplementationStatusOptions } from '@/components/shared/enum-mapper/control-enum'
 
 export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { onSuccess: () => void; defaultValues?: Partial<TFormData> }) => {
   const { id, subcontrolId } = useParams()
@@ -171,9 +171,9 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.entries(ControlImplementationDocumentStatus).map(([key, val]) => (
-                      <SelectItem key={key} value={val}>
-                        {formatEnumLabel(val)}
+                    {ControlImplementationStatusOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -198,12 +198,4 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
       </div>
     </form>
   )
-}
-
-const formatEnumLabel = (value: string) => {
-  return value
-    .toLowerCase()
-    .split('_')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ')
 }

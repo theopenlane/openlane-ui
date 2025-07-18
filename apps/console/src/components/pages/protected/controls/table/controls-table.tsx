@@ -31,6 +31,8 @@ const ControlsTable: React.FC = () => {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     referenceID: false,
     auditorReferenceID: false,
+    category: false,
+    subcategory: false,
     source: false,
     controlType: false,
     referenceFramework: false,
@@ -164,7 +166,6 @@ const ControlsTable: React.FC = () => {
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         loading={fetchingUsers || isLoading || isFetching}
-        stickyHeader
       />
     </div>
   )

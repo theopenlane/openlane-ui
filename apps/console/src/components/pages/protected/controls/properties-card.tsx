@@ -5,11 +5,11 @@ import { useFormContext, Controller } from 'react-hook-form'
 import { Card } from '@repo/ui/cardpanel'
 import { Input } from '@repo/ui/input'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@repo/ui/select'
-import { FolderIcon, BinocularsIcon, CopyIcon, InfoIcon, PlusIcon, ChevronDown, FileBadge2, Settings2, FolderSymlink, ArrowUpFromDot, Shapes } from 'lucide-react'
+import { FolderIcon, BinocularsIcon, CopyIcon, PlusIcon, ChevronDown, FileBadge2, Settings2, FolderSymlink, ArrowUpFromDot, Shapes, HelpCircle } from 'lucide-react'
 import { Control, ControlControlSource, ControlControlStatus, ControlControlType, Subcontrol } from '@repo/codegen/src/schema'
 import MappedCategoriesDialog from './mapped-categories-dialog'
 import Link from 'next/link'
-import { ControlIconMapper } from '@/components/shared/icon-enum/control-enum.tsx'
+import { ControlIconMapper16, ControlStatusLabels, ControlStatusOptions } from '@/components/shared/enum-mapper/control-enum'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { useNotification } from '@/hooks/useNotification'
 import { useGetControlCategories, useGetControlSubcategories } from '@/lib/graphql-hooks/controls'
@@ -20,15 +20,6 @@ import StandardChip from '../standards/shared/standard-chip'
 interface PropertiesCardProps {
   isEditing: boolean
   data?: Control | Subcontrol
-}
-
-const statusLabels: Record<ControlControlStatus, string> = {
-  APPROVED: 'Approved',
-  ARCHIVED: 'Archived',
-  CHANGES_REQUESTED: 'Changes requested',
-  NEEDS_APPROVAL: 'Needs approval',
-  NOT_IMPLEMENTED: 'Not implemented',
-  PREPARING: 'Preparing',
 }
 
 const sourceLabels: Record<ControlControlSource, string> = {
@@ -44,8 +35,6 @@ const typeLabels: Record<ControlControlType, string> = {
   DETERRENT: 'Deterrent',
   PREVENTATIVE: 'Preventative',
 }
-
-const statusOptions = Object.values(ControlControlStatus)
 
 export const controlIconsMap: Record<string, React.ReactNode> = {
   Framework: <FileBadge2 size={16} className="text-brand" />,
@@ -72,7 +61,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing }) => {
         {data?.__typename === 'Subcontrol' && <LinkedProperty label="Control" href={`/controls/${data.control.id}/`} value={data.control.refCode} icon={controlIconsMap.Control} />}
         <EditableSelectFromQuery label="Category" name="category" isEditing={isEditAllowed} icon={controlIconsMap.Category} />
         <EditableSelectFromQuery label="Subcategory" name="subcategory" isEditing={isEditAllowed} icon={controlIconsMap.Subcategory} />
-        <div className="grid grid-cols-[110px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
+        <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
           <div className="flex items-start gap-2">
             <div className="pt-0.5">{controlIconsMap.Status}</div>
             <div className="text-sm">Status</div>
@@ -85,12 +74,12 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing }) => {
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Select status">{field.value === 'NULL' ? '-' : statusLabels[field.value as ControlControlStatus]}</SelectValue>
+                      <SelectValue placeholder="Select status">{field.value === 'NULL' ? '-' : ControlStatusLabels[field.value as ControlControlStatus]}</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {statusOptions.map((status) => (
-                        <SelectItem key={status} value={status}>
-                          {statusLabels[status]}
+                      {ControlStatusOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -99,8 +88,8 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing }) => {
               />
             ) : (
               <div className="flex items-center space-x-2">
-                {ControlIconMapper[status as ControlControlStatus]}
-                <p>{statusLabels[status as ControlControlStatus] || '-'}</p>
+                {ControlIconMapper16[data?.status as ControlControlStatus]}
+                <p>{ControlStatusLabels[data?.status as ControlControlStatus] || '-'}</p>
               </div>
             )}
           </div>
@@ -134,7 +123,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing }) => {
 export default PropertiesCard
 
 const Property = ({ label, value }: { label: string; value?: string | null }) => (
-  <div className="grid grid-cols-[110px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
+  <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
     <div className="flex items-start gap-2">
       <div className="pt-0.5">{controlIconsMap[label]}</div>
       <div className="text-sm">{label}</div>
@@ -144,7 +133,7 @@ const Property = ({ label, value }: { label: string; value?: string | null }) =>
 )
 
 const LinkedProperty = ({ label, href, value, icon }: { label: string; href: string; value: string; icon: React.ReactNode }) => (
-  <div className="grid grid-cols-[110px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
+  <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
     <div className="flex items-start gap-2">
       <div className="pt-0.5">{icon}</div>
       <div className="text-sm">{label}</div>
@@ -161,7 +150,7 @@ const EditableSelect = ({ label, name, isEditing, options, labels }: { label: st
   const { control, getValues } = useFormContext()
 
   return (
-    <div className="grid grid-cols-[110px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
+    <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
       <div className="flex items-start gap-2">
         <div className="pt-0.5">{controlIconsMap[label] ?? <FolderIcon size={16} className="text-brand" />}</div>
         <div className="text-sm">{label}</div>
@@ -205,19 +194,21 @@ const ReferenceProperty = ({ name, label, tooltip, value, isEditing }: { name: s
   }
 
   return (
-    <div className="grid grid-cols-[110px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
+    <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
       <div className="flex items-start gap-2">
         <FolderIcon size={16} className="text-brand mt-0.5 shrink-0" />
         <div>
-          <div className="text-sm">{label}</div>
-          <TooltipProvider disableHoverableContent>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <InfoIcon size={14} className="mx-1 mt-1" />
-              </TooltipTrigger>
-              <TooltipContent side="bottom">{tooltip}</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <div className="flex gap-1 items-start">
+            <span className="leading-none">{label}</span>
+            <TooltipProvider disableHoverableContent>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <HelpCircle size={12} className="mb-1 ml-1 text-muted-foreground" />
+                </TooltipTrigger>
+                <TooltipContent side="bottom">{tooltip}</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
         </div>
       </div>
       <div className="text-sm w-full">
@@ -262,7 +253,7 @@ export const EditableSelectFromQuery = ({ label, name, isEditing, icon }: { labe
   const [open, setOpen] = useState(false)
 
   return (
-    <div className="grid grid-cols-[110px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
+    <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
       <div className="flex items-start gap-2">
         <div className="pt-0.5">{icon}</div>
         <div className="text-sm">{label}</div>

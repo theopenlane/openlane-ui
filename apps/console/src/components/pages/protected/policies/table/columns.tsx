@@ -5,6 +5,8 @@ import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { KeyRound } from 'lucide-react'
 import React from 'react'
 import { Badge } from '@repo/ui/badge'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { DocumentIconMapper, DocumentStatusMapper, DocumentStatusTooltips } from '@/components/shared/enum-mapper/policy-enum'
 
 type TPoliciesColumnsProps = {
   users?: User[]
@@ -16,7 +18,29 @@ export const getPoliciesColumns = ({ users, tokens }: TPoliciesColumnsProps) => 
     {
       accessorKey: 'name',
       header: 'Name',
-      cell: ({ cell }) => <div className="font-bold">{cell.getValue() as string}</div>,
+      cell: ({ cell }) => (
+        <div>
+          <div className="font-bold">{cell.getValue() as string}</div>
+          <div className="mt-2 border-t border-dotted pt-2 flex flex-wrap gap-2">
+            {cell.row.original.status && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge variant={'outline'}>
+                      <span className="flex items-center gap-2">
+                        {DocumentIconMapper[cell.row.original.status]} {DocumentStatusMapper[cell.row.original.status]}
+                      </span>
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{DocumentStatusTooltips[cell.row.original.status]}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
+        </div>
+      ),
       minSize: 100,
       size: 180,
     },
@@ -25,7 +49,10 @@ export const getPoliciesColumns = ({ users, tokens }: TPoliciesColumnsProps) => 
       header: 'Summary',
       enableResizing: true,
       minSize: 300,
-      size: 400,
+      size: 300,
+      meta: {
+        className: 'w-[40%] min-w-[300px]', // CSS class for responsive width
+      },
       cell: ({ cell }) => {
         const summary = cell.getValue() as string
         return <div className="line-clamp-4 text-justify">{summary === '' ? 'N/A' : summary}</div>
