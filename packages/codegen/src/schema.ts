@@ -41446,6 +41446,8 @@ export type GetControlsPaginatedWithListFieldsQuery = {
 
 export type GetControlsGroupedByCategoryResolverQueryVariables = Exact<{
   where?: InputMaybe<ControlWhereInput>
+  category?: InputMaybe<Scalars['String']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type GetControlsGroupedByCategoryResolverQuery = {

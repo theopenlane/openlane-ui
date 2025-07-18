@@ -56,15 +56,7 @@ const ControlReportPage = () => {
     enabled: Boolean(referenceFramework),
   })
 
-  const grouped = useMemo(() => {
-    if (!data?.controlsGroupByCategory?.edges) return undefined
-    return data.controlsGroupByCategory.edges.map((edge) => ({
-      category: edge.node.category,
-      controls: edge?.node?.controls?.edges?.map((e) => e!.node).filter((node) => !!node) || [],
-    }))
-  }, [data])
-
-  const groupControlsByStatus = (controls: { id: string; refCode: string; status?: ControlControlStatus | null }[]) => {
+  const groupControlsByStatus = (controls: { id: string; refCode: string; status?: string | null }[]): Record<ControlControlStatus, { id: string; refCode: string; status?: string | null }[]> => {
     return ControlStatusOrder.reduce(
       (acc, status) => {
         acc[status] = controls.filter((c) => c.status === status)
@@ -75,9 +67,9 @@ const ControlReportPage = () => {
   }
 
   const toggleAll = () => {
-    if (!grouped) return
+    if (!data) return
 
-    const allCategories = grouped.map((g) => g.category)
+    const allCategories = data.map((item) => item.category)
     const hasAllExpanded = allCategories.every((cat) => expandedItems.includes(cat))
 
     setExpandedItems(hasAllExpanded ? [] : allCategories)
@@ -128,11 +120,11 @@ const ControlReportPage = () => {
       <div className="space-y-2">
         {isLoading || isFetching ? (
           <p>Loading controls...</p>
-        ) : grouped?.length === 0 ? (
+        ) : data?.length === 0 ? (
           <div className="mt-6 text-muted-foreground text-sm">No controls found for the selected framework.</div>
         ) : (
           <Accordion type="multiple" value={expandedItems} onValueChange={setExpandedItems}>
-            {grouped?.map(({ category, controls }) => {
+            {data?.map(({ category, controls }) => {
               const controlsByStatus = groupControlsByStatus(controls)
 
               return (
