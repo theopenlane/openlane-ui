@@ -41098,7 +41098,7 @@ export type ControlDetailsFieldsFragment = {
         id: string
         name: string
         displayID: string
-        details?: string | null
+        summary?: string | null
         approver?: { __typename?: 'Group'; gravatarLogoURL?: string | null; logoURL?: string | null; displayName: string } | null
       } | null
     } | null> | null
@@ -41113,7 +41113,7 @@ export type ControlDetailsFieldsFragment = {
         id: string
         name: string
         displayID: string
-        details?: string | null
+        summary?: string | null
         approver?: { __typename?: 'Group'; gravatarLogoURL?: string | null; logoURL?: string | null; displayName: string } | null
       } | null
     } | null> | null
@@ -41262,7 +41262,7 @@ export type GetControlByIdQuery = {
           id: string
           name: string
           displayID: string
-          details?: string | null
+          summary?: string | null
           approver?: { __typename?: 'Group'; gravatarLogoURL?: string | null; logoURL?: string | null; displayName: string } | null
         } | null
       } | null> | null
@@ -41277,7 +41277,7 @@ export type GetControlByIdQuery = {
           id: string
           name: string
           displayID: string
-          details?: string | null
+          summary?: string | null
           approver?: { __typename?: 'Group'; gravatarLogoURL?: string | null; logoURL?: string | null; displayName: string } | null
         } | null
       } | null> | null
