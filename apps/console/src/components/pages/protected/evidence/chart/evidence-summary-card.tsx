@@ -3,9 +3,9 @@ import { useGetEvidenceCountsByStatus } from '@/lib/graphql-hooks/evidence.ts'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { DonutChart } from '@repo/ui/donut-chart'
 import { useSearchParams } from 'next/navigation'
-import { ChartColorsSequence } from '@/components/shared/icon-enum/evidence-enum.tsx'
 import EvidenceStatusChip from '@/components/pages/protected/evidence/chart/evidence-status-chip.tsx'
 import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema.ts'
+import { ChartColorsSequence } from '@/components/shared/enum-mapper/evidence-enum'
 
 export type TChardData = {
   name: string

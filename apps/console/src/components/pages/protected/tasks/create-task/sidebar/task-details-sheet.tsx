@@ -34,7 +34,7 @@ import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
 import { formatDate } from '@/utils/date'
-import { TaskStatusIconMapper } from '@/components/shared/icon-enum/task-enum.tsx'
+import { TaskStatusIconMapper, TaskStatusOptions } from '@/components/shared/enum-mapper/task-enum'
 import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
@@ -49,7 +49,7 @@ const TaskDetailsSheet = () => {
   const queryClient = useQueryClient()
   const plateEditorHelper = usePlateEditor()
   const taskTypeOptions = Object.values(TaskTypes)
-  const statusOptions = Object.values(TaskTaskStatus)
+  const statusOptions = TaskStatusOptions
   const router = useRouter()
   const { orgMembers } = useTaskStore()
   const { successNotification, errorNotification } = useNotification()
@@ -389,37 +389,42 @@ const TaskDetailsSheet = () => {
 
   return (
     <Sheet open={!!id} onOpenChange={handleSheetClose}>
-      <SheetContent className="bg-card flex flex-col">
+      <SheetContent
+        side="right"
+        className="bg-card flex flex-col"
+        minWidth={470}
+        header={
+          <SheetHeader>
+            <div className="flex items-center justify-between">
+              <ArrowRight size={16} className="cursor-pointer" onClick={handleSheetClose} />
+              <div className="flex justify-end gap-2">
+                <Button icon={<LinkIcon />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
+                  Copy link
+                </Button>
+                {isEditing ? (
+                  <div className="flex gap-2">
+                    <Button disabled={isPending} type="button" variant="outline" onClick={() => setIsEditing(false)}>
+                      Cancel
+                    </Button>
+                    <Button loading={isPending} disabled={isPending} onClick={form.handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
+                      {isPending ? 'Saving...' : 'Save'}
+                    </Button>
+                  </div>
+                ) : (
+                  <Button icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
+                    Edit
+                  </Button>
+                )}
+                {taskData?.displayID && id && <DeleteTaskDialog taskName={taskData.displayID} taskId={id} />}
+              </div>
+            </div>
+          </SheetHeader>
+        }
+      >
         {fetching ? (
           <Loading />
         ) : (
           <>
-            <SheetHeader>
-              <div className="flex items-center justify-between">
-                <ArrowRight size={16} className="cursor-pointer" onClick={handleSheetClose} />
-                <div className="flex justify-end gap-2">
-                  <Button icon={<LinkIcon />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
-                    Copy link
-                  </Button>
-                  {isEditing ? (
-                    <div className="flex gap-2">
-                      <Button disabled={isPending} type="button" variant="outline" onClick={() => setIsEditing(false)}>
-                        Cancel
-                      </Button>
-                      <Button loading={isPending} disabled={isPending} onClick={form.handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
-                        {isPending ? 'Saving...' : 'Save'}
-                      </Button>
-                    </div>
-                  ) : (
-                    <Button icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
-                      Edit
-                    </Button>
-                  )}
-                  {taskData?.displayID && id && <DeleteTaskDialog taskName={taskData.displayID} taskId={id} />}
-                </div>
-              </div>
-            </SheetHeader>
-
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
                 <SheetTitle>
@@ -575,8 +580,8 @@ const TaskDetailsSheet = () => {
                               <SelectTrigger className="w-1/3">{TaskStatusMapper[field.value as TaskTaskStatus] || 'Select'}</SelectTrigger>
                               <SelectContent>
                                 {statusOptions.map((option) => (
-                                  <SelectItem key={option} value={option}>
-                                    {TaskStatusMapper[option as TaskTaskStatus]}
+                                  <SelectItem key={option.value} value={option.value}>
+                                    {TaskStatusMapper[option.value as TaskTaskStatus]}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -675,7 +680,7 @@ const TaskDetailsSheet = () => {
             </div>
 
             {isEditing && (
-              <Panel>
+              <Panel className="mt-20">
                 <PanelHeader heading="Object association" noBorder />
                 <p>Associating objects will allow users with access to the object to see the created task.</p>
                 <ObjectAssociation
@@ -689,7 +694,7 @@ const TaskDetailsSheet = () => {
         )}
         {!isEditing && (
           <>
-            <div className="p-2 w-full">
+            <div className="p-2 w-full mt-5">
               <div className="flex justify-between items-end">
                 <p className="text-lg">Conversation</p>
                 <div className="flex items-center gap-1 text-right cursor-pointer" onClick={handleCommentSort}>

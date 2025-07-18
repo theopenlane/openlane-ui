@@ -186,29 +186,34 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
   const errorMessage = errors.emails && Array.isArray(errors.emails) && errors.emails.length > 0 ? errors.emails[0]?.message : null
   return (
     <Sheet open={isMemberSheetOpen} onOpenChange={setIsMemberSheetOpen}>
-      <SheetContent className="bg-card flex flex-col">
+      <SheetContent
+        initialWidth={846}
+        className="bg-card flex flex-col"
+        header={
+          <SheetHeader>
+            <div className="flex items-center justify-between">
+              <ArrowRight size={16} className="cursor-pointer" onClick={handleClose} />
+              <div className="flex justify-end gap-2">
+                <Button type="button" iconPosition="left" variant="back" onClick={handleClose}>
+                  Cancel
+                </Button>
+                <Button iconPosition="left" type="submit" disabled={emails.length === 0}>
+                  Invite
+                </Button>
+              </div>
+            </div>
+            <div className="flex items-center justify-start">
+              <SheetTitle>
+                <h3 className="font-medium text-2xl text-text-header">Invite new member</h3>
+              </SheetTitle>
+            </div>
+          </SheetHeader>
+        }
+      >
         <>
           <Form {...form}>
             <form onSubmit={handleSubmit(onSubmit)}>
               <div className="flex flex-col gap-10">
-                <SheetHeader>
-                  <div className="flex items-center justify-between">
-                    <ArrowRight size={16} className="cursor-pointer" onClick={handleClose} />
-                    <div className="flex justify-end gap-2">
-                      <Button type="button" iconPosition="left" variant="back" onClick={handleClose}>
-                        Cancel
-                      </Button>
-                      <Button iconPosition="left" type="submit" disabled={emails.length === 0}>
-                        Invite
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-start">
-                    <SheetTitle>
-                      <h3 className="font-medium text-2xl text-text-header">Invite new member</h3>
-                    </SheetTitle>
-                  </div>
-                </SheetHeader>
                 <div className="grid grid-cols-4 gap-y-6 items-start">
                   <div className="flex items-center gap-1">
                     <p>
@@ -297,7 +302,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
               </div>
             </form>
           </Form>
-          <div className="grid grid-cols-4 gap-y-6 items-start">
+          <div className="grid grid-cols-4 gap-y-6 items-start mt-2">
             <div className="flex items-center gap-1">
               <p>Assign to group(s)</p>
               <SystemTooltip icon={<InfoIcon size={14} />} content={<p>Assign to group</p>} />

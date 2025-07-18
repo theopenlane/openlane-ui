@@ -1,17 +1,18 @@
 'use client'
 
 import React from 'react'
-import { ProcedureDocumentStatus, ProcedureFrequency } from '@repo/codegen/src/schema'
+import { ProcedureFrequency } from '@repo/codegen/src/schema.ts'
 import { Card } from '@repo/ui/cardpanel'
-import { Binoculars, ScanEye, ClockArrowUp, FileStack, ScrollText, Calendar, CalendarCheck2, CalendarClock } from 'lucide-react'
+import { Binoculars, Calendar, CalendarCheck2, CalendarClock, ClockArrowUp, FileStack, ScanEye, ScrollText } from 'lucide-react'
 import { Controller, UseFormReturn } from 'react-hook-form'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { FormControl, FormField, FormItem } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
-import { CalendarPopover } from '@repo/ui/calendar-popover'
-import { TMetadata } from '@/components/pages/protected/procedures/create/form/create-procedure-form.tsx'
 import { CreateProcedureFormData } from '@/components/pages/protected/procedures/create/hooks/use-form-schema.ts'
 import { formatTimeSince } from '@/utils/date'
+import { CalendarPopover } from '@repo/ui/calendar-popover'
+import { ProcedureStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
+import { TMetadata } from '@/components/pages/protected/procedures/create/form/create-procedure-form.tsx'
 
 type TStatusCardProps = {
   form: UseFormReturn<CreateProcedureFormData>
@@ -19,10 +20,7 @@ type TStatusCardProps = {
 }
 
 const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
-  const statusOptions = Object.values(ProcedureDocumentStatus).map((value) => ({
-    label: value.charAt(0) + value.slice(1).toLowerCase(),
-    value,
-  }))
+  const statusOptions = ProcedureStatusOptions
 
   const reviewFrequencyOptions = Object.values(ProcedureFrequency).map((value) => ({
     label: value.charAt(0) + value.slice(1).toLowerCase(),

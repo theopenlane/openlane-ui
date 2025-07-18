@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { DataTable } from '@repo/ui/data-table'
 import React, { useState, useMemo, useEffect, useContext } from 'react'
-import { GetProceduresListQueryVariables, Maybe, OrderDirection, OrgMembershipWhereInput, Procedure, ProcedureOrderField, ProcedureWhereInput } from '@repo/codegen/src/schema'
+import { GetProceduresListQueryVariables, Maybe, OrderDirection, OrgMembershipWhereInput, Procedure, ProcedureDocumentStatus, ProcedureOrderField, ProcedureWhereInput } from '@repo/codegen/src/schema'
 import { getProceduresColumns } from '@/components/pages/protected/procedures/table/columns.tsx'
 import ProceduresTableToolbar from '@/components/pages/protected/procedures/table/procedures-table-toolbar.tsx'
 import { PROCEDURES_SORTABLE_FIELDS } from '@/components/pages/protected/procedures/table/table-config.ts'
@@ -36,10 +36,17 @@ export const ProceduresTable = () => {
   const debouncedSearch = useDebounce(searchTerm, 300)
 
   const whereFilter = useMemo(() => {
-    return {
+    const conditions: ProcedureWhereInput = {
       ...filters,
       nameContainsFold: debouncedSearch,
     }
+
+    // Only apply the default archived filter if no status filter is explicitly set
+    if (!filters?.status && !filters?.statusIn && !filters?.statusNotIn && !filters?.statusNEQ) {
+      conditions.statusNotIn = [ProcedureDocumentStatus.ARCHIVED]
+    }
+
+    return conditions
   }, [filters, debouncedSearch])
 
   const userListWhere: OrgMembershipWhereInput = useMemo(() => {

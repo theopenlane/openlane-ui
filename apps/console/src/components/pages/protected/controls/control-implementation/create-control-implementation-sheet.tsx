@@ -24,7 +24,7 @@ const CreateControlImplementationSheet: React.FC<CreateControlImplementationShee
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full overflow-y-auto">
+      <SheetContent className="bg-card flex flex-col">
         <CreateControlImplementationForm onSuccess={() => onOpenChange(false)} defaultValues={normalizedValues} />
       </SheetContent>
     </Sheet>

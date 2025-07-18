@@ -1,7 +1,7 @@
 import { MappedControlMappingType } from '@repo/codegen/src/schema'
 import { usePathname } from 'next/navigation'
 import { RelatedControlChip } from './shared/related-control-chip'
-import { MappingIconMapper } from '@/components/shared/icon-enum/map-control-enum'
+import { MappingIconMapper } from '@/components/shared/enum-mapper/map-control-enum'
 import Link from 'next/link'
 import { Pencil, Trash2 } from 'lucide-react'
 import { useState } from 'react'
@@ -10,6 +10,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
 import { Button } from '@repo/ui/button'
 import { GqlError } from '@/types'
+import StandardChip from '../standards/shared/standard-chip'
 
 const RelationCard = ({
   data,
@@ -66,8 +67,8 @@ const RelationCard = ({
               </div>
               <div className="flex flex-col gap-2">
                 {Object.entries(data.from).map(([framework, codes], index, array) => (
-                  <div key={framework} className={`flex w-full pb-2 ${index < array.length - 1 ? 'border-b border-dotted' : ''}`}>
-                    <p className="text-xs font-medium text-text-informational w-28 shrink-0 mt-1">{framework}</p>
+                  <div key={framework} className={`flex gap-2 w-full pb-2 ${index < array.length - 1 ? 'border-b border-dotted' : ''}`}>
+                    <StandardChip referenceFramework={framework ?? ''} />
                     <div className="flex flex-wrap gap-2">
                       {codes.map((code) => (
                         <RelatedControlChip key={code} refCode={code} href="#" mappingType={data.type} relation={data.relation} />
@@ -85,8 +86,8 @@ const RelationCard = ({
               </div>
               <div className="flex flex-col gap-2">
                 {Object.entries(data.to).map(([framework, codes], index, array) => (
-                  <div key={framework} className={`flex w-full pb-2 ${index < array.length - 1 ? 'border-b border-dotted' : ''}`}>
-                    <p className="text-xs font-medium text-text-informational w-28 shrink-0 mt-1">{framework}</p>
+                  <div key={framework} className={`flex gap-2 w-full pb-2 ${index < array.length - 1 ? 'border-b border-dotted' : ''}`}>
+                    <StandardChip referenceFramework={framework ?? ''} />
                     <div className="flex flex-wrap gap-2">
                       {codes.map((code) => (
                         <RelatedControlChip key={code} refCode={code} href="#" mappingType={data.type} relation={data.relation} />

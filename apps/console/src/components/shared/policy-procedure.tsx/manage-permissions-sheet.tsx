@@ -123,13 +123,18 @@ export function ManagePermissionSheet({ open, onOpenChange }: { open: boolean; o
         confirmationTextVariant="destructive"
       />
       <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent onOpenAutoFocus={(e) => e.preventDefault()} className="w-full max-w-2xl">
-          <SheetHeader className="flex justify-between items-center flex-row text-2xl">
-            <ArrowRight size={16} className="cursor-pointer" onClick={() => onOpenChange(false)} />
-            <Button className="h-8 p-2" onClick={() => setAssignDialogOpen(true)}>
-              Assign
-            </Button>
-          </SheetHeader>
+        <SheetContent
+          onOpenAutoFocus={(e) => e.preventDefault()}
+          className="bg-card flex flex-col"
+          header={
+            <SheetHeader className="flex justify-between items-center flex-row text-2xl">
+              <ArrowRight size={16} className="cursor-pointer" onClick={() => onOpenChange(false)} />
+              <Button className="h-8 p-2" onClick={() => setAssignDialogOpen(true)}>
+                Assign
+              </Button>
+            </SheetHeader>
+          }
+        >
           <SheetTitle>Manage permission</SheetTitle>
           <SheetDescription>
             Grant specific groups within your organization permission to edit this policy. Members of these groups will be able to update the policy’s content and metadata.

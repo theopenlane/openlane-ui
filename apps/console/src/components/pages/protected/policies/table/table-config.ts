@@ -1,9 +1,10 @@
-import { InternalPolicyDocumentStatus, InternalPolicyOrderField, OrderDirection } from '@repo/codegen/src/schema.ts'
+import { InternalPolicyOrderField, OrderDirection } from '@repo/codegen/src/schema.ts'
 
 import { useGroupSelect } from '@/lib/graphql-hooks/groups'
 import { FilterField } from '@/types'
 import { useEffect, useState } from 'react'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
+import { InternalPolicyStatusFilterOptions } from '@/components/shared/enum-mapper/policy-enum'
 
 export function usePoliciesFilters(): FilterField[] | null {
   const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect()
@@ -13,13 +14,6 @@ export function usePoliciesFilters(): FilterField[] | null {
 
   useEffect(() => {
     if (!isProgramSuccess || !isGroupSuccess || filters) return
-    const statusOptions = Object.entries(InternalPolicyDocumentStatus).map(([key, value]) => ({
-      label: key
-        .replace(/_/g, ' ')
-        .toLowerCase()
-        .replace(/\b\w/g, (c) => c.toUpperCase()),
-      value,
-    }))
     const newFilters: FilterField[] = [
       {
         key: 'approverID',
@@ -57,7 +51,7 @@ export function usePoliciesFilters(): FilterField[] | null {
         key: 'status',
         label: 'Status',
         type: 'select',
-        options: statusOptions,
+        options: InternalPolicyStatusFilterOptions,
       },
     ]
 

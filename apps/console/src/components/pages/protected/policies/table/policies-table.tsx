@@ -3,7 +3,15 @@
 import { useRouter } from 'next/navigation'
 import { DataTable } from '@repo/ui/data-table'
 import React, { useState, useMemo, useEffect, useContext } from 'react'
-import { GetInternalPoliciesListQueryVariables, InternalPolicy, InternalPolicyOrderField, InternalPolicyWhereInput, Maybe, OrderDirection } from '@repo/codegen/src/schema'
+import {
+  GetInternalPoliciesListQueryVariables,
+  InternalPolicy,
+  InternalPolicyDocumentStatus,
+  InternalPolicyOrderField,
+  InternalPolicyWhereInput,
+  Maybe,
+  OrderDirection,
+} from '@repo/codegen/src/schema'
 import PoliciesTableToolbar from '@/components/pages/protected/policies/table/policies-table-toolbar.tsx'
 import { INTERNAL_POLICIES_SORTABLE_FIELDS } from '@/components/pages/protected/policies/table/table-config.ts'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -39,6 +47,11 @@ export const PoliciesTable = () => {
     const conditions: InternalPolicyWhereInput = {
       ...filters,
       nameContainsFold: debouncedSearch,
+    }
+
+    // Only apply the default archived filter if no status filter is explicitly set
+    if (!filters?.status && !filters?.statusIn && !filters?.statusNotIn && !filters?.statusNEQ) {
+      conditions.statusNotIn = [InternalPolicyDocumentStatus.ARCHIVED]
     }
 
     return conditions

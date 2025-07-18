@@ -24,9 +24,9 @@ import EvidenceDetailsSheet from '@/components/pages/protected/controls/control-
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import Menu from '@/components/shared/menu/menu'
-import { TaskIconBtn } from '@/components/shared/icon-enum/task-enum.tsx'
+import { TaskIconBtn } from '@/components/shared/enum-mapper/task-enum'
 import DeleteSubcontrolDialog from '@/components/pages/protected/controls/delete-subcontrol-dialog.tsx'
-import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
+import { CreateBtn } from '@/components/shared/enum-mapper/common-enum'
 import { useNotification } from '@/hooks/useNotification'
 import CreateControlObjectiveSheet from '@/components/pages/protected/controls/control-objectives/create-control-objective-sheet'
 import CreateControlImplementationSheet from '@/components/pages/protected/controls/control-implementation/create-control-implementation-sheet.tsx'
@@ -318,11 +318,14 @@ const ControlDetailsPage: React.FC = () => {
       </FormProvider>
 
       <Sheet open={showSheet} onOpenChange={handleSheetClose}>
-        <SheetContent>
-          <SheetHeader>
-            <ArrowRight size={16} className="cursor-pointer" onClick={() => handleSheetClose(false)} />
-            <SheetTitle>{sheetData?.refCode}</SheetTitle>
-          </SheetHeader>
+        <SheetContent
+          header={
+            <SheetHeader>
+              <ArrowRight size={16} className="cursor-pointer" onClick={() => handleSheetClose(false)} />
+              <SheetTitle>{sheetData?.refCode}</SheetTitle>
+            </SheetHeader>
+          }
+        >
           <div className="py-4">{sheetData?.content}</div>
         </SheetContent>
       </Sheet>

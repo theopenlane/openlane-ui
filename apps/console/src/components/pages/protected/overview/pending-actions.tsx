@@ -8,6 +8,7 @@ import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
 
 type PendingAction = {
   date: string
@@ -88,46 +89,55 @@ const PendingActions = () => {
   const policiesRedirectURL = programId ? `/policies?filters=${encodedFilters}` : '/policies'
 
   return (
-    <Card className=" rounded-lg border flex-1">
-      <CardTitle className="text-lg font-semibold">Pending Actions</CardTitle>
-      <CardContent>
-        {noData ? (
-          <div className="flex flex-col items-center justify-center text-center">
-            <Inbox size={89} strokeWidth={1} className="text-border" />
-            <h3 className="mt-4 text-lg font-semibold">No pending actions</h3>
-            <p className="text-sm text-muted-foreground mt-1">Maybe it&apos;s time to review some policies and procedures that haven&apos;t been updated in a while?</p>
-            <Link href={policiesRedirectURL} className="mt-4">
-              <Button variant="outline" className="mt-4">
-                Take me there
-              </Button>
-            </Link>
-          </div>
-        ) : (
-          <Tabs defaultValue={tab} onValueChange={setTab}>
-            <TabsList className="flex w-full justify-between border-b">
-              <TabsTrigger value="waiting-on-you" className="flex-1">
-                Waiting on you ({pendingActions.length})
-              </TabsTrigger>
-              <TabsTrigger value="approvals-you-wait-for" className="flex-1">
-                Approvals you are waiting for ({approvalsWaitingFor.length})
-              </TabsTrigger>
-            </TabsList>
+    <TooltipProvider>
+      <Card className=" rounded-lg border flex-1">
+        <CardTitle className="text-lg font-semibold">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="cursor-help">Pending Actions</span>
+            </TooltipTrigger>
+            <TooltipContent>Items requiring your attention: policies and procedures awaiting approval, evidence due for renewal, and automated test failures needing review</TooltipContent>
+          </Tooltip>
+        </CardTitle>
+        <CardContent>
+          {noData ? (
+            <div className="flex flex-col items-center justify-center text-center">
+              <Inbox size={89} strokeWidth={1} className="text-border" />
+              <h3 className="mt-4 text-lg font-semibold">No pending actions</h3>
+              <p className="text-sm text-muted-foreground mt-1">Maybe it&apos;s time to review some policies and procedures that haven&apos;t been updated in a while?</p>
+              <Link href={policiesRedirectURL} className="mt-4">
+                <Button variant="outline" className="mt-4">
+                  Take me there
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <Tabs defaultValue={tab} onValueChange={setTab}>
+              <TabsList className="flex w-full justify-between border-b">
+                <TabsTrigger value="waiting-on-you" className="flex-1">
+                  Waiting on you ({pendingActions.length})
+                </TabsTrigger>
+                <TabsTrigger value="approvals-you-wait-for" className="flex-1">
+                  Approvals you are waiting for ({approvalsWaitingFor.length})
+                </TabsTrigger>
+              </TabsList>
 
-            <TabsContent value="waiting-on-you">
-              <DataTable columns={columns} data={pendingActions} />
-            </TabsContent>
-            <TabsContent value="approvals-you-wait-for">
-              <DataTable columns={columns} data={approvalsWaitingFor} />
-            </TabsContent>
-          </Tabs>
-        )}
-        {!noData && (
-          <div className="mt-7 text-sm text-primary flex items-center cursor-pointer">
-            Show more Pending Actions <ChevronRight size={16} className="ml-1" />
-          </div>
-        )}
-      </CardContent>
-    </Card>
+              <TabsContent value="waiting-on-you">
+                <DataTable columns={columns} data={pendingActions} />
+              </TabsContent>
+              <TabsContent value="approvals-you-wait-for">
+                <DataTable columns={columns} data={approvalsWaitingFor} />
+              </TabsContent>
+            </Tabs>
+          )}
+          {!noData && (
+            <div className="mt-7 text-sm text-primary flex items-center cursor-pointer">
+              Show more Pending Actions <ChevronRight size={16} className="ml-1" />
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </TooltipProvider>
   )
 }
 

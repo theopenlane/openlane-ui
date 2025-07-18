@@ -8,6 +8,7 @@ import { MappedControlMappingType } from '@repo/codegen/src/schema'
 import MappedRelationsSheet from './mapped-relationships-sheet'
 import { RelatedControlChip } from './shared/related-control-chip'
 import Link from 'next/link'
+import StandardChip from '../standards/shared/standard-chip'
 
 export type RelatedNode = {
   type: 'Control' | 'Subcontrol'
@@ -158,7 +159,7 @@ const RelatedControls = () => {
 
       {Object.entries(grouped).map(([framework, nodes], index, array) => (
         <div key={framework} className={`mb-2 flex gap-5 items-center pb-2 ${index < array.length - 1 ? 'border-b' : ''}`}>
-          <h3 className="font-semibold min-w-24 text-text-informational text-xs">{framework}</h3>
+          <StandardChip referenceFramework={framework ?? ''} />{' '}
           <div className="flex gap-2.5 flex-wrap">
             {nodes.map((node) => {
               const href = node.type === 'Subcontrol' ? `/controls/${node.controlId}/${node.id}` : `/controls/${node.id}`

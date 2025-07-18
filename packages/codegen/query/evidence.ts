@@ -285,3 +285,25 @@ export const GET_EVIDENCE_FILES_BY_ID = gql`
     }
   }
 `
+
+export const GET_EVIDENCE_TREND_DATA = gql`
+  query GetEvidenceTrendData($currentWeekStart: Time!, $previousWeekStart: Time!, $previousWeekEnd: Time!, $status: EvidenceEvidenceStatus) {
+    currentWeek: evidences(where: { createdAtGTE: $currentWeekStart, status: $status }) {
+      totalCount
+    }
+    previousWeek: evidences(where: { createdAtGTE: $previousWeekStart, createdAtLT: $previousWeekEnd, status: $status }) {
+      totalCount
+    }
+  }
+`
+
+export const GET_PROGRAM_EVIDENCE_TREND_DATA = gql`
+  query GetProgramEvidenceTrendData($programId: ID!, $currentWeekStart: Time!, $previousWeekStart: Time!, $previousWeekEnd: Time!, $status: EvidenceEvidenceStatus) {
+    currentWeek: evidences(where: { createdAtGTE: $currentWeekStart, hasProgramsWith: [{ id: $programId }], status: $status }) {
+      totalCount
+    }
+    previousWeek: evidences(where: { createdAtGTE: $previousWeekStart, createdAtLT: $previousWeekEnd, hasProgramsWith: [{ id: $programId }], status: $status }) {
+      totalCount
+    }
+  }
+`

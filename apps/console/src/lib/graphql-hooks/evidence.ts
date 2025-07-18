@@ -13,6 +13,8 @@ import {
   GET_FIRST_FIVE_EVIDENCES_BY_STATUS,
   GET_RENEW_EVIDENCE,
   UPDATE_EVIDENCE,
+  GET_EVIDENCE_TREND_DATA,
+  GET_PROGRAM_EVIDENCE_TREND_DATA,
 } from '@repo/codegen/query/evidence'
 import {
   CreateEvidenceMutation,
@@ -34,6 +36,8 @@ import {
   EvidenceOrder,
   Evidence,
   GetEvidenceCountsByStatusQuery,
+  GetEvidenceTrendDataQuery,
+  GetProgramEvidenceTrendDataQuery,
   EvidenceEvidenceStatus,
   GetEvidencesByStatusQuery,
   GetEvidenceFilesByIdQuery,
@@ -205,6 +209,104 @@ export const useGetEvidenceCountsByStatus = (programId?: string | null) => {
     queryFn: async () => client.request(GET_EVIDENCE_COUNTS_BY_STATUS, { programId }),
     enabled: !!programId,
   })
+}
+
+export const useEvidenceTrend = (programId?: string | null, status?: EvidenceEvidenceStatus) => {
+  const { client } = useGraphQLClient()
+
+  // Calculate date ranges for current week and previous week
+  const now = new Date()
+  const currentWeekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
+  const previousWeekStart = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString()
+  const previousWeekEnd = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
+
+  return useQuery({
+    queryKey: ['evidence-trend', programId, status],
+    queryFn: async () => {
+      if (!status) {
+        return {
+          trend: 0,
+          trendType: 'flat' as const,
+          currentWeekCount: 0,
+          previousWeekCount: 0,
+        }
+      }
+
+      if (programId) {
+        const variables = { programId, currentWeekStart, previousWeekStart, previousWeekEnd, status }
+        const data = await client.request<GetProgramEvidenceTrendDataQuery>(GET_PROGRAM_EVIDENCE_TREND_DATA, variables)
+        const currentWeekCount = data.currentWeek.totalCount
+        const previousWeekCount = data.previousWeek.totalCount
+        // Calculate trend percentage
+        let trend = 0
+        let trendType: 'up' | 'down' | 'flat' = 'flat'
+        if (previousWeekCount > 0) {
+          trend = ((currentWeekCount - previousWeekCount) / previousWeekCount) * 100
+          if (trend > 0) {
+            trendType = 'up'
+          } else if (trend < 0) {
+            trendType = 'down'
+          } else {
+            trendType = 'flat'
+          }
+        } else if (currentWeekCount > 0) {
+          trend = 100
+          trendType = 'up'
+        } else {
+          trendType = 'flat'
+        }
+        return {
+          trend: Math.round(trend),
+          trendType,
+          currentWeekCount,
+          previousWeekCount,
+        }
+      } else {
+        const variables = { currentWeekStart, previousWeekStart, previousWeekEnd, status }
+        const data = await client.request<GetEvidenceTrendDataQuery>(GET_EVIDENCE_TREND_DATA, variables)
+        const currentWeekCount = data.currentWeek.totalCount
+        const previousWeekCount = data.previousWeek.totalCount
+        // Calculate trend percentage
+        let trend = 0
+        let trendType: 'up' | 'down' | 'flat' = 'flat'
+        if (previousWeekCount > 0) {
+          trend = ((currentWeekCount - previousWeekCount) / previousWeekCount) * 100
+          if (trend > 0) {
+            trendType = 'up'
+          } else if (trend < 0) {
+            trendType = 'down'
+          } else {
+            trendType = 'flat'
+          }
+        } else if (currentWeekCount > 0) {
+          trend = 100
+          trendType = 'up'
+        } else {
+          trendType = 'flat'
+        }
+        return {
+          trend: Math.round(trend),
+          trendType,
+          currentWeekCount,
+          previousWeekCount,
+        }
+      }
+    },
+    enabled: !!status,
+  })
+}
+
+// Convenience hooks for specific statuses
+export const useSubmittedEvidenceTrend = (programId?: string | null) => {
+  return useEvidenceTrend(programId, EvidenceEvidenceStatus.READY)
+}
+
+export const useAcceptedEvidenceTrend = (programId?: string | null) => {
+  return useEvidenceTrend(programId, EvidenceEvidenceStatus.APPROVED)
+}
+
+export const useRejectedEvidenceTrend = (programId?: string | null) => {
+  return useEvidenceTrend(programId, EvidenceEvidenceStatus.REJECTED)
 }
 
 export const useGetFirstFiveEvidencesByStatus = (status: EvidenceEvidenceStatus, programId?: string | null) => {

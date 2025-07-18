@@ -4,7 +4,7 @@ import React from 'react'
 import Link from 'next/link'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { ChevronsLeftRightEllipsis, PencilLine } from 'lucide-react'
-import { MappingIconMapper } from '@/components/shared/icon-enum/map-control-enum'
+import { MappingIconMapper } from '@/components/shared/enum-mapper/map-control-enum'
 import { MappedControlMappingType } from '@repo/codegen/src/schema'
 
 type Props = {

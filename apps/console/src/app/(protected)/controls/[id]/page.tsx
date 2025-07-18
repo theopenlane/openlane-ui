@@ -28,10 +28,10 @@ import EvidenceDetailsSheet from '@/components/pages/protected/controls/control-
 import ControlEvidenceTable from '@/components/pages/protected/controls/control-evidence/control-evidence-table.tsx'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog.tsx'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
-import { TaskIconBtn } from '@/components/shared/icon-enum/task-enum.tsx'
+import { TaskIconBtn } from '@/components/shared/enum-mapper/task-enum.tsx'
 import Menu from '@/components/shared/menu/menu.tsx'
 import DeleteControlDialog from '@/components/pages/protected/controls/delete-control-dialog.tsx'
-import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
+import { CreateBtn } from '@/components/shared/enum-mapper/common-enum.tsx'
 import Link from 'next/link'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import CreateControlObjectiveSheet from '@/components/pages/protected/controls/control-objectives/create-control-objective-sheet'
@@ -341,11 +341,14 @@ const ControlDetailsPage: React.FC = () => {
       <CancelDialog isOpen={navGuard.active} onConfirm={navGuard.accept} onCancel={navGuard.reject} />
 
       <Sheet open={showSheet} onOpenChange={handleSheetClose}>
-        <SheetContent>
-          <SheetHeader>
-            <ArrowRight size={16} className="cursor-pointer" onClick={() => handleSheetClose(false)} />
-            <SheetTitle>{sheetData?.refCode}</SheetTitle>
-          </SheetHeader>
+        <SheetContent
+          header={
+            <SheetHeader>
+              <ArrowRight size={16} className="cursor-pointer" onClick={() => handleSheetClose(false)} />
+              <SheetTitle>{sheetData?.refCode}</SheetTitle>
+            </SheetHeader>
+          }
+        >
           <div className="py-4">{sheetData?.content}</div>
         </SheetContent>
       </Sheet>

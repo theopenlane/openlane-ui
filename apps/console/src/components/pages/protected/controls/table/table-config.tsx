@@ -4,22 +4,11 @@ import { ColumnDef } from '@tanstack/react-table'
 import SubcontrolCell from './subcontrol-cell'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { formatDate } from '@/utils/date'
-import { ControlIconMapper } from '@/components/shared/icon-enum/control-enum'
+import { ControlIconMapper16, ControlStatusLabels, ControlStatusTooltips, ControlStatusOptions } from '@/components/shared/enum-mapper/control-enum'
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
+import StandardChip from '../../standards/shared/standard-chip'
 import { Badge } from '@repo/ui/badge'
 
-const statusLabels: Record<ControlControlStatus, string> = {
-  APPROVED: 'Approved',
-  ARCHIVED: 'Archived',
-  CHANGES_REQUESTED: 'Changes requested',
-  NEEDS_APPROVAL: 'Needs approval',
-  NOT_IMPLEMENTED: 'Not implemented',
-  PREPARING: 'Preparing',
-}
-
-const statusOptions = Object.values(ControlControlStatus).map((status) => ({
-  label: statusLabels[status],
-  value: status,
-}))
 export const CONTROLS_FILTER_FIELDS: FilterField[] = [
   { key: 'refCode', label: 'RefCode', type: 'text' },
   { key: 'program', label: 'Program', type: 'containsText' },
@@ -30,7 +19,7 @@ export const CONTROLS_FILTER_FIELDS: FilterField[] = [
     key: 'status',
     label: 'Status',
     type: 'select',
-    options: statusOptions,
+    options: ControlStatusOptions,
   } as SelectFilterField,
 ]
 
@@ -71,21 +60,24 @@ export const getControlColumns = ({ convertToReadOnly, userMap }: Params): Colum
       header: 'Description',
       accessorKey: 'description',
       cell: ({ row }) => {
-        const tags = row.original.tags
+        const referenceFramework = row.original.referenceFramework
         const description = convertToReadOnly(row.getValue('description') as string, 0)
 
         return (
           <div>
             <div className="line-clamp-3 text-justify">{description}</div>
             <div className="mt-2 border-t border-dotted pt-2 flex flex-wrap gap-2">
-              {tags?.map((tag, index) => (
-                <Badge key={index} variant="outline">
-                  {tag}
-                </Badge>
-              ))}
+              <StandardChip referenceFramework={referenceFramework ?? ''} />
+              {row.original.category && <Badge variant={'outline'}>{row.original.category}</Badge>}
+              {row.original.subcategory && <Badge variant={'outline'}>{row.original.subcategory}</Badge>}
             </div>
           </div>
         )
+      },
+      size: 400, // Set a reasonable pixel width
+      minSize: 300,
+      meta: {
+        className: 'w-[50%] min-w-[300px]', // CSS class for responsive width
       },
     },
     {
@@ -94,12 +86,19 @@ export const getControlColumns = ({ convertToReadOnly, userMap }: Params): Colum
       size: 160,
       cell: ({ row }) => {
         const value: ControlControlStatus = row.getValue('status')
-        const label = statusLabels[value] ?? value
+        const label = ControlStatusLabels[value] ?? value
         return (
-          <div className="flex items-center space-x-2">
-            {ControlIconMapper[value]}
-            <p>{label}</p>
-          </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center space-x-2 cursor-help">
+                  {ControlIconMapper16[value]}
+                  <p>{label}</p>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>{ControlStatusTooltips[value]}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         )
       },
     },
@@ -158,7 +157,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap }: Params): Colum
       cell: ({ row }) => <div>{row.getValue('referenceFramework') || '-'}</div>,
     },
     {
-      header: 'Subcontrol',
+      header: 'Subcontrols',
       accessorKey: 'subcontrol',
       size: 200,
       cell: SubcontrolCell,

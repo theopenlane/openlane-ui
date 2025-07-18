@@ -14,6 +14,7 @@ import {
   GET_CONTROLS_PAGINATED,
   UPDATE_CONTROL,
   GET_CONTROLS_PAGINATED_WITH_LIST_FIELDS,
+  GET_CONTROLS_GROUPED_BY_CATEGORY_RESOLVER,
 } from '@repo/codegen/query/control'
 
 import {
@@ -42,6 +43,7 @@ import {
   GetControlsPaginatedWithListFieldsQuery,
   GetControlsPaginatedWithListFieldsQueryVariables,
   ControlListStandardFieldsFragment,
+  GetControlsGroupedByCategoryResolverQuery,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -310,5 +312,15 @@ export function useGetControlMinifiedById(controlId?: string, enabled = true) {
       return data
     },
     enabled: !!controlId && enabled,
+  })
+}
+
+export const useGetControlsGroupedByCategoryResolver = ({ where, enabled }: { where?: ControlWhereInput; enabled: boolean }) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetControlsGroupedByCategoryResolverQuery>({
+    queryKey: ['controls', 'controlsGroupByCategory', where],
+    queryFn: async () => client.request(GET_CONTROLS_GROUPED_BY_CATEGORY_RESOLVER, { where }),
+    enabled,
   })
 }

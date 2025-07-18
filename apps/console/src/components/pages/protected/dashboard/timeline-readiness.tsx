@@ -15,10 +15,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
-import { PROGRAM_STATUS_LABELS, ProgramIconMapper } from '@/components/shared/icon-enum/program-enum'
+import { ProgramStatusLabels, ProgramIconMapper } from '@/components/shared/enum-mapper/program-enum'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
 import { GqlError } from '@/types'
+import { ProgramStatusOptions } from '@/components/shared/enum-mapper/program-enum'
 
 const formSchema = z.object({
   startDate: z.date().nullable().optional(),
@@ -135,7 +136,7 @@ const TimelineReadiness = () => {
                 <>
                   <span className="block w-32 flex shrink-0">Status:</span>
                   {program?.status && ProgramIconMapper[program.status]}
-                  <span>{program?.status ? PROGRAM_STATUS_LABELS[program.status] : '-'}</span>
+                  <span>{program?.status ? ProgramStatusLabels[program.status] : '-'}</span>
                 </>
               )}
             </div>
@@ -180,9 +181,9 @@ const StatusSelect = () => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {Object.entries(ProgramProgramStatus).map(([key, value]) => (
-                  <SelectItem key={value} value={value}>
-                    {key[0].toUpperCase() + key.slice(1).replaceAll('_', ' ').toLowerCase()}
+                {ProgramStatusOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
                   </SelectItem>
                 ))}
               </SelectContent>

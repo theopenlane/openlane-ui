@@ -104,7 +104,7 @@ type ProgramEvidenceStats = {
   total: number
   submitted: number
   accepted: number
-  overdue: number
+  rejected: number
 }
 
 export const useProgramEvidenceStats = (programId: string) => {
@@ -119,7 +119,7 @@ export const useProgramEvidenceStats = (programId: string) => {
         total: data.totalControls.totalCount,
         submitted: data.submitted.totalCount,
         accepted: data.accepted.totalCount,
-        overdue: data.overdue.totalCount,
+        rejected: data.rejected.totalCount,
       }
     },
     enabled: !!programId,
@@ -138,7 +138,7 @@ export const useGlobalEvidenceStats = ({ enabled = true }) => {
         total: data.totalControls.totalCount,
         submitted: data.submitted.totalCount,
         accepted: data.accepted.totalCount,
-        overdue: data.overdue.totalCount,
+        rejected: data.rejected.totalCount,
       }
     },
     enabled,

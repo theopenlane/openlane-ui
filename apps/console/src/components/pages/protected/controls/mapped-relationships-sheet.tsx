@@ -14,11 +14,14 @@ const MappedRelationsSheet: React.FC<MappedRelationsSheetProps> = ({ open, onOpe
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full max-w-3xl p-6 overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle className="self-start">Mapped relationships</SheetTitle>
-        </SheetHeader>
-
+      <SheetContent
+        className="bg-card flex flex-col"
+        header={
+          <SheetHeader>
+            <SheetTitle className="self-start">Mapped relationships</SheetTitle>
+          </SheetHeader>
+        }
+      >
         {(!mappings || mappings.length === 0) && <p className="text-sm mt-4">No mapping data available.</p>}
 
         {mappings?.map((mapping, i) => {

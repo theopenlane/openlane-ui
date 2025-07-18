@@ -19,6 +19,7 @@ import useFormSchema, { TFormData, VersionBump } from './use-form-schema'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
+import { ControlObjectiveStatusOptions } from '@/components/shared/enum-mapper/control-objective-enum'
 
 const controlSourceLabels: Record<ControlObjectiveControlSource, string> = {
   [ControlObjectiveControlSource.FRAMEWORK]: 'Framework',
@@ -192,9 +193,9 @@ export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuc
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.entries(ControlObjectiveObjectiveStatus).map(([key, val]) => (
-                      <SelectItem key={key} value={val}>
-                        {val.charAt(0).toUpperCase() + val.slice(1).toLowerCase()}
+                    {ControlObjectiveStatusOptions.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
                       </SelectItem>
                     ))}
                   </SelectContent>

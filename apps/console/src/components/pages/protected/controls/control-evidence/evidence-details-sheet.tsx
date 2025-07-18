@@ -48,7 +48,7 @@ import ControlEvidenceFiles from '@/components/pages/protected/controls/control-
 import { fileDownload } from '@/components/shared/lib/export.ts'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { ControlEvidenceRenewDialog } from '@/components/pages/protected/controls/control-evidence/control-evidence-renew-dialog.tsx'
-import { EvidenceIconMapper } from '@/components/shared/icon-enum/evidence-enum.tsx'
+import { EvidenceIconMapper, EvidenceStatusOptions } from '@/components/shared/enum-mapper/evidence-enum'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
 
 type TEvidenceDetailsSheet = {
@@ -86,7 +86,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const createdByUser = users?.find((item) => item.id === evidence?.createdBy)
 
   const evidenceName = evidence?.name
-  const statusOptions = Object.values(EvidenceEvidenceStatus)
+  const statusOptions = EvidenceStatusOptions
 
   const { form } = useFormSchema()
 
@@ -203,51 +203,55 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   return (
     <Sheet open={!!selectedControlEvidence} onOpenChange={handleSheetClose}>
-      <SheetContent className="bg-card flex flex-col">
+      <SheetContent
+        className="bg-card flex flex-col"
+        minWidth={600}
+        header={
+          <SheetHeader>
+            <div className="flex items-center justify-between">
+              <ArrowRight size={16} className="cursor-pointer" onClick={handleSheetClose} />
+              <div className="flex justify-end gap-2">
+                <Button icon={<Link />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
+                  Copy link
+                </Button>
+                {isEditing ? (
+                  <div className="flex gap-2">
+                    <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={form.handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
+                      Save
+                    </Button>
+                  </div>
+                ) : (
+                  <Button icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
+                    Edit
+                  </Button>
+                )}
+                {evidence && <ControlEvidenceRenewDialog evidenceId={evidence.id} controlId={controlId} />}
+                <Button icon={<Trash2 />} iconPosition="left" variant="outline" onClick={() => setDeleteDialogIsOpen(true)}>
+                  Delete
+                </Button>
+                <ConfirmationDialog
+                  open={deleteDialogIsOpen}
+                  onOpenChange={setDeleteDialogIsOpen}
+                  onConfirm={handleDelete}
+                  title={`Delete Evidence`}
+                  description={
+                    <>
+                      This action cannot be undone. This will permanently remove <b>{evidenceName} </b>from the control.
+                    </>
+                  }
+                />
+              </div>
+            </div>
+          </SheetHeader>
+        }
+      >
         {fetching ? (
           <Loading />
         ) : (
           <>
-            <SheetHeader>
-              <div className="flex items-center justify-between">
-                <ArrowRight size={16} className="cursor-pointer" onClick={handleSheetClose} />
-                <div className="flex justify-end gap-2">
-                  <Button icon={<Link />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
-                    Copy link
-                  </Button>
-                  {isEditing ? (
-                    <div className="flex gap-2">
-                      <Button type="button" variant="outline" onClick={() => setIsEditing(false)}>
-                        Cancel
-                      </Button>
-                      <Button onClick={form.handleSubmit(onSubmit)} icon={<Check />} iconPosition="left">
-                        Save
-                      </Button>
-                    </div>
-                  ) : (
-                    <Button icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
-                      Edit
-                    </Button>
-                  )}
-                  {evidence && <ControlEvidenceRenewDialog evidenceId={evidence.id} controlId={controlId} />}
-                  <Button icon={<Trash2 />} iconPosition="left" variant="outline" onClick={() => setDeleteDialogIsOpen(true)}>
-                    Delete
-                  </Button>
-                  <ConfirmationDialog
-                    open={deleteDialogIsOpen}
-                    onOpenChange={setDeleteDialogIsOpen}
-                    onConfirm={handleDelete}
-                    title={`Delete Evidence`}
-                    description={
-                      <>
-                        This action cannot be undone. This will permanently remove <b>{evidenceName} </b>from the control.
-                      </>
-                    }
-                  />
-                </div>
-              </div>
-            </SheetHeader>
-
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
                 <SheetTitle>
@@ -397,8 +401,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                     <SelectTrigger className="w-full">{EvidenceStatusMapper[field.value as EvidenceEvidenceStatus] || 'Select'}</SelectTrigger>
                                     <SelectContent>
                                       {statusOptions.map((option) => (
-                                        <SelectItem key={option} value={option}>
-                                          {EvidenceStatusMapper[option as EvidenceEvidenceStatus]}
+                                        <SelectItem key={option.value} value={option.value}>
+                                          {EvidenceStatusMapper[option.value as EvidenceEvidenceStatus]}
                                         </SelectItem>
                                       ))}
                                     </SelectContent>

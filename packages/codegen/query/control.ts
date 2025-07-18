@@ -108,6 +108,7 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
           name
           creationDate
           displayID
+          description
         }
       }
     }
@@ -129,6 +130,7 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
           id
           name
           displayID
+          details
           approver {
             gravatarLogoURL
             logoURL
@@ -144,6 +146,7 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
           id
           name
           displayID
+          details
           approver {
             gravatarLogoURL
             logoURL
@@ -178,6 +181,7 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
           name
           displayID
           status
+          description
         }
       }
     }
@@ -370,6 +374,34 @@ export const GET_CONTROLS_PAGINATED_WITH_LIST_FIELDS = gql`
       pageInfo {
         hasNextPage
         endCursor
+      }
+    }
+  }
+`
+
+export const GET_CONTROLS_GROUPED_BY_CATEGORY_RESOLVER = gql`
+  query GetControlsGroupedByCategoryResolver($where: ControlWhereInput) {
+    controlsGroupByCategory(where: $where) {
+      edges {
+        node {
+          category
+          controls {
+            totalCount
+            pageInfo {
+              endCursor
+              hasNextPage
+            }
+            edges {
+              node {
+                __typename
+                id
+                refCode
+                status
+                referenceFramework
+              }
+            }
+          }
+        }
       }
     }
   }

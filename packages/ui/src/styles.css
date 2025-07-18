@@ -39,6 +39,9 @@
   --color-button-secondary: #d9ae40;
   --color-button-back: #e2efeb;
 
+  /* Checkbox */
+  --color-bg-checkbox: #ffffff;
+
   /* Assets */
   --asset-color-bg: #dae3e7;
 
@@ -115,6 +118,7 @@
   --color-brand: #2ccbab;
   --color-brand-secondary: #59c1bb;
   --color-brand-100: #052e2a;
+  --color-brand-900: #f0fdf9;
 
   /* Logo */
   --color-logo-bg: #303e4a;
@@ -140,7 +144,7 @@
   /* Alert */
   --color-destructive: #dc2626;
   --color-destructive-transparent: #dc26261a;
-  --color-destrucitve-border: #fecaca;
+  --color-destructive-border: #fecaca;
   --color-destructive-foreground: #f0fdf9;
 
   /* progressbar */
@@ -188,6 +192,9 @@
   --color-button-text: #082930;
   --color-button-secondary: #b48f31;
   --color-button-back: #96a09d;
+
+  /* Checkbox */
+  --color-bg-checkbox: #1c2630;
 
   /* Assets */
   --asset-color-bg: #374a52;
@@ -256,6 +263,7 @@
   --color-brand: #2ccbab;
   --color-brand-secondary: #59c1bb;
   --color-brand-100: #cdfaee;
+  --color-brand-900: #144d45;
 
   /* Logo */
   --color-logo-bg: #303e4a;
@@ -277,7 +285,7 @@
   /* Alert */
   --color-destructive: #ef4444;
   --color-destructive-transparent: #ef44441a;
-  --color-destrucitve-border: #7f1d1d;
+  --color-destructive-border: #7f1d1d;
   --color-destructive-foreground: #f0fdf9;
 
   /* progressbar */
