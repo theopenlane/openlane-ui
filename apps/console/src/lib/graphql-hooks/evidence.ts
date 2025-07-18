@@ -9,6 +9,7 @@ import {
   GET_EVIDENCE_FILES,
   GET_EVIDENCE_FILES_PAGINATED,
   GET_EVIDENCE_LIST,
+  GET_FIRST_FIVE_EVIDENCES_BY_STATUS,
   GET_RENEW_EVIDENCE,
   UPDATE_EVIDENCE,
 } from '@repo/codegen/query/evidence'
@@ -32,6 +33,8 @@ import {
   EvidenceOrder,
   Evidence,
   GetEvidenceCountsByStatusQuery,
+  EvidenceEvidenceStatus,
+  GetEvidencesByStatusQuery,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -198,6 +201,16 @@ export const useGetEvidenceCountsByStatus = (programId?: string | null) => {
   return useQuery<GetEvidenceCountsByStatusQuery, unknown>({
     queryKey: ['evidences', 'counts', programId],
     queryFn: async () => client.request(GET_EVIDENCE_COUNTS_BY_STATUS, { programId }),
+    enabled: !!programId,
+  })
+}
+
+export const useGetFirstFiveEvidencesByStatus = (status: EvidenceEvidenceStatus, programId?: string | null) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetEvidencesByStatusQuery, unknown>({
+    queryKey: ['evidences', 'statuses', programId, status],
+    queryFn: async () => client.request(GET_FIRST_FIVE_EVIDENCES_BY_STATUS, { status, programId }),
     enabled: !!programId,
   })
 }

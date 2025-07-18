@@ -13,7 +13,6 @@ type TEvidenceTableToolbarProps = {
   searchTerm: string
   setSearchTerm: (searchTerm: string) => void
   setFilters: (filters: Record<string, unknown>) => void
-  handleCreateNew: () => void
   columnVisibility?: VisibilityState
   setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
   mappedColumns: {

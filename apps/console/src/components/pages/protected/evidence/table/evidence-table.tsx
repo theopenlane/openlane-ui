@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { DataTable } from '@repo/ui/data-table'
 import React, { useState, useMemo, useEffect, useContext } from 'react'
 import { Evidence, EvidenceOrderField, EvidenceWhereInput, GetEvidenceListQueryVariables, OrderDirection } from '@repo/codegen/src/schema'
@@ -20,7 +20,6 @@ export const EvidenceTable = () => {
   const searchParams = useSearchParams()
   const { setSelectedControlEvidence } = useControlEvidenceStore()
   const programId = searchParams.get('programId')
-  const router = useRouter()
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<EvidenceWhereInput | null>(null)
   const { setCrumbs } = useContext(BreadcrumbContext)
@@ -98,10 +97,6 @@ export const EvidenceTable = () => {
     ])
   }, [setCrumbs])
 
-  const handleCreateNew = async () => {
-    router.push(`/policies/create`)
-  }
-
   const handleRowClick = (rowData: Evidence) => {
     setSelectedControlEvidence(rowData.id)
   }
@@ -110,7 +105,6 @@ export const EvidenceTable = () => {
     <>
       <EvidenceTableToolbar
         searching={fetching}
-        handleCreateNew={handleCreateNew}
         setFilters={setFilters}
         searchTerm={searchTerm}
         setSearchTerm={(inputVal) => {

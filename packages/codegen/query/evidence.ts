@@ -1,5 +1,5 @@
 import { gql } from 'graphql-request'
-import { EvidenceWhereInput } from '../src/schema'
+import { EvidenceEvidenceStatus, EvidenceWhereInput } from '../src/schema'
 
 export const CREATE_EVIDENCE = gql`
   mutation CreateEvidence($input: CreateEvidenceInput!, $evidenceFiles: [Upload!]) {
@@ -250,6 +250,18 @@ export const GET_EVIDENCE_COUNTS_BY_STATUS = gql`
     }
     needsRenewal: evidences(where: { status: NEEDS_RENEWAL, hasProgramsWith: [{ id: $programId }] }) {
       totalCount
+    }
+  }
+`
+export const GET_FIRST_FIVE_EVIDENCES_BY_STATUS = gql`
+  query GetEvidencesByStatus($status: EvidenceEvidenceStatus!, $programId: ID!) {
+    evidences(first: 5, where: { status: $status, hasProgramsWith: [{ id: $programId }] }) {
+      edges {
+        node {
+          id
+          displayID
+        }
+      }
     }
   }
 `
