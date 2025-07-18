@@ -35,6 +35,8 @@ import {
   Evidence,
   GetEvidenceCountsByStatusQuery,
   EvidenceEvidenceStatus,
+  GetEvidenceTrendDataQuery,
+  GetProgramEvidenceTrendDataQuery,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -226,41 +228,64 @@ export const useEvidenceTrend = (programId?: string | null, status?: EvidenceEvi
         }
       }
 
-      const query = programId ? GET_PROGRAM_EVIDENCE_TREND_DATA : GET_EVIDENCE_TREND_DATA
-      const variables = programId ? { programId, currentWeekStart, previousWeekStart, previousWeekEnd, status } : { currentWeekStart, previousWeekStart, previousWeekEnd, status }
-
-      const data = await client.request(query, variables)
-
-      const currentWeekCount = data.currentWeek.totalCount
-      const previousWeekCount = data.previousWeek.totalCount
-
-      // Calculate trend percentage
-      let trend = 0
-      let trendType: 'up' | 'down' | 'flat' = 'flat'
-
-      if (previousWeekCount > 0) {
-        trend = ((currentWeekCount - previousWeekCount) / previousWeekCount) * 100
-        if (trend > 0) {
+      if (programId) {
+        const variables = { programId, currentWeekStart, previousWeekStart, previousWeekEnd, status }
+        const data = await client.request<GetProgramEvidenceTrendDataQuery>(GET_PROGRAM_EVIDENCE_TREND_DATA, variables)
+        const currentWeekCount = data.currentWeek.totalCount
+        const previousWeekCount = data.previousWeek.totalCount
+        // Calculate trend percentage
+        let trend = 0
+        let trendType: 'up' | 'down' | 'flat' = 'flat'
+        if (previousWeekCount > 0) {
+          trend = ((currentWeekCount - previousWeekCount) / previousWeekCount) * 100
+          if (trend > 0) {
+            trendType = 'up'
+          } else if (trend < 0) {
+            trendType = 'down'
+          } else {
+            trendType = 'flat'
+          }
+        } else if (currentWeekCount > 0) {
+          trend = 100
           trendType = 'up'
-        } else if (trend < 0) {
-          trendType = 'down'
         } else {
           trendType = 'flat'
         }
-      } else if (currentWeekCount > 0) {
-        // If previous week was 0 but current week has data, it's a 100% increase
-        trend = 100
-        trendType = 'up'
+        return {
+          trend: Math.round(trend),
+          trendType,
+          currentWeekCount,
+          previousWeekCount,
+        }
       } else {
-        // Both weeks are 0, so it's flat
-        trendType = 'flat'
-      }
-
-      return {
-        trend: Math.round(trend),
-        trendType,
-        currentWeekCount,
-        previousWeekCount,
+        const variables = { currentWeekStart, previousWeekStart, previousWeekEnd, status }
+        const data = await client.request<GetEvidenceTrendDataQuery>(GET_EVIDENCE_TREND_DATA, variables)
+        const currentWeekCount = data.currentWeek.totalCount
+        const previousWeekCount = data.previousWeek.totalCount
+        // Calculate trend percentage
+        let trend = 0
+        let trendType: 'up' | 'down' | 'flat' = 'flat'
+        if (previousWeekCount > 0) {
+          trend = ((currentWeekCount - previousWeekCount) / previousWeekCount) * 100
+          if (trend > 0) {
+            trendType = 'up'
+          } else if (trend < 0) {
+            trendType = 'down'
+          } else {
+            trendType = 'flat'
+          }
+        } else if (currentWeekCount > 0) {
+          trend = 100
+          trendType = 'up'
+        } else {
+          trendType = 'flat'
+        }
+        return {
+          trend: Math.round(trend),
+          trendType,
+          currentWeekCount,
+          previousWeekCount,
+        }
       }
     },
     enabled: !!status,
