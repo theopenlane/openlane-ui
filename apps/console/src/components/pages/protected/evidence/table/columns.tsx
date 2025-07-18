@@ -7,6 +7,7 @@ import ControlChip from '@/components/pages/protected/controls/map-controls/shar
 import { formatDate } from '@/utils/date.ts'
 import { Badge } from '@repo/ui/badge'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
+import EvidenceFileChip from '@/components/pages/protected/evidence/table/evidence-file-chip.tsx'
 
 type TGetEvidenceColumnsProps = {
   userMap: Record<string, User>
@@ -17,8 +18,16 @@ export const getEvidenceColumns = ({ userMap }: TGetEvidenceColumnsProps) => {
     {
       accessorKey: 'name',
       header: 'Name',
-      cell: ({ cell }) => {
-        return <div className="font-bold">{cell.getValue() as string}</div>
+      cell: ({ row }) => {
+        const evidenceName = row.original.name
+        const linkUrl = row.original.url
+        const evidenceId = row.original.id
+
+        return (
+          <div className="flex gap-2">
+            <EvidenceFileChip evidenceId={evidenceId} linkUrl={linkUrl} evidenceName={evidenceName} />
+          </div>
+        )
       },
       minSize: 100,
       size: 180,

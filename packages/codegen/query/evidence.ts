@@ -205,6 +205,7 @@ export const GET_EVIDENCE_LIST = gql`
           createdBy
           tags
           source
+          url
           creationDate
           renewalDate
           collectionProcedure
@@ -260,6 +261,25 @@ export const GET_FIRST_FIVE_EVIDENCES_BY_STATUS = gql`
         node {
           id
           displayID
+        }
+      }
+    }
+  }
+`
+
+export const GET_EVIDENCE_FILES_BY_ID = gql`
+  query GetEvidenceFilesById($evidenceId: ID!) {
+    evidence(id: $evidenceId) {
+      files {
+        edges {
+          node {
+            providedFileName
+            providedFileSize
+            providedFileExtension
+            id
+            uri
+            presignedURL
+          }
         }
       }
     }

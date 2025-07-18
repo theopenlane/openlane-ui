@@ -16,6 +16,7 @@ import {
   Eye,
   InfoIcon,
   Link,
+  LinkIcon,
   Pencil,
   Tag,
   Trash2,
@@ -105,6 +106,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
         status: evidence?.status ? Object.values(EvidenceEvidenceStatus).find((type) => type === evidence?.status) : undefined,
         tags: evidence?.tags ?? [],
         collectionProcedure: evidence?.collectionProcedure ?? '',
+        source: evidence?.source ?? '',
+        url: evidence?.url ?? '',
       })
 
       if (evidence?.tags) {
@@ -346,6 +349,33 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                           </InputRow>
                         ) : (
                           <p className="text-sm text-left">{evidence?.source}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-2 text-sm w-[180px]">
+                        <LinkIcon size={16} className="text-accent-secondary" />
+                        URL
+                      </div>
+                      <div className="text-sm text-left w-[200px]">
+                        {isEditing ? (
+                          <InputRow className="w-full">
+                            <FormField
+                              control={form.control}
+                              name="url"
+                              render={({ field }) => (
+                                <FormItem className="w-full">
+                                  <FormControl>
+                                    <Input variant="medium" {...field} className="w-full" />
+                                  </FormControl>
+                                  {form.formState.errors.url && <p className="text-red-500 text-sm">{form.formState.errors.url.message}</p>}
+                                </FormItem>
+                              )}
+                            />
+                          </InputRow>
+                        ) : (
+                          <p className="text-sm text-left">{evidence?.url}</p>
                         )}
                       </div>
                     </div>
