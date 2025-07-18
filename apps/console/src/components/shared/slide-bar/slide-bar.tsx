@@ -59,7 +59,7 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarC
   }
 
   return (
-    <div className="relative flex h-full">
+    <div className="relative flex">
       <div className="transition-all duration-300 overflow-auto" style={{ width: open ? `calc(100% - ${width}px)` : '100%' }}>
         {children}
       </div>
