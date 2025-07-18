@@ -130,7 +130,7 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
           id
           name
           displayID
-          details
+          summary
           approver {
             gravatarLogoURL
             logoURL
@@ -146,7 +146,7 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
           id
           name
           displayID
-          details
+          summary
           approver {
             gravatarLogoURL
             logoURL
