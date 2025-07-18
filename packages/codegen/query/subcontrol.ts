@@ -217,6 +217,7 @@ export const GET_SUBCONTROLS_PAGINATED = gql`
           category
           subcategory
           referenceFramework
+          controlID
         }
       }
       pageInfo {

@@ -85,6 +85,7 @@ export type MapControl = {
   category?: string | null
   subcategory?: string | null
   referenceFramework?: string | null
+  controlID?: string | null
 }
 
 type GraphQLErrorItem = {

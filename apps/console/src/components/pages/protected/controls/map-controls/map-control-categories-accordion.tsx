@@ -30,6 +30,7 @@ interface Props {
     category?: string | null
     subcategory?: string | null
     referenceFramework?: string | null
+    controlID?: string
   }[]
   title: 'From' | 'To'
   setDroppedControls: React.Dispatch<React.SetStateAction<MapControl[]>>

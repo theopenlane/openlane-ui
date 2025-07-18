@@ -318,9 +318,66 @@ export function useGetControlMinifiedById(controlId?: string, enabled = true) {
 export const useGetControlsGroupedByCategoryResolver = ({ where, enabled }: { where?: ControlWhereInput; enabled: boolean }) => {
   const { client } = useGraphQLClient()
 
-  return useQuery<GetControlsGroupedByCategoryResolverQuery>({
-    queryKey: ['controls', 'controlsGroupByCategory', where],
-    queryFn: async () => client.request(GET_CONTROLS_GROUPED_BY_CATEGORY_RESOLVER, { where }),
+  return useQuery({
+    queryKey: ['controls', 'allGroupedByCategory', where],
     enabled,
+    queryFn: async () => {
+      const allControls: Record<
+        string,
+        {
+          id: string
+          refCode: string
+          status?: string | null
+          referenceFramework?: string | null
+        }[]
+      > = {}
+
+      const cursors: Record<string, string | null> = {}
+      const hasNextMap: Record<string, boolean> = {}
+
+      const initial = await client.request<GetControlsGroupedByCategoryResolverQuery>(GET_CONTROLS_GROUPED_BY_CATEGORY_RESOLVER, { where })
+
+      for (const edge of initial.controlsGroupByCategory.edges) {
+        const category = edge.node.category
+
+        const controls = edge.node.controls.edges?.map((e) => e?.node).filter((node): node is NonNullable<typeof node> => Boolean(node?.id && node?.refCode))
+
+        if (controls && category) {
+          allControls[category] = controls
+          cursors[category] = edge.node.controls.pageInfo.endCursor
+          hasNextMap[category] = edge.node.controls.pageInfo.hasNextPage
+        }
+      }
+
+      const fetchNextForCategory = async (category: string, after: string) => {
+        const response = await client.request<GetControlsGroupedByCategoryResolverQuery>(GET_CONTROLS_GROUPED_BY_CATEGORY_RESOLVER, {
+          where,
+          category,
+          after,
+        })
+
+        const node = response.controlsGroupByCategory.edges?.[0]?.node
+        if (!node) return
+
+        const newControls = node.controls?.edges?.map((e) => e?.node).filter((node): node is NonNullable<typeof node> => Boolean(node?.id && node?.refCode)) ?? []
+
+        allControls[category] = [...(allControls[category] || []), ...newControls]
+
+        if (node.controls.pageInfo.hasNextPage && node.controls.pageInfo.endCursor) {
+          await fetchNextForCategory(category, node.controls.pageInfo.endCursor)
+        }
+      }
+
+      const promises = Object.entries(hasNextMap)
+        .filter(([, hasNext]) => hasNext)
+        .map(([category]) => fetchNextForCategory(category, cursors[category]!))
+
+      await Promise.all(promises)
+
+      return Object.entries(allControls).map(([category, controls]) => ({
+        category,
+        controls,
+      }))
+    },
   })
 }
