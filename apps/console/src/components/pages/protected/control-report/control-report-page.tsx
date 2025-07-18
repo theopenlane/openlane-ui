@@ -13,6 +13,8 @@ import ControlChip from '../controls/map-controls/shared/control-chip'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
 import { ControlStatusOrder, ControlStatusTooltips, ControlIconMapper, ControlStatusLabels } from '@/components/shared/enum-mapper/control-enum'
+import Link from 'next/link'
+import { Button } from '@repo/ui/button'
 
 const ControlReportPage = () => {
   const { currentOrgId } = useOrganization()
@@ -39,21 +41,21 @@ const ControlReportPage = () => {
   }, [standardOptions])
 
   const where = useMemo(() => {
-    if (referenceFramework && referenceFramework !== 'Custom') {
+    if (referenceFramework && referenceFramework !== 'CUSTOM') {
       return { referenceFramework: referenceFramework }
-    } else if (referenceFramework === 'Custom') {
+    } else if (referenceFramework === 'CUSTOM') {
       return { referenceFrameworkIsNil: true }
     }
     return undefined
   }, [referenceFramework])
 
-  const { data, isLoading } = useGetControlsGroupedByCategoryResolver({
+  const { data, isLoading, isFetching } = useGetControlsGroupedByCategoryResolver({
     where,
     enabled: Boolean(referenceFramework),
   })
 
   const grouped = useMemo(() => {
-    if (!data?.controlsGroupByCategory?.edges) return []
+    if (!data?.controlsGroupByCategory?.edges) return undefined
     return data.controlsGroupByCategory.edges.map((edge) => ({
       category: edge.node.category,
       controls: edge?.node?.controls?.edges?.map((e) => e!.node).filter((node) => !!node) || [],
@@ -85,47 +87,54 @@ const ControlReportPage = () => {
 
   return (
     <TooltipProvider>
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-4">
+          <h1 className="text-3xl tracking-[-0.056rem] text-header">All Controls</h1>
+          <Select onValueChange={setReferenceFramework} value={referenceFramework}>
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Select Framework" />
+            </SelectTrigger>
+            <SelectContent>
+              {filteredStandardOptions.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+              <SelectItem value="CUSTOM">CUSTOM</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <Link href={'/controls'}>
+          <Button className="h-8 p-2">View All Controls</Button>
+        </Link>
+      </div>
       <div className="space-y-2">
-        <label className="text-sm font-medium">Select Framework</label>
-        <Select onValueChange={setReferenceFramework} value={referenceFramework}>
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder="Select Framework" />
-          </SelectTrigger>
-          <SelectContent>
-            {filteredStandardOptions.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
-              </SelectItem>
-            ))}
-            <SelectItem value="CUSTOM">CUSTOM</SelectItem>
-          </SelectContent>
-        </Select>
+        {isLoading || isFetching ? (
+          <p>Loading controls...</p>
+        ) : grouped?.length === 0 ? (
+          <div className="mt-6 text-muted-foreground text-sm">No controls found for the selected framework.</div>
+        ) : (
+          <Accordion type="multiple">
+            {grouped?.map(({ category, controls }) => {
+              const controlsByStatus = groupControlsByStatus(controls)
 
-        {isLoading && <p>Loading controls...</p>}
-
-        <Accordion type="multiple">
-          {grouped.map(({ category, controls }) => {
-            const controlsByStatus = groupControlsByStatus(controls)
-            return (
-              <AccordionItem className="mt-4" key={category} value={category}>
-                <AccordionTrigger asChild>
-                  <button className="size-fit group flex items-center gap-2">
-                    <ChevronDown size={22} className="text-brand transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
-                    <span className="text-xl">{category}</span>
-                    <span className="p-1.5 border text-xs text-text-informational rounded-lg">
-                      {controlsByStatus.APPROVED.length}/{controls.length}
-                    </span>
-                  </button>
-                </AccordionTrigger>
-                <AccordionContent className="pt-4">
-                  <Card className="p-4 space-y-4">
-                    {(() => {
-                      const nonEmptyStatuses = ControlStatusOrder.filter((status) => controlsByStatus[status] && controlsByStatus[status].length > 0)
-
-                      return nonEmptyStatuses.map((status, index) => {
-                        const controls = controlsByStatus[status]
+              return (
+                <AccordionItem className="mt-4" key={category} value={category}>
+                  <AccordionTrigger asChild>
+                    <button className="size-fit group flex items-center gap-2">
+                      <ChevronDown size={22} className="text-brand transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
+                      <span className="text-xl">{category}</span>
+                      <span className="p-1.5 border text-xs text-text-informational rounded-lg">
+                        {controlsByStatus.APPROVED.length}/{controls.length}
+                      </span>
+                    </button>
+                  </AccordionTrigger>
+                  <AccordionContent className="pt-4">
+                    <Card className="p-4 space-y-4">
+                      {ControlStatusOrder.filter((status) => controlsByStatus[status]?.length > 0).map((status, index, arr) => {
+                        const isLast = index === arr.length - 1
                         const Icon = ControlIconMapper[status]
-                        const isLast = index === nonEmptyStatuses.length - 1
+                        const controlsForStatus = controlsByStatus[status]
 
                         return (
                           <div key={status} className={`flex gap-4 ${!isLast ? 'border-b pb-4' : 'pb-0'}`}>
@@ -143,24 +152,24 @@ const ControlReportPage = () => {
                               </div>
                               <div className="text-xs">
                                 <span>Total:&nbsp;</span>
-                                <span className="text-brand">{controls.length} controls</span>
+                                <span className="text-brand">{controlsForStatus.length} controls</span>
                               </div>
                             </div>
                             <div className="flex flex-wrap gap-2">
-                              {controls.map((c) => (
+                              {controlsForStatus.map((c) => (
                                 <ControlChip key={c.id} control={c} hideStandard />
                               ))}
                             </div>
                           </div>
                         )
-                      })
-                    })()}
-                  </Card>
-                </AccordionContent>
-              </AccordionItem>
-            )
-          })}
-        </Accordion>
+                      })}
+                    </Card>
+                  </AccordionContent>
+                </AccordionItem>
+              )
+            })}
+          </Accordion>
+        )}
       </div>
     </TooltipProvider>
   )
