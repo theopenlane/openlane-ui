@@ -29,7 +29,7 @@ export type TAccessRole =
   | 'access'
   | 'can_invite_admins'
 
-type TData = {
+export type TData = {
   success?: boolean
   organization_id?: string
   roles: TAccessRole[]
