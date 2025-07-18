@@ -4,7 +4,7 @@ import { Badge } from '@repo/ui/badge'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { DonutChart } from '@repo/ui/donut-chart'
 import { useSearchParams } from 'next/navigation'
-import { ChartColorsSequence } from '@/components/shared/icon-enum/evidence-enum.tsx'
+import { ChartColorsSequence } from '@/components/shared/enum-mapper/evidence-enum'
 
 export function EvidenceSummaryCard() {
   const searchParams = useSearchParams()

@@ -2,7 +2,7 @@ import { SquareArrowDown, SquareArrowRight, SquareArrowUpRight, SquareArrowUp } 
 
 import { RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { RiskIconMapper } from '@/components/shared/icon-enum/risk-enum.tsx'
+import { RiskIconMapper } from '@/components/shared/enum-mapper/risk-enum'
 import { RisksStatusMapper } from '@/components/pages/protected/risks/risks.ts'
 
 interface RiskLabelProps {

@@ -10,6 +10,15 @@ export const TaskStatusIconMapper: Record<TaskTaskStatus, React.ReactNode> = {
   [TaskTaskStatus.WONT_DO]: <CircleOff height={16} width={16} className="text-task-wont-do" />,
 }
 
+// Status options for select dropdowns
+export const TaskStatusOptions = Object.values(TaskTaskStatus).map((status) => ({
+  label: status
+    .split('_')
+    .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
+    .join(' '),
+  value: status,
+}))
+
 export const TaskIconBtn = (
   <div className="flex items-center space-x-2 hover:bg-muted">
     <CirclePlus size={16} strokeWidth={2} />

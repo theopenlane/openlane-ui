@@ -47,7 +47,7 @@ import ControlEvidenceFiles from '@/components/pages/protected/controls/control-
 import { fileDownload } from '@/components/shared/lib/export.ts'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { ControlEvidenceRenewDialog } from '@/components/pages/protected/controls/control-evidence/control-evidence-renew-dialog.tsx'
-import { EvidenceIconMapper } from '@/components/shared/icon-enum/evidence-enum.tsx'
+import { EvidenceIconMapper, EvidenceStatusOptions } from '@/components/shared/enum-mapper/evidence-enum'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
 
 type TEvidenceDetailsSheet = {
@@ -85,7 +85,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const createdByUser = users?.find((item) => item.id === evidence?.createdBy)
 
   const evidenceName = evidence?.name
-  const statusOptions = Object.values(EvidenceEvidenceStatus)
+  const statusOptions = EvidenceStatusOptions
 
   const { form } = useFormSchema()
 
@@ -371,8 +371,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                     <SelectTrigger className="w-full">{EvidenceStatusMapper[field.value as EvidenceEvidenceStatus] || 'Select'}</SelectTrigger>
                                     <SelectContent>
                                       {statusOptions.map((option) => (
-                                        <SelectItem key={option} value={option}>
-                                          {EvidenceStatusMapper[option as EvidenceEvidenceStatus]}
+                                        <SelectItem key={option.value} value={option.value}>
+                                          {EvidenceStatusMapper[option.value as EvidenceEvidenceStatus]}
                                         </SelectItem>
                                       ))}
                                     </SelectContent>

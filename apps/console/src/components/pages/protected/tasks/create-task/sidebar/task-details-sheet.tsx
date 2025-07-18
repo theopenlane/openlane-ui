@@ -34,7 +34,7 @@ import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
 import { formatDate } from '@/utils/date'
-import { TaskStatusIconMapper } from '@/components/shared/icon-enum/task-enum.tsx'
+import { TaskStatusIconMapper, TaskStatusOptions } from '@/components/shared/enum-mapper/task-enum'
 import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
@@ -49,7 +49,7 @@ const TaskDetailsSheet = () => {
   const queryClient = useQueryClient()
   const plateEditorHelper = usePlateEditor()
   const taskTypeOptions = Object.values(TaskTypes)
-  const statusOptions = Object.values(TaskTaskStatus)
+  const statusOptions = TaskStatusOptions
   const router = useRouter()
   const { orgMembers } = useTaskStore()
   const { successNotification, errorNotification } = useNotification()
@@ -580,8 +580,8 @@ const TaskDetailsSheet = () => {
                               <SelectTrigger className="w-1/3">{TaskStatusMapper[field.value as TaskTaskStatus] || 'Select'}</SelectTrigger>
                               <SelectContent>
                                 {statusOptions.map((option) => (
-                                  <SelectItem key={option} value={option}>
-                                    {TaskStatusMapper[option as TaskTaskStatus]}
+                                  <SelectItem key={option.value} value={option.value}>
+                                    {TaskStatusMapper[option.value as TaskTaskStatus]}
                                   </SelectItem>
                                 ))}
                               </SelectContent>

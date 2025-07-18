@@ -39,3 +39,21 @@ export const EvidenceBadgeMapper: Record<EvidenceEvidenceStatus, React.ReactNode
     </Badge>
   ),
 }
+
+// Status options for select dropdowns
+export const EvidenceStatusOptions = Object.values(EvidenceEvidenceStatus).map((status) => ({
+  label: status
+    .split('_')
+    .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
+    .join(' '),
+  value: status,
+}))
+
+// Status options for table filters
+export const EvidenceStatusFilterOptions = Object.entries(EvidenceEvidenceStatus).map(([key, value]) => ({
+  label: key
+    .replace(/_/g, ' ')
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase()),
+  value,
+}))

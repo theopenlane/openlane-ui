@@ -1,7 +1,7 @@
 import { ColumnDef } from '@tanstack/react-table'
 import { Evidence, EvidenceEvidenceStatus, User } from '@repo/codegen/src/schema.ts'
 import React from 'react'
-import { EvidenceBadgeMapper } from '@/components/shared/icon-enum/evidence-enum.tsx'
+import { EvidenceBadgeMapper } from '@/components/shared/enum-mapper/evidence-enum'
 import { Check, Minus } from 'lucide-react'
 import ControlChip from '@/components/pages/protected/controls/map-controls/shared/control-chip.tsx'
 import { formatDate } from '@/utils/date.ts'

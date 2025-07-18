@@ -1,18 +1,6 @@
 import { FilterField, SelectFilterField } from '@/types'
-import { EvidenceEvidenceStatus, EvidenceOrderField, OrderDirection } from '@repo/codegen/src/schema.ts'
-
-const statusLabels: Record<EvidenceEvidenceStatus, string> = {
-  [EvidenceEvidenceStatus.APPROVED]: 'Approved',
-  [EvidenceEvidenceStatus.REJECTED]: 'Rejected',
-  [EvidenceEvidenceStatus.NEEDS_RENEWAL]: 'Needs Renewal',
-  [EvidenceEvidenceStatus.READY]: 'Ready',
-  [EvidenceEvidenceStatus.MISSING_ARTIFACT]: 'Missing Artifact',
-}
-
-const statusOptions = Object.values(EvidenceEvidenceStatus).map((status) => ({
-  label: statusLabels[status],
-  value: status,
-}))
+import { EvidenceOrderField, OrderDirection } from '@repo/codegen/src/schema.ts'
+import { EvidenceStatusOptions } from '@/components/shared/enum-mapper/evidence-enum'
 
 export const EVIDENCE_FILTERABLE_FIELDS: FilterField[] = [
   { key: 'name', label: 'Name', type: 'text' },
@@ -22,7 +10,7 @@ export const EVIDENCE_FILTERABLE_FIELDS: FilterField[] = [
     key: 'status',
     label: 'Status',
     type: 'select',
-    options: statusOptions,
+    options: EvidenceStatusOptions,
   } as SelectFilterField,
 ]
 

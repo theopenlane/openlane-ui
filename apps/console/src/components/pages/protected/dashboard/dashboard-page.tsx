@@ -19,9 +19,9 @@ import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import DashboardSkeleton from '@/app/(protected)/dashboard/dashboard-skeleton.tsx'
 import Menu from '@/components/shared/menu/menu.tsx'
-import { TaskIconBtn } from '@/components/shared/icon-enum/task-enum.tsx'
-import { ProgramCreateIconBtn } from '@/components/shared/icon-enum/program-enum.tsx'
-import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
+import { TaskIconBtn } from '@/components/shared/enum-mapper/task-enum'
+import { ProgramCreateIconBtn } from '@/components/shared/enum-mapper/program-enum'
+import { CreateBtn } from '@/components/shared/enum-mapper/common-enum'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 
 const DashboardPage: React.FC = () => {

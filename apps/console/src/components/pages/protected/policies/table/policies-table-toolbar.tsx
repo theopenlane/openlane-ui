@@ -10,7 +10,7 @@ import { useOrganizationRole } from '@/lib/authz/access-api.ts'
 import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Menu from '@/components/shared/menu/menu.tsx'
-import { CreateBtn } from '@/components/shared/icon-enum/common-enum.tsx'
+import { CreateBtn } from '@/components/shared/enum-mapper/common-enum'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 

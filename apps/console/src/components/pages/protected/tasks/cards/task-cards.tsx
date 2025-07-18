@@ -7,7 +7,7 @@ import { Avatar } from '@/components/shared/avatar/avatar'
 import { Task } from '@repo/codegen/src/schema.ts'
 import { formatDate } from '@/utils/date'
 import { TaskStatusMapper } from '../util/task'
-import { TaskStatusIconMapper } from '@/components/shared/icon-enum/task-enum.tsx'
+import { TaskStatusIconMapper } from '@/components/shared/enum-mapper/task-enum'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 
 type TTaskCardsProps = {
