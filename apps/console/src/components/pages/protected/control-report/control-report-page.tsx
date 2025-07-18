@@ -15,6 +15,7 @@ import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/
 import { ControlStatusOrder, ControlStatusTooltips, ControlIconMapper, ControlStatusLabels } from '@/components/shared/enum-mapper/control-enum'
 import Link from 'next/link'
 import { Button } from '@repo/ui/button'
+import { PercentageDonut } from '@/components/shared/percentage-donut.tsx/percentage-donut'
 
 const ControlReportPage = () => {
   const { currentOrgId } = useOrganization()
@@ -136,15 +137,18 @@ const ControlReportPage = () => {
 
               return (
                 <AccordionItem className="mt-4" key={category} value={category}>
-                  <AccordionTrigger asChild>
-                    <button className="size-fit group flex items-center gap-2">
-                      <ChevronDown size={22} className="text-brand transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
-                      <span className="text-xl">{category}</span>
-                      <span className="p-1.5 border text-xs text-text-informational rounded-lg">
-                        {controlsByStatus.APPROVED.length}/{controls.length}
-                      </span>
-                    </button>
-                  </AccordionTrigger>
+                  <div className="flex justify-between items-center">
+                    <AccordionTrigger asChild>
+                      <button className="size-fit group flex items-center gap-2">
+                        <ChevronDown size={22} className="text-brand transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
+                        <span className="text-xl">{category}</span>
+                        <span className="p-1.5 border text-xs text-text-informational rounded-lg">
+                          {controlsByStatus.APPROVED.length}/{controls.length}
+                        </span>
+                      </button>
+                    </AccordionTrigger>
+                    <PercentageDonut value={controlsByStatus.APPROVED.length} total={controls.length} />
+                  </div>
                   <AccordionContent className="pt-4">
                     <Card className="p-4 space-y-4">
                       {ControlStatusOrder.filter((status) => controlsByStatus[status]?.length > 0).map((status, index, arr) => {
