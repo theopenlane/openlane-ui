@@ -71,7 +71,7 @@ const StatCard: React.FC<{ stat: Stat; hasData: boolean; tooltip?: React.ReactNo
           )}
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className={`${trendBadge()} bg-${getTrendBadgeColor()}-200 text-${getTrendBadgeColor()}-700`}>
+              <div className={trendBadge({ color: getTrendBadgeColor() })}>
                 {trendType === 'up' ? <ArrowUpRight size={12} className="mr-1" /> : trendType === 'down' ? <ArrowDownRight size={12} className="mr-1" /> : <Minus size={12} className="mr-1" />}
                 {trend}%
               </div>
