@@ -41660,6 +41660,7 @@ export type GetEvidenceListQuery = {
         createdBy?: string | null
         tags?: Array<string> | null
         source?: string | null
+        url?: string | null
         creationDate: any
         renewalDate?: any | null
         collectionProcedure?: string | null
@@ -41687,6 +41688,34 @@ export type GetEvidenceCountsByStatusQuery = {
   ready: { __typename?: 'EvidenceConnection'; totalCount: number }
   missingArtifact: { __typename?: 'EvidenceConnection'; totalCount: number }
   needsRenewal: { __typename?: 'EvidenceConnection'; totalCount: number }
+}
+
+export type GetEvidencesByStatusQueryVariables = Exact<{
+  status: EvidenceEvidenceStatus
+  programId: Scalars['ID']['input']
+}>
+
+export type GetEvidencesByStatusQuery = {
+  __typename?: 'Query'
+  evidences: { __typename?: 'EvidenceConnection'; edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; displayID: string } | null } | null> | null }
+}
+
+export type GetEvidenceFilesByIdQueryVariables = Exact<{
+  evidenceId: Scalars['ID']['input']
+}>
+
+export type GetEvidenceFilesByIdQuery = {
+  __typename?: 'Query'
+  evidence: {
+    __typename?: 'Evidence'
+    files: {
+      __typename?: 'FileConnection'
+      edges?: Array<{
+        __typename?: 'FileEdge'
+        node?: { __typename?: 'File'; providedFileName: string; providedFileSize?: number | null; providedFileExtension: string; id: string; uri?: string | null; presignedURL?: string | null } | null
+      } | null> | null
+    }
+  }
 }
 
 export type GetEvidenceTrendDataQueryVariables = Exact<{
