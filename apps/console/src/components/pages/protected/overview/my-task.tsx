@@ -11,6 +11,7 @@ import { Task, TaskTaskStatus } from '@repo/codegen/src/schema'
 import clsx from 'clsx'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
 
 const now = new Date()
 const dueSoonLimit = addDays(now, 7)
@@ -64,84 +65,108 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
   if (dueSoonCount === 0 && upcomingCount === 0 && overdueCount === 0) {
     return (
       //TODO: add size fit when we have pending actions, currently no api
-      <Card>
-        <CardTitle className="text-lg font-semibold">My Tasks</CardTitle>
-        <CardContent className="flex flex-col items-center text-center">
-          <div className="grid grid-cols-2 gap-6 mb-6 w-full">
-            <div className="flex flex-col items-center justify-center py-4 px-8 border rounded-lg w-40">
-              <span className="text-sm">Due soon</span>
-              <span className="text-2xl font-bold">0</span>
+      <TooltipProvider>
+        <Card>
+          <CardTitle className="text-lg font-semibold">My Tasks</CardTitle>
+          <CardContent className="flex flex-col items-center text-center">
+            <div className="grid grid-cols-2 gap-6 mb-6 w-full">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex flex-col items-center justify-center py-4 px-8 border rounded-lg w-40 cursor-help">
+                    <span className="text-sm">Due soon</span>
+                    <span className="text-2xl font-bold">0</span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>Tasks that are overdue or due within the next 7 days</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex flex-col items-center justify-center py-4 px-8 border rounded-lg w-40 cursor-help">
+                    <span className="text-sm">Upcoming</span>
+                    <span className="text-2xl font-bold">0</span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>Tasks due within the next 30 days (excluding overdue and due soon tasks)</TooltipContent>
+              </Tooltip>
             </div>
-            <div className="flex flex-col items-center justify-center py-4 px-8 border rounded-lg w-40">
-              <span className="text-sm">Upcoming</span>
-              <span className="text-2xl font-bold">0</span>
-            </div>
-          </div>
-          <p className="text-lg font-medium">🎉 Yay! You&apos;re all caught up!</p>
-          <p className="text-sm text-muted-foreground mt-1">No tasks to do—enjoy the peace and quiet.</p>
-        </CardContent>
-      </Card>
+            <p className="text-lg font-medium">🎉 Yay! You&apos;re all caught up!</p>
+            <p className="text-sm text-muted-foreground mt-1">No tasks to do—enjoy the peace and quiet.</p>
+          </CardContent>
+        </Card>
+      </TooltipProvider>
     )
   }
 
   return (
-    <Card>
-      <CardTitle className="text-lg font-semibold">My Tasks</CardTitle>
-      <CardContent>
-        <div className="grid grid-cols-2 gap-12 mb-7">
-          <div className="flex flex-col items-center justify-center py-4 px-8 border rounded-lg relative">
-            <span className="text-sm text-muted-foreground">Task due soon</span>
-            <span className="text-2xl font-bold">{dueSoonCount + overdueCount}</span>
-            {dueSoonCount > 0 && (
-              <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs flex items-center justify-center rounded-full">
-                <Image src={'/icons/alert.svg'} alt="alert Icon" width={25} height={25} />
-              </div>
-            )}
-          </div>
-          <div className="flex flex-col items-center justify-center py-4 px-8 border rounded-lg">
-            <span className="text-sm text-muted-foreground">Upcoming task</span>
-            <span className="text-2xl font-bold">{upcomingCount}</span>
-          </div>
-        </div>
-        <div className="space-y-3">
-          {displayedTasks.map((task) => {
-            const dueDate = parseISO(task.due ?? new Date().toISOString())
-            const distance = formatDistanceToNowStrict(dueDate)
-
-            const isDue = isBefore(dueDate, new Date())
-            const isSoon = isBefore(new Date(dueDate), dueSoonLimit)
-            const isUpcoming = isAfter(new Date(dueDate), dueSoonLimit) && isBefore(new Date(dueDate), upcomingUpper)
-
-            return (
-              <Link key={task.id} href={`/tasks?id=${task.id}`} className="grid grid-cols-[120px_1fr] items-center gap-[20px] size-fit">
-                {' '}
-                <div className={clsx('flex items-center gap-2', ((isDue || isSoon) && 'text-destructive') || (isUpcoming && 'text-green-500'))}>
-                  {isDue ? (
-                    <>
-                      <CalendarArrow />
-                      <span className="text-sm font-medium">Overdue</span>
-                    </>
-                  ) : (
-                    <>
-                      <Calendar strokeWidth={1} size={16} />
-                      <span className="text-sm font-medium">{distance}</span>
-                    </>
+    <TooltipProvider>
+      <Card>
+        <CardTitle className="text-lg font-semibold">My Tasks</CardTitle>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-12 mb-7">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex flex-col items-center justify-center py-4 px-8 border rounded-lg relative cursor-help">
+                  <span className="text-sm text-muted-foreground">Task due soon</span>
+                  <span className="text-2xl font-bold">{dueSoonCount + overdueCount}</span>
+                  {dueSoonCount > 0 && (
+                    <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs flex items-center justify-center rounded-full">
+                      <Image src={'/icons/alert.svg'} alt="alert Icon" width={25} height={25} />
+                    </div>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <SquareArrow className={clsx(!isDue && 'rotate-90 text-blue-500', isDue && 'text-yellow-500')} />
-                  <span className="text-sm font-medium truncate max-w-56">{task.title}</span>
+              </TooltipTrigger>
+              <TooltipContent>Tasks that are overdue or due within the next 7 days</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex flex-col items-center justify-center py-4 px-8 border rounded-lg cursor-help">
+                  <span className="text-sm text-muted-foreground">Upcoming task</span>
+                  <span className="text-2xl font-bold">{upcomingCount}</span>
                 </div>
-              </Link>
-            )
-          })}
-        </div>
+              </TooltipTrigger>
+              <TooltipContent>Tasks due within the next 30 days (excluding overdue and due soon tasks)</TooltipContent>
+            </Tooltip>
+          </div>
+          <div className="space-y-3">
+            {displayedTasks.map((task) => {
+              const dueDate = parseISO(task.due ?? new Date().toISOString())
+              const distance = formatDistanceToNowStrict(dueDate)
 
-        <div onClick={() => router.push(tasksRedirectURL)} className="mt-7 text-sm text-primary flex items-center cursor-pointer">
-          Show more Tasks <ChevronRight size={16} className="ml-1" />
-        </div>
-      </CardContent>
-    </Card>
+              const isDue = isBefore(dueDate, new Date())
+              const isSoon = isBefore(new Date(dueDate), dueSoonLimit)
+              const isUpcoming = isAfter(new Date(dueDate), dueSoonLimit) && isBefore(new Date(dueDate), upcomingUpper)
+
+              return (
+                <Link key={task.id} href={`/tasks?id=${task.id}`} className="grid grid-cols-[120px_1fr] items-center gap-[20px] size-fit">
+                  {' '}
+                  <div className={clsx('flex items-center gap-2', ((isDue || isSoon) && 'text-destructive') || (isUpcoming && 'text-green-500'))}>
+                    {isDue ? (
+                      <>
+                        <CalendarArrow />
+                        <span className="text-sm font-medium">Overdue</span>
+                      </>
+                    ) : (
+                      <>
+                        <Calendar strokeWidth={1} size={16} />
+                        <span className="text-sm font-medium">{distance}</span>
+                      </>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <SquareArrow className={clsx(!isDue && 'rotate-90 text-blue-500', isDue && 'text-yellow-500')} />
+                    <span className="text-sm font-medium truncate max-w-56">{task.title}</span>
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+
+          <div onClick={() => router.push(tasksRedirectURL)} className="mt-7 text-sm text-primary flex items-center cursor-pointer">
+            Show more Tasks <ChevronRight size={16} className="ml-1" />
+          </div>
+        </CardContent>
+      </Card>
+    </TooltipProvider>
   )
 }
 

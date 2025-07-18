@@ -15,18 +15,28 @@ export const statCardStyles = tv({
     color: {
       green: {
         trendBadge: 'bg-green-200 text-green-700',
-        progressWrapper: 'bg-green-50',
-        progressBar: 'bg-green-400',
+        progressWrapper: 'bg-gray-100',
+        progressBar: 'bg-green-500',
       },
       red: {
         trendBadge: 'bg-red-200 text-red-700',
-        progressWrapper: 'bg-red-50',
+        progressWrapper: 'bg-gray-100',
         progressBar: 'bg-red-700',
       },
       yellow: {
         trendBadge: 'bg-slate-200 text-slate-700',
-        progressWrapper: 'bg-yellow-50',
+        progressWrapper: 'bg-gray-100',
         progressBar: 'bg-yellow-500',
+      },
+      gray: {
+        trendBadge: 'bg-gray-200 text-gray-700',
+        progressWrapper: 'bg-gray-100',
+        progressBar: 'bg-gray-500',
+      },
+      blue: {
+        trendBadge: 'bg-blue-200 text-blue-700',
+        progressWrapper: 'bg-gray-100',
+        progressBar: 'bg-blue-500',
       },
     },
   },

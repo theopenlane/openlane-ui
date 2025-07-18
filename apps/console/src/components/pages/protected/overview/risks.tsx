@@ -16,6 +16,7 @@ import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { FormattedRisk, getRiskColumns } from './risks-table-config'
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
 
 const Risks = () => {
   const { data: session } = useSession()
@@ -110,58 +111,74 @@ const Risks = () => {
   const { columns, mappedColumns } = useMemo(() => getRiskColumns({ userMap }), [userMap])
 
   return (
-    <Card className="shadow-md rounded-lg flex-1">
-      <div className="flex flex-col gap-2">
-        <div className="flex justify-between items-center px-6">
-          <CardTitle className="text-lg font-semibold">Risks</CardTitle>
-          {/* <Button variant="outline" className="flex items-center gap-2" icon={<Cog size={16} />} iconPosition="left">
-            Edit
-          </Button> */}
+    <TooltipProvider>
+      <Card className="shadow-md rounded-lg flex-1">
+        <div className="flex flex-col gap-2">
+          <div className="flex justify-between items-center px-6">
+            <CardTitle className="text-lg font-semibold">Risks</CardTitle>
+            {/* <Button variant="outline" className="flex items-center gap-2" icon={<Cog size={16} />} iconPosition="left">
+              Edit
+            </Button> */}
 
-          {mappedColumns && columnVisibility && setColumnVisibility && (
-            <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
-          )}
+            {mappedColumns && columnVisibility && setColumnVisibility && (
+              <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
+            )}
+          </div>
+
+          <Tabs
+            variant="underline"
+            value={tab}
+            onValueChange={(v) => {
+              setTab(v as 'created' | 'assigned')
+              setPagination(DEFAULT_PAGINATION)
+            }}
+            className="px-6"
+          >
+            <TabsList>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <TabsTrigger value="created" className="cursor-help">
+                    Risks I&apos;ve Created
+                  </TabsTrigger>
+                </TooltipTrigger>
+                <TooltipContent>Risks that you have created and monitoring</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <TabsTrigger value="assigned" className="cursor-help">
+                    Risks Assigned to Me
+                  </TabsTrigger>
+                </TooltipTrigger>
+                <TooltipContent>Risks where you are the stakeholder or delegate responsible for oversight and review</TooltipContent>
+              </Tooltip>
+            </TabsList>
+          </Tabs>
+
+          <CardContent>
+            {hasData ? (
+              <DataTable
+                columns={columns}
+                data={formattedRisks}
+                pagination={pagination}
+                onPaginationChange={setPagination}
+                paginationMeta={paginationMeta}
+                loading={fetchingUsers}
+                columnVisibility={columnVisibility}
+                setColumnVisibility={setColumnVisibility}
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center text-center py-16">
+                <AlertTriangle size={89} strokeWidth={1} className="text-border mb-4" />
+                <h2 className="text-lg font-semibold">You have no risks</h2>
+                <Link href={risksRedirectURL} className="mt-4">
+                  <Button variant="outline">Take me there</Button>
+                </Link>
+              </div>
+            )}
+          </CardContent>
         </div>
-
-        <Tabs
-          variant="underline"
-          value={tab}
-          onValueChange={(v) => {
-            setTab(v as 'created' | 'assigned')
-            setPagination(DEFAULT_PAGINATION)
-          }}
-          className="px-6"
-        >
-          <TabsList>
-            <TabsTrigger value="created">Risks I&apos;ve Created</TabsTrigger>
-            <TabsTrigger value="assigned">Risks Assigned to Me</TabsTrigger>
-          </TabsList>
-        </Tabs>
-
-        <CardContent>
-          {hasData ? (
-            <DataTable
-              columns={columns}
-              data={formattedRisks}
-              pagination={pagination}
-              onPaginationChange={setPagination}
-              paginationMeta={paginationMeta}
-              loading={fetchingUsers}
-              columnVisibility={columnVisibility}
-              setColumnVisibility={setColumnVisibility}
-            />
-          ) : (
-            <div className="flex flex-col items-center justify-center text-center py-16">
-              <AlertTriangle size={89} strokeWidth={1} className="text-border mb-4" />
-              <h2 className="text-lg font-semibold">You have no risks</h2>
-              <Link href={risksRedirectURL} className="mt-4">
-                <Button variant="outline">Take me there</Button>
-              </Link>
-            </div>
-          )}
-        </CardContent>
-      </div>
-    </Card>
+      </Card>
+    </TooltipProvider>
   )
 }
 
