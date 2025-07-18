@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
 import { Badge } from '@repo/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { ChartColorsSequence } from '@/components/shared/icon-enum/evidence-enum.tsx'
 import { useGetFirstFiveEvidencesByStatus } from '@/lib/graphql-hooks/evidence.ts'
 import { CircleQuestionMark, Fingerprint, Folder } from 'lucide-react'
 import Link from 'next/link'
 import { useControlEvidenceStore } from '@/components/pages/protected/controls/hooks/useControlEvidenceStore.ts'
 import { TChardData } from '@/components/pages/protected/evidence/chart/evidence-summary-card.tsx'
+import { ChartColorsSequence } from '@/components/shared/enum-mapper/evidence-enum.tsx'
 
 type TEvidenceStatusChipProps = {
   data: TChardData

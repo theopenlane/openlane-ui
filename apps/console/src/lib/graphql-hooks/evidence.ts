@@ -140,7 +140,7 @@ export const useUpdateEvidence = () => {
   return useMutation<UpdateEvidenceMutation, unknown, UpdateEvidenceMutationVariables>({
     mutationFn: async (variables) => client.request(UPDATE_EVIDENCE, variables),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['evidence'] })
+      queryClient.invalidateQueries({ queryKey: ['evidences'] })
     },
   })
 }
