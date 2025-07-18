@@ -61,7 +61,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing }) => {
         {data?.__typename === 'Subcontrol' && <LinkedProperty label="Control" href={`/controls/${data.control.id}/`} value={data.control.refCode} icon={controlIconsMap.Control} />}
         <EditableSelectFromQuery label="Category" name="category" isEditing={isEditAllowed} icon={controlIconsMap.Category} />
         <EditableSelectFromQuery label="Subcategory" name="subcategory" isEditing={isEditAllowed} icon={controlIconsMap.Subcategory} />
-        <div className="grid grid-cols-[110px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
+        <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
           <div className="flex items-start gap-2">
             <div className="pt-0.5">{controlIconsMap.Status}</div>
             <div className="text-sm">Status</div>
@@ -123,7 +123,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing }) => {
 export default PropertiesCard
 
 const Property = ({ label, value }: { label: string; value?: string | null }) => (
-  <div className="grid grid-cols-[110px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
+  <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
     <div className="flex items-start gap-2">
       <div className="pt-0.5">{controlIconsMap[label]}</div>
       <div className="text-sm">{label}</div>
@@ -133,7 +133,7 @@ const Property = ({ label, value }: { label: string; value?: string | null }) =>
 )
 
 const LinkedProperty = ({ label, href, value, icon }: { label: string; href: string; value: string; icon: React.ReactNode }) => (
-  <div className="grid grid-cols-[110px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
+  <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
     <div className="flex items-start gap-2">
       <div className="pt-0.5">{icon}</div>
       <div className="text-sm">{label}</div>
@@ -150,7 +150,7 @@ const EditableSelect = ({ label, name, isEditing, options, labels }: { label: st
   const { control, getValues } = useFormContext()
 
   return (
-    <div className="grid grid-cols-[110px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
+    <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
       <div className="flex items-start gap-2">
         <div className="pt-0.5">{controlIconsMap[label] ?? <FolderIcon size={16} className="text-brand" />}</div>
         <div className="text-sm">{label}</div>
@@ -253,7 +253,7 @@ export const EditableSelectFromQuery = ({ label, name, isEditing, icon }: { labe
   const [open, setOpen] = useState(false)
 
   return (
-    <div className="grid grid-cols-[110px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
+    <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
       <div className="flex items-start gap-2">
         <div className="pt-0.5">{icon}</div>
         <div className="text-sm">{label}</div>
