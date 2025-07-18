@@ -1,15 +1,14 @@
 'use client'
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useMemo, useEffect, useCallback } from 'react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { Button } from '@repo/ui/button'
-import { ChevronDown, ChevronRight, ChevronsDownUp, List, SearchIcon, ShieldPlus } from 'lucide-react'
+import { ChevronDown, ChevronRight, ChevronsDownUp, List, SearchIcon } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { useParams } from 'next/navigation'
 import { useDebounce } from '@uidotdev/usehooks'
 import { ControlListStandardFieldsFragment } from '@repo/codegen/src/schema'
 import { canEdit } from '@/lib/authz/utils.ts'
-import { useSession } from 'next-auth/react'
-import { useOrganizationRole } from '@/lib/authz/access-api.ts'
+import { TData } from '@/lib/authz/access-api.ts'
 import { DataTable } from '@repo/ui/data-table'
 import { getColumns } from './columns'
 import AddToOrganizationDialog from './add-to-organization-dialog'
@@ -31,21 +30,33 @@ const generateWhere = (id: string, searchValue: string) => ({
 
 type TStandardDetailsAccordionProps = {
   standardName?: string | undefined
+  selectedControls: { id: string; refCode: string }[]
+  setSelectedControls: React.Dispatch<React.SetStateAction<{ id: string; refCode: string }[]>>
+  isDialogOpen: boolean
+  setIsDialogOpen: React.Dispatch<React.SetStateAction<boolean>>
+  permission: TData
+  isLoadingPermission: boolean
 }
-const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({ standardName }) => {
+const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
+  standardName,
+  selectedControls,
+  setSelectedControls,
+  isDialogOpen,
+  setIsDialogOpen,
+  permission,
+  isLoadingPermission,
+}) => {
   const params = useParams()
   const id = typeof params?.id === 'string' ? params.id : ''
 
   const [hasInitialized, setHasInitialized] = useState(false)
   const [paginations, setPaginations] = useState<Record<string, TPagination>>({})
-  const [selectedControls, setSelectedControls] = useState<{ id: string; refCode: string }[]>([])
+
   const [openSections, setOpenSections] = useState<string[]>([])
   const [searchQuery, setSearchQuery] = useState<string>('')
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
+
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
   const where = generateWhere(id, debouncedSearchQuery)
-  const { data: session } = useSession()
-  const { data: permission, isLoading: isLoadingPermission } = useOrganizationRole(session)
   const hasFilters = Object.keys(where).length > 0
   const allControls = useAllControlsGroupedWithListFields({ where: where as ControlWhereInput, enabled: hasFilters })
 
@@ -66,12 +77,15 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({ st
     }, {})
   }, [allControls])
 
-  const toggleSelection = (control: { id: string; refCode: string }) => {
-    setSelectedControls((prev) => {
-      const exists = prev.some((c) => c.id === control.id)
-      return exists ? prev.filter((c) => c.id !== control.id) : [...prev, control]
-    })
-  }
+  const toggleSelection = useCallback(
+    (control: { id: string; refCode: string }) => {
+      setSelectedControls((prev) => {
+        const exists = prev.some((c) => c.id === control.id)
+        return exists ? prev.filter((c) => c.id !== control.id) : [...prev, control]
+      })
+    },
+    [setSelectedControls],
+  )
 
   useEffect(() => {
     if (!isLoadingPermission) {
@@ -96,7 +110,7 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({ st
         return [category, columns]
       }),
     )
-  }, [groupedControls, selectedControls])
+  }, [groupedControls, selectedControls, setSelectedControls, toggleSelection])
 
   const allSectionKeys = useMemo(() => Object.keys(groupedControls), [groupedControls])
 
@@ -159,7 +173,7 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({ st
               </div>
             </Button>
           </div>
-          <div className="flex col gap-2.5 items-center justify-between">
+          <div className="flex col gap-2.5 items-center justify-between pr-2">
             <Input
               value={searchQuery}
               name="standardSearch"
@@ -183,20 +197,6 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({ st
               variant="searchTable"
               className="!border-brand"
             />
-            {canEdit(permission?.roles) && (
-              <div className="flex justify-between items-center">
-                <Button
-                  className="h-[34px]"
-                  icon={<ShieldPlus />}
-                  iconPosition="left"
-                  onClick={() => {
-                    setIsDialogOpen(true)
-                  }}
-                >
-                  {selectedControls.length > 0 ? `Add Controls (${selectedControls.length})` : 'Add Controls'}
-                </Button>
-              </div>
-            )}
           </div>
         </div>
 
