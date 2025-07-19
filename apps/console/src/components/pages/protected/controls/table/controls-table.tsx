@@ -53,11 +53,11 @@ const ControlsTable: React.FC = () => {
       if (key === 'programContains') {
         return { hasProgramsWith: [{ nameContainsFold: value as string }] }
       }
-      if (key === 'standardContains' && value === 'CUSTOM') {
+      if (key === 'standard' && value === 'CUSTOM') {
         return { referenceFrameworkIsNil: true }
       }
-      if (key === 'standardContains') {
-        return { hasStandardWith: [{ nameContainsFold: value as string }] }
+      if (key === 'standard') {
+        return { hasStandardWith: [{ id: value }] }
       }
       return { [key]: value } as Partial<ControlWhereInput>
     }

@@ -79,13 +79,13 @@ const ControlReportPage = () => {
 
   const handleRedirectWithFilter = (status: ControlControlStatus) => {
     if (!referenceFramework) return
-
+    const standardId = standardOptions.find((o) => o.label === referenceFramework)?.value || 'CUSTOM'
     const advancedFilters = [
       {
         field: 'standard',
-        value: referenceFramework,
-        type: 'containsText',
-        operator: 'Contains',
+        value: standardId,
+        type: 'selectIs',
+        operator: 'EQ',
         label: 'Standard',
       },
       {
