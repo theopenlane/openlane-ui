@@ -6,6 +6,7 @@ export const SEARCH = gql`
       programs {
         edges {
           node {
+            __typename
             id
             name
           }
@@ -20,6 +21,7 @@ export const SEARCH = gql`
       organizations {
         edges {
           node {
+            __typename
             id
             name
             displayName
@@ -36,6 +38,7 @@ export const SEARCH = gql`
       controlObjectives {
         edges {
           node {
+            __typename
             id
             name
           }
@@ -50,6 +53,8 @@ export const SEARCH = gql`
       controls {
         edges {
           node {
+            __typename
+
             id
             refCode
           }
@@ -64,6 +69,8 @@ export const SEARCH = gql`
       subcontrols {
         edges {
           node {
+            __typename
+
             id
             refCode
             control {
@@ -81,6 +88,7 @@ export const SEARCH = gql`
       risks {
         edges {
           node {
+            __typename
             id
             name
           }
@@ -95,6 +103,7 @@ export const SEARCH = gql`
       groups {
         edges {
           node {
+            __typename
             id
             name
           }
@@ -109,6 +118,7 @@ export const SEARCH = gql`
       tasks {
         edges {
           node {
+            __typename
             id
             title
           }
