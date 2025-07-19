@@ -48,7 +48,6 @@ const ControlsTable: React.FC = () => {
   const whereFilter = useMemo(() => {
     const conditions: ControlWhereInput = {}
 
-    console.log('filters', filters)
     const mapCustomKey = (key: string, value: string): Partial<ControlWhereInput> => {
       if (key === 'programContains') {
         return { hasProgramsWith: [{ nameContainsFold: value as string }] }
