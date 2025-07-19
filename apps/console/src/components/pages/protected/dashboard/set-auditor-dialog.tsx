@@ -14,10 +14,11 @@ import MessageBox from '@repo/ui/message-box'
 import { Label } from '@repo/ui/label'
 import { Info, InfoIcon } from 'lucide-react'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { useNotification } from '@/hooks/useNotification'
 
 const setAuditorSchema = z.object({
-  auditorName: z.string().min(1, 'Name is required'),
-  auditorEmail: z.string().email('Invalid email address'),
+  auditorName: z.string().optional().nullable(),
+  auditorEmail: z.string().optional().nullable(),
   auditFirm: z.string().optional(),
   auditorReadComments: z.boolean().default(false),
   auditorWriteComments: z.boolean().default(false),
@@ -31,6 +32,7 @@ export const SetAuditorDialog = () => {
   const id = searchParams.get('id')
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
+  const { successNotification, errorNotification } = useNotification()
 
   const { mutateAsync: update } = useUpdateProgram()
 
@@ -38,7 +40,6 @@ export const SetAuditorDialog = () => {
     resolver: zodResolver(setAuditorSchema),
     defaultValues: {
       auditorName: '',
-      auditorEmail: '',
       auditFirm: '',
       auditorReadComments: false,
       auditorWriteComments: false,
@@ -46,21 +47,39 @@ export const SetAuditorDialog = () => {
     },
   })
 
+  const isValidEmail = (email: string) => {
+    return /\S+@\S+\.\S+/.test(email)
+  }
+
   const onSubmit = async (values: SetAuditorFormValues) => {
     if (!id) return
-    await update({
-      updateProgramId: id,
-      input: {
-        auditor: values.auditorName,
-        auditorEmail: values.auditorEmail,
-        auditFirm: values.auditFirm,
-        auditorReadComments: values.auditorReadComments,
-        auditorWriteComments: values.auditorWriteComments,
-        auditorReady: values.auditorReady,
-      },
-    })
-    queryClient.invalidateQueries({ queryKey: ['programs'] })
-    setOpen(false)
+    if (values.auditorEmail && values.auditorEmail !== '' && !isValidEmail(values.auditorEmail)) {
+      console.log('EMAIL')
+      errorNotification({
+        title: 'Wrong email format',
+      })
+      return
+    }
+    try {
+      await update({
+        updateProgramId: id,
+        input: {
+          auditor: values.auditorName,
+          auditorEmail: values.auditorEmail == '' ? undefined : values.auditorEmail,
+          auditFirm: values.auditFirm,
+          auditorReadComments: values.auditorReadComments,
+          auditorWriteComments: values.auditorWriteComments,
+          auditorReady: values.auditorReady,
+        },
+      })
+      successNotification({ title: 'Auditor successfully added/edited' })
+      queryClient.invalidateQueries({ queryKey: ['programs'] })
+      setOpen(false)
+    } catch {
+      errorNotification({
+        title: 'Unexpected error occurred, invites not sent',
+      })
+    }
   }
 
   const errorMessages = Object.values(form.formState.errors).map((error) => error?.message) as string[]

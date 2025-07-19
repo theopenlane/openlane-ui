@@ -26,6 +26,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import HeadsUpDisplay from '@/components/shared/heads-up/heads-up'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { TUploadedFile } from './upload/types/TUploadedFile'
+import { useSearchParams } from 'next/navigation'
 
 type TProps = {
   formData?: TFormEvidenceData
@@ -44,7 +45,8 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
   const { mutateAsync: createEvidence, isPending } = useCreateEvidence()
   const [associationResetTrigger, setAssociationResetTrigger] = useState(0)
   const { setCrumbs } = useContext(BreadcrumbContext)
-
+  const searchParams = useSearchParams()
+  const programId = searchParams.get('programId')
   const queryClient = useQueryClient()
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
@@ -59,6 +61,7 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
         collectionProcedure: data.collectionProcedure,
         source: data.source,
         fileIDs: data.fileIDs,
+        ...(programId ? { programIDs: [programId] } : {}),
         ...(data.url ? { url: data.url } : {}),
         ...evidenceObjectTypes,
       } as CreateEvidenceInput,
