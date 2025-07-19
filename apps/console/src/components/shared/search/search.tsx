@@ -392,7 +392,6 @@ const renderResults = ({ searchType, nodes, close }: SearchNodeProps) => {
   const Icon = searchTypeIcons[searchType]
 
   const renderName = (searchNode: ResponseNodes[number]): string => {
-    console.log(searchNode)
     switch (searchNode?.__typename) {
       case 'Control':
       case 'Subcontrol':
