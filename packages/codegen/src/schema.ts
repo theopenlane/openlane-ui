@@ -43437,49 +43437,49 @@ export type SearchQuery = {
     programs?: {
       __typename?: 'ProgramConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename: 'Program'; id: string; name: string } | null } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
     } | null
     organizations?: {
       __typename?: 'OrganizationConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'OrganizationEdge'; node?: { __typename?: 'Organization'; id: string; name: string; displayName: string; avatarRemoteURL?: string | null } | null } | null> | null
+      edges?: Array<{ __typename?: 'OrganizationEdge'; node?: { __typename: 'Organization'; id: string; name: string; displayName: string; avatarRemoteURL?: string | null } | null } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
     } | null
     controlObjectives?: {
       __typename?: 'ControlObjectiveConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string; name: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename: 'ControlObjective'; id: string; name: string } | null } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
     } | null
     controls?: {
       __typename?: 'ControlConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename: 'Control'; id: string; refCode: string } | null } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
     } | null
     subcontrols?: {
       __typename?: 'SubcontrolConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; id: string } } | null } | null> | null
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; id: string } } | null } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
     } | null
     risks?: {
       __typename?: 'RiskConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename: 'Risk'; id: string; name: string } | null } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
     } | null
     groups?: {
       __typename?: 'GroupConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; id: string; name: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename: 'Group'; id: string; name: string } | null } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
     } | null
     tasks?: {
       __typename?: 'TaskConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename: 'Task'; id: string; title: string } | null } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null }
     } | null
   } | null
