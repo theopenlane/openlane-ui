@@ -5,7 +5,6 @@ import {
   DELETE_EVIDENCE,
   GET_ALL_EVIDENCES,
   GET_EVIDENCE,
-  GET_EVIDENCE_COUNTS_BY_STATUS,
   GET_EVIDENCE_FILES,
   GET_EVIDENCE_FILES_BY_ID,
   GET_EVIDENCE_FILES_PAGINATED,
@@ -15,6 +14,8 @@ import {
   UPDATE_EVIDENCE,
   GET_EVIDENCE_TREND_DATA,
   GET_PROGRAM_EVIDENCE_TREND_DATA,
+  GET_EVIDENCE_COUNTS_BY_STATUS_BY_PROGRAM_ID,
+  GET_EVIDENCE_COUNTS_BY_STATUS_ALL_PROGRAMS,
 } from '@repo/codegen/query/evidence'
 import {
   CreateEvidenceMutation,
@@ -35,12 +36,12 @@ import {
   GetEvidenceListQuery,
   EvidenceOrder,
   Evidence,
-  GetEvidenceCountsByStatusQuery,
   GetEvidenceTrendDataQuery,
   GetProgramEvidenceTrendDataQuery,
   EvidenceEvidenceStatus,
   GetEvidencesByStatusQuery,
   GetEvidenceFilesByIdQuery,
+  GetEvidenceCountsByStatusAllProgramsQuery,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -204,10 +205,12 @@ export const useGetEvidenceList = ({ orderBy, pagination, where, enabled = true 
 export const useGetEvidenceCountsByStatus = (programId?: string | null) => {
   const { client } = useGraphQLClient()
 
-  return useQuery<GetEvidenceCountsByStatusQuery, unknown>({
+  return useQuery<GetEvidenceCountsByStatusAllProgramsQuery, unknown>({
     queryKey: ['evidences', 'counts', programId],
-    queryFn: async () => client.request(GET_EVIDENCE_COUNTS_BY_STATUS, { programId }),
-    enabled: !!programId,
+    queryFn: async () => {
+      if (programId) return client.request(GET_EVIDENCE_COUNTS_BY_STATUS_BY_PROGRAM_ID, { programId })
+      return client.request(GET_EVIDENCE_COUNTS_BY_STATUS_ALL_PROGRAMS)
+    },
   })
 }
 

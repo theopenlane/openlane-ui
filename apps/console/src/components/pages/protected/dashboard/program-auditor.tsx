@@ -25,8 +25,8 @@ interface ProgramAuditorProps {
 }
 
 const setAuditorSchema = z.object({
-  auditorName: z.string().min(1, 'Name is required'),
-  auditorEmail: z.string().email('Invalid email address'),
+  auditorName: z.string().optional().nullable(),
+  auditorEmail: z.string().optional().nullable(),
   auditFirm: z.string().optional(),
   auditorReadComments: z.boolean().default(false),
   auditorWriteComments: z.boolean().default(false),
@@ -82,18 +82,24 @@ const ProgramAuditor = ({ firm, name, email, isReady }: ProgramAuditorProps) => 
 
   const { handleSubmit, control } = form
 
+  const isValidEmail = (email: string) => {
+    return /\S+@\S+\.\S+/.test(email)
+  }
+
   const onSubmit = async (values: SetAuditorFormValues) => {
-    if (!form.formState.isDirty) {
-      setIsEditing(false)
+    if (values.auditorEmail && values.auditorEmail !== '' && !isValidEmail(values.auditorEmail)) {
+      errorNotification({
+        title: 'Wrong email format',
+      })
       return
     }
     try {
       await updateProgram({
         updateProgramId: programId!,
         input: {
-          auditFirm: values.auditFirm ?? undefined,
-          auditor: values.auditorName ?? undefined,
-          auditorEmail: values.auditorEmail ?? undefined,
+          ...(values.auditFirm === '' ? { clearAuditFirm: true } : { auditFirm: values.auditFirm }),
+          ...(values.auditorName === '' ? { clearAuditor: true } : { auditor: values.auditorName }),
+          ...(values.auditorEmail === '' ? { clearAuditorEmail: true } : { auditorEmail: values.auditorEmail }),
         },
       })
       successNotification({
@@ -176,7 +182,13 @@ const ProgramAuditor = ({ firm, name, email, isReady }: ProgramAuditorProps) => 
               <div className="flex border-b pb-2.5 gap-2 items-center">
                 <span className="block w-32 flex shrink-0">Name:</span>
                 <div className="flex flex-col gap-1.5">
-                  {isEditing && <Controller control={control} name="auditorName" render={({ field }) => <Input {...field} className="w-[180px]" placeholder="Amy Shields" />}></Controller>}
+                  {isEditing && (
+                    <Controller
+                      control={control}
+                      name="auditorName"
+                      render={({ field }) => <Input {...field} value={field.value ?? ''} className="w-[180px]" placeholder="Amy Shields" />}
+                    ></Controller>
+                  )}
                   {form.formState.errors.auditorName && <p className="text-red-500 text-sm">{form.formState.errors.auditorName.message}</p>}
                 </div>
               </div>
@@ -184,7 +196,11 @@ const ProgramAuditor = ({ firm, name, email, isReady }: ProgramAuditorProps) => 
                 <span className="block w-32 flex shrink-0">Email:</span>
                 <div className="flex flex-col gap-1.5">
                   {isEditing && (
-                    <Controller control={control} name="auditorEmail" render={({ field }) => <Input {...field} className="w-[180px]" placeholder="amy.shields@securesphere.io" />}></Controller>
+                    <Controller
+                      control={control}
+                      name="auditorEmail"
+                      render={({ field }) => <Input {...field} value={field.value ?? ''} className="w-[180px]" placeholder="amy.shields@securesphere.io" />}
+                    ></Controller>
                   )}
                   {form.formState.errors.auditorEmail && <p className="text-red-500 text-sm">{form.formState.errors.auditorEmail.message}</p>}
                 </div>
