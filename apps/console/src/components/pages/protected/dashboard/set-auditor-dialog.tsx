@@ -41,6 +41,7 @@ export const SetAuditorDialog = () => {
     defaultValues: {
       auditorName: '',
       auditFirm: '',
+      auditorEmail: '',
       auditorReadComments: false,
       auditorWriteComments: false,
       auditorReady: false,
@@ -54,7 +55,6 @@ export const SetAuditorDialog = () => {
   const onSubmit = async (values: SetAuditorFormValues) => {
     if (!id) return
     if (values.auditorEmail && values.auditorEmail !== '' && !isValidEmail(values.auditorEmail)) {
-      console.log('EMAIL')
       errorNotification({
         title: 'Wrong email format',
       })
