@@ -16,12 +16,14 @@ import { ControlStatusOrder, ControlStatusTooltips, ControlIconMapper, ControlSt
 import Link from 'next/link'
 import { Button } from '@repo/ui/button'
 import { PercentageDonut } from '@/components/shared/percentage-donut.tsx/percentage-donut'
+import { useRouter } from 'next/navigation'
 
 const ControlReportPage = () => {
   const { currentOrgId } = useOrganization()
   const { setCrumbs } = useContext(BreadcrumbContext)
   const [referenceFramework, setReferenceFramework] = useState<string | undefined>()
   const [expandedItems, setExpandedItems] = useState<string[]>([])
+  const router = useRouter()
 
   const { standardOptions } = useStandardsSelect({
     where: {
@@ -73,6 +75,34 @@ const ControlReportPage = () => {
     const hasAllExpanded = allCategories.every((cat) => expandedItems.includes(cat))
 
     setExpandedItems(hasAllExpanded ? [] : allCategories)
+  }
+
+  const handleRedirectWithFilter = (status: ControlControlStatus) => {
+    if (!referenceFramework) return
+    const standardId = standardOptions.find((o) => o.label === referenceFramework)?.value || 'CUSTOM'
+    const advancedFilters = [
+      {
+        field: 'standard',
+        value: standardId,
+        type: 'selectIs',
+        operator: 'EQ',
+        label: 'Standard',
+      },
+      {
+        field: 'status',
+        value: status,
+        type: 'select',
+        operator: 'EQ',
+        label: 'Status',
+      },
+    ]
+
+    const searchParams = new URLSearchParams({
+      filterActive: '1',
+      advancedFilters: JSON.stringify(advancedFilters),
+    })
+
+    router.push(`/controls?${searchParams.toString()}`)
   }
 
   useEffect(() => {
@@ -164,7 +194,9 @@ const ControlReportPage = () => {
                               </div>
                               <div className="text-xs">
                                 <span>Total:&nbsp;</span>
-                                <span className="text-brand">{controlsForStatus.length} controls</span>
+                                <span onClick={() => handleRedirectWithFilter(status)} className="text-brand cursor-pointer">
+                                  {controlsForStatus.length} controls
+                                </span>
                               </div>
                             </div>
                             <div className="flex flex-wrap gap-2">
