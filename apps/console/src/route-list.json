@@ -182,5 +182,17 @@
     "route": "/reporting/compliance",
     "name": "Compliance Reporting",
     "hidden": true
+  },
+  {
+    "route": "/evidence/create",
+    "name": "Create"
+  },
+  {
+    "route": "/risks/create",
+    "name": "Create"
+  },
+  {
+    "route": "/control-report",
+    "name": "Control Report"
   }
 ]
