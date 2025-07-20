@@ -46,8 +46,6 @@ const ObjectAssociation = ({ onIdChange, excludeObjectTypes, initialData, refCod
     enabled: !!selectedQuery,
   })
 
-  console.log('selectedConfig')
-
   const pageInfo = objectKey && !isLoading && !isFetching ? getPagination(objectKey, data).pageInfo : undefined
   const totalCount = objectKey && !isLoading && !isFetching ? getPagination(objectKey, data).totalCount : undefined
 
