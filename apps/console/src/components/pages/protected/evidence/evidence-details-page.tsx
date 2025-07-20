@@ -53,15 +53,6 @@ const EvidenceDetailsPage = () => {
     if (basicInfoData) document.title = `${currentOrganization?.node?.displayName}: Programs - ${basicInfoData.program.name}`
   }, [basicInfoData, currentOrganization?.node?.displayName])
 
-  useEffect(() => {
-    if (!data?.programs?.edges?.length) return
-
-    if (programId) {
-      const programName = programMap[programId] ?? 'Unknown Program'
-      setSelectedProgram(programName)
-    }
-  }, [programId, programMap, router, data?.programs?.edges])
-
   const handleSelectChange = (val: string) => {
     if (val === 'all') {
       setSelectedProgram('All programs')
