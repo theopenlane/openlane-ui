@@ -9,7 +9,7 @@ import { useMemo } from 'react'
 export const useSearch = (query: string) => {
   const { client } = useGraphQLClient()
 
-  const queryData = useQuery<SearchQuery, unknown>({
+  const queryData = useQuery<SearchQuery>({
     queryKey: ['search', query],
     queryFn: async () => client.request(SEARCH, { query }),
     enabled: query.length > 2,

@@ -235,8 +235,8 @@ export const GET_EVIDENCE_LIST = gql`
   }
 `
 
-export const GET_EVIDENCE_COUNTS_BY_STATUS = gql`
-  query GetEvidenceCountsByStatus($programId: ID!) {
+export const GET_EVIDENCE_COUNTS_BY_STATUS_BY_PROGRAM_ID = gql`
+  query GetEvidenceCountsByStatusByProgramId($programId: ID!) {
     approved: evidences(where: { status: APPROVED, hasProgramsWith: [{ id: $programId }] }) {
       totalCount
     }
@@ -254,6 +254,27 @@ export const GET_EVIDENCE_COUNTS_BY_STATUS = gql`
     }
   }
 `
+
+export const GET_EVIDENCE_COUNTS_BY_STATUS_ALL_PROGRAMS = gql`
+  query GetEvidenceCountsByStatusAllPrograms {
+    approved: evidences(where: { status: APPROVED }) {
+      totalCount
+    }
+    rejected: evidences(where: { status: REJECTED }) {
+      totalCount
+    }
+    ready: evidences(where: { status: READY }) {
+      totalCount
+    }
+    missingArtifact: evidences(where: { status: MISSING_ARTIFACT }) {
+      totalCount
+    }
+    needsRenewal: evidences(where: { status: NEEDS_RENEWAL }) {
+      totalCount
+    }
+  }
+`
+
 export const GET_FIRST_FIVE_EVIDENCES_BY_STATUS = gql`
   query GetEvidencesByStatus($status: EvidenceEvidenceStatus!, $programId: ID!) {
     evidences(first: 5, where: { status: $status, hasProgramsWith: [{ id: $programId }] }) {

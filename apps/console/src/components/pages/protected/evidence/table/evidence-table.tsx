@@ -35,16 +35,11 @@ export const EvidenceTable = () => {
   const debouncedSearch = useDebounce(searchTerm, 300)
 
   const where = useMemo(() => {
-    if (!programId) {
-      return undefined
-    }
-
     const conditions: EvidenceWhereInput = {
       ...filters,
-      hasProgramsWith: [{ id: programId }],
+      ...(programId ? { hasProgramsWith: [{ id: programId }] } : {}),
       nameContainsFold: debouncedSearch,
     }
-
     return conditions
   }, [filters, programId, debouncedSearch])
 
@@ -52,7 +47,7 @@ export const EvidenceTable = () => {
     return orderBy || undefined
   }, [orderBy])
 
-  const { evidences, isLoading: fetching, paginationMeta } = useGetEvidenceList({ where, orderBy: orderByFilter, pagination, enabled: !!filters && !!programId })
+  const { evidences, isLoading: fetching, paginationMeta } = useGetEvidenceList({ where, orderBy: orderByFilter, pagination, enabled: !!filters })
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     collectionProcedure: false,
     source: false,
