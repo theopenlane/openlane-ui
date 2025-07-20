@@ -46,7 +46,6 @@ const ObjectAssociation = ({ onIdChange, excludeObjectTypes, initialData, refCod
     enabled: !!selectedQuery,
   })
 
-  //add change
   const pageInfo = objectKey && !isLoading && !isFetching ? getPagination(objectKey, data).pageInfo : undefined
   const totalCount = objectKey && !isLoading && !isFetching ? getPagination(objectKey, data).totalCount : undefined
 
