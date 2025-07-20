@@ -86,7 +86,7 @@ const EvidenceTooltipContent: React.FC<TEvidenceTooltipContentProps> = ({ progra
           <span className="font-medium">Browse by filter</span>
         </div>
         <div className="w-full border-b">
-          <Link href={`/evidence?programId=${programId}&regularFilters=${encodedFilters}&filterActive=1`}>
+          <Link href={`/evidence?${programId ? `programId=${programId}&` : ''}regularFilters=${encodedFilters}&filterActive=1`}>
             <span className="text-brand size-fit pl-3 pb-2 hover:underline flex items-center gap-1 cursor-pointer">{evidenceData.name}</span>
           </Link>
         </div>

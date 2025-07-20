@@ -41679,11 +41679,22 @@ export type GetEvidenceListQuery = {
   }
 }
 
-export type GetEvidenceCountsByStatusQueryVariables = Exact<{
+export type GetEvidenceCountsByStatusByProgramIdQueryVariables = Exact<{
   programId: Scalars['ID']['input']
 }>
 
-export type GetEvidenceCountsByStatusQuery = {
+export type GetEvidenceCountsByStatusByProgramIdQuery = {
+  __typename?: 'Query'
+  approved: { __typename?: 'EvidenceConnection'; totalCount: number }
+  rejected: { __typename?: 'EvidenceConnection'; totalCount: number }
+  ready: { __typename?: 'EvidenceConnection'; totalCount: number }
+  missingArtifact: { __typename?: 'EvidenceConnection'; totalCount: number }
+  needsRenewal: { __typename?: 'EvidenceConnection'; totalCount: number }
+}
+
+export type GetEvidenceCountsByStatusAllProgramsQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetEvidenceCountsByStatusAllProgramsQuery = {
   __typename?: 'Query'
   approved: { __typename?: 'EvidenceConnection'; totalCount: number }
   rejected: { __typename?: 'EvidenceConnection'; totalCount: number }
