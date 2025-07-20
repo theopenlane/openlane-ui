@@ -113,97 +113,78 @@ type ObjectQueryConfig = {
   queryDocument: RequestDocument
   inputName: string
   placeholder: string
-  searchAttribute: string
   objectName: string
-  defaultWhere?: Record<string, unknown>
 }
 
 export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> = {
   [ObjectTypeObjects.CONTROL]: {
     responseObjectKey: 'controls',
     inputName: 'controlIDs',
-    placeholder: 'control',
+    placeholder: 'Search contrlos',
     queryDocument: GET_ALL_CONTROLS,
-    searchAttribute: 'refCodeContainsFold',
     objectName: 'refCode',
-    defaultWhere: {
-      ownerIDNEQ: '',
-    },
   },
   [ObjectTypeObjects.SUB_CONTROL]: {
     responseObjectKey: 'subcontrols',
     inputName: 'subcontrolIDs',
-    placeholder: 'subcontrol',
+    placeholder: 'Search subcontrols',
     queryDocument: GET_ALL_SUBCONTROLS,
-    searchAttribute: 'refCodeContainsFold',
     objectName: 'refCode',
-    defaultWhere: {
-      ownerIDNEQ: '',
-    },
   },
   [ObjectTypeObjects.CONTROL_OBJECTIVE]: {
     responseObjectKey: 'controlObjectives',
     inputName: 'controlObjectiveIDs',
-    placeholder: 'control objective',
+    placeholder: 'Search control objectives',
     queryDocument: GET_ALL_CONTROL_OBJECTIVES,
-    searchAttribute: 'nameContainsFold',
     objectName: 'name',
-    defaultWhere: { statusNEQ: ControlObjectiveObjectiveStatus.ARCHIVED },
   },
   [ObjectTypeObjects.PROGRAM]: {
     responseObjectKey: 'programs',
     inputName: 'programIDs',
-    placeholder: 'program',
+    placeholder: 'Search programs',
     queryDocument: GET_ALL_PROGRAMS,
-    searchAttribute: 'nameContainsFold',
     objectName: 'name',
   },
   [ObjectTypeObjects.TASK]: {
     responseObjectKey: 'tasks',
     inputName: 'taskIDs',
-    placeholder: 'task',
+    placeholder: 'Search tasks',
     queryDocument: TASKS_WITH_FILTER,
-    searchAttribute: 'titleContainsFold',
     objectName: 'title',
   },
   [ObjectTypeObjects.EVIDENCE]: {
     responseObjectKey: 'evidences',
     inputName: 'evidenceIDs',
-    placeholder: 'evidence',
+    placeholder: 'Search evidences',
     queryDocument: GET_ALL_EVIDENCES,
-    searchAttribute: 'nameContainsFold',
     objectName: 'name',
   },
   [ObjectTypeObjects.GROUP]: {
     responseObjectKey: 'groups',
     inputName: 'groupIDs',
-    placeholder: 'group',
+    placeholder: 'Search groups',
     queryDocument: GET_ALL_GROUPS,
-    searchAttribute: 'nameContainsFold',
     objectName: 'name',
   },
   [ObjectTypeObjects.INTERNAL_POLICY]: {
     responseObjectKey: 'internalPolicies',
     inputName: 'internalPolicyIDs',
-    placeholder: 'internal policy',
+    placeholder: 'Search internal policies',
     queryDocument: GET_ALL_INTERNAL_POLICIES,
-    searchAttribute: 'nameContainsFold',
     objectName: 'name',
   },
   [ObjectTypeObjects.PROCEDURE]: {
     responseObjectKey: 'procedures',
     inputName: 'procedureIDs',
-    placeholder: 'procedure',
+    placeholder: 'Search procedures',
     queryDocument: GET_ALL_PROCEDURES,
-    searchAttribute: 'nameContainsFold',
     objectName: 'name',
   },
   [ObjectTypeObjects.RISK]: {
     responseObjectKey: 'risks',
     inputName: 'riskIDs',
-    placeholder: 'risk',
+    placeholder: 'Search risks',
     queryDocument: GET_ALL_RISKS,
-    searchAttribute: 'nameContainsFold',
     objectName: 'name',
   },
 }
@@ -402,5 +383,54 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
 
     default:
       return []
+  }
+}
+
+export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchValue: string) => {
+  if (!selectedObject || !searchValue) {
+    return {}
+  }
+
+  const searchAttributeMap: Partial<Record<ObjectTypeObjects, string>> = {
+    [ObjectTypeObjects.CONTROL]: 'refCodeContainsFold',
+    [ObjectTypeObjects.SUB_CONTROL]: 'refCodeContainsFold',
+    [ObjectTypeObjects.CONTROL_OBJECTIVE]: 'nameContainsFold',
+    [ObjectTypeObjects.PROGRAM]: 'nameContainsFold',
+    [ObjectTypeObjects.TASK]: 'titleContainsFold',
+    [ObjectTypeObjects.EVIDENCE]: 'nameContainsFold',
+    [ObjectTypeObjects.GROUP]: 'nameContainsFold',
+    [ObjectTypeObjects.INTERNAL_POLICY]: 'nameContainsFold',
+    [ObjectTypeObjects.PROCEDURE]: 'nameContainsFold',
+    [ObjectTypeObjects.RISK]: 'nameContainsFold',
+  }
+
+  const secondarySearchMap: Partial<Record<ObjectTypeObjects, string>> = {
+    [ObjectTypeObjects.CONTROL]: 'descriptionContainsFold',
+    [ObjectTypeObjects.SUB_CONTROL]: 'descriptionContainsFold',
+    [ObjectTypeObjects.CONTROL_OBJECTIVE]: 'desiredOutcomeContainsFold',
+    [ObjectTypeObjects.PROGRAM]: 'descriptionContainsFold',
+    [ObjectTypeObjects.TASK]: 'detailsContainsFold',
+    [ObjectTypeObjects.EVIDENCE]: 'descriptionContainsFold',
+    [ObjectTypeObjects.INTERNAL_POLICY]: 'detailsContainsFold',
+    [ObjectTypeObjects.RISK]: 'detailsContainsFold',
+  }
+
+  const defaultWhereMap: Partial<Record<ObjectTypeObjects, Record<string, unknown>>> = {
+    [ObjectTypeObjects.CONTROL]: { ownerIDNEQ: '' },
+    [ObjectTypeObjects.SUB_CONTROL]: { ownerIDNEQ: '' },
+    [ObjectTypeObjects.CONTROL_OBJECTIVE]: { statusNEQ: ControlObjectiveObjectiveStatus.ARCHIVED },
+  }
+
+  const searchAttribute = searchAttributeMap[selectedObject]
+  if (!searchAttribute) return {}
+
+  const secondaryAttribute = secondarySearchMap[selectedObject]
+  const defaultWhere = defaultWhereMap[selectedObject] ?? {}
+
+  const orFilters = secondaryAttribute ? [{ [searchAttribute]: searchValue }, { [secondaryAttribute]: searchValue }] : [{ [searchAttribute]: searchValue }]
+
+  return {
+    or: orFilters,
+    ...defaultWhere,
   }
 }

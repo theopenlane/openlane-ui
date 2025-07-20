@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { Label } from '@repo/ui/label'
 import { Input } from '@repo/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
-import { extractTableRows, getPagination, OBJECT_QUERY_CONFIG, ObjectTypeObjects, QueryResponse, TableRow } from '@/components/shared/objectAssociation/object-assoiation-config'
+import { extractTableRows, generateWhere, getPagination, OBJECT_QUERY_CONFIG, ObjectTypeObjects, QueryResponse, TableRow } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { useQuery } from '@tanstack/react-query'
 import ObjectAssociationTable from '@/components/shared/objectAssociation/object-association-table'
 import ObjectAssociationPlaceholder from '@/components/shared/object-association/object-association-placeholder'
@@ -36,19 +36,17 @@ const ObjectAssociation = ({ onIdChange, excludeObjectTypes, initialData, refCod
   const objectKey = selectedConfig?.responseObjectKey
   const inputName = selectedConfig?.inputName
   const inputPlaceholder = selectedConfig?.placeholder
-  const searchAttribute = selectedConfig?.searchAttribute
   const objectName = selectedConfig?.objectName
 
-  const whereFilter = {
-    ...(selectedConfig?.defaultWhere || {}),
-    ...(searchAttribute && debouncedSearchValue ? { [searchAttribute]: debouncedSearchValue } : {}),
-  }
+  const whereFilter = generateWhere(selectedObject, debouncedSearchValue)
 
   const { data, isLoading, isFetching } = useQuery<QueryResponse>({
     queryKey: [objectKey, 'objectAssociation', whereFilter, pagination.page, pagination.pageSize],
     queryFn: async () => client.request(selectedQuery, { where: whereFilter, ...pagination?.query }),
     enabled: !!selectedQuery,
   })
+
+  console.log('selectedConfig')
 
   const pageInfo = objectKey && !isLoading && !isFetching ? getPagination(objectKey, data).pageInfo : undefined
   const totalCount = objectKey && !isLoading && !isFetching ? getPagination(objectKey, data).totalCount : undefined
@@ -74,6 +72,7 @@ const ObjectAssociation = ({ onIdChange, excludeObjectTypes, initialData, refCod
             onValueChange={(val: ObjectTypeObjects) => {
               setSelectedObject(val)
               setPagination(initialPagination)
+              setSearchValue('')
             }}
           >
             <SelectTrigger className="w-full">{selectedObject || 'Select object'}</SelectTrigger>
@@ -90,13 +89,7 @@ const ObjectAssociation = ({ onIdChange, excludeObjectTypes, initialData, refCod
         </div>
         <div className="flex flex-col gap-2">
           <Label>Search</Label>
-          <Input
-            disabled={!selectedQuery}
-            onChange={handleSearchChange}
-            value={searchValue}
-            placeholder={inputPlaceholder ? `Type ${inputPlaceholder} name` : 'Select object first'}
-            className="h-10 w-full"
-          />
+          <Input disabled={!selectedQuery} onChange={handleSearchChange} value={searchValue} placeholder={inputPlaceholder ? `${inputPlaceholder}` : 'Select object first'} className="h-10 w-full" />
         </div>
       </div>
       {selectedObject ? (
