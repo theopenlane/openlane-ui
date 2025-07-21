@@ -1,16 +1,13 @@
-import { Toaster } from 'sonner'
+import { Toaster } from 'sonner';
 
-import { PlateEditor } from 'src/components/editor/plate-editor'
-import { SettingsProvider } from 'src/components/editor/settings'
+import { PlateEditor } from 'src/editor/plate-editor';
 
 export default function Page() {
   return (
-    <div className="h-screen w-full" data-registry="plate">
-      <SettingsProvider>
-        <PlateEditor />
-      </SettingsProvider>
+    <div className="h-screen w-full">
+      <PlateEditor />
 
       <Toaster />
     </div>
-  )
+  );
 }

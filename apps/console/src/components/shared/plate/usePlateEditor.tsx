@@ -1,8 +1,7 @@
 'use client'
-import { createSlateEditor, PlateStatic, serializeHtml } from '@udecode/plate-core'
-import { Value } from '@udecode/plate-common'
-import { staticViewComponents } from '@repo/ui/components/editor/use-create-editor.ts'
-import { basePlugins } from '@repo/ui/components/editor/plugins/editor-plugins.tsx'
+import { BaseEditorKit } from '@repo/ui/components/editor/editor-base-kit.tsx'
+import { EditorStatic } from '@repo/ui/components/ui/editor-static.tsx'
+import { createSlateEditor, PlateStatic, serializeHtml, Value } from 'platejs'
 
 const usePlateEditor = () => {
   return {
@@ -13,12 +12,12 @@ const usePlateEditor = () => {
       }
 
       const editor = createSlateEditor({
-        plugins: [...basePlugins],
+        plugins: BaseEditorKit,
         value: data,
       })
 
       return await serializeHtml(editor, {
-        components: staticViewComponents,
+        editorComponent: EditorStatic,
         stripClassNames: false,
         stripDataAttributes: false,
       })
@@ -26,14 +25,14 @@ const usePlateEditor = () => {
     // Converts html data into deserializable PlateJs value, and rendering read only static view
     convertToReadOnly: (data: string, padding: number = 16, style?: React.CSSProperties) => {
       const editor = createSlateEditor({
-        plugins: [...basePlugins],
+        plugins: [...BaseEditorKit],
       })
 
       editor.children = editor.api.html.deserialize({ element: data }) as Value
 
       const finalStyle = style ? style! : { padding }
 
-      return <PlateStatic editor={editor} components={staticViewComponents} style={finalStyle} className="plate-static" />
+      return <PlateStatic editor={editor} style={finalStyle} className="plate-static" />
     },
   }
 }

@@ -4,7 +4,7 @@ import React from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { Value } from '@udecode/plate-common'
+import { Value } from 'platejs'
 
 interface DescriptionFieldProps {
   isEditing: boolean
