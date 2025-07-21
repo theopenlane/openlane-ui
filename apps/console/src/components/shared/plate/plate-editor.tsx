@@ -42,9 +42,11 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, vari
   useEffect(() => {
     if (plateEditor && !initialValueSet) {
       setInitialValueSet(true)
-      const slateNodes = plateEditor.api.html.deserialize({
-        element: initialValue || '',
-      }) as Value
+      const slateNodes = Array.isArray(initialValue)
+        ? initialValue
+        : (plateEditor.api.html.deserialize({
+            element: initialValue || '',
+          }) as Value)
 
       if (Array.isArray(slateNodes) && slateNodes.length === 1 && typeof (slateNodes[0] as TElement).text === 'string' && !(slateNodes[0] as TElement).type) {
         editor.children = [
