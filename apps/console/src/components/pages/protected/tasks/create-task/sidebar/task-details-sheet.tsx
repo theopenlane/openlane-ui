@@ -27,7 +27,7 @@ import { TComments } from '@/components/shared/comments/types/TComments'
 import CommentList from '@/components/shared/comments/CommentList'
 import AddComment from '@/components/shared/comments/AddComment'
 import PlateEditor from '@/components/shared/plate/plate-editor'
-import { Value } from '@udecode/plate-common'
+import { Value } from 'platejs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import EvidenceCreateFormDialog from '../../../evidence/evidence-create-form-dialog'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
@@ -350,7 +350,11 @@ const TaskDetailsSheet = () => {
 
   const handleTags = () => {
     return (
-      <div className="flex flex-wrap gap-2">{taskData?.tags?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}</div>
+      <div className="flex flex-wrap gap-2">
+        {taskData?.tags?.map((item: string | undefined, index: number) => (
+          <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>
+        ))}
+      </div>
     )
   }
 
@@ -463,7 +467,7 @@ const TaskDetailsSheet = () => {
                           />
                         </div>
                         <FormControl>
-                          <PlateEditor onChange={handleDetailsChange} initialValue={taskData?.details ?? undefined} variant="basic" placeholder="Write your task details" />
+                          <PlateEditor onChange={handleDetailsChange} initialValue={taskData?.details ?? undefined} placeholder="Write your task details" />
                         </FormControl>
                         {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors.details.message}</p>}
                       </FormItem>

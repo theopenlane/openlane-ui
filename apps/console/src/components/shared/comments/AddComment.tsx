@@ -6,7 +6,7 @@ import { TComments } from '@/components/shared/comments/types/TComments'
 import { Avatar } from '../avatar/avatar'
 import { User } from '@repo/codegen/src/schema'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
-import { Value } from '@udecode/plate-common'
+import { Value } from 'platejs'
 
 type TProps = {
   onSuccess: (data: TComments) => void

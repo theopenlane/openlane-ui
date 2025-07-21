@@ -1,4 +1,4 @@
-import { Value } from '@udecode/plate-common'
+import { Value } from 'platejs'
 
 export type TComments = {
   comment: Value

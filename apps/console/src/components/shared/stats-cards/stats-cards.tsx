@@ -48,16 +48,6 @@ const StatCard: React.FC<{ stat: Stat; hasData: boolean; tooltip?: React.ReactNo
   const { title, percentage, count, total, color, trend, trendType, trendColor } = stat
   const { wrapper, content, title: titleClass, percentage: percentageClass, statDetails, progressWrapper, progressBar, trendBadge } = statCardStyles({ color })
 
-  // console.log('StatCard debug:', {
-  //   color,
-  //   progressBarClass: progressBar(),
-  //   progressWrapperClass: progressWrapper(),
-  //   percentage,
-  //   title,
-  //   count,
-  //   total,
-  // })
-
   // Get trend badge color based on trend direction
   const getTrendBadgeColor = () => {
     if (trendColor) return trendColor

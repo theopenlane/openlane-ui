@@ -14,7 +14,7 @@ import { InternalPolicyDocumentStatus, InternalPolicyFrequency, UpdateInternalPo
 import HistoricalCard from '@/components/pages/protected/policies/view/cards/historical-card.tsx'
 import TagsCard from '@/components/pages/protected/policies/view/cards/tags-card.tsx'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
-import { Value } from '@udecode/plate-common'
+import { Value } from 'platejs'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { usePolicy } from '@/components/pages/protected/policies/create/hooks/use-policy.tsx'

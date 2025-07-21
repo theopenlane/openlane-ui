@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useForm, FormProvider } from 'react-hook-form'
-import { Value } from '@udecode/plate-common'
+import { Value } from 'platejs'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { ArrowRight, PencilIcon, SaveIcon, XIcon, CirclePlus } from 'lucide-react'

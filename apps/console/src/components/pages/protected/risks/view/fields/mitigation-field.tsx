@@ -23,7 +23,7 @@ const MitigationField: React.FC<TMitigationFieldProps> = ({ isEditing, form, ris
       <Controller
         control={form.control}
         name="mitigation"
-        render={({ field }) => <PlateEditor initialValue={field.value as string} onChange={field.onChange} variant="basic" placeholder="Write your mitigation description" />}
+        render={({ field }) => <PlateEditor initialValue={field.value as string} onChange={field.onChange} placeholder="Write your mitigation description" />}
       />
     </div>
   ) : (

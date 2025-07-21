@@ -9,6 +9,7 @@ import { Loading } from '@/components/shared/loading/loading'
 import { NavigationGuardProvider } from 'next-navigation-guard'
 import { BreadcrumbProvider } from '@/providers/BreadcrumbContext.tsx'
 import { InitPlugSDK } from '@/providers/chatSdk'
+import { TooltipProvider } from '@repo/ui/tooltip'
 
 interface ProvidersProps {
   children: ReactNode
@@ -55,7 +56,9 @@ const Providers = ({ children }: ProvidersProps) => {
         <QueryClientProvider client={queryClient}>
           <BreadcrumbProvider>
             <InitPlugSDK />
-            {children}
+            <TooltipProvider disableHoverableContent delayDuration={500} skipDelayDuration={0}>
+              {children}
+            </TooltipProvider>
           </BreadcrumbProvider>
         </QueryClientProvider>
       </ThemeProvider>

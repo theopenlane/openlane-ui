@@ -5,7 +5,7 @@ import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { Info, InfoIcon } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
-import { Value } from '@udecode/plate-common'
+import { Value } from 'platejs'
 import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
 import { Button } from '@repo/ui/button'
 import { useCreateInternalPolicy, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
@@ -297,7 +297,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
                       icon={<InfoIcon size={14} className="mx-1 mt-1" />}
                       content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
                     />
-                    <PlateEditor onChange={handleDetailsChange} variant="basic" initialValue={policy?.details ?? (field.value as string) ?? undefined} />
+                    <PlateEditor onChange={handleDetailsChange} initialValue={policy?.details ?? (field.value as string) ?? undefined} />
                     {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
                   </FormItem>
                 )}

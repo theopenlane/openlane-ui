@@ -23,7 +23,7 @@ const BusinessCostField: React.FC<TBusinessCostFieldProps> = ({ isEditing, form,
       <Controller
         control={form.control}
         name="businessCosts"
-        render={({ field }) => <PlateEditor initialValue={field.value as string} onChange={field.onChange} variant="basic" placeholder="Write your business costs description" />}
+        render={({ field }) => <PlateEditor initialValue={field.value as string} onChange={field.onChange} placeholder="Write your business costs description" />}
       />
     </div>
   ) : (
