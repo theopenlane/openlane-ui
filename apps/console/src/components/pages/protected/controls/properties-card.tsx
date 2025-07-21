@@ -20,7 +20,7 @@ import StandardChip from '../standards/shared/standard-chip'
 interface PropertiesCardProps {
   isEditing: boolean
   data?: Control | Subcontrol
-  handleUpdate: (val: UpdateControlInput | UpdateSubcontrolInput) => void
+  handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput) => void
 }
 
 const sourceLabels: Record<ControlControlSource, string> = {
@@ -137,7 +137,7 @@ const EditableSelect = ({
   isEditing: boolean
   options: string[]
   labels: Record<string, string>
-  handleUpdate: (val: UpdateControlInput | UpdateSubcontrolInput) => void
+  handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput) => void
   isEditAllowed: boolean
 }) => {
   const { control, getValues } = useFormContext()
@@ -148,7 +148,7 @@ const EditableSelect = ({
   }
 
   const handleChange = (value: string) => {
-    handleUpdate({ [name]: value })
+    handleUpdate?.({ [name]: value })
     setInternalEditing(false)
   }
 
@@ -261,7 +261,7 @@ export const EditableSelectFromQuery = ({
   name: string
   isEditing: boolean
   icon: React.ReactNode
-  handleUpdate: (val: UpdateControlInput | UpdateSubcontrolInput) => void
+  handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput) => void
   isEditAllowed: boolean
 }) => {
   const { control } = useFormContext()
@@ -294,7 +294,7 @@ export const EditableSelectFromQuery = ({
             const isEditable = isEditAllowed && (isEditing || internalEditing)
             const handleChange = (val: string) => {
               field.onChange(val)
-              handleUpdate({ [name]: val })
+              handleUpdate?.({ [name]: val })
               setInternalEditing(false)
             }
 
@@ -376,14 +376,14 @@ export const EditableSelectFromQuery = ({
   )
 }
 
-const Status = ({ isEditing, data, handleUpdate }: { isEditing: boolean; data?: Control | Subcontrol; handleUpdate: (val: UpdateControlInput | UpdateSubcontrolInput) => void }) => {
+const Status = ({ isEditing, data, handleUpdate }: { isEditing: boolean; data?: Control | Subcontrol; handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput) => void }) => {
   const { control } = useFormContext()
   const [internalEditing, setInternalEditing] = useState(false)
 
   const isEditable = isEditing || internalEditing
 
   const handleChange = (val: ControlControlStatus | SubcontrolControlStatus) => {
-    handleUpdate({ status: val })
+    handleUpdate?.({ status: val })
     setInternalEditing(false)
   }
 

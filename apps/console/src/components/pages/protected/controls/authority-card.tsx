@@ -16,7 +16,7 @@ interface AuthorityCardProps {
   controlOwner?: ControlDetailsFieldsFragment['controlOwner']
   delegate?: ControlDetailsFieldsFragment['delegate']
   isEditing: boolean
-  handleUpdate: (val: UpdateControlInput | UpdateSubcontrolInput) => void
+  handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput) => void
 }
 
 const AuthorityCard: React.FC<AuthorityCardProps> = ({ controlOwner, delegate, isEditing, handleUpdate }) => {
@@ -30,7 +30,7 @@ const AuthorityCard: React.FC<AuthorityCardProps> = ({ controlOwner, delegate, i
   }))
 
   const handleSelect = (field: 'controlOwnerID' | 'delegateID', value: string) => {
-    handleUpdate({ [field]: value })
+    handleUpdate?.({ [field]: value })
     setEditingField(null)
   }
 
