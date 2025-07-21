@@ -297,7 +297,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
                       icon={<InfoIcon size={14} className="mx-1 mt-1" />}
                       content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
                     />
-                    <PlateEditor onChange={handleDetailsChange} variant="basic" initialValue={policy?.details ?? (field.value as string) ?? undefined} />
+                    <PlateEditor onChange={handleDetailsChange} initialValue={policy?.details ?? (field.value as string) ?? undefined} />
                     {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
                   </FormItem>
                 )}

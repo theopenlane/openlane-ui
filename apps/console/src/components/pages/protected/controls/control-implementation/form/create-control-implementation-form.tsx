@@ -156,7 +156,7 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
       <div className="p-4 border rounded-lg">
         <div className="border-b flex items-center py-2.5">
           <Label className="self-start whitespace-nowrap min-w-36">Details</Label>
-          <Controller control={control} name="details" render={({ field }) => <PlateEditor initialValue={defaultValues?.details} onChange={(val) => field.onChange(val)} variant="basic" />} />
+          <Controller control={control} name="details" render={({ field }) => <PlateEditor initialValue={defaultValues?.details} onChange={(val) => field.onChange(val)} />} />
         </div>
 
         <div className="border-b flex items-center py-2.5">

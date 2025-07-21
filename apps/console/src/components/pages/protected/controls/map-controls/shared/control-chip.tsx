@@ -44,6 +44,7 @@ const ControlChip: React.FC<ControlChipProps> = ({
   const baseClasses = 'bg-background-secondary flex gap-1 items-center'
   const dragClass = draggable ? 'cursor-grab' : ''
   const borderClass = selected ? 'border-brand ring-1 ring-brand' : 'border-border'
+  const href = control.__typename === 'Subcontrol' ? `/controls/${control.controlID}/${control.id}` : `/controls/${control.id}`
 
   if (!control) {
     return
@@ -53,29 +54,31 @@ const ControlChip: React.FC<ControlChipProps> = ({
     <TooltipProvider delayDuration={300}>
       <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
         <TooltipTrigger asChild>
-          <Badge
-            onClick={onClick}
-            variant="outline"
-            className={`${baseClasses} ${dragClass} ${borderClass} ${className}`}
-            draggable={draggable}
-            onDragStart={draggable ? onDragStart : undefined}
-            onDragEnd={draggable ? onDragEnd : undefined}
-            onContextMenu={(e) => {
-              e.preventDefault()
-              onContextMenu?.(e, control)
-            }}
-          >
-            {draggable && <Drag strokeWidth={1} className="text-border" />}
-            <StandardsHexagon shortName={control.referenceFramework ?? ''} />
-            {!hideStandard && (
-              <>
-                <StandardsColorSpan shortName={control.referenceFramework || ''}>{control.referenceFramework || 'CUSTOM'}</StandardsColorSpan>
-                <span className="text-border">|</span>
-              </>
-            )}
-            <span>{control.refCode || ''}</span>
-            {removable && onRemove && <XIcon size={12} className="cursor-pointer ml-1" onClick={() => onRemove(control)} />}
-          </Badge>
+          <Link href={href}>
+            <Badge
+              onClick={onClick}
+              variant="outline"
+              className={`${baseClasses} ${dragClass} ${borderClass} ${className}`}
+              draggable={draggable}
+              onDragStart={draggable ? onDragStart : undefined}
+              onDragEnd={draggable ? onDragEnd : undefined}
+              onContextMenu={(e) => {
+                e.preventDefault()
+                onContextMenu?.(e, control)
+              }}
+            >
+              {draggable && <Drag strokeWidth={1} className="text-border" />}
+              <StandardsHexagon shortName={control.referenceFramework ?? ''} />
+              {!hideStandard && (
+                <>
+                  <StandardsColorSpan shortName={control.referenceFramework || ''}>{control.referenceFramework || 'CUSTOM'}</StandardsColorSpan>
+                  <span className="text-border">|</span>
+                </>
+              )}
+              <span>{control.refCode || ''}</span>
+              {removable && onRemove && <XIcon size={12} className="cursor-pointer ml-1" onClick={() => onRemove(control)} />}
+            </Badge>
+          </Link>
         </TooltipTrigger>
 
         {tooltipOpen && (

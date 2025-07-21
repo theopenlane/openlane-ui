@@ -6,9 +6,19 @@ import { usePathname, useSearchParams } from 'next/navigation'
 import { useGlobalEvidenceStats, useProgramEvidenceStats } from '@/lib/graphql-hooks/programs'
 import { useSubmittedEvidenceTrend, useAcceptedEvidenceTrend, useRejectedEvidenceTrend } from '@/lib/graphql-hooks/evidence'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
+import Link from 'next/link'
+
+type TFilter = {
+  field: string
+  value: string
+  type: string
+  operator: string
+  label: string
+}
 
 interface Stat {
   title: string
+  filters: TFilter[]
   percentage: number
   count: number
   total: number
@@ -34,7 +44,7 @@ const getTrendColor = (trendType: 'up' | 'down' | 'flat' | undefined, isRejected
   }
 }
 
-const StatCard: React.FC<{ stat: Stat; hasData: boolean; tooltip?: React.ReactNode }> = ({ stat, hasData, tooltip }) => {
+const StatCard: React.FC<{ stat: Stat; hasData: boolean; tooltip?: React.ReactNode; programId: string }> = ({ stat, hasData, tooltip, programId }) => {
   const { title, percentage, count, total, color, trend, trendType, trendColor } = stat
   const { wrapper, content, title: titleClass, percentage: percentageClass, statDetails, progressWrapper, progressBar, trendBadge } = statCardStyles({ color })
 
@@ -44,63 +54,66 @@ const StatCard: React.FC<{ stat: Stat; hasData: boolean; tooltip?: React.ReactNo
     if (trend === 0 || trend === undefined) return 'gray'
     return trendType === 'up' ? 'green' : 'red'
   }
-
+  const encodedFilters = encodeURIComponent(JSON.stringify(stat.filters))
+  const href = `/evidence?${programId ? `programId=${programId}&` : ''}regularFilters=${encodedFilters}&filterActive=1`
   return (
-    <Card className={wrapper()}>
-      <CardContent className={content() + ' relative'}>
-        <div className="flex items-center justify-between">
-          {tooltip ? (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <h3 className={titleClass() + ' cursor-help'}>{title}</h3>
-              </TooltipTrigger>
-              <TooltipContent>{tooltip}</TooltipContent>
-            </Tooltip>
-          ) : (
-            <h3 className={titleClass()}>{title}</h3>
-          )}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className={trendBadge({ color: getTrendBadgeColor() })}>
-                {trendType === 'up' ? <ArrowUpRight size={12} className="mr-1" /> : trendType === 'down' ? <ArrowDownRight size={12} className="mr-1" /> : <Minus size={12} className="mr-1" />}
-                {trend}%
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>Week-over-week percentage change in evidence for the selected program</TooltipContent>
-          </Tooltip>
-        </div>
-        {!hasData ? (
-          <div className="flex items-center gap-2 justify-start mt-5 ">
-            <Hourglass size={24} strokeWidth={1} className="text-brand" />
-            <span>No data...</span>
-          </div>
-        ) : (
-          <>
-            <div className={percentageClass()}>{percentage}%</div>
-            <div className={statDetails()}>
-              <p className="text-base">{`${percentage}% (${count})`}</p>
+    <Link className="w-full" href={href}>
+      <Card className={wrapper()}>
+        <CardContent className={content() + ' relative'}>
+          <div className="flex items-center justify-between">
+            {tooltip ? (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <p className="text-base cursor-help">{`${total} Controls`}</p>
+                  <h3 className={titleClass() + ' cursor-help'}>{title}</h3>
                 </TooltipTrigger>
-                <TooltipContent>
-                  Total number of controls included in the audit program. In the case of all programs, this is the total number of controls across all programs within the organization.
-                </TooltipContent>
+                <TooltipContent>{tooltip}</TooltipContent>
               </Tooltip>
+            ) : (
+              <h3 className={titleClass()}>{title}</h3>
+            )}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className={trendBadge({ color: getTrendBadgeColor() })}>
+                  {trendType === 'up' ? <ArrowUpRight size={12} className="mr-1" /> : trendType === 'down' ? <ArrowDownRight size={12} className="mr-1" /> : <Minus size={12} className="mr-1" />}
+                  {trend}%
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>Week-over-week percentage change in evidence for the selected program</TooltipContent>
+            </Tooltip>
+          </div>
+          {!hasData ? (
+            <div className="flex items-center gap-2 justify-start mt-5 ">
+              <Hourglass size={24} strokeWidth={1} className="text-brand" />
+              <span>No data...</span>
             </div>
-            <div className={progressWrapper()}>
-              <div
-                className={progressBar()}
-                style={{
-                  width: percentage > 0 ? `${percentage}%` : '1px',
-                  minWidth: '1px',
-                }}
-              ></div>
-            </div>
-          </>
-        )}
-      </CardContent>
-    </Card>
+          ) : (
+            <>
+              <div className={percentageClass()}>{percentage}%</div>
+              <div className={statDetails()}>
+                <p className="text-base">{`${percentage}% (${count})`}</p>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <p className="text-base cursor-help">{`${total} Controls`}</p>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Total number of controls included in the audit program. In the case of all programs, this is the total number of controls across all programs within the organization.
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+              <div className={progressWrapper()}>
+                <div
+                  className={progressBar()}
+                  style={{
+                    width: percentage > 0 ? `${percentage}%` : '1px',
+                    minWidth: '1px',
+                  }}
+                ></div>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
+    </Link>
   )
 }
 
@@ -123,6 +136,15 @@ const StatsCards: React.FC = () => {
   const dynamicStats: Stat[] = [
     {
       title: 'Evidence Submitted',
+      filters: [
+        {
+          field: 'status',
+          value: 'READY',
+          type: 'selectIs',
+          operator: 'EQ',
+          label: 'Status',
+        },
+      ],
       percentage: total ? Math.round(((data?.submitted ?? 0) / total) * 100) : 0,
       count: data?.submitted ?? 0,
       total,
@@ -134,6 +156,15 @@ const StatsCards: React.FC = () => {
     },
     {
       title: 'Evidence Accepted',
+      filters: [
+        {
+          field: 'status',
+          value: 'APPROVED',
+          type: 'selectIs',
+          operator: 'EQ',
+          label: 'Status',
+        },
+      ],
       percentage: total ? Math.round(((data?.accepted ?? 0) / total) * 100) : 0,
       count: data?.accepted ?? 0,
       total,
@@ -145,6 +176,15 @@ const StatsCards: React.FC = () => {
     },
     {
       title: 'Evidence Rejected',
+      filters: [
+        {
+          field: 'status',
+          value: 'REJECTED',
+          type: 'selectIs',
+          operator: 'EQ',
+          label: 'Status',
+        },
+      ],
       percentage: total ? Math.round(((data?.rejected ?? 0) / total) * 100) : 0,
       count: data?.rejected ?? 0,
       total,
@@ -159,9 +199,9 @@ const StatsCards: React.FC = () => {
   return (
     <TooltipProvider>
       <div className="flex gap-8 justify-center">
-        {dynamicStats.map((stat, index) => (
-          <StatCard key={index} stat={stat} hasData={total > 0} tooltip={stat.tooltip} />
-        ))}
+        {dynamicStats.map((stat, index) => {
+          return <StatCard programId={programId} key={index} stat={stat} hasData={total > 0} tooltip={stat.tooltip} />
+        })}
       </div>
     </TooltipProvider>
   )

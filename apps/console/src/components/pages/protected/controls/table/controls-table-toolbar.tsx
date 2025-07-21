@@ -13,6 +13,7 @@ import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { useGroupSelect } from '@/lib/graphql-hooks/groups'
 import { ControlWhereInput } from '@repo/codegen/src/schema'
+import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
 
 type TProps = {
   onFilterChange: (filters: ControlWhereInput) => void
@@ -46,13 +47,27 @@ const ControlsTableToolbar: React.FC<TProps> = ({
   const groups = useMemo(() => groupOptions || [], [groupOptions])
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
 
+  const { standardOptions, isSuccess: isStandardSuccess } = useStandardsSelect({})
+
   useEffect(() => {
-    if (filterFields || !isProgramSuccess || !isGroupSuccess) {
+    if (filterFields || !isProgramSuccess || !isGroupSuccess || !isStandardSuccess) {
       return
     }
 
     setFilterFields([
       ...CONTROLS_FILTER_FIELDS,
+      {
+        key: 'standard',
+        label: 'Standard',
+        type: 'selectIs',
+        options: [
+          ...standardOptions,
+          {
+            value: 'CUSTOM',
+            label: 'CUSTOM',
+          },
+        ],
+      },
       {
         key: 'controlOwnerID',
         label: 'Owners',
@@ -69,7 +84,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
         options: programOptions,
       } as SelectIsFilterField,
     ])
-  }, [groups, programOptions, filterFields, isGroupSuccess, isProgramSuccess])
+  }, [groups, programOptions, filterFields, isGroupSuccess, isProgramSuccess, standardOptions, isStandardSuccess])
 
   return (
     <>

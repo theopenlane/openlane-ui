@@ -380,8 +380,8 @@ export const GET_CONTROLS_PAGINATED_WITH_LIST_FIELDS = gql`
 `
 
 export const GET_CONTROLS_GROUPED_BY_CATEGORY_RESOLVER = gql`
-  query GetControlsGroupedByCategoryResolver($where: ControlWhereInput) {
-    controlsGroupByCategory(where: $where) {
+  query GetControlsGroupedByCategoryResolver($where: ControlWhereInput, $category: String, $after: Cursor) {
+    controlsGroupByCategory(where: $where, category: $category, after: $after) {
       edges {
         node {
           category

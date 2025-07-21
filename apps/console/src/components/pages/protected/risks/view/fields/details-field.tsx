@@ -23,7 +23,7 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, risk }) =
       <Controller
         control={form.control}
         name="details"
-        render={({ field }) => <PlateEditor initialValue={field.value as string} onChange={field.onChange} variant="basic" placeholder="Write your risk description" />}
+        render={({ field }) => <PlateEditor initialValue={field.value as string} onChange={field.onChange} placeholder="Write your risk description" />}
       />
     </div>
   ) : (

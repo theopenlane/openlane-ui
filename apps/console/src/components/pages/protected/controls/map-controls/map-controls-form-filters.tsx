@@ -42,7 +42,7 @@ const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange, enableSubcont
   })
 
   const excludedFrameworks = useMemo(() => {
-    return new Set(oppositeControls.map((c) => c.referenceFramework).filter((f): f is string => Boolean(f) && f !== 'Custom'))
+    return new Set(oppositeControls.map((c) => c.referenceFramework).filter((f): f is string => Boolean(f) && f !== 'CUSTOM'))
   }, [oppositeControls])
 
   const filteredStandardOptions = useMemo(() => {
@@ -54,9 +54,9 @@ const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange, enableSubcont
 
     const excludedFrameworks = Array.from(new Set(oppositeControls.map((c) => c.referenceFramework).filter(Boolean))) as string[]
 
-    if (referenceFramework && referenceFramework !== 'Custom') {
+    if (referenceFramework && referenceFramework !== 'CUSTOM') {
       where.referenceFramework = referenceFramework
-    } else if (referenceFramework === 'Custom') {
+    } else if (referenceFramework === 'CUSTOM') {
       where.referenceFrameworkIsNil = true
     }
 
@@ -98,12 +98,12 @@ const MapControlsFormFilters: React.FC<Props> = ({ onFilterChange, enableSubcont
           <SelectValue placeholder="Select Framework" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="Custom">Custom</SelectItem>
           {filteredStandardOptions.map((opt) => (
             <SelectItem key={opt.value} value={opt.label}>
               {opt.label}
             </SelectItem>
           ))}
+          <SelectItem value="CUSTOM">CUSTOM</SelectItem>
         </SelectContent>
       </Select>
 

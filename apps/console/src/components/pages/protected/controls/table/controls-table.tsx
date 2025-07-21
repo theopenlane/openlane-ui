@@ -48,17 +48,32 @@ const ControlsTable: React.FC = () => {
   const whereFilter = useMemo(() => {
     const conditions: ControlWhereInput = {}
 
-    Object.entries(filters || {}).forEach(([key, value]) => {
-      if (!value) {
-        return
-      }
-
+    const mapCustomKey = (key: string, value: string): Partial<ControlWhereInput> => {
       if (key === 'programContains') {
-        conditions.hasProgramsWith = [{ nameContainsFold: value }]
-      } else if (key === 'standardContains') {
-        conditions.hasStandardWith = [{ nameContainsFold: value }]
+        return { hasProgramsWith: [{ nameContainsFold: value as string }] }
+      }
+      if (key === 'standard' && value === 'CUSTOM') {
+        return { referenceFrameworkIsNil: true }
+      }
+      if (key === 'standard') {
+        return { hasStandardWith: [{ id: value }] }
+      }
+      return { [key]: value } as Partial<ControlWhereInput>
+    }
+
+    Object.entries(filters || {}).forEach(([key, value]) => {
+      if (!value) return
+
+      if ((key === 'and' || key === 'or') && Array.isArray(value)) {
+        conditions[key] = value.map((entry) => {
+          const subCondition: ControlWhereInput = {}
+          Object.entries(entry).forEach(([innerKey, innerValue]) => {
+            Object.assign(subCondition, mapCustomKey(innerKey, innerValue as string))
+          })
+          return subCondition
+        })
       } else {
-        conditions[key as keyof ControlWhereInput] = value
+        Object.assign(conditions, mapCustomKey(key, value))
       }
     })
 

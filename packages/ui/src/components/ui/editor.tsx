@@ -11,7 +11,7 @@ import { PlateContainer, PlateContent, PlateView } from 'platejs/react'
 import { cn } from '@repo/ui/lib/utils'
 
 const editorContainerVariants = cva(
-  'relative w-full cursor-text overflow-y-auto caret-primary select-text selection:bg-brand/25 focus-visible:outline-none [&_.slate-selection-area]:z-50 [&_.slate-selection-area]:border [&_.slate-selection-area]:border-brand/25 [&_.slate-selection-area]:bg-brand/15',
+  'w-full cursor-text overflow-hidden caret-primary select-text bg-input-background selection:bg-brand/25 focus-visible:outline-none [&_.slate-selection-area]:z-50 [&_.slate-selection-area]:border [&_.slate-selection-area]:border/25 [&_.slate-selection-area]:bg-brand/15',
   {
     defaultVariants: {
       variant: 'default',
@@ -21,10 +21,9 @@ const editorContainerVariants = cva(
         comment: cn(
           'flex flex-wrap justify-between gap-1 px-1 py-0.5 text-sm',
           'rounded-md border-[1.5px] border-transparent bg-transparent',
-          'has-[[data-slate-editor]:focus]:border-brand/50 has-[[data-slate-editor]:focus]:ring-2 has-[[data-slate-editor]:focus]:ring-brand/30',
           'has-aria-disabled:border-input has-aria-disabled:bg-muted',
         ),
-        default: 'h-full',
+        default: 'min-h-[300px] h-auto border',
         demo: 'h-[650px]',
         select: cn(
           'group rounded-md border border-input ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
@@ -35,6 +34,8 @@ const editorContainerVariants = cva(
   },
 )
 
+export type TPlateEditorStyleVariant = 'default' | 'comment' | 'select' | 'demo' | null | undefined
+
 export function EditorContainer({ className, variant, ...props }: React.ComponentProps<'div'> & VariantProps<typeof editorContainerVariants>) {
   return <PlateContainer className={cn('ignore-click-outside/toolbar', editorContainerVariants({ variant }), className)} {...props} />
 }
@@ -42,10 +43,13 @@ export function EditorContainer({ className, variant, ...props }: React.Componen
 const editorVariants = cva(
   cn(
     'group/editor',
-    'relative w-full cursor-text overflow-x-hidden break-words whitespace-pre-wrap select-text',
+    'w-full cursor-text overflow-x-hidden break-words whitespace-pre-wrap select-text',
     'rounded-md ring-offset-background focus-visible:outline-none',
-    'placeholder:text-muted-foreground/80 **:data-slate-placeholder:!top-1/2 **:data-slate-placeholder:-translate-y-1/2 **:data-slate-placeholder:text-muted-foreground/80 **:data-slate-placeholder:opacity-100!',
+    'placeholder:text-muted-foreground/80 **:data-slate-placeholder:top-[auto_!important] **:data-slate-placeholder:text-muted-foreground/80 **:data-slate-placeholder:opacity-100!',
     '[&_strong]:font-bold',
+    '[&_pre]:whitespace-pre-wrap [&_pre]:break-words [&_pre]:overflow-wrap-break-word [&_pre]:overflow-x-auto',
+    '[&_code]:break-words [&_code]:whitespace-pre-wrap [&_code]:overflow-x-auto',
+    '[&_table]:table-fixed [&_td]:break-words [&_td]:whitespace-pre-wrap',
   ),
   {
     defaultVariants: {
@@ -62,9 +66,9 @@ const editorVariants = cva(
         ai: 'w-full px-0 text-base md:text-sm',
         aiChat: 'max-h-[min(70vh,320px)] w-full max-w-[700px] overflow-y-auto px-3 py-2 text-base md:text-sm',
         comment: cn('rounded-none border-none bg-transparent text-sm'),
-        default: 'size-full px-16 pt-4 pb-72 text-base sm:px-[max(64px,calc(50%-350px))]',
-        demo: 'size-full px-16 pt-4 pb-72 text-base sm:px-[max(64px,calc(50%-350px))]',
-        fullWidth: 'size-full px-16 pt-4 pb-72 text-base sm:px-24',
+        default: 'size-full px-5 pt-4 text-base',
+        demo: 'size-full px-5 pt-4 text-base',
+        fullWidth: 'size-full px-5 pt-4 text-base sm:px-24',
         none: '',
         select: 'px-3 py-2 text-base data-readonly:w-fit',
       },

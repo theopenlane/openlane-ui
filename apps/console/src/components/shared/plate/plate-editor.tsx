@@ -5,24 +5,23 @@ import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Value, TElement } from 'platejs'
 import debounce from 'lodash.debounce'
-import { EditorKit } from '@repo/ui/components/editor/use-create-editor.ts'
-import { Editor, EditorContainer } from '@repo/ui/components/ui/editor.tsx'
-import { createPlateEditor, Plate, usePlateEditor } from 'platejs/react'
+import { EditorKitVariant, TPlateEditorVariants } from '@repo/ui/components/editor/use-create-editor.ts'
+import { Editor, EditorContainer, TPlateEditorStyleVariant } from '@repo/ui/components/ui/editor.tsx'
+import { createPlateEditor, Plate, PlatePlugin, usePlateEditor } from 'platejs/react'
 
 export type TPlateEditorProps = {
   onChange?: (data: Value) => void
   initialValue?: string
-  variant?: string
-  styleVariant?: string
-  isScrollable?: boolean
+  variant?: TPlateEditorVariants
+  styleVariant?: TPlateEditorStyleVariant
   clearData?: boolean
   onClear?: () => void
   placeholder?: string
 }
 
-const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, variant, styleVariant, clearData, onClear, placeholder, isScrollable }) => {
+const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, variant = 'basic', styleVariant, clearData, onClear, placeholder }) => {
   const editor = usePlateEditor({
-    plugins: EditorKit,
+    plugins: EditorKitVariant[variant] as unknown as PlatePlugin[],
   })
   const [plateEditor, setPlateEditor] = useState<ReturnType<typeof createPlateEditor> | null>(null)
   const [initialValueSet, setInitialValueSet] = useState(false)
@@ -35,7 +34,7 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, vari
 
   useEffect(() => {
     const instance = createPlateEditor({
-      plugins: [...EditorKit],
+      plugins: EditorKitVariant[variant] as unknown as PlatePlugin[],
     })
     setPlateEditor(instance)
   }, [])
@@ -65,9 +64,6 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, vari
       editor.transforms.reset()
       onClear?.()
     }
-    //variant={styleVariant}
-    //isScrollable={isScrollable}
-    // placeholder={placeholder ?? 'Type a paragraph'}
   }, [clearData, editor.transforms, onClear])
 
   return (
@@ -78,8 +74,8 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, vari
           debouncedOnChange(data.value)
         }}
       >
-        <EditorContainer>
-          <Editor />
+        <EditorContainer variant={styleVariant}>
+          <Editor placeholder={placeholder ?? 'Type a paragraph'} />
         </EditorContainer>
       </Plate>
     </DndProvider>

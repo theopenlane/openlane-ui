@@ -16,7 +16,9 @@ import EvidenceDetailsSheet from '@/components/pages/protected/controls/control-
 const EvidenceDetailsPage = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
+
   const programId = searchParams.get('programId')
+
   const { data, isLoading } = useGetAllPrograms({
     where: { statusNEQ: ProgramProgramStatus.COMPLETED },
     orderBy: [{ field: ProgramOrderField.end_date, direction: OrderDirection.ASC }],
@@ -42,7 +44,7 @@ const EvidenceDetailsPage = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Evidence', href: '/programs' },
+      { label: 'Evidence', href: '/evidence' },
       { label: basicInfoData?.program?.name, isLoading: isLoading },
     ])
   }, [setCrumbs, basicInfoData, isLoading])
@@ -51,27 +53,23 @@ const EvidenceDetailsPage = () => {
     if (basicInfoData) document.title = `${currentOrganization?.node?.displayName}: Programs - ${basicInfoData.program.name}`
   }, [basicInfoData, currentOrganization?.node?.displayName])
 
-  useEffect(() => {
-    if (!data?.programs?.edges?.length) return
-
-    const firstProgram = data.programs.edges[0]?.node
-    if (!programId && firstProgram?.id) {
-      router.replace(`/evidence?programId=${firstProgram.id}`)
-      setSelectedProgram(firstProgram.name)
-    } else if (programId) {
-      const programName = programMap[programId] ?? 'Unknown Program'
-      setSelectedProgram(programName)
-    }
-  }, [programId, programMap, router, data?.programs?.edges])
-
   const handleSelectChange = (val: string) => {
-    const programName = programMap[val] ?? 'Unknown Program'
-    setSelectedProgram(programName)
-    router.push(`/evidence?programId=${val}`)
+    if (val === 'all') {
+      setSelectedProgram('All programs')
+      router.push(`/evidence`)
+    } else {
+      const programName = programMap[val] ?? 'Unknown Program'
+      setSelectedProgram(programName)
+      router.push(`/evidence?programId=${val}`)
+    }
   }
 
   const handleCreateEvidence = () => {
-    router.push('/evidence/create')
+    if (programId) {
+      router.push(`/evidence/create?programId=${programId}`)
+    } else {
+      router.push('/evidence/create')
+    }
   }
 
   if (isLoading) {
@@ -89,9 +87,10 @@ const EvidenceDetailsPage = () => {
             <div className="flex gap-2.5 items-center">
               <Select onValueChange={handleSelectChange} value={programId ?? ''}>
                 <SelectTrigger className="max-w-64 min-w-48 h-[32px] border rounded-md px-3 py-2 flex items-center justify-between">
-                  <div className="truncate">{selectedProgram || 'Select a program'}</div>
+                  <div className="truncate">{selectedProgram || 'All Programs'}</div>
                 </SelectTrigger>
                 <SelectContent className="border rounded-md shadow-md">
+                  <SelectItem value="all">All Programs</SelectItem>
                   {data?.programs?.edges?.map((edge) => {
                     const program = edge?.node
                     if (!program) return null

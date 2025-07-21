@@ -1,6 +1,6 @@
 'use client'
 import { type Value, TrailingBlockPlugin } from 'platejs'
-import { type TPlateEditor, useEditorRef, usePlateEditor } from 'platejs/react'
+import { type TPlateEditor } from 'platejs/react'
 import { AIKit } from '@repo/ui/components/editor/plugins/ai-kit.tsx'
 import { AlignKit } from '@repo/ui/components/editor/plugins/align-kit.tsx'
 import { AutoformatKit } from '@repo/ui/components/editor/plugins/autoformat-kit.tsx'
@@ -35,6 +35,11 @@ import { SuggestionKit } from '@repo/ui/components/editor/plugins/suggestion-kit
 import { TableKit } from '@repo/ui/components/editor/plugins/table-kit.tsx'
 import { TocKit } from '@repo/ui/components/editor/plugins/toc-kit.tsx'
 import { ToggleKit } from '@repo/ui/components/editor/plugins/toggle-kit.tsx'
+import { BasicFixedToolbarKit } from '@repo/ui/components/editor/plugins/basic-fixed-toolbar-kit.tsx'
+import { BasicFloatingToolbarKit } from '@repo/ui/components/editor/plugins/basic-floating-toolbar-kit.tsx'
+import { MinimalisticFixedToolbarKit } from '@repo/ui/components/editor/plugins/minimalistic-fixed-toolbar-kit.tsx'
+import { MinimalisticFloatingToolbarKit } from '@repo/ui/components/editor/plugins/minimalistic-floating-toolbar-kit.tsx'
+
 export const EditorKit = [
   ...CopilotKit,
   ...AIKit,
@@ -66,7 +71,10 @@ export const EditorKit = [
   ...SlashKit,
   ...AutoformatKit,
   ...CursorOverlayKit,
+  /*
+  This needs to be manually implemented
   ...BlockMenuKit,
+  */
   ...DndKit,
   ...EmojiKit,
   ...ExitBreakKit,
@@ -76,19 +84,21 @@ export const EditorKit = [
   ...MarkdownKit,
   // UI
   ...BlockPlaceholderKit,
-  ...FixedToolbarKit,
-  ...FloatingToolbarKit,
 ]
+
+export const MinimalisticKit = [...EditorKit, ...MinimalisticFixedToolbarKit, ...MinimalisticFloatingToolbarKit]
+
+export const BasicKit = [...EditorKit, ...BasicFixedToolbarKit, ...BasicFloatingToolbarKit]
+
+export const AdvancedKit = [...EditorKit, ...FixedToolbarKit, ...FloatingToolbarKit]
+
 export type MyEditor = TPlateEditor<Value, (typeof EditorKit)[number]>
-/*
-export const useEditor = () => useEditorRef<MyEditor>();*/
 
-/*
-export const useEditor = () => useEditorRef<MyEditor>()
-*/
+export type TPlateEditorVariants = 'basic' | 'standard' | 'advanced' | 'minimal'
 
-/*export const useCreateEditor = () => {
-  return usePlateEditor({
-    plugins: EditorKit,
-  })
-}*/
+export const EditorKitVariant = {
+  minimal: MinimalisticKit,
+  basic: BasicKit,
+  standard: AdvancedKit,
+  advanced: AdvancedKit,
+}
