@@ -9,9 +9,10 @@ interface TitleFieldProps {
   isEditing: boolean
   isEditAllowed?: boolean
   handleUpdate: (val: UpdateControlInput | UpdateSubcontrolInput) => void
+  initialValue: string
 }
 
-const TitleField = ({ isEditing, isEditAllowed = true, handleUpdate }: TitleFieldProps) => {
+const TitleField = ({ isEditing, isEditAllowed = true, handleUpdate, initialValue }: TitleFieldProps) => {
   const { register, getValues } = useFormContext()
   const [internalEditing, setInternalEditing] = useState(false)
 
@@ -22,7 +23,15 @@ const TitleField = ({ isEditing, isEditAllowed = true, handleUpdate }: TitleFiel
   }
 
   const handleBlur = () => {
+    if (isEditing) {
+      return
+    }
     const refCode = getValues('refCode')
+
+    if (refCode === initialValue) {
+      setInternalEditing(false)
+      return
+    }
     if (!refCode?.trim()) return
     handleUpdate({ refCode })
     setInternalEditing(false)

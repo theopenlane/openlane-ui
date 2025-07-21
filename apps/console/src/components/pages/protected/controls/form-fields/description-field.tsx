@@ -26,7 +26,14 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialV
   }
 
   const handleBlur = async () => {
+    if (isEditing) {
+      return
+    }
     const fieldValue = getValues('description')
+    if (fieldValue === initialValue) {
+      setInternalEditing(false)
+      return
+    }
     const description = await plateEditorHelper.convertToHtml(fieldValue as Value)
 
     handleUpdate({
