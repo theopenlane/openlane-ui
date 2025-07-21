@@ -41,8 +41,10 @@ import { MinimalisticFixedToolbarKit } from '@repo/ui/components/editor/plugins/
 import { MinimalisticFloatingToolbarKit } from '@repo/ui/components/editor/plugins/minimalistic-floating-toolbar-kit.tsx'
 
 export const EditorKit = [
+  /*
+  Copilot and AI kit needs to be manually implemented
   ...CopilotKit,
-  ...AIKit,
+  ...AIKit,*/
   // Elements
   ...BasicBlocksKit,
   ...CodeBlockKit,
