@@ -11,14 +11,14 @@ const formSchema = z.object({
   }),
   details: z.custom<Value | string>().optional(),
   status: z
-    .nativeEnum(InternalPolicyDocumentStatus, {
-      errorMap: () => ({ message: 'Invalid status' }),
+    .enum(InternalPolicyDocumentStatus, {
+      error: () => ({ message: 'Invalid status' }),
     })
     .default(InternalPolicyDocumentStatus.DRAFT),
   approvalRequired: z.boolean(),
   reviewFrequency: z
-    .nativeEnum(InternalPolicyFrequency, {
-      errorMap: () => ({ message: 'Invalid status' }),
+    .enum(InternalPolicyFrequency, {
+      error: () => ({ message: 'Invalid status' }),
     })
     .default(InternalPolicyFrequency.YEARLY),
   policyType: z.string(),

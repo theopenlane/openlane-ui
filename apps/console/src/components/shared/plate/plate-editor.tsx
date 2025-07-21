@@ -37,7 +37,7 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, vari
       plugins: EditorKitVariant[variant] as unknown as PlatePlugin[],
     })
     setPlateEditor(instance)
-  }, [])
+  }, [variant])
 
   useEffect(() => {
     if (plateEditor && !initialValueSet) {

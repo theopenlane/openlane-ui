@@ -7,7 +7,7 @@ import { ControlImplementationDocumentStatus } from '@repo/codegen/src/schema'
 
 export const controlImplementationSchema = z.object({
   details: z.any().optional(),
-  status: z.nativeEnum(ControlImplementationDocumentStatus).optional(),
+  status: z.enum(ControlImplementationDocumentStatus).optional(),
   implementationDate: z.date().optional(),
   controlIDs: z.array(z.string()).optional(),
 })

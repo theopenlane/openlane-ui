@@ -16,7 +16,7 @@ import { SUPPORT_EMAIL } from '@/constants'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 
 const formSchema = z.object({
-  email: z.string().email(),
+  email: z.email(),
 })
 
 export const Subscribe = () => {

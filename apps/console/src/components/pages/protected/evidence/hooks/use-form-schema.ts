@@ -30,8 +30,8 @@ const formSchema = z.object({
   riskIDs: z.array(z.any()).optional().nullable(),
   ownerID: z.string().optional().nullable(),
   status: z
-    .nativeEnum(EvidenceEvidenceStatus, {
-      errorMap: () => ({ message: 'Invalid status' }),
+    .enum(EvidenceEvidenceStatus, {
+      error: () => ({ message: 'Invalid status' }),
     })
     .optional()
     .nullable(),

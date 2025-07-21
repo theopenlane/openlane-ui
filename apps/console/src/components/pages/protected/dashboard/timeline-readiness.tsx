@@ -24,7 +24,7 @@ import { ProgramStatusOptions } from '@/components/shared/enum-mapper/program-en
 const formSchema = z.object({
   startDate: z.date().nullable().optional(),
   endDate: z.date().nullable().optional(),
-  status: z.nativeEnum(ProgramProgramStatus).optional(),
+  status: z.enum(ProgramProgramStatus).optional(),
 })
 
 type FormValues = z.infer<typeof formSchema>

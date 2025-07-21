@@ -15,7 +15,7 @@ export const programDetailSchema = z.object({
   auditorWriteComments: z.boolean().optional().default(false),
   auditorReady: z.boolean().optional().default(false),
   auditPartnerName: z.string().optional(),
-  auditPartnerEmail: z.string().email({ message: 'Invalid email address' }).optional(),
+  auditPartnerEmail: z.email({ message: 'Invalid email address' }).optional(),
   auditFirm: z.string().optional(),
 })
 

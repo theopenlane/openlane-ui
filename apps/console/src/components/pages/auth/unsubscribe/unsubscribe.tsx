@@ -14,7 +14,7 @@ import { Panel } from '@repo/ui/panel'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 
 const formSchema = z.object({
-  email: z.string().email(),
+  email: z.email(),
 })
 
 const UnsubscribeForm = () => {

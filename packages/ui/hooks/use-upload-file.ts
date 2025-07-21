@@ -1,11 +1,11 @@
 import * as React from 'react'
 
-import type { OurFileRouter } from '@repo/ui/lib/uploadthing.ts'
 import type { ClientUploadedFileData, UploadFilesOptions } from 'uploadthing/types'
 
 import { generateReactHelpers } from '@uploadthing/react'
 import { toast } from 'sonner'
 import { z } from 'zod'
+import { OurFileRouter } from '../lib/uploadthing.ts'
 
 export type UploadedFile<T = unknown> = ClientUploadedFileData<T>
 

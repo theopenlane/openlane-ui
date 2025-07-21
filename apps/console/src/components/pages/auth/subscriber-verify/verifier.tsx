@@ -23,7 +23,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 
 const formSchema = z.object({
-  email: z.string().email(),
+  email: z.email(),
 })
 
 export const TokenVerifier = () => {

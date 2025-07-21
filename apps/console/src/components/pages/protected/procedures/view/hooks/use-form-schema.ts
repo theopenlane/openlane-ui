@@ -9,14 +9,14 @@ const formSchema = z.object({
   name: z.string(),
   details: z.custom<Value | string>().optional(),
   status: z
-    .nativeEnum(ProcedureDocumentStatus, {
-      errorMap: () => ({ message: 'Invalid status' }),
+    .enum(ProcedureDocumentStatus, {
+      error: () => ({ message: 'Invalid status' }),
     })
     .default(ProcedureDocumentStatus.DRAFT),
   approvalRequired: z.boolean(),
   reviewFrequency: z
-    .nativeEnum(ProcedureFrequency, {
-      errorMap: () => ({ message: 'Invalid status' }),
+    .enum(ProcedureFrequency, {
+      error: () => ({ message: 'Invalid status' }),
     })
     .default(ProcedureFrequency.YEARLY),
   procedureType: z.string(),

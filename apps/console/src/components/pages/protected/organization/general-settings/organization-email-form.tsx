@@ -21,7 +21,7 @@ const OrganizationEmailForm = () => {
   const { data: setting } = useGetBillingEmail(currentOrgId)
   const billingEmail = setting?.organization.setting?.billingEmail
   const formSchema = z.object({
-    email: z.string().email({ message: 'Invalid email address' }),
+    email: z.email({ message: 'Invalid email address' }),
   })
 
   const form = useForm<z.infer<typeof formSchema>>({
