@@ -7,17 +7,14 @@ import { zodResolver } from '@hookform/resolvers/zod'
 
 const formSchema = z.object({
   name: z.string().min(2, {
-    error: 'Name must be at least 2 characters',
+    message: 'Name must be at least 2 characters',
   }),
   description: z.string().optional(),
   tags: z.array(z.string()).optional(),
-  creationDate: z
-    .date()
-    .default(() => new Date())
-    .optional(),
-  renewalDate: z.date().min(new Date(), { error: 'Renewal date must be in the future' }).optional().nullable(),
+  creationDate: z.date().default(new Date()),
+  renewalDate: z.date().min(new Date(), { message: 'Renewal date must be in the future' }).optional().nullable(),
   evidenceFiles: z.array(z.any()).optional(),
-  url: z.url().optional(),
+  url: z.string().url().optional(),
   collectionProcedure: z.string().optional(),
   source: z.string().optional(),
   fileIDs: z.array(z.string()).optional(),
@@ -34,7 +31,7 @@ const formSchema = z.object({
   ownerID: z.string().optional().nullable(),
   status: z
     .nativeEnum(EvidenceEvidenceStatus, {
-      errorMap: () => 'Invalid status',
+      errorMap: () => ({ message: 'Invalid status' }),
     })
     .optional()
     .nullable(),
