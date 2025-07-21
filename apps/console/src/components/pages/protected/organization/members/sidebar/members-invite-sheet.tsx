@@ -197,7 +197,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
                 <Button type="button" iconPosition="left" variant="back" onClick={handleClose}>
                   Cancel
                 </Button>
-                <Button iconPosition="left" type="submit" disabled={emails.length === 0}>
+                <Button iconPosition="left" type="submit" form="inviteForm" disabled={emails.length === 0}>
                   Invite
                 </Button>
               </div>
@@ -212,7 +212,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
       >
         <>
           <Form {...form}>
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form id="inviteForm" onSubmit={handleSubmit(onSubmit)}>
               <div className="flex flex-col gap-10">
                 <div className="grid grid-cols-4 gap-y-6 items-start">
                   <div className="flex items-center gap-1">
