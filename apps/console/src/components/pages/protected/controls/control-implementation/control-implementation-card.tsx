@@ -105,7 +105,7 @@ export const ControlImplementationCard = ({ obj }: Props) => {
                         <span>{hoveredControl.shortName}</span>
 
                         <span className="font-medium">Details</span>
-                        <div>{convertToReadOnly(hoveredControl.description, 0)}</div>
+                        <div>{convertToReadOnly(hoveredControl.description)}</div>
                       </div>
                     </PopoverContent>
                   )}
@@ -143,7 +143,7 @@ export const ControlImplementationCard = ({ obj }: Props) => {
                           </Link>
 
                           <span className="font-medium">Details</span>
-                          <div>{convertToReadOnly(hoveredSubcontrol.parentDescription, 0)}</div>
+                          <div>{convertToReadOnly(hoveredSubcontrol.parentDescription)}</div>
                         </div>
                       </PopoverContent>
                     )}

@@ -270,7 +270,7 @@ const ControlDetailsPage: React.FC = () => {
   )
 
   const mainContent = (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 p-2">
       <TitleField isEditing={!isSourceFramework && isEditing} />
       <DescriptionField isEditing={!isSourceFramework && isEditing} initialValue={initialValues.description} />
       <ControlEvidenceTable

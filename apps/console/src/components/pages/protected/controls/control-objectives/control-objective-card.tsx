@@ -72,7 +72,7 @@ export const ControlObjectiveCard = ({ obj }: Props) => {
           </div>
         </div>
 
-        <div className="mt-5">{convertToReadOnly(obj.desiredOutcome || '', 0)}</div>
+        <div className="mt-5">{convertToReadOnly(obj.desiredOutcome || '')}</div>
       </div>
 
       <div className="w-px bg-border self-stretch mx-6" />
@@ -109,7 +109,7 @@ export const ControlObjectiveCard = ({ obj }: Props) => {
                           <span>{hoveredControl.shortName}</span>
 
                           <span className="font-medium">Details</span>
-                          <div>{convertToReadOnly(hoveredControl.description, 0)}</div>
+                          <div>{convertToReadOnly(hoveredControl.description)}</div>
                         </div>
                       </PopoverContent>
                     )}
@@ -149,7 +149,7 @@ export const ControlObjectiveCard = ({ obj }: Props) => {
                           </Link>
 
                           <span className="font-medium">Details</span>
-                          <div>{convertToReadOnly(hoveredSubcontrol.parentDescription, 0)}</div>
+                          <div>{convertToReadOnly(hoveredSubcontrol.parentDescription)}</div>
                         </div>
                       </PopoverContent>
                     )}

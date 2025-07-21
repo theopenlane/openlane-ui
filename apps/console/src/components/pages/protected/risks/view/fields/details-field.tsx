@@ -31,7 +31,7 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, risk }) =
       <label htmlFor="risk" className="block text-lg font-medium text-muted-foreground mb-1">
         Details
       </label>
-      <div className="!mt-4 bg-none max-h-[55vh] overflow-auto p-2">{risk?.details && plateEditorHelper.convertToReadOnly(risk.details as string, 0)}</div>
+      <div className="!mt-4 bg-none max-h-[55vh] overflow-auto">{risk?.details && plateEditorHelper.convertToReadOnly(risk.details as string)}</div>
     </Card>
   )
 }

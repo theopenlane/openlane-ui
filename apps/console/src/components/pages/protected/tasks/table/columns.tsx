@@ -69,7 +69,7 @@ export const getTaskColumns = ({ userMap, convertToReadOnly }: ColumnOptions): C
   {
     accessorKey: 'details',
     header: 'Details',
-    cell: ({ cell }) => convertToReadOnly?.(cell.getValue() as string, 0) || '',
+    cell: ({ cell }) => convertToReadOnly?.(cell.getValue() as string) || '',
     size: 200,
   },
   {
