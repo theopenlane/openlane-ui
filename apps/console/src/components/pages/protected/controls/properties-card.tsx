@@ -148,11 +148,16 @@ const EditableSelect = ({
   }
 
   const handleChange = (value: string) => {
+    if (getValues(name) === value) {
+      setInternalEditing(false)
+      return
+    }
+
     handleUpdate?.({ [name]: value })
     setInternalEditing(false)
   }
 
-  const isEditable = isEditing || internalEditing
+  const isEditable = isEditAllowed && (isEditing || internalEditing)
 
   return (
     <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
@@ -173,7 +178,7 @@ const EditableSelect = ({
                   handleChange(val)
                 }}
               >
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-[200px]">
                   <SelectValue placeholder={`Select ${label.toLowerCase()}`}>{labels[field.value] ?? ''}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
@@ -274,6 +279,7 @@ export const EditableSelectFromQuery = ({
   const rawOptions = useMemo(() => {
     return isCategory ? categoriesData?.controlCategories ?? [] : subcategoriesData?.controlSubcategories ?? []
   }, [isCategory, categoriesData, subcategoriesData])
+  const { getValues } = useFormContext()
 
   const initialOptions = useMemo(() => rawOptions.map((val) => ({ value: val, label: val })), [rawOptions])
 
@@ -292,12 +298,17 @@ export const EditableSelectFromQuery = ({
           control={control}
           render={({ field }) => {
             const isEditable = isEditAllowed && (isEditing || internalEditing)
+
             const handleChange = (val: string) => {
+              if (getValues(name) === val) {
+                setInternalEditing(false)
+                return
+              }
+
               field.onChange(val)
               handleUpdate?.({ [name]: val })
               setInternalEditing(false)
             }
-
             if (!isEditable) {
               return (
                 <span className="cursor-pointer" onClick={() => setInternalEditing(true)}>
@@ -377,12 +388,17 @@ export const EditableSelectFromQuery = ({
 }
 
 const Status = ({ isEditing, data, handleUpdate }: { isEditing: boolean; data?: Control | Subcontrol; handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput) => void }) => {
-  const { control } = useFormContext()
+  const { control, getValues } = useFormContext()
   const [internalEditing, setInternalEditing] = useState(false)
 
   const isEditable = isEditing || internalEditing
 
   const handleChange = (val: ControlControlStatus | SubcontrolControlStatus) => {
+    if (getValues('status') === val) {
+      setInternalEditing(false)
+      return
+    }
+
     handleUpdate?.({ status: val })
     setInternalEditing(false)
   }
@@ -412,7 +428,7 @@ const Status = ({ isEditing, data, handleUpdate }: { isEditing: boolean; data?: 
                   handleChange(val)
                 }}
               >
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-[200px]">
                   <SelectValue>{field.value === 'NULL' ? '-' : ControlStatusLabels[field.value as ControlControlStatus]}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>

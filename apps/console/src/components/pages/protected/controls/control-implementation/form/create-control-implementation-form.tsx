@@ -9,7 +9,7 @@ import PlateEditor from '@/components/shared/plate/plate-editor'
 import { SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { Value } from '@udecode/plate-common'
+import { Value } from 'platejs'
 import { Info, Pencil, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import useFormSchema, { TFormData } from './use-form-schema'
@@ -156,7 +156,7 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
       <div className="p-4 border rounded-lg">
         <div className="border-b flex items-center py-2.5">
           <Label className="self-start whitespace-nowrap min-w-36">Details</Label>
-          <Controller control={control} name="details" render={({ field }) => <PlateEditor initialValue={defaultValues?.details} onChange={(val) => field.onChange(val)} variant="basic" />} />
+          <Controller control={control} name="details" render={({ field }) => <PlateEditor initialValue={defaultValues?.details} onChange={(val) => field.onChange(val)} />} />
         </div>
 
         <div className="border-b flex items-center py-2.5">

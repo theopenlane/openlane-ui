@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useForm, FormProvider } from 'react-hook-form'
-import { Value } from '@udecode/plate-common'
+import { Value } from 'platejs'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { ArrowRight, PencilIcon, SaveIcon, XIcon, CirclePlus } from 'lucide-react'
@@ -276,7 +276,7 @@ const ControlDetailsPage: React.FC = () => {
   )
 
   const mainContent = (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 p-2">
       <TitleField isEditAllowed={!isSourceFramework} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)} initialValue={initialValues.refCode} />
       <DescriptionField isEditAllowed={!isSourceFramework} isEditing={isEditing} initialValue={initialValues.description} handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)} />
       <ControlEvidenceTable

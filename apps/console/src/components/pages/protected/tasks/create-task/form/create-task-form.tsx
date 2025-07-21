@@ -16,7 +16,6 @@ import { useCreateTask } from '@/lib/graphql-hooks/tasks'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { Value } from '@udecode/plate-common'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import { dialogStyles } from '@/components/pages/protected/program/dialog.styles.tsx'
 import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
@@ -24,6 +23,7 @@ import { Panel, PanelHeader } from '@repo/ui/panel'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import HeadsUpDisplay from '@/components/shared/heads-up/heads-up'
+import { Value } from 'platejs'
 
 type TProps = {
   onSuccess: () => void
@@ -165,7 +165,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                               icon={<InfoIcon size={14} className="mx-1 mt-1" />}
                               content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
                             />
-                            <PlateEditor onChange={handleDetailsChange} variant="basic" placeholder="Write your task details" />
+                            <PlateEditor onChange={handleDetailsChange} placeholder="Write your task details" />
                             {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
                           </FormItem>
                         )}

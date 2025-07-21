@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema'
-import { Value } from '@udecode/plate-common'
+import { Value } from 'platejs'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),

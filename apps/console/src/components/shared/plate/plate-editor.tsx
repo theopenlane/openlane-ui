@@ -3,11 +3,10 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import { createPlateEditor, Plate } from '@udecode/plate/react'
-import { TPlateEditorStyleVariant, TPlateEditorVariants, useCreateEditor } from '@repo/ui/components/editor/use-create-editor.ts'
-import { Editor, EditorContainer } from '@repo/ui/components/plate-ui/editor.tsx'
-import { TElement, Value } from '@udecode/plate'
-import { viewPlugins } from '@repo/ui/components/editor/plugins/editor-plugins.tsx'
+import { Value, TElement } from 'platejs'
+import { EditorKitVariant, TPlateEditorVariants } from '@repo/ui/components/editor/use-create-editor.ts'
+import { Editor, EditorContainer, TPlateEditorStyleVariant } from '@repo/ui/components/ui/editor.tsx'
+import { createPlateEditor, Plate, PlatePlugin, usePlateEditor } from 'platejs/react'
 import useClickOutside from '@/hooks/useClickOutside'
 
 export type TPlateEditorProps = {
@@ -16,14 +15,15 @@ export type TPlateEditorProps = {
   initialValue?: string
   variant?: TPlateEditorVariants
   styleVariant?: TPlateEditorStyleVariant
-  isScrollable?: boolean
   clearData?: boolean
   onClear?: () => void
   placeholder?: string
 }
 
-const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, onBlur, initialValue, variant, styleVariant, clearData, onClear, placeholder, isScrollable }) => {
-  const editor = useCreateEditor({ variant })
+const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, variant = 'basic', styleVariant, clearData, onClear, placeholder, onBlur }) => {
+  const editor = usePlateEditor({
+    plugins: EditorKitVariant[variant] as unknown as PlatePlugin[],
+  })
   const [plateEditor, setPlateEditor] = useState<ReturnType<typeof createPlateEditor> | null>(null)
   const [initialValueSet, setInitialValueSet] = useState(false)
 
@@ -37,17 +37,19 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, onBlur, initialVal
 
   useEffect(() => {
     const instance = createPlateEditor({
-      plugins: [...viewPlugins],
+      plugins: EditorKitVariant[variant] as unknown as PlatePlugin[],
     })
     setPlateEditor(instance)
-  }, [])
+  }, [variant])
 
   useEffect(() => {
     if (plateEditor && !initialValueSet) {
       setInitialValueSet(true)
-      const slateNodes = plateEditor.api.html.deserialize({
-        element: initialValue || '',
-      }) as Value
+      const slateNodes = Array.isArray(initialValue)
+        ? initialValue
+        : (plateEditor.api.html.deserialize({
+            element: initialValue || '',
+          }) as Value)
 
       if (Array.isArray(slateNodes) && slateNodes.length === 1 && typeof (slateNodes[0] as TElement).text === 'string' && !(slateNodes[0] as TElement).type) {
         editor.children = [
@@ -78,7 +80,7 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, onBlur, initialVal
         }}
       >
         <div ref={editorContainerRef}>
-          <EditorContainer variant={styleVariant} isScrollable={isScrollable}>
+          <EditorContainer variant={styleVariant}>
             <Editor placeholder={placeholder ?? 'Type a paragraph'} />
           </EditorContainer>
         </div>

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useGetControlById, useUpdateControl } from '@/lib/graphql-hooks/controls'
 import { FormProvider, useForm } from 'react-hook-form'
-import { Value } from '@udecode/plate-common'
+import { Value } from 'platejs'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { ArrowRight, CirclePlus, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
@@ -284,7 +284,7 @@ const ControlDetailsPage: React.FC = () => {
   )
 
   const mainContent = (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 p-2">
       <TitleField isEditAllowed={!isSourceFramework} isEditing={isEditing} initialValue={initialValues.refCode} handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)} />
       <DescriptionField isEditAllowed={!isSourceFramework} isEditing={isEditing} initialValue={initialValues.description} handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)} />
       <ControlEvidenceTable
@@ -346,7 +346,7 @@ const ControlDetailsPage: React.FC = () => {
       <title>{`${currentOrganization?.node?.displayName ?? 'Openlane'} | Controls - ${data.control.refCode}`}</title>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>
+          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing} minWidth={431}>
             {mainContent}
           </SlideBarLayout>
         </form>

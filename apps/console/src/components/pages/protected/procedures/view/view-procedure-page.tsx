@@ -15,7 +15,7 @@ import PropertiesCard from '@/components/pages/protected/procedures/view/cards/p
 import HistoricalCard from '@/components/pages/protected/procedures/view/cards/historical-card.tsx'
 import TagsCard from '@/components/pages/protected/procedures/view/cards/tags-card.tsx'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
-import { Value } from '@udecode/plate-common'
+import { Value } from 'platejs'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import AssociatedObjectsViewAccordion from '@/components/pages/protected/procedures/accordion/associated-objects-view-accordion.tsx'
@@ -239,7 +239,7 @@ const ViewProcedurePage: React.FC = () => {
   )
 
   const mainContent = (
-    <div className="space-y-6 p-6">
+    <div className="p-2">
       <TitleField isEditing={isEditing} form={form} />
       <DetailsField isEditing={isEditing} form={form} procedure={procedure} />
     </div>

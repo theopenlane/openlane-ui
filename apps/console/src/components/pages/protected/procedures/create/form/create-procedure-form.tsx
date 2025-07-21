@@ -5,7 +5,7 @@ import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { Info, InfoIcon } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
-import { Value } from '@udecode/plate-common'
+import { Value } from 'platejs'
 import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
 import { Button } from '@repo/ui/button'
 import { CreateProcedureInput, ProcedureByIdFragment, ProcedureDocumentStatus, ProcedureFrequency, UpdateProcedureInput } from '@repo/codegen/src/schema.ts'
@@ -14,7 +14,7 @@ import { useNotification } from '@/hooks/useNotification.tsx'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
 import { useQueryClient } from '@tanstack/react-query'
-import useFormSchema, { CreateProcedureFormData, EditProcedureFormData } from '../hooks/use-form-schema'
+import useFormSchema, { CreateProcedureFormData } from '../hooks/use-form-schema'
 import { useProcedure } from '../hooks/use-procedure.tsx'
 import StatusCard from '@/components/pages/protected/procedures/create/cards/status-card.tsx'
 import AssociationCard from '@/components/pages/protected/procedures/create/cards/association-card.tsx'
@@ -189,7 +189,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
     return { added, removed }
   }
 
-  const onSaveHandler = async (data: EditProcedureFormData) => {
+  const onSaveHandler = async (data: CreateProcedureFormData) => {
     try {
       let detailsField = data?.details
 
@@ -325,7 +325,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
                       icon={<InfoIcon size={14} className="mx-1 mt-1" />}
                       content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
                     />
-                    <PlateEditor onChange={handleDetailsChange} variant="basic" initialValue={procedure?.details ?? undefined} />
+                    <PlateEditor onChange={handleDetailsChange} initialValue={procedure?.details ?? undefined} />
                     {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
                   </FormItem>
                 )}

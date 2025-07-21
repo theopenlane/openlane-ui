@@ -4,8 +4,8 @@ import React, { useState } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { Value } from '@udecode/plate-common'
 import { UpdateControlInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
+import { Value } from 'platejs'
 
 interface DescriptionFieldProps {
   isEditing: boolean
@@ -30,12 +30,11 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialV
       return
     }
     const fieldValue = getValues('description')
-    if (fieldValue === initialValue) {
+    const description = await plateEditorHelper.convertToHtml(fieldValue as Value)
+    if (description === initialValue) {
       setInternalEditing(false)
       return
     }
-    const description = await plateEditorHelper.convertToHtml(fieldValue as Value)
-
     handleUpdate({
       description,
     })
@@ -50,7 +49,7 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialV
       <Controller
         control={control}
         name="description"
-        render={({ field }) => <PlateEditor initialValue={field.value} onChange={field.onChange} onBlur={handleBlur} variant="basic" placeholder="Write your control description" />}
+        render={({ field }) => <PlateEditor initialValue={field.value} onChange={field.onChange} onBlur={handleBlur} placeholder="Write your control description" />}
       />
     </div>
   ) : (

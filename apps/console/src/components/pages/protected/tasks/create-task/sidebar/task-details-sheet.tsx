@@ -27,7 +27,7 @@ import { TComments } from '@/components/shared/comments/types/TComments'
 import CommentList from '@/components/shared/comments/CommentList'
 import AddComment from '@/components/shared/comments/AddComment'
 import PlateEditor from '@/components/shared/plate/plate-editor'
-import { Value } from '@udecode/plate-common'
+import { Value } from 'platejs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import EvidenceCreateFormDialog from '../../../evidence/evidence-create-form-dialog'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
@@ -67,8 +67,8 @@ const TaskDetailsSheet = () => {
   const { form } = useFormSchema()
   const where: UserWhereInput | undefined = taskData?.comments
     ? {
-        idIn: taskData.comments.edges?.map((item) => item?.node?.createdBy).filter((id): id is string => typeof id === 'string'),
-      }
+      idIn: taskData.comments.edges?.map((item) => item?.node?.createdBy).filter((id): id is string => typeof id === 'string'),
+    }
     : undefined
   const { data: userData } = useGetUsers(where)
 
@@ -350,7 +350,11 @@ const TaskDetailsSheet = () => {
 
   const handleTags = () => {
     return (
-      <div className="flex flex-wrap gap-2">{taskData?.tags?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}</div>
+      <div className="flex flex-wrap gap-2">
+        {taskData?.tags?.map((item: string | undefined, index: number) => (
+          <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>
+        ))}
+      </div>
     )
   }
 
@@ -463,20 +467,20 @@ const TaskDetailsSheet = () => {
                           />
                         </div>
                         <FormControl>
-                          <PlateEditor onChange={handleDetailsChange} initialValue={taskData?.details ?? undefined} variant="basic" placeholder="Write your task details" />
+                          <PlateEditor onChange={handleDetailsChange} initialValue={taskData?.details ?? undefined} placeholder="Write your task details" />
                         </FormControl>
                         {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors.details.message}</p>}
                       </FormItem>
                     )}
                   />
                 ) : (
-                  <>{!!taskData?.details && <div>{plateEditorHelper.convertToReadOnly(taskData.details, 0, { paddingTop: 16, paddingRight: 16, paddingBottom: 16, paddingLeft: 0 })}</div>}</>
+                  <>{!!taskData?.details && <div>{plateEditorHelper.convertToReadOnly(taskData.details, 0, { paddingTop: 16, paddingRight: 0, paddingBottom: 16, paddingLeft: 0 })}</div>}</>
                 )}
               </form>
             </Form>
 
             {!isEditing && (
-              <div className="flex gap-4">
+              <div className="flex gap-4 pb-4 pt-2">
                 {taskData && (
                   <EvidenceCreateFormDialog
                     formData={{
@@ -504,7 +508,7 @@ const TaskDetailsSheet = () => {
             )}
 
             <div>
-              <div className="flex flex-col gap-4 mt-5">
+              <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-4">
                   <CircleUser height={16} width={16} className="text-accent-secondary" />
                   <p className="text-sm w-[120px]">Assigner</p>
