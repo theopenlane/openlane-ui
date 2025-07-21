@@ -8,7 +8,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { ArrowRight, PencilIcon, SaveIcon, XIcon, CirclePlus } from 'lucide-react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
-import { EvidenceEdge, Subcontrol, SubcontrolControlSource, SubcontrolControlStatus, SubcontrolControlType } from '@repo/codegen/src/schema.ts'
+import { EvidenceEdge, Subcontrol, SubcontrolControlSource, SubcontrolControlStatus, SubcontrolControlType, UpdateSubcontrolInput } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { useGetSubcontrolById, useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol.ts'
@@ -152,6 +152,20 @@ const ControlDetailsPage: React.FC = () => {
     setIsEditing(true)
   }
 
+  const handleUpdateField = async (input: UpdateSubcontrolInput) => {
+    try {
+      await updateSubcontrol({ updateSubcontrolId: id, input })
+      successNotification({
+        title: 'Subcontrol updated',
+        description: 'The subcontrol was successfully updated.',
+      })
+    } catch {
+      errorNotification({
+        title: 'Failed to update subcontrol',
+      })
+    }
+  }
+
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
@@ -264,7 +278,7 @@ const ControlDetailsPage: React.FC = () => {
   const mainContent = (
     <div className="space-y-6 p-6">
       <TitleField isEditing={!isSourceFramework && isEditing} />
-      <DescriptionField isEditing={!isSourceFramework && isEditing} initialValue={initialValues.description} />
+      <DescriptionField isEditing={!isSourceFramework && isEditing} initialValue={initialValues.description} handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)} />
       <ControlEvidenceTable
         control={{
           displayID: subcontrol?.refCode,

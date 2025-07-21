@@ -5,21 +5,19 @@ import { Controller, useFormContext } from 'react-hook-form'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Value } from '@udecode/plate-common'
-import { useUpdateControl } from '@/lib/graphql-hooks/controls'
-import { useParams } from 'next/navigation'
+import { UpdateControlInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
 
 interface DescriptionFieldProps {
   isEditing: boolean
   initialValue: string | Value
+  handleUpdate: (val: UpdateControlInput | UpdateSubcontrolInput) => void
+  isEditAllowed?: boolean
 }
 
-const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialValue }) => {
-  const { id } = useParams<{ id: string }>()
-  const { control } = useFormContext()
+const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialValue, handleUpdate, isEditAllowed = true }) => {
+  const { control, getValues } = useFormContext()
   const plateEditorHelper = usePlateEditor()
   const [internalEditing, setInternalEditing] = useState(false)
-  const [localValue, setLocalValue] = useState(initialValue)
-  const { mutateAsync: updateControl } = useUpdateControl()
 
   const handleClick = () => {
     if (!isEditing) {
@@ -28,18 +26,16 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialV
   }
 
   const handleBlur = async () => {
-    const description = await plateEditorHelper.convertToHtml(localValue as Value)
+    const fieldValue = getValues('description')
+    const description = await plateEditorHelper.convertToHtml(fieldValue as Value)
 
-    await updateControl({
-      updateControlId: id,
-      input: {
-        description,
-      },
+    handleUpdate({
+      description,
     })
     setInternalEditing(false)
   }
 
-  return isEditing || internalEditing ? (
+  return isEditAllowed && (isEditing || internalEditing) ? (
     <div className="w-full">
       <label htmlFor="description" className="block text-sm font-medium text-muted-foreground mb-1">
         Description
@@ -47,18 +43,7 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialV
       <Controller
         control={control}
         name="description"
-        render={({ field }) => (
-          <PlateEditor
-            initialValue={field.value}
-            onChange={(val) => {
-              setLocalValue(val)
-              field.onChange(val)
-            }}
-            onBlur={handleBlur}
-            variant="basic"
-            placeholder="Write your control description"
-          />
-        )}
+        render={({ field }) => <PlateEditor initialValue={field.value} onChange={field.onChange} onBlur={handleBlur} variant="basic" placeholder="Write your control description" />}
       />
     </div>
   ) : (

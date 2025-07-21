@@ -16,7 +16,7 @@ import PropertiesCard from '../../../../components/pages/protected/controls/prop
 import DetailsCard from '../../../../components/pages/protected/controls/details.tsx'
 import InfoCard from '../../../../components/pages/protected/controls/info-card.tsx'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
-import { Control, ControlControlSource, ControlControlStatus, ControlControlType, EvidenceEdge } from '@repo/codegen/src/schema.ts'
+import { Control, ControlControlSource, ControlControlStatus, ControlControlType, EvidenceEdge, UpdateControlInput } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import SubcontrolsTable from '@/components/pages/protected/controls/subcontrols-table.tsx'
@@ -153,6 +153,20 @@ const ControlDetailsPage: React.FC = () => {
     setIsEditing(true)
   }
 
+  const handleUpdateField = async (input: UpdateControlInput) => {
+    try {
+      await updateControl({ updateControlId: id, input })
+      successNotification({
+        title: 'Control updated',
+        description: 'The control was successfully updated.',
+      })
+    } catch {
+      errorNotification({
+        title: 'Failed to update control',
+      })
+    }
+  }
+
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
@@ -271,8 +285,8 @@ const ControlDetailsPage: React.FC = () => {
 
   const mainContent = (
     <div className="space-y-6 p-6">
-      <TitleField isEditing={!isSourceFramework && isEditing} />
-      <DescriptionField isEditing={!isSourceFramework && isEditing} initialValue={initialValues.description} />
+      <TitleField isEditAllowed={!isSourceFramework} isEditing={isEditing} />
+      <DescriptionField isEditAllowed={!isSourceFramework} isEditing={isEditing} initialValue={initialValues.description} handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)} />
       <ControlEvidenceTable
         canEdit={canEdit(permission?.roles)}
         control={{
