@@ -164,10 +164,12 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     try {
       await updateEvidence({
         updateEvidenceId: selectedControlEvidence as string,
-        input: formData,
+        input: {
+          ...formData,
+          clearURL: formData?.url === undefined,
+        },
       })
 
-      queryClient.invalidateQueries({ queryKey: ['evidences'] })
       successNotification({
         title: 'Evidence Updated',
         description: 'The evidence has been successfully updated.',
@@ -197,7 +199,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const handleTags = () => {
     return (
-      <div className="flex flex-wrap gap-2">{evidence?.tags?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}</div>
+      <div className="flex flex-wrap gap-2">
+        {evidence?.tags?.map((item: string | undefined, index: number) => (
+          <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>
+        ))}
+      </div>
     )
   }
 
