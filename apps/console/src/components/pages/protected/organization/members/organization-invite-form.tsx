@@ -17,7 +17,7 @@ import { useCreateBulkInvite } from '@/lib/graphql-hooks/organization'
 import { useQueryClient } from '@tanstack/react-query'
 
 const formSchema = z.object({
-  emails: z.array(z.email({ message: 'Invalid email address' })),
+  emails: z.array(z.string().email({ message: 'Invalid email address' })),
   role: z
     .nativeEnum(InviteRole, {
       errorMap: () => ({ message: 'Invalid role' }),

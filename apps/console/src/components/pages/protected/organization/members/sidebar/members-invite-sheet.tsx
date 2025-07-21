@@ -30,7 +30,7 @@ import { DataTable } from '@repo/ui/data-table'
 import { Input } from '@repo/ui/input'
 
 const formSchema = z.object({
-  emails: z.array(z.email({ message: 'Invalid email address' })),
+  emails: z.array(z.string().email({ message: 'Invalid email address' })),
   role: z
     .nativeEnum(InviteRole, {
       errorMap: () => ({ message: 'Invalid role' }),

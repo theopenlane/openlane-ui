@@ -38,7 +38,7 @@ const QuestionnaireViewerPage: React.FC = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   const formSchema = z.object({
-    email: z.email({ message: 'Invalid email address' }),
+    email: z.string().email({ message: 'Invalid email address' }),
   })
 
   const form = useForm({

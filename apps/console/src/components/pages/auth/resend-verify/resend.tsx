@@ -15,7 +15,7 @@ import { Logo } from '@repo/ui/logo'
 import { buttonVariants } from '@repo/ui/components/ui/button.tsx'
 
 const formSchema = z.object({
-  email: z.email(),
+  email: z.string().email(),
 })
 
 export const Resend = () => {

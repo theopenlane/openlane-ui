@@ -35,7 +35,7 @@ const ProfileNameForm = () => {
     displayName: z.string().min(2, {
       message: 'Display name must be at least 2 characters',
     }),
-    email: z.email({
+    email: z.string().email({
       message: 'Invalid email address',
     }),
   })
