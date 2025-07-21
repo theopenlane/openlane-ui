@@ -31,7 +31,7 @@ const BusinessCostField: React.FC<TBusinessCostFieldProps> = ({ isEditing, form,
       <label htmlFor="risk" className="block text-lg font-medium text-muted-foreground mb-1">
         Business Costs
       </label>
-      <div className="!mt-4 bg-none max-h-[55vh] overflow-auto p-2">{risk?.businessCosts && plateEditorHelper.convertToReadOnly(risk.businessCosts as string, 0)}</div>
+      <div className="!mt-4 bg-none max-h-[55vh] overflow-auto">{risk?.businessCosts && plateEditorHelper.convertToReadOnly(risk.businessCosts as string)}</div>
     </Card>
   )
 }

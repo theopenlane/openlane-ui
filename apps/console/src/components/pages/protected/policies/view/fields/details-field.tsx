@@ -26,7 +26,7 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy })
       />
     </div>
   ) : (
-    <div className="!mt-4 bg-none p-2">{policy?.details && plateEditorHelper.convertToReadOnly(policy.details as string, 0)}</div>
+    <div className="!mt-4 bg-none">{policy?.details && plateEditorHelper.convertToReadOnly(policy.details as string)}</div>
   )
 }
 

@@ -76,13 +76,13 @@ const ControlDetailsSheet = () => {
           ?.map((e) =>
             e?.node
               ? {
-                  type: 'Control',
-                  id: e.node.id,
-                  refCode: e.node.refCode,
-                  referenceFramework: e.node.referenceFramework,
-                  mappingType: node.mappingType,
-                  relation: node.relation,
-                }
+                type: 'Control',
+                id: e.node.id,
+                refCode: e.node.refCode,
+                referenceFramework: e.node.referenceFramework,
+                mappingType: node.mappingType,
+                relation: node.relation,
+              }
               : null,
           )
           .filter(Boolean) as typeof oppositeNodes),
@@ -90,14 +90,14 @@ const ControlDetailsSheet = () => {
           ?.map((e) =>
             e?.node
               ? {
-                  type: 'Subcontrol',
-                  id: e.node.id,
-                  refCode: e.node.refCode,
-                  referenceFramework: e.node.referenceFramework,
-                  controlId: e.node.control.id,
-                  mappingType: node.mappingType,
-                  relation: node.relation,
-                }
+                type: 'Subcontrol',
+                id: e.node.id,
+                refCode: e.node.refCode,
+                referenceFramework: e.node.referenceFramework,
+                controlId: e.node.control.id,
+                mappingType: node.mappingType,
+                relation: node.relation,
+              }
               : null,
           )
           .filter(Boolean) as typeof oppositeNodes),
@@ -108,13 +108,13 @@ const ControlDetailsSheet = () => {
           ?.map((e) =>
             e?.node
               ? {
-                  type: 'Control',
-                  id: e.node.id,
-                  refCode: e.node.refCode,
-                  referenceFramework: e.node.referenceFramework,
-                  mappingType: node.mappingType,
-                  relation: node.relation,
-                }
+                type: 'Control',
+                id: e.node.id,
+                refCode: e.node.refCode,
+                referenceFramework: e.node.referenceFramework,
+                mappingType: node.mappingType,
+                relation: node.relation,
+              }
               : null,
           )
           .filter(Boolean) as typeof oppositeNodes),
@@ -122,14 +122,14 @@ const ControlDetailsSheet = () => {
           ?.map((e) =>
             e?.node
               ? {
-                  type: 'Subcontrol',
-                  id: e.node.id,
-                  refCode: e.node.refCode,
-                  referenceFramework: e.node.referenceFramework,
-                  controlId: e.node.control.id,
-                  mappingType: node.mappingType,
-                  relation: node.relation,
-                }
+                type: 'Subcontrol',
+                id: e.node.id,
+                refCode: e.node.refCode,
+                referenceFramework: e.node.referenceFramework,
+                controlId: e.node.control.id,
+                mappingType: node.mappingType,
+                relation: node.relation,
+              }
               : null,
           )
           .filter(Boolean) as typeof oppositeNodes),
@@ -164,7 +164,7 @@ const ControlDetailsSheet = () => {
       >
         <SheetTitle className="text-2xl text-start">{data?.control.refCode}</SheetTitle>
         <div className="flex flex-col gap-8">
-          {data?.control.description && <div className="mt-5">{plateEditorHelper.convertToReadOnly(data?.control.description as string, 0)}</div>}
+          {data?.control.description && <div className="mt-5">{plateEditorHelper.convertToReadOnly(data?.control.description as string)}</div>}
           <div className="flex flex-col gap-2.5">
             <p className="mb-1.5 text-xl">Properties</p>
             <Property label="Framework" value="SOC 2" />

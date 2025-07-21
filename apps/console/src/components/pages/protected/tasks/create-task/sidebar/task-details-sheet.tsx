@@ -67,8 +67,8 @@ const TaskDetailsSheet = () => {
   const { form } = useFormSchema()
   const where: UserWhereInput | undefined = taskData?.comments
     ? {
-        idIn: taskData.comments.edges?.map((item) => item?.node?.createdBy).filter((id): id is string => typeof id === 'string'),
-      }
+      idIn: taskData.comments.edges?.map((item) => item?.node?.createdBy).filter((id): id is string => typeof id === 'string'),
+    }
     : undefined
   const { data: userData } = useGetUsers(where)
 
@@ -474,13 +474,13 @@ const TaskDetailsSheet = () => {
                     )}
                   />
                 ) : (
-                  <>{!!taskData?.details && <div>{plateEditorHelper.convertToReadOnly(taskData.details, 0, { paddingTop: 16, paddingRight: 16, paddingBottom: 16, paddingLeft: 0 })}</div>}</>
+                  <>{!!taskData?.details && <div>{plateEditorHelper.convertToReadOnly(taskData.details, 0, { paddingTop: 16, paddingRight: 0, paddingBottom: 16, paddingLeft: 0 })}</div>}</>
                 )}
               </form>
             </Form>
 
             {!isEditing && (
-              <div className="flex gap-4">
+              <div className="flex gap-4 pb-4 pt-2">
                 {taskData && (
                   <EvidenceCreateFormDialog
                     formData={{
@@ -508,7 +508,7 @@ const TaskDetailsSheet = () => {
             )}
 
             <div>
-              <div className="flex flex-col gap-4 mt-5">
+              <div className="flex flex-col gap-4">
                 <div className="flex items-center gap-4">
                   <CircleUser height={16} width={16} className="text-accent-secondary" />
                   <p className="text-sm w-[120px]">Assigner</p>

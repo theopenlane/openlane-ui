@@ -239,7 +239,7 @@ const ViewProcedurePage: React.FC = () => {
   )
 
   const mainContent = (
-    <div className="space-y-6 p-6">
+    <div className="p-2">
       <TitleField isEditing={isEditing} form={form} />
       <DetailsField isEditing={isEditing} form={form} procedure={procedure} />
     </div>
