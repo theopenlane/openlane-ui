@@ -285,7 +285,7 @@ const ControlDetailsPage: React.FC = () => {
 
   const mainContent = (
     <div className="space-y-6 p-6">
-      <TitleField isEditAllowed={!isSourceFramework} isEditing={isEditing} />
+      <TitleField isEditAllowed={!isSourceFramework} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)} />
       <DescriptionField isEditAllowed={!isSourceFramework} isEditing={isEditing} initialValue={initialValues.description} handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)} />
       <ControlEvidenceTable
         canEdit={canEdit(permission?.roles)}

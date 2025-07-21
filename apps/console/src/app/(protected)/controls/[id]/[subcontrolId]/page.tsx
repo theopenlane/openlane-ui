@@ -277,8 +277,8 @@ const ControlDetailsPage: React.FC = () => {
 
   const mainContent = (
     <div className="space-y-6 p-6">
-      <TitleField isEditing={!isSourceFramework && isEditing} />
-      <DescriptionField isEditing={!isSourceFramework && isEditing} initialValue={initialValues.description} handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)} />
+      <TitleField isEditAllowed={!isSourceFramework} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)} />
+      <DescriptionField isEditAllowed={!isSourceFramework} isEditing={isEditing} initialValue={initialValues.description} handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)} />
       <ControlEvidenceTable
         control={{
           displayID: subcontrol?.refCode,
