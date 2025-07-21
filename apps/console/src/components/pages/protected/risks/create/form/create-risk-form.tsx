@@ -4,7 +4,7 @@ import useFormSchema, { CreateRisksFormData } from '@/components/pages/protected
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { Form } from '@repo/ui/form'
 import PropertiesCard from '@/components/pages/protected/risks/view/cards/properties-card.tsx'
-import { Value } from '@udecode/plate-common'
+import { Value } from 'platejs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import BusinessCostField from '@/components/pages/protected/risks/view/fields/business-cost-field.tsx'
 import { useRisk } from '@/components/pages/protected/risks/create/hooks/use-risk.tsx'

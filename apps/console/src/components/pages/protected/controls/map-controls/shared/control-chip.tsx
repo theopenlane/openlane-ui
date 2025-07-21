@@ -154,7 +154,7 @@ const ControlTooltipContent: React.FC<{ control: NonNullable<ControlChipProps['c
           <PencilLine size={12} />
           <span className="font-medium">Description</span>
         </div>
-        <div className="line-clamp-4 text-justify">{convertToReadOnly(details.description || '', 0)}</div>
+        <div className="line-clamp-4 text-justify">{convertToReadOnly(details.description || '')}</div>
       </div>
     </div>
   )

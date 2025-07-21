@@ -23,7 +23,7 @@ const MitigationField: React.FC<TMitigationFieldProps> = ({ isEditing, form, ris
       <Controller
         control={form.control}
         name="mitigation"
-        render={({ field }) => <PlateEditor initialValue={field.value as string} onChange={field.onChange} variant="basic" placeholder="Write your mitigation description" />}
+        render={({ field }) => <PlateEditor initialValue={field.value as string} onChange={field.onChange} placeholder="Write your mitigation description" />}
       />
     </div>
   ) : (
@@ -31,7 +31,7 @@ const MitigationField: React.FC<TMitigationFieldProps> = ({ isEditing, form, ris
       <label htmlFor="risk" className="block text-lg font-medium text-muted-foreground mb-1">
         Mitigation
       </label>
-      <div className="!mt-4 bg-none max-h-[55vh] overflow-auto p-2">{risk?.mitigation && plateEditorHelper.convertToReadOnly(risk.mitigation as string, 0)}</div>
+      <div className="!mt-4 bg-none max-h-[55vh] overflow-auto">{risk?.mitigation && plateEditorHelper.convertToReadOnly(risk.mitigation as string)}</div>
     </Card>
   )
 }

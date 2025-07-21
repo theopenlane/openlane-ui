@@ -12,7 +12,7 @@ import { ControlObjectiveControlSource, ControlObjectiveObjectiveStatus } from '
 import { useCreateControlObjective, useDeleteControlObjective, useUpdateControlObjective } from '@/lib/graphql-hooks/control-objectives'
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { Value } from '@udecode/plate-common'
+import { Value } from 'platejs'
 import { Info, Pencil, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import useFormSchema, { TFormData, VersionBump } from './use-form-schema'
@@ -174,11 +174,7 @@ export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuc
 
         <div className="border-b flex items-center py-2.5">
           <Label className="self-start whitespace-nowrap min-w-36">Desired outcome</Label>
-          <Controller
-            control={control}
-            name="desiredOutcome"
-            render={({ field }) => <PlateEditor initialValue={defaultValues?.desiredOutcome} onChange={(val) => field.onChange(val)} variant="basic" />}
-          />
+          <Controller control={control} name="desiredOutcome" render={({ field }) => <PlateEditor initialValue={defaultValues?.desiredOutcome} onChange={(val) => field.onChange(val)} />} />
         </div>
 
         <div className="border-b flex items-center py-2.5">

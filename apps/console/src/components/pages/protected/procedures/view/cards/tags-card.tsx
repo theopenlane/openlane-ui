@@ -9,10 +9,10 @@ import { FormControl, FormField } from '@repo/ui/form'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import { ProcedureByIdFragment } from '@repo/codegen/src/schema.ts'
 import { Badge } from '@repo/ui/badge'
-import { CreateProcedureFormData } from '@/components/pages/protected/procedures/create/hooks/use-form-schema.ts'
+import { EditProcedureMetadataFormData } from '@/components/pages/protected/procedures/view/hooks/use-form-schema.ts'
 
 type TTagsCardProps = {
-  form: UseFormReturn<CreateProcedureFormData>
+  form: UseFormReturn<EditProcedureMetadataFormData>
   procedure: ProcedureByIdFragment
   isEditing: boolean
 }

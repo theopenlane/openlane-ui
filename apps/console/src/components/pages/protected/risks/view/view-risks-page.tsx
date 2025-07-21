@@ -20,7 +20,7 @@ import AssociatedObjectsViewAccordion from '../accordion/associated-objects-view
 import AuthorityCard from './cards/authority-card'
 import PropertiesCard from '@/components/pages/protected/risks/view/cards/properties-card.tsx'
 import TagsCard from './cards/tags-card'
-import { Value } from '@udecode/plate-common'
+import { Value } from 'platejs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import BusinessCostField from '@/components/pages/protected/risks/view/fields/business-cost-field.tsx'
 import MitigationField from '@/components/pages/protected/risks/view/fields/mitigation-field.tsx'
@@ -221,7 +221,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   )
 
   const mainContent = (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 p-2">
       <TitleField isEditing={isEditing} form={form} />
       <DetailsField isEditing={isEditing} form={form} risk={risk} />
       <BusinessCostField isEditing={isEditing} form={form} risk={risk} />

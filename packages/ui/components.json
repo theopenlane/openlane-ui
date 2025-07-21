@@ -15,10 +15,5 @@
     "utils": "@/lib/utils",
     "ui": "src"
   },
-  "iconLibrary": "lucide",
-  "registries": {
-    "plate": {
-      "url": "https://platejs.org/r"
-    }
-  }
+  "iconLibrary": "lucide"
 }

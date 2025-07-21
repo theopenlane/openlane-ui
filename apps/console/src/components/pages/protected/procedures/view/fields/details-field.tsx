@@ -22,11 +22,11 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, procedure
       <Controller
         control={form.control}
         name="details"
-        render={({ field }) => <PlateEditor initialValue={field.value as string} onChange={field.onChange} variant="basic" placeholder="Write your control description" />}
+        render={({ field }) => <PlateEditor initialValue={field.value as string} onChange={field.onChange} placeholder="Write your control description" />}
       />
     </div>
   ) : (
-    <div className="!mt-4 bg-none p-2">{procedure?.details && plateEditorHelper.convertToReadOnly(procedure.details as string, 0)}</div>
+    <div className="!mt-4 bg-none">{procedure?.details && plateEditorHelper.convertToReadOnly(procedure.details as string)}</div>
   )
 }
 

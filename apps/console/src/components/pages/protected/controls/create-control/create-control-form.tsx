@@ -278,7 +278,7 @@ export default function CreateControlForm() {
               <Controller
                 name="description"
                 control={control}
-                render={({ field }) => <PlateEditor variant="basic" initialValue={field.value as string} clearData={clearData} onClear={() => setClearData(false)} onChange={field.onChange} />}
+                render={({ field }) => <PlateEditor initialValue={field.value as string} clearData={clearData} onClear={() => setClearData(false)} onChange={field.onChange} />}
               />
             </div>
 
@@ -294,14 +294,7 @@ export default function CreateControlForm() {
                   name="desiredOutcome"
                   control={control}
                   render={({ field }) => (
-                    <PlateEditor
-                      variant="basic"
-                      initialValue={field.value as string}
-                      clearData={clearData}
-                      onClear={() => setClearData(false)}
-                      onChange={field.onChange}
-                      placeholder="Enter the control objective"
-                    />
+                    <PlateEditor initialValue={field.value as string} clearData={clearData} onClear={() => setClearData(false)} onChange={field.onChange} placeholder="Enter the control objective" />
                   )}
                 />
               )}
@@ -317,7 +310,6 @@ export default function CreateControlForm() {
                   control={control}
                   render={({ field }) => (
                     <PlateEditor
-                      variant="basic"
                       initialValue={field.value as string}
                       clearData={clearData}
                       onClear={() => setClearData(false)}

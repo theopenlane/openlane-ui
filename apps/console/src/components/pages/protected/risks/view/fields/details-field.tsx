@@ -23,7 +23,7 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, risk }) =
       <Controller
         control={form.control}
         name="details"
-        render={({ field }) => <PlateEditor initialValue={field.value as string} onChange={field.onChange} variant="basic" placeholder="Write your risk description" />}
+        render={({ field }) => <PlateEditor initialValue={field.value as string} onChange={field.onChange} placeholder="Write your risk description" />}
       />
     </div>
   ) : (
@@ -31,7 +31,7 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, risk }) =
       <label htmlFor="risk" className="block text-lg font-medium text-muted-foreground mb-1">
         Details
       </label>
-      <div className="!mt-4 bg-none max-h-[55vh] overflow-auto p-2">{risk?.details && plateEditorHelper.convertToReadOnly(risk.details as string, 0)}</div>
+      <div className="!mt-4 bg-none max-h-[55vh] overflow-auto">{risk?.details && plateEditorHelper.convertToReadOnly(risk.details as string)}</div>
     </Card>
   )
 }

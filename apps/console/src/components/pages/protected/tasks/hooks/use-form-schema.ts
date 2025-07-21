@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { TaskTypes } from '@/components/pages/protected/tasks/util/task'
 import { TaskTaskStatus } from '@repo/codegen/src/schema'
-import { Value } from '@udecode/plate-common'
+import { Value } from 'platejs'
 
 const formSchema = z.object({
   category: z

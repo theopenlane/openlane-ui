@@ -2,7 +2,7 @@
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Value } from '@udecode/plate-common'
+import { Value } from 'platejs'
 import { ProcedureDocumentStatus, ProcedureFrequency } from '@repo/codegen/src/schema'
 
 const formSchema = z.object({
@@ -33,7 +33,6 @@ const formSchema = z.object({
 })
 
 export type CreateProcedureFormData = z.infer<typeof formSchema>
-export type EditProcedureFormData = z.infer<typeof formSchema>
 
 const useFormSchema = () => {
   return {

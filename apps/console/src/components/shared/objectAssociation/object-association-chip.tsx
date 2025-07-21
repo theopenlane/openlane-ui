@@ -59,7 +59,7 @@ const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, className = 
                 <PencilLine size={12} />
                 <span className="font-medium">Description</span>
               </div>
-              <div className="line-clamp-4 text-justify">{displayDescription ? convertToReadOnly(displayDescription, 0) : 'No description available'}</div>
+              <div className="line-clamp-4 text-justify">{displayDescription ? convertToReadOnly(displayDescription) : 'No description available'}</div>
             </div>
           </div>
         </TooltipContent>
