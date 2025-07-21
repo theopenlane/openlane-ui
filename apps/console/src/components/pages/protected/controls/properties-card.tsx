@@ -6,7 +6,7 @@ import { Card } from '@repo/ui/cardpanel'
 import { Input } from '@repo/ui/input'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@repo/ui/select'
 import { FolderIcon, BinocularsIcon, CopyIcon, PlusIcon, ChevronDown, FileBadge2, Settings2, FolderSymlink, ArrowUpFromDot, Shapes, HelpCircle } from 'lucide-react'
-import { Control, ControlControlSource, ControlControlStatus, ControlControlType, Subcontrol } from '@repo/codegen/src/schema'
+import { Control, ControlControlSource, ControlControlStatus, ControlControlType, Subcontrol, SubcontrolControlStatus, UpdateControlInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
 import MappedCategoriesDialog from './mapped-categories-dialog'
 import Link from 'next/link'
 import { ControlIconMapper16, ControlStatusLabels, ControlStatusOptions } from '@/components/shared/enum-mapper/control-enum'
@@ -20,6 +20,7 @@ import StandardChip from '../standards/shared/standard-chip'
 interface PropertiesCardProps {
   isEditing: boolean
   data?: Control | Subcontrol
+  handleUpdate: (val: UpdateControlInput | UpdateSubcontrolInput) => void
 }
 
 const sourceLabels: Record<ControlControlSource, string> = {
@@ -47,11 +48,9 @@ export const controlIconsMap: Record<string, React.ReactNode> = {
   Type: <Shapes size={16} className="text-brand" />,
 }
 
-const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing }) => {
-  const { control } = useFormContext()
-
+const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handleUpdate }) => {
   const isSourceFramework = data?.source === ControlControlSource.FRAMEWORK
-  const isEditAllowed = !isSourceFramework && isEditing
+  const isEditAllowed = !isSourceFramework
 
   return (
     <Card className="p-4 bg-muted rounded-xl shadow-sm">
@@ -59,50 +58,28 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing }) => {
       <div className="space-y-3">
         {data && <Property value={data.referenceFramework || 'CUSTOM'} label="Framework"></Property>}
         {data?.__typename === 'Subcontrol' && <LinkedProperty label="Control" href={`/controls/${data.control.id}/`} value={data.control.refCode} icon={controlIconsMap.Control} />}
-        <EditableSelectFromQuery label="Category" name="category" isEditing={isEditAllowed} icon={controlIconsMap.Category} />
-        <EditableSelectFromQuery label="Subcategory" name="subcategory" isEditing={isEditAllowed} icon={controlIconsMap.Subcategory} />
-        <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
-          <div className="flex items-start gap-2">
-            <div className="pt-0.5">{controlIconsMap.Status}</div>
-            <div className="text-sm">Status</div>
-          </div>
-          <div className="text-sm">
-            {isEditing ? (
-              <Controller
-                control={control}
-                name="status"
-                render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Select status">{field.value === 'NULL' ? '-' : ControlStatusLabels[field.value as ControlControlStatus]}</SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {ControlStatusOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            ) : (
-              <div className="flex items-center space-x-2">
-                {ControlIconMapper16[data?.status as ControlControlStatus]}
-                <p>{ControlStatusLabels[data?.status as ControlControlStatus] || '-'}</p>
-              </div>
-            )}
-          </div>
-        </div>
-        {isEditing ? <MappedCategoriesDialog /> : <Property label="Mapped categories" value={(data?.mappedCategories ?? []).join(',\n')} />}{' '}
+        <EditableSelectFromQuery label="Category" name="category" isEditAllowed={isEditAllowed} isEditing={isEditing} icon={controlIconsMap.Category} handleUpdate={handleUpdate} />
+        <EditableSelectFromQuery label="Subcategory" name="subcategory" isEditAllowed={isEditAllowed} isEditing={isEditing} icon={controlIconsMap.Subcategory} handleUpdate={handleUpdate} />
+        <Status data={data} isEditing={isEditing} handleUpdate={handleUpdate} />
+        <MappedCategories isEditing={isEditing} data={data} />
         <EditableSelect
           label="Source"
           name="source"
-          isEditing={isEditAllowed}
-          options={Object.values(ControlControlSource).filter((source) => source !== ControlControlSource.FRAMEWORK)}
+          isEditing={isEditing}
+          options={Object.values(ControlControlSource).filter((s) => s !== ControlControlSource.FRAMEWORK)}
           labels={sourceLabels}
+          handleUpdate={handleUpdate}
+          isEditAllowed={isEditAllowed}
         />
-        <EditableSelect label="Type" name="controlType" isEditing={isEditing} options={Object.values(ControlControlType)} labels={typeLabels} />
+        <EditableSelect
+          label="Type"
+          name="controlType"
+          isEditing={isEditing}
+          isEditAllowed={isEditAllowed}
+          options={Object.values(ControlControlType)}
+          labels={typeLabels}
+          handleUpdate={handleUpdate}
+        />{' '}
         {isEditing || data?.referenceID ? (
           <ReferenceProperty name="referenceID" label="Ref ID" tooltip="Internal reference id of the control, used to map across internal systems" value={data?.referenceID} isEditing={isEditing} />
         ) : null}
@@ -146,8 +123,36 @@ const LinkedProperty = ({ label, href, value, icon }: { label: string; href: str
   </div>
 )
 
-const EditableSelect = ({ label, name, isEditing, options, labels }: { label: string; name: string; isEditing: boolean; options: string[]; labels: Record<string, string> }) => {
+const EditableSelect = ({
+  label,
+  name,
+  isEditing,
+  options,
+  labels,
+  handleUpdate,
+  isEditAllowed,
+}: {
+  label: string
+  name: string
+  isEditing: boolean
+  options: string[]
+  labels: Record<string, string>
+  handleUpdate: (val: UpdateControlInput | UpdateSubcontrolInput) => void
+  isEditAllowed: boolean
+}) => {
   const { control, getValues } = useFormContext()
+  const [internalEditing, setInternalEditing] = useState(false)
+
+  const handleClick = () => {
+    if (!isEditing && isEditAllowed) setInternalEditing(true)
+  }
+
+  const handleChange = (value: string) => {
+    handleUpdate({ [name]: value })
+    setInternalEditing(false)
+  }
+
+  const isEditable = isEditing || internalEditing
 
   return (
     <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
@@ -156,14 +161,20 @@ const EditableSelect = ({ label, name, isEditing, options, labels }: { label: st
         <div className="text-sm">{label}</div>
       </div>
       <div className="text-sm">
-        {isEditing ? (
+        {isEditable ? (
           <Controller
             control={control}
             name={name}
             render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
+              <Select
+                value={field.value}
+                onValueChange={(val) => {
+                  field.onChange(val)
+                  handleChange(val)
+                }}
+              >
                 <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder={`Select ${label.toLowerCase()}`}>{labels[field.value as keyof typeof labels] ?? ''}</SelectValue>
+                  <SelectValue placeholder={`Select ${label.toLowerCase()}`}>{labels[field.value] ?? ''}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {options.map((opt) => (
@@ -176,7 +187,9 @@ const EditableSelect = ({ label, name, isEditing, options, labels }: { label: st
             )}
           />
         ) : (
-          <span>{labels[getValues(name)] ?? '-'}</span>
+          <div className="cursor-pointer" onClick={handleClick}>
+            {labels[getValues(name)] ?? '-'}
+          </div>
         )}
       </div>
     </div>
@@ -236,12 +249,27 @@ const ReferenceProperty = ({ name, label, tooltip, value, isEditing }: { name: s
   )
 }
 
-export const EditableSelectFromQuery = ({ label, name, isEditing, icon }: { label: string; name: string; isEditing: boolean; icon: React.ReactNode }) => {
+export const EditableSelectFromQuery = ({
+  label,
+  name,
+  isEditing,
+  icon,
+  handleUpdate,
+  isEditAllowed,
+}: {
+  label: string
+  name: string
+  isEditing: boolean
+  icon: React.ReactNode
+  handleUpdate: (val: UpdateControlInput | UpdateSubcontrolInput) => void
+  isEditAllowed: boolean
+}) => {
   const { control } = useFormContext()
-  const isCategory = name === 'category'
+  const [internalEditing, setInternalEditing] = useState(false)
 
-  const { data: categoriesData } = useGetControlCategories({ enabled: isEditing && isCategory })
-  const { data: subcategoriesData } = useGetControlSubcategories({ enabled: isEditing && !isCategory })
+  const isCategory = name === 'category'
+  const { data: categoriesData } = useGetControlCategories({ enabled: isEditing || internalEditing })
+  const { data: subcategoriesData } = useGetControlSubcategories({ enabled: isEditing || internalEditing })
 
   const rawOptions = useMemo(() => {
     return isCategory ? categoriesData?.controlCategories ?? [] : subcategoriesData?.controlSubcategories ?? []
@@ -263,19 +291,28 @@ export const EditableSelectFromQuery = ({ label, name, isEditing, icon }: { labe
           name={name}
           control={control}
           render={({ field }) => {
-            if (!isEditing) {
-              return <span>{field.value || '-'}</span>
+            const isEditable = isEditAllowed && (isEditing || internalEditing)
+            const handleChange = (val: string) => {
+              field.onChange(val)
+              handleUpdate({ [name]: val })
+              setInternalEditing(false)
+            }
+
+            if (!isEditable) {
+              return (
+                <span className="cursor-pointer" onClick={() => setInternalEditing(true)}>
+                  {field.value || '-'}
+                </span>
+              )
             }
 
             const exists = initialOptions.some((opt) => opt.value === field.value)
             const allOptions = exists ? initialOptions : field.value ? [{ value: field.value, label: field.value }, ...initialOptions] : initialOptions
-
             const filtered = allOptions.filter((opt) => opt.label.toLowerCase().includes(input.toLowerCase()))
-
             const allowCustomApply = input.trim().length > 0 && !allOptions.some((opt) => opt.label.toLowerCase() === input.toLowerCase())
 
             const handleCustomApply = () => {
-              field.onChange(input.trim())
+              handleChange(input.trim())
               setInput('')
               setOpen(false)
             }
@@ -309,7 +346,7 @@ export const EditableSelectFromQuery = ({ label, name, isEditing, icon }: { labe
                             key={option.value}
                             value={option.label}
                             onSelect={() => {
-                              field.onChange(option.value)
+                              handleChange(option.value)
                               setInput('')
                               setOpen(false)
                             }}
@@ -320,7 +357,7 @@ export const EditableSelectFromQuery = ({ label, name, isEditing, icon }: { labe
                       </CommandGroup>
                     </CommandList>
                     {allowCustomApply && (
-                      <div className="border-t px-2 py-1 " onClick={handleCustomApply}>
+                      <div className="border-t px-2 py-1" onClick={handleCustomApply}>
                         <div className="w-full justify-start text-left text-sm flex items-center">
                           <PlusIcon className="mr-1 h-4 w-4" />
                           <span>Add&nbsp;</span>
@@ -335,6 +372,87 @@ export const EditableSelectFromQuery = ({ label, name, isEditing, icon }: { labe
           }}
         />
       </div>
+    </div>
+  )
+}
+
+const Status = ({ isEditing, data, handleUpdate }: { isEditing: boolean; data?: Control | Subcontrol; handleUpdate: (val: UpdateControlInput | UpdateSubcontrolInput) => void }) => {
+  const { control } = useFormContext()
+  const [internalEditing, setInternalEditing] = useState(false)
+
+  const isEditable = isEditing || internalEditing
+
+  const handleChange = (val: ControlControlStatus | SubcontrolControlStatus) => {
+    handleUpdate({ status: val })
+    setInternalEditing(false)
+  }
+
+  const handleClick = () => {
+    if (!isEditing) {
+      setInternalEditing(true)
+    }
+  }
+
+  return (
+    <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
+      <div className="flex items-start gap-2">
+        <div className="pt-0.5">{controlIconsMap.Status}</div>
+        <div className="text-sm">Status</div>
+      </div>
+      <div className="text-sm">
+        {isEditable ? (
+          <Controller
+            control={control}
+            name="status"
+            render={({ field }) => (
+              <Select
+                value={field.value}
+                onValueChange={(val: ControlControlStatus | SubcontrolControlStatus) => {
+                  field.onChange(val)
+                  handleChange(val)
+                }}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue>{field.value === 'NULL' ? '-' : ControlStatusLabels[field.value as ControlControlStatus]}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {ControlStatusOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+        ) : (
+          <div className="flex items-center space-x-2 cursor-pointer" onClick={handleClick}>
+            {ControlIconMapper16[data?.status as ControlControlStatus]}
+            <p>{ControlStatusLabels[data?.status as ControlControlStatus] || '-'}</p>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+const MappedCategories = ({ isEditing, data }: { isEditing: boolean; data?: Control | Subcontrol }) => {
+  const [internalEditing, setInternalEditing] = useState(false)
+  const isEditable = isEditing || internalEditing
+
+  const handleClick = () => {
+    if (!isEditing) {
+      setInternalEditing(true)
+    }
+  }
+
+  if (isEditable) {
+    return <MappedCategoriesDialog onClose={() => setInternalEditing(false)} />
+  }
+
+  return (
+    <div onClick={handleClick}>
+      <Property label="Mapped categories" value={(data?.mappedCategories ?? []).join(',\n')} />
     </div>
   )
 }

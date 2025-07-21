@@ -285,7 +285,7 @@ const ControlDetailsPage: React.FC = () => {
 
   const mainContent = (
     <div className="space-y-6 p-6">
-      <TitleField isEditAllowed={!isSourceFramework} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)} />
+      <TitleField isEditAllowed={!isSourceFramework} isEditing={isEditing} initialValue={initialValues.refCode} handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)} />
       <DescriptionField isEditAllowed={!isSourceFramework} isEditing={isEditing} initialValue={initialValues.description} handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)} />
       <ControlEvidenceTable
         canEdit={canEdit(permission?.roles)}
@@ -315,8 +315,8 @@ const ControlDetailsPage: React.FC = () => {
 
   const sidebarContent = (
     <>
-      <AuthorityCard controlOwner={control.controlOwner} delegate={control.delegate} isEditing={isEditing} />
-      <PropertiesCard data={control as Control} isEditing={isEditing} />
+      <AuthorityCard controlOwner={control.controlOwner} delegate={control.delegate} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)} />
+      <PropertiesCard data={control as Control} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)} />
 
       <RelatedControls />
       <DetailsCard />

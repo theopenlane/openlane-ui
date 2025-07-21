@@ -277,7 +277,7 @@ const ControlDetailsPage: React.FC = () => {
 
   const mainContent = (
     <div className="space-y-6 p-6">
-      <TitleField isEditAllowed={!isSourceFramework} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)} />
+      <TitleField isEditAllowed={!isSourceFramework} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)} initialValue={initialValues.refCode} />
       <DescriptionField isEditAllowed={!isSourceFramework} isEditing={isEditing} initialValue={initialValues.description} handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)} />
       <ControlEvidenceTable
         control={{
@@ -301,8 +301,8 @@ const ControlDetailsPage: React.FC = () => {
 
   const sidebarContent = (
     <>
-      <AuthorityCard controlOwner={subcontrol.controlOwner} delegate={subcontrol.delegate} isEditing={isEditing} />
-      <PropertiesCard data={subcontrol as Subcontrol} isEditing={isEditing} />
+      <AuthorityCard controlOwner={subcontrol.controlOwner} delegate={subcontrol.delegate} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)} />
+      <PropertiesCard data={subcontrol as Subcontrol} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)} />
       <RelatedControls />
 
       <DetailsCard />
