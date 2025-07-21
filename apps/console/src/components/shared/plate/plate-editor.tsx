@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { createPlateEditor, Plate } from '@udecode/plate/react'
@@ -8,10 +8,11 @@ import { TPlateEditorStyleVariant, TPlateEditorVariants, useCreateEditor } from 
 import { Editor, EditorContainer } from '@repo/ui/components/plate-ui/editor.tsx'
 import { TElement, Value } from '@udecode/plate'
 import { viewPlugins } from '@repo/ui/components/editor/plugins/editor-plugins.tsx'
-import debounce from 'lodash.debounce'
+import useClickOutside from '@/hooks/useClickOutside'
 
 export type TPlateEditorProps = {
   onChange?: (data: Value) => void
+  onBlur?: () => void
   initialValue?: string
   variant?: TPlateEditorVariants
   styleVariant?: TPlateEditorStyleVariant
@@ -21,16 +22,18 @@ export type TPlateEditorProps = {
   placeholder?: string
 }
 
-const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, variant, styleVariant, clearData, onClear, placeholder, isScrollable }) => {
+const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, onBlur, initialValue, variant, styleVariant, clearData, onClear, placeholder, isScrollable }) => {
   const editor = useCreateEditor({ variant })
   const [plateEditor, setPlateEditor] = useState<ReturnType<typeof createPlateEditor> | null>(null)
   const [initialValueSet, setInitialValueSet] = useState(false)
 
-  const debouncedOnChange = useState(() =>
-    debounce((val: Value) => {
-      onChange?.(val)
-    }, 300),
-  )[0]
+  const handleBlur = useCallback(() => {
+    if (onBlur) {
+      onBlur()
+    }
+  }, [onBlur])
+
+  const editorContainerRef = useClickOutside(handleBlur)
 
   useEffect(() => {
     const instance = createPlateEditor({
@@ -71,12 +74,14 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, vari
       <Plate
         editor={editor}
         onChange={(data) => {
-          debouncedOnChange(data.value)
+          onChange?.(data.value)
         }}
       >
-        <EditorContainer variant={styleVariant} isScrollable={isScrollable}>
-          <Editor placeholder={placeholder ?? 'Type a paragraph'} />
-        </EditorContainer>
+        <div ref={editorContainerRef}>
+          <EditorContainer variant={styleVariant} isScrollable={isScrollable}>
+            <Editor placeholder={placeholder ?? 'Type a paragraph'} />
+          </EditorContainer>
+        </div>
       </Plate>
     </DndProvider>
   )
