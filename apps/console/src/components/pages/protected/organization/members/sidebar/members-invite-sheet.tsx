@@ -32,8 +32,8 @@ import { Input } from '@repo/ui/input'
 const formSchema = z.object({
   emails: z.array(z.email({ message: 'Invalid email address' })),
   role: z
-    .enum(InviteRole, {
-      error: () => ({ message: 'Invalid role' }),
+    .nativeEnum(InviteRole, {
+      errorMap: () => ({ message: 'Invalid role' }),
     })
     .default(InviteRole.MEMBER),
 })

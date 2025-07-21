@@ -14,7 +14,7 @@ import { useNotification } from '@/hooks/useNotification.tsx'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
 import { useQueryClient } from '@tanstack/react-query'
-import useFormSchema, { CreateProcedureFormData, EditProcedureFormData } from '../hooks/use-form-schema'
+import useFormSchema, { CreateProcedureFormData } from '../hooks/use-form-schema'
 import { useProcedure } from '../hooks/use-procedure.tsx'
 import StatusCard from '@/components/pages/protected/procedures/create/cards/status-card.tsx'
 import AssociationCard from '@/components/pages/protected/procedures/create/cards/association-card.tsx'
@@ -189,7 +189,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
     return { added, removed }
   }
 
-  const onSaveHandler = async (data: EditProcedureFormData) => {
+  const onSaveHandler = async (data: CreateProcedureFormData) => {
     try {
       let detailsField = data?.details
 

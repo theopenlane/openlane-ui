@@ -1,20 +1,23 @@
 'use client'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { addDays } from 'date-fns'
 import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema.ts'
+import { zodResolver } from '@hookform/resolvers/zod'
 
 const formSchema = z.object({
   name: z.string().min(2, {
-    message: 'Name must be at least 2 characters',
+    error: 'Name must be at least 2 characters',
   }),
   description: z.string().optional(),
   tags: z.array(z.string()).optional(),
-  creationDate: z.date().default(new Date()),
-  renewalDate: z.date().min(new Date(), { message: 'Renewal date must be in the future' }).optional().nullable(),
+  creationDate: z
+    .date()
+    .default(() => new Date())
+    .optional(),
+  renewalDate: z.date().min(new Date(), { error: 'Renewal date must be in the future' }).optional().nullable(),
   evidenceFiles: z.array(z.any()).optional(),
-  url: z.string().url().optional(),
+  url: z.url().optional(),
   collectionProcedure: z.string().optional(),
   source: z.string().optional(),
   fileIDs: z.array(z.string()).optional(),
@@ -30,8 +33,8 @@ const formSchema = z.object({
   riskIDs: z.array(z.any()).optional().nullable(),
   ownerID: z.string().optional().nullable(),
   status: z
-    .enum(EvidenceEvidenceStatus, {
-      error: () => ({ message: 'Invalid status' }),
+    .nativeEnum(EvidenceEvidenceStatus, {
+      errorMap: () => 'Invalid status',
     })
     .optional()
     .nullable(),

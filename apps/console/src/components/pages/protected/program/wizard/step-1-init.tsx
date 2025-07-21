@@ -25,8 +25,8 @@ export const initProgramSchema = z
     framework: z.string().optional(), // change to optional here
     standardID: z.string().optional(), // also optional, since it is set together with framework
     status: z
-      .enum(ProgramProgramStatus, {
-        error: () => ({ message: 'Invalid status' }),
+      .nativeEnum(ProgramProgramStatus, {
+        errorMap: () => ({ message: 'Invalid status' }),
       })
       .default(ProgramProgramStatus.NOT_STARTED),
     startDate: z.date().min(new Date(), { message: 'Start date must be in the future' }),

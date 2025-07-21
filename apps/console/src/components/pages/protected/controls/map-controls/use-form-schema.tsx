@@ -7,9 +7,9 @@ export const mapControlsSchema = z.object({
   toControlIDs: z.array(z.string()).optional(),
   toSubcontrolIDs: z.array(z.string()).optional(),
   confidence: z.number().optional(),
-  mappingType: z.enum(MappedControlMappingType).default(MappedControlMappingType.PARTIAL),
+  mappingType: z.nativeEnum(MappedControlMappingType).default(MappedControlMappingType.PARTIAL),
   relation: z.string().optional(),
-  source: z.enum(MappedControlMappingSource).default(MappedControlMappingSource.MANUAL),
+  source: z.nativeEnum(MappedControlMappingSource).default(MappedControlMappingSource.MANUAL),
 })
 
 export type MapControlsFormData = z.infer<typeof mapControlsSchema>

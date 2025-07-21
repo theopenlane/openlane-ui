@@ -15,8 +15,8 @@ export enum VersionBump {
 export const controlObjectiveSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   desiredOutcome: z.any().optional(),
-  status: z.enum(ControlObjectiveObjectiveStatus),
-  source: z.enum(ControlObjectiveControlSource),
+  status: z.nativeEnum(ControlObjectiveObjectiveStatus),
+  source: z.nativeEnum(ControlObjectiveControlSource),
   controlObjectiveType: z.string().optional(),
   category: z.string().optional(),
   subcategory: z.string().optional(),

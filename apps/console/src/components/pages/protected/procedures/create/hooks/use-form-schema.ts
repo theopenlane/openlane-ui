@@ -9,14 +9,14 @@ const formSchema = z.object({
   name: z.string(),
   details: z.custom<Value | string>().optional(),
   status: z
-    .enum(ProcedureDocumentStatus, {
-      error: () => ({ message: 'Invalid status' }),
+    .nativeEnum(ProcedureDocumentStatus, {
+      errorMap: () => ({ message: 'Invalid status' }),
     })
     .default(ProcedureDocumentStatus.DRAFT),
   approvalRequired: z.boolean(),
   reviewFrequency: z
-    .enum(ProcedureFrequency, {
-      error: () => ({ message: 'Invalid status' }),
+    .nativeEnum(ProcedureFrequency, {
+      errorMap: () => ({ message: 'Invalid status' }),
     })
     .default(ProcedureFrequency.YEARLY),
   procedureType: z.string(),
@@ -33,7 +33,6 @@ const formSchema = z.object({
 })
 
 export type CreateProcedureFormData = z.infer<typeof formSchema>
-export type EditProcedureFormData = z.infer<typeof formSchema>
 
 const useFormSchema = () => {
   return {
