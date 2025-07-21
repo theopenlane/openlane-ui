@@ -480,7 +480,7 @@ const TaskDetailsSheet = () => {
             </Form>
 
             {!isEditing && (
-              <div className="flex gap-4">
+              <div className="flex gap-4 pb-4 pt-2">
                 {taskData && (
                   <EvidenceCreateFormDialog
                     formData={{
