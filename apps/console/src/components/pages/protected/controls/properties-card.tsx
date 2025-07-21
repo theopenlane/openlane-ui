@@ -192,7 +192,7 @@ const EditableSelect = ({
             )}
           />
         ) : (
-          <div className="cursor-pointer" onClick={handleClick}>
+          <div className={isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} onClick={handleClick}>
             {labels[getValues(name)] ?? '-'}
           </div>
         )}
@@ -311,7 +311,7 @@ export const EditableSelectFromQuery = ({
             }
             if (!isEditable) {
               return (
-                <span className="cursor-pointer" onClick={() => setInternalEditing(true)}>
+                <span className={isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} onClick={() => setInternalEditing(true)}>
                   {field.value || '-'}
                 </span>
               )
@@ -467,7 +467,7 @@ const MappedCategories = ({ isEditing, data }: { isEditing: boolean; data?: Cont
   }
 
   return (
-    <div onClick={handleClick}>
+    <div onClick={handleClick} className="cursor-pointer">
       <Property label="Mapped categories" value={(data?.mappedCategories ?? []).join(',\n')} />
     </div>
   )
