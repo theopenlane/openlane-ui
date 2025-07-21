@@ -154,7 +154,7 @@ const ControlDetailsPage: React.FC = () => {
 
   const handleUpdateField = async (input: UpdateSubcontrolInput) => {
     try {
-      await updateSubcontrol({ updateSubcontrolId: id, input })
+      await updateSubcontrol({ updateSubcontrolId: subcontrolId, input })
       successNotification({
         title: 'Subcontrol updated',
         description: 'The subcontrol was successfully updated.',
