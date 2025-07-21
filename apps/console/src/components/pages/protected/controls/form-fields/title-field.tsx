@@ -45,7 +45,7 @@ const TitleField = ({ isEditing, isEditAllowed = true, handleUpdate, initialValu
       <Input id="refCode" {...register('refCode')} onBlur={handleBlur} autoFocus />
     </div>
   ) : (
-    <h1 onClick={handleClick} className="text-3xl font-semibold cursor-pointer">
+    <h1 onClick={handleClick} className={`text-3xl font-semibold ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
       {getValues('refCode')}
     </h1>
   )

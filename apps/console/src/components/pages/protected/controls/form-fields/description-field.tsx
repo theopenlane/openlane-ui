@@ -29,12 +29,10 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialV
     if (isEditing) {
       return
     }
+
     const fieldValue = getValues('description')
     const description = await plateEditorHelper.convertToHtml(fieldValue as Value)
-    if (description === initialValue) {
-      setInternalEditing(false)
-      return
-    }
+
     handleUpdate({
       description,
     })
@@ -49,11 +47,20 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialV
       <Controller
         control={control}
         name="description"
-        render={({ field }) => <PlateEditor initialValue={field.value} onChange={field.onChange} onBlur={handleBlur} placeholder="Write your control description" />}
+        render={({ field }) => (
+          <PlateEditor
+            initialValue={field.value}
+            onChange={(val) => {
+              field.onChange(val)
+            }}
+            onBlur={handleBlur}
+            placeholder="Write your control description"
+          />
+        )}
       />
     </div>
   ) : (
-    <div onClick={handleClick} className="cursor-pointer min-h-[20px]">
+    <div onClick={handleClick} className={`min-h-[20px] ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
       {plateEditorHelper.convertToReadOnly(initialValue as string)}
     </div>
   )

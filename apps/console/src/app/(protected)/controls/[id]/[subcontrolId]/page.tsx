@@ -325,7 +325,7 @@ const ControlDetailsPage: React.FC = () => {
       <title>{`${currentOrganization?.node?.displayName ?? 'Openlane'} | Subcontrols - ${data.subcontrol.refCode}`}</title>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>
+          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing} minWidth={431}>
             {mainContent}
           </SlideBarLayout>
         </form>
