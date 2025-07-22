@@ -1,16 +1,17 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Value, TElement } from 'platejs'
-import debounce from 'lodash.debounce'
 import { EditorKitVariant, TPlateEditorVariants } from '@repo/ui/components/editor/use-create-editor.ts'
 import { Editor, EditorContainer, TPlateEditorStyleVariant } from '@repo/ui/components/ui/editor.tsx'
 import { createPlateEditor, Plate, PlatePlugin, usePlateEditor } from 'platejs/react'
+import useClickOutside from '@/hooks/useClickOutside'
 
 export type TPlateEditorProps = {
   onChange?: (data: Value) => void
+  onBlur?: () => void
   initialValue?: string
   variant?: TPlateEditorVariants
   styleVariant?: TPlateEditorStyleVariant
@@ -19,18 +20,20 @@ export type TPlateEditorProps = {
   placeholder?: string
 }
 
-const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, variant = 'basic', styleVariant, clearData, onClear, placeholder }) => {
+const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, variant = 'basic', styleVariant, clearData, onClear, placeholder, onBlur }) => {
   const editor = usePlateEditor({
     plugins: EditorKitVariant[variant] as unknown as PlatePlugin[],
   })
   const [plateEditor, setPlateEditor] = useState<ReturnType<typeof createPlateEditor> | null>(null)
   const [initialValueSet, setInitialValueSet] = useState(false)
 
-  const debouncedOnChange = useState(() =>
-    debounce((val: Value) => {
-      onChange?.(val)
-    }, 300),
-  )[0]
+  const handleBlur = useCallback(() => {
+    if (onBlur) {
+      onBlur()
+    }
+  }, [onBlur])
+
+  const editorContainerRef = useClickOutside(handleBlur)
 
   useEffect(() => {
     const instance = createPlateEditor({
@@ -73,12 +76,14 @@ const PlateEditor: React.FC<TPlateEditorProps> = ({ onChange, initialValue, vari
       <Plate
         editor={editor}
         onChange={(data) => {
-          debouncedOnChange(data.value)
+          onChange?.(data.value)
         }}
       >
-        <EditorContainer variant={styleVariant}>
-          <Editor placeholder={placeholder ?? 'Type a paragraph'} />
-        </EditorContainer>
+        <div ref={editorContainerRef}>
+          <EditorContainer variant={styleVariant}>
+            <Editor placeholder={placeholder ?? 'Type a paragraph'} />
+          </EditorContainer>
+        </div>
       </Plate>
     </DndProvider>
   )

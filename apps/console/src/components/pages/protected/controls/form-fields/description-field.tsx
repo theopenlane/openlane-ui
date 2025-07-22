@@ -1,29 +1,68 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { UpdateControlInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
 import { Value } from 'platejs'
 
 interface DescriptionFieldProps {
   isEditing: boolean
   initialValue: string | Value
+  handleUpdate: (val: UpdateControlInput | UpdateSubcontrolInput) => void
+  isEditAllowed?: boolean
 }
 
-const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialValue }) => {
-  const { control } = useFormContext()
+const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialValue, handleUpdate, isEditAllowed = true }) => {
+  const { control, getValues } = useFormContext()
   const plateEditorHelper = usePlateEditor()
+  const [internalEditing, setInternalEditing] = useState(false)
 
-  return isEditing ? (
+  const handleClick = () => {
+    if (!isEditing) {
+      setInternalEditing(true)
+    }
+  }
+
+  const handleBlur = async () => {
+    if (isEditing) {
+      return
+    }
+
+    const fieldValue = getValues('description')
+    const description = await plateEditorHelper.convertToHtml(fieldValue as Value)
+
+    handleUpdate({
+      description,
+    })
+    setInternalEditing(false)
+  }
+
+  return isEditAllowed && (isEditing || internalEditing) ? (
     <div className="w-full">
       <label htmlFor="description" className="block text-sm font-medium text-muted-foreground mb-1">
         Description
       </label>
-      <Controller control={control} name="description" render={({ field }) => <PlateEditor initialValue={field.value} onChange={field.onChange} placeholder="Write your control description" />} />
+      <Controller
+        control={control}
+        name="description"
+        render={({ field }) => (
+          <PlateEditor
+            initialValue={field.value}
+            onChange={(val) => {
+              field.onChange(val)
+            }}
+            onBlur={handleBlur}
+            placeholder="Write your control description"
+          />
+        )}
+      />
     </div>
   ) : (
-    <div>{plateEditorHelper.convertToReadOnly(initialValue as string)}</div>
+    <div onClick={handleClick} className={`min-h-[20px] ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+      {plateEditorHelper.convertToReadOnly(initialValue as string)}
+    </div>
   )
 }
 

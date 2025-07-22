@@ -9,17 +9,17 @@ type TSlideBarLayoutProps = {
   children: ReactNode
   menu?: ReactNode
   slideOpen?: boolean
+  minWidth?: number
 }
 
-const MIN_WIDTH = 400
 const MAX_RATIO = 0.9
 const DEFAULT_WIDTH = 400
 const FLOATING_MARGIN = 24
 
-const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarContent, children, menu, slideOpen }) => {
+const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarContent, children, menu, slideOpen, minWidth = 400 }) => {
   const { bannerText } = useSubscriptionBanner()
   const [open, setOpen] = useState<boolean>(true)
-  const [width, setWidth] = useState<number>(DEFAULT_WIDTH)
+  const [width, setWidth] = useState<number>(minWidth || DEFAULT_WIDTH)
   const resizing = useRef(false)
 
   useEffect(() => {
@@ -34,7 +34,7 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarC
     }
 
     const newWidth = window.innerWidth - e.clientX
-    if (newWidth > MIN_WIDTH && newWidth < window.innerWidth * MAX_RATIO) {
+    if (newWidth > minWidth && newWidth < window.innerWidth * MAX_RATIO) {
       setWidth(newWidth)
     }
   }
