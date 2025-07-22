@@ -55,7 +55,9 @@ const AddToOrganizationDialog: React.FC<AddToOrganizationDialogProps> = ({ open,
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
-          <DialogTitle className="text-xl">Add Controls</DialogTitle>
+          <DialogTitle aria-label="Add Controls" className="text-xl">
+            Add Controls
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 text-sm">
