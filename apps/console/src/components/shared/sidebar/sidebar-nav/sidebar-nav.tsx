@@ -94,7 +94,7 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
           </Link>
         ),
       )}
-      <div className={clsx('flex justify-between fixed p-3 bottom-0 border-t bg-panel-bg', isSidebarOpen ? 'w-60' : 'w-[57px]')}>
+      <div className={clsx('flex justify-between fixed p-3 bottom-0 border-t left-0 bg-panel-bg', isSidebarOpen ? 'w-60' : 'w-[57px]')}>
         {isSidebarOpen ? (
           <>
             <Link href={'/dashboard'} className="">

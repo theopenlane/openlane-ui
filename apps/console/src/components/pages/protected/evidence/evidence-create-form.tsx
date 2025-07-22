@@ -324,7 +324,7 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
                     accordionLabel={'Show objects linked to this evidence'}
                     descriptionText={'This requested evidence you are submitting will also be used by other tasks, controls. We have pre-selected the object association below.'}
                     displayIDs={formData?.objectAssociationsDisplayIDs}
-                  ></HeadsUpDisplay>
+                  />
                 )}
                 <ObjectAssociation
                   key={associationResetTrigger}

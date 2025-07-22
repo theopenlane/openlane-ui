@@ -14,7 +14,7 @@ const formSchema = z.object({
   creationDate: z.date().default(new Date()),
   renewalDate: z.date().min(new Date(), { message: 'Renewal date must be in the future' }).optional().nullable(),
   evidenceFiles: z.array(z.any()).optional(),
-  url: z.string().url().optional(),
+  url: z.preprocess((val) => (val === '' ? undefined : val), z.string().url().optional()),
   collectionProcedure: z.string().optional(),
   source: z.string().optional(),
   fileIDs: z.array(z.string()).optional(),
