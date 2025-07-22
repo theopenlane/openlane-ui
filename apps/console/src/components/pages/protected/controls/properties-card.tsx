@@ -88,7 +88,6 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
             tooltip="Internal reference id of the control, used to map across internal systems"
             value={data?.referenceID}
             isEditing={isEditing}
-            isEditAllowed={isEditAllowed}
           />
         ) : null}
         {isEditing || data?.auditorReferenceID ? (
@@ -99,7 +98,6 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
             tooltip="Reference ID used by auditor, may vary from defined reference code from standard"
             value={data?.auditorReferenceID}
             isEditing={isEditing}
-            isEditAllowed={isEditAllowed}
           />
         ) : null}
       </div>
@@ -219,7 +217,6 @@ const ReferenceProperty = ({
   value,
   isEditing,
   handleUpdate,
-  isEditAllowed,
 }: {
   name: string
   label: string
@@ -227,7 +224,6 @@ const ReferenceProperty = ({
   value?: string | null
   isEditing: boolean
   handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput) => void
-  isEditAllowed: boolean
 }) => {
   const { control, getValues } = useFormContext()
   const { successNotification } = useNotification()
@@ -238,7 +234,7 @@ const ReferenceProperty = ({
   const isEditable = isEditing || internalEditing
 
   const handleClick = () => {
-    if (!isEditing && isEditAllowed) {
+    if (!isEditing) {
       setInternalEditing(true)
     }
   }
@@ -304,7 +300,7 @@ const ReferenceProperty = ({
             )}
           />
         ) : value ? (
-          <div className={isEditAllowed ? 'flex items-center gap-2 cursor-pointer' : 'flex items-center gap-2 cursor-not-allowed'} onClick={handleClick}>
+          <div className={'flex items-center gap-2 cursor-pointer'} onClick={handleClick}>
             <span>{value}</span>
             <TooltipProvider disableHoverableContent>
               <Tooltip>
@@ -324,7 +320,7 @@ const ReferenceProperty = ({
             </TooltipProvider>
           </div>
         ) : (
-          <span className={isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} onClick={handleClick}>
+          <span className={'cursor-pointer'} onClick={handleClick}>
             -
           </span>
         )}
