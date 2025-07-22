@@ -1,20 +1,42 @@
+'use client'
+
+import React, { useState } from 'react'
 import { Controller, UseFormReturn } from 'react-hook-form'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
-import React from 'react'
-import { EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
-import { InternalPolicyByIdFragment } from '@repo/codegen/src/schema.ts'
+import { EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
+import { InternalPolicyByIdFragment, UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
+import { Value } from 'platejs'
 
 type TDetailsFieldProps = {
   isEditing: boolean
   form: UseFormReturn<EditPolicyMetadataFormData>
   policy: InternalPolicyByIdFragment
+  editAllowed?: boolean
+  handleUpdate: (val: UpdateInternalPolicyInput) => void
 }
 
-const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy }) => {
+const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy, editAllowed = true, handleUpdate }) => {
   const plateEditorHelper = usePlateEditor()
+  const [internalEditing, setInternalEditing] = useState(false)
 
-  return isEditing ? (
+  const handleClick = () => {
+    if (!isEditing && editAllowed) {
+      setInternalEditing(true)
+    }
+  }
+
+  const handleBlur = async () => {
+    if (isEditing) return
+
+    const value = form.getValues('details')
+    const html = await plateEditorHelper.convertToHtml(value as Value)
+
+    handleUpdate({ details: html })
+    setInternalEditing(false)
+  }
+
+  return isEditing || internalEditing ? (
     <div className="w-full">
       <label htmlFor="policy" className="block text-sm font-medium text-muted-foreground mb-1">
         Policy
@@ -22,11 +44,13 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy })
       <Controller
         control={form.control}
         name="details"
-        render={({ field }) => <PlateEditor initialValue={field.value as string} onChange={field.onChange} placeholder="Write your control description" />}
+        render={({ field }) => <PlateEditor initialValue={field.value as string} onChange={field.onChange} onBlur={handleBlur} placeholder="Write your policy description" />}
       />
     </div>
   ) : (
-    <div className="!mt-4 bg-none">{policy?.details && plateEditorHelper.convertToReadOnly(policy.details as string)}</div>
+    <div onClick={handleClick} className={`!mt-4 min-h-[20px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+      {policy?.details && plateEditorHelper.convertToReadOnly(policy.details as string)}
+    </div>
   )
 }
 

@@ -1,7 +1,7 @@
 'use client'
 
-import React from 'react'
-import { InternalPolicyByIdFragment, InternalPolicyDocumentStatus } from '@repo/codegen/src/schema'
+import React, { useState } from 'react'
+import { InternalPolicyByIdFragment, InternalPolicyDocumentStatus, UpdateInternalPolicyInput } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
 import { Binoculars, Calendar, FileStack, ScrollText, HelpCircle } from 'lucide-react'
 import { Controller, UseFormReturn } from 'react-hook-form'
@@ -17,9 +17,23 @@ type TPropertiesCardProps = {
   form: UseFormReturn<EditPolicyMetadataFormData>
   policy: InternalPolicyByIdFragment
   isEditing: boolean
+  editAllowed: boolean
+  handleUpdate?: (val: UpdateInternalPolicyInput) => void
 }
 
-const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, policy }) => {
+const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditing, editAllowed, handleUpdate }) => {
+  const [editingField, setEditingField] = useState<null | 'status' | 'policyType'>(null)
+
+  const handleUpdateIfChanged = (field: 'status' | 'policyType', value: string, current: string | undefined | null) => {
+    if (isEditing) {
+      return
+    }
+    if (value !== current && handleUpdate) {
+      handleUpdate({ [field]: value })
+    }
+    setEditingField(null)
+  }
+
   return (
     <Card className="p-4">
       <h3 className="text-lg font-medium mb-2">Properties</h3>
@@ -44,7 +58,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, polic
           </div>
 
           <div className="w-[200px]">
-            {isEditing && (
+            {isEditing || editingField === 'status' ? (
               <Controller
                 name="status"
                 control={form.control}
@@ -53,6 +67,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, polic
                     <Select
                       value={field.value}
                       onValueChange={(value) => {
+                        handleUpdateIfChanged('status', value, field.value)
                         field.onChange(value)
                       }}
                     >
@@ -65,14 +80,16 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, polic
                         ))}
                       </SelectContent>
                     </Select>
-                    {form.formState.errors.status && <p className="text-red-500 text-sm">{form.formState.errors.status.message}</p>}
                   </div>
                 )}
               />
-            )}
-
-            {!isEditing && (
-              <div className="flex items-center space-x-2">
+            ) : (
+              <div
+                className={`flex items-center space-x-2 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                onClick={() => {
+                  if (!isEditing && editAllowed) setEditingField('status')
+                }}
+              >
                 {DocumentIconMapper[policy.status as InternalPolicyDocumentStatus]}
                 <p>{InternalPolicyStatusOptions.find((item) => item.value === policy.status)?.label}</p>
               </div>
@@ -80,7 +97,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, polic
           </div>
         </div>
 
-        {/* Version Required */}
+        {/* Version (read-only) */}
         <div className="flex justify-between items-center">
           <div className="flex gap-2 w-[200px] items-center">
             <FileStack size={16} className="text-brand" />
@@ -98,15 +115,12 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, polic
               </Tooltip>
             </TooltipProvider>
           </div>
-
           <div className="w-[200px]">
-            <div className="flex gap-2">
-              <span>{policy?.revision ?? '0.0.0'}</span>
-            </div>
+            <span>{policy?.revision ?? '0.0.0'}</span>
           </div>
         </div>
 
-        {/* Policy type */}
+        {/* Policy Type */}
         <div className="flex justify-between items-center">
           <div className="flex gap-2 w-[200px] items-center">
             <ScrollText size={16} className="text-brand" />
@@ -126,23 +140,25 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, polic
           </div>
 
           <div className="w-[200px]">
-            {isEditing && (
+            {isEditing || editingField === 'policyType' ? (
               <FormField
                 control={form.control}
                 name="policyType"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input variant="medium" {...field} className="w-full" />
+                      <Input variant="medium" {...field} onBlur={() => handleUpdateIfChanged('policyType', field.value, policy?.policyType)} autoFocus />
                     </FormControl>
-                    {form.formState.errors.policyType && <p className="text-red-500 text-sm">{form.formState.errors.policyType.message}</p>}
                   </FormItem>
                 )}
               />
-            )}
-
-            {!isEditing && (
-              <div className="flex gap-2">
+            ) : (
+              <div
+                className={`${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} truncate`}
+                onClick={() => {
+                  if (!isEditing && editAllowed) setEditingField('policyType')
+                }}
+              >
                 <span>{policy?.policyType}</span>
               </div>
             )}

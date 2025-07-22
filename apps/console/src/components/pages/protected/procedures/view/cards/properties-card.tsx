@@ -1,25 +1,39 @@
 'use client'
 
-import React from 'react'
-import { ProcedureByIdFragment, ProcedureDocumentStatus } from '@repo/codegen/src/schema'
+import React, { useState } from 'react'
+import { ProcedureByIdFragment, ProcedureDocumentStatus, UpdateProcedureInput } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
 import { Binoculars, Calendar, FileStack, ScrollText, HelpCircle } from 'lucide-react'
 import { Controller, UseFormReturn } from 'react-hook-form'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { FormControl, FormField, FormItem } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
-import { EditProcedureMetadataFormData } from '@/components/pages/protected/procedures/view/hooks/use-form-schema.ts'
 import { formatDate } from '@/utils/date'
 import { DocumentIconMapper, ProcedureStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { EditProcedureMetadataFormData } from '../hooks/use-form-schema'
 
 type TPropertiesCardProps = {
   form: UseFormReturn<EditProcedureMetadataFormData>
   procedure: ProcedureByIdFragment
   isEditing: boolean
+  editAllowed: boolean
+  handleUpdate?: (val: UpdateProcedureInput) => void
 }
 
-const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, procedure }) => {
+const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEditing, editAllowed, handleUpdate }) => {
+  const [editingField, setEditingField] = useState<null | 'status' | 'procedureType'>(null)
+
+  const handleUpdateIfChanged = (field: 'status' | 'procedureType', value: string, current: string | undefined | null) => {
+    if (isEditing) {
+      return
+    }
+    if (value !== current && handleUpdate) {
+      handleUpdate({ [field]: value })
+    }
+    setEditingField(null)
+  }
+
   return (
     <Card className="p-4">
       <h3 className="text-lg font-medium mb-2">Properties</h3>
@@ -44,7 +58,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, proce
           </div>
 
           <div className="w-[200px]">
-            {isEditing && (
+            {isEditing || editingField === 'status' ? (
               <Controller
                 name="status"
                 control={form.control}
@@ -53,9 +67,8 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, proce
                     <Select
                       value={field.value}
                       onValueChange={(value) => {
-                        if (value) {
-                          field.onChange(value)
-                        }
+                        handleUpdateIfChanged('status', value, field.value)
+                        field.onChange(value)
                       }}
                     >
                       <SelectTrigger className="w-full">{ProcedureStatusOptions.find((item) => item.value === field.value)?.label}</SelectTrigger>
@@ -71,10 +84,13 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, proce
                   </div>
                 )}
               />
-            )}
-
-            {!isEditing && (
-              <div className="flex items-center space-x-2">
+            ) : (
+              <div
+                className={`flex items-center space-x-2 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                onClick={() => {
+                  if (!isEditing && editAllowed) setEditingField('status')
+                }}
+              >
                 {DocumentIconMapper[procedure.status as ProcedureDocumentStatus]}
                 <p>{ProcedureStatusOptions.find((item) => item.value === procedure.status)?.label}</p>
               </div>
@@ -82,7 +98,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, proce
           </div>
         </div>
 
-        {/* Version Required */}
+        {/* Version (read-only) */}
         <div className="flex justify-between items-center">
           <div className="flex gap-2 w-[200px] items-center">
             <FileStack size={16} className="text-brand" />
@@ -100,7 +116,6 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, proce
               </Tooltip>
             </TooltipProvider>
           </div>
-
           <div className="w-[200px]">
             <div className="flex gap-2">
               <span>{procedure?.revision ?? '0.0.0'}</span>
@@ -108,7 +123,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, proce
           </div>
         </div>
 
-        {/* Procedure type */}
+        {/* Procedure Type */}
         <div className="flex justify-between items-center">
           <div className="flex gap-2 w-[200px] items-center">
             <ScrollText size={16} className="text-brand" />
@@ -128,23 +143,26 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, proce
           </div>
 
           <div className="w-[200px]">
-            {isEditing && (
+            {isEditing || editingField === 'procedureType' ? (
               <FormField
                 control={form.control}
                 name="procedureType"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input variant="medium" {...field} className="w-full" />
+                      <Input variant="medium" {...field} className="w-full" onBlur={() => handleUpdateIfChanged('procedureType', field.value, procedure?.procedureType)} autoFocus />
                     </FormControl>
                     {form.formState.errors.procedureType && <p className="text-red-500 text-sm">{form.formState.errors.procedureType.message}</p>}
                   </FormItem>
                 )}
               />
-            )}
-
-            {!isEditing && (
-              <div className="flex gap-2">
+            ) : (
+              <div
+                className={`${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} truncate`}
+                onClick={() => {
+                  if (!isEditing && editAllowed) setEditingField('procedureType')
+                }}
+              >
                 <span>{procedure?.procedureType}</span>
               </div>
             )}
