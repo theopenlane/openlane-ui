@@ -46,9 +46,9 @@
     "react-dom": "^19.0.0",
     "react-dropzone": "^14.2.3",
     "react-easy-crop": "^5.0.7",
-    "survey-creator-core": "1.12.39",
-    "survey-creator-react": "1.12.39",
-    "survey-react-ui": "1.12.39",
+    "survey-creator-core": "1.12.46",
+    "survey-creator-react": "1.12.46",
+    "survey-react-ui": "1.12.46",
     "swr": "^2.3.3",
     "zustand": "^5.0.0"
   },
