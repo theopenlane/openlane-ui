@@ -36,6 +36,10 @@ import RelatedControls from '@/components/pages/protected/controls/related-contr
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useOrganization } from '@/hooks/useOrganization'
+import { useSession } from 'next-auth/react'
+import { useAccountRole } from '@/lib/authz/access-api'
+import { ObjectEnum } from '@/lib/authz/enums/object-enum'
+import { canEdit } from '@/lib/authz/utils'
 
 interface FormValues {
   refCode: string
@@ -87,6 +91,9 @@ const ControlDetailsPage: React.FC = () => {
   const { data: controlData, isLoading: isLoadingControl } = useGetControlById(id)
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
+
+  const { data: session } = useSession()
+  const { data: permission } = useAccountRole(session, ObjectEnum.SUBCONTROL, subcontrolId!)
 
   const form = useForm<FormValues>({
     defaultValues: initialDataObj,
@@ -204,7 +211,7 @@ const ControlDetailsPage: React.FC = () => {
 
   const menuComponent = (
     <div className="space-y-4">
-      {isEditing ? (
+      {isEditing && canEdit(permission?.roles) ? (
         <div className="flex gap-2 justify-end">
           <Button className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
             Cancel
@@ -277,9 +284,20 @@ const ControlDetailsPage: React.FC = () => {
 
   const mainContent = (
     <div className="space-y-6 p-2">
-      <TitleField isEditAllowed={!isSourceFramework} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)} initialValue={initialValues.refCode} />
-      <DescriptionField isEditAllowed={!isSourceFramework} isEditing={isEditing} initialValue={initialValues.description} handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)} />
+      <TitleField
+        isEditAllowed={!isSourceFramework && canEdit(permission?.roles)}
+        isEditing={isEditing}
+        handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)}
+        initialValue={initialValues.refCode}
+      />
+      <DescriptionField
+        isEditAllowed={!isSourceFramework && canEdit(permission?.roles)}
+        isEditing={isEditing}
+        initialValue={initialValues.description}
+        handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)}
+      />
       <ControlEvidenceTable
+        canEdit={canEdit(permission?.roles)}
         control={{
           displayID: subcontrol?.refCode,
           tags: subcontrol.tags ?? [],
@@ -301,7 +319,13 @@ const ControlDetailsPage: React.FC = () => {
 
   const sidebarContent = (
     <>
-      <AuthorityCard controlOwner={subcontrol.controlOwner} delegate={subcontrol.delegate} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)} />
+      <AuthorityCard
+        isEditAllowed={canEdit(permission?.roles)}
+        controlOwner={subcontrol.controlOwner}
+        delegate={subcontrol.delegate}
+        isEditing={isEditing}
+        handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)}
+      />
       <PropertiesCard data={subcontrol as Subcontrol} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)} />
       <RelatedControls />
 
@@ -316,7 +340,7 @@ const ControlDetailsPage: React.FC = () => {
           showInfoDetails={showInfoDetails}
         />
       )}
-      <AssociatedObjectsAccordion policies={subcontrol.internalPolicies} procedures={subcontrol.procedures} tasks={subcontrol.tasks} risks={subcontrol.risks} />
+      <AssociatedObjectsAccordion canEdit={canEdit(permission?.roles)} policies={subcontrol.internalPolicies} procedures={subcontrol.procedures} tasks={subcontrol.tasks} risks={subcontrol.risks} />
     </>
   )
 

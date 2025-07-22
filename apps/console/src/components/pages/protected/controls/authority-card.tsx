@@ -17,9 +17,10 @@ interface AuthorityCardProps {
   delegate?: ControlDetailsFieldsFragment['delegate']
   isEditing: boolean
   handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput) => void
+  isEditAllowed?: boolean
 }
 
-const AuthorityCard: React.FC<AuthorityCardProps> = ({ controlOwner, delegate, isEditing, handleUpdate }) => {
+const AuthorityCard: React.FC<AuthorityCardProps> = ({ controlOwner, delegate, isEditing, handleUpdate, isEditAllowed }) => {
   const [editingField, setEditingField] = useState<'owner' | 'delegate' | null>(null)
   const { data } = useGetAllGroups({ where: {}, enabled: !!isEditing || !!editingField })
   const groups = data?.groups?.edges?.map((edge) => edge?.node) || []
@@ -36,7 +37,7 @@ const AuthorityCard: React.FC<AuthorityCardProps> = ({ controlOwner, delegate, i
 
   const renderField = (fieldKey: 'controlOwnerID' | 'delegateID', label: string, icon: React.ReactNode, value: Group | null | undefined, editingKey: 'owner' | 'delegate') => {
     const displayName = value?.displayName || `No ${label}`
-    const showEditable = isEditing || editingField === editingKey
+    const showEditable = isEditAllowed && (isEditing || editingField === editingKey)
 
     return (
       <div className="flex justify-between items-center">
@@ -51,9 +52,10 @@ const AuthorityCard: React.FC<AuthorityCardProps> = ({ controlOwner, delegate, i
           <TooltipProvider disableHoverableContent>
             <Tooltip>
               <TooltipTrigger
-                className="w-[200px] cursor-pointer"
+                type="button"
+                className={`w-[200px] ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} `}
                 onClick={() => {
-                  if (!isEditing) setEditingField(editingKey)
+                  if (!isEditing && isEditAllowed) setEditingField(editingKey)
                 }}
               >
                 <div className="flex gap-2 items-center">

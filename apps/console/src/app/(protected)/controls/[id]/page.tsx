@@ -285,8 +285,18 @@ const ControlDetailsPage: React.FC = () => {
 
   const mainContent = (
     <div className="space-y-6 p-2">
-      <TitleField isEditAllowed={!isSourceFramework} isEditing={isEditing} initialValue={initialValues.refCode} handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)} />
-      <DescriptionField isEditAllowed={!isSourceFramework} isEditing={isEditing} initialValue={initialValues.description} handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)} />
+      <TitleField
+        isEditAllowed={!isSourceFramework && canEdit(permission?.roles)}
+        isEditing={isEditing}
+        initialValue={initialValues.refCode}
+        handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)}
+      />
+      <DescriptionField
+        isEditAllowed={!isSourceFramework && canEdit(permission?.roles)}
+        isEditing={isEditing}
+        initialValue={initialValues.description}
+        handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)}
+      />
       <ControlEvidenceTable
         canEdit={canEdit(permission?.roles)}
         control={{
@@ -315,7 +325,13 @@ const ControlDetailsPage: React.FC = () => {
 
   const sidebarContent = (
     <>
-      <AuthorityCard controlOwner={control.controlOwner} delegate={control.delegate} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)} />
+      <AuthorityCard
+        isEditAllowed={canEdit(permission?.roles)}
+        controlOwner={control.controlOwner}
+        delegate={control.delegate}
+        isEditing={isEditing}
+        handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)}
+      />
       <PropertiesCard data={control as Control} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)} />
 
       <RelatedControls />
