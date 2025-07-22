@@ -22,7 +22,7 @@ const DetailsCard = () => {
         <div className="flex justify-between pb-2.5  border-b items-center">
           <span className="text-sm ">Control objectives</span>
           <Link href={controlObjectivesPath}>
-            <Button className="h-8 !p-2 size-fit" variant="outline" icon={<ChevronRight size={16} />}>
+            <Button type="button" className="h-8 !p-2 size-fit" variant="outline" icon={<ChevronRight size={16} />}>
               View
             </Button>
           </Link>
@@ -30,7 +30,7 @@ const DetailsCard = () => {
         <div className="flex justify-between p-0 items-center">
           <span className="text-sm ">Implementation details</span>
           <Link href={controlImplementationPath}>
-            <Button className="h-8 !p-2 size-fit" variant="outline" icon={<ChevronRight size={16} />}>
+            <Button type="button" className="h-8 !p-2 size-fit" variant="outline" icon={<ChevronRight size={16} />}>
               View
             </Button>
           </Link>

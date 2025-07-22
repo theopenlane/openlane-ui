@@ -23,18 +23,24 @@ const TitleField = ({ isEditing, isEditAllowed = true, handleUpdate, initialValu
   }
 
   const handleBlur = () => {
-    if (isEditing) {
-      return
-    }
-    const refCode = getValues('refCode')
+    if (isEditing) return
 
+    const refCode = getValues('refCode')
     if (refCode === initialValue) {
       setInternalEditing(false)
       return
     }
+
     if (!refCode?.trim()) return
+
     handleUpdate({ refCode })
     setInternalEditing(false)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      ;(e.target as HTMLInputElement).blur()
+    }
   }
 
   return isEditAllowed && (isEditing || internalEditing) ? (
@@ -42,7 +48,7 @@ const TitleField = ({ isEditing, isEditAllowed = true, handleUpdate, initialValu
       <label htmlFor="refCode" className="block text-sm font-medium text-muted-foreground mb-1">
         Name<span className="text-red-500 ml-1">*</span>
       </label>
-      <Input id="refCode" {...register('refCode')} onBlur={handleBlur} autoFocus />
+      <Input id="refCode" {...register('refCode')} onBlur={handleBlur} onKeyDown={handleKeyDown} autoFocus />
     </div>
   ) : (
     <h1 onClick={handleClick} className={`text-3xl font-semibold ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>

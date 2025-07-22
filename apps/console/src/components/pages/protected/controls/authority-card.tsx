@@ -31,6 +31,7 @@ const AuthorityCard: React.FC<AuthorityCardProps> = ({ controlOwner, delegate, i
   }))
 
   const handleSelect = (field: 'controlOwnerID' | 'delegateID', value: string) => {
+    if (isEditing) return
     handleUpdate?.({ [field]: value })
     setEditingField(null)
   }

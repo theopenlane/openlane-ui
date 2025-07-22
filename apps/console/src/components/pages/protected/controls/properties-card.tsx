@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 import { Card } from '@repo/ui/cardpanel'
 import { Input } from '@repo/ui/input'
@@ -79,17 +79,27 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
           options={Object.values(ControlControlType)}
           labels={typeLabels}
           handleUpdate={handleUpdate}
-        />{' '}
+        />
         {isEditing || data?.referenceID ? (
-          <ReferenceProperty name="referenceID" label="Ref ID" tooltip="Internal reference id of the control, used to map across internal systems" value={data?.referenceID} isEditing={isEditing} />
+          <ReferenceProperty
+            handleUpdate={handleUpdate}
+            name="referenceID"
+            label="Ref ID"
+            tooltip="Internal reference id of the control, used to map across internal systems"
+            value={data?.referenceID}
+            isEditing={isEditing}
+            isEditAllowed={isEditAllowed}
+          />
         ) : null}
         {isEditing || data?.auditorReferenceID ? (
           <ReferenceProperty
+            handleUpdate={handleUpdate}
             name="auditorReferenceID"
             label="Auditor ID"
             tooltip="Reference ID used by auditor, may vary from defined reference code from standard"
             value={data?.auditorReferenceID}
             isEditing={isEditing}
+            isEditAllowed={isEditAllowed}
           />
         ) : null}
       </div>
@@ -152,9 +162,10 @@ const EditableSelect = ({
       setInternalEditing(false)
       return
     }
-
-    handleUpdate?.({ [name]: value })
-    setInternalEditing(false)
+    if (!isEditing) {
+      handleUpdate?.({ [name]: value })
+      setInternalEditing(false)
+    }
   }
 
   const isEditable = isEditAllowed && (isEditing || internalEditing)
@@ -174,8 +185,8 @@ const EditableSelect = ({
               <Select
                 value={field.value}
                 onValueChange={(val) => {
-                  field.onChange(val)
                   handleChange(val)
+                  field.onChange(val)
                 }}
               >
                 <SelectTrigger className="w-[200px]">
@@ -201,9 +212,42 @@ const EditableSelect = ({
   )
 }
 
-const ReferenceProperty = ({ name, label, tooltip, value, isEditing }: { name: string; label: string; tooltip: string; value?: string | null; isEditing: boolean }) => {
-  const { control } = useFormContext()
+const ReferenceProperty = ({
+  name,
+  label,
+  tooltip,
+  value,
+  isEditing,
+  handleUpdate,
+  isEditAllowed,
+}: {
+  name: string
+  label: string
+  tooltip: string
+  value?: string | null
+  isEditing: boolean
+  handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput) => void
+  isEditAllowed: boolean
+}) => {
+  const { control, getValues } = useFormContext()
   const { successNotification } = useNotification()
+  const [internalEditing, setInternalEditing] = useState(false)
+
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const isEditable = isEditing || internalEditing
+
+  const handleClick = () => {
+    if (!isEditing && isEditAllowed) {
+      setInternalEditing(true)
+    }
+  }
+
+  useEffect(() => {
+    if (internalEditing && inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [internalEditing])
 
   const handleCopy = () => {
     if (!value) return
@@ -230,15 +274,48 @@ const ReferenceProperty = ({ name, label, tooltip, value, isEditing }: { name: s
         </div>
       </div>
       <div className="text-sm w-full">
-        {isEditing ? (
-          <Controller control={control} name={name} render={({ field }) => <Input {...field} className="w-full" placeholder={label} />} />
+        {isEditable ? (
+          <Controller
+            control={control}
+            name={name}
+            render={({ field }) => (
+              <Input
+                {...field}
+                ref={inputRef}
+                className="w-full"
+                placeholder={label}
+                onBlur={(e) => {
+                  if (isEditing) {
+                    return
+                  }
+                  const trimmed = e.target.value.trim()
+                  if (getValues(name) !== trimmed) {
+                    handleUpdate?.({ [name]: trimmed })
+                  }
+                  field.onChange(trimmed)
+                  setInternalEditing(false)
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    ;(e.target as HTMLInputElement).blur()
+                  }
+                }}
+              />
+            )}
+          />
         ) : value ? (
-          <div className="flex items-center gap-2">
+          <div className={isEditAllowed ? 'flex items-center gap-2 cursor-pointer' : 'flex items-center gap-2 cursor-not-allowed'} onClick={handleClick}>
             <span>{value}</span>
             <TooltipProvider disableHoverableContent>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button type="button" onClick={handleCopy}>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleCopy()
+                    }}
+                  >
                     <CopyIcon className="w-4 h-4" />
                   </button>
                 </TooltipTrigger>
@@ -247,7 +324,9 @@ const ReferenceProperty = ({ name, label, tooltip, value, isEditing }: { name: s
             </TooltipProvider>
           </div>
         ) : (
-          '-'
+          <span className={isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} onClick={handleClick}>
+            -
+          </span>
         )}
       </div>
     </div>
@@ -304,9 +383,11 @@ export const EditableSelectFromQuery = ({
                 setInternalEditing(false)
                 return
               }
+              if (!isEditing) {
+                handleUpdate?.({ [name]: val })
+              }
 
               field.onChange(val)
-              handleUpdate?.({ [name]: val })
               setInternalEditing(false)
             }
             if (!isEditable) {
@@ -398,8 +479,10 @@ const Status = ({ isEditing, data, handleUpdate }: { isEditing: boolean; data?: 
       setInternalEditing(false)
       return
     }
+    if (!isEditing) {
+      handleUpdate?.({ status: val })
+    }
 
-    handleUpdate?.({ status: val })
     setInternalEditing(false)
   }
 
@@ -424,8 +507,8 @@ const Status = ({ isEditing, data, handleUpdate }: { isEditing: boolean; data?: 
               <Select
                 value={field.value}
                 onValueChange={(val: ControlControlStatus | SubcontrolControlStatus) => {
-                  field.onChange(val)
                   handleChange(val)
+                  field.onChange(val)
                 }}
               >
                 <SelectTrigger className="w-[200px]">
