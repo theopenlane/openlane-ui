@@ -2,7 +2,7 @@
 import React, { useMemo, useState, useEffect } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import GroupsTable from '@/components/pages/protected/groups/components/groups-table'
-import { CirclePlus, CreditCard as CardIcon, SearchIcon, Table as TableIcon } from 'lucide-react'
+import { CirclePlus, SearchIcon } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
 import { GetAllGroupsQueryVariables, GroupSettingVisibility, GroupWhereInput } from '@repo/codegen/src/schema'
 import CreateGroupDialog from './components/dialogs/create-group-dialog'
@@ -21,6 +21,7 @@ import { VisibilityState } from '@tanstack/react-table'
 import { getGroupTableColumns } from './table/columns'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import TableCardView from '@/components/shared/table-card-view/table-card-view'
 
 const filterFields: FilterField[] = [
   { key: 'name', label: 'Name', type: 'text' },
@@ -86,14 +87,7 @@ const GroupsPage = () => {
     <>
       <PageHeading heading={'Groups'} />
       <div className="flex items-center gap-2 my-2">
-        <div className="flex gap-1 size-fit bg-transparent py-0.5 px-1 border rounded-md">
-          <div className={`py-1.5 px-2.5 rounded-md cursor-pointer ${activeTab === 'table' ? 'bg-card' : 'bg-transparent'}`} onClick={() => setActiveTab('table')}>
-            <TableIcon size={16} />
-          </div>
-          <div className={`py-1.5 px-2.5 rounded-md cursor-pointer ${activeTab === 'card' ? 'bg-card' : 'bg-transparent'}`} onClick={() => setActiveTab('card')}>
-            <CardIcon size={16} />
-          </div>
-        </div>
+        <TableCardView activeTab={activeTab} onTabChange={setActiveTab}></TableCardView>
         {mappedColumns && columnVisibility && setColumnVisibility && (
           <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility}></ColumnVisibilityMenu>
         )}

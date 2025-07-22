@@ -104,7 +104,7 @@ const ControlImplementationPage = () => {
         { label: 'Home', href: '/dashboard' },
         { label: 'Controls', href: '/controls' },
         { label: controlData?.control?.refCode, isLoading: isControlLoading, href: `/controls/${id}` },
-        { label: 'Control Objective' },
+        { label: 'Control Implementation' },
       ])
     }
     if (subcontrolData) {
@@ -112,7 +112,7 @@ const ControlImplementationPage = () => {
         { label: 'Home', href: '/dashboard' },
         { label: 'Controls', href: '/controls' },
         { label: subcontrolData?.subcontrol?.refCode, isLoading: isSubcontrolLoading, href: `/controls/${id}/${subcontrolId}` },
-        { label: 'Control Objective' },
+        { label: 'Control Implementation' },
       ])
     }
   }, [setCrumbs, controlData, subcontrolData, id, isControlLoading, isSubcontrolLoading, subcontrolId])
