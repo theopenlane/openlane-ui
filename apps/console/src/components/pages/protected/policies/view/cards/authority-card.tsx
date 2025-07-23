@@ -19,10 +19,11 @@ type TAuthorityCardProps = {
   delegate?: InternalPolicyByIdFragment['delegate']
   isEditing: boolean
   editAllowed: boolean
-  handleUpdate: (val: UpdateInternalPolicyInput) => void
+  handleUpdate?: (val: UpdateInternalPolicyInput) => void
+  inputClassName?: string
 }
 
-const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approver, delegate, editAllowed, handleUpdate }) => {
+const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approver, delegate, editAllowed, handleUpdate, inputClassName }) => {
   const [editingField, setEditingField] = useState<'approver' | 'delegate' | null>(null)
 
   const { data } = useGetAllGroups({ where: {}, enabled: isEditing || !!editingField })
@@ -49,7 +50,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
 
     return (
       <div className="flex justify-between items-center">
-        <div className="flex gap-2 items-center w-[200px]">
+        <div className={`flex gap-2 w-[200px] items-center ${inputClassName ?? ''} `}>
           {icon}
           <TooltipProvider>
             <Tooltip>
