@@ -42,7 +42,7 @@ const AddComment: React.FC<TProps> = (props: TProps) => {
           <div className="flex-1 border rounded-lg p-2 w-full flex flex-col space-y-2">
             <PlateEditor onChange={handleDetailsChange} variant="minimal" styleVariant="comment" clearData={clearData} onClear={() => setClearData(false)} placeholder="Add a comment" />
             <div className="flex justify-end items-center">
-              <Button iconPosition="left" onClick={() => handleSaveComment()}>
+              <Button type="button" iconPosition="left" onClick={() => handleSaveComment()}>
                 Send
               </Button>
             </div>
