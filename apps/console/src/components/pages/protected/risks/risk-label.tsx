@@ -12,9 +12,10 @@ interface RiskLabelProps {
   status?: RiskRiskStatus
   isEditing: boolean
   onChange?: (value: string | number) => void
+  onMouseUp?: (value: string | number) => void
 }
 
-export const RiskLabel = ({ score, impact, likelihood, status, isEditing, onChange }: RiskLabelProps) => {
+export const RiskLabel = ({ score, impact, likelihood, status, isEditing, onChange, onMouseUp }: RiskLabelProps) => {
   if (isEditing) {
     if (typeof score === 'number') {
       return (
@@ -25,6 +26,7 @@ export const RiskLabel = ({ score, impact, likelihood, status, isEditing, onChan
             max={20}
             value={score}
             onChange={(e) => onChange?.(Number(e.target.value))}
+            onMouseUp={(e) => onMouseUp?.(Number(e.currentTarget.value))}
             className="accent-brand w-full h-2 bg-input-slider rounded-lg appearance-none cursor-pointer "
           />
           <span className="text-sm w-8 text-right">{score}</span>
