@@ -3,7 +3,7 @@
 import React, { Fragment, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
-import { ArrowDownUp, ArrowUpDown, ArrowRight, BookText, CalendarCheck2, Check, Circle, CircleUser, Folder, InfoIcon, LinkIcon, Pencil, Tag, UserRoundPen } from 'lucide-react'
+import { ArrowDownUp, ArrowUpDown, BookText, CalendarCheck2, Check, Circle, CircleUser, Folder, InfoIcon, LinkIcon, Pencil, Tag, UserRoundPen, PanelRightClose } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { CreateNoteInput, TaskTaskStatus, UserWhereInput } from '@repo/codegen/src/schema'
 import { Input } from '@repo/ui/input'
@@ -67,8 +67,8 @@ const TaskDetailsSheet = () => {
   const { form } = useFormSchema()
   const where: UserWhereInput | undefined = taskData?.comments
     ? {
-      idIn: taskData.comments.edges?.map((item) => item?.node?.createdBy).filter((id): id is string => typeof id === 'string'),
-    }
+        idIn: taskData.comments.edges?.map((item) => item?.node?.createdBy).filter((id): id is string => typeof id === 'string'),
+      }
     : undefined
   const { data: userData } = useGetUsers(where)
 
@@ -350,11 +350,7 @@ const TaskDetailsSheet = () => {
 
   const handleTags = () => {
     return (
-      <div className="flex flex-wrap gap-2">
-        {taskData?.tags?.map((item: string | undefined, index: number) => (
-          <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>
-        ))}
-      </div>
+      <div className="flex flex-wrap gap-2">{taskData?.tags?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}</div>
     )
   }
 
@@ -400,7 +396,7 @@ const TaskDetailsSheet = () => {
         header={
           <SheetHeader>
             <div className="flex items-center justify-between">
-              <ArrowRight size={16} className="cursor-pointer" onClick={handleSheetClose} />
+              <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={handleSheetClose} />
               <div className="flex justify-end gap-2">
                 <Button icon={<LinkIcon />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
                   Copy link

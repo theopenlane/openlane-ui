@@ -1,7 +1,7 @@
 'use client'
 
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { ArrowRight } from 'lucide-react'
+import { PanelRightClose } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
@@ -128,7 +128,7 @@ export function ManagePermissionSheet({ open, onOpenChange }: { open: boolean; o
           className="bg-card flex flex-col"
           header={
             <SheetHeader className="flex justify-between items-center flex-row text-2xl">
-              <ArrowRight size={16} className="cursor-pointer" onClick={() => onOpenChange(false)} />
+              <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={() => onOpenChange(false)} />
               <Button className="h-8 p-2" onClick={() => setAssignDialogOpen(true)}>
                 Assign
               </Button>

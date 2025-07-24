@@ -6,7 +6,7 @@ import { useForm, FormProvider } from 'react-hook-form'
 import { Value } from 'platejs'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import { ArrowRight, PencilIcon, SaveIcon, XIcon, CirclePlus } from 'lucide-react'
+import { PencilIcon, SaveIcon, XIcon, CirclePlus, PanelRightClose } from 'lucide-react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { EvidenceEdge, Subcontrol, SubcontrolControlSource, SubcontrolControlStatus, SubcontrolControlType, UpdateSubcontrolInput } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
@@ -359,7 +359,7 @@ const ControlDetailsPage: React.FC = () => {
         <SheetContent
           header={
             <SheetHeader>
-              <ArrowRight size={16} className="cursor-pointer" onClick={() => handleSheetClose(false)} />
+              <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={() => handleSheetClose(false)} />
               <SheetTitle>{sheetData?.refCode}</SheetTitle>
             </SheetHeader>
           }
