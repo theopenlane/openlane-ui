@@ -326,6 +326,27 @@ const ControlDetailsPage: React.FC = () => {
 
   const sidebarContent = (
     <>
+      <AssociatedObjectsAccordion
+        policies={control.internalPolicies}
+        procedures={control.procedures}
+        tasks={control.tasks}
+        programs={control.programs}
+        risks={control.risks}
+        canEdit={canEdit(permission?.roles)}
+      />
+      <ObjectAssociationGraph
+        centerNode={{
+          node: control,
+          type: 'control',
+        }}
+        sections={{
+          policies: control.internalPolicies,
+          procedures: control.procedures,
+          tasks: control.tasks,
+          programs: control.programs,
+          risks: control.risks,
+        }}
+      />
       <AuthorityCard
         isEditAllowed={canEdit(permission?.roles)}
         controlOwner={control.controlOwner}
@@ -347,25 +368,6 @@ const ControlDetailsPage: React.FC = () => {
           showInfoDetails={showInfoDetails}
         />
       )}
-      <AssociatedObjectsAccordion
-        policies={control.internalPolicies}
-        procedures={control.procedures}
-        tasks={control.tasks}
-        programs={control.programs}
-        risks={control.risks}
-        canEdit={canEdit(permission?.roles)}
-      />
-      <ObjectAssociationGraph
-        centerNodeId={control.id}
-        centerNodeLabel={control.displayID}
-        sections={{
-          internalPolicies: control.internalPolicies,
-          procedures: control.procedures,
-          tasks: control.tasks,
-          programs: control.programs,
-          risks: control.risks,
-        }}
-      />
     </>
   )
 

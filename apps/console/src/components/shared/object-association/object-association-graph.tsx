@@ -1,48 +1,71 @@
 'use client'
 
 import React, { useMemo, useRef, useState, useEffect } from 'react'
-import { ControlDetailsFieldsFragment } from '@repo/codegen/src/schema.ts'
-import ForceGraph, { ForceGraphMethods } from 'react-force-graph-2d'
+import ForceGraph, { ForceGraphMethods, NodeObject } from 'react-force-graph-2d'
+import { forceCollide, forceRadial } from 'd3-force'
+import usePlateEditor from '../plate/usePlateEditor'
+import { useRouter } from 'next/navigation'
+import { PencilLine, SlidersHorizontal } from 'lucide-react'
+import { ObjectAssociationMap } from '@/components/shared/enum-mapper/object-association-enum.tsx'
+import { getHrefForObjectType, NormalizedObject } from '@/utils/getHrefForObjectType.ts'
 
-type GraphNode = {
+type TBaseAssociatedNode = {
+  id: string
+  displayID: string
+  name?: string | null
+  title?: string | null
+  summary?: string | null
+  description?: string | null
+  details?: string | null
+  refCode?: string | null
+  __typename?: string
+}
+
+type TEdgeNode = { node?: TBaseAssociatedNode | null } | null
+
+type TConnectionLike = {
+  edges?: TEdgeNode[] | null
+  totalCount?: number
+  [key: string]: unknown
+}
+
+type GraphSection = { [key: string]: TConnectionLike | undefined }
+
+interface IGraphNode {
   id: string
   name: string
   type: string
 }
+type TGraphLink = { source: string; target: string }
 
-type GraphLink = {
-  source: string
-  target: string
+type TCenterNode = {
+  type: string
+  node: TBaseAssociatedNode
 }
 
-type GraphSection = {
-  [key: string]:
-    | ControlDetailsFieldsFragment['internalPolicies']
-    | ControlDetailsFieldsFragment['procedures']
-    | ControlDetailsFieldsFragment['tasks']
-    | ControlDetailsFieldsFragment['programs']
-    | ControlDetailsFieldsFragment['risks']
-}
+type TObjectAssociationGraphProps = { centerNode: TCenterNode; sections: GraphSection }
 
-type Props = {
-  centerNodeId: string
-  centerNodeLabel: string
-  sections: GraphSection
-}
+const NODE_RADIUS = 7
+const FONT_SIZE = 12
+const LABEL_PADDING = 4
 
-const getRandomColor = () => `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`
-
-const ObjectAssociationGraph: React.FC<Props> = ({ centerNodeId, centerNodeLabel, sections }) => {
+const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ centerNode, sections }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState({ width: 300, height: 300 })
   const fgRef = useRef<ForceGraphMethods | undefined>(undefined)
+  const [hoverNode, setHoverNode] = useState<NodeObject<IGraphNode> | null>(null)
 
   useEffect(() => {
-    if (fgRef.current) {
-      console.log(fgRef)
-      fgRef.current.d3Force('link')?.distance(20)
+    if (!fgRef.current) {
+      return
     }
-  }, [])
+
+    const fg = fgRef.current
+    fg.d3Force('link')?.distance(50)
+    fg.d3Force('collide', forceCollide(() => NODE_RADIUS + FONT_SIZE + LABEL_PADDING).iterations(4))
+    const R = Math.min(dimensions.width, dimensions.height) / 3
+    fg.d3Force('radial', forceRadial((d) => ((d as IGraphNode).type === 'center' ? 0 : R), 0, 0).strength(0.8))
+  }, [dimensions])
 
   useEffect(() => {
     const resizeObserver = new ResizeObserver((entries) => {
@@ -52,41 +75,102 @@ const ObjectAssociationGraph: React.FC<Props> = ({ centerNodeId, centerNodeLabel
       }
     })
 
-    if (containerRef.current) {
-      resizeObserver.observe(containerRef.current)
+    const containerEl = containerRef.current
+    if (containerEl) {
+      resizeObserver.observe(containerEl)
     }
 
     return () => {
-      if (containerRef.current) {
-        resizeObserver.unobserve(containerRef.current)
+      if (containerEl) {
+        resizeObserver.unobserve(containerEl)
       }
     }
   }, [])
 
-  const { graphData, colorMap } = useMemo(() => {
-    const nodes: GraphNode[] = [{ id: centerNodeId, name: centerNodeLabel, type: 'center' }]
-    const links: GraphLink[] = []
+  const extractNodes = (edges: TEdgeNode[] | null | undefined): TBaseAssociatedNode[] => (edges ?? []).map((edge) => edge?.node).filter((node): node is TBaseAssociatedNode => !!node)
+
+  const { graphData, colorMap, nodeMeta } = useMemo(() => {
+    const displayText = centerNode.node.refCode || centerNode.node.name || centerNode.node.title || ''
+    const nodes: IGraphNode[] = [{ id: centerNode.node.id, name: displayText, type: 'center' }]
+    const links: TGraphLink[] = []
     const colorMap: Record<string, string> = { center: '#ffffff' }
+    const nodeMeta: Record<string, TBaseAssociatedNode & { link: string }> = {}
 
-    for (const [sectionType, connection] of Object.entries(sections)) {
-      if (!colorMap[sectionType]) {
-        colorMap[sectionType] = getRandomColor()
-      }
-
-      const entries = (connection?.edges ?? []).map((edge) => edge?.node)
-
-      entries.forEach((node) => {
-        if (!node) return
-        nodes.push({ id: node.id, name: node.displayID, type: sectionType })
-        links.push({ source: centerNodeId, target: node.id })
-      })
+    nodeMeta[centerNode.node.id] = {
+      ...centerNode.node,
+      refCode: displayText,
+      description: centerNode.node.summary || centerNode.node.description || centerNode.node.details || '',
+      displayID: centerNode.node.displayID || centerNode.node.id,
+      link: getHrefForObjectType(centerNode.type, centerNode.node as NormalizedObject),
     }
 
-    return { graphData: { nodes, links }, colorMap }
-  }, [centerNodeId, centerNodeLabel, sections])
+    Object.entries(sections).forEach(([sectionType, connection]) => {
+      if (!connection?.edges) return
+      if (!colorMap[sectionType]) {
+        colorMap[sectionType] = ObjectAssociationMap[sectionType as keyof typeof ObjectAssociationMap]?.color || '#ccc'
+      }
+      extractNodes(connection.edges).forEach((node) => {
+        const label = node.refCode || node.name || node.title || ''
+        nodeMeta[node.id] = {
+          ...node,
+          refCode: label,
+          description: node.summary || node.description || node.details || '',
+          displayID: node.displayID || node.id,
+          link: getHrefForObjectType(sectionType, node as NormalizedObject),
+        }
+        nodes.push({ id: node.id, name: label, type: sectionType })
+        links.push({ source: centerNode.node.id, target: node.id })
+      })
+    })
+
+    return { graphData: { nodes, links }, colorMap, nodeMeta }
+  }, [centerNode, sections])
+
+  const CustomTooltipContent = ({ node }: { node: TBaseAssociatedNode & { link: string } }) => {
+    const { convertToReadOnly } = usePlateEditor()
+    const router = useRouter()
+    const displayText = node.refCode || node.name || node.title || ''
+    const displayDescription = node.summary || node.description || node.details || ''
+    return (
+      <div>
+        <div className="grid grid-cols-[auto_1fr] gap-y-2">
+          <div className="flex items-center gap-1 border-b pb-2">
+            <SlidersHorizontal size={12} />
+            <span className="font-medium">Name</span>
+          </div>
+          <div className="w-full border-b pb-2">
+            <span className="text-brand pl-3 cursor-pointer" onClick={() => router.push(node.link)}>
+              {displayText}
+            </span>
+          </div>
+        </div>
+        <div className="flex flex-col pt-2">
+          <div className="flex items-center gap-1">
+            <PencilLine size={12} />
+            <span className="font-medium">Description</span>
+          </div>
+          <div className="line-clamp-4 text-justify">{displayDescription ? convertToReadOnly(displayDescription) : 'No description available'}</div>
+        </div>
+      </div>
+    )
+  }
+
+  const getTooltipPosition = (x: number, y: number) => (fgRef.current ? fgRef.current.graph2ScreenCoords(x, y) : { x: 0, y: 0 })
+
+  const iconImages = useMemo(() => {
+    const icons: Record<string, HTMLImageElement> = {}
+    Object.entries(ObjectAssociationMap).forEach(([key, { svg }]) => {
+      if (svg) {
+        const img = new Image()
+        img.src = `data:image/svg+xml;charset=utf8,${encodeURIComponent(svg)}`
+        icons[key] = img
+      }
+    })
+    return icons
+  }, [])
 
   return (
-    <div ref={containerRef} style={{ width: '100%', height: '300px' }}>
+    <div ref={containerRef} className="rounded-lg border bg-card text-card-foreground shadow-sm p-4" style={{ width: '100%', height: '300px', position: 'relative' }}>
       <ForceGraph
         ref={fgRef}
         width={dimensions.width}
@@ -96,20 +180,65 @@ const ObjectAssociationGraph: React.FC<Props> = ({ centerNodeId, centerNodeLabel
         linkWidth={() => 2}
         enableNodeDrag={false}
         autoPauseRedraw={false}
+        nodeLabel={() => ''}
+        onNodeHover={(node) => {
+          setHoverNode(node as NodeObject<IGraphNode> | null)
+          if (containerRef.current) containerRef.current.style.cursor = node ? 'pointer' : 'default'
+        }}
+        onNodeClick={(node) => {
+          const meta = nodeMeta[node!.id as string]
+          if (meta?.link) {
+            window.open(meta.link, '_blank')
+          }
+        }}
         nodeCanvasObject={(node, ctx, globalScale) => {
-          const label = node.name
-          const fontSize = 12 / globalScale
+          const label = node!.name
+          const fontSize = FONT_SIZE / globalScale
 
           ctx.beginPath()
-          ctx.fillStyle = colorMap[node.type] || '#ccc'
-          ctx.arc(node.x!, node.y!, 5, 0, 2 * Math.PI)
+          ctx.fillStyle = colorMap[node!.type] || '#ccc'
+          ctx.arc(node!.x!, node!.y!, NODE_RADIUS, 0, 2 * Math.PI)
           ctx.fill()
 
+          const iconImg = iconImages[node!.type]
+          if (iconImg?.complete) {
+            const size = NODE_RADIUS
+            ctx.drawImage(iconImg, node!.x! - size / 2, node!.y! - size / 2, size, size)
+          }
+
+          if (hoverNode?.id === node!.id) {
+            ctx.lineWidth = 1
+            ctx.stroke()
+          }
+
           ctx.font = `${fontSize}px Sans-Serif`
+          ctx.textAlign = 'center'
+          ctx.textBaseline = 'top'
           ctx.fillStyle = 'white'
-          ctx.fillText(label, node.x! + 8, node.y! + 3)
+          ctx.fillText(label, node!.x!, node!.y! + NODE_RADIUS + LABEL_PADDING)
         }}
       />
+
+      {hoverNode?.id &&
+        nodeMeta[hoverNode.id] &&
+        (() => {
+          const { x, y } = getTooltipPosition(hoverNode.x!, hoverNode.y!)
+          return (
+            <div
+              style={{
+                position: 'absolute',
+                left: x,
+                top: y,
+                transform: 'translate(-50%, -100%)',
+                zIndex: 99999,
+                pointerEvents: 'none',
+              }}
+              className="bg-background-secondary p-3 rounded-md shadow-lg text-xs min-w-[240px]"
+            >
+              <CustomTooltipContent node={nodeMeta[hoverNode.id]} />
+            </div>
+          )
+        })()}
     </div>
   )
 }
