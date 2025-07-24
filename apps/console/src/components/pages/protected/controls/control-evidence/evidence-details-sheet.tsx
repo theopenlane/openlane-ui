@@ -4,7 +4,6 @@ import React, { Fragment, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import {
-  ArrowRight,
   Binoculars,
   Calendar,
   CalendarCheck2,
@@ -17,6 +16,7 @@ import {
   InfoIcon,
   Link,
   LinkIcon,
+  PanelRightClose,
   Pencil,
   Tag,
   Trash2,
@@ -199,11 +199,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const handleTags = () => {
     return (
-      <div className="flex flex-wrap gap-2">
-        {evidence?.tags?.map((item: string | undefined, index: number) => (
-          <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>
-        ))}
-      </div>
+      <div className="flex flex-wrap gap-2">{evidence?.tags?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}</div>
     )
   }
 
@@ -215,7 +211,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
         header={
           <SheetHeader>
             <div className="flex items-center justify-between">
-              <ArrowRight size={16} className="cursor-pointer" onClick={handleSheetClose} />
+              <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={handleSheetClose} />
               <div className="flex justify-end gap-2">
                 <Button icon={<Link />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
                   Copy link

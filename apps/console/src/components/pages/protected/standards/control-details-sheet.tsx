@@ -4,7 +4,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { controlIconsMap } from '../controls/properties-card'
-import { ArrowRight, LinkIcon } from 'lucide-react'
+import { LinkIcon, PanelRightClose } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { Button } from '@repo/ui/button'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -76,13 +76,13 @@ const ControlDetailsSheet = () => {
           ?.map((e) =>
             e?.node
               ? {
-                type: 'Control',
-                id: e.node.id,
-                refCode: e.node.refCode,
-                referenceFramework: e.node.referenceFramework,
-                mappingType: node.mappingType,
-                relation: node.relation,
-              }
+                  type: 'Control',
+                  id: e.node.id,
+                  refCode: e.node.refCode,
+                  referenceFramework: e.node.referenceFramework,
+                  mappingType: node.mappingType,
+                  relation: node.relation,
+                }
               : null,
           )
           .filter(Boolean) as typeof oppositeNodes),
@@ -90,14 +90,14 @@ const ControlDetailsSheet = () => {
           ?.map((e) =>
             e?.node
               ? {
-                type: 'Subcontrol',
-                id: e.node.id,
-                refCode: e.node.refCode,
-                referenceFramework: e.node.referenceFramework,
-                controlId: e.node.control.id,
-                mappingType: node.mappingType,
-                relation: node.relation,
-              }
+                  type: 'Subcontrol',
+                  id: e.node.id,
+                  refCode: e.node.refCode,
+                  referenceFramework: e.node.referenceFramework,
+                  controlId: e.node.control.id,
+                  mappingType: node.mappingType,
+                  relation: node.relation,
+                }
               : null,
           )
           .filter(Boolean) as typeof oppositeNodes),
@@ -108,13 +108,13 @@ const ControlDetailsSheet = () => {
           ?.map((e) =>
             e?.node
               ? {
-                type: 'Control',
-                id: e.node.id,
-                refCode: e.node.refCode,
-                referenceFramework: e.node.referenceFramework,
-                mappingType: node.mappingType,
-                relation: node.relation,
-              }
+                  type: 'Control',
+                  id: e.node.id,
+                  refCode: e.node.refCode,
+                  referenceFramework: e.node.referenceFramework,
+                  mappingType: node.mappingType,
+                  relation: node.relation,
+                }
               : null,
           )
           .filter(Boolean) as typeof oppositeNodes),
@@ -122,14 +122,14 @@ const ControlDetailsSheet = () => {
           ?.map((e) =>
             e?.node
               ? {
-                type: 'Subcontrol',
-                id: e.node.id,
-                refCode: e.node.refCode,
-                referenceFramework: e.node.referenceFramework,
-                controlId: e.node.control.id,
-                mappingType: node.mappingType,
-                relation: node.relation,
-              }
+                  type: 'Subcontrol',
+                  id: e.node.id,
+                  refCode: e.node.refCode,
+                  referenceFramework: e.node.referenceFramework,
+                  controlId: e.node.control.id,
+                  mappingType: node.mappingType,
+                  relation: node.relation,
+                }
               : null,
           )
           .filter(Boolean) as typeof oppositeNodes),
@@ -154,7 +154,7 @@ const ControlDetailsSheet = () => {
         header={
           <SheetHeader>
             <div className="flex items-center justify-between">
-              <ArrowRight size={16} className="cursor-pointer" onClick={() => handleOpenChange(false)} />
+              <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={() => handleOpenChange(false)} />
               <Button className="h-8 p-2" icon={<LinkIcon />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
                 Copy link
               </Button>
