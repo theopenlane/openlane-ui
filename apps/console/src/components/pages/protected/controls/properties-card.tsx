@@ -214,7 +214,7 @@ const EditableSelect = ({
             )}
           />
         ) : (
-          <div className={isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} onClick={handleClick}>
+          <div className={isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} onDoubleClick={handleClick}>
             {labels[getValues(name)] ?? '-'}
           </div>
         )}
@@ -312,7 +312,7 @@ const ReferenceProperty = ({
             )}
           />
         ) : value ? (
-          <div className={'flex items-center gap-2 cursor-pointer'} onClick={handleClick}>
+          <div className={'flex items-center gap-2 cursor-pointer'} onDoubleClick={handleClick}>
             <span>{value}</span>
             <TooltipProvider disableHoverableContent>
               <Tooltip>
@@ -332,7 +332,7 @@ const ReferenceProperty = ({
             </TooltipProvider>
           </div>
         ) : (
-          <span className={'cursor-pointer'} onClick={handleClick}>
+          <span className={'cursor-pointer'} onDoubleClick={handleClick}>
             -
           </span>
         )}
@@ -407,7 +407,7 @@ export const EditableSelectFromQuery = ({
             }
             if (!isEditable) {
               return (
-                <span className={isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} onClick={() => setInternalEditing(true)}>
+                <span className={isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} onDoubleClick={() => setInternalEditing(true)}>
                   {field.value || '-'}
                 </span>
               )
@@ -551,7 +551,7 @@ const Status = ({ isEditing, data, handleUpdate }: { isEditing: boolean; data?: 
             )}
           />
         ) : (
-          <div className="flex items-center space-x-2 cursor-pointer" onClick={handleClick}>
+          <div className="flex items-center space-x-2 cursor-pointer" onDoubleClick={handleClick}>
             {ControlIconMapper16[data?.status as ControlControlStatus]}
             <p>{ControlStatusLabels[data?.status as ControlControlStatus] || '-'}</p>
           </div>
@@ -580,7 +580,7 @@ const MappedCategories = ({ isEditing, data }: { isEditing: boolean; data?: Cont
   }
 
   return (
-    <div onClick={handleClick} className="cursor-pointer ">
+    <div onDoubleClick={handleClick} className="cursor-pointer ">
       <Property label="Mapped categories" value={(data?.mappedCategories ?? []).join(',\n')} />
     </div>
   )

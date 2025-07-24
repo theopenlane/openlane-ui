@@ -68,7 +68,7 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialV
       />
     </div>
   ) : (
-    <div onClick={handleClick} className={`min-h-[20px] ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+    <div onDoubleClick={handleClick} className={`min-h-[20px] ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
       {plateEditorHelper.convertToReadOnly(initialValue as string)}
     </div>
   )

@@ -96,7 +96,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, policy, isEditing, editAllow
             ) : (
               <div
                 className={`flex gap-2 flex-wrap ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-                onClick={() => {
+                onDoubleClick={() => {
                   if (!isEditing && editAllowed) {
                     setInternalEditing(true)
                   }

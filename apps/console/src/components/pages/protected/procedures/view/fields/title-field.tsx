@@ -75,7 +75,7 @@ const TitleField: React.FC<TTitleFieldProps> = ({ isEditing, form, handleUpdate,
       />
     </div>
   ) : (
-    <h1 onClick={handleClick} className={`text-3xl font-semibold ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+    <h1 onDoubleClick={handleClick} className={`text-3xl font-semibold ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
       {form.getValues('name')}
     </h1>
   )

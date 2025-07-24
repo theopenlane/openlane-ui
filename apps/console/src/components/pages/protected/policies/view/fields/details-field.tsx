@@ -56,7 +56,7 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy, e
       />
     </div>
   ) : (
-    <div onClick={handleClick} className={`!mt-4 min-h-[20px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+    <div onDoubleClick={handleClick} className={`!mt-4 min-h-[20px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
       {policy?.details && plateEditorHelper.convertToReadOnly(policy.details as string)}
     </div>
   )

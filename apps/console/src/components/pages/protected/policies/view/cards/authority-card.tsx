@@ -89,7 +89,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, approve
               <TooltipTrigger
                 type="button"
                 className={`w-[200px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-                onClick={() => {
+                onDoubleClick={() => {
                   if (!isEditing && editAllowed) {
                     setEditingField(editingKey)
                   }

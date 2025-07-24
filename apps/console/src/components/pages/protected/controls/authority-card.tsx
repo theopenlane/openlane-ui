@@ -64,7 +64,7 @@ const AuthorityCard: React.FC<AuthorityCardProps> = ({ controlOwner, delegate, i
               <TooltipTrigger
                 type="button"
                 className={`w-[200px] ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} `}
-                onClick={() => {
+                onDoubleClick={() => {
                   if (!isEditing && isEditAllowed) setEditingField(editingKey)
                 }}
               >

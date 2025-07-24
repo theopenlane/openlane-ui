@@ -111,7 +111,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
             ) : (
               <div
                 className={`flex items-center space-x-2 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-                onClick={() => {
+                onDoubleClick={() => {
                   if (!isEditing && editAllowed) setEditingField('status')
                 }}
               >
@@ -191,7 +191,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
             ) : (
               <div
                 className={`${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} truncate`}
-                onClick={() => {
+                onDoubleClick={() => {
                   if (!isEditing && editAllowed) setEditingField('policyType')
                 }}
               >
@@ -247,7 +247,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
             ) : (
               <div
                 className={`${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} truncate`}
-                onClick={() => {
+                onDoubleClick={() => {
                   if (!isEditing && editAllowed) setEditingField('reviewDue')
                 }}
               >
