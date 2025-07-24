@@ -24,11 +24,12 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, procedure, isEditing, editAl
   const [tagValues, setTagValues] = useState<Option[]>([])
   const [internalEditing, setInternalEditing] = useState(false)
 
+  const tags = form.watch('tags')
+
   useEffect(() => {
-    const tags = form.getValues('tags') || []
     const options: Option[] = tags.filter((item): item is string => typeof item === 'string').map((item) => ({ value: item, label: item }))
     setTagValues(options)
-  }, [form])
+  }, [tags])
 
   const wrapperRef = useClickOutside(() => {
     if (!internalEditing || isEditing) return
