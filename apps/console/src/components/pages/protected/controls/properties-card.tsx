@@ -16,6 +16,8 @@ import { useGetControlCategories, useGetControlSubcategories } from '@/lib/graph
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import StandardChip from '../standards/shared/standard-chip'
+import useEscapeKey from '@/hooks/useEscapeKey'
+import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 
 interface PropertiesCardProps {
   isEditing: boolean
@@ -108,7 +110,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
 export default PropertiesCard
 
 const Property = ({ label, value }: { label: string; value?: string | null }) => (
-  <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
+  <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3">
     <div className="flex items-start gap-2">
       <div className="pt-0.5">{controlIconsMap[label]}</div>
       <div className="text-sm">{label}</div>
@@ -166,6 +168,17 @@ const EditableSelect = ({
     }
   }
 
+  const triggerRef = useRef<HTMLDivElement>(null)
+  const popoverRef = useRef<HTMLDivElement>(null)
+
+  useEscapeKey(() => {
+    if (internalEditing) setInternalEditing(false)
+  })
+
+  useClickOutsideWithPortal(() => {
+    if (internalEditing) setInternalEditing(false)
+  }, [triggerRef, popoverRef])
+
   const isEditable = isEditAllowed && (isEditing || internalEditing)
 
   return (
@@ -174,7 +187,7 @@ const EditableSelect = ({
         <div className="pt-0.5">{controlIconsMap[label] ?? <FolderIcon size={16} className="text-brand" />}</div>
         <div className="text-sm">{label}</div>
       </div>
-      <div className="text-sm">
+      <div ref={triggerRef} className="text-sm">
         {isEditable ? (
           <Controller
             control={control}
@@ -190,7 +203,7 @@ const EditableSelect = ({
                 <SelectTrigger className="w-[200px]">
                   <SelectValue placeholder={`Select ${label.toLowerCase()}`}>{labels[field.value] ?? ''}</SelectValue>
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent ref={popoverRef}>
                   {options.map((opt) => (
                     <SelectItem key={opt} value={opt}>
                       {labels[opt]}
@@ -225,7 +238,7 @@ const ReferenceProperty = ({
   isEditing: boolean
   handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput) => void
 }) => {
-  const { control, getValues } = useFormContext()
+  const { control } = useFormContext()
   const { successNotification } = useNotification()
   const [internalEditing, setInternalEditing] = useState(false)
 
@@ -280,18 +293,17 @@ const ReferenceProperty = ({
                 ref={inputRef}
                 className="w-full"
                 placeholder={label}
-                onBlur={(e) => {
-                  if (isEditing) {
-                    return
-                  }
+                onBlur={(e: React.FocusEvent<HTMLInputElement>) => {
+                  if (isEditing) return
+
                   const trimmed = e.target.value.trim()
-                  if (getValues(name) !== trimmed) {
+                  if (value !== trimmed) {
                     handleUpdate?.({ [name]: trimmed })
                   }
                   field.onChange(trimmed)
                   setInternalEditing(false)
                 }}
-                onKeyDown={(e) => {
+                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
                   if (e.key === 'Enter') {
                     ;(e.target as HTMLInputElement).blur()
                   }
@@ -346,20 +358,27 @@ export const EditableSelectFromQuery = ({
 }) => {
   const { control } = useFormContext()
   const [internalEditing, setInternalEditing] = useState(false)
-
   const isCategory = name === 'category'
   const { data: categoriesData } = useGetControlCategories({ enabled: isEditing || internalEditing })
   const { data: subcategoriesData } = useGetControlSubcategories({ enabled: isEditing || internalEditing })
+  const { getValues } = useFormContext()
+  const [input, setInput] = useState('')
+  const [open, setOpen] = useState(false)
 
   const rawOptions = useMemo(() => {
     return isCategory ? categoriesData?.controlCategories ?? [] : subcategoriesData?.controlSubcategories ?? []
   }, [isCategory, categoriesData, subcategoriesData])
-  const { getValues } = useFormContext()
-
   const initialOptions = useMemo(() => rawOptions.map((val) => ({ value: val, label: val })), [rawOptions])
+  const triggerRef = useRef<HTMLDivElement>(null)
+  const popoverRef = useRef<HTMLDivElement>(null)
 
-  const [input, setInput] = useState('')
-  const [open, setOpen] = useState(false)
+  useEscapeKey(() => {
+    if (internalEditing) setInternalEditing(false)
+  })
+
+  useClickOutsideWithPortal(() => {
+    if (internalEditing) setInternalEditing(false)
+  }, [triggerRef, popoverRef])
 
   return (
     <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
@@ -408,13 +427,13 @@ export const EditableSelectFromQuery = ({
             return (
               <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
-                  <div className="w-[200px] flex text-sm h-10 px-3 justify-between border bg-input-background rounded-md items-center cursor-pointer">
+                  <div ref={triggerRef} className="w-[200px] flex text-sm h-10 px-3 justify-between border bg-input-background rounded-md items-center cursor-pointer">
                     <span className="truncate">{field.value || `Select ${label.toLowerCase()}`}</span>
                     <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                   </div>
                 </PopoverTrigger>
                 <PopoverContent className="w-[200px] p-0 bg-input-background border z-50">
-                  <Command>
+                  <Command ref={popoverRef}>
                     <CommandInput
                       placeholder="Search..."
                       value={input}
@@ -488,13 +507,24 @@ const Status = ({ isEditing, data, handleUpdate }: { isEditing: boolean; data?: 
     }
   }
 
+  const triggerRef = useRef<HTMLDivElement>(null)
+  const popoverRef = useRef<HTMLDivElement>(null)
+
+  useEscapeKey(() => {
+    if (internalEditing) setInternalEditing(false)
+  })
+
+  useClickOutsideWithPortal(() => {
+    if (internalEditing) setInternalEditing(false)
+  }, [triggerRef, popoverRef])
+
   return (
     <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
       <div className="flex items-start gap-2">
         <div className="pt-0.5">{controlIconsMap.Status}</div>
         <div className="text-sm">Status</div>
       </div>
-      <div className="text-sm">
+      <div ref={triggerRef} className="text-sm">
         {isEditable ? (
           <Controller
             control={control}
@@ -510,7 +540,7 @@ const Status = ({ isEditing, data, handleUpdate }: { isEditing: boolean; data?: 
                 <SelectTrigger className="w-[200px]">
                   <SelectValue>{field.value === 'NULL' ? '-' : ControlStatusLabels[field.value as ControlControlStatus]}</SelectValue>
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent ref={popoverRef}>
                   {ControlStatusOptions.map((option) => (
                     <SelectItem key={option.value} value={option.value}>
                       {option.label}
@@ -541,12 +571,16 @@ const MappedCategories = ({ isEditing, data }: { isEditing: boolean; data?: Cont
     }
   }
 
+  useEscapeKey(() => {
+    if (internalEditing) setInternalEditing(false)
+  })
+
   if (isEditable) {
     return <MappedCategoriesDialog onClose={() => setInternalEditing(false)} />
   }
 
   return (
-    <div onClick={handleClick} className="cursor-pointer">
+    <div onClick={handleClick} className="cursor-pointer ">
       <Property label="Mapped categories" value={(data?.mappedCategories ?? []).join(',\n')} />
     </div>
   )

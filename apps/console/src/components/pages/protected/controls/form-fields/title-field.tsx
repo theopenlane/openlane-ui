@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
 import { UpdateControlInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
+import useEscapeKey from '@/hooks/useEscapeKey'
 
 interface TitleFieldProps {
   isEditing: boolean
@@ -13,7 +14,7 @@ interface TitleFieldProps {
 }
 
 const TitleField = ({ isEditing, isEditAllowed = true, handleUpdate, initialValue }: TitleFieldProps) => {
-  const { register, getValues } = useFormContext()
+  const { register, getValues, setValue } = useFormContext()
   const [internalEditing, setInternalEditing] = useState(false)
 
   const handleClick = () => {
@@ -42,6 +43,13 @@ const TitleField = ({ isEditing, isEditAllowed = true, handleUpdate, initialValu
       ;(e.target as HTMLInputElement).blur()
     }
   }
+
+  useEscapeKey(() => {
+    if (internalEditing) {
+      setValue('refCode', initialValue)
+      setInternalEditing(false)
+    }
+  })
 
   return isEditAllowed && (isEditing || internalEditing) ? (
     <div className="w-full">

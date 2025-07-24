@@ -6,6 +6,7 @@ import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { UpdateControlInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
 import { Value } from 'platejs'
+import useEscapeKey from '@/hooks/useEscapeKey'
 
 interface DescriptionFieldProps {
   isEditing: boolean
@@ -15,7 +16,7 @@ interface DescriptionFieldProps {
 }
 
 const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialValue, handleUpdate, isEditAllowed = true }) => {
-  const { control, getValues } = useFormContext()
+  const { control, getValues, setValue } = useFormContext()
   const plateEditorHelper = usePlateEditor()
   const [internalEditing, setInternalEditing] = useState(false)
 
@@ -38,6 +39,13 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialV
     })
     setInternalEditing(false)
   }
+
+  useEscapeKey(() => {
+    if (internalEditing) {
+      setValue('description', initialValue as string)
+      setInternalEditing(false)
+    }
+  })
 
   return isEditAllowed && (isEditing || internalEditing) ? (
     <div className="w-full">
