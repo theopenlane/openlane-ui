@@ -181,7 +181,6 @@ const ControlsTable: React.FC = () => {
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         loading={fetchingUsers || isLoading || isFetching}
-        stickyHeader
       />
     </div>
   )

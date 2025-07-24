@@ -100,7 +100,6 @@ const TasksTable = forwardRef(({ onSortChange, pagination, onPaginationChange, w
       }}
       columnVisibility={columnVisibility}
       setColumnVisibility={setColumnVisibility}
-      stickyHeader
     />
   )
 })

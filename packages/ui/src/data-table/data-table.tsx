@@ -313,14 +313,14 @@ export function DataTable<TData, TValue>({
           <div className={cn(isLoading ? 'opacity-50 pointer-events-none transition-opacity duration-300' : 'transition-opacity duration-300', 'relative overflow-x-auto')}>
             {showLeftFade && (
               <div
-                className="absolute left-0 top-5 w-8 bg-gradient-to-r from-border to-transparent pointer-events-none z-10"
-                style={{ bottom: horizontalScrollbarHeight ? `${horizontalScrollbarHeight}px` : '12px' }}
+                className="absolute left-0 top-5 w-6 bg-gradient-to-r from-border to-transparent pointer-events-none z-10"
+                style={{ bottom: horizontalScrollbarHeight ? `${horizontalScrollbarHeight}px` : '0' }}
               />
             )}
             {showRightFade && (
               <div
-                className="absolute right-0 top-5 w-8 bg-gradient-to-l from-border to-transparent pointer-events-none z-10"
-                style={{ bottom: horizontalScrollbarHeight ? `${horizontalScrollbarHeight}px` : '12px', right: hasVerticalScroll ? `${verticalScrollbarWidth}px` : '0' }}
+                className="absolute right-0 top-5 w-6 bg-gradient-to-l from-border to-transparent pointer-events-none z-10"
+                style={{ bottom: horizontalScrollbarHeight ? `${horizontalScrollbarHeight}px` : '0', right: hasVerticalScroll ? `${verticalScrollbarWidth}px` : '0' }}
               />
             )}
             <Table ref={scrollRef} variant="data" stickyHeader={stickyHeader} stickyDialogHeader={stickyDialogHeader}>
