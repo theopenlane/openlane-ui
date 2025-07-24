@@ -1,7 +1,7 @@
 'use client'
 
-import React from 'react'
-import { InternalPolicyByIdFragment, InternalPolicyDocumentStatus } from '@repo/codegen/src/schema'
+import React, { useRef, useState } from 'react'
+import { InternalPolicyByIdFragment, InternalPolicyDocumentStatus, UpdateInternalPolicyInput } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
 import { Binoculars, Calendar, FileStack, ScrollText, HelpCircle } from 'lucide-react'
 import { Controller, UseFormReturn } from 'react-hook-form'
@@ -12,14 +12,53 @@ import { EditPolicyMetadataFormData } from '@/components/pages/protected/policie
 import { formatDate } from '@/utils/date'
 import { DocumentIconMapper, InternalPolicyStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import useEscapeKey from '@/hooks/useEscapeKey'
+import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
+import { CalendarPopover } from '@repo/ui/calendar-popover'
 
 type TPropertiesCardProps = {
   form: UseFormReturn<EditPolicyMetadataFormData>
   policy: InternalPolicyByIdFragment
   isEditing: boolean
+  editAllowed: boolean
+  handleUpdate?: (val: UpdateInternalPolicyInput) => void
 }
 
-const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, policy }) => {
+const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditing, editAllowed, handleUpdate }) => {
+  const [editingField, setEditingField] = useState<null | 'status' | 'policyType' | 'reviewDue'>(null)
+
+  const handleUpdateIfChanged = (field: 'status' | 'policyType', value: string, current: string | undefined | null) => {
+    if (isEditing) {
+      return
+    }
+    if (value !== current && handleUpdate) {
+      handleUpdate({ [field]: value })
+    }
+    setEditingField(null)
+  }
+
+  const triggerRef = useRef<HTMLDivElement>(null)
+  const popoverRef = useRef<HTMLDivElement>(null)
+
+  const reviewTriggerRef = useRef<HTMLDivElement>(null)
+  const reviewPopoverRef = useRef<HTMLDivElement>(null)
+
+  useEscapeKey(() => {
+    if (editingField) {
+      const value = policy?.[editingField]
+      form.setValue(editingField, value || '')
+      setEditingField(null)
+    }
+  })
+
+  useClickOutsideWithPortal(() => {
+    if (editingField === 'status') setEditingField(null)
+  }, [triggerRef, popoverRef])
+
+  useClickOutsideWithPortal(() => {
+    if (editingField === 'reviewDue') setEditingField(null)
+  }, [reviewTriggerRef, reviewPopoverRef])
+
   return (
     <Card className="p-4">
       <h3 className="text-lg font-medium mb-2">Properties</h3>
@@ -43,8 +82,8 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, polic
             </TooltipProvider>
           </div>
 
-          <div className="w-[200px]">
-            {isEditing && (
+          <div ref={triggerRef} className="w-[200px]">
+            {isEditing || editingField === 'status' ? (
               <Controller
                 name="status"
                 control={form.control}
@@ -53,11 +92,12 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, polic
                     <Select
                       value={field.value}
                       onValueChange={(value) => {
+                        handleUpdateIfChanged('status', value, field.value)
                         field.onChange(value)
                       }}
                     >
                       <SelectTrigger className="w-full">{InternalPolicyStatusOptions.find((item) => item.value === field.value)?.label}</SelectTrigger>
-                      <SelectContent>
+                      <SelectContent ref={popoverRef}>
                         {InternalPolicyStatusOptions.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
                             {option.label}
@@ -65,14 +105,16 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, polic
                         ))}
                       </SelectContent>
                     </Select>
-                    {form.formState.errors.status && <p className="text-red-500 text-sm">{form.formState.errors.status.message}</p>}
                   </div>
                 )}
               />
-            )}
-
-            {!isEditing && (
-              <div className="flex items-center space-x-2">
+            ) : (
+              <div
+                className={`flex items-center space-x-2 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                onDoubleClick={() => {
+                  if (!isEditing && editAllowed) setEditingField('status')
+                }}
+              >
                 {DocumentIconMapper[policy.status as InternalPolicyDocumentStatus]}
                 <p>{InternalPolicyStatusOptions.find((item) => item.value === policy.status)?.label}</p>
               </div>
@@ -80,14 +122,14 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, polic
           </div>
         </div>
 
-        {/* Version Required */}
+        {/* Version (read-only) */}
         <div className="flex justify-between items-center">
           <div className="flex gap-2 w-[200px] items-center">
             <FileStack size={16} className="text-brand" />
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 ">
                     <span className="cursor-help">Version</span>
                     <HelpCircle size={12} className="text-muted-foreground" />
                   </div>
@@ -98,15 +140,12 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, polic
               </Tooltip>
             </TooltipProvider>
           </div>
-
-          <div className="w-[200px]">
-            <div className="flex gap-2">
-              <span>{policy?.revision ?? '0.0.0'}</span>
-            </div>
+          <div className="w-[200px] cursor-not-allowed">
+            <span>{policy?.revision ?? '0.0.0'}</span>
           </div>
         </div>
 
-        {/* Policy type */}
+        {/* Policy Type */}
         <div className="flex justify-between items-center">
           <div className="flex gap-2 w-[200px] items-center">
             <ScrollText size={16} className="text-brand" />
@@ -126,30 +165,43 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, polic
           </div>
 
           <div className="w-[200px]">
-            {isEditing && (
+            {isEditing || editingField === 'policyType' ? (
               <FormField
                 control={form.control}
                 name="policyType"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input variant="medium" {...field} className="w-full" />
+                      <Input
+                        variant="medium"
+                        {...field}
+                        onBlur={() => handleUpdateIfChanged('policyType', field.value, policy?.policyType)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === 'Tab') {
+                            e.preventDefault()
+                            handleUpdateIfChanged('policyType', field.value, policy?.policyType)
+                          }
+                        }}
+                        autoFocus
+                      />
                     </FormControl>
-                    {form.formState.errors.policyType && <p className="text-red-500 text-sm">{form.formState.errors.policyType.message}</p>}
                   </FormItem>
                 )}
               />
-            )}
-
-            {!isEditing && (
-              <div className="flex gap-2">
-                <span>{policy?.policyType}</span>
+            ) : (
+              <div
+                className={`${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} truncate`}
+                onDoubleClick={() => {
+                  if (!isEditing && editAllowed) setEditingField('policyType')
+                }}
+              >
+                <span className="w-full block min-h-6">{policy?.policyType}</span>
               </div>
             )}
           </div>
         </div>
 
-        {/* Review date */}
+        {/* Review Date */}
         <div className="flex justify-between items-center">
           <div className="flex gap-2 w-[200px] items-center">
             <Calendar size={16} className="text-brand" />
@@ -168,8 +220,40 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, polic
             </TooltipProvider>
           </div>
 
-          <div className="w-[200px]">
-            <span>{formatDate(policy?.reviewDue)}</span>
+          <div ref={reviewTriggerRef} className="w-[200px]">
+            {isEditing || editingField === 'reviewDue' ? (
+              <Controller
+                name="reviewDue"
+                control={form.control}
+                render={({ field }) => (
+                  <>
+                    <div ref={reviewPopoverRef}>
+                      <CalendarPopover
+                        field={field}
+                        onChange={(date) => {
+                          if (!isEditing && date !== policy.reviewDue) {
+                            handleUpdate?.({ reviewDue: date })
+                          }
+                          setEditingField(null)
+                        }}
+                        disabledFrom={new Date()}
+                        required
+                      />
+                    </div>
+                    {form.formState.errors.reviewDue && <p className="text-red-500 text-sm">{form.formState.errors.reviewDue.message}</p>}
+                  </>
+                )}
+              />
+            ) : (
+              <div
+                className={`${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} truncate`}
+                onDoubleClick={() => {
+                  if (!isEditing && editAllowed) setEditingField('reviewDue')
+                }}
+              >
+                <span className="block min-h-6">{formatDate(policy?.reviewDue) || '\u00A0'}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
