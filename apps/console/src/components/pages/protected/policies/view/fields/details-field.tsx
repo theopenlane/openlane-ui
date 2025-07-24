@@ -1,8 +1,10 @@
+'use client'
+
+import React from 'react'
 import { Controller, UseFormReturn } from 'react-hook-form'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
-import React from 'react'
-import { EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
+import { EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import { InternalPolicyByIdFragment } from '@repo/codegen/src/schema.ts'
 
 type TDetailsFieldProps = {
@@ -22,11 +24,11 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy })
       <Controller
         control={form.control}
         name="details"
-        render={({ field }) => <PlateEditor initialValue={field.value as string} onChange={field.onChange} placeholder="Write your control description" />}
+        render={({ field }) => <PlateEditor initialValue={policy?.details as string} onChange={field.onChange} placeholder="Write your policy description" />}
       />
     </div>
   ) : (
-    <div className="!mt-4 bg-none">{policy?.details && plateEditorHelper.convertToReadOnly(policy.details as string)}</div>
+    <div className="!mt-4 min-h-[20px] cursor-not-allowed">{policy?.details && plateEditorHelper.convertToReadOnly(policy.details as string)}</div>
   )
 }
 

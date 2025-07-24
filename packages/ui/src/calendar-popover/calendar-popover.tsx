@@ -23,9 +23,10 @@ export type CalendarPopoverProps<T extends FieldValues> = {
   buttonClassName?: string
   disabledFrom?: Date
   disableFuture?: boolean
+  onChange?: (val: Date | null) => void
 }
 
-const CalendarPopover = <T extends FieldValues>({ field, defaultToday, required, defaultAddDays, customSelect, buttonClassName, disabledFrom, disableFuture }: CalendarPopoverProps<T>) => {
+const CalendarPopover = <T extends FieldValues>({ field, defaultToday, required, defaultAddDays, customSelect, buttonClassName, disabledFrom, disableFuture, onChange }: CalendarPopoverProps<T>) => {
   const todayDate = defaultToday ? new Date() : undefined
   const defaultAddDaysDate = defaultAddDays ? addDays(new Date(), defaultAddDays) : undefined
   const defaultDate = defaultAddDaysDate ?? todayDate ?? null
@@ -41,6 +42,7 @@ const CalendarPopover = <T extends FieldValues>({ field, defaultToday, required,
 
   const handleForm = (calendarValue: Date) => {
     field && field.onChange(calendarValue)
+    onChange?.(calendarValue)
     setValue(calendarValue)
     setIsCalendarOpen(false)
   }
@@ -48,6 +50,7 @@ const CalendarPopover = <T extends FieldValues>({ field, defaultToday, required,
   const handleClearDate = (e: React.MouseEvent) => {
     e.stopPropagation()
     field?.value && field.onChange(null)
+    onChange?.(null)
     setValue(null)
   }
 
@@ -55,6 +58,7 @@ const CalendarPopover = <T extends FieldValues>({ field, defaultToday, required,
     const selectedValue = addDays(new Date(), parseInt(value))
     setValue(selectedValue)
     field?.value && field.onChange(selectedValue)
+    onChange?.(selectedValue)
     setIsCalendarOpen(false)
   }
 

@@ -53,7 +53,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ policy }) => {
           </div>
 
           <div className="w-[220px]">
-            <div className="flex gap-2">{handleUserDisplay(createdByToken, createdByUser)}</div>
+            <div className="flex gap-2 cursor-not-allowed">{handleUserDisplay(createdByToken, createdByUser)}</div>
           </div>
         </div>
 
@@ -65,7 +65,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ policy }) => {
           </div>
 
           <div className="w-[220px]">
-            <div className="flex gap-2">
+            <div className="flex gap-2 cursor-not-allowed">
               <span>{formatTimeSince(policy.createdAt)}</span>
             </div>
           </div>
@@ -79,7 +79,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ policy }) => {
           </div>
 
           <div className="w-[220px]">
-            <div className="flex gap-2">{handleUserDisplay(updatedByToken, updatedByUser)}</div>
+            <div className="flex gap-2 cursor-not-allowed">{handleUserDisplay(updatedByToken, updatedByUser)}</div>
           </div>
         </div>
 
@@ -91,7 +91,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ policy }) => {
           </div>
 
           <div className="w-[220px]">
-            <div className="flex gap-2">
+            <div className="flex gap-2 cursor-not-allowed">
               <span>{formatTimeSince(policy.updatedAt)}</span>
             </div>
           </div>

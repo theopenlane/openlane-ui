@@ -1,9 +1,11 @@
+'use client'
+
+import React from 'react'
 import { Controller, UseFormReturn } from 'react-hook-form'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
-import React from 'react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { ProcedureByIdFragment } from '@repo/codegen/src/schema.ts'
-import { EditProcedureMetadataFormData } from '@/components/pages/protected/procedures/view/hooks/use-form-schema.ts'
+import { EditProcedureMetadataFormData } from '../hooks/use-form-schema'
 
 type TDetailsFieldProps = {
   isEditing: boolean
@@ -16,17 +18,17 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, procedure
 
   return isEditing ? (
     <div className="w-full">
-      <label htmlFor="procedure" className="block text-sm font-medium text-muted-foreground mb-1">
-        Procedure
+      <label htmlFor="policy" className="block text-sm font-medium text-muted-foreground mb-1">
+        Policy
       </label>
       <Controller
         control={form.control}
         name="details"
-        render={({ field }) => <PlateEditor initialValue={field.value as string} onChange={field.onChange} placeholder="Write your control description" />}
+        render={({ field }) => <PlateEditor initialValue={procedure?.details as string} onChange={field.onChange} placeholder="Write your procedure description" />}
       />
     </div>
   ) : (
-    <div className="!mt-4 bg-none">{procedure?.details && plateEditorHelper.convertToReadOnly(procedure.details as string)}</div>
+    <div className={`!mt-4 min-h-[20px] cursor-not-allowed`}>{procedure?.details && plateEditorHelper.convertToReadOnly(procedure.details as string)}</div>
   )
 }
 
