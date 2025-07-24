@@ -1,4 +1,4 @@
-import { GraphQlResponseError } from '@/constants/graphQlResponseError'
+import { errorCodeMessages, GraphQlResponseError } from '@/constants/graphQlResponseError'
 
 export interface GraphQLErrorExtension {
   code: GraphQlResponseError
@@ -36,4 +36,13 @@ export const extractGraphQlResponseError = async (response: Response): Promise<G
   }
 
   return null
+}
+
+export const parseErrorMessage = (error: unknown): string => {
+  if (Array.isArray(error) && error[0]?.extensions?.code) {
+    const code = error[0].extensions.code as string
+    return errorCodeMessages[code]
+  }
+
+  return 'Invalid csv provided, please verify the csv and try again.'
 }
