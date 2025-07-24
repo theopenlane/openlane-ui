@@ -55,6 +55,8 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, policy, isEditing, editAllow
     { enabled: internalEditing },
   )
 
+  console.log('tagValues', tagValues)
+
   return (
     <Card className="p-4">
       <div className="flex flex-col gap-4">
@@ -86,6 +88,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, policy, isEditing, editAllow
                             field.onChange(newTags)
                             setTagValues(selectedOptions)
                           }}
+                          defaultOptions={tagValues}
                           hideClearAllButton
                         />
                       </FormControl>
