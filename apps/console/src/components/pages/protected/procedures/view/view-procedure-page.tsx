@@ -260,7 +260,7 @@ const ViewProcedurePage: React.FC = () => {
   const mainContent = (
     <div className="p-2">
       <TitleField isEditing={isEditing} form={form} handleUpdate={handleUpdateField} initialData={procedure.name} editAllowed={editAllowed} />
-      <DetailsField isEditing={isEditing} form={form} procedure={procedure} handleUpdate={handleUpdateField} editAllowed={editAllowed} />
+      <DetailsField isEditing={isEditing} form={form} procedure={procedure} />
     </div>
   )
 

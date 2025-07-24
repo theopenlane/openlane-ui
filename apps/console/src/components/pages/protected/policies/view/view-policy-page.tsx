@@ -276,7 +276,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const mainContent = (
     <div className="p-2">
       <TitleField isEditing={isEditing} form={form} handleUpdate={handleUpdateField} initialData={policy.name} editAllowed={editAllowed} />
-      <DetailsField isEditing={isEditing} form={form} policy={policy} handleUpdate={handleUpdateField} editAllowed={editAllowed} />
+      <DetailsField isEditing={isEditing} form={form} policy={policy} />
     </div>
   )
 
