@@ -1,12 +1,12 @@
 'use client'
 
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment, useMemo, useState } from 'react'
 import { Card } from '@repo/ui/cardpanel'
 import { Tag } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import { InputRow } from '@repo/ui/input'
 import { FormControl, FormField } from '@repo/ui/form'
-import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
+import MultipleSelector from '@repo/ui/multiple-selector'
 import { InternalPolicyByIdFragment, UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
 import { Badge } from '@repo/ui/badge'
 import { CreatePolicyFormData } from '@/components/pages/protected/policies/create/hooks/use-form-schema.ts'
@@ -22,20 +22,22 @@ type TTagsCardProps = {
 }
 
 const TagsCard: React.FC<TTagsCardProps> = ({ form, policy, isEditing, editAllowed, handleUpdate }) => {
-  const [tagValues, setTagValues] = useState<Option[]>([])
   const [internalEditing, setInternalEditing] = useState(false)
 
   const tags = form.watch('tags')
-
-  useEffect(() => {
-    const options: Option[] = tags.filter((item): item is string => typeof item === 'string').map((item) => ({ value: item, label: item }))
-    setTagValues(options)
+  const tagOptions = useMemo(() => {
+    return (tags ?? [])
+      .filter((item): item is string => typeof item === 'string')
+      .map((item) => ({
+        value: item,
+        label: item,
+      }))
   }, [tags])
 
   const wrapperRef = useClickOutside(() => {
     if (!internalEditing || isEditing) return
     const current = policy.tags || []
-    const next = tagValues.map((item) => item.value)
+    const next = tagOptions.map((item) => item.value)
 
     const changed = current.length !== next.length || current.some((val) => !next.includes(val))
 
@@ -48,9 +50,6 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, policy, isEditing, editAllow
 
   useEscapeKey(
     () => {
-      const tags = policy.tags ?? []
-      const options: Option[] = tags.filter((item): item is string => typeof item === 'string').map((item) => ({ value: item, label: item }))
-      setTagValues(options)
       setInternalEditing(false)
     },
     { enabled: internalEditing },
@@ -81,13 +80,11 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, policy, isEditing, editAllow
                           className="w-full"
                           placeholder="Add tag..."
                           creatable
-                          value={tagValues}
+                          value={tagOptions}
                           onChange={(selectedOptions) => {
                             const newTags = selectedOptions.map((opt) => opt.value)
                             field.onChange(newTags)
-                            setTagValues(selectedOptions)
                           }}
-                          defaultOptions={tagValues}
                           hideClearAllButton
                         />
                       </FormControl>

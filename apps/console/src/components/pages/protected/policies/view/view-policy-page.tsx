@@ -86,8 +86,6 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         taskIDs: policy?.tasks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
       }
 
-      console.log('first', policy)
-
       form.reset({
         name: policy.name,
         details: policy?.details ?? '',
