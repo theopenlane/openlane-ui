@@ -18,7 +18,7 @@ const RequiredSubscription = ({ module = 'Security', moduleDescription = 'This m
       </div>
       <p className="text-3xl text-center break-words leading-9 w-[607px]">{`Unlock the full potential! It seems you've landed on a page that's part of ${module} module`}</p>
       <p className="text-base mb-6">{moduleDescription}</p>
-      <Button onClick={() => router.push('/billing')}>{`Get Access to ${module} module`}</Button>
+      <Button onClick={() => router.push('/organization-settings/billing')}>{`Get Access to ${module} module`}</Button>
     </div>
   )
 }
