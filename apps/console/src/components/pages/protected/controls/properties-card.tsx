@@ -115,7 +115,15 @@ const Property = ({ label, value }: { label: string; value?: string | null }) =>
       <div className="pt-0.5">{controlIconsMap[label]}</div>
       <div className="text-sm">{label}</div>
     </div>
-    <div className="text-sm whitespace-pre-line">{label === 'Framework' ? <StandardChip referenceFramework={value ?? ''} /> : <div className="text-sm whitespace-pre-line">{value || '-'}</div>}</div>
+    <div className="text-sm whitespace-pre-line">
+      {label === 'Framework' ? (
+        <div className="cursor-not-allowed">
+          <StandardChip referenceFramework={value ?? ''} />
+        </div>
+      ) : (
+        <div className="text-sm whitespace-pre-line">{value || '-'}</div>
+      )}
+    </div>
   </div>
 )
 
