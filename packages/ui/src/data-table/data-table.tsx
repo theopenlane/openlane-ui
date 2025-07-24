@@ -16,7 +16,7 @@ import {
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../table/table'
 import { Button } from '../button/button'
-import { ReactElement, useEffect, useMemo, useState } from 'react'
+import { ReactElement, useEffect, useMemo, useRef, useState } from 'react'
 import { Input } from '../input/input'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '../dropdown-menu/dropdown-menu'
 import { ArrowDown, ArrowUp, ArrowUpDown, EyeIcon } from 'lucide-react'
@@ -111,6 +111,41 @@ export function DataTable<TData, TValue>({
       return newSortConditions
     })
   }
+
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [showLeftFade, setShowLeftFade] = useState(false)
+  const [showRightFade, setShowRightFade] = useState(false)
+  const [horizontalScrollbarHeight, setHorizontalScrollbarHeight] = useState(0)
+  const [hasVerticalScroll, setHasVerticalScroll] = useState(false)
+  const [verticalScrollbarWidth, setVerticalScrollbarWidth] = useState(0)
+
+  const checkScroll = () => {
+    const scrollRefElement = scrollRef.current
+    if (!scrollRefElement) return
+    const { scrollLeft, scrollWidth, clientWidth, scrollHeight, clientHeight, offsetHeight, offsetWidth } = scrollRefElement
+    const height = offsetHeight - clientHeight
+    setHorizontalScrollbarHeight(height)
+    setHasVerticalScroll(scrollHeight > clientHeight)
+    setVerticalScrollbarWidth(offsetWidth - clientWidth)
+
+    const difference = 1
+    setShowLeftFade(scrollLeft > 0)
+    setShowRightFade(scrollLeft + clientWidth < scrollWidth - difference)
+  }
+
+  useEffect(() => {
+    const scrollRefElement = scrollRef.current
+    if (!scrollRefElement) return
+
+    checkScroll()
+    scrollRefElement.addEventListener('scroll', checkScroll)
+    window.addEventListener('resize', checkScroll)
+
+    return () => {
+      scrollRefElement.removeEventListener('scroll', checkScroll)
+      window.removeEventListener('resize', checkScroll)
+    }
+  }, [columnVisibility, pageInfo])
 
   const table = useReactTable({
     data,
@@ -240,124 +275,137 @@ export function DataTable<TData, TValue>({
 
   return (
     <>
-      <div className={cn(`overflow-hidden rounded-lg border bg-background-secondary`, wrapperClass)}>
-        {(showFilter || showVisibility) && (
-          <div className="flex items-center py-4">
-            {showFilter && (
-              <Input
-                placeholder="Filter by name..."
-                value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
-                onChange={(event) => table.getColumn('name')?.setFilterValue(event.target.value)}
-                className="max-w-sm"
+      <div className="relative">
+        <div className={cn(`overflow-hidden rounded-lg border bg-background-secondary`, wrapperClass)}>
+          {(showFilter || showVisibility) && (
+            <div className="flex items-center py-4">
+              {showFilter && (
+                <Input
+                  placeholder="Filter by name..."
+                  value={(table.getColumn('name')?.getFilterValue() as string) ?? ''}
+                  onChange={(event) => table.getColumn('name')?.setFilterValue(event.target.value)}
+                  className="max-w-sm"
+                />
+              )}
+              {showVisibility && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button icon={<EyeIcon />} iconPosition="left" variant="outline" size="md" className="ml-auto mr-2">
+                      Visibility
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {table
+                      .getAllColumns()
+                      .filter((column) => column.getCanHide())
+                      .map((column, index) => (
+                        <DropdownMenuCheckboxItem key={`${column.id}-${index}`} className="capitalize" checked={column.getIsVisible()} onCheckedChange={(value) => column.toggleVisibility(!!value)}>
+                          {column.id}
+                        </DropdownMenuCheckboxItem>
+                      ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
+          )}
+
+          {/* Apply opacity and disable interactions while loading */}
+          <div className={cn(isLoading ? 'opacity-50 pointer-events-none transition-opacity duration-300' : 'transition-opacity duration-300', 'relative overflow-x-auto')}>
+            {showLeftFade && (
+              <div
+                className="absolute left-0 top-5 w-6 bg-gradient-to-r from-border to-transparent pointer-events-none z-10"
+                style={{ bottom: horizontalScrollbarHeight ? `${horizontalScrollbarHeight}px` : '0' }}
               />
             )}
-            {showVisibility && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button icon={<EyeIcon />} iconPosition="left" variant="outline" size="md" className="ml-auto mr-2">
-                    Visibility
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {table
-                    .getAllColumns()
-                    .filter((column) => column.getCanHide())
-                    .map((column, index) => (
-                      <DropdownMenuCheckboxItem key={`${column.id}-${index}`} className="capitalize" checked={column.getIsVisible()} onCheckedChange={(value) => column.toggleVisibility(!!value)}>
-                        {column.id}
-                      </DropdownMenuCheckboxItem>
-                    ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+            {showRightFade && (
+              <div
+                className="absolute right-0 top-5 w-6 bg-gradient-to-l from-border to-transparent pointer-events-none z-10"
+                style={{ bottom: horizontalScrollbarHeight ? `${horizontalScrollbarHeight}px` : '0', right: hasVerticalScroll ? `${verticalScrollbarWidth}px` : '0' }}
+              />
             )}
-          </div>
-        )}
+            <Table ref={scrollRef} variant="data" stickyHeader={stickyHeader} stickyDialogHeader={stickyDialogHeader}>
+              <TableHeader variant="data">
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow variant="data" key={headerGroup.id}>
+                    {headerGroup.headers.map((header, index) => {
+                      const normalizeKey = (key: string) => key.replace(/_/g, '').toLowerCase()
+                      const sortField = sortFields?.find((sf) => normalizeKey(sf.key) === normalizeKey(header.column.id))
+                      const columnWidth = header.getSize() === 20 ? 'auto' : `${header.getSize()}px`
 
-        {/* Apply opacity and disable interactions while loading */}
-        <div className={isLoading ? 'opacity-50 pointer-events-none transition-opacity duration-300' : 'transition-opacity duration-300'}>
-          <Table variant="data" stickyHeader={stickyHeader} stickyDialogHeader={stickyDialogHeader}>
-            <TableHeader variant="data">
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow variant="data" key={headerGroup.id}>
-                  {headerGroup.headers.map((header, index) => {
-                    const normalizeKey = (key: string) => key.replace(/_/g, '').toLowerCase()
-                    const sortField = sortFields?.find((sf) => normalizeKey(sf.key) === normalizeKey(header.column.id))
-                    const columnWidth = header.getSize() === 20 ? 'auto' : `${header.getSize()}px`
-
-                    const sorting = sortConditions.find((sc) => sc.field === sortField?.key)?.direction || undefined
-                    return (
-                      <TableHead variant="data" key={`${header.id}-${index}`} style={{ position: 'relative', width: columnWidth }}>
-                        {header.isPlaceholder ? null : (
-                          <div className="flex items-center gap-1" style={{ width: columnWidth }}>
-                            {/* Sorting Area */}
-                            <div onClick={() => sortField?.key && handleSortChange(sortField.key)} className="flex items-center gap-1 cursor-pointer select-none" style={{ flex: '1 1 auto' }}>
-                              {flexRender(header.column.columnDef.header, header.getContext())}
-                              {sortField &&
-                                (sorting === OrderDirection.ASC ? (
-                                  <ArrowUp size={16} />
-                                ) : sorting === OrderDirection.DESC ? (
-                                  <ArrowDown size={16} />
-                                ) : (
-                                  <ArrowUpDown size={16} className="text-gray-400" />
-                                ))}
-                            </div>
-
-                            {/* Resizing Area */}
-                            {index < headerGroup.headers.length - 1 && (
-                              <div
-                                {...{
-                                  onDoubleClick: () => header.column.resetSize(),
-                                  onMouseDown: header.getResizeHandler(),
-                                  onTouchStart: header.getResizeHandler(),
-                                  className: `resizer ${table.options.columnResizeDirection} ${header.column.getIsResizing() ? 'isResizing' : ''}`,
-                                  style: {
-                                    transform:
-                                      columnResizeMode === 'onEnd' && header.column.getIsResizing()
-                                        ? `translateX(${(table.options.columnResizeDirection === 'rtl' ? -1 : 1) * (table.getState().columnSizingInfo.deltaOffset ?? 0)}px)`
-                                        : '',
-                                  },
-                                }}
-                              >
-                                <div className="absolute right-0 top-0 bottom-0 cursor-col-resize w-[25%]">
-                                  <div className="absolute right-0 top-0 bottom-0 w-[0.25px] bg-[var(--color-border)]" />
-                                </div>
+                      const sorting = sortConditions.find((sc) => sc.field === sortField?.key)?.direction || undefined
+                      return (
+                        <TableHead variant="data" key={`${header.id}-${index}`} style={{ position: 'relative', width: columnWidth }}>
+                          {header.isPlaceholder ? null : (
+                            <div className="flex items-center gap-1" style={{ width: columnWidth }}>
+                              {/* Sorting Area */}
+                              <div onClick={() => sortField?.key && handleSortChange(sortField.key)} className="flex items-center gap-1 cursor-pointer select-none" style={{ flex: '1 1 auto' }}>
+                                {flexRender(header.column.columnDef.header, header.getContext())}
+                                {sortField &&
+                                  (sorting === OrderDirection.ASC ? (
+                                    <ArrowUp size={16} />
+                                  ) : sorting === OrderDirection.DESC ? (
+                                    <ArrowDown size={16} />
+                                  ) : (
+                                    <ArrowUpDown size={16} className="text-gray-400" />
+                                  ))}
                               </div>
-                            )}
-                          </div>
-                        )}
-                      </TableHead>
-                    )
-                  })}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody variant="data">
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    variant="data"
-                    onClick={() => onRowClick?.(row.original)}
-                    className={`hover:bg-table-row-bg-hover ${onRowClick ? 'cursor-pointer' : ''}`}
-                    key={row.id}
-                    data-state={row.getIsSelected() && 'selected'}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      // @ts-ignore
-                      <TableCell variant="data" key={cell.id} className={cell.column.columnDef.meta?.className || ''}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <NoData loading={loading} colLength={columns.length} noDataMarkup={noDataMarkup} noResultsText={noResultsText} />
-              )}
-            </TableBody>
-          </Table>
-        </div>
-        {footer}
-      </div>
 
+                              {/* Resizing Area */}
+                              {index < headerGroup.headers.length - 1 && (
+                                <div
+                                  {...{
+                                    onDoubleClick: () => header.column.resetSize(),
+                                    onMouseDown: header.getResizeHandler(),
+                                    onTouchStart: header.getResizeHandler(),
+                                    className: `resizer ${table.options.columnResizeDirection} ${header.column.getIsResizing() ? 'isResizing' : ''}`,
+                                    style: {
+                                      transform:
+                                        columnResizeMode === 'onEnd' && header.column.getIsResizing()
+                                          ? `translateX(${(table.options.columnResizeDirection === 'rtl' ? -1 : 1) * (table.getState().columnSizingInfo.deltaOffset ?? 0)}px)`
+                                          : '',
+                                    },
+                                  }}
+                                >
+                                  <div className="absolute right-0 top-0 bottom-0 cursor-col-resize w-[25%]">
+                                    <div className="absolute right-0 top-0 bottom-0 w-[0.25px] bg-[var(--color-border)]" />
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </TableHead>
+                      )
+                    })}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody variant="data">
+                {table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow
+                      variant="data"
+                      onClick={() => onRowClick?.(row.original)}
+                      className={`hover:bg-table-row-bg-hover ${onRowClick ? 'cursor-pointer' : ''}`}
+                      key={row.id}
+                      data-state={row.getIsSelected() && 'selected'}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        // @ts-ignore
+                        <TableCell variant="data" key={cell.id} className={cell.column.columnDef.meta?.className || ''}>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <NoData loading={loading} colLength={columns.length} noDataMarkup={noDataMarkup} noResultsText={noResultsText} />
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          {footer}
+        </div>
+      </div>
       {/* Pagination also gets opacity and interaction block on loading */}
       {pagination && (
         <div className={isLoading ? 'opacity-50 pointer-events-none transition-opacity duration-300' : 'transition-opacity duration-300'}>
