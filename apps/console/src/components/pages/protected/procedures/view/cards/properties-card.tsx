@@ -141,7 +141,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
               </Tooltip>
             </TooltipProvider>
           </div>
-          <div className="w-[200px]">
+          <div className="w-[200px] cursor-not-allowed">
             <div className="flex gap-2">
               <span>{procedure?.revision ?? '0.0.0'}</span>
             </div>

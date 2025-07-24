@@ -129,7 +129,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 ">
                     <span className="cursor-help">Version</span>
                     <HelpCircle size={12} className="text-muted-foreground" />
                   </div>
@@ -140,7 +140,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
               </Tooltip>
             </TooltipProvider>
           </div>
-          <div className="w-[200px]">
+          <div className="w-[200px] cursor-not-allowed">
             <span>{policy?.revision ?? '0.0.0'}</span>
           </div>
         </div>
