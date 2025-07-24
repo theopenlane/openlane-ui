@@ -1,5 +1,5 @@
 import React, { useState, useRef, ReactNode, useEffect } from 'react'
-import { XIcon, PanelRight } from 'lucide-react'
+import { PanelRight, PanelRightClose } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { useSubscriptionBanner } from '@/hooks/useSubscriptionBanner.ts'
 
@@ -72,7 +72,7 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarC
           variant="outline"
           onClick={() => setOpen(!open)}
           className="h-8 !px-2 !pl-0 bg-card"
-          icon={open ? <XIcon size={16} /> : <PanelRight size={16} />}
+          icon={open ? <PanelRightClose size={16} /> : <PanelRight size={16} />}
         />
       </div>
       <div
