@@ -35,7 +35,7 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialV
       />
     </div>
   ) : (
-    <div className={'min-h-[20px] cursor-not-allowed'}>{plateEditorHelper.convertToReadOnly(initialValue as string)}</div>
+    <div className={'min-h-[20px]'}>{plateEditorHelper.convertToReadOnly(initialValue as string)}</div>
   )
 }
 

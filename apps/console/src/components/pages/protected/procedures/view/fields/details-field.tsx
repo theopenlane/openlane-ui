@@ -28,7 +28,7 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, procedure
       />
     </div>
   ) : (
-    <div className={`!mt-4 min-h-[20px] cursor-not-allowed`}>{procedure?.details && plateEditorHelper.convertToReadOnly(procedure.details as string)}</div>
+    <div className={`!mt-4 min-h-[20px]`}>{procedure?.details && plateEditorHelper.convertToReadOnly(procedure.details as string)}</div>
   )
 }
 
