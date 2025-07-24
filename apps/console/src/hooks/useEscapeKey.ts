@@ -1,7 +1,15 @@
 import { useEffect } from 'react'
 
-const useEscapeKey = (callback: () => void) => {
+type UseEscapeKeyOptions = {
+  enabled?: boolean
+}
+
+const useEscapeKey = (callback: () => void, options?: UseEscapeKeyOptions) => {
+  const { enabled = true } = options || {}
+
   useEffect(() => {
+    if (!enabled) return
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         callback()
@@ -12,7 +20,7 @@ const useEscapeKey = (callback: () => void) => {
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
     }
-  }, [callback])
+  }, [callback, enabled])
 }
 
 export default useEscapeKey

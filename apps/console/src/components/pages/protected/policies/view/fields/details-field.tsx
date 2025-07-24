@@ -7,6 +7,7 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import { InternalPolicyByIdFragment, UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
 import { Value } from 'platejs'
+import useEscapeKey from '@/hooks/useEscapeKey'
 
 type TDetailsFieldProps = {
   isEditing: boolean
@@ -36,6 +37,13 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy, e
     setInternalEditing(false)
   }
 
+  useEscapeKey(() => {
+    if (internalEditing) {
+      form.setValue('details', policy?.details as string)
+      setInternalEditing(false)
+    }
+  })
+
   return isEditing || internalEditing ? (
     <div className="w-full">
       <label htmlFor="policy" className="block text-sm font-medium text-muted-foreground mb-1">
@@ -44,7 +52,7 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, policy, e
       <Controller
         control={form.control}
         name="details"
-        render={({ field }) => <PlateEditor initialValue={field.value as string} onChange={field.onChange} onBlur={handleBlur} placeholder="Write your policy description" />}
+        render={({ field }) => <PlateEditor initialValue={policy?.details as string} onChange={field.onChange} onBlur={handleBlur} placeholder="Write your policy description" />}
       />
     </div>
   ) : (

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { ProcedureByIdFragment, ProcedureDocumentStatus, UpdateProcedureInput } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
 import { Binoculars, Calendar, FileStack, ScrollText, HelpCircle } from 'lucide-react'
@@ -12,6 +12,9 @@ import { formatDate } from '@/utils/date'
 import { DocumentIconMapper, ProcedureStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { EditProcedureMetadataFormData } from '../hooks/use-form-schema'
+import useEscapeKey from '@/hooks/useEscapeKey'
+import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
+import { CalendarPopover } from '@repo/ui/calendar-popover'
 
 type TPropertiesCardProps = {
   form: UseFormReturn<EditProcedureMetadataFormData>
@@ -22,7 +25,7 @@ type TPropertiesCardProps = {
 }
 
 const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEditing, editAllowed, handleUpdate }) => {
-  const [editingField, setEditingField] = useState<null | 'status' | 'procedureType'>(null)
+  const [editingField, setEditingField] = useState<null | 'status' | 'procedureType' | 'reviewDue'>(null)
 
   const handleUpdateIfChanged = (field: 'status' | 'procedureType', value: string, current: string | undefined | null) => {
     if (isEditing) {
@@ -33,6 +36,28 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
     }
     setEditingField(null)
   }
+
+  const triggerRef = useRef<HTMLDivElement>(null)
+  const popoverRef = useRef<HTMLDivElement>(null)
+
+  const reviewTriggerRef = useRef<HTMLDivElement>(null)
+  const reviewPopoverRef = useRef<HTMLDivElement>(null)
+
+  useEscapeKey(() => {
+    if (editingField) {
+      const value = procedure?.[editingField]
+      form.setValue(editingField, value || '')
+      setEditingField(null)
+    }
+  })
+
+  useClickOutsideWithPortal(() => {
+    if (editingField === 'status') setEditingField(null)
+  }, [triggerRef, popoverRef])
+
+  useClickOutsideWithPortal(() => {
+    if (editingField === 'reviewDue') setEditingField(null)
+  }, [reviewTriggerRef, reviewPopoverRef])
 
   return (
     <Card className="p-4">
@@ -57,7 +82,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
             </TooltipProvider>
           </div>
 
-          <div className="w-[200px]">
+          <div ref={triggerRef} className="w-[200px]">
             {isEditing || editingField === 'status' ? (
               <Controller
                 name="status"
@@ -72,7 +97,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
                       }}
                     >
                       <SelectTrigger className="w-full">{ProcedureStatusOptions.find((item) => item.value === field.value)?.label}</SelectTrigger>
-                      <SelectContent>
+                      <SelectContent ref={popoverRef}>
                         {ProcedureStatusOptions.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
                             {option.label}
@@ -150,7 +175,18 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Input variant="medium" {...field} className="w-full" onBlur={() => handleUpdateIfChanged('procedureType', field.value, procedure?.procedureType)} autoFocus />
+                      <Input
+                        variant="medium"
+                        {...field}
+                        onBlur={() => handleUpdateIfChanged('procedureType', field.value, procedure?.procedureType)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === 'Tab') {
+                            e.preventDefault()
+                            handleUpdateIfChanged('procedureType', field.value, procedure?.procedureType)
+                          }
+                        }}
+                        autoFocus
+                      />
                     </FormControl>
                     {form.formState.errors.procedureType && <p className="text-red-500 text-sm">{form.formState.errors.procedureType.message}</p>}
                   </FormItem>
@@ -163,7 +199,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
                   if (!isEditing && editAllowed) setEditingField('procedureType')
                 }}
               >
-                <span>{procedure?.procedureType}</span>
+                <span className="w-full block min-h-6">{procedure?.procedureType}</span>
               </div>
             )}
           </div>
@@ -188,8 +224,40 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
             </TooltipProvider>
           </div>
 
-          <div className="w-[200px]">
-            <span>{formatDate(procedure?.reviewDue)}</span>
+          <div ref={reviewTriggerRef} className="w-[200px]">
+            {isEditing || editingField === 'reviewDue' ? (
+              <Controller
+                name="reviewDue"
+                control={form.control}
+                render={({ field }) => (
+                  <>
+                    <div ref={reviewPopoverRef}>
+                      <CalendarPopover
+                        field={field}
+                        onChange={(date) => {
+                          if (!isEditing && date !== procedure.reviewDue) {
+                            handleUpdate?.({ reviewDue: date })
+                          }
+                          setEditingField(null)
+                        }}
+                        disabledFrom={new Date()}
+                        required
+                      />
+                    </div>
+                    {form.formState.errors.reviewDue && <p className="text-red-500 text-sm">{form.formState.errors.reviewDue.message}</p>}
+                  </>
+                )}
+              />
+            ) : (
+              <div
+                className={`${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} truncate`}
+                onClick={() => {
+                  if (!isEditing && editAllowed) setEditingField('reviewDue')
+                }}
+              >
+                <span className="block min-h-6">{formatDate(procedure?.reviewDue) || '\u00A0'}</span>
+              </div>
+            )}
           </div>
         </div>
       </div>

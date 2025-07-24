@@ -8,6 +8,7 @@ import { InfoIcon } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { UpdateProcedureInput } from '@repo/codegen/src/schema'
 import { EditProcedureMetadataFormData } from '../hooks/use-form-schema'
+import useEscapeKey from '@/hooks/useEscapeKey'
 
 type TTitleFieldProps = {
   isEditing: boolean
@@ -46,6 +47,13 @@ const TitleField: React.FC<TTitleFieldProps> = ({ isEditing, form, handleUpdate,
       ;(e.target as HTMLInputElement).blur()
     }
   }
+
+  useEscapeKey(() => {
+    if (internalEditing) {
+      form.setValue('name', initialData)
+      setInternalEditing(false)
+    }
+  })
 
   return isEditing || internalEditing ? (
     <div className="w-full">

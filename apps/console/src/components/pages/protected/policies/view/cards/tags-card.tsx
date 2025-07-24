@@ -11,6 +11,7 @@ import { InternalPolicyByIdFragment, UpdateInternalPolicyInput } from '@repo/cod
 import { Badge } from '@repo/ui/badge'
 import { CreatePolicyFormData } from '@/components/pages/protected/policies/create/hooks/use-form-schema.ts'
 import useClickOutside from '@/hooks/useClickOutside'
+import useEscapeKey from '@/hooks/useEscapeKey'
 
 type TTagsCardProps = {
   form: UseFormReturn<CreatePolicyFormData>
@@ -44,6 +45,16 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, policy, isEditing, editAllow
     setInternalEditing(false)
   })
 
+  useEscapeKey(
+    () => {
+      const tags = policy.tags ?? []
+      const options: Option[] = tags.filter((item): item is string => typeof item === 'string').map((item) => ({ value: item, label: item }))
+      setTagValues(options)
+      setInternalEditing(false)
+    },
+    { enabled: internalEditing },
+  )
+
   return (
     <Card className="p-4">
       <div className="flex flex-col gap-4">
@@ -75,6 +86,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, policy, isEditing, editAllow
                             field.onChange(newTags)
                             setTagValues(selectedOptions)
                           }}
+                          hideClearAllButton
                         />
                       </FormControl>
                       {form.formState.errors.tags && <p className="text-red-500 text-sm">{form.formState.errors.tags.message}</p>}

@@ -8,6 +8,7 @@ import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { UpdateInternalPolicyInput } from '@repo/codegen/src/schema'
+import useEscapeKey from '@/hooks/useEscapeKey'
 
 type TTitleFieldProps = {
   isEditing: boolean
@@ -40,6 +41,13 @@ const TitleField: React.FC<TTitleFieldProps> = ({ isEditing, form, handleUpdate,
 
     setInternalEditing(false)
   }
+
+  useEscapeKey(() => {
+    if (internalEditing) {
+      form.setValue('name', initialData)
+      setInternalEditing(false)
+    }
+  })
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
