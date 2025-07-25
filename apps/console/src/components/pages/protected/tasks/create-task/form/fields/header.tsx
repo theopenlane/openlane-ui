@@ -1,7 +1,7 @@
 import { useNotification } from '@/hooks/useNotification'
 import { Button } from '@repo/ui/button'
 import { SheetHeader } from '@repo/ui/sheet'
-import { ArrowRight, Check, LinkIcon, Pencil } from 'lucide-react'
+import { Check, LinkIcon, PanelRightClose, Pencil } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import React from 'react'
 import DeleteTaskDialog from '../../dialog/delete-task-dialog'
@@ -43,7 +43,7 @@ const TasksSheetHeader = ({ close, isEditing, setIsEditing, isPending, displayID
   return (
     <SheetHeader>
       <div className="flex items-center justify-between">
-        <ArrowRight size={16} className="cursor-pointer" onClick={close} />
+        <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={close} />
         <div className="flex justify-end gap-2">
           <Button icon={<LinkIcon />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
             Copy link

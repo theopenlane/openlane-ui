@@ -54,7 +54,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ procedure }) => {
           </div>
 
           <div className="w-[220px]">
-            <div className="flex gap-2">{handleUserDisplay(createdByToken, createdByUser)}</div>
+            <div className="flex gap-2 cursor-not-allowed">{handleUserDisplay(createdByToken, createdByUser)}</div>
           </div>
         </div>
 
@@ -66,7 +66,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ procedure }) => {
           </div>
 
           <div className="w-[220px]">
-            <div className="flex gap-2">
+            <div className="flex gap-2 cursor-not-allowed">
               <span>{formatTimeSince(procedure.createdAt)}</span>
             </div>
           </div>
@@ -80,7 +80,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ procedure }) => {
           </div>
 
           <div className="w-[220px]">
-            <div className="flex gap-2">{handleUserDisplay(updatedByToken, updatedByUser)}</div>
+            <div className="flex gap-2 cursor-not-allowed">{handleUserDisplay(updatedByToken, updatedByUser)}</div>
           </div>
         </div>
 
@@ -92,7 +92,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ procedure }) => {
           </div>
 
           <div className="w-[220px]">
-            <div className="flex gap-2">
+            <div className="flex gap-2 cursor-not-allowed">
               <span>{formatTimeSince(procedure.updatedAt)}</span>
             </div>
           </div>
