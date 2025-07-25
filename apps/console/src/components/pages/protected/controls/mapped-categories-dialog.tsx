@@ -97,7 +97,7 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
     <>
       <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
         <div className="flex items-start gap-2">
-          <FolderIcon size={16} className="text-brand min-w-4" />
+          <FolderIcon size={16} className="text-brand min-w-4 pt-0.5" />
           <div className="text-sm">Mapped categories</div>
         </div>
         <div className="text-sm">

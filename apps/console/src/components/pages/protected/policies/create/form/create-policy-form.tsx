@@ -309,7 +309,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
             </Button>
           </div>
           <div className="space-y-4">
-            <AuthorityCard form={form} isEditing={true} inputClassName="!w-[162px]" />
+            <AuthorityCard form={form} isEditing={true} inputClassName="!w-[162px]" editAllowed={true} />
             <StatusCard form={form} metadata={metadata} />
             <AssociationCard />
             <TagsCard form={form} />
