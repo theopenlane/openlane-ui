@@ -44,5 +44,5 @@ export const parseErrorMessage = (error: unknown): string => {
     return errorCodeMessages[code]
   }
 
-  return 'Invalid csv provided, please verify the csv and try again.'
+  return 'Something went wrong. Please try again.'
 }
