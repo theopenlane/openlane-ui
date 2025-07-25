@@ -15,6 +15,7 @@ import { InputRow } from '@repo/ui/input'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCreateEvidence, useGetRenewEvidenceById } from '@/lib/graphql-hooks/evidence'
 import { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type TControlEvidenceRenewDialog = {
   controlId?: string
@@ -66,10 +67,11 @@ const ControlEvidenceRenewDialog: React.FC<TControlEvidenceRenewDialog> = ({ evi
         title: 'Evidence Created',
         description: `Evidence has been successfully created`,
       })
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
-        description: 'There was an error creating the evidence. Please try again.',
+        description: errorMessage,
       })
     }
   }

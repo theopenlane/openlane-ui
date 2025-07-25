@@ -11,6 +11,7 @@ import { exportCSV } from '@/lib/export'
 import { DOCS_URL, GRAPHQL_OBJECT_DOCS } from '@/constants'
 import { useCreateBulkCSVControl } from '@/lib/graphql-hooks/controls.ts'
 import { TUploadedFile } from '../evidence/upload/types/TUploadedFile'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type BulkCsvCreateControlDialogProps = {
   trigger?: React.ReactElement<
@@ -40,10 +41,11 @@ const BulkCSVCreateControlDialog: React.FC<BulkCsvCreateControlDialogProps> = ({
         description: `Controls has been successfully created`,
       })
       setIsOpen(false)
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
-        description: 'There was an error creating the controls. Please try again.',
+        description: errorMessage,
       })
     }
   }
