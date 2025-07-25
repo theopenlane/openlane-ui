@@ -27,6 +27,8 @@ type PropertiesProps = {
   isEditAllowed: boolean
 }
 
+const allProperties = ['assigneeID', 'due', 'status', 'category', 'tags']
+
 const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEditing, setInternalEditing, handleUpdate, isEditAllowed }) => {
   const { control, formState, watch, setValue } = useFormContext<EditTaskFormData>()
   const { orgMembers } = useTaskStore()
@@ -88,7 +90,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
     },
     {
       refs: { triggerRef, popoverRef },
-      enabled: !!internalEditing && ['assigneeID', 'due', 'status', 'category', 'tags'].includes(internalEditing),
+      enabled: !!internalEditing && allProperties.includes(internalEditing),
     },
   )
 
@@ -109,7 +111,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
         setInternalEditing(null)
       }
     },
-    { enabled: !!internalEditing },
+    { enabled: !!internalEditing && allProperties.includes(internalEditing) },
   )
 
   return (
