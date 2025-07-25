@@ -27,6 +27,7 @@ import HeadsUpDisplay from '@/components/shared/heads-up/heads-up'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { TUploadedFile } from './upload/types/TUploadedFile'
 import { useSearchParams } from 'next/navigation'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type TProps = {
   formData?: TFormEvidenceData
@@ -84,10 +85,11 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
       if (onEvidenceCreateSuccess) {
         onEvidenceCreateSuccess()
       }
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
-        description: 'There was an error creating the evidence. Please try again.',
+        description: errorMessage,
       })
     }
     form.reset()

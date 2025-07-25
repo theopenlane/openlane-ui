@@ -10,6 +10,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { useCreateBulkCSVInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
 import { DOCS_URL, GRAPHQL_OBJECT_DOCS } from '@/constants'
 import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type TBulkCSVCreatePolicyDialogProps = {
   trigger?: React.ReactElement<
@@ -38,10 +39,11 @@ const BulkCSVCreatePolicyDialog: React.FC<TBulkCSVCreatePolicyDialogProps> = ({ 
         title: 'Policies Created',
         description: `Policies has been successfully created`,
       })
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
-        description: 'There was an error creating the policies. Please try again.',
+        description: errorMessage,
       })
     }
   }

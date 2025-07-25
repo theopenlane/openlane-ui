@@ -11,6 +11,7 @@ import { exportCSV } from '@/lib/export'
 import { DOCS_URL, GRAPHQL_OBJECT_DOCS } from '@/constants'
 import { useCreateBulkCSVTemplate } from '@/lib/graphql-hooks/templates'
 import { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type BulkCsvCreateTemplateDialogProps = {
   trigger?: React.ReactElement<
@@ -40,10 +41,11 @@ const BulkCSVCreateTemplatelDialog: React.FC<BulkCsvCreateTemplateDialogProps> =
         description: `Templates has been successfully created`,
       })
       setIsOpen(false)
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
-        description: 'There was an error creating the templates. Please try again.',
+        description: errorMessage,
       })
     }
   }

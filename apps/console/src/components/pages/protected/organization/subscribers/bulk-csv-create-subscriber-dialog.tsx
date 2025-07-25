@@ -11,6 +11,7 @@ import { exportCSV } from '@/lib/export'
 import { DOCS_URL, GRAPHQL_OBJECT_DOCS } from '@/constants'
 import { useCreateBulkCSVSubscriber } from '@/lib/graphql-hooks/subscribes.ts'
 import { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type BulkCsvCreateSubscriberDialogProps = {
   trigger?: React.ReactElement<
@@ -40,10 +41,11 @@ const BulkCSVCreateSubscriberDialog: React.FC<BulkCsvCreateSubscriberDialogProps
         description: `Subscribers has been successfully created`,
       })
       setIsOpen(false)
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
-        description: 'There was an error creating the subscribers. Please try again.',
+        description: errorMessage,
       })
     }
   }
