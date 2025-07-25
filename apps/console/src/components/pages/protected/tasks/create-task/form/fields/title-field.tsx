@@ -51,12 +51,12 @@ const TitleField: React.FC<TitleFieldProps> = ({ isEditing, isEditAllowed = true
 
   useEscapeKey(
     () => {
-      if (internalEditing && initialValue) {
+      if (internalEditing === 'title' && initialValue) {
         setValue('title', initialValue)
         setInternalEditing(null)
       }
     },
-    { enabled: !!internalEditing },
+    { enabled: internalEditing === 'title' },
   )
 
   const isCurrentlyEditing = isEditing || internalEditing === 'title'

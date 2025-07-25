@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useMemo, useRef } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 import { CalendarCheck2, Circle, CircleUser, Folder, Tag, UserRoundPen } from 'lucide-react'
 
@@ -16,6 +16,7 @@ import { EditTaskFormData } from '../../../hooks/use-form-schema'
 import { TaskStatusOptions } from '@/components/shared/enum-mapper/task-enum'
 import RelatedObjects from './related-objects'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
+import useEscapeKey from '@/hooks/useEscapeKey'
 
 type PropertiesProps = {
   isEditing: boolean
@@ -27,22 +28,21 @@ type PropertiesProps = {
 }
 
 const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEditing, setInternalEditing, handleUpdate, isEditAllowed }) => {
-  const { control, formState } = useFormContext<EditTaskFormData>()
-  const [tagValues, setTagValues] = useState<Option[]>([])
+  const { control, formState, watch, setValue } = useFormContext<EditTaskFormData>()
   const { orgMembers } = useTaskStore()
 
   const statusOptions = TaskStatusOptions
   const taskTypeOptions = Object.values(TaskTypes)
 
-  useEffect(() => {
-    if (taskData?.tags) {
-      const tags = taskData.tags.map((item) => ({
+  const tags = watch('tags')
+  const tagOptions = useMemo(() => {
+    return (tags ?? [])
+      .filter((item): item is string => typeof item === 'string')
+      .map((item) => ({
         value: item,
         label: item,
       }))
-      setTagValues(tags)
-    }
-  }, [taskData?.tags])
+  }, [tags])
 
   const renderTags = () => {
     const hasTags = taskData?.tags && taskData.tags.length > 0
@@ -67,14 +67,49 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
 
   const triggerRef = useRef<HTMLDivElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
+
+  const blurTags = () => {
+    const current = taskData?.tags || []
+    const next = tagOptions.map((item) => item.value)
+    const changed = current.length !== next.length || current.some((val) => !next.includes(val))
+
+    if (changed && handleUpdate) {
+      handleUpdate({ tags: next })
+    }
+  }
+
   useClickOutsideWithPortal(
     () => {
       setInternalEditing(null)
+
+      if (internalEditing === 'tags') {
+        blurTags()
+      }
     },
     {
       refs: { triggerRef, popoverRef },
       enabled: !!internalEditing && ['assigneeID', 'due', 'status', 'category', 'tags'].includes(internalEditing),
     },
+  )
+
+  useEscapeKey(
+    () => {
+      if (!internalEditing) {
+        return
+      }
+      if (['assigneeID', 'due', 'status', 'category'].includes(internalEditing)) {
+        setInternalEditing(null)
+      }
+      if (internalEditing === 'tags') {
+        const options: Option[] = (taskData?.tags ?? []).filter((item): item is string => typeof item === 'string').map((item) => ({ value: item, label: item }))
+        setValue(
+          'tags',
+          options.map((opt) => opt.value),
+        )
+        setInternalEditing(null)
+      }
+    },
+    { enabled: !!internalEditing },
   )
 
   return (
@@ -243,13 +278,10 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
                   placeholder="Add tag..."
                   creatable
                   commandProps={{ className: 'w-full' }}
-                  value={tagValues}
+                  value={tagOptions}
                   onChange={(selectedOptions) => {
-                    const values = selectedOptions.map((item) => item.value)
-                    field.onChange(values)
-                    handleUpdate?.({ tags: values })
-                    setTagValues(selectedOptions)
-                    setInternalEditing(null)
+                    const newTags = selectedOptions.map((opt) => opt.value)
+                    field.onChange(newTags)
                   }}
                 />
                 {formState.errors.tags && <p className="text-red-500 text-sm">{formState.errors.tags.message}</p>}
