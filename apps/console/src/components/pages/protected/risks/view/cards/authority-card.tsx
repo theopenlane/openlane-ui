@@ -12,6 +12,8 @@ import { Avatar } from '@/components/shared/avatar/avatar'
 import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema'
+import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
+import useEscapeKey from '@/hooks/useEscapeKey'
 
 type TAuthorityCardProps = {
   form: UseFormReturn<EditRisksFormData>
@@ -58,14 +60,22 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, stakeho
         </div>
 
         {showEditable ? (
-          <SearchableSingleSelect form={form} fieldName={fieldKey} options={options} placeholder={`Select ${label.toLowerCase()}`} onChange={(val) => handleSelect(fieldKey, val)} autoFocus />
+          <SearchableSingleSelect
+            form={form}
+            fieldName={fieldKey}
+            options={options}
+            placeholder={`Select ${label.toLowerCase()}`}
+            onChange={(val) => handleSelect(fieldKey, val)}
+            autoFocus
+            onClose={() => setEditingField(null)}
+          />
         ) : (
           <TooltipProvider disableHoverableContent>
             <Tooltip>
               <TooltipTrigger
                 type="button"
                 className={`w-[200px] ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-                onClick={() => {
+                onDoubleClick={() => {
                   if (!isEditing && isEditAllowed) setEditingField(editingKey)
                 }}
               >
@@ -102,10 +112,25 @@ interface SearchableSingleSelectProps {
   placeholder?: string
   onChange?: (val: string) => void
   autoFocus?: boolean
+  onClose?: () => void
 }
 
-export const SearchableSingleSelect: React.FC<SearchableSingleSelectProps> = ({ fieldName, form, options, placeholder = 'Select an option...', onChange, autoFocus }) => {
+export const SearchableSingleSelect: React.FC<SearchableSingleSelectProps> = ({ fieldName, form, options, placeholder = 'Select an option...', onChange, autoFocus, onClose }) => {
   const [open, setOpen] = React.useState(false)
+
+  const triggerRef = React.useRef<HTMLDivElement>(null)
+  const popoverRef = React.useRef<HTMLDivElement>(null)
+
+  useClickOutsideWithPortal(
+    () => {
+      onClose?.()
+    },
+    { refs: { triggerRef, popoverRef } },
+  )
+
+  useEscapeKey(() => {
+    onClose?.()
+  })
 
   return (
     <Controller
@@ -115,7 +140,7 @@ export const SearchableSingleSelect: React.FC<SearchableSingleSelectProps> = ({ 
         const selected = options.find((opt) => opt.value === field.value)
 
         return (
-          <div className="w-[200px]">
+          <div ref={triggerRef} className="w-[200px]">
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>
                 <div className="w-full flex text-sm h-10 px-3 !py-0 justify-between border bg-input-background rounded-md items-center cursor-pointer" onClick={() => setOpen(true)}>
@@ -123,7 +148,7 @@ export const SearchableSingleSelect: React.FC<SearchableSingleSelectProps> = ({ 
                   <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </div>
               </PopoverTrigger>
-              <PopoverContent className="w-[200px] p-0 !bg-input-background border" side="bottom">
+              <PopoverContent ref={popoverRef} className="w-[200px] p-0 !bg-input-background border" side="bottom">
                 <Command shouldFilter autoFocus={autoFocus}>
                   <CommandInput placeholder="Search..." />
                   <CommandList>

@@ -9,6 +9,7 @@ import { Input } from '@repo/ui/input'
 import { PageHeading } from '@repo/ui/page-heading'
 import { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema'
 import { UpdateRiskInput } from '@repo/codegen/src/schema'
+import useEscapeKey from '@/hooks/useEscapeKey'
 
 type TTitleFieldProps = {
   isEditing: boolean
@@ -51,6 +52,16 @@ const TitleField: React.FC<TTitleFieldProps> = ({ isEditing, isEditAllowed = tru
     }
   }
 
+  useEscapeKey(
+    () => {
+      if (internalEditing && initialValue) {
+        form.setValue('name', initialValue)
+        setInternalEditing(false)
+      }
+    },
+    { enabled: internalEditing },
+  )
+
   const isCurrentlyEditing = isEditing || internalEditing
 
   return isCurrentlyEditing ? (
@@ -73,7 +84,7 @@ const TitleField: React.FC<TTitleFieldProps> = ({ isEditing, isEditAllowed = tru
       />
     </div>
   ) : (
-    <PageHeading heading={form.getValues('name')} onClick={handleClick} className={isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} />
+    <PageHeading heading={form.getValues('name')} onDoubleClick={handleClick} className={isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} />
   )
 }
 

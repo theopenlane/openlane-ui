@@ -4,6 +4,8 @@ import { RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codege
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { RiskIconMapper } from '@/components/shared/enum-mapper/risk-enum'
 import { RisksStatusMapper } from '@/components/pages/protected/risks/risks.ts'
+import { useRef } from 'react'
+import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 
 interface RiskLabelProps {
   score?: number
@@ -13,13 +15,27 @@ interface RiskLabelProps {
   isEditing: boolean
   onChange?: (value: string | number) => void
   onMouseUp?: (value: string | number) => void
+  onClose?: () => void
 }
 
-export const RiskLabel = ({ score, impact, likelihood, status, isEditing, onChange, onMouseUp }: RiskLabelProps) => {
+export const RiskLabel = ({ score, impact, likelihood, status, isEditing, onChange, onMouseUp, onClose }: RiskLabelProps) => {
+  const triggerRef = useRef<HTMLDivElement>(null)
+  const popoverRef = useRef<HTMLDivElement>(null)
+
+  useClickOutsideWithPortal(
+    () => {
+      if (isEditing) onClose?.()
+    },
+    {
+      refs: { triggerRef, popoverRef },
+      enabled: isEditing,
+    },
+  )
+
   if (isEditing) {
     if (typeof score === 'number') {
       return (
-        <div className="w-full flex items-center gap-4">
+        <div ref={popoverRef} className="w-full flex items-center gap-4">
           <input
             type="range"
             min={0}
@@ -36,17 +52,19 @@ export const RiskLabel = ({ score, impact, likelihood, status, isEditing, onChan
 
     if (impact) {
       return (
-        <Select value={impact} onValueChange={(val) => onChange?.(val)}>
-          <SelectTrigger className="w-[120px]">
-            <SelectValue placeholder="Select impact" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={RiskRiskImpact.LOW}>Low</SelectItem>
-            <SelectItem value={RiskRiskImpact.MODERATE}>Medium</SelectItem>
-            <SelectItem value={RiskRiskImpact.HIGH}>High</SelectItem>
-            <SelectItem value={RiskRiskImpact.CRITICAL}>Critical</SelectItem>
-          </SelectContent>
-        </Select>
+        <div ref={triggerRef}>
+          <Select value={impact} onValueChange={(val) => onChange?.(val)}>
+            <SelectTrigger className="w-[120px]">
+              <SelectValue placeholder="Select impact" />
+            </SelectTrigger>
+            <SelectContent ref={popoverRef}>
+              <SelectItem value={RiskRiskImpact.LOW}>Low</SelectItem>
+              <SelectItem value={RiskRiskImpact.MODERATE}>Medium</SelectItem>
+              <SelectItem value={RiskRiskImpact.HIGH}>High</SelectItem>
+              <SelectItem value={RiskRiskImpact.CRITICAL}>Critical</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       )
     }
 
@@ -56,7 +74,7 @@ export const RiskLabel = ({ score, impact, likelihood, status, isEditing, onChan
           <SelectTrigger className="w-[140px]">
             <SelectValue placeholder="Select likelihood" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent ref={popoverRef}>
             <SelectItem value={RiskRiskLikelihood.UNLIKELY}>Unlikely</SelectItem>
             <SelectItem value={RiskRiskLikelihood.LIKELY}>Likely</SelectItem>
             <SelectItem value={RiskRiskLikelihood.HIGHLY_LIKELY}>Highly likely</SelectItem>
@@ -71,7 +89,7 @@ export const RiskLabel = ({ score, impact, likelihood, status, isEditing, onChan
           <SelectTrigger className="w-[140px]">
             <SelectValue placeholder="Select status" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent ref={popoverRef}>
             <SelectItem value={RiskRiskStatus.OPEN}>Open</SelectItem>
             <SelectItem value={RiskRiskStatus.MITIGATED}>Mitigated</SelectItem>
             <SelectItem value={RiskRiskStatus.ONGOING}>Ongoing</SelectItem>

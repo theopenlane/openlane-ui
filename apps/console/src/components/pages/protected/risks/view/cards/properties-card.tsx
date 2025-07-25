@@ -8,6 +8,7 @@ import { Controller, UseFormReturn } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
 import { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema'
 import RiskLabel from '@/components/pages/protected/risks/risk-label'
+import useEscapeKey from '@/hooks/useEscapeKey'
 
 type TPropertiesCardProps = {
   form: UseFormReturn<EditRisksFormData>
@@ -17,11 +18,13 @@ type TPropertiesCardProps = {
   handleUpdate?: (val: UpdateRiskInput) => void
 }
 
+type Fields = 'riskType' | 'category' | 'score' | 'impact' | 'likelihood' | 'status'
+
 const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isEditing, isEditAllowed = true, handleUpdate }) => {
   const { control, getValues } = form
-  const [editingField, setEditingField] = useState<keyof EditRisksFormData | null>(null)
+  const [editingField, setEditingField] = useState<Fields | null>(null)
 
-  const toggleEditing = (field: keyof EditRisksFormData) => {
+  const toggleEditing = (field: Fields) => {
     if (!isEditing && isEditAllowed) setEditingField(field)
   }
 
@@ -38,11 +41,19 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isEditing,
     setEditingField(null)
   }
 
-  const renderTextField = (fieldName: keyof EditRisksFormData, label: string, value?: string | null) => {
+  useEscapeKey(() => {
+    if (editingField) {
+      const value = risk?.[editingField]
+      form.setValue(editingField, value || '')
+      setEditingField(null)
+    }
+  })
+
+  const renderTextField = (fieldName: Fields, label: string, value?: string | null) => {
     const isFieldEditing = isEditing || editingField === fieldName
 
     return (
-      <FieldRow label={label} onClick={() => toggleEditing(fieldName)} isEditAllowed={isEditAllowed}>
+      <FieldRow label={label} onDoubleClick={() => toggleEditing(fieldName)} isEditAllowed={isEditAllowed}>
         {isFieldEditing ? (
           <Controller
             name={fieldName}
@@ -60,7 +71,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isEditing,
     const isFieldEditing = isEditing || editingField === fieldName
 
     return (
-      <FieldRow label={label} onClick={() => toggleEditing(fieldName)} isEditAllowed={isEditAllowed}>
+      <FieldRow label={label} onDoubleClick={() => toggleEditing(fieldName)} isEditAllowed={isEditAllowed}>
         <Controller
           name={fieldName as keyof EditRisksFormData}
           control={control}
@@ -91,6 +102,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isEditing,
                       setEditingField(null)
                     }
                   }}
+                  onClose={() => setEditingField(null)}
                 />
                 {fieldState.error && <p className="text-sm text-red-500">{fieldState.error.message}</p>}
               </div>
@@ -118,7 +130,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isEditing,
 
 export default PropertiesCard
 
-const FieldRow = ({ label, children, onClick, isEditAllowed }: { label: string; children?: React.ReactNode; onClick?: () => void; isEditAllowed?: boolean }) => {
+const FieldRow = ({ label, children, onDoubleClick, isEditAllowed }: { label: string; children?: React.ReactNode; onDoubleClick?: () => void; isEditAllowed?: boolean }) => {
   const getFieldIcon = (label: string) => {
     switch (label.toLowerCase()) {
       case 'type':
@@ -140,12 +152,14 @@ const FieldRow = ({ label, children, onClick, isEditAllowed }: { label: string; 
   }
 
   return (
-    <div className={`flex justify-between items-center ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onClick={isEditAllowed ? onClick : undefined}>
+    <div className={`flex justify-between items-center`}>
       <div className="flex gap-2 w-[200px] items-center">
         {getFieldIcon(label)}
         <span>{label}</span>
       </div>
-      <div className="w-[200px]">{children}</div>
+      <div className={`w-[200px] ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={isEditAllowed ? onDoubleClick : undefined}>
+        {children}
+      </div>
     </div>
   )
 }

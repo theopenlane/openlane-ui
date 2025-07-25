@@ -238,9 +238,9 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   const mainContent = (
     <div className="space-y-6 p-2">
       <TitleField isEditing={isEditing} form={form} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} initialValue={risk.name} />
-      <DetailsField isEditing={isEditing} form={form} risk={risk} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} />
-      <BusinessCostField isEditing={isEditing} form={form} risk={risk} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} />
-      <MitigationField isEditing={isEditing} form={form} risk={risk} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} />
+      <DetailsField isEditing={isEditing} form={form} risk={risk} isEditAllowed={editAllowed} />
+      <BusinessCostField isEditing={isEditing} form={form} risk={risk} isEditAllowed={editAllowed} />
+      <MitigationField isEditing={isEditing} form={form} risk={risk} isEditAllowed={editAllowed} />
     </div>
   )
 

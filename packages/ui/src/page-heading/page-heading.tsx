@@ -11,10 +11,10 @@ interface PageHeadingProps extends PageHeadingVariants {
   editable?: boolean
   onChange?: (value: string) => void
   actions?: React.ReactNode
-  onClick?: (event: React.MouseEvent<Element>) => void
+  onDoubleClick?: (event: React.MouseEvent<Element>) => void
 }
 
-const PageHeading: React.FC<PageHeadingProps> = ({ heading, eyebrow, className, editable, onChange, actions, onClick }) => {
+const PageHeading: React.FC<PageHeadingProps> = ({ heading, eyebrow, className, editable, onChange, actions, onDoubleClick }) => {
   const styles = pageHeadingStyles()
   const inputRef = React.useRef<HTMLInputElement>(null)
 
@@ -38,7 +38,7 @@ const PageHeading: React.FC<PageHeadingProps> = ({ heading, eyebrow, className, 
   const headingClasses = !editable ? styles.heading() : cn(['cursor-pointer hover:bg-black', styles.heading()])
 
   return (
-    <div className="flex" onClick={onClick}>
+    <div className="flex" onDoubleClick={onDoubleClick}>
       <div className={cn(styles.wrapper(), className)}>
         {eyebrow && <span className={styles.eyebrow()}>{eyebrow}</span>}
         {!isEditing ? (

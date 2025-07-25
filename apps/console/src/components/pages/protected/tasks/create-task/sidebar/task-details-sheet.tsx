@@ -32,6 +32,7 @@ import MarkAsComplete from '../form/fields/mark-as-complete'
 
 const TaskDetailsSheet = () => {
   const [isEditing, setIsEditing] = useState(false)
+  const [internalEditing, setInternalEditing] = useState<keyof EditTaskFormData | null>(null)
   const queryClient = useQueryClient()
   const plateEditorHelper = usePlateEditor()
   const router = useRouter()
@@ -40,18 +41,13 @@ const TaskDetailsSheet = () => {
   const [associations, setAssociations] = useState<TObjectAssociationMap>({})
   const { mutateAsync: updateTask, isPending } = useUpdateTask()
   const { data: session } = useSession()
-
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
-
   const { data: permission } = useAccountRole(session, ObjectEnum.TASK, id! as string)
   const isEditAllowed = canEdit(permission?.roles)
-
   const { data, isLoading: fetching } = useTask(id as string)
-
   const taskData = data?.task
   const { form } = useFormSchema()
-
   const evidenceFormData = useMemo(() => generateEvidenceFormData(taskData), [taskData])
 
   const initialAssociations = useMemo(
@@ -125,9 +121,33 @@ const TaskDetailsSheet = () => {
     }
   }
 
+  const handleUpdateField = async (input: UpdateTaskInput) => {
+    if (!id) {
+      return
+    }
+    try {
+      await updateTask({ updateTaskId: id, input })
+      successNotification({
+        title: 'Task updated',
+        description: 'The task has been successfully updated.',
+      })
+    } catch {
+      errorNotification({
+        description: 'There was an unexpected error. Please try again later.',
+      })
+    }
+  }
+
   return (
     <Sheet open={!!id} onOpenChange={handleSheetClose}>
       <SheetContent
+        onEscapeKeyDown={(e) => {
+          if (internalEditing) {
+            e.preventDefault()
+          } else {
+            handleSheetClose()
+          }
+        }}
         side="right"
         className="bg-card flex flex-col"
         minWidth={470}
@@ -139,9 +159,16 @@ const TaskDetailsSheet = () => {
           <>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} id="editTask">
-                <TitleField isEditing={isEditing} />
+                <TitleField
+                  isEditing={isEditing}
+                  isEditAllowed={isEditAllowed}
+                  handleUpdate={handleUpdateField}
+                  initialValue={taskData?.title}
+                  internalEditing={internalEditing}
+                  setInternalEditing={setInternalEditing}
+                />
                 <DetailsField isEditing={isEditing} inititalValue={taskData?.details} />
-                {!isEditing && (
+                {isEditAllowed && !isEditing && (
                   <div className="flex gap-4 pb-4 pt-2">
                     {taskData && (
                       <EvidenceCreateFormDialog
@@ -152,7 +179,14 @@ const TaskDetailsSheet = () => {
                     <MarkAsComplete taskData={taskData} />
                   </div>
                 )}
-                <Properties isEditing={isEditing} taskData={taskData} />
+                <Properties
+                  isEditing={isEditing}
+                  taskData={taskData}
+                  internalEditing={internalEditing}
+                  setInternalEditing={setInternalEditing}
+                  handleUpdate={handleUpdateField}
+                  isEditAllowed={isEditAllowed}
+                />
                 {isEditing && (
                   <Panel className="mt-20">
                     <PanelHeader heading="Object association" noBorder />

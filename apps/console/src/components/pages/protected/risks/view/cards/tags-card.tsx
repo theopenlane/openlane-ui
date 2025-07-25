@@ -1,6 +1,6 @@
 'use client'
 
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment, useMemo, useState } from 'react'
 import { Card } from '@repo/ui/cardpanel'
 import { Tag } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
@@ -11,6 +11,7 @@ import { RiskFieldsFragment, UpdateRiskInput } from '@repo/codegen/src/schema'
 import { Badge } from '@repo/ui/badge'
 import { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema'
 import useClickOutside from '@/hooks/useClickOutside'
+import useEscapeKey from '@/hooks/useEscapeKey'
 
 type TTagsCardProps = {
   form: UseFormReturn<EditRisksFormData>
@@ -21,20 +22,22 @@ type TTagsCardProps = {
 }
 
 const TagsCard: React.FC<TTagsCardProps> = ({ form, risk, isEditing, isEditAllowed = true, handleUpdate }) => {
-  const [tagValues, setTagValues] = useState<Option[]>([])
   const [internalEditing, setInternalEditing] = useState(false)
 
-  useEffect(() => {
-    const tags = form.getValues('tags') || []
-    const options: Option[] = tags.filter((item): item is string => typeof item === 'string').map((item) => ({ value: item, label: item }))
-    setTagValues(options)
-  }, [form])
+  const tags = form.watch('tags')
+  const tagOptions = useMemo(() => {
+    return (tags ?? [])
+      .filter((item): item is string => typeof item === 'string')
+      .map((item) => ({
+        value: item,
+        label: item,
+      }))
+  }, [tags])
 
   const wrapperRef = useClickOutside(() => {
     if (!internalEditing || isEditing) return
-
     const current = risk.tags || []
-    const next = tagValues.map((item) => item.value)
+    const next = tagOptions.map((item) => item.value)
 
     const changed = current.length !== next.length || current.some((val) => !next.includes(val))
 
@@ -44,6 +47,18 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, risk, isEditing, isEditAllow
 
     setInternalEditing(false)
   })
+
+  useEscapeKey(
+    () => {
+      setInternalEditing(false)
+      const options: Option[] = (risk?.tags ?? []).filter((item): item is string => typeof item === 'string').map((item) => ({ value: item, label: item }))
+      form.setValue(
+        'tags',
+        options.map((opt) => opt.value),
+      )
+    },
+    { enabled: internalEditing },
+  )
 
   return (
     <Card className="p-4">
@@ -71,12 +86,12 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, risk, isEditing, isEditAllow
                           className="w-full"
                           placeholder="Add tag..."
                           creatable
-                          value={tagValues}
+                          value={tagOptions}
                           onChange={(selectedOptions) => {
                             const newTags = selectedOptions.map((opt) => opt.value)
                             field.onChange(newTags)
-                            setTagValues(selectedOptions)
                           }}
+                          hideClearAllButton
                         />
                       </FormControl>
                       {form.formState.errors.tags && <p className="text-red-500 text-sm">{form.formState.errors.tags.message}</p>}
@@ -87,7 +102,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, risk, isEditing, isEditAllow
             ) : (
               <div
                 className={`flex gap-2 flex-wrap ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-                onClick={() => {
+                onDoubleClick={() => {
                   if (!isEditing && isEditAllowed) {
                     setInternalEditing(true)
                   }
