@@ -10,6 +10,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { useCreateBulkCSVProcedure } from '@/lib/graphql-hooks/procedures.ts'
 import { DOCS_URL, GRAPHQL_OBJECT_DOCS } from '@/constants'
 import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type TBulkCSVCreateProcedureDialogProps = {
   trigger?: React.ReactElement<
@@ -38,10 +39,11 @@ const BulkCSVCreateProcedureDialog: React.FC<TBulkCSVCreateProcedureDialogProps>
         title: 'Procedure Created',
         description: `Procedure has been successfully created`,
       })
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
-        description: 'There was an error creating the procedures. Please try again.',
+        description: errorMessage,
       })
     }
   }
