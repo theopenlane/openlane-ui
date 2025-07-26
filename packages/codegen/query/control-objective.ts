@@ -18,6 +18,7 @@ export const CONTROL_OBJECTIVE_FIELDS = gql`
           refCode
           description
           referenceFramework
+          __typename
         }
       }
     }
@@ -27,6 +28,7 @@ export const CONTROL_OBJECTIVE_FIELDS = gql`
           id
           refCode
           referenceFramework
+          __typename
           control {
             id
             refCode
