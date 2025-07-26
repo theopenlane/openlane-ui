@@ -40,6 +40,7 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 import RelatedControls from '@/components/pages/protected/controls/related-controls.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
+import ObjectAssociationGraph from '@/components/shared/object-association/object-association-graph.tsx'
 
 interface FormValues {
   refCode: string
@@ -320,6 +321,27 @@ const ControlDetailsPage: React.FC = () => {
 
   const sidebarContent = (
     <>
+      <AssociatedObjectsAccordion
+        policies={control.internalPolicies}
+        procedures={control.procedures}
+        tasks={control.tasks}
+        programs={control.programs}
+        risks={control.risks}
+        canEdit={canEdit(permission?.roles)}
+      />
+      <ObjectAssociationGraph
+        centerNode={{
+          node: control,
+          type: 'control',
+        }}
+        sections={{
+          policies: control.internalPolicies,
+          procedures: control.procedures,
+          tasks: control.tasks,
+          programs: control.programs,
+          risks: control.risks,
+        }}
+      />
       <AuthorityCard
         isEditAllowed={canEdit(permission?.roles)}
         controlOwner={control.controlOwner}
@@ -341,14 +363,6 @@ const ControlDetailsPage: React.FC = () => {
           showInfoDetails={showInfoDetails}
         />
       )}
-      <AssociatedObjectsAccordion
-        policies={control.internalPolicies}
-        procedures={control.procedures}
-        tasks={control.tasks}
-        programs={control.programs}
-        risks={control.risks}
-        canEdit={canEdit(permission?.roles)}
-      />
     </>
   )
 
