@@ -96,7 +96,7 @@ export const ControlObjectiveCard = ({ obj }: Props) => {
                       onMouseEnter={() =>
                         setHoveredControl({
                           id: control?.node?.id || '',
-                          shortName: control?.node?.standard?.shortName || '-',
+                          shortName: control?.node?.referenceFramework || '-',
                           description: control?.node?.description || '-',
                         })
                       }
