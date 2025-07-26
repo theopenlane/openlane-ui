@@ -43,6 +43,9 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
   const reviewTriggerRef = useRef<HTMLDivElement>(null)
   const reviewPopoverRef = useRef<HTMLDivElement>(null)
 
+  const isStatus = editingField === 'status'
+  const isReviewDue = editingField === 'reviewDue'
+
   useEscapeKey(() => {
     if (editingField) {
       const value = policy?.[editingField]
@@ -51,14 +54,25 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
     }
   })
 
-  useClickOutsideWithPortal(() => {
-    if (editingField === 'status') setEditingField(null)
-  }, [triggerRef, popoverRef])
+  useClickOutsideWithPortal(
+    () => {
+      setEditingField(null)
+    },
+    {
+      refs: { triggerRef, popoverRef },
+      enabled: isStatus,
+    },
+  )
 
-  useClickOutsideWithPortal(() => {
-    if (editingField === 'reviewDue') setEditingField(null)
-  }, [reviewTriggerRef, reviewPopoverRef])
-
+  useClickOutsideWithPortal(
+    () => {
+      setEditingField(null)
+    },
+    {
+      refs: { reviewTriggerRef, reviewPopoverRef },
+      enabled: isReviewDue,
+    },
+  )
   return (
     <Card className="p-4">
       <h3 className="text-lg font-medium mb-2">Properties</h3>

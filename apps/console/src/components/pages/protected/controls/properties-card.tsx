@@ -183,9 +183,15 @@ const EditableSelect = ({
     if (internalEditing) setInternalEditing(false)
   })
 
-  useClickOutsideWithPortal(() => {
-    if (internalEditing) setInternalEditing(false)
-  }, [triggerRef, popoverRef])
+  useClickOutsideWithPortal(
+    () => {
+      if (internalEditing) setInternalEditing(false)
+    },
+    {
+      refs: { triggerRef, popoverRef },
+      enabled: internalEditing,
+    },
+  )
 
   const isEditable = isEditAllowed && (isEditing || internalEditing)
 
@@ -384,9 +390,15 @@ export const EditableSelectFromQuery = ({
     if (internalEditing) setInternalEditing(false)
   })
 
-  useClickOutsideWithPortal(() => {
-    if (internalEditing) setInternalEditing(false)
-  }, [triggerRef, popoverRef])
+  useClickOutsideWithPortal(
+    () => {
+      if (internalEditing) setInternalEditing(false)
+    },
+    {
+      refs: { triggerRef, popoverRef },
+      enabled: internalEditing,
+    },
+  )
 
   return (
     <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
@@ -522,9 +534,15 @@ const Status = ({ isEditing, data, handleUpdate }: { isEditing: boolean; data?: 
     if (internalEditing) setInternalEditing(false)
   })
 
-  useClickOutsideWithPortal(() => {
-    if (internalEditing) setInternalEditing(false)
-  }, [triggerRef, popoverRef])
+  useClickOutsideWithPortal(
+    () => {
+      if (internalEditing) setInternalEditing(false)
+    },
+    {
+      refs: { triggerRef, popoverRef },
+      enabled: internalEditing,
+    },
+  )
 
   return (
     <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">

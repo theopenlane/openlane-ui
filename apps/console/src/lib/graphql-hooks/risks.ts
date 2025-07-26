@@ -137,8 +137,7 @@ export const useUpdateRisk = () => {
 
   return useMutation<UpdateRiskMutation, unknown, UpdateRiskMutationVariables>({
     mutationFn: (variables) => client.request(UPDATE_RISK, variables),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['risks', data.updateRisk.risk.id] })
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['risks'] })
     },
   })

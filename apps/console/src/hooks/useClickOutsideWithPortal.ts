@@ -1,20 +1,28 @@
 import { useEffect, RefObject } from 'react'
 
-const useClickOutsideWithPortal = <T extends HTMLElement = HTMLElement>(callback: () => void, refs: RefObject<T | null>[]) => {
-  useEffect(() => {
-    const handleClick = (event: MouseEvent) => {
-      const isInside = refs.some((ref) => ref.current?.contains(event.target as Node))
+type RefRecord<T extends HTMLElement = HTMLElement> = Record<string, RefObject<T | null>>
 
-      if (!isInside) {
-        callback()
-      }
+type UseClickOutsideWithPortalOptions<T extends HTMLElement = HTMLElement> = {
+  refs: RefRecord<T>
+  enabled?: boolean
+}
+
+function useClickOutsideWithPortal<T extends HTMLElement = HTMLElement>(callback: () => void, { refs, enabled = true }: UseClickOutsideWithPortalOptions<T>) {
+  const refArray = Object.values(refs)
+
+  useEffect(() => {
+    if (!enabled) return
+
+    const handleClick = (event: MouseEvent) => {
+      const isInside = refArray.some((ref) => ref.current?.contains(event.target as Node))
+      if (!isInside) callback()
     }
 
     document.addEventListener('mousedown', handleClick)
     return () => {
       document.removeEventListener('mousedown', handleClick)
     }
-  }, [callback, refs])
+  }, [callback, enabled, refArray])
 }
 
 export default useClickOutsideWithPortal

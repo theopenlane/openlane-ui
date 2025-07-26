@@ -1,86 +1,136 @@
 'use client'
 
-import React from 'react'
-import { RiskFieldsFragment } from '@repo/codegen/src/schema'
+import React, { useState } from 'react'
+import { RiskFieldsFragment, RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus, UpdateRiskInput } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
 import { Binoculars, Circle, CircleAlert, CircleHelp, Folder, Gauge, Tag } from 'lucide-react'
 import { Controller, UseFormReturn } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
-import { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema.ts'
-import RiskLabel from '@/components/pages/protected/risks/risk-label.tsx'
+import { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema'
+import RiskLabel from '@/components/pages/protected/risks/risk-label'
+import useEscapeKey from '@/hooks/useEscapeKey'
 
 type TPropertiesCardProps = {
   form: UseFormReturn<EditRisksFormData>
   risk?: RiskFieldsFragment
   isEditing: boolean
+  isEditAllowed?: boolean
+  handleUpdate?: (val: UpdateRiskInput) => void
 }
 
-const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, isEditing, risk }) => {
+type Fields = 'riskType' | 'category' | 'score' | 'impact' | 'likelihood' | 'status'
+
+const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isEditing, isEditAllowed = true, handleUpdate }) => {
+  const { control, getValues } = form
+  const [editingField, setEditingField] = useState<Fields | null>(null)
+
+  const toggleEditing = (field: Fields) => {
+    if (!isEditing && isEditAllowed) setEditingField(field)
+  }
+
+  const handleBlur = (fieldName: keyof EditRisksFormData) => {
+    if (isEditing || !handleUpdate || !risk) return
+
+    const newValue = getValues(fieldName)
+    const oldValue = risk[fieldName as keyof RiskFieldsFragment]
+
+    if (newValue !== oldValue) {
+      handleUpdate({ [fieldName]: newValue })
+    }
+
+    setEditingField(null)
+  }
+
+  useEscapeKey(() => {
+    if (editingField) {
+      const value = risk?.[editingField]
+      form.setValue(editingField, value || '')
+      setEditingField(null)
+    }
+  })
+
+  const renderTextField = (fieldName: Fields, label: string, value?: string | null) => {
+    const isFieldEditing = isEditing || editingField === fieldName
+
+    return (
+      <FieldRow label={label} onDoubleClick={() => toggleEditing(fieldName)} isEditAllowed={isEditAllowed}>
+        {isFieldEditing ? (
+          <Controller
+            name={fieldName}
+            control={control}
+            render={({ field }) => <Input {...field} value={typeof field.value === 'string' || typeof field.value === 'number' ? field.value : ''} onBlur={() => handleBlur(fieldName)} autoFocus />}
+          />
+        ) : (
+          <div className={`truncate ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>{value || `No ${label}`}</div>
+        )}
+      </FieldRow>
+    )
+  }
+
+  const renderRiskLabelField = <T extends 'score' | 'impact' | 'likelihood' | 'status'>(fieldName: T, label: string) => {
+    const isFieldEditing = isEditing || editingField === fieldName
+
+    return (
+      <FieldRow label={label} onDoubleClick={() => toggleEditing(fieldName)} isEditAllowed={isEditAllowed}>
+        <Controller
+          name={fieldName as keyof EditRisksFormData}
+          control={control}
+          render={({ field, fieldState }) => {
+            return (
+              <div className="flex flex-col gap-1">
+                <RiskLabel
+                  isEditing={isFieldEditing}
+                  score={fieldName === 'score' ? (field.value as number) : undefined}
+                  impact={fieldName === 'impact' ? (field.value as RiskRiskImpact) : undefined}
+                  likelihood={fieldName === 'likelihood' ? (field.value as RiskRiskLikelihood) : undefined}
+                  status={fieldName === 'status' ? (field.value as RiskRiskStatus) : undefined}
+                  onChange={(val) => {
+                    field.onChange(val)
+
+                    if (fieldName === 'score') {
+                      return
+                    }
+
+                    if (!isEditing && handleUpdate) {
+                      handleUpdate({ [fieldName]: val } as UpdateRiskInput)
+                      setEditingField(null)
+                    }
+                  }}
+                  onMouseUp={(val) => {
+                    if (!isEditing && handleUpdate) {
+                      handleUpdate({ [fieldName]: val } as UpdateRiskInput)
+                      setEditingField(null)
+                    }
+                  }}
+                  onClose={() => setEditingField(null)}
+                />
+                {fieldState.error && <p className="text-sm text-red-500">{fieldState.error.message}</p>}
+              </div>
+            )
+          }}
+        />
+      </FieldRow>
+    )
+  }
+
   return (
     <Card className="p-4">
       <h3 className="text-lg font-medium mb-2">Properties</h3>
       <div className="flex flex-col gap-4">
-        {/* Type */}
-        <div className="flex justify-between items-center">
-          <FieldRow label="Type">
-            {isEditing ? (
-              <Controller name="riskType" control={form.control} render={({ field }) => <Input {...field} />} />
-            ) : (
-              <div className="flex items-center space-x-2">
-                <p>{risk?.riskType}</p>
-              </div>
-            )}
-          </FieldRow>
-        </div>
-
-        <div className="flex justify-between items-center">
-          <FieldRow label="Category">
-            {isEditing ? (
-              <Controller name="category" control={form.control} render={({ field }) => <Input {...field} />} />
-            ) : (
-              <div className="flex items-center space-x-2">
-                <p>{risk?.category}</p>
-              </div>
-            )}
-          </FieldRow>
-        </div>
-
-        <div className="flex justify-between items-center">
-          <FieldRow label="Score">
-            <Controller
-              name="score"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <div className="flex flex-col gap-1">
-                  <RiskLabel isEditing={isEditing} score={field.value} onChange={field.onChange} />
-                  {fieldState.error && <p className="text-sm text-red-500">{fieldState.error.message}</p>}
-                </div>
-              )}
-            />
-          </FieldRow>
-        </div>
-
-        <div className="flex justify-between items-center">
-          <FieldRow label="Impact">
-            <Controller name="impact" control={form.control} render={({ field }) => <RiskLabel isEditing={isEditing} impact={field.value} onChange={field.onChange} />} />
-          </FieldRow>
-        </div>
-        <div className="flex justify-between items-center">
-          <FieldRow label="Likelihood">
-            <Controller name="likelihood" control={form.control} render={({ field }) => <RiskLabel isEditing={isEditing} likelihood={field.value} onChange={field.onChange} />} />
-          </FieldRow>
-        </div>
-        <div className="flex justify-between items-center">
-          <FieldRow label="Status">
-            <Controller name="status" control={form.control} render={({ field }) => <RiskLabel isEditing={isEditing} status={field.value} onChange={field.onChange} />} />
-          </FieldRow>
-        </div>
+        {renderTextField('riskType', 'Type', risk?.riskType ?? undefined)}
+        {renderTextField('category', 'Category', risk?.category ?? undefined)}
+        {renderRiskLabelField('score', 'Score')}
+        {renderRiskLabelField('impact', 'Impact')}
+        {renderRiskLabelField('likelihood', 'Likelihood')}
+        {renderRiskLabelField('status', 'Status')}
       </div>
     </Card>
   )
 }
 
-const FieldRow = ({ label, children }: { label: string; children?: React.ReactNode }) => {
+export default PropertiesCard
+
+const FieldRow = ({ label, children, onDoubleClick, isEditAllowed }: { label: string; children?: React.ReactNode; onDoubleClick?: () => void; isEditAllowed?: boolean }) => {
   const getFieldIcon = (label: string) => {
     switch (label.toLowerCase()) {
       case 'type':
@@ -102,14 +152,14 @@ const FieldRow = ({ label, children }: { label: string; children?: React.ReactNo
   }
 
   return (
-    <>
+    <div className={`flex justify-between items-center`}>
       <div className="flex gap-2 w-[200px] items-center">
         {getFieldIcon(label)}
         <span>{label}</span>
       </div>
-      <div className="w-[200px]">{children}</div>
-    </>
+      <div className={`w-[200px] ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={isEditAllowed ? onDoubleClick : undefined}>
+        {children}
+      </div>
+    </div>
   )
 }
-
-export default PropertiesCard
