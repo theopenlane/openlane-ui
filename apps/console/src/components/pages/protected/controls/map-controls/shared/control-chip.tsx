@@ -127,13 +127,10 @@ const ControlTooltipContent: React.FC<{ control: NonNullable<ControlChipProps['c
           <span className="font-medium">Standard</span>
         </div>
         <div className="flex items-center gap-1 border-b pb-2">
-          {details.referenceFramework ? (
-            <Link href={standardHref} className=" size-fit hover:underline flex items-center gap-1" target="_blank" rel="noopener">
-              <span className="pl-3 text-brand ">{details.referenceFramework}</span> <ExternalLink size={12} />
-            </Link>
-          ) : (
+          <Link href={standardHref} className=" size-fit hover:underline flex items-center gap-1" target="_blank" rel="noopener">
             <StandardChip referenceFramework={details.referenceFramework ?? ''} />
-          )}
+            {details.referenceFramework && <ExternalLink size={12} />}
+          </Link>
         </div>
 
         <div className="flex items-center gap-1 border-b pb-2">

@@ -9,6 +9,7 @@ import { ControlObjectiveControlSource, ControlObjectiveFieldsFragment, ControlO
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Archive, FilePenLineIcon, ThumbsUp } from 'lucide-react'
 import { LinkControlsModal } from './link-controls-modal'
+import ControlChip from '../map-controls/shared/control-chip'
 
 interface Props {
   obj: ControlObjectiveFieldsFragment
@@ -95,12 +96,12 @@ export const ControlObjectiveCard = ({ obj }: Props) => {
                       onMouseEnter={() =>
                         setHoveredControl({
                           id: control?.node?.id || '',
-                          shortName: control?.node?.standard?.shortName || '-',
+                          shortName: control?.node?.referenceFramework || '-',
                           description: control?.node?.description || '-',
                         })
                       }
                     >
-                      <span className="pb-1">{control.node.refCode}</span>
+                      <ControlChip key={control.node.id} control={control.node} />
                     </PopoverTrigger>
                     {hoveredControl?.id === control.node.id && (
                       <PopoverContent asChild align="start">
@@ -138,7 +139,7 @@ export const ControlObjectiveCard = ({ obj }: Props) => {
                         })
                       }
                     >
-                      <span className="underline cursor-pointer  pb-1">{subcontrol.node.refCode}</span>
+                      <ControlChip key={subcontrol.node.id} control={subcontrol.node} />
                     </PopoverTrigger>
                     {hoveredSubcontrol?.id === subcontrol.node.id && (
                       <PopoverContent asChild align="start">
