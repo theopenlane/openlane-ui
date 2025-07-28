@@ -102,6 +102,7 @@ const MapControlFrameworksAccordion: React.FC<Props> = ({ controlData, subcontro
                 {controlsByFramework[opt.label].map((c) => (
                   <ControlChip
                     key={c.id}
+                    clickable={false}
                     draggable
                     control={c}
                     selected={selectedIds.includes(c.id)}

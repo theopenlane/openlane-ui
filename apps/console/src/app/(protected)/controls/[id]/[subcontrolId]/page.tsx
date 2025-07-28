@@ -178,7 +178,7 @@ const ControlDetailsPage: React.FC = () => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
       { label: 'Controls', href: '/controls' },
-      { label: controlData?.control?.refCode, isLoading: isLoadingControl },
+      { label: controlData?.control?.refCode, isLoading: isLoadingControl, href: `/controls/${controlData?.control.id}` },
       { label: data?.subcontrol?.refCode, isLoading: isLoading },
     ])
   }, [setCrumbs, controlData, isLoading, data, isLoadingControl])
