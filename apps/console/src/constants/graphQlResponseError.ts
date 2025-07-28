@@ -16,6 +16,7 @@ export const errorCodeMessages: Record<string, string> = {
   INTERNAL_SERVER_ERROR: 'Internal server error. Please try again later or reach out to support for assistance.',
   UNAUTHORIZED: 'You are not authorized to perform this request. Reach out to an organization admin for assistance.',
   ALREADY_EXISTS: 'Item already exists. If you’re trying to update it, double-check the details. Otherwise, try a new name or value.',
+  ORG_ALREADY_EXISTS: 'That name is already taken. Please choose a different name—you can keep your display name the same.',
   MAX_ATTEMPTS: 'Max attempts to resend email reached, please create a new request or reach out to support.',
   BAD_REQUEST: 'Something’s not right. Please check your input and try again.',
 }
