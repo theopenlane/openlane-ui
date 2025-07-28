@@ -17,9 +17,8 @@ export const CONTROL_OBJECTIVE_FIELDS = gql`
           id
           refCode
           description
-          standard {
-            shortName
-          }
+          referenceFramework
+          __typename
         }
       }
     }
@@ -28,6 +27,8 @@ export const CONTROL_OBJECTIVE_FIELDS = gql`
         node {
           id
           refCode
+          referenceFramework
+          __typename
           control {
             id
             refCode
