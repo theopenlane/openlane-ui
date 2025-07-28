@@ -8,9 +8,11 @@ export const EvidenceIconMapper: Record<EvidenceEvidenceStatus, React.ReactNode>
   [EvidenceEvidenceStatus.NEEDS_RENEWAL]: <RefreshCw height={16} width={16} />,
   [EvidenceEvidenceStatus.READY]: <FileArchive height={16} width={16} />,
   [EvidenceEvidenceStatus.MISSING_ARTIFACT]: <FileSearch height={16} width={16} />,
+  [EvidenceEvidenceStatus.SUBMITTED]: <FileSearch height={16} width={16} />,
+  [EvidenceEvidenceStatus.IN_REVIEW]: <FileSearch height={16} width={16} />,
 }
 
-export const ChartColorsSequence = ['#16A34A', '#15803D', '#CA8A04', '#EF4444', '#B91C1C']
+export const ChartColorsSequence = ['#16A34A', '#15803D', '#CA8A04', '#EF4444', '#B91C1C', '#2563EB', '#D97706']
 
 export const EvidenceBadgeMapper: Record<EvidenceEvidenceStatus, React.ReactNode> = {
   [EvidenceEvidenceStatus.APPROVED]: (
@@ -36,6 +38,16 @@ export const EvidenceBadgeMapper: Record<EvidenceEvidenceStatus, React.ReactNode
   [EvidenceEvidenceStatus.MISSING_ARTIFACT]: (
     <Badge style={{ backgroundColor: '#EF4444' }} className="text-white text-xs font-medium">
       Missing Artifact
+    </Badge>
+  ),
+  [EvidenceEvidenceStatus.SUBMITTED]: (
+    <Badge style={{ backgroundColor: '#2563EB' }} className="text-white text-xs font-medium">
+      Submitted
+    </Badge>
+  ),
+  [EvidenceEvidenceStatus.IN_REVIEW]: (
+    <Badge style={{ backgroundColor: '#D97706' }} className="text-white text-xs font-medium">
+      In Review
     </Badge>
   ),
 }

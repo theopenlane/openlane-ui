@@ -9802,10 +9802,12 @@ export interface EvidenceEdge {
 /** EvidenceEvidenceStatus is enum for the field status */
 export enum EvidenceEvidenceStatus {
   APPROVED = 'APPROVED',
+  IN_REVIEW = 'IN_REVIEW',
   MISSING_ARTIFACT = 'MISSING_ARTIFACT',
   NEEDS_RENEWAL = 'NEEDS_RENEWAL',
   READY = 'READY',
   REJECTED = 'REJECTED',
+  SUBMITTED = 'SUBMITTED',
 }
 
 export interface EvidenceHistory extends Node {
@@ -9867,10 +9869,12 @@ export interface EvidenceHistoryEdge {
 /** EvidenceHistoryEvidenceStatus is enum for the field status */
 export enum EvidenceHistoryEvidenceStatus {
   APPROVED = 'APPROVED',
+  IN_REVIEW = 'IN_REVIEW',
   MISSING_ARTIFACT = 'MISSING_ARTIFACT',
   NEEDS_RENEWAL = 'NEEDS_RENEWAL',
   READY = 'READY',
   REJECTED = 'REJECTED',
+  SUBMITTED = 'SUBMITTED',
 }
 
 /** EvidenceHistoryOpType is enum for the field operation */
@@ -41019,7 +41023,7 @@ export type ControlListStandardFieldsFragment = {
 }
 
 export type ControlDetailsFieldsFragment = {
-  __typename?: 'Control'
+  __typename: 'Control'
   id: string
   category?: string | null
   refCode: string
@@ -41180,7 +41184,7 @@ export type GetControlByIdQueryVariables = Exact<{
 export type GetControlByIdQuery = {
   __typename?: 'Query'
   control: {
-    __typename?: 'Control'
+    __typename: 'Control'
     id: string
     category?: string | null
     refCode: string
