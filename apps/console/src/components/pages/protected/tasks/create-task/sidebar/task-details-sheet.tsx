@@ -43,7 +43,7 @@ const TaskDetailsSheet = () => {
   const { data: session } = useSession()
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
-  const { data: permission } = useAccountRole(session, ObjectEnum.TASK, id! as string)
+  const { data: permission } = useAccountRole(session, ObjectEnum.TASK, id)
   const isEditAllowed = canEdit(permission?.roles)
   const { data, isLoading: fetching } = useTask(id as string)
   const taskData = data?.task
