@@ -5,7 +5,7 @@ import ReactDOM from 'react-dom'
 import ForceGraph, { ForceGraphMethods, NodeObject } from 'react-force-graph-2d'
 import { forceCollide, forceRadial } from 'd3-force'
 import usePlateEditor from '../plate/usePlateEditor'
-import { PencilLine, SlidersHorizontal, X } from 'lucide-react'
+import { Info, PencilLine, SlidersHorizontal, X } from 'lucide-react'
 import { ObjectAssociationMap } from '@/components/shared/enum-mapper/object-association-enum.tsx'
 import { getHrefForObjectType, NormalizedObject } from '@/utils/getHrefForObjectType.ts'
 import { Section, TBaseAssociatedNode, TEdgeNode } from '@/components/shared/object-association/types/object-association-types.ts'
@@ -58,6 +58,27 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
     }
   }, [isFullscreen])
 
+  const getType = (type: string): string => {
+    switch (type) {
+      case 'controls':
+        return 'Control'
+      case 'subcontrols':
+        return 'Subcontrol'
+      case 'risks':
+        return 'Risk'
+      case 'policies':
+        return 'Internal Policy'
+      case 'procedures':
+        return 'Procedure'
+      case 'tasks':
+        return 'Task'
+      case 'programs':
+        return 'Program'
+      default:
+        return 'Unknown'
+    }
+  }
+
   const extractNodes = (edges: TEdgeNode[] | null | undefined): TBaseAssociatedNode[] => (edges ?? []).map((edge) => edge?.node).filter((node): node is TBaseAssociatedNode => !!node)
 
   const { graphData, colorMap, nodeMeta } = useMemo(() => {
@@ -73,6 +94,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
       description: centerNode.node.summary || centerNode.node.description || centerNode.node.details || '',
       displayID: centerNode.node.displayID || centerNode.node.id,
       link: getHrefForObjectType(centerNode.type, centerNode.node as NormalizedObject),
+      __typename: getType(centerNode.type),
     }
 
     if (!colorMap[centerNode.type]) {
@@ -92,6 +114,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
           description: node.summary || node.description || node.details || '',
           displayID: node.displayID || node.id,
           link: getHrefForObjectType(sectionType, node as NormalizedObject),
+          __typename: getType(sectionType),
         }
         nodes.push({ id: node.id, name: label, type: sectionType })
         links.push({ source: centerNode.node.id, target: node.id })
@@ -122,6 +145,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
     const { convertToReadOnly } = usePlateEditor()
     const displayText = node.refCode || node.name || node.title || ''
     const displayDescription = node.summary || node.description || node.details || ''
+
     return (
       <div>
         <div className="grid grid-cols-[max-content_1fr] gap-x-4 items-center border-b pb-2">
@@ -130,6 +154,13 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
             <span className="font-medium">Name</span>
           </div>
           <span className="cursor-pointer break-words">{displayText}</span>
+        </div>
+        <div className="grid grid-cols-[max-content_1fr] gap-x-4 items-center border-b pb-2 pt-2">
+          <div className="flex items-center gap-1">
+            <Info size={12} />
+            <span className="font-medium">Type</span>
+          </div>
+          <span className="cursor-pointer break-words">{node.__typename}</span>
         </div>
         <div className="flex flex-col pt-2">
           <div className="flex items-center gap-1">
