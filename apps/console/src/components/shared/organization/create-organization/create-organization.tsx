@@ -17,6 +17,8 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { useCreateOrganization } from '@/lib/graphql-hooks/organization'
 import { switchOrganization } from '@/lib/user'
 import { useQueryClient } from '@tanstack/react-query'
+import { ClientError } from 'graphql-request'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const formSchema = z.object({
   name: z
@@ -86,10 +88,13 @@ export const CreateOrganizationForm = () => {
       if (response.data) {
         push('/dashboard')
       }
-    } catch (error) {
-      console.error('Error creating organization:', error)
+    } catch (error: unknown) {
+      let errorMessage: string | undefined
+      if (error instanceof ClientError) {
+        errorMessage = parseErrorMessage(error.response.errors)
+      }
       errorNotification({
-        title: 'Failed to create organization. Please try again.',
+        title: errorMessage ?? 'Failed to create organization. Please try again.',
       })
     }
   }
