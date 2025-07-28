@@ -78,7 +78,7 @@ export const useAccessPermission = (session: Session | null, relation: RelationE
   }
 }
 
-export const useAccountRole = (session: Session | null, objectType: ObjectEnum, objectID: string | number) => {
+export const useAccountRole = (session: Session | null, objectType: ObjectEnum, objectID: string | number | null) => {
   const accessToken = session?.user?.accessToken
 
   const headers: HeadersInit = {
@@ -93,24 +93,31 @@ export const useAccountRole = (session: Session | null, objectType: ObjectEnum, 
   const fetcher = async (url: string) => {
     const response = await secureFetch(url, {
       method: 'POST',
-      headers: headers,
+      headers,
       body: JSON.stringify(payload),
     })
     return response.json()
   }
 
-  const { data, error, isValidating } = useSWR(session ? `${openlaneAPIUrl}/v1/account/roles` : null, fetcher, {
+  const shouldFetch = session
+
+  const { data, error, isValidating, mutate } = useSWR(shouldFetch ? `${openlaneAPIUrl}/v1/account/roles` : null, fetcher, {
     revalidateOnFocus: false,
     revalidateOnMount: true,
     refreshInterval: 0,
     revalidateIfStale: false,
+    onErrorRetry: (error, key, config, revalidate, { retryCount }) => {
+      if (retryCount >= 5) return
+      setTimeout(() => revalidate({ retryCount }), 2000)
+    },
   })
 
   return {
     data,
     isLoading: isValidating,
     error,
-  } as IResponse
+    refetch: mutate,
+  } as IResponse & { refetch: typeof mutate }
 }
 
 export const useOrganizationRole = (session: Session | null) => {
