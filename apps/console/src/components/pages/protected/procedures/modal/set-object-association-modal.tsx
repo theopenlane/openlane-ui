@@ -3,7 +3,7 @@
 import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { useCallback, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 import { useProcedure } from '@/components/pages/protected/procedures/create/hooks/use-procedure.tsx'
@@ -11,6 +11,7 @@ import { UpdateProcedureInput } from '@repo/codegen/src/schema.ts'
 import { useUpdateProcedure } from '@/lib/graphql-hooks/procedures.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { useQueryClient } from '@tanstack/react-query'
+import AddAssociationBtn from '@/components/shared/object-association/add-association-btn.tsx'
 
 type TSetObjectAssociationDialog = {
   procedureId?: string
@@ -140,7 +141,7 @@ const SetObjectAssociationProceduresDialog = ({ procedureId }: TSetObjectAssocia
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogTrigger asChild>
-        <Button className="h-8 !px-2">Set Association</Button>
+        <AddAssociationBtn />
       </DialogTrigger>
       <DialogContent className="max-w-2xl p-6 space-y-4">
         <DialogHeader>

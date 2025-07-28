@@ -18,6 +18,7 @@ type TObjectAssociationSwitchProps = {
 const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sections, centerNode, canEdit }) => {
   const [isGraphView, setIsGraphView] = useState<boolean>(true)
   const [toggleAll, setToggleAll] = useState<boolean>(false)
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false)
 
   const handleAssociationDialog = () => {
     if (!canEdit) {
@@ -26,35 +27,15 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
 
     switch (centerNode.type) {
       case ObjectAssociationNodeEnum.CONTROL:
-        return (
-          <div className="mt-5">
-            <SetObjectAssociationDialog />
-          </div>
-        )
+        return <SetObjectAssociationDialog />
       case ObjectAssociationNodeEnum.SUBCONTROL:
-        return (
-          <div className="mt-5">
-            <SetObjectAssociationDialog />
-          </div>
-        )
+        return <SetObjectAssociationDialog />
       case ObjectAssociationNodeEnum.POLICY:
-        return (
-          <div className="mt-5">
-            <SetObjectAssociationPoliciesDialog policyId={centerNode?.node.id} />
-          </div>
-        )
+        return <SetObjectAssociationPoliciesDialog policyId={centerNode?.node.id} />
       case ObjectAssociationNodeEnum.PROCEDURE:
-        return (
-          <div className="mt-5">
-            <SetObjectAssociationProceduresDialog procedureId={centerNode?.node.id} />
-          </div>
-        )
+        return <SetObjectAssociationProceduresDialog procedureId={centerNode?.node.id} />
       case ObjectAssociationNodeEnum.RISKS:
-        return (
-          <div className="mt-5">
-            <SetObjectAssociationRisksDialog riskId={centerNode?.node.id} />
-          </div>
-        )
+        return <SetObjectAssociationRisksDialog riskId={centerNode?.node.id} />
     }
   }
 
@@ -71,6 +52,17 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
               </div>
             </Button>
           )}
+
+          {isGraphView && (
+            <Button type="button" className="h-8 !px-2" variant="outline" onClick={() => setIsFullscreen((prevState) => !prevState)}>
+              <div className="flex">
+                <Share2 size={16} />
+                <ChevronsDownUp size={16} />
+              </div>
+            </Button>
+          )}
+
+          {handleAssociationDialog()}
         </div>
 
         {!isGraphView ? (
@@ -80,9 +72,11 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
         )}
       </div>
 
-      {!isGraphView ? <AssociatedObjectsAccordion sections={sections} toggleAll={toggleAll} /> : <ObjectAssociationGraph centerNode={centerNode} sections={sections} />}
-
-      {handleAssociationDialog()}
+      {!isGraphView ? (
+        <AssociatedObjectsAccordion sections={sections} toggleAll={toggleAll} />
+      ) : (
+        <ObjectAssociationGraph closeFullScreen={() => setIsFullscreen(false)} centerNode={centerNode} sections={sections} isFullscreen={isFullscreen} />
+      )}
     </div>
   )
 }

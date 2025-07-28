@@ -1,11 +1,11 @@
 'use client'
 
 import React, { useMemo, useRef, useState, useEffect } from 'react'
+import ReactDOM from 'react-dom'
 import ForceGraph, { ForceGraphMethods, NodeObject } from 'react-force-graph-2d'
 import { forceCollide, forceRadial } from 'd3-force'
 import usePlateEditor from '../plate/usePlateEditor'
-import { useRouter } from 'next/navigation'
-import { PencilLine, SlidersHorizontal } from 'lucide-react'
+import { PencilLine, SlidersHorizontal, X } from 'lucide-react'
 import { ObjectAssociationMap } from '@/components/shared/enum-mapper/object-association-enum.tsx'
 import { getHrefForObjectType, NormalizedObject } from '@/utils/getHrefForObjectType.ts'
 import { Section, TBaseAssociatedNode, TEdgeNode } from '@/components/shared/object-association/types/object-association-types.ts'
@@ -23,49 +23,40 @@ type TCenterNode = {
   node: TBaseAssociatedNode
 }
 
-type TObjectAssociationGraphProps = { centerNode: TCenterNode; sections: Section }
+type TObjectAssociationGraphProps = {
+  centerNode: TCenterNode
+  sections: Section
+  isFullscreen: boolean
+  closeFullScreen: () => void
+}
 
 const NODE_RADIUS = 7
 const FONT_SIZE = 12
 const LABEL_PADDING = 4
 
-const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ centerNode, sections }) => {
+const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ centerNode, sections, isFullscreen, closeFullScreen }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState({ width: 300, height: 300 })
   const fgRef = useRef<ForceGraphMethods | undefined>(undefined)
   const [hoverNode, setHoverNode] = useState<NodeObject<IGraphNode> | null>(null)
 
   useEffect(() => {
-    if (!fgRef.current) {
-      return
+    if (!isFullscreen && containerRef.current) {
+      const resizeObserver = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          const { width, height } = entry.contentRect
+          setDimensions({ width, height })
+        }
+      })
+      resizeObserver.observe(containerRef.current)
+      return () => resizeObserver.disconnect()
+    } else {
+      setDimensions({ width: window.innerWidth, height: window.innerHeight })
+      const handleResize = () => setDimensions({ width: window.innerWidth, height: window.innerHeight })
+      window.addEventListener('resize', handleResize)
+      return () => window.removeEventListener('resize', handleResize)
     }
-
-    const fg = fgRef.current
-    fg.d3Force('link')?.distance(50)
-    fg.d3Force('collide', forceCollide(() => NODE_RADIUS + FONT_SIZE + LABEL_PADDING).iterations(4))
-    const R = Math.min(dimensions.width, dimensions.height) / 3
-    fg.d3Force('radial', forceRadial((d) => ((d as IGraphNode).type === centerNode.type ? 0 : R), 0, 0).strength(0.8))
-  }, [centerNode.type, dimensions])
-
-  useEffect(() => {
-    const resizeObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        const { width, height } = entry.contentRect
-        setDimensions({ width, height })
-      }
-    })
-
-    const containerEl = containerRef.current
-    if (containerEl) {
-      resizeObserver.observe(containerEl)
-    }
-
-    return () => {
-      if (containerEl) {
-        resizeObserver.unobserve(containerEl)
-      }
-    }
-  }, [])
+  }, [isFullscreen])
 
   const extractNodes = (edges: TEdgeNode[] | null | undefined): TBaseAssociatedNode[] => (edges ?? []).map((edge) => edge?.node).filter((node): node is TBaseAssociatedNode => !!node)
 
@@ -110,23 +101,35 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
     return { graphData: { nodes, links }, colorMap, nodeMeta }
   }, [centerNode, sections])
 
+  useEffect(() => {
+    if (!fgRef.current) {
+      return
+    }
+    const fg = fgRef.current
+    fg.d3Force('link')?.distance(50)
+    fg.d3Force('collide', forceCollide(() => NODE_RADIUS + FONT_SIZE + LABEL_PADDING).iterations(4))
+    const edgeCount = graphData.links.length
+    const maxPeripherals = 10
+    const baseR = Math.min(dimensions.width, dimensions.height) / 3
+    const scale = Math.min(edgeCount / maxPeripherals, 1)
+    const minR = NODE_RADIUS * 4
+    const R = Math.max(minR, baseR * scale)
+
+    fg.d3Force('radial', forceRadial((d) => ((d as IGraphNode).type === centerNode.type ? 0 : R), 0, 0).strength(0.8))
+  }, [centerNode.type, dimensions, graphData])
+
   const CustomTooltipContent = ({ node }: { node: TBaseAssociatedNode & { link: string } }) => {
     const { convertToReadOnly } = usePlateEditor()
-    const router = useRouter()
     const displayText = node.refCode || node.name || node.title || ''
     const displayDescription = node.summary || node.description || node.details || ''
     return (
       <div>
-        <div className="grid grid-cols-[auto_1fr] gap-y-2">
-          <div className="flex items-center gap-1 border-b pb-2">
+        <div className="grid grid-cols-[max-content_1fr] gap-x-4 items-center border-b pb-2">
+          <div className="flex items-center gap-1">
             <SlidersHorizontal size={12} />
             <span className="font-medium">Name</span>
           </div>
-          <div className="w-full border-b pb-2">
-            <span className="text-brand pl-3 cursor-pointer" onClick={() => router.push(node.link)}>
-              {displayText}
-            </span>
-          </div>
+          <span className="cursor-pointer break-words">{displayText}</span>
         </div>
         <div className="flex flex-col pt-2">
           <div className="flex items-center gap-1">
@@ -153,8 +156,25 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
     return icons
   }, [])
 
-  return (
-    <div ref={containerRef} style={{ width: '100%', height: '300px', position: 'relative' }}>
+  const graphContent = (
+    <div
+      ref={containerRef}
+      className={isFullscreen ? 'bg-card' : 'transparent'}
+      style={{
+        width: '100%',
+        height: isFullscreen ? '100vh' : '300px',
+        position: isFullscreen ? 'fixed' : 'relative',
+        top: 0,
+        left: 0,
+        zIndex: isFullscreen ? 1000 : 'auto',
+      }}
+    >
+      {isFullscreen && (
+        <button onClick={() => closeFullScreen()} className="absolute top-4 right-4 z-50 p-2 rounded hover:bg-opacity-80">
+          <X size={20} />
+        </button>
+      )}
+
       <ForceGraph
         ref={fgRef}
         width={dimensions.width}
@@ -225,6 +245,8 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
         })()}
     </div>
   )
+
+  return <>{isFullscreen ? ReactDOM.createPortal(graphContent, document.body) : graphContent}</>
 }
 
 export default ObjectAssociationGraph
