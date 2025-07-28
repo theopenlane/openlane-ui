@@ -27,7 +27,6 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(false)
   const { data: sessionData } = useSession()
   const { setCrumbs } = useContext(BreadcrumbContext)
-
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }])
   }, [setCrumbs])
