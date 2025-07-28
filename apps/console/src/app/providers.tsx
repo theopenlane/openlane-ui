@@ -16,16 +16,21 @@ interface ProvidersProps {
 }
 
 const publicPages = ['/login', '/verify', '/resend-verify', '/invite', '/subscriber-verify', '/tfa', '/waitlist', '/unsubscribe', '/forgot-password', '/password-reset', '/signup']
-
 const Providers = ({ children }: ProvidersProps) => {
-  const { data: session, status } = useSession()
+  const { status } = useSession()
   const pathname = usePathname()
-  const [queryClient, setQueryClient] = useState<QueryClient | null>(null)
   const isPublicPage = publicPages.includes(pathname)
+  const [queryClient, setQueryClient] = useState<QueryClient | null>(null)
 
   useEffect(() => {
-    if (status === 'authenticated' && !queryClient) {
-      const newQueryClient = new QueryClient({
+    if (status === 'unauthenticated') {
+      queryClient?.clear()
+    }
+  }, [status, queryClient])
+
+  useEffect(() => {
+    setQueryClient(
+      new QueryClient({
         defaultOptions: {
           queries: {
             staleTime: 60 * 1000,
@@ -33,10 +38,9 @@ const Providers = ({ children }: ProvidersProps) => {
             refetchOnWindowFocus: false,
           },
         },
-      })
-      setQueryClient(newQueryClient)
-    }
-  }, [session?.user.accessToken, status, queryClient])
+      }),
+    )
+  }, [])
 
   if (isPublicPage) {
     return (

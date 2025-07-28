@@ -1,6 +1,6 @@
 'use client'
 
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import { Dialog, DialogContent } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Timer } from 'lucide-react'
@@ -13,14 +13,13 @@ interface SessionExpiredModalProps {
 }
 
 const SessionExpiredModal = ({ open }: SessionExpiredModalProps) => {
-  const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
   const handleSignOut = useCallback(async () => {
     const currentUrl = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`
-    router.push(`/login?redirect=${encodeURIComponent(currentUrl)}`)
-  }, [router, pathname, searchParams])
+    await signOut({ redirect: true, callbackUrl: `/login?redirect=${encodeURIComponent(currentUrl)}` })
+  }, [pathname, searchParams])
 
   useEffect(() => {
     if (!open) return
