@@ -167,7 +167,7 @@ const TaskDetailsSheet = () => {
                   internalEditing={internalEditing}
                   setInternalEditing={setInternalEditing}
                 />
-                <DetailsField isEditing={isEditing} inititalValue={taskData?.details} />
+                <DetailsField isEditing={isEditing} initialValue={taskData?.details} />
                 {isEditAllowed && !isEditing && (
                   <div className="flex gap-4 pb-4 pt-2">
                     {taskData && (
