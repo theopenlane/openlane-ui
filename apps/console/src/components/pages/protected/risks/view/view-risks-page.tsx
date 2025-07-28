@@ -155,8 +155,8 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
     try {
       await updateRisk({ id: risk.id, input })
       successNotification({
-        title: 'Control updated',
-        description: 'The control was successfully updated.',
+        title: 'Risk updated',
+        description: 'The risk was successfully updated.',
       })
     } catch {
       errorNotification({
