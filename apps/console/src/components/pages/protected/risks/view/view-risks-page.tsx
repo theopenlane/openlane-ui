@@ -160,7 +160,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
       })
     } catch {
       errorNotification({
-        title: 'Failed to update control',
+        title: 'Failed to update risk',
       })
     }
   }
