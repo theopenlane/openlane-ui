@@ -37,14 +37,14 @@ const DetailsField: React.FC<DetailsFieldProps> = ({ isEditing, initialValue }) 
             />
           </div>
           <FormControl>
-            <PlateEditor onChange={(val) => handleChange(val)} initialValue={inititalValue ?? undefined} placeholder="Write your task details" />
+            <PlateEditor onChange={(val) => handleChange(val)} initialValue={initialValue ?? undefined} placeholder="Write your task details" />
           </FormControl>
           {formState.errors.details && <p className="text-red-500 text-sm">{formState.errors.details.message}</p>}
         </FormItem>
       )}
     />
   ) : (
-    inititalValue && <div className="my-4">{convertToReadOnly(inititalValue as string)}</div>
+    initialValue && <div className="my-4">{convertToReadOnly(initialValue as string)}</div>
   )
 }
 
