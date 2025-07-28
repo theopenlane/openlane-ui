@@ -16,7 +16,7 @@ type TSetObjectAssociationDialogProps = {
   policyId?: string
 }
 
-const SetObjectAssociationDialog = ({ policyId }: TSetObjectAssociationDialogProps) => {
+const SetObjectAssociationPoliciesDialog = ({ policyId }: TSetObjectAssociationDialogProps) => {
   const policyState = usePolicy()
   const queryClient = useQueryClient()
   const associationsState = usePolicy((state) => state.associations)
@@ -165,4 +165,4 @@ const SetObjectAssociationDialog = ({ policyId }: TSetObjectAssociationDialogPro
   )
 }
 
-export default SetObjectAssociationDialog
+export default SetObjectAssociationPoliciesDialog

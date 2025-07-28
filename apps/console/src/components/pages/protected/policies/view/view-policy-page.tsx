@@ -18,7 +18,6 @@ import { Value } from 'platejs'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { usePolicy } from '@/components/pages/protected/policies/create/hooks/use-policy.tsx'
-import AssociatedObjectsViewAccordion from '@/components/pages/protected/policies/accordion/associated-objects-view-accordion.tsx'
 import { canDelete, canEdit } from '@/lib/authz/utils'
 import { useAccountRole } from '@/lib/authz/access-api'
 import { useSession } from 'next-auth/react'
@@ -31,6 +30,8 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
 import { ManagePermissionSheet } from '@/components/shared/policy-procedure.tsx/manage-permissions-sheet'
+import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
+import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 
 type TViewPolicyPage = {
   policyId: string
@@ -263,11 +264,22 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
 
   const sidebarContent = (
     <>
+      <ObjectAssociationSwitch
+        sections={{
+          procedures: policy.procedures,
+          controls: policy.controls,
+          subcontrols: policy.subcontrols,
+          controlObjectives: policy.controlObjectives,
+          tasks: policy.tasks,
+          programs: policy.programs,
+        }}
+        centerNode={{ node: policy, type: ObjectAssociationNodeEnum.POLICY }}
+        canEdit={canEdit(permission?.roles)}
+      />
       <AuthorityCard form={form} approver={policy.approver} delegate={policy.delegate} isEditing={isEditing} />
       <PropertiesCard form={form} isEditing={isEditing} policy={policy} />
       <HistoricalCard policy={policy} />
       <TagsCard form={form} policy={policy} isEditing={isEditing} />
-      <AssociatedObjectsViewAccordion policy={policy} />
     </>
   )
 

@@ -8,34 +8,14 @@ import { useRouter } from 'next/navigation'
 import { PencilLine, SlidersHorizontal } from 'lucide-react'
 import { ObjectAssociationMap } from '@/components/shared/enum-mapper/object-association-enum.tsx'
 import { getHrefForObjectType, NormalizedObject } from '@/utils/getHrefForObjectType.ts'
-
-type TBaseAssociatedNode = {
-  id: string
-  displayID: string
-  name?: string | null
-  title?: string | null
-  summary?: string | null
-  description?: string | null
-  details?: string | null
-  refCode?: string | null
-  __typename?: string
-}
-
-type TEdgeNode = { node?: TBaseAssociatedNode | null } | null
-
-type TConnectionLike = {
-  edges?: TEdgeNode[] | null
-  totalCount?: number
-  [key: string]: unknown
-}
-
-type GraphSection = { [key: string]: TConnectionLike | undefined }
+import { Section, TBaseAssociatedNode, TEdgeNode } from '@/components/shared/object-association/types/object-association-types.ts'
 
 interface IGraphNode {
   id: string
   name: string
   type: string
 }
+
 type TGraphLink = { source: string; target: string }
 
 type TCenterNode = {
@@ -43,7 +23,7 @@ type TCenterNode = {
   node: TBaseAssociatedNode
 }
 
-type TObjectAssociationGraphProps = { centerNode: TCenterNode; sections: GraphSection }
+type TObjectAssociationGraphProps = { centerNode: TCenterNode; sections: Section }
 
 const NODE_RADIUS = 7
 const FONT_SIZE = 12
@@ -64,8 +44,8 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
     fg.d3Force('link')?.distance(50)
     fg.d3Force('collide', forceCollide(() => NODE_RADIUS + FONT_SIZE + LABEL_PADDING).iterations(4))
     const R = Math.min(dimensions.width, dimensions.height) / 3
-    fg.d3Force('radial', forceRadial((d) => ((d as IGraphNode).type === 'center' ? 0 : R), 0, 0).strength(0.8))
-  }, [dimensions])
+    fg.d3Force('radial', forceRadial((d) => ((d as IGraphNode).type === centerNode.type ? 0 : R), 0, 0).strength(0.8))
+  }, [centerNode.type, dimensions])
 
   useEffect(() => {
     const resizeObserver = new ResizeObserver((entries) => {
@@ -91,9 +71,9 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
 
   const { graphData, colorMap, nodeMeta } = useMemo(() => {
     const displayText = centerNode.node.refCode || centerNode.node.name || centerNode.node.title || ''
-    const nodes: IGraphNode[] = [{ id: centerNode.node.id, name: displayText, type: 'center' }]
+    const nodes: IGraphNode[] = [{ id: centerNode.node.id, name: displayText, type: centerNode.type }]
     const links: TGraphLink[] = []
-    const colorMap: Record<string, string> = { center: '#ffffff' }
+    const colorMap: Record<string, string> = {}
     const nodeMeta: Record<string, TBaseAssociatedNode & { link: string }> = {}
 
     nodeMeta[centerNode.node.id] = {
@@ -102,6 +82,10 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
       description: centerNode.node.summary || centerNode.node.description || centerNode.node.details || '',
       displayID: centerNode.node.displayID || centerNode.node.id,
       link: getHrefForObjectType(centerNode.type, centerNode.node as NormalizedObject),
+    }
+
+    if (!colorMap[centerNode.type]) {
+      colorMap[centerNode.type] = ObjectAssociationMap[centerNode.type as keyof typeof ObjectAssociationMap]?.color || '#ccc'
     }
 
     Object.entries(sections).forEach(([sectionType, connection]) => {
@@ -170,7 +154,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
   }, [])
 
   return (
-    <div ref={containerRef} className="rounded-lg border bg-card text-card-foreground shadow-sm p-4" style={{ width: '100%', height: '300px', position: 'relative' }}>
+    <div ref={containerRef} style={{ width: '100%', height: '300px', position: 'relative' }}>
       <ForceGraph
         ref={fgRef}
         width={dimensions.width}
