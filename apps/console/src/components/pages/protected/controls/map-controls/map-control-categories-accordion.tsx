@@ -102,6 +102,7 @@ const MapControlCategoriesAccordion = ({ controlData, droppedControls, expandedI
             {items.map((c) => (
               <ControlChip
                 key={c.id}
+                clickable={false}
                 draggable
                 control={c}
                 selected={selectedIds.includes(c.id)}
