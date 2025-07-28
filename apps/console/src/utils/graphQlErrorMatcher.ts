@@ -41,6 +41,8 @@ export const extractGraphQlResponseError = async (response: Response): Promise<G
 export const parseErrorMessage = (error: unknown): string => {
   if (Array.isArray(error) && error[0]?.extensions?.code) {
     const code = error[0].extensions.code as string
+    const message = error[0].message as string
+    if (message === 'organization already exists') return errorCodeMessages['ORG_ALREADY_EXISTS']
     return errorCodeMessages[code]
   }
 
