@@ -41,20 +41,22 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
   const [hoverNode, setHoverNode] = useState<NodeObject<IGraphNode> | null>(null)
 
   useEffect(() => {
-    if (!isFullscreen && containerRef.current) {
-      const resizeObserver = new ResizeObserver((entries) => {
-        for (const entry of entries) {
-          const { width, height } = entry.contentRect
-          setDimensions({ width, height })
-        }
-      })
-      resizeObserver.observe(containerRef.current)
-      return () => resizeObserver.disconnect()
-    } else {
-      setDimensions({ width: window.innerWidth, height: window.innerHeight })
-      const handleResize = () => setDimensions({ width: window.innerWidth, height: window.innerHeight })
-      window.addEventListener('resize', handleResize)
-      return () => window.removeEventListener('resize', handleResize)
+    if (!containerRef.current) {
+      return
+    }
+
+    const updateSize = () => {
+      const { width, height } = containerRef.current!.getBoundingClientRect()
+      setDimensions({ width, height })
+    }
+    updateSize()
+    const resizeObserver = new ResizeObserver(updateSize)
+    resizeObserver.observe(containerRef.current)
+    window.addEventListener('resize', updateSize)
+
+    return () => {
+      resizeObserver.disconnect()
+      window.removeEventListener('resize', updateSize)
     }
   }, [isFullscreen])
 
@@ -187,25 +189,8 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
     return icons
   }, [])
 
-  const graphContent = (
-    <div
-      ref={containerRef}
-      className={isFullscreen ? 'bg-card' : 'transparent'}
-      style={{
-        width: '100%',
-        height: isFullscreen ? '100vh' : '300px',
-        position: isFullscreen ? 'fixed' : 'relative',
-        top: 0,
-        left: 0,
-        zIndex: isFullscreen ? 1000 : 'auto',
-      }}
-    >
-      {isFullscreen && (
-        <button onClick={() => closeFullScreen()} className="absolute top-4 right-4 z-50 p-2 rounded hover:bg-opacity-80">
-          <X size={20} />
-        </button>
-      )}
-
+  const renderGraph = () => (
+    <>
       <ForceGraph
         ref={fgRef}
         width={dimensions.width}
@@ -274,9 +259,31 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
             </div>
           )
         })()}
-    </div>
+    </>
   )
 
+  const graphContent = (
+    <>
+      {isFullscreen && (
+        <div className="fixed inset-0 z-[1000] bg-black/60 flex items-center justify-center" onClick={closeFullScreen}>
+          <div ref={containerRef} onClick={(e) => e.stopPropagation()} className="relative bg-card w-[75vw] h-[75vh] rounded-md shadow-lg">
+            <button onClick={closeFullScreen} className="absolute top-4 right-4 z-50 p-2 rounded hover:bg-opacity-80">
+              <X size={20} />
+            </button>
+
+            {/* ForceGraph renders here as usual */}
+            {renderGraph()}
+          </div>
+        </div>
+      )}
+
+      {!isFullscreen && (
+        <div ref={containerRef} className="relative" style={{ width: '100%', height: '300px' }}>
+          {renderGraph()}
+        </div>
+      )}
+    </>
+  )
   return <>{isFullscreen ? ReactDOM.createPortal(graphContent, document.body) : graphContent}</>
 }
 

@@ -137,7 +137,7 @@ export function SetObjectAssociationDialog() {
 
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
-      <DialogTrigger asChild>
+      <DialogTrigger>
         <AddAssociationBtn />
       </DialogTrigger>
       <DialogContent className="max-w-2xl p-6 space-y-4">

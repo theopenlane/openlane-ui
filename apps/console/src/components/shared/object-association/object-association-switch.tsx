@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { ChevronsDownUp, LayoutList, List, Share2 } from 'lucide-react'
+import { ChevronsDownUp, ChevronsUpDown, LayoutList, List, Share2 } from 'lucide-react'
 import ObjectAssociationGraph from '@/components/shared/object-association/object-association-graph.tsx'
 import { SetObjectAssociationDialog } from '@/components/pages/protected/controls/set-object-association-modal.tsx'
 import { Button } from '@repo/ui/button'
@@ -8,6 +8,7 @@ import AssociatedObjectsAccordion from '@/components/shared/object-association/a
 import SetObjectAssociationPoliciesDialog from '@/components/pages/protected/policies/modal/set-object-association-modal.tsx'
 import SetObjectAssociationProceduresDialog from '@/components/pages/protected/procedures/modal/set-object-association-modal.tsx'
 import SetObjectAssociationRisksDialog from '@/components/pages/protected/risks/modal/set-object-association-modal'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 
 type TObjectAssociationSwitchProps = {
   sections: Section
@@ -45,30 +46,58 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
         <div className="flex items-center gap-3">
           <h2 className="text-lg font-semibold">Associated Objects</h2>
           {!isGraphView && (
-            <Button type="button" className="h-8 !px-2" variant="outline" onClick={() => setToggleAll((prevState) => !prevState)}>
-              <div className="flex">
-                <List size={16} />
-                <ChevronsDownUp size={16} />
-              </div>
-            </Button>
+            <TooltipProvider delayDuration={100}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button type="button" className="h-8 !px-2" variant="outline" onClick={() => setToggleAll((prevState) => !prevState)}>
+                    <div className="flex">
+                      <List size={16} />
+                      {!toggleAll ? <ChevronsDownUp size={16} /> : <ChevronsUpDown size={16} />}
+                    </div>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent> {toggleAll ? 'Collapse associated objects' : 'Expand associated objects'}</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
 
           {isGraphView && (
-            <Button type="button" className="h-8 !px-2" variant="outline" onClick={() => setIsFullscreen((prevState) => !prevState)}>
-              <div className="flex">
-                <Share2 size={16} />
-                <ChevronsDownUp size={16} />
-              </div>
-            </Button>
+            <TooltipProvider delayDuration={100}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button type="button" className="h-8 !px-2" variant="outline" onClick={() => setIsFullscreen((prevState) => !prevState)}>
+                    <div className="flex">
+                      <Share2 size={16} />
+                      {!isFullscreen ? <ChevronsDownUp size={16} /> : <ChevronsUpDown size={16} />}
+                    </div>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Fullscreen Graph View</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
 
           {handleAssociationDialog()}
         </div>
 
         {!isGraphView ? (
-          <Share2 size={20} className="cursor-pointer hover:opacity-80" onClick={() => setIsGraphView(true)} />
+          <TooltipProvider delayDuration={100}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Share2 size={20} className="cursor-pointer hover:opacity-80" onClick={() => setIsGraphView(true)} />
+              </TooltipTrigger>
+              <TooltipContent>Graph View</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         ) : (
-          <LayoutList size={20} className="cursor-pointer hover:opacity-80" onClick={() => setIsGraphView(false)} />
+          <TooltipProvider delayDuration={100}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <LayoutList size={20} className="cursor-pointer hover:opacity-80" onClick={() => setIsGraphView(false)} />
+              </TooltipTrigger>
+              <TooltipContent>List View</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         )}
       </div>
 
