@@ -24,6 +24,7 @@ export interface ControlChipProps {
   onClick?: (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => void
   onContextMenu?: (e: React.MouseEvent<HTMLSpanElement>, control: MapControl) => void
   hideStandard?: boolean
+  clickable?: boolean
 }
 
 const ControlChip: React.FC<ControlChipProps> = ({
@@ -38,6 +39,7 @@ const ControlChip: React.FC<ControlChipProps> = ({
   onClick,
   onContextMenu,
   hideStandard,
+  clickable = true,
 }) => {
   const [tooltipOpen, setTooltipOpen] = useState(false)
 
@@ -50,47 +52,46 @@ const ControlChip: React.FC<ControlChipProps> = ({
     return
   }
 
+  const renderedBadge = () => (
+    <Badge
+      onClick={onClick}
+      variant="outline"
+      className={`${baseClasses} ${dragClass} ${borderClass} ${className}`}
+      draggable={draggable}
+      onDragStart={draggable ? onDragStart : undefined}
+      onDragEnd={draggable ? onDragEnd : undefined}
+      onContextMenu={(e) => {
+        e.preventDefault()
+        onContextMenu?.(e, control)
+      }}
+    >
+      {draggable && <Drag strokeWidth={1} className="text-border" />}
+      <StandardsHexagon shortName={control.referenceFramework ?? ''} />
+      {!hideStandard && (
+        <>
+          <StandardsColorSpan shortName={control.referenceFramework || ''}>{control.referenceFramework || 'CUSTOM'}</StandardsColorSpan>
+          <span className="text-border">|</span>
+        </>
+      )}
+      <span>{control.refCode || ''}</span>
+      {removable && onRemove && (
+        <XIcon
+          size={12}
+          className="cursor-pointer ml-1"
+          onClick={(e) => {
+            e.stopPropagation()
+            e.preventDefault()
+            onRemove(control)
+          }}
+        />
+      )}
+    </Badge>
+  )
+
   return (
     <TooltipProvider delayDuration={300}>
       <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
-        <TooltipTrigger asChild>
-          <Link href={href}>
-            <Badge
-              onClick={onClick}
-              variant="outline"
-              className={`${baseClasses} ${dragClass} ${borderClass} ${className}`}
-              draggable={draggable}
-              onDragStart={draggable ? onDragStart : undefined}
-              onDragEnd={draggable ? onDragEnd : undefined}
-              onContextMenu={(e) => {
-                e.preventDefault()
-                onContextMenu?.(e, control)
-              }}
-            >
-              {draggable && <Drag strokeWidth={1} className="text-border" />}
-              <StandardsHexagon shortName={control.referenceFramework ?? ''} />
-              {!hideStandard && (
-                <>
-                  <StandardsColorSpan shortName={control.referenceFramework || ''}>{control.referenceFramework || 'CUSTOM'}</StandardsColorSpan>
-                  <span className="text-border">|</span>
-                </>
-              )}
-              <span>{control.refCode || ''}</span>
-              {removable && onRemove && (
-                <XIcon
-                  size={12}
-                  className="cursor-pointer ml-1"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    e.preventDefault()
-                    onRemove(control)
-                  }}
-                />
-              )}
-            </Badge>
-          </Link>
-        </TooltipTrigger>
-
+        <TooltipTrigger asChild>{clickable ? <Link href={href}>{renderedBadge()}</Link> : <div>{renderedBadge()}</div>}</TooltipTrigger>
         {tooltipOpen && (
           <TooltipContent side="top">
             <ControlTooltipContent control={control} />

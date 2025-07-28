@@ -45,6 +45,7 @@ const MapControlResults = ({ controlData, droppedControls, subcontrolData, title
           <div key={control.id}>
             <ControlChip
               draggable
+              clickable={false}
               control={control}
               onDragStart={(e) => {
                 const isSelected = selectedIds.includes(control.id)
