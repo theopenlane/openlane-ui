@@ -247,7 +247,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
                     setInternalEditing(null)
                   }}
                 >
-                  <SelectTrigger className="w-fill">{field.value || 'Select'}</SelectTrigger>
+                  <SelectTrigger className="w-full">{field.value || 'Select'}</SelectTrigger>
                   <SelectContent ref={popoverRef}>
                     {taskTypeOptions.map((option) => (
                       <SelectItem key={option} value={option}>
