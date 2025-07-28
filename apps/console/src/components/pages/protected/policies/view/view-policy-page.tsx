@@ -295,8 +295,8 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         centerNode={{ node: policy, type: ObjectAssociationNodeEnum.POLICY }}
         canEdit={canEdit(permission?.roles)}
       />
-      <AuthorityCard form={form} approver={policy.approver} delegate={policy.delegate} isEditing={isEditing} />
-      <PropertiesCard form={form} isEditing={isEditing} policy={policy} />
+      <AuthorityCard form={form} approver={policy.approver} delegate={policy.delegate} isEditing={isEditing} editAllowed={false} />
+      <PropertiesCard form={form} isEditing={isEditing} policy={policy} editAllowed={false} />
       <HistoricalCard policy={policy} />
       <TagsCard form={form} policy={policy} isEditing={isEditing} handleUpdate={handleUpdateField} editAllowed={editAllowed} />
     </>

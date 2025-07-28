@@ -279,8 +279,8 @@ const ViewProcedurePage: React.FC = () => {
         centerNode={{ node: procedure, type: ObjectAssociationNodeEnum.PROCEDURE }}
         canEdit={canEdit(permission?.roles)}
       />
-      <AuthorityCard form={form} approver={procedure.approver} delegate={procedure.delegate} isEditing={isEditing} />
-      <PropertiesCard form={form} isEditing={isEditing} procedure={procedure} />
+      <AuthorityCard form={form} approver={procedure.approver} delegate={procedure.delegate} isEditing={isEditing} editAllowed={false} />
+      <PropertiesCard form={form} isEditing={isEditing} procedure={procedure} editAllowed={false} />
       <HistoricalCard procedure={procedure} />
       <TagsCard form={form} procedure={procedure} isEditing={isEditing} handleUpdate={handleUpdateField} editAllowed={editAllowed} />
     </>
