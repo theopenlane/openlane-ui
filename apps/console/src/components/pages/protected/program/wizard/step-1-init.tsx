@@ -14,7 +14,7 @@ import React, { useState } from 'react'
 import { getYear } from 'date-fns'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { useGetStandards } from '@/lib/graphql-hooks/standards'
-import { ProgramTypeOptions } from '@/components/shared/enum-mapper/program-enum'
+import { ProgramTypeOptions, ProgramStatusOptions } from '@/components/shared/enum-mapper/program-enum'
 
 const currentYear = getYear(new Date())
 
@@ -378,7 +378,7 @@ const StatusSelect = () => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {ProgramTypeOptions.map((option) => (
+                {ProgramStatusOptions.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
                   </SelectItem>
