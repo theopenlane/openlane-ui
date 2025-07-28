@@ -3,7 +3,7 @@
 import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 import { UpdateRiskInput } from '@repo/codegen/src/schema.ts'
@@ -15,7 +15,7 @@ type TSetObjectAssociationDialogProps = {
   riskId?: string
 }
 
-const SetObjectAssociationDialog = ({ riskId }: TSetObjectAssociationDialogProps) => {
+const SetObjectAssociationRisksDialog = ({ riskId }: TSetObjectAssociationDialogProps) => {
   const riskState = useRisk()
   const associationsState = useRisk((state) => state.associations)
   const initialAssociationsState = useRisk((state) => state.initialAssociations)
@@ -30,6 +30,10 @@ const SetObjectAssociationDialog = ({ riskId }: TSetObjectAssociationDialogProps
   })
   const [open, setOpen] = useState(false)
   const { mutateAsync: updateRisk, isPending: isSaving } = useUpdateRisk()
+
+  const handleIdChange = useCallback((updatedMap: TObjectAssociationMap, refCodes: TObjectAssociationMap) => {
+    setAssociations({ associations: updatedMap, refCodes })
+  }, [])
 
   const handleSave = () => {
     riskState.setAssociations(associations.associations)
@@ -140,9 +144,7 @@ const SetObjectAssociationDialog = ({ riskId }: TSetObjectAssociationDialogProps
         </DialogHeader>
 
         <ObjectAssociation
-          onIdChange={(updatedMap, refCodes) => {
-            setAssociations({ associations: updatedMap, refCodes: refCodes })
-          }}
+          onIdChange={handleIdChange}
           initialData={associationsState}
           refCodeInitialData={refCodeAssociationsState}
           excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP, ObjectTypeObjects.RISK, ObjectTypeObjects.CONTROL_OBJECTIVE]}
@@ -160,4 +162,4 @@ const SetObjectAssociationDialog = ({ riskId }: TSetObjectAssociationDialogProps
   )
 }
 
-export default SetObjectAssociationDialog
+export default SetObjectAssociationRisksDialog

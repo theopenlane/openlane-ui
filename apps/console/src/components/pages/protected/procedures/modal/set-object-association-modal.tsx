@@ -16,7 +16,7 @@ type TSetObjectAssociationDialog = {
   procedureId?: string
 }
 
-const SetObjectAssociationDialog = ({ procedureId }: TSetObjectAssociationDialog) => {
+const SetObjectAssociationProceduresDialog = ({ procedureId }: TSetObjectAssociationDialog) => {
   const procedureState = useProcedure()
   const queryClient = useQueryClient()
   const associationsState = useProcedure((state) => state.associations)
@@ -166,4 +166,4 @@ const SetObjectAssociationDialog = ({ procedureId }: TSetObjectAssociationDialog
   )
 }
 
-export default SetObjectAssociationDialog
+export default SetObjectAssociationProceduresDialog

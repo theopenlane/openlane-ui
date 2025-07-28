@@ -6,6 +6,8 @@ import { Button } from '@repo/ui/button'
 import { ObjectAssociationNodeEnum, Section, TCenterNode } from '@/components/shared/object-association/types/object-association-types.ts'
 import AssociatedObjectsAccordion from '@/components/shared/object-association/associated-objects-accordion.tsx'
 import SetObjectAssociationPoliciesDialog from '@/components/pages/protected/policies/modal/set-object-association-modal.tsx'
+import SetObjectAssociationProceduresDialog from '@/components/pages/protected/procedures/modal/set-object-association-modal.tsx'
+import SetObjectAssociationRisksDialog from '@/components/pages/protected/risks/modal/set-object-association-modal'
 
 type TObjectAssociationSwitchProps = {
   sections: Section
@@ -38,7 +40,19 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
       case ObjectAssociationNodeEnum.POLICY:
         return (
           <div className="mt-5">
-            <SetObjectAssociationPoliciesDialog />
+            <SetObjectAssociationPoliciesDialog policyId={centerNode?.node.id} />
+          </div>
+        )
+      case ObjectAssociationNodeEnum.PROCEDURE:
+        return (
+          <div className="mt-5">
+            <SetObjectAssociationProceduresDialog procedureId={centerNode?.node.id} />
+          </div>
+        )
+      case ObjectAssociationNodeEnum.RISKS:
+        return (
+          <div className="mt-5">
+            <SetObjectAssociationRisksDialog riskId={centerNode?.node.id} />
           </div>
         )
     }

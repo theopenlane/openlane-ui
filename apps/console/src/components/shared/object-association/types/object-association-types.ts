@@ -29,4 +29,6 @@ export enum ObjectAssociationNodeEnum {
   CONTROL = 'controls',
   SUBCONTROL = 'subcontrols',
   POLICY = 'policies',
+  PROCEDURE = 'procedures',
+  RISKS = 'risks',
 }

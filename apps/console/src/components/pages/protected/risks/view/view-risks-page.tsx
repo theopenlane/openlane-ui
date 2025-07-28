@@ -16,7 +16,6 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import TitleField from './fields/title-field'
 import DetailsField from './fields/details-field'
-import AssociatedObjectsViewAccordion from '../accordion/associated-objects-view-accordion'
 import AuthorityCard from './cards/authority-card'
 import PropertiesCard from '@/components/pages/protected/risks/view/cards/properties-card.tsx'
 import TagsCard from './cards/tags-card'
@@ -27,6 +26,8 @@ import MitigationField from '@/components/pages/protected/risks/view/fields/miti
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
+import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
+import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 
 type TRisksPageProps = {
   riskId: string
@@ -160,10 +161,21 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
 
   const sidebarContent = (
     <>
+      <ObjectAssociationSwitch
+        sections={{
+          controls: risk.controls,
+          policies: risk.internalPolicies,
+          procedures: risk.procedures,
+          subcontrols: risk.subcontrols,
+          tasks: risk.tasks,
+          programs: risk.programs,
+        }}
+        centerNode={{ node: risk, type: ObjectAssociationNodeEnum.RISKS }}
+        canEdit={canEdit(permission?.roles)}
+      />
       <AuthorityCard form={form} stakeholder={risk.stakeholder} delegate={risk.delegate} isEditing={isEditing} />
       <PropertiesCard form={form} isEditing={isEditing} risk={risk} />
       <TagsCard form={form} risk={risk} isEditing={isEditing} />
-      <AssociatedObjectsViewAccordion risk={risk} />
     </>
   )
 
