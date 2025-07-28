@@ -12,10 +12,10 @@ import { Value } from 'platejs'
 
 type DetailsFieldProps = {
   isEditing: boolean
-  inititalValue: string | undefined | null
+  initialValue: string | undefined | null
 }
 
-const DetailsField: React.FC<DetailsFieldProps> = ({ isEditing, inititalValue }) => {
+const DetailsField: React.FC<DetailsFieldProps> = ({ isEditing, initialValue }) => {
   const { control, formState, setValue } = useFormContext<EditTaskFormData>()
   const { convertToReadOnly } = usePlateEditor()
 
