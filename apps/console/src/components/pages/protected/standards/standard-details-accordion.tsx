@@ -205,7 +205,7 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
           const isOpen = openSections.includes(category)
           return (
             <AccordionItem key={category} value={category}>
-              <AccordionTrigger className="flex items-center gap-2 text-lg font-semibold w-full p-4 cursor-pointer rounded-lg">
+              <AccordionTrigger className="flex items-center gap-2 text-lg font-semibold w-full pr-4 pb-4 pt-4 cursor-pointer rounded-lg">
                 <span>{category}</span>
                 {isOpen ? <ChevronDown size={22} className="text-brand" /> : <ChevronRight size={22} className="text-brand" />}
               </AccordionTrigger>
