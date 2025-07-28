@@ -130,6 +130,9 @@ function handleSessionExpired() {
 }
 
 function updateRefreshSchedule(accessToken: string, refreshToken: string) {
+  if (!refreshToken) {
+    return
+  }
   const decoded: { nbf?: number } = jwtDecode(refreshToken)
   const nbf = decoded.nbf ? decoded.nbf * 1000 : 0
   refreshAllowedAfter = nbf

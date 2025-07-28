@@ -6,7 +6,7 @@ import { Tag } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import { InputRow } from '@repo/ui/input'
 import { FormControl, FormField } from '@repo/ui/form'
-import MultipleSelector from '@repo/ui/multiple-selector'
+import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import { ProcedureByIdFragment, UpdateProcedureInput } from '@repo/codegen/src/schema.ts'
 import { Badge } from '@repo/ui/badge'
 import { CreateProcedureFormData } from '../../create/hooks/use-form-schema'
@@ -51,6 +51,11 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, procedure, isEditing, editAl
   useEscapeKey(
     () => {
       setInternalEditing(false)
+      const options: Option[] = (procedure?.tags ?? []).filter((item): item is string => typeof item === 'string').map((item) => ({ value: item, label: item }))
+      form.setValue(
+        'tags',
+        options.map((opt) => opt.value),
+      )
     },
     { enabled: internalEditing },
   )
