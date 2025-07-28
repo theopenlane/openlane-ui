@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
-import { GlobeIcon, Info, Link, Tag, User, Pencil, Check, ArrowRight } from 'lucide-react'
+import { GlobeIcon, Info, Link, Tag, User, Pencil, Check, PanelRightClose } from 'lucide-react'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import GroupsMembersTable from './groups-members-table'
 import { Card } from '@repo/ui/cardpanel'
@@ -152,7 +152,7 @@ const GroupDetailsSheet = () => {
         header={
           <SheetHeader>
             <div className="flex items-center justify-between">
-              <ArrowRight size={16} className="cursor-pointer" onClick={handleSheetClose} />
+              <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={handleSheetClose} />
 
               <div className="flex justify-end gap-2">
                 <Button icon={<Link />} iconPosition="left" variant="outline" onClick={handleCopyLink}>

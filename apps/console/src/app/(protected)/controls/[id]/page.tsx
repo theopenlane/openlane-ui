@@ -7,7 +7,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { Value } from 'platejs'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import { ArrowRight, CirclePlus, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
+import { CirclePlus, PanelRightClose, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
 import TitleField from '../../../../components/pages/protected/controls/form-fields/title-field.tsx'
 import DescriptionField from '../../../../components/pages/protected/controls/form-fields/description-field.tsx'
 import AuthorityCard from '../../../../components/pages/protected/controls/authority-card.tsx'
@@ -292,12 +292,7 @@ const ControlDetailsPage: React.FC = () => {
         initialValue={initialValues.refCode}
         handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)}
       />
-      <DescriptionField
-        isEditAllowed={!isSourceFramework && canEdit(permission?.roles)}
-        isEditing={isEditing}
-        initialValue={initialValues.description}
-        handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)}
-      />
+      <DescriptionField isEditing={isEditing} initialValue={initialValues.description} />
       <ControlEvidenceTable
         canEdit={canEdit(permission?.roles)}
         control={{
@@ -378,7 +373,7 @@ const ControlDetailsPage: React.FC = () => {
         <SheetContent
           header={
             <SheetHeader>
-              <ArrowRight size={16} className="cursor-pointer" onClick={() => handleSheetClose(false)} />
+              <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={() => handleSheetClose(false)} />
               <SheetTitle>{sheetData?.refCode}</SheetTitle>
             </SheetHeader>
           }

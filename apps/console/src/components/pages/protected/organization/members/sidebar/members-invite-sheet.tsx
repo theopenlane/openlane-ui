@@ -1,7 +1,7 @@
 'use client'
 import { Button } from '@repo/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { ArrowRight, SearchIcon } from 'lucide-react'
+import { PanelRightClose, SearchIcon } from 'lucide-react'
 import { SubmitHandler, Control, useForm } from 'react-hook-form'
 import { z, infer as zInfer } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -192,7 +192,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
         header={
           <SheetHeader>
             <div className="flex items-center justify-between">
-              <ArrowRight size={16} className="cursor-pointer" onClick={handleClose} />
+              <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={handleClose} />
               <div className="flex justify-end gap-2">
                 <Button type="button" iconPosition="left" variant="back" onClick={handleClose}>
                   Cancel

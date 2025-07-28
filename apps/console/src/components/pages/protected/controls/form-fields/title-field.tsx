@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
 import { UpdateControlInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
+import useEscapeKey from '@/hooks/useEscapeKey'
 
 interface TitleFieldProps {
   isEditing: boolean
@@ -13,7 +14,7 @@ interface TitleFieldProps {
 }
 
 const TitleField = ({ isEditing, isEditAllowed = true, handleUpdate, initialValue }: TitleFieldProps) => {
-  const { register, getValues } = useFormContext()
+  const { register, getValues, setValue } = useFormContext()
   const [internalEditing, setInternalEditing] = useState(false)
 
   const handleClick = () => {
@@ -43,6 +44,13 @@ const TitleField = ({ isEditing, isEditAllowed = true, handleUpdate, initialValu
     }
   }
 
+  useEscapeKey(() => {
+    if (internalEditing) {
+      setValue('refCode', initialValue)
+      setInternalEditing(false)
+    }
+  })
+
   return isEditAllowed && (isEditing || internalEditing) ? (
     <div className="w-full">
       <label htmlFor="refCode" className="block text-sm font-medium text-muted-foreground mb-1">
@@ -51,7 +59,7 @@ const TitleField = ({ isEditing, isEditAllowed = true, handleUpdate, initialValu
       <Input id="refCode" {...register('refCode')} onBlur={handleBlur} onKeyDown={handleKeyDown} autoFocus />
     </div>
   ) : (
-    <h1 onClick={handleClick} className={`text-3xl font-semibold ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+    <h1 onDoubleClick={handleClick} className={`text-3xl font-semibold ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
       {getValues('refCode')}
     </h1>
   )

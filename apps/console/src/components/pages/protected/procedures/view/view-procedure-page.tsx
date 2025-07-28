@@ -165,7 +165,26 @@ const ViewProcedurePage: React.FC = () => {
 
       setIsEditing(false)
       queryClient.invalidateQueries({ queryKey: ['procedures'] })
-      queryClient.invalidateQueries({ queryKey: ['procedure', procedure.id] })
+    } catch {
+      errorNotification({
+        title: 'Error',
+        description: 'There was an error updating the procedure. Please try again.',
+      })
+    }
+  }
+
+  const handleUpdateField = async (input: UpdateProcedureInput) => {
+    if (!procedure?.id) {
+      return
+    }
+    try {
+      await updateProcedure({ updateProcedureId: procedure?.id, input })
+      successNotification({
+        title: 'Procedure Updated',
+        description: 'Procedure has been successfully updated',
+      })
+
+      queryClient.invalidateQueries({ queryKey: ['procedures'] })
     } catch {
       errorNotification({
         title: 'Error',
@@ -241,7 +260,7 @@ const ViewProcedurePage: React.FC = () => {
 
   const mainContent = (
     <div className="p-2">
-      <TitleField isEditing={isEditing} form={form} />
+      <TitleField isEditing={isEditing} form={form} handleUpdate={handleUpdateField} initialData={procedure.name} editAllowed={editAllowed} />
       <DetailsField isEditing={isEditing} form={form} procedure={procedure} />
     </div>
   )
@@ -263,7 +282,7 @@ const ViewProcedurePage: React.FC = () => {
       <AuthorityCard form={form} approver={procedure.approver} delegate={procedure.delegate} isEditing={isEditing} />
       <PropertiesCard form={form} isEditing={isEditing} procedure={procedure} />
       <HistoricalCard procedure={procedure} />
-      <TagsCard form={form} procedure={procedure} isEditing={isEditing} />
+      <TagsCard form={form} procedure={procedure} isEditing={isEditing} handleUpdate={handleUpdateField} editAllowed={editAllowed} />
     </>
   )
 

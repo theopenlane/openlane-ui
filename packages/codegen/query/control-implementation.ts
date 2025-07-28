@@ -13,9 +13,8 @@ export const CONTROL_IMPLEMENTATION_FIELDS = gql`
           id
           refCode
           description
-          standard {
-            shortName
-          }
+          referenceFramework
+          __typename
         }
       }
     }
@@ -24,6 +23,8 @@ export const CONTROL_IMPLEMENTATION_FIELDS = gql`
         node {
           id
           refCode
+          referenceFramework
+          __typename
           control {
             refCode
             description
