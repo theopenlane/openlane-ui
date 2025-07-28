@@ -76,7 +76,17 @@ const ControlChip: React.FC<ControlChipProps> = ({
                 </>
               )}
               <span>{control.refCode || ''}</span>
-              {removable && onRemove && <XIcon size={12} className="cursor-pointer ml-1" onClick={() => onRemove(control)} />}
+              {removable && onRemove && (
+                <XIcon
+                  size={12}
+                  className="cursor-pointer ml-1"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    e.preventDefault()
+                    onRemove(control)
+                  }}
+                />
+              )}
             </Badge>
           </Link>
         </TooltipTrigger>
