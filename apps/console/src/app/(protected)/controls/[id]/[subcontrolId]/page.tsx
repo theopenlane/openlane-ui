@@ -6,9 +6,9 @@ import { useForm, FormProvider } from 'react-hook-form'
 import { Value } from 'platejs'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import { ArrowRight, PencilIcon, SaveIcon, XIcon, CirclePlus } from 'lucide-react'
+import { PencilIcon, SaveIcon, XIcon, CirclePlus, PanelRightClose } from 'lucide-react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
-import { EvidenceEdge, Subcontrol, SubcontrolControlSource, SubcontrolControlStatus, SubcontrolControlType } from '@repo/codegen/src/schema.ts'
+import { EvidenceEdge, Subcontrol, SubcontrolControlSource, SubcontrolControlStatus, SubcontrolControlType, UpdateSubcontrolInput } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { useGetSubcontrolById, useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol.ts'
@@ -36,6 +36,10 @@ import RelatedControls from '@/components/pages/protected/controls/related-contr
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useOrganization } from '@/hooks/useOrganization'
+import { useSession } from 'next-auth/react'
+import { useAccountRole } from '@/lib/authz/access-api'
+import { ObjectEnum } from '@/lib/authz/enums/object-enum'
+import { canEdit } from '@/lib/authz/utils'
 
 interface FormValues {
   refCode: string
@@ -87,6 +91,9 @@ const ControlDetailsPage: React.FC = () => {
   const { data: controlData, isLoading: isLoadingControl } = useGetControlById(id)
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
+
+  const { data: session } = useSession()
+  const { data: permission } = useAccountRole(session, ObjectEnum.SUBCONTROL, subcontrolId!)
 
   const form = useForm<FormValues>({
     defaultValues: initialDataObj,
@@ -152,11 +159,25 @@ const ControlDetailsPage: React.FC = () => {
     setIsEditing(true)
   }
 
+  const handleUpdateField = async (input: UpdateSubcontrolInput) => {
+    try {
+      await updateSubcontrol({ updateSubcontrolId: subcontrolId, input })
+      successNotification({
+        title: 'Subcontrol updated',
+        description: 'The subcontrol was successfully updated.',
+      })
+    } catch {
+      errorNotification({
+        title: 'Failed to update subcontrol',
+      })
+    }
+  }
+
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
       { label: 'Controls', href: '/controls' },
-      { label: controlData?.control?.refCode, isLoading: isLoadingControl },
+      { label: controlData?.control?.refCode, isLoading: isLoadingControl, href: `/controls/${controlData?.control.id}` },
       { label: data?.subcontrol?.refCode, isLoading: isLoading },
     ])
   }, [setCrumbs, controlData, isLoading, data, isLoadingControl])
@@ -190,7 +211,7 @@ const ControlDetailsPage: React.FC = () => {
 
   const menuComponent = (
     <div className="space-y-4">
-      {isEditing ? (
+      {isEditing && canEdit(permission?.roles) ? (
         <div className="flex gap-2 justify-end">
           <Button className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
             Cancel
@@ -262,10 +283,16 @@ const ControlDetailsPage: React.FC = () => {
   )
 
   const mainContent = (
-    <div className="space-y-6 p-6">
-      <TitleField isEditing={!isSourceFramework && isEditing} />
-      <DescriptionField isEditing={!isSourceFramework && isEditing} initialValue={initialValues.description} />
+    <div className="space-y-6 p-2">
+      <TitleField
+        isEditAllowed={!isSourceFramework && canEdit(permission?.roles)}
+        isEditing={isEditing}
+        handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)}
+        initialValue={initialValues.refCode}
+      />
+      <DescriptionField isEditing={isEditing} initialValue={initialValues.description} />
       <ControlEvidenceTable
+        canEdit={canEdit(permission?.roles)}
         control={{
           displayID: subcontrol?.refCode,
           tags: subcontrol.tags ?? [],
@@ -287,8 +314,14 @@ const ControlDetailsPage: React.FC = () => {
 
   const sidebarContent = (
     <>
-      <AuthorityCard controlOwner={subcontrol.controlOwner} delegate={subcontrol.delegate} isEditing={isEditing} />
-      <PropertiesCard data={subcontrol as Subcontrol} isEditing={isEditing} />
+      <AuthorityCard
+        isEditAllowed={canEdit(permission?.roles)}
+        controlOwner={subcontrol.controlOwner}
+        delegate={subcontrol.delegate}
+        isEditing={isEditing}
+        handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)}
+      />
+      <PropertiesCard data={subcontrol as Subcontrol} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)} />
       <RelatedControls />
 
       <DetailsCard />
@@ -302,7 +335,7 @@ const ControlDetailsPage: React.FC = () => {
           showInfoDetails={showInfoDetails}
         />
       )}
-      <AssociatedObjectsAccordion policies={subcontrol.internalPolicies} procedures={subcontrol.procedures} tasks={subcontrol.tasks} risks={subcontrol.risks} />
+      <AssociatedObjectsAccordion canEdit={canEdit(permission?.roles)} policies={subcontrol.internalPolicies} procedures={subcontrol.procedures} tasks={subcontrol.tasks} risks={subcontrol.risks} />
     </>
   )
 
@@ -311,7 +344,7 @@ const ControlDetailsPage: React.FC = () => {
       <title>{`${currentOrganization?.node?.displayName ?? 'Openlane'} | Subcontrols - ${data.subcontrol.refCode}`}</title>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>
+          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing} minWidth={431}>
             {mainContent}
           </SlideBarLayout>
         </form>
@@ -321,7 +354,7 @@ const ControlDetailsPage: React.FC = () => {
         <SheetContent
           header={
             <SheetHeader>
-              <ArrowRight size={16} className="cursor-pointer" onClick={() => handleSheetClose(false)} />
+              <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={() => handleSheetClose(false)} />
               <SheetTitle>{sheetData?.refCode}</SheetTitle>
             </SheetHeader>
           }

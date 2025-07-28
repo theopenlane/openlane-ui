@@ -166,7 +166,6 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
 
       setIsEditing(false)
       queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
-      queryClient.invalidateQueries({ queryKey: ['internalPolicy', policy?.id] })
     } catch {
       errorNotification({
         title: 'Error',
@@ -181,6 +180,26 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
 
   const handleCreateNewProcedure = async () => {
     router.push(`/procedures/create?policyId=${policyId}`)
+  }
+
+  const handleUpdateField = async (input: UpdateInternalPolicyInput) => {
+    if (!policy?.id) {
+      return
+    }
+    try {
+      await updatePolicy({ updateInternalPolicyId: policy?.id, input })
+      successNotification({
+        title: 'Policy Updated',
+        description: 'Policy has been successfully updated',
+      })
+
+      queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+    } catch {
+      errorNotification({
+        title: 'Error',
+        description: 'There was an error updating the policy. Please try again.',
+      })
+    }
   }
 
   if (isLoading) {
@@ -255,18 +274,18 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   )
 
   const mainContent = (
-    <div className="space-y-6 p-6">
-      <TitleField isEditing={isEditing} form={form} />
+    <div className="p-2">
+      <TitleField isEditing={isEditing} form={form} handleUpdate={handleUpdateField} initialData={policy.name} editAllowed={editAllowed} />
       <DetailsField isEditing={isEditing} form={form} policy={policy} />
     </div>
   )
 
   const sidebarContent = (
     <>
-      <AuthorityCard form={form} approver={policy.approver} delegate={policy.delegate} isEditing={isEditing} />
-      <PropertiesCard form={form} isEditing={isEditing} policy={policy} />
+      <AuthorityCard form={form} approver={policy.approver} delegate={policy.delegate} isEditing={isEditing} handleUpdate={handleUpdateField} editAllowed={editAllowed} />
+      <PropertiesCard form={form} isEditing={isEditing} policy={policy} handleUpdate={handleUpdateField} editAllowed={editAllowed} />
       <HistoricalCard policy={policy} />
-      <TagsCard form={form} policy={policy} isEditing={isEditing} />
+      <TagsCard form={form} policy={policy} isEditing={isEditing} handleUpdate={handleUpdateField} editAllowed={editAllowed} />
       <AssociatedObjectsViewAccordion policy={policy} />
     </>
   )

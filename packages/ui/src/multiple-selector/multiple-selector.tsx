@@ -474,16 +474,21 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
                 inputProps?.onFocus?.(event)
               }}
               onKeyDown={(e) => {
-                if (creatable && (e.key === 'Enter' || e.key === 'Tab') && inputValue.length > 0) {
+                if (creatable && (e.key === 'Enter' || e.key === 'Tab') && inputValue.trim().length > 0) {
                   e.preventDefault()
+
+                  const alreadyExists = selected.some((option) => option.label.toLowerCase() === inputValue.trim().toLowerCase())
+
+                  if (alreadyExists) return
 
                   if (selected.length >= maxSelected) {
                     onMaxSelected?.(selected.length)
                     return
                   }
 
+                  const newOption = { value: inputValue.trim(), label: inputValue.trim() }
+                  const newOptions = [...selected, newOption]
                   setInputValue('')
-                  const newOptions = [...selected, { value: inputValue, label: inputValue }]
                   setSelected(newOptions)
                   onChange?.(newOptions)
                 }

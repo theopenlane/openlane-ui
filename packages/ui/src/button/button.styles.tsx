@@ -79,4 +79,5 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, Bu
   asChild?: boolean
   icon?: ReactNode
   loading?: boolean
+  descriptiveTooltipText?: string
 }

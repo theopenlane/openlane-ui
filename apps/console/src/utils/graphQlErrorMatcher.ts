@@ -1,4 +1,4 @@
-import { GraphQlResponseError } from '@/constants/graphQlResponseError'
+import { errorCodeMessages, GraphQlResponseError } from '@/constants/graphQlResponseError'
 
 export interface GraphQLErrorExtension {
   code: GraphQlResponseError
@@ -36,4 +36,15 @@ export const extractGraphQlResponseError = async (response: Response): Promise<G
   }
 
   return null
+}
+
+export const parseErrorMessage = (error: unknown): string => {
+  if (Array.isArray(error) && error[0]?.extensions?.code) {
+    const code = error[0].extensions.code as string
+    const message = error[0].message as string
+    if (message === 'organization already exists') return errorCodeMessages['ORG_ALREADY_EXISTS']
+    return errorCodeMessages[code]
+  }
+
+  return 'Something went wrong. Please try again.'
 }

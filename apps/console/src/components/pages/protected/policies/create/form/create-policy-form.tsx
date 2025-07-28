@@ -51,9 +51,9 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   const [initialAssociations, setInitialAssociations] = useState<TObjectAssociationMap>({})
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
+  const [isInitialized, setIsInitialized] = useState(false)
 
   const isPoliciesCreate = path === '/policies/create'
-
   useEffect(() => {
     if (policy) {
       const policyAssociations: TObjectAssociationMap = {
@@ -96,13 +96,14 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   }, [isPoliciesCreate, form, policy, policyState])
 
   useEffect(() => {
-    if (isPoliciesCreate && Object.keys(policyState.associations).length > 0) {
+    if (!isInitialized && isPoliciesCreate && Object.keys(policyState.associations).length > 0) {
       setInitialAssociations({})
       policyState.setAssociations({})
       policyState.setAssociationRefCodes({})
       return
     }
-  }, [isPoliciesCreate, policyState])
+    setIsInitialized(true)
+  }, [isPoliciesCreate, policyState, isInitialized])
 
   const onCreateHandler = async (data: CreatePolicyFormData) => {
     try {
@@ -309,7 +310,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
             </Button>
           </div>
           <div className="space-y-4">
-            <AuthorityCard form={form} isEditing={true} inputClassName="!w-[162px]" />
+            <AuthorityCard form={form} isEditing={true} inputClassName="!w-[162px]" editAllowed={true} />
             <StatusCard form={form} metadata={metadata} />
             <AssociationCard />
             <TagsCard form={form} />

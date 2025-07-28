@@ -4,7 +4,6 @@ import React, { Fragment, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import {
-  ArrowRight,
   Binoculars,
   Calendar,
   CalendarCheck2,
@@ -17,6 +16,7 @@ import {
   InfoIcon,
   Link,
   LinkIcon,
+  PanelRightClose,
   Pencil,
   Tag,
   Trash2,
@@ -164,10 +164,12 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     try {
       await updateEvidence({
         updateEvidenceId: selectedControlEvidence as string,
-        input: formData,
+        input: {
+          ...formData,
+          clearURL: formData?.url === undefined,
+        },
       })
 
-      queryClient.invalidateQueries({ queryKey: ['evidences'] })
       successNotification({
         title: 'Evidence Updated',
         description: 'The evidence has been successfully updated.',
@@ -209,7 +211,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
         header={
           <SheetHeader>
             <div className="flex items-center justify-between">
-              <ArrowRight size={16} className="cursor-pointer" onClick={handleSheetClose} />
+              <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={handleSheetClose} />
               <div className="flex justify-end gap-2">
                 <Button icon={<Link />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
                   Copy link

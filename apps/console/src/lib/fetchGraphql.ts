@@ -87,7 +87,6 @@ export const fetchGraphQLWithUpload = async ({ query, variables = {} }: { query:
   })
 
   const result = await response.json()
-  if (result.errors) throw new Error(result.errors[0].message)
-
+  if (result.errors) throw result.errors
   return result.data
 }

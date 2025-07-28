@@ -4,7 +4,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { useGetControlById } from '@/lib/graphql-hooks/controls'
 import { controlIconsMap } from '../controls/properties-card'
-import { ArrowRight, LinkIcon } from 'lucide-react'
+import { LinkIcon, PanelRightClose } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { Button } from '@repo/ui/button'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -154,7 +154,7 @@ const ControlDetailsSheet = () => {
         header={
           <SheetHeader>
             <div className="flex items-center justify-between">
-              <ArrowRight size={16} className="cursor-pointer" onClick={() => handleOpenChange(false)} />
+              <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={() => handleOpenChange(false)} />
               <Button className="h-8 p-2" icon={<LinkIcon />} iconPosition="left" variant="outline" onClick={handleCopyLink}>
                 Copy link
               </Button>
@@ -164,7 +164,7 @@ const ControlDetailsSheet = () => {
       >
         <SheetTitle className="text-2xl text-start">{data?.control.refCode}</SheetTitle>
         <div className="flex flex-col gap-8">
-          {data?.control.description && <div className="mt-5">{plateEditorHelper.convertToReadOnly(data?.control.description as string, 0)}</div>}
+          {data?.control.description && <div className="mt-5">{plateEditorHelper.convertToReadOnly(data?.control.description as string)}</div>}
           <div className="flex flex-col gap-2.5">
             <p className="mb-1.5 text-xl">Properties</p>
             <Property label="Framework" value="SOC 2" />

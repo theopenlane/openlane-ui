@@ -7,7 +7,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { Value } from 'platejs'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import { ArrowRight, CirclePlus, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
+import { CirclePlus, PanelRightClose, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
 import AssociatedObjectsAccordion from '../../../../components/pages/protected/controls/associated-objects-accordion.tsx'
 import TitleField from '../../../../components/pages/protected/controls/form-fields/title-field.tsx'
 import DescriptionField from '../../../../components/pages/protected/controls/form-fields/description-field.tsx'
@@ -16,7 +16,7 @@ import PropertiesCard from '../../../../components/pages/protected/controls/prop
 import DetailsCard from '../../../../components/pages/protected/controls/details.tsx'
 import InfoCard from '../../../../components/pages/protected/controls/info-card.tsx'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
-import { Control, ControlControlSource, ControlControlStatus, ControlControlType, EvidenceEdge } from '@repo/codegen/src/schema.ts'
+import { Control, ControlControlSource, ControlControlStatus, ControlControlType, EvidenceEdge, UpdateControlInput } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import SubcontrolsTable from '@/components/pages/protected/controls/subcontrols-table.tsx'
@@ -153,6 +153,20 @@ const ControlDetailsPage: React.FC = () => {
     setIsEditing(true)
   }
 
+  const handleUpdateField = async (input: UpdateControlInput) => {
+    try {
+      await updateControl({ updateControlId: id, input })
+      successNotification({
+        title: 'Control updated',
+        description: 'The control was successfully updated.',
+      })
+    } catch {
+      errorNotification({
+        title: 'Failed to update control',
+      })
+    }
+  }
+
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
@@ -270,9 +284,14 @@ const ControlDetailsPage: React.FC = () => {
   )
 
   const mainContent = (
-    <div className="space-y-6 p-6">
-      <TitleField isEditing={!isSourceFramework && isEditing} />
-      <DescriptionField isEditing={!isSourceFramework && isEditing} initialValue={initialValues.description} />
+    <div className="space-y-6 p-2">
+      <TitleField
+        isEditAllowed={!isSourceFramework && canEdit(permission?.roles)}
+        isEditing={isEditing}
+        initialValue={initialValues.refCode}
+        handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)}
+      />
+      <DescriptionField isEditing={isEditing} initialValue={initialValues.description} />
       <ControlEvidenceTable
         canEdit={canEdit(permission?.roles)}
         control={{
@@ -301,8 +320,14 @@ const ControlDetailsPage: React.FC = () => {
 
   const sidebarContent = (
     <>
-      <AuthorityCard controlOwner={control.controlOwner} delegate={control.delegate} isEditing={isEditing} />
-      <PropertiesCard data={control as Control} isEditing={isEditing} />
+      <AuthorityCard
+        isEditAllowed={canEdit(permission?.roles)}
+        controlOwner={control.controlOwner}
+        delegate={control.delegate}
+        isEditing={isEditing}
+        handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)}
+      />
+      <PropertiesCard data={control as Control} isEditing={isEditing} handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)} />
 
       <RelatedControls />
       <DetailsCard />
@@ -332,7 +357,7 @@ const ControlDetailsPage: React.FC = () => {
       <title>{`${currentOrganization?.node?.displayName ?? 'Openlane'} | Controls - ${data.control.refCode}`}</title>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing}>
+          <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing} minWidth={431}>
             {mainContent}
           </SlideBarLayout>
         </form>
@@ -344,7 +369,7 @@ const ControlDetailsPage: React.FC = () => {
         <SheetContent
           header={
             <SheetHeader>
-              <ArrowRight size={16} className="cursor-pointer" onClick={() => handleSheetClose(false)} />
+              <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={() => handleSheetClose(false)} />
               <SheetTitle>{sheetData?.refCode}</SheetTitle>
             </SheetHeader>
           }

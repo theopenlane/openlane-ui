@@ -46,9 +46,9 @@ const ControlReportPage = () => {
 
   const where = useMemo(() => {
     if (referenceFramework && referenceFramework !== 'CUSTOM') {
-      return { referenceFramework: referenceFramework }
+      return { referenceFramework: referenceFramework, ownerIDNEQ: '' }
     } else if (referenceFramework === 'CUSTOM') {
-      return { referenceFrameworkIsNil: true }
+      return { referenceFrameworkIsNil: true, ownerIDNEQ: '' }
     }
     return undefined
   }, [referenceFramework])

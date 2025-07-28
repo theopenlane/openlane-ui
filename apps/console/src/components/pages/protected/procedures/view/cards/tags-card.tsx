@@ -1,36 +1,64 @@
 'use client'
 
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment, useMemo, useState } from 'react'
 import { Card } from '@repo/ui/cardpanel'
 import { Tag } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
 import { InputRow } from '@repo/ui/input'
 import { FormControl, FormField } from '@repo/ui/form'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
-import { ProcedureByIdFragment } from '@repo/codegen/src/schema.ts'
+import { ProcedureByIdFragment, UpdateProcedureInput } from '@repo/codegen/src/schema.ts'
 import { Badge } from '@repo/ui/badge'
-import { EditProcedureMetadataFormData } from '@/components/pages/protected/procedures/view/hooks/use-form-schema.ts'
+import { CreateProcedureFormData } from '../../create/hooks/use-form-schema'
+import useClickOutside from '@/hooks/useClickOutside'
+import useEscapeKey from '@/hooks/useEscapeKey'
 
 type TTagsCardProps = {
-  form: UseFormReturn<EditProcedureMetadataFormData>
+  form: UseFormReturn<CreateProcedureFormData>
   procedure: ProcedureByIdFragment
   isEditing: boolean
+  editAllowed: boolean
+  handleUpdate?: (val: UpdateProcedureInput) => void
 }
 
-const TagsCard: React.FC<TTagsCardProps> = ({ form, procedure, isEditing }) => {
-  const [tagValues, setTagValues] = useState<Option[]>([])
+const TagsCard: React.FC<TTagsCardProps> = ({ form, procedure, isEditing, editAllowed, handleUpdate }) => {
+  const [internalEditing, setInternalEditing] = useState(false)
 
-  useEffect(() => {
-    if (form.getValues('tags')) {
-      const tags = form.getValues('tags').map((item) => {
-        return {
-          value: item,
-          label: item,
-        } as Option
-      })
-      setTagValues(tags)
+  const tags = form.watch('tags')
+  const tagOptions = useMemo(() => {
+    return (tags ?? [])
+      .filter((item): item is string => typeof item === 'string')
+      .map((item) => ({
+        value: item,
+        label: item,
+      }))
+  }, [tags])
+
+  const wrapperRef = useClickOutside(() => {
+    if (!internalEditing || isEditing) return
+    const current = procedure.tags || []
+    const next = tagOptions.map((item) => item.value)
+
+    const changed = current.length !== next.length || current.some((val) => !next.includes(val))
+
+    if (changed && handleUpdate) {
+      handleUpdate({ tags: next })
     }
-  }, [form])
+
+    setInternalEditing(false)
+  })
+
+  useEscapeKey(
+    () => {
+      setInternalEditing(false)
+      const options: Option[] = (procedure?.tags ?? []).filter((item): item is string => typeof item === 'string').map((item) => ({ value: item, label: item }))
+      form.setValue(
+        'tags',
+        options.map((opt) => opt.value),
+      )
+    },
+    { enabled: internalEditing },
+  )
 
   return (
     <Card className="p-4">
@@ -42,9 +70,10 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, procedure, isEditing }) => {
             <span>Tags</span>
           </div>
         </div>
+
         <div className="grid w-full items-center gap-2">
-          <div className="flex gap-2 items-center">
-            {isEditing && (
+          <div className="flex gap-2 items-center flex-wrap" ref={wrapperRef}>
+            {isEditing || internalEditing ? (
               <InputRow className="w-full">
                 <FormField
                   control={form.control}
@@ -56,18 +85,10 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, procedure, isEditing }) => {
                           className="w-full"
                           placeholder="Add tag..."
                           creatable
-                          value={tagValues}
+                          value={tagOptions}
                           onChange={(selectedOptions) => {
-                            const options = selectedOptions.map((option) => option.value)
-                            field.onChange(options)
-                            setTagValues(
-                              selectedOptions.map((item) => {
-                                return {
-                                  value: item.value,
-                                  label: item.label,
-                                }
-                              }),
-                            )
+                            const newTags = selectedOptions.map((opt) => opt.value)
+                            field.onChange(newTags)
                           }}
                         />
                       </FormControl>
@@ -76,15 +97,28 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, procedure, isEditing }) => {
                   )}
                 />
               </InputRow>
+            ) : (
+              <div
+                className={`flex gap-2 flex-wrap ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                onDoubleClick={() => {
+                  if (!isEditing && editAllowed) {
+                    setInternalEditing(true)
+                  }
+                }}
+              >
+                {procedure.tags?.length ? (
+                  procedure.tags.map((item, index) => (
+                    <Fragment key={index}>
+                      <Badge className="bg-background-secondary mr-1" variant="outline">
+                        {item}
+                      </Badge>
+                    </Fragment>
+                  ))
+                ) : (
+                  <span className="text-muted-foreground text-sm italic">No tags</span>
+                )}
+              </div>
             )}
-            {!isEditing &&
-              procedure.tags?.map((item, index) => (
-                <Fragment key={index}>
-                  <Badge className="bg-background-secondary mr-1" variant="outline">
-                    {item}
-                  </Badge>
-                </Fragment>
-              ))}
           </div>
         </div>
       </div>

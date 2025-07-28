@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useDeleteRisk, useGetRiskById, useUpdateRisk } from '@/lib/graphql-hooks/risks.ts'
-import { RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema.ts'
+import { RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus, UpdateRiskInput } from '@repo/codegen/src/schema.ts'
 import useFormSchema, { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { Loading } from '@/components/shared/loading/loading.tsx'
@@ -150,6 +150,21 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
     }
   }
 
+  const handleUpdateField = async (input: UpdateRiskInput) => {
+    if (!risk.id) return
+    try {
+      await updateRisk({ id: risk.id, input })
+      successNotification({
+        title: 'Risk updated',
+        description: 'The risk was successfully updated.',
+      })
+    } catch {
+      errorNotification({
+        title: 'Failed to update risk',
+      })
+    }
+  }
+
   if (isLoading) {
     return <Loading />
   }
@@ -160,9 +175,9 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
 
   const sidebarContent = (
     <>
-      <AuthorityCard form={form} stakeholder={risk.stakeholder} delegate={risk.delegate} isEditing={isEditing} />
-      <PropertiesCard form={form} isEditing={isEditing} risk={risk} />
-      <TagsCard form={form} risk={risk} isEditing={isEditing} />
+      <AuthorityCard form={form} stakeholder={risk.stakeholder} delegate={risk.delegate} isEditing={isEditing} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} risk={risk} />
+      <PropertiesCard form={form} isEditing={isEditing} risk={risk} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} />
+      <TagsCard form={form} risk={risk} isEditing={isEditing} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} />
       <AssociatedObjectsViewAccordion risk={risk} />
     </>
   )
@@ -221,11 +236,11 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   )
 
   const mainContent = (
-    <div className="space-y-6 p-6">
-      <TitleField isEditing={isEditing} form={form} />
-      <DetailsField isEditing={isEditing} form={form} risk={risk} />
-      <BusinessCostField isEditing={isEditing} form={form} risk={risk} />
-      <MitigationField isEditing={isEditing} form={form} risk={risk} />
+    <div className="space-y-6 p-2">
+      <TitleField isEditing={isEditing} form={form} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} initialValue={risk.name} />
+      <DetailsField isEditing={isEditing} form={form} risk={risk} isEditAllowed={editAllowed} />
+      <BusinessCostField isEditing={isEditing} form={form} risk={risk} isEditAllowed={editAllowed} />
+      <MitigationField isEditing={isEditing} form={form} risk={risk} isEditAllowed={editAllowed} />
     </div>
   )
 

@@ -9,6 +9,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { acceptedFileTypes, acceptedFileTypesShort } from '@/components/pages/protected/evidence/upload/evidence-upload-config.ts'
 import { useUploadEvidenceFiles } from '@/lib/graphql-hooks/evidence.ts'
 import { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type TControlEvidenceUploadDialog = {
   controlEvidenceID: string
@@ -38,10 +39,11 @@ const ControlEvidenceUploadDialog: React.FC<TControlEvidenceUploadDialog> = ({ c
         title: 'Evidence file(s) uploaded',
         description: `Evidence file(s) have been successfully uploaded`,
       })
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
-        description: 'There was an error uploading the evidence files. Please try again.',
+        description: errorMessage,
       })
     }
   }

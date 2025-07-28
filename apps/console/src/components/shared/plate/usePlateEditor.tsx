@@ -23,7 +23,7 @@ const usePlateEditor = () => {
       })
     },
     // Converts html data into deserializable PlateJs value, and rendering read only static view
-    convertToReadOnly: (data: string, padding: number = 16, style?: React.CSSProperties) => {
+    convertToReadOnly: (data: string, padding: number = 0, style?: React.CSSProperties) => {
       const editor = createSlateEditor({
         plugins: [...BaseEditorKit],
       })

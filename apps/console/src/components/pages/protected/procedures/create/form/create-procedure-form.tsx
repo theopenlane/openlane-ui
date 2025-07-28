@@ -57,6 +57,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   const { data } = useGetInternalPolicyDetailsById(policyId)
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
+  const [isInitialized, setIsInitialized] = useState(false)
 
   const isProcedureCreate = path === '/procedures/create'
 
@@ -109,13 +110,14 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   }, [form, procedure, procedureState])
 
   useEffect(() => {
-    if (isProcedureCreate && Object.keys(procedureState.associations).length > 0) {
+    if (!isInitialized && isProcedureCreate && Object.keys(procedureState.associations).length > 0) {
       setInitialAssociations({})
       procedureState.setAssociations({})
       procedureState.setAssociationRefCodes({})
       return
     }
-  }, [isProcedureCreate, procedureState])
+    setIsInitialized(true)
+  }, [isProcedureCreate, procedureState, isInitialized])
 
   useEffect(() => {
     if (data) {
@@ -337,7 +339,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
             </Button>
           </div>
           <div className="space-y-4">
-            <AuthorityCard form={form} isEditing={true} inputClassName="!w-[162px]" />
+            <AuthorityCard form={form} isEditing={true} inputClassName="!w-[162px]" editAllowed={true} />
             <StatusCard form={form} metadata={metadata} />
             <AssociationCard />
             <TagsCard form={form} />

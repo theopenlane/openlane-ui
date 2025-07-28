@@ -1,5 +1,5 @@
 import React, { useState, useRef, ReactNode, useEffect } from 'react'
-import { XIcon, PanelRight } from 'lucide-react'
+import { PanelRight, PanelRightClose } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { useSubscriptionBanner } from '@/hooks/useSubscriptionBanner.ts'
 
@@ -9,17 +9,17 @@ type TSlideBarLayoutProps = {
   children: ReactNode
   menu?: ReactNode
   slideOpen?: boolean
+  minWidth?: number
 }
 
-const MIN_WIDTH = 400
 const MAX_RATIO = 0.9
 const DEFAULT_WIDTH = 400
 const FLOATING_MARGIN = 24
 
-const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarContent, children, menu, slideOpen }) => {
+const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarContent, children, menu, slideOpen, minWidth = 400 }) => {
   const { bannerText } = useSubscriptionBanner()
   const [open, setOpen] = useState<boolean>(true)
-  const [width, setWidth] = useState<number>(DEFAULT_WIDTH)
+  const [width, setWidth] = useState<number>(minWidth || DEFAULT_WIDTH)
   const resizing = useRef(false)
 
   useEffect(() => {
@@ -34,7 +34,7 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarC
     }
 
     const newWidth = window.innerWidth - e.clientX
-    if (newWidth > MIN_WIDTH && newWidth < window.innerWidth * MAX_RATIO) {
+    if (newWidth > minWidth && newWidth < window.innerWidth * MAX_RATIO) {
       setWidth(newWidth)
     }
   }
@@ -66,7 +66,14 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarC
 
       <div className="fixed flex items-center space-x-2 z-30" style={{ top: bannerText ? '7rem' : '5rem', right: `${FLOATING_MARGIN}px` }}>
         {menu}
-        <Button type="button" variant="outline" onClick={() => setOpen(!open)} className="h-8 !px-2 !pl-0 bg-card" icon={open ? <XIcon size={16} /> : <PanelRight size={16} />} />
+        <Button
+          type="button"
+          descriptiveTooltipText={open ? 'Close slide bar' : 'Open slide bar'}
+          variant="outline"
+          onClick={() => setOpen(!open)}
+          className="h-8 !px-2 !pl-0 bg-card"
+          icon={open ? <PanelRightClose size={16} /> : <PanelRight size={16} />}
+        />
       </div>
       <div
         className="fixed right-0  bottom-0 border-l shadow-xl transform transition-transform duration-300 z-20 bg-background"

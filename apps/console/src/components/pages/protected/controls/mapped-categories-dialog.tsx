@@ -14,7 +14,7 @@ import { useUpdateControl } from '@/lib/graphql-hooks/controls'
 
 const ROWS_PER_PAGE = 5
 
-const MappedCategoriesDialog = () => {
+const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
   const { id } = useParams<{ id: string }>()
   const [open, setOpen] = useState(false)
   const [selected, setSelected] = useState<string[]>([])
@@ -68,6 +68,7 @@ const MappedCategoriesDialog = () => {
         mappedCategories: selected,
       },
     })
+    onClose()
   }
 
   const handlePageChange = (direction: 'prev' | 'next') => {
@@ -94,9 +95,9 @@ const MappedCategoriesDialog = () => {
 
   return (
     <>
-      <div className="grid grid-cols-[110px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
+      <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
         <div className="flex items-start gap-2">
-          <FolderIcon size={16} className="text-brand min-w-4" />
+          <FolderIcon size={16} className="text-brand min-w-4 pt-0.5" />
           <div className="text-sm">Mapped categories</div>
         </div>
         <div className="text-sm">
@@ -111,6 +112,9 @@ const MappedCategoriesDialog = () => {
         onOpenChange={(val) => {
           setOpen(val)
           setPage(0)
+          if (!val) {
+            onClose()
+          }
         }}
       >
         <DialogContent className="max-w-xl">
@@ -177,7 +181,13 @@ const MappedCategoriesDialog = () => {
 
           {/* Actions */}
           <div className="flex justify-end gap-2 mt-6">
-            <Button className="h-8 !px-2" onClick={() => setOpen(false)}>
+            <Button
+              className="h-8 !px-2"
+              onClick={() => {
+                setOpen(false)
+                onClose()
+              }}
+            >
               Cancel
             </Button>
             <Button className="h-8 !px-2" onClick={handleSave}>

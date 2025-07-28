@@ -77,7 +77,7 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
       header: 'Description',
       cell: ({ row }) => {
         const { description, details } = row.original
-        return <span className="line-clamp-2 overflow-hidden">{convertToReadOnly(description || details || '', 0)}</span>
+        return <span className="line-clamp-2 overflow-hidden">{convertToReadOnly(description || details || '')}</span>
       },
     },
   ]

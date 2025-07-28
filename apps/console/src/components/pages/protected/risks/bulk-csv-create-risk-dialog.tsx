@@ -11,6 +11,7 @@ import { exportCSV } from '@/lib/export'
 import { DOCS_URL, GRAPHQL_OBJECT_DOCS } from '@/constants'
 import { useCreateBulkCSVRisk } from '@/lib/graphql-hooks/risks.ts'
 import { TUploadedFile } from '../evidence/upload/types/TUploadedFile'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type BulkCsvCreateRiskDialogProps = {
   trigger?: React.ReactElement<
@@ -40,10 +41,11 @@ const BulkCSVCreateRiskDialog: React.FC<BulkCsvCreateRiskDialogProps> = ({ trigg
         description: `Risks has been successfully created`,
       })
       setIsOpen(false)
-    } catch {
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
       errorNotification({
         title: 'Error',
-        description: 'There was an error creating the risks. Please try again.',
+        description: errorMessage,
       })
     }
   }

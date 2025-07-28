@@ -11,6 +11,7 @@ import { ControlImplementationIconMap } from '@/components/shared/enum-mapper/co
 import { Popover } from '@repo/ui/popover'
 import { PopoverContent, PopoverTrigger } from '@radix-ui/react-popover'
 import Link from 'next/link'
+import ControlChip from '../map-controls/shared/control-chip'
 
 interface Props {
   obj: ControlImplementationFieldsFragment
@@ -83,35 +84,37 @@ export const ControlImplementationCard = ({ obj }: Props) => {
 
         {!!obj.controls?.edges?.length && (
           <div className="flex flex-wrap gap-2 text-sm mb-3">
-            {obj.controls.edges.map((control) => (
-              <Popover key={control?.node?.id} open={control?.node?.id === hoveredControl?.id}>
-                <div onMouseLeave={() => setHoveredControl(null)}>
-                  <PopoverTrigger
-                    asChild
-                    onMouseEnter={() =>
-                      setHoveredControl({
-                        id: control?.node?.id || '',
-                        shortName: control?.node?.standard?.shortName || '-',
-                        description: control?.node?.description || '-',
-                      })
-                    }
-                  >
-                    <span className=" pb-1">{control?.node?.refCode}</span>
-                  </PopoverTrigger>
-                  {hoveredControl && (
-                    <PopoverContent asChild align="start">
-                      <div className="bg-background text-xs border border-boder rounded-md p-4 grid grid-cols-[auto,1fr] gap-y-3 gap-x-5 max-w-xs">
-                        <span className="font-medium">Standard</span>
-                        <span>{hoveredControl.shortName}</span>
+            {obj.controls.edges.map((control) =>
+              control?.node ? (
+                <Popover key={control?.node?.id} open={control?.node?.id === hoveredControl?.id}>
+                  <div onMouseLeave={() => setHoveredControl(null)}>
+                    <PopoverTrigger
+                      asChild
+                      onMouseEnter={() =>
+                        setHoveredControl({
+                          id: control?.node?.id || '',
+                          shortName: control?.node?.referenceFramework || '-',
+                          description: control?.node?.description || '-',
+                        })
+                      }
+                    >
+                      <ControlChip key={control.node.id} control={control.node} />
+                    </PopoverTrigger>
+                    {hoveredControl && (
+                      <PopoverContent asChild align="start">
+                        <div className="bg-background text-xs border border-boder rounded-md p-4 grid grid-cols-[auto,1fr] gap-y-3 gap-x-5 max-w-xs">
+                          <span className="font-medium">Standard</span>
+                          <span>{hoveredControl.shortName}</span>
 
-                        <span className="font-medium">Details</span>
-                        <div>{convertToReadOnly(hoveredControl.description, 0)}</div>
-                      </div>
-                    </PopoverContent>
-                  )}
-                </div>
-              </Popover>
-            ))}
+                          <span className="font-medium">Details</span>
+                          <div>{convertToReadOnly(hoveredControl.description)}</div>
+                        </div>
+                      </PopoverContent>
+                    )}
+                  </div>
+                </Popover>
+              ) : null,
+            )}
           </div>
         )}
 
@@ -132,7 +135,7 @@ export const ControlImplementationCard = ({ obj }: Props) => {
                         })
                       }
                     >
-                      <span className="underline cursor-pointer pb-1">{subcontrol.node.refCode}</span>
+                      <ControlChip key={subcontrol.node.id} control={subcontrol.node} />
                     </PopoverTrigger>
                     {hoveredSubcontrol && hoveredSubcontrol.id === subcontrol.node.id && (
                       <PopoverContent asChild align="start">
@@ -143,7 +146,7 @@ export const ControlImplementationCard = ({ obj }: Props) => {
                           </Link>
 
                           <span className="font-medium">Details</span>
-                          <div>{convertToReadOnly(hoveredSubcontrol.parentDescription, 0)}</div>
+                          <div>{convertToReadOnly(hoveredSubcontrol.parentDescription)}</div>
                         </div>
                       </PopoverContent>
                     )}

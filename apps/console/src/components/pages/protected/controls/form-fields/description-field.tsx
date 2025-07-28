@@ -20,10 +20,22 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialV
       <label htmlFor="description" className="block text-sm font-medium text-muted-foreground mb-1">
         Description
       </label>
-      <Controller control={control} name="description" render={({ field }) => <PlateEditor initialValue={field.value} onChange={field.onChange} placeholder="Write your control description" />} />
+      <Controller
+        control={control}
+        name="description"
+        render={({ field }) => (
+          <PlateEditor
+            initialValue={field.value}
+            onChange={(val) => {
+              field.onChange(val)
+            }}
+            placeholder="Write your control description"
+          />
+        )}
+      />
     </div>
   ) : (
-    <div>{plateEditorHelper.convertToReadOnly(initialValue as string)}</div>
+    <div className={'min-h-[20px]'}>{plateEditorHelper.convertToReadOnly(initialValue as string)}</div>
   )
 }
 

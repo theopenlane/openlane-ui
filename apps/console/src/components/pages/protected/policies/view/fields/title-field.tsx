@@ -1,19 +1,61 @@
+'use client'
+
+import React, { useState } from 'react'
 import { Controller, UseFormReturn } from 'react-hook-form'
-import React from 'react'
 import { EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import { FormControl, FormItem, FormLabel } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import { Input } from '@repo/ui/input'
-import { PageHeading } from '@repo/ui/page-heading'
+import { UpdateInternalPolicyInput } from '@repo/codegen/src/schema'
+import useEscapeKey from '@/hooks/useEscapeKey'
 
 type TTitleFieldProps = {
   isEditing: boolean
   form: UseFormReturn<EditPolicyMetadataFormData>
+  handleUpdate: (val: UpdateInternalPolicyInput) => void
+  initialData: string
+  editAllowed: boolean
 }
 
-const TitleField: React.FC<TTitleFieldProps> = ({ isEditing, form }) => {
-  return isEditing ? (
+const TitleField: React.FC<TTitleFieldProps> = ({ isEditing, form, handleUpdate, initialData, editAllowed }) => {
+  const [internalEditing, setInternalEditing] = useState(false)
+
+  const handleClick = () => {
+    if (!isEditing && editAllowed) {
+      setInternalEditing(true)
+    }
+  }
+
+  const handleBlur = (value: string) => {
+    if (isEditing) return
+
+    if (initialData === value) {
+      setInternalEditing(false)
+      return
+    }
+
+    if (!value.trim()) return
+
+    handleUpdate({ name: value })
+
+    setInternalEditing(false)
+  }
+
+  useEscapeKey(() => {
+    if (internalEditing) {
+      form.setValue('name', initialData)
+      setInternalEditing(false)
+    }
+  })
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      ;(e.target as HTMLInputElement).blur()
+    }
+  }
+
+  return isEditing || internalEditing ? (
     <div className="w-full">
       <Controller
         control={form.control}
@@ -25,7 +67,7 @@ const TitleField: React.FC<TTitleFieldProps> = ({ isEditing, form }) => {
               <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a brief, descriptive title to help easily identify the policy later.</p>} />
             </div>
             <FormControl>
-              <Input variant="medium" {...field} className="w-full" />
+              <Input {...field} onBlur={() => handleBlur(field.value)} onKeyDown={handleKeyDown} autoFocus className="w-full" />
             </FormControl>
             {form.formState.errors.name && <p className="text-red-500 text-sm">{form.formState.errors.name.message}</p>}
           </FormItem>
@@ -33,7 +75,9 @@ const TitleField: React.FC<TTitleFieldProps> = ({ isEditing, form }) => {
       />
     </div>
   ) : (
-    <PageHeading heading={form.getValues('name')} />
+    <h1 onDoubleClick={handleClick} className={`text-3xl font-semibold ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+      {form.getValues('name')}
+    </h1>
   )
 }
 

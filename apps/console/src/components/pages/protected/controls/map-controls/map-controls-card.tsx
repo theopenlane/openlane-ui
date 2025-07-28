@@ -32,8 +32,8 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
 
   const subcontrolEnabled = hasFilters && enableSubcontrols
 
-  const allControls = useAllControlsGrouped({ where: where as ControlWhereInput, enabled: hasFilters })
-  const allSubcontrols = useAllSubcontrolsGrouped({ where: where as SubcontrolWhereInput, enabled: subcontrolEnabled })
+  const allControls = useAllControlsGrouped({ where: { ownerIDNEQ: '', ...where } as ControlWhereInput, enabled: hasFilters })
+  const allSubcontrols = useAllSubcontrolsGrouped({ where: { ownerIDNEQ: '', ...where } as SubcontrolWhereInput, enabled: subcontrolEnabled })
 
   const queriesLoading = allControls.isLoading || allSubcontrols.isLoading
 
