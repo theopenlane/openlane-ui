@@ -136,9 +136,14 @@ export const SearchableSingleSelect: React.FC<SearchableSingleSelectProps> = ({ 
   const triggerRef = React.useRef<HTMLDivElement>(null)
   const popoverRef = React.useRef<HTMLDivElement>(null)
 
-  useClickOutsideWithPortal(() => {
-    onClose?.()
-  }, [triggerRef, popoverRef])
+  useClickOutsideWithPortal(
+    () => {
+      onClose?.()
+    },
+    {
+      refs: { triggerRef, popoverRef },
+    },
+  )
 
   useEscapeKey(() => {
     onClose?.()
