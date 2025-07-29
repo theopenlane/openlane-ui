@@ -9,13 +9,14 @@ import { Value } from 'platejs'
 interface DescriptionFieldProps {
   isEditing: boolean
   initialValue: string | Value
+  isEditAllowed?: boolean
 }
 
-const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialValue }) => {
+const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialValue, isEditAllowed }) => {
   const { control } = useFormContext()
   const plateEditorHelper = usePlateEditor()
 
-  return isEditing ? (
+  return isEditAllowed && isEditing ? (
     <div className="w-full">
       <label htmlFor="description" className="block text-sm font-medium text-muted-foreground mb-1">
         Description

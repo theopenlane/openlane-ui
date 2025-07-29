@@ -7,7 +7,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { Value } from 'platejs'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import { CirclePlus, PanelRightClose, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
+import { CirclePlus, InfoIcon, PanelRightClose, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
 import TitleField from '../../../../components/pages/protected/controls/form-fields/title-field.tsx'
 import DescriptionField from '../../../../components/pages/protected/controls/form-fields/description-field.tsx'
 import AuthorityCard from '../../../../components/pages/protected/controls/authority-card.tsx'
@@ -286,13 +286,31 @@ const ControlDetailsPage: React.FC = () => {
 
   const mainContent = (
     <div className="space-y-6 p-2">
-      <TitleField
-        isEditAllowed={!isSourceFramework && canEdit(permission?.roles)}
-        isEditing={isEditing}
-        initialValue={initialValues.refCode}
-        handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)}
-      />
-      <DescriptionField isEditing={isEditing} initialValue={initialValues.description} />
+      <div className="flex justify-between items-start">
+        <TitleField
+          isEditAllowed={!isSourceFramework && canEdit(permission?.roles)}
+          isEditing={isEditing}
+          initialValue={initialValues.refCode}
+          handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)}
+        />
+        {isEditing && (
+          <div className="w-3/5 flex items-start gap-2 border rounded-lg p-1 bg-card">
+            <InfoIcon size={14} className="mt-1 shrink-0" />
+            <p>
+              This control was created via a reference framework and the details are not editable. If you need to edit it, consider{' '}
+              <Link className="text-blue-500" href={`/controls/${id}/create-subcontrol`}>
+                creating a subcontrol
+              </Link>
+              &nbsp;or&nbsp;
+              <Link className="text-blue-500" href={`/controls/create-control?mapControlId=${id}`}>
+                creating a new control
+              </Link>
+              &nbsp;and linking it.
+            </p>
+          </div>
+        )}
+      </div>
+      <DescriptionField isEditing={isEditing} initialValue={initialValues.description} isEditAllowed={!isSourceFramework && canEdit(permission?.roles)} />
       <ControlEvidenceTable
         canEdit={canEdit(permission?.roles)}
         control={{

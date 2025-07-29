@@ -6,7 +6,7 @@ import { useForm, FormProvider } from 'react-hook-form'
 import { Value } from 'platejs'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import { PencilIcon, SaveIcon, XIcon, CirclePlus, PanelRightClose } from 'lucide-react'
+import { PencilIcon, SaveIcon, XIcon, CirclePlus, PanelRightClose, InfoIcon } from 'lucide-react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { EvidenceEdge, Subcontrol, SubcontrolControlSource, SubcontrolControlStatus, SubcontrolControlType, UpdateSubcontrolInput } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
@@ -285,13 +285,27 @@ const ControlDetailsPage: React.FC = () => {
 
   const mainContent = (
     <div className="space-y-6 p-2">
-      <TitleField
-        isEditAllowed={!isSourceFramework && canEdit(permission?.roles)}
-        isEditing={isEditing}
-        handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)}
-        initialValue={initialValues.refCode}
-      />
-      <DescriptionField isEditing={isEditing} initialValue={initialValues.description} />
+      <div className="flex justify-between items-start">
+        <TitleField
+          isEditAllowed={!isSourceFramework && canEdit(permission?.roles)}
+          isEditing={isEditing}
+          handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)}
+          initialValue={initialValues.refCode}
+        />
+        {isEditing && (
+          <div className="w-3/5 flex items-start gap-2 border rounded-lg p-1 bg-card">
+            <InfoIcon size={14} className="mt-1 shrink-0" />
+            <p>
+              This subcontrol was created via a reference framework and the details are not editable. If you need to edit it, consider&nbsp;
+              <Link className="text-blue-500" href={`/controls/${id}/create-subcontrol?mapSubcontrolId=${subcontrolId}`}>
+                creating a new subcontrol
+              </Link>
+              &nbsp;and linking it.
+            </p>
+          </div>
+        )}
+      </div>
+      <DescriptionField isEditing={isEditing} initialValue={initialValues.description} isEditAllowed={!isSourceFramework && canEdit(permission?.roles)} />
       <ControlEvidenceTable
         canEdit={canEdit(permission?.roles)}
         control={{
