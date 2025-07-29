@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react'
+import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Logo, logoStyles } from './logo'
 
 type LogoVariants = keyof typeof logoStyles.variants

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react'
+import type { Meta, StoryObj } from '@storybook/react-vite'
 import { ArrowRight, ArrowUpRight, InfoIcon } from 'lucide-react'
 import { GoogleIcon } from '../icons/google'
 import { Button, buttonStyles } from './button'
