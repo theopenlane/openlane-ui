@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react'
+import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from './table'
 import { EllipsisIcon } from 'lucide-react'
 

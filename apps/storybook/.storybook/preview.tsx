@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import type { Preview } from '@storybook/react'
+import type { Preview } from '@storybook/react-vite'
 import './style.css'
-import { themes } from '@storybook/theming'
+import { themes } from 'storybook/theming'
 
 const Background = (Story, context) => {
   const [theme, setTheme] = useState('light')
@@ -103,6 +103,8 @@ const preview: Preview = {
       },
     },
   },
+
+  tags: ['autodocs'],
 }
 
 export default preview
