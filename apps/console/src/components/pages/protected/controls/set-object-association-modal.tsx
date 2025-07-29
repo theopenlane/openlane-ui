@@ -4,13 +4,14 @@ import { useGetControlById, useUpdateControl } from '@/lib/graphql-hooks/control
 import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useParams, usePathname } from 'next/navigation'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 import { useNotification } from '@/hooks/useNotification'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol'
+import AddAssociationBtn from '@/components/shared/object-association/add-association-btn.tsx'
 
 export function SetObjectAssociationDialog() {
   const { id, subcontrolId } = useParams<{ id: string; subcontrolId: string }>()
@@ -19,7 +20,7 @@ export function SetObjectAssociationDialog() {
   const isSubcontrol = !!subcontrolId
 
   const { data: controlData } = useGetControlById(isControl ? id : null)
-  const { data: subcontrolData } = useGetSubcontrolById(isSubcontrol ? id : null)
+  const { data: subcontrolData } = useGetSubcontrolById(isSubcontrol ? subcontrolId : null)
   const { mutateAsync: updateControl } = useUpdateControl()
   const { mutateAsync: updateSubcontrol } = useUpdateSubcontrol()
 
@@ -136,8 +137,8 @@ export function SetObjectAssociationDialog() {
 
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
-      <DialogTrigger asChild>
-        <Button className="h-8 !px-2">Set Association</Button>
+      <DialogTrigger>
+        <AddAssociationBtn />
       </DialogTrigger>
       <DialogContent className="max-w-2xl p-6 space-y-4">
         <DialogHeader>

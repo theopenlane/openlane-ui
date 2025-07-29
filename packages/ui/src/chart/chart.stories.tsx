@@ -1,6 +1,6 @@
 'use client'
 
-import { Meta, StoryObj } from '@storybook/react'
+import { Meta, StoryObj } from '@storybook/react-vite'
 import { LineChart, TooltipProps } from './chart'
 import { cn } from '@repo/ui/lib/utils'
 import { LineChartExample } from './chart-example'

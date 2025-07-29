@@ -11,11 +11,20 @@ import AuthorityCard from '@/components/pages/protected/controls/authority-card'
 import PropertiesCard from '@/components/pages/protected/controls/properties-card'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ControlFormData, createControlFormSchema } from './use-form-schema'
-import { ControlControlStatus, CreateControlImplementationInput, CreateControlInput, CreateControlObjectiveInput, CreateSubcontrolInput } from '@repo/codegen/src/schema'
+import {
+  ControlControlStatus,
+  CreateControlImplementationInput,
+  CreateControlInput,
+  CreateControlObjectiveInput,
+  CreateMappedControlInput,
+  CreateSubcontrolInput,
+  MappedControlMappingSource,
+  MappedControlMappingType,
+} from '@repo/codegen/src/schema'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useControlSelect, useCreateControl, useGetControlById } from '@/lib/graphql-hooks/controls'
 import { useNotification } from '@/hooks/useNotification'
-import { useParams, usePathname, useRouter } from 'next/navigation'
+import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Popover, PopoverContent } from '@repo/ui/popover'
 import { Command, CommandItem, CommandList, CommandEmpty } from '@repo/ui/command'
 import { PopoverTrigger } from '@radix-ui/react-popover'
@@ -26,8 +35,12 @@ import { Check } from 'lucide-react'
 import { BreadcrumbContext, Crumb } from '@/providers/BreadcrumbContext.tsx'
 import { useCreateControlImplementation } from '@/lib/graphql-hooks/control-implementations'
 import { useCreateControlObjective } from '@/lib/graphql-hooks/control-objectives'
+import { useCreateMappedControl } from '@/lib/graphql-hooks/mapped-control'
 
 export default function CreateControlForm() {
+  const params = useSearchParams()
+  const mapControlId = params.get('mapControlId')
+  const mapSubcontrolId = params.get('mapSubcontrolId')
   const { id } = useParams<{ id: string | undefined }>()
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const path = usePathname()
@@ -45,6 +58,7 @@ export default function CreateControlForm() {
 
   const { mutateAsync: createControlImplementation } = useCreateControlImplementation()
   const { mutateAsync: createControlObjective } = useCreateControlObjective()
+  const { mutateAsync: createMappedControl } = useCreateMappedControl()
 
   const dropdownRef = useClickOutside(() => setOpen(false))
   const searchRef = useRef(null)
@@ -82,6 +96,7 @@ export default function CreateControlForm() {
     const controlID = form.getValues('controlID')
     reset({ controlID })
   }
+
   const onSubmit = async (formData: ControlFormData) => {
     const { desiredOutcome, details, ...data } = formData
     try {
@@ -102,6 +117,21 @@ export default function CreateControlForm() {
       } else {
         const response = await createControl({ input: commonInput as CreateControlInput })
         newId = response?.createControl?.control?.id
+      }
+
+      if (mapControlId || mapSubcontrolId) {
+        const input: CreateMappedControlInput = {
+          mappingType: MappedControlMappingType.PARTIAL,
+          source: MappedControlMappingSource.MANUAL,
+          confidence: 100,
+          fromControlIDs: isCreateSubcontrol ? [] : [newId],
+          toControlIDs: mapControlId ? [mapControlId] : [],
+          fromSubcontrolIDs: isCreateSubcontrol ? [newId] : [],
+          toSubcontrolIDs: mapSubcontrolId ? [mapSubcontrolId] : [],
+          relation: 'Mapping auto-created based on creation of control from framework',
+        }
+
+        await createMappedControl({ input })
       }
 
       if (desiredOutcome && createObjective) {
@@ -179,7 +209,7 @@ export default function CreateControlForm() {
     if (id) {
       crumbs.push({ label: controlData?.control?.refCode, isLoading, href: `/controls/${controlData?.control.id}` })
     }
-    const lastCrumb = isCreateSubcontrol ? { label: 'Create Subcontrol' } : { label: 'Create Subcontrol' }
+    const lastCrumb = isCreateSubcontrol ? { label: 'Create Subcontrol' } : { label: 'Create Control' }
     crumbs.push(lastCrumb)
     setCrumbs(crumbs)
   }, [setCrumbs, controlData, isLoading, isCreateSubcontrol, id])
@@ -338,7 +368,7 @@ export default function CreateControlForm() {
 
           {/* Authority & Properties Grid */}
           <div className="flex flex-col gap-5 min-w-[336px]">
-            <AuthorityCard isEditing />
+            <AuthorityCard isEditing isEditAllowed />
             <PropertiesCard isEditing />
           </div>
         </div>

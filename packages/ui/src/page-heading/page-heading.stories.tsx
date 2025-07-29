@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react'
+import type { Meta, StoryObj } from '@storybook/react-vite'
 import { PageHeading } from './page-heading'
 
 const meta: Meta<typeof PageHeading> = {

@@ -3,7 +3,7 @@
 import React from 'react'
 import { Card } from '@repo/ui/cardpanel'
 import { ArrowUpDown } from 'lucide-react'
-import SetObjectAssociationDialog from '@/components/pages/protected/policies/modal/set-object-association-modal.tsx'
+import SetObjectAssociationPoliciesDialog from '@/components/pages/protected/policies/modal/set-object-association-modal.tsx'
 import AssociatedObjectsAccordion from '@/components/pages/protected/policies/accordion/associated-objects-accordion.tsx'
 
 const AssociationCard: React.FC = () => {
@@ -18,7 +18,7 @@ const AssociationCard: React.FC = () => {
           </div>
 
           <div className="flex gap-2">
-            <SetObjectAssociationDialog />
+            <SetObjectAssociationPoliciesDialog />
           </div>
         </div>
         <AssociatedObjectsAccordion />

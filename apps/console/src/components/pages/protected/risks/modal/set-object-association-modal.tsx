@@ -3,19 +3,20 @@
 import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 import { UpdateRiskInput } from '@repo/codegen/src/schema.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { useRisk } from '@/components/pages/protected/risks/create/hooks/use-risk.tsx'
 import { useUpdateRisk } from '@/lib/graphql-hooks/risks.ts'
+import AddAssociationBtn from '@/components/shared/object-association/add-association-btn.tsx'
 
 type TSetObjectAssociationDialogProps = {
   riskId?: string
 }
 
-const SetObjectAssociationDialog = ({ riskId }: TSetObjectAssociationDialogProps) => {
+const SetObjectAssociationRisksDialog = ({ riskId }: TSetObjectAssociationDialogProps) => {
   const riskState = useRisk()
   const associationsState = useRisk((state) => state.associations)
   const initialAssociationsState = useRisk((state) => state.initialAssociations)
@@ -30,6 +31,10 @@ const SetObjectAssociationDialog = ({ riskId }: TSetObjectAssociationDialogProps
   })
   const [open, setOpen] = useState(false)
   const { mutateAsync: updateRisk, isPending: isSaving } = useUpdateRisk()
+
+  const handleIdChange = useCallback((updatedMap: TObjectAssociationMap, refCodes: TObjectAssociationMap) => {
+    setAssociations({ associations: updatedMap, refCodes })
+  }, [])
 
   const handleSave = () => {
     riskState.setAssociations(associations.associations)
@@ -132,7 +137,7 @@ const SetObjectAssociationDialog = ({ riskId }: TSetObjectAssociationDialogProps
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogTrigger asChild>
-        <Button className="h-8 !px-2">Set Association</Button>
+        <AddAssociationBtn />
       </DialogTrigger>
       <DialogContent className="max-w-2xl p-6 space-y-4">
         <DialogHeader>
@@ -140,9 +145,7 @@ const SetObjectAssociationDialog = ({ riskId }: TSetObjectAssociationDialogProps
         </DialogHeader>
 
         <ObjectAssociation
-          onIdChange={(updatedMap, refCodes) => {
-            setAssociations({ associations: updatedMap, refCodes: refCodes })
-          }}
+          onIdChange={handleIdChange}
           initialData={associationsState}
           refCodeInitialData={refCodeAssociationsState}
           excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP, ObjectTypeObjects.RISK, ObjectTypeObjects.CONTROL_OBJECTIVE]}
@@ -160,4 +163,4 @@ const SetObjectAssociationDialog = ({ riskId }: TSetObjectAssociationDialogProps
   )
 }
 
-export default SetObjectAssociationDialog
+export default SetObjectAssociationRisksDialog

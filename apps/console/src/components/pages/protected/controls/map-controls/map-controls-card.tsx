@@ -119,7 +119,7 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
                 {expandedCard !== title && (
                   <div className="flex gap-1 flex-wrap items-center">
                     {droppedControls.slice(0, 5).map((control) => (
-                      <ControlChip key={control.id} control={control} className="rounded-md" />
+                      <ControlChip key={control.id} control={control} className="rounded-md" clickable={false} />
                     ))}
                     {droppedControls.length > 5 && <span className="text-sm ml-2">+{droppedControls.length - 5} more</span>}
                   </div>
@@ -172,6 +172,7 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
                         }}
                         removable
                         onRemove={handleRemove}
+                        clickable={false}
                       />
                     ))}
                   </div>

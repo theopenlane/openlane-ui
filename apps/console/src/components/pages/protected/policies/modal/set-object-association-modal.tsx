@@ -3,7 +3,7 @@
 import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { useCallback, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
 import { usePolicy } from '@/components/pages/protected/policies/create/hooks/use-policy.tsx'
@@ -11,12 +11,13 @@ import { UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
 import { useQueryClient } from '@tanstack/react-query'
 import { useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
+import AddAssociationBtn from '@/components/shared/object-association/add-association-btn.tsx'
 
 type TSetObjectAssociationDialogProps = {
   policyId?: string
 }
 
-const SetObjectAssociationDialog = ({ policyId }: TSetObjectAssociationDialogProps) => {
+const SetObjectAssociationPoliciesDialog = ({ policyId }: TSetObjectAssociationDialogProps) => {
   const policyState = usePolicy()
   const queryClient = useQueryClient()
   const associationsState = usePolicy((state) => state.associations)
@@ -140,7 +141,7 @@ const SetObjectAssociationDialog = ({ policyId }: TSetObjectAssociationDialogPro
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogTrigger asChild>
-        <Button className="h-8 !px-2">Set Association</Button>
+        <AddAssociationBtn />
       </DialogTrigger>
       <DialogContent className="max-w-2xl p-6 space-y-4">
         <DialogHeader>
@@ -165,4 +166,4 @@ const SetObjectAssociationDialog = ({ policyId }: TSetObjectAssociationDialogPro
   )
 }
 
-export default SetObjectAssociationDialog
+export default SetObjectAssociationPoliciesDialog
