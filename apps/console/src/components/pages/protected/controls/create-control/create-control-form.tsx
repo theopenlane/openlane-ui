@@ -179,7 +179,7 @@ export default function CreateControlForm() {
     if (id) {
       crumbs.push({ label: controlData?.control?.refCode, isLoading, href: `/controls/${controlData?.control.id}` })
     }
-    const lastCrumb = isCreateSubcontrol ? { label: 'Create Subcontrol' } : { label: 'Create Subcontrol' }
+    const lastCrumb = isCreateSubcontrol ? { label: 'Create Subcontrol' } : { label: 'Create Control' }
     crumbs.push(lastCrumb)
     setCrumbs(crumbs)
   }, [setCrumbs, controlData, isLoading, isCreateSubcontrol, id])
