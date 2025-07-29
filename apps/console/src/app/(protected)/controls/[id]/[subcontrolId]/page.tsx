@@ -291,7 +291,7 @@ const ControlDetailsPage: React.FC = () => {
         handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)}
         initialValue={initialValues.refCode}
       />
-      <DescriptionField isEditing={isEditing} initialValue={initialValues.description} />
+      <DescriptionField isEditing={isEditing} initialValue={initialValues.description} isEditAllowed={!isSourceFramework && canEdit(permission?.roles)} />
       <ControlEvidenceTable
         canEdit={canEdit(permission?.roles)}
         control={{
