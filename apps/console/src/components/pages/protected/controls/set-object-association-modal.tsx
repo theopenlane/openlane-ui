@@ -20,7 +20,7 @@ export function SetObjectAssociationDialog() {
   const isSubcontrol = !!subcontrolId
 
   const { data: controlData } = useGetControlById(isControl ? id : null)
-  const { data: subcontrolData } = useGetSubcontrolById(isSubcontrol ? id : null)
+  const { data: subcontrolData } = useGetSubcontrolById(isSubcontrol ? subcontrolId : null)
   const { mutateAsync: updateControl } = useUpdateControl()
   const { mutateAsync: updateSubcontrol } = useUpdateSubcontrol()
 

@@ -16,6 +16,7 @@ import {
   CreateControlImplementationInput,
   CreateControlInput,
   CreateControlObjectiveInput,
+  CreateMappedControlInput,
   CreateSubcontrolInput,
   MappedControlMappingSource,
   MappedControlMappingType,
@@ -39,6 +40,7 @@ import { useCreateMappedControl } from '@/lib/graphql-hooks/mapped-control'
 export default function CreateControlForm() {
   const params = useSearchParams()
   const mapControlId = params.get('mapControlId')
+  const mapSubcontrolId = params.get('mapSubcontrolId')
   const { id } = useParams<{ id: string | undefined }>()
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const path = usePathname()
@@ -117,13 +119,16 @@ export default function CreateControlForm() {
         newId = response?.createControl?.control?.id
       }
 
-      if (mapControlId) {
-        const input = {
+      if (mapControlId || mapSubcontrolId) {
+        const input: CreateMappedControlInput = {
           mappingType: MappedControlMappingType.PARTIAL,
           source: MappedControlMappingSource.MANUAL,
-          confidence: 0,
+          confidence: 100,
           fromControlIDs: isCreateSubcontrol ? [] : [newId],
           toControlIDs: mapControlId ? [mapControlId] : [],
+          fromSubcontrolIDs: isCreateSubcontrol ? [newId] : [],
+          toSubcontrolIDs: mapSubcontrolId ? [mapSubcontrolId] : [],
+          relation: 'Mapping auto-created based on creation of control from framework',
         }
 
         await createMappedControl({ input })
