@@ -297,7 +297,11 @@ const ControlDetailsPage: React.FC = () => {
           <div className="w-3/5 flex items-start gap-2 border rounded-lg p-1 bg-card">
             <InfoIcon size={14} className="mt-1 shrink-0" />
             <p>
-              This control was created via a reference framework and the details are not editable. If you need to edit it, consider creating a subcontrol or&nbsp;
+              This control was created via a reference framework and the details are not editable. If you need to edit it, consider{' '}
+              <Link className="text-blue-500" href={`/controls/${id}/create-subcontrol`}>
+                creating a subcontrol
+              </Link>
+              &nbsp;or&nbsp;
               <Link className="text-blue-500" href={`/controls/create-control?mapControlId=${id}`}>
                 creating a new control
               </Link>
