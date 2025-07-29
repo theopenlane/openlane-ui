@@ -18,7 +18,6 @@ import { TObjectAssociationMap } from '@/components/shared/objectAssociation/typ
 import { Value } from 'platejs'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification.tsx'
-import AssociatedObjectsViewAccordion from '@/components/pages/protected/procedures/accordion/associated-objects-view-accordion.tsx'
 import { useGetProcedureDetailsById } from '@/lib/graphql-hooks/procedures.ts'
 import { ProcedureDocumentStatus, ProcedureFrequency, UpdateProcedureInput } from '@repo/codegen/src/schema.ts'
 import { useProcedure } from '@/components/pages/protected/procedures/create/hooks/use-procedure.tsx'
@@ -35,6 +34,8 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
 import { ManagePermissionSheet } from '@/components/shared/policy-procedure.tsx/manage-permissions-sheet'
+import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
+import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 
 const ViewProcedurePage: React.FC = () => {
   const { id } = useParams()
@@ -266,11 +267,22 @@ const ViewProcedurePage: React.FC = () => {
 
   const sidebarContent = (
     <>
-      <AuthorityCard form={form} approver={procedure.approver} delegate={procedure.delegate} isEditing={isEditing} handleUpdate={handleUpdateField} editAllowed={editAllowed} />
-      <PropertiesCard form={form} isEditing={isEditing} procedure={procedure} handleUpdate={handleUpdateField} editAllowed={editAllowed} />
+      <ObjectAssociationSwitch
+        sections={{
+          policies: procedure.internalPolicies,
+          controls: procedure.controls,
+          subcontrols: procedure.subcontrols,
+          risks: procedure.risks,
+          tasks: procedure.tasks,
+          programs: procedure.programs,
+        }}
+        centerNode={{ node: procedure, type: ObjectAssociationNodeEnum.PROCEDURE }}
+        canEdit={canEdit(permission?.roles)}
+      />
+      <AuthorityCard form={form} approver={procedure.approver} delegate={procedure.delegate} isEditing={isEditing} editAllowed={false} />
+      <PropertiesCard form={form} isEditing={isEditing} procedure={procedure} editAllowed={false} />
       <HistoricalCard procedure={procedure} />
       <TagsCard form={form} procedure={procedure} isEditing={isEditing} handleUpdate={handleUpdateField} editAllowed={editAllowed} />
-      <AssociatedObjectsViewAccordion procedure={procedure} />
     </>
   )
 

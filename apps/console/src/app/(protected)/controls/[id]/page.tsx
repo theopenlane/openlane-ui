@@ -8,7 +8,6 @@ import { Value } from 'platejs'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { CirclePlus, PanelRightClose, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
-import AssociatedObjectsAccordion from '../../../../components/pages/protected/controls/associated-objects-accordion.tsx'
 import TitleField from '../../../../components/pages/protected/controls/form-fields/title-field.tsx'
 import DescriptionField from '../../../../components/pages/protected/controls/form-fields/description-field.tsx'
 import AuthorityCard from '../../../../components/pages/protected/controls/authority-card.tsx'
@@ -40,6 +39,8 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 import RelatedControls from '@/components/pages/protected/controls/related-controls.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
+import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
+import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 
 interface FormValues {
   refCode: string
@@ -320,6 +321,17 @@ const ControlDetailsPage: React.FC = () => {
 
   const sidebarContent = (
     <>
+      <ObjectAssociationSwitch
+        sections={{
+          policies: control.internalPolicies,
+          procedures: control.procedures,
+          tasks: control.tasks,
+          programs: control.programs,
+          risks: control.risks,
+        }}
+        centerNode={{ node: control, type: ObjectAssociationNodeEnum.CONTROL }}
+        canEdit={canEdit(permission?.roles)}
+      />
       <AuthorityCard
         isEditAllowed={canEdit(permission?.roles)}
         controlOwner={control.controlOwner}
@@ -341,14 +353,6 @@ const ControlDetailsPage: React.FC = () => {
           showInfoDetails={showInfoDetails}
         />
       )}
-      <AssociatedObjectsAccordion
-        policies={control.internalPolicies}
-        procedures={control.procedures}
-        tasks={control.tasks}
-        programs={control.programs}
-        risks={control.risks}
-        canEdit={canEdit(permission?.roles)}
-      />
     </>
   )
 

@@ -14,7 +14,6 @@ import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { useGetSubcontrolById, useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol.ts'
 import TitleField from '@/components/pages/protected/controls/form-fields/title-field'
 import DescriptionField from '@/components/pages/protected/controls/form-fields/description-field'
-import AssociatedObjectsAccordion from '@/components/pages/protected/controls/associated-objects-accordion'
 import AuthorityCard from '@/components/pages/protected/controls/authority-card'
 import PropertiesCard from '@/components/pages/protected/controls/properties-card'
 import DetailsCard from '@/components/pages/protected/controls/details'
@@ -40,6 +39,8 @@ import { useSession } from 'next-auth/react'
 import { useAccountRole } from '@/lib/authz/access-api'
 import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
+import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
+import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 
 interface FormValues {
   refCode: string
@@ -314,6 +315,16 @@ const ControlDetailsPage: React.FC = () => {
 
   const sidebarContent = (
     <>
+      <ObjectAssociationSwitch
+        sections={{
+          policies: subcontrol.internalPolicies,
+          procedures: subcontrol.procedures,
+          tasks: subcontrol.tasks,
+          risks: subcontrol.risks,
+        }}
+        centerNode={{ node: subcontrol, type: ObjectAssociationNodeEnum.SUBCONTROL }}
+        canEdit={canEdit(permission?.roles)}
+      />
       <AuthorityCard
         isEditAllowed={canEdit(permission?.roles)}
         controlOwner={subcontrol.controlOwner}
@@ -335,7 +346,6 @@ const ControlDetailsPage: React.FC = () => {
           showInfoDetails={showInfoDetails}
         />
       )}
-      <AssociatedObjectsAccordion canEdit={canEdit(permission?.roles)} policies={subcontrol.internalPolicies} procedures={subcontrol.procedures} tasks={subcontrol.tasks} risks={subcontrol.risks} />
     </>
   )
 
