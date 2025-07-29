@@ -76,6 +76,8 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
         return 'Task'
       case 'programs':
         return 'Program'
+      case 'controlObjectives':
+        return 'Control Objective'
       default:
         return 'Unknown'
     }
@@ -271,7 +273,6 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
               <X size={20} />
             </button>
 
-            {/* ForceGraph renders here as usual */}
             {renderGraph()}
           </div>
         </div>

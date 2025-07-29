@@ -9,7 +9,7 @@ const AddAssociationBtn = React.forwardRef<HTMLDivElement, React.ButtonHTMLAttri
     <TooltipProvider delayDuration={100} disableHoverableContent>
       <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
         <TooltipTrigger asChild>
-          <div aria-label="Add Association objects" ref={ref} {...props} className={`h-8 px-1 border rounded-md`}>
+          <div aria-label="Add Association objects" ref={ref} {...props} className={`h-8 px-1 border rounded-md cursor-pointer`}>
             <div className="flex items-center h-full">
               <ArrowLeftRight size={15} className="mr-1" />
               <div className="border-r h-full"></div>
