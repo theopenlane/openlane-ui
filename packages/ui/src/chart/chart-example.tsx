@@ -221,7 +221,7 @@ const Tooltip = ({ payload, active, label }: TooltipProps) => {
       <div className="mt-1 w-60 space-y-1 rounded-md border border-gray-500/10 bg-white px-4 py-2 text-sm shadow-md dark:border-gray-400/20 dark:bg-gray-900">
         {data.map((item, index) => (
           <div key={index} className="flex items-center space-x-2.5">
-            <span className={cn(status[item.status], 'size-2.5 shrink-0 rounded-sm')} aria-hidden={true} />
+            <span className={cn(status[item.status], 'size-2.5 shrink-0 rounded-xs')} aria-hidden={true} />
             <div className="flex w-full justify-between">
               <span className="text-gray-700 dark:text-gray-300">{item.status}</span>
               <div className="flex items-center space-x-1">

@@ -1,19 +1,15 @@
-import * as React from 'react';
+import * as React from 'react'
 
-import type { SlateElementProps } from 'platejs';
+import type { SlateElementProps } from 'platejs'
 
-import { SlateElement } from 'platejs';
+import { SlateElement } from 'platejs'
 
-import { cn } from '@repo/ui/lib/utils';
+import { cn } from '@repo/ui/lib/utils'
 
-export function CalloutElementStatic({
-  children,
-  className,
-  ...props
-}: SlateElementProps) {
+export function CalloutElementStatic({ children, className, ...props }: SlateElementProps) {
   return (
     <SlateElement
-      className={cn('my-1 flex rounded-sm bg-muted p-4 pl-3', className)}
+      className={cn('my-1 flex rounded-xs bg-muted p-4 pl-3', className)}
       style={{
         backgroundColor: props.element.backgroundColor as any,
       }}
@@ -23,16 +19,13 @@ export function CalloutElementStatic({
         <div
           className="size-6 text-[18px] select-none"
           style={{
-            fontFamily:
-              '"Apple Color Emoji", "Segoe UI Emoji", NotoColorEmoji, "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji", EmojiSymbols',
+            fontFamily: '"Apple Color Emoji", "Segoe UI Emoji", NotoColorEmoji, "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji", EmojiSymbols',
           }}
         >
-          <span data-plate-prevent-deserialization>
-            {(props.element.icon as any) || '💡'}
-          </span>
+          <span data-plate-prevent-deserialization>{(props.element.icon as any) || '💡'}</span>
         </div>
         <div className="w-full">{children}</div>
       </div>
     </SlateElement>
-  );
+  )
 }

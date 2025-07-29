@@ -1,19 +1,19 @@
-import * as React from 'react';
+import * as React from 'react'
 
-import type { VariantProps } from 'class-variance-authority';
+import type { VariantProps } from 'class-variance-authority'
 
-import { cva } from 'class-variance-authority';
-import { type PlateStaticProps, PlateStatic } from 'platejs';
+import { cva } from 'class-variance-authority'
+import { type PlateStaticProps, PlateStatic } from 'platejs'
 
-import { cn } from '@repo/ui/lib/utils';
+import { cn } from '@repo/ui/lib/utils'
 
 export const editorVariants = cva(
   cn(
     'group/editor',
     'relative w-full cursor-text overflow-x-hidden break-words whitespace-pre-wrap select-text',
-    'rounded-md ring-offset-background focus-visible:outline-none',
+    'rounded-md ring-offset-background focus-visible:outline-hidden',
     'placeholder:text-muted-foreground/80 **:data-slate-placeholder:top-[auto_!important] **:data-slate-placeholder:text-muted-foreground/80 **:data-slate-placeholder:opacity-100!',
-    '[&_strong]:font-bold'
+    '[&_strong]:font-bold',
   ),
   {
     defaultVariants: {
@@ -28,28 +28,17 @@ export const editorVariants = cva(
       },
       variant: {
         ai: 'w-full px-0 text-base md:text-sm',
-        aiChat:
-          'max-h-[min(70vh,320px)] w-full max-w-[700px] overflow-y-auto px-5 py-3 text-base md:text-sm',
-        default:
-          'size-full px-16 pt-4 pb-72 text-base sm:px-[max(64px,calc(50%-350px))]',
+        aiChat: 'max-h-[min(70vh,320px)] w-full max-w-[700px] overflow-y-auto px-5 py-3 text-base md:text-sm',
+        default: 'size-full px-16 pt-4 pb-72 text-base sm:px-[max(64px,calc(50%-350px))]',
         demo: 'size-full px-16 pt-4 pb-72 text-base sm:px-[max(64px,calc(50%-350px))]',
         fullWidth: 'size-full px-16 pt-4 pb-72 text-base sm:px-24',
         none: '',
         select: 'px-3 py-2 text-base data-readonly:w-fit',
       },
     },
-  }
-);
+  },
+)
 
-export function EditorStatic({
-  className,
-  variant,
-  ...props
-}: PlateStaticProps & VariantProps<typeof editorVariants>) {
-  return (
-    <PlateStatic
-      className={cn(editorVariants({ variant }), className)}
-      {...props}
-    />
-  );
+export function EditorStatic({ className, variant, ...props }: PlateStaticProps & VariantProps<typeof editorVariants>) {
+  return <PlateStatic className={cn(editorVariants({ variant }), className)} {...props} />
 }
