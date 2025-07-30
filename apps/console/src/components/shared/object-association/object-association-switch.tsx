@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { ChevronsDownUp, ChevronsUpDown, LayoutList, List, Share2 } from 'lucide-react'
+import { ChevronsDownUp, ChevronsUpDown, LayoutList, List } from 'lucide-react'
 import ObjectAssociationGraph from '@/components/shared/object-association/object-association-graph.tsx'
 import { SetObjectAssociationDialog } from '@/components/pages/protected/controls/set-object-association-modal.tsx'
 import { Button } from '@repo/ui/button'
@@ -9,6 +9,7 @@ import SetObjectAssociationPoliciesDialog from '@/components/pages/protected/pol
 import SetObjectAssociationProceduresDialog from '@/components/pages/protected/procedures/modal/set-object-association-modal.tsx'
 import SetObjectAssociationRisksDialog from '@/components/pages/protected/risks/modal/set-object-association-modal'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import Graph from '@/assets/Graph.tsx'
 
 type TObjectAssociationSwitchProps = {
   sections: Section
@@ -67,7 +68,7 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
                 <TooltipTrigger asChild>
                   <Button type="button" className="h-8 !px-2" variant="outline" onClick={() => setIsFullscreen((prevState) => !prevState)}>
                     <div className="flex">
-                      <Share2 size={16} />
+                      <Graph size={16} />
                       {!isFullscreen ? <ChevronsDownUp size={16} /> : <ChevronsUpDown size={16} />}
                     </div>
                   </Button>
@@ -84,7 +85,9 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
           <TooltipProvider delayDuration={100}>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Share2 size={20} className="cursor-pointer hover:opacity-80" onClick={() => setIsGraphView(true)} />
+                <div onClick={() => setIsGraphView(true)}>
+                  <Graph size={20} className="cursor-pointer hover:opacity-80" />
+                </div>
               </TooltipTrigger>
               <TooltipContent>Graph View</TooltipContent>
             </Tooltip>
