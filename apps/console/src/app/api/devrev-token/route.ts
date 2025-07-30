@@ -11,9 +11,9 @@ export async function GET(req: NextRequest) {
 
   const payload = {
     rev_info: {
-      user_ref: session.user.email,
+      user_ref: session.user.userId,
       account_ref: orgName,
-      workspace_ref: 'devrev-dev',
+      workspace_ref: 'console',
       user_traits: {
         email: session.user.email,
         display_name: session.user.displayName,
