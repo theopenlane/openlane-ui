@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useDeleteRisk, useGetRiskById, useUpdateRisk } from '@/lib/graphql-hooks/risks.ts'
 import { RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus, UpdateRiskInput } from '@repo/codegen/src/schema.ts'
 import useFormSchema, { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema.ts'
@@ -51,6 +51,25 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   const router = useRouter()
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
+  const memoizedSections = useMemo(() => {
+    if (!risk) return {}
+    return {
+      controls: risk.controls,
+      policies: risk.internalPolicies,
+      procedures: risk.procedures,
+      subcontrols: risk.subcontrols,
+      tasks: risk.tasks,
+      programs: risk.programs,
+    }
+  }, [risk])
+
+  const memoizedCenterNode = useMemo(() => {
+    if (!risk) return null
+    return {
+      node: risk,
+      type: ObjectAssociationNodeEnum.RISKS,
+    }
+  }, [risk])
 
   useEffect(() => {
     setCrumbs([
@@ -176,18 +195,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
 
   const sidebarContent = (
     <>
-      <ObjectAssociationSwitch
-        sections={{
-          controls: risk.controls,
-          policies: risk.internalPolicies,
-          procedures: risk.procedures,
-          subcontrols: risk.subcontrols,
-          tasks: risk.tasks,
-          programs: risk.programs,
-        }}
-        centerNode={{ node: risk, type: ObjectAssociationNodeEnum.RISKS }}
-        canEdit={canEdit(permission?.roles)}
-      />
+      {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={canEdit(permission?.roles)} />}
       <AuthorityCard form={form} stakeholder={risk.stakeholder} delegate={risk.delegate} isEditing={isEditing} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} risk={risk} />
       <PropertiesCard form={form} isEditing={isEditing} risk={risk} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} />
       <TagsCard form={form} risk={risk} isEditing={isEditing} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} />

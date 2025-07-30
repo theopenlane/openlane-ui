@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useForm, FormProvider } from 'react-hook-form'
 import { Value } from 'platejs'
@@ -95,6 +95,23 @@ const ControlDetailsPage: React.FC = () => {
 
   const { data: session } = useSession()
   const { data: permission } = useAccountRole(session, ObjectEnum.SUBCONTROL, subcontrolId!)
+  const memoizedSections = useMemo(() => {
+    if (!data?.subcontrol) return {}
+    return {
+      policies: data?.subcontrol.internalPolicies,
+      procedures: data?.subcontrol.procedures,
+      tasks: data?.subcontrol.tasks,
+      risks: data?.subcontrol.risks,
+    }
+  }, [data?.subcontrol])
+
+  const memoizedCenterNode = useMemo(() => {
+    if (!data?.subcontrol) return null
+    return {
+      node: data?.subcontrol,
+      type: ObjectAssociationNodeEnum.SUBCONTROL,
+    }
+  }, [data?.subcontrol])
 
   const form = useForm<FormValues>({
     defaultValues: initialDataObj,
@@ -315,16 +332,7 @@ const ControlDetailsPage: React.FC = () => {
 
   const sidebarContent = (
     <>
-      <ObjectAssociationSwitch
-        sections={{
-          policies: subcontrol.internalPolicies,
-          procedures: subcontrol.procedures,
-          tasks: subcontrol.tasks,
-          risks: subcontrol.risks,
-        }}
-        centerNode={{ node: subcontrol, type: ObjectAssociationNodeEnum.SUBCONTROL }}
-        canEdit={canEdit(permission?.roles)}
-      />
+      {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={canEdit(permission?.roles)} />}
       <AuthorityCard
         isEditAllowed={canEdit(permission?.roles)}
         controlOwner={subcontrol.controlOwner}

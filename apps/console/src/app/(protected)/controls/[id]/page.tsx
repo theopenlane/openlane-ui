@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { useGetControlById, useUpdateControl } from '@/lib/graphql-hooks/controls'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -91,6 +91,24 @@ const ControlDetailsPage: React.FC = () => {
   const plateEditorHelper = usePlateEditor()
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
+  const memoizedSections = useMemo(() => {
+    if (!data?.control) return {}
+    return {
+      policies: data?.control.internalPolicies,
+      procedures: data?.control.procedures,
+      tasks: data?.control.tasks,
+      programs: data?.control.programs,
+      risks: data?.control.risks,
+    }
+  }, [data?.control])
+
+  const memoizedCenterNode = useMemo(() => {
+    if (!data?.control) return null
+    return {
+      node: data?.control,
+      type: ObjectAssociationNodeEnum.CONTROL,
+    }
+  }, [data?.control])
 
   const form = useForm<FormValues>({
     defaultValues: initialDataObj,
@@ -321,17 +339,7 @@ const ControlDetailsPage: React.FC = () => {
 
   const sidebarContent = (
     <>
-      <ObjectAssociationSwitch
-        sections={{
-          policies: control.internalPolicies,
-          procedures: control.procedures,
-          tasks: control.tasks,
-          programs: control.programs,
-          risks: control.risks,
-        }}
-        centerNode={{ node: control, type: ObjectAssociationNodeEnum.CONTROL }}
-        canEdit={canEdit(permission?.roles)}
-      />
+      {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={canEdit(permission?.roles)} />}
       <AuthorityCard
         isEditAllowed={canEdit(permission?.roles)}
         controlOwner={control.controlOwner}
