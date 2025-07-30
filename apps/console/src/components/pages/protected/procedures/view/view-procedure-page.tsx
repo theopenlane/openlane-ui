@@ -2,7 +2,7 @@
 
 import { Loading } from '@/components/shared/loading/loading'
 import { useUpdateProcedure } from '@/lib/graphql-hooks/procedures.ts'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import useFormSchema, { EditProcedureMetadataFormData } from '@/components/pages/protected/procedures/view/hooks/use-form-schema.ts'
 import { Form } from '@repo/ui/form'
@@ -62,6 +62,25 @@ const ViewProcedurePage: React.FC = () => {
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const [dataInitialized, setDataInitialized] = useState(false)
   const [showPermissionsSheet, setShowPermissionsSheet] = useState(false)
+  const memoizedSections = useMemo(() => {
+    if (!procedure) return {}
+    return {
+      policies: procedure.internalPolicies,
+      controls: procedure.controls,
+      subcontrols: procedure.subcontrols,
+      risks: procedure.risks,
+      tasks: procedure.tasks,
+      programs: procedure.programs,
+    }
+  }, [procedure])
+
+  const memoizedCenterNode = useMemo(() => {
+    if (!procedure) return null
+    return {
+      node: procedure,
+      type: ObjectAssociationNodeEnum.PROCEDURE,
+    }
+  }, [procedure])
 
   useEffect(() => {
     setCrumbs([
@@ -267,18 +286,7 @@ const ViewProcedurePage: React.FC = () => {
 
   const sidebarContent = (
     <>
-      <ObjectAssociationSwitch
-        sections={{
-          policies: procedure.internalPolicies,
-          controls: procedure.controls,
-          subcontrols: procedure.subcontrols,
-          risks: procedure.risks,
-          tasks: procedure.tasks,
-          programs: procedure.programs,
-        }}
-        centerNode={{ node: procedure, type: ObjectAssociationNodeEnum.PROCEDURE }}
-        canEdit={canEdit(permission?.roles)}
-      />
+      {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={canEdit(permission?.roles)} />}
       <AuthorityCard form={form} approver={procedure.approver} delegate={procedure.delegate} isEditing={isEditing} editAllowed={false} />
       <PropertiesCard form={form} isEditing={isEditing} procedure={procedure} editAllowed={false} />
       <HistoricalCard procedure={procedure} />
