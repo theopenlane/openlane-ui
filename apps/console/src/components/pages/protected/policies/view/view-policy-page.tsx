@@ -1,6 +1,6 @@
 import { Loading } from '@/components/shared/loading/loading'
 import { useDeleteInternalPolicy, useGetInternalPolicyDetailsById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import useFormSchema, { EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import { Form } from '@repo/ui/form'
@@ -60,6 +60,25 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const [dataInitialized, setDataInitialized] = useState(false)
   const [showPermissionsSheet, setShowPermissionsSheet] = useState(false)
+  const memoizedSections = useMemo(() => {
+    if (!policy) return {}
+    return {
+      procedures: policy.procedures,
+      controls: policy.controls,
+      subcontrols: policy.subcontrols,
+      controlObjectives: policy.controlObjectives,
+      tasks: policy.tasks,
+      programs: policy.programs,
+    }
+  }, [policy])
+
+  const memoizedCenterNode = useMemo(() => {
+    if (!policy) return null
+    return {
+      node: policy,
+      type: ObjectAssociationNodeEnum.POLICY,
+    }
+  }, [policy])
 
   useEffect(() => {
     setCrumbs([
@@ -283,18 +302,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
 
   const sidebarContent = (
     <>
-      <ObjectAssociationSwitch
-        sections={{
-          procedures: policy.procedures,
-          controls: policy.controls,
-          subcontrols: policy.subcontrols,
-          controlObjectives: policy.controlObjectives,
-          tasks: policy.tasks,
-          programs: policy.programs,
-        }}
-        centerNode={{ node: policy, type: ObjectAssociationNodeEnum.POLICY }}
-        canEdit={canEdit(permission?.roles)}
-      />
+      {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={canEdit(permission?.roles)} />}
       <AuthorityCard form={form} approver={policy.approver} delegate={policy.delegate} isEditing={isEditing} editAllowed={false} />
       <PropertiesCard form={form} isEditing={isEditing} policy={policy} editAllowed={false} />
       <HistoricalCard policy={policy} />
