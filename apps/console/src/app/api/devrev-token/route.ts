@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   const payload = {
     rev_info: {
       user_ref: session.user.email,
-      account_ref: orgName, // must be unique
+      account_ref: orgName,
       workspace_ref: 'devrev-dev',
       user_traits: {
         email: session.user.email,
@@ -37,9 +37,12 @@ export async function GET(req: NextRequest) {
   })
 
   const data = await response.json()
+
   if (!response.ok) {
     return NextResponse.json({ error: data }, { status: response.status })
   }
 
-  return NextResponse.json({ session_token: data.session_token })
+  return NextResponse.json({
+    session_token: data.access_token,
+  })
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useSession } from 'next-auth/react'
 import { useTheme } from 'next-themes'
 import { chatAppId } from '@repo/dally/auth'
@@ -11,6 +11,7 @@ export const InitPlugSDK = () => {
   const { data: session, status } = useSession()
   const { getOrganizationByID, currentOrgId } = useOrganization()
   const [sessionToken, setSessionToken] = useState<string | null>(null)
+  const hasFetchedToken = useRef(false)
 
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const orgName = currentOrganization?.node?.name
@@ -18,21 +19,26 @@ export const InitPlugSDK = () => {
 
   useEffect(() => {
     const fetchSessionToken = async () => {
-      if (!session || !orgName || !orgDisplayName) return
+      if (hasFetchedToken.current || status !== 'authenticated' || !session || !orgName || !orgDisplayName || !currentOrgId) {
+        return
+      }
 
-      const res = await fetch(`/api/devrev-token?orgId=${currentOrgId}&orgName=${orgName}&orgDisplayName=${orgDisplayName}`)
-      const data = await res.json()
-      if (res.ok) {
-        setSessionToken(data.session_token)
-      } else {
-        console.error('DevRev token error:', data.error)
+      try {
+        hasFetchedToken.current = true
+        const res = await fetch(`/api/devrev-token?orgId=${currentOrgId}&orgName=${orgName}&orgDisplayName=${orgDisplayName}`)
+        const data = await res.json()
+        if (res.ok && data?.session_token) {
+          setSessionToken(data.session_token)
+        } else {
+          console.error('DevRev token error:', data.error)
+        }
+      } catch (err) {
+        console.error('Failed to fetch DevRev token:', err)
       }
     }
 
-    if (status === 'authenticated') {
-      fetchSessionToken()
-    }
-  }, [status, session, currentOrgId, orgName, orgDisplayName])
+    fetchSessionToken()
+  }, [status, session, orgName, orgDisplayName, currentOrgId])
 
   useEffect(() => {
     if (!sessionToken || !resolvedTheme || !chatAppId || typeof window === 'undefined' || typeof window.plugSDK?.init !== 'function' || window.plugSDK.__plug_initialized__) {
@@ -42,10 +48,9 @@ export const InitPlugSDK = () => {
     window.plugSDK.init({
       app_id: chatAppId,
       theme: resolvedTheme,
-      identity: {
-        session_token: sessionToken,
-      },
+      session_token: sessionToken,
     })
+
     window.plugSDK.__plug_initialized__ = true
   }, [sessionToken, resolvedTheme])
 
