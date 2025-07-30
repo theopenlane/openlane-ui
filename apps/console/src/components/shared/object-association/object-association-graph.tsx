@@ -233,11 +233,13 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
             ctx.stroke()
           }
 
-          ctx.font = `${fontSize}px Sans-Serif`
-          ctx.textAlign = 'center'
-          ctx.textBaseline = 'top'
-          ctx.fillStyle = 'white'
-          ctx.fillText(label, node!.x!, node!.y! + NODE_RADIUS + LABEL_PADDING)
+          if (!centerNode || node!.id !== centerNode.node.id) {
+            ctx.font = `${fontSize}px Sans-Serif`
+            ctx.textAlign = 'center'
+            ctx.textBaseline = 'top'
+            ctx.fillStyle = 'white'
+            ctx.fillText(label, node!.x!, node!.y! + NODE_RADIUS + LABEL_PADDING)
+          }
         }}
       />
 
