@@ -75,9 +75,9 @@
         "react-dropzone": "^14.2.3",
         "react-easy-crop": "^5.0.7",
         "react-force-graph-2d": "^1.28.0",
-        "survey-creator-core": "1.12.39",
-        "survey-creator-react": "1.12.39",
-        "survey-react-ui": "1.12.39",
+        "survey-creator-core": "1.12.47",
+        "survey-creator-react": "1.12.47",
+        "survey-react-ui": "1.12.47",
         "swr": "^2.3.3",
         "zustand": "^5.0.0",
       },
@@ -853,7 +853,7 @@
 
     "@graphql-typed-document-node/core": ["@graphql-typed-document-node/core@3.2.0", "", { "peerDependencies": { "graphql": "^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0" } }, "sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ=="],
 
-    "@headlessui/react": ["@headlessui/react@2.2.6", "", { "dependencies": { "@floating-ui/react": "^0.26.16", "@react-aria/focus": "^3.20.2", "@react-aria/interactions": "^3.25.0", "@tanstack/react-virtual": "^3.13.9", "use-sync-external-store": "^1.5.0" }, "peerDependencies": { "react": "^18 || ^19 || ^19.0.0-rc", "react-dom": "^18 || ^19 || ^19.0.0-rc" } }, "sha512-gN5CT8Kf4IWwL04GQOjZ/ZnHMFoeFHZmVSFoDKeTmbtmy9oFqQqJMthdBiO3Pl5LXk2w03fGFLpQV6EW84vjjQ=="],
+    "@headlessui/react": ["@headlessui/react@2.2.7", "", { "dependencies": { "@floating-ui/react": "^0.26.16", "@react-aria/focus": "^3.20.2", "@react-aria/interactions": "^3.25.0", "@tanstack/react-virtual": "^3.13.9", "use-sync-external-store": "^1.5.0" }, "peerDependencies": { "react": "^18 || ^19 || ^19.0.0-rc", "react-dom": "^18 || ^19 || ^19.0.0-rc" } }, "sha512-WKdTymY8Y49H8/gUc/lIyYK1M+/6dq0Iywh4zTZVAaiTDprRfioxSgD0wnXTQTBpjpGJuTL1NO/mqEvc//5SSg=="],
 
     "@hexagon/base64": ["@hexagon/base64@1.1.28", "", {}, "sha512-lhqDEAvWixy3bZ+UOYbPwUbBkwBq5C1LAJ/xPC8Oi+lL54oyakv/npbA0aU2hgCsx/1NUd4IBvV03+aUBWxerw=="],
 
@@ -3753,11 +3753,11 @@
 
     "survey-core": ["survey-core@1.12.39", "", {}, "sha512-9S8p0vFgG8/Gy4N+P2+jygWCsYWelrapQJ4ewHCJIwW9jR6ZGiuzES7k70p1nEzs+a2ZzVUoH4Q1Urs4k84YQw=="],
 
-    "survey-creator-core": ["survey-creator-core@1.12.39", "", { "peerDependencies": { "ace-builds": "^1.4.12", "survey-core": "1.12.39" }, "optionalPeers": ["ace-builds"] }, "sha512-lYcaWEmBmCntYxJ1k3uAqExIk/V9BK9zVbIJm/9DuefpC8pLrx1D0we7EZLn0ahv9Yj3Y9z7x8flMtjUFYY+qg=="],
+    "survey-creator-core": ["survey-creator-core@1.12.47", "", { "peerDependencies": { "ace-builds": "^1.4.12", "survey-core": "1.12.47" }, "optionalPeers": ["ace-builds"] }, "sha512-rVYKKDrgnzodTIsVz+6m1temfkh2mKSxWZ5hZ7S7o/pM/i8+ZAOouuwMcs67ltPC3fs7uIjLd3YfXp7iM7bamw=="],
 
-    "survey-creator-react": ["survey-creator-react@1.12.39", "", { "peerDependencies": { "ace-builds": "^1.4.12", "react": "^16.5.0 || ^17.0.1 || ^18.1.0 || ^19.0.0", "react-dom": "^16.5.0 || ^17.0.1 || ^18.1.0 || ^19.0.0", "survey-core": "1.12.39", "survey-creator-core": "1.12.39", "survey-react-ui": "1.12.39" }, "optionalPeers": ["ace-builds"] }, "sha512-DSSS0yFqKkdPtUkUpJz7663Da0y73fdXAPOG/NfhrSHxMQk8lyHpeQrIAynxSbn/Tz4vNJLYfFDi5Rm6hk3xhw=="],
+    "survey-creator-react": ["survey-creator-react@1.12.47", "", { "peerDependencies": { "ace-builds": "^1.4.12", "react": "^16.5.0 || ^17.0.1 || ^18.1.0 || ^19.0.0", "react-dom": "^16.5.0 || ^17.0.1 || ^18.1.0 || ^19.0.0", "survey-core": "1.12.47", "survey-creator-core": "1.12.47", "survey-react-ui": "1.12.47" }, "optionalPeers": ["ace-builds"] }, "sha512-szR4u34Ylrd00UCRTrC7SX7D8oDtRWhqDaa4JkmbUQNyVDiWksFDLZxk5BlTBL0ON4rucEwDlfnZykv2A/gw5A=="],
 
-    "survey-react-ui": ["survey-react-ui@1.12.39", "", { "peerDependencies": { "react": "^16.5.0 || ^17.0.1 || ^18.2.0 || ^19.0.0", "react-dom": "^16.5.0 || ^17.0.1 || ^18.2.0 || ^19.0.0", "survey-core": "1.12.39" } }, "sha512-Q7rxgnB1qzZaZpAm9zCSFlS+RwqZVV+9mRnZlm2p73vdy7GmXdHUfVl3JMTBFa/FR9/k2mNOmYeIwK2auc74GA=="],
+    "survey-react-ui": ["survey-react-ui@1.12.47", "", { "peerDependencies": { "react": "^16.5.0 || ^17.0.1 || ^18.2.0 || ^19.0.0", "react-dom": "^16.5.0 || ^17.0.1 || ^18.2.0 || ^19.0.0", "survey-core": "1.12.47" } }, "sha512-TuY8+MX7NkItsG3UaUQHfzGD4kwaBC10EgKaQPTc202YU80FBntru//n2f70P/gIvis4T2n7cpsgSeEftSagcw=="],
 
     "svg-arc-to-cubic-bezier": ["svg-arc-to-cubic-bezier@3.2.0", "", {}, "sha512-djbJ/vZKZO+gPoSDThGNpKDO+o+bAeA4XQKovvkNCqnIS2t+S4qnLAGQhyyrulhCFRl1WWzAp0wUDV8PpTVU3g=="],
 
