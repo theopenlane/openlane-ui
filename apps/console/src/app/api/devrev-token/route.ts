@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
     },
   }
 
-  const response = await fetch('https://api.devrev.ai/auth-tokens.creat', {
+  const response = await fetch('https://api.devrev.ai/auth-tokens.create', {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${process.env.DEVREV_AAT}`,
