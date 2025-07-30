@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false,
   transpilePackages: ['@repo/dally', '@repo/ui', '@repo/codegen'],
   experimental: {},
 }

@@ -10,8 +10,9 @@ export const InitPlugSDK = () => {
   const { resolvedTheme } = useTheme()
   const { data: session, status } = useSession()
   const { getOrganizationByID, currentOrgId } = useOrganization()
+
   const [sessionToken, setSessionToken] = useState<string | null>(null)
-  const hasFetchedToken = useRef(false)
+  const lastInitRef = useRef<string | null>(null) // new
 
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const orgName = currentOrganization?.node?.name
@@ -19,12 +20,11 @@ export const InitPlugSDK = () => {
 
   useEffect(() => {
     const fetchSessionToken = async () => {
-      if (hasFetchedToken.current || status !== 'authenticated' || !session || !orgName || !orgDisplayName || !currentOrgId) {
+      if (status !== 'authenticated' || !session || !orgName || !orgDisplayName || !currentOrgId) {
         return
       }
 
       try {
-        hasFetchedToken.current = true
         const res = await fetch(`/api/devrev-token?orgId=${currentOrgId}&orgName=${orgName}&orgDisplayName=${orgDisplayName}`)
         const data = await res.json()
         if (res.ok && data?.session_token) {
@@ -38,11 +38,18 @@ export const InitPlugSDK = () => {
     }
 
     fetchSessionToken()
-  }, [status, session, orgName, orgDisplayName, currentOrgId])
+  }, [status, session, currentOrgId, orgName, orgDisplayName])
 
   useEffect(() => {
-    if (!sessionToken || !resolvedTheme || !chatAppId || typeof window === 'undefined' || typeof window.plugSDK?.init !== 'function' || window.plugSDK.__plug_initialized__) {
+    if (!sessionToken || !resolvedTheme || !chatAppId || typeof window === 'undefined' || typeof window.plugSDK?.init !== 'function') {
       return
+    }
+
+    const currentInitKey = `${sessionToken}:${currentOrgId}`
+    if (lastInitRef.current === currentInitKey) return
+
+    if (window.plugSDK.__plug_initialized__) {
+      window.plugSDK.shutdown()
     }
 
     window.plugSDK.init({
@@ -52,7 +59,8 @@ export const InitPlugSDK = () => {
     })
 
     window.plugSDK.__plug_initialized__ = true
-  }, [sessionToken, resolvedTheme])
+    lastInitRef.current = currentInitKey
+  }, [sessionToken, resolvedTheme, currentOrgId])
 
   return null
 }

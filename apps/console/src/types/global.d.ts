@@ -9,6 +9,7 @@ declare global {
     plugSDK?: {
       init: (config: { app_id: string; theme: 'light' | 'dark' | string; session_token: string }) => void
       __plug_initialized__?: boolean
+      shutdown: () => void
     }
   }
 }

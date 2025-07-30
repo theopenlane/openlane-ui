@@ -13,7 +13,6 @@ export async function GET(req: NextRequest) {
     rev_info: {
       user_ref: session.user.userId,
       account_ref: orgName,
-      workspace_ref: 'console',
       user_traits: {
         email: session.user.email,
         display_name: session.user.displayName,
