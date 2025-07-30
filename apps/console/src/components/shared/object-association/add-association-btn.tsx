@@ -1,6 +1,7 @@
-import { ArrowLeftRight, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import React, { useState } from 'react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import Box from '@/assets/Box'
 
 const AddAssociationBtn = React.forwardRef<HTMLDivElement, React.ButtonHTMLAttributes<HTMLDivElement>>((props, ref) => {
   const [tooltipOpen, setTooltipOpen] = useState(false)
@@ -11,7 +12,7 @@ const AddAssociationBtn = React.forwardRef<HTMLDivElement, React.ButtonHTMLAttri
         <TooltipTrigger asChild>
           <div aria-label="Add Association objects" ref={ref} {...props} className={`h-8 px-1 border rounded-md cursor-pointer`}>
             <div className="flex items-center h-full">
-              <ArrowLeftRight size={15} className="mr-1" />
+              <Box size={18} className="mr-1" />
               <div className="border-r h-full"></div>
               <Plus size={15} className="ml-1" />
             </div>

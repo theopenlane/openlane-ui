@@ -68,7 +68,7 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
                 <TooltipTrigger asChild>
                   <Button type="button" className="h-8 !px-2" variant="outline" onClick={() => setIsFullscreen((prevState) => !prevState)}>
                     <div className="flex">
-                      <Graph size={16} />
+                      <Graph size={18} />
                       {!isFullscreen ? <ChevronsDownUp size={16} /> : <ChevronsUpDown size={16} />}
                     </div>
                   </Button>
