@@ -356,7 +356,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                       )}
                     />
                   ) : (
-                    <span onDoubleClick={() => handleDoubleClick('name')}>{evidence?.name}</span>
+                    <span onDoubleClick={() => handleDoubleClick('name')} className={editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}>
+                      {evidence?.name}
+                    </span>
                   )}
                 </SheetTitle>
 
@@ -380,7 +382,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                 ) : (
                   <div className="mt-5">
                     <FormLabel className="font-bold">Description</FormLabel>
-                    <div onDoubleClick={() => handleDoubleClick('description')}>
+                    <div onDoubleClick={() => handleDoubleClick('description')} className={editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}>
                       {evidence?.description ? <p>{evidence?.description}</p> : <p className="text-gray-500">no description provided</p>}
                     </div>
                   </div>
@@ -404,7 +406,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                     )}
                   />
                 ) : (
-                  <div className="mt-5" onDoubleClick={() => handleDoubleClick('collectionProcedure')}>
+                  <div className={`mt-5 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('collectionProcedure')}>
                     <FormLabel className="font-bold">Collection Procedure</FormLabel>
                     {evidence?.collectionProcedure ? <p>{evidence?.collectionProcedure}</p> : <p className="text-gray-500">no collection procedure provided</p>}
                   </div>
@@ -437,7 +439,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             />
                           </InputRow>
                         ) : (
-                          <p className="text-sm text-left" onDoubleClick={() => handleDoubleClick('source')}>
+                          <p className={`text-sm text-left ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('source')}>
                             {evidence?.source || <span className="text-gray-500">no source provided</span>}
                           </p>
                         )}
@@ -466,7 +468,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             />
                           </InputRow>
                         ) : (
-                          <p className="text-sm text-left" onDoubleClick={() => handleDoubleClick('url')}>
+                          <p className={`text-sm text-left ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('url')}>
                             {evidence?.url || <span className="text-gray-500">no url provided</span>}
                           </p>
                         )}
@@ -508,7 +510,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             }}
                           />
                         ) : (
-                          <div className="flex items-center space-x-2" onDoubleClick={() => handleDoubleClick('status')}>
+                          <div className={`flex items-center space-x-2 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('status')}>
                             {EvidenceIconMapper[evidence?.status as EvidenceEvidenceStatus]}
                             <p>{EvidenceStatusMapper[evidence?.status as EvidenceEvidenceStatus]}</p>
                           </div>
@@ -542,7 +544,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             )}
                           />
                         ) : (
-                          <p className="text-sm text-left" onDoubleClick={() => handleDoubleClick('creationDate')}>
+                          <p className={`text-sm text-left ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('creationDate')}>
                             {formatDate(evidence?.creationDate)}
                           </p>
                         )}
@@ -574,7 +576,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             )}
                           />
                         ) : (
-                          <p className="text-sm text-left" onDoubleClick={() => handleDoubleClick('renewalDate')}>
+                          <p className={`text-sm text-left ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('renewalDate')}>
                             {formatDate(evidence?.renewalDate)}
                           </p>
                         )}
@@ -618,7 +620,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             }}
                           />
                         ) : (
-                          <div onDoubleClick={() => handleDoubleClick('tags')}>{handleTags()}</div>
+                          <div onDoubleClick={() => handleDoubleClick('tags')} className={editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}>
+                            {handleTags()}
+                          </div>
                         )}
                       </div>
                     </div>
@@ -631,7 +635,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                         <CalendarCheck2 size={16} className="text-accent-secondary" />
                         Created At
                       </div>
-                      <div className="text-sm text-left w-[200px]">
+                      <div className="text-sm text-left w-[200px] cursor-not-allowed">
                         <p className="text-sm text-left">{formatDate(evidence?.createdAt)}</p>
                       </div>
                     </div>
@@ -641,7 +645,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                         <UserRoundCheck size={16} className="text-accent-secondary" />
                         Created By
                       </div>
-                      <div className="text-sm text-left w-[200px]">
+                      <div className="text-sm text-left w-[200px] cursor-not-allowed">
                         <p className="text-sm flex items-center">
                           <Avatar entity={createdByUser as User} variant="small" />
                           <span>{createdByUser?.displayName}</span>
@@ -654,7 +658,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                         <CalendarClock size={16} className="text-accent-secondary" />
                         Updated At
                       </div>
-                      <div className="text-sm text-left w-[200px]">
+                      <div className="text-sm text-left w-[200px] cursor-not-allowed">
                         <p className="text-sm text-left">{formatDate(evidence?.updatedAt)}</p>
                       </div>
                     </div>
@@ -664,7 +668,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                         <UserRoundPen size={16} className="text-accent-secondary" />
                         Updated By
                       </div>
-                      <div className="text-sm text-left w-[200px]">
+                      <div className="text-sm text-left w-[200px] cursor-not-allowed">
                         <p className="text-sm flex items-center ">
                           <Avatar entity={updatedByUser as User} variant="small" />
                           <span>{updatedByUser?.displayName}</span>
@@ -678,7 +682,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                           <Link size={16} className="text-accent-secondary" />
                           URL
                         </div>
-                        <div className="text-sm text-left w-[200px]">
+                        <div className="text-sm text-left w-[200px] cursor-not-allowed">
                           <div className="flex items-center gap-4 cursor-pointer">
                             <p className="flex items-center gap-1">
                               <Eye size={16} />
