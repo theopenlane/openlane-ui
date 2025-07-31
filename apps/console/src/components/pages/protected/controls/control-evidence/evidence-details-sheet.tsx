@@ -1,6 +1,6 @@
 'use client'
 
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment, useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import {
@@ -52,10 +52,14 @@ import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
 import { canEdit } from '@/lib/authz/utils'
 import { useOrganizationRole } from '@/lib/authz/access-api'
 import { useSession } from 'next-auth/react'
+import useEscapeKey from '@/hooks/useEscapeKey'
+import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
 }
+
+type EditableFields = 'name' | 'description' | 'collectionProcedure' | 'source' | 'url' | 'status' | 'creationDate' | 'renewalDate' | 'tags'
 
 const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) => {
   const [isEditing, setIsEditing] = useState(false)
@@ -75,6 +79,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const { mutateAsync: deleteEvidence } = useDeleteEvidence()
   const { data, isLoading: fetching } = useGetEvidenceById(selectedControlEvidence)
   const { data: session } = useSession()
+
+  const [editField, setEditField] = useState<EditableFields | null>(null)
 
   const { data: permission } = useOrganizationRole(session)
 
@@ -99,11 +105,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const { form } = useFormSchema()
 
-  useEffect(() => {
-    if (controlEvidenceIdParam) {
-      setSelectedControlEvidence(controlEvidenceIdParam)
-    }
-  }, [controlEvidenceIdParam, setSelectedControlEvidence])
+  const triggerRef = useRef<HTMLDivElement>(null)
+  const popoverRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (evidence) {
@@ -206,7 +209,61 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     }
   }
 
+  const handleDoubleClick = (field: EditableFields) => {
+    if (isEditing || !editAllowed) return
+    setEditField(field)
+  }
+
+  const handleUpdateField = async () => {
+    if (!editAllowed || !editField) return
+    if (evidence?.[editField] === form.getValues(editField)) {
+      setEditField(null)
+      return
+    }
+
+    await updateEvidence({
+      updateEvidenceId: selectedControlEvidence as string,
+      input: {
+        [editField]: form.getValues(editField),
+      },
+    })
+    setEditField(null)
+    successNotification({
+      title: 'Field updated successfully',
+    })
+    queryClient.invalidateQueries({ queryKey: ['evidences'] })
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (e.key === 'Enter') {
+      ;(e.target as HTMLInputElement).blur()
+    }
+  }
+
+  useEscapeKey(
+    () => {
+      if (editField) {
+        form.setValue(editField, evidence?.[editField] ?? '')
+        setEditField(null)
+      }
+    },
+    { enabled: !!editField },
+  )
+
+  useClickOutsideWithPortal(
+    () => {
+      if (editField) handleUpdateField()
+    },
+    {
+      refs: { triggerRef, popoverRef },
+      enabled: !!editField && ['tags', 'renewalDate', 'creationDate', 'status'].includes(editField),
+    },
+  )
+
   const handleTags = () => {
+    if (evidence?.tags?.length === 0) {
+      return <span className="text-gray-500">no tags provided</span>
+    }
     return (
       <div className="flex flex-wrap gap-2">
         {evidence?.tags?.map((item: string | undefined, index: number) => (
@@ -219,6 +276,13 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   return (
     <Sheet open={!!selectedControlEvidence} onOpenChange={handleSheetClose}>
       <SheetContent
+        onEscapeKeyDown={(e) => {
+          if (editField) {
+            e.preventDefault()
+          } else {
+            handleSheetClose()
+          }
+        }}
         className="bg-card flex flex-col"
         minWidth={600}
         header={
@@ -274,7 +338,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
                 <SheetTitle>
-                  {isEditing ? (
+                  {isEditing || editField === 'name' ? (
                     <FormField
                       control={form.control}
                       name="name"
@@ -285,18 +349,18 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a brief, descriptive title to help easily identify the task later.</p>} />
                           </div>
                           <FormControl>
-                            <Input variant="medium" {...field} className="w-full" />
+                            <Input variant="medium" {...field} className="w-full" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
                           </FormControl>
                           {form.formState.errors.name && <p className="text-red-500 text-sm">{form.formState.errors.name.message}</p>}
                         </FormItem>
                       )}
                     />
                   ) : (
-                    evidence?.name
+                    <span onDoubleClick={() => handleDoubleClick('name')}>{evidence?.name}</span>
                   )}
                 </SheetTitle>
 
-                {isEditing ? (
+                {isEditing || editField === 'description' ? (
                   <FormField
                     control={form.control}
                     name="description"
@@ -307,7 +371,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                           <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a short description of what is contained in the files or linked URLs.</p>} />
                         </div>
                         <FormControl>
-                          <Textarea id="description" {...field} className="w-full" />
+                          <Textarea id="description" {...field} className="w-full" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
                         </FormControl>
                         {form.formState.errors.description && <p className="text-red-500 text-sm">{form.formState.errors.description.message}</p>}
                       </FormItem>
@@ -316,11 +380,13 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                 ) : (
                   <div className="mt-5">
                     <FormLabel className="font-bold">Description</FormLabel>
-                    {evidence?.description ? <p>{evidence?.description}</p> : <p className="text-gray-500">no description provided</p>}
+                    <div onDoubleClick={() => handleDoubleClick('description')}>
+                      {evidence?.description ? <p>{evidence?.description}</p> : <p className="text-gray-500">no description provided</p>}
+                    </div>
                   </div>
                 )}
 
-                {isEditing ? (
+                {isEditing || editField === 'collectionProcedure' ? (
                   <FormField
                     control={form.control}
                     name="collectionProcedure"
@@ -331,14 +397,14 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                           <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Write down the steps that were taken to collect the evidence.</p>} />
                         </div>
                         <FormControl>
-                          <Textarea id="collectionProcedure" {...field} className="w-full" />
+                          <Textarea id="collectionProcedure" {...field} className="w-full" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
                         </FormControl>
                         {form.formState.errors.collectionProcedure && <p className="text-red-500 text-sm">{form.formState.errors.collectionProcedure.message}</p>}
                       </FormItem>
                     )}
                   />
                 ) : (
-                  <div className="mt-5">
+                  <div className="mt-5" onDoubleClick={() => handleDoubleClick('collectionProcedure')}>
                     <FormLabel className="font-bold">Collection Procedure</FormLabel>
                     {evidence?.collectionProcedure ? <p>{evidence?.collectionProcedure}</p> : <p className="text-gray-500">no collection procedure provided</p>}
                   </div>
@@ -355,7 +421,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                         Source
                       </div>
                       <div className="text-sm text-left w-[200px]">
-                        {isEditing ? (
+                        {isEditing || editField === 'source' ? (
                           <InputRow className="w-full">
                             <FormField
                               control={form.control}
@@ -363,7 +429,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                               render={({ field }) => (
                                 <FormItem className="w-full">
                                   <FormControl>
-                                    <Input variant="medium" {...field} className="w-full" />
+                                    <Input variant="medium" {...field} className="w-full" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
                                   </FormControl>
                                   {form.formState.errors.source && <p className="text-red-500 text-sm">{form.formState.errors.source.message}</p>}
                                 </FormItem>
@@ -371,7 +437,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             />
                           </InputRow>
                         ) : (
-                          <p className="text-sm text-left">{evidence?.source}</p>
+                          <p className="text-sm text-left" onDoubleClick={() => handleDoubleClick('source')}>
+                            {evidence?.source || <span className="text-gray-500">no source provided</span>}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -382,7 +450,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                         URL
                       </div>
                       <div className="text-sm text-left w-[200px]">
-                        {isEditing ? (
+                        {isEditing || editField === 'url' ? (
                           <InputRow className="w-full">
                             <FormField
                               control={form.control}
@@ -390,7 +458,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                               render={({ field }) => (
                                 <FormItem className="w-full">
                                   <FormControl>
-                                    <Input variant="medium" {...field} className="w-full" />
+                                    <Input variant="medium" {...field} className="w-full" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
                                   </FormControl>
                                   {form.formState.errors.url && <p className="text-red-500 text-sm">{form.formState.errors.url.message}</p>}
                                 </FormItem>
@@ -398,7 +466,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             />
                           </InputRow>
                         ) : (
-                          <p className="text-sm text-left">{evidence?.url}</p>
+                          <p className="text-sm text-left" onDoubleClick={() => handleDoubleClick('url')}>
+                            {evidence?.url || <span className="text-gray-500">no url provided</span>}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -408,17 +478,23 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                         <Binoculars size={16} className="text-accent-secondary" />
                         Status
                       </div>
-                      <div className="text-sm text-left w-[200px]">
-                        {isEditing ? (
+                      <div ref={triggerRef} className="text-sm text-left w-[200px]">
+                        {isEditing || editField === 'status' ? (
                           <Controller
                             name="status"
                             control={form.control}
                             render={({ field }) => {
                               return (
                                 <>
-                                  <Select value={field.value ?? undefined} onValueChange={field.onChange}>
+                                  <Select
+                                    value={field.value ?? undefined}
+                                    onValueChange={(value) => {
+                                      field.onChange(value)
+                                      handleUpdateField()
+                                    }}
+                                  >
                                     <SelectTrigger className="w-full">{EvidenceStatusMapper[field.value as EvidenceEvidenceStatus] || 'Select'}</SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent ref={popoverRef}>
                                       {statusOptions.map((option) => (
                                         <SelectItem key={option.value} value={option.value}>
                                           {EvidenceStatusMapper[option.value as EvidenceEvidenceStatus]}
@@ -432,7 +508,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             }}
                           />
                         ) : (
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center space-x-2" onDoubleClick={() => handleDoubleClick('status')}>
                             {EvidenceIconMapper[evidence?.status as EvidenceEvidenceStatus]}
                             <p>{EvidenceStatusMapper[evidence?.status as EvidenceEvidenceStatus]}</p>
                           </div>
@@ -445,20 +521,30 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                         <Calendar size={16} className="text-accent-secondary" />
                         Creation Date
                       </div>
-                      <div className="text-sm text-left w-[200px]">
-                        {isEditing ? (
+                      <div ref={triggerRef} className="text-sm text-left w-[200px]">
+                        {isEditing || editField === 'creationDate' ? (
                           <FormField
                             control={form.control}
                             name="creationDate"
                             render={({ field }) => (
-                              <FormItem className="w-full">
-                                <CalendarPopover field={field} defaultToday required />
+                              <FormItem ref={popoverRef} className="w-full">
+                                <CalendarPopover
+                                  field={field}
+                                  defaultToday
+                                  required
+                                  onChange={(date) => {
+                                    field.onChange(date)
+                                    handleUpdateField()
+                                  }}
+                                />
                                 {form.formState.errors.creationDate && <p className="text-red-500 text-sm">{form.formState.errors.creationDate.message}</p>}
                               </FormItem>
                             )}
                           />
                         ) : (
-                          <p className="text-sm text-left">{formatDate(evidence?.creationDate)}</p>
+                          <p className="text-sm text-left" onDoubleClick={() => handleDoubleClick('creationDate')}>
+                            {formatDate(evidence?.creationDate)}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -468,20 +554,29 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                         <Calendar size={16} className="text-accent-secondary" />
                         Renewal Date
                       </div>
-                      <div className="text-sm text-left w-[200px]">
-                        {isEditing ? (
+                      <div ref={triggerRef} className="text-sm text-left w-[200px]">
+                        {isEditing || editField === 'renewalDate' ? (
                           <FormField
                             control={form.control}
                             name="renewalDate"
                             render={({ field }) => (
-                              <FormItem className="w-full">
-                                <CalendarPopover field={field} defaultAddDays={365} />
+                              <FormItem ref={popoverRef} className="w-full">
+                                <CalendarPopover
+                                  field={field}
+                                  defaultAddDays={365}
+                                  onChange={(date) => {
+                                    field.onChange(date)
+                                    handleUpdateField()
+                                  }}
+                                />
                                 {form.formState.errors.renewalDate && <p className="text-red-500 text-sm">{form.formState.errors.renewalDate.message}</p>}
                               </FormItem>
                             )}
                           />
                         ) : (
-                          <p className="text-sm text-left">{formatDate(evidence?.renewalDate)}</p>
+                          <p className="text-sm text-left" onDoubleClick={() => handleDoubleClick('renewalDate')}>
+                            {formatDate(evidence?.renewalDate)}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -491,8 +586,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                         <Tag size={16} className="text-accent-secondary" />
                         Tags
                       </div>
-                      <div className="text-sm text-left w-[200px]">
-                        {isEditing ? (
+                      <div ref={triggerRef} className="text-sm text-left w-[200px]">
+                        {isEditing || editField === 'tags' ? (
                           <Controller
                             name="tags"
                             control={form.control}
@@ -503,20 +598,17 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                     placeholder="Add tag..."
                                     creatable
                                     className="w-[180px]"
-                                    commandProps={{
-                                      className: 'w-full',
-                                    }}
+                                    commandProps={{ className: 'w-full' }}
                                     value={tagValues}
+                                    hideClearAllButton
                                     onChange={(selectedOptions) => {
                                       const options = selectedOptions.map((option) => option.value)
                                       field.onChange(options)
                                       setTagValues(
-                                        selectedOptions.map((item) => {
-                                          return {
-                                            value: item.value,
-                                            label: item.label,
-                                          }
-                                        }),
+                                        selectedOptions.map((item) => ({
+                                          value: item.value,
+                                          label: item.label,
+                                        })),
                                       )
                                     }}
                                   />
@@ -526,7 +618,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             }}
                           />
                         ) : (
-                          <>{handleTags()}</>
+                          <div onDoubleClick={() => handleDoubleClick('tags')}>{handleTags()}</div>
                         )}
                       </div>
                     </div>
