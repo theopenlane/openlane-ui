@@ -9,7 +9,7 @@ import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task
 import { useGetAllPrograms, useGetProgramBasicInfo } from '@/lib/graphql-hooks/programs'
 import StatsCards from '@/components/shared/stats-cards/stats-cards'
 import { Loading } from '@/components/shared/loading/loading'
-import { OrderDirection, ProgramOrderField, ProgramProgramStatus } from '@repo/codegen/src/schema'
+import { OrderDirection, ProgramOrderField } from '@repo/codegen/src/schema'
 import BasicInformation from '@/components/pages/protected/dashboard/basic-info'
 import ProgramAuditor from '@/components/pages/protected/dashboard/program-auditor'
 import ProgramsTaskTable from '@/components/pages/programs/programs-tasks-table'
@@ -35,7 +35,6 @@ const ProgramsPage: React.FC = () => {
 
   const programId = searchParams.get('id')
   const { data, isLoading } = useGetAllPrograms({
-    where: { statusNEQ: ProgramProgramStatus.COMPLETED },
     orderBy: [{ field: ProgramOrderField.end_date, direction: OrderDirection.ASC }],
   })
 
