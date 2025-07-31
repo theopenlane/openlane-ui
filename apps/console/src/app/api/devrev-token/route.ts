@@ -7,7 +7,6 @@ export async function GET(req: NextRequest) {
 
   const currentOrgId = req.nextUrl.searchParams.get('orgId')
   const orgName = req.nextUrl.searchParams.get('orgName')
-  const orgDisplayName = req.nextUrl.searchParams.get('orgDisplayName')
 
   const payload = {
     rev_info: {
@@ -18,7 +17,7 @@ export async function GET(req: NextRequest) {
         display_name: session.user.displayName,
       },
       account_traits: {
-        display_name: orgDisplayName,
+        display_name: orgName,
         custom_fields: {
           tnt__orgid: currentOrgId,
         },
