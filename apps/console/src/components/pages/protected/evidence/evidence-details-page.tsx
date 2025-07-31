@@ -74,7 +74,6 @@ const EvidenceDetailsPage = () => {
   }
 
   const handleCreateEvidence = () => {
-    if (!createAllowed) return
     if (programId) {
       router.push(`/evidence/create?programId=${programId}`)
     } else {
