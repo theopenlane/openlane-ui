@@ -1,5 +1,5 @@
 import { Archive, Circle, FilePenLine, RefreshCw, RouteOff, ScanEye, Stamp, ThumbsUp } from 'lucide-react'
-import { ControlControlStatus, ControlImplementationDocumentStatus } from '@repo/codegen/src/schema.ts'
+import { ControlControlStatus, ControlControlType, ControlImplementationDocumentStatus } from '@repo/codegen/src/schema.ts'
 
 export const ControlIconMapper16: Record<ControlControlStatus, React.ReactNode> = {
   [ControlControlStatus.APPROVED]: <Stamp height={16} width={16} />,
@@ -56,6 +56,13 @@ export const ControlStatusTooltips: Record<ControlControlStatus, string> = {
   [ControlControlStatus.ARCHIVED]: 'Control is no longer active or relevant. Archived for historical reference.',
 }
 
+export const ControlTypeLabels: Record<ControlControlType, string> = {
+  [ControlControlType.CORRECTIVE]: 'Corrective',
+  [ControlControlType.DETECTIVE]: 'Detective',
+  [ControlControlType.DETERRENT]: 'Deterrent',
+  [ControlControlType.PREVENTATIVE]: 'Preventative',
+}
+
 // Status options for select dropdowns
 export const ControlStatusOptions = Object.values(ControlControlStatus).map((status) => ({
   label: ControlStatusLabels[status],
@@ -77,4 +84,9 @@ export const ControlStatusFilterOptions = Object.entries(ControlControlStatus).m
     .toLowerCase()
     .replace(/\b\w/g, (c) => c.toUpperCase()),
   value,
+}))
+
+export const ControlControlTypeOptions = Object.values(ControlControlType).map((type) => ({
+  label: ControlTypeLabels[type],
+  value: type,
 }))

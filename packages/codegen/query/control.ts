@@ -407,3 +407,11 @@ export const GET_CONTROLS_GROUPED_BY_CATEGORY_RESOLVER = gql`
     }
   }
 `
+
+export const BULK_EDIT_CONTROL = gql`
+  mutation UpdateBulkControl($ids: [ID!]!, $input: UpdateControlInput!) {
+    updateBulkControl(ids: $ids, input: $input) {
+      updatedIDs
+    }
+  }
+`

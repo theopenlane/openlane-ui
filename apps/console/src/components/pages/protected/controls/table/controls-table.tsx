@@ -41,10 +41,14 @@ const ControlsTable: React.FC = () => {
     createdAt: false,
     updatedBy: false,
     updatedAt: false,
+    select: false,
   })
+
   const [searchTerm, setSearchTerm] = useState('')
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const debouncedSearch = useDebounce(searchTerm, 300)
+  const [selectedControls, setSelectedControls] = useState<{ id: string; refCode: string }[]>([])
+
   const whereFilter = useMemo(() => {
     const conditions: ControlWhereInput = {}
 
@@ -116,7 +120,7 @@ const ControlsTable: React.FC = () => {
     return map
   }, [users])
 
-  const columns = useMemo(() => getControlColumns({ convertToReadOnly, userMap }), [convertToReadOnly, userMap])
+  const columns = useMemo(() => getControlColumns({ convertToReadOnly, userMap, selectedControls, setSelectedControls, controls }), [convertToReadOnly, userMap, controls, selectedControls])
 
   const mappedColumns: { accessorKey: string; header: string }[] = columns
     .filter((column): column is { accessorKey: string; header: string } => 'accessorKey' in column && typeof column.accessorKey === 'string' && typeof column.header === 'string')
@@ -152,12 +156,21 @@ const ControlsTable: React.FC = () => {
     exportToCSV(controls, exportableColumns, 'controls_list')
   }
 
+  const handleBulkEdit = () => {
+    setSelectedControls([])
+    setColumnVisibility((prev) => ({
+      ...prev,
+      select: !prev.select,
+    }))
+  }
+
   if (isError) return <div>Failed to load Controls</div>
 
   return (
     <div>
       <ControlsTableToolbar
         handleExport={handleExport}
+        handleBulkEdit={handleBulkEdit}
         onFilterChange={setFilters}
         searchTerm={searchTerm}
         setSearchTerm={(inputVal) => {
@@ -168,6 +181,7 @@ const ControlsTable: React.FC = () => {
         setColumnVisibility={setColumnVisibility}
         mappedColumns={mappedColumns}
         exportEnabled={controls && controls.length > 0}
+        selectedControls={selectedControls}
       />
       <DataTable
         columns={columns}
