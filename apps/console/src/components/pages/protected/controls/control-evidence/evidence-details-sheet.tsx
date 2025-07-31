@@ -8,7 +8,6 @@ import {
   Calendar,
   CalendarCheck2,
   CalendarClock,
-  CalendarSync,
   Check,
   CircuitBoard,
   Download,
@@ -199,7 +198,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const handleTags = () => {
     return (
-      <div className="flex flex-wrap gap-2">{evidence?.tags?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}</div>
+      <div className="flex flex-wrap gap-2">
+        {evidence?.tags?.map((item: string | undefined, index: number) => (
+          <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>
+        ))}
+      </div>
     )
   }
 
@@ -448,7 +451,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2 text-sm w-[180px]">
-                        <CalendarSync size={16} className="text-accent-secondary" />
+                        <Calendar size={16} className="text-accent-secondary" />
                         Renewal Date
                       </div>
                       <div className="text-sm text-left w-[200px]">
