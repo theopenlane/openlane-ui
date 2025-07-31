@@ -28,6 +28,11 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { TUploadedFile } from './upload/types/TUploadedFile'
 import { useSearchParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { canCreate } from '@/lib/authz/utils'
+import ProtectedArea from '@/components/shared/protected-area/protected-area'
+import { useOrganizationRole } from '@/lib/authz/access-api'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { Loading } from '@/components/shared/loading/loading'
 
 type TProps = {
   formData?: TFormEvidenceData
@@ -49,6 +54,10 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
   const searchParams = useSearchParams()
   const programId = searchParams.get('programId')
   const queryClient = useQueryClient()
+
+  const { data: permission, isLoading: permissionsLoading } = useOrganizationRole(sessionData)
+
+  const createAllowed = canCreate(permission?.roles, AccessEnum.CanCreateEvidence)
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
     const formData = {
@@ -138,6 +147,14 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
 
   const handleResetEvidenceFiles = () => {
     setResetEvidenceFiles(false)
+  }
+
+  if (!permissionsLoading && createAllowed === false) {
+    return <ProtectedArea />
+  }
+
+  if (permissionsLoading) {
+    return <Loading />
   }
 
   return (
