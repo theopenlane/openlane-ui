@@ -49,6 +49,9 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { ControlEvidenceRenewDialog } from '@/components/pages/protected/controls/control-evidence/control-evidence-renew-dialog.tsx'
 import { EvidenceIconMapper, EvidenceStatusOptions } from '@/components/shared/enum-mapper/evidence-enum'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
+import { canEdit } from '@/lib/authz/utils'
+import { useOrganizationRole } from '@/lib/authz/access-api'
+import { useSession } from 'next-auth/react'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -57,6 +60,7 @@ type TEvidenceDetailsSheet = {
 const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) => {
   const [isEditing, setIsEditing] = useState(false)
   const [tagValues, setTagValues] = useState<Option[]>([])
+
   const queryClient = useQueryClient()
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false)
 
@@ -70,6 +74,12 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const { mutateAsync: updateEvidence } = useUpdateEvidence()
   const { mutateAsync: deleteEvidence } = useDeleteEvidence()
   const { data, isLoading: fetching } = useGetEvidenceById(selectedControlEvidence)
+  const { data: session } = useSession()
+
+  const { data: permission } = useOrganizationRole(session)
+
+  const editAllwed = canEdit(permission?.roles)
+
   const evidence = data?.evidence
 
   const userIds = []
@@ -229,9 +239,13 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                     </Button>
                   </div>
                 ) : (
-                  <Button icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
-                    Edit
-                  </Button>
+                  <>
+                    {editAllwed && (
+                      <Button icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
+                        Edit
+                      </Button>
+                    )}
+                  </>
                 )}
                 {evidence && <ControlEvidenceRenewDialog evidenceId={evidence.id} controlId={controlId} />}
                 <Button icon={<Trash2 />} iconPosition="left" variant="outline" onClick={() => setDeleteDialogIsOpen(true)}>

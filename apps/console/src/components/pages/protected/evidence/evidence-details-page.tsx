@@ -12,6 +12,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/selec
 import { PageHeading } from '@repo/ui/page-heading'
 import { Button } from '@repo/ui/button'
 import EvidenceDetailsSheet from '@/components/pages/protected/controls/control-evidence/evidence-details-sheet.tsx'
+import { canCreate } from '@/lib/authz/utils'
+import { useOrganizationRole } from '@/lib/authz/access-api'
+import { useSession } from 'next-auth/react'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
 const EvidenceDetailsPage = () => {
   const router = useRouter()
@@ -29,7 +33,12 @@ const EvidenceDetailsPage = () => {
   const { data: basicInfoData } = useGetProgramBasicInfo(programId)
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { currentOrgId, getOrganizationByID } = useOrganization()
+  const { data: session } = useSession()
+
   const currentOrganization = getOrganizationByID(currentOrgId!)
+  const { data: permission } = useOrganizationRole(session)
+
+  const createAllowed = canCreate(permission?.roles, AccessEnum.CanCreateEvidence)
 
   const programMap = useMemo(() => {
     const map: Record<string, string> = {}
@@ -65,6 +74,7 @@ const EvidenceDetailsPage = () => {
   }
 
   const handleCreateEvidence = () => {
+    if (!createAllowed) return
     if (programId) {
       router.push(`/evidence/create?programId=${programId}`)
     } else {
@@ -104,7 +114,7 @@ const EvidenceDetailsPage = () => {
                 </SelectContent>
               </Select>
 
-              <Button className="h-8 !px-2" onClick={handleCreateEvidence}>
+              <Button className="h-8 !px-2" onClick={handleCreateEvidence} disabled={!createAllowed}>
                 Submit Evidence
               </Button>
             </div>
