@@ -78,7 +78,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const { data: permission } = useOrganizationRole(session)
 
-  const editAllwed = canEdit(permission?.roles)
+  const editAllowed = canEdit(permission?.roles)
 
   const evidence = data?.evidence
 
@@ -240,7 +240,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                   </div>
                 ) : (
                   <>
-                    {editAllwed && (
+                    {editAllowed && (
                       <Button icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
                         Edit
                       </Button>
