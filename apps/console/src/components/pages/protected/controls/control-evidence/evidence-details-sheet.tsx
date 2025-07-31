@@ -240,7 +240,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                   </div>
                 ) : (
                   <>
-                    {editAllwed && (
+                    {editAllowed && (
                       <Button icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
                         Edit
                       </Button>
