@@ -78,7 +78,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const { data: permission } = useOrganizationRole(session)
 
-  const editAllwed = canEdit(permission?.roles)
+  const editAllowed = canEdit(permission?.roles)
 
   const evidence = data?.evidence
 
