@@ -68,6 +68,7 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
         input: {
           ...(values.controlOwnerID === '' ? { clearControlOwner: true } : { controlOwnerID: values.controlOwnerID }),
           status: values.status,
+          controlType: values.controlType,
         },
       })
       successNotification({
