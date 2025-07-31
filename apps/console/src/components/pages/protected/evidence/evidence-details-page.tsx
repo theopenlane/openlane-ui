@@ -114,9 +114,11 @@ const EvidenceDetailsPage = () => {
                 </SelectContent>
               </Select>
 
-              <Button className="h-8 !px-2" onClick={handleCreateEvidence} disabled={!createAllowed}>
-                Submit Evidence
-              </Button>
+              {createAllowed && (
+                <Button className="h-8 !px-2" onClick={handleCreateEvidence}>
+                  Submit Evidence
+                </Button>
+              )}
             </div>
           </div>
         }
