@@ -1,5 +1,5 @@
 import { FilterField, SelectFilterField } from '@/types'
-import { Control, ControlControlStatus, ControlListFieldsFragment, ControlOrderField, Group, OrderDirection, User } from '@repo/codegen/src/schema.ts'
+import { ControlControlStatus, ControlListFieldsFragment, ControlOrderField, Group, OrderDirection, User } from '@repo/codegen/src/schema.ts'
 import { ColumnDef, Row } from '@tanstack/react-table'
 import SubcontrolCell from './subcontrol-cell'
 import { Avatar } from '@/components/shared/avatar/avatar'
@@ -47,10 +47,9 @@ type Params = {
   userMap: Record<string, User>
   selectedControls: { id: string; refCode: string }[]
   setSelectedControls: React.Dispatch<React.SetStateAction<{ id: string; refCode: string }[]>>
-  controls: Control[]
 }
 
-export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls, setSelectedControls, controls }: Params): ColumnDef<ControlListFieldsFragment>[] => {
+export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls, setSelectedControls }: Params): ColumnDef<ControlListFieldsFragment>[] => {
   const toggleSelection = (control: { id: string; refCode: string }) => {
     setSelectedControls((prev) => {
       const exists = prev.some((c) => c.id === control.id)
@@ -60,19 +59,29 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
   return [
     {
       id: 'select',
-      header: () => (
-        <div onClick={(e) => e.stopPropagation()}>
-          <Checkbox
-            checked={selectedControls.length === controls.length}
-            onCheckedChange={(checked: boolean) => {
-              setSelectedControls(checked ? controls.map((c) => ({ id: c.id, refCode: c.refCode })) : [])
-            }}
-          />
-        </div>
-      ),
+      header: ({ table }) => {
+        const currentPageControls = table.getRowModel().rows.map((row) => row.original)
+        const allSelected = currentPageControls.every((control) => selectedControls.some((sc) => sc.id === control.id))
+
+        return (
+          <div onClick={(e) => e.stopPropagation()}>
+            <Checkbox
+              checked={allSelected}
+              onCheckedChange={(checked: boolean) => {
+                const newSelections = checked
+                  ? [...selectedControls.filter((sc) => !currentPageControls.some((c) => c.id === sc.id)), ...currentPageControls.map((c) => ({ id: c.id, refCode: c.refCode }))]
+                  : selectedControls.filter((sc) => !currentPageControls.some((c) => c.id === sc.id))
+
+                setSelectedControls(newSelections)
+              }}
+            />
+          </div>
+        )
+      },
       cell: ({ row }: { row: Row<ControlListFieldsFragment> }) => {
         const { id, refCode } = row.original
         const isChecked = selectedControls.some((c) => c.id === id)
+
         return (
           <div onClick={(e) => e.stopPropagation()}>
             <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id, refCode })} />

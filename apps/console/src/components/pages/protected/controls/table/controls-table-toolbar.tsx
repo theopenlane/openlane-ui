@@ -1,7 +1,7 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React, { useEffect, useMemo, useState } from 'react'
 import { FilterField, SelectFilterField, SelectIsFilterField } from '@/types'
-import { CirclePlus, DownloadIcon, LoaderCircle, PencilIcon, SearchIcon, Upload } from 'lucide-react'
+import { CirclePlus, DownloadIcon, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
 import { CONTROLS_FILTER_FIELDS } from './table-config'
 import { Input } from '@repo/ui/input'
 import { useProgramSelect } from '@/lib/graphql-hooks/programs'
@@ -36,6 +36,7 @@ type TProps = {
   exportEnabled: boolean
   handleBulkEdit: () => void
   selectedControls: { id: string; refCode: string }[]
+  setSelectedControls: React.Dispatch<React.SetStateAction<{ id: string; refCode: string }[]>>
 }
 
 const ControlsTableToolbar: React.FC<TProps> = ({
@@ -50,6 +51,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
   exportEnabled,
   handleBulkEdit,
   selectedControls,
+  setSelectedControls,
 }: TProps) => {
   const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect()
   const { groupOptions, isSuccess: isGroupSuccess } = useGroupSelect()
@@ -61,13 +63,8 @@ const ControlsTableToolbar: React.FC<TProps> = ({
   const { data: permission } = useOrganizationRole(session)
 
   useEffect(() => {
-    if (!setColumnVisibility) return
-
-    setColumnVisibility((prev) => ({
-      ...prev,
-      select: isBulkEditing,
-    }))
-  }, [isBulkEditing, setColumnVisibility])
+    setIsBulkEditing(selectedControls.length > 0)
+  }, [selectedControls])
 
   useEffect(() => {
     if (filterFields || !isProgramSuccess || !isGroupSuccess || !isStandardSuccess) {
@@ -126,17 +123,21 @@ const ControlsTableToolbar: React.FC<TProps> = ({
         <div className="grow flex flex-row items-center gap-2 justify-end">
           {isBulkEditing ? (
             <>
-              <BulkEditControlsDialog setIsBulkEditing={setIsBulkEditing} selectedControls={selectedControls}></BulkEditControlsDialog>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  setIsBulkEditing(false)
-                  handleBulkEdit()
-                }}
-              >
-                Cancel
-              </Button>
+              {canEdit(permission?.roles) && (
+                <>
+                  <BulkEditControlsDialog setIsBulkEditing={setIsBulkEditing} selectedControls={selectedControls} setSelectedControls={setSelectedControls}></BulkEditControlsDialog>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setIsBulkEditing(false)
+                      handleBulkEdit()
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </>
+              )}
             </>
           ) : (
             <>
@@ -174,18 +175,6 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                         </div>
                       }
                     />
-                    {canEdit(permission?.roles) && (
-                      <div
-                        className="flex items-center space-x-2 hover:bg-muted cursor-pointer"
-                        onClick={() => {
-                          setIsBulkEditing(true)
-                          handleBulkEdit()
-                        }}
-                      >
-                        <PencilIcon size={16} strokeWidth={2} />
-                        <span>Bulk Edit</span>
-                      </div>
-                    )}
                   </>
                 }
               ></Menu>
