@@ -181,7 +181,7 @@ const ControlDetailsSheet = () => {
                   if (!edge?.node) {
                     return null
                   }
-                  return <ControlChip key={edge?.node?.id} control={edge?.node} hideStandard />
+                  return <ControlChip key={edge?.node?.id} control={edge?.node} hideStandard disableHref />
                 })}
               </div>
             ) : (

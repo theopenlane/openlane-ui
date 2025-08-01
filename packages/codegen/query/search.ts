@@ -54,9 +54,10 @@ export const SEARCH = gql`
         edges {
           node {
             __typename
-
             id
             refCode
+            ownerID
+            standardID
           }
         }
         pageInfo {
@@ -70,9 +71,9 @@ export const SEARCH = gql`
         edges {
           node {
             __typename
-
             id
             refCode
+            ownerID
             control {
               id
             }
