@@ -157,7 +157,7 @@ const ControlTooltipContent: React.FC<{ control: NonNullable<ControlChipProps['c
         <span className="flex pl-3 gap-1 border-b pb-2">{details.subcategory || '-'}</span>
       </div>
 
-      <div className="flex flex-col pt-2">
+      <div className="flex flex-col pt-2 max-w-[240px]">
         <div className="flex items-center gap-1">
           <PencilLine size={12} />
           <span className="font-medium">Description</span>

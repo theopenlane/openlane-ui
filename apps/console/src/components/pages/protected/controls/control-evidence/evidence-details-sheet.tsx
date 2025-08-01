@@ -8,7 +8,6 @@ import {
   Calendar,
   CalendarCheck2,
   CalendarClock,
-  CalendarSync,
   Check,
   CircuitBoard,
   Download,
@@ -55,6 +54,9 @@ import ObjectAssociation from '@/components/shared/objectAssociation/object-asso
 import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
 import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
 import { getAssociationInput } from '@/components/shared/object-association/utils.ts'
+import { canEdit } from '@/lib/authz/utils'
+import { useOrganizationRole } from '@/lib/authz/access-api'
+import { useSession } from 'next-auth/react'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -63,6 +65,7 @@ type TEvidenceDetailsSheet = {
 const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) => {
   const [isEditing, setIsEditing] = useState(false)
   const [tagValues, setTagValues] = useState<Option[]>([])
+
   const queryClient = useQueryClient()
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false)
 
@@ -77,6 +80,12 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const { mutateAsync: updateEvidence } = useUpdateEvidence()
   const { mutateAsync: deleteEvidence } = useDeleteEvidence()
   const { data, isLoading: fetching } = useGetEvidenceById(selectedControlEvidence)
+  const { data: session } = useSession()
+
+  const { data: permission } = useOrganizationRole(session)
+
+  const editAllowed = canEdit(permission?.roles)
+
   const evidence = data?.evidence
 
   const userIds = []
@@ -219,11 +228,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const handleTags = () => {
     return (
-      <div className="flex flex-wrap gap-2">
-        {evidence?.tags?.map((item: string | undefined, index: number) => (
-          <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>
-        ))}
-      </div>
+      <div className="flex flex-wrap gap-2">{evidence?.tags?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}</div>
     )
   }
 
@@ -250,9 +255,13 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                     </Button>
                   </div>
                 ) : (
-                  <Button icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
-                    Edit
-                  </Button>
+                  <>
+                    {editAllowed && (
+                      <Button icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
+                        Edit
+                      </Button>
+                    )}
+                  </>
                 )}
                 {evidence && <ControlEvidenceRenewDialog evidenceId={evidence.id} controlId={controlId} />}
                 <Button icon={<Trash2 />} iconPosition="left" variant="outline" onClick={() => setDeleteDialogIsOpen(true)}>
@@ -472,7 +481,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2 text-sm w-[180px]">
-                        <CalendarSync size={16} className="text-accent-secondary" />
+                        <Calendar size={16} className="text-accent-secondary" />
                         Renewal Date
                       </div>
                       <div className="text-sm text-left w-[200px]">
