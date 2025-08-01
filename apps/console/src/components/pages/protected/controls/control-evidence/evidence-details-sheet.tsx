@@ -1,6 +1,6 @@
 'use client'
 
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import {
@@ -50,6 +50,11 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { ControlEvidenceRenewDialog } from '@/components/pages/protected/controls/control-evidence/control-evidence-renew-dialog.tsx'
 import { EvidenceIconMapper, EvidenceStatusOptions } from '@/components/shared/enum-mapper/evidence-enum'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
+import { Panel, PanelHeader } from '@repo/ui/panel'
+import ObjectAssociation from '@/components/shared/objectAssociation/object-association.tsx'
+import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
+import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
+import { getAssociationInput } from '@/components/shared/object-association/utils.ts'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -67,6 +72,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
+  const [associations, setAssociations] = useState<TObjectAssociationMap>({})
 
   const { mutateAsync: updateEvidence } = useUpdateEvidence()
   const { mutateAsync: deleteEvidence } = useDeleteEvidence()
@@ -89,6 +95,17 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const statusOptions = EvidenceStatusOptions
 
   const { form } = useFormSchema()
+
+  const initialAssociations = useMemo(
+    () => ({
+      programIDs: (evidence?.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      controlObjectiveIDs: (evidence?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      subcontrolIDs: (evidence?.subcontrols?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
+      controlIDs: (evidence?.controls?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
+      taskIDs: (evidence?.tasks?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
+    }),
+    [evidence],
+  )
 
   useEffect(() => {
     if (controlEvidenceIdParam) {
@@ -161,11 +178,14 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   }
 
   const onSubmit = async (formData: EditEvidenceFormData) => {
+    const associationInputs = getAssociationInput(initialAssociations, associations)
+
     try {
       await updateEvidence({
         updateEvidenceId: selectedControlEvidence as string,
         input: {
           ...formData,
+          ...associationInputs,
           clearURL: formData?.url === undefined,
         },
       })
@@ -199,7 +219,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const handleTags = () => {
     return (
-      <div className="flex flex-wrap gap-2">{evidence?.tags?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}</div>
+      <div className="flex flex-wrap gap-2">
+        {evidence?.tags?.map((item: string | undefined, index: number) => (
+          <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>
+        ))}
+      </div>
     )
   }
 
@@ -586,6 +610,17 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                   </div>
                 </div>
               </form>
+              {isEditing && (
+                <Panel className="mt-5">
+                  <PanelHeader heading="Object association" noBorder />
+                  <p>Associating objects will allow users with access to the object to see the created evidence.</p>
+                  <ObjectAssociation
+                    initialData={initialAssociations}
+                    onIdChange={(updatedMap) => setAssociations(updatedMap)}
+                    excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP, ObjectTypeObjects.INTERNAL_POLICY, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.RISK]}
+                  />
+                </Panel>
+              )}
               {selectedControlEvidence && <ControlEvidenceFiles controlEvidenceID={selectedControlEvidence} />}
             </Form>
           </>
