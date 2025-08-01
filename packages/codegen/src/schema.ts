@@ -18257,25 +18257,6 @@ export interface Mutation {
   updateBulkScan: ScanBulkUpdatePayload
   /** Update multiple existing tasks */
   updateBulkTask: TaskBulkUpdatePayload
-  updateAsset: AssetUpdatePayload
-  /** Update multiple existing actionPlans */
-  updateBulkActionPlan: ActionPlanBulkUpdatePayload
-  /** Update multiple existing contacts */
-  updateBulkContact: ContactBulkUpdatePayload
-  /** Update multiple existing controls */
-  updateBulkControl: ControlBulkUpdatePayload
-  /** Update multiple existing hushs */
-  updateBulkHush: HushBulkUpdatePayload
-  /** Update multiple existing internalPolicys */
-  updateBulkInternalPolicy: InternalPolicyBulkUpdatePayload
-  /** Update multiple existing procedures */
-  updateBulkProcedure: ProcedureBulkUpdatePayload
-  /** Update multiple existing risks */
-  updateBulkRisk: RiskBulkUpdatePayload
-  /** Update multiple existing scans */
-  updateBulkScan: ScanBulkUpdatePayload
-  /** Update multiple existing tasks */
-  updateBulkTask: TaskBulkUpdatePayload
   /** Update an existing contact */
   updateContact: ContactUpdatePayload
   /** Update an existing control */
@@ -19168,51 +19149,6 @@ export interface MutationUpdateBulkContactArgs {
 
 export interface MutationUpdateBulkControlArgs {
   ids: Array<Scalars['ID']['input']>
-  input: UpdateControlInput
-}
-
-export interface MutationUpdateBulkHushArgs {
-  ids: Array<Scalars['ID']['input']>
-  input: UpdateHushInput
-}
-
-export interface MutationUpdateBulkInternalPolicyArgs {
-  ids: Array<Scalars['ID']['input']>
-  input: UpdateInternalPolicyInput
-}
-
-export interface MutationUpdateBulkProcedureArgs {
-  ids: Array<Scalars['ID']['input']>
-  input: UpdateProcedureInput
-}
-
-export interface MutationUpdateBulkRiskArgs {
-  ids: Array<Scalars['ID']['input']>
-  input: UpdateRiskInput
-}
-
-export interface MutationUpdateBulkScanArgs {
-  ids: Array<Scalars['ID']['input']>
-  input: UpdateScanInput
-}
-
-export interface MutationUpdateBulkTaskArgs {
-  ids: Array<Scalars['ID']['input']>
-  input: UpdateTaskInput
-}
-
-export interface MutationUpdateBulkActionPlanArgs {
-  ids: Array<Scalars['ID']['input']>
-  input: UpdateActionPlanInput
-}
-
-export interface MutationUpdateContactArgs {
-  id: Scalars['ID']['input']
-  input: UpdateContactInput
-}
-
-export interface MutationUpdateControlArgs {
-  id: Scalars['ID']['input']
   input: UpdateControlInput
 }
 
