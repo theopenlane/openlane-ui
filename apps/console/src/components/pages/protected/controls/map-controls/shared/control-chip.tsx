@@ -25,6 +25,7 @@ export interface ControlChipProps {
   onContextMenu?: (e: React.MouseEvent<HTMLSpanElement>, control: MapControl) => void
   hideStandard?: boolean
   clickable?: boolean
+  disableHref?: boolean
 }
 
 const ControlChip: React.FC<ControlChipProps> = ({
@@ -40,6 +41,7 @@ const ControlChip: React.FC<ControlChipProps> = ({
   onContextMenu,
   hideStandard,
   clickable = true,
+  disableHref,
 }) => {
   const [tooltipOpen, setTooltipOpen] = useState(false)
 
@@ -91,10 +93,10 @@ const ControlChip: React.FC<ControlChipProps> = ({
   return (
     <TooltipProvider delayDuration={300}>
       <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
-        <TooltipTrigger asChild>{clickable ? <Link href={href}>{renderedBadge()}</Link> : <div>{renderedBadge()}</div>}</TooltipTrigger>
+        <TooltipTrigger asChild>{!disableHref && clickable ? <Link href={href}>{renderedBadge()}</Link> : <div>{renderedBadge()}</div>}</TooltipTrigger>
         {tooltipOpen && (
           <TooltipContent side="top">
-            <ControlTooltipContent control={control} />
+            <ControlTooltipContent control={control} disableHref={disableHref} />
           </TooltipContent>
         )}
       </Tooltip>
@@ -104,7 +106,7 @@ const ControlChip: React.FC<ControlChipProps> = ({
 
 export default React.memo(ControlChip)
 
-const ControlTooltipContent: React.FC<{ control: NonNullable<ControlChipProps['control']> }> = ({ control }) => {
+const ControlTooltipContent: React.FC<{ control: NonNullable<ControlChipProps['control']>; disableHref?: boolean }> = ({ control, disableHref }) => {
   const { convertToReadOnly } = usePlateEditor()
 
   const { data: ctrlData, isLoading: ctrlLoading } = useGetControlMinifiedById(control.__typename === 'Control' ? control.id : undefined)
@@ -128,9 +130,14 @@ const ControlTooltipContent: React.FC<{ control: NonNullable<ControlChipProps['c
           <span className="font-medium">Name</span>
         </div>
         <div className="w-full border-b">
-          <Link href={nameHref} className="size-fit pl-3 hover:underline flex items-center gap-1" target="_blank" rel="noopener">
-            <span className="text-brand">{details.refCode}</span> <ExternalLink size={12} />
-          </Link>
+          {disableHref ? (
+            <span className="pl-3">{details.refCode}</span>
+          ) : (
+            <Link href={nameHref} className="size-fit pl-3 hover:underline flex items-center gap-1" target="_blank" rel="noopener">
+              <span className="text-brand">{details.refCode}</span>
+              <ExternalLink size={12} />
+            </Link>
+          )}
         </div>
 
         <div className="flex items-center gap-1 border-b pb-2">

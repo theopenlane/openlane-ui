@@ -360,7 +360,7 @@ const renderSearchResults = ({ data, handleOrganizationSwitch, setQuery, query, 
           renderResults({
             close,
             searchType: 'Subcontrols',
-            nodes: (search.subcontrols.edges ?? []).map((edge) => edge?.node),
+            nodes: (search.subcontrols.edges ?? []).filter((edge) => !edge?.node?.ownerID).map((edge) => edge?.node),
           })}
         {/* /* Risks */}
         {shouldRenderSection('Risks') &&
@@ -409,10 +409,21 @@ const renderResults = ({ searchType, nodes, close }: SearchNodeProps) => {
     }
   }
 
+  const generateObjectTypeLabel = (searchNode: ResponseNodes[number]): string => {
+    switch (searchNode?.__typename) {
+      case 'Control': {
+        return searchNode.ownerID ? 'Controls' : 'Standard Controls'
+      }
+      default:
+        return searchType
+    }
+  }
+
   return (
     <>
       {nodes?.map((searchNode, i: number) => {
-        const nodeType = searchType.toLowerCase()
+        const label = generateObjectTypeLabel(searchNode)
+        const nodeType = label.toLowerCase()
         let href
         if (searchNode) {
           href = getHrefForObjectType(nodeType, searchNode)
@@ -423,7 +434,7 @@ const renderResults = ({ searchType, nodes, close }: SearchNodeProps) => {
               <div className="flex">
                 <div className={leftFlex()}>
                   {Icon && <Icon className={icon()} />}
-                  <p className="font-medium text-text-informational">{searchType}</p>
+                  <p className="font-medium text-text-informational">{label}</p>
                 </div>
                 <p className="text-input-text">{renderName(searchNode)}</p>
               </div>
