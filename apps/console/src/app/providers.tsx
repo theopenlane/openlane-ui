@@ -10,7 +10,7 @@ import { NavigationGuardProvider } from 'next-navigation-guard'
 import { BreadcrumbProvider } from '@/providers/BreadcrumbContext.tsx'
 import { InitPlugSDK } from '@/providers/chatSdk'
 import { TooltipProvider } from '@repo/ui/tooltip'
-import { enableChat } from '@repo/dally/chat'
+import { enableDevrevChat } from '../../../../packages/dally/src/lib/chat'
 
 interface ProvidersProps {
   children: ReactNode
@@ -54,7 +54,7 @@ const Providers = ({ children }: ProvidersProps) => {
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
         <QueryClientProvider client={queryClient}>
           <BreadcrumbProvider>
-            {enableChat === 'true' && <InitPlugSDK />}
+            {enableDevrevChat === 'true' && <InitPlugSDK />}
             <TooltipProvider disableHoverableContent delayDuration={500} skipDelayDuration={0}>
               {children}
             </TooltipProvider>
