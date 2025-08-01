@@ -28,7 +28,6 @@ interface BulkEditControlDialogFormValues {
 
 interface SelectOptionSelectedObject {
   selectOptionEnum: SelectOption
-  selectName: string
   name: string
   placeholder: string
   options: Option[]
@@ -55,7 +54,6 @@ const fieldItemSchema = z.object({
   selectedObject: z
     .object({
       selectOptionEnum: z.nativeEnum(SelectOption),
-      selectName: z.string(),
       name: z.string(),
       placeholder: z.string(),
       selectedValue: z.string().optional(),
@@ -87,21 +85,18 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
   const allOptionSelects: SelectOptionSelectedObject[] = [
     {
       selectOptionEnum: SelectOption.ControlOwner,
-      selectName: 'groupSelect',
       name: 'controlOwnerID',
       placeholder: 'Select control owner',
       options: groups.map((g) => ({ label: g?.name || '', value: g?.id || '' })),
     },
     {
       selectOptionEnum: SelectOption.Status,
-      selectName: 'statusSelect',
       name: 'status',
       placeholder: 'Select a status',
       options: ControlStatusOptions.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
     },
     {
       selectOptionEnum: SelectOption.ControlType,
-      selectName: 'controlTypeSelect',
       name: 'controlType',
       placeholder: 'Select a control type',
       options: ControlControlTypeOptions.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
@@ -169,8 +164,8 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
             <div className="flex flex-col gap-4 mt-4">
               {fields.map((item, index) => {
                 return (
-                  <div key={item.id} className="flex justify-items items-flex-start gap-2">
-                    <div className="flex flex-col justify-items items-baseline gap-2">
+                  <div key={item.id} className="flex justify-items items-start gap-2">
+                    <div className="flex flex-col items-start gap-2">
                       <Select
                         value={watchedFields[index].value || undefined}
                         onValueChange={(value) => {
@@ -191,7 +186,7 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                       </Select>
                     </div>
                     {item.selectedObject && (
-                      <div className="flex flex-col justify-items items-center gap-2">
+                      <div className="flex flex-col items-center gap-2">
                         <Controller
                           name={item.selectedObject.name as keyof BulkEditControlDialogFormValues}
                           control={control}
