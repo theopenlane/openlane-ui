@@ -454,6 +454,15 @@ export interface ActionPlanBulkCreatePayload {
   actionPlans?: Maybe<Array<ActionPlan>>;
 }
 
+/** Return response for updateBulkActionPlan mutation */
+export interface ActionPlanBulkUpdatePayload {
+  __typename?: 'ActionPlanBulkUpdatePayload';
+  /** Updated actionPlans */
+  actionPlans?: Maybe<Array<ActionPlan>>;
+  /** IDs of the updated actionPlans */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>;
+}
+
 /** A connection to a list of items. */
 export interface ActionPlanConnection {
   __typename?: 'ActionPlanConnection';
@@ -1970,6 +1979,15 @@ export interface ContactBulkCreatePayload {
   contacts?: Maybe<Array<Contact>>;
 }
 
+/** Return response for updateBulkContact mutation */
+export interface ContactBulkUpdatePayload {
+  __typename?: 'ContactBulkUpdatePayload';
+  /** Updated contacts */
+  contacts?: Maybe<Array<Contact>>;
+  /** IDs of the updated contacts */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>;
+}
+
 /** A connection to a list of items. */
 export interface ContactConnection {
   __typename?: 'ContactConnection';
@@ -2788,6 +2806,15 @@ export interface ControlBulkCreatePayload {
   __typename?: 'ControlBulkCreatePayload';
   /** Created controls */
   controls?: Maybe<Array<Control>>;
+}
+
+/** Return response for updateBulkControl mutation */
+export interface ControlBulkUpdatePayload {
+  __typename?: 'ControlBulkUpdatePayload';
+  /** Updated controls */
+  controls?: Maybe<Array<Control>>;
+  /** IDs of the updated controls */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>;
 }
 
 export interface ControlCategory {
@@ -13500,6 +13527,15 @@ export interface HushBulkCreatePayload {
   hushes?: Maybe<Array<Hush>>;
 }
 
+/** Return response for updateBulkHush mutation */
+export interface HushBulkUpdatePayload {
+  __typename?: 'HushBulkUpdatePayload';
+  /** Updated hushs */
+  hushes?: Maybe<Array<Hush>>;
+  /** IDs of the updated hushs */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>;
+}
+
 /** A connection to a list of items. */
 export interface HushConnection {
   __typename?: 'HushConnection';
@@ -14534,6 +14570,15 @@ export interface InternalPolicyBulkCreatePayload {
   __typename?: 'InternalPolicyBulkCreatePayload';
   /** Created internalPolicys */
   internalPolicies?: Maybe<Array<InternalPolicy>>;
+}
+
+/** Return response for updateBulkInternalPolicy mutation */
+export interface InternalPolicyBulkUpdatePayload {
+  __typename?: 'InternalPolicyBulkUpdatePayload';
+  /** Updated internalPolicys */
+  internalPolicies?: Maybe<Array<InternalPolicy>>;
+  /** IDs of the updated internalPolicys */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>;
 }
 
 /** A connection to a list of items. */
@@ -18334,6 +18379,24 @@ export interface Mutation {
   updateActionPlan: ActionPlanUpdatePayload;
   /** Update an existing asset */
   updateAsset: AssetUpdatePayload;
+  /** Update multiple existing actionPlans */
+  updateBulkActionPlan: ActionPlanBulkUpdatePayload;
+  /** Update multiple existing contacts */
+  updateBulkContact: ContactBulkUpdatePayload;
+  /** Update multiple existing controls */
+  updateBulkControl: ControlBulkUpdatePayload;
+  /** Update multiple existing hushs */
+  updateBulkHush: HushBulkUpdatePayload;
+  /** Update multiple existing internalPolicys */
+  updateBulkInternalPolicy: InternalPolicyBulkUpdatePayload;
+  /** Update multiple existing procedures */
+  updateBulkProcedure: ProcedureBulkUpdatePayload;
+  /** Update multiple existing risks */
+  updateBulkRisk: RiskBulkUpdatePayload;
+  /** Update multiple existing scans */
+  updateBulkScan: ScanBulkUpdatePayload;
+  /** Update multiple existing tasks */
+  updateBulkTask: TaskBulkUpdatePayload;
   /** Update an existing contact */
   updateContact: ContactUpdatePayload;
   /** Update an existing control */
@@ -19404,6 +19467,60 @@ export interface MutationUpdateActionPlanArgs {
 export interface MutationUpdateAssetArgs {
   id: Scalars['ID']['input'];
   input: UpdateAssetInput;
+}
+
+
+export interface MutationUpdateBulkActionPlanArgs {
+  ids: Array<Scalars['ID']['input']>;
+  input: UpdateActionPlanInput;
+}
+
+
+export interface MutationUpdateBulkContactArgs {
+  ids: Array<Scalars['ID']['input']>;
+  input: UpdateContactInput;
+}
+
+
+export interface MutationUpdateBulkControlArgs {
+  ids: Array<Scalars['ID']['input']>;
+  input: UpdateControlInput;
+}
+
+
+export interface MutationUpdateBulkHushArgs {
+  ids: Array<Scalars['ID']['input']>;
+  input: UpdateHushInput;
+}
+
+
+export interface MutationUpdateBulkInternalPolicyArgs {
+  ids: Array<Scalars['ID']['input']>;
+  input: UpdateInternalPolicyInput;
+}
+
+
+export interface MutationUpdateBulkProcedureArgs {
+  ids: Array<Scalars['ID']['input']>;
+  input: UpdateProcedureInput;
+}
+
+
+export interface MutationUpdateBulkRiskArgs {
+  ids: Array<Scalars['ID']['input']>;
+  input: UpdateRiskInput;
+}
+
+
+export interface MutationUpdateBulkScanArgs {
+  ids: Array<Scalars['ID']['input']>;
+  input: UpdateScanInput;
+}
+
+
+export interface MutationUpdateBulkTaskArgs {
+  ids: Array<Scalars['ID']['input']>;
+  input: UpdateTaskInput;
 }
 
 
@@ -24471,6 +24588,15 @@ export interface ProcedureBulkCreatePayload {
   procedures?: Maybe<Array<Procedure>>;
 }
 
+/** Return response for updateBulkProcedure mutation */
+export interface ProcedureBulkUpdatePayload {
+  __typename?: 'ProcedureBulkUpdatePayload';
+  /** Updated procedures */
+  procedures?: Maybe<Array<Procedure>>;
+  /** IDs of the updated procedures */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>;
+}
+
 /** A connection to a list of items. */
 export interface ProcedureConnection {
   __typename?: 'ProcedureConnection';
@@ -29343,6 +29469,15 @@ export interface RiskBulkCreatePayload {
   risks?: Maybe<Array<Risk>>;
 }
 
+/** Return response for updateBulkRisk mutation */
+export interface RiskBulkUpdatePayload {
+  __typename?: 'RiskBulkUpdatePayload';
+  /** Updated risks */
+  risks?: Maybe<Array<Risk>>;
+  /** IDs of the updated risks */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>;
+}
+
 /** A connection to a list of items. */
 export interface RiskConnection {
   __typename?: 'RiskConnection';
@@ -30232,6 +30367,15 @@ export interface ScanBulkCreatePayload {
   __typename?: 'ScanBulkCreatePayload';
   /** Created scans */
   scans?: Maybe<Array<Scan>>;
+}
+
+/** Return response for updateBulkScan mutation */
+export interface ScanBulkUpdatePayload {
+  __typename?: 'ScanBulkUpdatePayload';
+  /** Updated scans */
+  scans?: Maybe<Array<Scan>>;
+  /** IDs of the updated scans */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>;
 }
 
 /** A connection to a list of items. */
@@ -34422,6 +34566,15 @@ export interface TaskBulkCreatePayload {
   __typename?: 'TaskBulkCreatePayload';
   /** Created tasks */
   tasks?: Maybe<Array<Task>>;
+}
+
+/** Return response for updateBulkTask mutation */
+export interface TaskBulkUpdatePayload {
+  __typename?: 'TaskBulkUpdatePayload';
+  /** Updated tasks */
+  tasks?: Maybe<Array<Task>>;
+  /** IDs of the updated tasks */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>;
 }
 
 /** A connection to a list of items. */
@@ -41781,14 +41934,14 @@ export type GetAllEvidencesQueryVariables = Exact<{
 
 export type GetAllEvidencesQuery = { __typename?: 'Query', evidences: { __typename?: 'EvidenceConnection', totalCount: number, edges?: Array<{ __typename?: 'EvidenceEdge', node?: { __typename?: 'Evidence', id: string, name: string, displayID: string, description?: string | null } | null } | null> | null, pageInfo: { __typename?: 'PageInfo', endCursor?: any | null, startCursor?: any | null, hasPreviousPage: boolean, hasNextPage: boolean } } };
 
-export type EvidenceFieldsFragment = { __typename?: 'Evidence', collectionProcedure?: string | null, createdAt?: any | null, createdBy?: string | null, creationDate: any, description?: string | null, displayID: string, id: string, name: string, ownerID?: string | null, renewalDate?: any | null, source?: string | null, status?: EvidenceEvidenceStatus | null, tags?: Array<string> | null, url?: string | null, updatedBy?: string | null, updatedAt?: any | null };
+export type EvidenceFieldsFragment = { __typename?: 'Evidence', collectionProcedure?: string | null, createdAt?: any | null, createdBy?: string | null, creationDate: any, description?: string | null, displayID: string, id: string, name: string, ownerID?: string | null, renewalDate?: any | null, source?: string | null, status?: EvidenceEvidenceStatus | null, tags?: Array<string> | null, url?: string | null, updatedBy?: string | null, updatedAt?: any | null, programs: { __typename?: 'ProgramConnection', edges?: Array<{ __typename?: 'ProgramEdge', node?: { __typename?: 'Program', id: string } | null } | null> | null }, subcontrols: { __typename?: 'SubcontrolConnection', edges?: Array<{ __typename?: 'SubcontrolEdge', node?: { __typename?: 'Subcontrol', id: string } | null } | null> | null }, tasks: { __typename?: 'TaskConnection', edges?: Array<{ __typename?: 'TaskEdge', node?: { __typename?: 'Task', id: string } | null } | null> | null }, controlObjectives: { __typename?: 'ControlObjectiveConnection', edges?: Array<{ __typename?: 'ControlObjectiveEdge', node?: { __typename?: 'ControlObjective', id: string } | null } | null> | null }, controls: { __typename?: 'ControlConnection', edges?: Array<{ __typename?: 'ControlEdge', node?: { __typename?: 'Control', id: string } | null } | null> | null } };
 
 export type GetEvidenceQueryVariables = Exact<{
   evidenceId: Scalars['ID']['input'];
 }>;
 
 
-export type GetEvidenceQuery = { __typename?: 'Query', evidence: { __typename?: 'Evidence', collectionProcedure?: string | null, createdAt?: any | null, createdBy?: string | null, creationDate: any, description?: string | null, displayID: string, id: string, name: string, ownerID?: string | null, renewalDate?: any | null, source?: string | null, status?: EvidenceEvidenceStatus | null, tags?: Array<string> | null, url?: string | null, updatedBy?: string | null, updatedAt?: any | null } };
+export type GetEvidenceQuery = { __typename?: 'Query', evidence: { __typename?: 'Evidence', collectionProcedure?: string | null, createdAt?: any | null, createdBy?: string | null, creationDate: any, description?: string | null, displayID: string, id: string, name: string, ownerID?: string | null, renewalDate?: any | null, source?: string | null, status?: EvidenceEvidenceStatus | null, tags?: Array<string> | null, url?: string | null, updatedBy?: string | null, updatedAt?: any | null, programs: { __typename?: 'ProgramConnection', edges?: Array<{ __typename?: 'ProgramEdge', node?: { __typename?: 'Program', id: string } | null } | null> | null }, subcontrols: { __typename?: 'SubcontrolConnection', edges?: Array<{ __typename?: 'SubcontrolEdge', node?: { __typename?: 'Subcontrol', id: string } | null } | null> | null }, tasks: { __typename?: 'TaskConnection', edges?: Array<{ __typename?: 'TaskEdge', node?: { __typename?: 'Task', id: string } | null } | null> | null }, controlObjectives: { __typename?: 'ControlObjectiveConnection', edges?: Array<{ __typename?: 'ControlObjectiveEdge', node?: { __typename?: 'ControlObjective', id: string } | null } | null> | null }, controls: { __typename?: 'ControlConnection', edges?: Array<{ __typename?: 'ControlEdge', node?: { __typename?: 'Control', id: string } | null } | null> | null } } };
 
 export type GetRenewEvidenceQueryVariables = Exact<{
   evidenceId: Scalars['ID']['input'];
