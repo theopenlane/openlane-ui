@@ -68,6 +68,41 @@ const EVIDENCE_FIELDS = gql`
     url
     updatedBy
     updatedAt
+    programs {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+    subcontrols {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+    tasks {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+    controlObjectives {
+      edges {
+        node {
+          id
+        }
+      }
+    }
+    controls {
+      edges {
+        node {
+          id
+        }
+      }
+    }
   }
 `
 

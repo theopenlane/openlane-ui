@@ -1,6 +1,6 @@
 'use client'
 
-import React, { Fragment, useEffect, useRef, useState } from 'react'
+import React, { Fragment, useEffect, useRef, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import {
@@ -49,6 +49,11 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { ControlEvidenceRenewDialog } from '@/components/pages/protected/controls/control-evidence/control-evidence-renew-dialog.tsx'
 import { EvidenceIconMapper, EvidenceStatusOptions } from '@/components/shared/enum-mapper/evidence-enum'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
+import { Panel, PanelHeader } from '@repo/ui/panel'
+import ObjectAssociation from '@/components/shared/objectAssociation/object-association.tsx'
+import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
+import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
+import { getAssociationInput } from '@/components/shared/object-association/utils.ts'
 import { canEdit } from '@/lib/authz/utils'
 import { useOrganizationRole } from '@/lib/authz/access-api'
 import { useSession } from 'next-auth/react'
@@ -74,6 +79,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
+  const [associations, setAssociations] = useState<TObjectAssociationMap>({})
 
   const { mutateAsync: updateEvidence } = useUpdateEvidence()
   const { mutateAsync: deleteEvidence } = useDeleteEvidence()
@@ -107,6 +113,23 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const triggerRef = useRef<HTMLDivElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
+
+  const initialAssociations = useMemo(
+    () => ({
+      programIDs: (evidence?.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      controlObjectiveIDs: (evidence?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      subcontrolIDs: (evidence?.subcontrols?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
+      controlIDs: (evidence?.controls?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
+      taskIDs: (evidence?.tasks?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
+    }),
+    [evidence],
+  )
+
+  useEffect(() => {
+    if (controlEvidenceIdParam) {
+      setSelectedControlEvidence(controlEvidenceIdParam)
+    }
+  }, [controlEvidenceIdParam, setSelectedControlEvidence])
 
   useEffect(() => {
     if (evidence) {
@@ -173,11 +196,14 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   }
 
   const onSubmit = async (formData: EditEvidenceFormData) => {
+    const associationInputs = getAssociationInput(initialAssociations, associations)
+
     try {
       await updateEvidence({
         updateEvidenceId: selectedControlEvidence as string,
         input: {
           ...formData,
+          ...associationInputs,
           clearURL: formData?.url === undefined,
         },
       })
@@ -216,7 +242,18 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const handleUpdateField = async () => {
     if (!editAllowed || !editField) return
-    if (evidence?.[editField] === form.getValues(editField)) {
+
+    const oldValue = evidence?.[editField]
+    const newValue = form.getValues(editField)
+
+    const isSame =
+      Array.isArray(oldValue) && Array.isArray(newValue)
+        ? oldValue.length === newValue.length && oldValue.every((v, i) => v === newValue[i])
+        : oldValue instanceof Date && newValue instanceof Date
+          ? oldValue.getTime() === newValue.getTime()
+          : oldValue === newValue
+
+    if (isSame) {
       setEditField(null)
       return
     }
@@ -252,6 +289,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   useClickOutsideWithPortal(
     () => {
+      if (['renewalDate', 'creationDate'].includes(editField ?? '')) {
+        return setEditField(null)
+      }
       if (editField) handleUpdateField()
     },
     {
@@ -699,6 +739,17 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                   </div>
                 </div>
               </form>
+              {isEditing && (
+                <Panel className="mt-5">
+                  <PanelHeader heading="Object association" noBorder />
+                  <p>Associating objects will allow users with access to the object to see the created evidence.</p>
+                  <ObjectAssociation
+                    initialData={initialAssociations}
+                    onIdChange={(updatedMap) => setAssociations(updatedMap)}
+                    excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP, ObjectTypeObjects.INTERNAL_POLICY, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.RISK]}
+                  />
+                </Panel>
+              )}
               {selectedControlEvidence && <ControlEvidenceFiles controlEvidenceID={selectedControlEvidence} />}
             </Form>
           </>
