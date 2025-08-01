@@ -10,7 +10,7 @@ import { NavigationGuardProvider } from 'next-navigation-guard'
 import { BreadcrumbProvider } from '@/providers/BreadcrumbContext.tsx'
 import { InitPlugSDK } from '@/providers/chatSdk'
 import { TooltipProvider } from '@repo/ui/tooltip'
-import { enableDevrevChat } from '../../../../packages/dally/src/lib/chat'
+import { enableDevrevChat } from '@repo/dally/auth'
 
 interface ProvidersProps {
   children: ReactNode
