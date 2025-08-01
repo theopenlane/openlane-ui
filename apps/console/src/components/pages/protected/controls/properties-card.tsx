@@ -55,7 +55,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
   const isEditAllowed = !isSourceFramework
 
   return (
-    <Card className="p-4 bg-muted rounded-xl shadow-sm">
+    <Card className="p-4 bg-muted rounded-xl shadow-xs">
       <h3 className="text-lg font-medium mb-4">Properties</h3>
       <div className="space-y-3">
         {data && <Property value={data.referenceFramework || 'CUSTOM'} label="Framework"></Property>}

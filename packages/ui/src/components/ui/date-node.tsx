@@ -15,7 +15,7 @@ export function DateElement(props: PlateElementProps<TDateElement>) {
   const readOnly = useReadOnly()
 
   const trigger = (
-    <span className={cn('w-fit cursor-pointer rounded-sm bg-muted px-1 text-muted-foreground')} contentEditable={false} draggable>
+    <span className={cn('w-fit cursor-pointer rounded-xs bg-muted px-1 text-muted-foreground')} contentEditable={false} draggable>
       {element.date ? (
         (() => {
           const today = new Date()

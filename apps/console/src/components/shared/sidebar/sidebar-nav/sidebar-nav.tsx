@@ -112,7 +112,7 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
                     href={DOCS_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-1 mb-1 hover:bg-muted focus:rounded hover:rounded-sm focus:text-accent-foreground p-1"
+                    className="flex items-center gap-1 mb-1 hover:bg-muted focus:rounded-sm hover:rounded-xs focus:text-accent-foreground p-1"
                   >
                     <BookText size={16} />
                     <p>Docs</p>
@@ -120,14 +120,19 @@ export function SideNav({ items, setOpen, className }: SideNavProps) {
 
                   <div className="border-b mb-1" />
 
-                  <a href={SUPPORT_EMAIL} className="flex items-center gap-1 mb-1 hover:bg-muted focus:rounded hover:rounded-sm focus:text-accent-foreground p-1">
+                  <a href={SUPPORT_EMAIL} className="flex items-center gap-1 mb-1 hover:bg-muted focus:rounded-sm hover:rounded-xs focus:text-accent-foreground p-1">
                     <MessageSquareQuote size={16} />
                     <p>Feedback</p>
                   </a>
 
                   <div className="border-b mb-1" />
 
-                  <a href={CONTRIBUTE_URL} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:bg-muted focus:rounded hover:rounded-sm focus:text-accent-foreground p-1">
+                  <a
+                    href={CONTRIBUTE_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 hover:bg-muted focus:rounded-sm hover:rounded-xs focus:text-accent-foreground p-1"
+                  >
                     <HandHelping size={16} />
                     <p>Contribute</p>
                   </a>

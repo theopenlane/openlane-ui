@@ -160,7 +160,7 @@ const BillingContactDialog = () => {
                 placeholder="Start typing an address..."
               />
               {showPredictions && predictions.length > 0 && (
-                <div className="absolute z-10 bg-panel border rounded shadow-md w-full">
+                <div className="absolute z-10 bg-panel border rounded-sm shadow-md w-full">
                   {predictions.map((prediction) => (
                     <p key={prediction.place_id} onClick={() => handleSelectPrediction(prediction.place_id, prediction.description)} className="p-2 cursor-pointer">
                       {prediction.description}
