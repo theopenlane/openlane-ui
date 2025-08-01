@@ -1,6 +1,6 @@
 'use client'
 
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment, useEffect, useRef, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import {
@@ -8,7 +8,6 @@ import {
   Calendar,
   CalendarCheck2,
   CalendarClock,
-  CalendarSync,
   Check,
   CircuitBoard,
   Download,
@@ -50,14 +49,27 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { ControlEvidenceRenewDialog } from '@/components/pages/protected/controls/control-evidence/control-evidence-renew-dialog.tsx'
 import { EvidenceIconMapper, EvidenceStatusOptions } from '@/components/shared/enum-mapper/evidence-enum'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
+import { Panel, PanelHeader } from '@repo/ui/panel'
+import ObjectAssociation from '@/components/shared/objectAssociation/object-association.tsx'
+import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
+import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
+import { getAssociationInput } from '@/components/shared/object-association/utils.ts'
+import { canEdit } from '@/lib/authz/utils'
+import { useOrganizationRole } from '@/lib/authz/access-api'
+import { useSession } from 'next-auth/react'
+import useEscapeKey from '@/hooks/useEscapeKey'
+import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
 }
 
+type EditableFields = 'name' | 'description' | 'collectionProcedure' | 'source' | 'url' | 'status' | 'creationDate' | 'renewalDate' | 'tags'
+
 const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) => {
   const [isEditing, setIsEditing] = useState(false)
   const [tagValues, setTagValues] = useState<Option[]>([])
+
   const queryClient = useQueryClient()
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false)
 
@@ -67,10 +79,19 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
+  const [associations, setAssociations] = useState<TObjectAssociationMap>({})
 
   const { mutateAsync: updateEvidence } = useUpdateEvidence()
   const { mutateAsync: deleteEvidence } = useDeleteEvidence()
   const { data, isLoading: fetching } = useGetEvidenceById(selectedControlEvidence)
+  const { data: session } = useSession()
+
+  const [editField, setEditField] = useState<EditableFields | null>(null)
+
+  const { data: permission } = useOrganizationRole(session)
+
+  const editAllowed = canEdit(permission?.roles)
+
   const evidence = data?.evidence
 
   const userIds = []
@@ -89,6 +110,20 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const statusOptions = EvidenceStatusOptions
 
   const { form } = useFormSchema()
+
+  const triggerRef = useRef<HTMLDivElement>(null)
+  const popoverRef = useRef<HTMLDivElement>(null)
+
+  const initialAssociations = useMemo(
+    () => ({
+      programIDs: (evidence?.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      controlObjectiveIDs: (evidence?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      subcontrolIDs: (evidence?.subcontrols?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
+      controlIDs: (evidence?.controls?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
+      taskIDs: (evidence?.tasks?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
+    }),
+    [evidence],
+  )
 
   useEffect(() => {
     if (controlEvidenceIdParam) {
@@ -161,11 +196,14 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   }
 
   const onSubmit = async (formData: EditEvidenceFormData) => {
+    const associationInputs = getAssociationInput(initialAssociations, associations)
+
     try {
       await updateEvidence({
         updateEvidenceId: selectedControlEvidence as string,
         input: {
           ...formData,
+          ...associationInputs,
           clearURL: formData?.url === undefined,
         },
       })
@@ -197,15 +235,94 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     }
   }
 
+  const handleDoubleClick = (field: EditableFields) => {
+    if (isEditing || !editAllowed) return
+    setEditField(field)
+  }
+
+  const handleUpdateField = async () => {
+    if (!editAllowed || !editField) return
+
+    const oldValue = evidence?.[editField]
+    const newValue = form.getValues(editField)
+
+    const isSame =
+      Array.isArray(oldValue) && Array.isArray(newValue)
+        ? oldValue.length === newValue.length && oldValue.every((v, i) => v === newValue[i])
+        : oldValue instanceof Date && newValue instanceof Date
+          ? oldValue.getTime() === newValue.getTime()
+          : oldValue === newValue
+
+    if (isSame) {
+      setEditField(null)
+      return
+    }
+
+    await updateEvidence({
+      updateEvidenceId: selectedControlEvidence as string,
+      input: {
+        [editField]: form.getValues(editField),
+      },
+    })
+    setEditField(null)
+    successNotification({
+      title: 'Field updated successfully',
+    })
+    queryClient.invalidateQueries({ queryKey: ['evidences'] })
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (e.key === 'Enter') {
+      ;(e.target as HTMLInputElement).blur()
+    }
+  }
+
+  useEscapeKey(
+    () => {
+      if (editField) {
+        form.setValue(editField, evidence?.[editField] ?? '')
+        setEditField(null)
+      }
+    },
+    { enabled: !!editField },
+  )
+
+  useClickOutsideWithPortal(
+    () => {
+      if (['renewalDate', 'creationDate'].includes(editField ?? '')) {
+        return setEditField(null)
+      }
+      if (editField) handleUpdateField()
+    },
+    {
+      refs: { triggerRef, popoverRef },
+      enabled: !!editField && ['tags', 'renewalDate', 'creationDate', 'status'].includes(editField),
+    },
+  )
+
   const handleTags = () => {
+    if (evidence?.tags?.length === 0) {
+      return <span className="text-gray-500">no tags provided</span>
+    }
     return (
-      <div className="flex flex-wrap gap-2">{evidence?.tags?.map((item: string | undefined, index: number) => <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>)}</div>
+      <div className="flex flex-wrap gap-2">
+        {evidence?.tags?.map((item: string | undefined, index: number) => (
+          <Fragment key={index}>{item && <Badge variant="outline">{item}</Badge>}</Fragment>
+        ))}
+      </div>
     )
   }
 
   return (
     <Sheet open={!!selectedControlEvidence} onOpenChange={handleSheetClose}>
       <SheetContent
+        onEscapeKeyDown={(e) => {
+          if (editField) {
+            e.preventDefault()
+          } else {
+            handleSheetClose()
+          }
+        }}
         className="bg-card flex flex-col"
         minWidth={600}
         header={
@@ -226,9 +343,13 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                     </Button>
                   </div>
                 ) : (
-                  <Button icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
-                    Edit
-                  </Button>
+                  <>
+                    {editAllowed && (
+                      <Button icon={<Pencil />} iconPosition="left" variant="outline" onClick={() => setIsEditing(true)}>
+                        Edit
+                      </Button>
+                    )}
+                  </>
                 )}
                 {evidence && <ControlEvidenceRenewDialog evidenceId={evidence.id} controlId={controlId} />}
                 <Button icon={<Trash2 />} iconPosition="left" variant="outline" onClick={() => setDeleteDialogIsOpen(true)}>
@@ -257,7 +378,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
                 <SheetTitle>
-                  {isEditing ? (
+                  {isEditing || editField === 'name' ? (
                     <FormField
                       control={form.control}
                       name="name"
@@ -268,18 +389,20 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a brief, descriptive title to help easily identify the task later.</p>} />
                           </div>
                           <FormControl>
-                            <Input variant="medium" {...field} className="w-full" />
+                            <Input variant="medium" {...field} className="w-full" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
                           </FormControl>
                           {form.formState.errors.name && <p className="text-red-500 text-sm">{form.formState.errors.name.message}</p>}
                         </FormItem>
                       )}
                     />
                   ) : (
-                    evidence?.name
+                    <span onDoubleClick={() => handleDoubleClick('name')} className={editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}>
+                      {evidence?.name}
+                    </span>
                   )}
                 </SheetTitle>
 
-                {isEditing ? (
+                {isEditing || editField === 'description' ? (
                   <FormField
                     control={form.control}
                     name="description"
@@ -290,7 +413,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                           <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a short description of what is contained in the files or linked URLs.</p>} />
                         </div>
                         <FormControl>
-                          <Textarea id="description" {...field} className="w-full" />
+                          <Textarea id="description" {...field} className="w-full" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
                         </FormControl>
                         {form.formState.errors.description && <p className="text-red-500 text-sm">{form.formState.errors.description.message}</p>}
                       </FormItem>
@@ -299,11 +422,13 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                 ) : (
                   <div className="mt-5">
                     <FormLabel className="font-bold">Description</FormLabel>
-                    {evidence?.description ? <p>{evidence?.description}</p> : <p className="text-gray-500">no description provided</p>}
+                    <div onDoubleClick={() => handleDoubleClick('description')} className={editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}>
+                      {evidence?.description ? <p>{evidence?.description}</p> : <p className="text-gray-500">no description provided</p>}
+                    </div>
                   </div>
                 )}
 
-                {isEditing ? (
+                {isEditing || editField === 'collectionProcedure' ? (
                   <FormField
                     control={form.control}
                     name="collectionProcedure"
@@ -314,14 +439,14 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                           <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Write down the steps that were taken to collect the evidence.</p>} />
                         </div>
                         <FormControl>
-                          <Textarea id="collectionProcedure" {...field} className="w-full" />
+                          <Textarea id="collectionProcedure" {...field} className="w-full" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
                         </FormControl>
                         {form.formState.errors.collectionProcedure && <p className="text-red-500 text-sm">{form.formState.errors.collectionProcedure.message}</p>}
                       </FormItem>
                     )}
                   />
                 ) : (
-                  <div className="mt-5">
+                  <div className={`mt-5 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('collectionProcedure')}>
                     <FormLabel className="font-bold">Collection Procedure</FormLabel>
                     {evidence?.collectionProcedure ? <p>{evidence?.collectionProcedure}</p> : <p className="text-gray-500">no collection procedure provided</p>}
                   </div>
@@ -338,7 +463,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                         Source
                       </div>
                       <div className="text-sm text-left w-[200px]">
-                        {isEditing ? (
+                        {isEditing || editField === 'source' ? (
                           <InputRow className="w-full">
                             <FormField
                               control={form.control}
@@ -346,7 +471,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                               render={({ field }) => (
                                 <FormItem className="w-full">
                                   <FormControl>
-                                    <Input variant="medium" {...field} className="w-full" />
+                                    <Input variant="medium" {...field} className="w-full" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
                                   </FormControl>
                                   {form.formState.errors.source && <p className="text-red-500 text-sm">{form.formState.errors.source.message}</p>}
                                 </FormItem>
@@ -354,7 +479,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             />
                           </InputRow>
                         ) : (
-                          <p className="text-sm text-left">{evidence?.source}</p>
+                          <p className={`text-sm text-left ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('source')}>
+                            {evidence?.source || <span className="text-gray-500">no source provided</span>}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -365,7 +492,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                         URL
                       </div>
                       <div className="text-sm text-left w-[200px]">
-                        {isEditing ? (
+                        {isEditing || editField === 'url' ? (
                           <InputRow className="w-full">
                             <FormField
                               control={form.control}
@@ -373,7 +500,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                               render={({ field }) => (
                                 <FormItem className="w-full">
                                   <FormControl>
-                                    <Input variant="medium" {...field} className="w-full" />
+                                    <Input variant="medium" {...field} className="w-full" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
                                   </FormControl>
                                   {form.formState.errors.url && <p className="text-red-500 text-sm">{form.formState.errors.url.message}</p>}
                                 </FormItem>
@@ -381,7 +508,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             />
                           </InputRow>
                         ) : (
-                          <p className="text-sm text-left">{evidence?.url}</p>
+                          <p className={`text-sm text-left ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('url')}>
+                            {evidence?.url || <span className="text-gray-500">no url provided</span>}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -391,17 +520,23 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                         <Binoculars size={16} className="text-accent-secondary" />
                         Status
                       </div>
-                      <div className="text-sm text-left w-[200px]">
-                        {isEditing ? (
+                      <div ref={triggerRef} className="text-sm text-left w-[200px]">
+                        {isEditing || editField === 'status' ? (
                           <Controller
                             name="status"
                             control={form.control}
                             render={({ field }) => {
                               return (
                                 <>
-                                  <Select value={field.value ?? undefined} onValueChange={field.onChange}>
+                                  <Select
+                                    value={field.value ?? undefined}
+                                    onValueChange={(value) => {
+                                      field.onChange(value)
+                                      handleUpdateField()
+                                    }}
+                                  >
                                     <SelectTrigger className="w-full">{EvidenceStatusMapper[field.value as EvidenceEvidenceStatus] || 'Select'}</SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent ref={popoverRef}>
                                       {statusOptions.map((option) => (
                                         <SelectItem key={option.value} value={option.value}>
                                           {EvidenceStatusMapper[option.value as EvidenceEvidenceStatus]}
@@ -415,7 +550,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             }}
                           />
                         ) : (
-                          <div className="flex items-center space-x-2">
+                          <div className={`flex items-center space-x-2 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('status')}>
                             {EvidenceIconMapper[evidence?.status as EvidenceEvidenceStatus]}
                             <p>{EvidenceStatusMapper[evidence?.status as EvidenceEvidenceStatus]}</p>
                           </div>
@@ -428,43 +563,62 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                         <Calendar size={16} className="text-accent-secondary" />
                         Creation Date
                       </div>
-                      <div className="text-sm text-left w-[200px]">
-                        {isEditing ? (
+                      <div ref={triggerRef} className="text-sm text-left w-[200px]">
+                        {isEditing || editField === 'creationDate' ? (
                           <FormField
                             control={form.control}
                             name="creationDate"
                             render={({ field }) => (
-                              <FormItem className="w-full">
-                                <CalendarPopover field={field} defaultToday required />
+                              <FormItem ref={popoverRef} className="w-full">
+                                <CalendarPopover
+                                  field={field}
+                                  defaultToday
+                                  required
+                                  onChange={(date) => {
+                                    field.onChange(date)
+                                    handleUpdateField()
+                                  }}
+                                />
                                 {form.formState.errors.creationDate && <p className="text-red-500 text-sm">{form.formState.errors.creationDate.message}</p>}
                               </FormItem>
                             )}
                           />
                         ) : (
-                          <p className="text-sm text-left">{formatDate(evidence?.creationDate)}</p>
+                          <p className={`text-sm text-left ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('creationDate')}>
+                            {formatDate(evidence?.creationDate)}
+                          </p>
                         )}
                       </div>
                     </div>
 
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2 text-sm w-[180px]">
-                        <CalendarSync size={16} className="text-accent-secondary" />
+                        <Calendar size={16} className="text-accent-secondary" />
                         Renewal Date
                       </div>
-                      <div className="text-sm text-left w-[200px]">
-                        {isEditing ? (
+                      <div ref={triggerRef} className="text-sm text-left w-[200px]">
+                        {isEditing || editField === 'renewalDate' ? (
                           <FormField
                             control={form.control}
                             name="renewalDate"
                             render={({ field }) => (
-                              <FormItem className="w-full">
-                                <CalendarPopover field={field} defaultAddDays={365} />
+                              <FormItem ref={popoverRef} className="w-full">
+                                <CalendarPopover
+                                  field={field}
+                                  defaultAddDays={365}
+                                  onChange={(date) => {
+                                    field.onChange(date)
+                                    handleUpdateField()
+                                  }}
+                                />
                                 {form.formState.errors.renewalDate && <p className="text-red-500 text-sm">{form.formState.errors.renewalDate.message}</p>}
                               </FormItem>
                             )}
                           />
                         ) : (
-                          <p className="text-sm text-left">{formatDate(evidence?.renewalDate)}</p>
+                          <p className={`text-sm text-left ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`} onDoubleClick={() => handleDoubleClick('renewalDate')}>
+                            {formatDate(evidence?.renewalDate)}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -474,8 +628,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                         <Tag size={16} className="text-accent-secondary" />
                         Tags
                       </div>
-                      <div className="text-sm text-left w-[200px]">
-                        {isEditing ? (
+                      <div ref={triggerRef} className="text-sm text-left w-[200px]">
+                        {isEditing || editField === 'tags' ? (
                           <Controller
                             name="tags"
                             control={form.control}
@@ -486,20 +640,17 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                     placeholder="Add tag..."
                                     creatable
                                     className="w-[180px]"
-                                    commandProps={{
-                                      className: 'w-full',
-                                    }}
+                                    commandProps={{ className: 'w-full' }}
                                     value={tagValues}
+                                    hideClearAllButton
                                     onChange={(selectedOptions) => {
                                       const options = selectedOptions.map((option) => option.value)
                                       field.onChange(options)
                                       setTagValues(
-                                        selectedOptions.map((item) => {
-                                          return {
-                                            value: item.value,
-                                            label: item.label,
-                                          }
-                                        }),
+                                        selectedOptions.map((item) => ({
+                                          value: item.value,
+                                          label: item.label,
+                                        })),
                                       )
                                     }}
                                   />
@@ -509,7 +660,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             }}
                           />
                         ) : (
-                          <>{handleTags()}</>
+                          <div onDoubleClick={() => handleDoubleClick('tags')} className={editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}>
+                            {handleTags()}
+                          </div>
                         )}
                       </div>
                     </div>
@@ -522,7 +675,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                         <CalendarCheck2 size={16} className="text-accent-secondary" />
                         Created At
                       </div>
-                      <div className="text-sm text-left w-[200px]">
+                      <div className="text-sm text-left w-[200px] cursor-not-allowed">
                         <p className="text-sm text-left">{formatDate(evidence?.createdAt)}</p>
                       </div>
                     </div>
@@ -532,7 +685,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                         <UserRoundCheck size={16} className="text-accent-secondary" />
                         Created By
                       </div>
-                      <div className="text-sm text-left w-[200px]">
+                      <div className="text-sm text-left w-[200px] cursor-not-allowed">
                         <p className="text-sm flex items-center">
                           <Avatar entity={createdByUser as User} variant="small" />
                           <span>{createdByUser?.displayName}</span>
@@ -545,7 +698,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                         <CalendarClock size={16} className="text-accent-secondary" />
                         Updated At
                       </div>
-                      <div className="text-sm text-left w-[200px]">
+                      <div className="text-sm text-left w-[200px] cursor-not-allowed">
                         <p className="text-sm text-left">{formatDate(evidence?.updatedAt)}</p>
                       </div>
                     </div>
@@ -555,7 +708,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                         <UserRoundPen size={16} className="text-accent-secondary" />
                         Updated By
                       </div>
-                      <div className="text-sm text-left w-[200px]">
+                      <div className="text-sm text-left w-[200px] cursor-not-allowed">
                         <p className="text-sm flex items-center ">
                           <Avatar entity={updatedByUser as User} variant="small" />
                           <span>{updatedByUser?.displayName}</span>
@@ -569,7 +722,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                           <Link size={16} className="text-accent-secondary" />
                           URL
                         </div>
-                        <div className="text-sm text-left w-[200px]">
+                        <div className="text-sm text-left w-[200px] cursor-not-allowed">
                           <div className="flex items-center gap-4 cursor-pointer">
                             <p className="flex items-center gap-1">
                               <Eye size={16} />
@@ -586,6 +739,17 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                   </div>
                 </div>
               </form>
+              {isEditing && (
+                <Panel className="mt-5">
+                  <PanelHeader heading="Object association" noBorder />
+                  <p>Associating objects will allow users with access to the object to see the created evidence.</p>
+                  <ObjectAssociation
+                    initialData={initialAssociations}
+                    onIdChange={(updatedMap) => setAssociations(updatedMap)}
+                    excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP, ObjectTypeObjects.INTERNAL_POLICY, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.RISK]}
+                  />
+                </Panel>
+              )}
               {selectedControlEvidence && <ControlEvidenceFiles controlEvidenceID={selectedControlEvidence} />}
             </Form>
           </>
