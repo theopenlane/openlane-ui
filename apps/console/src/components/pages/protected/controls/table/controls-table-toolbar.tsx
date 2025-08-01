@@ -14,6 +14,11 @@ import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/col
 import { useGroupSelect } from '@/lib/graphql-hooks/groups'
 import { ControlWhereInput } from '@repo/codegen/src/schema'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
+import { Button } from '@repo/ui/button'
+import { BulkEditControlsDialog } from '../shared/bulk-edit-controls'
+import { useSession } from 'next-auth/react'
+import { useOrganizationRole } from '@/lib/authz/access-api'
+import { canEdit } from '@/lib/authz/utils.ts'
 
 type TProps = {
   onFilterChange: (filters: ControlWhereInput) => void
@@ -29,6 +34,9 @@ type TProps = {
     header: string
   }[]
   exportEnabled: boolean
+  handleBulkEdit: () => void
+  selectedControls: { id: string; refCode: string }[]
+  setSelectedControls: React.Dispatch<React.SetStateAction<{ id: string; refCode: string }[]>>
 }
 
 const ControlsTableToolbar: React.FC<TProps> = ({
@@ -41,13 +49,22 @@ const ControlsTableToolbar: React.FC<TProps> = ({
   setColumnVisibility,
   mappedColumns,
   exportEnabled,
+  handleBulkEdit,
+  selectedControls,
+  setSelectedControls,
 }: TProps) => {
   const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect()
   const { groupOptions, isSuccess: isGroupSuccess } = useGroupSelect()
   const groups = useMemo(() => groupOptions || [], [groupOptions])
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
-
+  const [isBulkEditing, setIsBulkEditing] = useState<boolean>(false)
   const { standardOptions, isSuccess: isStandardSuccess } = useStandardsSelect({})
+  const { data: session } = useSession()
+  const { data: permission } = useOrganizationRole(session)
+
+  useEffect(() => {
+    setIsBulkEditing(selectedControls.length > 0)
+  }, [selectedControls])
 
   useEffect(() => {
     if (filterFields || !isProgramSuccess || !isGroupSuccess || !isStandardSuccess) {
@@ -104,43 +121,65 @@ const ControlsTableToolbar: React.FC<TProps> = ({
         </div>
 
         <div className="grow flex flex-row items-center gap-2 justify-end">
-          <Menu
-            trigger={CreateBtn}
-            content={
-              <>
-                <Link href="/controls/create-control">
-                  <div className="flex items-center space-x-2 hover:bg-muted">
-                    <CirclePlus size={16} strokeWidth={2} />
-                    <span>Control</span>
-                  </div>
-                </Link>
-                <Link href="/controls/create-subcontrol">
-                  <div className="flex items-center space-x-2 hover:bg-muted">
-                    <CirclePlus size={16} strokeWidth={2} />
-                    <span>Subcontrol</span>
-                  </div>
-                </Link>
-              </>
-            }
-          />
-          <Menu
-            content={
-              <>
-                <div className={`flex items-center space-x-2 hover:bg-muted cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`} onClick={handleExport}>
-                  <DownloadIcon size={16} strokeWidth={2} />
-                  <span>Export</span>
-                </div>
-                <BulkCSVCreateControlDialog
-                  trigger={
-                    <div className="flex items-center space-x-2 hover:bg-muted">
-                      <Upload size={16} strokeWidth={2} />
-                      <span>Bulk Upload</span>
+          {isBulkEditing ? (
+            <>
+              {canEdit(permission?.roles) && (
+                <>
+                  <BulkEditControlsDialog setIsBulkEditing={setIsBulkEditing} selectedControls={selectedControls} setSelectedControls={setSelectedControls}></BulkEditControlsDialog>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setIsBulkEditing(false)
+                      handleBulkEdit()
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              <Menu
+                trigger={CreateBtn}
+                content={
+                  <>
+                    <Link href="/controls/create-control">
+                      <div className="flex items-center space-x-2 hover:bg-muted">
+                        <CirclePlus size={16} strokeWidth={2} />
+                        <span>Control</span>
+                      </div>
+                    </Link>
+                    <Link href="/controls/create-subcontrol">
+                      <div className="flex items-center space-x-2 hover:bg-muted">
+                        <CirclePlus size={16} strokeWidth={2} />
+                        <span>Subcontrol</span>
+                      </div>
+                    </Link>
+                  </>
+                }
+              />
+              <Menu
+                content={
+                  <>
+                    <div className={`flex items-center space-x-2 hover:bg-muted cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`} onClick={handleExport}>
+                      <DownloadIcon size={16} strokeWidth={2} />
+                      <span>Export</span>
                     </div>
-                  }
-                />
-              </>
-            }
-          ></Menu>
+                    <BulkCSVCreateControlDialog
+                      trigger={
+                        <div className="flex items-center space-x-2 hover:bg-muted">
+                          <Upload size={16} strokeWidth={2} />
+                          <span>Bulk Upload</span>
+                        </div>
+                      }
+                    />
+                  </>
+                }
+              ></Menu>
+            </>
+          )}
         </div>
       </div>
       <div id="datatable-filter-portal" />
