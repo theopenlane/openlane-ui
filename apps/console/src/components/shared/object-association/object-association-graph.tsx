@@ -9,6 +9,7 @@ import { Info, PencilLine, SlidersHorizontal, X } from 'lucide-react'
 import { ObjectAssociationMap } from '@/components/shared/enum-mapper/object-association-enum.tsx'
 import { getHrefForObjectType, NormalizedObject } from '@/utils/getHrefForObjectType.ts'
 import { Section, TBaseAssociatedNode, TEdgeNode } from '@/components/shared/object-association/types/object-association-types.ts'
+import { useTheme } from 'next-themes'
 
 interface IGraphNode {
   id: string
@@ -39,6 +40,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
   const [dimensions, setDimensions] = useState({ width: 300, height: 300 })
   const fgRef = useRef<ForceGraphMethods | undefined>(undefined)
   const [hoverNode, setHoverNode] = useState<NodeObject<IGraphNode> | null>(null)
+  const { resolvedTheme } = useTheme()
 
   useEffect(() => {
     if (!containerRef.current) {
@@ -198,7 +200,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
         width={dimensions.width}
         height={dimensions.height}
         graphData={graphData}
-        linkColor={() => 'white'}
+        linkColor={() => (resolvedTheme === 'dark' ? '#bdd9e1' : '#505f6f')}
         linkWidth={() => 2}
         enableNodeDrag={false}
         autoPauseRedraw={false}
@@ -237,7 +239,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
             ctx.font = `${fontSize}px Sans-Serif`
             ctx.textAlign = 'center'
             ctx.textBaseline = 'top'
-            ctx.fillStyle = 'white'
+            ctx.fillStyle = resolvedTheme === 'dark' ? '#bdd9e1' : '#505f6f'
             ctx.fillText(label, node!.x!, node!.y! + NODE_RADIUS + LABEL_PADDING)
           }
         }}
