@@ -185,7 +185,7 @@ const CreateGroupDialog = ({ trigger }: MyGroupsDialogProps) => {
               Tags:
             </Label>
             <MultipleSelector
-              defaultOptions={membersOptions as Option[]}
+              creatable
               onChange={(selected) =>
                 setValue(
                   'tags',
